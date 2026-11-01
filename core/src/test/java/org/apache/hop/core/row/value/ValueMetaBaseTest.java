@@ -587,6 +587,25 @@ class ValueMetaBaseTest {
   }
 
   @Test
+  void testConvertDataFromStringTrimsNonBreakingSpaces() throws HopValueException {
+    ValueMetaBase inMeta = new ValueMetaString();
+    ValueMetaBase outMeta = new ValueMetaString();
+    String input = "\u00A0value\u00A0";
+
+    assertEquals(
+        "value",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_BOTH));
+    assertEquals(
+        "value\u00A0",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_LEFT));
+    assertEquals(
+        "\u00A0value",
+        outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_RIGHT));
+    assertEquals(
+        input, outMeta.convertDataFromString(input, inMeta, null, null, IValueMeta.TRIM_TYPE_NONE));
+  }
+
+  @Test
   void testConvertDataFromStringTrimsBeforeNumericParsing() throws HopValueException {
     ValueMetaBase inMeta = new ValueMetaString();
     ValueMetaBase outMeta = new ValueMetaInteger();

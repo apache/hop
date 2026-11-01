@@ -217,6 +217,24 @@ class JsonInputTest {
   }
 
   @Test
+  void testTrimNonBreakingSpaces() throws Exception {
+    String input = "{\"city\":\"\u00A0GAYE\u00A0\"}";
+    JsonInputField city = new JsonInputField("city");
+    city.setPath("$.city");
+    city.setType(IValueMeta.TYPE_STRING);
+    city.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
+
+    JsonInput jsonInput =
+        createJsonInput("json", createSimpleMeta("json", city), new Object[] {input});
+    jsonInput.addRowListener(new RowComparatorListener(new Object[] {input, "GAYE"}));
+
+    processRows(jsonInput, 2);
+
+    assertEquals(1, jsonInput.getLinesWritten(), "rows written");
+    assertEquals(0, jsonInput.getErrors(), "errors");
+  }
+
+  @Test
   void testIndex() throws Exception {
     final String jsonInputField = getBasicTestJson();
     testSimpleJsonPath(

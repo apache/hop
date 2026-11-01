@@ -1752,7 +1752,12 @@ public class Const {
    * @return true if the character is a variables. false otherwise.
    */
   public static boolean isSpace(char c) {
-    return c == ' ' || c == '\t' || c == '\r' || c == '\n' || Character.isWhitespace(c);
+    return c == ' '
+        || c == '\t'
+        || c == '\r'
+        || c == '\n'
+        || Character.isWhitespace(c)
+        || Character.isSpaceChar(c);
   }
 
   /**
