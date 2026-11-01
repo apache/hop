@@ -32,11 +32,17 @@ This page is the path from a Hop pipeline to a Beam graph. It uses the current c
 
 A handler is resolved in this order:
 
-. An entry in the converter's handler map, keyed by the transform plugin id. This is an explicitly registered handler class.
-. The metadata object itself, when it implements `IBeamPipelineTransformHandler`. MQTT, Debezium, Elasticsearch, Splunk output, and Snowflake input and output use this form.
-. For anything else, `handleGenericTransform()` tries to run the ordinary Hop transform inside a Beam `DoFn`.
+. An entry in the converter's handler map, keyed by the transform plugin id. `addDefaultTransformHandlers()` installs these. The same ids are listed in `EXPLICIT_HANDLER_PLUGIN_IDS`, which is what `BeamPipelineEngine.supports()` reads at design time. Add Sequence is this form: `BeamAddSequenceTransformHandler` is registered for the `Sequence` plugin id, and the meta class itself does not implement the handler interface.
+. The metadata object itself, when it implements `IBeamPipelineTransformHandler`. BigQuery input, MQTT, Debezium, Elasticsearch, Splunk output, and Snowflake input and output use this form. `supports()` reports the transform supported because the meta class implements the interface.
+. For anything else, `handleGenericTransform()` tries to run the ordinary Hop transform inside a Beam `DoFn` (`BeamGenericTransformHandler`). `supports()` reports that case as unknown.
 
 The generic fallback is not a compatibility promise. It gives every worker its own copy of the transform. A transform that opens one file, one sequence, or one database session will do that once per worker. Sources that read a filename from an incoming field also fail there, because the generic path has no real input row.
+
+To add a handler, pick the first form that fits:
+
+. Implement `IBeamPipelineTransformHandler` on the meta class when the transform exists only for Beam, and build the `PTransform` in `handleTransform`. See `BeamBQInputMeta`.
+. Implement `IBeamPipelineTransformHandler` on a standalone class in the Beam engine, register it in `addDefaultTransformHandlers()`, and add the plugin id to `EXPLICIT_HANDLER_PLUGIN_IDS`. See `BeamAddSequenceTransformHandler`. Keep those two lists the same. This is the form for a transform whose meta class lives in another plugin.
+. Do nothing, and accept the generic `DoFn`, until a file, a counter, or a connection shows that each worker is doing the work on its own.
 
 == What a handler receives
 
@@ -44,20 +50,39 @@ The generic fallback is not a compatibility promise. It gives every worker its o
 
 Outputs receive the real predecessor list and the incoming `PCollection`. A sink that needs exactly one incoming transform checks that list before it expands.
 
-== Metadata, dialog, and worker code
+== Metadata, dialog, data, and worker code
 
-Keep the four roles separate:
+A Hop transform is four classes. Beam uses the same four. Only the meta class and the worker function participate in the Beam graph.
 
-* The `*Meta` class holds `@HopMetadataProperty` fields and, for a self-handling transform, implements `IBeamPipelineTransformHandler`. User-visible fields also use `@GuiWidgetElement` inside a group, so the dialog is a `GuiCompositeWidgets` container rather than a hand-built form.
+* The `*Meta` class extends `BaseTransformMeta<Transform, TransformData>`. It holds `@HopMetadataProperty` fields and, for a self-handling transform, implements `IBeamPipelineTransformHandler`. User-visible fields also use `@GuiWidgetElement` inside a group, so the dialog is a `GuiCompositeWidgets` container rather than a hand-built form.
 * The dialog reads and writes that metadata. On OK it calls `getWidgetsContents`. It does not copy fields by hand.
-* The runtime `*Transform` class extends `BaseTransform` and refuses `processRow()` outside a Beam pipeline. Beam execution does not call it.
+* The `*Data` class is per-copy state for the local engine: an open file, a counter, a database connection. Beam does not call `init()` on that object and then reuse it across elements. A worker that needs state keeps it on the `DoFn`, and it must assume a new copy per worker and per bundle.
+* The runtime `*Transform` class extends `BaseTransform` and refuses `processRow()` outside a Beam pipeline. Beam execution does not call it. The local engine still does.
 * Worker functions, such as a `DoFn` or a Snowflake mapper, call `BeamHop.init()` before they touch Hop metadata. Row metadata travels as XML from `IRowMeta.getMetaXml()`, including storage type and string encoding. Do not rebuild a row meta from a type name alone.
 
 Variables are resolved while the graph is built, on the machine that submits the pipeline. A secret is decrypted there and must not be copied into an error message. Encrypt password fields with `password = true` on `@HopMetadataProperty`.
 
 == Metrics
 
-`BeamPipelineEngine` copies Beam counters onto the Hop transform by counter name. `READ` becomes lines read, `WRITTEN` becomes lines written, `INPUT` becomes lines input, and `OUTPUT` becomes lines output. Increment `WRITTEN` only after a confirmed write. The current IO transforms increment `READ` and `OUTPUT` when a row is converted and handed to Beam. That is not an acknowledgement from the remote system, and lines written stays empty.
+Create counters with `Metrics.counter(namespace, transformName)`. The namespace is a `Pipeline` constant and the counter name is the transform name. `BeamPipelineEngine` copies a counter onto that transform when the namespace matches, ignoring case:
+
+* `Pipeline.METRIC_NAME_READ` (`read`) becomes lines read.
+* `Pipeline.METRIC_NAME_WRITTEN` (`written`) becomes lines written.
+* `Pipeline.METRIC_NAME_INPUT` (`input`) becomes lines input.
+* `Pipeline.METRIC_NAME_OUTPUT` (`output`) becomes lines output.
+* `Pipeline.METRIC_NAME_INIT` (`init`) is stored as the init metric.
+
+`Pipeline.METRIC_NAME_ERROR` is incremented by the current IO functions. The engine copy loop does not map that namespace onto the transform error count. Increment `METRIC_NAME_WRITTEN` only after a confirmed write. The current IO transforms increment `METRIC_NAME_READ` and `METRIC_NAME_OUTPUT` when a row is converted and handed to Beam. That is not an acknowledgement from the remote system, and lines written stays empty.
+
+== Transforms Beam refuses
+
+`HopPipelineMetaToBeamPipelineConverter` keeps two refusal lists, and `BeamPipelineEngine.supports()` reads both before it looks for a handler.
+
+`HARD_BANNED_META_TYPES` maps a meta class to the sentence Hop shows the user. Group By, Unique Rows, Sort Rows, Unique Rows By Hashset, and Join Rows are on it. The class is loaded when the converter class is initialized, so the meta class has to be on the Beam plugin class loader. `dependencies.xml` is what puts those plugin folders on that loader.
+
+`HARD_BANNED_PLUGIN_IDS` is the same kind of refusal for a transform that is not on that loader. Mask fields is banned by plugin id for that reason. A class literal for its meta class would fail to initialize the converter.
+
+A banned transform does not fall through to the generic `DoFn`. `validateTransformBeamUsage()` throws that sentence while the graph is built, and `BeamPipelineEngine.supports()` returns the same sentence at design time.
 
 == Dependencies and compatibility
 
