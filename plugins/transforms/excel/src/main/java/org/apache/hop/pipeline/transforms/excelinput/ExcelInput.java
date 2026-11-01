@@ -528,8 +528,9 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                   PKG, "ExcelInput.Error.InvalidSheetRegex", sheetNameRegex, e.getMessage()));
         }
       } else {
-        logBasic("Sheet exact name: [" + sheet.getName() + "]");
-        matchedNames.add(sheet.getName());
+        String exactName = resolve(sheet.getName());
+        logBasic("Sheet exact name: [" + exactName + "]");
+        matchedNames.add(exactName);
         matchedStartRow.add(sheet.getStartRow());
         matchedStartCol.add(sheet.getStartColumn());
       }
@@ -958,6 +959,9 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         data.maxsheetlength = -1;
         if (!meta.readAllSheets() && !meta.hasRegexSheets()) {
           data.sheetNames = meta.getSheetsNames();
+          for (int i = 0; i < data.sheetNames.length; i++) {
+            data.sheetNames[i] = resolve(data.sheetNames[i]);
+          }
           data.startColumn = meta.getSheetsStartColumns();
           data.startRow = meta.getSheetsStartRows();
         } else {

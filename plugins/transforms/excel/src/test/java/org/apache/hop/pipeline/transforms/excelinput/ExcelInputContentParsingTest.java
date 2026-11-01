@@ -359,4 +359,50 @@ class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     assertEquals("1.0", rows.get(0)[0], "Wrong first result");
     assertEquals("101.0", rows.get(rows.size() - 1)[0], "Wrong last result");
   }
+
+  @Test
+  void testSheetNameResolvedFromVariable() throws Exception {
+    meta.setSpreadSheetType(SpreadSheetType.SAX_POI);
+    meta.setStartsWithHeader(true);
+    setFields(new ExcelInputField("COL", -1, -1));
+
+    ExcelInputMeta.EISheet sheet = new ExcelInputMeta.EISheet();
+    sheet.setName("${SHEET_NAME}");
+    sheet.setRegex(false);
+    meta.getSheets().add(sheet);
+
+    pipeline.setVariable("SHEET_NAME", "Sheet1");
+    init("pdi-17765.xlsx");
+    process();
+
+    checkErrors();
+    assertEquals(30, rows.size(), "Wrong row count");
+    assertEquals("1.0", rows.get(0)[0], "Wrong first result");
+  }
+
+  @Test
+  void testSheetNameResolvedFromVariableAlongsideRegexRow() throws Exception {
+    meta.setSpreadSheetType(SpreadSheetType.SAX_POI);
+    meta.setStartsWithHeader(true);
+    setFields(new ExcelInputField("COL", -1, -1));
+
+    // A regex row that matches nothing forces every row through the regex resolution path
+    ExcelInputMeta.EISheet regexSheet = new ExcelInputMeta.EISheet();
+    regexSheet.setName("NoSuchSheet.*");
+    regexSheet.setRegex(true);
+    meta.getSheets().add(regexSheet);
+
+    ExcelInputMeta.EISheet exactSheet = new ExcelInputMeta.EISheet();
+    exactSheet.setName("${SHEET_NAME}");
+    exactSheet.setRegex(false);
+    meta.getSheets().add(exactSheet);
+
+    pipeline.setVariable("SHEET_NAME", "Sheet1");
+    init("pdi-17765.xlsx");
+    process();
+
+    checkErrors();
+    assertEquals(30, rows.size(), "Wrong row count");
+    assertEquals("1.0", rows.get(0)[0], "Wrong first result");
+  }
 }
