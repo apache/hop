@@ -152,92 +152,95 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
       updateErrors();
       logError(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
     } else {
-      DatabaseMeta databaseMeta =
-          getParentWorkflowMeta() == null
-              ? null
-              : getParentWorkflowMeta().findDatabase(realConnection, getVariables());
-      if (databaseMeta == null) {
-        updateErrors();
-        logError(
-            BaseMessages.getString(
-                PKG, "ActionTruncateTables.Error.ConnectionNotFound", realConnection));
-      } else {
-        try (Database db = new Database(this, this, databaseMeta)) {
-          db.connect();
-          if (argFromPrevious
-              && rows != null) { // Copy the input row to the (command line) arguments
-
-            for (int iteration = 0;
-                iteration < rows.size() && !parentWorkflow.isStopped() && continueProcess;
-                iteration++) {
-              resultRow = rows.get(iteration);
-
-              // Get values from previous result
-              String tableNamePrevious = resultRow.getString(0, null);
-              String schemaNamePrevious = resultRow.getString(1, null);
-
-              if (!Utils.isEmpty(tableNamePrevious)) {
-                if (isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionTruncateTables.ProcessingRow",
-                          tableNamePrevious,
-                          schemaNamePrevious));
-                }
-
-                // let's truncate table
-                if (truncateTables(tableNamePrevious, schemaNamePrevious, db)) {
-                  updateSuccess();
-                } else {
-                  updateErrors();
-                }
-              } else {
-                // Count as error but keep going so later valid table names are still processed
-                logError(BaseMessages.getString(PKG, "ActionTruncateTables.RowEmpty"));
-                nrErrors++;
-              }
-            }
-
-          } else if (!Utils.isEmpty(this.items)) {
-
-            for (int i = 0;
-                i < this.items.size() && !parentWorkflow.isStopped() && continueProcess;
-                i++) {
-              TruncateTableItem tableItem = this.items.get(i);
-              String realTableName = resolve(tableItem.getTableName());
-              String realSchemaName = resolve(tableItem.getSchemaName());
-              if (!Utils.isEmpty(realTableName)) {
-                if (isDetailed()) {
-                  logDetailed(
-                      BaseMessages.getString(
-                          PKG,
-                          "ActionTruncateTables.ProcessingArg",
-                          realTableName,
-                          realSchemaName));
-                }
-
-                // let's truncate table
-                if (truncateTables(realTableName, realSchemaName, db)) {
-                  updateSuccess();
-                } else {
-                  updateErrors();
-                }
-              } else {
-                // Count as error but keep going so later valid table names are still processed
-                logError(
-                    BaseMessages.getString(
-                        PKG, "ActionTruncateTables.ArgEmpty", realTableName, realSchemaName));
-                nrErrors++;
-              }
-            }
-          }
-        } catch (Exception dbe) {
+      // Keep findDatabase() inside try/catch so HopRuntimeException becomes an action failure.
+      try {
+        DatabaseMeta databaseMeta =
+            getParentWorkflowMeta() == null
+                ? null
+                : getParentWorkflowMeta().findDatabase(realConnection, getVariables());
+        if (databaseMeta == null) {
           updateErrors();
           logError(
               BaseMessages.getString(
-                  PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));
+                  PKG, "ActionTruncateTables.Error.ConnectionNotFound", realConnection));
+        } else {
+          try (Database db = new Database(this, this, databaseMeta)) {
+            db.connect();
+            if (argFromPrevious
+                && rows != null) { // Copy the input row to the (command line) arguments
+
+              for (int iteration = 0;
+                  iteration < rows.size() && !parentWorkflow.isStopped() && continueProcess;
+                  iteration++) {
+                resultRow = rows.get(iteration);
+
+                // Get values from previous result
+                String tableNamePrevious = resultRow.getString(0, null);
+                String schemaNamePrevious = resultRow.getString(1, null);
+
+                if (!Utils.isEmpty(tableNamePrevious)) {
+                  if (isDetailed()) {
+                    logDetailed(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionTruncateTables.ProcessingRow",
+                            tableNamePrevious,
+                            schemaNamePrevious));
+                  }
+
+                  // let's truncate table
+                  if (truncateTables(tableNamePrevious, schemaNamePrevious, db)) {
+                    updateSuccess();
+                  } else {
+                    updateErrors();
+                  }
+                } else {
+                  // Count as error but keep going so later valid table names are still processed
+                  logError(BaseMessages.getString(PKG, "ActionTruncateTables.RowEmpty"));
+                  nrErrors++;
+                }
+              }
+
+            } else if (!Utils.isEmpty(this.items)) {
+
+              for (int i = 0;
+                  i < this.items.size() && !parentWorkflow.isStopped() && continueProcess;
+                  i++) {
+                TruncateTableItem tableItem = this.items.get(i);
+                String realTableName = resolve(tableItem.getTableName());
+                String realSchemaName = resolve(tableItem.getSchemaName());
+                if (!Utils.isEmpty(realTableName)) {
+                  if (isDetailed()) {
+                    logDetailed(
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionTruncateTables.ProcessingArg",
+                            realTableName,
+                            realSchemaName));
+                  }
+
+                  // let's truncate table
+                  if (truncateTables(realTableName, realSchemaName, db)) {
+                    updateSuccess();
+                  } else {
+                    updateErrors();
+                  }
+                } else {
+                  // Count as error but keep going so later valid table names are still processed
+                  logError(
+                      BaseMessages.getString(
+                          PKG, "ActionTruncateTables.ArgEmpty", realTableName, realSchemaName));
+                  nrErrors++;
+                }
+              }
+            }
+          }
         }
+      } catch (Exception dbe) {
+        updateErrors();
+        logError(
+            BaseMessages.getString(
+                PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));
       }
     }
 

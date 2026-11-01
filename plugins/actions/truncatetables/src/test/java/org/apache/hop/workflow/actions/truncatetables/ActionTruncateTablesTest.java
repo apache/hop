@@ -36,6 +36,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
@@ -98,6 +99,29 @@ class ActionTruncateTablesTest {
     assertFalse(result.getResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("No database connection is defined"));
+  }
+
+  @Test
+  void findDatabaseRuntimeExceptionIsActionFailureNotWorkflowAbort() {
+    ActionTruncateTables action = spy(new ActionTruncateTables());
+    action.setConnection("corrupt-db");
+
+    WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
+    when(workflowMeta.findDatabase(anyString(), any()))
+        .thenThrow(new HopRuntimeException("Unable to load connection corrupt-db from metadata"));
+
+    Workflow workflow = mock(Workflow.class);
+    when(workflow.getWorkflowMeta()).thenReturn(workflowMeta);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(workflowMeta);
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    verify(action).logError(contains("Unable to load connection corrupt-db from metadata"));
   }
 
   @Test
