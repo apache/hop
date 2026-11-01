@@ -47,10 +47,11 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|Every table was truncated, with 0 errors. Also true when there is nothing to truncate: an empty list, or *Previous results to args* checked while there are no previous result rows (the tables in the grid are not truncated then).
-|False|A table doesn't exist, or the connection is unknown or can't be opened. The number of errors is 1: the action stops at the first table that fails, and the tables after it are not truncated.
+|False|At least one error occurred. A table that doesn't exist, or a connection that is unknown or can't be opened, counts as an error and stops the action: the tables after it are not truncated. An empty table name (in the selected tables grid or in a previous result row) also counts as an error, but later tables are still truncated.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |Lines deleted|The number of tables truncated, not the number of rows.
 |===
 
-NOTE: With *Previous results to args*, the first field of each result row is the table name and the second field the schema name. A row with an empty table name is skipped: it is logged as an error, but doesn't count as one.
+NOTE: With *Previous results to args*, the first field of each result row is the table name and the second field the schema name. A row with an empty table name is logged as an error and counts as one: later rows are still processed.
+

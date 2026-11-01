@@ -43,8 +43,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
 /** This defines a Truncate Tables action. */
-@Getter
-@Setter
 @Action(
     id = "TRUNCATE_TABLES",
     name = "i18n::ActionTruncateTables.Name",
@@ -56,15 +54,22 @@ import org.apache.hop.workflow.action.IAction;
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTruncateTables.class;
 
+  @Getter
+  @Setter
   @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;
 
+  @Getter
+  @Setter
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
+  @Getter
+  @Setter
   @HopMetadataProperty(key = "field", groupKey = "fields")
   private List<TruncateTableItem> items;
 
+  // Runtime counters for a single execute(); keep package-private accessors out of the public API.
   private int nrErrors = 0;
   private int nrSuccess = 0;
   private boolean continueProcess = true;
