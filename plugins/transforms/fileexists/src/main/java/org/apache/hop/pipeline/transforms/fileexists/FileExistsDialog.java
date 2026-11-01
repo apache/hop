@@ -277,8 +277,8 @@ public class FileExistsDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String fieldvalue = wFileName.getText();
-        wFileName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFileName.removeAll();
         if (r != null) {
           wFileName.setItems(r.getFieldNames());
         }

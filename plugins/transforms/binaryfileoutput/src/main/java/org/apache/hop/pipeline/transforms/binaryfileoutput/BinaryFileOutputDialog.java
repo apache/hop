@@ -255,9 +255,9 @@ public class BinaryFileOutputDialog extends BaseTransformDialog {
     try {
       String binaryValue = wBinaryField.getText();
       String filenameValue = wFilenameField.getText();
+      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       wBinaryField.removeAll();
       wFilenameField.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
         String[] fields = r.getFieldNames();
         wBinaryField.setItems(fields);

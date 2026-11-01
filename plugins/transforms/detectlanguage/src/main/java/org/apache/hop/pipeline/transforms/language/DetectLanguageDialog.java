@@ -172,9 +172,9 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
         if (wCorpusFieldName.getText() != null) {
           corpusField = wCorpusFieldName.getText();
         }
-        wCorpusFieldName.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wCorpusFieldName.removeAll();
         if (r != null) {
           wCorpusFieldName.setItems(r.getFieldNames());
         }

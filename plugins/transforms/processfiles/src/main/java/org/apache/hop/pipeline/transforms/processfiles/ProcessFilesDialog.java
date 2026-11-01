@@ -406,9 +406,9 @@ public class ProcessFilesDialog extends BaseTransformDialog {
         String source = wSourceFileNameField.getText();
         String target = wTargetFileNameField.getText();
 
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         wSourceFileNameField.removeAll();
         wTargetFileNameField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           wSourceFileNameField.setItems(r.getFieldNames());
           wTargetFileNameField.setItems(r.getFieldNames());

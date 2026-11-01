@@ -53,6 +53,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
@@ -1235,20 +1236,14 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformMeta);
       selectedField = comboVar.getText();
-      comboVar.removeAll();
-
+      String[] names = r != null && !r.isEmpty() ? r.getFieldNames() : new String[0];
+      ComboItems.setItemsKeepingText(comboVar, names);
       if (r != null && !r.isEmpty()) {
-        r.getFieldNames();
-        comboVar.setItems(r.getFieldNames());
         indexField = r.indexOfValue(selectedField);
       }
       // Select value if possible...
       if (indexField > -1) {
         comboVar.select(indexField);
-      } else {
-        if (selectedField != null) {
-          comboVar.setText(selectedField);
-        }
       }
     } catch (HopException ke) {
       new ErrorDialog(

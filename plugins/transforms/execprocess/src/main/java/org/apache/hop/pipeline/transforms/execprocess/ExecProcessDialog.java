@@ -397,8 +397,8 @@ public class ExecProcessDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String fieldValue = wProcess.getText();
-        wProcess.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wProcess.removeAll();
         if (r != null) {
           wProcess.setItems(r.getFieldNames());
         }

@@ -835,10 +835,6 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         String wildcard = wWildcardField.getText();
         String excludewildcard = wExcludeWildcardField.getText();
 
-        wFilenameField.removeAll();
-        wWildcardField.removeAll();
-        wExcludeWildcardField.removeAll();
-
         IRowMeta r = null;
 
         try {
@@ -847,6 +843,10 @@ public class GetFileNamesDialog extends BaseTransformDialog {
           // thrown when previous transform is not yet properly configured
           LogChannel.UI.logBasic("Failed to read previous transform fields", e);
         }
+
+        wFilenameField.removeAll();
+        wWildcardField.removeAll();
+        wExcludeWildcardField.removeAll();
 
         if (r != null) {
           wFilenameField.setItems(r.getFieldNames());

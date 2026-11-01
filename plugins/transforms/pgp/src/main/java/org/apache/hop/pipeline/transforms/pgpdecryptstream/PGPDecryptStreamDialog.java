@@ -334,9 +334,9 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
 
         String fieldValue = wStreamFieldName.getText();
         String passPhraseFieldValue = wPassPhraseFieldName.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         wStreamFieldName.removeAll();
         wPassPhraseFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           String[] fields = r.getFieldNames();
           wStreamFieldName.setItems(fields);

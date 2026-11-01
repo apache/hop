@@ -916,9 +916,9 @@ public class YamlInputDialog extends BaseTransformDialog {
 
   private void setXMLStreamField() {
     try {
-      wYAMLLField.removeAll();
 
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wYAMLLField.removeAll();
       if (r != null) {
         r.getFieldNames();
 

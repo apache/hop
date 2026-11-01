@@ -263,8 +263,8 @@ public class TableExistsDialog extends BaseTransformDialog {
   private void get() {
     try {
 
-      wTableName.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wTableName.removeAll();
       if (r != null) {
         r.getFieldNames();
 

@@ -398,9 +398,9 @@ public class ColumnExistsDialog extends BaseTransformDialog {
       String columnName = wColumnName.getText();
       String tableName = wTableName.getText();
 
+      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       wColumnName.removeAll();
       wTableName.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
         r.getFieldNames();
 

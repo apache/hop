@@ -584,8 +584,8 @@ public class XsltDialog extends BaseTransformDialog {
     }
     try {
       String initValue = cc.getText();
-      cc.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      cc.removeAll();
       if (r != null) {
         cc.setItems(r.getFieldNames());
       }

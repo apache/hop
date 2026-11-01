@@ -257,8 +257,8 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String filefield = wURL.getText();
-        wURL.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wURL.removeAll();
         if (r != null) {
           wURL.setItems(r.getFieldNames());
         }

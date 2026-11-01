@@ -254,8 +254,8 @@ public class ValueMapperDialog extends BaseTransformDialog {
       try {
         String fieldname = wFieldName.getText();
 
-        wFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFieldName.removeAll();
         if (r != null) {
           wFieldName.setItems(r.getFieldNames());
           if (fieldname != null) {

@@ -1023,8 +1023,8 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String field = wFilenameField.getText();
-        wFilenameField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFilenameField.removeAll();
         if (r != null) {
           wFilenameField.setItems(r.getFieldNames());
         }

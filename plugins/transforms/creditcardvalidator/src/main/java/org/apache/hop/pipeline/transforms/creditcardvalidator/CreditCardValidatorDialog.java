@@ -883,8 +883,8 @@ public class CreditCardValidatorDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String columnName = wFieldName.getText();
-        wFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFieldName.removeAll();
         if (r != null) {
           r.getFieldNames();
 

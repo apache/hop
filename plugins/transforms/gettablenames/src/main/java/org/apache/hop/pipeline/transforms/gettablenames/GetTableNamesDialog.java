@@ -578,9 +578,9 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String value = wSchemaField.getText();
-        wSchemaField.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wSchemaField.removeAll();
         if (r != null) {
           wSchemaField.setItems(r.getFieldNames());
         }

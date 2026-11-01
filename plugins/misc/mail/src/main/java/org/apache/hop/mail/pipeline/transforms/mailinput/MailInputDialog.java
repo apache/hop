@@ -1510,9 +1510,9 @@ public class MailInputDialog extends BaseTransformDialog {
     if (!gotPreviousfields) {
       try {
         String field = wFolderField.getText();
-        wFolderField.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFolderField.removeAll();
         if (r != null) {
           wFolderField.setItems(r.getFieldNames());
         }

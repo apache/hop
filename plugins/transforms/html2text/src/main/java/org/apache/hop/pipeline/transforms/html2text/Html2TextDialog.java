@@ -332,9 +332,9 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
         if (wHtmlFieldName.getText() != null) {
           htmlField = wHtmlFieldName.getText();
         }
-        wHtmlFieldName.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wHtmlFieldName.removeAll();
         if (r != null) {
           wHtmlFieldName.setItems(r.getFieldNames());
         }

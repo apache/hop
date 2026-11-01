@@ -727,8 +727,8 @@ public class SshDialog extends BaseTransformDialog {
       try {
         String source = wCommandField.getText();
 
-        wCommandField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wCommandField.removeAll();
         if (r != null) {
           wCommandField.setItems(r.getFieldNames());
           if (source != null) {

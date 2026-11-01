@@ -300,8 +300,8 @@ public class CloneRowDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       try {
         String field = wNrCloneField.getText();
-        wNrCloneField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wNrCloneField.removeAll();
         if (r != null) {
           wNrCloneField.setItems(r.getFieldNames());
         }

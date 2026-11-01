@@ -954,9 +954,9 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
   private void setSourceStreamField() {
     try {
       String value = cbSourceField.getText();
-      cbSourceField.removeAll();
 
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      cbSourceField.removeAll();
       if (r != null) {
         cbSourceField.setItems(r.getFieldNames());
       }

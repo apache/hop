@@ -1223,9 +1223,9 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
   private void setSourceStreamField(boolean isShowErrorDialog) {
     try {
       String value = wFieldValue.getText();
-      wFieldValue.removeAll();
 
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wFieldValue.removeAll();
       if (r != null) {
         wFieldValue.setItems(r.getFieldNames());
       }

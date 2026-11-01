@@ -1519,9 +1519,9 @@ public class LdapInputDialog extends BaseTransformDialog {
       try {
         String basefield = wSearchBaseField.getText();
         String filterfield = wFilterField.getText();
-        wSearchBaseField.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wSearchBaseField.removeAll();
         if (r != null) {
           wSearchBaseField.setItems(r.getFieldNames());
           wFilterField.setItems(r.getFieldNames());

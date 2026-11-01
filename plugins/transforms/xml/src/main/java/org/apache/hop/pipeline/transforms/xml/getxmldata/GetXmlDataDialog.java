@@ -1287,9 +1287,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
   private void setXMLStreamField() {
     try {
 
-      wXMLField.removeAll();
-
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wXMLField.removeAll();
       if (r != null) {
         String[] fieldNames = r.getFieldNames();
         if (fieldNames != null) {

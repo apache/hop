@@ -461,10 +461,10 @@ public class ZipFileDialog extends BaseTransformDialog {
 
       try {
 
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         wSourceFileNameField.removeAll();
         wTargetFileNameField.removeAll();
         wBaseFolderField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           String[] fields = r.getFieldNames();
           wSourceFileNameField.setItems(fields);

@@ -345,9 +345,9 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
       try {
         String filefield = wFileName.getText();
         String targetfilefield = wTargetFileName.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         wFileName.removeAll();
         wTargetFileName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           wFileName.setItems(r.getFieldNames());
           wTargetFileName.setItems(r.getFieldNames());

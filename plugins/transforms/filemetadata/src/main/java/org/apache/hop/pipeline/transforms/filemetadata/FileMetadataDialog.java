@@ -396,9 +396,8 @@ public class FileMetadataDialog extends BaseTransformDialog {
       if (!getPreviousFields) {
         getPreviousFields = true;
 
-        wFilenameField.removeAll();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wFilenameField.removeAll();
         if (r != null) {
           wFilenameField.setItems(r.getFieldNames());
         }

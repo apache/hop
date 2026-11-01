@@ -1057,8 +1057,8 @@ public class PropertyInputDialog extends BaseTransformDialog {
   private void setFileField() {
     try {
       String value = wFilenameField.getText();
-      wFilenameField.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wFilenameField.removeAll();
       if (r != null) {
         r.getFieldNames();
 

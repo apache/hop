@@ -403,8 +403,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog {
       gotPreviousFields = true;
       try {
         String sqlfield = wSqlFieldName.getText();
-        wSqlFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        wSqlFieldName.removeAll();
         if (r != null) {
           wSqlFieldName.removeAll();
           wSqlFieldName.setItems(r.getFieldNames());
