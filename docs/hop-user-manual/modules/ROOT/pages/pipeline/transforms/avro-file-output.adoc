@@ -126,3 +126,7 @@ AVRO_TYPE_INT = 4 +
 AVRO_TYPE_LONG = 5 +
 AVRO_TYPE_STRING = 6 +
 AVRO_TYPE_ENUM = 7
+
+== Beam
+
+Binary file output writes one Avro file with `AvroIO`. The filename, including the date and time, is resolved when the pipeline is submitted. A transform copy number or a partition number in the filename is refused. Nested Avro paths and enum fields are refused. Binary-field and JSON-field output still run as an ordinary Beam transform and add a column to the row.
