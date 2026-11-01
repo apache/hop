@@ -21,19 +21,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.actions.waitforsql.ActionWaitForSql.SuccessCondition;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for wait for sql action. */
 class ActionWaitForSqlTest {
+
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
+    HopClientEnvironment.init();
+    HopLogStore.init();
+  }
 
   @Test
   void testSerialization() throws Exception {
@@ -117,6 +137,27 @@ class ActionWaitForSqlTest {
         action.getSuccessCondition().getDescription());
     assertEquals(
         SuccessCondition.ROWS_COUNT_EQUAL, SuccessCondition.lookupCode("rows_count_equal"));
+  }
+
+  @Test
+  void connectionFailureIsLoggedAsError() throws Exception {
+    ActionWaitForSql action = spy(new ActionWaitForSql("Wait for SQL"));
+    action.setConnection("mysql-refused");
+    action.setTableName("any_table");
+    doThrow(new HopDatabaseException("Connection refused")).when(action).checkConnection();
+
+    Workflow workflow = mock(Workflow.class);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+    when(workflow.isStopped()).thenReturn(false);
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(mock(WorkflowMeta.class));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    verify(action).logError(contains("Exception while waiting for SQL data"));
+    verify(action, never()).logBasic(contains("Exception while waiting for SQL data"));
   }
 
   private static @NotNull ActionWaitForSql getActionWaitForSql() {

@@ -353,7 +353,9 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
         }
       }
     } catch (Exception e) {
-      logBasic("Exception while waiting for SQL data: " + e.getMessage());
+      // Keep Error level (issue #9171) but log a concise root-cause message. Passing the
+      // throwable dumps a long stack that duplicates what Database.connect() already logged.
+      logError("Exception while waiting for SQL data: " + Const.getRootCauseMessage(e));
     }
 
     if (result.isResult()) {

@@ -18,6 +18,8 @@
 package org.apache.hop.workflow.actions.tableexists;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -40,6 +42,8 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 
 /** This defines a table exists action. */
+@Getter
+@Setter
 @Action(
     id = "TABLE_EXISTS",
     name = "i18n::ActionTableExists.Name",
@@ -75,30 +79,6 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
 
   public ActionTableExists() {
     this("");
-  }
-
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public String getTableName() {
-    return tableName;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
   }
 
   @Override
@@ -141,6 +121,9 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
           logError(
               BaseMessages.getString(PKG, "TableExists.Error.RunningAction", dbe.getMessage()));
         }
+      } else {
+        result.setNrErrors(1);
+        logError(BaseMessages.getString(PKG, "TableExists.Error.ConnectionNotFound", connection));
       }
     } else {
       result.setNrErrors(1);
