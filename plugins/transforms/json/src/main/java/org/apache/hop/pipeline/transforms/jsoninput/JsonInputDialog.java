@@ -1132,28 +1132,35 @@ public class JsonInputDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
   }
 
+  /**
+   * Load previous-transform fields into the source combo. {@code setItems} clears the current text,
+   * so the lookup runs first and the configured name is written back afterwards. A failed lookup
+   * leaves that name in place. OK would otherwise store an empty source field.
+   */
   private void setSourceStreamField(boolean isShowErrorDialog) {
+    String configured = wFieldValue.getText();
     try {
-      String value = wFieldValue.getText();
-      wFieldValue.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        wFieldValue.setItems(r.getFieldNames());
+      IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (row != null) {
+        wFieldValue.setItems(row.getFieldNames());
       }
-      if (value != null) {
-        wFieldValue.setText(value);
-      }
-    } catch (HopException ke) {
+      restoreSourceField(configured);
+    } catch (HopException exception) {
+      restoreSourceField(configured);
       if (!isShowErrorDialog) {
         return;
       }
-
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogMessage"),
-          ke);
+          exception);
+    }
+  }
+
+  private void restoreSourceField(String configured) {
+    if (configured != null) {
+      wFieldValue.setText(configured);
     }
   }
 
