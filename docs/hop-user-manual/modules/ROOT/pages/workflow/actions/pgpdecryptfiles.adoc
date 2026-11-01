@@ -35,16 +35,16 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |Option|Description
 |Action name|The name of the workflow action.
 |GPG location|The file path of the GnuPG executable (e.g. `/usr/bin/gpg`).
-|Include subfolders|Whether or not to include subfolders.
-|Copy previous results to args|
+|Include Subfolders|Also processes the files in the subfolders of a source folder.
+|Copy previous results to args|Take the files from the result rows of the previous action instead of from the list. The fields are read by position: file/folder source, wildcard, passphrase, file/folder destination.
 |File/Folder source|The file to decrypt, can be added to the Files/Folders list using Add.
 |File/Folder destination|The destination of the decrypted files.
 |Wildcard|A regex wildcard.
-// |User ID|
+|Passphrase|The passphrase of the private key the files are encrypted for.
 |Files/Folders|The files to decrypt.
 |===
 
-=== Destination File Tab
+=== Destination file tab
 
 [options="header", width="90%", cols="1,3"]
 |===
@@ -52,16 +52,16 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 2+|Destination file
 |Create destination folder|Whether or not to create the destination folder.
 |Destination is a file|Whether or not the destination is a file.
-|Do not keep folder structure|Whether or not to keep the folder structure. If unchecked, the folder structure is flattened.
+|Do not keep folder structure|Writes the files of subfolders directly in the destination folder. When unchecked, the subfolders of the source are kept in the destination.
 |Add date to filename|Adds the date to the file name.
 |Add time to filename|Adds the time to the file name.
 |Specify Date time format|Whether or not to specify the date time format.
 |Date time format|The format of the date time.
 |Add date before extension|Before or after extension.
-|If destination file exists a|
+|If destination file exists a|What to do when the destination file already exists. See the WARNING under <<Result>>.
 
-* Do nothing
-* Overwrite the destination file
+* Do nothing (default)
+* Overwrite destination file
 * Create file with unique name
 * Delete source file
 * Move source file to folder
@@ -74,17 +74,15 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |Add time|Adds the time.
 |Specify format|Whether or not to specify the date time format.
 |Add date before extension|The format of the date time.
-|If file exists in destination folder a|
+|If file exists in destination folder a|Used with *Move source file to folder*, when the file already exists in *Destination folder*:
 
-* Do nothing
-* Overwrite the destination file
-* Create file with unique name
-* Delete source file
-* Move source file to folder
+* Do nothing (default)
+* Overwrite file
+* Unique name
 * Fail
 |===
 
-=== Destination File Tab
+=== Advanced tab
 
 [options="header", width="90%", cols="1,3"]
 |===
@@ -92,10 +90,37 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 2+|Success On
 |Success condition a|Which condition to validate for a successful run
 
-* Success when all works (default)
+* Success when all works fine (default)
 * Success when at least x files decrypted
 * Success when number of errors lesser than
-|Nr error lesser than|Success if errors lesser than.
+|Nr errors lesser than|The limit used by the success condition: the number of errors, or the number of files for *Success when at least x files decrypted* (default 10).
 2+|Result files name
-|Add files to result files name|
+|Add files to result files name|Adds the decrypted files to the result files. See <<Result>>.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True a|Depends on *Success condition* (Advanced tab):
+
+* Success when all works fine (default): no file failed. An empty Files/Folders list, no file matching the wildcard, or *Copy previous results to args* without previous result rows is also true.
+* Success when at least x files decrypted: at least *Nr errors lesser than* files were decrypted, whatever the number of errors.
+* Success when number of errors lesser than: the number of errors is at most *Nr errors lesser than*. When an entry of the list brings the errors to that number and entries are left, the action stops and is false; when the last entry does, the action is still true.
+|False|The success condition is not met. A file or an entry of the list fails, and counts as an error, when its source doesn't exist, the passphrase is wrong, the file is not encrypted, or the destination file exists and *If destination file exists* is *Fail*. It is also false, before any file and whatever the success condition, when *If destination file exists* is *Move source file to folder* while *Destination folder* is empty, or doesn't exist and *Create folder* is unchecked. With *Success when all works fine* or *Success when number of errors lesser than*, the action stops once the condition is broken: the remaining files are not processed.
+|Errors|The number of files and entries that failed. Inside a folder, when files are left after the one that breaks the success condition, that failure counts as two errors.
+|Result files|With *Add files to result files name*, a decrypted file that didn't exist yet in the destination is added unless *If destination file exists* is *Do nothing* (the default) or *Fail*: with the default, no file is added. When the destination file already exists, a file is added only with *Overwrite destination file* or *Create file with unique name*, and with *Move source file to folder* the moved source file is added. The result files of the previous action are kept.
+|Result rows|Passed on unchanged.
+|Lines written|The number of files decrypted. A file left in place by *Do nothing*, deleted or moved is not counted. When the check of *Destination folder* (Move to folder) fails, or the action stops on the success condition between two entries of the list, the value of the previous action is passed on.
+|===
+
+NOTE: The decrypted file keeps the name of the source file: `a.txt.gpg` becomes `a.txt.gpg` in the destination folder.
+
+NOTE: A *GPG location* that is empty or not found doesn't make the action false: the workflow stops with an error, and no hop from the action is followed.
+
+WARNING: *If destination file exists* doesn't always do what its name says. *Delete source file* deletes the existing destination file, not the source, and decrypts nothing. *Move source file to folder* moves the source file to *Destination folder* without decrypting it.
+
+NOTE: When the destination file exists, *Create file with unique name* writes the decrypted file under a new name, with the date and time added after the file name (for example `a.txt.gpg30102026_140548429`), and *Do nothing* keeps the existing file and doesn't decrypt the source.

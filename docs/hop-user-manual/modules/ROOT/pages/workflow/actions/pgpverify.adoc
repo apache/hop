@@ -38,3 +38,16 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |Use detached signature|Whether or not to use a detached signature.
 |Detached signature|Path to the detached signature file (only available when the `Use detached signature` above is checked)
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|GnuPG verified the signature, with 0 errors: a signed or clear-signed *Filename*, or with *Use detached signature* the *Detached signature* of *Filename*.
+|False|The number of errors is 1. *Filename* is empty or doesn't exist, the file is not signed, the signature doesn't match the file (for example a file changed after it was signed), the signing key is not in the keyring, *Use detached signature* is checked while *Detached signature* is empty, or *GPG location* is empty or not found.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
