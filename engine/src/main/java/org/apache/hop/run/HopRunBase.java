@@ -645,7 +645,11 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
 
   /**
    * Configure the variables and parameters in the given configuration on the given variable
-   * variables and named parameters
+   * variables and named parameters.
+   *
+   * <p>A declared parameter only gets the value passed with the -p option. Without one, activating
+   * the parameters gives it its default, even when the project, environment or hop-config has a
+   * variable with the same name. Hop Gui and child executions (#8101) do the same (#9003).
    */
   protected void configureParametersAndVariables(
       CommandLine cmd,
@@ -657,20 +661,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
     //
     variables.setVariables(configuration.getVariablesMap());
 
-    // By default, we use the value from the current variables map:
-    //
-    for (String key : namedParams.listParameters()) {
-      String value = variables.getVariable(key);
-      if (StringUtils.isNotEmpty(value)) {
-        try {
-          namedParams.setParameterValue(key, value);
-        } catch (UnknownParamException e) {
-          throw new ParameterException(cmd, "Unable to set parameter '" + key + "'", e);
-        }
-      }
-    }
-
-    // Possibly override with the parameter values set by the user (-p option)
+    // Set the parameter values set by the user (-p option)
     //
     for (String key : configuration.getParametersMap().keySet()) {
       String value = configuration.getParametersMap().get(key);

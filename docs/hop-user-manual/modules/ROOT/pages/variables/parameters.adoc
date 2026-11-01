@@ -78,17 +78,17 @@ Wrap a value that contains a comma in double quotes, and the whole option in sin
   -p 'INPUT_FILE=/data/orders.csv,COUNTRIES="BE,NL"'
 ----
 
-`hop-run` gives every parameter the first value it finds:
-
-. The value passed with `-p`.
-. The value of a variable with the same name, for example a project or environment variable, or a system property passed with `-s`.
-. The default value.
-
-An empty value, like `-p INPUT_FILE=`, gives the parameter its default value, even when a variable with the same name exists.
+A parameter gets the value passed with `-p`, or else its default value, like in Hop Gui.
+An empty value, like `-p INPUT_FILE=`, also gives it its default value.
+A project or environment variable, or a system property passed with `-s`, with the same name as the parameter is not used.
 
 A name passed with `-p` that the pipeline or workflow doesn't declare is set as a variable.
 
-NOTE: Unlike Hop Gui, `hop-run` uses a project or environment variable with the same name before the default value.
+If a value should come from the project or the environment, don't declare it as a parameter: use the variable as `+${NAME}+` directly.
+
+NOTE: Before Hop 2.21, `hop-run` gave a parameter without a `-p` value the value of a project or environment variable with the same name, before its default value.
+A pipeline or workflow that relied on this gets the default value now.
+Pass the value with `-p`, or remove the parameter so the variable is used.
 
 === From another pipeline or workflow
 
