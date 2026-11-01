@@ -595,6 +595,9 @@ This product bundles beam-sdks-java-io-kafka 2.74.0, which is available under a
 This product bundles beam-sdks-java-io-mqtt 2.74.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles beam-sdks-java-io-parquet 2.74.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles beam-sdks-java-io-snowflake 2.74.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 

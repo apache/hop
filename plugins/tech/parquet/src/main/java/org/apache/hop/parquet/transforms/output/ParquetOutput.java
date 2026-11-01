@@ -251,28 +251,38 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
    * every split or partition file.
    */
   private MessageType buildSchema() throws HopException {
-    SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
-        SchemaBuilder.record("ApacheHopParquetSchema").fields();
-
-    // Build the Parquet Schema: every field is a nullable union of the Avro type for the Hop type.
+    List<IValueMeta> valueMetas = new ArrayList<>();
     for (int i = 0; i < data.outputFields.size(); i++) {
-      ParquetField field = data.outputFields.get(i);
-      IValueMeta valueMeta = getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i));
-      fieldAssembler =
-          fieldAssembler
-              .name(field.getTargetFieldName())
-              .type()
-              .unionOf()
-              .nullType()
-              .and()
-              .type(avroType(valueMeta))
-              .endUnion()
-              .noDefault();
+      valueMetas.add(getInputRowMeta().getValueMeta(data.sourceFieldIndexes.get(i)));
     }
     // Convert from Avro to Parquet schema, then apply a Parquet type selected on a field.
     //
     return applySelectedTypes(
-        withParquetOnlyTypes(new AvroSchemaConverter().convert(fieldAssembler.endRecord())));
+        withParquetOnlyTypes(
+            new AvroSchemaConverter().convert(avroSchema(data.outputFields, valueMetas))));
+  }
+
+  /**
+   * The Avro record {@link #buildSchema()} converts to Parquet. Every field is a nullable union.
+   * Beam Parquet output uses this schema directly and does not apply a selected Parquet type.
+   */
+  public static Schema avroSchema(List<ParquetField> fields, List<IValueMeta> valueMetas)
+      throws HopException {
+    SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
+        SchemaBuilder.record("ApacheHopParquetSchema").fields();
+    for (int i = 0; i < fields.size(); i++) {
+      fieldAssembler =
+          fieldAssembler
+              .name(fields.get(i).getTargetFieldName())
+              .type()
+              .unionOf()
+              .nullType()
+              .and()
+              .type(avroType(valueMetas.get(i)))
+              .endUnion()
+              .noDefault();
+    }
+    return fieldAssembler.endRecord();
   }
 
   /**

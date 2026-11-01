@@ -320,3 +320,7 @@ The nanoseconds beyond the microsecond are dropped.
 |===
 
 Other Hop types can't be written to Parquet.
+
+== Beam
+
+On a Beam runner the transform writes one Parquet file with `ParquetIO`. The filename, including the date and time, is resolved when the pipeline is submitted. The copy number and the split number are not extra files. Partitioned output, and a field that sets its own Parquet type, are refused. Dictionary page size and the Parquet writer version stay on the local engine.
