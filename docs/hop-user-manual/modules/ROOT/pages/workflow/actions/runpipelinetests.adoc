@@ -33,10 +33,21 @@ Errors are logged.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Action Name|The name of the action.
-|Test names|The names of the unit tests to execute
+|Action name|The name of the action.
+|Names of the tests to execute|The names of the unit tests to execute.
 |===
 
 Use the `Get test names` to get the list of available unit tests in the current project.
 
+== Result
 
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every test in the list ran its pipeline without errors and the golden data sets matched, with 0 errors. An empty list is also true.
+|False|The number of errors is 1. A test is not found (an unknown or empty name), its pipeline file is not found, the pipeline fails, or the rows don't match a golden data set. All the tests of the list are run, also after one that fails.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged: the rows that a test pipeline copies to its result are not added.
+|===
