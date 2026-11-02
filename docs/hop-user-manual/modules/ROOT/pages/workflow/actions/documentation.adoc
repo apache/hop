@@ -27,20 +27,30 @@ This action builds documentation of your Hop files or project.
 
 == Options
 
-* The target folder in which you want your project documentation to end up in.
-* Include notes?
-* Include parameters?
+* The target folder: the folder in which you want your project documentation to end up in.
+* Include notes text?
+* List parameters?
 * Include metadata?
 * Generate HTML?
-* Remove MarkDown after HTML is generated?
+* Remove MarkDown files?: only when *Generate HTML?* is checked, removes the MarkDown files after the HTML is generated.
 
 == Generating HTML from MarkDown
 
-The links from the index are currently set to the .md.html files.
-I ran the following command in the target folder to generate the HTML files:
+With *Generate HTML?* the action writes an HTML file next to each MarkDown file, and the HTML index links to the HTML files. With *Remove MarkDown files?* the MarkDown files are removed and the HTML files, the images and the styles stay.
 
-[source,bash]
-----
-for i in $(find . -name '*.md') ; do echo "$i" && pandoc -s $i -c assets/styles.css -o $i.html ; done
-----
+== Result
 
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The documentation of the project folder was written to the target folder. The action doesn't set its own result: it passes on the result of the previous action, see the WARNING.
+|False|The number of errors is 1. The target folder is empty, is a file, or can't be written, or a file of the project can't be read (for example a pipeline file that is not valid XML). The files written before the error stay: the documentation is left incomplete.
+|Result files|Passed on unchanged: the documentation files are not added.
+|Result rows|Passed on unchanged.
+|===
+
+WARNING: When the documentation is written, the action keeps the result of the previous action. After a false action on an unconditional or failure hop, it is false although the documentation was written.
+
+NOTE: Files that are already in the target folder stay.

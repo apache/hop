@@ -43,8 +43,7 @@ MongoDB documentation : https://www.mongodb.com/docs/manual/reference/command/
 |Use external file|Enable this option to load the JSON instructions from a file.
 |Filename|The filename for the file with JSON instructions.
 |Use variable substitution|Enables variables to be used in the Script.
-|JSON|The JSON instructions to execute.
-Multiple statements can be separated by comma.
+|JSON|The JSON instructions to execute: one JSON document, or several in a JSON array (`[ {...}, {...} ]`).
 |===
 
 == Examples
@@ -63,3 +62,20 @@ Multiple instructions
     {"drop": "hop_collection" }
 ]
 ----
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every instruction ran, with 0 errors. An instruction that returns documents, like `find`, is true too: the documents are not passed on.
+|False|The number of errors is 1. *MongoDB Connection* is empty or doesn't exist, the server can't be reached or refuses the login, *Use external file* is checked while *Filename* is empty or the file can't be read, the JSON is empty or not valid, or MongoDB refuses an instruction (for example an unknown command). The instructions of an array run one after the other: the ones before the failing instruction stay done, the ones after it are not run.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: Several instructions must be in a JSON array. Instructions separated by commas without the brackets are not an error, but only the first one runs.
+
+NOTE: Write errors that MongoDB reports in its answer don't make the action false. For example an `insert` with a duplicate `_id` is true, although the duplicate document is not inserted.

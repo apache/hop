@@ -33,9 +33,22 @@ The `AS/400 command` action executes an AS/400 CL Command.
 |Server|Host name or IP address.
 |User name|The user name associated with AS/400 server account.
 |Password|The password associated the AS/400 server account.
-|Proxy host|Proxy server host name or IP address.
-|Proxy port|Proxy server port number.
+|Host name (Proxy)|Proxy server host name or IP address.
+|Port (Proxy)|Proxy server port number.
 |Command to call|The command to run on the AS/400. If the command is not library qualified, the library list will be used to find the command.
 |===
 
 NOTE: This plugin tries to load the as400 library from the as400 database plugin.
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The command ran successfully, with 0 errors.
+|False|The number of errors is 1. The server can't be reached or refuses the login, or the command fails. When the command fails, the messages it returns (message ID, text and help) are logged.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
