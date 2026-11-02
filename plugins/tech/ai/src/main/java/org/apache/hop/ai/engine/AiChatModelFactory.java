@@ -27,6 +27,7 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.IAiChatProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -71,6 +72,10 @@ public final class AiChatModelFactory {
       AiProvider provider, String modelName, IVariables variables) throws HopException {
     // of() rejects a null or half configured provider, so there is one guard, not two.
     AiProviderSettings settings = AiProviderSettings.of(provider, variables);
+    if (settings.backend() instanceof IAiChatProvider) {
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatFactory.NotLangChainProvider", provider.getName()));
+    }
 
     String model = Utils.isEmpty(modelName) ? chatModelName(provider, variables) : modelName;
     if (Utils.isEmpty(model)) {

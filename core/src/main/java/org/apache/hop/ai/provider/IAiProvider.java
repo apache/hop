@@ -61,5 +61,35 @@ public interface IAiProvider extends Cloneable {
   /** Whether a non-empty API key is required before a call can be made. */
   boolean requiresApiKey();
 
+  /** Whether the provider accepts a configurable base URL. */
+  default boolean supportsBaseUrl() {
+    return true;
+  }
+
+  /** Whether the provider accepts a configurable sampling temperature. */
+  default boolean supportsTemperature() {
+    return true;
+  }
+
+  /** Whether the provider accepts a configurable context size. */
+  default boolean supportsContextSize() {
+    return true;
+  }
+
+  /** Whether the provider accepts a configurable output-token limit. */
+  default boolean supportsMaxOutputTokens() {
+    return true;
+  }
+
+  /** Whether the provider accepts a configurable thinking mode. */
+  default boolean supportsThinking() {
+    return true;
+  }
+
+  /** Whether the provider can be asked for schema-constrained answers. */
+  default boolean supportsStructuredAnswers() {
+    return true;
+  }
+
   IAiProvider clone();
 }

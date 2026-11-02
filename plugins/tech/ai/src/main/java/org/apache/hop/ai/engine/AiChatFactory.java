@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.ai.metadata.AiModelRole;
 import org.apache.hop.ai.metadata.AiProvider;
+import org.apache.hop.ai.provider.AiChatMessage;
+import org.apache.hop.ai.provider.AiChatRequest;
+import org.apache.hop.ai.provider.AiChatResponse;
+import org.apache.hop.ai.provider.IAiChatProvider;
 import org.apache.hop.ai.provider.IAiProvider;
 import org.apache.hop.ai.providers.OpenAiProvider;
 import org.apache.hop.core.exception.HopException;
@@ -66,6 +70,10 @@ public final class AiChatFactory {
     }
     if (!provider.hasProviderType()) {
       throw new AiUserException(missingTypeMessage(provider));
+    }
+    if (provider.getProvider() instanceof IAiChatProvider) {
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatFactory.NotLangChainProvider", provider.getName()));
     }
     LanguageModelChatMeta meta = new LanguageModelChatMeta();
     meta.setDefault();
@@ -116,6 +124,10 @@ public final class AiChatFactory {
       IVariables variables,
       boolean useProviderDefaults)
       throws HopException {
+    if (provider.getProvider() instanceof IAiChatProvider) {
+      throw new AiUserException(
+          BaseMessages.getString(PKG, "AiChatFactory.NotLangChainProvider", provider.getName()));
+    }
     if (!provider.hasProviderType()) {
       throw new AiUserException(missingTypeMessage(provider));
     }
@@ -276,6 +288,23 @@ public final class AiChatFactory {
       boolean jsonOnly)
       throws HopException {
     validate(provider);
+    if (provider.getProvider() instanceof IAiChatProvider chatProvider) {
+      AiProviderSettings settings = AiProviderSettings.of(provider, variables);
+      AiChatRequest request =
+          new AiChatRequest(
+              resolve(variables, provider.resolveModelName(AiModelRole.CHAT)),
+              systemPrompt,
+              userPrompt,
+              toProviderHistory(conversationHistory),
+              settings.timeout(),
+              jsonOnly);
+      AiChatResponse response = chatProvider.chat(request, variables);
+      return new AiChatResult(
+          response.text(),
+          positive(response.inputTokenCount()),
+          positive(response.outputTokenCount()),
+          response.durationMs());
+    }
     LanguageModelChatMeta meta = toLanguageModelChatMeta(provider, variables);
     if (jsonOnly) {
       if ("OLLAMA".equals(provider.getHopModelType())) {
@@ -331,6 +360,9 @@ public final class AiChatFactory {
       JsonSchema schema)
       throws HopException {
     validate(provider);
+    if (provider.getProvider() instanceof IAiChatProvider) {
+      return null;
+    }
     ChatModel model;
     try {
       model = AiChatModelFactory.createChatModel(provider, "", variables);
@@ -396,13 +428,13 @@ public final class AiChatFactory {
     if (provider == null) {
       throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoProvider"));
     }
-    if (!AiLanguageModelAvailability.isAvailable()) {
-      throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoChatPlugin"));
-    }
     if (!provider.hasProviderType()) {
       throw new AiUserException(missingTypeMessage(provider));
     }
     IAiProvider backend = provider.getProvider();
+    if (!(backend instanceof IAiChatProvider) && !AiLanguageModelAvailability.isAvailable()) {
+      throw new AiUserException(BaseMessages.getString(PKG, "AiChatFactory.NoChatPlugin"));
+    }
     if (backend.requiresApiKey() && Utils.isEmpty(provider.getApiKey())) {
       throw new AiUserException(
           BaseMessages.getString(PKG, "AiChatFactory.NoApiKey", provider.getName()));
@@ -436,5 +468,27 @@ public final class AiChatFactory {
       return "";
     }
     return variables != null ? variables.resolve(value) : value;
+  }
+
+  private static List<AiChatMessage> toProviderHistory(List<ChatMessage> history)
+      throws HopException {
+    List<AiChatMessage> converted = new ArrayList<>();
+    if (history == null) {
+      return converted;
+    }
+    for (ChatMessage message : history) {
+      if (message instanceof UserMessage user) {
+        converted.add(new AiChatMessage(AiChatMessage.Role.USER, user.singleText()));
+      } else if (message instanceof dev.langchain4j.data.message.AiMessage assistant) {
+        converted.add(new AiChatMessage(AiChatMessage.Role.ASSISTANT, assistant.text()));
+      } else if (message instanceof SystemMessage system) {
+        converted.add(new AiChatMessage(AiChatMessage.Role.SYSTEM, system.text()));
+      } else {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "AiChatFactory.UnsupportedHistoryMessage", message.getClass().getName()));
+      }
+    }
+    return converted;
   }
 }

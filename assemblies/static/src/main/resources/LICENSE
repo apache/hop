@@ -799,6 +799,9 @@ This product bundles content-type 2.3, which is available under a
 This product bundles converter-jackson 2.7.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles copilot-sdk-java 1.0.28, which is available under a
+"The MIT" license. For details, see licenses/LICENSE-MIT.
+
 This product bundles crate-jdbc 2.7.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
@@ -1562,6 +1565,9 @@ This product bundles jackson-datatype-jsr310 2.18.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-datatype-jsr310 2.21.2, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles jackson-datatype-jsr310 2.21.7, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles jackson-jaxrs-base 2.21.7, which is available under a
