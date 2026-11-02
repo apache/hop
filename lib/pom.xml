@@ -41,6 +41,7 @@
         <aws-java-sdk.version>2.56.0</aws-java-sdk.version>
         <azure-storage.version>8.6.5</azure-storage.version>
         <bcprov-jdk18on.version>1.86</bcprov-jdk18on.version>
+        <brotli.version>0.1.2</brotli.version>
         <caffeine.version>3.3.1</caffeine.version>
         <checker-qual.version>3.55.1</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
@@ -109,7 +110,6 @@
         <log4j.version>2.26.1</log4j.version>
         <logredactor.version>1.0.12</logredactor.version>
         <lz4-java.version>1.12.0</lz4-java.version>
-        <brotli.version>0.1.2</brotli.version>
         <maven-resolver-provider.version>3.9.16</maven-resolver-provider.version>
         <maven-resolver.version>1.9.27</maven-resolver.version>
         <minimal-json.version>0.9.5</minimal-json.version>
