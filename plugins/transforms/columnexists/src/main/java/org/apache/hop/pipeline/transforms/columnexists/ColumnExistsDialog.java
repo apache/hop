@@ -33,6 +33,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -395,22 +396,12 @@ public class ColumnExistsDialog extends BaseTransformDialog {
 
   private void get() {
     try {
-      String columnName = wColumnName.getText();
-      String tableName = wTableName.getText();
-
-      wColumnName.removeAll();
-      wTableName.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wTableName.add(r.getFieldNames()[i]);
-          wColumnName.add(r.getFieldNames()[i]);
-        }
+        String[] fields = r.getFieldNames();
+        ComboItems.setItemsKeepingText(wColumnName, fields);
+        ComboItems.setItemsKeepingText(wTableName, fields);
       }
-      wColumnName.setText(columnName);
-      wTableName.setText(tableName);
     } catch (HopException ke) {
       new ErrorDialog(
           shell,

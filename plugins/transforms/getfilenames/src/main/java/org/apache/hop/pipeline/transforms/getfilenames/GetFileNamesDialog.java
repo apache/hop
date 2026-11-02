@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -831,14 +832,6 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     try {
       if (!getPreviousFields) {
         getPreviousFields = true;
-        String filename = wFilenameField.getText();
-        String wildcard = wWildcardField.getText();
-        String excludewildcard = wExcludeWildcardField.getText();
-
-        wFilenameField.removeAll();
-        wWildcardField.removeAll();
-        wExcludeWildcardField.removeAll();
-
         IRowMeta r = null;
 
         try {
@@ -849,18 +842,10 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         }
 
         if (r != null) {
-          wFilenameField.setItems(r.getFieldNames());
-          wWildcardField.setItems(r.getFieldNames());
-          wExcludeWildcardField.setItems(r.getFieldNames());
-        }
-        if (filename != null) {
-          wFilenameField.setText(filename);
-        }
-        if (wildcard != null) {
-          wWildcardField.setText(wildcard);
-        }
-        if (excludewildcard != null) {
-          wExcludeWildcardField.setText(excludewildcard);
+          String[] fields = r.getFieldNames();
+          ComboItems.setItemsKeepingText(wFilenameField, fields);
+          ComboItems.setItemsKeepingText(wWildcardField, fields);
+          ComboItems.setItemsKeepingText(wExcludeWildcardField, fields);
         }
       }
     } catch (HopException ke) {

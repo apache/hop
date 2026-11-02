@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -335,20 +336,11 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
       Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
       try {
         shell.setCursor(busy);
-        String fieldValue = wStreamFieldName.getText();
-        wStreamFieldName.removeAll();
-        String keyNameFieldNameText = wKeyNameFieldName.getText();
-        wKeyNameFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wStreamFieldName.setItems(r.getFieldNames());
-          wKeyNameFieldName.setItems(r.getFieldNames());
-        }
-        if (fieldValue != null) {
-          wStreamFieldName.setText(fieldValue);
-        }
-        if (keyNameFieldNameText != null) {
-          wKeyNameFieldName.setText(keyNameFieldNameText);
+          String[] fields = r.getFieldNames();
+          ComboItems.setItemsKeepingText(wStreamFieldName, fields);
+          ComboItems.setItemsKeepingText(wKeyNameFieldName, fields);
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

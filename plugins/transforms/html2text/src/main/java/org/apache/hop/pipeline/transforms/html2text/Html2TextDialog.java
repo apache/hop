@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -328,18 +329,9 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String htmlField = null;
-        if (wHtmlFieldName.getText() != null) {
-          htmlField = wHtmlFieldName.getText();
-        }
-        wHtmlFieldName.removeAll();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wHtmlFieldName.setItems(r.getFieldNames());
-        }
-        if (htmlField != null) {
-          wHtmlFieldName.setText(htmlField);
+          ComboItems.setItemsKeepingText(wHtmlFieldName, r.getFieldNames());
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

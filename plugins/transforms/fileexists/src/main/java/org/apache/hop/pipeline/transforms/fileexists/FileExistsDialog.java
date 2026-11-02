@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -276,14 +277,9 @@ public class FileExistsDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String fieldvalue = wFileName.getText();
-        wFileName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-        }
-        if (fieldvalue != null) {
-          wFileName.setText(fieldvalue);
+          ComboItems.setItemsKeepingText(wFileName, r.getFieldNames());
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

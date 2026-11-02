@@ -52,6 +52,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -1222,15 +1223,9 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
 
   private void setSourceStreamField(boolean isShowErrorDialog) {
     try {
-      String value = wFieldValue.getText();
-      wFieldValue.removeAll();
-
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        wFieldValue.setItems(r.getFieldNames());
-      }
-      if (value != null) {
-        wFieldValue.setText(value);
+        ComboItems.setItemsKeepingText(wFieldValue, r.getFieldNames());
       }
     } catch (HopException ke) {
       if (!isShowErrorDialog) {

@@ -34,6 +34,7 @@ import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -953,15 +954,9 @@ public class XmlInputStreamDialog extends BaseTransformDialog {
 
   private void setSourceStreamField() {
     try {
-      String value = cbSourceField.getText();
-      cbSourceField.removeAll();
-
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        cbSourceField.setItems(r.getFieldNames());
-      }
-      if (value != null) {
-        cbSourceField.setText(value);
+        ComboItems.setItemsKeepingText(cbSourceField, r.getFieldNames());
       }
     } catch (HopException ke) {
       new ErrorDialog(

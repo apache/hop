@@ -825,9 +825,8 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog {
   private void setFileField() {
     try {
 
-      wFilenameField.removeAll();
-
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wFilenameField.removeAll();
       if (r != null) {
         r.getFieldNames();
 

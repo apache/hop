@@ -43,6 +43,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -882,17 +883,10 @@ public class CreditCardValidatorDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String columnName = wFieldName.getText();
-        wFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          r.getFieldNames();
-
-          for (int i = 0; i < r.getFieldNames().length; i++) {
-            wFieldName.add(r.getFieldNames()[i]);
-          }
+          ComboItems.setItemsKeepingText(wFieldName, r.getFieldNames());
         }
-        wFieldName.setText(columnName);
         gotPreviousFields = true;
       } catch (HopException ke) {
         new ErrorDialog(

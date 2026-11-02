@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -256,14 +257,9 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String filefield = wURL.getText();
-        wURL.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wURL.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wURL.setText(filefield);
+          ComboItems.setItemsKeepingText(wURL, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

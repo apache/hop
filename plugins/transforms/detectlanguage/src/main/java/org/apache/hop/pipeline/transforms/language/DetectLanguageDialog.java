@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -167,19 +168,9 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String corpusField = null;
-
-        if (wCorpusFieldName.getText() != null) {
-          corpusField = wCorpusFieldName.getText();
-        }
-        wCorpusFieldName.removeAll();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wCorpusFieldName.setItems(r.getFieldNames());
-        }
-        if (corpusField != null) {
-          wCorpusFieldName.setText(corpusField);
+          ComboItems.setItemsKeepingText(wCorpusFieldName, r.getFieldNames());
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

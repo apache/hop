@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -252,15 +253,9 @@ public class ValueMapperDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
       try {
-        String fieldname = wFieldName.getText();
-
-        wFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wFieldName.setItems(r.getFieldNames());
-          if (fieldname != null) {
-            wFieldName.setText(fieldname);
-          }
+          ComboItems.setItemsKeepingText(wFieldName, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

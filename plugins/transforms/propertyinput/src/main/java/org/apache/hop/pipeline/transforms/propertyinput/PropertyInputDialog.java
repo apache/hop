@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -1056,18 +1057,9 @@ public class PropertyInputDialog extends BaseTransformDialog {
 
   private void setFileField() {
     try {
-      String value = wFilenameField.getText();
-      wFilenameField.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        r.getFieldNames();
-
-        for (int i = 0; i < r.getFieldNames().length; i++) {
-          wFilenameField.add(r.getFieldNames()[i]);
-        }
-      }
-      if (value != null) {
-        wFilenameField.setText(value);
+        ComboItems.setItemsKeepingText(wFilenameField, r.getFieldNames());
       }
 
     } catch (HopException ke) {

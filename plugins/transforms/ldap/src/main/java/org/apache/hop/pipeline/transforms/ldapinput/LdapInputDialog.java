@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -1517,20 +1518,11 @@ public class LdapInputDialog extends BaseTransformDialog {
   private void setSearchBaseField() {
     if (!gotPreviousFields) {
       try {
-        String basefield = wSearchBaseField.getText();
-        String filterfield = wFilterField.getText();
-        wSearchBaseField.removeAll();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wSearchBaseField.setItems(r.getFieldNames());
-          wFilterField.setItems(r.getFieldNames());
-        }
-        if (basefield != null) {
-          wSearchBaseField.setText(basefield);
-        }
-        if (filterfield != null) {
-          wFilterField.setText(basefield);
+          String[] fields = r.getFieldNames();
+          ComboItems.setItemsKeepingText(wSearchBaseField, fields);
+          ComboItems.setItemsKeepingText(wFilterField, fields);
         }
 
       } catch (HopException ke) {

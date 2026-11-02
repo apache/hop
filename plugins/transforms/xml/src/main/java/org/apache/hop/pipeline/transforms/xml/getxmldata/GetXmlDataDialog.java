@@ -1287,9 +1287,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
   private void setXMLStreamField() {
     try {
 
-      wXMLField.removeAll();
-
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      wXMLField.removeAll();
       if (r != null) {
         String[] fieldNames = r.getFieldNames();
         if (fieldNames != null) {
@@ -1303,9 +1302,6 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       if (!Const.isOSX()) {
         shell.setFocus();
       }
-      final String EMPTY_FIELDS = "<EMPTY>";
-      wXMLField.add(EMPTY_FIELDS);
-      wXMLField.setText(EMPTY_FIELDS);
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE),

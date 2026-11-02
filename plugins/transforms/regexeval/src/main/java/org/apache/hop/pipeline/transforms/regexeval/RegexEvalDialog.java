@@ -629,12 +629,12 @@ public class RegexEvalDialog extends BaseTransformDialog {
     // Save user-selected value, if applicable
     String selectedValue = wFieldEvaluate.getText();
 
-    // Clear the existing list, and reload
-    wFieldEvaluate.removeAll();
     try {
       shell.setCursor(busy);
 
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+      // Clear the existing list, and reload
+      wFieldEvaluate.removeAll();
       if (r != null) {
         for (String item : r.getFieldNames()) {
           wFieldEvaluate.add(item);

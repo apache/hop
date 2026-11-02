@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextComposite;
@@ -725,15 +726,9 @@ public class SshDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
       try {
-        String source = wCommandField.getText();
-
-        wCommandField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wCommandField.setItems(r.getFieldNames());
-          if (source != null) {
-            wCommandField.setText(source);
-          }
+          ComboItems.setItemsKeepingText(wCommandField, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

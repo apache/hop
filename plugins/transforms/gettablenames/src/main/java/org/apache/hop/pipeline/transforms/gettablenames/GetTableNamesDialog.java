@@ -35,6 +35,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -577,15 +578,9 @@ public class GetTableNamesDialog extends BaseTransformDialog {
   private void setSchemaField() {
     if (!gotPreviousFields) {
       try {
-        String value = wSchemaField.getText();
-        wSchemaField.removeAll();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wSchemaField.setItems(r.getFieldNames());
-        }
-        if (value != null) {
-          wSchemaField.setText(value);
+          ComboItems.setItemsKeepingText(wSchemaField, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

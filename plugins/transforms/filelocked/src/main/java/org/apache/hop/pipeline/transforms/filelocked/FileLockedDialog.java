@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -186,14 +187,9 @@ public class FileLockedDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String filefield = wFileName.getText();
-        wFileName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wFileName.setText(filefield);
+          ComboItems.setItemsKeepingText(wFileName, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -709,14 +710,9 @@ public class TikaDialog extends BaseTransformDialog {
   private void setDynamicFilenameField() {
     if (!gotPreviousFields) {
       try {
-        String field = wFilenameField.getText();
-        wFilenameField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wFilenameField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wFilenameField.setText(field);
+          ComboItems.setItemsKeepingText(wFilenameField, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

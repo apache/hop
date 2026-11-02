@@ -28,6 +28,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -343,20 +344,11 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String filefield = wFileName.getText();
-        String targetfilefield = wTargetFileName.getText();
-        wFileName.removeAll();
-        wTargetFileName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wFileName.setItems(r.getFieldNames());
-          wTargetFileName.setItems(r.getFieldNames());
-        }
-        if (filefield != null) {
-          wFileName.setText(filefield);
-        }
-        if (targetfilefield != null) {
-          wTargetFileName.setText(targetfilefield);
+          String[] fields = r.getFieldNames();
+          ComboItems.setItemsKeepingText(wFileName, fields);
+          ComboItems.setItemsKeepingText(wTargetFileName, fields);
         }
       } catch (HopException ke) {
         new ErrorDialog(

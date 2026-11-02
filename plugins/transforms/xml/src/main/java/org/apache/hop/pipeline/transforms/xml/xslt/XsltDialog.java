@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -36,6 +35,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -583,14 +583,9 @@ public class XsltDialog extends BaseTransformDialog {
       return;
     }
     try {
-      String initValue = cc.getText();
-      cc.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
-        cc.setItems(r.getFieldNames());
-      }
-      if (!Utils.isEmpty(initValue)) {
-        cc.setText(initValue);
+        ComboItems.setItemsKeepingText(cc, r.getFieldNames());
       }
     } catch (HopException ke) {
       new ErrorDialog(

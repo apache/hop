@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -299,14 +300,9 @@ public class CloneRowDialog extends BaseTransformDialog {
   private void setisNrCloneInField() {
     if (!gotPreviousFields) {
       try {
-        String field = wNrCloneField.getText();
-        wNrCloneField.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wNrCloneField.setItems(r.getFieldNames());
-        }
-        if (field != null) {
-          wNrCloneField.setText(field);
+          ComboItems.setItemsKeepingText(wNrCloneField, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(

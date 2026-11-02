@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -253,21 +254,11 @@ public class BinaryFileOutputDialog extends BaseTransformDialog {
       return;
     }
     try {
-      String binaryValue = wBinaryField.getText();
-      String filenameValue = wFilenameField.getText();
-      wBinaryField.removeAll();
-      wFilenameField.removeAll();
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {
         String[] fields = r.getFieldNames();
-        wBinaryField.setItems(fields);
-        wFilenameField.setItems(fields);
-      }
-      if (binaryValue != null) {
-        wBinaryField.setText(binaryValue);
-      }
-      if (filenameValue != null) {
-        wFilenameField.setText(filenameValue);
+        ComboItems.setItemsKeepingText(wBinaryField, fields);
+        ComboItems.setItemsKeepingText(wFilenameField, fields);
       }
       gotPreviousFields = true;
     } catch (HopException ke) {

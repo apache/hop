@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -440,15 +441,9 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
       try {
-        String sqlfield = wSqlFieldName.getText();
-        wSqlFieldName.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
-          wSqlFieldName.removeAll();
-          wSqlFieldName.setItems(r.getFieldNames());
-        }
-        if (sqlfield != null) {
-          wSqlFieldName.setText(sqlfield);
+          ComboItems.setItemsKeepingText(wSqlFieldName, r.getFieldNames());
         }
       } catch (HopException ke) {
         new ErrorDialog(
