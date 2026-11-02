@@ -58,3 +58,7 @@ Note: This name has to be unique in a single pipeline.
 
 |===
 
+== Beam
+
+On a Beam runner each file is read by one worker, and the records are appended to the row that named the file. A positive row limit is the most records that worker emits across the files it reads. A null or empty filename is skipped. The native Spark engine stays excluded.
+

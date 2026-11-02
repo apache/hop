@@ -134,10 +134,22 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
   public Schema createAvroSchema(List<AvroOutputField> avroFields, String parentPath)
       throws HopException {
-    // Get standard schema stuff
-    String doc = meta.getDoc();
-    String recordName = meta.getRecordName();
-    String namespace = meta.getNamespace();
+    return createAvroSchema(
+        avroFields, parentPath, meta.getDoc(), meta.getRecordName(), meta.getNamespace());
+  }
+
+  /**
+   * Builds the Avro record for these fields. Nested paths are expressed with dots in the Avro name.
+   * The field list is mutated: nested siblings are removed while their parent record is built, so
+   * callers pass a copy.
+   */
+  public static Schema createAvroSchema(
+      List<AvroOutputField> avroFields,
+      String parentPath,
+      String doc,
+      String recordName,
+      String namespace)
+      throws HopException {
 
     // do not want to have to deal with $. paths.
     if (parentPath.startsWith("$.")) {
@@ -211,7 +223,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
           }
           subPath = subPath.substring(0, subPath.length() - 1);
 
-          Schema subSchema = createAvroSchema(subFields, subPath);
+          Schema subSchema = createAvroSchema(subFields, subPath, doc, recordName, namespace);
           Schema outSchema = subSchema;
           if (nullable) {
             Schema nullSchema = Schema.create(Schema.Type.NULL);
