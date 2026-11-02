@@ -277,6 +277,68 @@ hop --project-locations my-project=/path/to/project run -f pipeline.hpl -r local
 
 See xref:projects/advanced.adoc#_use_a_project_without_hop_config_json[Use a project without hop-config.json] for the location and environment formats.
 
+=== Running a pipeline with a parameter
+
+The `pipelines/pipeline-with-parameter.hpl` pipeline in the samples project has a parameter `PRM_EXAMPLE` without a default value.
+It writes the value it received to the log, followed by the value of the variable `ENV_VARIABLE`.
+
+Give the parameter a value with `-p` (`--parameters`).
+The single quotes keep the shell from replacing `+${PROJECT_HOME}+`, so Hop gets it as it is.
+On Windows, use `hop-run.bat` instead of `./hop-run.sh` and leave out the single quotes: CMD doesn't remove them.
+
+[code, shell]
+----
+./hop-run.sh -j samples -r local -f '${PROJECT_HOME}/pipelines/pipeline-with-parameter.hpl' -p PRM_EXAMPLE=Hello
+----
+
+The log includes these lines, with the value of the parameter:
+
+[code, shell]
+----
+2026/11/02 12:57:45 - HopRun - Enabling project 'samples'
+2026/11/02 12:57:45 - HopRun - Starting pipeline: config/projects/samples/pipelines/pipeline-with-parameter.hpl
+2026/11/02 12:57:45 - pipeline-with-parameter - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2026/11/02 12:57:45 - pipeline-with-parameter - Execution started for pipeline [pipeline-with-parameter]
+2026/11/02 12:57:45 - get ${PRM_EXAMPLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2026/11/02 12:57:45 - write parameter to log.0 -
+2026/11/02 12:57:45 - write parameter to log.0 - ------------> Linenr 1------------------------------
+2026/11/02 12:57:45 - write parameter to log.0 - we received 'Hello' as the value for this pipeline's parameter.
+2026/11/02 12:57:45 - write parameter to log.0 -
+2026/11/02 12:57:45 - write parameter to log.0 - example = Hello
+2026/11/02 12:57:45 - write parameter to log.0 -
+2026/11/02 12:57:45 - write parameter to log.0 - ====================
+2026/11/02 12:57:45 - write env_variable to log.0 -
+2026/11/02 12:57:45 - write env_variable to log.0 - ------------> Linenr 1------------------------------
+2026/11/02 12:57:45 - write env_variable to log.0 - the value for variable ENV_VARIABLE is ${ENV_VARIABLE}
+2026/11/02 12:57:45 - write env_variable to log.0 -
+2026/11/02 12:57:45 - write env_variable to log.0 - env_variable = ${ENV_VARIABLE}
+2026/11/02 12:57:45 - write env_variable to log.0 -
+2026/11/02 12:57:45 - write env_variable to log.0 - ====================
+2026/11/02 12:57:45 - write parameter to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2026/11/02 12:57:45 - get ${ENV_VARIABLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2026/11/02 12:57:45 - write env_variable to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2026/11/02 12:57:45 - pipeline-with-parameter - Pipeline duration : 0.039 seconds [  0.039" ]
+----
+
+Without `-p`, the parameter gets its default value, which is empty here: the log shows `we received '' as the value for this pipeline's parameter.`
+
+`ENV_VARIABLE` isn't set in the samples project, so the log shows `+${ENV_VARIABLE}+` as it is.
+Set it, for example, as a system property with `-s`, or in an xref:projects/projects-environments.adoc[environment].
+A value with spaces goes between quotes (double quotes on Windows):
+
+[code, shell]
+----
+./hop-run.sh -j samples -r local -f '${PROJECT_HOME}/pipelines/pipeline-with-parameter.hpl' -p 'PRM_EXAMPLE=Hello Hop' -s ENV_VARIABLE=dev
+----
+
+[code, shell]
+----
+... - write parameter to log.0 - we received 'Hello Hop' as the value for this pipeline's parameter.
+... - write env_variable to log.0 - the value for variable ENV_VARIABLE is dev
+----
+
+See xref:variables/parameters.adoc[Working with parameters] for more on parameters.
+
 === Parameter Examples
 This is a list of examples on how the parameters on this command are parsed
 
