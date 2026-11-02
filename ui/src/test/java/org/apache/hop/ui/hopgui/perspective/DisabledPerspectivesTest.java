@@ -64,6 +64,13 @@ class DisabledPerspectivesTest {
     assertNull(perspective.getActiveEditor());
     assertTrue(perspective.getItems().isEmpty());
     assertFalse(perspective.remove(null));
+    assertFalse(perspective.hasNavigationPreviousFile());
+    assertFalse(perspective.hasNavigationNextFile());
+    assertDoesNotThrow(
+        () -> {
+          perspective.navigateToPreviousFile();
+          perspective.navigateToNextFile();
+        });
   }
 
   /**
@@ -75,7 +82,15 @@ class DisabledPerspectivesTest {
     ExplorerPerspective perspective = new ExplorerPerspective();
 
     assertFalse(perspective.isActive());
-    assertDoesNotThrow(perspective::activate);
+    assertFalse(perspective.hasNavigationPreviousFile());
+    assertFalse(perspective.hasNavigationNextFile());
+    assertDoesNotThrow(
+        () -> {
+          perspective.activate();
+          perspective.navigateToPreviousFile();
+          perspective.navigateToNextFile();
+          perspective.updateTreeItem(null);
+        });
   }
 
   @Test

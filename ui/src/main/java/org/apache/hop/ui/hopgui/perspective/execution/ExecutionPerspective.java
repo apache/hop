@@ -1766,32 +1766,49 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void navigateToPreviousFile() {
-    if (hasNavigationPreviousFile()) {
-      int index = tabFolder.getSelectionIndex() - 1;
-      if (index < 0) {
-        index = tabFolder.getItemCount() - 1;
-      }
-      tabFolder.setSelection(index);
+    CTabFolder folder = navigationFolder();
+    if (folder == null) {
+      return;
     }
+    int index = folder.getSelectionIndex() - 1;
+    if (index < 0) {
+      index = folder.getItemCount() - 1;
+    }
+    folder.setSelection(index);
   }
 
   @Override
   public void navigateToNextFile() {
-    if (hasNavigationNextFile()) {
-      int index = tabFolder.getSelectionIndex() + 1;
-      if (index >= tabFolder.getItemCount()) {
-        index = 0;
-      }
-      tabFolder.setSelection(index);
+    CTabFolder folder = navigationFolder();
+    if (folder == null) {
+      return;
     }
+    int index = folder.getSelectionIndex() + 1;
+    if (index >= folder.getItemCount()) {
+      index = 0;
+    }
+    folder.setSelection(index);
   }
 
+  @Override
   public boolean hasNavigationPreviousFile() {
-    return tabFolder.getItemCount() > 1;
+    return navigationFolder() != null;
   }
 
+  @Override
   public boolean hasNavigationNextFile() {
-    return tabFolder.getItemCount() > 1;
+    return navigationFolder() != null;
+  }
+
+  /**
+   * Live folder with another file to switch to. Null before the UI exists or after the folder is
+   * disposed on exit.
+   */
+  private CTabFolder navigationFolder() {
+    if (tabFolder == null || tabFolder.isDisposed() || tabFolder.getItemCount() <= 1) {
+      return null;
+    }
+    return tabFolder;
   }
 
   @Override

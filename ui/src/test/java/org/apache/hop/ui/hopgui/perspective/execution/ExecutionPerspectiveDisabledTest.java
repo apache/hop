@@ -93,6 +93,18 @@ class ExecutionPerspectiveDisabledTest {
   }
 
   @Test
+  void navigationDoesNotFailWithoutATabFolder() {
+    // File-capability updates ask this during shutdown, after the tab folder is gone.
+    assertFalse(disabledPerspective.hasNavigationPreviousFile());
+    assertFalse(disabledPerspective.hasNavigationNextFile());
+    assertDoesNotThrow(
+        () -> {
+          disabledPerspective.navigateToPreviousFile();
+          disabledPerspective.navigateToNextFile();
+        });
+  }
+
+  @Test
   void getInstanceDoesNotReturnNullWhenNeverConstructed() throws Exception {
     Field instanceField = ExecutionPerspective.class.getDeclaredField("instance");
     instanceField.setAccessible(true);

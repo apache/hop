@@ -2485,6 +2485,11 @@ public class HopGui
       boolean running,
       boolean paused) {
 
+    // Display.dispose() still runs queued asyncExec updates after the shell is gone.
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+
     this.capabilityFileTypeHandler = handler;
 
     mainMenuWidgets.enableMenuItem(
@@ -2528,18 +2533,19 @@ public class HopGui
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW);
 
+    IHopPerspective perspective = getActivePerspective();
     mainMenuWidgets.enableMenuItem(
         fileType,
         handler,
         ID_MAIN_MENU_EDIT_NAV_PREV,
         IHopFileType.CAPABILITY_FILE_HISTORY,
-        getActivePerspective().hasNavigationPreviousFile());
+        perspective != null && perspective.hasNavigationPreviousFile());
     mainMenuWidgets.enableMenuItem(
         fileType,
         handler,
         ID_MAIN_MENU_EDIT_NAV_NEXT,
         IHopFileType.CAPABILITY_FILE_HISTORY,
-        getActivePerspective().hasNavigationNextFile());
+        perspective != null && perspective.hasNavigationNextFile());
 
     mainToolbarWidgets.enableToolbarItem(
         fileType, handler, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);

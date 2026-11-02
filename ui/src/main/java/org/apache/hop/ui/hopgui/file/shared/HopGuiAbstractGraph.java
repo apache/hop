@@ -108,6 +108,18 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     return hopGui.getDisplay();
   }
 
+  /**
+   * False once this graph or the Hop shell has been disposed. {@code Display.dispose()} still runs
+   * queued {@code asyncExec} runnables, and those must not touch widgets.
+   */
+  protected boolean isUiAlive() {
+    if (isDisposed() || hopGui == null) {
+      return false;
+    }
+    Shell shell = hopGui.getShell();
+    return shell != null && !shell.isDisposed();
+  }
+
   public abstract boolean hasChanged();
 
   public abstract void setChanged();
