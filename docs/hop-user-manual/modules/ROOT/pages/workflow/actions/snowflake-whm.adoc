@@ -37,15 +37,15 @@ This action creates a new warehouse using the settings you provide.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Replace?|If the warehouse already exists, replace the existing warehouse with your new settings.
-|Fail if warehouse exists?| If the warehouse already exists the action will fail.  If not checked and Replace? is not checked the action will perform no action if the warehouse already exists.
-|Warehouse Size| (X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
-|Warehouse Type|(Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
+|Replace|If the warehouse already exists, replace the existing warehouse with your new settings.
+|Fail if warehouse exists| If the warehouse already exists the action will fail.  If not checked and Replace is not checked the action will perform no action if the warehouse already exists.
+|Warehouse size| (X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
+|Warehouse type|(Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
 |Max cluster size|The maximum cluster size for clustered warehouses.
 |Min cluster size|The minimum cluster size for clustered warehouses.
-|Auto suspend|The number of minutes of inactivity after which the warehouse will automatically suspend.
-|Auto resume?|Should the warehouse automatically resume when queries are run against it?
-|Initially suspended?|Should the warehouse be created in a suspended state.
+|Auto suspend (minutes)|The number of minutes of inactivity after which the warehouse will automatically suspend.
+|Auto resume|Should the warehouse automatically resume when queries are run against it?
+|Initially suspended|Should the warehouse be created in a suspended state.
 |Resource monitor|The resource monitor used for tracking Snowflake usage and billing.
 |Comment|A comment to be included about the warehouse.
 |===
@@ -57,7 +57,7 @@ This action removes a warehouse from Snowflake.
 [options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Fail if warehouse does not exist?|If the warehouse does not exist, the action will fail.
+|Fail if warehouse does not exist|If the warehouse does not exist, the action will fail.
 |===
 
 === Action: Resume warehouse
@@ -87,12 +87,27 @@ This action alters the warehouse, enabling users to re-size, change warehouse ty
 |===
 |Option|Description
 |Fail if warehouse does not exist?|If the warehouse does not exist, the action will fail.
-|Warehouse Size|(X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
-|Warehouse Type|(Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
+|Warehouse size|(X-Small, Small, Medium, Large, X-Large, 2X-Large, 3X-Large) The size of the warehouse to create.
+|Warehouse type|(Standard, Enterprise) The type of warehouse to create.  Enterprise warehouses have more memory available than Standard warehouses.
 |Max cluster size|The maximum cluster size for clustered warehouses.
 |Min cluster size|The minimum cluster size for clustered warehouses.
-|Auto suspend|The number of minutes of inactivity after which the warehouse will automatically suspend.
-|Auto resume?|Should the warehouse automatically resume when queries are run against it?
+|Auto suspend (minutes)|The number of minutes of inactivity after which the warehouse will automatically suspend.
+|Auto resume|Should the warehouse automatically resume when queries are run against it?
 |Resource monitor|The resource monitor used for tracking Snowflake usage and billing.
 |Comment|A comment to be included about the warehouse.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The statement ran, with 0 errors.
+|False|The action doesn't count errors: the number of errors stays 0. *Connection* is empty, no *Action* is selected, for *Create warehouse* *Max cluster size* is not a positive number or *Min cluster size* or *Auto suspend (minutes)* is negative or not a number, the connection doesn't exist or can't connect, or Snowflake refuses the statement, for example when the warehouse exists and *Fail if warehouse exists* is checked, or doesn't exist and *Fail if warehouse does not exist* is checked.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: *Create warehouse* and *Alter warehouse* use *Warehouse name* as it is typed: variables in the name are not resolved, unlike for *Drop warehouse*, *Resume warehouse* and *Suspend warehouse*.

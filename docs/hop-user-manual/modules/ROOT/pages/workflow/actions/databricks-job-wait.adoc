@@ -47,14 +47,14 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 |Run ID
 |Numeric run id; default `+${DatabricksRunId}+`
 
-|Timeout (seconds)
-|Maximum wait; `0` = no timeout
+|Timeout (seconds, 0=none)
+|Maximum wait; `0` = no timeout. A value that is not a number is replaced by 3600.
 
 |Poll interval (seconds)
-|Delay between status checks (default 15)
+|Delay between status checks (default 15, at least 1)
 
-|Cancel run if workflow is stopped
-|If checked, calls `jobs/runs/cancel` when the parent workflow stops
+|Cancel Databricks run if workflow is stopped
+|If checked, calls `jobs/runs/cancel` when the parent workflow stops, and also when the timeout is reached
 
 |Result variables
 |Same defaults as Job Run: `DatabricksJobId`, `DatabricksRunId`, `DatabricksStatus`, `DatabricksRunPageUrl`, `DatabricksError`
@@ -65,3 +65,18 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 * xref:workflow/actions/databricks-job-run.adoc[Databricks job run]
 * xref:pipeline/spark/databricks.adoc[Native Spark on Databricks]
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The run ended with life cycle state `TERMINATED` and result state `SUCCESS`, with 0 errors.
+|False|The number of errors is 1. *Databricks connection* is empty or doesn't exist, *Run ID* is empty or not a number, a call to the Jobs API fails, the run ends with another result state (for example `FAILED` or `CANCELED`) or with life cycle state `SKIPPED` or `INTERNAL_ERROR`, the timeout is reached, or the workflow is stopped while the action waits.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+NOTE: After every status check the action sets the result variables for the Job ID, the Run ID, the status (the result state, like `SUCCESS` or `FAILED`, once the run is `TERMINATED`, the life cycle state before that) and the run page URL (the Job ID and the URL only when Databricks returns them), in its workflow and in every parent workflow. The error variable is emptied when the action starts and holds the error message when the action is false, except for a canceled run: then it stays empty.
