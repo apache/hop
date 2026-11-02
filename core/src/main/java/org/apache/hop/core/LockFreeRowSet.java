@@ -92,7 +92,7 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
    * @return the claimed index, or -1 when the ring is full
    */
   private long offer(Object[] row) {
-    long limit = (long) PRODUCER_LIMIT.getOpaque(this);
+    long limit = (long) PRODUCER_LIMIT.getAcquire(this);
     long index;
     do {
       index = producerIndex;
@@ -101,7 +101,7 @@ public class LockFreeRowSet extends LockFreeRowSetPad5 implements Comparable<IRo
         if (index >= limit) {
           return -1; // full
         }
-        PRODUCER_LIMIT.setOpaque(this, limit);
+        PRODUCER_LIMIT.setRelease(this, limit);
       }
     } while (!PRODUCER_INDEX.compareAndSet(this, index, index + 1));
     SLOT.setRelease(slots, (int) (index & mask), row);
@@ -512,8 +512,11 @@ abstract class LockFreeRowSetProducerFields extends LockFreeRowSetPad1 {
 
   /**
    * Cache of consumerIndex + maxRows. A stale value is never too large, so it only costs a re-read.
-   * Several producers write it, so it is only accessed with opaque reads and writes: a plain long
-   * may be written in two halves (JLS 17.7), and a value mixed from two writes can be too large.
+   * Several producers write it, so it is only accessed through a VarHandle: a plain long may be
+   * written in two halves (JLS 17.7), and a value mixed from two writes can be too large. The
+   * release store and acquire load also pass on what the producer that read consumerIndex saw: the
+   * consumer clears a slot before it moves consumerIndex, so a producer that only reads this limit
+   * still sees the slot cleared before it writes a row into it.
    */
   long producerLimit;
 
