@@ -21,6 +21,8 @@ import com.jediterm.core.util.TermSize;
 import com.jediterm.terminal.ProcessTtyConnector;
 import com.jediterm.terminal.TerminalColor;
 import com.jediterm.terminal.TextStyle;
+import com.jediterm.terminal.TtyConnectorResizeStrategy;
+import com.jediterm.terminal.TtyConnectorResizeStrategyProvider;
 import com.jediterm.terminal.model.StyleState;
 import com.jediterm.terminal.model.TerminalTextBuffer;
 import com.jediterm.terminal.ui.JediTermWidget;
@@ -32,13 +34,12 @@ import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.hop.core.Const;
@@ -55,6 +56,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 
 /** JediTerm-based terminal widget using SWT-AWT bridge for embedding AWT components in SWT. */
 public class JediTerminalWidget implements ITerminalWidget {
@@ -66,6 +69,12 @@ public class JediTerminalWidget implements ITerminalWidget {
 
   /** Font scale percent (100 = base size). Mutable so toolbar +/- can update all tabs. */
   private final AtomicInteger fontScalePercent = new AtomicInteger(100);
+
+  /**
+   * Makes up for the desktop scale AWT does not follow on Linux. Set on the SWT thread, read by the
+   * settings provider on the AWT thread.
+   */
+  private volatile float hiDpiFontScale = 1.0f;
 
   private Composite bridgeComposite;
   private Frame awtFrame;
@@ -119,6 +128,8 @@ public class JediTerminalWidget implements ITerminalWidget {
           if (bridgeComposite.isDisposed() || awtFrame == null) {
             return;
           }
+          // the tab now has its place on a monitor
+          updateHiDpiFontScale();
           try {
             Rectangle rect = bridgeComposite.getClientArea();
             java.awt.EventQueue.invokeLater(
@@ -136,6 +147,19 @@ public class JediTerminalWidget implements ITerminalWidget {
             log.logDebug("Error in resize handler: " + e.getMessage());
           }
         });
+
+    // Moved to a monitor with another scale
+    Shell shell = bridgeComposite.getShell();
+    Listener shellMoved = event -> updateHiDpiFontScale();
+    shell.addListener(SWT.Move, shellMoved);
+    bridgeComposite.addListener(
+        SWT.Dispose,
+        event -> {
+          if (!shell.isDisposed()) {
+            shell.removeListener(SWT.Move, shellMoved);
+          }
+        });
+    hiDpiFontScale = computeHiDpiFontScale();
 
     // Create JediTerm widget with Hop dark mode support
     boolean isDarkMode = PropsUi.getInstance().isDarkMode();
@@ -221,32 +245,53 @@ public class JediTerminalWidget implements ITerminalWidget {
   }
 
   /**
-   * On Linux, SWT follows the desktop scale (GTK window scaling) but AWT does not, so on a HiDPI
-   * screen the terminal font comes out smaller than the rest of Hop. Return the factor that makes
-   * up the difference: the SWT zoom divided by the AWT scale. On Windows and macOS AWT scales
-   * itself, so the factor is 1.
+   * On Linux, SWT follows the desktop scale but AWT does not, so on a HiDPI screen the terminal
+   * font comes out smaller than the rest of Hop. Return the factor that makes up the difference,
+   * see {@link TerminalFonts#hiDpiScale(int, int, double)}. On Windows and macOS AWT scales itself,
+   * so the factor is 1.
    */
-  private float getHiDpiFontScale() {
-    if (!Const.isLinux()) {
+  private float computeHiDpiFontScale() {
+    if (!Const.isLinux() || bridgeComposite.isDisposed()) {
       return 1.0f;
     }
     try {
-      double awtScale =
-          GraphicsEnvironment.getLocalGraphicsEnvironment()
-              .getDefaultScreenDevice()
-              .getDefaultConfiguration()
-              .getDefaultTransform()
-              .getScaleX();
+      // the configuration of the embedded frame once it has one: the screen the terminal is on
+      GraphicsConfiguration configuration =
+          awtFrame == null ? null : awtFrame.getGraphicsConfiguration();
+      if (configuration == null) {
+        configuration =
+            GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice()
+                .getDefaultConfiguration();
+      }
+      double awtScale = configuration.getDefaultTransform().getScaleX();
       int swtZoom = bridgeComposite.getMonitor().getZoom();
-      float scale = (float) Math.max(1.0, swtZoom / (100.0 * awtScale));
-      if (scale != 1.0f) {
+      int swtDpi = bridgeComposite.getDisplay().getDPI().x;
+      float scale = TerminalFonts.hiDpiScale(swtZoom, swtDpi, awtScale);
+      if (Math.abs(scale - hiDpiFontScale) > 0.01f) {
         log.logDetailed(
-            "JediTerm: SWT zoom " + swtZoom + "%, AWT scale " + awtScale + ", font scale " + scale);
+            "JediTerm: SWT zoom "
+                + swtZoom
+                + "%, SWT DPI "
+                + swtDpi
+                + ", AWT scale "
+                + awtScale
+                + ", font scale "
+                + scale);
       }
       return scale;
     } catch (Exception e) {
       log.logDebug("Could not determine HiDPI font scale: " + e.getMessage());
       return 1.0f;
+    }
+  }
+
+  /** Recompute the HiDPI font scale, and redraw the terminal when it changed. */
+  private void updateHiDpiFontScale() {
+    float scale = computeHiDpiFontScale();
+    if (Math.abs(scale - hiDpiFontScale) > 0.01f) {
+      hiDpiFontScale = scale;
+      reinitFont();
     }
   }
 
@@ -269,14 +314,13 @@ public class JediTerminalWidget implements ITerminalWidget {
       }
     }
     final float systemPropScale = fontScale;
-    final float hiDpiScale = getHiDpiFontScale();
 
     final int finalAwtStyle = java.awt.Font.PLAIN;
 
     return new DefaultSettingsProvider() {
       private int computeFontSize() {
         return Math.round(
-            baseFontHeight * (fontScalePercent.get() / 100f) * systemPropScale * hiDpiScale);
+            baseFontHeight * (fontScalePercent.get() / 100f) * systemPropScale * hiDpiFontScale);
       }
 
       @Override
@@ -353,11 +397,15 @@ public class JediTerminalWidget implements ITerminalWidget {
   public void setFontScalePercent(int percent) {
     int clamped = Math.clamp(percent, 50, 200);
     fontScalePercent.set(clamped);
+    reinitFont();
+  }
+
+  private void reinitFont() {
     if (jediTermWidget == null) {
       return;
     }
-    // The DefaultSettingsProvider already reads fontScalePercent via computeFontSize(),
-    // so updating the AtomicInteger is enough for the provider. We now need to tell
+    // The DefaultSettingsProvider already reads fontScalePercent and hiDpiFontScale via
+    // computeFontSize(), so updating those is enough for the provider. We now need to tell
     // TerminalPanel to re-read the font from the provider and recalculate its character
     // grid. TerminalPanel.reinitFontAndResize() does exactly that but is protected,
     // so we call it via reflection.
@@ -512,8 +560,10 @@ public class JediTerminalWidget implements ITerminalWidget {
    */
   private static class FallbackFontTerminalPanel extends TerminalPanel {
 
-    /** Fallback per code point; empty when no installed font can draw it. Shared by all tabs. */
-    private static final Map<Integer, Optional<Font>> FALLBACK_FONTS = new ConcurrentHashMap<>();
+    /** The fallback fonts at the size and style they are drawn in. Only used on the AWT thread. */
+    private final Map<DerivedFontKey, Font> derivedFonts = new HashMap<>();
+
+    private record DerivedFontKey(Font fallback, int style, float size) {}
 
     FallbackFontTerminalPanel(
         SettingsProvider settingsProvider,
@@ -528,29 +578,14 @@ public class JediTerminalWidget implements ITerminalWidget {
       if (font.canDisplayUpTo(text, start, end) == -1) {
         return font;
       }
-      return FALLBACK_FONTS
-          .computeIfAbsent(
-              Character.codePointAt(text, start), codePoint -> findFallbackFont(text, start, end))
-          .map(fallback -> fallback.deriveFont(font.getStyle(), font.getSize2D()))
+      return TerminalFonts.INSTANCE
+          .fallbackFor(text, start, end, this::repaint)
+          .map(
+              fallback ->
+                  derivedFonts.computeIfAbsent(
+                      new DerivedFontKey(fallback, font.getStyle(), font.getSize2D()),
+                      key -> key.fallback().deriveFont(key.style(), key.size())))
           .orElse(font);
-    }
-
-    /** First installed font family that can draw the text, preferring a monospaced one. */
-    private static Optional<Font> findFallbackFont(char[] text, int start, int end) {
-      Font fallback = null;
-      for (String family :
-          GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()) {
-        Font candidate = new Font(family, Font.PLAIN, 1);
-        if (candidate.canDisplayUpTo(text, start, end) == -1) {
-          if (family.toLowerCase().contains("mono")) {
-            return Optional.of(candidate);
-          }
-          if (fallback == null) {
-            fallback = candidate;
-          }
-        }
-      }
-      return Optional.ofNullable(fallback);
     }
   }
 
@@ -558,7 +593,8 @@ public class JediTerminalWidget implements ITerminalWidget {
    * Adapter connecting Pty4J to JediTerm's TtyConnector. ProcessTtyConnector decodes the output
    * with a stateful reader, so multi-byte characters split across reads stay intact.
    */
-  private static class Pty4JTtyConnector extends ProcessTtyConnector {
+  private static class Pty4JTtyConnector extends ProcessTtyConnector
+      implements TtyConnectorResizeStrategyProvider {
 
     private final PtyProcess ptyProcess;
 
@@ -576,6 +612,17 @@ public class JediTerminalWidget implements ITerminalWidget {
      * Pass the terminal size on to the PTY so the shell wraps lines at the visible width. JediTerm
      * only calls this overload; its default implementation throws.
      */
+    /**
+     * Windows ConPTY may redraw the screen buffer on a resize. Arriving on a buffer that was just
+     * resized, that pushes lines into the scrollback, so JediTerm resizes it a little later.
+     */
+    @Override
+    public TtyConnectorResizeStrategy getResizeStrategy() {
+      return Const.isWindows()
+          ? TtyConnectorResizeStrategy.POSTPONED
+          : TtyConnectorResizeStrategy.IMMEDIATE;
+    }
+
     @Override
     public void resize(TermSize termSize) {
       if (ptyProcess.isAlive()) {
