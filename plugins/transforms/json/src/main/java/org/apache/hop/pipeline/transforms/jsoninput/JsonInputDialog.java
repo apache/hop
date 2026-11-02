@@ -58,6 +58,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -1132,28 +1133,28 @@ public class JsonInputDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
   }
 
+  /**
+   * Load previous-transform fields into the source combo. Do not call {@code removeAll()} here.
+   * {@code removeAll()} clears the text, including on this editable combo, and a failed lookup
+   * would leave the source field empty. {@code CCombo.setItems} clears the text only when the combo
+   * is not editable. The lookup runs first, and {@code ComboItems.setItemsKeepingText} writes the
+   * previous text back when it returns.
+   */
   private void setSourceStreamField(boolean isShowErrorDialog) {
     try {
-      String value = wFieldValue.getText();
-      wFieldValue.removeAll();
-
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null) {
-        wFieldValue.setItems(r.getFieldNames());
+      IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (row != null) {
+        ComboItems.setItemsKeepingText(wFieldValue, row.getFieldNames());
       }
-      if (value != null) {
-        wFieldValue.setText(value);
-      }
-    } catch (HopException ke) {
+    } catch (HopException exception) {
       if (!isShowErrorDialog) {
         return;
       }
-
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogMessage"),
-          ke);
+          exception);
     }
   }
 
