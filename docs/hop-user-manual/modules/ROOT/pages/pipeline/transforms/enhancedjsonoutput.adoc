@@ -152,4 +152,24 @@ You can use this option (and a chain of transforms, see the example pipeline in 
 
 == Notes
 
-Look at the sample provided _json-output-generate-nested-structure.hpl_ for a better understanding about how the transform works
+The sample `json-output-generate-nested-structure.hpl` builds a nested document with two Enhanced JSON Output transforms.
+Sort rows orders the input by `field1` descending, then `field2` ascending, so the `C` group comes first.
+The first transform groups by `field1` and writes `field2` and `field3` as `campo2` and `campo3` into the field `lvl1Details`.
+The second transform has no group key.
+It writes `field1` as `campo1` and embeds `lvl1Details` as `details`, under the block name `results`.
+
+With no group key and Force single grouped item unchecked, the output is an array with one object per row.
+A single row gives one object unless Force arrays in JSON is checked.
+With Force single grouped item and no group key, every row counts as the same group, so the rows merge into one object with an array per field.
+A JSON block name wraps that value in an object.
+The sample's second transform does this with `results`.
+Grouped items require a group key, and the input has to be sorted by every group key.
+The Group Key section above shows that file shape.
+
+The sample writes this value.
+`campo3` is a string because the Data Grid defines `field3` as String.
+
+[source,json]
+----
+{"results":[{"campo1":"C","details":[{"campo2":"B","campo3":"7"},{"campo2":"F","campo3":"5"},{"campo2":"F","campo3":"6"},{"campo2":"V","campo3":"6"}]},{"campo1":"B","details":[{"campo2":"C","campo3":"1"},{"campo2":"C","campo3":"2"},{"campo2":"D","campo3":"4"}]},{"campo1":"A","details":[{"campo2":"B","campo3":"1"},{"campo2":"B","campo3":"2"}]}]}
+----
