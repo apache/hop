@@ -24,7 +24,7 @@ limitations under the License.
 
 == Description
 
-Read rows from Snowflake with Apache Beam SnowflakeIO 2.74.0. Snowflake copies the table or query result to a GCS external stage, and Hop turns each CSV row into a Hop row. This transform is a source: it does not accept incoming hops.
+Read rows from Snowflake with Apache Beam SnowflakeIO {beam-version}. Snowflake copies the table or query result to a GCS external stage, and Hop turns each CSV row into a Hop row. This transform is a source: it does not accept incoming hops.
 
 The read is bounded. SnowflakeIO rejects a streaming read, and this transform does not offer one. Declared Beam compatibility is not a remote-runner certification. No test in this release runs a pipeline against Snowflake or GCS.
 

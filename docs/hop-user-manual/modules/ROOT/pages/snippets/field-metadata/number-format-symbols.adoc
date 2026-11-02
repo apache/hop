@@ -16,7 +16,7 @@ under the License.
 ////
 
 Number format masks follow Java `DecimalFormat`.
-See the https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DecimalFormat.html[Java 21 DecimalFormat] documentation for the full pattern language.
+See the https://docs.oracle.com/en/java/javase/{java-version}/docs/api/java.base/java/text/DecimalFormat.html[Java {java-version} DecimalFormat] documentation for the full pattern language.
 
 [options="header"]
 |===

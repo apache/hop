@@ -32,7 +32,7 @@ Do this after your first `+local[*]+` run (see xref:pipeline/spark/getting-start
 == What you need
 
 * Linux or macOS. Spark's start scripts are shell scripts; on Windows use WSL.
-* Java 21, both for Hop and for the Spark processes. Spark 4.1 also runs on Java 17, but the Hop classes in the fat jar need 21.
+* Java {java-version}, both for Hop and for the Spark processes. Spark 4.1 also runs on Java 17, but the Hop classes in the fat jar need {java-version}.
 * About 10 GB of free disk: 600 MB for Spark, 900 MB for the fat jar, and room for executor copies of that jar, about 3.5 GB per run (see <<disk-space>>).
 * A Hop client with the native Spark engine and the Apache Beam engine plugins (next section).
 
@@ -53,26 +53,26 @@ The Beam plugin also adds the `beam` folder to the `samples` project. The exampl
 
 == 2. Start a Spark standalone cluster
 
-The cluster runs the same Spark version the engine is built with: *4.1.3*, Scala 2.13.
+The cluster runs the same Spark version the engine is built with: *{spark-version}*, Scala 2.13.
 
 === Download Spark
 
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 mkdir -p ~/spark && cd ~/spark
-curl -fLO https://dlcdn.apache.org/spark/spark-4.1.3/spark-4.1.3-bin-hadoop3.tgz
-curl -fLO https://downloads.apache.org/spark/spark-4.1.3/spark-4.1.3-bin-hadoop3.tgz.sha512
-sha512sum -c spark-4.1.3-bin-hadoop3.tgz.sha512   # macOS: shasum -a 512 -c ...
-tar xzf spark-4.1.3-bin-hadoop3.tgz
+curl -fLO https://dlcdn.apache.org/spark/spark-{spark-version}/spark-{spark-version}-bin-hadoop3.tgz
+curl -fLO https://downloads.apache.org/spark/spark-{spark-version}/spark-{spark-version}-bin-hadoop3.tgz.sha512
+sha512sum -c spark-{spark-version}-bin-hadoop3.tgz.sha512   # macOS: shasum -a 512 -c ...
+tar xzf spark-{spark-version}-bin-hadoop3.tgz
 ----
 
-If the `dlcdn` link no longer works, the release is kept at `https://archive.apache.org/dist/spark/spark-4.1.3/`.
+If the `dlcdn` link no longer works, the release is kept at `https://archive.apache.org/dist/spark/spark-{spark-version}/`.
 
 === Configure the cluster
 
-Create `~/spark/spark-4.1.3-bin-hadoop3/conf/spark-env.sh`. The start scripts read it, so the settings apply every time you start or stop the cluster.
+Create `~/spark/spark-{spark-version}-bin-hadoop3/conf/spark-env.sh`. The start scripts read it, so the settings apply every time you start or stop the cluster.
 
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 # Master on this machine only
 SPARK_MASTER_HOST=localhost
@@ -88,18 +88,18 @@ SPARK_LOCAL_DIRS=$HOME/spark/local
 # Remove the folders of finished applications after an hour, checked every 10 minutes
 SPARK_WORKER_OPTS="-Dspark.worker.cleanup.enabled=true -Dspark.worker.cleanup.interval=600 -Dspark.worker.cleanup.appDataTtl=3600"
 
-# Uncomment if java on your PATH is not Java 21
-# JAVA_HOME=/path/to/java-21
+# Uncomment if java on your PATH is not Java {java-version}
+# JAVA_HOME=/path/to/java-{java-version}
 ----
 
 Why `SPARK_LOCAL_DIRS` and `SPARK_WORKER_OPTS` matter: every executor copies the fat jar into `SPARK_LOCAL_DIRS` (default `/tmp`) and again into the worker's `work` folder. See <<disk-space>>.
 
 === Start the master and the workers
 
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
 mkdir -p ~/spark/local
-export SPARK_HOME=~/spark/spark-4.1.3-bin-hadoop3
+export SPARK_HOME=~/spark/spark-{spark-version}-bin-hadoop3
 $SPARK_HOME/sbin/start-master.sh
 $SPARK_HOME/sbin/start-worker.sh spark://localhost:7077
 ----
@@ -270,9 +270,9 @@ Like Hop GUI, Hop Server keeps the Spark application it started running until Ho
 
 == Stop the cluster
 
-[source,bash]
+[source,bash,subs="attributes+"]
 ----
-export SPARK_HOME=~/spark/spark-4.1.3-bin-hadoop3
+export SPARK_HOME=~/spark/spark-{spark-version}-bin-hadoop3
 $SPARK_HOME/sbin/stop-worker.sh
 $SPARK_HOME/sbin/stop-master.sh
 ----
@@ -285,7 +285,7 @@ $SPARK_HOME/sbin/stop-master.sh
 Every executor copies the fat jar twice:
 
 * into `SPARK_LOCAL_DIRS` while it fetches it. With the default `/tmp`, a few parallel copies of a 900 MB jar can fill a small or quota-limited `/tmp` (for example a `tmpfs`). The executors then fail with `Disk quota exceeded` or `No space left on device`, and Spark keeps starting new executors that fail the same way, so the pipeline never ends. Stop it, set `SPARK_LOCAL_DIRS` to a folder on disk, and restart the workers.
-* into the worker's `work/<application id>/<executor id>/` folder, where it stays after the application ends. Four executors use about 3.5 GB per run. The `spark.worker.cleanup.*` settings in `spark-env.sh` remove those folders some time after an application has finished. You can also delete `~/spark/spark-4.1.3-bin-hadoop3/work/app-*` yourself while no application is running.
+* into the worker's `work/<application id>/<executor id>/` folder, where it stays after the application ends. Four executors use about 3.5 GB per run. The `spark.worker.cleanup.*` settings in `spark-env.sh` remove those folders some time after an application has finished. You can also delete `~/spark/spark-{spark-version}-bin-hadoop3/work/app-*` yourself while no application is running.
 
 [[troubleshooting]]
 == Troubleshooting
@@ -336,4 +336,4 @@ Every executor copies the fat jar twice:
 * xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through] (Docker, `spark-submit`)
 * xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN]
 * xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
-* https://spark.apache.org/docs/4.1.3/spark-standalone.html[Spark standalone mode] (Apache Spark documentation)
+* https://spark.apache.org/docs/{spark-version}/spark-standalone.html[Spark standalone mode] (Apache Spark documentation)

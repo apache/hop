@@ -22,7 +22,7 @@ under the License.
 
 == Beam Flink
 
-This runner allows you to run Hop pipelines on https://flink.apache.org[Apache Flink] version 1.19. See xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam] for the Beam and Flink versions of each Hop release.
+This runner allows you to run Hop pipelines on https://flink.apache.org[Apache Flink] version {flink-version}. See xref:pipeline/beam/getting-started-with-beam.adoc[Getting started with Apache Beam] for the Beam and Flink versions of each Hop release.
 
 The Flink runner supports two modes: Local Direct Flink Runner and Flink Runner.
 

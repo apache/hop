@@ -74,7 +74,7 @@ The *native* engine skips Beam entirely:
 |Beam pipelines on Spark (batch *and* streaming)
 
 |Spark line
-|https://spark.apache.org/docs/4.1.3/[4.1.x] (Scala 2.13)
+|https://spark.apache.org/docs/{spark-version}/[4.1.x] (Scala 2.13)
 |3.5.x (Scala 2.12; see Beam support matrix)
 
 |Programming model
@@ -123,9 +123,9 @@ You still design pipelines *visually* in Hop. Spark’s role is the distributed 
 
 [NOTE]
 ====
-*Java:* Hop requires *Java 21* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java 21).
+*Java:* Hop requires *Java {java-version}* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java {java-version}).
 
-*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.3* in the Hop source tree, Scala *2.13*). For `+local[*]+` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
+*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *{spark-version}* in the Hop source tree, Scala *2.13*). For `+local[*]+` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
 ====
 
 [options="header",cols="1,1,2,2"]
@@ -149,7 +149,7 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 * Apache Hop *2.19+* with the `hop-engines-spark` plugin. It is not part of the default client download: install it with `./hop marketplace install hop-engines-spark` (see xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]) and restart Hop.
 * For cluster runs, also the `hop-engines-beam` plugin: the fat jar builder ships with it.
-* *Java 21*.
+* *Java {java-version}*.
 * Familiarity with Hop pipelines, metadata, and run configurations.
 * For cluster submit:
 ** A *Spark 4.1.x* distribution (`SPARK_HOME` pinned to that tree).
@@ -231,7 +231,7 @@ Same run configuration, no GUI:
 
 === Build a fat jar for cluster submit
 
-On a real cluster you must *not* embed a second copy of Spark inside the application jar. The cluster already provides Spark 4.1. Embedding Spark leads to dual classpaths and failures on Java 21.
+On a real cluster you must *not* embed a second copy of Spark inside the application jar. The cluster already provides Spark 4.1. Embedding Spark leads to dual classpaths and failures on Java {java-version}.
 
 Use the special fat-jar token *`native-provided`*: Hop and plugins go into the jar; *Spark stays out*.
 
@@ -701,7 +701,7 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 
 == Checklist
 
-* [ ] Java 21; Hop 2.19+ with `plugins/engines/spark`
+* [ ] Java {java-version}; Hop 2.19+ with `plugins/engines/spark`
 * [ ] Run configuration engine = *Native Spark* (not Beam Spark)
 * [ ] First success on `+local[*]+` with Spark file input → transform → Spark file output
 * [ ] Execution information location attached if you need history and samples

@@ -38,7 +38,7 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 
 === Requirements
 
-* Java 21
+* Java {java-version}
 * Spark 4.1.x (bundled under `plugins/engines/spark/lib` for `+local[*]+`)
 
 === Options

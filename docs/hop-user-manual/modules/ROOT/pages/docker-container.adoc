@@ -37,7 +37,7 @@ For the Hop Web GUI image (`apache/hop-web`), including which folders to persist
 == Operating system
 
 The docker container runs a minimal Linux system called https://hub.docker.com/_/alpine[Alpine].
-OpenJDK version 21 is then used to execute Apache Hop.
+OpenJDK version {java-version} is then used to execute Apache Hop.
 The Linux user used to execute in the container is `hop` and the group is `hop` as well.
 
 == Container Folder Structure

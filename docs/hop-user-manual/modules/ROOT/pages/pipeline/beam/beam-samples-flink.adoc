@@ -27,7 +27,7 @@ under the License.
 
 Check the xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[Supported Versions] on the Getting Started With Beam page to find the latest supported Flink version for your Hop version.
 
-For example, for Hop 1.2, the latest currently supported version is 1.13. Make sure to download Flink for a recent and JDK 8 compatible Scale version. For Flink 1.3.6, this is Scala 2.11.
+For example, this version of Hop supports Flink {flink-version}: download a Flink {flink-version}.x release.
 
 Download your selected Flink version and unzip to a convenient location.
 

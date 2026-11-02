@@ -22,7 +22,7 @@ under the License.
 Hop does not reserve a fixed amount of memory or disk for a pipeline.
 What you need depends on which tool you start, which plugins you keep, and whether a transform holds rows or passes them through.
 
-xref:installation-configuration.adoc[Installation and configuration] is the floor for a default client: Java 21, one CPU core and 4 GB of RAM.
+xref:installation-configuration.adoc[Installation and configuration] is the floor for a default client: Java {java-version}, one CPU core and 4 GB of RAM.
 This page is the next step.
 It covers a stripped `hop-run` on a small device, a workstation for day-to-day design, and batch pipelines that run on Spark or Beam.
 
@@ -226,7 +226,7 @@ A pipeline that is larger than the workstation should not be forced through the 
 Pick a run configuration that hands the data to another engine:
 
 * xref:pipeline/spark/getting-started-with-native-spark.adoc[Native Spark] for batch pipelines on Spark 4.1.
-  The cluster JVM must be able to run Java 21, the same as Hop.
+  The cluster JVM must be able to run Java {java-version}, the same as Hop.
 * xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam] when you need Spark 3.5, Flink, Dataflow, streaming or windows.
 
 The native Spark and Beam engines are optional plugins.

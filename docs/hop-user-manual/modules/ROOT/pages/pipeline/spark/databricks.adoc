@@ -88,7 +88,7 @@ all-purpose cluster** or a classic **job cluster** (`new_cluster` in the Jobs AP
 
 * **Free tier / “cannot create a cluster”** — many Free or UI-first workspaces never expose a classic cluster id. Deploy & run then has nothing valid to put in `existing_cluster_id`. Putting the literal string `new_cluster` into that field without a nested object produces errors such as _Cluster new_cluster does not exist_ (the API treated it as a cluster id).
 * **Serverless-only error** — `Only serverless compute is supported in the workspace` means classic `new_cluster` / existing all-purpose clusters are blocked. Serverless needs job-level `environments` and task `environment_key`, and **must not** send task-level `libraries` the same way classic jobs do.
-* **Spark 4.1 / Java 21 style workloads** — for Hop’s **native** Spark 4.x engine and a fat jar built for modern runtimes, provision a workspace that **allows classic clusters** (e.g. AWS Premium workspace) and a DBR / job cluster configuration aligned with your Spark and JVM expectations. Do not assume Free/serverless will match local `native-provided` fat-jar testing.
+* **Spark 4.1 / Java {java-version} style workloads** — for Hop’s **native** Spark 4.x engine and a fat jar built for modern runtimes, provision a workspace that **allows classic clusters** (e.g. AWS Premium workspace) and a DBR / job cluster configuration aligned with your Spark and JVM expectations. Do not assume Free/serverless will match local `native-provided` fat-jar testing.
 * **New workspace for classic** — if the current workspace is permanently serverless-oriented, creating a **new** classic-capable workspace (cloud account + tier that allows classic compute) is often simpler than fighting Free-tier product limits.
 * [[lesson-fat-jar-library-uri]]**Fat jar library URI must change when jar bytes change (Dedicated / long-lived cluster “caching crapout”)** — overwriting a **fixed** Volume path such as `/Volumes/…/hop-native.jar` (even with Files API `?overwrite=true` and a fresh `.sha256` sidecar) is **not** enough for Databricks to always run the new classes. A long-lived **Dedicated** (or other all-purpose) cluster often keeps **previously installed job libraries** on the driver/executor classpath (old URI still wins even after a successful Volume overwrite). Symptoms:
   **Volume object is minutes old and matches local `sha256sum`**, but MainSpark driver log still shows **old behavior** (e.g. missing `>>>>>> Spark project package distribution build: pkg-dist-…` right after `Initializing Hop`, or obsolete package-distribution log strings such as `cluster-shared … (no SparkFiles)`). Hop Deploy & run therefore uploads a **content-addressed** library path `hop-native-<sha12>.jar` and points the job’s `libraries[].jar` at that URI so each content change is a **new library identity**. **Still required after the first switch** (or if old `hop-native.jar` remains installed on the cluster): **restart the target Dedicated cluster** so accumulated libraries are cleared, then re-run. Verify the driver log prints the expected `pkg-dist-…` fingerprint before debugging package/mapping logic.
@@ -340,7 +340,7 @@ The **Cluster / compute** field accepts one of:
 
 |Literal **`serverless`**
 |Job: `environments` with `environment_key` + `spec.client` + `java_dependencies`; task: `environment_key` only (no cluster fields, no task `libraries`)
-|Serverless-only workspaces. JAR-on-serverless is a different product surface (runtime limits, library rules). Prefer classic for Hop native Spark 4.x / Java 21 style deploy until you explicitly target serverless.
+|Serverless-only workspaces. JAR-on-serverless is a different product surface (runtime limits, library rules). Prefer classic for Hop native Spark 4.x / Java {java-version} style deploy until you explicitly target serverless.
 |===
 
 === Classic job cluster (`new_cluster`) defaults
@@ -501,7 +501,7 @@ Keep `m5.xlarge` (or similar) and supply a full `new_cluster` JSON that includes
 |Do not put the word `new_cluster` as an existing cluster id without the nested object. Use cluster field **`new_cluster`** so Hop emits a real `new_cluster` block.
 
 |Only serverless compute is supported
-|Workspace is serverless-only. Use classic-capable workspace/tier for MainSpark JAR, or `serverless` compute mode (different job shape; not the default for Hop native Spark 4.x / Java 21 style deploy).
+|Workspace is serverless-only. Use classic-capable workspace/tier for MainSpark JAR, or `serverless` compute mode (different job shape; not the default for Hop native Spark 4.x / Java {java-version} style deploy).
 |===
 
 [[faq-exit-marks-failed]]

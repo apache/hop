@@ -130,7 +130,7 @@ Compose mounts:
 If you used a non-default `DIST_DIR` in `prepare-dist.sh`, set both `HOP_DIST_DIR` and `+HOP_DATA_HOST_DIR=${HOP_DIST_DIR}/hop-data+` for compose.
 
 * Master UI: http://localhost:8080 (two workers should register).  
-* Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION=4.1.3`** (override with env if needed).  
+* Images use the existing `docker/integration-tests/spark` Dockerfiles with **`SPARK_VERSION={spark-version}`** (override with env if needed).  
 * After a run you can inspect **on the host** without `docker exec`, for example:
 
 [source,bash]
@@ -307,7 +307,7 @@ Host data under `/tmp/spark-demo-dist/hop-data` is left in place so you can keep
 |`HOP_DATA` must be the **shared** volume path (`file:///data/hop-data`). Do not point Dataset paths at package `PROJECT_HOME`.
 
 |ClassNotFoundException / wrong Spark
-|Fat jar must be **`native-provided`**. Cluster image must be Spark **4.1.x** + **Java 21**. Do not mix Beam Spark 3 fat jars.
+|Fat jar must be **`native-provided`**. Cluster image must be Spark **4.1.x** + **Java {java-version}**. Do not mix Beam Spark 3 fat jars.
 
 |Driver cannot reverse-connect workers
 |Submit script sets `spark.driver.host=spark` (master hostname on the compose network). Adjust if you change service names.

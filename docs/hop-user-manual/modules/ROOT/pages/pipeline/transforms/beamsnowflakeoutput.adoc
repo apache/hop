@@ -24,7 +24,7 @@ limitations under the License.
 
 == Description
 
-Write one bounded Hop collection to a Snowflake table with Apache Beam SnowflakeIO 2.74.0. Hop formats each row as CSV values, SnowflakeIO stages those files in GCS, and Snowflake copies them into the table. Connect exactly one incoming transform. This is a terminal sink; it does not produce downstream rows.
+Write one bounded Hop collection to a Snowflake table with Apache Beam SnowflakeIO {beam-version}. Hop formats each row as CSV values, SnowflakeIO stages those files in GCS, and Snowflake copies them into the table. Connect exactly one incoming transform. This is a terminal sink; it does not produce downstream rows.
 
 Snowpipe is not used. An unbounded collection is rejected. Declared Beam compatibility is not a remote-runner certification. No test in this release runs a pipeline against Snowflake or GCS.
 
