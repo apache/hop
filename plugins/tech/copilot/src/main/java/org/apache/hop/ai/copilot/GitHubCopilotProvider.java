@@ -136,14 +136,20 @@ public class GitHubCopilotProvider extends BaseAiProvider implements IAiChatProv
           await(
               client.createSession(config), started, timeoutSeconds, "creating a Copilot session");
       try (session) {
+        // Without a timeout the SDK gives up after 60 seconds, whatever the provider says.
         AssistantMessageEvent response =
             await(
-                session.sendAndWait(new MessageOptions().setPrompt(prompt(request))),
+                session.sendAndWait(
+                    new MessageOptions().setPrompt(prompt(request)),
+                    remainingMillis(started, timeoutSeconds)),
                 started,
                 timeoutSeconds,
                 "waiting for a Copilot response");
+        if (response == null || response.getData() == null) {
+          throw new HopException(BaseMessages.getString(PKG, "GitHubCopilotProvider.NoAnswer"));
+        }
         return new AiChatResponse(
-            Utils.isEmpty(response.getData().content()) ? "" : response.getData().content(),
+            response.getData().content(),
             null,
             null,
             TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started));
@@ -284,7 +290,7 @@ public class GitHubCopilotProvider extends BaseAiProvider implements IAiChatProv
     return prompt.toString();
   }
 
-  private static <T> T await(
+  static <T> T await(
       CompletableFuture<T> future, long started, long timeoutSeconds, String operation)
       throws InterruptedException, ExecutionException, TimeoutException {
     long remainingNanos = TimeUnit.SECONDS.toNanos(timeoutSeconds) - (System.nanoTime() - started);
@@ -295,10 +301,19 @@ public class GitHubCopilotProvider extends BaseAiProvider implements IAiChatProv
       return future.get(remainingNanos, TimeUnit.NANOSECONDS);
     } catch (ExecutionException e) {
       Throwable cause = e.getCause() == null ? e : e.getCause();
+      if (cause instanceof TimeoutException) {
+        throw new TimeoutException(operation);
+      }
       throw new ExecutionException(operation + ": " + cause.getMessage(), cause);
     } catch (TimeoutException e) {
       throw new TimeoutException(operation);
     }
+  }
+
+  /** Time left in the request, at least 1 ms: the SDK reads 0 or less as no timeout at all. */
+  static long remainingMillis(long started, long timeoutSeconds) {
+    long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+    return Math.max(1, TimeUnit.SECONDS.toMillis(timeoutSeconds) - elapsedMillis);
   }
 
   private static HopException timeoutError(long timeoutSeconds, TimeoutException cause) {

@@ -20,13 +20,16 @@ package org.apache.hop.ai.copilot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.copilot.rpc.CopilotClientMode;
 import com.github.copilot.rpc.PermissionRequestResult;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.apache.hop.ai.provider.AiChatMessage;
 import org.apache.hop.ai.provider.AiChatRequest;
 import org.junit.jupiter.api.Test;
@@ -106,5 +109,27 @@ class GitHubCopilotProviderTest {
     assertTrue(prompt.contains("User: Original question\nAssistant: Original answer"));
     assertTrue(prompt.contains("Current request:\nReturn the corrected response."));
     assertTrue(prompt.endsWith("Return only valid JSON with no surrounding prose or markdown."));
+  }
+
+  @Test
+  void responseWaitGetsTheTimeLeftAndNeverZero() {
+    long now = System.nanoTime();
+
+    long left = GitHubCopilotProvider.remainingMillis(now, 120);
+    assertTrue(left > 119_000 && left <= 120_000, "left: " + left);
+    assertEquals(1, GitHubCopilotProvider.remainingMillis(now - TimeUnit.SECONDS.toNanos(5), 1));
+  }
+
+  @Test
+  void sdkTimeoutIsReportedAsATimeout() {
+    var future = CompletableFuture.<String>failedFuture(new TimeoutException("sdk"));
+
+    var e =
+        assertThrows(
+            TimeoutException.class,
+            () ->
+                GitHubCopilotProvider.await(
+                    future, System.nanoTime(), 10, "waiting for a Copilot response"));
+    assertEquals("waiting for a Copilot response", e.getMessage());
   }
 }

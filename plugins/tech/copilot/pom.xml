@@ -37,6 +37,13 @@
 
     <dependencies>
         <dependency>
+            <!-- The SDK registers JavaTimeModule. Hop's own Jackson databind is loaded parent-first,
+                 so ship the module at Hop's Jackson version instead of the SDK's 2.22. -->
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.21.7</version>
+        </dependency>
+        <dependency>
             <groupId>com.github</groupId>
             <artifactId>copilot-sdk-java</artifactId>
             <version>${copilot-sdk.version}</version>
@@ -48,4 +55,22 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- The parent list drops jackson-datatype-jsr310; this plugin must ship it. -->
+                        <id>stage-plugin-lib</id>
+                        <configuration>
+                            <excludeArtifactIds>lombok,jakarta.servlet-api,${hop.pluginlib.exclude1},${hop.pluginlib.exclude2},${hop.pluginlib.exclude3}</excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
