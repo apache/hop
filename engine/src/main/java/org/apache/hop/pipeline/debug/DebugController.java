@@ -29,6 +29,7 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.CursorRowSet;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -45,6 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
  */
 public class DebugController {
 
+  private static final Class<?> PKG = DebugController.class;
+
   /** Canvas state-map key for the transform the debugger will step. The value is the name. */
   public static final String STATE_CURRENT_TRANSFORM = "debug.currentTransform";
 
@@ -54,7 +57,8 @@ public class DebugController {
     STEPPED,
     FINISHED,
     TIMED_OUT,
-    STOPPED
+    STOPPED,
+    PAUSED
   }
 
   /** Result of one step request. {@code completed} is how many processRow calls finished. */
@@ -80,6 +84,9 @@ public class DebugController {
   private final Set<String> free = new HashSet<>();
   private final Set<String> tryStep = new HashSet<>();
   private final Set<String> inTry = new HashSet<>();
+  private final Set<String> insideRow = new HashSet<>();
+  private final Set<String> ended = new HashSet<>();
+  private final Set<String> pausedByCondition = new HashSet<>();
   private final Deque<StepEvent> events = new ArrayDeque<>();
   private final Map<String, HopPause> hopPauses = new HashMap<>();
 
@@ -113,15 +120,20 @@ public class DebugController {
           return false;
         }
         if (free.contains(key)) {
+          insideRow.add(key);
           return true;
         }
         int left = permits.getOrDefault(key, 0);
-        if (left > 0) {
-          permits.put(key, left - 1);
+        if (left > 0 && readyForInput(transform)) {
+          if (left == 1) {
+            permits.remove(key);
+          } else {
+            permits.put(key, left - 1);
+          }
           if (tryStep.contains(key)) {
-            beginTry(transform);
             inTry.add(key);
           }
+          insideRow.add(key);
           lock.notifyAll();
           return true;
         }
@@ -135,22 +147,33 @@ public class DebugController {
     }
   }
 
-  /** Called by the transform thread after {@code processRow}, including when it threw. */
-  public void afterProcessRow(ITransform transform) {
+  /**
+   * Called by the transform thread after {@code processRow}. {@code keepGoing} is false when the
+   * call returned false or threw, and that call is not counted as a processed row.
+   */
+  public void afterProcessRow(ITransform transform, boolean keepGoing) {
     String key = key(transform);
     synchronized (lock) {
+      insideRow.remove(key);
       boolean tried = inTry.remove(key);
-      if (tried) {
-        endTry(transform);
+      if (keepGoing) {
+        completed.merge(key, 1, Integer::sum);
+        appendEvent(
+            new StepEvent(
+                transform.getTransformName(),
+                transform.getCopy(),
+                tried,
+                transform.getLinesRead(),
+                transform.getLinesWritten()));
       }
-      completed.merge(key, 1, Integer::sum);
-      appendEvent(
-          new StepEvent(
-              transform.getTransformName(),
-              transform.getCopy(),
-              tried,
-              transform.getLinesRead(),
-              transform.getLinesWritten()));
+      lock.notifyAll();
+    }
+  }
+
+  /** The transform returned false from {@code processRow} and will not take another row. */
+  public void transformEnded(ITransform transform) {
+    synchronized (lock) {
+      ended.add(key(transform));
       lock.notifyAll();
     }
   }
@@ -161,8 +184,13 @@ public class DebugController {
   }
 
   /**
-   * Same as {@link #process(ITransform, int)}, then rewinds every input cursor. Output rows land in
-   * the trial buffer of each output hop.
+   * Same as {@link #process(ITransform, int)}, then rewinds every input cursor once for the whole
+   * batch. Output rows land in the trial buffer of each output hop.
+   *
+   * <p>Only the hop cursors move back. The transform's own fields, counters, files, and database
+   * writes stay as the try left them. Sort rows, Group by, Unique rows, Add sequence, Table output,
+   * and anything else that keeps state will see the same row again if it is processed for real
+   * afterwards.
    */
   public StepResult tryRows(ITransform transform, int count) {
     return step(transform, count, true, DEFAULT_TIMEOUT_MS);
@@ -170,30 +198,33 @@ public class DebugController {
 
   public StepResult step(ITransform transform, int count, boolean asTry, long timeoutMs) {
     if (count < 1) {
-      throw new IllegalArgumentException("A step needs at least one row");
+      throw new IllegalArgumentException(text("DebugController.Error.Count"));
     }
     String key = key(transform);
     synchronized (lock) {
       pauseMessage = null;
+      pausedByCondition.remove(key);
       if (isStopped(transform)) {
-        return result(transform, Activity.STOPPED, count, 0, "Pipeline is stopped");
+        return stopped(transform, count, 0);
       }
       if (!waitUntilStarted(transform, timeoutMs)) {
         if (hasFinished(transform)) {
-          return result(transform, Activity.FINISHED, count, 0, "Transform has finished");
+          return finished(transform, count, 0);
         }
-        return result(transform, Activity.TIMED_OUT, count, 0, "Transform did not start");
+        return result(
+            transform, Activity.TIMED_OUT, count, 0, text("DebugController.Detail.DidNotStart"));
       }
       if (hasFinished(transform)) {
-        return result(transform, Activity.FINISHED, count, 0, "Transform has finished");
+        return finished(transform, count, 0);
       }
       if (!readyForInput(transform)) {
         return result(
-            transform, Activity.WAITING, count, 0, "Waiting for an input row at the cursor");
+            transform, Activity.WAITING, count, 0, text("DebugController.Detail.Waiting"));
       }
       free.remove(key);
       if (asTry) {
         tryStep.add(key);
+        beginTry(transform);
       } else {
         tryStep.remove(key);
       }
@@ -202,49 +233,76 @@ public class DebugController {
       lock.notifyAll();
       // The timeout is how long a step may go without finishing another row, not a budget for the
       // whole batch. A CSV source can need far longer than 10s to produce 50,000 rows.
+      Activity activity = Activity.TIMED_OUT;
+      String detail = null;
       int progressed = 0;
       long lastProgress = System.nanoTime();
       long stallNs = Math.max(1L, timeoutMs) * 1_000_000L;
-      while (true) {
-        int doneNow = Math.max(0, completed.getOrDefault(key, 0) - seen);
-        if (doneNow >= count || hasFinished(transform) || isStopped(transform)) {
-          break;
+      try {
+        while (true) {
+          int doneNow = Math.max(0, completed.getOrDefault(key, 0) - seen);
+          if (pausedByCondition.contains(key) && !insideRow.contains(key)) {
+            activity = Activity.PAUSED;
+            detail = pauseMessage == null ? text("DebugController.Detail.Paused") : pauseMessage;
+            break;
+          }
+          if (doneNow >= count) {
+            activity = Activity.STEPPED;
+            break;
+          }
+          if (isStopped(transform)) {
+            activity = Activity.STOPPED;
+            detail = text("DebugController.Detail.PipelineStopped");
+            break;
+          }
+          if (hasFinished(transform)) {
+            activity = Activity.FINISHED;
+            detail = text("DebugController.Detail.TransformFinished");
+            break;
+          }
+          long now = System.nanoTime();
+          if (doneNow > progressed) {
+            progressed = doneNow;
+            lastProgress = now;
+          } else if (pausedByCondition.contains(key)) {
+            lastProgress = now;
+          } else if (now - lastProgress >= stallNs) {
+            activity = Activity.TIMED_OUT;
+            detail =
+                text(
+                    "DebugController.Detail.Stalled",
+                    Integer.toString(doneNow),
+                    Integer.toString(count));
+            break;
+          }
+          try {
+            lock.wait(20L);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            activity = Activity.STOPPED;
+            detail = text("DebugController.Detail.PipelineStopped");
+            break;
+          }
         }
-        long now = System.nanoTime();
-        if (doneNow > progressed) {
-          progressed = doneNow;
-          lastProgress = now;
-        } else if (now - lastProgress >= stallNs) {
-          break;
-        }
-        try {
-          lock.wait(20L);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          break;
+      } finally {
+        tryStep.remove(key);
+        permits.remove(key);
+        if (asTry) {
+          endTry(transform);
         }
       }
       int done = Math.max(0, completed.getOrDefault(key, 0) - seen);
-      tryStep.remove(key);
-      if (isStopped(transform)) {
-        permits.remove(key);
-        return result(transform, Activity.STOPPED, count, done, "Pipeline is stopped");
+      if (activity == Activity.STEPPED) {
+        detail =
+            asTry
+                ? text(
+                    done == 1
+                        ? "DebugController.Detail.TriedOne"
+                        : "DebugController.Detail.TriedMany",
+                    Integer.toString(done))
+                : text("DebugController.Detail.Stepped", Integer.toString(done));
       }
-      if (hasFinished(transform) && done < count) {
-        permits.remove(key);
-        return result(transform, Activity.FINISHED, count, done, "Transform has finished");
-      }
-      if (done < count) {
-        permits.remove(key);
-        return result(
-            transform,
-            Activity.TIMED_OUT,
-            count,
-            done,
-            "Stepped " + done + " of " + count + ", then no further row completed");
-      }
-      String detail = asTry ? "Tried " + done + " row" + (done == 1 ? "" : "s") : "Stepped " + done;
-      return result(transform, Activity.STEPPED, count, done, detail);
+      return result(transform, activity, count, done, detail);
     }
   }
 
@@ -363,21 +421,29 @@ public class DebugController {
     }
     pause();
     if (isStopped(target)) {
-      return result(target, Activity.STOPPED, 0, 0, "Pipeline is stopped");
+      return result(target, Activity.STOPPED, 0, 0, text("DebugController.Detail.PipelineStopped"));
     }
     if (arrived) {
-      return result(target, Activity.STEPPED, 0, 0, "Input row arrived");
+      return result(target, Activity.STEPPED, 0, 0, text("DebugController.Detail.InputArrived"));
     }
     if (upstreamDone) {
-      return result(target, Activity.FINISHED, 0, 0, "Upstream finished");
+      return result(
+          target, Activity.FINISHED, 0, 0, text("DebugController.Detail.UpstreamFinished"));
     }
-    return result(target, Activity.TIMED_OUT, 0, 0, "No input row arrived");
+    return result(target, Activity.TIMED_OUT, 0, 0, text("DebugController.Detail.NoInput"));
   }
 
-  /** Moves one hop's cursor. Downstream buffers stay until {@link #clearDownstream}. */
-  public void rewind(CursorRowSet rowSet, int index) {
+  /**
+   * Moves one hop's cursor. Returns false when the reading transform has already dropped this hop,
+   * because rewinding it would not be seen. Downstream buffers stay until {@link #clearDownstream}.
+   */
+  public boolean rewind(CursorRowSet rowSet, int index) {
+    if (!consumerStillReads(rowSet)) {
+      return false;
+    }
     rowSet.setCursor(index);
     timelineDirty = true;
+    return true;
   }
 
   /** Drops rows on every hop downstream of {@code rowSet}. The hop itself is kept. */
@@ -392,7 +458,7 @@ public class DebugController {
       }
       for (CursorRowSet hop : getCursorRowSets()) {
         if (origin.equals(hop.getOriginTransformName())) {
-          hop.clear();
+          hop.discardRows();
           pending.add(hop.getDestinationTransformName());
         }
       }
@@ -555,7 +621,30 @@ public class DebugController {
   }
 
   private boolean hasFinished(ITransform transform) {
-    return transform.getExecutionStartDate() != null && !transform.isRunning();
+    return ended.contains(key(transform))
+        || (transform.getExecutionStartDate() != null && !transform.isRunning());
+  }
+
+  /** True while the destination copy still has this hop in its input list. */
+  private boolean consumerStillReads(CursorRowSet rowSet) {
+    if (rowSet == null || pipeline.getTransforms() == null) {
+      return false;
+    }
+    List<ITransform> copies = pipeline.getTransforms(rowSet.getDestinationTransformName());
+    if (copies == null) {
+      return false;
+    }
+    for (ITransform transform : copies) {
+      if (transform.getCopy() != rowSet.getDestinationTransformCopy()) {
+        continue;
+      }
+      if (transform.getExecutionStartDate() == null) {
+        return true;
+      }
+      List<IRowSet> inputs = transform.getInputRowSets();
+      return inputs != null && inputs.contains(rowSet);
+    }
+    return false;
   }
 
   private boolean isStopped(ITransform transform) {
@@ -589,36 +678,38 @@ public class DebugController {
     synchronized (lock) {
       pause = hopPauses.get(hopKey(rowSet));
     }
-    if (pause == null || pause.condition() == null || rowMeta == null || row == null) {
-      return;
-    }
-    boolean hit;
-    try {
-      hit = pause.condition().evaluate(rowMeta, row);
-    } catch (RuntimeException e) {
-      return;
-    }
-    if (!hit) {
-      return;
+    boolean hit = false;
+    if (pause != null && pause.condition() != null && rowMeta != null && row != null) {
+      try {
+        hit = pause.condition().evaluate(rowMeta, row);
+      } catch (RuntimeException e) {
+        hit = false;
+      }
     }
     synchronized (lock) {
-      switch (pause.scope()) {
-        case TRANSFORM -> park(rowSet.getOriginTransformName(), rowSet.getOriginTransformCopy());
-        case PIPELINE -> {
-          free.clear();
-          permits.clear();
+      if (hit && pause != null) {
+        switch (pause.scope()) {
+          case TRANSFORM -> park(rowSet.getOriginTransformName(), rowSet.getOriginTransformCopy());
+          case PIPELINE -> {
+            free.clear();
+            permits.clear();
+            if (pipeline.getTransforms() != null) {
+              for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+                pausedByCondition.add(key(combi.transform));
+              }
+            }
+          }
+          case DOWNSTREAM -> parkDownstream(rowSet);
+          default -> park(rowSet.getOriginTransformName(), rowSet.getOriginTransformCopy());
         }
-        case DOWNSTREAM -> parkDownstream(rowSet);
-        default -> park(rowSet.getOriginTransformName(), rowSet.getOriginTransformCopy());
+        pauseMessage =
+            text(
+                "DebugController.Pause.Matched",
+                pause.scope().getDescription(),
+                rowSet.getOriginTransformName(),
+                rowSet.getDestinationTransformName());
       }
-      pauseMessage =
-          "Paused ("
-              + pause.scope().getDescription()
-              + ") because a row on "
-              + rowSet.getOriginTransformName()
-              + " -> "
-              + rowSet.getDestinationTransformName()
-              + " matched the condition.";
+      // Wake a step that is parked until the next input row arrives.
       lock.notifyAll();
     }
   }
@@ -669,6 +760,29 @@ public class DebugController {
     String transformKey = name + "\t" + copy;
     free.remove(transformKey);
     permits.remove(transformKey);
+    pausedByCondition.add(transformKey);
+  }
+
+  private StepResult stopped(ITransform transform, int requested, int completedRows) {
+    return result(
+        transform,
+        Activity.STOPPED,
+        requested,
+        completedRows,
+        text("DebugController.Detail.PipelineStopped"));
+  }
+
+  private StepResult finished(ITransform transform, int requested, int completedRows) {
+    return result(
+        transform,
+        Activity.FINISHED,
+        requested,
+        completedRows,
+        text("DebugController.Detail.TransformFinished"));
+  }
+
+  private static String text(String key, String... parameters) {
+    return BaseMessages.getString(PKG, key, parameters);
   }
 
   private void parkDownstream(CursorRowSet rowSet) {

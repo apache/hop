@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * Rewindable hop buffer for a debug session.
@@ -44,6 +46,8 @@ import org.apache.hop.core.vfs.HopVfs;
  */
 public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
+  private static final Class<?> PKG = CursorRowSet.class;
+
   private final int memoryThreshold;
   private final String directory;
   private final Object lock = new Object();
@@ -54,10 +58,11 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
   private int mark = -1;
   private int inMemory;
   private boolean trialMode;
-  private boolean spillIoFailed;
+  private volatile boolean spillIoFailed;
 
   private FileObject spillFile;
   private DataOutputStream spillOut;
+  private RandomAccessContent spillIn;
   private long spillLength;
 
   private final int timeoutGet;
@@ -102,12 +107,15 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
 
   @Override
   public boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu) {
-    if (rowMeta == null || rowData == null || spillIoFailed) {
+    if (rowMeta == null || rowData == null) {
       return false;
     }
     Object[] stored;
     boolean committed = false;
     synchronized (lock) {
+      if (spillIoFailed) {
+        throw spillFailure(null);
+      }
       try {
         this.rowMeta = rowMeta;
         stored = rowMeta.cloneRow(rowData);
@@ -122,10 +130,14 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
           committed = true;
         }
         lock.notifyAll();
+      } catch (HopRuntimeException e) {
+        spillIoFailed = true;
+        lock.notifyAll();
+        throw e;
       } catch (Exception e) {
         spillIoFailed = true;
         lock.notifyAll();
-        return false;
+        throw spillFailure(e);
       }
     }
     RowEnteredListener listener = rowEnteredListener;
@@ -157,7 +169,7 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
     synchronized (lock) {
       while (true) {
         Object[] row = takeAtCursor();
-        if (row != null || spillIoFailed) {
+        if (row != null) {
           return row;
         }
         if (isDone() && cursor >= slots.size()) {
@@ -281,15 +293,21 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
    */
   public Object[] copyStoredRow(int index) {
     synchronized (lock) {
-      if (index < 0 || index >= slots.size() || spillIoFailed || rowMeta == null) {
+      if (index < 0 || index >= slots.size() || rowMeta == null) {
         return null;
+      }
+      if (spillIoFailed) {
+        throw spillFailure(null);
       }
       try {
         Object[] raw = readSlot(slots.get(index));
         return raw == null ? null : rowMeta.cloneRow(raw);
+      } catch (HopRuntimeException e) {
+        spillIoFailed = true;
+        throw e;
       } catch (Exception e) {
         spillIoFailed = true;
-        return null;
+        throw spillFailure(e);
       }
     }
   }
@@ -315,8 +333,11 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
     }
   }
 
-  @Override
-  public void clear() {
+  /**
+   * Drops stored rows and closes the spill file. The producer-finished flag stays as it is, so a
+   * consumer whose producer has already finished still sees end of input instead of waiting.
+   */
+  public void discardRows() {
     synchronized (lock) {
       slots.clear();
       trialRows.clear();
@@ -327,6 +348,15 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
       spillIoFailed = false;
       closeSpillQuietly();
       deleteSpillQuietly();
+      lock.notifyAll();
+    }
+  }
+
+  /** Engine cleanup. Also clears the producer-finished flag, unlike {@link #discardRows()}. */
+  @Override
+  public void clear() {
+    discardRows();
+    synchronized (lock) {
       done.set(false);
       lock.notifyAll();
     }
@@ -338,15 +368,21 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
   }
 
   private Object[] takeAtCursor() {
+    if (spillIoFailed) {
+      throw spillFailure(null);
+    }
     if (cursor >= slots.size()) {
       return null;
     }
     Object[] raw;
     try {
       raw = readSlot(slots.get(cursor));
+    } catch (HopRuntimeException e) {
+      spillIoFailed = true;
+      throw e;
     } catch (Exception e) {
       spillIoFailed = true;
-      return null;
+      throw spillFailure(e);
     }
     cursor++;
     if (rowMeta == null || raw == null) {
@@ -371,13 +407,14 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
     long offset = spillLength;
     spillOut.writeInt(bytes.length);
     spillOut.write(bytes);
-    spillOut.flush();
     spillLength += 4L + bytes.length;
     return new Slot(offset, bytes.length);
   }
 
   private void openSpill() throws HopFileException, IOException {
     spillFile = HopVfs.createTempFile("cursor-rowset", ".bin", directory);
+    // Last resort when a debug session is abandoned without cleanup.
+    new File(HopVfs.getFilename(spillFile)).deleteOnExit();
     spillOut = new DataOutputStream(HopVfs.getOutputStream(spillFile, false));
     spillLength = 0L;
   }
@@ -393,18 +430,26 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
     if (spillOut != null) {
       spillOut.flush();
     }
-    try (RandomAccessContent content =
-        spillFile.getContent().getRandomAccessContent(RandomAccessMode.READ)) {
-      content.seek(slot.offset);
-      int length = content.readInt();
-      if (length != slot.length) {
-        throw new IOException(
-            "Spilled row length " + length + " does not match the stored length " + slot.length);
-      }
-      byte[] bytes = new byte[length];
-      content.readFully(bytes);
-      return rowMeta.readData(new DataInputStream(new ByteArrayInputStream(bytes)));
+    if (spillIn == null) {
+      spillIn = spillFile.getContent().getRandomAccessContent(RandomAccessMode.READ);
     }
+    spillIn.seek(slot.offset);
+    int length = spillIn.readInt();
+    if (length != slot.length) {
+      throw new IOException(
+          "Spilled row length " + length + " does not match the stored length " + slot.length);
+    }
+    byte[] bytes = new byte[length];
+    spillIn.readFully(bytes);
+    return rowMeta.readData(new DataInputStream(new ByteArrayInputStream(bytes)));
+  }
+
+  private HopRuntimeException spillFailure(Exception cause) {
+    String message = BaseMessages.getString(PKG, "CursorRowSet.SpillFailed");
+    if (cause == null) {
+      return new HopRuntimeException(message);
+    }
+    return new HopRuntimeException(message, cause);
   }
 
   private void closeSpillQuietly() {
@@ -415,6 +460,14 @@ public class CursorRowSet extends BaseRowSet implements Comparable<IRowSet>, IRo
         // The buffer is being discarded.
       }
       spillOut = null;
+    }
+    if (spillIn != null) {
+      try {
+        spillIn.close();
+      } catch (IOException e) {
+        // The buffer is being discarded.
+      }
+      spillIn = null;
     }
   }
 

@@ -61,44 +61,50 @@ public class HopGuiPipelineDebugDelegate {
             this::controller,
             this::markCurrentTransform,
             pipelineGraph::exitDebugMode,
-            pipelineGraph::resetDebugSession);
+            pipelineGraph::resetDebugSession,
+            pipelineGraph.debugSessionUi());
+    composite.addListener(SWT.Dispose, e -> panel = null);
     tab.setControl(composite);
     panel.refresh();
     return tab;
   }
 
   public void refresh() {
-    if (panel != null) {
+    if (panelOpen()) {
       panel.refresh();
     }
   }
 
   public void selectHop(String from, String to) {
-    if (panel != null) {
+    if (panelOpen()) {
       panel.selectHop(from, to);
     }
   }
 
   public PipelineDebugPanel getPanel() {
-    return panel;
+    return panelOpen() ? panel : null;
   }
 
   public void processOne() {
-    if (panel != null) {
+    if (panelOpen()) {
       panel.processOne();
     }
   }
 
   public void continueRunning() {
-    if (panel != null) {
+    if (panelOpen()) {
       panel.continueRunning();
     }
   }
 
   public void pauseRunning() {
-    if (panel != null) {
+    if (panelOpen()) {
       panel.pauseRunning();
     }
+  }
+
+  private boolean panelOpen() {
+    return panel != null && !panel.isDisposed();
   }
 
   private DebugController controller() {

@@ -18,10 +18,14 @@
 package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -143,6 +147,41 @@ class CursorRowSetTest {
     } finally {
       first.clear();
       second.clear();
+    }
+  }
+
+  @Test
+  void aSpillFailureThrowsInsteadOfSpinning() throws Exception {
+    Path blocker = Files.createTempFile("hop-cursor-spill", ".notdir");
+    CursorRowSet rowSet = new CursorRowSet(1, blocker.toString());
+    try {
+      put(rowSet, 1L);
+      assertThrows(HopRuntimeException.class, () -> put(rowSet, 2L));
+      assertThrows(HopRuntimeException.class, () -> put(rowSet, 3L));
+      assertThrows(HopRuntimeException.class, rowSet::getRowImmediate);
+      assertThrows(HopRuntimeException.class, () -> rowSet.copyStoredRow(0));
+    } finally {
+      rowSet.clear();
+      Files.deleteIfExists(blocker);
+    }
+  }
+
+  @Test
+  void discardRowsKeepsTheProducerFinishedFlag() {
+    CursorRowSet rowSet = new CursorRowSet(10);
+    try {
+      put(rowSet, 1L);
+      rowSet.setDone();
+      rowSet.discardRows();
+      assertTrue(rowSet.isDone());
+      assertEquals(0, rowSet.size());
+      assertEquals(0L, rowSet.storedCount());
+      assertNull(rowSet.getRowImmediate());
+
+      rowSet.clear();
+      assertFalse(rowSet.isDone());
+    } finally {
+      rowSet.clear();
     }
   }
 

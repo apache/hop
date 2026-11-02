@@ -20,25 +20,33 @@ package org.apache.hop.ui.hopgui.file.pipeline.debug;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.i18n.BaseMessages;
 
 /** One field of an {@link IValueMeta}, in the same order as the output-fields dialog. */
 public final class DebugFieldRows {
 
-  public static final String[] COLUMNS =
-      new String[] {
-        "Field name",
-        "Type",
-        "Conversion mask",
-        "Length",
-        "Precision",
-        "Origin",
-        "Storage type",
-        "Currency",
-        "Decimal",
-        "Group",
-        "Trim type",
-        "Comments"
-      };
+  private static final Class<?> PKG = DebugFieldRows.class;
+
+  public static String[] headers() {
+    return new String[] {
+      text("DebugFieldRows.Column.FieldName"),
+      text("DebugFieldRows.Column.Type"),
+      text("DebugFieldRows.Column.ConversionMask"),
+      text("DebugFieldRows.Column.Length"),
+      text("DebugFieldRows.Column.Precision"),
+      text("DebugFieldRows.Column.Origin"),
+      text("DebugFieldRows.Column.StorageType"),
+      text("DebugFieldRows.Column.Currency"),
+      text("DebugFieldRows.Column.Decimal"),
+      text("DebugFieldRows.Column.Group"),
+      text("DebugFieldRows.Column.TrimType"),
+      text("DebugFieldRows.Column.Comments")
+    };
+  }
+
+  private static String text(String key) {
+    return BaseMessages.getString(PKG, key);
+  }
 
   private DebugFieldRows() {}
 

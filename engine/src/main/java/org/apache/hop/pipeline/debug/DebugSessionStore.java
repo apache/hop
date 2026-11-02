@@ -117,7 +117,24 @@ public final class DebugSessionStore {
       String selectedTransform,
       int processCount,
       String project,
-      String environment) {
+      String environment)
+      throws HopException {
+    return capture(pipeline, selectedTransform, processCount, project, environment, true);
+  }
+
+  /**
+   * @param copyRows when false, hop state keeps the cursor and row metadata only. {@link
+   *     #save(Pipeline, DebugSession, String)} then streams the rows from the live buffers so a
+   *     large hop is not copied into a list first.
+   */
+  public static DebugSession capture(
+      Pipeline pipeline,
+      String selectedTransform,
+      int processCount,
+      String project,
+      String environment,
+      boolean copyRows)
+      throws HopException {
     DebugSession session = new DebugSession();
     PipelineMeta meta = pipeline.getPipelineMeta();
     session.setPipelineFilename(meta == null ? null : meta.getFilename());
@@ -139,10 +156,18 @@ public final class DebugSessionStore {
       hop.setDestinationCopy(rowSet.getDestinationTransformCopy());
       hop.setCursor(rowSet.getCursor());
       hop.setRowMeta(rowSet.getRowMeta());
-      int stored = (int) Math.min(rowSet.storedCount(), Integer.MAX_VALUE);
-      for (int i = 0; i < stored; i++) {
-        Object[] row = rowSet.copyStoredRow(i);
-        if (row != null) {
+      if (copyRows && hop.getRowMeta() != null) {
+        int stored = (int) Math.min(rowSet.storedCount(), Integer.MAX_VALUE);
+        for (int i = 0; i < stored; i++) {
+          Object[] row;
+          try {
+            row = rowSet.copyStoredRow(i);
+          } catch (RuntimeException e) {
+            throw new HopException(unreadableRow(hop, i), e);
+          }
+          if (row == null) {
+            throw new HopException(unreadableRow(hop, i));
+          }
           hop.getRows().add(row);
         }
       }
@@ -152,7 +177,7 @@ public final class DebugSessionStore {
   }
 
   /** How many saved hops had no matching buffer in the prepared pipeline. */
-  public static int apply(Pipeline pipeline, DebugSession session) {
+  public static int apply(Pipeline pipeline, DebugSession session) throws HopException {
     int skipped = 0;
     if (session == null || pipeline.getDebugController() == null) {
       return skipped;
@@ -168,7 +193,15 @@ public final class DebugSessionStore {
       if (hop.getRowMeta() != null) {
         rowSet.setRowMeta(hop.getRowMeta());
         for (Object[] row : hop.getRows()) {
-          rowSet.putRow(hop.getRowMeta(), row);
+          boolean stored;
+          try {
+            stored = rowSet.putRow(hop.getRowMeta(), row);
+          } catch (RuntimeException e) {
+            throw new HopException(unreadableRow(hop, -1), e);
+          }
+          if (!stored) {
+            throw new HopException(unreadableRow(hop, -1));
+          }
         }
       }
       int cursor = hop.getCursor();
@@ -184,32 +217,65 @@ public final class DebugSessionStore {
   }
 
   public static void save(DebugSession session, String directory) throws HopException {
+    save(null, session, directory);
+  }
+
+  /**
+   * Writes the session. When {@code pipeline} is set, each hop's rows are streamed from its live
+   * buffer. The target folder is removed first so an earlier save cannot come back.
+   */
+  public static void save(Pipeline pipeline, DebugSession session, String directory)
+      throws HopException {
     try {
       FileObject folder = HopVfs.getFileObject(directory);
+      if (folder.exists()) {
+        folder.deleteAll();
+      }
       folder.createFolder();
       FileDocument document = FileDocument.from(session);
+      List<CursorRowSet> live =
+          pipeline == null || pipeline.getDebugController() == null
+              ? List.of()
+              : pipeline.getDebugController().getCursorRowSets();
       int index = 0;
       for (HopState hop : session.getHops()) {
-        String name =
-            String.format(
-                "%03d-%s__%s__%d-%d",
-                index,
-                sanitize(hop.getOrigin()),
-                sanitize(hop.getDestination()),
-                hop.getOriginCopy(),
-                hop.getDestinationCopy());
-        document.hops.get(index).folder = name;
-        if (hop.getRowMeta() != null) {
+        CursorRowSet rowSet = find(live, hop);
+        IRowMeta rowMeta = hop.getRowMeta();
+        if (rowMeta == null && rowSet != null) {
+          rowMeta = rowSet.getRowMeta();
+        }
+        if (rowMeta != null) {
+          String name =
+              String.format(
+                  "%03d-%s__%s__%d-%d",
+                  index,
+                  sanitize(hop.getOrigin()),
+                  sanitize(hop.getDestination()),
+                  hop.getOriginCopy(),
+                  hop.getDestinationCopy());
+          document.hops.get(index).folder = name;
+          if (rowSet != null) {
+            document
+                .hops
+                .get(index)
+                .setRowCount((int) Math.min(rowSet.storedCount(), Integer.MAX_VALUE));
+          }
           FileObject hopFolder = folder.resolveFile(name);
           hopFolder.createFolder();
-          writeRowMeta(child(directory, name + "/rowmeta.bin"), hop.getRowMeta());
-          writeRows(child(directory, name + "/rows.dat"), hop.getRowMeta(), hop.getRows());
+          writeRowMeta(child(directory, name + "/rowmeta.bin"), rowMeta);
+          if (rowSet != null && rowSet.getRowMeta() != null) {
+            writeRows(child(directory, name + "/rows.dat"), rowMeta, rowSet);
+          } else {
+            writeRows(child(directory, name + "/rows.dat"), rowMeta, hop.getRows());
+          }
         }
         index++;
       }
       try (OutputStream out = HopVfs.getOutputStream(child(directory, "session.json"), false)) {
         HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(out, document);
       }
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("Unable to save the debug session to '" + directory + "'", e);
     }
@@ -364,10 +430,12 @@ public final class DebugSessionStore {
 
   private static void writeRows(String path, IRowMeta rowMeta, List<Object[]> rows)
       throws HopFileException {
-    try (DataOutputStream out =
-        new DataOutputStream(new BufferedOutputStream(HopVfs.getOutputStream(path, false)))) {
+    try (DataOutputStream out = rowOutput(path)) {
       out.writeInt(rows.size());
       for (Object[] row : rows) {
+        if (row == null) {
+          throw new HopFileException("Unable to write a missing row to '" + path + "'");
+        }
         rowMeta.writeData(out, row);
       }
     } catch (HopFileException e) {
@@ -375,6 +443,43 @@ public final class DebugSessionStore {
     } catch (Exception e) {
       throw new HopFileException("Unable to write rows to '" + path + "'", e);
     }
+  }
+
+  private static void writeRows(String path, IRowMeta rowMeta, CursorRowSet rowSet)
+      throws HopException {
+    int count = (int) Math.min(rowSet.storedCount(), Integer.MAX_VALUE);
+    try (DataOutputStream out = rowOutput(path)) {
+      out.writeInt(count);
+      for (int i = 0; i < count; i++) {
+        Object[] row;
+        try {
+          row = rowSet.copyStoredRow(i);
+        } catch (RuntimeException e) {
+          throw new HopException(
+              "Unable to read stored row " + i + " while saving '" + path + "'", e);
+        }
+        if (row == null) {
+          throw new HopException("Unable to read stored row " + i + " while saving '" + path + "'");
+        }
+        rowMeta.writeData(out, row);
+      }
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Unable to write rows to '" + path + "'", e);
+    }
+  }
+
+  private static DataOutputStream rowOutput(String path) throws HopFileException {
+    return new DataOutputStream(new BufferedOutputStream(HopVfs.getOutputStream(path, false)));
+  }
+
+  private static String unreadableRow(HopState hop, int index) {
+    String where = hop.getOrigin() + " -> " + hop.getDestination();
+    if (index < 0) {
+      return "Unable to restore a row on " + where;
+    }
+    return "Unable to read stored row " + index + " on " + where;
   }
 
   private static List<Object[]> readRows(String path, IRowMeta rowMeta) throws HopException {

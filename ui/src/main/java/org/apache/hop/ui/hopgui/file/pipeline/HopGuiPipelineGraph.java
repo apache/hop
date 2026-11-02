@@ -191,7 +191,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineHopContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineNoteContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.file.pipeline.debug.DebugFailureText;
+import org.apache.hop.ui.hopgui.file.pipeline.debug.DebugSessionUi;
 import org.apache.hop.ui.hopgui.file.pipeline.debug.HopGuiPipelineDebugDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.debug.config.DebugSessionsConfigPlugin;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineCheckDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
@@ -778,6 +780,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void dispose() {
+    releaseDebugEngine();
     hopGui.getEventsHandler().removeEventListeners(paletteListenerId());
     if (EnvironmentUtils.getInstance().isWeb() && canvas != null && !canvas.isDisposed()) {
       CanvasSvgFacade.unregisterCanvas(canvas);
@@ -5942,23 +5945,36 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           && (pipeline.isRunning() || pipeline.isPaused())
           && pipeline.getParentPipeline() == null
           && pipeline.getParentWorkflow() == null) {
-        MessageBox messageDialog =
-            new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-        messageDialog.setText(
-            BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
-        messageDialog.setMessage(
-            BaseMessages.getString(
-                PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
-        int answer = messageDialog.open();
-        // The NO answer means: ignore the state of the pipeline and just let it run in the
-        // background
-        // It can be seen in the execution information perspective if a location was set up.
-        //
-        if ((answer & SWT.YES) != 0) {
-          // Stop the execution and close if the file hasn't been changed
-          pipeline.stopAll();
-        } else if ((answer & SWT.CANCEL) != 0) {
-          return false;
+        if (isDebugSession()) {
+          MessageBox messageDialog =
+              new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.CANCEL);
+          messageDialog.setText(BaseMessages.getString(PKG, "PipelineGraph.Debug.Close.Header"));
+          messageDialog.setMessage(
+              BaseMessages.getString(PKG, "PipelineGraph.Debug.Close.Message", buildTabName()));
+          int answer = messageDialog.open();
+          if ((answer & SWT.YES) == 0) {
+            return false;
+          }
+          releaseDebugEngine();
+        } else {
+          MessageBox messageDialog =
+              new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+          messageDialog.setText(
+              BaseMessages.getString(PKG, "PipelineGraph.RunningFile.Dialog.Header"));
+          messageDialog.setMessage(
+              BaseMessages.getString(
+                  PKG, "PipelineGraph.RunningFile.Dialog.Message", buildTabName()));
+          int answer = messageDialog.open();
+          // The NO answer means: ignore the state of the pipeline and just let it run in the
+          // background
+          // It can be seen in the execution information perspective if a location was set up.
+          //
+          if ((answer & SWT.YES) != 0) {
+            // Stop the execution and close if the file hasn't been changed
+            pipeline.stopAll();
+          } else if ((answer & SWT.CANCEL) != 0) {
+            return false;
+          }
         }
       }
       if (pipelineMeta.hasChanged()) {
@@ -6054,6 +6070,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.F10)
+  @GuiOsxKeyboardShortcut(key = SWT.F6)
   public void debugProcessOne() {
     if (debugDelegate != null) {
       debugDelegate.processOne();
@@ -6061,6 +6078,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.F11)
+  @GuiOsxKeyboardShortcut(key = SWT.F9)
   public void debugContinue() {
     if (debugDelegate != null) {
       debugDelegate.continueRunning();
@@ -6068,6 +6086,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(shift = true, key = SWT.F11)
+  @GuiOsxKeyboardShortcut(shift = true, key = SWT.F9)
   public void debugPause() {
     if (debugDelegate != null) {
       debugDelegate.pauseRunning();
@@ -6075,6 +6094,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(control = true, key = SWT.F2)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.F2)
   public void debugStop() {
     if (isDebugSession()) {
       exitDebugMode();
@@ -6372,6 +6392,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public synchronized void start(PipelineExecutionConfiguration executionConfiguration)
       throws HopException {
+    if (isDebugSession()) {
+      releaseDebugEngine();
+    }
+    if (stateMap != null) {
+      stateMap.remove(DebugController.STATE_CURRENT_TRANSFORM);
+    }
 
     // If filename set & not changed ?
     //
@@ -6623,23 +6649,106 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipeline instanceof Pipeline local && local.getDebugController() != null;
   }
 
+  /** Stops a debug engine, if one is on the canvas, and returns it so the caller can clean up. */
+  private Pipeline stopDebugEngine() {
+    Pipeline stopping = null;
+    if (pipeline instanceof Pipeline local && local.getDebugController() != null) {
+      stopping = local;
+      try {
+        local.getDebugController().cancelWaiters();
+      } catch (Exception ignored) {
+        // The session is being dropped.
+      }
+      if (!local.isFinished() && !local.isStopped()) {
+        local.stopAll();
+      }
+    }
+    if (stateMap != null) {
+      stateMap.remove(DebugController.STATE_CURRENT_TRANSFORM);
+    }
+    return stopping;
+  }
+
+  private static void cleanupDebugEngine(Pipeline engine) {
+    try {
+      engine.waitUntilFinished();
+    } catch (Exception ignored) {
+      // The engine is already off the canvas.
+    }
+    try {
+      engine.cleanup();
+    } catch (Exception ignored) {
+      // Spill files are best-effort. deleteOnExit covers a crash.
+    }
+  }
+
+  /** Stops the debug engine and deletes its spill files off the UI thread. */
+  private void releaseDebugEngine() {
+    Pipeline stopping = stopDebugEngine();
+    if (stopping == null) {
+      return;
+    }
+    Pipeline engine = stopping;
+    Thread stopper = new Thread(() -> cleanupDebugEngine(engine), "Hop debug cleanup");
+    stopper.setDaemon(true);
+    stopper.start();
+  }
+
+  public DebugSessionUi debugSessionUi() {
+    return new DebugSessionUi() {
+      @Override
+      public String sessionsRoot() {
+        return DebugSessionsConfigPlugin.resolveRoot(getVariables());
+      }
+
+      @Override
+      public String projectName() {
+        return blankToDefault(getVariables().getVariable("HOP_PROJECT_NAME"));
+      }
+
+      @Override
+      public String environmentName() {
+        return blankToDefault(getVariables().getVariable("HOP_ENVIRONMENT_NAME"));
+      }
+
+      @Override
+      public String pipelineName() {
+        return pipelineMeta == null ? "pipeline" : pipelineMeta.getName();
+      }
+
+      @Override
+      public String pipelineFilename() {
+        return pipelineMeta == null ? null : pipelineMeta.getFilename();
+      }
+
+      @Override
+      public String pipelineHash() {
+        return DebugSessionStore.pipelineHash(pipelineMeta);
+      }
+
+      @Override
+      public void loadSession(DebugSession session) throws HopException {
+        loadDebugSession(session);
+      }
+    };
+  }
+
+  private static String blankToDefault(String value) {
+    if (value == null || value.isBlank()) {
+      return "default";
+    }
+    return value;
+  }
+
   /**
    * Takes the debug engine off the canvas immediately. Waiting for its threads and deleting spill
    * files happens off the UI thread, so Reset does not freeze Hop.
    */
   private void discardDebugEngine(Runnable onUiWhenStopped) {
     int generation = ++debugDiscardGeneration;
-    Pipeline stopping = null;
-    if (pipeline instanceof Pipeline local && local.getDebugController() != null) {
-      stopping = local;
-      local.getDebugController().cancelWaiters();
-      local.stopAll();
-    }
+    Pipeline stopping = stopDebugEngine();
     stopRedrawTimer();
     setDisplayedPipeline(null);
-    if (stateMap != null) {
-      stateMap.remove(DebugController.STATE_CURRENT_TRANSFORM);
-    }
     if (debugDelegate != null) {
       debugDelegate.refresh();
     }
@@ -6656,16 +6765,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Thread stopper =
         new Thread(
             () -> {
-              try {
-                engine.waitUntilFinished();
-              } catch (Exception ignored) {
-                // The engine is already off the canvas.
-              }
-              try {
-                engine.cleanup();
-              } catch (Exception ignored) {
-                // Spill files are best-effort.
-              }
+              cleanupDebugEngine(engine);
               if (display == null || display.isDisposed() || onUiWhenStopped == null) {
                 return;
               }
@@ -6688,7 +6788,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public synchronized void loadDebugSession(DebugSession session) throws HopException {
     if (!prepareDebugEngine()) {
       throw new HopException(
-          debugPrepareFailure == null ? "A pipeline is already running" : debugPrepareFailure);
+          debugPrepareFailure == null
+              ? BaseMessages.getString(PKG, "PipelineGraph.Debug.AlreadyRunning")
+              : debugPrepareFailure);
     }
     try {
       if (pipeline instanceof Pipeline local) {
@@ -6703,9 +6805,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private boolean prepareDebugEngine() throws HopException {
     debugPrepareFailure = null;
-    if (isRunning()) {
-      stop();
+    if (isRunning() && !isDebugSession()) {
+      modalMessageDialog(
+          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title"),
+          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Message"),
+          SWT.OK | SWT.ICON_WARNING);
+      return false;
     }
+    if (isDebugSession()) {
+      releaseDebugEngine();
+    }
+    outputRowsMap = new HashMap<>();
+    outputHopRowsMap = new HashMap<>();
     if (isRunning()) {
       modalMessageDialog(
           BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title"),

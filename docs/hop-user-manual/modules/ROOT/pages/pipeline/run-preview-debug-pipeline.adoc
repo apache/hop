@@ -123,12 +123,23 @@ image::hop-gui/pipeline/debug-session-started.jpg[A started debugging session,75
 
 The **Debugger** tab in the execution results has the transforms, the hops, and the rows on the selected hop.
 
-* **Process 1** runs the selected transform copies for one row. **Process N** uses the number in the **N** field.
+* **Process 1** runs the selected transform copies for one row. **Process N** uses the number in the **N** field. A copy only takes a row when one is waiting. A request for more rows than the hop holds does not take rows that arrive later.
+* **Try** runs the selected copies and then puts the input cursors back. It does not undo the transform's own state or side effects. Sort rows, Group by, Unique rows, Add sequence, Table output, and similar transforms will see the row again if you process it for real afterwards. The button asks before it runs.
 * **Run selected** lets those copies run until they finish. **Run to here** runs upstream until a row reaches the selection.
 * **Continue** and **Pause** run or park the whole pipeline.
+* **Save**, **Open**, and **Delete** keep a session in the debug sessions folder from the configuration perspective. **Open** loads the rows into a new local session. **Import** on the hop toolbar appends a tab-separated file to the selected hop.
 * **Follow output**, when it is on, selects the first output hop of the transform you click.
-* The hop toolbar rewinds a hop to the first stored row, or clears the rows on the selected hops.
-* **Rows** shows one page of the stored rows. The **#** column is the row's place in the hop, starting at 1. The arrows move a page, and **Rows** sets how many rows a page holds. **#** with the target button jumps to that row. **Find** and **Find next** search the stored rows without loading the whole hop.
+* The hop toolbar rewinds a hop to the first stored row, or clears the rows on the selected hops. Clear keeps the producer's finished flag, so a reader whose producer has already finished does not wait forever. Rewind is refused once that reader has finished.
+* **Rows** shows one page of the stored rows. The **#** column is the row's place in the hop, starting at 1. The arrows move a page, and **Rows** sets how many rows a page holds, up to 5,000. New rows are added to the current page instead of rebuilding it. **#** with the target button jumps to that row. **Find** and **Find next** search the stored rows without loading the whole hop.
+
+Keyboard shortcuts, when the pipeline graph has focus:
+
+* Process 1 is F10, or F6 on macOS.
+* Continue is F11, or F9 on macOS.
+* Pause is Shift+F11, or Shift+F9 on macOS.
+* Exit debug is Ctrl+F2, or Command+F2 on macOS.
+
+**Debug** does not stop a pipeline that is already running. Stop that run first. Leaving the session with **Exit debug**, closing the graph, or starting a normal run removes the hop buffers and the spill files. A normal run does not keep the yellow step marker.
 
 === Run part of the pipeline
 

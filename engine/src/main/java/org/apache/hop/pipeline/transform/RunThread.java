@@ -68,15 +68,20 @@ public class RunThread implements Runnable {
         if (debug != null && !debug.beforeProcessRow(transform)) {
           break;
         }
-        boolean keepGoing;
+        boolean keepGoing = false;
+        boolean completedRow = false;
         try {
           keepGoing = transform.processRow();
+          completedRow = keepGoing;
         } finally {
           if (debug != null) {
-            debug.afterProcessRow(transform);
+            debug.afterProcessRow(transform, completedRow);
           }
         }
         if (!keepGoing || transform.isStopped()) {
+          if (debug != null && !keepGoing) {
+            debug.transformEnded(transform);
+          }
           break;
         }
       }

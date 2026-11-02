@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.hop.core.CursorRowSet;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -36,9 +37,15 @@ import org.apache.hop.pipeline.debug.DebugController;
 import org.apache.hop.pipeline.debug.DebugController.HopPause;
 import org.apache.hop.pipeline.debug.DebugController.StepResult;
 import org.apache.hop.pipeline.debug.DebugPauseScope;
+import org.apache.hop.pipeline.debug.DebugSession;
+import org.apache.hop.pipeline.debug.DebugSessionStore;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -58,6 +65,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -72,6 +80,7 @@ public class PipelineDebugPanel {
 
   private static final Class<?> PKG = PipelineDebugPanel.class;
   private static final int DEFAULT_ROW_PAGE_SIZE = 200;
+  private static final int MAX_ROW_PAGE_SIZE = 5_000;
 
   /** Toolbar above the transform copies. Other plugins add buttons with this parent id. */
   public static final String TRANSFORM_TOOLBAR = "PipelineDebugPanel-Transform-Toolbar";
@@ -93,6 +102,10 @@ public class PipelineDebugPanel {
   public static final String TOOLBAR_CONTINUE =
       "PipelineDebugPanel-Transform-Toolbar-10070-Continue";
   public static final String TOOLBAR_PAUSE = "PipelineDebugPanel-Transform-Toolbar-10080-Pause";
+  public static final String TOOLBAR_TRY = "PipelineDebugPanel-Transform-Toolbar-10085-Try";
+  public static final String TOOLBAR_SAVE = "PipelineDebugPanel-Transform-Toolbar-10110-Save";
+  public static final String TOOLBAR_OPEN = "PipelineDebugPanel-Transform-Toolbar-10120-Open";
+  public static final String TOOLBAR_DELETE = "PipelineDebugPanel-Transform-Toolbar-10130-Delete";
   public static final String TOOLBAR_SELECT_OUTPUT =
       "PipelineDebugPanel-Transform-Toolbar-10090-SelectOutput";
   public static final String TOOLBAR_FOLLOW_OUTPUT =
@@ -103,6 +116,7 @@ public class PipelineDebugPanel {
       "PipelineDebugPanel-Hop-Toolbar-10020-PauseCondition";
   public static final String TOOLBAR_CLEAR_PAUSE =
       "PipelineDebugPanel-Hop-Toolbar-10030-ClearPause";
+  public static final String TOOLBAR_IMPORT = "PipelineDebugPanel-Hop-Toolbar-10040-Import";
 
   /** Toolbar above the hop row viewer. Other plugins add buttons with this parent id. */
   public static final String ROWS_TOOLBAR = "PipelineDebugPanel-Rows-Toolbar";
@@ -128,8 +142,10 @@ public class PipelineDebugPanel {
   private final Consumer<String> currentTransform;
   private final Runnable exitDebug;
   private final Runnable resetDebug;
+  private final DebugSessionUi sessions;
 
   private final Label status;
+  private String pinnedStatus;
   private final GuiToolbarWidgets transformToolbar = new GuiToolbarWidgets();
   private final GuiToolbarWidgets hopToolbar = new GuiToolbarWidgets();
   private final GuiToolbarWidgets rowsToolbar = new GuiToolbarWidgets();
@@ -161,11 +177,23 @@ public class PipelineDebugPanel {
       Consumer<String> currentTransform,
       Runnable exitDebug,
       Runnable resetDebug) {
+    this(parent, variables, controller, currentTransform, exitDebug, resetDebug, null);
+  }
+
+  public PipelineDebugPanel(
+      Composite parent,
+      IVariables variables,
+      Supplier<DebugController> controller,
+      Consumer<String> currentTransform,
+      Runnable exitDebug,
+      Runnable resetDebug,
+      DebugSessionUi sessions) {
     this.variables = variables;
     this.controller = controller;
     this.currentTransform = currentTransform;
     this.exitDebug = exitDebug;
     this.resetDebug = resetDebug;
+    this.sessions = sessions;
 
     GridLayout layout = new GridLayout(1, false);
     layout.marginWidth = 0;
@@ -213,6 +241,10 @@ public class PipelineDebugPanel {
     metadataTab.setControl(metadataHost);
     tabs.setSelection(rowsTab);
     sash.setWeights(40, 60);
+  }
+
+  public boolean isDisposed() {
+    return status == null || status.isDisposed();
   }
 
   public TableView getMetadataView() {
@@ -264,11 +296,16 @@ public class PipelineDebugPanel {
     enable(transformToolbar, TOOLBAR_RUN_TO_HERE, stepping);
     enable(transformToolbar, TOOLBAR_CONTINUE, stepping);
     enable(transformToolbar, TOOLBAR_PAUSE, stepping);
+    enable(transformToolbar, TOOLBAR_TRY, stepping);
+    enable(transformToolbar, TOOLBAR_SAVE, stepping && sessions != null);
+    enable(transformToolbar, TOOLBAR_OPEN, stepping && sessions != null);
+    enable(transformToolbar, TOOLBAR_DELETE, stepping && sessions != null);
     enable(transformToolbar, TOOLBAR_SELECT_OUTPUT, false);
     enable(hopToolbar, TOOLBAR_REWIND, stepping);
     enable(hopToolbar, TOOLBAR_CLEAR, stepping);
     enable(hopToolbar, TOOLBAR_PAUSE_CONDITION, false);
     enable(hopToolbar, TOOLBAR_CLEAR_PAUSE, false);
+    enable(hopToolbar, TOOLBAR_IMPORT, false);
     enable(rowsToolbar, TOOLBAR_ROWS_PAGE_UP, false);
     enable(rowsToolbar, TOOLBAR_ROWS_PAGE_DOWN, false);
     enable(rowsToolbar, TOOLBAR_ROWS_START, false);
@@ -278,6 +315,7 @@ public class PipelineDebugPanel {
     enable(rowsToolbar, TOOLBAR_ROWS_FIND_NEXT, false);
     enable(rowsToolbar, TOOLBAR_ROWS_CLEAR_FIND, false);
     if (session == null) {
+      pinnedStatus = null;
       status.setText(text("PipelineDebugPanel.Status.NoSession"));
       transforms.removeAll();
       hops.removeAll();
@@ -294,6 +332,7 @@ public class PipelineDebugPanel {
     enable(transformToolbar, TOOLBAR_SELECT_OUTPUT, hasSelectedOutputHop());
     enable(hopToolbar, TOOLBAR_PAUSE_CONDITION, focusedHop() != null);
     enable(hopToolbar, TOOLBAR_CLEAR_PAUSE, selectedHopsHavePause());
+    enable(hopToolbar, TOOLBAR_IMPORT, focusedHop() != null && sessions != null);
     boolean rowsReady = focusedHop() != null;
     enable(rowsToolbar, TOOLBAR_ROWS_PAGE_UP, rowsReady);
     enable(rowsToolbar, TOOLBAR_ROWS_PAGE_DOWN, rowsReady);
@@ -305,12 +344,24 @@ public class PipelineDebugPanel {
     enable(rowsToolbar, TOOLBAR_ROWS_CLEAR_FIND, rowsReady);
     fillDetails();
     if (!findingRow) {
-      String pauseMessage = session.getPauseMessage();
-      status.setText(pauseMessage == null || pauseMessage.isBlank() ? advice() : pauseMessage);
+      if (pinnedStatus != null) {
+        status.setText(pinnedStatus);
+      } else {
+        String pauseMessage = session.getPauseMessage();
+        status.setText(pauseMessage == null || pauseMessage.isBlank() ? advice() : pauseMessage);
+      }
     }
     // GTK keeps the previous cell text until the table is redrawn.
     transforms.redraw();
     hops.redraw();
+  }
+
+  /** Keeps a result on the status line until the next user action. Refresh does not replace it. */
+  private void pinStatus(String message) {
+    pinnedStatus = message;
+    if (status != null && !status.isDisposed() && message != null) {
+      status.setText(message);
+    }
   }
 
   /** What to do next with the current transform and hop selection. */
@@ -328,17 +379,16 @@ public class PipelineDebugPanel {
     String copy = focused.getText(1);
     CursorRowSet hop = focusedHop();
     if (hop == null) {
-      return BaseMessages.getString(
-          PKG, "PipelineDebugPanel.Status.AdviceTransform", name + " copy " + copy);
+      return BaseMessages.getString(PKG, "PipelineDebugPanel.Status.AdviceTransform", name, copy);
     }
     String hopLabel =
-        textOf(hop.getOriginTransformName())
-            + " copy "
-            + hop.getOriginTransformCopy()
-            + " -> "
-            + textOf(hop.getDestinationTransformName())
-            + " copy "
-            + hop.getDestinationTransformCopy();
+        BaseMessages.getString(
+            PKG,
+            "PipelineDebugPanel.Hop.FromTo",
+            textOf(hop.getOriginTransformName()),
+            Integer.toString(hop.getOriginTransformCopy()),
+            textOf(hop.getDestinationTransformName()),
+            Integer.toString(hop.getDestinationTransformCopy()));
     int selectedHopCount = hops.getSelectionCount();
     if (selectedHopCount > 1) {
       return BaseMessages.getString(
@@ -528,6 +578,43 @@ public class PipelineDebugPanel {
 
   @GuiToolbarElement(
       root = TRANSFORM_TOOLBAR,
+      id = TOOLBAR_TRY,
+      toolTip = "i18n::PipelineDebugPanel.Button.Try.Tooltip",
+      image = "ui/images/test.svg")
+  public void tryFromToolbar() {
+    tryRows();
+  }
+
+  @GuiToolbarElement(
+      root = TRANSFORM_TOOLBAR,
+      id = TOOLBAR_SAVE,
+      separator = true,
+      toolTip = "i18n::PipelineDebugPanel.Button.SaveSession.Tooltip",
+      image = "ui/images/save.svg")
+  public void saveSession() {
+    saveDebugSession();
+  }
+
+  @GuiToolbarElement(
+      root = TRANSFORM_TOOLBAR,
+      id = TOOLBAR_OPEN,
+      toolTip = "i18n::PipelineDebugPanel.Button.OpenSession.Tooltip",
+      image = "ui/images/folder-open.svg")
+  public void openSession() {
+    openDebugSession();
+  }
+
+  @GuiToolbarElement(
+      root = TRANSFORM_TOOLBAR,
+      id = TOOLBAR_DELETE,
+      toolTip = "i18n::PipelineDebugPanel.Button.DeleteSession.Tooltip",
+      image = "ui/images/delete.svg")
+  public void deleteSession() {
+    deleteDebugSession();
+  }
+
+  @GuiToolbarElement(
+      root = TRANSFORM_TOOLBAR,
       id = TOOLBAR_SELECT_OUTPUT,
       separator = true,
       toolTip = "i18n::PipelineDebugPanel.Button.SelectOutput.Tooltip",
@@ -556,6 +643,7 @@ public class PipelineDebugPanel {
     hops.setSelection(matches.toArray(new TableItem[0]));
     hops.showSelection();
     fillDetails();
+    pinnedStatus = null;
     status.setText(advice());
   }
 
@@ -600,6 +688,7 @@ public class PipelineDebugPanel {
         hops.setSelection(item);
         hops.showSelection();
         fillDetails();
+        pinnedStatus = null;
         status.setText(advice());
         return;
       }
@@ -649,12 +738,12 @@ public class PipelineDebugPanel {
     CursorRowSet hop = focusedHop();
     DebugController session = controller.get();
     if (hop == null || session == null) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
     IRowMeta fields = fieldsOf(hop);
     if (fields == null || fields.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.NoHopFields"));
+      pinStatus(text("PipelineDebugPanel.Status.NoHopFields"));
       return;
     }
     HopPause existing = session.getHopPause(hop);
@@ -668,7 +757,8 @@ public class PipelineDebugPanel {
       return;
     }
     session.setHopPause(hop, dialog.getCondition(), dialog.getScope());
-    status.setText(text("PipelineDebugPanel.Status.PauseConditionSet"));
+    pinStatus(text("PipelineDebugPanel.Status.PauseConditionSet"));
+    refresh();
   }
 
   @GuiToolbarElement(
@@ -683,7 +773,7 @@ public class PipelineDebugPanel {
     }
     List<CursorRowSet> selected = selectedHops();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
     int removed = 0;
@@ -693,10 +783,21 @@ public class PipelineDebugPanel {
         removed++;
       }
     }
-    status.setText(
+    pinStatus(
         removed == 0
             ? text("PipelineDebugPanel.Status.NoPauseCondition")
             : text("PipelineDebugPanel.Status.PauseConditionCleared"));
+    refresh();
+  }
+
+  @GuiToolbarElement(
+      root = HOP_TOOLBAR,
+      id = TOOLBAR_IMPORT,
+      separator = true,
+      toolTip = "i18n::PipelineDebugPanel.Button.Import.Tooltip",
+      image = "ui/images/file.svg")
+  public void importRows() {
+    importHopRows();
   }
 
   private boolean selectedHopsHavePause() {
@@ -715,7 +816,7 @@ public class PipelineDebugPanel {
   private void step(int rows) {
     List<ITransform> selected = selectedTransforms();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectTransform"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectTransform"));
       return;
     }
     runOffScreen(
@@ -731,7 +832,7 @@ public class PipelineDebugPanel {
   private void runSelected() {
     List<ITransform> selected = selectedTransforms();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectTransform"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectTransform"));
       return;
     }
     DebugController session = controller.get();
@@ -739,7 +840,7 @@ public class PipelineDebugPanel {
       return;
     }
     session.runSelected(selected);
-    status.setText(text("PipelineDebugPanel.Status.Running"));
+    pinStatus(text("PipelineDebugPanel.Status.Running"));
     markCurrent(selected.get(0).getTransformName());
     refresh();
   }
@@ -747,7 +848,7 @@ public class PipelineDebugPanel {
   private void runToHere() {
     List<ITransform> selected = selectedTransforms();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectTransform"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectTransform"));
       return;
     }
     ITransform target = selected.get(0);
@@ -760,7 +861,7 @@ public class PipelineDebugPanel {
       return;
     }
     session.getPipeline().resumeExecution();
-    status.setText(text("PipelineDebugPanel.Status.Running"));
+    pinStatus(text("PipelineDebugPanel.Status.Running"));
     refresh();
   }
 
@@ -770,36 +871,43 @@ public class PipelineDebugPanel {
       return;
     }
     session.getPipeline().pauseExecution();
-    status.setText(text("PipelineDebugPanel.Status.Paused"));
+    pinStatus(text("PipelineDebugPanel.Status.Paused"));
     refresh();
   }
 
   private void rewindHop() {
     List<CursorRowSet> selected = selectedHops();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
+    int rewound = 0;
     for (CursorRowSet hop : selected) {
-      controller.get().rewind(hop, 0);
+      if (controller.get().rewind(hop, 0)) {
+        rewound++;
+      }
     }
     shownRows = "";
+    if (rewound == 0) {
+      pinStatus(text("PipelineDebugPanel.Session.RewindFinished"));
+    } else {
+      pinStatus(hopActionText("PipelineDebugPanel.Session.Rewound", rewound));
+    }
     refresh();
-    status.setText(hopActionText("PipelineDebugPanel.Session.Rewound", selected.size()));
   }
 
   private void clearHop() {
     List<CursorRowSet> selected = selectedHops();
     if (selected.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
     for (CursorRowSet hop : selected) {
-      hop.clear();
+      hop.discardRows();
     }
     shownRows = "";
+    pinStatus(hopActionText("PipelineDebugPanel.Session.Cleared", selected.size()));
     refresh();
-    status.setText(hopActionText("PipelineDebugPanel.Session.Cleared", selected.size()));
   }
 
   private static String hopActionText(String oneKey, int count) {
@@ -810,44 +918,258 @@ public class PipelineDebugPanel {
   }
 
   private void runOffScreen(Supplier<StepResult> action) {
-    if (busy || controller.get() == null) {
+    if (busy || controller.get() == null || status.isDisposed()) {
       return;
     }
     busy = true;
+    pinnedStatus = null;
+    Display display = status.getDisplay();
     refresh();
-    status
-        .getDisplay()
-        .asyncExec(
-            () ->
-                new Thread(
-                        () -> {
-                          StepResult result = null;
-                          String failure = null;
-                          try {
-                            result = action.get();
-                          } catch (Exception e) {
-                            failure = e.getMessage();
-                          }
-                          StepResult done = result;
-                          String error = failure;
-                          status
-                              .getDisplay()
-                              .asyncExec(
-                                  () -> {
-                                    busy = false;
-                                    if (status.isDisposed()) {
-                                      return;
-                                    }
-                                    if (error != null) {
-                                      status.setText(error);
-                                    } else if (done != null) {
-                                      status.setText(done.detail());
-                                    }
-                                    refresh();
-                                  });
-                        },
-                        "Hop pipeline debug step")
-                    .start());
+    if (display.isDisposed()) {
+      busy = false;
+      return;
+    }
+    display.asyncExec(
+        () -> {
+          if (display.isDisposed()) {
+            busy = false;
+            return;
+          }
+          new Thread(
+                  () -> {
+                    StepResult result = null;
+                    String failure = null;
+                    try {
+                      result = action.get();
+                    } catch (Exception e) {
+                      failure = e.getMessage();
+                    } finally {
+                      StepResult done = result;
+                      String error = failure;
+                      if (display.isDisposed()) {
+                        busy = false;
+                        return;
+                      }
+                      display.asyncExec(
+                          () -> {
+                            busy = false;
+                            if (display.isDisposed() || status.isDisposed()) {
+                              return;
+                            }
+                            if (error != null) {
+                              pinStatus(error);
+                            } else if (done != null && done.detail() != null) {
+                              pinStatus(done.detail());
+                            }
+                            refresh();
+                          });
+                    }
+                  },
+                  "Hop pipeline debug step")
+              .start();
+        });
+  }
+
+  private void tryRows() {
+    List<ITransform> selected = selectedTransforms();
+    if (selected.isEmpty()) {
+      pinStatus(text("PipelineDebugPanel.Status.SelectTransform"));
+      return;
+    }
+    MessageBox box = new MessageBox(status.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+    box.setText(text("PipelineDebugPanel.Try.Title"));
+    box.setMessage(text("PipelineDebugPanel.Try.Message"));
+    if (box.open() != SWT.YES) {
+      return;
+    }
+    int rows = processCount();
+    runOffScreen(
+        () -> {
+          StepResult last = null;
+          for (ITransform transform : selected) {
+            last = controller.get().tryRows(transform, rows);
+          }
+          return last;
+        });
+  }
+
+  private void saveDebugSession() {
+    if (sessions == null || controller.get() == null) {
+      return;
+    }
+    EnterStringDialog dialog =
+        new EnterStringDialog(
+            status.getShell(),
+            "",
+            text("PipelineDebugPanel.Session.Save.Title"),
+            text("PipelineDebugPanel.Session.Save.Message"));
+    String name = dialog.open();
+    if (name == null || name.isBlank()) {
+      return;
+    }
+    try {
+      DebugController session = controller.get();
+      String selected = selectedTransformName();
+      DebugSession captured =
+          DebugSessionStore.capture(
+              session.getPipeline(),
+              selected,
+              processCount(),
+              sessions.projectName(),
+              sessions.environmentName(),
+              false);
+      captured.setPipelineFilename(sessions.pipelineFilename());
+      captured.setPipelineHash(sessions.pipelineHash());
+      String directory =
+          DebugSessionStore.sessionDirectory(
+              sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName(), name);
+      DebugSessionStore.save(session.getPipeline(), captured, directory);
+      pinStatus(BaseMessages.getString(PKG, "PipelineDebugPanel.Session.Saved", name.trim()));
+      refresh();
+    } catch (Exception e) {
+      new ErrorDialog(
+          status.getShell(),
+          text("PipelineDebugPanel.Session.Save.Title"),
+          text("PipelineDebugPanel.Session.SaveFailed"),
+          e);
+    }
+  }
+
+  private void openDebugSession() {
+    if (sessions == null) {
+      return;
+    }
+    try {
+      List<String> names =
+          DebugSessionStore.list(
+              sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName());
+      if (names.isEmpty()) {
+        pinStatus(text("PipelineDebugPanel.Session.None"));
+        refresh();
+        return;
+      }
+      EnterSelectionDialog dialog =
+          new EnterSelectionDialog(
+              status.getShell(),
+              names.toArray(new String[0]),
+              text("PipelineDebugPanel.Session.Open.Title"),
+              text("PipelineDebugPanel.Session.Open.Message"));
+      String name = dialog.open();
+      if (name == null) {
+        return;
+      }
+      String directory =
+          DebugSessionStore.sessionDirectory(
+              sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName(), name);
+      DebugSession loaded = DebugSessionStore.load(directory);
+      String currentHash = sessions.pipelineHash();
+      if (loaded.getPipelineHash() != null
+          && currentHash != null
+          && !loaded.getPipelineHash().equals(currentHash)) {
+        MessageBox box = new MessageBox(status.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
+        box.setText(text("PipelineDebugPanel.Session.Open.Title"));
+        box.setMessage(text("PipelineDebugPanel.Session.HashDiffers"));
+        if (box.open() != SWT.YES) {
+          return;
+        }
+      }
+      sessions.loadSession(loaded);
+      pinStatus(BaseMessages.getString(PKG, "PipelineDebugPanel.Session.Opened", name));
+      refresh();
+    } catch (Exception e) {
+      new ErrorDialog(
+          status.getShell(),
+          text("PipelineDebugPanel.Session.Open.Title"),
+          text("PipelineDebugPanel.Session.OpenFailed"),
+          e);
+    }
+  }
+
+  private void deleteDebugSession() {
+    if (sessions == null) {
+      return;
+    }
+    try {
+      List<String> names =
+          DebugSessionStore.list(
+              sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName());
+      if (names.isEmpty()) {
+        pinStatus(text("PipelineDebugPanel.Session.None"));
+        refresh();
+        return;
+      }
+      EnterSelectionDialog dialog =
+          new EnterSelectionDialog(
+              status.getShell(),
+              names.toArray(new String[0]),
+              text("PipelineDebugPanel.Session.Delete.Title"),
+              text("PipelineDebugPanel.Session.Delete.Message"));
+      String name = dialog.open();
+      if (name == null) {
+        return;
+      }
+      MessageBox box = new MessageBox(status.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      box.setText(text("PipelineDebugPanel.Session.Delete.Title"));
+      box.setMessage(
+          BaseMessages.getString(PKG, "PipelineDebugPanel.Session.Delete.Confirm", name));
+      if (box.open() != SWT.YES) {
+        return;
+      }
+      String directory =
+          DebugSessionStore.sessionDirectory(
+              sessions.sessionsRoot(), sessions.projectName(), sessions.pipelineName(), name);
+      DebugSessionStore.delete(directory);
+      pinStatus(BaseMessages.getString(PKG, "PipelineDebugPanel.Session.Deleted", name));
+      refresh();
+    } catch (Exception e) {
+      new ErrorDialog(
+          status.getShell(),
+          text("PipelineDebugPanel.Session.Delete.Title"),
+          text("PipelineDebugPanel.Session.DeleteFailed"),
+          e);
+    }
+  }
+
+  private void importHopRows() {
+    CursorRowSet hop = focusedHop();
+    if (hop == null) {
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
+      return;
+    }
+    String filename =
+        BaseDialog.presentFileDialog(
+            status.getShell(),
+            new String[] {"*.txt", "*.csv", "*"},
+            new String[] {
+              text("PipelineDebugPanel.Session.Import.TextFiles"),
+              text("PipelineDebugPanel.Session.Import.AllFiles")
+            },
+            false);
+    if (filename == null) {
+      return;
+    }
+    try {
+      int added = DebugSessionStore.importDelimited(hop, filename);
+      shownRows = "";
+      pinStatus(
+          BaseMessages.getString(
+              PKG, "PipelineDebugPanel.Session.Imported", Integer.toString(added)));
+      refresh();
+    } catch (HopException e) {
+      new ErrorDialog(
+          status.getShell(),
+          text("PipelineDebugPanel.Button.Import.Tooltip"),
+          text("PipelineDebugPanel.Session.ImportFailed"),
+          e);
+    }
+  }
+
+  private String selectedTransformName() {
+    int index = transforms.getSelectionIndex();
+    if (index < 0) {
+      return null;
+    }
+    return transforms.getItem(index).getText(0);
   }
 
   private void fillTransforms(DebugController session) {
@@ -970,9 +1292,9 @@ public class PipelineDebugPanel {
     String rowsSignature = rowPageSignature(hop);
     if (!rowsSignature.equals(shownRows) || rowView == null || rowView.isDisposed()) {
       shownRows = rowsSignature;
-      fillRowGrid(hop);
+      fillRowGrid(hop, true);
     } else {
-      updateCursorHighlight(hop);
+      fillRowGrid(hop, false);
     }
     String metaSignature = metaSignature(hop);
     if (!metaSignature.equals(shownMeta) || metadataView == null || metadataView.isDisposed()) {
@@ -981,22 +1303,18 @@ public class PipelineDebugPanel {
     }
   }
 
-  /** The visible page only. Rows appended after this page do not change it. */
+  /** Window and columns. A growing page does not change this, so new rows can be appended. */
   private String rowPageSignature(CursorRowSet hop) {
     if (hop == null) {
       return "none";
     }
-    long stored = hop.storedCount();
-    long visible = Math.min(rowPageSize, Math.max(0L, stored - rowWindow));
     return hopKey(hop)
         + "|"
         + (hop.getRowMeta() == null ? 0 : hop.getRowMeta().size())
         + "|"
         + rowWindow
         + "|"
-        + rowPageSize
-        + "|"
-        + visible;
+        + rowPageSize;
   }
 
   private static String metaSignature(CursorRowSet hop) {
@@ -1023,10 +1341,11 @@ public class PipelineDebugPanel {
     }
   }
 
-  private void fillRowGrid(CursorRowSet hop) {
+  private void fillRowGrid(CursorRowSet hop, boolean rebuild) {
     IRowMeta rowMeta = hop == null ? null : fieldsOf(hop);
     String signature = columnSignature(rowMeta);
-    if (rowView == null || rowView.isDisposed() || !signature.equals(rowColumns)) {
+    boolean newTable = rowView == null || rowView.isDisposed() || !signature.equals(rowColumns);
+    if (newTable) {
       if (rowView != null && !rowView.isDisposed()) {
         rowView.dispose();
       }
@@ -1043,24 +1362,48 @@ public class PipelineDebugPanel {
               PropsUi.getInstance());
       rowView.getTable().addListener(SWT.KeyDown, this::pageRowsFromKey);
       rowTableHost.layout();
+      rebuild = true;
     }
-    rowView.getTable().removeAll();
-    if (hop != null) {
-      long stored = hop.storedCount();
-      int page = rowPageSize;
-      int count = (int) Math.min(page, Math.max(0L, stored - rowWindow));
-      for (int i = 0; i < count; i++) {
-        long index = rowWindow + i;
-        if (index < 0 || index > Integer.MAX_VALUE) {
-          continue;
-        }
-        TableItem item = addRow(rowView, rowMeta, hop.copyStoredRow((int) index));
-        if (item != null) {
-          item.setData(index);
-        }
+    int available = availableRows(hop);
+    int shown = rowView.getTable().getItemCount();
+    if (rebuild || shown > available) {
+      rowView.getTable().removeAll();
+      appendStoredRows(hop, rowMeta, 0, available);
+      rowView.optimizeTableView();
+    } else if (shown < available) {
+      appendStoredRows(hop, rowMeta, shown, available);
+    }
+    markVisibleCursor(hop);
+  }
+
+  private int availableRows(CursorRowSet hop) {
+    if (hop == null) {
+      return 0;
+    }
+    long stored = hop.storedCount();
+    return (int) Math.min(rowPageSize, Math.max(0L, stored - rowWindow));
+  }
+
+  private void appendStoredRows(CursorRowSet hop, IRowMeta rowMeta, int from, int available) {
+    if (hop == null) {
+      return;
+    }
+    for (int i = from; i < available; i++) {
+      long index = rowWindow + i;
+      if (index < 0 || index > Integer.MAX_VALUE) {
+        continue;
+      }
+      TableItem item = addRow(rowView, rowMeta, hop.copyStoredRow((int) index));
+      if (item != null) {
+        item.setData(index);
       }
     }
-    rowView.optimizeTableView();
+  }
+
+  private void markVisibleCursor(CursorRowSet hop) {
+    if (rowView == null || rowView.isDisposed()) {
+      return;
+    }
     int cursor = hop == null ? -1 : hop.getCursor();
     for (TableItem item : rowView.getTable().getItems()) {
       if (!(item.getData() instanceof Long index)) {
@@ -1069,6 +1412,8 @@ public class PipelineDebugPanel {
       item.setText(0, Long.toString(index + 1L));
       if (index.longValue() == cursor) {
         item.setBackground(rowView.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+      } else if (index.longValue() != pendingRowSelection) {
+        item.setBackground(null);
       }
       if (index.longValue() == pendingRowSelection) {
         rowView.getTable().setSelection(item);
@@ -1241,7 +1586,7 @@ public class PipelineDebugPanel {
   }
 
   private static ColumnInfo[] metadataColumns() {
-    String[] names = DebugFieldRows.COLUMNS;
+    String[] names = DebugFieldRows.headers();
     ColumnInfo[] columns = new ColumnInfo[names.length];
     for (int i = 0; i < names.length; i++) {
       columns[i] = new ColumnInfo(names[i], ColumnInfo.COLUMN_TYPE_TEXT, false, true);
@@ -1296,7 +1641,7 @@ public class PipelineDebugPanel {
     }
     try {
       int value = Integer.parseInt(text.getText().trim());
-      rowPageSize = Math.max(1, Math.min(100_000, value));
+      rowPageSize = Math.max(1, Math.min(MAX_ROW_PAGE_SIZE, value));
     } catch (NumberFormatException e) {
       // Keep the previous page size while the field is incomplete.
     }
@@ -1415,19 +1760,19 @@ public class PipelineDebugPanel {
   public void goToRowNumber() {
     CursorRowSet hop = focusedHop();
     if (hop == null) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
     long stored = hop.storedCount();
     if (stored <= 0) {
-      status.setText(text("PipelineDebugPanel.Rows.NoRows"));
+      pinStatus(text("PipelineDebugPanel.Rows.NoRows"));
       return;
     }
     long number;
     try {
       number = Long.parseLong(toolbarText(TOOLBAR_ROWS_NUMBER).trim());
     } catch (NumberFormatException e) {
-      status.setText(text("PipelineDebugPanel.Rows.NeedNumber"));
+      pinStatus(text("PipelineDebugPanel.Rows.NeedNumber"));
       return;
     }
     if (number < 1L) {
@@ -1437,9 +1782,10 @@ public class PipelineDebugPanel {
       number = stored;
     }
     revealStoredRow(number - 1L);
-    status.setText(
+    pinStatus(
         BaseMessages.getString(
             PKG, "PipelineDebugPanel.Rows.ShowingNumber", Long.toString(number)));
+    refresh();
   }
 
   @GuiToolbarElement(
@@ -1496,12 +1842,12 @@ public class PipelineDebugPanel {
     }
     CursorRowSet hop = focusedHop();
     if (hop == null) {
-      status.setText(text("PipelineDebugPanel.Status.SelectHop"));
+      pinStatus(text("PipelineDebugPanel.Status.SelectHop"));
       return;
     }
     String query = toolbarText(TOOLBAR_ROWS_FIND_TEXT).trim();
     if (query.isEmpty()) {
-      status.setText(text("PipelineDebugPanel.Rows.NeedFind"));
+      pinStatus(text("PipelineDebugPanel.Rows.NeedFind"));
       return;
     }
     if (!query.equals(lastFindQuery)) {
@@ -1519,37 +1865,52 @@ public class PipelineDebugPanel {
     String needle = query.toLowerCase(Locale.ROOT);
     int generation = ++findGeneration;
     findingRow = true;
+    pinStatus(text("PipelineDebugPanel.Rows.Searching"));
     refresh();
-    status.setText(text("PipelineDebugPanel.Rows.Searching"));
     Display display = status.getDisplay();
     Thread search =
         new Thread(
             () -> {
-              long found = scanStoredRows(hop, rowMeta, stored, from, needle, generation);
-              display.asyncExec(
-                  () -> {
-                    if (generation != findGeneration || status.isDisposed()) {
-                      return;
-                    }
-                    findingRow = false;
-                    refresh();
-                    if (!hopKey.equals(rowHopKey)) {
-                      return;
-                    }
-                    if (found < 0L) {
-                      status.setText(
-                          text(
-                              next
-                                  ? "PipelineDebugPanel.Rows.NoFurtherMatch"
-                                  : "PipelineDebugPanel.Rows.NoMatch"));
-                      return;
-                    }
-                    lastFindIndex = found;
-                    revealStoredRow(found);
-                    status.setText(
-                        BaseMessages.getString(
-                            PKG, "PipelineDebugPanel.Rows.Found", Long.toString(found + 1L)));
-                  });
+              long found = -1L;
+              try {
+                found = scanStoredRows(hop, rowMeta, stored, from, needle, generation);
+              } finally {
+                long foundIndex = found;
+                if (display.isDisposed()) {
+                  findingRow = false;
+                  return;
+                }
+                display.asyncExec(
+                    () -> {
+                      findingRow = false;
+                      if (generation != findGeneration
+                          || display.isDisposed()
+                          || status.isDisposed()) {
+                        return;
+                      }
+                      refresh();
+                      if (!hopKey.equals(rowHopKey)) {
+                        return;
+                      }
+                      if (foundIndex < 0L) {
+                        pinStatus(
+                            text(
+                                next
+                                    ? "PipelineDebugPanel.Rows.NoFurtherMatch"
+                                    : "PipelineDebugPanel.Rows.NoMatch"));
+                        refresh();
+                        return;
+                      }
+                      lastFindIndex = foundIndex;
+                      revealStoredRow(foundIndex);
+                      pinStatus(
+                          BaseMessages.getString(
+                              PKG,
+                              "PipelineDebugPanel.Rows.Found",
+                              Long.toString(foundIndex + 1L)));
+                      refresh();
+                    });
+              }
             },
             "Hop debug find row");
     search.setDaemon(true);

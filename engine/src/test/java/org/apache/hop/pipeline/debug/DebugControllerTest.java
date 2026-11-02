@@ -112,7 +112,7 @@ class DebugControllerTest {
     try (Session session = Session.start(2_000)) {
       // Shorter than this batch takes in total, longer than the gap between two rows.
       StepResult generated =
-          session.controller.step(session.transform("gen", 0), 2_000, false, 200);
+          session.controller.step(session.transform("gen", 0), 2_000, false, 2_000);
       assertEquals(Activity.STEPPED, generated.activity());
       assertEquals(2_000, generated.completed());
       assertEquals(2_000, session.hop("gen", "drop", 0).storedCount());
@@ -131,10 +131,12 @@ class DebugControllerTest {
       session.controller.setHopPause(
           session.hop("gen", "drop", 0), matchTwo, DebugPauseScope.TRANSFORM);
 
-      StepResult generated = session.controller.step(session.transform("gen", 0), 5, false, 500);
+      StepResult generated = session.controller.step(session.transform("gen", 0), 5, false, 2_000);
 
-      assertEquals(Activity.TIMED_OUT, generated.activity());
+      assertEquals(Activity.PAUSED, generated.activity());
       assertEquals(2, generated.completed());
+      assertEquals("TRANSFORM", DebugPauseScope.TRANSFORM.getCode());
+      assertTrue(generated.detail().startsWith("Paused"));
       assertTrue(session.controller.isAnyCopyPaused("gen"));
       assertFalse(session.controller.isAnyCopyFreeRunning("gen"));
     }
@@ -192,6 +194,71 @@ class DebugControllerTest {
   }
 
   @Test
+  void aMultiRowStepDoesNotTakeRowsThatArriveLater() throws Exception {
+    try (Session session = Session.start(5)) {
+      assertEquals(
+          Activity.STEPPED, session.controller.process(session.transform("gen", 0), 1).activity());
+
+      StepResult stalled = session.controller.step(session.transform("drop", 0), 5, false, 2_000L);
+      assertEquals(Activity.TIMED_OUT, stalled.activity());
+      assertEquals(1, stalled.completed());
+      assertEquals(1, session.transform("drop", 0).getLinesRead());
+
+      assertEquals(
+          Activity.STEPPED, session.controller.process(session.transform("gen", 0), 1).activity());
+      Thread.sleep(300L);
+      assertEquals(1, session.transform("drop", 0).getLinesRead());
+      assertEquals(1, session.hop("gen", "drop", 0).size());
+
+      StepResult next = session.controller.process(session.transform("drop", 0), 1);
+      assertEquals(Activity.STEPPED, next.activity());
+      assertEquals(1, next.completed());
+      assertEquals(2, session.transform("drop", 0).getLinesRead());
+
+      assertEquals(
+          Activity.STEPPED, session.controller.process(session.transform("gen", 0), 1).activity());
+      Thread.sleep(300L);
+      assertEquals(2, session.transform("drop", 0).getLinesRead());
+      assertEquals(1, session.hop("gen", "drop", 0).size());
+    }
+  }
+
+  @Test
+  void clearingAHopAfterTheProducerFinishedDoesNotHang() throws Exception {
+    try (Session session = Session.start(1)) {
+      StepResult generated = session.controller.step(session.transform("gen", 0), 5, false, 2_000L);
+      assertEquals(Activity.FINISHED, generated.activity());
+      assertEquals(1, generated.completed());
+
+      CursorRowSet hop = session.hop("gen", "drop", 0);
+      assertTrue(hop.isDone());
+      assertEquals(1, hop.size());
+      hop.discardRows();
+      assertTrue(hop.isDone());
+      assertEquals(0, hop.size());
+
+      StepResult dropped = session.controller.step(session.transform("drop", 0), 1, false, 2_000L);
+      assertEquals(Activity.FINISHED, dropped.activity());
+      assertEquals(0, dropped.completed());
+    }
+  }
+
+  @Test
+  void theFinishingProcessRowIsNotCounted() throws Exception {
+    try (Session session = Session.start(1)) {
+      StepResult generated = session.controller.step(session.transform("gen", 0), 5, false, 2_000L);
+      assertEquals(Activity.FINISHED, generated.activity());
+      assertEquals(1, generated.completed());
+
+      assertEquals(
+          Activity.STEPPED, session.controller.process(session.transform("drop", 0), 1).activity());
+      StepResult drained = session.controller.step(session.transform("drop", 0), 1, false, 2_000L);
+      assertEquals(Activity.FINISHED, drained.activity());
+      assertEquals(0, drained.completed());
+    }
+  }
+
+  @Test
   void tryRewindsTheInputAndKeepsOutputAsATrial() throws Exception {
     try (Session session = Session.start(3)) {
       session.controller.process(session.transform("gen", 0), 1);
@@ -206,6 +273,26 @@ class DebugControllerTest {
       assertEquals(stored, output.storedCount());
       assertEquals(1, output.getTrialCount());
       assertEquals(1, input.size());
+    }
+  }
+
+  @Test
+  void trySeveralRowsRewindsToTheFirstCursor() throws Exception {
+    try (Session session = Session.start(4)) {
+      assertEquals(
+          Activity.STEPPED, session.controller.process(session.transform("gen", 0), 3).activity());
+      CursorRowSet input = session.hop("gen", "drop", 0);
+      CursorRowSet output = session.hop("drop", "sink", 0);
+      int cursor = input.getCursor();
+
+      StepResult tried = session.controller.tryRows(session.transform("drop", 0), 2);
+      assertEquals(Activity.STEPPED, tried.activity());
+      assertEquals(2, tried.completed());
+      assertEquals(cursor, input.getCursor());
+      assertEquals(3, input.size());
+      assertEquals(0L, output.storedCount());
+      assertEquals(1, output.getTrialCount());
+      assertEquals(1L, ((Number) output.getTrialRows().get(0)[0]).longValue());
     }
   }
 

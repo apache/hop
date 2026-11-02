@@ -22,21 +22,20 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /** What stops when a row on a hop matches a pause condition. */
 public enum DebugPauseScope implements IEnumHasCodeAndDescription {
-  TRANSFORM("transform", "DebugPauseScope.Transform"),
-  PIPELINE("pipeline", "DebugPauseScope.Pipeline"),
-  DOWNSTREAM("downstream", "DebugPauseScope.Downstream");
+  TRANSFORM("DebugPauseScope.Transform"),
+  PIPELINE("DebugPauseScope.Pipeline"),
+  DOWNSTREAM("DebugPauseScope.Downstream");
 
-  private final String code;
   private final String descriptionKey;
 
-  DebugPauseScope(String code, String descriptionKey) {
-    this.code = code;
+  DebugPauseScope(String descriptionKey) {
     this.descriptionKey = descriptionKey;
   }
 
+  /** The constant name. Nothing stores this yet, so the code can stay the name. */
   @Override
   public String getCode() {
-    return code;
+    return name();
   }
 
   @Override

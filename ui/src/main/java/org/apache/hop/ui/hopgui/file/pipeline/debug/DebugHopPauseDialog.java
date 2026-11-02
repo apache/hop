@@ -19,11 +19,12 @@ package org.apache.hop.ui.hopgui.file.pipeline.debug;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.debug.DebugPauseScope;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -31,8 +32,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 /** Edits the condition that pauses when a row enters a hop, and what that match stops. */
@@ -65,43 +64,42 @@ public class DebugHopPauseDialog {
     layout.marginHeight = margin;
     shell.setLayout(layout);
 
-    Label scopeLabel = new Label(shell, SWT.RIGHT);
-    PropsUi.setLook(scopeLabel);
-    scopeLabel.setText(BaseMessages.getString(PKG, "DebugHopPauseDialog.Scope.Label"));
-    FormData scopeLabelData = new FormData();
-    scopeLabelData.left = new FormAttachment(0, 0);
-    scopeLabelData.top = new FormAttachment(0, margin);
-    scopeLabel.setLayoutData(scopeLabelData);
-
-    Combo scopeCombo = new Combo(shell, SWT.READ_ONLY | SWT.BORDER);
-    PropsUi.setLook(scopeCombo);
-    scopeCombo.setItems(IEnumHasCodeAndDescription.getDescriptions(DebugPauseScope.class));
-    scopeCombo.select(scope.getIndex());
-    scopeCombo.setToolTipText(BaseMessages.getString(PKG, "DebugHopPauseDialog.Scope.Tooltip"));
-    FormData scopeData = new FormData();
-    scopeData.left = new FormAttachment(scopeLabel, margin);
-    scopeData.right = new FormAttachment(100, 0);
-    scopeData.top = new FormAttachment(0, margin);
-    scopeCombo.setLayoutData(scopeData);
-
     Button ok = new Button(shell, SWT.PUSH);
     ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     Button cancel = new Button(shell, SWT.PUSH);
     cancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {ok, cancel}, margin, null);
-    ok.addListener(SWT.Selection, e -> accept(shell, scopeCombo));
+    shell.setDefaultButton(ok);
+
+    DebugHopPauseModel model = new DebugHopPauseModel();
+    model.setScope(scope);
+    GuiCompositeWidgets widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell,
+            new Variables(),
+            null,
+            ok,
+            DebugHopPauseModel.PARENT_ID,
+            model,
+            compositeWidgets ->
+                compositeWidgets.registerExtraGroup(
+                    BaseMessages.getString(PKG, "DebugHopPauseDialog.Group.Condition"),
+                    "20",
+                    null,
+                    host -> {
+                      editor = new ConditionEditor(host, SWT.BORDER, condition, fields);
+                      PropsUi.setLook(editor);
+                      FormData editorData = new FormData();
+                      editorData.left = new FormAttachment(0, 0);
+                      editorData.right = new FormAttachment(100, 0);
+                      editorData.top = new FormAttachment(0, 0);
+                      editorData.bottom = new FormAttachment(100, 0);
+                      editor.setLayoutData(editorData);
+                    }));
+
+    ok.addListener(SWT.Selection, e -> accept(shell, widgets, model));
     cancel.addListener(SWT.Selection, e -> cancel(shell));
-
-    editor = new ConditionEditor(shell, SWT.BORDER, condition, fields);
-    PropsUi.setLook(editor);
-    FormData editorData = new FormData();
-    editorData.left = new FormAttachment(0, 0);
-    editorData.right = new FormAttachment(100, 0);
-    editorData.top = new FormAttachment(scopeCombo, margin);
-    editorData.bottom = new FormAttachment(ok, -margin);
-    editor.setLayoutData(editorData);
-
-    BaseDialog.defaultShellHandling(shell, c -> accept(shell, scopeCombo), c -> cancel(shell));
+    BaseDialog.defaultShellHandling(shell, c -> accept(shell, widgets, model), c -> cancel(shell));
     return condition != null;
   }
 
@@ -113,13 +111,13 @@ public class DebugHopPauseDialog {
     return scope;
   }
 
-  private void accept(Shell shell, Combo scopeCombo) {
-    if (editor.getLevel() > 0) {
+  private void accept(Shell shell, GuiCompositeWidgets widgets, DebugHopPauseModel model) {
+    if (editor != null && editor.getLevel() > 0) {
       editor.goUp();
       return;
     }
-    int index = scopeCombo.getSelectionIndex();
-    scope = index < 0 ? DebugPauseScope.TRANSFORM : DebugPauseScope.values()[index];
+    widgets.getWidgetsContents(model, DebugHopPauseModel.PARENT_ID);
+    scope = model.getScope() == null ? DebugPauseScope.TRANSFORM : model.getScope();
     shell.dispose();
   }
 

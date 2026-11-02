@@ -40,7 +40,7 @@ class DebugFieldRowsTest {
     name.setComments("the label");
     String[] cells = DebugFieldRows.cells(name);
 
-    assertEquals(DebugFieldRows.COLUMNS.length, cells.length);
+    assertEquals(DebugFieldRows.headers().length, cells.length);
     assertEquals("name", cells[0]);
     assertEquals("String", cells[1]);
     assertEquals("-", cells[3]);

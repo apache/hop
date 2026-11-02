@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.debug;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -111,6 +112,51 @@ class DebugSessionStoreTest {
               .isEmpty());
     } finally {
       DebugSessionStore.delete(root);
+    }
+  }
+
+  @Test
+  void savingAgainDoesNotRestoreRowsFromThePreviousFile() throws Exception {
+    String root = tempRoot();
+    try (Run first = Run.start()) {
+      assertEquals(
+          Activity.STEPPED, first.controller.process(first.transform("gen"), 2).activity());
+      String directory =
+          DebugSessionStore.sessionDirectory(
+              root, "project", first.pipeline.getPipelineMeta().getName(), "keep");
+      DebugSessionStore.save(
+          DebugSessionStore.capture(first.pipeline, "pass", 1, "project", "dev"), directory);
+
+      try (Run empty = Run.prepare()) {
+        empty.pipeline.getPipelineMeta().setName(first.pipeline.getPipelineMeta().getName());
+        DebugSession blank =
+            DebugSessionStore.capture(empty.pipeline, "pass", 1, "project", "dev", false);
+        DebugSessionStore.save(blank, directory);
+      }
+
+      DebugSession loaded = DebugSessionStore.load(directory);
+      for (DebugSession.HopState hop : loaded.getHops()) {
+        assertTrue(hop.getRows().isEmpty(), hop.getOrigin() + " -> " + hop.getDestination());
+      }
+    } finally {
+      DebugSessionStore.delete(root);
+    }
+  }
+
+  @Test
+  void applyReportsARowThatCannotBeRestored() throws Exception {
+    DebugSession session = new DebugSession();
+    DebugSession.HopState hop = new DebugSession.HopState();
+    hop.setOrigin("gen");
+    hop.setDestination("pass");
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("n"));
+    hop.setRowMeta(rowMeta);
+    hop.getRows().add(null);
+    session.getHops().add(hop);
+
+    try (Run prepared = Run.prepare()) {
+      assertThrows(HopException.class, () -> DebugSessionStore.apply(prepared.pipeline, session));
     }
   }
 

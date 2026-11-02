@@ -875,10 +875,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   /**
-   * Draw a data-preview icon on the hop near the source transform when hop-level samples exist. Key
-   * format matches UI hop sampling: {@code origin + "\t" + destination}.
-   */
-  /**
    * Cursor and stored-row count on this hop while a debug session is active. A click selects the
    * hop in the debugger. The pill sits past the sample badge so the two do not stack.
    */
@@ -937,8 +933,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int padY = 1;
     int width = extent.x + padX * 2;
     int height = extent.y + padY * 2;
-    int x = (int) (x1 + 0.30 * (x2 - x1)) - width / 2;
-    int y = (int) (y1 + 0.30 * (y2 - y1)) - height / 2;
+    // The sample-data badge uses 0.30. Keep the pill further along the hop.
+    double pillPosition = 0.62;
+    int x = (int) (x1 + pillPosition * (x2 - x1)) - width / 2;
+    int y = (int) (y1 + pillPosition * (y2 - y1)) - height / 2;
 
     boolean empty = unread == 0;
     int backpressure = Math.max(1, (int) (localPipeline.getRowSetSize() * 0.99));
@@ -964,7 +962,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   /** Yellow marker beside the transform the debugger will step. */
   private void drawDebugCurrentMarker(TransformMeta transformMeta, int x, int y) {
-    if (stateMap == null || transformMeta == null) {
+    if (stateMap == null
+        || transformMeta == null
+        || !(pipeline instanceof Pipeline local)
+        || local.getDebugController() == null) {
       return;
     }
     if (!transformMeta.getName().equals(stateMap.get(DebugController.STATE_CURRENT_TRANSFORM))) {
@@ -984,6 +985,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.setFont(EFont.GRAPH);
   }
 
+  /**
+   * Draw a data-preview icon on the hop near the source transform when hop-level samples exist. Key
+   * format matches UI hop sampling: {@code origin + "\t" + destination}.
+   */
   private void drawHopOutputDataIndicator(
       PipelineHopMeta pipelineHop,
       TransformMeta fromTransform,
