@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.compressors.CompressorStreamProvider;
 import org.apache.hop.core.compress.hadoopsnappy.HadoopSnappyCompressionProvider;
 import org.apache.hop.core.compress.snappy.SnappyCompressionProvider;
 import org.apache.hop.core.compress.spi.HopCompressorStreamProvider;
