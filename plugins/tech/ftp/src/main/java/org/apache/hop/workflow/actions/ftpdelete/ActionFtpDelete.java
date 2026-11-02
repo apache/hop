@@ -301,10 +301,15 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         return result;
       }
 
+      // Connection, listing and wildcard are ready: from here on, success conditions apply.
+      deletion.transferAttempted = true;
       deleteFiles(filenames, selector, ftpClient, sftpClient, deletion);
     } catch (Exception e) {
-      deletion.updateErrors();
-      logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()), e);
+      // deleteFiles already counted the file error that broke the condition; do not count again.
+      if (!deletion.successConditionBroken) {
+        deletion.updateErrors();
+        logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()), e);
+      }
     } finally {
       FtpHelper.disconnect(getLogChannel(), ftpClient);
       if (sftpClient != null) {
@@ -316,7 +321,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       }
     }
 
-    result.setResult(deletion.isSuccess());
+    // Success conditions apply only once listing/matching is ready; setup failures stay false.
+    result.setResult(deletion.transferAttempted && deletion.isSuccess());
     result.setNrFilesRetrieved(deletion.nrFilesDeleted);
     result.setNrErrors(deletion.nrErrors);
     return result;
@@ -361,8 +367,9 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         return;
       }
       if (deletion.successConditionBroken) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
+        // Limit reached: stop quietly. Per-file UnexpectedError was already logged; do not throw
+        // into the outer catch (that would log a failure on an action that can still be true).
+        return;
       }
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionFTPDelete.AnalysingFile", filename));
@@ -385,8 +392,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         deletion.updateErrors();
         logError(BaseMessages.getString(PKG, "ActionFtp.UnexpectedError", e.getMessage()));
         if (deletion.successConditionBroken) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
+          return;
         }
       }
     }
@@ -548,6 +554,10 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     private long nrErrors = 0;
     private long nrFilesDeleted = 0;
     private boolean successConditionBroken = false;
+
+    /** True once listing and wildcard matching are ready; false for setup failures. */
+    private boolean transferAttempted = false;
+
     private final int limitFiles = Const.toInt(resolve(getNrLimitSuccess()), 10);
 
     void updateErrors() {
@@ -561,6 +571,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     }
 
     boolean isSuccess() {
+      // SUCCESS_IF_ERRORS_LESS means "at most Limit files errors" (nrErrors <= limit).
       return (nrErrors == 0 && SUCCESS_IF_ALL_FILES_DOWNLOADED.equals(getSuccessCondition()))
           || (nrFilesDeleted >= limitFiles
               && SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED.equals(getSuccessCondition()))
