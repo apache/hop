@@ -26,6 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -72,10 +74,12 @@ public final class LineageHub {
   private final AtomicBoolean sinksInitialized = new AtomicBoolean(false);
 
   /**
-   * Serializes {@link #shutdown()}. Not {@code this}: the worker takes that lock while it
-   * initializes the sinks, and shutdown() waits for the worker.
+   * {@link #shutdown()} takes the write lock, {@link #emit(LineageEvent)} the read lock. Shutdowns
+   * are serialized, and an event emitted during a shutdown waits for it to end instead of starting
+   * a worker that the shutdown then loses track of. Not {@code this}: the worker takes that lock
+   * while it initializes the sinks, and shutdown() waits for the worker.
    */
-  private final Object shutdownLock = new Object();
+  private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
   private LineageHub(LineageConfiguration fixedConfiguration, List<ILineageSink> explicitSinks) {
     this.fixedConfiguration = fixedConfiguration;
@@ -123,14 +127,19 @@ public final class LineageHub {
     if (!cfg.isEnabled() || sinkInitFailed.get()) {
       return;
     }
-    ensureWorkerStarted(cfg);
-    if (!queue.offer(event)) {
-      droppedEvents.incrementAndGet();
-      log.logError(
-          "Lineage event dropped because the queue is full (capacity "
-              + cfg.getQueueCapacity()
-              + "). Total drops: "
-              + droppedEvents.get());
+    shutdownLock.readLock().lock();
+    try {
+      ensureWorkerStarted(cfg);
+      if (!queue.offer(event)) {
+        droppedEvents.incrementAndGet();
+        log.logError(
+            "Lineage event dropped because the queue is full (capacity "
+                + cfg.getQueueCapacity()
+                + "). Total drops: "
+                + droppedEvents.get());
+      }
+    } finally {
+      shutdownLock.readLock().unlock();
     }
   }
 
@@ -170,10 +179,13 @@ public final class LineageHub {
 
   /**
    * Stop the worker thread and shut down sinks. Calls are serialized: a second call waits until the
-   * first one has delivered the remaining events, instead of shutting the sinks down under it.
+   * first one has delivered the remaining events, instead of shutting the sinks down under it. An
+   * event emitted in the meantime is queued once this call is done, for the next worker or the next
+   * shutdown to deliver.
    */
   public void shutdown() {
-    synchronized (shutdownLock) {
+    shutdownLock.writeLock().lock();
+    try {
       running.set(false);
       Thread t = worker;
       if (t != null) {
@@ -191,6 +203,8 @@ public final class LineageHub {
       sinkInitFailed.set(false);
       sinks = List.of();
       LineageConfiguration.invalidate();
+    } finally {
+      shutdownLock.writeLock().unlock();
     }
   }
 

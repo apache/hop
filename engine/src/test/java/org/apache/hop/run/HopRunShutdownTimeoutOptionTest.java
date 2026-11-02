@@ -30,12 +30,12 @@ import picocli.CommandLine;
 class HopRunShutdownTimeoutOptionTest {
 
   @Test
-  void defaultIs25Seconds() {
+  void defaultIs5Seconds() {
     assumeTrue(
         System.getenv("HOP_RUN_SHUTDOWN_TIMEOUT") == null,
         "HOP_RUN_SHUTDOWN_TIMEOUT is set in this environment");
 
-    assertEquals(25L, parse().getShutdownTimeout());
+    assertEquals(5L, parse().getShutdownTimeout());
   }
 
   @Test
@@ -45,7 +45,7 @@ class HopRunShutdownTimeoutOptionTest {
 
   @Test
   void shortOption() {
-    assertEquals(5L, parse("-swt", "5").getShutdownTimeout());
+    assertEquals(8L, parse("-swt", "8").getShutdownTimeout());
   }
 
   @Test

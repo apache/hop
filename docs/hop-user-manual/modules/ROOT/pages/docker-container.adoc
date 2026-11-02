@@ -209,7 +209,7 @@ You can specify them as a comma separated list, e.g. ```PARAM_1=aaa,PARAM_2=bbb`
 
 |```HOP_RUN_SHUTDOWN_TIMEOUT```
 | No
-| The maximum number of seconds to wait for the pipeline or workflow to stop when the container is stopped (`docker stop`, a Kubernetes pod eviction, ...). The default is 25 seconds. Keep it below the grace period of the platform, see xref:hop-run/index.adoc#_stopping_hop_run[Stopping Hop Run].
+| The maximum number of seconds to wait for the pipeline or workflow to stop when the container is stopped (`docker stop`, a Kubernetes pod eviction, ...). The default is 5 seconds. Keep it below the grace period of the platform, see xref:hop-run/index.adoc#_stopping_hop_run[Stopping Hop Run].
 
 |===
 

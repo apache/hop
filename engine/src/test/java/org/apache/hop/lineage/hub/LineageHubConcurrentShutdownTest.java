@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
@@ -89,6 +91,68 @@ class LineageHubConcurrentShutdownTest {
     first.join(20_000);
 
     assertEquals(EVENTS, delivered.get(), "Every queued event should reach the sink");
+    assertFalse(
+        deliveredAfterSinkShutdown.get(), "The sink was shut down while events were delivered");
+  }
+
+  /**
+   * A run that is still going when the hook shuts the hub down emits its end while the shutdown
+   * delivers. That event may not start a worker the shutdown loses track of: the next shutdown has
+   * to deliver it.
+   */
+  @Test
+  void eventEmittedDuringShutdownIsDeliveredByTheNextShutdown() throws Exception {
+    AtomicInteger delivered = new AtomicInteger();
+    AtomicInteger delivering = new AtomicInteger();
+    AtomicBoolean deliveredConcurrently = new AtomicBoolean();
+    AtomicBoolean deliveredAfterSinkShutdown = new AtomicBoolean();
+    AtomicBoolean sinkShutdown = new AtomicBoolean();
+    ILineageSink slowSink =
+        new ILineageSink() {
+          @Override
+          public void init(IVariables variables, ILogChannel log) {
+            sinkShutdown.set(false);
+          }
+
+          @Override
+          public void accept(List<LineageEvent> events) {
+            if (delivering.incrementAndGet() > 1) {
+              deliveredConcurrently.set(true);
+            }
+            // Spin rather than sleep: the hub interrupts its worker when it shuts down.
+            long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_MS);
+            while (System.nanoTime() < end) {
+              Thread.onSpinWait();
+            }
+            if (sinkShutdown.get()) {
+              deliveredAfterSinkShutdown.set(true);
+            }
+            delivered.addAndGet(events.size());
+            delivering.decrementAndGet();
+          }
+
+          @Override
+          public void shutdown() {
+            sinkShutdown.set(true);
+          }
+        };
+    LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 1, 5000L, Set.of());
+    LineageHub hub = LineageHub.newIsolatedForTesting(cfg, List.of(slowSink));
+
+    for (int i = 0; i < EVENTS; i++) {
+      hub.emit(LineageEvent.of(LineageEventKind.RUN_LIFECYCLE, LineageContext.empty(), null));
+    }
+
+    Thread first = new Thread(hub::shutdown, "first-shutdown");
+    first.start();
+    // The first shutdown is delivering the queued events one by one.
+    Thread.sleep(DELIVERY_MS + DELIVERY_MS / 2);
+    hub.emit(LineageEvent.of(LineageEventKind.RUN_LIFECYCLE, LineageContext.empty(), null));
+    first.join(20_000);
+    hub.shutdown();
+
+    assertEquals(EVENTS + 1, delivered.get(), "Every emitted event should reach the sink");
+    assertFalse(deliveredConcurrently.get(), "A second worker delivered during the shutdown");
     assertFalse(
         deliveredAfterSinkShutdown.get(), "The sink was shut down while events were delivered");
   }

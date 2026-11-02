@@ -165,8 +165,8 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
               + "receives a termination signal (SIGTERM, SIGINT, SIGHUP), for example from docker "
               + "stop or Kubernetes. Hop Run stops the run like the Stop button in Hop GUI does. "
               + "Can also be set with the HOP_RUN_SHUTDOWN_TIMEOUT environment variable.",
-      defaultValue = "${env:HOP_RUN_SHUTDOWN_TIMEOUT:-25}")
-  protected long shutdownTimeout = 25;
+      defaultValue = "${env:HOP_RUN_SHUTDOWN_TIMEOUT:-5}")
+  protected long shutdownTimeout = 5;
 
   protected IVariables variables;
   protected String realRunConfigurationName;
