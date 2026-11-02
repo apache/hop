@@ -52,7 +52,7 @@ public class ActionAbortDialog extends ActionDialog {
     super(parent, workflowMeta, variables);
     this.action = action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionAbortDialog.ActionName.Label"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionAbort.Name"));
     }
   }
 

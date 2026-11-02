@@ -689,7 +689,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
-              PKG, "GetTableNamesDialog.Error.TableNameFieldNameMissingMessage"));
+              PKG, "GetTableNamesDialog.Error.TablenameFieldNameMissingMessage"));
       mb.setText(
           BaseMessages.getString(PKG, "GetTableNamesDialog.Error.TableNameFieldNameMissingTitle"));
       mb.open();

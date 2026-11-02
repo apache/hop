@@ -494,7 +494,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
-                  PKG, "TextFileOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
+                  PKG, "AvroOutputMeta.CheckResult.FieldsReceived", "" + prev.size()),
               transforminfo);
       remarks.add(cr);
 
@@ -511,15 +511,14 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
       }
       if (errorFound) {
         errorMessage =
-            BaseMessages.getString(
-                PKG, "TextFileOutputMeta.CheckResult.FieldsNotFound", errorMessage);
+            BaseMessages.getString(PKG, "AvroOutputMeta.CheckResult.FieldsNotFound", errorMessage);
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "TextFileOutputMeta.CheckResult.AllFieldsFound"),
+                BaseMessages.getString(PKG, "AvroOutputMeta.CheckResult.AllFieldsFound"),
                 transforminfo);
         remarks.add(cr);
       }
@@ -530,14 +529,14 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "TextFileOutputMeta.CheckResult.ExpectedInputOk"),
+              BaseMessages.getString(PKG, "AvroOutputMeta.CheckResult.ExpectedInputOk"),
               transforminfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "TextFileOutputMeta.CheckResult.ExpectedInputError"),
+              BaseMessages.getString(PKG, "AvroOutputMeta.CheckResult.ExpectedInputError"),
               transforminfo);
       remarks.add(cr);
     }
@@ -545,7 +544,7 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
     cr =
         new CheckResult(
             ICheckResult.TYPE_RESULT_COMMENT,
-            BaseMessages.getString(PKG, "TextFileOutputMeta.CheckResult.FilesNotChecked"),
+            BaseMessages.getString(PKG, "AvroOutputMeta.CheckResult.FilesNotChecked"),
             transforminfo);
     remarks.add(cr);
   }

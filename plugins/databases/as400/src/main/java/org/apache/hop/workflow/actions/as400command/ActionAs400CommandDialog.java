@@ -64,7 +64,7 @@ public class ActionAs400CommandDialog extends ActionDialog {
     super(parent, workflowMeta, variables);
     this.action = action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionAs400Command.Name.Default"));
     }
   }
 

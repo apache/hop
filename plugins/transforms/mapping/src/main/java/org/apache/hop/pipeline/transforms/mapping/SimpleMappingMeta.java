@@ -401,12 +401,12 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       if (transformMeta == null) {
         throw new HopTransformException(
             BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
+                PKG, "SimpleMappingDialog.Exception.TransformNameNotFound", transformName));
       }
       if (!(transformMeta.getTransform() instanceof MappingInputMeta)) {
         throw new HopTransformException(
             BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformIsNotAMappingInput", transformName));
+                PKG, "SimpleMappingDialog.Exception.TransformIsNotAMappingInput", transformName));
       }
       return transformMeta;
     } else {
@@ -419,13 +419,14 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "PipelineMeta.Exception.OnlyOneMappingInputTransformAllowed", "2"));
+                    PKG, "SimpleMappingDialog.Exception.OnlyOneMappingInputTransformAllowed", "2"));
           }
         }
       }
       if (transformMeta == null) {
         throw new HopTransformException(
-            BaseMessages.getString(PKG, "PipelineMeta.Exception.OneMappingInputTransformRequired"));
+            BaseMessages.getString(
+                PKG, "SimpleMappingDialog.Exception.OneMappingInputTransformRequired"));
       }
       return transformMeta;
     }
@@ -448,12 +449,12 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       if (transformMeta == null) {
         throw new HopTransformException(
             BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
+                PKG, "SimpleMappingDialog.Exception.TransformNameNotFound", transformName));
       }
       if (!(transformMeta.getTransform() instanceof MappingOutputMeta)) {
         throw new HopTransformException(
             BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformIsNotAMappingOutput", transformName));
+                PKG, "SimpleMappingDialog.Exception.TransformIsNotAMappingOutput", transformName));
       }
       return transformMeta;
     } else {
@@ -466,14 +467,16 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "PipelineMeta.Exception.OnlyOneMappingOutputTransformAllowed", "2"));
+                    PKG,
+                    "SimpleMappingDialog.Exception.OnlyOneMappingOutputTransformAllowed",
+                    "2"));
           }
         }
       }
       if (transformMeta == null) {
         throw new HopTransformException(
             BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.OneMappingOutputTransformRequired"));
+                PKG, "SimpleMappingDialog.Exception.OneMappingOutputTransformRequired"));
       }
       return transformMeta;
     }

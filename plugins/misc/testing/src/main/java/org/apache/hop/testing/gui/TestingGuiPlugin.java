@@ -356,7 +356,7 @@ public class TestingGuiPlugin {
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Name",
-      tooltip = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Message",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.ClearInputDataset.Tooltip",
       image = "clear-input-dataset.svg",
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")

@@ -143,7 +143,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", field.getFieldName()),
+                    PKG, "GetLoggingInfoMeta.CheckResult.FieldHasNoType", field.getFieldName()),
                 transformMeta);
         remarks.add(cr);
       }
@@ -152,7 +152,7 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
       CheckResult cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "SystemDataMeta.CheckResult.AllTypesSpecified"),
+              BaseMessages.getString(PKG, "GetLoggingInfoMeta.CheckResult.AllTypesSpecified"),
               transformMeta);
       remarks.add(cr);
     }

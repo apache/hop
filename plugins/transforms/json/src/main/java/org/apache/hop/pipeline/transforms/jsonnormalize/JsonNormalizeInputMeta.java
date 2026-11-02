@@ -478,14 +478,15 @@ public class JsonNormalizeInputMeta
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoField"),
+                BaseMessages.getString(PKG, "JsonNormalizeInputMeta.CheckResult.NoField"),
                 transformMeta);
         remarks.add(cr);
       } else {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.FieldOk"),
+                BaseMessages.getString(
+                    PKG, "JsonNormalizeInputMeta.CheckResult.FieldOk", getFieldValue()),
                 transformMeta);
         remarks.add(cr);
       }
@@ -495,7 +496,7 @@ public class JsonNormalizeInputMeta
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "JsonInputMeta.CheckResult.NoFiles"),
+                BaseMessages.getString(PKG, "JsonNormalizeInputMeta.CheckResult.NoFiles"),
                 transformMeta);
         remarks.add(cr);
       } else {
@@ -503,7 +504,9 @@ public class JsonNormalizeInputMeta
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(
-                    PKG, "JsonInputMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size()),
+                    PKG,
+                    "JsonNormalizeInputMeta.CheckResult.FilesOk",
+                    "" + fileInputList.getFiles().size()),
                 transformMeta);
         remarks.add(cr);
       }

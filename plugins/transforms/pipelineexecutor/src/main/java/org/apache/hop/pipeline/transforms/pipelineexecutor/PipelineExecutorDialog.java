@@ -338,8 +338,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       } catch (HopException ke) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogTitle"),
-            BaseMessages.getString(PKG, "TextFileOutputDialog.FailedToGetFields.DialogMessage"),
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.FailedToGetFields.DialogTitle"),
+            BaseMessages.getString(PKG, "PipelineExecutorDialog.FailedToGetFields.DialogMessage"),
             ke);
       }
       gotPreviousFields = true;

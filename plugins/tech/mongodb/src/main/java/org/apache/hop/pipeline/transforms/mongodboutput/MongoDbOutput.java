@@ -465,23 +465,24 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         } catch (Exception e) {
           throw new Exception(
               BaseMessages.getString(
-                  PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
+                  PKG, "MongoDbOutput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
         }
         if (data.connection == null) {
           throw new Exception(
               BaseMessages.getString(
-                  PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
+                  PKG, "MongoDbOutput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
         }
 
         String databaseName = resolve(data.connection.getDbName());
         if (StringUtils.isEmpty(databaseName)) {
-          throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
+          throw new Exception(
+              BaseMessages.getString(PKG, "MongoDbOutput.ErrorMessage.NoDBSpecified"));
         }
 
         String collection = resolve(meta.getCollection());
         if (StringUtils.isEmpty(collection)) {
           throw new Exception(
-              BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
+              BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.NoCollectionSpecified"));
         }
 
         if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
@@ -489,7 +490,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             String authInfo =
                 BaseMessages.getString(
                     PKG,
-                    "MongoDbInput.Message.NormalAuthentication",
+                    "MongoDbOutput.Message.NormalAuthentication",
                     resolve(data.connection.getAuthenticationUser()));
 
             logBasic(authInfo);

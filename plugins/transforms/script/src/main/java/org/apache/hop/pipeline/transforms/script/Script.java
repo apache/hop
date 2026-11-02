@@ -180,17 +180,13 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
             if (StringUtils.isEmpty(field.getName())) {
               throw new HopTransformException(
                   BaseMessages.getString(
-                      PKG,
-                      "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound",
-                      field.getName()));
+                      PKG, "ScriptMeta.Exception.FieldToReplaceNotFound", field.getName()));
             }
             data.replaceIndex[i] = rowMeta.indexOfValue(field.getRename());
             if (data.replaceIndex[i] < 0) {
               throw new HopTransformException(
                   BaseMessages.getString(
-                      PKG,
-                      "ScriptValuesMetaMod.Exception.FieldToReplaceNotFound",
-                      field.getRename()));
+                      PKG, "ScriptMeta.Exception.FieldToReplaceNotFound", field.getRename()));
             }
           }
         } else {

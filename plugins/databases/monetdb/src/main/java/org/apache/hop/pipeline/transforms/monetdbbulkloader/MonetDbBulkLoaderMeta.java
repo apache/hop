@@ -233,7 +233,7 @@ public class MonetDbBulkLoaderMeta
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG,
-                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  "MonetDBBulkLoaderMeta.CheckResult.DatabaseMetaError",
                   variables.resolve(dbConnectionName)),
               transformMeta);
       remarks.add(cr);

@@ -1165,12 +1165,12 @@ public class SnowflakeBulkLoaderMeta
           } catch (HopDatabaseException dbe) {
             retval.setError(
                 BaseMessages.getString(
-                    PKG, "TableOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
+                    PKG, "SnowflakeBulkLoaderMeta.Error.ErrorConnecting", dbe.getMessage()));
           } finally {
             db.close();
           }
         } else {
-          retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));
+          retval.setError(BaseMessages.getString(PKG, "SnowflakeBulkLoaderMeta.Error.NoTable"));
         }
       } else {
         retval.setError(

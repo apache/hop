@@ -156,30 +156,31 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         } catch (Exception e) {
           throw new Exception(
               BaseMessages.getString(
-                  PKG, "MongoInput.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
+                  PKG, "MongoDbDelete.ErrorMessage.ErrorLoadingMongoDbConnection", connectionName));
         }
         if (data.connection == null) {
           throw new Exception(
               BaseMessages.getString(
-                  PKG, "MongoInput.ErrorMessage.MongoDbConnection.NotFound", connectionName));
+                  PKG, "MongoDbDelete.ErrorMessage.MongoDbConnection.NotFound", connectionName));
         }
 
         String databaseName = resolve(data.connection.getDbName());
         if (StringUtils.isEmpty(databaseName)) {
-          throw new Exception(BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoDBSpecified"));
+          throw new Exception(
+              BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.NoDBSpecified"));
         }
 
         String collection = resolve(meta.getCollection());
         if (StringUtils.isEmpty(collection)) {
           throw new Exception(
-              BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
+              BaseMessages.getString(PKG, "MongoDbDelete.ErrorMessage.NoCollectionSpecified"));
         }
 
         if (!StringUtils.isEmpty(data.connection.getAuthenticationUser()) && isBasic()) {
           String authInfo =
               BaseMessages.getString(
                   PKG,
-                  "MongoDbInput.Message.NormalAuthentication",
+                  "MongoDbDelete.Message.NormalAuthentication",
                   resolve(data.connection.getAuthenticationUser()));
           logBasic(authInfo);
         }
@@ -212,7 +213,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         logError(
             BaseMessages.getString(
                 PKG,
-                "MongoDbInput.ErrorConnectingToMongoDb.Exception",
+                "MongoDbDelete.ErrorConnectingToMongoDb.Exception",
                 hostname,
                 port,
                 dbName,

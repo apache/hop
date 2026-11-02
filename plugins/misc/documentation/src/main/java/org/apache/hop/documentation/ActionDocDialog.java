@@ -51,7 +51,7 @@ public class ActionDocDialog extends ActionDialog {
     super(parent, workflowMeta, variables);
     this.action = action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionDoc.Name.Default"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionDoc.Name"));
     }
   }
 

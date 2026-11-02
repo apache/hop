@@ -349,7 +349,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
 
       if (displayList.isEmpty()) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Warning.Title"));
+        mb.setText(BaseMessages.getString(PKG, "System.Warning"));
         mb.setMessage(
             BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"));
         mb.open();

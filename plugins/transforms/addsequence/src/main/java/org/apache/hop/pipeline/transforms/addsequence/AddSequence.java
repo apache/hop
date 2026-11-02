@@ -170,7 +170,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         if (Utils.isEmpty(meta.getConnection())) {
           logError(
               BaseMessages.getString(
-                  PKG, "InsertUpdate.Init.ConnectionMissing", getTransformName()));
+                  PKG, "AddSequence.Init.ConnectionMissing", getTransformName()));
           return false;
         }
 

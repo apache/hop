@@ -190,7 +190,7 @@ public class JavaFilterDialog extends BaseTransformDialog {
                 inputFields.add(row.getValueMeta(i).getName());
               }
             } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "JaninoDialog.Log.UnableToFindInput"));
+              logError(BaseMessages.getString(PKG, "JavaFilterDialog.Log.UnableToFindInput"));
             }
           }
         };
