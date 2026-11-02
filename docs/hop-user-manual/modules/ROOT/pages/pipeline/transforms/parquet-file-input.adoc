@@ -143,4 +143,4 @@ You can pick another Hop type from the last column instead.
 
 == Beam
 
-On a Beam runner each file is read by one worker, and the configured columns are appended to the row that named the file. A null or empty filename is skipped. The field list or a metadata filename is required. When the incoming collection is empty and "send a null row when empty" is set, one null row is emitted.
+On a Beam runner each file is read by one worker, and the configured columns are appended to the row that named the file. The filename is opened through Beam's file systems, so a local path or a `file://`, `gs://`, `s3://` or `hdfs://` URI works. A null or empty filename is skipped. The field list or a metadata filename is required. When the incoming collection is empty and "send a null row when empty" is set, one null row is emitted. That option needs a bounded input in the global window. A streaming or otherwise windowed input is refused, because `Count.globally()` cannot be applied while the graph is built.

@@ -60,7 +60,9 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
  *
  * <p>One file, written with {@code FileIO.write().via(ParquetIO.sink(schema))}. Date and time are
  * resolved when the pipeline is submitted. Copy number and split number are not extra Beam shards.
- * Partitioned output and a field with its own Parquet type are refused.
+ * Partitioned output, a field with its own Parquet type, and a JSON or UUID field are refused. JSON
+ * and UUID become their own Parquet columns on the local engine. ParquetIO would write both as
+ * plain strings.
  */
 public class BeamParquetOutputTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
@@ -128,12 +130,30 @@ public class BeamParquetOutputTransformHandler extends BeamBaseTransformHandler
           throw new HopException(
               "Field [" + field.getSourceFieldName() + "] couldn't be found in the input stream!");
         }
+        IValueMeta valueMeta =
+            rowMeta.getValueMeta(rowMeta.indexOfValue(field.getSourceFieldName()));
+        if (valueMeta.getType() == IValueMeta.TYPE_JSON
+            || valueMeta.getType() == IValueMeta.TYPE_UUID) {
+          String kind = valueMeta.getType() == IValueMeta.TYPE_JSON ? "JSON" : "UUID";
+          throw new HopException(
+              "Parquet output '"
+                  + transformMeta.getName()
+                  + "' cannot write "
+                  + kind
+                  + " field '"
+                  + field.getSourceFieldName()
+                  + "' on Beam. On the local engine a "
+                  + kind
+                  + " field is a "
+                  + kind
+                  + " column, and ParquetIO would write it as a plain string.");
+        }
         ParquetField named = new ParquetField(field);
         if (Utils.isEmpty(named.getTargetFieldName())) {
           named.setTargetFieldName(named.getSourceFieldName());
         }
         fields.add(named);
-        valueMetas.add(rowMeta.getValueMeta(rowMeta.indexOfValue(field.getSourceFieldName())));
+        valueMetas.add(valueMeta);
         sourceFields.add(field.getSourceFieldName());
       }
     }

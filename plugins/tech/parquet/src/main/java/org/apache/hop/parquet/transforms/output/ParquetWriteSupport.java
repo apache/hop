@@ -155,9 +155,10 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
   /**
    * A date or timestamp as the number the column holds: microseconds for a TIMESTAMP(MICROS)
    * column, milliseconds otherwise. The value meta takes care of lazy (binary string) storage and
-   * the date mask.
+   * the date mask. Beam Parquet output calls this so both writers store the same instant.
    */
-  static long epochValue(IValueMeta valueMeta, Object valueData, LogicalTypeAnnotation logicalType)
+  public static long epochValue(
+      IValueMeta valueMeta, Object valueData, LogicalTypeAnnotation logicalType)
       throws HopException {
     if (logicalType instanceof TimestampLogicalTypeAnnotation timestamp
         && timestamp.getUnit() == TimeUnit.MICROS) {
@@ -173,9 +174,10 @@ public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
 
   /**
    * A big number as the unscaled two's complement bytes of a DECIMAL column, rounded to the scale
-   * of the column the way the field rounds.
+   * of the column the way the field rounds. Beam Parquet output calls this so both writers store
+   * the same bytes.
    */
-  static Binary decimalBytes(
+  public static Binary decimalBytes(
       String fieldName,
       IValueMeta valueMeta,
       BigDecimal value,

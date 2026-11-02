@@ -1183,10 +1183,12 @@
             <artifactId>beam-sdks-java-io-mqtt</artifactId>
         </dependency>
 
-        <!-- Parquet file input and output. Kept out of lib/core: the Parquet plugin
-             already ships a newer parquet-avro, and that plugin class loader is
-             child-first. The assembly puts this jar and the parquet artifacts under
-             plugins/engines/beam/lib. -->
+        <!-- Parquet file input and output.
+             beam-sdks-java-io-parquet and the Parquet plugin both resolve to Parquet
+             1.18.1. dependencies.xml also puts tech/parquet on the Beam loader, so
+             that loader sees two identical copies of the Parquet jars. That is
+             harmless while both stay on 1.18.1. Do not assume the plugin ships a
+             newer parquet-avro. -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-parquet</artifactId>

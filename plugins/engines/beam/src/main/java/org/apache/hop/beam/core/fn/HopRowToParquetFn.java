@@ -17,9 +17,12 @@
 
 package org.apache.hop.beam.core.fn;
 
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -32,7 +35,12 @@ import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
+import org.apache.hop.parquet.transforms.output.ParquetWriteSupport;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit;
 
 /** Maps one Hop row onto the flat Avro record ParquetIO writes. */
 @RequiredArgsConstructor
@@ -80,7 +88,7 @@ public class HopRowToParquetFn extends DoFn<HopRow, GenericRecord> {
       Object[] values = row.getRow();
       for (int i = 0; i < schema.getFields().size(); i++) {
         Schema.Field field = schema.getFields().get(i);
-        record.put(field.name(), value(values, indexes[i], field.schema()));
+        record.put(field.name(), value(values, indexes[i], field));
       }
       output.output(record);
       outputCounter.inc();
@@ -91,36 +99,76 @@ public class HopRowToParquetFn extends DoFn<HopRow, GenericRecord> {
     }
   }
 
-  private Object value(Object[] values, int index, Schema fieldSchema) throws Exception {
+  private Object value(Object[] values, int index, Schema.Field field) throws Exception {
     if (rowMeta.isNull(values, index)) {
       return null;
     }
-    Schema type = fieldSchema;
-    if (type.getType() == Schema.Type.UNION) {
-      for (Schema candidate : type.getTypes()) {
-        if (candidate.getType() != Schema.Type.NULL) {
-          type = candidate;
-          break;
-        }
-      }
-    }
+    Schema type = nonNull(field.schema());
     return switch (type.getType()) {
-      case LONG -> longValue(values, index);
+      case LONG -> longValue(values, index, type);
       case DOUBLE -> rowMeta.getNumber(values, index);
       case BOOLEAN -> rowMeta.getBoolean(values, index);
       case STRING -> rowMeta.getString(values, index);
-      case BYTES -> rowMeta.getBinary(values, index);
+      case BYTES -> bytesValue(values, index, type, field.name());
       default ->
           throw new HopRuntimeException("Parquet output cannot write Avro type " + type.getType());
     };
   }
 
-  private Object longValue(Object[] values, int index) throws Exception {
-    if (rowMeta.getValueMeta(index).getType() == IValueMeta.TYPE_DATE
-        || rowMeta.getValueMeta(index).getType() == IValueMeta.TYPE_TIMESTAMP) {
+  /**
+   * A date is timestamp-millis, so it stays in milliseconds. A timestamp is timestamp-micros, so it
+   * is the same microsecond value {@link ParquetWriteSupport#epochValue} writes locally.
+   */
+  private Object longValue(Object[] values, int index, Schema type) throws Exception {
+    IValueMeta valueMeta = rowMeta.getValueMeta(index);
+    if (type.getLogicalType() instanceof LogicalTypes.TimestampMicros
+        || (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+            && !(type.getLogicalType() instanceof LogicalTypes.TimestampMillis))) {
+      return ParquetWriteSupport.epochValue(
+          valueMeta, values[index], LogicalTypeAnnotation.timestampType(true, TimeUnit.MICROS));
+    }
+    if (valueMeta.getType() == IValueMeta.TYPE_DATE
+        || valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+        || type.getLogicalType() instanceof LogicalTypes.TimestampMillis) {
       Date date = rowMeta.getDate(values, index);
       return date == null ? null : date.getTime();
     }
     return rowMeta.getInteger(values, index);
+  }
+
+  /**
+   * A decimal logical type needs the unscaled two's-complement bytes of the scaled big number. A
+   * binary field keeps {@link IRowMeta#getBinary}. Avro bytes are a {@link ByteBuffer} either way.
+   */
+  private Object bytesValue(Object[] values, int index, Schema type, String fieldName)
+      throws Exception {
+    if (type.getLogicalType() instanceof LogicalTypes.Decimal decimal) {
+      BigDecimal number = rowMeta.getBigNumber(values, index);
+      if (number == null) {
+        return null;
+      }
+      Binary binary =
+          ParquetWriteSupport.decimalBytes(
+              fieldName,
+              rowMeta.getValueMeta(index),
+              number,
+              (DecimalLogicalTypeAnnotation)
+                  LogicalTypeAnnotation.decimalType(decimal.getScale(), decimal.getPrecision()));
+      return ByteBuffer.wrap(binary.getBytes());
+    }
+    byte[] bytes = rowMeta.getBinary(values, index);
+    return bytes == null ? null : ByteBuffer.wrap(bytes);
+  }
+
+  private static Schema nonNull(Schema type) {
+    if (type.getType() != Schema.Type.UNION) {
+      return type;
+    }
+    for (Schema candidate : type.getTypes()) {
+      if (candidate.getType() != Schema.Type.NULL) {
+        return candidate;
+      }
+    }
+    return type;
   }
 }

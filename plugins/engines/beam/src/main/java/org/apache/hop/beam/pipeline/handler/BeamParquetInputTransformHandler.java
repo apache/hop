@@ -25,7 +25,9 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindows;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollection.IsBounded;
 import org.apache.beam.sdk.values.PCollectionList;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
@@ -51,9 +53,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /**
  * Issue #2357: Parquet file input on Beam.
  *
- * <p>Each incoming row names a file. The configured columns are appended to that row. The field
- * list or a metadata filename is required, because the output row layout has to exist when the
- * graph is built.
+ * <p>Each incoming row names a file. The file is opened with Beam file systems, so a local path or
+ * a {@code file://}, {@code gs://}, {@code s3://} or {@code hdfs://} URI works. The configured
+ * columns are appended to that row. The field list or a metadata filename is required, because the
+ * output row layout has to exist when the graph is built. Sending a null row when the input is
+ * empty needs a bounded collection in the global window.
  */
 public class BeamParquetInputTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
@@ -152,11 +156,19 @@ public class BeamParquetInputTransformHandler extends BeamBaseTransformHandler
             .setCoder(new HopRowCoder());
 
     if (meta.isSendingNullsRowWhenEmpty()) {
+      if (!(input.getWindowingStrategy().getWindowFn() instanceof GlobalWindows)
+          || input.isBounded() != IsBounded.BOUNDED) {
+        throw new HopException(
+            "Parquet input '"
+                + transformMeta.getName()
+                + "' can send a null row when empty only for a bounded input in the global window. "
+                + "Count.globally() fails while the graph is built for a streaming or otherwise windowed input.");
+      }
       int width = rowMeta.size() + columns.size();
       PCollection<HopRow> whenEmpty =
           input
-              .apply(Count.globally())
-              .apply(ParDo.of(new EmptyToNullRowFn(width)))
+              .apply(transformMeta.getName() + " Count", Count.globally())
+              .apply(transformMeta.getName() + " Null row", ParDo.of(new EmptyToNullRowFn(width)))
               .setCoder(new HopRowCoder());
       read =
           PCollectionList.of(read)
