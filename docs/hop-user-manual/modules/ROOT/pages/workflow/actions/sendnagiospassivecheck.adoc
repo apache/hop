@@ -40,7 +40,7 @@ More details and setup instructions for the Nagios NSCA addon can be found at th
 2+|Server
 |Action name|The name of the workflow action.
 |Host name/IP address|Nagios server name / IP Address
-|Server port|Nagios server port (default 5667). A value that is not a number is replaced by 5667.
+|Server port|Nagios server port (default 5667). A value that is not a number is replaced by 5667; a number that is not a valid port (for example 70000) makes the action false.
 |Password|The password to connect to the Nagios server NSCA (shared between the Nagios server and the client).
 This field can be set empty when connections without password are allowed.
 |Connection timeout|Fail after the specified connection timeout in milliseconds (default 5000).
@@ -70,7 +70,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The passive check was sent to the NSCA server, with 0 errors. The action sends the check and closes the connection without waiting for an answer.
-|False|The number of errors is 1. *Host name/IP address* or *Message* is empty, the host name can't be resolved, the server refuses the connection, or the server doesn't send its first packet within *Response timeout*.
+|False|The number of errors is 1. *Host name/IP address* or *Message* is empty, the host name can't be resolved, *Server port* is a number that is not a valid port, the server refuses the connection or doesn't answer it within *Connection timeout*, or the server doesn't send its first packet within *Response timeout*.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
