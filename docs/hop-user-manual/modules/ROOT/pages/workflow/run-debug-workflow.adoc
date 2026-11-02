@@ -57,4 +57,4 @@ Make sure your configuration is selected and hit 'Launch'.
 image::getting-started/getting-started-run-workflow-with-config.png[Hop - New Workflow With Config Dialog,75%,align="left"]
 
 This workflow with our very basic pipeline should execute in less than one second.
-You'll now have the execution results pane which again looks very similar to the pipeline execution results.
+You'll now have the execution results pane, with the same tabs as for a pipeline: *Logging*, *Metrics*, *Problems* and *Revisions*. On the Metrics tab a workflow shows a row for each action that ran, with among others its *Result*, *Reason* and *Duration*. The Problems tab lists the remarks of *Verify this workflow* and the findings of the linter. See xref:pipeline/run-preview-debug-pipeline.adoc#_running_a_pipeline[Running a pipeline] for the four tabs.
