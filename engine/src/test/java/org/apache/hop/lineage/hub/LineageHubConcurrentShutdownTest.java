@@ -19,9 +19,11 @@ package org.apache.hop.lineage.hub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -155,5 +157,79 @@ class LineageHubConcurrentShutdownTest {
     assertFalse(deliveredConcurrently.get(), "A second worker delivered during the shutdown");
     assertFalse(
         deliveredAfterSinkShutdown.get(), "The sink was shut down while events were delivered");
+  }
+
+  /**
+   * The JVM runs the shutdown hook of HopEnvironment at the same time as the one of hop-run. While
+   * hop-run holds the hub, that hook may not shut it down: the run still has to emit its end.
+   */
+  @Test
+  void shutdownOnExitWaitsForTheRunThatHoldsIt() throws Exception {
+    AtomicInteger delivered = new AtomicInteger();
+    AtomicInteger sinkShutdowns = new AtomicInteger();
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(configuration(), List.of(sink(delivered, sinkShutdowns)));
+    hub.emit(event()); // the start of the run
+    CountDownLatch runOver = new CountDownLatch(1);
+    hub.holdShutdownOnExit(runOver);
+
+    Thread exitHook = new Thread(hub::shutdownOnExit, "exit-hook");
+    exitHook.start();
+    // hop-run is still stopping the run
+    Thread.sleep(300);
+    assertTrue(exitHook.isAlive(), "The hub was shut down while a run held it");
+    assertEquals(0, sinkShutdowns.get(), "The sinks were shut down while the run was stopping");
+
+    hub.emit(event()); // the end of the run
+    runOver.countDown();
+    exitHook.join(10_000);
+
+    assertFalse(exitHook.isAlive());
+    assertEquals(2, delivered.get(), "Every emitted event should reach the sink");
+    assertEquals(1, sinkShutdowns.get());
+  }
+
+  /** A run that is over releases its hold, so a later exit does not wait for it. */
+  @Test
+  void aReleasedHoldNoLongerDelaysTheShutdown() {
+    AtomicInteger sinkShutdowns = new AtomicInteger();
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(
+            configuration(), List.of(sink(new AtomicInteger(), sinkShutdowns)));
+    hub.emit(event());
+    CountDownLatch neverCountedDown = new CountDownLatch(1);
+    hub.holdShutdownOnExit(neverCountedDown);
+    hub.releaseShutdownOnExit(neverCountedDown);
+
+    hub.shutdownOnExit(); // the class timeout fails the test if this waits
+
+    assertEquals(1, sinkShutdowns.get());
+  }
+
+  private static LineageConfiguration configuration() {
+    return LineageConfiguration.forTesting(true, 100, 1, 5000L, Set.of());
+  }
+
+  private static LineageEvent event() {
+    return LineageEvent.of(LineageEventKind.RUN_LIFECYCLE, LineageContext.empty(), null);
+  }
+
+  private static ILineageSink sink(AtomicInteger delivered, AtomicInteger shutdowns) {
+    return new ILineageSink() {
+      @Override
+      public void init(IVariables variables, ILogChannel log) {
+        // nothing to set up
+      }
+
+      @Override
+      public void accept(List<LineageEvent> events) {
+        delivered.addAndGet(events.size());
+      }
+
+      @Override
+      public void shutdown() {
+        shutdowns.incrementAndGet();
+      }
+    };
   }
 }

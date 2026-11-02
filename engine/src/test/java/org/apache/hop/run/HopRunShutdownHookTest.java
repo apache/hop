@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -305,6 +306,48 @@ class HopRunShutdownHookTest {
     verify(pipeline, times(1)).stopAll();
     assertEquals(1, afterStopCalls.get());
     verify(log, atLeast(1)).logMinimal(anyString());
+  }
+
+  /** Until the run is over, the lineage shutdown hook of HopEnvironment has to wait. */
+  @Test
+  void lineageIsHeldUntilTheRunIsOver() throws Exception {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline();
+    HopRunShutdownHook hook = new HopRunShutdownHook(log, Duration.ofSeconds(10), afterStop);
+    hook.track(pipeline);
+
+    Thread hookThread = start(hook);
+    verify(pipeline, timeout(5000)).stopAll();
+    Thread.sleep(300);
+    assertEquals(1, hook.getRunOver().getCount(), "Released while the run was still stopping");
+
+    hook.runFinished();
+    assertTrue(hook.getRunOver().await(5, TimeUnit.SECONDS));
+    hookThread.join(5000);
+    assertFalse(hookThread.isAlive());
+  }
+
+  /** A run that does not stop in time does not keep the other shutdown hooks waiting either. */
+  @Test
+  void lineageIsReleasedBeforeItIsDeliveredWhenTheHookGivesUp() {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline();
+    AtomicLong heldDuringAfterStop = new AtomicLong(-1);
+    HopRunShutdownHook[] hook = new HopRunShutdownHook[1];
+    hook[0] =
+        new HopRunShutdownHook(
+            log, Duration.ZERO, () -> heldDuringAfterStop.set(hook[0].getRunOver().getCount()));
+    hook[0].track(pipeline);
+
+    hook[0].run();
+
+    assertEquals(0, heldDuringAfterStop.get());
+  }
+
+  /** A run that ends without a signal releases lineage too. */
+  @Test
+  void lineageIsReleasedWhenTheRunEndsWithoutASignal() {
+    HopRunShutdownHook hook = new HopRunShutdownHook(log, Duration.ofSeconds(10), afterStop);
+    hook.runFinished();
+    assertEquals(0, hook.getRunOver().getCount());
   }
 
   private IPipelineEngine<PipelineMeta> pipeline() {

@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
+import lombok.Getter;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -48,6 +49,12 @@ public class HopRunShutdownHook implements Runnable {
   private final Duration timeout;
   private final Runnable afterStop;
   private final CountDownLatch runFinished = new CountDownLatch(1);
+
+  /**
+   * Counted down once the run is over, or the hook stopped waiting for it. Until then lineage may
+   * not be shut down by another shutdown hook: the run still has to emit its end.
+   */
+  @Getter private final CountDownLatch runOver = new CountDownLatch(1);
 
   private Execution execution;
   private boolean stopRequested;
@@ -93,6 +100,7 @@ public class HopRunShutdownHook implements Runnable {
   /** Tells the hook the run is over, so it no longer needs to stop or wait for anything. */
   public void runFinished() {
     runFinished.countDown();
+    runOver.countDown();
   }
 
   @Override
@@ -113,6 +121,7 @@ public class HopRunShutdownHook implements Runnable {
     try {
       stopAndWait();
     } finally {
+      runOver.countDown();
       afterStop.run();
     }
   }

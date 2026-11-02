@@ -20,7 +20,9 @@ package org.apache.hop.lineage.hub;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -80,6 +82,12 @@ public final class LineageHub {
    * while it initializes the sinks, and shutdown() waits for the worker.
    */
   private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
+
+  /**
+   * Runs that may still emit events when the JVM exits, for example a hop-run that is stopping on a
+   * termination signal. {@link #shutdownOnExit()} waits until each of these is counted down.
+   */
+  private final Set<CountDownLatch> exitHolds = ConcurrentHashMap.newKeySet();
 
   private LineageHub(LineageConfiguration fixedConfiguration, List<ILineageSink> explicitSinks) {
     this.fixedConfiguration = fixedConfiguration;
@@ -206,6 +214,36 @@ public final class LineageHub {
     } finally {
       shutdownLock.writeLock().unlock();
     }
+  }
+
+  /**
+   * Keep {@link #shutdownOnExit()} from shutting the hub down until {@code until} is counted down:
+   * the JVM runs every shutdown hook at once, and a run that is still stopping emits its end only
+   * after that. Call {@link #releaseShutdownOnExit(CountDownLatch)} once the run is over.
+   */
+  public void holdShutdownOnExit(CountDownLatch until) {
+    exitHolds.add(until);
+  }
+
+  /** Undo {@link #holdShutdownOnExit(CountDownLatch)}. */
+  public void releaseShutdownOnExit(CountDownLatch until) {
+    exitHolds.remove(until);
+  }
+
+  /**
+   * {@link #shutdown()} for a shutdown hook: first waits for the runs that hold it (see {@link
+   * #holdShutdownOnExit(CountDownLatch)}), so that their last events are queued and delivered once,
+   * instead of shutting the sinks down under a run that is still stopping.
+   */
+  public void shutdownOnExit() {
+    try {
+      for (CountDownLatch hold : exitHolds) {
+        hold.await();
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    shutdown();
   }
 
   /**

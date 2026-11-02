@@ -202,6 +202,9 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
               Duration.ofSeconds(Math.max(0L, shutdownTimeout)),
               () -> LineageHub.getInstance().shutdown());
       shutdownHookThread = new Thread(shutdownHook, "hop-run-stop-on-shutdown");
+      // The lineage shutdown hook of HopEnvironment waits for this run, so that its end is
+      // delivered as well.
+      LineageHub.getInstance().holdShutdownOnExit(shutdownHook.getRunOver());
       Runtime.getRuntime().addShutdownHook(shutdownHookThread);
 
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
@@ -267,6 +270,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       }
       if (shutdownHook != null) {
         shutdownHook.runFinished();
+        LineageHub.getInstance().releaseShutdownOnExit(shutdownHook.getRunOver());
       }
       if (shutdownHookThread != null) {
         try {
