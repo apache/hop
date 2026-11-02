@@ -141,7 +141,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       IRowMeta prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
       fieldNames = prevFields.getFieldNames();
     } catch (HopTransformException kse) {
-      logError(BaseMessages.getString(PKG, "TripleOutput.Log.ErrorGettingFieldNames"));
+      logError(BaseMessages.getString(PKG, "Neo4JOutputDialog.Log.ErrorGettingFieldNames"));
       fieldNames = new String[] {};
     }
 
@@ -1168,8 +1168,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     } catch (HopException ke) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogTitle"),
-          BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage"),
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FailedToGetFields.DialogMessage"),
           ke); //$NON-NLS-2$
     }
   }

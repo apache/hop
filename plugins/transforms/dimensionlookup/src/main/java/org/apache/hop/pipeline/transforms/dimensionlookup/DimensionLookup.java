@@ -278,7 +278,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     if (updateType == null) {
       throw new HopTransformException(
           BaseMessages.getString(
-              PKG, "DimensionLookup.Exception.MissingUpdateTypeField ", field.getName()));
+              PKG, "DimensionLookup.Exception.MissingUpdateTypeField", field.getName()));
     }
     return updateType.isWithArgument();
   }

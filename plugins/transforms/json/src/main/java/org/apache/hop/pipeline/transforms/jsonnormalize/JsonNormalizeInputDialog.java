@@ -268,7 +268,7 @@ public class JsonNormalizeInputDialog extends BaseTransformDialog {
                       BaseMessages.getString(
                           JsonInputMeta.class, "JsonInputDialog.FilesReadSelection.DialogTitle"),
                       BaseMessages.getString(
-                          PKG, "JsonInputDialog.FilesReadSelection.DialogMessage"));
+                          PKG, "JsonNormalizeInputDialog.FilesReadSelection.DialogMessage"));
               esd.setViewOnly();
               esd.open();
             } else {

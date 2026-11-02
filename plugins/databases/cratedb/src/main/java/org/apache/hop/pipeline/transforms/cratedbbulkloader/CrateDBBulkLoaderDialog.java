@@ -720,7 +720,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
 
     wStreamToRemoteCsv = new Button(wMainComp, SWT.CHECK);
     wStreamToRemoteCsv.setToolTipText(
-        BaseMessages.getString(PKG, "CrateDBBulkLoaderDialog.StreamCsvToRemote.ToolTip"));
+        BaseMessages.getString(PKG, "CrateDBBulkLoaderDialog.StreamCsvToRemote.Tooltip"));
     PropsUi.setLook(wStreamToRemoteCsv);
     FormData fdStreamCsvToRemote = new FormData();
     fdStreamCsvToRemote.top = new FormAttachment(lastControl, margin);

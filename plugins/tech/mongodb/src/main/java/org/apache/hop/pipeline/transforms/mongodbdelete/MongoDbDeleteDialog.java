@@ -692,10 +692,10 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
                 shell,
                 SWT.ICON_WARNING | SWT.OK,
                 BaseMessages.getString(
-                    PKG, "MongoDbInputDialog.ErrorMessage.MissingConnectionDetails.Title"),
+                    PKG, "MongoDbDeleteDialog.ErrorMessage.MissingConnectionDetails.Title"),
                 BaseMessages.getString(
                     PKG,
-                    "MongoDbInputDialog.ErrorMessage.MissingConnectionDetails",
+                    "MongoDbDeleteDialog.ErrorMessage.MissingConnectionDetails",
                     missingConnDetails));
         smd.open();
       }

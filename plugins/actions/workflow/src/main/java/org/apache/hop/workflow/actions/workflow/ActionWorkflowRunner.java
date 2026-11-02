@@ -65,7 +65,7 @@ public class ActionWorkflowRunner implements Runnable {
         result.setNrErrors(1);
         result.setResult(false);
         log.logError(
-            BaseMessages.getString(PKG, "Action.Log.ErrorExecWorkflow", e.getMessage()), e);
+            BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
       }
       workflow.setFinished(true);
     }

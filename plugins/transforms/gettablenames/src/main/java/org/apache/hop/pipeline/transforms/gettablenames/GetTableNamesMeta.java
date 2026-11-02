@@ -254,7 +254,7 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
       remarks.add(cr);
     } else {
       errorMessage =
-          BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.TableNameFieldNameOK");
+          BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameOK");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }

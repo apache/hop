@@ -203,7 +203,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
         if (data.indexOfMap.getOrDefault(field, -1) < 0) {
           // The field is unreachable!
           throw new HopException(
-              BaseMessages.getString(PKG, "DetectLanguage.Exception.CouldnotFindField", field));
+              BaseMessages.getString(PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
         }
       }
     }
@@ -216,7 +216,8 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
           if (data.indexOfMap.getOrDefault(field, -1) < 0) {
             // The field is unreachable!
             throw new HopException(
-                BaseMessages.getString(PKG, "DetectLanguage.Exception.CouldnotFindField", field));
+                BaseMessages.getString(
+                    PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
           }
         }
       }
@@ -228,7 +229,8 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
           if (data.indexOfMap.getOrDefault(field, -1) < 0) {
             // The field is unreachable!
             throw new HopException(
-                BaseMessages.getString(PKG, "DetectLanguage.Exception.CouldnotFindField", field));
+                BaseMessages.getString(
+                    PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
           }
         }
       }

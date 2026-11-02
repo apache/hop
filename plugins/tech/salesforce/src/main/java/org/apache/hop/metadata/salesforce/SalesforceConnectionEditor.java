@@ -1132,7 +1132,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
           mb.setMessage(
               BaseMessages.getString(
                   PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.InvalidFormat"));
-          mb.setText(BaseMessages.getString(PKG, "System.Dialog.Warning.Title"));
+          mb.setText(BaseMessages.getString(PKG, "System.Warning"));
           mb.open();
         }
       }

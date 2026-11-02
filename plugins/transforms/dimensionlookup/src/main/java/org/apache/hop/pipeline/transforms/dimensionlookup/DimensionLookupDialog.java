@@ -611,7 +611,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdAutoIncrement.top = new FormAttachment(wSeq, margin);
     wTkAutoIncrement.setLayoutData(fdAutoIncrement);
     wTkAutoIncrement.setToolTipText(
-        BaseMessages.getString(PKG, "DimensionLookupDialog.AutoIncrementButton.Tooltip", Const.CR));
+        BaseMessages.getString(PKG, "DimensionLookupDialog.AutoincrementButton.Tooltip", Const.CR));
     wTkAutoIncrement.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoIncrement.Label"));
     wTkAutoIncrement.addListener(SWT.Selection, e -> setTkType(AUTO_INCREMENT));

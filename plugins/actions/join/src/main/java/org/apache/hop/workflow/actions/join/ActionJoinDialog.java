@@ -40,7 +40,7 @@ public class ActionJoinDialog extends ActionDialog {
     super(parent, workflowMeta, variables);
     this.action = action;
     if (this.action.getName() == null) {
-      this.action.setName(BaseMessages.getString(PKG, "ActionJoinDialog.ActionName.Label"));
+      this.action.setName(BaseMessages.getString(PKG, "ActionJoin.Name"));
     }
   }
 

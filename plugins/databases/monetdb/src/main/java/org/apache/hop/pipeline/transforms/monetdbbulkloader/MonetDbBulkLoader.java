@@ -573,7 +573,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     // Confirming Database Connection is defined.
     if (databaseMeta == null) {
       throw new HopException(
-          BaseMessages.getString(PKG, "MonetDbBulkLoaderMeta.GetSQL.NoConnectionDefined"));
+          BaseMessages.getString(PKG, "MonetDBBulkLoaderMeta.GetSQL.NoConnectionDefined"));
     }
   }
 

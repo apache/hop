@@ -857,7 +857,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_ZOOM_LEVEL,
       label = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Zoom",
-      toolTip = "i18n::HopGuiPipelineGraph.GuiAction.ZoomInOut.Tooltip",
+      toolTip = "i18n::ExecutionViewer.GuiAction.ZoomInOut.Tooltip",
       type = GuiToolbarElementType.COMBO,
       alignRight = true,
       comboValuesMethod = "getZoomLevels")

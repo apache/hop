@@ -1713,7 +1713,9 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "TableOutputDialog.FailedToFindField.Message", sf.getStreamField()));
+                    PKG,
+                    "SnowflakeBulkLoader.Dialog.FailedToFindField.Message",
+                    sf.getStreamField()));
           }
         }
         prev = prevNew;
@@ -1728,15 +1730,16 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
           } else {
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
             mb.setMessage(
-                BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogMessage"));
+                BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.NoSQLNeeds.DialogMessage"));
             mb.setText(
-                BaseMessages.getString(PKG, "SnowflakeBulkLoaderDialog.NoSQLNeeds.DialogTitle"));
+                BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.NoSQLNeeds.DialogTitle"));
             mb.open();
           }
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(sql.getError());
-          mb.setText(BaseMessages.getString(PKG, "SnowBulkLoaderDialog.SQLError.DialogTitle"));
+          mb.setText(
+              BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.SQLError.DialogTitle"));
           mb.open();
         }
       }
@@ -1744,8 +1747,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     } catch (HopException ke) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "SnowBulkLoaderDialog.BuildSQLError.DialogTitle"),
-          BaseMessages.getString(PKG, "SnowBulkLoaderDialog.BuildSQLError.DialogMessage"),
+          BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.BuildSQLError.DialogTitle"),
+          BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.BuildSQLError.DialogMessage"),
           ke);
       ke.printStackTrace();
     }

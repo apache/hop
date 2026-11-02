@@ -294,7 +294,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
             BaseMessages.getString(PKG, "ActionCheckFilesLocked.Error.Exception.ProcessError"),
             BaseMessages.getString(
                 PKG,
-                "JobCheckFilesLocked.Error.Exception.Process",
+                "ActionCheckFilesLocked.Error.Exception.Process",
                 info.getFile().toString(),
                 e.getMessage()));
       }

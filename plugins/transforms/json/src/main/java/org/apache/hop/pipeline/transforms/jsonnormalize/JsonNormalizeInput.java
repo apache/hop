@@ -119,7 +119,7 @@ public class JsonNormalizeInput
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
-                PKG, "JsonInput.Log.ReadRow", data.outputRowMeta.getString(outRow)));
+                PKG, "JsonNormalizeInput.Log.ReadRow", data.outputRowMeta.getString(outRow)));
       }
       incrementLinesInput();
       data.rownr++;
@@ -175,7 +175,7 @@ public class JsonNormalizeInput
                   JsonInputMeta.class, "JsonInput.Log.ErrorFindingField", meta.getFieldValue()));
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "JsonInput.Exception.CouldnotFindField", meta.getFieldValue()));
+                  PKG, "JsonNormalizeInput.Exception.CouldnotFindField", meta.getFieldValue()));
         }
       }
 
@@ -316,7 +316,7 @@ public class JsonNormalizeInput
       String msg =
           BaseMessages.getString(
               PKG,
-              "JsonInput.Log.UnableToOpenFile",
+              "JsonNormalizeInput.Log.UnableToOpenFile",
               "" + data.filenr,
               file.toString(),
               e.toString());

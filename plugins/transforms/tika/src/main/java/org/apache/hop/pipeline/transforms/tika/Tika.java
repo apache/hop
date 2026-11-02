@@ -258,7 +258,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       } else {
         logError(BaseMessages.getString(PKG, "Tika.ErrorInTransformRunning", e.getMessage()));
         throw new HopTransformException(
-            BaseMessages.getString(PKG, "Tika.ErrorInTransformRunning"), e);
+            BaseMessages.getString(PKG, "Tika.ErrorInTransformRunning", e.getMessage()), e);
       }
     }
     return true;

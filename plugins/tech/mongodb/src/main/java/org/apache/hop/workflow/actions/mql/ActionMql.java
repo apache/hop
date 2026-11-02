@@ -136,7 +136,7 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
       if (mongoConnection == null) {
         throw new HopException(
-            BaseMessages.getString(PKG, "ActionMQL.MongoDBConnectionNotFound") + connectionName);
+            BaseMessages.getString(PKG, "ActionMQL.MongoDbConnectionNotFound") + connectionName);
       }
 
       wrapper = mongoConnection.createWrapper(this, getLogChannel());

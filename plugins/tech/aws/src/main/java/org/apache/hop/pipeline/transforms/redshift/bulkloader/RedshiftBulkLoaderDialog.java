@@ -384,7 +384,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
     wlStreamToS3Csv.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Label"));
     wlStreamToS3Csv.setToolTipText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Tooltip"));
     PropsUi.setLook(wlStreamToS3Csv);
     FormData fdlStreamToS3Csv = new FormData();
     fdlStreamToS3Csv.top = new FormAttachment(lastControl, margin);
@@ -394,7 +394,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
     wStreamToS3Csv = new Button(wGeneralComp, SWT.CHECK);
     wStreamToS3Csv.setToolTipText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Tooltip"));
     PropsUi.setLook(wStreamToS3Csv);
     FormData fdStreamToS3Csv = new FormData();
     fdStreamToS3Csv.top = new FormAttachment(lastControl, margin);

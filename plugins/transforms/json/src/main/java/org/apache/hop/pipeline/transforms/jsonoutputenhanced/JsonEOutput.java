@@ -84,7 +84,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     if (super.init()) {
       // Output Value field is always required to output JSON resulting by looping over group keys
       if (Utils.isEmpty(resolve(meta.getOutputValue()))) {
-        logError(BaseMessages.getString(PKG, "JsonOutput.Error.MissingOutputFieldName"));
+        logError(BaseMessages.getString(PKG, "JsonEOutput.Error.MissingOutputFieldName"));
         stopAll();
         setErrors(1);
         return false;
@@ -112,7 +112,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       if (data.isWriteToFile && !meta.getFileSettings().isDoNotOpenNewFileInit()) {
         try {
           if (!openNewFile()) {
-            logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+            logError(BaseMessages.getString(PKG, "JsonEOutput.Error.OpenNewFile", buildFilename()));
             stopAll();
             setErrors(1);
             return false;
@@ -285,7 +285,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
                 }
               } catch (IOException e) {
                 throw new HopTransformException(
-                    BaseMessages.getString(PKG, "JsonOutput.Error.Casting"), e);
+                    BaseMessages.getString(PKG, "JsonEOutput.Error.Casting"), e);
               }
             } else {
               if (arNode == null) {
@@ -456,7 +456,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
         data.fileGenerator.writeTree(item);
       }
     } catch (IOException e) {
-      throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
     }
     data.fileItemCount++;
     if (!data.isOutputValue) {
@@ -472,7 +472,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
   private void startFileDocument(boolean array) throws IOException, HopTransformException {
     if (!openNewFile()) {
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+          BaseMessages.getString(PKG, "JsonEOutput.Error.OpenNewFile", buildFilename()));
     }
     data.fileGenerator = fileMapper.getFactory().createGenerator(data.writer);
     // The file is closed separately, with its lineage
@@ -547,7 +547,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       }
       data.fileGenerator.close();
     } catch (IOException e) {
-      throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonEOutput.Error.Writing"), e);
     }
     data.fileGenerator = null;
     data.pendingFileItem = null;
@@ -655,7 +655,11 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.fieldIndexes[i] =
           data.inputRowMeta.indexOfValue(meta.getOutputFields().get(i).getFieldName());
       if (data.fieldIndexes[i] < 0)
-        throw new HopException(BaseMessages.getString(PKG, "JsonOutput.Exception.FieldNotFound"));
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "JsonEOutput.Exception.FieldNotFound",
+                meta.getOutputFields().get(i).getFieldName()));
       JsonEOutputField field = meta.getOutputFields().get(i);
       field.setElementName(variables.resolve(field.getElementName()));
 
@@ -760,7 +764,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
                 HopVfs.getFileObject(filename),
                 getPipelineMeta().getName(),
                 getTransformName());
-        resultFile.setComment(BaseMessages.getString(PKG, "JsonOutput.ResultFilenames.Comment"));
+        resultFile.setComment(BaseMessages.getString(PKG, "JsonEOutput.ResultFilenames.Comment"));
         addResultFile(resultFile);
       }
 
@@ -778,7 +782,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       }
 
       if (isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "JsonOutput.FileOpened", filename));
+        logDetailed(BaseMessages.getString(PKG, "JsonEOutput.FileOpened", filename));
       }
 
       data.openedFilename = filename;
@@ -789,7 +793,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
     } catch (NdJsonAppendBoundaryException e) {
       throw new HopTransformException(e.getMessage(), e);
     } catch (Exception e) {
-      logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpeningFile", e.toString()));
+      logError(BaseMessages.getString(PKG, "JsonEOutput.Error.OpeningFile", e.toString()));
     }
 
     return retval;
@@ -848,7 +852,7 @@ public class JsonEOutput extends BaseTransform<JsonEOutputMeta, JsonEOutputData>
       data.countingStream = null;
       retval = true;
     } catch (Exception e) {
-      logError(BaseMessages.getString(PKG, "JsonOutput.Error.ClosingFile", e.toString()));
+      logError(BaseMessages.getString(PKG, "JsonEOutput.Error.ClosingFile", e.toString()));
       setErrors(1);
       retval = false;
     }

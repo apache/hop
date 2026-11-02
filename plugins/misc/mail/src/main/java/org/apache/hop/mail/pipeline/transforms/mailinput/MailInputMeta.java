@@ -65,34 +65,28 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
 
   public Map<String, String> valueImaps =
       Map.ofEntries(
+          Map.entry("imaplistall", BaseMessages.getString(PKG, "MailInput.IMAPListGetAll.Label")),
+          Map.entry("imaplistnew", BaseMessages.getString(PKG, "MailInput.IMAPListGetNew.Label")),
+          Map.entry("imaplistold", BaseMessages.getString(PKG, "MailInput.IMAPListGetOld.Label")),
+          Map.entry("imaplistread", BaseMessages.getString(PKG, "MailInput.IMAPListGetRead.Label")),
           Map.entry(
-              "imaplistall", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAll.Label")),
+              "imaplistunread", BaseMessages.getString(PKG, "MailInput.IMAPListGetUnread.Label")),
           Map.entry(
-              "imaplistnew", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNew.Label")),
-          Map.entry(
-              "imaplistold", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetOld.Label")),
-          Map.entry(
-              "imaplistread", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetRead.Label")),
-          Map.entry(
-              "imaplistunread",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetUnread.Label")),
-          Map.entry(
-              "imaplistflagged",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetFlagged.Label")),
+              "imaplistflagged", BaseMessages.getString(PKG, "MailInput.IMAPListGetFlagged.Label")),
           Map.entry(
               "imaplistnotflagged",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotFlagged.Label")),
+              BaseMessages.getString(PKG, "MailInput.IMAPListGetNotFlagged.Label")),
           Map.entry(
-              "imaplistdraft", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetDraft.Label")),
+              "imaplistdraft", BaseMessages.getString(PKG, "MailInput.IMAPListGetDraft.Label")),
           Map.entry(
               "imaplistnotdraft",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotDraft.Label")),
+              BaseMessages.getString(PKG, "MailInput.IMAPListGetNotDraft.Label")),
           Map.entry(
               "imaplistanswered",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAnswered.Label")),
+              BaseMessages.getString(PKG, "MailInput.IMAPListGetAnswered.Label")),
           Map.entry(
               "imaplistnotanswered",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotAnswered.Label")));
+              BaseMessages.getString(PKG, "MailInput.IMAPListGetNotAnswered.Label")));
 
   private int valueImapList;
 

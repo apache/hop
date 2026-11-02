@@ -2881,8 +2881,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       MessageBox mb = new MessageBox(hopShell(), SWT.YES | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
-              PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel.getText()));
-      mb.setText(BaseMessages.getString(PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Title"));
+              PKG, "WorkflowGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel.getText()));
+      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.InvalidZoomMeasurement.Title"));
       mb.open();
     }
 

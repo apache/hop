@@ -211,7 +211,7 @@ public class ActionDosToUnix extends ActionBase {
       logDetailed(
           BaseMessages.getString(
               PKG,
-              "JobDosToUnix.Log.ArgFromPrevious.Found",
+              "ActionDosToUnix.Log.ArgFromPrevious.Found",
               (rows != null ? rows.size() : 0) + ""));
     }
     if (argFromPrevious && rows != null) {
@@ -239,7 +239,7 @@ public class ActionDosToUnix extends ActionBase {
           logDetailed(
               BaseMessages.getString(
                   PKG,
-                  "JobDosToUnix.Log.ProcessingRow",
+                  "ActionDosToUnix.Log.ProcessingRow",
                   vSourceFileFolderPrevious,
                   vWildcardPrevious));
         }
@@ -399,7 +399,7 @@ public class ActionDosToUnix extends ActionBase {
         logDebug(
             BaseMessages.getString(
                 PKG,
-                "JobDosToUnix.Log.RenamingTempFile",
+                "ActionDosToUnix.Log.RenamingTempFile",
                 tempFile.getAbsolutePath(),
                 source.getAbsolutePath()));
       }
@@ -531,7 +531,7 @@ public class ActionDosToUnix extends ActionBase {
       logError(
           BaseMessages.getString(
               PKG,
-              "JobDosToUnix.Error.Exception.Processing",
+              "ActionDosToUnix.Error.Exception.Processing",
               realSourceFilefoldername,
               e.getMessage()));
       // Update Errors
@@ -639,7 +639,7 @@ public class ActionDosToUnix extends ActionBase {
       logError(
           BaseMessages.getString(
               PKG,
-              "JobDosToUnix.Error.AddingToFilenameResult",
+              "ActionDosToUnix.Error.AddingToFilenameResult",
               fileaddentry.toString(),
               e.getMessage()));
     }

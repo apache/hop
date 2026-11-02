@@ -224,7 +224,7 @@ public class CombinationLookupMeta
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG,
-                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  "CombinationLookupMeta.CheckResult.DatabaseMetaError",
                   variables.resolve(connectionName)),
               transformMeta);
       remarks.add(cr);
