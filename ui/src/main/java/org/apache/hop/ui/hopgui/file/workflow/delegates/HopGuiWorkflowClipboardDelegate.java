@@ -90,6 +90,10 @@ public class HopGuiWorkflowClipboardDelegate {
   }
 
   public void pasteXml(WorkflowMeta workflowMeta, String clipboardContent, Point location) {
+    // Empty clipboard (e.g. OS file copy with no text) — nothing to paste, stay quiet.
+    if (Utils.isEmpty(clipboardContent)) {
+      return;
+    }
 
     try {
       Document doc = XmlHandler.loadXmlString(clipboardContent);
@@ -200,6 +204,10 @@ public class HopGuiWorkflowClipboardDelegate {
   private void pasteNoXmlContent(
       WorkflowMeta workflowMeta, String clipboardContent, Point location) {
     try {
+      if (Utils.isEmpty(clipboardContent)) {
+        return;
+      }
+
       // Are we pasting filenames?
       //
       if (clipboardContent.startsWith("file:///") || clipboardContent.startsWith("/")) {

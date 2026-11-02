@@ -3939,6 +3939,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     copyToClipboard(tif -> tif.path);
   }
 
+  /**
+   * Ctrl/Cmd+C and Ctrl/Cmd+V do not copy files in the project tree. Tell the user to drag and drop
+   * instead of falling through to the active workflow/pipeline paste handler.
+   */
+  @GuiKeyboardShortcut(control = true, key = 'c')
+  @GuiOsxKeyboardShortcut(command = true, key = 'c')
+  public void copyFilesUnsupported() {
+    showFileClipboardUnsupported();
+  }
+
+  @GuiKeyboardShortcut(control = true, key = 'v')
+  @GuiOsxKeyboardShortcut(command = true, key = 'v')
+  public void pasteFilesUnsupported() {
+    showFileClipboardUnsupported();
+  }
+
+  private void showFileClipboardUnsupported() {
+    MessageBox messageBox = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
+    messageBox.setText(
+        BaseMessages.getString(PKG, "ExplorerPerspective.Dialog.FileClipboardUnsupported.Title"));
+    messageBox.setMessage(
+        BaseMessages.getString(PKG, "ExplorerPerspective.Dialog.FileClipboardUnsupported.Message"));
+    messageBox.open();
+  }
+
   /** Copy one line per selected file to the clipboard. */
   private void copyToClipboard(Function<TreeItemFolder, String> valueGetter) {
     TreeItem[] selection = tree.getSelection();

@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopPluginLoaderException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -92,6 +93,11 @@ public class HopGuiPipelineClipboardDelegate {
   }
 
   public void pasteXml(PipelineMeta pipelineMeta, String clipboardContent, Point location) {
+    // Empty clipboard (e.g. OS file copy with no text) — nothing to paste, stay quiet.
+    if (Utils.isEmpty(clipboardContent)) {
+      return;
+    }
+
     try {
       Document doc = XmlHandler.loadXmlString(clipboardContent);
       Node pipelineNode = XmlHandler.getSubNode(doc, XML_TAG_PIPELINE_TRANSFORMS);
@@ -249,6 +255,10 @@ public class HopGuiPipelineClipboardDelegate {
   private void pasteNoXmlContent(
       PipelineMeta pipelineMeta, String clipboardContent, Point location) {
     try {
+      if (Utils.isEmpty(clipboardContent)) {
+        return;
+      }
+
       // Add a notepad
       //
       NotePadMeta notePadMeta =
