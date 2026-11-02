@@ -39,15 +39,15 @@ More details and setup instructions for the Nagios NSCA addon can be found at th
 |Option|Description
 2+|Server
 |Action name|The name of the workflow action.
-|Host Name/IP Address|Nagios server name / IP Address
-|Server port|Nagios server port (often 5667).
+|Host name/IP address|Nagios server name / IP Address
+|Server port|Nagios server port (default 5667). A value that is not a number is replaced by 5667; a number that is not a valid port (for example 70000) makes the action false.
 |Password|The password to connect to the Nagios server NSCA (shared between the Nagios server and the client).
 This field can be set empty when connections without password are allowed.
-|Connection Timeout|Fail after the specified connection timeout in milliseconds (default 5000).
+|Connection timeout|Fail after the specified connection timeout in milliseconds (default 5000).
 |Response Timeout|Fail after the specified response timeout in milliseconds (default 10000).
 2+|Sender
-|Host Name/IP Address|Define your sender host name / IP Address.
-|Service Name|Define the service name used to log the events.
+|Name/ IP host|Define your sender host name / IP Address. When it is empty, the name of the machine that runs the workflow is sent.
+|Service name|Define the service name used to log the events. When it is empty, `UNDEFINED` is sent.
 |Encryption mode a|Encryption mode for the connection. The available options are
 
 * None (default)
@@ -61,3 +61,18 @@ This field can be set empty when connections without password are allowed.
 * Critical
 |Message|The message to get logged.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The passive check was sent to the NSCA server, with 0 errors. The action sends the check and closes the connection without waiting for an answer.
+|False|The number of errors is 1. *Host name/IP address* or *Message* is empty, the host name can't be resolved, *Server port* is a number that is not a valid port, the server refuses the connection or doesn't answer it within *Connection timeout*, or the server doesn't send its first packet within *Response timeout*.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+WARNING: Since Hop 2.18 the action can't send a check: the library it uses (jsendnsca) needs `commons-lang` 2, which Hop no longer ships. The workflow stops with `NoClassDefFoundError: org/apache/commons/lang/Validate`, and no hop from the action is followed. Only an empty *Host name/IP address* or *Message* still makes the action false. The table above describes the action with that library available (tested with `commons-lang-2.6.jar` added to the lib folder of the plugin).

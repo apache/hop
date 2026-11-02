@@ -32,17 +32,32 @@ The `Send SNMP trap` action sends alert messages to a remote SNMP-enabled device
 |Action name|The name of the workflow action.
 2+|Server
 |Server name / IP address|The server host.
-|Server port|The server port.
+|Server port|The server port (default 162). A value that is not a number is replaced by 162; a number that is not a valid port (for example 70000) makes the action false.
 |OID|The object identifier.
 |Test connection|Can be used to test the connection.
 2+|Advanced
-|Target type|Type of target: Community or User.
-|Community string|A user id or password that allows access to a router's or other device's statistics.
+|Target type|Type of target: Community (SNMP V1) or User (SNMP V3). See the WARNING under <<Result>>.
+|Community string|A user id or password that allows access to a router's or other device's statistics (default `public`).
 |User|The username to connect to the server
 |Passphrase|The password to connect to the server
-|Engine ID|
+|Engine ID|The context engine ID of the SNMP V3 trap (optional).
 |Retry|Number of retries.
 |Timeout|Timeout in milliseconds
 2+|Message
 |Message|The message to send.
 |===
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|The trap was sent, with 0 errors. The action doesn't wait for an answer, so it is also true when nothing listens on *Server port*. An empty *Server name / IP address* sends the trap to the local machine, and an empty *OID* or *Message* is sent as it is.
+|False|The number of errors is 1. *Server name / IP address* can't be resolved, *Server port* is a number that is not a valid port (for example 70000), or *OID* is not a valid object identifier (for example `abc`).
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+WARNING: *User (SNMP V3)* is not kept. When the workflow is loaded from its file, the target type is read back as *Community (SNMP V1)*, so the action sends an SNMP V1 trap with *Community string*, and *User*, *Passphrase* and *Engine ID* are not used.
