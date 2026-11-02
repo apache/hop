@@ -308,8 +308,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       // deleteFiles already counted the file error that broke the condition; do not count again.
       if (!deletion.successConditionBroken) {
         deletion.updateErrors();
+        logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()), e);
       }
-      logError(BaseMessages.getString(PKG, "ActionFTPDelete.ErrorGetting", e.getMessage()), e);
     } finally {
       FtpHelper.disconnect(getLogChannel(), ftpClient);
       if (sftpClient != null) {
@@ -367,8 +367,9 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         return;
       }
       if (deletion.successConditionBroken) {
-        throw new HopException(
-            BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
+        // Limit reached: stop quietly. Per-file UnexpectedError was already logged; do not throw
+        // into the outer catch (that would log a failure on an action that can still be true).
+        return;
       }
       if (isDebug()) {
         logDebug(BaseMessages.getString(PKG, "ActionFTPDelete.AnalysingFile", filename));
@@ -391,8 +392,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         deletion.updateErrors();
         logError(BaseMessages.getString(PKG, "ActionFtp.UnexpectedError", e.getMessage()));
         if (deletion.successConditionBroken) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "ActionFTPDelete.SuccesConditionBroken"));
+          return;
         }
       }
     }

@@ -31,7 +31,9 @@ import java.util.Comparator;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.vfs.ftp.FtpHelper;
@@ -249,7 +251,7 @@ class ActionFtpExecutionTest {
 
   @Test
   @DisplayName("Moving without saying where to is refused before anything is connected")
-  void movingWithoutATargetFolderIsRefused(@TempDir Path targetDir) throws Exception {
+  void movingWithoutATargetFolderIsRefused(@TempDir Path targetDir) {
     ActionFtp action = configure(targetDir);
     action.setMoveFiles(true);
     action.setMoveToDirectory("");
@@ -353,8 +355,67 @@ class ActionFtpExecutionTest {
   }
 
   @Test
+  @DisplayName(
+      "\"At most N errors\" stops once the limit is reached and does not log that stop as a failure")
+  void errorsAtMostStopsWithoutLoggingTheStopAsAFailure(@TempDir Path targetDir) throws Exception {
+    // A second existing file forces another loop iteration after the limit is hit; that used to
+    // throw into the outer catch and log ErrorGetting on an action that still follows success.
+    server.writeFile("one.txt", "server-one");
+    server.writeFile("two.txt", "server-two");
+    Files.writeString(targetDir.resolve("one.txt"), "local-one");
+    Files.writeString(targetDir.resolve("two.txt"), "local-two");
+
+    ActionFtp action = configure(targetDir);
+    action.setOnlyGettingNewFiles(true);
+    action.setIfFileExistsOperation(ActionFtp.IfFileExistsOperation.FAIL);
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimit("1");
+    action.setLogLevel(LogLevel.ERROR);
+
+    String logChannelId = action.getLogChannel().getLogChannelId();
+    int logFrom = HopLogStore.getLastBufferLineNr();
+    Result result = action.execute(new Result(), 0);
+    String log = HopLogStore.getAppender().getBuffer(logChannelId, true, logFrom).toString();
+
+    assertTrue(result.isResult(), "exactly Limit files errors still counts as success");
+    assertEquals(1, result.getNrErrors());
+    assertTrue(
+        log.contains(localFileExistsLogFragment()),
+        "the existing-file failure must still be logged:\n" + log);
+    assertFalse(
+        log.contains(errorGettingLogFragment()),
+        "stopping at the limit must not look like an action failure:\n" + log);
+    assertFalse(
+        log.contains(
+            BaseMessages.getString(ActionFtp.class, "ActionFTP.SuccesConditionBroken", "1")),
+        "stopping at the limit must not look like an action failure:\n" + log);
+  }
+
+  @Test
+  @DisplayName("\"At least X files\" keeps going after a file that already exists locally")
+  void atLeastXFilesContinuesAfterAnError(@TempDir Path targetDir) throws Exception {
+    server.writeFile("existing.txt", "the-server-copy");
+    server.writeFile("fresh.txt", "download me");
+    Files.writeString(targetDir.resolve("existing.txt"), "the-local-copy");
+
+    ActionFtp action = configure(targetDir);
+    action.setOnlyGettingNewFiles(true);
+    action.setIfFileExistsOperation(ActionFtp.IfFileExistsOperation.FAIL);
+    action.setSuccessCondition(ActionFtp.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
+    action.setNrLimit("1");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "one downloaded file meets the limit");
+    assertEquals(1, result.getNrFilesRetrieved());
+    assertEquals(1, result.getNrErrors());
+    assertEquals("download me", Files.readString(targetDir.resolve("fresh.txt")));
+    assertEquals("the-local-copy", Files.readString(targetDir.resolve("existing.txt")));
+  }
+
+  @Test
   @DisplayName("An unreachable server fails whatever the success condition")
-  void unreachableServerFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+  void unreachableServerFailsEvenWithErrorsAtMost(@TempDir Path targetDir) {
     ActionFtp action = configure(targetDir);
     action.setServerPort("1");
     action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
@@ -402,7 +463,7 @@ class ActionFtpExecutionTest {
 
   @Test
   @DisplayName("A missing remote directory fails whatever the success condition")
-  void missingRemoteDirectoryFailsEvenWithErrorsAtMost(@TempDir Path targetDir) throws Exception {
+  void missingRemoteDirectoryFailsEvenWithErrorsAtMost(@TempDir Path targetDir) {
     ActionFtp action = configure(targetDir);
     action.setRemoteDirectory("/not-there");
     action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
@@ -445,7 +506,7 @@ class ActionFtpExecutionTest {
 
   @Test
   @DisplayName("A connection name which isn't in the metadata is an error")
-  void anUnknownConnectionIsAnError(@TempDir Path targetDir) throws Exception {
+  void anUnknownConnectionIsAnError(@TempDir Path targetDir) {
     ActionFtp action = configure(targetDir);
     action.setMetadataProvider(new MemoryMetadataProvider());
     action.setConnection("nowhere");
@@ -582,6 +643,23 @@ class ActionFtpExecutionTest {
     when(workflowEngine.getLogLevel()).thenReturn(LogLevel.DEBUG);
     when(workflowEngine.getContainerId()).thenReturn("test-container");
     return workflowEngine;
+  }
+
+  /** Fixed text of {@code ActionFTP.LocalFileExists} before the {@code {0}} placeholder. */
+  private static String localFileExistsLogFragment() {
+    return messagePrefix(ActionFtp.class, "ActionFTP.LocalFileExists");
+  }
+
+  /** Fixed text of {@code ActionFTP.ErrorGetting} before the {@code {0}} placeholder. */
+  private static String errorGettingLogFragment() {
+    return messagePrefix(ActionFtp.class, "ActionFTP.ErrorGetting");
+  }
+
+  private static String messagePrefix(Class<?> pkg, String key) {
+    final String marker = "<<<>>>";
+    String formatted = BaseMessages.getString(pkg, key, marker);
+    int placeholder = formatted.indexOf(marker);
+    return placeholder >= 0 ? formatted.substring(0, placeholder) : formatted;
   }
 
   private ActionFtp configure(Path targetDir) {

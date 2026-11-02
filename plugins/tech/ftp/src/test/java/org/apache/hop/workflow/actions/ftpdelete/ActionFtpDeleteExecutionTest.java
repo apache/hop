@@ -32,9 +32,11 @@ import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.ftp.FtpSecurityMode;
 import org.apache.hop.vfs.ftp.FtpTestServer;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -118,7 +120,7 @@ class ActionFtpDeleteExecutionTest {
 
   @Test
   @DisplayName("An empty directory is a success, not a failure")
-  void anEmptyDirectoryIsFine() throws Exception {
+  void anEmptyDirectoryIsFine() {
     ActionFtpDelete action = configure();
     action.setWildcard(".*");
 
@@ -213,8 +215,60 @@ class ActionFtpDeleteExecutionTest {
   }
 
   @Test
+  @DisplayName("\"At most N errors\" at the limit does not log the stop as an action failure")
+  void errorsAtMostDoesNotLogTheStopAsAFailure() throws Exception {
+    // A refused delete of a directory: deleteFiles used to throw into the outer catch and log
+    // ErrorGetting even when Nr errors at most still leaves the action true.
+    Files.createDirectories(serverRoot.resolve("a-folder"));
+
+    ActionFtpDelete action = configure();
+    action.setWildcard(".*");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+    action.setNrLimitSuccess("1");
+    action.setLogLevel(LogLevel.ERROR);
+
+    String logChannelId = action.getLogChannel().getLogChannelId();
+    int logFrom = HopLogStore.getLastBufferLineNr();
+    Result result = action.execute(new Result(), 0);
+    String log = HopLogStore.getAppender().getBuffer(logChannelId, true, logFrom).toString();
+
+    assertTrue(result.isResult(), "exactly Limit files errors still counts as success");
+    assertEquals(1, result.getNrErrors());
+    assertTrue(
+        log.contains(unexpectedErrorLogFragment()),
+        "the refused delete must still be logged:\n" + log);
+    assertFalse(
+        log.contains(errorGettingLogFragment()),
+        "stopping at the limit must not look like an action failure:\n" + log);
+    assertFalse(
+        log.contains(
+            BaseMessages.getString(ActionFtpDelete.class, "ActionFTPDelete.SuccesConditionBroken")),
+        "stopping at the limit must not look like an action failure:\n" + log);
+  }
+
+  @Test
+  @DisplayName("\"At least X files\" keeps going after a refused delete")
+  void atLeastXFilesContinuesAfterAnError() throws Exception {
+    Files.createDirectories(serverRoot.resolve("a-folder"));
+    server.writeFile("keep-going.txt", "delete me");
+
+    ActionFtpDelete action = configure();
+    action.setWildcard(".*");
+    action.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
+    action.setNrLimitSuccess("1");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "one successful delete meets the limit");
+    assertEquals(1, result.getNrFilesRetrieved());
+    assertEquals(1, result.getNrErrors());
+    assertNull(server.readFile("keep-going.txt"));
+    assertTrue(Files.exists(serverRoot.resolve("a-folder")));
+  }
+
+  @Test
   @DisplayName("An unreachable server fails whatever the success condition")
-  void unreachableServerFailsEvenWithErrorsAtMost() throws Exception {
+  void unreachableServerFailsEvenWithErrorsAtMost() {
     ActionFtpDelete action = configure();
     action.setWildcard(".*");
     action.setServerPort("1");
@@ -379,6 +433,23 @@ class ActionFtpDeleteExecutionTest {
     when(workflowEngine.getLogLevel()).thenReturn(LogLevel.DEBUG);
     when(workflowEngine.getContainerId()).thenReturn("test-container");
     return workflowEngine;
+  }
+
+  /** Fixed text of {@code ActionFtp.UnexpectedError} before the {@code {0}} placeholder. */
+  private static String unexpectedErrorLogFragment() {
+    return messagePrefix(ActionFtpDelete.class, "ActionFtp.UnexpectedError");
+  }
+
+  /** Fixed text of {@code ActionFTPDelete.ErrorGetting} before the {@code {0}} placeholder. */
+  private static String errorGettingLogFragment() {
+    return messagePrefix(ActionFtpDelete.class, "ActionFTPDelete.ErrorGetting");
+  }
+
+  private static String messagePrefix(Class<?> pkg, String key) {
+    final String marker = "<<<>>>";
+    String formatted = BaseMessages.getString(pkg, key, marker);
+    int placeholder = formatted.indexOf(marker);
+    return placeholder >= 0 ? formatted.substring(0, placeholder) : formatted;
   }
 
   private ActionFtpDelete configure() {

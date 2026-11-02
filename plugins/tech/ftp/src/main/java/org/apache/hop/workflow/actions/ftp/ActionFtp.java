@@ -303,10 +303,12 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
         downloadFiles(ftpClient, realMoveToFolder, download, result);
       }
     } catch (Exception e) {
+      // Stopping at the error limit already logged UnexpectedError per file; do not log again as a
+      // failure when Nr errors at most can still leave the action true.
       if (!download.successConditionBroken) {
         download.updateErrors();
+        logError(BaseMessages.getString(PKG, "ActionFTP.ErrorGetting", e.getMessage()), e);
       }
-      logError(BaseMessages.getString(PKG, "ActionFTP.ErrorGetting", e.getMessage()), e);
     } finally {
       FtpHelper.disconnect(getLogChannel(), ftpClient);
     }
@@ -385,9 +387,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
         throw new HopException(BaseMessages.getString(PKG, "ActionFTP.WorkflowStopped"));
       }
       if (download.successConditionBroken) {
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, "ActionFTP.SuccesConditionBroken", String.valueOf(download.nrErrors)));
+        // Limit reached: stop quietly. Per-file UnexpectedError was already logged; do not throw
+        // into the outer catch (that would log a failure on an action that can still be true).
+        return;
       }
 
       String filename = ftpFile.getName();
