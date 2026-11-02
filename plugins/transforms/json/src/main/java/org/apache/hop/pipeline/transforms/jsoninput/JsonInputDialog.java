@@ -58,6 +58,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -1133,20 +1134,19 @@ public class JsonInputDialog extends BaseTransformDialog {
   }
 
   /**
-   * Load previous-transform fields into the source combo. {@code setItems} clears the current text,
-   * so the lookup runs first and the configured name is written back afterwards. A failed lookup
-   * leaves that name in place. OK would otherwise store an empty source field.
+   * Load previous-transform fields into the source combo. Do not call {@code removeAll()} here.
+   * {@code removeAll()} clears the text, including on this editable combo, and a failed lookup
+   * would leave the source field empty. {@code CCombo.setItems} clears the text only when the combo
+   * is not editable. The lookup runs first, and {@code ComboItems.setItemsKeepingText} writes the
+   * previous text back when it returns.
    */
   private void setSourceStreamField(boolean isShowErrorDialog) {
-    String configured = wFieldValue.getText();
     try {
       IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (row != null) {
-        wFieldValue.setItems(row.getFieldNames());
+        ComboItems.setItemsKeepingText(wFieldValue, row.getFieldNames());
       }
-      restoreSourceField(configured);
     } catch (HopException exception) {
-      restoreSourceField(configured);
       if (!isShowErrorDialog) {
         return;
       }
@@ -1155,12 +1155,6 @@ public class JsonInputDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogMessage"),
           exception);
-    }
-  }
-
-  private void restoreSourceField(String configured) {
-    if (configured != null) {
-      wFieldValue.setText(configured);
     }
   }
 

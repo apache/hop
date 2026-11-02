@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -94,20 +93,33 @@ class JsonInputSourceFieldDialogTest extends SwtBotTestBase {
     assertEquals(CONFIGURED_FIELD, meta.getFieldValue());
   }
 
+  /**
+   * The dialog loads fields once while it is built, then looks them up again from {@code getData}.
+   * {@code removeAll()} before that second lookup clears both the text and the list just loaded.
+   */
   @Test
-  void loadedFieldsKeepANameThatIsNotInTheList() {
+  void secondFailedLookupKeepsTheFieldAndTheLoadedList() {
     JsonInputMeta meta = sourceMeta();
     withDialog(
         parent ->
-            new JsonInputDialog(parent, new Variables(), meta, new OtherFieldsPipeline(meta))
+            new JsonInputDialog(parent, new Variables(), meta, new FailAfterFirstLookup(meta))
                 .open(),
         bot -> {
+          dismissFieldLookupError();
           SWTBot dialog = jsonDialog(bot);
           SWTBotCCombo combo = sourceCombo(dialog);
           assertEquals(CONFIGURED_FIELD, combo.getText());
-          AtomicReference<String> firstItem = new AtomicReference<>();
-          display.syncExec(() -> firstItem.set(combo.widget.getItem(0)));
-          assertEquals("other", firstItem.get());
+          int[] itemCount = {0};
+          String[] firstItem = {null};
+          display.syncExec(
+              () -> {
+                itemCount[0] = combo.widget.getItemCount();
+                if (itemCount[0] > 0) {
+                  firstItem[0] = combo.widget.getItem(0);
+                }
+              });
+          assertEquals(1, itemCount[0]);
+          assertEquals("other", firstItem[0]);
           dialog.button(buttonLabel("System.Button.OK")).click();
         });
     assertEquals(CONFIGURED_FIELD, meta.getFieldValue());
@@ -154,17 +166,26 @@ class JsonInputSourceFieldDialogTest extends SwtBotTestBase {
     }
   }
 
-  /** The lookup succeeds and does not contain the name already stored on the transform. */
-  private static final class OtherFieldsPipeline extends PipelineMeta {
-    private OtherFieldsPipeline(JsonInputMeta meta) {
+  /**
+   * The construction-time lookup succeeds. The lookup from {@code getData} fails, which is where
+   * {@code removeAll()} used to wipe the configured name.
+   */
+  private static final class FailAfterFirstLookup extends PipelineMeta {
+    private int calls;
+
+    private FailAfterFirstLookup(JsonInputMeta meta) {
       prepare(this, meta);
     }
 
     @Override
-    public IRowMeta getPrevTransformFields(IVariables variables, String transformName) {
-      RowMeta row = new RowMeta();
-      row.addValueMeta(new ValueMetaString("other"));
-      return row;
+    public IRowMeta getPrevTransformFields(IVariables variables, String transformName)
+        throws HopTransformException {
+      if (calls++ == 0) {
+        RowMeta row = new RowMeta();
+        row.addValueMeta(new ValueMetaString("other"));
+        return row;
+      }
+      throw new HopTransformException("missing table");
     }
   }
 
