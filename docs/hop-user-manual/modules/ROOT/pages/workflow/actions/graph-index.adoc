@@ -36,7 +36,7 @@ For similar operations on constraints, check the xref:workflow/actions/graph-con
 ** Type of object to index on: NODE or RELATIONSHIP
 ** Index name: optional but recommended name for your index
 ** Object name: the label of the node or relationship you want to update an index for
-** Properties: the comma separated list of node or relationship properties to index
+** Properties (, separated): the comma separated list of node or relationship properties to index
 ** Index type: RANGE for a regular property index (the default), VECTOR for a vector index
 ** Vector dimensions: VECTOR only, the number of numbers in each vector, for example 768 for `nomic-embed-text`
 ** Vector similarity: VECTOR only, COSINE (the default) or EUCLIDEAN
@@ -93,4 +93,19 @@ shows the exact `CREATE INDEX` or `DROP INDEX` statements before execution.
 
 The preview is read-only and helps you verify the index operations that will be performed.
 
+== Result
 
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|All the index updates ran, with 0 errors. The drops run first, then the creates. An empty list is also true. An empty *Index name* is only fine where the database doesn't use names: to create a RANGE index on Neo4j, which then names the index, for range indexes on Memgraph, and for every index on FalkorDB. In the other cases it stops the workflow, see the WARNING.
+|False|The action is never false: see the WARNING.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===
+
+WARNING: When an index update can't be done, the workflow stops with an error and no hop from the action is followed: the *Graph database connection* is empty, doesn't exist or can't be reached, an update has no *Update type*, an index is created without *Object name* or *Properties* (on Memgraph and FalkorDB, which identify an index by them, also when it is dropped, except a Memgraph vector index), a VECTOR index is created with *Vector dimensions* that are empty, not a number or not positive (a drop doesn't need them), *Index name* is empty where the database needs one (to drop an index or create a vector index on Neo4j, for a vector index on Memgraph, for any index on Apache AGE), or the database refuses the statement. The updates before it stay done, the ones after it are not run.
+
+NOTE: On Neo4j and Apache AGE the action creates with `IF NOT EXISTS` and drops with `IF EXISTS`. Creating an index that already exists, or dropping one that doesn't, does nothing and the action is still true. On Neo4j this is also the case when an index with the same name exists on another label or property, or an equivalent one exists with another name: nothing is created.
