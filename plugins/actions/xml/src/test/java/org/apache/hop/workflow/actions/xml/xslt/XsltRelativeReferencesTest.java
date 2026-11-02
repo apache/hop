@@ -28,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -206,21 +207,26 @@ class XsltRelativeReferencesTest {
   }
 
   private String transform(String factory, String xml, String xsl) throws Exception {
-    Path output = dir.resolve("output-" + factory + ".txt");
+    Path output = dir.resolve("output-" + factory + "-" + System.nanoTime() + ".txt");
 
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     Xslt action = new Xslt("xslt");
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
     action.setParentWorkflow(workflow);
     action.setParentWorkflowMeta(mock(WorkflowMeta.class));
-    action.setXSLTFactory(factory);
-    action.setXmlfilename(xml);
-    action.setXslfilename(xsl);
-    action.setOutputfilename(output.toString());
+    action.setTransformerFactory(factory);
+    action.setXmlFilename(xml);
+    action.setXslFilename(xsl);
+    action.setOutputFilename(output.toString());
 
-    Result result = action.execute(new Result(), 0);
+    try {
+      Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.isResult(), "the XSLT action failed");
-    return Files.readString(output);
+      assertTrue(result.isResult(), "the XSLT action failed");
+      return Files.readString(output);
+    } finally {
+      // Drop any SoftRefFilesCache entries so Windows can delete zip archives under @TempDir
+      HopVfs.freeUnusedResources();
+    }
   }
 }

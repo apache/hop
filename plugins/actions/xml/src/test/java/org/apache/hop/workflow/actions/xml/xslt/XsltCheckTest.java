@@ -44,9 +44,9 @@ class XsltCheckTest {
     Path xml = Files.writeString(tempDir.resolve("source.xml"), "<a/>");
     Path xsl = Files.writeString(tempDir.resolve("style.xsl"), "<b/>");
     Xslt action = new Xslt();
-    action.setXmlfilename(xml.toAbsolutePath().toString());
-    action.setXslfilename(xsl.toAbsolutePath().toString());
-    action.setOutputfilename(tempDir.resolve("out.xml").toAbsolutePath().toString());
+    action.setXmlFilename(xml.toAbsolutePath().toString());
+    action.setXslFilename(xsl.toAbsolutePath().toString());
+    action.setOutputFilename(tempDir.resolve("out.xml").toAbsolutePath().toString());
 
     List<ICheckResult> remarks = new ArrayList<>();
     action.check(remarks, null, new Variables(), null);

@@ -65,10 +65,21 @@ public class HopVfsUriResolver implements URIResolver {
         return isUrl(href) ? null : source(HopVfs.getFileObject(href, variables));
       }
       if (!Utils.isEmpty(base)) {
-        FileObject parent = HopVfs.getFileObject(base, variables).getParent();
-        FileObject file = parent == null ? null : parent.resolveFile(href);
-        if (file != null && file.exists()) {
-          return source(file);
+        FileObject baseFile = null;
+        FileObject file = null;
+        try {
+          baseFile = HopVfs.getFileObject(base, variables);
+          FileObject parent = baseFile.getParent();
+          file = parent == null ? null : parent.resolveFile(href);
+          if (file != null && file.exists()) {
+            // source() closes file; skip the finally close for it
+            Source resolved = source(file);
+            file = null;
+            return resolved;
+          }
+        } finally {
+          closeQuietly(file);
+          closeQuietly(baseFile);
         }
       }
     } catch (Exception e) {
@@ -91,12 +102,27 @@ public class HopVfsUriResolver implements URIResolver {
    * other file system is read through Hop VFS.
    */
   private static Source source(FileObject file) throws Exception {
-    String uri = file.getName().getURI();
-    if ("file".equalsIgnoreCase(file.getName().getScheme())) {
-      return new StreamSource(uri);
+    try {
+      String uri = file.getName().getURI();
+      if ("file".equalsIgnoreCase(file.getName().getScheme())) {
+        return new StreamSource(uri);
+      }
+      try (InputStream inputStream = HopVfs.getInputStream(file)) {
+        return new StreamSource(new ByteArrayInputStream(inputStream.readAllBytes()), uri);
+      }
+    } finally {
+      closeQuietly(file);
     }
-    try (InputStream inputStream = HopVfs.getInputStream(file)) {
-      return new StreamSource(new ByteArrayInputStream(inputStream.readAllBytes()), uri);
+  }
+
+  private static void closeQuietly(FileObject file) {
+    if (file == null) {
+      return;
+    }
+    try {
+      file.close();
+    } catch (Exception ignored) {
+      // ignore close failures
     }
   }
 
