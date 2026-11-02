@@ -14,7 +14,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-
+:description: How Hop uses Apache Commons Compress as its compression registry, the built-in format providers, and how to contribute a new compression format.
 = Compression formats
 
 Compression in Hop is built on top of Apache Commons Compress.
