@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMet
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ModelType;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.FormDataBuilder.Builder;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusEvent;
@@ -284,21 +285,12 @@ public class GeneralSettingsComposite implements IDialogComposite {
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String inputField = null;
-        if (inputFieldInput.getText() != null) {
-          inputField = inputFieldInput.getText();
-        }
-        inputFieldInput.removeAll();
-
         IRowMeta r =
             parameters
                 .pipelineMeta()
                 .getPrevTransformFields(parameters.variables(), parameters.transformName());
         if (r != null) {
-          inputFieldInput.setItems(r.getFieldNames());
-        }
-        if (inputField != null) {
-          inputFieldInput.setText(inputField);
+          ComboItems.setItemsKeepingText(inputFieldInput, r.getFieldNames());
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

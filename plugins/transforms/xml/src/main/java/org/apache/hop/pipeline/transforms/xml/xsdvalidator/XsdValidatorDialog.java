@@ -565,10 +565,10 @@ public class XsdValidatorDialog extends BaseTransformDialog {
       String fieldXML = wXMLStream.getText();
       String fieldXSD = wXSDDefinedColumn.getText();
       try {
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         wXMLStream.removeAll();
         wXSDDefinedColumn.removeAll();
+
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           wXMLStream.setItems(r.getFieldNames());
           wXSDDefinedColumn.setItems(r.getFieldNames());

@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.widget.ComboItems;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -403,21 +404,11 @@ public class ProcessFilesDialog extends BaseTransformDialog {
     if (!gotPreviousFields) {
       gotPreviousFields = true;
       try {
-        String source = wSourceFileNameField.getText();
-        String target = wTargetFileNameField.getText();
-
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        wSourceFileNameField.removeAll();
-        wTargetFileNameField.removeAll();
         if (r != null) {
-          wSourceFileNameField.setItems(r.getFieldNames());
-          wTargetFileNameField.setItems(r.getFieldNames());
-          if (source != null) {
-            wSourceFileNameField.setText(source);
-          }
-          if (target != null) {
-            wTargetFileNameField.setText(target);
-          }
+          String[] fields = r.getFieldNames();
+          ComboItems.setItemsKeepingText(wSourceFileNameField, fields);
+          ComboItems.setItemsKeepingText(wTargetFileNameField, fields);
         }
       } catch (HopException ke) {
         new ErrorDialog(

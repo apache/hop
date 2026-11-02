@@ -20,11 +20,17 @@ package org.apache.hop.ui.core.widget;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.widgets.Combo;
 
 /**
- * Replaces the items of a combo and writes the previous text back. {@code setItems} clears the
- * text, including a value that is not in the new list.
+ * Replaces the items of a combo and writes the previous text back.
+ *
+ * <p>{@code CCombo.setItems} clears the text only when the combo is not editable. {@code
+ * removeAll()} always clears it, including on an editable combo. Call this after a field lookup
+ * instead of calling {@code removeAll()} first, so a failed lookup can leave the configured name in
+ * place.
+ *
+ * <p>On an editable combo the previous text is kept, including a name that is not in the new list.
+ * On a read-only combo {@code setText} only selects a name that is in the new list.
  */
 public final class ComboItems {
 
@@ -34,21 +40,8 @@ public final class ComboItems {
     apply(combo::getText, combo::setItems, combo::setText, items);
   }
 
-  public static void setItemsKeepingText(Combo combo, String[] items) {
-    apply(combo::getText, combo::setItems, combo::setText, items);
-  }
-
-  public static void setItemsKeepingText(ComboVar combo, String[] items) {
-    apply(combo::getText, combo::setItems, combo::setText, items);
-  }
-
-  public static void setItemsKeepingText(LabelCombo combo, String[] items) {
-    apply(combo::getText, combo::setItems, combo::setText, items);
-  }
-
   /**
-   * @param items the replacement list. {@code null} leaves the current items in place and still
-   *     writes the previous text back.
+   * @param items the replacement list. {@code CCombo.setItems} rejects {@code null}.
    */
   static void apply(
       Supplier<String> currentText,
@@ -56,9 +49,8 @@ public final class ComboItems {
       Consumer<String> restoreText,
       String[] items) {
     String text = currentText.get();
-    if (items != null) {
-      replaceItems.accept(items);
-    }
+    replaceItems.accept(items);
+    // setText(null) is an SWT error. A null previous value is left as setItems left it.
     if (text != null) {
       restoreText.accept(text);
     }
