@@ -23,6 +23,10 @@ import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.xerial.snappy.SnappyOutputStream;
 
+/**
+ * @deprecated legacy stream class; use the commons-compress backed formats instead.
+ */
+@Deprecated
 public class SnappyCompressionOutputStream extends CompressionOutputStream {
 
   public SnappyCompressionOutputStream(OutputStream out, ICompressionProvider provider)

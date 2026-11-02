@@ -23,6 +23,10 @@ import java.util.zip.ZipInputStream;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 
+/**
+ * @deprecated legacy stream class; use the commons-compress backed formats instead.
+ */
+@Deprecated
 public class ZipCompressionInputStream extends CompressionInputStream {
   private static final String CONST_NO_VALID_INPUT_STREAM = "Not a valid input stream!";
 

@@ -66,6 +66,10 @@
             <artifactId>jackson-module-jaxb-annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>${commons-validator.version}</version>
@@ -120,6 +124,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
         <!-- Maven Artifact Resolver (ex-Eclipse Aether): downloads JDBC drivers + their transitive
              dependencies for the 'hop driver install' command (org.apache.hop.driver). Versions
              are managed centrally in lib/pom.xml. -->
@@ -138,6 +146,10 @@
         <dependency>
             <groupId>org.apache.maven.resolver</groupId>
             <artifactId>maven-resolver-transport-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.brotli</groupId>
+            <artifactId>dec</artifactId>
         </dependency>
         <!-- CommonMark for Markdown note rendering on pipeline/workflow canvas -->
         <dependency>
@@ -237,6 +249,10 @@
                     <artifactId>rhino-xml</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
         </dependency>
         <dependency>
             <groupId>org.xerial.snappy</groupId>

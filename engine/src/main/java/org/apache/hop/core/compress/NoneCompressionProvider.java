@@ -21,7 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@CompressionPlugin(id = "None", name = "None", description = "None")
+/**
+ * Legacy passthrough (no compression) provider.
+ *
+ * @deprecated replaced by the commons-compress backed "none" format contributed through the {@code
+ *     org.apache.hop.core.compress.spi.HopCompressorStreamProvider} SPI. Kept for backward
+ *     compatibility; no longer registered as a plugin.
+ */
+@Deprecated
 public class NoneCompressionProvider implements ICompressionProvider {
 
   @Override

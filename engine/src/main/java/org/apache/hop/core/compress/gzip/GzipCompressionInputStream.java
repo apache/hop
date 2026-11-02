@@ -24,6 +24,10 @@ import java.util.zip.GZIPInputStream;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 
+/**
+ * @deprecated legacy stream class; use the commons-compress backed formats instead.
+ */
+@Deprecated
 public class GzipCompressionInputStream extends CompressionInputStream {
 
   private static final int GZIP_BUFFER = 64 * 1024;

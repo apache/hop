@@ -22,7 +22,16 @@ import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-/** This class represents the compression plugin type. */
+/**
+ * This class represents the compression plugin type.
+ *
+ * @deprecated The commons-compress {@code CompressorStreamFactory} is the compression registry of
+ *     Hop; new formats are plain {@link CompressionPlugin} annotated classes extending {@link
+ *     org.apache.hop.core.compress.CommonsCompressCompressionProvider} and are discovered through
+ *     this plugin type. Kept so that external {@link CompressionPlugin} providers built on {@link
+ *     ICompressionProvider} remain discoverable.
+ */
+@Deprecated
 @PluginMainClassType(ICompressionProvider.class)
 @PluginAnnotationType(CompressionPlugin.class)
 public class CompressionPluginType extends BasePluginType<CompressionPlugin> {

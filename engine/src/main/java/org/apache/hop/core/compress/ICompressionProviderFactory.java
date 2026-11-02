@@ -19,13 +19,29 @@ package org.apache.hop.core.compress;
 
 import java.util.Collection;
 
+/**
+ * Factory for compression providers.
+ *
+ * @deprecated Apache Commons Compress' {@code CompressorStreamFactory} is the compression registry
+ *     of Hop. Use {@link CompressionProviderFactory#getFormats()}, {@link
+ *     CompressionProviderFactory#getFormat(String)}, {@link
+ *     CompressionProviderFactory#createCompressionInputStream(String, java.io.InputStream)} and
+ *     {@link CompressionProviderFactory#createCompressionOutputStream(String,
+ *     java.io.OutputStream)}. This interface is kept only for backward compatibility of external
+ *     extensions.
+ */
+@Deprecated
 public interface ICompressionProviderFactory {
 
+  @Deprecated
   ICompressionProvider createCompressionProviderInstance(String name);
 
+  @Deprecated
   Collection<ICompressionProvider> getCompressionProviders();
 
+  @Deprecated
   String[] getCompressionProviderNames();
 
+  @Deprecated
   ICompressionProvider getCompressionProviderByName(String name);
 }

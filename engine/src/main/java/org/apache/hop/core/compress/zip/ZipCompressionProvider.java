@@ -20,10 +20,16 @@ package org.apache.hop.core.compress.zip;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.hop.core.compress.CompressionPlugin;
 import org.apache.hop.core.compress.ICompressionProvider;
 
-@CompressionPlugin(id = "Zip", name = "Zip", description = "ZIP compression")
+/**
+ * Legacy ZIP compression provider based on {@code java.util.zip}.
+ *
+ * @deprecated replaced by the commons-compress backed Zip format contributed through the {@code
+ *     org.apache.hop.core.compress.spi.HopCompressorStreamProvider} SPI. Kept for backward
+ *     compatibility; no longer registered as a plugin.
+ */
+@Deprecated
 public class ZipCompressionProvider implements ICompressionProvider {
 
   @Override
