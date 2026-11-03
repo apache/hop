@@ -99,4 +99,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged. With *Previous result row*, the file or folder, the wildcard and the include subfolders flag come from the result row fields named in *File Result field*, *Wildcard result field* and *Include subfolders result field*.
 |===
 
-NOTE: With *Filenames result*, an invalid regular expression in *Wildcard* stops the workflow with an error, and no hop is followed.
+NOTE: With *Filenames result*, an invalid regular expression in *Wildcard* makes the action false with 1 error.

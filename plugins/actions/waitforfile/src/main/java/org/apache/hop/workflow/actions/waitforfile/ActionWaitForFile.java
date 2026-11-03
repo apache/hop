@@ -277,7 +277,9 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
           result.setResult(false);
         }
       } catch (Exception e) {
-        logBasic("Exception while waiting for file [" + realFilename + CONST_TO_STOP_GROWING, e);
+        logError("Exception while waiting for file [" + realFilename + "]", e);
+        result.setResult(false);
+        result.setNrErrors(1);
       } finally {
         if (fileObject != null) {
           try {

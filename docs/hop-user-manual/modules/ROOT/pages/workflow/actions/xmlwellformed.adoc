@@ -35,7 +35,7 @@ The `Check if XML file is well-formed action` verifies if one or more files cont
 |Include subfolders|Also check the matching files in the subfolders of a folder.
 |Copy previous results to args|Take the files or folders and wildcards from the result rows of the previous action instead of from the list. See <<Result>>.
 |File/Folder source|Enter or select (Browse button) a file or folder
-|Wildcard (RegExp)|A regular expression matched against the whole path of each file in the folder, for example `+.*\.xml+` (see <<Result>>).
+|Wildcard (RegExp)|A regular expression matched against the file name (basename) of each file in the folder, for example `+.*\.xml+` or `+orders\.xml+` (see <<Result>>).
 |Files/Folders a|Specify the list of files or folders with wildcards (regular expressions) in this grid.
 You can add a different file or folder and wildcard on each line.
 
@@ -74,4 +74,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Lines rejected|The number of bad formed files.
 |===
 
-NOTE: A result row with fewer than two fields stops the workflow with an error, and no hop is followed. The wildcard is matched against the whole path of each file (for example `file:///data/in/orders.xml`), not its name: `+.*\.xml+` matches, `+orders\.xml+` matches nothing, and the action is still true.
+NOTE: With *Copy previous results to args*, a result row with only one field uses an empty wildcard (the whole file or folder is checked). The wildcard is matched against the file name (basename), not the full path: `+orders\.xml+` and `+.*\.xml+` both match `orders.xml`.

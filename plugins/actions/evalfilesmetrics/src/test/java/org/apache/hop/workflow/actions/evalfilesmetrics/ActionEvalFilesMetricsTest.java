@@ -18,13 +18,34 @@
 package org.apache.hop.workflow.actions.evalfilesmetrics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+/** Unit test for {@link ActionEvalFilesMetrics} */
 class ActionEvalFilesMetricsTest {
+
+  @TempDir Path tempDir;
+
+  @BeforeAll
+  static void setUpBeforeClass() {
+    HopLogStore.init();
+  }
+
   @BeforeEach
   void setUp() throws Exception {
     HopClientEnvironment.init();
@@ -65,5 +86,31 @@ class ActionEvalFilesMetricsTest {
     assertEquals("folder3", f.getSourceFileFolder());
     assertEquals("wildcard3", f.getSourceWildcard());
     assertEquals("Y", f.getSourceIncludeSubfolders());
+  }
+
+  @Test
+  void invalidResultFilenamesWildcardMakesActionFalseWithOneError() throws Exception {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    ActionEvalFilesMetrics action = new ActionEvalFilesMetrics();
+    action.setParentWorkflow(workflow);
+    action.setSourceFilesType(ActionEvalFilesMetrics.SourceFilesType.FILENAMES_RESULT);
+    action.setEvaluationType(ActionEvalFilesMetrics.EvaluationType.COUNT);
+    action.setSuccessConditionType(ActionEvalFilesMetrics.SuccesConditionType.EQUAL);
+    action.setCompareValue("1");
+    action.setResultFilenamesWildcard("[");
+
+    Result result = new Result();
+    Path source = Files.writeString(tempDir.resolve("sales.csv"), "id\n1\n");
+    ResultFile resultFile =
+        new ResultFile(
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(source.toString()), "wf", "action");
+    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+
+    result = action.execute(result, 0);
+
+    assertFalse(result.isResult());
+    assertEquals(1, result.getNrErrors());
   }
 }

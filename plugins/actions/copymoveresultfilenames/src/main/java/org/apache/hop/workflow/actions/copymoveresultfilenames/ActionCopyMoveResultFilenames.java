@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -177,11 +178,16 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         return result;
       }
     }
-    if (!Utils.isEmpty(wildcard)) {
-      wildcardPattern = Pattern.compile(resolve(wildcard));
-    }
-    if (!Utils.isEmpty(wildcardExclude)) {
-      wildcardExcludePattern = Pattern.compile(resolve(wildcardExclude));
+    try {
+      if (!Utils.isEmpty(wildcard)) {
+        wildcardPattern = Pattern.compile(resolve(wildcard));
+      }
+      if (!Utils.isEmpty(wildcardExclude)) {
+        wildcardExcludePattern = Pattern.compile(resolve(wildcardExclude));
+      }
+    } catch (PatternSyntaxException e) {
+      logError(BaseMessages.getString(PKG, "ActionCopyMoveResultFilenames.Error", e.toString()));
+      return result;
     }
 
     nrErrors = 0;

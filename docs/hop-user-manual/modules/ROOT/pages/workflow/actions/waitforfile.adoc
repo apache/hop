@@ -57,7 +57,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The file or folder exists, or appears before *Maximum timeout*. With *Success on timeout*, the action is also true when the timeout is reached without it. With *File size check*, the action first waits until the size stays the same between two checks. A *Maximum timeout* of 0 waits until the file appears or the workflow is stopped.
-|False|The timeout is reached without the file and *Success on timeout* is not selected, no file name is set, the path cannot be read (for example a `zip:` path into a file that is not a zip), or the workflow is stopped while waiting. The number of errors is always 0.
+|False|The timeout is reached without the file and *Success on timeout* is not selected, no file name is set, the path cannot be read (for example a `zip:` path into a file that is not a zip), or the workflow is stopped while waiting. When the path cannot be read, the action is false with 1 error.
 |Result files|With *Add filename to result*, the file is added when it is found. A folder is not added, and nothing is added when the action ends on the timeout. The result files of the previous action are kept.
 |Result rows|Passed on unchanged.
 |===
