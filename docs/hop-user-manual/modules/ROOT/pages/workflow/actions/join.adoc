@@ -65,6 +65,6 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result|Value
 |True|Every branch that leads to the Join has finished, and none of them failed on the way. Only a branch whose hop into the Join is a success hop counts as failed when its last action is false: with a failure hop or an unconditional hop, a false action does not make the Join false.
 |False|A branch ended false while its hop into the Join is a success hop, or can't run any more because of an earlier failure. The number of errors is the number of such branches.
-|Result files|The result files of one branch are passed on. The result files of the other branches are not added: when several branches add result files, only those of one branch reach the next action.
-|Result rows|The result rows of one branch are passed on, as for the result files.
+|Result files|The result files of every finished branch that leads to the Join are passed on. Files that several branches share (for example files inherited from the action that launched them in parallel) appear once.
+|Result rows|The result rows of every finished branch that leads to the Join are passed on, appended in the order of those predecessors.
 |===
