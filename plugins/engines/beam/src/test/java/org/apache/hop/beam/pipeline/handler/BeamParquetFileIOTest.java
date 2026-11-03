@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -138,6 +139,30 @@ class BeamParquetFileIOTest {
   }
 
   @Test
+  void remoteOutputDirectoryKeepsTheScheme() {
+    BeamParquetOutputTransformHandler.OutputLocation gs =
+        BeamParquetOutputTransformHandler.outputLocation("gs://bucket/out/data.parquet");
+    assertEquals("gs://bucket/out", gs.directory);
+    assertEquals("data.parquet", gs.filename);
+
+    BeamParquetOutputTransformHandler.OutputLocation s3 =
+        BeamParquetOutputTransformHandler.outputLocation("s3://bkt/x/y.parquet");
+    assertEquals("s3://bkt/x", s3.directory);
+    assertEquals("y.parquet", s3.filename);
+
+    BeamParquetOutputTransformHandler.OutputLocation file =
+        BeamParquetOutputTransformHandler.outputLocation("file:///tmp/out/data.parquet");
+    assertEquals("/tmp/out", file.directory);
+    assertEquals("data.parquet", file.filename);
+
+    assertTrue(BeamParquetOutputTransformHandler.isLocalPath("/tmp/out/data.parquet"));
+    assertTrue(BeamParquetOutputTransformHandler.isLocalPath("out/data.parquet"));
+    assertTrue(BeamParquetOutputTransformHandler.isLocalPath("file:///tmp/out/data.parquet"));
+    assertFalse(BeamParquetOutputTransformHandler.isLocalPath("gs://bucket/out/data.parquet"));
+    assertFalse(BeamParquetOutputTransformHandler.isLocalPath("s3://bkt/x/y.parquet"));
+  }
+
+  @Test
   void fileUriIsReadBack() throws Exception {
     Path file = tempDir.resolve("uri.parquet");
     writeTwoRows(file);
@@ -150,6 +175,26 @@ class BeamParquetFileIOTest {
     assertEquals(
         2, counter(lastRead, org.apache.hop.pipeline.Pipeline.METRIC_NAME_WRITTEN, "read"));
     assertEquals(0, counter(lastRead, org.apache.hop.pipeline.Pipeline.METRIC_NAME_OUTPUT, "read"));
+  }
+
+  @Test
+  void fileUriIsWrittenAndReadBack() throws Exception {
+    Path file = tempDir.resolve("from-uri.parquet");
+    String uri = file.toUri().toString();
+    assertTrue(uri.startsWith("file:"), uri);
+    ParquetOutputMeta meta = fileMeta(file);
+    String base =
+        uri.endsWith(".parquet") ? uri.substring(0, uri.length() - ".parquet".length()) : uri;
+    meta.setFilenameBase(base);
+
+    Pipeline pipeline = Pipeline.create();
+    writeGraph(meta, pipeline);
+    pipeline.run().waitUntilFinish();
+
+    assertTrue(Files.exists(file), uri);
+    List<String> seen = new ArrayList<>(readBack(uri, stringFields()));
+    Collections.sort(seen);
+    assertEquals(List.of("keep-me|alice|1", "keep-me|bob|2"), seen);
   }
 
   @Test

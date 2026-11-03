@@ -17,7 +17,8 @@
 
 package org.apache.hop.beam.pipeline.handler;
 
-import java.io.File;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +30,8 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.extensions.avro.coders.AvroCoder;
 import org.apache.beam.sdk.io.Compression;
 import org.apache.beam.sdk.io.FileIO;
+import org.apache.beam.sdk.io.FileSystems;
+import org.apache.beam.sdk.io.fs.ResourceId;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.PaneInfo;
@@ -58,11 +61,12 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 /**
  * Issue #2357: Parquet file output on Beam.
  *
- * <p>One file, written with {@code FileIO.write().via(ParquetIO.sink(schema))}. Date and time are
- * resolved when the pipeline is submitted. Copy number and split number are not extra Beam shards.
- * Partitioned output, a field with its own Parquet type, and a JSON or UUID field are refused. JSON
- * and UUID become their own Parquet columns on the local engine. ParquetIO would write both as
- * plain strings.
+ * <p>One file, written with {@code FileIO.write().via(ParquetIO.sink(schema))}. The directory is
+ * split from the filename without {@code java.io.File}, so a {@code gs://} or {@code s3://} URI
+ * keeps both slashes. Date and time are resolved when the pipeline is submitted. Copy number and
+ * split number are not extra Beam shards. Partitioned output, a field with its own Parquet type,
+ * and a JSON or UUID field are refused. JSON and UUID become their own Parquet columns on the local
+ * engine. ParquetIO would write both as plain strings.
  */
 public class BeamParquetOutputTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
@@ -165,9 +169,13 @@ public class BeamParquetOutputTransformHandler extends BeamBaseTransformHandler
     Schema schema = ParquetOutput.avroSchema(fields, valueMetas);
     String filename = outputFile(meta, variables);
     createParent(meta, filename);
-    File file = new File(filename);
-    String directory = file.getParent() == null ? "." : file.getParent();
-    String onlyName = file.getName();
+    // Submission builds the graph before BeamPipelineEngine registers FileSystems. Register here
+    // so a scheme that has a Beam filesystem is parsed by it. If that fails, the split below
+    // keeps the scheme by cutting the string on the last '/'.
+    registerFileSystems(pipeline);
+    OutputLocation location = outputLocation(filename);
+    String directory = location.directory;
+    String onlyName = location.filename;
 
     org.apache.beam.sdk.io.parquet.ParquetIO.Sink sink =
         org.apache.beam.sdk.io.parquet.ParquetIO.sink(schema);
@@ -244,8 +252,181 @@ public class BeamParquetOutputTransformHandler extends BeamBaseTransformHandler
     return filename;
   }
 
+  /**
+   * Directory passed to {@code FileIO.write().to} and {@code withTempDirectory}, and the file name
+   * inside it.
+   *
+   * <p>{@code new File("gs://bucket/out/data.parquet").getParent()} is {@code gs:/bucket/out}. Beam
+   * then writes to that directory. {@link FileSystems#matchNewResource} parses the path when that
+   * scheme is registered. Otherwise the path is split on the last {@code '/'}, which keeps the
+   * scheme's {@code //}. A {@code file://} URI is turned into its local path first, because the
+   * local filesystem would resolve {@code file://} against the working directory.
+   */
+  static OutputLocation outputLocation(String filename) {
+    String path = localPath(filename);
+    if (path == null) {
+      path = filename;
+    }
+    OutputLocation fromBeam = locationFromBeam(path);
+    if (fromBeam != null) {
+      return fromBeam;
+    }
+    return locationFromSlash(path);
+  }
+
+  /**
+   * A {@code file://} URI names a local file, but {@code LocalFileSystem.matchNewResource} parses
+   * it with {@code Paths.get}, which drops a slash and resolves it against the working directory.
+   * The local path is what {@code FileIO} can write.
+   */
+  private static String localPath(String filename) {
+    int colon = filename.indexOf(':');
+    if (!isFileScheme(filename, colon)) {
+      return null;
+    }
+    try {
+      URI uri = URI.create(filename);
+      try {
+        return Paths.get(uri).toString();
+      } catch (IllegalArgumentException authority) {
+        String path = uri.getPath();
+        if (path == null || path.isEmpty()) {
+          return null;
+        }
+        return path;
+      }
+    } catch (RuntimeException ignored) {
+      return null;
+    }
+  }
+
+  private static void registerFileSystems(Pipeline pipeline) {
+    if (pipeline == null) {
+      return;
+    }
+    try {
+      FileSystems.registerFileSystemsOnce(pipeline.getOptions());
+    } catch (RuntimeException ignored) {
+      // A registrar that cannot start must not stop the write. The string split keeps the scheme.
+    }
+  }
+
+  private static OutputLocation locationFromBeam(String path) {
+    try {
+      ResourceId resource = FileSystems.matchNewResource(path, false);
+      String name = resource.getFilename();
+      if (name == null || name.isEmpty()) {
+        return null;
+      }
+      String directory = resource.getCurrentDirectory().toString();
+      if (!beamSplitKeepsThePath(path, directory, name)) {
+        return null;
+      }
+      return new OutputLocation(withoutTrailingSeparator(directory), name);
+    } catch (RuntimeException ignored) {
+      return null;
+    }
+  }
+
+  /** Reject a parse that dropped {@code ://} or turned a relative path into an absolute one. */
+  private static boolean beamSplitKeepsThePath(String path, String directory, String name) {
+    if (directory == null || directory.isEmpty()) {
+      return false;
+    }
+    int scheme = path.indexOf("://");
+    if (scheme >= 0 && !directory.startsWith(path.substring(0, scheme + 3))) {
+      return false;
+    }
+    int slash = lastSeparator(path);
+    String expectedName = slash < 0 ? path : path.substring(slash + 1);
+    if (!expectedName.equals(name)) {
+      return false;
+    }
+    boolean pathAbsolute = path.startsWith("/") || isWindowsDrive(path);
+    boolean directoryAbsolute = directory.startsWith("/") || isWindowsDrive(directory);
+    return pathAbsolute || !directoryAbsolute;
+  }
+
+  private static OutputLocation locationFromSlash(String path) {
+    int slash = lastSeparator(path);
+    if (slash < 0) {
+      return new OutputLocation(".", path);
+    }
+    if (slash == 0) {
+      return new OutputLocation("/", path.substring(1));
+    }
+    return new OutputLocation(path.substring(0, slash), path.substring(slash + 1));
+  }
+
+  private static int lastSeparator(String path) {
+    int slash = path.lastIndexOf('/');
+    if (path.contains("://")) {
+      return slash;
+    }
+    return Math.max(slash, path.lastIndexOf('\\'));
+  }
+
+  private static String withoutTrailingSeparator(String directory) {
+    if (directory.length() <= 1) {
+      return directory;
+    }
+    char last = directory.charAt(directory.length() - 1);
+    if (last != '/' && last != '\\') {
+      return directory;
+    }
+    String stripped = directory.substring(0, directory.length() - 1);
+    // Leave "gs://" and a Windows drive root "C:\" alone.
+    if (stripped.endsWith(":/") || stripped.endsWith(":") || stripped.isEmpty()) {
+      return directory;
+    }
+    return stripped;
+  }
+
+  private static boolean isWindowsDrive(String path) {
+    return path.length() >= 2 && path.charAt(1) == ':' && Character.isLetter(path.charAt(0));
+  }
+
+  /**
+   * A path with no scheme, a Windows drive, or a {@code file://} URI. {@code gs://}, {@code s3://}
+   * and the other remote schemes are not.
+   */
+  static boolean isLocalPath(String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return false;
+    }
+    int colon = filename.indexOf(':');
+    if (colon < 0) {
+      return true;
+    }
+    if (isWindowsDrive(filename)) {
+      return true;
+    }
+    return isFileScheme(filename, colon);
+  }
+
+  private static boolean isFileScheme(String filename, int colon) {
+    return colon == 4 && filename.regionMatches(true, 0, "file", 0, 4);
+  }
+
+  /** Directory {@code FileIO} writes into, and the single file name inside it. */
+  static final class OutputLocation {
+    final String directory;
+    final String filename;
+
+    private OutputLocation(String directory, String filename) {
+      this.directory = directory;
+      this.filename = filename;
+    }
+  }
+
   private static void createParent(ParquetOutputMeta meta, String filename) throws HopException {
     if (!meta.isFilenameCreatingParentFolders()) {
+      return;
+    }
+    // Object stores have no real folders. Creating the parent through Hop VFS runs on the machine
+    // that submits the pipeline and needs that machine's cloud credentials. Only a local path, or
+    // a file:// URI, gets a parent folder.
+    if (!isLocalPath(filename)) {
       return;
     }
     FileObject parent = null;
