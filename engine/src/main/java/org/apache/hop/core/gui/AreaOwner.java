@@ -64,6 +64,11 @@ public class AreaOwner {
      * target hops such as Filter true/false branches.
      */
     HOP_OUTPUT_DATA(true),
+    /**
+     * Count pill on a hop during a debug session. The parent is the {@code PipelineHopMeta}. A
+     * click selects that hop in the debugger.
+     */
+    HOP_DEBUG_BUFFER(true),
     /** The pipeline hop decoration */
     TRANSFORM_TARGET_HOP_ICON(true),
 
