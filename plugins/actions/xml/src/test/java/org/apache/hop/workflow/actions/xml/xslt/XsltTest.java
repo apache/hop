@@ -30,6 +30,8 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
@@ -38,6 +40,7 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Node;
 
 /** Unit tests for {@link Xslt}, covering issue #9172 fixes. */
 class XsltTest {
@@ -105,6 +108,26 @@ class XsltTest {
     assertEquals(
         action.getOutputPropertyList().getFirst().getValue(),
         clone.getOutputPropertyList().getFirst().getValue());
+  }
+
+  /**
+   * Workflows saved before the XML cleanup still use {@code <iffileexists>} instead of {@code
+   * <ifFileExists>}.
+   */
+  @Test
+  void convertLegacyXmlReadsIffileexistsTag() throws Exception {
+    String xml =
+        "<xmlfilename>in.xml</xmlfilename>"
+            + "<xslfilename>style.xsl</xslfilename>"
+            + "<outputfilename>out.csv</outputfilename>"
+            + "<iffileexists>2</iffileexists>";
+    String actionXml =
+        XmlHandler.openTag(ActionMeta.XML_TAG) + xml + XmlHandler.closeTag(ActionMeta.XML_TAG);
+    Node node = XmlHandler.loadXmlString(actionXml, ActionMeta.XML_TAG);
+
+    Xslt action = XmlMetadataUtil.deSerializeFromXml(node, Xslt.class, new Xslt(), null);
+
+    assertEquals(2, action.getIfFileExists());
   }
 
   @Test

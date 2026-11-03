@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.vfs.HopVfs;
@@ -225,8 +226,23 @@ class XsltRelativeReferencesTest {
       assertTrue(result.isResult(), "the XSLT action failed");
       return Files.readString(output);
     } finally {
-      // Drop any SoftRefFilesCache entries so Windows can delete zip archives under @TempDir
+      // On Windows the zip archive stays locked until the layered FileSystem is closed, which
+      // breaks @TempDir cleanup. Do this in the test only — production code must not close a
+      // shared zip/jar FileSystem while other readers may still be using it.
+      closeLayeredFileSystem(xsl);
       HopVfs.freeUnusedResources();
     }
+  }
+
+  private static void closeLayeredFileSystem(String path) {
+    if (path == null || !(path.startsWith("zip:") || path.startsWith("jar:"))) {
+      return;
+    }
+    try (FileObject file = HopVfs.getFileObject(path)) {
+      HopVfs.getFileSystemManager().closeFileSystem(file.getFileSystem());
+    } catch (Exception ignored) {
+      // ignore close failures in test teardown
+    }
+    // ignore
   }
 }

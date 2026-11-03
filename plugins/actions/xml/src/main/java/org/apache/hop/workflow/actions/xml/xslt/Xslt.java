@@ -39,7 +39,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystem;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -52,9 +52,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.HopVfsUriResolver;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -62,6 +64,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.w3c.dom.Node;
 
 /** This defines a 'xslt' job entry. */
 @Getter
@@ -74,7 +77,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     categoryDescription = "i18n::XSLT.Category",
     keywords = "i18n::Xslt.keyword",
     documentationUrl = "/workflow/actions/xslt.html")
-public class Xslt extends ActionBase implements Cloneable, IAction {
+public class Xslt extends ActionBase implements Cloneable, IAction, ILegacyXml {
   private static final Class<?> PKG = Xslt.class;
 
   public static final String FACTORY_JAXP = "JAXP";
@@ -150,6 +153,21 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
   public Xslt() {
     this("");
+  }
+
+  /**
+   * Before the XML cleanup (57bd0dcdab), {@code getXml()} / {@code loadXml()} used the tag {@code
+   * iffileexists}. Annotation serialization writes {@code ifFileExists}; workflows saved before the
+   * cleanup still carry the old tag and would otherwise fall back to the default (1, do nothing).
+   */
+  @Override
+  public void convertLegacyXml(Node node) {
+    if (XmlHandler.getTagValue(node, "ifFileExists") == null) {
+      String legacy = XmlHandler.getTagValue(node, "iffileexists");
+      if (legacy != null) {
+        ifFileExists = Const.toInt(legacy, 1);
+      }
+    }
   }
 
   @Override
@@ -335,7 +353,13 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
               outputfilename = outputfilename + "_" + StringUtil.getFormattedDateTimeNow(true);
             }
             // Re-resolve so the transformation writes to the unique name, not the original file
+            FileObject previousOutput = outputfile;
             outputfile = HopVfs.getFileObject(outputfilename);
+            try {
+              previousOutput.close();
+            } catch (IOException e) {
+              logError("Unable to close file", e);
+            }
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
@@ -464,42 +488,10 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
               + BaseMessages.getString(PKG, "ActionXSLT.ErrorXLSTXSL2.Label")
               + e.getMessage());
     } finally {
-      // Close FileObjects first, then layered file systems (zip/jar). On Windows the archive
-      // stays locked until the FileSystem itself is closed, which breaks @TempDir cleanup in tests.
-      closeFileAndLayeredSystem(xmlfile);
-      closeFileAndLayeredSystem(xslfile);
-      closeFileAndLayeredSystem(outputfile);
+      closeFileStream(xmlfile, xslfile, outputfile);
     }
 
     return retval;
-  }
-
-  private void closeFileAndLayeredSystem(FileObject file) {
-    if (file == null) {
-      return;
-    }
-    FileSystem fileSystem = null;
-    try {
-      fileSystem = file.getFileSystem();
-    } catch (Exception ignored) {
-      // keep going and still try to close the FileObject
-    }
-    try {
-      file.close();
-    } catch (IOException e) {
-      logError("Unable to close file", e);
-    }
-    if (fileSystem == null) {
-      return;
-    }
-    try {
-      String scheme = fileSystem.getRoot().getName().getScheme();
-      if ("zip".equalsIgnoreCase(scheme) || "jar".equalsIgnoreCase(scheme)) {
-        fileSystem.getFileSystemManager().closeFileSystem(fileSystem);
-      }
-    } catch (Exception ignored) {
-      // ignore close failures on the layered file system
-    }
   }
 
   @Override
@@ -582,6 +574,23 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     public OutputProperty(String name, String value) {
       this.name = name;
       this.value = value;
+    }
+  }
+
+  private void closeFileStream(FileObject xmlFile, FileObject xslFile, FileObject outputFile) {
+    try {
+      if (xmlFile != null) {
+        xmlFile.close();
+      }
+
+      if (xslFile != null) {
+        xslFile.close();
+      }
+      if (outputFile != null) {
+        outputFile.close();
+      }
+    } catch (IOException e) {
+      logError("Unable to close file", e);
     }
   }
 }
