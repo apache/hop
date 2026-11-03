@@ -21,7 +21,7 @@ under the License.
 
 = Cluster demo walk-through (Native Spark)
 
-This walk-through shows that the Native Spark **project package** design works on a *real multi-node* Spark 4.1 cluster — not only on `local[*]`.
+This walk-through shows that the Native Spark **project package** design works on a *real multi-node* Spark 4.1 cluster — not only on `+local[*]+`.
 
 You will:
 

@@ -26,7 +26,7 @@ under the License.
 The native Spark pipeline engine executes batch Hop pipelines on *Apache Spark 4.1.x* without Apache Beam.
 It builds a Spark SQL Dataset graph from the pipeline and runs transforms via native Dataset operators or generic `mapPartitions` mini-pipelines.
 
-For a full introduction — concepts, `local[*]`, fat jar, `spark-submit`, Spark File I/O, `${Internal.Transform.ID}`, metrics, limitations, and integration-test examples — see
+For a full introduction — concepts, `+local[*]+`, fat jar, `spark-submit`, Spark File I/O, `${Internal.Transform.ID}`, metrics, limitations, and integration-test examples — see
 xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark pipeline engine].
 
 Paths on *Spark File* and *Lake Table* transforms are **Spark/Hadoop URIs**, not Hop VFS schemes — see
@@ -39,7 +39,7 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 === Requirements
 
 * Java 21
-* Spark 4.1.x (bundled under `plugins/engines/spark/lib` for `local[*]`)
+* Spark 4.1.x (bundled under `plugins/engines/spark/lib` for `+local[*]+`)
 
 === Options
 
@@ -47,10 +47,10 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 
 Use **Load configuration template** to fill the fields below from a common deployment style:
 
-* *Local execution* — `local[*]`, Spark UI off (embedded Spark in Hop)
+* *Local execution* — `+local[*]+`, Spark UI off (embedded Spark in Hop)
 * *Local (capped cores)* — `local[4]`
 * *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory. Also set *Fat jar file location* to a `native-provided` fat jar; the template leaves it empty. See xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
-* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar. Outside `spark-submit` (Hop GUI, `hop-run`, Hop Server) an empty master runs on `local[*]` in that process, and the log warns about it.
+* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar. Outside `spark-submit` (Hop GUI, `hop-run`, Hop Server) an empty master runs on `+local[*]+` in that process, and the log warns about it.
 * *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
 * *YARN client* — master `yarn`, client deploy mode. Also set *Hadoop configuration folder* (or `HADOOP_CONF_DIR`) and a `native-provided` fat jar. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 * *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
@@ -64,8 +64,8 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |Option |Description |Default
 
 |Spark master
-|Spark master URL: `local[*]`, `local[4]`, `spark://host:7077` or `yarn`. Leave empty under `spark-submit` so the CLI master is used; outside `spark-submit` an empty master runs on `local[*]`.
-|`local[*]`
+|Spark master URL: `+local[*]+`, `local[4]`, `spark://host:7077` or `yarn`. Leave empty under `spark-submit` so the CLI master is used; outside `spark-submit` an empty master runs on `+local[*]+`.
+|`+local[*]+`
 
 |Application name
 |Spark application name.

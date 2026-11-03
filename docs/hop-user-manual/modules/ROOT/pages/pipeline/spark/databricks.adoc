@@ -26,7 +26,7 @@ This page captures practical lessons for running **Hop native Spark** pipelines 
 
 It is not a full Databricks admin guide. It focuses on what usually goes wrong when connecting Hop to Free / trial / serverless-oriented workspaces versus a **classic-cluster-capable** (e.g. Premium) workspace suitable for Spark 4.1 and modern Java.
 
-For general native Spark concepts (engine, fat jar, `local[*]` first), start with
+For general native Spark concepts (engine, fat jar, `+local[*]+` first), start with
 xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine].
 
 == Sample project shape

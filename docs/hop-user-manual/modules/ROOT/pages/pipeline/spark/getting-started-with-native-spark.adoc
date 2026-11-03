@@ -26,7 +26,7 @@ under the License.
 
 This guide is for data engineers who already know the basics of Hop pipelines (transforms, hops, run configurations, metadata) and want to run *batch* pipelines on https://spark.apache.org[Apache Spark] using Hop’s *native* Spark engine.
 
-It walks you from “what is this?” through a `local[*]` first run, cluster `spark-submit`, Spark-oriented I/O, metrics, limitations, and concrete examples from the `integration-tests/spark-native` project.
+It walks you from “what is this?” through a `+local[*]+` first run, cluster `spark-submit`, Spark-oriented I/O, metrics, limitations, and concrete examples from the `integration-tests/spark-native` project.
 
 For **Delta Lake** and **Apache Iceberg** (ACID tables, catalogs, time travel, MERGE, maintenance), see the dedicated xref:pipeline/spark/lakehouse.adoc[lakehouse guide] after you have a working native Spark run configuration.
 
@@ -125,7 +125,7 @@ You still design pipelines *visually* in Hop. Spark’s role is the distributed 
 ====
 *Java:* Hop requires *Java 21* for the GUI, `hop-run`, and the fat jar executed on the Spark driver/executors. Your Spark cluster must also run a JVM that can load that bytecode (Java 21).
 
-*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.3* in the Hop source tree, Scala *2.13*). For `local[*]` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
+*Spark:* The native engine is built and tested against *Spark 4.1.x* (currently *4.1.3* in the Hop source tree, Scala *2.13*). For `+local[*]+` runs, Spark libraries are packaged under `plugins/engines/spark/lib`, so you do *not* need a separate Spark install on your laptop.
 ====
 
 [options="header",cols="1,1,2,2"]
@@ -159,9 +159,9 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 == How to use it
 
-=== Create a `local[*]` pipeline run configuration
+=== Create a `+local[*]+` pipeline run configuration
 
-This is the fastest way to learn: Spark runs *inside* the Hop process using all local cores (`local[*]`), with no cluster and no fat jar.
+This is the fastest way to learn: Spark runs *inside* the Hop process using all local cores (`+local[*]+`), with no cluster and no fat jar.
 
 TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
@@ -177,13 +177,13 @@ TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc
 |Option |Suggested first value
 
 |Spark master
-|`local[*]` (or `local[4]` to cap cores)
+|`+local[*]+` (or `local[4]` to cap cores)
 
 |Application name
 |`Apache Hop` (or your project name)
 
 |Fat jar file location
-|Leave *empty* for pure `local[*]`
+|Leave *empty* for pure `+local[*]+`
 
 |Spark config
 |Optional; one `key=value` per line (advanced tuning)
@@ -204,7 +204,7 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 
 Full option reference: xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
-=== First pipeline on `local[*]`
+=== First pipeline on `+local[*]+`
 
 . Create a small batch pipeline, for example:
 ** *Spark file input* — CSV path under your project, header and separator, field list
@@ -409,7 +409,7 @@ Common options:
 |Option |Notes
 
 |Spark path (Hadoop URI)
-|File, directory, or glob visible to Spark (local path on `local[*]`; cluster URI such as `hdfs://…` or `s3a://…` on submit). **Not** a Hop VFS path — see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+|File, directory, or glob visible to Spark (local path on `+local[*]+`; cluster URI such as `hdfs://…` or `s3a://…` on submit). **Not** a Hop VFS path — see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 
 |Format
 |`csv`, `parquet`, `json`, `orc`, `text`
@@ -533,7 +533,7 @@ If the location is file-based and you need *samples from cluster workers*, the r
 
 On **Databricks**, a practical pattern is a **Caching File** location whose root is a named Databricks VFS URI on a UC Volume (driver writes execution JSON via the Files API; laptop GUI opens the same location). Walkthrough: xref:pipeline/spark/databricks.adoc#exec-info-on-volume[Execution information on a UC Volume].
 
-On `local[*]`, Spark’s Jackson libraries must not shadow Hop’s Jackson under the plugin classloader. The Spark plugin packaging excludes core Jackson jars so sampling and `HopJson` keep working.
+On `+local[*]+`, Spark’s Jackson libraries must not shadow Hop’s Jackson under the plugin classloader. The Spark plugin packaging excludes core Jackson jars so sampling and `HopJson` keep working.
 
 == How transforms map to Spark
 
@@ -703,7 +703,7 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 
 * [ ] Java 21; Hop 2.19+ with `plugins/engines/spark`
 * [ ] Run configuration engine = *Native Spark* (not Beam Spark)
-* [ ] First success on `local[*]` with Spark file input → transform → Spark file output
+* [ ] First success on `+local[*]+` with Spark file input → transform → Spark file output
 * [ ] Execution information location attached if you need history and samples
 * [ ] Cluster: fat jar with `--spark-client-version=native-provided`
 * [ ] Cluster: `SPARK_HOME` pinned to Spark *4.1.x*

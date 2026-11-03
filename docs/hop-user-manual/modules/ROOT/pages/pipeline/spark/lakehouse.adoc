@@ -25,7 +25,7 @@ under the License.
 
 This guide covers **Delta Lake** and **Apache Iceberg** support on Hop’s xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] (Spark *4.1.x*, no Beam).
 
-It assumes you already have a working *Native Spark* pipeline run configuration (`local[*]` or cluster `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark file input* / *Spark file output*. Lakehouse work uses dedicated **Lake Table** transforms.
+It assumes you already have a working *Native Spark* pipeline run configuration (`+local[*]+` or cluster `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark file input* / *Spark file output*. Lakehouse work uses dedicated **Lake Table** transforms.
 
 == What you get
 
@@ -80,7 +80,7 @@ $HOP_HOME/plugins/engines/spark/lib/iceberg/  # Iceberg runtime jar
 
 `SparkPipelineEngine` builds `SparkSession` under that classloader (`lib/` recursive + `dependencies.xml` folders). A sibling plugin folder alone is **not** enough.
 
-hop-run / Hop Gui (`local[*]`) therefore need **no manual connector install** after a normal Hop install or rebuild of `plugins/engines/spark`.
+hop-run / Hop Gui (`+local[*]+`) therefore need **no manual connector install** after a normal Hop install or rebuild of `plugins/engines/spark`.
 
 === Shipped jar list
 
@@ -251,7 +251,7 @@ Injection keys are documented on each transform page. Shared identity keys: `FOR
 === Quick PATH round-trip (Delta)
 
 . Install Delta jars (see above) and restart Hop.
-. Create a *Native Spark* run configuration (`local[*]`).
+. Create a *Native Spark* run configuration (`+local[*]+`).
 . Pipeline: *Row Generator* (or *Spark file input*) → *Lake table output*
  ** Format: `delta`
  ** Identifier mode: `PATH`
