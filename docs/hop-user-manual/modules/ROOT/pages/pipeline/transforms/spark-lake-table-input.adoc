@@ -54,7 +54,7 @@ The transform is part of the Lakehouse plugin (`hop-tech-lakehouse`). On the nat
 `TABLE` — catalog-qualified name (e.g. `lake.db.orders`).
 
 |Table path
-|Used when mode is PATH. Must be visible to Spark workers (local path on `local[*]`; shared URI on cluster).
+|Used when mode is PATH. Must be visible to Spark workers (local path on `+local[*]+`; shared URI on cluster).
 
 |Table identifier
 |Used when mode is TABLE. Multi-part name: `catalog.namespace.table`.

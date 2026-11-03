@@ -29,7 +29,7 @@ It is the bulk input of the native Spark engine: Spark reads the files in parall
 
 This transform is **not** available on the local Hop engine or on the Beam engines.
 
-The path is a Spark/Hadoop `FileSystem` URI that must be visible to every executor, **not** a Hop VFS path: a local path on `local[*]`, `hdfs://…` or `s3a://…` on a cluster.
+The path is a Spark/Hadoop `FileSystem` URI that must be visible to every executor, **not** a Hop VFS path: a local path on `+local[*]+`, `hdfs://…` or `s3a://…` on a cluster.
 Hop-only schemes such as `s3://`, `azure://` or a named MinIO connection do not work here; see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems] for the mapping and for the *Path scheme map* on the run configuration.
 
 == Options

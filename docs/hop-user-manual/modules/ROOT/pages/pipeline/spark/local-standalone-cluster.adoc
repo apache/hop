@@ -23,11 +23,11 @@ under the License.
 
 = Run pipelines on a local Spark standalone cluster
 
-`local[*]` runs Spark inside the Hop process. A *standalone cluster* runs a Spark master and one or more workers as separate processes, the way a real cluster does: your pipeline is split into tasks, shipped to executors, and the Hop code those tasks need travels in a fat jar.
+`+local[*]+` runs Spark inside the Hop process. A *standalone cluster* runs a Spark master and one or more workers as separate processes, the way a real cluster does: your pipeline is split into tasks, shipped to executors, and the Hop code those tasks need travels in a fat jar.
 
 This page sets up such a cluster on one machine and runs a pipeline on it from Hop GUI or `hop-run`. Hop is the Spark *driver*: you design and start the pipeline in Hop as usual, and the work runs on the workers.
 
-Do this after your first `local[*]` run (see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]). To submit with `spark-submit` inside Docker containers instead, see the xref:pipeline/spark/cluster-mapping-walkthrough.adoc[cluster demo walk-through]. To run on a Hadoop YARN cluster, see xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+Do this after your first `+local[*]+` run (see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine]). To submit with `spark-submit` inside Docker containers instead, see the xref:pipeline/spark/cluster-mapping-walkthrough.adoc[cluster demo walk-through]. To run on a Hadoop YARN cluster, see xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 
 == What you need
 
@@ -325,7 +325,7 @@ Every executor copies the fat jar twice:
 |The project has a *Workflow Log* that lists specific workflows (the samples project does), and the workflow was sent without its file. Turn on *Export linked resources to server* in the remote workflow run configuration, or disable the Workflow Log.
 
 |The log shows `WARNING: run configuration '...' has no Spark master and this pipeline does not run under spark-submit`
-|An empty *Spark master* means `local[*]` inside the Hop process (Hop GUI, `hop-run` or Hop Server). Set the master, for example `spark://localhost:7077`. The *spark-submit (cluster)* template leaves it empty on purpose, for `spark-submit`.
+|An empty *Spark master* means `+local[*]+` inside the Hop process (Hop GUI, `hop-run` or Hop Server). Set the master, for example `spark://localhost:7077`. The *spark-submit (cluster)* template leaves it empty on purpose, for `spark-submit`.
 |===
 
 == Related pages
