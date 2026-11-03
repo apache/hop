@@ -5937,19 +5937,84 @@ public class TableView extends Composite {
         });
   }
 
+  /**
+   * Data column under a header click, or -1 for the row-number column or a miss.
+   *
+   * <p>{@code x} is in {@link org.eclipse.swt.widgets.Control#toControl(int, int)} space. {@link
+   * TableItem#getBounds(int)} is in that same space: on GTK both are bin-window coordinates, so a
+   * horizontal scroll leaves the bounds where they are and moves the client-area origin instead.
+   * Subtracting {@link ScrollBar#getSelection()} from the column widths shifts the hit a second
+   * time. On Windows the scrollbar position is device pixels while the click and the cell bounds
+   * are in points.
+   */
   private int findDataColumnAtX(int x) {
-    int pos = 0;
-    ScrollBar hBar = table.getHorizontalBar();
-    if (hBar != null && !hBar.isDisposed()) {
-      pos -= hBar.getSelection();
+    if (table.getItemCount() > 0) {
+      int fromBounds = findDataColumnFromItemBounds(x);
+      if (fromBounds != Integer.MIN_VALUE) {
+        return fromBounds;
+      }
     }
+    return findDataColumnAtXFromWidths(x);
+  }
+
+  /**
+   * @return the data column, -1 when the click is not on a data column, or {@link
+   *     Integer#MIN_VALUE} when no row has been measured yet
+   */
+  private int findDataColumnFromItemBounds(int x) {
+    TableItem item = table.getItem(0);
+    int count = table.getColumnCount();
+    int[] tableIndex = new int[count];
+    int[] left = new int[count];
+    int[] right = new int[count];
+    int n = 0;
+    for (int i = 0; i < count; i++) {
+      Rectangle bounds = item.getBounds(i);
+      if (bounds == null || bounds.width <= 0) {
+        continue;
+      }
+      tableIndex[n] = i;
+      left[n] = bounds.x;
+      right[n] = bounds.x + bounds.width;
+      n++;
+    }
+    if (n == 0) {
+      return Integer.MIN_VALUE;
+    }
+    for (int i = 1; i < n; i++) {
+      int leftEdge = left[i];
+      int rightEdge = right[i];
+      int index = tableIndex[i];
+      int j = i;
+      while (j > 0 && left[j - 1] > leftEdge) {
+        left[j] = left[j - 1];
+        right[j] = right[j - 1];
+        tableIndex[j] = tableIndex[j - 1];
+        j--;
+      }
+      left[j] = leftEdge;
+      right[j] = rightEdge;
+      tableIndex[j] = index;
+    }
+    for (int i = 0; i < n; i++) {
+      // The next painted column starts the hit region, so the gap between them still counts.
+      int edge = (i + 1 < n) ? left[i + 1] : right[i];
+      if (x >= left[i] && x < edge) {
+        return tableIndex[i] == 0 ? -1 : tableIndex[i] - 1;
+      }
+    }
+    return -1;
+  }
+
+  /** Width walk used only before a row has been measured. Scroll is not applied. */
+  private int findDataColumnAtXFromWidths(int x) {
+    int pos = 0;
     for (int tableIdx : getColumnOrderSafe()) {
-      TableColumn tc = table.getColumn(tableIdx);
-      int width = tc.getWidth();
-      if (x >= pos && x < pos + width) {
+      int width = table.getColumn(tableIdx).getWidth();
+      if (width > 0 && x >= pos && x < pos + width) {
         return tableIdx == 0 ? -1 : tableIdx - 1;
       }
-      pos += width;
+      pos += Math.max(width, 0);
     }
     return -1;
   }
