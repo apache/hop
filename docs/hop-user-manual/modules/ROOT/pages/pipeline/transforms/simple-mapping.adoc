@@ -54,13 +54,15 @@ It is always executed with a standard local Hop pipeline run configuration since
 * Parameters tab: specify the parameters you want to pass to the mapping pipeline
 * Input tab: specify which fields to pass to the xref:pipeline/transforms/mapping-input.adoc[Mapping input] transform in the mapping.
 You can map (hence the name) field names.
+Enable *There is no input for this mapping.* when the mapping sub-pipeline acts as a data source and does not require a Mapping Input transform.
 * Output tab: specify how to rename output fields retrieved from the xref:pipeline/transforms/mapping-output.adoc[Mapping output] transform.
+Enable *There is no output for this mapping.* when the mapping sub-pipeline acts as a data target and does not require a Mapping Output transform.
 
 == Metadata Injection
 
 Input and output mappings reuse the same nested fields, so injection keys are prefixed to keep them unique.
 
-* Top-level: `filename`, `runConfiguration`, `INPUT_SOURCE_TRANSFORM`, `INPUT_TARGET_TRANSFORM`, `INPUT_DESCRIPTION`, `INPUT_MAIN_PATH`, `INPUT_RENAME_ON_OUTPUT`, and the matching `OUTPUT_*` keys, plus `PARAMETERS_INHERIT_ALL_VARIABLES`
+* Top-level: `filename`, `runConfiguration`, `NO_INPUT`, `NO_OUTPUT`, `INPUT_SOURCE_TRANSFORM`, `INPUT_TARGET_TRANSFORM`, `INPUT_DESCRIPTION`, `INPUT_MAIN_PATH`, `INPUT_RENAME_ON_OUTPUT`, and the matching `OUTPUT_*` keys, plus `PARAMETERS_INHERIT_ALL_VARIABLES`
 * Group `INPUT_FIELDS`: `INPUT_SOURCE_FIELD`, `INPUT_TARGET_FIELD`
 * Group `OUTPUT_FIELDS`: `OUTPUT_SOURCE_FIELD`, `OUTPUT_TARGET_FIELD`
 * Group `PARAMETERS_MAPPINGS`: `PARAMETERS_VARIABLE`, `PARAMETERS_VALUE`

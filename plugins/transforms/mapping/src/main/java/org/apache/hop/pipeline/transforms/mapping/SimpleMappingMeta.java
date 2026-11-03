@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -58,6 +60,8 @@ import org.apache.hop.resource.ResourceReference;
     keywords = "i18n::SimpleMappingMeta.keyword",
     documentationUrl = "/pipeline/transforms/simple-mapping.html",
     actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
+@Getter
+@Setter
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ISubPipelineAwareMeta {
 
@@ -70,6 +74,18 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
   @HopMetadataProperty(key = "mappings")
   private IOMappings ioMappings;
+
+  @HopMetadataProperty(
+      key = "no_input",
+      injectionKey = "NO_INPUT",
+      injectionKeyDescription = "SimpleMapping.Injection.NO_INPUT")
+  private boolean noInput;
+
+  @HopMetadataProperty(
+      key = "no_output",
+      injectionKey = "NO_OUTPUT",
+      injectionKeyDescription = "SimpleMapping.Injection.NO_OUTPUT")
+  private boolean noOutput;
 
   public SimpleMappingMeta() {
     super();
@@ -86,6 +102,19 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     MappingIODefinition outputDefinition = new MappingIODefinition(null, null);
     outputDefinition.setMainDataPath(true);
     ioMappings.setOutputMapping(outputDefinition);
+
+    noInput = false;
+    noOutput = false;
+  }
+
+  public void setNoInput(boolean noInput) {
+    this.noInput = noInput;
+    resetTransformIoMeta();
+  }
+
+  public void setNoOutput(boolean noOutput) {
+    this.noOutput = noOutput;
+    resetTransformIoMeta();
   }
 
   @Override
@@ -97,6 +126,11 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+    if (noOutput) {
+      row.clear();
+      return;
+    }
+
     // First load some interesting data...
 
     // Then see which fields get added to the row.
@@ -110,44 +144,41 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
           e);
     }
 
-    // Before we ask the mapping outputs anything, we should teach the mapping
-    // input transforms in the sub- pipeline about the data coming in...
-    //
-    IRowMeta inputRowMeta;
-
-    // The row metadata, what we pass to the mapping input transform
-    // definition.getOutputTransform(), is "row"
-    // However, we do need to re-map some fields...
-    //
-    inputRowMeta = row.clone();
-    if (!inputRowMeta.isEmpty()) {
-      for (MappingValueRename valueRename : ioMappings.getInputMapping().getValueRenames()) {
-        IValueMeta valueMeta = inputRowMeta.searchValueMeta(valueRename.getSourceValueName());
-        if (valueMeta == null) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG,
-                  "SimpleMappingMeta.Exception.UnableToFindField",
-                  valueRename.getSourceValueName()));
+    if (!noInput) {
+      // Before we ask the mapping outputs anything, we should teach the mapping
+      // input transforms in the sub-pipeline about the data coming in...
+      //
+      IRowMeta inputRowMeta = row.clone();
+      if (!inputRowMeta.isEmpty() && ioMappings.getInputMapping() != null) {
+        for (MappingValueRename valueRename : ioMappings.getInputMapping().getValueRenames()) {
+          IValueMeta valueMeta = inputRowMeta.searchValueMeta(valueRename.getSourceValueName());
+          if (valueMeta == null) {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG,
+                    "SimpleMappingMeta.Exception.UnableToFindField",
+                    valueRename.getSourceValueName()));
+          }
+          valueMeta.setName(valueRename.getTargetValueName());
         }
-        valueMeta.setName(valueRename.getTargetValueName());
       }
+
+      // What is this mapping input transform?
+      //
+      TransformMeta mappingInputTransform = findMappingInputTransform(mappingPipelineMeta, null);
+
+      // We're certain of these classes at least
+      //
+      MappingInputMeta mappingInputMeta = (MappingInputMeta) mappingInputTransform.getTransform();
+
+      // Inform the mapping input transform about what it's going to receive...
+      //
+      mappingInputMeta.setInputRowMeta(inputRowMeta);
     }
 
-    // What is this mapping input transform?
-    //
-    TransformMeta mappingInputTransform = findMappingInputTransform(mappingPipelineMeta, null);
     TransformMeta mappingOutputTransform = findMappingOutputTransform(mappingPipelineMeta, null);
 
-    // We're certain of these classes at least
-    //
-    MappingInputMeta mappingInputMeta = (MappingInputMeta) mappingInputTransform.getTransform();
-
-    // Inform the mapping input transform about what it's going to receive...
-    //
-    mappingInputMeta.setInputRowMeta(inputRowMeta);
-
-    // Now we know wat's going to come out of the mapping pipeline...
+    // Now we know what's going to come out of the mapping pipeline...
     // This is going to be the full row that's being written.
     //
     IRowMeta mappingOutputRowMeta =
@@ -155,7 +186,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // We're renaming some stuff back:
     //
-    if (ioMappings.getInputMapping().isRenamingOnOutput()) {
+    if (!noInput
+        && ioMappings.getInputMapping() != null
+        && ioMappings.getInputMapping().isRenamingOnOutput()) {
       for (MappingValueRename rename : ioMappings.getInputMapping().getValueRenames()) {
         IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getTargetValueName());
         if (valueMeta != null) {
@@ -166,10 +199,12 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // Also rename output values back
     //
-    for (MappingValueRename rename : ioMappings.getOutputMapping().getValueRenames()) {
-      IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getSourceValueName());
-      if (valueMeta != null) {
-        valueMeta.setName(rename.getTargetValueName());
+    if (ioMappings.getOutputMapping() != null) {
+      for (MappingValueRename rename : ioMappings.getOutputMapping().getValueRenames()) {
+        IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getSourceValueName());
+        if (valueMeta != null) {
+          valueMeta.setName(rename.getTargetValueName());
+        }
       }
     }
 
@@ -197,6 +232,16 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
+    if (noInput) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputConfigured"),
+              transformMeta);
+      remarks.add(cr);
+      return;
+    }
+
     if (prev == null || prev.isEmpty()) {
       cr =
           new CheckResult(
@@ -268,7 +313,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
-      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
+      ioMeta = new TransformIOMeta(!noInput, !noOutput, false, false, false, false);
       setTransformIOMeta(ioMeta);
     }
     return ioMeta;

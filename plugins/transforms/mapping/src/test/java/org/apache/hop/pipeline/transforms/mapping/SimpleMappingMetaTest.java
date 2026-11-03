@@ -16,8 +16,17 @@
  */
 package org.apache.hop.pipeline.transforms.mapping;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,22 +42,30 @@ class SimpleMappingMetaTest {
   void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
         "/simple-mapping-transform.xml", SimpleMappingMeta.class);
-    /*Document document =
-        XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/simple-mapping-transform.xml"));
-    Node transformNode = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);
-    SimpleMappingMeta meta = new SimpleMappingMeta();
-    XmlMetadataUtil.deSerializeFromXml(
-        null, transformNode, SimpleMappingMeta.class, meta, new MemoryMetadataProvider());
-    String xml =
-        XmlHandler.openTag(TransformMeta.XML_TAG)
-            + meta.getXml()
-            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+  }
 
-    Document copyDocument = XmlHandler.loadXmlString(xml);
-    Node copyNode = XmlHandler.getSubNode(copyDocument, TransformMeta.XML_TAG);
-    SimpleMappingMeta copy = new SimpleMappingMeta();
-    XmlMetadataUtil.deSerializeFromXml(
-        null, copyNode, SimpleMappingMeta.class, copy, new MemoryMetadataProvider());
-    Assert.assertEquals(meta.getXml(), copy.getXml());*/
+  @Test
+  void testNoInputAndNoOutputFlags() throws Exception {
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    meta.setDefault();
+    assertFalse(meta.isNoInput());
+    assertFalse(meta.isNoOutput());
+    assertTrue(meta.getTransformIOMeta().isInputAcceptor());
+    assertTrue(meta.getTransformIOMeta().isOutputProducer());
+
+    meta.setNoInput(true);
+    assertTrue(meta.isNoInput());
+    assertFalse(meta.getTransformIOMeta().isInputAcceptor());
+    assertTrue(meta.getTransformIOMeta().isOutputProducer());
+
+    meta.setNoOutput(true);
+    assertTrue(meta.isNoOutput());
+    assertFalse(meta.getTransformIOMeta().isInputAcceptor());
+    assertFalse(meta.getTransformIOMeta().isOutputProducer());
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("a"));
+    meta.getFields(row, "origin", null, null, new Variables(), new MemoryMetadataProvider());
+    assertEquals(0, row.size(), "getFields should clear the row when noOutput is true");
   }
 }

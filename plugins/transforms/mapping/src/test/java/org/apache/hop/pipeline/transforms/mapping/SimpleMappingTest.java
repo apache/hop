@@ -245,4 +245,50 @@ class SimpleMappingTest {
             transformMockHelper.pipeline);
     smp.dispose();
   }
+
+  @Test
+  void testProcessRowWhenNoInputIsTrue() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(false);
+    simpleMpData.mappingInput = null;
+
+    smp =
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            simpleMpData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+
+    assertFalse(smp.processRow(), "processRow should finish in one call when noInput is true");
+    assertTrue(smp.getData().wasStarted, "The transform was started");
+    verify(transformMockHelper.pipeline, never()).addRowProducer(anyString(), anyInt());
+    verify(transformMockHelper.pipeline, times(1)).startThreads();
+    verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+  }
+
+  @Test
+  void testProcessRowWhenNoOutputIsTrue() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(false);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    simpleMpData.mappingOutput = null;
+
+    smp =
+        new SimpleMapping(
+            transformMockHelper.transformMeta,
+            transformMockHelper.iTransformMeta,
+            simpleMpData,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+
+    assertTrue(smp.processRow(), "First processRow should return true for input row");
+    assertFalse(smp.processRow(), "Second processRow should finish after input is exhausted");
+    verify(transformMockHelper.pipeline, times(1)).addRowProducer(MAPPING_INPUT_TRANSFORM_NAME, 0);
+    verify(transformMockHelper.pipeline, never()).getTransform(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
+    verify(transformMockHelper.pipeline, times(1)).startThreads();
+    verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+  }
 }

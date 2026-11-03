@@ -66,25 +66,51 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         first = false;
         data.wasStarted = true;
 
-        // Rows read are injected into the one available Mapping Input transform.
-        // This adds an input RowSet to the Mapping Input transform.
-        //
-        String mappingInputTransformName = data.mappingInput.getTransformName();
-        RowProducer rowProducer = data.mappingPipeline.addRowProducer(mappingInputTransformName, 0);
-        data.rowDataInputMapper = new RowDataInputMapper(meta.getInputMapping(), rowProducer);
+        if (!meta.isNoInput() && data.mappingInput != null) {
+          // Rows read are injected into the one available Mapping Input transform.
+          // This adds an input RowSet to the Mapping Input transform.
+          //
+          String mappingInputTransformName = data.mappingInput.getTransformName();
+          RowProducer rowProducer =
+              data.mappingPipeline.addRowProducer(mappingInputTransformName, 0);
+          data.rowDataInputMapper = new RowDataInputMapper(meta.getInputMapping(), rowProducer);
+        } else {
+          // If the sub-pipeline still has MappingInput transform(s) when noInput is selected,
+          // mark their producers finished immediately so they don't block.
+          for (MappingInput mappingInput : findMappingInputs(data.mappingPipeline)) {
+            RowProducer rowProducer =
+                data.mappingPipeline.addRowProducer(mappingInput.getTransformName(), 0);
+            rowProducer.finished();
+          }
+        }
 
-        // Rows produced by the mapping are read and passed on.
-        //
-        String mappingOutputTransformName = data.mappingOutput.getTransformName();
-        ITransform iOutputTransform =
-            data.mappingPipeline.getTransform(mappingOutputTransformName, 0);
-        RowOutputDataMapper outputDataMapper =
-            new RowOutputDataMapper(meta.getInputMapping(), meta.getOutputMapping(), this::putRow);
-        iOutputTransform.addRowListener(outputDataMapper);
+        if (!meta.isNoOutput() && data.mappingOutput != null) {
+          // Rows produced by the mapping are read and passed on.
+          //
+          String mappingOutputTransformName = data.mappingOutput.getTransformName();
+          ITransform iOutputTransform =
+              data.mappingPipeline.getTransform(mappingOutputTransformName, 0);
+          MappingIODefinition inputDefinition = meta.isNoInput() ? null : meta.getInputMapping();
+          RowOutputDataMapper outputDataMapper =
+              new RowOutputDataMapper(inputDefinition, meta.getOutputMapping(), this::putRow);
+          iOutputTransform.addRowListener(outputDataMapper);
+        }
 
         // Start the mapping/sub-pipeline threads
         //
         data.mappingPipeline.startThreads();
+      }
+
+      if (meta.isNoInput()) {
+        if (data.executor != null) {
+          while (data.executor.oneIteration() && !isStopped()) {
+            // Keep driving iterations until all transforms in the sub-pipeline are done
+          }
+        } else {
+          data.mappingPipeline.waitUntilFinished();
+        }
+        setOutputDone();
+        return false;
       }
 
       // The data we read we pass to the mapping
@@ -98,7 +124,9 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       }
 
       if (!rowWasPut) {
-        data.rowDataInputMapper.finished();
+        if (data.rowDataInputMapper != null) {
+          data.rowDataInputMapper.finished();
+        }
         data.mappingPipeline.waitUntilFinished();
         setOutputDone();
         return false;
@@ -219,27 +247,35 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     // If there is no read/write logging transform set, we can insert the data from
     // the first mapping input/output transform...
     //
-    List<MappingInput> mappingInputs = findMappingInputs(simpleMappingData.mappingPipeline);
-    if (mappingInputs.isEmpty()) {
-      throw new HopException(
-          "The simple mapping transform needs one Mapping Input transform to write to in the sub-pipeline");
+    if (!meta.isNoInput()) {
+      List<MappingInput> mappingInputs = findMappingInputs(simpleMappingData.mappingPipeline);
+      if (mappingInputs.isEmpty()) {
+        throw new HopException(
+            "The simple mapping transform needs one Mapping Input transform to write to in the sub-pipeline");
+      }
+      if (mappingInputs.size() > 1) {
+        throw new HopException(
+            "The simple mapping transform does not support multiple Mapping Input transforms to write to in the sub-pipeline");
+      }
+      simpleMappingData.mappingInput = mappingInputs.get(0);
+    } else {
+      simpleMappingData.mappingInput = null;
     }
-    if (mappingInputs.size() > 1) {
-      throw new HopException(
-          "The simple mapping transform does not support multiple Mapping Input transforms to write to in the sub-pipeline");
-    }
-    simpleMappingData.mappingInput = mappingInputs.get(0);
 
-    List<MappingOutput> mappingOutputs = findMappingOutputs(simpleMappingData.mappingPipeline);
-    if (mappingOutputs.isEmpty()) {
-      throw new HopException(
-          "The simple mapping transform needs one Mapping Output transform to read from in the sub-pipeline");
+    if (!meta.isNoOutput()) {
+      List<MappingOutput> mappingOutputs = findMappingOutputs(simpleMappingData.mappingPipeline);
+      if (mappingOutputs.isEmpty()) {
+        throw new HopException(
+            "The simple mapping transform needs one Mapping Output transform to read from in the sub-pipeline");
+      }
+      if (mappingOutputs.size() > 1) {
+        throw new HopException(
+            "The simple mapping transform does not support multiple Mapping Output transforms to read from in the sub-pipeline");
+      }
+      simpleMappingData.mappingOutput = mappingOutputs.get(0);
+    } else {
+      simpleMappingData.mappingOutput = null;
     }
-    if (mappingOutputs.size() > 1) {
-      throw new HopException(
-          "The simple mapping transform does not support multiple Mapping Output transforms to read from in the sub-pipeline");
-    }
-    simpleMappingData.mappingOutput = mappingOutputs.get(0);
 
     // Finally, add the mapping pipeline to the active sub-pipelines
     // map in the parent pipeline

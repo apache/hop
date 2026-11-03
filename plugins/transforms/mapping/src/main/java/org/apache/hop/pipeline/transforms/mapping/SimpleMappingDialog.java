@@ -123,10 +123,17 @@ public class SimpleMappingDialog extends BaseTransformDialog {
 
     private final TableView wFieldMappings;
 
-    public MappingDefinitionTab(MappingIODefinition definition, TableView fieldMappings) {
+    private final Button wNoIo;
+
+    private final boolean input;
+
+    public MappingDefinitionTab(
+        MappingIODefinition definition, TableView fieldMappings, Button wNoIo, boolean input) {
       super();
       this.definition = definition;
-      wFieldMappings = fieldMappings;
+      this.wFieldMappings = fieldMappings;
+      this.wNoIo = wNoIo;
+      this.input = input;
     }
 
     @Override
@@ -138,6 +145,11 @@ public class SimpleMappingDialog extends BaseTransformDialog {
       for (int i = 0; i < nrLines; i++) {
         TableItem item = wFieldMappings.getNonEmpty(i);
         definition.getValueRenames().add(new MappingValueRename(item.getText(1), item.getText(2)));
+      }
+      if (input) {
+        mappingMeta.setNoInput(wNoIo.getSelection());
+      } else {
+        mappingMeta.setNoOutput(wNoIo.getSelection());
       }
     }
   }
@@ -524,6 +536,20 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     tabLayout.marginHeight = 15;
     wInputComposite.setLayout(tabLayout);
 
+    final Button wNoIo = new Button(wInputComposite, SWT.CHECK);
+    PropsUi.setLook(wNoIo);
+    if (input) {
+      wNoIo.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.input.NoInput"));
+      wNoIo.setSelection(mappingMeta.isNoInput());
+    } else {
+      wNoIo.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.output.NoOutput"));
+      wNoIo.setSelection(mappingMeta.isNoOutput());
+    }
+    FormData fdNoIo = new FormData();
+    fdNoIo.top = new FormAttachment(0, 0);
+    fdNoIo.left = new FormAttachment(0, 0);
+    wNoIo.setLayoutData(fdNoIo);
+
     // Now add a table view with the 2 columns to specify: input and output
     // fields for the source and target transforms.
     //
@@ -560,7 +586,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     FormData fdMappings = new FormData();
     fdMappings.left = new FormAttachment(0);
     fdMappings.right = new FormAttachment(100);
-    fdMappings.top = new FormAttachment(0);
+    fdMappings.top = new FormAttachment(wNoIo, 10);
     fdMappings.bottom = new FormAttachment(wbEnterMapping, -10);
     wFieldMappings.setLayoutData(fdMappings);
     wFieldMappings.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 50, 50));
@@ -647,8 +673,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
           }
         });
 
+    final Button wRenameOutput;
     if (input) {
-      Button wRenameOutput = new Button(wInputComposite, SWT.CHECK);
+      wRenameOutput = new Button(wInputComposite, SWT.CHECK);
       PropsUi.setLook(wRenameOutput);
       wRenameOutput.setText(
           BaseMessages.getString(PKG, "SimpleMappingDialog.input.RenamingOnOutput"));
@@ -664,9 +691,32 @@ public class SimpleMappingDialog extends BaseTransformDialog {
             public void widgetSelected(SelectionEvent event) {
               // flip the switch
               definition.setRenamingOnOutput(!definition.isRenamingOnOutput());
+              mappingMeta.setChanged();
             }
           });
+    } else {
+      wRenameOutput = null;
     }
+
+    Runnable updateControls =
+        () -> {
+          boolean enabled = !wNoIo.getSelection();
+          wFieldMappings.setEnabled(enabled);
+          wbEnterMapping.setEnabled(enabled);
+          if (wRenameOutput != null) {
+            wRenameOutput.setEnabled(enabled);
+          }
+        };
+    updateControls.run();
+
+    wNoIo.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent event) {
+            updateControls.run();
+            mappingMeta.setChanged();
+          }
+        });
 
     FormData fdParametersComposite = new FormData();
     fdParametersComposite.left = new FormAttachment(0, 0);
@@ -678,7 +728,8 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     wInputComposite.layout();
     wTab.setControl(wInputComposite);
 
-    final ApplyChanges applyChanges = new MappingDefinitionTab(definition, wFieldMappings);
+    final ApplyChanges applyChanges =
+        new MappingDefinitionTab(definition, wFieldMappings, wNoIo, input);
     changeList.add(applyChanges);
 
     wTabFolder.setSelection(wTab);
