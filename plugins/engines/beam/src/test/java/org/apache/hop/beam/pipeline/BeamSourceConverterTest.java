@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.runners.TransformHierarchy;
 import org.apache.beam.sdk.values.PCollection;
@@ -127,6 +129,18 @@ class BeamSourceConverterTest {
       Pipeline graph = convert(pipeline);
       assertTrue(hasOutputCoder(graph, HopRowCoder.class));
       assertFalse(graph.getOptions().getJobName().isBlank());
+    }
+  }
+
+  @Test
+  void jobNameIsLowerCasedIndependentlyOfTheDefaultLocale() throws Exception {
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+    try {
+      Pipeline graph = convert(pipeline("ID Job", mqttInput("read")));
+      assertEquals("id-job", graph.getOptions().getJobName());
+    } finally {
+      Locale.setDefault(defaultLocale);
     }
   }
 

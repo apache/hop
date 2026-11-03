@@ -23,6 +23,7 @@ import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -201,7 +202,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       throw new HopException(
           "A BigQuery field name can not be longer than 300 characters: '" + name + "'");
     }
-    String lowerName = name.toLowerCase();
+    String lowerName = name.toLowerCase(Locale.ROOT);
     char first = lowerName.charAt(0);
     // Starting with a letter or an underscore
     if (!((first >= 'a' && first <= 'z') || (first == '_'))) {
@@ -213,7 +214,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       if (lowerName.startsWith(prefix)) {
         throw new HopException(
             "A BigQuery field name can not start with : "
-                + (prefix.toUpperCase())
+                + (prefix.toUpperCase(Locale.ROOT))
                 + " for name: '"
                 + name
                 + "'");
@@ -221,7 +222,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     }
     if (name.length() > 1) {
       // Validate the other characters as well.
-      for (char c : name.substring(1).toLowerCase().toCharArray()) {
+      for (char c : name.substring(1).toLowerCase(Locale.ROOT).toCharArray()) {
         // A letter, a digit or an underscore
         if (!((c >= 'a' && c <= 'z') || (c == '_') || (c >= '0' && c <= '9'))) {
           throw new HopException(
