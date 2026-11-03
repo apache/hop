@@ -26,6 +26,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.xml.transform.Source;
@@ -34,9 +35,11 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -49,9 +52,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.HopVfsUriResolver;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -59,10 +64,11 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.w3c.dom.Node;
 
+/** This defines a 'xslt' job entry. */
 @Getter
 @Setter
-/** This defines a 'xslt' job entry. */
 @Action(
     id = "XSLT",
     name = "i18n::XSLT.Name",
@@ -71,7 +77,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     categoryDescription = "i18n::XSLT.Category",
     keywords = "i18n::Xslt.keyword",
     documentationUrl = "/workflow/actions/xslt.html")
-public class Xslt extends ActionBase implements Cloneable, IAction {
+public class Xslt extends ActionBase implements Cloneable, IAction, ILegacyXml {
   private static final Class<?> PKG = Xslt.class;
 
   public static final String FACTORY_JAXP = "JAXP";
@@ -81,123 +87,113 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   public static final String CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_2_LABEL =
       "ActionXSLT.OuputFileExists2.Label";
 
-  @HopMetadataProperty private String xmlfilename;
+  @HopMetadataProperty(key = "xmlfilename")
+  private String xmlFilename;
 
-  @HopMetadataProperty private String xslfilename;
+  @HopMetadataProperty(key = "xslfilename")
+  private String xslFilename;
 
-  @HopMetadataProperty private String outputfilename;
+  @HopMetadataProperty(key = "outputfilename")
+  private String outputFilename;
 
-  @HopMetadataProperty public int ifFileExists;
+  @HopMetadataProperty private int ifFileExists;
 
-  private boolean addfiletoresult;
+  @HopMetadataProperty(key = "addfiletoresult")
+  private boolean addFileToResult;
 
-  private String xsltfactory;
-  private boolean filenamesfromprevious;
+  /** Stored under the legacy XML tag {@code xsltfactory}. */
+  @HopMetadataProperty(key = "xsltfactory")
+  private String transformerFactory;
 
-  /** output property name */
-  private String[] outputPropertyName;
+  @HopMetadataProperty(key = "filenamesfromprevious")
+  private boolean filenamesFromPrevious;
 
-  /** output property value */
-  private String[] outputPropertyValue;
+  @HopMetadataProperty(key = "parameter", groupKey = "parameters")
+  private List<Parameter> parameters;
 
-  /** parameter name */
-  private String[] parameterName;
+  @HopMetadataProperty(key = "outputproperty", groupKey = "outputproperties")
+  private List<OutputProperty> outputPropertyList;
 
-  /** parameter field */
-  private String[] parameterField;
-
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private int nrParams;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private String[] nameOfParams;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private String[] valueOfParams;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private boolean useParameters;
 
-  private Properties outputProperties;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private Properties transformerOutputProperties;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private boolean setOutputProperties;
 
   public Xslt(String n) {
     super(n, "");
-    xmlfilename = null;
-    xslfilename = null;
-    outputfilename = null;
+    xmlFilename = null;
+    xslFilename = null;
+    outputFilename = null;
     ifFileExists = 1;
-    addfiletoresult = false;
-    filenamesfromprevious = false;
-    xsltfactory = FACTORY_JAXP;
-    int nrparams = 0;
-    int nroutputproperties = 0;
-    allocate(nrparams, nroutputproperties);
-
-    for (int i = 0; i < nrparams; i++) {
-      parameterField[i] = "param" + i;
-      parameterName[i] = "param";
-    }
-    for (int i = 0; i < nroutputproperties; i++) {
-      outputPropertyName[i] = "outputprop" + i;
-      outputPropertyValue[i] = "outputprop";
-    }
-  }
-
-  public void allocate(int nrParameters, int outputProps) {
-    parameterName = new String[nrParameters];
-    parameterField = new String[nrParameters];
-
-    outputPropertyName = new String[outputProps];
-    outputPropertyValue = new String[outputProps];
+    addFileToResult = false;
+    filenamesFromPrevious = false;
+    transformerFactory = FACTORY_JAXP;
+    parameters = new ArrayList<>();
+    outputPropertyList = new ArrayList<>();
   }
 
   public Xslt() {
     this("");
   }
 
+  /**
+   * Before the XML cleanup (57bd0dcdab), {@code getXml()} / {@code loadXml()} used the tag {@code
+   * iffileexists}. Annotation serialization writes {@code ifFileExists}; workflows saved before the
+   * cleanup still carry the old tag and would otherwise fall back to the default (1, do nothing).
+   */
+  @Override
+  public void convertLegacyXml(Node node) {
+    if (XmlHandler.getTagValue(node, "ifFileExists") == null) {
+      String legacy = XmlHandler.getTagValue(node, "iffileexists");
+      if (legacy != null) {
+        ifFileExists = Const.toInt(legacy, 1);
+      }
+    }
+  }
+
   @Override
   public Object clone() {
     Xslt je = (Xslt) super.clone();
-    int nrparams = parameterName.length;
-    int nroutputprops = outputPropertyName.length;
-    je.allocate(nrparams, nroutputprops);
-
-    for (int i = 0; i < nrparams; i++) {
-      je.parameterName[i] = parameterName[i];
-      je.parameterField[i] = parameterField[i];
+    je.parameters = new ArrayList<>();
+    for (Parameter parameter : parameters) {
+      je.parameters.add(new Parameter(parameter));
     }
-    for (int i = 0; i < nroutputprops; i++) {
-      je.outputPropertyName[i] = outputPropertyName[i];
-      je.outputPropertyValue[i] = outputPropertyValue[i];
+    je.outputPropertyList = new ArrayList<>();
+    for (OutputProperty outputProperty : outputPropertyList) {
+      je.outputPropertyList.add(new OutputProperty(outputProperty));
     }
-
     return je;
   }
 
-  public String getXSLTFactory() {
-    return xsltfactory;
+  public String getRealXmlFilename() {
+    return resolve(xmlFilename);
   }
 
-  public void setXSLTFactory(String xsltfactoryin) {
-    xsltfactory = xsltfactoryin;
+  public String getRealXslFilename() {
+    return resolve(xslFilename);
   }
 
-  public void setFilenamesFromPrevious(boolean filenamesfromprevious) {
-    this.filenamesfromprevious = filenamesfromprevious;
-  }
-
-  public String getRealxmlfilename() {
-    return resolve(getXmlfilename());
-  }
-
-  public String getoutputfilename() {
-    return resolve(getOutputfilename());
-  }
-
-  public String getOutputfilename() {
-    return outputfilename;
-  }
-
-  public String getRealxslfilename() {
-    return resolve(getXslfilename());
-  }
-
-  public boolean isFilenamesFromPrevious() {
-    return filenamesfromprevious;
+  public String getRealOutputFilename() {
+    return resolve(outputFilename);
   }
 
   @Override
@@ -207,23 +203,26 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     int nrSuccess = 0;
 
     // Check output parameters
-    int nrOutputProps = getOutputPropertyName() == null ? 0 : getOutputPropertyName().length;
+    int nrOutputProps = outputPropertyList == null ? 0 : outputPropertyList.size();
     if (nrOutputProps > 0) {
-      outputProperties = new Properties();
+      transformerOutputProperties = new Properties();
       for (int i = 0; i < nrOutputProps; i++) {
-        outputProperties.put(getOutputPropertyName()[i], resolve(getOutputPropertyValue()[i]));
+        OutputProperty outputProperty = outputPropertyList.get(i);
+        transformerOutputProperties.put(
+            outputProperty.getName(), resolve(outputProperty.getValue()));
       }
       setOutputProperties = true;
     }
 
     // Check parameters
-    nrParams = getParameterField() == null ? 0 : getParameterField().length;
+    nrParams = parameters == null ? 0 : parameters.size();
     if (nrParams > 0) {
       nameOfParams = new String[nrParams];
       valueOfParams = new String[nrParams];
       for (int i = 0; i < nrParams; i++) {
-        String name = resolve(getParameterName()[i]);
-        String value = resolve(getParameterField()[i]);
+        Parameter parameter = parameters.get(i);
+        String name = resolve(parameter.getName());
+        String value = resolve(parameter.getField());
         if (Utils.isEmpty(value)) {
           throw new HopTransformException(
               BaseMessages.getString(PKG, "Xslt.Exception.ParameterFieldMissing", name, i));
@@ -272,14 +271,14 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
         }
       }
     } else {
-      String realxmlfilename = getRealxmlfilename();
-      String realxslfilename = getRealxslfilename();
-      String realoutputfilename = getoutputfilename();
-      if (!Utils.isEmpty(realxmlfilename)
-          && !Utils.isEmpty(realxslfilename)
-          && !Utils.isEmpty(realoutputfilename)) {
+      String realXmlFilename = getRealXmlFilename();
+      String realXslFilename = getRealXslFilename();
+      String realOutputFilename = getRealOutputFilename();
+      if (!Utils.isEmpty(realXmlFilename)
+          && !Utils.isEmpty(realXslFilename)
+          && !Utils.isEmpty(realOutputFilename)) {
         if (processOneXMLFile(
-            realxmlfilename, realxslfilename, realoutputfilename, result, parentWorkflow)) {
+            realXmlFilename, realXslFilename, realOutputFilename, result, parentWorkflow)) {
           nrSuccess++;
         } else {
           nrErrors++;
@@ -353,6 +352,14 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
               // did not find wildcard
               outputfilename = outputfilename + "_" + StringUtil.getFormattedDateTimeNow(true);
             }
+            // Re-resolve so the transformation writes to the unique name, not the original file
+            FileObject previousOutput = outputfile;
+            outputfile = HopVfs.getFileObject(outputfilename);
+            try {
+              previousOutput.close();
+            } catch (IOException e) {
+              logError("Unable to close file", e);
+            }
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(PKG, CONST_ACTION_XSLT_OUPUT_FILE_EXISTS_1_LABEL)
@@ -368,7 +375,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
           // Create transformer factory
           TransformerFactory factory = TransformerFactory.newInstance();
 
-          if (xsltfactory.equals(FACTORY_SAXON)) {
+          if (FACTORY_SAXON.equals(transformerFactory)) {
             // Set the TransformerFactory to the SAXON implementation.
             factory = new net.sf.saxon.TransformerFactoryImpl();
           }
@@ -404,7 +411,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
             // Do we need to set output properties?
             if (setOutputProperties) {
-              xformer.setOutputProperties(outputProperties);
+              xformer.setOutputProperties(transformerOutputProperties);
             }
 
             // Do we need to pass parameters?
@@ -422,7 +429,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             // Apply the xsl file to the source file and write the result to the output file
             xformer.transform(source, resultat);
 
-            if (isAddfiletoresult()) {
+            if (isAddFileToResult()) {
               // Add output filename to output files
               ResultFile resultFile =
                   new ResultFile(
@@ -466,7 +473,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
         if (!xslfile.exists()) {
           logError(
               BaseMessages.getString(PKG, "ActionXSLT.FileDoesNotExist1.Label")
-                  + xmlfilename
+                  + xslfilename
                   + BaseMessages.getString(PKG, "ActionXSLT.FileDoesNotExist2.Label"));
         }
       }
@@ -481,20 +488,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
               + BaseMessages.getString(PKG, "ActionXSLT.ErrorXLSTXSL2.Label")
               + e.getMessage());
     } finally {
-      try {
-        if (xmlfile != null) {
-          xmlfile.close();
-        }
-
-        if (xslfile != null) {
-          xslfile.close();
-        }
-        if (outputfile != null) {
-          outputfile.close();
-        }
-      } catch (IOException e) {
-        logError("Unable to close file", e);
-      }
+      closeFileStream(xmlfile, xslfile, outputfile);
     }
 
     return retval;
@@ -505,47 +499,13 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  /*
-    public void setXmlFilename(String filename) {
-      this.xmlfilename = filename;
-    }
-
-    public String getXmlFilename() {
-      return xmlfilename;
-    }
-
-    public String getOutputFilename() {
-      return outputfilename;
-    }
-
-    public void setOutputfilename(String outputfilename) {
-      this.outputfilename = outputfilename;
-    }
-
-    public void setxslFilename(String filename) {
-      this.xslfilename = filename;
-    }
-
-    public String getxslFilename() {
-      return xslfilename;
-    }
-
-    public void setAddFileToResult(boolean addfiletoresultin) {
-      this.addfiletoresult = addfiletoresultin;
-    }
-
-    public boolean isAddFileToResult() {
-      return addfiletoresult;
-    }
-  */
-
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if ((!Utils.isEmpty(xslfilename)) && (!Utils.isEmpty(xmlfilename))) {
-      String realXmlFileName = variables.resolve(xmlfilename);
-      String realXslFileName = variables.resolve(xslfilename);
+    if ((!Utils.isEmpty(xslFilename)) && (!Utils.isEmpty(xmlFilename))) {
+      String realXmlFileName = variables.resolve(xmlFilename);
+      String realXslFileName = variables.resolve(xslFilename);
       ResourceReference reference = new ResourceReference(this);
       reference
           .getEntries()
@@ -567,58 +527,70 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     ValidatorContext ctx = new ValidatorContext();
     putVariableSpace(ctx, getVariables());
     putValidators(ctx, notBlankValidator(), fileExistsValidator());
-    andValidator().validate(this, "xmlfilename", remarks, ctx);
-    andValidator().validate(this, "xslfilename", remarks, ctx);
+    andValidator().validate(this, "xmlFilename", remarks, ctx);
+    andValidator().validate(this, "xslFilename", remarks, ctx);
 
-    andValidator().validate(this, "outputfilename", remarks, putValidators(notBlankValidator()));
+    andValidator().validate(this, "outputFilename", remarks, putValidators(notBlankValidator()));
   }
 
-  /**
-   * @return Returns the OutputPropertyName.
-   */
-  public String[] getOutputPropertyName() {
-    return outputPropertyName;
+  @Getter
+  @Setter
+  public static class Parameter {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "field")
+    private String field;
+
+    public Parameter() {}
+
+    public Parameter(Parameter parameter) {
+      this.name = parameter.name;
+      this.field = parameter.field;
+    }
+
+    public Parameter(String name, String field) {
+      this.name = name;
+      this.field = field;
+    }
   }
 
-  /**
-   * @param argumentDirection The OutputPropertyName to set.
-   */
-  public void setOutputPropertyName(String[] argumentDirection) {
-    this.outputPropertyName = argumentDirection;
+  @Getter
+  @Setter
+  public static class OutputProperty {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "value")
+    private String value;
+
+    public OutputProperty() {}
+
+    public OutputProperty(OutputProperty outputProperty) {
+      this.name = outputProperty.name;
+      this.value = outputProperty.value;
+    }
+
+    public OutputProperty(String name, String value) {
+      this.name = name;
+      this.value = value;
+    }
   }
 
-  /**
-   * @return Returns the OutputPropertyField.
-   */
-  public String[] getOutputPropertyValue() {
-    return outputPropertyValue;
-  }
+  private void closeFileStream(FileObject xmlFile, FileObject xslFile, FileObject outputFile) {
+    try {
+      if (xmlFile != null) {
+        xmlFile.close();
+      }
 
-  /**
-   * @param argumentDirection The outputPropertyValue to set.
-   */
-  public void setOutputPropertyValue(String[] argumentDirection) {
-    this.outputPropertyValue = argumentDirection;
-  }
-
-  /**
-   * @return Returns the parameterName.
-   */
-  public String[] getParameterName() {
-    return parameterName;
-  }
-
-  /**
-   * @param argumentDirection The parameterName to set.
-   */
-  public void setParameterName(String[] argumentDirection) {
-    this.parameterName = argumentDirection;
-  }
-
-  /**
-   * @return Returns the parameterField.
-   */
-  public String[] getParameterField() {
-    return parameterField;
+      if (xslFile != null) {
+        xslFile.close();
+      }
+      if (outputFile != null) {
+        outputFile.close();
+      }
+    } catch (IOException e) {
+      logError("Unable to close file", e);
+    }
   }
 }

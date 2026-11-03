@@ -441,7 +441,7 @@ public class XsltDialog extends ActionDialog {
     fdlOutputProperties.top = new FormAttachment(0, margin);
     wlOutputProperties.setLayoutData(fdlOutputProperties);
 
-    final int OutputPropertiesRows = action.getOutputPropertyName().length;
+    final int OutputPropertiesRows = action.getOutputPropertyList().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -484,7 +484,7 @@ public class XsltDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wOutputProperties, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = action.getParameterField().length;
+    final int FieldsRows = action.getParameters().size();
 
     colinf =
         new ColumnInfo[] {
@@ -563,35 +563,37 @@ public class XsltDialog extends ActionDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    wxmlFilename.setText(Const.nullToEmpty(action.getXmlfilename()));
-    wxslFilename.setText(Const.nullToEmpty(action.getXslfilename()));
-    wOutputFilename.setText(Const.nullToEmpty(action.getoutputfilename()));
+    wxmlFilename.setText(Const.nullToEmpty(action.getXmlFilename()));
+    wxslFilename.setText(Const.nullToEmpty(action.getXslFilename()));
+    wOutputFilename.setText(Const.nullToEmpty(action.getOutputFilename()));
 
-    if (action.ifFileExists >= 0) {
-      wIfFileExists.select(action.ifFileExists);
+    if (action.getIfFileExists() >= 0) {
+      wIfFileExists.select(action.getIfFileExists());
     } else {
       wIfFileExists.select(2); // NOTHING
     }
 
-    wAddFileToResult.setSelection(action.isAddfiletoresult());
+    wAddFileToResult.setSelection(action.isAddFileToResult());
     wPrevious.setSelection(action.isFilenamesFromPrevious());
-    if (action.getXSLTFactory() != null) {
-      wXSLTFactory.setText(action.getXSLTFactory());
+    if (action.getTransformerFactory() != null) {
+      wXSLTFactory.setText(action.getTransformerFactory());
     } else {
       wXSLTFactory.setText("JAXP");
     }
-    if (action.getParameterName() != null) {
-      for (int i = 0; i < action.getParameterName().length; i++) {
+    if (action.getParameters() != null) {
+      for (int i = 0; i < action.getParameters().size(); i++) {
         TableItem item = wFields.table.getItem(i);
-        item.setText(1, Const.NVL(action.getParameterField()[i], ""));
-        item.setText(2, Const.NVL(action.getParameterName()[i], ""));
+        Xslt.Parameter parameter = action.getParameters().get(i);
+        item.setText(1, Const.NVL(parameter.getField(), ""));
+        item.setText(2, Const.NVL(parameter.getName(), ""));
       }
     }
-    if (action.getOutputPropertyName() != null) {
-      for (int i = 0; i < action.getOutputPropertyName().length; i++) {
+    if (action.getOutputPropertyList() != null) {
+      for (int i = 0; i < action.getOutputPropertyList().size(); i++) {
         TableItem item = wOutputProperties.table.getItem(i);
-        item.setText(1, Const.NVL(action.getOutputPropertyName()[i], ""));
-        item.setText(2, Const.NVL(action.getOutputPropertyValue()[i], ""));
+        Xslt.OutputProperty outputProperty = action.getOutputPropertyList().get(i);
+        item.setText(1, Const.NVL(outputProperty.getName(), ""));
+        item.setText(2, Const.NVL(outputProperty.getValue(), ""));
       }
     }
   }
@@ -616,27 +618,26 @@ public class XsltDialog extends ActionDialog {
       return;
     }
     action.setName(wName.getText());
-    action.setXmlfilename(wxmlFilename.getText());
-    action.setXslfilename(wxslFilename.getText());
-    action.setOutputfilename(wOutputFilename.getText());
-    action.ifFileExists = wIfFileExists.getSelectionIndex();
+    action.setXmlFilename(wxmlFilename.getText());
+    action.setXslFilename(wxslFilename.getText());
+    action.setOutputFilename(wOutputFilename.getText());
+    action.setIfFileExists(wIfFileExists.getSelectionIndex());
     action.setFilenamesFromPrevious(wPrevious.getSelection());
-    action.setAddfiletoresult(wAddFileToResult.getSelection());
-    action.setXSLTFactory(wXSLTFactory.getText());
+    action.setAddFileToResult(wAddFileToResult.getSelection());
+    action.setTransformerFactory(wXSLTFactory.getText());
 
     int nrparams = wFields.nrNonEmpty();
     int nroutputprops = wOutputProperties.nrNonEmpty();
-    action.allocate(nrparams, nroutputprops);
+    action.getParameters().clear();
+    action.getOutputPropertyList().clear();
 
     for (int i = 0; i < nrparams; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      action.getParameterField()[i] = item.getText(1);
-      action.getParameterName()[i] = item.getText(2);
+      action.getParameters().add(new Xslt.Parameter(item.getText(2), item.getText(1)));
     }
     for (int i = 0; i < nroutputprops; i++) {
       TableItem item = wOutputProperties.getNonEmpty(i);
-      action.getOutputPropertyName()[i] = item.getText(1);
-      action.getOutputPropertyValue()[i] = item.getText(2);
+      action.getOutputPropertyList().add(new Xslt.OutputProperty(item.getText(1), item.getText(2)));
     }
 
     dispose();
