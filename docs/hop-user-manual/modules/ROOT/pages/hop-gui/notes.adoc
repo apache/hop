@@ -15,12 +15,26 @@ specific language governing permissions and limitations
 under the License.
 ////
 :imagesdir: ../assets/images/
-:description: Notes on pipeline and workflow canvases, including Markdown formatting, note types, links, and images.
+:description: Notes on pipeline and workflow canvases, including Markdown formatting, note types, links, images, and annotations attached to a transform or action.
 
 [[CanvasNotes]]
 = Notes on pipelines and workflows
 
 Notes are free-floating annotations on the pipeline and workflow canvas. They do not participate in execution; they document design intent for anyone opening the file.
+
+== Annotations on a transform or action
+
+An annotation is a short callout attached to one transform or one workflow action. It stays next to that icon, and it is not executed.
+
+* Open the context dialog on a transform or action and choose **Annotate**.
+* Choose where it sits relative to the icon: top, top right, right, bottom right, bottom, bottom left, left, or top left. The default is above the icon. Moving, copying, or renaming the transform or action keeps the callout with it.
+* The text is plain. Hop picks the fill, border, and text colors so the callout stays readable in light and dark mode.
+* **Dashed line** draws a dashed line from the callout to the icon. New annotations start with the line on. Turn it off to leave the callout unconnected.
+* Click the callout to edit it. **Remove annotation** clears it.
+
+image::hop-gui/annotation-callout.png[An annotation with a dashed line to its transform,width="80%"]
+
+A note floats on the canvas. An annotation belongs to one icon.
 
 == Create and edit notes
 

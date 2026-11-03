@@ -29,6 +29,7 @@
     <name>Hop Plugins Miscellaneous</name>
 
     <modules>
+        <module>annotation</module>
         <module>debug</module>
         <module>documentation</module>
         <module>execution-database</module>
