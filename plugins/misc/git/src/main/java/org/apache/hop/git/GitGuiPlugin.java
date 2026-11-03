@@ -79,9 +79,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -490,15 +487,10 @@ public class GitGuiPlugin
       separator = true)
   public void showGitContextMenu() {
     GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
-    Control control = statusWidgets.getWidgetsMap().get(ID_TOOLBAR_ITEM_GIT);
-    if (control != null && !control.isDisposed()) {
-      Rectangle rect = control.getBounds();
-      int menuGap = 6;
-      Point pt = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
-      Menu menu = createGitContextMenu();
-      menu.setLocation(pt);
-      menu.setVisible(true);
+    if (statusWidgets == null) {
+      return;
     }
+    statusWidgets.showMenuAbove(ID_TOOLBAR_ITEM_GIT, createGitContextMenu());
   }
 
   private Menu createGitContextMenu() {
