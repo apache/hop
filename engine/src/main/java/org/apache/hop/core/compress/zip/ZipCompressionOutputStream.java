@@ -26,6 +26,10 @@ import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.util.Utils;
 
+/**
+ * @deprecated legacy stream class; use the commons-compress backed formats instead.
+ */
+@Deprecated
 public class ZipCompressionOutputStream extends CompressionOutputStream {
 
   public ZipCompressionOutputStream(OutputStream out, ICompressionProvider provider) {

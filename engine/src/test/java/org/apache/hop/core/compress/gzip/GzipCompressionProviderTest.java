@@ -24,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.apache.hop.core.compress.CompressionInputStream;
+import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,6 +37,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+/**
+ * Verifies that the "GZip" name resolves to the commons-compress backed provider through the
+ * factory, keeping the historical provider attributes.
+ */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class GzipCompressionProviderTest {
   public static final String PROVIDER_NAME = "GZip";
@@ -60,16 +66,14 @@ class GzipCompressionProviderTest {
 
   @Test
   void testGetName() {
-    GzipCompressionProvider provider =
-        (GzipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     assertNotNull(provider);
     assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
   void testGetProviderAttributes() {
-    GzipCompressionProvider provider =
-        (GzipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     assertEquals("GZIP compression", provider.getDescription());
     assertTrue(provider.supportsInput());
     assertTrue(provider.supportsOutput());
@@ -78,37 +82,35 @@ class GzipCompressionProviderTest {
 
   @Test
   void testCreateInputStream() throws IOException {
-    GzipCompressionProvider provider =
-        (GzipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
+    assertNotNull(provider);
 
     // Create an in-memory GZIP output stream for use by the input stream (to avoid exceptions)
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     GZIPOutputStream gos = new GZIPOutputStream(baos);
     byte[] testBytes = "Test".getBytes();
     gos.write(testBytes);
-    ByteArrayInputStream in = new ByteArrayInputStream(baos.toByteArray());
+    gos.close();
 
-    // Test stream creation paths
-    GZIPInputStream gis = new GZIPInputStream(in);
-    in = new ByteArrayInputStream(baos.toByteArray());
-    GzipCompressionInputStream ncis = provider.createInputStream(in);
+    CompressionInputStream ncis =
+        provider.createInputStream(new ByteArrayInputStream(baos.toByteArray()));
     assertNotNull(ncis);
-    GzipCompressionInputStream ncis2 = provider.createInputStream(gis);
-    assertNotNull(ncis2);
+    byte[] decoded = ncis.readAllBytes();
+    assertEquals(new String(testBytes), new String(decoded));
   }
 
   @Test
   void testCreateOutputStream() throws IOException {
-    GzipCompressionProvider provider =
-        (GzipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
+    ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
+    assertNotNull(provider);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     GZIPOutputStream gos = new GZIPOutputStream(out);
-    GzipCompressionOutputStream outStream = new GzipCompressionOutputStream(out, provider);
+    CompressionOutputStream outStream = new GzipCompressionOutputStream(out, provider);
     assertNotNull(outStream);
     out = new ByteArrayOutputStream();
-    GzipCompressionOutputStream ncis = provider.createOutputStream(out);
+    CompressionOutputStream ncis = provider.createOutputStream(out);
     assertNotNull(ncis);
-    GzipCompressionOutputStream ncis2 = provider.createOutputStream(gos);
+    CompressionOutputStream ncis2 = provider.createOutputStream(gos);
     assertNotNull(ncis2);
   }
 }

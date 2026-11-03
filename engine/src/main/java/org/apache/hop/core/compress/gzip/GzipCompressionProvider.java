@@ -20,10 +20,17 @@ package org.apache.hop.core.compress.gzip;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.hop.core.compress.CompressionPlugin;
 import org.apache.hop.core.compress.ICompressionProvider;
 
-@CompressionPlugin(id = "GZIP", name = "GZip", description = "GZIP compression")
+/**
+ * Legacy GZIP compression provider based on {@code java.util.zip}.
+ *
+ * @deprecated replaced by the commons-compress backed GZip format (see {@code
+ *     org.apache.hop.core.compress.format.GzipCompressionProvider}). Kept for backward
+ *     compatibility of artifacts referencing the "GZip" name and for external code using this class
+ *     directly; no longer registered as a plugin.
+ */
+@Deprecated
 public class GzipCompressionProvider implements ICompressionProvider {
 
   @Override

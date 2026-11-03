@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.compress.CompressionFormat;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
@@ -515,8 +515,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       return;
     }
 
-    Collection<ICompressionProvider> compProviders =
-        CompressionProviderFactory.getInstance().getCompressionProviders();
+    CompressionProviderFactory factory = CompressionProviderFactory.getInstance();
 
     for (int i = 0; i < wFilenameList.getItemCount(); i++) {
       String[] fileRecord = wFilenameList.getItem(i);
@@ -524,19 +523,45 @@ public class TextFileInputDialog extends BaseTransformDialog
         continue;
       }
       // Filename is always column 0 (not row index i)
-      String fileExtension = FilenameUtils.getExtension(fileRecord[0]);
-      for (ICompressionProvider provider : compProviders) {
-        if (provider.getDefaultExtension() != null
-            && provider.getDefaultExtension().equals(fileExtension)) {
-          int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), provider.getName());
-          if (toBeSelected >= 0) {
-            wCompression.select(toBeSelected);
-          }
+      String fileName = fileRecord[0];
+
+      // Prefer magic-byte detection when the file is readable, then fall back to extension.
+      CompressionFormat format = detectFormat(factory, fileName);
+      if (format == null) {
+        String fileExtension = FilenameUtils.getExtension(fileName);
+        format =
+            factory.getFormats().stream()
+                .filter(f -> fileExtension.equalsIgnoreCase(f.extension()))
+                .findFirst()
+                .orElse(null);
+      }
+      if (format != null) {
+        int toBeSelected = ArrayUtils.indexOf(wCompression.getItems(), format.name());
+        if (toBeSelected >= 0) {
+          wCompression.select(toBeSelected);
           return;
         }
       }
     }
-    // No matching compressed extension: leave compression as None/empty (do not force select).
+    // No matching compressed format: leave compression as None/empty (do not force select).
+  }
+
+  /**
+   * Detects the compression format of a file by its magic bytes; {@code null} when not readable or
+   * unrecognized.
+   */
+  private CompressionFormat detectFormat(CompressionProviderFactory factory, String fileName) {
+    try (FileObject file = HopVfs.getFileObject(fileName);
+        InputStream in = HopVfs.getInputStream(file)) {
+      String key = factory.detectCompressionFormat(in);
+      if (key == null) {
+        return null;
+      }
+      return factory.getFormat(key);
+    } catch (Exception e) {
+      // Not readable or detection failed: fall back to extension matching in the caller
+      return null;
+    }
   }
 
   private void showFiles() {
@@ -1231,7 +1256,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     wCompression.setToolTipText(
         BaseMessages.getString(PKG, "TextFileInputDialog.Compression.Tooltip"));
     PropsUi.setLook(wCompression);
-    wCompression.setItems(CompressionProviderFactory.getInstance().getCompressionProviderNames());
+    wCompression.setItems(
+        CompressionProviderFactory.getInstance().getInputFormats().stream()
+            .map(CompressionFormat::name)
+            .toArray(String[]::new));
 
     wCompression.addModifyListener(lsMod);
     FormData fdCompression = new FormData();
@@ -2463,7 +2491,15 @@ public class TextFileInputDialog extends BaseTransformDialog
     wLayoutPaged.setSelection(meta.getContent().isLayoutPaged());
     wNrLinesPerPage.setText("" + meta.getContent().getNrLinesPerPage());
     wNrLinesDocHeader.setText("" + meta.getContent().getNrLinesDocHeader());
-    wCompression.setText(Const.NVL(meta.getContent().getFileCompression(), ""));
+    String compression = Const.NVL(meta.getContent().getFileCompression(), "");
+    wCompression.setText(compression);
+    if (!Utils.isEmpty(compression)
+        && ArrayUtils.indexOf(wCompression.getItems(), compression) < 0) {
+      // preserve a stored value that is not in the current format list (e.g. a legacy or
+      // extension format), otherwise getInfo() would silently wipe it
+      wCompression.add(compression);
+      wCompression.select(wCompression.getItemCount() - 1);
+    }
     wNoempty.setSelection(meta.getContent().isNoEmptyLines());
     wInclFilename.setSelection(meta.getContent().isIncludeFilename());
     wInclRownum.setSelection(meta.getContent().isIncludeRowNumber());

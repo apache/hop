@@ -24,6 +24,11 @@ import java.lang.reflect.Method;
 import org.apache.hop.core.compress.CompressionPlugin;
 import org.apache.hop.core.compress.ICompressionProvider;
 
+/**
+ * @deprecated kept for backward compatibility with the reflection based Hadoop snappy codec, which
+ *     has no commons-compress equivalent.
+ */
+@Deprecated
 @CompressionPlugin(
     id = "HADOOPSNAPPY",
     name = "Hadoop-snappy",

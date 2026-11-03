@@ -23,6 +23,10 @@ import java.lang.reflect.Method;
 import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 
+/**
+ * @deprecated legacy stream class; use the commons-compress backed formats instead.
+ */
+@Deprecated
 public class HadoopSnappyCompressionOutputStream extends CompressionOutputStream {
 
   public HadoopSnappyCompressionOutputStream(OutputStream out, ICompressionProvider provider)

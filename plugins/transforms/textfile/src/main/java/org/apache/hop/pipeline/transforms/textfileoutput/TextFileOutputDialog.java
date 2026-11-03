@@ -19,8 +19,10 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.compress.CompressionFormat;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -826,7 +828,10 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wCompression.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.Compression.Label"));
     PropsUi.setLook(wCompression);
 
-    wCompression.setItems(CompressionProviderFactory.getInstance().getCompressionProviderNames());
+    wCompression.setItems(
+        CompressionProviderFactory.getInstance().getOutputFormats().stream()
+            .map(CompressionFormat::name)
+            .toArray(String[]::new));
     wCompression.addModifyListener(lsMod);
     FormData fdCompression = new FormData();
     fdCompression.left = new FormAttachment(middle, 0);
@@ -1453,7 +1458,15 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         }
       }
     }
-    wCompression.setText(Const.NVL(input.getFileCompression(), ""));
+    String compression = Const.NVL(input.getFileCompression(), "");
+    wCompression.setText(compression);
+    if (!Utils.isEmpty(compression)
+        && ArrayUtils.indexOf(wCompression.getItems(), compression) < 0) {
+      // preserve a stored value that is not in the current format list (e.g. a legacy or
+      // extension format), otherwise getInfo() would silently wipe it
+      wCompression.add(compression);
+      wCompression.select(wCompression.getItemCount() - 1);
+    }
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
     wEndedLine.setText(Const.NVL(input.getEndedLine(), ""));
     wFileNameInField.setSelection(input.isFileNameInField());

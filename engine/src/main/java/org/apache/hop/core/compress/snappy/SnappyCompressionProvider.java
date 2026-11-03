@@ -23,6 +23,12 @@ import java.io.OutputStream;
 import org.apache.hop.core.compress.CompressionPlugin;
 import org.apache.hop.core.compress.ICompressionProvider;
 
+/**
+ * @deprecated kept for backward compatibility with the xerial raw snappy wire format, which is not
+ *     interoperable with commons-compress' snappy codecs. Use "Snappy-framed" or "Snappy-raw" for
+ *     new artifacts.
+ */
+@Deprecated
 @CompressionPlugin(id = "SNAPPY", name = "Snappy", description = "Snappy compression")
 public class SnappyCompressionProvider implements ICompressionProvider {
 

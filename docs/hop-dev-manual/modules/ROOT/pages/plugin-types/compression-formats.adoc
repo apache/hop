@@ -1,0 +1,91 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How Hop uses Apache Commons Compress as its compression registry, the built-in format providers, and how to contribute a new compression format.
+= Compression formats
+
+Compression in Hop is built on top of Apache Commons Compress.
+The commons-compress `CompressorStreamFactory` is the single registry for all codecs: it provides the 14 built-in formats (zstd, gzip, bzip2, xz, lzma, snappy-framed, snappy-raw, lz4-framed, lz4-block, deflate, deflate64, z, pack200, brotli), and Hop contributes its own `none` (passthrough) and `zip` codecs to the same registry through the `CompressorStreamProvider` SPI (see `org.apache.hop.core.compress.spi.HopCompressorStreamProvider`).
+
+Formats are consumed everywhere compression is configured: Text File Output, Text File Input, the Snowflake bulk loader and any component using `CompressionProviderFactory`.
+
+== The lifecycle of a format
+
+* The format metadata (name, description, default extension, input/output support) is declared by the `@CompressionPlugin` annotation on the provider class.
+* The provider class is discovered by the plugin machinery (`CompressionPluginType` + `PluginRegistry`, backed by the Jandex annotation index) — no `plugin.xml` and no manual registration list.
+* The codec itself is provided by commons-compress, either by a built-in format or by any `CompressorStreamProvider` registered with `HopCompressionRegistry`.
+* `CompressionProviderFactory` (the deprecated compatibility facade) merges the two: it lists every annotated provider whose codec is available, and resolves formats by name or registry id through `getFormats()`/`getFormat()`.
+
+== Adding a new format
+
+The supported extension path is: a `@CompressionPlugin` metadata class (step 1) plus, when the codec is not built into commons-compress, a `CompressorStreamProvider` registered with `HopCompressionRegistry` (step 2).
+This two-part path gives the format full metadata (display name, description, extension, input/output support).
+
+A shortcut exists for codecs that are already built into commons-compress: the metadata class alone is enough, nothing is registered.
+A fallback exists for codecs that only register a `CompressorStreamProvider` without a metadata class: the factory derives the metadata, but the display name comes from the registry key and there is no extension, so prefer the metadata class. The two mechanisms are merged and de-duplicated by registry key.
+
+=== Declare the format with a metadata class
+
+The annotation carries all the metadata; the class extends `CommonsCompressCompressionProvider` which implements the stream delegation:
+
+[source,java]
+----
+package org.apache.hop.core.compress.format;
+
+import org.apache.hop.core.compress.CompressionPlugin;
+import org.apache.hop.core.compress.CommonsCompressCompressionProvider;
+
+@CompressionPlugin(
+    id = "foo", // must match the commons-compress registry key; matching is case-insensitive
+    name = "Foo",
+    description = "Foo compression",
+    defaultExtension = "foo",
+    supportsInput = true,
+    supportsOutput = true)
+public class FooCompressionProvider extends CommonsCompressCompressionProvider {}
+----
+
+The class must be `public` and have a no-argument constructor, because the plugin registry instantiates it through reflection.
+Input-only formats (for example brotli) declare `supportsOutput = false`; `createOutputStream` then throws a clear `IOException`.
+
+=== Provide the codec
+
+If commons-compress already knows the format (built-in codec), nothing else is needed: `HopCompressionRegistry` merges the commons-compress singleton with the registered providers, and the codec is available.
+
+If the codec comes from an external library, implement `org.apache.commons.compress.compressors.CompressorStreamProvider` and register it:
+
+[source,java]
+----
+HopCompressionRegistry.getInstance().register(new MyCodecProvider());
+----
+
+The registration survives regardless of class loader: commons-compress discovers SPI files through `ClassLoader.getSystemClassLoader()`, which is unreliable in embedded or isolated class loader contexts, so Hop always merges the registered providers explicitly.
+If an extension also ships a `META-INF/services/org.apache.commons.compress.compressors.CompressorStreamProvider` file, both paths merge and the format is registered exactly once.
+
+=== Use it
+
+No further changes are needed.
+The format appears in the Text File Output compression dropdown (`getOutputFormats()`, which filters to writable formats) and the Text File Input dropdown (`getInputFormats()`).
+It is also resolvable by name or id through the legacy API, e.g. `getFormat("Foo")`, `createCompressionOutputStream("foo", out)`, so existing pipelines can reference it after a metadata update.
+
+== Notes
+
+* The commons-compress registry keys are normalized to upper case internally; Hop matches them case-insensitively.
+* `detectCompressionFormat(InputStream)` returns the commons-compress name (for example `gz` or `zstd`) detected from magic bytes, or `null` for unknown input.
+* The legacy formats `Snappy` (xerial raw framing) and `Hadoop-snappy` (reflection based Hadoop shim) are kept for backward compatibility because their wire format differs from the commons-compress snappy codecs.
+Their codec is loaded from the classpath, so they remain available in the format lists and dialogs even though commons-compress does not ship an equivalent codec.
+* A codec registered with `HopCompressionRegistry` without an annotation class is still usable through the factory: `getFormat` derives its metadata and stream creation delegates to the registry.
+* Formats that are not commons-compress backed (legacy codecs and external providers) are considered always available; only the commons-compress backed formats are filtered by codec presence.

@@ -23,17 +23,44 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** This annotation signals to the plugin system that the class is a compression provider plugin. */
+/**
+ * This annotation signals to the plugin system that the class is a compression provider plugin.
+ *
+ * <p>The metadata declared here (default file extension, input/output support) is the single source
+ * of truth for the commons-compress backed providers: it is read by {@link
+ * org.apache.hop.core.compress.CompressionFormat#of(Class)} and honored by the {@link
+ * org.apache.hop.core.compress.CompressionProviderFactory}. External (plugin) providers built on
+ * {@link org.apache.hop.core.compress.ICompressionProvider} may keep implementing the interface
+ * methods directly.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface CompressionPlugin {
 
+  /**
+   * The unique identifier of the provider. For commons-compress backed providers this must be the
+   * commons-compress {@code CompressorStreamFactory} key (e.g. {@code "zstd"}, {@code "gzip"},
+   * {@code "zip"}, {@code "none"}).
+   */
   String id();
 
+  /** The display name of the provider. Used as the reference stored in saved artifacts. */
   String name();
 
   String description() default "Compression Plugin";
+
+  /**
+   * The default file extension associated with this format, without the leading dot (e.g. {@code
+   * "gz"}, {@code "zip"}). Empty string means the format has no default extension.
+   */
+  String defaultExtension() default "";
+
+  /** Whether this provider can decompress (read) data. */
+  boolean supportsInput() default true;
+
+  /** Whether this provider can compress (write) data. */
+  boolean supportsOutput() default true;
 
   /**
    * @return True if a separate class loader is needed every time this class is instantiated
