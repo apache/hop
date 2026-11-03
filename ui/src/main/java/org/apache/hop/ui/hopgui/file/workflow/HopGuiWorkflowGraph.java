@@ -4763,6 +4763,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     hopDisplay()
         .asyncExec(
             () -> {
+              // The checks above can go stale: this runnable also runs during Display.dispose().
+              if (!isUiAlive()
+                  || toolBarWidgets == null
+                  || toolBar == null
+                  || toolBar.isDisposed()) {
+                return;
+              }
+
               setZoomLabel();
 
               // Enable/disable the undo/redo toolbar buttons...

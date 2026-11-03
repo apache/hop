@@ -5085,6 +5085,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** Update tree item */
   public void updateTreeItem(IHopFileTypeHandler fileTypeHandler) {
+    if (fileTypeHandler == null || tree == null || tree.isDisposed()) {
+      return;
+    }
     // If no filename, no need to update the tree item
     String filename = fileTypeHandler.getFilename();
     if (filename != null) {
@@ -5256,38 +5259,53 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public void navigateToPreviousFile() {
-    if (hasNavigationPreviousFile()) {
-      CTabFolder active = getTargetTabFolder();
-      int index = active.getSelectionIndex() - 1;
-      if (index < 0) {
-        index = active.getItemCount() - 1;
-      }
-      active.setSelection(index);
-      updateGui();
+    CTabFolder active = navigationFolder();
+    if (active == null) {
+      return;
     }
+    int index = active.getSelectionIndex() - 1;
+    if (index < 0) {
+      index = active.getItemCount() - 1;
+    }
+    active.setSelection(index);
+    updateGui();
   }
 
   @Override
   public void navigateToNextFile() {
-    if (hasNavigationNextFile()) {
-      CTabFolder active = getTargetTabFolder();
-      int index = active.getSelectionIndex() + 1;
-      if (index >= active.getItemCount()) {
-        index = 0;
-      }
-      active.setSelection(index);
-      updateGui();
+    CTabFolder active = navigationFolder();
+    if (active == null) {
+      return;
     }
+    int index = active.getSelectionIndex() + 1;
+    if (index >= active.getItemCount()) {
+      index = 0;
+    }
+    active.setSelection(index);
+    updateGui();
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    return getTargetTabFolder().getItemCount() > 1;
+    return navigationFolder() != null;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    return getTargetTabFolder().getItemCount() > 1;
+    return navigationFolder() != null;
+  }
+
+  /**
+   * Active folder when it has another file to switch to. Null when the folder is missing or already
+   * disposed, which happens when {@code Display.dispose()} runs queued GUI updates after the editor
+   * tabs are gone.
+   */
+  private CTabFolder navigationFolder() {
+    CTabFolder folder = getTargetTabFolder();
+    if (folder == null || folder.isDisposed() || folder.getItemCount() <= 1) {
+      return null;
+    }
+    return folder;
   }
 
   @Override
