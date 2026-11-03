@@ -47,6 +47,8 @@ public class BeamConst {
   public static final String STRING_ADD_SEQUENCE_PLUGIN_ID = "Sequence";
   public static final String STRING_AVRO_FILE_INPUT_PLUGIN_ID = "AvroFileInput";
   public static final String STRING_AVRO_OUTPUT_PLUGIN_ID = "AvroOutput";
+  public static final String STRING_PARQUET_FILE_INPUT_PLUGIN_ID = "ParquetFileInput";
+  public static final String STRING_PARQUET_FILE_OUTPUT_PLUGIN_ID = "ParquetFileOutput";
 
   /** Mask fields. Banned by plugin id so the Beam engine does not have to load the transform. */
   public static final String STRING_MASK_FIELDS_PLUGIN_ID = "MaskFields";

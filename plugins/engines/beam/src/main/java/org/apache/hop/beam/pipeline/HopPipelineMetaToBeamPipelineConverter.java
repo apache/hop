@@ -48,6 +48,8 @@ import org.apache.hop.beam.pipeline.handler.BeamAvroOutputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamGenericTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMemoryGroupByTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
+import org.apache.hop.beam.pipeline.handler.BeamParquetInputTransformHandler;
+import org.apache.hop.beam.pipeline.handler.BeamParquetOutputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
@@ -94,7 +96,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
           BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID,
           BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID,
           BeamConst.STRING_AVRO_FILE_INPUT_PLUGIN_ID,
-          BeamConst.STRING_AVRO_OUTPUT_PLUGIN_ID);
+          BeamConst.STRING_AVRO_OUTPUT_PLUGIN_ID,
+          BeamConst.STRING_PARQUET_FILE_INPUT_PLUGIN_ID,
+          BeamConst.STRING_PARQUET_FILE_OUTPUT_PLUGIN_ID);
 
   /**
    * Transform meta classes that Beam refuses to run at all, mapped to the user-facing reason. The
@@ -275,6 +279,10 @@ public class HopPipelineMetaToBeamPipelineConverter {
         BeamConst.STRING_AVRO_FILE_INPUT_PLUGIN_ID, new BeamAvroInputTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_AVRO_OUTPUT_PLUGIN_ID, new BeamAvroOutputTransformHandler());
+    transformHandlers.put(
+        BeamConst.STRING_PARQUET_FILE_INPUT_PLUGIN_ID, new BeamParquetInputTransformHandler());
+    transformHandlers.put(
+        BeamConst.STRING_PARQUET_FILE_OUTPUT_PLUGIN_ID, new BeamParquetOutputTransformHandler());
     genericTransformHandler = new BeamGenericTransformHandler();
   }
 
