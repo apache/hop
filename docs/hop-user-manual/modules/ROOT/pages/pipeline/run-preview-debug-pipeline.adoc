@@ -69,6 +69,7 @@ Hover your mouse over the red error triangle to take a quick peek at the error m
 
 image::hop-gui/pipeline/failed-pipeline.png[Failed pipeline,75%,align="left"]
 
+[[execution-results]]
 After each run the execution results are displayed in the panel on the bottom of your window.
 The panel has these tabs:
 
@@ -97,7 +98,8 @@ include::../snippets/pipeline-metrics-table.adoc[]
 
 === Problems
 
-The Problems tab lists the remarks of *Verify this pipeline* on the toolbar and, when the xref:linting/index.adoc[linter] is switched on, its findings for the file, next to each other.
+When the xref:linting/index.adoc[linter] is installed and switched on, the Problems tab lists its findings for the file as soon as the file has been linted: when you open it, when you save it, and shortly after you stop editing.
+*Verify this pipeline* on the toolbar adds the remarks of Hop's own checks next to them.
 Double-click a remark to open the transform it is about.
 The toolbar of the tab can collapse and expand all remarks, and *Force refresh* clears the database cache and checks the pipeline again.
 
@@ -105,9 +107,9 @@ image::hop-gui/pipeline/problems-pipeline.png[Problems pipeline,75%,align="left"
 
 === Revisions
 
-The Revisions tab lists the commits of the pipeline file, with the columns *Commit*, *Author*, *Date* and *Message*.
-It is only shown when Git is enabled in the xref:hop-gui/perspective-configuration.adoc[configuration] and the project is a git repository, see xref:hop-gui/hop-gui-git.adoc[Working with git].
-For a file that isn't saved yet, or that has no commit yet, the tab shows a message instead of the list.
+The Revisions tab lists the commits of the pipeline file, with the columns *Message*, *Author*, *Date* and *Commit*.
+It is shown when *Enable the git plugin* is on (see xref:hop-gui/hop-gui-git.adoc#_git_configuration_options[Git Configuration options]) and Hop has found a git repository for the project, see xref:hop-gui/hop-gui-git.adoc[Working with git].
+For a file that isn't saved yet, that is outside the git repository, or that has no commit yet, the tab shows a message instead of the list.
 
 Select a commit and use *Show text diff* or *Show visual diff* on the toolbar of the tab to compare that version with the file as it is saved now; double-clicking a commit also shows the text diff.
 When the pipeline has changes that aren't saved yet, Hop warns that the comparison is made with the last saved version.
