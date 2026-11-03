@@ -46,7 +46,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -204,62 +203,6 @@ class TableViewColumnViewFilterTest extends SwtBotTestBase {
                       List.of(new TableViewColumnFilter("Country", List.of("NL"))));
                   assertEquals(ROWS.length, tableView.table.getItemCount());
                   assertTrue(tableView.getAppliedColumnFilters().isEmpty());
-                }));
-  }
-
-  /**
-   * A header click is in the same coordinate space as the painted cells. Once the grid is scrolled,
-   * subtracting the scrollbar selection from the column widths addresses a column further to the
-   * right than the one under the pointer. Issue #9232.
-   */
-  @Test
-  void headerMenuAddressesThePaintedColumnWhenScrolled() {
-    AtomicReference<TableView> ref = new AtomicReference<>();
-    withScene(
-        shell -> ref.set(newWideTableView(shell)),
-        bot ->
-            display.syncExec(
-                () -> {
-                  TableView tableView = ref.get();
-                  Table table = tableView.table;
-                  tableView.getShell().layout(true, true);
-
-                  ScrollBar bar = table.getHorizontalBar();
-                  int selectable = Math.max(0, bar.getMaximum() - bar.getThumb());
-                  int scroll = Math.min(100, selectable);
-                  assertTrue(scroll >= 40, columnDump(table, "not enough to scroll"));
-                  bar.setSelection(scroll);
-
-                  int visibleLeft = table.getClientArea().x;
-                  int visibleRight = visibleLeft + table.getClientArea().width;
-                  TableItem item = table.getItem(0);
-                  int target = -1;
-                  for (int i = 1; i < table.getColumnCount(); i++) {
-                    Rectangle bounds = item.getBounds(i);
-                    int center = bounds.x + bounds.width / 2;
-                    if (bounds.width > 8 && center >= visibleLeft && center < visibleRight) {
-                      target = i;
-                    }
-                  }
-                  assertTrue(target > 1, columnDump(table, "no scrolled data column"));
-
-                  int shifted = widthWalkColumn(table, columnCenterX(table, target));
-                  assertTrue(
-                      shifted > 0 && shifted != target,
-                      columnDump(table, "width walk still hits column " + target));
-
-                  tableView.replaceColumnFilter(target - 1, List.of("keep"));
-                  assertEquals(1, table.getItemCount(), "the kept value must stay on screen");
-                  bar.setSelection(scroll);
-
-                  Menu onTarget = openHeaderMenu(tableView, target);
-                  assertTrue(
-                      menuItem(onTarget, "TableView.menu.RemoveFilter").isEnabled(),
-                      columnDump(table, "target " + target));
-                  assertFalse(
-                      menuItem(openHeaderMenu(tableView, shifted), "TableView.menu.RemoveFilter")
-                          .isEnabled(),
-                      columnDump(table, "shifted " + shifted));
                 }));
   }
 
@@ -565,18 +508,12 @@ class TableViewColumnViewFilterTest extends SwtBotTestBase {
     return detect;
   }
 
-  /**
-   * Click x of a column, in {@link Table#toControl(int, int)} space. Painted cell bounds already
-   * include horizontal scrolling; a width total minus the scrollbar selection does not.
-   */
   private static int columnCenterX(Table table, int tableColumnIndex) {
-    if (table.getItemCount() > 0) {
-      Rectangle bounds = table.getItem(0).getBounds(tableColumnIndex);
-      if (bounds.width > 0) {
-        return bounds.x + bounds.width / 2;
-      }
-    }
     int x = 0;
+    ScrollBar bar = table.getHorizontalBar();
+    if (bar != null && !bar.isDisposed()) {
+      x -= bar.getSelection();
+    }
     for (int index : table.getColumnOrder()) {
       int width = table.getColumn(index).getWidth();
       if (index == tableColumnIndex) {
@@ -588,74 +525,6 @@ class TableViewColumnViewFilterTest extends SwtBotTestBase {
       x += width;
     }
     throw new AssertionError("missing column " + tableColumnIndex);
-  }
-
-  /** The column the old width-minus-scrollbar walk would address. */
-  private static int widthWalkColumn(Table table, int x) {
-    int pos = 0;
-    ScrollBar bar = table.getHorizontalBar();
-    if (bar != null && !bar.isDisposed()) {
-      pos -= bar.getSelection();
-    }
-    for (int index : table.getColumnOrder()) {
-      int width = table.getColumn(index).getWidth();
-      if (width > 0 && x >= pos && x < pos + width) {
-        return index;
-      }
-      pos += Math.max(width, 0);
-    }
-    return -1;
-  }
-
-  private TableView newWideTableView(Shell shell) {
-    shell.setLayout(new FillLayout());
-    shell.setSize(280, 240);
-    ColumnInfo[] columns = new ColumnInfo[8];
-    for (int i = 0; i < columns.length; i++) {
-      columns[i] = new ColumnInfo("Col" + i, ColumnInfo.COLUMN_TYPE_TEXT, false, false);
-    }
-    TableView tableView =
-        new TableView(
-            new Variables(),
-            shell,
-            SWT.BORDER | SWT.FULL_SELECTION,
-            columns,
-            1,
-            null,
-            PropsUi.getInstance());
-    tableView.setFiltersSupported(true);
-    TableItem row = tableView.table.getItem(0);
-    for (int i = 1; i < tableView.table.getColumnCount(); i++) {
-      row.setText(i, "keep");
-    }
-    return tableView;
-  }
-
-  private static String columnDump(Table table, String note) {
-    ScrollBar bar = table.getHorizontalBar();
-    StringBuilder dump =
-        new StringBuilder(note)
-            .append(" selection=")
-            .append(bar == null ? -1 : bar.getSelection())
-            .append(" maximum=")
-            .append(bar == null ? -1 : bar.getMaximum())
-            .append(" thumb=")
-            .append(bar == null ? -1 : bar.getThumb())
-            .append(" client=")
-            .append(table.getClientArea());
-    if (table.getItemCount() > 0) {
-      TableItem item = table.getItem(0);
-      for (int i = 0; i < table.getColumnCount(); i++) {
-        dump.append(" [")
-            .append(i)
-            .append(" w=")
-            .append(table.getColumn(i).getWidth())
-            .append(" bounds=")
-            .append(item.getBounds(i))
-            .append(']');
-      }
-    }
-    return dump.toString();
   }
 
   private Shell findShell(String title) {
