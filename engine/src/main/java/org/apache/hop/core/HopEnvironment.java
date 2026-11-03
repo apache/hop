@@ -250,7 +250,9 @@ public class HopEnvironment {
             new Thread() {
               @Override
               public void run() {
-                shutdown();
+                // waits for a hop-run that is still stopping, so that the end of the run is
+                // delivered too
+                LineageHub.getInstance().shutdownOnExit();
               }
             });
   }

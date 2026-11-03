@@ -20,12 +20,16 @@ package org.apache.hop.lineage.hub;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -70,6 +74,20 @@ public final class LineageHub {
 
   private volatile List<ILineageSink> sinks = List.of();
   private final AtomicBoolean sinksInitialized = new AtomicBoolean(false);
+
+  /**
+   * {@link #shutdown()} takes the write lock, {@link #emit(LineageEvent)} the read lock. Shutdowns
+   * are serialized, and an event emitted during a shutdown waits for it to end instead of starting
+   * a worker that the shutdown then loses track of. Not {@code this}: the worker takes that lock
+   * while it initializes the sinks, and shutdown() waits for the worker.
+   */
+  private final ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
+
+  /**
+   * Runs that may still emit events when the JVM exits, for example a hop-run that is stopping on a
+   * termination signal. {@link #shutdownOnExit()} waits until each of these is counted down.
+   */
+  private final Set<CountDownLatch> exitHolds = ConcurrentHashMap.newKeySet();
 
   private LineageHub(LineageConfiguration fixedConfiguration, List<ILineageSink> explicitSinks) {
     this.fixedConfiguration = fixedConfiguration;
@@ -117,14 +135,19 @@ public final class LineageHub {
     if (!cfg.isEnabled() || sinkInitFailed.get()) {
       return;
     }
-    ensureWorkerStarted(cfg);
-    if (!queue.offer(event)) {
-      droppedEvents.incrementAndGet();
-      log.logError(
-          "Lineage event dropped because the queue is full (capacity "
-              + cfg.getQueueCapacity()
-              + "). Total drops: "
-              + droppedEvents.get());
+    shutdownLock.readLock().lock();
+    try {
+      ensureWorkerStarted(cfg);
+      if (!queue.offer(event)) {
+        droppedEvents.incrementAndGet();
+        log.logError(
+            "Lineage event dropped because the queue is full (capacity "
+                + cfg.getQueueCapacity()
+                + "). Total drops: "
+                + droppedEvents.get());
+      }
+    } finally {
+      shutdownLock.readLock().unlock();
     }
   }
 
@@ -162,25 +185,65 @@ public final class LineageHub {
     }
   }
 
-  /** Stop the worker thread and shut down sinks. */
+  /**
+   * Stop the worker thread and shut down sinks. Calls are serialized: a second call waits until the
+   * first one has delivered the remaining events, instead of shutting the sinks down under it. An
+   * event emitted in the meantime is queued once this call is done, for the next worker or the next
+   * shutdown to deliver.
+   */
   public void shutdown() {
-    running.set(false);
-    Thread t = worker;
-    if (t != null) {
-      t.interrupt();
-      try {
-        t.join(5000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+    shutdownLock.writeLock().lock();
+    try {
+      running.set(false);
+      Thread t = worker;
+      if (t != null) {
+        t.interrupt();
+        try {
+          t.join(5000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
       }
+      worker = null;
+      drainRemaining();
+      shutdownSinks();
+      sinksInitialized.set(false);
+      sinkInitFailed.set(false);
+      sinks = List.of();
+      LineageConfiguration.invalidate();
+    } finally {
+      shutdownLock.writeLock().unlock();
     }
-    worker = null;
-    drainRemaining();
-    shutdownSinks();
-    sinksInitialized.set(false);
-    sinkInitFailed.set(false);
-    sinks = List.of();
-    LineageConfiguration.invalidate();
+  }
+
+  /**
+   * Keep {@link #shutdownOnExit()} from shutting the hub down until {@code until} is counted down:
+   * the JVM runs every shutdown hook at once, and a run that is still stopping emits its end only
+   * after that. Call {@link #releaseShutdownOnExit(CountDownLatch)} once the run is over.
+   */
+  public void holdShutdownOnExit(CountDownLatch until) {
+    exitHolds.add(until);
+  }
+
+  /** Undo {@link #holdShutdownOnExit(CountDownLatch)}. */
+  public void releaseShutdownOnExit(CountDownLatch until) {
+    exitHolds.remove(until);
+  }
+
+  /**
+   * {@link #shutdown()} for a shutdown hook: first waits for the runs that hold it (see {@link
+   * #holdShutdownOnExit(CountDownLatch)}), so that their last events are queued and delivered once,
+   * instead of shutting the sinks down under a run that is still stopping.
+   */
+  public void shutdownOnExit() {
+    try {
+      for (CountDownLatch hold : exitHolds) {
+        hold.await();
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    shutdown();
   }
 
   /**

@@ -160,8 +160,5 @@ fi
 
 # The JVM runs from the Hop installation, so user.dir is never where the user typed the command.
 # Pass the directory they were in, for subcommands which take a path from them.
-"${_HOP_JAVA}" ${HOP_OPTIONS} -Dhop.origin.dir="${ORIGINDIR}" -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.hop.Hop "$@"
-EXITCODE=$?
-
-cd "${ORIGINDIR}" || exit 1
-exit $EXITCODE
+# Use exec so that the JVM receives the signals sent to this script (docker stop, Ctrl-C, ...)
+exec "${_HOP_JAVA}" ${HOP_OPTIONS} -Dhop.origin.dir="${ORIGINDIR}" -Djava.library.path="${LIBPATH}" -classpath "${CLASSPATH}" org.apache.hop.hop.Hop "$@"
