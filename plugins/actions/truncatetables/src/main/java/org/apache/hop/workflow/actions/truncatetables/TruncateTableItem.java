@@ -17,8 +17,14 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class TruncateTableItem {
 
   @HopMetadataProperty(key = "name")
@@ -27,26 +33,8 @@ public class TruncateTableItem {
   @HopMetadataProperty(key = "schemaname")
   private String schemaName;
 
-  public TruncateTableItem() {}
-
   public TruncateTableItem(String tableName, String schemaName) {
     this.tableName = tableName;
-    this.schemaName = schemaName;
-  }
-
-  public String getTableName() {
-    return tableName;
-  }
-
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 

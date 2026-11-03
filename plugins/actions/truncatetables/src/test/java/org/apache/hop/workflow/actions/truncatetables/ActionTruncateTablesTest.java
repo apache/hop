@@ -21,18 +21,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 
+/** Unit test for {@link ActionTruncateTables} */
 class ActionTruncateTablesTest {
 
   @BeforeAll
@@ -54,7 +69,7 @@ class ActionTruncateTablesTest {
 
   @Test
   void testExecuteWithNonExistentConnection() {
-    ActionTruncateTables action = new ActionTruncateTables();
+    ActionTruncateTables action = spy(new ActionTruncateTables());
     action.setConnection("non-existent-db");
 
     WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
@@ -71,6 +86,116 @@ class ActionTruncateTablesTest {
 
     assertFalse(result.getResult());
     assertEquals(1, result.getNrErrors());
+    verify(action).logError(contains("non-existent-db"));
+  }
+
+  @Test
+  void testExecuteWithBlankConnection() {
+    ActionTruncateTables action = spy(new ActionTruncateTables());
+    action.setConnection("");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    verify(action).logError(contains("No database connection is defined"));
+  }
+
+  @Test
+  void findDatabaseRuntimeExceptionIsActionFailureNotWorkflowAbort() {
+    ActionTruncateTables action = spy(new ActionTruncateTables());
+    action.setConnection("corrupt-db");
+
+    WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
+    when(workflowMeta.findDatabase(anyString(), any()))
+        .thenThrow(new HopRuntimeException("Unable to load connection corrupt-db from metadata"));
+
+    Workflow workflow = mock(Workflow.class);
+    when(workflow.getWorkflowMeta()).thenReturn(workflowMeta);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(workflowMeta);
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    verify(action).logError(contains("Unable to load connection corrupt-db from metadata"));
+  }
+
+  @Test
+  void emptyTableNameInListIsCountedAsErrorAndLaterTablesStillRun() throws Exception {
+    ActionTruncateTables action = spy(new ActionTruncateTables());
+    action.setConnection("unit-test-db");
+    List<TruncateTableItem> items = new ArrayList<>();
+    items.add(new TruncateTableItem("", null));
+    items.add(new TruncateTableItem("valid_table", null));
+    action.setItems(items);
+
+    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+    WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
+    when(workflowMeta.findDatabase(anyString(), any())).thenReturn(databaseMeta);
+
+    Workflow workflow = mock(Workflow.class);
+    when(workflow.isStopped()).thenReturn(false);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(workflowMeta);
+
+    try (MockedConstruction<Database> databases =
+        mockConstruction(
+            Database.class,
+            (db, context) ->
+                when(db.checkTableExists(any(), eq("valid_table"))).thenReturn(true))) {
+      Result result = action.execute(new Result(), 0);
+
+      assertFalse(result.getResult());
+      assertEquals(1, result.getNrErrors());
+      assertEquals(1, result.getNrLinesDeleted());
+      verify(action).logError(contains("empty"));
+      verify(databases.constructed().get(0)).truncateTable("valid_table");
+    }
+  }
+
+  @Test
+  void emptyPreviousResultRowIsCountedAsErrorAndLaterRowsStillRun() throws Exception {
+    ActionTruncateTables action = spy(new ActionTruncateTables());
+    action.setConnection("unit-test-db");
+    action.setArgFromPrevious(true);
+
+    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+    WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
+    when(workflowMeta.findDatabase(anyString(), any())).thenReturn(databaseMeta);
+
+    Workflow workflow = mock(Workflow.class);
+    when(workflow.isStopped()).thenReturn(false);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+
+    action.setParentWorkflow(workflow);
+    action.setParentWorkflowMeta(workflowMeta);
+
+    Result previous = new Result();
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("table"));
+    rowMeta.addValueMeta(new ValueMetaString("schema"));
+    previous.getRows().add(new RowMetaAndData(rowMeta, "", null));
+    previous.getRows().add(new RowMetaAndData(rowMeta, "valid_table", null));
+
+    try (MockedConstruction<Database> databases =
+        mockConstruction(
+            Database.class,
+            (db, context) ->
+                when(db.checkTableExists(any(), eq("valid_table"))).thenReturn(true))) {
+      Result result = action.execute(previous, 0);
+
+      assertFalse(result.getResult());
+      assertEquals(1, result.getNrErrors());
+      assertEquals(1, result.getNrLinesDeleted());
+      verify(action).logError(contains("empty"));
+      verify(databases.constructed().get(0)).truncateTable("valid_table");
+    }
   }
 
   @Test
