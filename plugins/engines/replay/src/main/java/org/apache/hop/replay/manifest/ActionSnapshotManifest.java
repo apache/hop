@@ -35,7 +35,9 @@ public class ActionSnapshotManifest {
   private String manifestId;
   private String workflowName;
   private String actionName;
+  private String executionId;
   private String actionType;
+  private String configurationHash;
   private String executionDate;
   private String status;
   private long elapsedTimeMillis;

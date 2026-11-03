@@ -17,13 +17,11 @@
 
 package org.apache.hop.replay.action;
 
-import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.replay.ReplayDefaults;
 import org.apache.hop.replay.ReplayGate;
 import org.apache.hop.replay.ReplayGateDialog;
 import org.apache.hop.replay.ReplayGateUtil;
@@ -45,7 +43,7 @@ public class ActionReplayGateGuiPlugin {
       name = "i18n::ReplayAction.ConfigureGate.Label",
       tooltip = "i18n::ReplayAction.ConfigureGate.ToolTip",
       image = "replay-gate.svg",
-      category = "Replay",
+      category = "i18n::ReplayAction.Category",
       categoryOrder = "8")
   public void configureReplayGate(HopGuiWorkflowActionContext context) {
     HopGui hopGui = HopGui.getInstance();
@@ -54,25 +52,24 @@ public class ActionReplayGateGuiPlugin {
       ActionMeta actionMeta = context.getActionMeta();
       IVariables variables = context.getWorkflowGraph().getVariables();
 
-      Map<String, String> replayGroup =
-          ReplayGateUtil.getOrCreateReplayGroup(workflowMeta.getAttributesMap());
-
-      ReplayGate gate = ReplayGateUtil.getReplayGate(replayGroup, actionMeta.getName());
+      ReplayGate gate = ReplayGateUtil.getReplayGate(actionMeta);
       if (gate == null) {
         gate = new ReplayGate();
       }
 
-      String title = BaseMessages.getString(PKG, "ReplayAction.Dialog.Title", actionMeta.getName());
       ReplayGateDialog dialog =
-          new ReplayGateDialog(hopGui.getActiveShell(), variables, gate, title);
-      if (dialog.open()) {
-        ReplayGateUtil.storeReplayGate(replayGroup, actionMeta.getName(), gate);
+          new ReplayGateDialog(hopGui.getActiveShell(), variables, workflowMeta, actionMeta, gate);
+      if (dialog.openGate()) {
+        ReplayGateUtil.storeReplayGate(actionMeta, gate);
         workflowMeta.setChanged();
         context.getWorkflowGraph().updateGui();
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getActiveShell(), "Error", "Error configuring Replay Gate for action", e);
+          hopGui.getActiveShell(),
+          BaseMessages.getString(PKG, "ReplayAction.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, "ReplayAction.Dialog.Error.Message"),
+          e);
     }
   }
 
@@ -83,18 +80,13 @@ public class ActionReplayGateGuiPlugin {
       name = "i18n::ReplayAction.ClearGate.Label",
       tooltip = "i18n::ReplayAction.ClearGate.ToolTip",
       image = "replay-gate.svg",
-      category = "Replay",
+      category = "i18n::ReplayAction.Category",
       categoryOrder = "8")
   public void clearReplayGate(HopGuiWorkflowActionContext context) {
     WorkflowMeta workflowMeta = context.getWorkflowMeta();
     ActionMeta actionMeta = context.getActionMeta();
-
-    Map<String, String> replayGroup =
-        workflowMeta.getAttributesMap().get(ReplayDefaults.REPLAY_GATE_GROUP);
-    if (replayGroup != null) {
-      ReplayGateUtil.clearReplayGate(replayGroup, actionMeta.getName());
-      workflowMeta.setChanged();
-      context.getWorkflowGraph().updateGui();
-    }
+    ReplayGateUtil.clearReplayGate(actionMeta);
+    workflowMeta.setChanged();
+    context.getWorkflowGraph().updateGui();
   }
 }

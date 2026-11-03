@@ -23,90 +23,91 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.replay.engine.ReplayWorkflowRunConfiguration;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.junit.jupiter.api.Test;
 
 class ReplayGateUtilTest {
 
   @Test
-  void testStoreAndGetReplayGate() {
-    Map<String, Map<String, String>> attributesMap = new HashMap<>();
-    Map<String, String> replayGroup = ReplayGateUtil.getOrCreateReplayGroup(attributesMap);
-
-    assertNotNull(replayGroup);
-    assertFalse(ReplayGateUtil.hasReplayGate(replayGroup, "Stage Customers"));
+  void storeAndGetReplayGateOnTheAction() {
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Stage Customers"));
+    assertNull(ReplayGateUtil.getReplayGate(actionMeta));
 
     ReplayGate gate = new ReplayGate();
     gate.setEnabled(true);
     gate.setSpoolDirectory("s3://lakehouse/spool");
-    gate.setCompression("ZSTD");
-    gate.setRowLimit(5000);
     gate.setDescription("Stage gate for customer extracts");
+    ReplayGateUtil.storeReplayGate(actionMeta, gate);
 
-    ReplayGateUtil.storeReplayGate(replayGroup, "Stage Customers", gate);
-
-    assertTrue(ReplayGateUtil.hasReplayGate(replayGroup, "Stage Customers"));
-
-    ReplayGate loaded = ReplayGateUtil.getReplayGate(replayGroup, "Stage Customers");
+    ReplayGate loaded = ReplayGateUtil.getReplayGate(actionMeta);
     assertNotNull(loaded);
     assertTrue(loaded.isEnabled());
     assertEquals("s3://lakehouse/spool", loaded.getSpoolDirectory());
-    assertEquals("ZSTD", loaded.getCompression());
-    assertEquals(5000, loaded.getRowLimit());
     assertEquals("Stage gate for customer extracts", loaded.getDescription());
+
+    actionMeta.setName("Stage Customers renamed");
+    ReplayGate renamed = ReplayGateUtil.getReplayGate(actionMeta);
+    assertNotNull(renamed);
+    assertEquals("s3://lakehouse/spool", renamed.getSpoolDirectory());
   }
 
   @Test
-  void testClearReplayGate() {
-    Map<String, Map<String, String>> attributesMap = new HashMap<>();
-    Map<String, String> replayGroup = ReplayGateUtil.getOrCreateReplayGroup(attributesMap);
-
+  void clearReplayGateRemovesTheAttributeGroup() {
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
     ReplayGate gate = new ReplayGate();
     gate.setEnabled(true);
-    ReplayGateUtil.storeReplayGate(replayGroup, "TransformA", gate);
+    ReplayGateUtil.storeReplayGate(actionMeta, gate);
 
-    assertTrue(ReplayGateUtil.hasReplayGate(replayGroup, "TransformA"));
+    ReplayGateUtil.clearReplayGate(actionMeta);
 
-    ReplayGateUtil.clearReplayGate(replayGroup, "TransformA");
-
-    assertFalse(ReplayGateUtil.hasReplayGate(replayGroup, "TransformA"));
-    assertNull(ReplayGateUtil.getReplayGate(replayGroup, "TransformA"));
+    assertNull(ReplayGateUtil.getReplayGate(actionMeta));
   }
 
   @Test
-  void testI18nLabelsResolvable() {
-    assertEquals(
-        "Enabled",
-        org.apache.hop.i18n.BaseMessages.getString(ReplayGate.class, "ReplayGate.Enabled.Label"));
-    assertEquals(
-        "Enable this Replay Gate",
-        org.apache.hop.i18n.BaseMessages.getString(ReplayGate.class, "ReplayGate.Enabled.Tooltip"));
-    assertEquals(
-        "Spool directory",
-        org.apache.hop.i18n.BaseMessages.getString(
-            ReplayGate.class, "ReplayGate.SpoolDirectory.Label"));
-  }
-
-  @Test
-  void testStoreReplayGateWithEmptyFields() {
-    Map<String, Map<String, String>> attributesMap = new HashMap<>();
-    Map<String, String> replayGroup = ReplayGateUtil.getOrCreateReplayGroup(attributesMap);
-
+  void emptyOptionalFieldsAreNotStored() {
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
     ReplayGate gate = new ReplayGate();
     gate.setEnabled(true);
     gate.setSpoolDirectory("");
-    gate.setCompression("");
     gate.setDescription("");
-    ReplayGateUtil.storeReplayGate(replayGroup, "TransformEmpty", gate);
+    ReplayGateUtil.storeReplayGate(actionMeta, gate);
 
-    assertTrue(ReplayGateUtil.hasReplayGate(replayGroup, "TransformEmpty"));
-    ReplayGate loaded = ReplayGateUtil.getReplayGate(replayGroup, "TransformEmpty");
+    ReplayGate loaded = ReplayGateUtil.getReplayGate(actionMeta);
     assertNotNull(loaded);
     assertTrue(loaded.isEnabled());
     assertEquals("", loaded.getSpoolDirectory());
-    assertEquals("", loaded.getCompression());
-    assertEquals(0, loaded.getRowLimit());
     assertEquals("", loaded.getDescription());
+    assertFalse(
+        actionMeta
+            .getAttributes(ReplayDefaults.REPLAY_GATE_GROUP)
+            .containsKey(ReplayDefaults.GATE_ATTR_SPOOL_DIR));
+  }
+
+  @Test
+  void labelsResolve() {
+    assertEquals("Enabled", BaseMessages.getString(ReplayGate.class, "ReplayGate.Enabled.Label"));
+    assertEquals("Replay gate", BaseMessages.getString(ReplayGate.class, "ReplayGate.Group"));
+    assertEquals(
+        "Source execution ID",
+        BaseMessages.getString(
+            ReplayWorkflowRunConfiguration.class,
+            "ReplayWorkflowRunConfiguration.SourceExecutionId.Label"));
+    assertEquals(
+        "Start action name",
+        BaseMessages.getString(
+            ReplayWorkflowRunConfiguration.class,
+            "ReplayWorkflowRunConfiguration.StartActionName.Label"));
+  }
+
+  @Test
+  void spoolPathIncludesTheExecutionId() {
+    ReplayGate gate = new ReplayGate();
+    gate.setSpoolDirectory("/tmp/spool");
+    assertEquals(
+        "/tmp/spool/workflows/Nightly/exec-1/Load",
+        ReplayGateUtil.getActionSpoolPath(null, gate, "Nightly", "exec-1", "Load"));
   }
 }

@@ -31,13 +31,14 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.replay.ReplayDefaults;
 import org.apache.hop.replay.ReplayGate;
+import org.apache.hop.replay.ReplayGateIdentity;
 import org.apache.hop.replay.ReplayGateUtil;
 import org.apache.hop.replay.engine.ReplayWorkflowEngine;
 import org.apache.hop.replay.engine.ReplayWorkflowRunConfiguration;
 import org.apache.hop.replay.manifest.ActionSnapshotManifest;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Node;
 
 @ExtensionPoint(
@@ -54,136 +55,130 @@ public class WorkflowReplayGateBeforeActionXp
     if (extension == null || extension.actionMeta == null || extension.workflow == null) {
       return;
     }
+    try {
+      if (extension.workflow instanceof ReplayWorkflowEngine replayEngine
+          && replayEngine.isReplaying()) {
+        applyReplayDecision(log, replayEngine, extension);
+      }
+    } catch (Exception e) {
+      log.logError(
+          "Error evaluating action snapshot manifest for " + extension.actionMeta.getName(), e);
+      extension.executeAction = true;
+      if (extension.workflow instanceof ReplayWorkflowEngine replayEngine) {
+        replayEngine.markLiveExecution();
+      }
+    } finally {
+      if (extension.executeAction) {
+        ReplayGateIdentity.snapshotVariables(extension.workflow, extension.actionMeta);
+      }
+    }
+  }
 
-    if (!(extension.workflow instanceof ReplayWorkflowEngine replayEngine)) {
+  private void applyReplayDecision(
+      ILogChannel log, ReplayWorkflowEngine replayEngine, WorkflowExecutionExtension extension)
+      throws Exception {
+    ActionMeta actionMeta = extension.actionMeta;
+    String actionName = actionMeta.getName();
+
+    if (actionMeta.isStart()) {
+      extension.executeAction = true;
       return;
     }
 
-    if (!replayEngine.isReplaying()) {
-      return;
-    }
-
-    if (extension.actionMeta.isStart()) {
+    if (replayEngine.isLiveExecution()) {
       extension.executeAction = true;
       return;
     }
 
     ReplayWorkflowRunConfiguration replayConfig = replayEngine.getReplayWorkflowRunConfiguration();
     String startActionName =
-        replayConfig != null ? replayEngine.resolve(replayConfig.getStartActionName()) : null;
-    String actionName = extension.actionMeta.getName();
-
-    if (StringUtils.isNotEmpty(startActionName) && actionName.equalsIgnoreCase(startActionName)) {
-      replayEngine.setResumePointReached(true);
-      log.logBasic(
-          "ReplayWorkflowEngine: Resuming active execution at designated start action ["
-              + actionName
-              + "].");
+        replayConfig == null ? null : replayEngine.resolve(replayConfig.getStartActionName());
+    if (StringUtils.isNotEmpty(startActionName) && startActionName.equals(actionName)) {
+      replayEngine.markLiveExecution();
       extension.executeAction = true;
+      log.logBasic(
+          "ReplayWorkflowEngine: running ["
+              + actionName
+              + "] because it is the configured start action. The rest of this path runs as well.");
       return;
     }
 
-    if (replayEngine.isResumePointReached()) {
-      extension.executeAction = true;
+    ReplayGate gate = ReplayGateUtil.getReplayGate(actionMeta);
+    if (gate != null && gate.isEnabled() && restoreSealedGate(log, replayEngine, extension, gate)) {
       return;
     }
 
-    Map<String, String> replayGroup =
-        extension
-            .workflow
-            .getWorkflowMeta()
-            .getAttributesMap()
-            .get(ReplayDefaults.REPLAY_GATE_GROUP);
-    ReplayGate gate = ReplayGateUtil.getActionReplayGate(replayGroup, actionName);
-
-    if (gate != null && gate.isEnabled()) {
-      String targetFolder =
-          ReplayGateUtil.getActionSpoolPath(
-              extension.workflow, gate, extension.workflow.getWorkflowMeta().getName(), actionName);
-      try {
-        FileObject manifestFile =
-            HopVfs.getFileObject(targetFolder + "/action_manifest.json", extension.workflow);
-        if (manifestFile.exists()) {
-          try (InputStream in = HopVfs.getInputStream(manifestFile)) {
-            String json = IOUtils.toString(in, StandardCharsets.UTF_8);
-            ActionSnapshotManifest manifest = ActionSnapshotManifest.fromJson(json);
-            if (ActionSnapshotManifest.STATUS_SEALED.equals(manifest.getStatus())) {
-              // Check if the underlying action file has been modified since the snapshot was taken
-              String filename =
-                  extension.actionMeta.getAction() != null
-                      ? extension.actionMeta.getAction().getFilename()
-                      : null;
-              if (StringUtils.isNotEmpty(filename)) {
-                String resolvedFile = extension.workflow.resolve(filename);
-                FileObject fileObj = HopVfs.getFileObject(resolvedFile, extension.workflow);
-                if (fileObj.exists()) {
-                  long lastMod = fileObj.getContent().getLastModifiedTime();
-                  if (StringUtils.isNotEmpty(manifest.getExecutionDate())) {
-                    long manifestTime =
-                        java.time.Instant.parse(manifest.getExecutionDate()).toEpochMilli();
-                    if (lastMod > manifestTime) {
-                      log.logBasic(
-                          "ReplayWorkflowEngine: Action ["
-                              + actionName
-                              + "] definition has been modified since last sealed snapshot. Re-executing action.");
-                      replayEngine.setResumePointReached(true);
-                      extension.executeAction = true;
-                      return;
-                    }
-                  }
-                }
-              }
-
-              extension.executeAction = false;
-              Result restoredResult = null;
-              if (StringUtils.isNotEmpty(manifest.getResultXml())) {
-                try {
-                  Node resultNode =
-                      XmlHandler.loadXmlString(manifest.getResultXml(), Result.XML_TAG);
-                  restoredResult = new Result(resultNode);
-                } catch (Exception e) {
-                  log.logError(
-                      "Error deserializing result XML for "
-                          + actionName
-                          + ", falling back to basic result",
-                      e);
-                }
-              }
-              if (restoredResult == null) {
-                restoredResult = createBasicResult(manifest);
-              }
-              extension.result = restoredResult;
-
-              if (manifest.getVariables() != null) {
-                for (Map.Entry<String, String> entry : manifest.getVariables().entrySet()) {
-                  extension.workflow.setVariable(entry.getKey(), entry.getValue());
-                }
-              }
-
-              log.logBasic(
-                  "ReplayWorkflowEngine: Action ["
-                      + actionName
-                      + "] has a valid SEALED gate snapshot. Skipping execution and restoring result.");
-              return;
-            }
-          }
-        }
-      } catch (Exception e) {
-        log.logError("Error evaluating action snapshot manifest for " + actionName, e);
-      }
-    }
-
-    if (StringUtils.isEmpty(startActionName)) {
-      replayEngine.setResumePointReached(true);
-      log.logBasic(
-          "ReplayWorkflowEngine: Action ["
-              + actionName
-              + "] is not sealed. Resuming execution from this point.");
-      extension.executeAction = true;
-    }
+    replayEngine.markLiveExecution();
+    extension.executeAction = true;
+    log.logBasic(
+        "ReplayWorkflowEngine: action ["
+            + actionName
+            + "] has no matching sealed gate. This path runs from here.");
   }
 
-  private Result createBasicResult(ActionSnapshotManifest manifest) {
+  private boolean restoreSealedGate(
+      ILogChannel log,
+      ReplayWorkflowEngine replayEngine,
+      WorkflowExecutionExtension extension,
+      ReplayGate gate)
+      throws Exception {
+    String actionName = extension.actionMeta.getName();
+    String executionId = ReplayGateIdentity.executionId(replayEngine);
+    String targetFolder =
+        ReplayGateUtil.getActionSpoolPath(
+            replayEngine, gate, replayEngine.getWorkflowMeta().getName(), executionId, actionName);
+    FileObject manifestFile =
+        HopVfs.getFileObject(targetFolder + "/action_manifest.json", replayEngine);
+    if (!manifestFile.exists()) {
+      return false;
+    }
+    ActionSnapshotManifest manifest;
+    try (InputStream in = HopVfs.getInputStream(manifestFile)) {
+      manifest = ActionSnapshotManifest.fromJson(IOUtils.toString(in, StandardCharsets.UTF_8));
+    }
+    if (!ActionSnapshotManifest.STATUS_SEALED.equals(manifest.getStatus())) {
+      return false;
+    }
+    String expectedHash = ReplayGateIdentity.configurationHash(replayEngine, extension.actionMeta);
+    if (StringUtils.isEmpty(manifest.getConfigurationHash())
+        || !manifest.getConfigurationHash().equals(expectedHash)) {
+      log.logBasic(
+          "ReplayWorkflowEngine: action ["
+              + actionName
+              + "] configuration, parameters or referenced variables changed since the sealed gate. Re-executing.");
+      return false;
+    }
+
+    extension.executeAction = false;
+    Result restoredResult = restoredResult(log, actionName, manifest);
+    extension.result = restoredResult;
+    if (manifest.getVariables() != null) {
+      for (Map.Entry<String, String> entry : manifest.getVariables().entrySet()) {
+        replayEngine.setVariable(entry.getKey(), entry.getValue());
+      }
+    }
+    replayEngine.recordRestoredAction(extension.actionMeta, restoredResult);
+    log.logBasic(
+        "ReplayWorkflowEngine: action ["
+            + actionName
+            + "] matches the sealed gate for execution "
+            + executionId
+            + ". Skipping it and restoring the result.");
+    return true;
+  }
+
+  private Result restoredResult(
+      ILogChannel log, String actionName, ActionSnapshotManifest manifest) {
+    if (StringUtils.isNotEmpty(manifest.getResultXml())) {
+      try {
+        Node resultNode = XmlHandler.loadXmlString(manifest.getResultXml(), Result.XML_TAG);
+        return new Result(resultNode);
+      } catch (Exception e) {
+        log.logError(
+            "Error deserializing result XML for " + actionName + ", falling back to basic result",
+            e);
+      }
+    }
     Result basic = new Result();
     basic.setResult(manifest.isResult());
     basic.setNrErrors(manifest.getNrErrors());

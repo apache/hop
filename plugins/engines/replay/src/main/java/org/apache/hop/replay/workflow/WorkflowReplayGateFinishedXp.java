@@ -15,37 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.hop.replay.transform;
+package org.apache.hop.replay.workflow;
 
+import org.apache.hop.core.Result;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
-import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.replay.ReplayGate;
-import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
+import org.apache.hop.replay.ReplayGateUtil;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @ExtensionPoint(
-    id = "TransformReplayGateToolTipExtensionPoint",
-    description = "Show a tooltip when hovering over a Replay Gate on a transform",
-    extensionPointId = "HopGuiPipelineGraphAreaHover")
-public class TransformReplayGateToolTipExtensionPoint
-    implements IExtensionPoint<HopGuiTooltipExtension> {
-
-  private static final Class<?> PKG = TransformReplayGateToolTipExtensionPoint.class;
+    id = "WorkflowReplayGateFinishedXp",
+    description = "Drop sealed replay gates when the workflow completes successfully",
+    extensionPointId = "WorkflowFinish")
+public class WorkflowReplayGateFinishedXp
+    implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
 
   @Override
   public void callExtensionPoint(
-      ILogChannel log, IVariables variables, HopGuiTooltipExtension ext) {
-    AreaOwner areaOwner = ext.areaOwner;
-    try {
-      if (areaOwner.getOwner() instanceof ReplayGate gate) {
-        String spoolDir = variables.resolve(gate.getSpoolDirectory());
-        ext.tip.append(BaseMessages.getString(PKG, "ReplayTransform.GateTooltip", spoolDir));
-      }
-    } catch (Exception e) {
-      // Ignore tooltip error
+      ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
+      throws HopException {
+    if (workflow == null) {
+      return;
     }
+    Result result = workflow.getResult();
+    boolean success =
+        result != null
+            && result.isResult()
+            && result.getNrErrors() == 0
+            && !result.isStopped()
+            && !workflow.isStopped();
+    if (!success) {
+      return;
+    }
+    ReplayGateUtil.deleteExecutionSpool(log, workflow);
   }
 }

@@ -2440,7 +2440,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return result;
   }
 
-  public TabItemHandler findTabItemHandler(String filename) {
+  public HopGuiWorkflowGraph findOpenWorkflow(String filename) {
+    TabItemHandler handler = findTabItemHandler(filename);
+    if (handler != null && handler.getTypeHandler() instanceof HopGuiWorkflowGraph graph) {
+      return graph;
+    }
+    return null;
+  }
+
+  protected TabItemHandler findTabItemHandler(String filename) {
     if (filename != null) {
       for (TabItemHandler item : items) {
         if (filename.equals(item.getTypeHandler().getFilename())) {
@@ -2451,7 +2459,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return null;
   }
 
-  public TabItemHandler findTabItemHandler(String filename, IHopFileType fileType) {
+  protected TabItemHandler findTabItemHandler(String filename, IHopFileType fileType) {
     if (filename != null) {
       for (TabItemHandler item : items) {
         if (filename.equals(item.getTypeHandler().getFilename())

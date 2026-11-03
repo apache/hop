@@ -23,19 +23,15 @@ public class ReplayDefaults {
 
   public static final String GATE_ATTR_ENABLED = "enabled";
   public static final String GATE_ATTR_SPOOL_DIR = "spool_directory";
-  public static final String GATE_ATTR_COMPRESSION = "compression";
-  public static final String GATE_ATTR_ROW_LIMIT = "row_limit";
   public static final String GATE_ATTR_DESCRIPTION = "description";
 
   public static final String DEFAULT_SPOOL_DIR = "${PROJECT_HOME}/.hop/spool";
-  public static final String DEFAULT_COMPRESSION = "Snappy";
 
-  public static final String COMPRESSION_NONE = "None";
-  public static final String COMPRESSION_SNAPPY = "Snappy";
-  public static final String COMPRESSION_GZIP = "Gzip";
-
-  public static final String[] COMPRESSION_OPTIONS =
-      new String[] {COMPRESSION_SNAPPY, COMPRESSION_GZIP, COMPRESSION_NONE};
+  /**
+   * Run-scoped variable set by the Execution perspective Replay button. When it is set, sealed
+   * gates are read and written under that execution ID instead of the run configuration value.
+   */
+  public static final String VARIABLE_SOURCE_EXECUTION_ID = "HOP_REPLAY_SOURCE_EXECUTION_ID";
 
   private ReplayDefaults() {
     // Utility class

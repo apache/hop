@@ -31,16 +31,17 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.replay.ReplayDefaults;
 import org.apache.hop.replay.ReplayGate;
+import org.apache.hop.replay.ReplayGateIdentity;
 import org.apache.hop.replay.ReplayGateUtil;
-import org.apache.hop.replay.engine.ReplayWorkflowEngine;
 import org.apache.hop.replay.manifest.ActionSnapshotManifest;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @ExtensionPoint(
     id = "WorkflowReplayGateAfterActionXp",
-    description = "Record Replay Gate manifest after action execution",
+    description = "Record Replay Gate manifest after action execution on every workflow engine",
     extensionPointId = "WorkflowAfterActionExecution")
 public class WorkflowReplayGateAfterActionXp
     implements IExtensionPoint<WorkflowExecutionExtension> {
@@ -52,83 +53,104 @@ public class WorkflowReplayGateAfterActionXp
     if (extension == null
         || extension.actionMeta == null
         || extension.workflow == null
-        || !extension.executeAction
-        || !(extension.workflow instanceof ReplayWorkflowEngine)) {
+        || !extension.executeAction) {
       return;
     }
 
-    String actionName = extension.actionMeta.getName();
-    Map<String, String> replayGroup =
-        extension
-            .workflow
-            .getWorkflowMeta()
-            .getAttributesMap()
-            .get(ReplayDefaults.REPLAY_GATE_GROUP);
-    ReplayGate gate = ReplayGateUtil.getActionReplayGate(replayGroup, actionName);
+    ActionMeta actionMeta = extension.actionMeta;
+    ReplayGate gate = ReplayGateUtil.getReplayGate(actionMeta);
+    Map<String, String> changedVariables =
+        ReplayGateIdentity.changedVariables(extension.workflow, actionMeta);
+    if (gate == null || !gate.isEnabled()) {
+      return;
+    }
 
-    if (gate != null && gate.isEnabled()) {
-      Result result = extension.actionExecutionResult;
-      boolean success = result != null && result.getResult() && result.getNrErrors() == 0;
-      String status =
-          success ? ActionSnapshotManifest.STATUS_SEALED : ActionSnapshotManifest.STATUS_FAILED;
+    String actionName = actionMeta.getName();
+    IWorkflowEngine<?> workflow = extension.workflow;
+    String executionId = ReplayGateIdentity.executionId(workflow);
+    String targetFolder =
+        ReplayGateUtil.getActionSpoolPath(
+            workflow, gate, workflow.getWorkflowMeta().getName(), executionId, actionName);
 
-      ActionSnapshotManifest manifest = new ActionSnapshotManifest();
-      manifest.setManifestId(UUID.randomUUID().toString());
-      manifest.setWorkflowName(extension.workflow.getWorkflowMeta().getName());
-      manifest.setActionName(actionName);
-      manifest.setActionType(
-          extension.actionMeta.getAction() != null
-              ? extension.actionMeta.getAction().getPluginId()
-              : "unknown");
-      manifest.setExecutionDate(DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
-      manifest.setStatus(status);
+    Result result = extension.actionExecutionResult;
+    boolean success =
+        result != null
+            && result.getResult()
+            && result.getNrErrors() == 0
+            && !result.isStopped()
+            && !workflow.isStopped();
+    if (!success) {
+      deleteManifest(log, workflow, targetFolder, actionName);
+      return;
+    }
 
-      if (result != null) {
-        manifest.setElapsedTimeMillis(result.getElapsedTimeMillis());
-        manifest.setResult(result.getResult());
-        manifest.setNrErrors(result.getNrErrors());
-        manifest.setNrLinesInput(result.getNrLinesInput());
-        manifest.setNrLinesOutput(result.getNrLinesOutput());
-        manifest.setNrLinesRead(result.getNrLinesRead());
-        manifest.setNrLinesWritten(result.getNrLinesWritten());
-        manifest.setNrLinesUpdated(result.getNrLinesUpdated());
-        manifest.setNrLinesRejected(result.getNrLinesRejected());
-        manifest.setExitStatus(result.getExitStatus());
-        try {
-          manifest.setResultXml(result.getXml());
-        } catch (Exception e) {
-          log.logError("Error serializing result XML for " + actionName, e);
-        }
+    ActionSnapshotManifest manifest = new ActionSnapshotManifest();
+    manifest.setManifestId(UUID.randomUUID().toString());
+    manifest.setWorkflowName(workflow.getWorkflowMeta().getName());
+    manifest.setActionName(actionName);
+    manifest.setExecutionId(executionId);
+    manifest.setActionType(
+        actionMeta.getAction() != null ? actionMeta.getAction().getPluginId() : "unknown");
+    manifest.setExecutionDate(DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+    manifest.setStatus(ActionSnapshotManifest.STATUS_SEALED);
+    manifest.setConfigurationHash(ReplayGateIdentity.configurationHash(workflow, actionMeta));
+    manifest.setVariables(changedVariables);
+    manifest.setElapsedTimeMillis(result.getElapsedTimeMillis());
+    manifest.setResult(result.getResult());
+    manifest.setNrErrors(result.getNrErrors());
+    manifest.setNrLinesInput(result.getNrLinesInput());
+    manifest.setNrLinesOutput(result.getNrLinesOutput());
+    manifest.setNrLinesRead(result.getNrLinesRead());
+    manifest.setNrLinesWritten(result.getNrLinesWritten());
+    manifest.setNrLinesUpdated(result.getNrLinesUpdated());
+    manifest.setNrLinesRejected(result.getNrLinesRejected());
+    manifest.setExitStatus(result.getExitStatus());
+    try {
+      manifest.setResultXml(result.getXml());
+    } catch (Exception e) {
+      log.logError("Error serializing result XML for " + actionName, e);
+    }
+
+    try {
+      FileObject folderObj = HopVfs.getFileObject(targetFolder, workflow);
+      if (!folderObj.exists()) {
+        folderObj.createFolder();
       }
+      FileObject manifestFile =
+          HopVfs.getFileObject(targetFolder + "/action_manifest.json", workflow);
+      try (OutputStream out = HopVfs.getOutputStream(manifestFile, false)) {
+        out.write(manifest.toJson().getBytes(StandardCharsets.UTF_8));
+      }
+      log.logBasic(
+          "Replay Gate ["
+              + actionName
+              + "]: sealed execution "
+              + executionId
+              + " at "
+              + targetFolder);
+    } catch (Exception e) {
+      log.logError(
+          "Replay Gate ["
+              + actionName
+              + "]: the action succeeded but its manifest could not be written. Replay will run it again.",
+          e);
+    }
+  }
 
-      String targetFolder =
-          ReplayGateUtil.getActionSpoolPath(
-              extension.workflow, gate, extension.workflow.getWorkflowMeta().getName(), actionName);
-
-      try {
-        FileObject folderObj = HopVfs.getFileObject(targetFolder, extension.workflow);
-        if (!folderObj.exists()) {
-          folderObj.createFolder();
-        }
-
-        FileObject manifestFile =
-            HopVfs.getFileObject(targetFolder + "/action_manifest.json", extension.workflow);
-        String manifestJson = manifest.toJson();
-        try (OutputStream out = HopVfs.getOutputStream(manifestFile, false)) {
-          out.write(manifestJson.getBytes(StandardCharsets.UTF_8));
-        }
-
+  private void deleteManifest(
+      ILogChannel log, IWorkflowEngine<?> workflow, String targetFolder, String actionName) {
+    try {
+      FileObject manifestFile =
+          HopVfs.getFileObject(targetFolder + "/action_manifest.json", workflow);
+      if (manifestFile.exists()) {
+        manifestFile.delete();
         log.logBasic(
             "Replay Gate ["
                 + actionName
-                + "]: Action snapshot manifest written with status "
-                + status
-                + " to "
-                + targetFolder);
-      } catch (Exception e) {
-        log.logError("Error writing action snapshot manifest for " + actionName, e);
-        throw new HopException("Error writing action snapshot manifest for " + actionName, e);
+                + "]: removed the sealed manifest because the action did not complete successfully.");
       }
+    } catch (Exception e) {
+      log.logError("Replay Gate [" + actionName + "]: unable to remove the sealed manifest", e);
     }
   }
 }

@@ -16,53 +16,50 @@ under the License.
 ////
 [[ReplayWorkflowEngine]]
 :imagesdir: ../assets/images
-:description: The Replay workflow engine executes workflow replay from failed actions with verified sealed gates.
+:description: The Replay workflow engine skips actions whose sealed gates still match the source execution and runs the rest.
 
 = Replay Workflow Engine
 
-== Hop Replay Workflow Engine
+The *Hop replay workflow engine* runs a workflow locally, like the local engine, and skips an action when a sealed xref:workflow/replay-gate.adoc[Replay Gate] for the source execution still matches.
 
-The **Hop replay workflow engine** is a specialized workflow runtime engine designed to recover and resume workflows that encountered errors or interruptions.
-
-Unlike standard workflow engines that execute every action sequentially from the start, the Replay Workflow Engine interacts with xref:workflow/replay-gate.adoc[Replay Gates]. It verifies cryptographic checksums for previously completed actions, skips those with valid sealed snapshots, and actively resumes execution from the designated start action or the first failed action.
-
-This page describes the configuration options specific to the Replay workflow engine. These options extend the general xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configuration options].
+Other engines record those gates and do not skip. A Replay run that finishes successfully deletes the gates for that execution.
 
 === Options
+
+This engine adds two fields to the local workflow run configuration.
 
 [options="header",cols="1,4"]
 |===
 |Option|Description
 
 |Source execution ID
-|(Optional) The execution ID of the failed workflow run to replay. When launching replay from the **Execution Perspective**, this is automatically linked.
+|Optional execution id whose sealed gates are read and updated. Leave it empty to use the variable `HOP_REPLAY_SOURCE_EXECUTION_ID` when that is set, or this run's own log channel id when it is not. The Execution perspective Replay button sets the variable for that launch and does not write the id back into the saved run configuration.
 
 |Start action name
-|(Optional) The name of the specific action to resume active execution from. If left blank, the engine automatically skips all verified upstream actions with valid sealed gates and resumes execution at the first action that failed or lacks a sealed gate.
+|Optional, case-sensitive action name. That action runs even when its gate is sealed, and the rest of its path runs too. Earlier actions are still restored when their gates match. An earlier action without a matching gate runs, and then the rest of that path runs as well.
 
 |Make this workflow transactional
-|If enabled, there will be just one database connection used per database. At the end of the workflow, a commit or rollback (in case of error) is performed on all named connections simultaneously. Child pipelines and workflows also run as a transaction.
+|Same as the local engine. One database connection is used per database, and Hop commits or rolls back at the end of the workflow.
 
 |Safe mode
-|Checks every row passed through pipelines launched by this workflow to ensure all layouts are identical. If a row does not match the initial layout, an error is generated.
+|Same as the local engine. Hop checks that rows passed through pipelines launched by this workflow keep a single layout.
 |===
 
-=== Creating a Replay Run Configuration
+=== Creating a run configuration
 
-1. In the **Metadata Perspective**, expand **Workflow Run Configuration** and click **New** (or click **New** next to the run configuration selector in any workflow dialog).
-2. Enter a descriptive **Name** (e.g., `replay` or `local-replay`).
-3. Select **Hop replay workflow engine** as the **Workflow engine type**.
-4. Configure an xref:metadata-types/execution-information-location.adoc[Execution Information Location] so that replay execution details and logs are tracked.
-5. Save the run configuration.
+1. In the *Metadata* perspective, create a *Workflow Run Configuration*.
+2. Choose *Hop replay workflow engine*.
+3. Optionally set an xref:metadata-types/execution-information-location.adoc[Execution Information Location].
+4. Save.
 
-=== Typical Usage
+The saved copy of a Replay run configuration keeps *Source execution ID* and *Start action name*.
 
-* **Execution Perspective**: Select a workflow run in the Execution Perspective and click the **Replay this workflow** toolbar button:
+=== Running
+
+* *Execution perspective*: open a workflow execution and click *Replay this workflow*.
 +
 image:replay/replay-workflow-execution-viewer.png[Replay Workflow Toolbar Icon,width="85%"]
-+
-The run dialog automatically opens with your Replay run configuration pre-selected.
-* **Hop Run CLI**: Pass the configuration name using the `-r` option:
+* *Hop Run*: pass the run configuration name with `-r`. Set `HOP_REPLAY_SOURCE_EXECUTION_ID` to the failed run's id when you do not want to store that id in the run configuration.
 +
 [source,bash]
 ----

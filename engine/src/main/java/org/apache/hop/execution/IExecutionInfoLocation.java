@@ -25,7 +25,6 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -308,25 +307,13 @@ public interface IExecutionInfoLocation extends Cloneable {
 
     @Override
     public String getObjectId(Object object) throws HopException {
-      if (!(object instanceof IExecutionInfoLocation location)) {
+      if (!(object instanceof IExecutionInfoLocation)) {
         throw new HopException(
             "Object is not of class IExecutionInfoLocation but of "
                 + object.getClass().getName()
                 + "'");
       }
-      // A location created in code often has no plugin id yet. The registered class is enough
-      // to resolve it. An empty id is written as the JSON key "null" and cannot be loaded back.
-      String pluginId = location.getPluginId();
-      if (Utils.isEmpty(pluginId)) {
-        IPlugin plugin =
-            PluginRegistry.getInstance().getPlugin(ExecutionInfoLocationPluginType.class, object);
-        if (plugin != null) {
-          pluginId = plugin.getIds()[0];
-          location.setPluginId(pluginId);
-          location.setPluginName(plugin.getName());
-        }
-      }
-      return pluginId;
+      return ((IExecutionInfoLocation) object).getPluginId();
     }
   }
 }

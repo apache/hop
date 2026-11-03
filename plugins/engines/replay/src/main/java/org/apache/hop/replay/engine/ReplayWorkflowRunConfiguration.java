@@ -36,8 +36,8 @@ public class ReplayWorkflowRunConfiguration extends LocalWorkflowRunConfiguratio
       order = "110",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Source execution ID",
-      toolTip = "The execution ID of the failed workflow run to replay")
+      label = "i18n::ReplayWorkflowRunConfiguration.SourceExecutionId.Label",
+      toolTip = "i18n::ReplayWorkflowRunConfiguration.SourceExecutionId.Tooltip")
   @HopMetadataProperty(key = "source_execution_id")
   protected String sourceExecutionId;
 
@@ -46,9 +46,8 @@ public class ReplayWorkflowRunConfiguration extends LocalWorkflowRunConfiguratio
       order = "120",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Start action name",
-      toolTip =
-          "The name of the action to resume execution from (leave blank for first failed action)")
+      label = "i18n::ReplayWorkflowRunConfiguration.StartActionName.Label",
+      toolTip = "i18n::ReplayWorkflowRunConfiguration.StartActionName.Tooltip")
   @HopMetadataProperty(key = "start_action_name")
   protected String startActionName;
 
@@ -60,5 +59,10 @@ public class ReplayWorkflowRunConfiguration extends LocalWorkflowRunConfiguratio
     super(config);
     this.sourceExecutionId = config.sourceExecutionId;
     this.startActionName = config.startActionName;
+  }
+
+  @Override
+  public ReplayWorkflowRunConfiguration clone() {
+    return new ReplayWorkflowRunConfiguration(this);
   }
 }

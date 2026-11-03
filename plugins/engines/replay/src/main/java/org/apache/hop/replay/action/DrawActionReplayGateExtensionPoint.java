@@ -17,14 +17,12 @@
 
 package org.apache.hop.replay.action;
 
-import java.util.Map;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.replay.ReplayDefaults;
 import org.apache.hop.replay.ReplayGate;
 import org.apache.hop.replay.ReplayGatePainter;
 import org.apache.hop.replay.ReplayGateUtil;
@@ -41,26 +39,21 @@ public class DrawActionReplayGateExtensionPoint
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, WorkflowPainterExtension ext) {
     try {
-      Map<String, String> replayGroup =
-          ext.workflowMeta.getAttributesMap().get(ReplayDefaults.REPLAY_GATE_GROUP);
-      if (replayGroup != null) {
-        String actionName = ext.actionMeta.getName();
-        ReplayGate gate = ReplayGateUtil.getReplayGate(replayGroup, actionName);
-        if (gate != null && gate.isEnabled()) {
-          Rectangle r =
-              ReplayGatePainter.drawGate(
-                  ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader());
-          ext.areaOwners.add(
-              new AreaOwner(
-                  AreaOwner.AreaType.CUSTOM,
-                  r.x,
-                  r.y,
-                  r.width,
-                  r.height,
-                  ext.offset,
-                  ext.actionMeta,
-                  gate));
-        }
+      ReplayGate gate = ReplayGateUtil.getReplayGate(ext.actionMeta);
+      if (gate != null && gate.isEnabled()) {
+        Rectangle r =
+            ReplayGatePainter.drawGate(
+                ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader());
+        ext.areaOwners.add(
+            new AreaOwner(
+                AreaOwner.AreaType.CUSTOM,
+                r.x,
+                r.y,
+                r.width,
+                r.height,
+                ext.offset,
+                ext.actionMeta,
+                gate));
       }
     } catch (Exception e) {
       // Ignore paint exceptions

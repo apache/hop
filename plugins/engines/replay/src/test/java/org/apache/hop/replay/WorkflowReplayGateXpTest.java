@@ -21,24 +21,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.replay.engine.ReplayWorkflowEngine;
+import org.apache.hop.replay.engine.ReplayWorkflowRunConfiguration;
+import org.apache.hop.replay.manifest.ActionSnapshotManifest;
 import org.apache.hop.replay.workflow.WorkflowReplayGateAfterActionXp;
 import org.apache.hop.replay.workflow.WorkflowReplayGateBeforeActionXp;
+import org.apache.hop.replay.workflow.WorkflowReplayGateFinishedXp;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -53,30 +57,27 @@ class WorkflowReplayGateXpTest {
   }
 
   @Test
-  void testAfterActionRecordsManifestAndBeforeActionSkipsOnReplay() throws Exception {
+  void localRunSealsAndReplayRestoresResultFilesAndVariables() throws Exception {
     String spoolDir = tempFolder.resolve("workflow-spool").toUri().toString();
-    ILogChannel log = mock(ILogChannel.class);
-
-    // Setup workflow and metadata
     WorkflowMeta workflowMeta = new WorkflowMeta();
     workflowMeta.setName("TestWorkflow");
 
-    Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
-    Map<String, String> replayGroup = ReplayGateUtil.getOrCreateReplayGroup(attributesMap);
+    ActionDummy action = new ActionDummy("ActionOne");
+    action.setDescription("load ${COUNTRY}");
+    ActionMeta actionMeta = new ActionMeta(action);
+    workflowMeta.addAction(actionMeta);
+    enableGate(actionMeta, spoolDir);
 
-    ReplayGate gate = new ReplayGate();
-    gate.setEnabled(true);
-    gate.setSpoolDirectory(spoolDir);
-    ReplayGateUtil.storeReplayGate(replayGroup, "ActionOne", gate);
+    LocalWorkflowEngine local = new LocalWorkflowEngine(workflowMeta);
+    local.setVariable("COUNTRY", "BE");
+    local.addParameterDefinition("COUNTRY", "BE", "country");
+    local.setParameterValue("COUNTRY", "BE");
 
-    ReplayWorkflowEngine workflowEngine = new ReplayWorkflowEngine(workflowMeta);
-
-    // Action 1: ActionOne
-    IAction actionOne = mock(IAction.class);
-    when(actionOne.getName()).thenReturn("ActionOne");
-    when(actionOne.getPluginId()).thenReturn("PIPELINE");
-    ActionMeta actionMetaOne = new ActionMeta(actionOne);
-    actionMetaOne.setName("ActionOne");
+    WorkflowReplayGateBeforeActionXp beforeXp = new WorkflowReplayGateBeforeActionXp();
+    WorkflowReplayGateAfterActionXp afterXp = new WorkflowReplayGateAfterActionXp();
+    beforeXp.callExtensionPoint(
+        LogChannel.GENERAL, local, new WorkflowExecutionExtension(local, null, actionMeta, true));
+    local.setVariable("LOADED", "yes");
 
     Result successResult = new Result();
     successResult.setResult(true);
@@ -87,61 +88,175 @@ class WorkflowReplayGateXpTest {
         new ResultFile(ResultFile.FILE_TYPE_GENERAL, testFile, "TestWorkflow", "ActionOne");
     successResult.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-    // Simulate ActionOne execution completing
     WorkflowExecutionExtension afterExt =
-        new WorkflowExecutionExtension(workflowEngine, null, actionMetaOne, true);
+        new WorkflowExecutionExtension(local, null, actionMeta, true);
     afterExt.actionExecutionResult = successResult;
+    afterXp.callExtensionPoint(LogChannel.GENERAL, local, afterExt);
 
-    WorkflowReplayGateAfterActionXp afterXp = new WorkflowReplayGateAfterActionXp();
-    afterXp.callExtensionPoint(log, workflowEngine, afterExt);
-
-    // Verify action_manifest.json was written to spool
     String actionSpoolPath =
-        ReplayGateUtil.getActionSpoolPath(workflowEngine, gate, "TestWorkflow", "ActionOne");
+        ReplayGateUtil.getActionSpoolPath(
+            local,
+            ReplayGateUtil.getReplayGate(actionMeta),
+            "TestWorkflow",
+            local.getLogChannelId(),
+            "ActionOne");
     FileObject manifestFile =
-        HopVfs.getFileObject(actionSpoolPath + "/action_manifest.json", workflowEngine);
+        HopVfs.getFileObject(actionSpoolPath + "/action_manifest.json", local);
     assertTrue(manifestFile.exists());
+    ActionSnapshotManifest sealed =
+        ActionSnapshotManifest.fromJson(
+            IOUtils.toString(HopVfs.getInputStream(manifestFile), StandardCharsets.UTF_8));
+    assertEquals(ActionSnapshotManifest.STATUS_SEALED, sealed.getStatus());
+    assertEquals("yes", sealed.getVariables().get("LOADED"));
+    assertEquals(
+        ReplayGateIdentity.configurationHash(local, actionMeta), sealed.getConfigurationHash());
 
-    // Now simulate Run 2 (Replay) with ReplayWorkflowEngine
-    ReplayWorkflowEngine replayRun = new ReplayWorkflowEngine(workflowMeta);
-    replayRun.setReplaying(true);
-    replayRun.setResumePointReached(false);
-
+    ReplayWorkflowEngine replay = replayEngine(workflowMeta, local.getLogChannelId(), null);
+    replay.setVariable("COUNTRY", "BE");
+    replay.addParameterDefinition("COUNTRY", "BE", "country");
+    replay.setParameterValue("COUNTRY", "BE");
     WorkflowExecutionExtension beforeExt =
-        new WorkflowExecutionExtension(replayRun, null, actionMetaOne, true);
+        new WorkflowExecutionExtension(replay, null, actionMeta, true);
+    beforeXp.callExtensionPoint(LogChannel.GENERAL, replay, beforeExt);
 
-    WorkflowReplayGateBeforeActionXp beforeXp = new WorkflowReplayGateBeforeActionXp();
-    beforeXp.callExtensionPoint(log, replayRun, beforeExt);
-
-    // Verify ActionOne is SKIPPED on replay because it has a SEALED gate!
     assertFalse(beforeExt.executeAction);
     assertNotNull(beforeExt.result);
     assertTrue(beforeExt.result.getResult());
-    assertEquals(0L, beforeExt.result.getNrErrors());
     assertEquals(42L, beforeExt.result.getNrLinesOutput());
     assertEquals(1, beforeExt.result.getResultFiles().size());
+    assertEquals("yes", replay.getVariable("LOADED"));
+    assertTrue(
+        replay.getActionResults().stream()
+            .anyMatch(
+                result -> "ActionOne".equals(result.getActionName()) && result.isCheckpoint()));
+    assertFalse(replay.isLiveExecution());
   }
 
   @Test
-  void testStartActionIsNotSkipped() throws Exception {
+  void changedParameterInvalidatesTheGateAndMarksThePathLive() throws Exception {
+    String spoolDir = tempFolder.resolve("param-spool").toUri().toString();
     WorkflowMeta workflowMeta = new WorkflowMeta();
-    workflowMeta.setName("TestWorkflow");
+    workflowMeta.setName("Params");
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
+    workflowMeta.addAction(actionMeta);
+    enableGate(actionMeta, spoolDir);
 
-    ReplayWorkflowEngine replayRun = new ReplayWorkflowEngine(workflowMeta);
-    replayRun.setReplaying(true);
+    LocalWorkflowEngine local = new LocalWorkflowEngine(workflowMeta);
+    local.addParameterDefinition("COUNTRY", "BE", "");
+    local.setParameterValue("COUNTRY", "BE");
+    seal(local, actionMeta);
 
-    IAction startAction = mock(IAction.class);
-    when(startAction.getName()).thenReturn("Start");
-    when(startAction.isStart()).thenReturn(true);
-    ActionMeta startMeta = new ActionMeta(startAction);
-    startMeta.setName("Start");
-
+    ReplayWorkflowEngine replay = replayEngine(workflowMeta, local.getLogChannelId(), null);
+    replay.addParameterDefinition("COUNTRY", "BE", "");
+    replay.setParameterValue("COUNTRY", "NL");
     WorkflowExecutionExtension beforeExt =
-        new WorkflowExecutionExtension(replayRun, null, startMeta, true);
-    WorkflowReplayGateBeforeActionXp beforeXp = new WorkflowReplayGateBeforeActionXp();
-    beforeXp.callExtensionPoint(mock(ILogChannel.class), replayRun, beforeExt);
+        new WorkflowExecutionExtension(replay, null, actionMeta, true);
+    new WorkflowReplayGateBeforeActionXp()
+        .callExtensionPoint(LogChannel.GENERAL, replay, beforeExt);
 
     assertTrue(beforeExt.executeAction);
-    assertFalse(replayRun.isResumePointReached());
+    assertTrue(replay.isLiveExecution());
+  }
+
+  @Test
+  void anotherExecutionIdDoesNotReuseTheGate() throws Exception {
+    String spoolDir = tempFolder.resolve("id-spool").toUri().toString();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    workflowMeta.setName("Ids");
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
+    workflowMeta.addAction(actionMeta);
+    enableGate(actionMeta, spoolDir);
+
+    LocalWorkflowEngine local = new LocalWorkflowEngine(workflowMeta);
+    seal(local, actionMeta);
+
+    ReplayWorkflowEngine replay = replayEngine(workflowMeta, "some-other-execution", null);
+    WorkflowExecutionExtension beforeExt =
+        new WorkflowExecutionExtension(replay, null, actionMeta, true);
+    new WorkflowReplayGateBeforeActionXp()
+        .callExtensionPoint(LogChannel.GENERAL, replay, beforeExt);
+
+    assertTrue(beforeExt.executeAction);
+  }
+
+  @Test
+  void startActionNameIsCaseSensitive() throws Exception {
+    String spoolDir = tempFolder.resolve("case-spool").toUri().toString();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    workflowMeta.setName("Case");
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
+    workflowMeta.addAction(actionMeta);
+    enableGate(actionMeta, spoolDir);
+
+    LocalWorkflowEngine local = new LocalWorkflowEngine(workflowMeta);
+    seal(local, actionMeta);
+
+    ReplayWorkflowEngine lower = replayEngine(workflowMeta, local.getLogChannelId(), "load");
+    WorkflowExecutionExtension lowerExt =
+        new WorkflowExecutionExtension(lower, null, actionMeta, true);
+    new WorkflowReplayGateBeforeActionXp().callExtensionPoint(LogChannel.GENERAL, lower, lowerExt);
+    assertFalse(lowerExt.executeAction);
+
+    ReplayWorkflowEngine exact = replayEngine(workflowMeta, local.getLogChannelId(), "Load");
+    WorkflowExecutionExtension exactExt =
+        new WorkflowExecutionExtension(exact, null, actionMeta, true);
+    new WorkflowReplayGateBeforeActionXp().callExtensionPoint(LogChannel.GENERAL, exact, exactExt);
+    assertTrue(exactExt.executeAction);
+    assertTrue(exact.isLiveExecution());
+  }
+
+  @Test
+  void successfulWorkflowDeletesTheExecutionSpool() throws Exception {
+    String spoolDir = tempFolder.resolve("done-spool").toUri().toString();
+    WorkflowMeta workflowMeta = new WorkflowMeta();
+    workflowMeta.setName("Done");
+    ActionMeta actionMeta = new ActionMeta(new ActionDummy("Load"));
+    workflowMeta.addAction(actionMeta);
+    enableGate(actionMeta, spoolDir);
+
+    LocalWorkflowEngine local = new LocalWorkflowEngine(workflowMeta);
+    seal(local, actionMeta);
+    String folder =
+        ReplayGateUtil.getExecutionSpoolPath(
+            local, ReplayGateUtil.getReplayGate(actionMeta), "Done", local.getLogChannelId());
+    assertTrue(HopVfs.getFileObject(folder, local).exists());
+
+    Result success = new Result();
+    success.setResult(true);
+    local.setResult(success);
+    new WorkflowReplayGateFinishedXp().callExtensionPoint(LogChannel.GENERAL, local, local);
+
+    assertFalse(HopVfs.getFileObject(folder, local).exists());
+  }
+
+  private static void enableGate(ActionMeta actionMeta, String spoolDir) {
+    ReplayGate gate = new ReplayGate();
+    gate.setEnabled(true);
+    gate.setSpoolDirectory(spoolDir);
+    ReplayGateUtil.storeReplayGate(actionMeta, gate);
+  }
+
+  private static void seal(LocalWorkflowEngine local, ActionMeta actionMeta) throws Exception {
+    WorkflowReplayGateBeforeActionXp beforeXp = new WorkflowReplayGateBeforeActionXp();
+    beforeXp.callExtensionPoint(
+        LogChannel.GENERAL, local, new WorkflowExecutionExtension(local, null, actionMeta, true));
+    Result result = new Result();
+    result.setResult(true);
+    WorkflowExecutionExtension afterExt =
+        new WorkflowExecutionExtension(local, null, actionMeta, true);
+    afterExt.actionExecutionResult = result;
+    new WorkflowReplayGateAfterActionXp().callExtensionPoint(LogChannel.GENERAL, local, afterExt);
+  }
+
+  private static ReplayWorkflowEngine replayEngine(
+      WorkflowMeta workflowMeta, String sourceExecutionId, String startActionName) {
+    ReplayWorkflowEngine replay = new ReplayWorkflowEngine(workflowMeta);
+    ReplayWorkflowRunConfiguration config = new ReplayWorkflowRunConfiguration();
+    config.setSourceExecutionId(sourceExecutionId);
+    config.setStartActionName(startActionName);
+    replay.setWorkflowRunConfiguration(
+        new WorkflowRunConfiguration("replay", "", "", config, false));
+    replay.setReplaying(true);
+    return replay;
   }
 }

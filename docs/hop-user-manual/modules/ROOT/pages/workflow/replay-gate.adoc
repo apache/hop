@@ -16,203 +16,74 @@ under the License.
 ////
 [[ReplayGates]]
 :imagesdir: ../assets/images
-:description: Replay Gates and the Hop Replay Workflow Engine enable resilient data pipelines and workflows by spooling intermediate outputs and safely replaying failed executions from the point of failure.
+:description: Replay Gates record a successful workflow action so the Replay engine can restore that result instead of running the action again.
 
 = Replay Gates and Workflow Replay
 
 == Overview
 
-In complex data processing environments, workflows often run for hours, orchestrating multiple extractions, staging transformations, data quality checks, and warehouse loads. When an action near the end of a long-running workflow fails—due to a transient network error, API rate limiting, an invalid downstream schema, or a minor script syntax bug—restarting the entire workflow from scratch is costly. It wastes compute resources, causes unwanted load on source transactional systems, and risks breaching Service Level Agreements (SLAs).
+A *Replay Gate* is a checkpoint on a workflow action. When the action finishes successfully, Hop writes an `action_manifest.json` file for that run. The *Hop Replay workflow engine* can later skip the action and put the saved result back into the workflow.
 
-*Replay Gates* and the *Hop Replay Workflow Engine* provide a deterministic checkpoint and resume mechanism:
+Gates are stored on the action. Renaming the action keeps the gate. Deleting the action removes it.
 
-* *Replay Gate*: A configurable checkpoint placed on workflow actions or pipeline transforms. When enabled, it captures and spools execution results, parameters, and row streams to disk, creating a cryptographically sealed manifest once the step completes successfully.
-* *Hop Replay Workflow Engine*: A specialized workflow runtime engine that detects previous failed executions and sealed gates. When replaying, it validates gate integrity, skips completed upstream actions by restoring their exact execution result, and actively resumes execution starting from the failed action.
-* *One-Click Replay in Execution Perspective*: When reviewing a failed workflow in Hop GUI's Execution Perspective, a single click on the *Replay* toolbar icon opens the execution dialog with the Replay run configuration pre-selected and resumes the workflow.
+This version does not spool pipeline transform rows, and it does not expire gates on a timer.
 
 [NOTE]
 ====
-Standard workflow engines (such as the *Local* or *Remote* workflow engines) always execute all actions from the designated start point. They do not skip actions, ensuring that standard automated production schedules and exploratory design runs remain predictable. Replay behavior occurs exclusively when running with the *Hop Replay Workflow Engine*.
+Local, remote, and other workflow engines record a gate when an action succeeds. They never skip an action. Only the Replay engine skips.
 ====
 
-== How It Works
+== What is stored
 
-The replay architecture is divided into two distinct operational phases: the *Spooling & Sealing Phase* during execution, and the *Verification & Replay Phase* during recovery.
+For each enabled gate the manifest is written under the spool folder, then `workflows`, the workflow name, the execution id, and the action name, in a file called `action_manifest.json`.
 
-=== 1. Spooling & Sealing Phase
+The execution id is the workflow log channel id of the run that produced the gate. A Replay run reads and writes that same id when *Source execution ID* is set, or when the variable `HOP_REPLAY_SOURCE_EXECUTION_ID` is set. The variable wins when both are set, so two runs do not share manifests.
 
-When an action or transform with an active Replay Gate executes:
+The manifest stores:
 
-1. *Execution Capture*:
-   * For **workflow actions**: the gate monitors action execution, intercepting the action's exit result (`true`/`false`), return code, error counts, row metrics (read, written, updated, rejected), result files, and any modified workflow variables.
-   * For **pipeline transforms**: the gate attaches a row listener to the output row stream and spools the row data into high-performance binary spool files on disk.
-2. *Cryptographic Verification*:
-   * A snapshot manifest (`manifest.json`) is computed.
-   * The manifest contains SHA-256 hashes of:
-     ** The action or transform metadata configuration and attributes.
-     ** Connected incoming and outgoing hops.
-     ** Variable and parameter inputs.
-     ** Row schemas, row counts, and data checksums.
-3. *Sealing*:
-   * If the step finishes with errors or is aborted, the gate is marked *unsealed* (or invalid).
-   * If and only if the step completes successfully, the manifest is written and sealed.
+* The action result, including result files and result rows.
+* Workflow variables whose values changed while the action ran. Internal Hop variables are not included.
+* A SHA-256 hash of the action's XML, the workflow's resolved parameters, and the variables referenced with the `+${NAME}+` syntax in that XML.
 
-=== 2. Verification & Replay Phase
+A gate is sealed only when the action result is successful, has no errors, and the action was not stopped. A later failure of that action deletes its manifest. When the whole workflow completes successfully, Hop deletes the execution folder, so a later Replay of that same execution runs the actions again.
 
-When a workflow is launched using the *Hop Replay Workflow Engine*:
+The default spool folder is the project home, then `.hop/spool`.
 
-1. *Pre-flight Evaluation*:
-   * The engine evaluates each action along the workflow execution graph before the failure or designated resume point.
-2. *Integrity Check*:
-   * The engine looks up the sealed snapshot in the gate spool directory.
-   * It recomputes the SHA-256 hash of the current action configuration and inputs, comparing it against the sealed manifest.
-   * If the manifest matches and is verified:
-     ** The physical action execution is **skipped**.
-     ** The previous execution `Result` (including result files, result rows, and variables) is restored directly into the running workflow context.
-     ** Execution proceeds immediately to the next action.
-3. *Active Resume*:
-   * If an action was the failure point, or its gate is missing, unsealed, or has a checksum mismatch (for example, because the data engineer edited the action to fix a bug):
-     ** The engine switches to **active execution mode**.
-     ** The action executes normally.
-     ** All subsequent downstream actions execute live from that point onward, recording fresh gates as they succeed.
+== What Replay skips
 
-== Responsibilities of the Data Engineer
+On a Replay run, each action is decided on its own path:
 
-Replay Gates provide powerful capabilities, but they are not an automatic replacement for sound data architecture. Data engineers must understand the contract between the replay engine, external systems, and pipeline design.
+* The Start action always runs.
+* An action with a sealed manifest for this execution id, whose hash still matches, is skipped. Its result and changed variables are restored. The workflow graph shows the checkpoint icon and the action result comment `Restored from replay gate`.
+* Anything else runs. From that action onward, the same path runs as well, including actions that still have a sealed gate. A parallel branch keeps its own decision: one branch running does not force the other branch to run.
+* *Start action name* is case-sensitive. That action runs, and so does the rest of its path. An earlier action that has no matching gate also runs, and then the rest of that path runs. Replay does not truncate a table again and then skip the load that filled it.
 
-=== 1. Idempotency and External Side Effects
+== Responsibilities of the data engineer
 
-The Replay engine restores *internal Hop state*—variables, result files, row metrics, and pass/fail statuses. It **cannot** automatically inspect or roll back external databases, cloud object stores, or third-party web services.
+Replay restores Hop's result and the variables the action changed. It does not roll back a database, a file, or an API call the action already made.
 
-[IMPORTANT]
-====
-If an action mutates an external system and then fails mid-way, or if an action preceding a gate modifies external state, the data engineer must ensure those operations are **idempotent**.
-====
+Put gates on actions that are safe to skip, and make actions that you may have to run again idempotent. An action without a gate is executed, and everything after it on that path is executed too. Place gates on the whole prefix you want to skip, from Start up to the failure.
 
-* *Database Writes*:
-  ** Prefer `INSERT OVERWRITE`, `MERGE` (upsert), or staging tables paired with atomic swaps rather than naive `INSERT` statements that may produce duplicate rows if partially executed before a failure.
-  ** If an action appends rows to a database table and fails halfway through, re-running that action will append duplicates unless the table is truncated or a transactional connection is used.
-* *External Communications*:
-  ** Actions such as *Send Email*, *Post to Slack*, or *HTTP Webhooks* trigger real-world side effects. If placed *before* a failure point without a gate, re-running without replay would trigger them again; if gated, Replay will skip them and restore their success result without resending the notification.
-  ** Place external notification actions at the very end of workflows or in dedicated error-handling paths.
-* *File Operations*:
-  ** When writing to file systems, SFTP, or cloud buckets (S3, GCS, Azure Blob), write output to a temporary staging path and rename or promote it to the final destination upon successful completion.
+A change to the action, to a workflow parameter, or to a variable referenced from the action XML makes that gate invalid. Moving the action on the canvas does not, because the hash uses the action XML rather than the icon position.
 
-=== 2. Strategic Gate Placement (Avoid Gating Everything)
+Clean up old execution folders under the spool directory yourself. There is no retention setting.
 
-Spooling data and computing cryptographic manifests carries disk I/O and CPU overhead. Gating every trivial action or transform is an anti-pattern.
+== Configuring a gate
 
-[TIP]
-====
-Place Replay Gates at strategic architectural boundaries:
-====
+1. Open the workflow.
+2. Right-click an action and select *Configure Replay Gate*.
+3. Enable the gate, optionally set a spool folder and a description, and click *OK*.
+4. A badge is drawn on the action icon.
 
-* *After Heavy Extracts*: Place gates immediately after slow database queries, complex remote API paginations, or rate-limited partner data feeds. If downstream processing fails, the extract does not need to be repeated.
-* *Before Fragile Operations*: Place gates directly before complex transformations, external scripts (Python, Shell), or steps dependent on third-party services that may encounter transient network glitches.
-* *After Expensive Pre-processing*: Place gates after resource-intensive aggregations, sorting of massive datasets, or complex joins.
-* *Logical Milestones*: Place gates at major milestone boundaries of an orchestration workflow (e.g., `Stage 1: Ingestion Complete`, `Stage 2: Cleansing Complete`).
+== Replaying a failed workflow
 
-=== 3. Deterministic Inputs
+1. Open the execution in the *Execution* perspective.
+2. Click *Replay this workflow*. The button is part of the Replay engine plugin, so it is not shown when that plugin is not installed.
+3. The execution dialog opens with the first run configuration whose engine id is `Replay` selected, when one exists.
+4. The dialog receives the workflow parameters from the selected execution, the variables the workflow uses, and `HOP_REPLAY_SOURCE_EXECUTION_ID` set to that execution's id. It does not copy every variable captured on the old run.
+5. Launch. Hop switches to the workflow and runs it with the Replay engine.
 
-Replay assumes that if the action configuration, hops, and input variables have not changed, skipping the action and reusing its verified output is mathematically sound.
-
-* Ensure actions do not rely on implicit, unrecorded external clock changes (such as raw `NOW()` expressions in database SQL) if subsequent steps require consistent timestamp partitioning. Pass business dates explicitly via workflow variables or parameters (e.g., `${BATCH_DATE}`).
-* Avoid depending on unversioned external files that might be replaced or deleted outside of Hop's control.
-
-=== 4. Spool Storage Management
-
-Gate spools are stored under the configured spool folder (by default, `${PROJECT_HOME}/.hop/spool`).
-
-* *Storage Capacity*: Pipelines with transform gates spool raw data rows to disk. Verify that the file system hosting the spool directory has adequate free disk space for the expected data volumes.
-* *I/O Performance*: For high-throughput pipelines, configure the spool path on fast local NVMe or SSD storage rather than high-latency network shares.
-* *Retention & Cleanup*: Implement periodic cleanup routines for obsolete spool directories or use the gate's retention configuration to expire old snapshots.
-
-== What Is Possible
-
-[cols="1,3",options="header"]
-|===
-|Capability|Details
-
-|**Skip Completed Actions**
-|Previously successful actions with valid sealed gates are skipped in milliseconds, restoring exit status, line counts, error counts, result rows, result files, and modified variables.
-
-|**Tamper-Proof Verification**
-|SHA-256 manifests guarantee that if action properties, SQL scripts, parameters, or incoming hops are modified, the cache is invalidated automatically and the step re-executes cleanly.
-
-|**Pipeline Transform Spooling**
-|Transforms can spool output rows in fast binary format, allowing downstream transforms to resume from cached intermediate streams without querying source databases.
-
-|**One-Click GUI Replay**
-|Failed workflows in the Execution Perspective can be resumed immediately using the toolbar **Replay** button, pre-populating run configurations and variables.
-
-|**Targeted Resume Points**
-|Data engineers can designate a specific `Start action name` in the Replay run configuration to force re-execution from an arbitrary action, even if earlier gates are sealed.
-
-|**Mixed Workflow Support**
-|Workflows can contain any combination of gated and non-gated actions. Non-gated actions before the resume point run normally unless preceded by a sealed resume point.
-|===
-
-== What Is NOT Possible
-
-Understanding the boundaries of Replay is essential to avoid mistaken assumptions:
-
-[cols="1,3",options="header"]
-|===
-|Limitation|Why & Workaround
-
-|**Magic Rollback of Non-Transactional External Systems**
-|Replay does not roll back database tables, delete external cloud objects, or undo remote API calls that took place before a failure occurred. *Solution:* Design idempotent actions and use transactional workflow settings where supported.
-
-|**Arbitrary Thread-Level Checkpointing Inside Pipelines**
-|Hop pipelines execute as streaming multi-threaded networks. Individual threads cannot be frozen mid-flight. Replay operates at **transform boundaries** (via spooled row listeners) or **workflow action boundaries**, not arbitrary row offsets inside a running transform.
-
-|**Replaying with Missing or Corrupted Spools**
-|If spool files or manifest files on disk are manually deleted or modified, SHA-256 validation fails. The engine safely falls back to executing the action live.
-
-|**Automatic Action Skipping in Regular Engines**
-|Running with the `local` or `remote` engine will *never* skip actions based on gates. This is intentional: normal runs always execute all steps unless the specialized Replay engine is selected.
-|===
-
-== Using Replay in Hop GUI
-
-=== Configuring an Action Replay Gate
-
-1. Open your workflow in the Hop GUI editor.
-2. Right-click any workflow action and select **Configure Replay Gate**.
-3. In the dialog:
-   * **Enabled**: Check to activate gate recording and verification for this action.
-   * **Spool folder**: Specify a custom folder or leave blank to use `${PROJECT_HOME}/.hop/spool`.
-   * **Retention (hours)**: Optional time-to-live before a sealed gate expires.
-4. Click **OK**. A badge/indicator on the action icon indicates the presence of an active Replay Gate.
-
-=== Configuring a Transform Replay Gate
-
-1. Open your pipeline in the Hop GUI editor.
-2. Right-click any transform and select **Configure Replay Gate**.
-3. The configuration dialog appears, and a shield badge is displayed on the transform icon:
-+
-image:replay/replay-gate-transform.png[Replay Gate on Transform,width="85%"]
-+
-4. Configure the gate options:
-   * **Enabled**: Check to activate gate spooling for this transform.
-   * **Spool directory**: The VFS directory where spooled row files and manifest metadata are stored (defaults to `${PROJECT_HOME}/.hop/spool`).
-   * **Compression**: The compression codec used for row data (e.g. `Snappy` for fast, low-overhead compression).
-   * **Dev row limit**: Optional limit on the number of rows to spool during development and testing (`0` for unlimited / full row stream).
-   * **Description**: Optional documentation explaining the purpose of the gate.
-5. Click **OK**. When the pipeline executes, rows emitted by this transform are spooled for fast downstream replay.
-
-=== Replaying a Failed Workflow
-
-1. Navigate to the **Execution Perspective** in Hop GUI.
-2. Select the workflow execution from the execution history tree.
-3. In the viewer toolbar above the workflow graph, click the **Replay this workflow** toolbar button:
-+
-image:replay/replay-workflow-execution-viewer.png[Replay Workflow Toolbar Icon and Gated Action,width="85%"]
-+
-4. Notice that actions with active Replay Gates (such as `stage-table.hpl` in the example above) display a shield badge indicator.
-5. The **Workflow Execution Configuration** dialog opens with the first available *Hop replay workflow engine* run configuration pre-selected.
-6. Review parameters and click **Launch**.
-7. Hop automatically switches to the Explorer perspective, displays the live execution log, validates upstream gates, and resumes execution from the failure point.
+You can also select a Replay run configuration yourself, and set *Source execution ID* or *Start action name* on that configuration. See xref:workflow/workflow-run-configurations/replay-workflow-engine.adoc[Replay Workflow Engine].
 
 == Related Topics
 

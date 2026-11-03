@@ -17,96 +17,77 @@
 
 package org.apache.hop.replay;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.widgets.Shell;
 
-public class ReplayGateDialog extends Dialog {
+public class ReplayGateDialog extends ActionDialog {
   private static final Class<?> PKG = ReplayGateDialog.class;
 
+  private final ActionMeta actionMeta;
   private final ReplayGate input;
-  private final ReplayGate gate;
-  private final IVariables variables;
-  private final String title;
-
-  private Shell shell;
   private GuiCompositeWidgets widgets;
-  private boolean ok;
+  private boolean accepted;
 
-  public ReplayGateDialog(Shell parent, IVariables variables, ReplayGate gate, String title) {
-    super(parent, SWT.NONE);
-    this.input = gate;
-    this.gate = new ReplayGate(gate);
-    this.variables = variables;
-    this.title = title;
-    this.ok = false;
+  public ReplayGateDialog(
+      Shell parent,
+      IVariables variables,
+      WorkflowMeta workflowMeta,
+      ActionMeta actionMeta,
+      ReplayGate input) {
+    super(parent, workflowMeta, variables);
+    this.actionMeta = actionMeta;
+    this.input = input;
   }
 
-  public boolean open() {
-    Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageServer());
-    shell.setText(title);
+  public boolean openGate() {
+    String actionName = actionMeta == null ? "" : actionMeta.getName();
+    createShell(
+        BaseMessages.getString(PKG, "ReplayGateDialog.Title", actionName),
+        actionMeta == null ? null : actionMeta.getAction());
+    wName.setText(Const.NVL(actionName, ""));
+    wName.setEditable(false);
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-    shell.setLayout(formLayout);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    int margin = PropsUi.getMargin();
-
-    // Buttons
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Scrolled composite with all widgets from metadata
     widgets =
         GuiCompositeWidgets.addScrolledComposite(
-            shell, variables, null, wOk, ReplayGate.GUI_PLUGIN_ELEMENT_PARENT_ID, gate);
+            shell, variables, wName, wOk, ReplayGate.GUI_PLUGIN_ELEMENT_PARENT_ID, input);
 
+    loading = false;
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    return accepted;
+  }
 
-    return ok;
+  @Override
+  public IAction open() {
+    openGate();
+    return null;
   }
 
   private void ok() {
-    if (widgets != null) {
-      widgets.getWidgetsContents(gate, ReplayGate.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    if (shell == null || shell.isDisposed()) {
+      return;
     }
-    input.setEnabled(gate.isEnabled());
-    input.setSpoolDirectory(gate.getSpoolDirectory());
-    input.setCompression(gate.getCompression());
-    input.setRowLimit(gate.getRowLimit());
-    input.setDescription(gate.getDescription());
-
-    ok = true;
+    if (widgets != null) {
+      widgets.getWidgetsContents(input, ReplayGate.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    }
+    accepted = true;
     dispose();
   }
 
   private void cancel() {
-    ok = false;
+    if (shell == null || shell.isDisposed()) {
+      return;
+    }
+    accepted = false;
     dispose();
-  }
-
-  public void dispose() {
-    PropsUi.getInstance().setScreen(new WindowProperty(shell));
-    shell.dispose();
   }
 }

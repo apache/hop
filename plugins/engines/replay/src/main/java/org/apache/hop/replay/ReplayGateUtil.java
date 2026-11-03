@@ -17,102 +17,71 @@
 
 package org.apache.hop.replay;
 
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class ReplayGateUtil {
 
-  public static Map<String, String> getOrCreateReplayGroup(
-      Map<String, Map<String, String>> attributesMap) {
-    return attributesMap.computeIfAbsent(ReplayDefaults.REPLAY_GATE_GROUP, k -> new HashMap<>());
-  }
-
-  public static void storeReplayGate(
-      Map<String, String> replayGroup, String name, ReplayGate gate) {
-    if (replayGroup == null || StringUtils.isEmpty(name)) {
+  public static void storeReplayGate(ActionMeta actionMeta, ReplayGate gate) {
+    if (actionMeta == null || gate == null) {
       return;
     }
-    String prefix = name + " : ";
-    replayGroup.put(prefix + ReplayDefaults.GATE_ATTR_ENABLED, Boolean.toString(gate.isEnabled()));
-    if (StringUtils.isNotEmpty(gate.getSpoolDirectory())) {
-      replayGroup.put(prefix + ReplayDefaults.GATE_ATTR_SPOOL_DIR, gate.getSpoolDirectory());
-    } else {
-      replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_SPOOL_DIR);
-    }
-    if (StringUtils.isNotEmpty(gate.getCompression())) {
-      replayGroup.put(prefix + ReplayDefaults.GATE_ATTR_COMPRESSION, gate.getCompression());
-    } else {
-      replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_COMPRESSION);
-    }
-    if (gate.getRowLimit() > 0) {
-      replayGroup.put(
-          prefix + ReplayDefaults.GATE_ATTR_ROW_LIMIT, Integer.toString(gate.getRowLimit()));
-    } else {
-      replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_ROW_LIMIT);
-    }
-    if (StringUtils.isNotEmpty(gate.getDescription())) {
-      replayGroup.put(prefix + ReplayDefaults.GATE_ATTR_DESCRIPTION, gate.getDescription());
-    } else {
-      replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_DESCRIPTION);
-    }
+    actionMeta.setAttribute(
+        ReplayDefaults.REPLAY_GATE_GROUP,
+        ReplayDefaults.GATE_ATTR_ENABLED,
+        Boolean.toString(gate.isEnabled()));
+    putOrRemove(
+        actionMeta,
+        ReplayDefaults.GATE_ATTR_SPOOL_DIR,
+        StringUtils.trimToNull(gate.getSpoolDirectory()));
+    putOrRemove(
+        actionMeta,
+        ReplayDefaults.GATE_ATTR_DESCRIPTION,
+        StringUtils.trimToNull(gate.getDescription()));
   }
 
-  public static ReplayGate getReplayGate(Map<String, String> replayGroup, String name) {
-    if (replayGroup == null || StringUtils.isEmpty(name)) {
+  public static ReplayGate getReplayGate(ActionMeta actionMeta) {
+    if (actionMeta == null) {
       return null;
     }
-    String prefix = name + " : ";
-    String enabledStr = replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_ENABLED);
-    if (StringUtils.isEmpty(enabledStr)) {
+    String enabled =
+        actionMeta.getAttribute(ReplayDefaults.REPLAY_GATE_GROUP, ReplayDefaults.GATE_ATTR_ENABLED);
+    if (StringUtils.isEmpty(enabled)) {
       return null;
     }
-
     ReplayGate gate = new ReplayGate();
-    gate.setEnabled(ValueMetaStringtoBoolean(enabledStr));
+    gate.setEnabled(Const.toBoolean(enabled));
     gate.setSpoolDirectory(
-        Const.NVL(replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_SPOOL_DIR), ""));
-    gate.setCompression(
-        Const.NVL(replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_COMPRESSION), ""));
-    gate.setRowLimit(Const.toInt(replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_ROW_LIMIT), 0));
+        Const.NVL(
+            actionMeta.getAttribute(
+                ReplayDefaults.REPLAY_GATE_GROUP, ReplayDefaults.GATE_ATTR_SPOOL_DIR),
+            ""));
     gate.setDescription(
-        Const.NVL(replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_DESCRIPTION), ""));
+        Const.NVL(
+            actionMeta.getAttribute(
+                ReplayDefaults.REPLAY_GATE_GROUP, ReplayDefaults.GATE_ATTR_DESCRIPTION),
+            ""));
     return gate;
   }
 
-  public static void clearReplayGate(Map<String, String> replayGroup, String name) {
-    if (replayGroup == null || StringUtils.isEmpty(name)) {
+  public static void clearReplayGate(ActionMeta actionMeta) {
+    if (actionMeta == null || actionMeta.getAttributesMap() == null) {
       return;
     }
-    String prefix = name + " : ";
-    replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_ENABLED);
-    replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_SPOOL_DIR);
-    replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_COMPRESSION);
-    replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_ROW_LIMIT);
-    replayGroup.remove(prefix + ReplayDefaults.GATE_ATTR_DESCRIPTION);
+    actionMeta.getAttributesMap().remove(ReplayDefaults.REPLAY_GATE_GROUP);
   }
 
-  public static boolean hasReplayGate(Map<String, String> replayGroup, String name) {
-    if (replayGroup == null || StringUtils.isEmpty(name)) {
-      return false;
-    }
-    String prefix = name + " : ";
-    String enabledStr = replayGroup.get(prefix + ReplayDefaults.GATE_ATTR_ENABLED);
-    return ValueMetaStringtoBoolean(enabledStr);
-  }
-
-  public static ReplayGate getTransformReplayGate(
-      Map<String, String> replayGroup, String transformName) {
-    return getReplayGate(replayGroup, transformName);
-  }
-
-  public static ReplayGate getActionReplayGate(Map<String, String> replayGroup, String actionName) {
-    return getReplayGate(replayGroup, actionName);
-  }
-
-  public static String resolveSpoolDirectory(
-      org.apache.hop.core.variables.IVariables variables, ReplayGate gate) {
+  public static String resolveSpoolDirectory(IVariables variables, ReplayGate gate) {
     String spoolDir =
         (gate != null && StringUtils.isNotEmpty(gate.getSpoolDirectory()))
             ? gate.getSpoolDirectory()
@@ -120,9 +89,8 @@ public class ReplayGateUtil {
     if (variables != null) {
       spoolDir = variables.resolve(spoolDir);
     }
-    // Fallback if ${PROJECT_HOME} remained unresolved
     if (spoolDir.contains("${PROJECT_HOME}")) {
-      String projectHome = (variables != null) ? variables.getVariable("PROJECT_HOME") : null;
+      String projectHome = variables != null ? variables.getVariable("PROJECT_HOME") : null;
       if (StringUtils.isEmpty(projectHome)) {
         projectHome = System.getProperty("user.dir");
       }
@@ -141,45 +109,64 @@ public class ReplayGateUtil {
     return name.trim().replaceAll("[/\\\\:*?\"<>|]", "_");
   }
 
-  public static String getTransformSpoolPath(
-      org.apache.hop.core.variables.IVariables variables,
-      ReplayGate gate,
-      String pipelineName,
-      String transformName) {
+  public static String getExecutionSpoolPath(
+      IVariables variables, ReplayGate gate, String workflowName, String executionId) {
     String baseDir = resolveSpoolDirectory(variables, gate);
-    return baseDir + "/pipelines/" + sanitizeName(pipelineName) + "/" + sanitizeName(transformName);
+    return baseDir + "/workflows/" + sanitizeName(workflowName) + "/" + sanitizeName(executionId);
   }
 
   public static String getActionSpoolPath(
-      org.apache.hop.core.variables.IVariables variables,
+      IVariables variables,
       ReplayGate gate,
       String workflowName,
+      String executionId,
       String actionName) {
-    String baseDir = resolveSpoolDirectory(variables, gate);
-    return baseDir + "/workflows/" + sanitizeName(workflowName) + "/" + sanitizeName(actionName);
+    return getExecutionSpoolPath(variables, gate, workflowName, executionId)
+        + "/"
+        + sanitizeName(actionName);
   }
 
-  public static boolean isRunningUnderReplay(
-      org.apache.hop.pipeline.engine.IPipelineEngine<?> pipeline) {
-    if (pipeline == null) {
-      return false;
+  public static void deleteExecutionSpool(ILogChannel log, IWorkflowEngine<WorkflowMeta> workflow) {
+    if (workflow == null || workflow.getWorkflowMeta() == null) {
+      return;
     }
-    org.apache.hop.workflow.engine.IWorkflowEngine<?> parentWf = pipeline.getParentWorkflow();
-    if (parentWf instanceof org.apache.hop.replay.engine.ReplayWorkflowEngine) {
-      return true;
+    String executionId = ReplayGateIdentity.executionId(workflow);
+    String workflowName = workflow.getWorkflowMeta().getName();
+    Set<String> folders = new LinkedHashSet<>();
+    for (ActionMeta actionMeta : workflow.getWorkflowMeta().getActions()) {
+      ReplayGate gate = getReplayGate(actionMeta);
+      if (gate == null || !gate.isEnabled()) {
+        continue;
+      }
+      folders.add(getExecutionSpoolPath(workflow, gate, workflowName, executionId));
     }
-    org.apache.hop.pipeline.engine.IPipelineEngine<?> parentPl = pipeline.getParentPipeline();
-    if (parentPl != null) {
-      return isRunningUnderReplay(parentPl);
+    for (String folder : folders) {
+      try {
+        FileObject folderObject = HopVfs.getFileObject(folder, workflow);
+        if (folderObject.exists()) {
+          folderObject.deleteAll();
+          if (log != null) {
+            log.logBasic(
+                "Replay Gate: removed sealed gates for execution " + executionId + " at " + folder);
+          }
+        }
+      } catch (Exception e) {
+        if (log != null) {
+          log.logError("Replay Gate: unable to remove spool folder " + folder, e);
+        }
+      }
     }
-    return false;
   }
 
-  private static boolean ValueMetaStringtoBoolean(String str) {
-    if (str == null) {
-      return false;
+  private static void putOrRemove(ActionMeta actionMeta, String key, String value) {
+    if (value == null) {
+      Map<String, String> attributes = actionMeta.getAttributes(ReplayDefaults.REPLAY_GATE_GROUP);
+      if (attributes != null) {
+        attributes.remove(key);
+      }
+      return;
     }
-    return "true".equalsIgnoreCase(str) || "y".equalsIgnoreCase(str) || "1".equals(str);
+    actionMeta.setAttribute(ReplayDefaults.REPLAY_GATE_GROUP, key, value);
   }
 
   private ReplayGateUtil() {

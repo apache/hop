@@ -34,9 +34,7 @@ public class ReplayGate {
 
   public static final String WIDGET_ENABLED = "0100-enabled";
   public static final String WIDGET_SPOOL_DIR = "0200-spool-dir";
-  public static final String WIDGET_COMPRESSION = "0300-compression";
-  public static final String WIDGET_ROW_LIMIT = "0400-row-limit";
-  public static final String WIDGET_DESCRIPTION = "0500-description";
+  public static final String WIDGET_DESCRIPTION = "0300-description";
 
   @GuiWidgetElement(
       id = WIDGET_ENABLED,
@@ -46,7 +44,7 @@ public class ReplayGate {
       toolTip = "i18n::ReplayGate.Enabled.Tooltip",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       groupType = GuiWidgetGroupType.BOXES,
-      group = "Replay Gate")
+      group = "i18n::ReplayGate.Group")
   @HopMetadataProperty
   private boolean enabled;
 
@@ -58,59 +56,25 @@ public class ReplayGate {
       toolTip = "i18n::ReplayGate.SpoolDirectory.Tooltip",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       groupType = GuiWidgetGroupType.BOXES,
-      group = "Replay Gate")
+      group = "i18n::ReplayGate.Group")
   @HopMetadataProperty
   private String spoolDirectory;
 
   @GuiWidgetElement(
-      id = WIDGET_COMPRESSION,
-      order = "0300",
-      type = GuiElementType.TEXT,
-      label = "i18n::ReplayGate.Compression.Label",
-      toolTip = "i18n::ReplayGate.Compression.Tooltip",
-      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Replay Gate")
-  @HopMetadataProperty
-  private String compression;
-
-  @GuiWidgetElement(
-      id = WIDGET_ROW_LIMIT,
-      order = "0400",
-      type = GuiElementType.TEXT,
-      label = "i18n::ReplayGate.RowLimit.Label",
-      toolTip = "i18n::ReplayGate.RowLimit.Tooltip",
-      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = "Replay Gate")
-  @HopMetadataProperty
-  private int rowLimit;
-
-  @GuiWidgetElement(
       id = WIDGET_DESCRIPTION,
-      order = "0500",
+      order = "0300",
       type = GuiElementType.TEXT,
       label = "i18n::ReplayGate.Description.Label",
       toolTip = "i18n::ReplayGate.Description.Tooltip",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       groupType = GuiWidgetGroupType.BOXES,
-      group = "Replay Gate")
+      group = "i18n::ReplayGate.Group")
   @HopMetadataProperty
   private String description;
 
   public ReplayGate() {
     this.enabled = true;
     this.spoolDirectory = ReplayDefaults.DEFAULT_SPOOL_DIR;
-    this.compression = ReplayDefaults.DEFAULT_COMPRESSION;
-    this.rowLimit = 0;
     this.description = "";
-  }
-
-  public ReplayGate(ReplayGate source) {
-    this.enabled = source.enabled;
-    this.spoolDirectory = source.spoolDirectory;
-    this.compression = source.compression;
-    this.rowLimit = source.rowLimit;
-    this.description = source.description;
   }
 }
