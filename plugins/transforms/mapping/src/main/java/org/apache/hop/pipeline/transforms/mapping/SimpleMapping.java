@@ -319,36 +319,14 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     return MappingTransforms.findMappingOutputs(mappingPipeline);
   }
 
-  /**
-   * Hops drawn before a flag was enabled are still wired up. Refusing them here, before {@code
-   * super.init()} and before any transform thread starts, matches {@code check()}: the pipeline
-   * does not run. An upstream transform would otherwise block forever in {@code putRow()} once the
-   * rowset filled, because this transform never calls {@code getRow()} when no input is set. An
-   * outgoing hop with no output would leave the next transform waiting on rows that are never
-   * written.
-   *
-   * @return true when initialization must stop
-   */
-  private boolean rejectOptionalIoHops() {
-    boolean rejected = false;
-    if (meta.isNoInput() && !getInputRowSets().isEmpty()) {
-      logError(BaseMessages.getString(PKG, "SimpleMapping.Log.NoInputButIncomingHops"));
-      rejected = true;
-    }
-    if (meta.isNoOutput() && !getOutputRowSets().isEmpty()) {
-      logError(BaseMessages.getString(PKG, "SimpleMapping.Log.NoOutputButOutgoingHops"));
-      rejected = true;
-    }
-    if (rejected) {
-      setErrors(1);
-    }
-    return rejected;
-  }
-
   @Override
   public boolean init() {
 
-    if (rejectOptionalIoHops()) {
+    // Incoming hops are refused by BaseTransform.init() when consumesMainInput() is false.
+    // Outgoing hops have no engine equivalent.
+    if (meta.isNoOutput() && !getOutputRowSets().isEmpty()) {
+      logError(BaseMessages.getString(PKG, "SimpleMapping.Log.NoOutputButOutgoingHops"));
+      setErrors(1);
       return false;
     }
 

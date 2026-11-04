@@ -116,10 +116,6 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     resetTransformIoMeta();
   }
 
-  /**
-   * With no input the transform never calls {@code getRow()}. Incoming hops would fill the rowset
-   * and stall the upstream transform in {@code putRow()}.
-   */
   @Override
   public boolean consumesMainInput() {
     return !noInput;
@@ -242,22 +238,15 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     if (noInput) {
-      // A hop drawn before the option was enabled is still in the pipeline. Report it here so
-      // Verify does not say the transform is fine.
-      if (input.length > 0) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputButIncomingHops"),
-                transformMeta);
-      } else {
+      // An incoming hop is reported by PipelineMeta because consumesMainInput() is false.
+      if (input.length == 0) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
                 BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputConfigured"),
                 transformMeta);
+        remarks.add(cr);
       }
-      remarks.add(cr);
     } else {
       if (prev == null || prev.isEmpty()) {
         cr =

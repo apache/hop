@@ -32,15 +32,23 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
@@ -330,15 +338,23 @@ class SimpleMappingTest {
   }
 
   @Test
-  void initFailsWhenNoInputStillHasAnIncomingHop() {
-    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
-    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(false);
-    smp = newSimpleMapping();
-    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+  void initRefusesIncomingHopWhenNoInputThroughTheEngine() {
+    SimpleMapping mapping = mappingWithIncomingHop();
 
-    assertFalse(smp.init());
-    assertEquals(1, smp.getErrors());
-    verify(transformMockHelper.iLogChannel).logError(contains("without input"));
+    assertFalse(mapping.init());
+    assertEquals(1, mapping.getErrors());
+    verify(transformMockHelper.iLogChannel).logError(contains("not reading incoming rows"));
+  }
+
+  @Test
+  void initAllowsIncomingHopWhenUnconsumedMainInputIsAllowed() {
+    SimpleMapping mapping = mappingWithIncomingHop();
+    mapping.setVariable(Const.HOP_ALLOW_UNCONSUMED_MAIN_INPUT, "Y");
+
+    mapping.init();
+
+    verify(transformMockHelper.iLogChannel, never())
+        .logError(contains("not reading incoming rows"));
   }
 
   @Test
@@ -353,18 +369,31 @@ class SimpleMappingTest {
     verify(transformMockHelper.iLogChannel).logError(contains("without output"));
   }
 
-  @Test
-  void initFailsWhenBothFlagsStillHaveHops() {
-    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
-    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
-    smp = newSimpleMapping();
-    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
-    smp.addRowSetToOutputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+  private SimpleMapping mappingWithIncomingHop() {
+    SimpleMappingMeta realMeta = new SimpleMappingMeta();
+    realMeta.setDefault();
+    realMeta.setNoInput(true);
 
-    assertFalse(smp.init());
-    assertEquals(1, smp.getErrors());
-    verify(transformMockHelper.iLogChannel).logError(contains("without input"));
-    verify(transformMockHelper.iLogChannel).logError(contains("without output"));
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("no-input-hop");
+    TransformMeta from = new TransformMeta("from", new DummyMeta());
+    TransformMeta to = new TransformMeta("mapping", realMeta);
+    pipelineMeta.addTransform(from);
+    pipelineMeta.addTransform(to);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(from, to));
+
+    QueueRowSet rowSet = new QueueRowSet();
+    rowSet.setThreadNameFromToCopy("from", 0, "mapping", 0);
+    doReturn(rowSet)
+        .when(transformMockHelper.pipeline)
+        .findRowSet(any(), anyInt(), any(), anyInt());
+    PipelineRunConfiguration runConfig = mock(PipelineRunConfiguration.class);
+    when(runConfig.getEngineRunConfiguration())
+        .thenReturn(mock(IPipelineEngineRunConfiguration.class));
+    doReturn(runConfig).when(transformMockHelper.pipeline).getPipelineRunConfiguration();
+
+    return new SimpleMapping(
+        to, realMeta, new SimpleMappingData(), 0, pipelineMeta, transformMockHelper.pipeline);
   }
 
   private SimpleMapping newSimpleMapping() {

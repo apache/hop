@@ -30,7 +30,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -75,16 +79,41 @@ class SimpleMappingMetaTest {
   }
 
   @Test
-  void checkReportsErrorWhenNoInputStillHasIncomingHops() {
+  void checkDoesNotReportIncomingHopsWhenNoInput() {
     SimpleMappingMeta meta = new SimpleMappingMeta();
     meta.setDefault();
     meta.setNoInput(true);
 
     List<ICheckResult> remarks = check(meta, new String[] {"upstream"}, new String[0]);
 
-    assertEquals(1, remarks.size());
-    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
-    assertTrue(remarks.get(0).getText().contains("without input"));
+    assertTrue(
+        remarks.stream().noneMatch(remark -> remark.getType() == ICheckResult.TYPE_RESULT_ERROR));
+  }
+
+  @Test
+  void verifyReportsIncomingHopWhenNoInput() throws Exception {
+    SimpleMappingMeta mapping = new SimpleMappingMeta();
+    mapping.setDefault();
+    mapping.setNoInput(true);
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("no-input-hop");
+    TransformMeta from = new TransformMeta("upstream", new DummyMeta());
+    TransformMeta to = new TransformMeta("mapping", mapping);
+    pipelineMeta.addTransform(from);
+    pipelineMeta.addTransform(to);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(from, to));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    pipelineMeta.checkTransforms(
+        remarks, false, null, new Variables(), new MemoryMetadataProvider());
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && remark.getText() != null
+                        && remark.getText().contains("not reading rows")));
   }
 
   @Test
@@ -119,7 +148,7 @@ class SimpleMappingMetaTest {
   }
 
   @Test
-  void checkReportsBothHopErrorsWhenBothFlagsAreSet() {
+  void checkReportsOnlyTheOutgoingHopWhenBothFlagsAreSet() {
     SimpleMappingMeta meta = new SimpleMappingMeta();
     meta.setDefault();
     meta.setNoInput(true);
@@ -128,9 +157,9 @@ class SimpleMappingMetaTest {
     List<ICheckResult> remarks =
         check(meta, new String[] {"upstream"}, new String[] {"downstream"});
 
-    assertEquals(2, remarks.size());
-    assertTrue(
-        remarks.stream().allMatch(remark -> remark.getType() == ICheckResult.TYPE_RESULT_ERROR));
+    assertEquals(1, remarks.size());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    assertTrue(remarks.get(0).getText().contains("without output"));
   }
 
   private static List<ICheckResult> check(SimpleMappingMeta meta, String[] input, String[] output) {
