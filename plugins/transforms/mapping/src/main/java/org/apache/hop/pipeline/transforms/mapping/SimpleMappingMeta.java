@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mapping;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -60,8 +59,6 @@ import org.apache.hop.resource.ResourceReference;
     keywords = "i18n::SimpleMappingMeta.keyword",
     documentationUrl = "/pipeline/transforms/simple-mapping.html",
     actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
-@Getter
-@Setter
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData>
     implements ISubPipelineAwareMeta {
 
@@ -75,12 +72,14 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   @HopMetadataProperty(key = "mappings")
   private IOMappings ioMappings;
 
+  @Getter
   @HopMetadataProperty(
       key = "no_input",
       injectionKey = "NO_INPUT",
       injectionKeyDescription = "SimpleMapping.Injection.NO_INPUT")
   private boolean noInput;
 
+  @Getter
   @HopMetadataProperty(
       key = "no_output",
       injectionKey = "NO_OUTPUT",
@@ -117,6 +116,20 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     resetTransformIoMeta();
   }
 
+  /**
+   * With no input the transform never calls {@code getRow()}. Incoming hops would fill the rowset
+   * and stall the upstream transform in {@code putRow()}.
+   */
+  @Override
+  public boolean consumesMainInput() {
+    return !noInput;
+  }
+
+  @Override
+  public boolean canStartWithoutInput() {
+    return noInput;
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -149,7 +162,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       // input transforms in the sub-pipeline about the data coming in...
       //
       IRowMeta inputRowMeta = row.clone();
-      if (!inputRowMeta.isEmpty() && ioMappings.getInputMapping() != null) {
+      if (!inputRowMeta.isEmpty()) {
         for (MappingValueRename valueRename : ioMappings.getInputMapping().getValueRenames()) {
           IValueMeta valueMeta = inputRowMeta.searchValueMeta(valueRename.getSourceValueName());
           if (valueMeta == null) {
@@ -186,9 +199,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // We're renaming some stuff back:
     //
-    if (!noInput
-        && ioMappings.getInputMapping() != null
-        && ioMappings.getInputMapping().isRenamingOnOutput()) {
+    if (!noInput && ioMappings.getInputMapping().isRenamingOnOutput()) {
       for (MappingValueRename rename : ioMappings.getInputMapping().getValueRenames()) {
         IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getTargetValueName());
         if (valueMeta != null) {
@@ -199,12 +210,10 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // Also rename output values back
     //
-    if (ioMappings.getOutputMapping() != null) {
-      for (MappingValueRename rename : ioMappings.getOutputMapping().getValueRenames()) {
-        IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getSourceValueName());
-        if (valueMeta != null) {
-          valueMeta.setName(rename.getTargetValueName());
-        }
+    for (MappingValueRename rename : ioMappings.getOutputMapping().getValueRenames()) {
+      IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta(rename.getSourceValueName());
+      if (valueMeta != null) {
+        valueMeta.setName(rename.getTargetValueName());
       }
     }
 
@@ -233,47 +242,77 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     if (noInput) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputConfigured"),
-              transformMeta);
-      remarks.add(cr);
-      return;
-    }
-
-    if (prev == null || prev.isEmpty()) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_WARNING,
-              BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NotReceivingAnyFields"),
-              transformMeta);
-      remarks.add(cr);
-    } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                  PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFields", prev.size() + ""),
-              transformMeta);
-      remarks.add(cr);
-    }
-
-    // See if we have input streams leading to this transform!
-    if (input.length > 0) {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(
-                  PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms"),
-              transformMeta);
+      // A hop drawn before the option was enabled is still in the pipeline. Report it here so
+      // Verify does not say the transform is fine.
+      if (input.length > 0) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputButIncomingHops"),
+                transformMeta);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputConfigured"),
+                transformMeta);
+      }
       remarks.add(cr);
     } else {
-      cr =
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputReceived"),
-              transformMeta);
+      if (prev == null || prev.isEmpty()) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NotReceivingAnyFields"),
+                transformMeta);
+        remarks.add(cr);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(
+                    PKG,
+                    "SimpleMappingMeta.CheckResult.TransformReceivingFields",
+                    prev.size() + ""),
+                transformMeta);
+        remarks.add(cr);
+      }
+
+      // See if we have input streams leading to this transform!
+      if (input.length > 0) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(
+                    PKG,
+                    "SimpleMappingMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms"),
+                transformMeta);
+        remarks.add(cr);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoInputReceived"),
+                transformMeta);
+        remarks.add(cr);
+      }
+    }
+
+    if (noOutput) {
+      if (output.length > 0) {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "SimpleMappingMeta.CheckResult.NoOutputButOutgoingHops"),
+                transformMeta);
+      } else {
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(PKG, "SimpleMappingMeta.CheckResult.NoOutputConfigured"),
+                transformMeta);
+      }
       remarks.add(cr);
     }
   }

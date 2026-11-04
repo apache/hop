@@ -66,7 +66,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         first = false;
         data.wasStarted = true;
 
-        if (!meta.isNoInput() && data.mappingInput != null) {
+        if (!meta.isNoInput()) {
           // Rows read are injected into the one available Mapping Input transform.
           // This adds an input RowSet to the Mapping Input transform.
           //
@@ -84,7 +84,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
           }
         }
 
-        if (!meta.isNoOutput() && data.mappingOutput != null) {
+        if (!meta.isNoOutput()) {
           // Rows produced by the mapping are read and passed on.
           //
           String mappingOutputTransformName = data.mappingOutput.getTransformName();
@@ -319,8 +319,38 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     return MappingTransforms.findMappingOutputs(mappingPipeline);
   }
 
+  /**
+   * Hops drawn before a flag was enabled are still wired up. Refusing them here, before {@code
+   * super.init()} and before any transform thread starts, matches {@code check()}: the pipeline
+   * does not run. An upstream transform would otherwise block forever in {@code putRow()} once the
+   * rowset filled, because this transform never calls {@code getRow()} when no input is set. An
+   * outgoing hop with no output would leave the next transform waiting on rows that are never
+   * written.
+   *
+   * @return true when initialization must stop
+   */
+  private boolean rejectOptionalIoHops() {
+    boolean rejected = false;
+    if (meta.isNoInput() && !getInputRowSets().isEmpty()) {
+      logError(BaseMessages.getString(PKG, "SimpleMapping.Log.NoInputButIncomingHops"));
+      rejected = true;
+    }
+    if (meta.isNoOutput() && !getOutputRowSets().isEmpty()) {
+      logError(BaseMessages.getString(PKG, "SimpleMapping.Log.NoOutputButOutgoingHops"));
+      rejected = true;
+    }
+    if (rejected) {
+      setErrors(1);
+    }
+    return rejected;
+  }
+
   @Override
   public boolean init() {
+
+    if (rejectOptionalIoHops()) {
+      return false;
+    }
 
     if (super.init()) {
       // First we need to load the mapping (pipeline)

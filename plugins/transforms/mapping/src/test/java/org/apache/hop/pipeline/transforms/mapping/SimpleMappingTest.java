@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
@@ -290,5 +292,88 @@ class SimpleMappingTest {
     verify(transformMockHelper.pipeline, never()).getTransform(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
     verify(transformMockHelper.pipeline, times(1)).startThreads();
     verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+  }
+
+  @Test
+  void testProcessRowWhenNoInputAndNoOutput() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    simpleMpData.mappingInput = null;
+    simpleMpData.mappingOutput = null;
+
+    smp = newSimpleMapping();
+
+    assertFalse(smp.processRow(), "A standalone mapping finishes in one call");
+    assertTrue(smp.getData().wasStarted);
+    verify(transformMockHelper.pipeline, never()).addRowProducer(anyString(), anyInt());
+    verify(transformMockHelper.pipeline, never()).getTransform(anyString(), anyInt());
+    verify(transformMockHelper.pipeline, times(1)).startThreads();
+    verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
+  }
+
+  @Test
+  void testProcessRowNoInputDrivesSingleThreadedLoop() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    simpleMpData.mappingInput = null;
+    simpleMpData.mappingOutput = null;
+    SingleThreadedPipelineExecutor executor = mock(SingleThreadedPipelineExecutor.class);
+    when(executor.oneIteration()).thenReturn(true, false);
+    simpleMpData.executor = executor;
+
+    smp = newSimpleMapping();
+
+    assertFalse(smp.processRow());
+    verify(executor, times(2)).oneIteration();
+    verify(transformMockHelper.pipeline, never()).waitUntilFinished();
+    verify(transformMockHelper.pipeline, times(1)).startThreads();
+  }
+
+  @Test
+  void initFailsWhenNoInputStillHasAnIncomingHop() {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(false);
+    smp = newSimpleMapping();
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+
+    assertFalse(smp.init());
+    assertEquals(1, smp.getErrors());
+    verify(transformMockHelper.iLogChannel).logError(contains("without input"));
+  }
+
+  @Test
+  void initFailsWhenNoOutputStillHasAnOutgoingHop() {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(false);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    smp = newSimpleMapping();
+    smp.addRowSetToOutputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+
+    assertFalse(smp.init());
+    assertEquals(1, smp.getErrors());
+    verify(transformMockHelper.iLogChannel).logError(contains("without output"));
+  }
+
+  @Test
+  void initFailsWhenBothFlagsStillHaveHops() {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(true);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    smp = newSimpleMapping();
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+    smp.addRowSetToOutputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+
+    assertFalse(smp.init());
+    assertEquals(1, smp.getErrors());
+    verify(transformMockHelper.iLogChannel).logError(contains("without input"));
+    verify(transformMockHelper.iLogChannel).logError(contains("without output"));
+  }
+
+  private SimpleMapping newSimpleMapping() {
+    return new SimpleMapping(
+        transformMockHelper.transformMeta,
+        transformMockHelper.iTransformMeta,
+        simpleMpData,
+        0,
+        transformMockHelper.pipelineMeta,
+        transformMockHelper.pipeline);
   }
 }

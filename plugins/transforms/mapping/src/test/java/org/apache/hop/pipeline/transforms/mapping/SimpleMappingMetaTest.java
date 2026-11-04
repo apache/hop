@@ -20,7 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -55,6 +58,8 @@ class SimpleMappingMetaTest {
 
     meta.setNoInput(true);
     assertTrue(meta.isNoInput());
+    assertFalse(meta.consumesMainInput());
+    assertTrue(meta.canStartWithoutInput());
     assertFalse(meta.getTransformIOMeta().isInputAcceptor());
     assertTrue(meta.getTransformIOMeta().isOutputProducer());
 
@@ -67,5 +72,79 @@ class SimpleMappingMetaTest {
     row.addValueMeta(new ValueMetaInteger("a"));
     meta.getFields(row, "origin", null, null, new Variables(), new MemoryMetadataProvider());
     assertEquals(0, row.size(), "getFields should clear the row when noOutput is true");
+  }
+
+  @Test
+  void checkReportsErrorWhenNoInputStillHasIncomingHops() {
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    meta.setDefault();
+    meta.setNoInput(true);
+
+    List<ICheckResult> remarks = check(meta, new String[] {"upstream"}, new String[0]);
+
+    assertEquals(1, remarks.size());
+    assertEquals(ICheckResult.TYPE_RESULT_ERROR, remarks.get(0).getType());
+    assertTrue(remarks.get(0).getText().contains("without input"));
+  }
+
+  @Test
+  void checkReportsErrorWhenNoOutputStillHasOutgoingHops() {
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    meta.setDefault();
+    meta.setNoOutput(true);
+
+    List<ICheckResult> remarks =
+        check(meta, new String[] {"upstream"}, new String[] {"downstream"});
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                remark ->
+                    remark.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && remark.getText().contains("without output")));
+  }
+
+  @Test
+  void checkAcceptsStandaloneMappingWhenBothFlagsAreSet() {
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    meta.setDefault();
+    meta.setNoInput(true);
+    meta.setNoOutput(true);
+
+    List<ICheckResult> remarks = check(meta, new String[0], new String[0]);
+
+    assertEquals(2, remarks.size());
+    assertTrue(
+        remarks.stream().allMatch(remark -> remark.getType() == ICheckResult.TYPE_RESULT_OK));
+  }
+
+  @Test
+  void checkReportsBothHopErrorsWhenBothFlagsAreSet() {
+    SimpleMappingMeta meta = new SimpleMappingMeta();
+    meta.setDefault();
+    meta.setNoInput(true);
+    meta.setNoOutput(true);
+
+    List<ICheckResult> remarks =
+        check(meta, new String[] {"upstream"}, new String[] {"downstream"});
+
+    assertEquals(2, remarks.size());
+    assertTrue(
+        remarks.stream().allMatch(remark -> remark.getType() == ICheckResult.TYPE_RESULT_ERROR));
+  }
+
+  private static List<ICheckResult> check(SimpleMappingMeta meta, String[] input, String[] output) {
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        null,
+        null,
+        new RowMeta(),
+        input,
+        output,
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+    return remarks;
   }
 }
