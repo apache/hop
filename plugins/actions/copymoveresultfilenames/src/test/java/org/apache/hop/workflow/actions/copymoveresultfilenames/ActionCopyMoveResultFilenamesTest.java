@@ -22,14 +22,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link ActionCopyMoveResultFilenames} */
 class ActionCopyMoveResultFilenamesTest {
+
+  @TempDir Path tempDir;
+
+  @BeforeAll
+  static void setUpBeforeClass() {
+    HopLogStore.init();
+  }
 
   @Test
   void testSerializationRoundTrip() throws Exception {
@@ -101,6 +119,82 @@ class ActionCopyMoveResultFilenamesTest {
     List<ICheckResult> remarks = check(action);
 
     assertTrue(remarks.isEmpty());
+  }
+
+  @Test
+  void invalidWildcardMakesActionFalseWithOneError() throws Exception {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    Path destination = tempDir.resolve("out");
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setParentWorkflow(workflow);
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
+    action.setDestinationFolder(destination.toString());
+    action.setCreateDestinationFolder(true);
+    action.setSpecifyWildcard(true);
+    action.setWildcard("[");
+
+    Result result = new Result();
+    Path source = Files.writeString(tempDir.resolve("file.txt"), "data");
+    ResultFile resultFile =
+        new ResultFile(
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(source.toString()), "wf", "action");
+    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+
+    result = action.execute(result, 0);
+
+    assertFalse(result.isResult());
+    assertEquals(1, result.getNrErrors());
+    assertFalse(
+        Files.exists(destination),
+        "destination folder must not be created when the wildcard is invalid");
+  }
+
+  @Test
+  void invalidExcludeWildcardMakesActionFalseWithOneError() {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setParentWorkflow(workflow);
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.DELETE);
+    action.setSpecifyWildcard(true);
+    action.setWildcard(".*\\.txt");
+    action.setWildcardExclude("[");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  void leftoverInvalidWildcardIsIgnoredWhenLimitActionToIsOff() throws Exception {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    Path destination = tempDir.resolve("out-no-limit");
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setParentWorkflow(workflow);
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
+    action.setDestinationFolder(destination.toString());
+    action.setCreateDestinationFolder(true);
+    action.setSpecifyWildcard(false);
+    action.setWildcard("[");
+
+    Result result = new Result();
+    Path source = Files.writeString(tempDir.resolve("file-no-limit.txt"), "data");
+    ResultFile resultFile =
+        new ResultFile(
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(source.toString()), "wf", "action");
+    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+
+    result = action.execute(result, 0);
+
+    assertTrue(result.isResult());
+    assertEquals(0, result.getNrErrors());
+    assertTrue(Files.exists(destination.resolve("file-no-limit.txt")));
   }
 
   private static List<ICheckResult> check(ActionCopyMoveResultFilenames action) {

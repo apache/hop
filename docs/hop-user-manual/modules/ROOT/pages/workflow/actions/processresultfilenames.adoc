@@ -71,4 +71,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Lines written|The number of files copied, moved or deleted. When the action stops because the destination folder does not exist, the value of the previous action is passed on.
 |===
 
-NOTE: With *Success when number of errors lesser than*, the action is still true when the number of errors equals *Nr errors lesser than*. An invalid regular expression in *Wildcard (RegExp)* or *Exclude wildcard (RegExp)* stops the workflow with an error, and no hop is followed, also when *Limit action to* is not selected.
+NOTE: With *Success when number of errors lesser than*, the action is still true when the number of errors equals *Nr errors lesser than*. With *Limit action to* selected, an invalid regular expression in *Wildcard (RegExp)* or *Exclude wildcard (RegExp)* makes the action false with 1 error.

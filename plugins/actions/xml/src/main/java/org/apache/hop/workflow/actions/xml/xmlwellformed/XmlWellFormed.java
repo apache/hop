@@ -188,7 +188,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
 
         // Get source and destination file names, also wildcard
         String vSourceFileFolderPrevious = resultRow.getString(0, null);
-        String vWildcardPrevious = resultRow.getString(1, null);
+        String vWildcardPrevious = resultRow.size() > 1 ? resultRow.getString(1, null) : null;
 
         if (isDetailed()) {
           logDetailed(
@@ -401,13 +401,14 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
 
               if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
-                if (includeSubfolders && GetFileWildcard(currentFile.toString(), realWildcard)) {
+                if (includeSubfolders
+                    && GetFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
                   checkOneFile(currentFile, result, parentWorkflow);
                 }
 
               } else {
                 // In the base folder
-                if (GetFileWildcard(currentFile.toString(), realWildcard)) {
+                if (GetFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
                   checkOneFile(currentFile, result, parentWorkflow);
                 }
               }
