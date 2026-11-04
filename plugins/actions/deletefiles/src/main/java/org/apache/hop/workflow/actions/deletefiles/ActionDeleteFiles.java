@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -103,7 +104,15 @@ public class ActionDeleteFiles extends ActionBase {
               String.valueOf((resultRows != null ? resultRows.size() : 0))));
     }
 
-    Multimap<String, String> pathToMaskMap = populateDataForWorkflowExecution(resultRows);
+    Multimap<String, String> pathToMaskMap;
+    try {
+      pathToMaskMap = populateDataForWorkflowExecution(resultRows);
+    } catch (HopValueException e) {
+      logError(e.getMessage());
+      result.setNrErrors(1);
+      result.setResult(false);
+      return result;
+    }
 
     for (Map.Entry<String, String> pathToMask : pathToMaskMap.entries()) {
       final String filePath = resolve(pathToMask.getKey());
@@ -156,12 +165,11 @@ public class ActionDeleteFiles extends ActionBase {
     if (argFromPrevious && rowsFromPreviousMeta != null) {
       for (RowMetaAndData resultRow : rowsFromPreviousMeta) {
         if (resultRow.size() < 2) {
-          logError(
+          throw new HopValueException(
               BaseMessages.getString(
                   PKG,
                   "ActionDeleteFiles.Error.InvalidNumberOfRowsFromPrevMeta",
                   resultRow.size()));
-          return pathToMaskMap;
         }
         String pathToFile = resultRow.getString(0, null);
         String fileMask = resultRow.getString(1, null);
@@ -199,9 +207,20 @@ public class ActionDeleteFiles extends ActionBase {
             logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.ProcessingFolder", path));
           }
 
+          final Pattern compiledWildcard;
+          try {
+            compiledWildcard = compileWildcard(wildcard);
+          } catch (PatternSyntaxException e) {
+            logError(
+                BaseMessages.getString(
+                    PKG, "ActionDeleteFiles.CouldNotProcess", path, e.getMessage()),
+                e);
+            return false;
+          }
+
           int totalDeleted =
               fileFolder.delete(
-                  new TextFileSelector(fileFolder.toString(), wildcard, parentWorkflow));
+                  new TextFileSelector(fileFolder.toString(), compiledWildcard, parentWorkflow));
 
           if (isDetailed()) {
             logDetailed(
@@ -239,21 +258,26 @@ public class ActionDeleteFiles extends ActionBase {
     return isDeleted;
   }
 
+  /**
+   * Compile the file-mask regex once. An invalid expression must fail the action instead of being
+   * swallowed while selecting files.
+   */
+  private static Pattern compileWildcard(String wildcard) {
+    if (Utils.isEmpty(wildcard)) {
+      return null;
+    }
+    return Pattern.compile(wildcard);
+  }
+
   private class TextFileSelector implements FileSelector {
-    String fileWildcard = null;
-    String sourceFolder = null;
-    IWorkflowEngine<WorkflowMeta> workflow;
+    private final Pattern fileWildcard;
+    private final String sourceFolder;
+    private final IWorkflowEngine<WorkflowMeta> workflow;
 
     public TextFileSelector(
-        String sourceFolder, String fileWildcard, IWorkflowEngine<WorkflowMeta> workflow) {
-
-      if (!Utils.isEmpty(sourceFolder)) {
-        this.sourceFolder = sourceFolder;
-      }
-
-      if (!Utils.isEmpty(fileWildcard)) {
-        this.fileWildcard = fileWildcard;
-      }
+        String sourceFolder, Pattern fileWildcard, IWorkflowEngine<WorkflowMeta> workflow) {
+      this.sourceFolder = sourceFolder;
+      this.fileWildcard = fileWildcard;
       this.workflow = workflow;
     }
 
@@ -270,7 +294,7 @@ public class ActionDeleteFiles extends ActionBase {
             // Not in the Base Folder. Only if include sub folders
             if (includeSubfolders
                 && (info.getFile().getType() == FileType.FILE)
-                && getFileWildcard(shortFilename, fileWildcard)) {
+                && matchesWildcard(shortFilename)) {
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
@@ -280,8 +304,7 @@ public class ActionDeleteFiles extends ActionBase {
             }
           } else {
             // In the Base Folder...
-            if ((info.getFile().getType() == FileType.FILE)
-                && getFileWildcard(shortFilename, fileWildcard)) {
+            if ((info.getFile().getType() == FileType.FILE) && matchesWildcard(shortFilename)) {
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
@@ -305,29 +328,18 @@ public class ActionDeleteFiles extends ActionBase {
       return doReturnCode;
     }
 
+    private boolean matchesWildcard(String selectedFile) {
+      if (fileWildcard == null) {
+        return true;
+      }
+      Matcher matcher = fileWildcard.matcher(selectedFile);
+      return matcher.matches();
+    }
+
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return info.getDepth() == 0 || includeSubfolders;
     }
-  }
-
-  /**********************************************************
-   *
-   * @param selectedfile
-   * @param wildcard
-   * @return True if the selected file matches the wildcard
-   **********************************************************/
-  private boolean getFileWildcard(String selectedfile, String wildcard) {
-    boolean getIt = true;
-
-    if (!Utils.isEmpty(wildcard)) {
-      Pattern pattern = Pattern.compile(wildcard);
-      // First see if the file matches the regular expression!
-      Matcher matcher = pattern.matcher(selectedfile);
-      getIt = matcher.matches();
-    }
-
-    return getIt;
   }
 
   @Override
