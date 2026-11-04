@@ -60,6 +60,12 @@ a|Where Apache Hop stores `hop-config.json`, the file holding your projects, env
 TIP: set the environment variable `HOP_CONFIG_FOLDER` to change this location, which makes switching between Hop versions and installations easy. xref:protips/index.adoc[read more]
 |`<INSTALLATION_PATH>/config/hop-config.json`
 
+|Shared metadata folder
+a|Local folder of metadata that is loaded before any project is opened. Leave it empty when you do not want shared metadata. See xref:projects/metadata.adoc#SharedMetadata[Shared metadata].
+
+image::hop-gui/shared-metadata-folder.png[Shared metadata folder,width="90%"]
+|empty
+
 |Preview data batch size
 a|How many rows are fetched when previewing from the pipeline run toolbar or a transform preview dialog.
 

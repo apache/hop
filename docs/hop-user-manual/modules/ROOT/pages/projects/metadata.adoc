@@ -42,6 +42,8 @@ The same applies to SMB and the other named VFS schemes.
 
 Set the folder in the configuration perspective, on the General tab, under the `hop-config.json` filename, or with Hop Conf:
 
+image::hop-gui/shared-metadata-folder.png[Shared metadata folder on the General tab of the configuration perspective,width="90%"]
+
 [source,shell]
 ----
 hop-conf.sh --shared-metadata-folder='${HOP_CONFIG_FOLDER}/metadata'
@@ -56,7 +58,12 @@ A new object is still saved in the active project.
 
 The metadata editor has a read-only *Metadata location* list when more than one place is available.
 The list says where the object lives, for example `Project metadata : ${PROJECT_HOME}/metadata` or `Shared metadata : ${HOP_CONFIG_FOLDER}/metadata`.
+
+image::hop-gui/metadata-editor-location.png[Metadata location at the top of a metadata editor,width="90%"]
+
 Choosing another place moves the object. Hop asks first when the place is not the active project, and it refuses when that place already has an object of the same name.
+
+image::hop-gui/metadata-editor-move.png[Confirmation before moving a metadata object to the shared folder,width="65%"]
 
 === Auto-export metadata to a single JSON file
 
