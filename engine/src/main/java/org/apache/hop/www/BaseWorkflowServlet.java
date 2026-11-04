@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -30,7 +31,7 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -57,10 +58,12 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
         workflowConfiguration.getWorkflowExecutionConfiguration();
 
     IHopMetadataProvider metadataProvider =
-        new MultiMetadataProvider(
-            variables,
-            getServerConfig().getMetadataProvider(),
-            workflowConfiguration.getMetadataProvider());
+        HopMetadataUtil.createMulti(
+            Encr.getEncoder(),
+            HopMetadataUtil.providersOf(
+                getServerConfig().getMetadataProvider(),
+                workflowConfiguration.getMetadataProvider()),
+            variables);
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
 
@@ -122,10 +125,12 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
         pipelineConfiguration.getPipelineExecutionConfiguration();
 
     IHopMetadataProvider metadataProvider =
-        new MultiMetadataProvider(
-            variables,
-            getServerConfig().getMetadataProvider(),
-            pipelineConfiguration.getMetadataProvider());
+        HopMetadataUtil.createMulti(
+            Encr.getEncoder(),
+            HopMetadataUtil.providersOf(
+                getServerConfig().getMetadataProvider(),
+                pipelineConfiguration.getMetadataProvider()),
+            variables);
 
     String serverObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject =

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -33,8 +34,10 @@ import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.HopSecurityConfig;
 import org.apache.hop.core.security.HopSecurityContext;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
+import org.apache.hop.metadata.util.SharedMetadata;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.TextIndent;
 import org.apache.hop.ui.hopgui.canvas.CanvasGraphRegistry;
@@ -263,6 +266,12 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
       if (serviceParams.getParameter(option) != null) {
         args.add("-" + option + "=" + serviceParams.getParameter(option));
       }
+    }
+
+    try {
+      SharedMetadata.install(Variables.getADefaultVariableSpace());
+    } catch (HopException e) {
+      throw new RuntimeException("Shared metadata could not be loaded", e);
     }
 
     HopGui.getInstance().setCommandLineArguments(args);

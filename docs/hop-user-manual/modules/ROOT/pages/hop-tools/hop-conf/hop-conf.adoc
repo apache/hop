@@ -27,6 +27,26 @@ Run it as `hop-conf.sh`, as `hop-conf.bat` on Windows, or as `hop conf` with the
 Plugins add their own, for example for search, the File Explorer, linting, the AI Assistant or cloud storage.
 The options described on this page are listed in <<_options,Options>>.
 
+== Shared metadata
+
+Metadata shared by the whole Hop configuration is stored in a local folder named in `hop-config.json` (`sharedMetadataFolder`).
+It is loaded before any project. See xref:projects/metadata.adoc#SharedMetadata[Shared metadata].
+
+[options="header"]
+|===
+|Option |Description
+
+|`--shared-metadata-folder=<path>`
+|Set the shared metadata folder. The path is stored as given, so `'${HOP_CONFIG_FOLDER}/metadata'` stays unresolved until Hop starts. An empty value (`--shared-metadata-folder=`) clears it.
+
+|`--shared-metadata-import=<file>`
+|Import a metadata export JSON file into the shared folder. An object of the same name is replaced. Other objects stay. When no folder is configured yet, Hop uses `'${HOP_CONFIG_FOLDER}/metadata'` and saves that.
+
+|`--shared-metadata-import-if-empty=<file>`
+|The same import, skipped when the folder already contains metadata. The container images use this so a restart does not replace objects edited afterwards.
+
+|===
+
 == Projects and environments
 
 include::../../snippets/hop-tools/hop-conf/hop-conf-projects.adoc[leveloffset=+1]

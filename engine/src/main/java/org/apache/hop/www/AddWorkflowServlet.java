@@ -29,12 +29,13 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -113,10 +114,12 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       WorkflowConfiguration workflowConfiguration =
           WorkflowConfiguration.fromXml(xml.toString(), variables);
       IHopMetadataProvider metadataProvider =
-          new MultiMetadataProvider(
-              variables,
-              getServerConfig().getMetadataProvider(),
-              workflowConfiguration.getMetadataProvider());
+          HopMetadataUtil.createMulti(
+              Encr.getEncoder(),
+              HopMetadataUtil.providersOf(
+                  getServerConfig().getMetadataProvider(),
+                  workflowConfiguration.getMetadataProvider()),
+              variables);
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration =
           workflowConfiguration.getWorkflowExecutionConfiguration();

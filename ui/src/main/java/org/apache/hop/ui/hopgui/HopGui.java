@@ -93,6 +93,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.util.SharedMetadata;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -686,6 +687,8 @@ public class HopGui
         HopLogStore.init();
       }
       RegionalSettings.getInstance().applyGui();
+
+      SharedMetadata.install(Variables.getADefaultVariableSpace());
 
       HopGui hopGui = HopGui.getInstance();
       hopGui.getCommandLineArguments().addAll(Arrays.asList(arguments));

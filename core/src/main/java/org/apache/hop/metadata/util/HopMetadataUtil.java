@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -31,6 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataSerializer;
+import org.apache.hop.metadata.serializer.memory.SharedMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 public class HopMetadataUtil {
@@ -54,7 +56,8 @@ public class HopMetadataUtil {
       }
     }
 
-    // Create a multi to wrap the various folders
+    // Create a multi to wrap the various folders. Shared configuration metadata, when one is
+    // configured, is the first provider. A project folder that is the same path is not added again.
     //
     List<IHopMetadataProvider> providers = new ArrayList<>();
     for (String folder : folders) {
@@ -62,7 +65,88 @@ public class HopMetadataUtil {
           new JsonMetadataProvider(Encr.getEncoder(), folder, variables);
       providers.add(provider);
     }
-    return new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
+    return createMulti(Encr.getEncoder(), providers, variables);
+  }
+
+  /**
+   * A metadata stack whose first provider is the shared configuration metadata, when one is
+   * installed. The shared provider is not added a second time when it is already in the list,
+   * including inside a nested multi-provider.
+   */
+  public static MultiMetadataProvider createMulti(
+      ITwoWayPasswordEncoder encoder, List<IHopMetadataProvider> providers, IVariables variables) {
+    MultiMetadataProvider multi =
+        new MultiMetadataProvider(encoder, withSharedFirst(providers, variables), variables);
+    MetadataPlaces.applyDefaults(multi);
+    return multi;
+  }
+
+  /** The given providers, skipping nulls, in the same order. */
+  public static List<IHopMetadataProvider> providersOf(IHopMetadataProvider... providers) {
+    List<IHopMetadataProvider> list = new ArrayList<>();
+    if (providers != null) {
+      for (IHopMetadataProvider provider : providers) {
+        if (provider != null) {
+          list.add(provider);
+        }
+      }
+    }
+    return list;
+  }
+
+  public static List<IHopMetadataProvider> withSharedFirst(
+      List<IHopMetadataProvider> providers, IVariables variables) {
+    SharedMetadataProvider shared = HopMetadataInstance.getSharedMetadataProvider();
+    List<IHopMetadataProvider> source = providers == null ? new ArrayList<>() : providers;
+    if (shared == null || containsShared(source, shared)) {
+      return new ArrayList<>(source);
+    }
+    List<IHopMetadataProvider> result = new ArrayList<>();
+    result.add(shared);
+    String sharedFolder = normalizeFolder(shared.getFolder());
+    for (IHopMetadataProvider provider : source) {
+      if (provider instanceof JsonMetadataProvider json
+          && sharedFolder.equals(normalizeFolder(resolveFolder(variables, json.getBaseFolder())))) {
+        continue;
+      }
+      result.add(provider);
+    }
+    return result;
+  }
+
+  public static boolean containsShared(
+      List<IHopMetadataProvider> providers, SharedMetadataProvider shared) {
+    if (providers == null || shared == null) {
+      return false;
+    }
+    for (IHopMetadataProvider provider : providers) {
+      if (provider == shared) {
+        return true;
+      }
+      if (provider instanceof MultiMetadataProvider multi
+          && containsShared(multi.getProviders(), shared)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String resolveFolder(IVariables variables, String folder) {
+    if (variables == null || folder == null) {
+      return folder;
+    }
+    return variables.resolve(folder);
+  }
+
+  static String normalizeFolder(String folder) {
+    if (folder == null) {
+      return "";
+    }
+    String value = folder.replace('\\', '/');
+    while (value.endsWith("/")) {
+      value = value.substring(0, value.length() - 1);
+    }
+    return value;
   }
 
   /**

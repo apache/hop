@@ -27,6 +27,7 @@ import java.io.Serial;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -34,7 +35,7 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -126,10 +127,12 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
               CONTEXT_PATH, serverObjectId, pipelineExecutionConfiguration.getLogLevel());
 
       IHopMetadataProvider metadataProvider =
-          new MultiMetadataProvider(
-              variables,
-              getServerConfig().getMetadataProvider(),
-              pipelineConfiguration.getMetadataProvider());
+          HopMetadataUtil.createMulti(
+              Encr.getEncoder(),
+              HopMetadataUtil.providersOf(
+                  getServerConfig().getMetadataProvider(),
+                  pipelineConfiguration.getMetadataProvider()),
+              variables);
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
       final IPipelineEngine<PipelineMeta> pipeline =

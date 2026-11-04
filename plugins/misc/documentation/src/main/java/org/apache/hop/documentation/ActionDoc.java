@@ -22,11 +22,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
@@ -123,7 +125,9 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
     if (getMetadataProvider() instanceof MultiMetadataProvider) {
       provider = (MultiMetadataProvider) getMetadataProvider();
     } else {
-      provider = new MultiMetadataProvider(getVariables(), getMetadataProvider());
+      provider =
+          HopMetadataUtil.createMulti(
+              Encr.getEncoder(), java.util.List.of(getMetadataProvider()), getVariables());
     }
 
     DocBuilder docBuilder =

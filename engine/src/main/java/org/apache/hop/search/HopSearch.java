@@ -54,6 +54,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExecutionException;
@@ -235,7 +236,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand
       providers.add(new JsonMetadataProvider(passwordEncoder, folder, variables));
     }
 
-    metadataProvider = new MultiMetadataProvider(Encr.getEncoder(), providers, variables);
+    metadataProvider = HopMetadataUtil.createMulti(Encr.getEncoder(), providers, variables);
   }
 
   public static void main(String[] args) {

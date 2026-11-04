@@ -189,7 +189,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
         org.apache.hop.metadata.serializer.json.JsonMetadataProvider jsonProvider =
             new org.apache.hop.metadata.serializer.json.JsonMetadataProvider();
         metadataProvider =
-            new MultiMetadataProvider(
+            org.apache.hop.metadata.util.HopMetadataUtil.createMulti(
                 org.apache.hop.core.encryption.Encr.getEncoder(),
                 java.util.List.of(jsonProvider),
                 variables);

@@ -41,6 +41,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.util.SharedMetadata;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
@@ -112,6 +113,11 @@ public class Hop {
     // Clear the jar file cache so that we don't waste memory...
     //
     JarCache.getInstance().clear();
+
+    // Shared configuration metadata is loaded before any project, so a project home on a named
+    // VFS scheme can be opened with the connections defined there.
+    //
+    SharedMetadata.install(hop.variables);
 
     // Set up the metadata to use
     //

@@ -128,6 +128,18 @@ When using an environment a project has to be created too
 |
 | This is a comma separated list of paths to environment config files (including filename and file extension).
 
+|```HOP_CONFIG_SHARED_METADATA```
+|
+| A metadata export JSON document (the same file `hop-conf --export-metadata` writes).
+The entrypoint imports it into the shared metadata folder before a project is registered, so a project home such as `git-project:///` can be opened.
+Set only one of `HOP_CONFIG_SHARED_METADATA` and `HOP_CONFIG_SHARED_METADATA_FILE`.
+When the shared folder already contains metadata the import is skipped, so a container restart does not replace objects changed after the first start. Empty the folder, or run `hop-conf.sh --shared-metadata-import=<file>`, to import again.
+
+|```HOP_CONFIG_SHARED_METADATA_FILE```
+|
+| Path of a metadata export JSON file mounted into the container. Same import as `HOP_CONFIG_SHARED_METADATA`.
+A HashiCorp Vault variable resolver and a Git repository named `git-project` in that export let the project home be `git-project:///`. The shared folder itself stays a local path, by default `'${HOP_CONFIG_FOLDER}/metadata'`.
+
 |```HOP_OPTIONS```
 |`-XX:+AggressiveHeap`
 | Any JRE options you want to set.

@@ -35,6 +35,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
+import org.apache.hop.metadata.util.MetadataPlace;
 
 /**
  * This metadata provider delegates for a standard provider but also reads information from others
@@ -44,6 +45,12 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
   @Setter private ITwoWayPasswordEncoder twoWayPasswordEncoder;
   private final IVariables variables;
   @Setter private List<IHopMetadataProvider> providers;
+
+  /**
+   * Friendly names for {@link #providers}, in the same order. Empty until a caller assigns them.
+   * The description on each place is what {@link #findProvider(String)} matches.
+   */
+  @Setter private List<MetadataPlace> places = new ArrayList<>();
 
   /**
    * @param twoWayPasswordEncoder The password encoder to use
@@ -145,11 +152,30 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
    * @return The provider with the given description or null if nothing could be found
    */
   public IHopMetadataProvider findProvider(String providerDescription) {
-    ListIterator<IHopMetadataProvider> listIterator = providers.listIterator(providers.size());
+    return findProvider(providerDescription, providers);
+  }
+
+  /**
+   * Later providers win, and a provider nested in a later multi-provider wins over an earlier
+   * sibling. Shared metadata stored inside the server provider is still found from an execution
+   * stack that wraps that provider.
+   */
+  private IHopMetadataProvider findProvider(
+      String providerDescription, List<IHopMetadataProvider> list) {
+    if (list == null || providerDescription == null) {
+      return null;
+    }
+    ListIterator<IHopMetadataProvider> listIterator = list.listIterator(list.size());
     while (listIterator.hasPrevious()) {
       IHopMetadataProvider provider = listIterator.previous();
-      if (provider.getDescription().equals(providerDescription)) {
+      if (providerDescription.equals(provider.getDescription())) {
         return provider;
+      }
+      if (provider instanceof MultiMetadataProvider multi) {
+        IHopMetadataProvider nested = findProvider(providerDescription, multi.getProviders());
+        if (nested != null) {
+          return nested;
+        }
       }
     }
     return null;

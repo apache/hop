@@ -24,12 +24,20 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.memory.SharedMetadataProvider;
+import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.util.MetadataPlaces;
+import org.apache.hop.metadata.util.SharedMetadata;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.hopgui.terminal.HopGuiBottomDock;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -58,6 +66,7 @@ import org.eclipse.swt.widgets.Text;
 public class ConfigGeneralOptionsTab {
   private static final Class<?> PKG = BaseDialog.class;
 
+  private TextVar wSharedMetadataFolder;
   private Text wDefaultPreview;
   private Button wUseCache;
   private Button wOpenLast;
@@ -115,6 +124,10 @@ public class ConfigGeneralOptionsTab {
       wResolveVarsInTips.setSelection(props.resolveVariablesInToolTips());
       wSortFieldByName.setSelection(props.isSortFieldByName());
       wbUseGlobalFileBookmarks.setSelection(props.useGlobalFileBookmarks());
+      if (wSharedMetadataFolder != null && !wSharedMetadataFolder.isDisposed()) {
+        wSharedMetadataFolder.setText(
+            Const.NVL(HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""), ""));
+      }
       wMaxExecutionLoggingTextSize.setText(
           Integer.toString(props.getMaxExecutionLoggingTextSize()));
 
@@ -171,6 +184,8 @@ public class ConfigGeneralOptionsTab {
     boolean isConfigFromEnv = configFolder != null && !configFolder.trim().isEmpty();
     wFilename.setEnabled(!isConfigFromEnv);
     Control lastControl = wFilename;
+
+    lastControl = createSharedMetadataFolder(wGeneralComp, lastControl, margin);
 
     // Explain HOP_CONFIG
     Label wlWhatIsHopConfig = new Label(wGeneralComp, SWT.LEFT);
@@ -605,6 +620,104 @@ public class ConfigGeneralOptionsTab {
    * @param margin The margin to use
    * @return An array containing [Label, Text] controls
    */
+  /**
+   * Shared metadata folder, directly under the hop-config.json filename. An empty value disables
+   * shared metadata. The value is stored with variables unresolved.
+   */
+  private Control createSharedMetadataFolder(Composite parent, Control lastControl, int margin) {
+    Label label = new Label(parent, SWT.LEFT);
+    PropsUi.setLook(label);
+    label.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.SharedMetadataFolder.Label"));
+    FormData labelData = new FormData();
+    labelData.left = new FormAttachment(0, 0);
+    labelData.right = new FormAttachment(100, 0);
+    labelData.top = new FormAttachment(lastControl, margin);
+    label.setLayoutData(labelData);
+
+    Button browse = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(browse);
+    browse.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.SharedMetadataFolder.Browse"));
+    FormData browseData = new FormData();
+    browseData.right = new FormAttachment(100, 0);
+    browseData.top = new FormAttachment(label, margin / 2);
+    browse.setLayoutData(browseData);
+
+    wSharedMetadataFolder =
+        new TextVar(
+            HopGui.getInstance().getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSharedMetadataFolder);
+    wSharedMetadataFolder.setText(
+        Const.NVL(HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""), ""));
+    wSharedMetadataFolder.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.SharedMetadataFolder.ToolTip"));
+    FormData textData = new FormData();
+    textData.left = new FormAttachment(0, 0);
+    textData.right = new FormAttachment(browse, -margin);
+    textData.top = new FormAttachment(browse, 0, SWT.CENTER);
+    wSharedMetadataFolder.setLayoutData(textData);
+    wSharedMetadataFolder.addListener(SWT.FocusOut, event -> saveSharedMetadataFolder());
+    browse.addListener(
+        SWT.Selection,
+        event -> {
+          String folder = BaseDialog.presentDirectoryDialog(parent.getShell());
+          if (folder != null && !folder.isEmpty()) {
+            wSharedMetadataFolder.setText(folder);
+            saveSharedMetadataFolder();
+          }
+        });
+    return browse;
+  }
+
+  private void saveSharedMetadataFolder() {
+    if (isReloading || wSharedMetadataFolder == null || wSharedMetadataFolder.isDisposed()) {
+      return;
+    }
+    String value =
+        wSharedMetadataFolder.getText() == null ? "" : wSharedMetadataFolder.getText().trim();
+    String current = Const.NVL(HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""), "");
+    if (value.equals(current)) {
+      return;
+    }
+    HopGui hopGui = HopGui.getInstance();
+    SharedMetadataProvider previousShared = HopMetadataInstance.getSharedMetadataProvider();
+    MultiMetadataProvider previousProvider = hopGui.getMetadataProvider();
+    try {
+      HopConfig.getInstance().saveOption(SharedMetadata.CONFIG_KEY, value);
+      SharedMetadata.install(hopGui.getVariables());
+      MultiMetadataProvider next =
+          HopMetadataUtil.getStandardHopMetadataProvider(hopGui.getVariables());
+      MetadataPlaces.reuseLabels(next, previousProvider);
+      hopGui.setMetadataProvider(next);
+      HopMetadataInstance.setMetadataProvider(next);
+      MetadataPerspective perspective = MetadataPerspective.getInstance();
+      if (perspective != null) {
+        perspective.refresh();
+      }
+    } catch (Exception e) {
+      try {
+        HopConfig.getInstance().saveOption(SharedMetadata.CONFIG_KEY, current);
+        HopMetadataInstance.setSharedMetadataProvider(previousShared);
+        if (previousProvider != null) {
+          hopGui.setMetadataProvider(previousProvider);
+          HopMetadataInstance.setMetadataProvider(previousProvider);
+        }
+      } catch (Exception restoreFailed) {
+        hopGui.getLog().logError("Could not restore the shared metadata folder", restoreFailed);
+      }
+      isReloading = true;
+      try {
+        wSharedMetadataFolder.setText(current);
+      } finally {
+        isReloading = false;
+      }
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "EnterOptionsDialog.SharedMetadataFolder.Error.Title"),
+          BaseMessages.getString(PKG, "EnterOptionsDialog.SharedMetadataFolder.Error.Message"),
+          e);
+    }
+  }
+
   private Control[] createTextField(
       Composite parent,
       String labelKey,

@@ -33,6 +33,31 @@ E.g. a `CRM` database connection is created in the project, using a number of va
 
 A project's metadata is stored in `+${PROJECT_HOME}/metadata+`, but can be overruled by setting the project's `+metadata base folder ${HOP_METADATA_FOLDER}+` property in the project configuration dialog or directly in the `project-config.json` file.
 
+[[SharedMetadata]]
+=== Shared metadata
+
+Metadata that has to exist before a project is opened is stored with the Hop configuration, not in a project.
+A HashiCorp Vault variable resolver and a Git repository named `git-project` in that metadata let a project home be `git-project:///`.
+The same applies to SMB and the other named VFS schemes.
+
+Set the folder in the configuration perspective, on the General tab, under the `hop-config.json` filename, or with Hop Conf:
+
+[source,shell]
+----
+hop-conf.sh --shared-metadata-folder='${HOP_CONFIG_FOLDER}/metadata'
+----
+
+An empty folder option means there is no shared metadata.
+The folder is a local path. It cannot be a named VFS scheme, because that scheme is defined by the metadata being read.
+
+When a project is open the shared objects are loaded first, then the parent projects, then the active project.
+An object in a later place overrides an object of the same name.
+A new object is still saved in the active project.
+
+The metadata editor has a read-only *Metadata location* list when more than one place is available.
+The list says where the object lives, for example `Project metadata : ${PROJECT_HOME}/metadata` or `Shared metadata : ${HOP_CONFIG_FOLDER}/metadata`.
+Choosing another place moves the object. Hop asks first when the place is not the active project, and it refuses when that place already has an object of the same name.
+
 === Auto-export metadata to a single JSON file
 
 Some integrations (for example Apache Airflow calling Hop Server, or Beam-style packaging) need the project metadata as a **single JSON file** rather than the per-type folder tree under `metadata/`.
