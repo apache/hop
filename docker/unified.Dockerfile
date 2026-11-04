@@ -77,13 +77,16 @@ RUN if [ ! -f "pom.xml" ]; then \
         exit 1; \
     fi
 
-# Build with Maven - produces artifacts in target/ folders
+# Build with Maven - produces artifacts in target/ folders.
+# config-doc rewrites the manual. It is on unless this property is false, and
+# the image does not ship that output. Same switch the release build uses.
 RUN mvn clean install -T ${MAVEN_THREADS} -B -C -e -V \
     -Djacoco.skip=true \
     -Drat.skip=true \
     -Dcheckstyle.skip=true \
     -Dspotless.skip=true \
     -DskipTests=true \
+    -Dconfig-doc=false \
     -Daether.syncContext.named.time=300 \
     --file pom.xml
 

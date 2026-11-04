@@ -60,6 +60,10 @@
 !lib/**
 !lib-jdbc/
 !lib-jdbc/**
+# The base profile always builds this reactor module. Without it Maven stops
+# before compiling anything: "Child module lib-p2 does not exist".
+!lib-p2/
+!lib-p2/**
 # Build helpers used inside the unified Dockerfile (marketplace-optional plugin install)
 !tools/
 !tools/**

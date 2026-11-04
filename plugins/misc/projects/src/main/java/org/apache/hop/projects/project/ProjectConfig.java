@@ -127,7 +127,7 @@ public class ProjectConfig {
   public String getActualProjectConfigFilename(IVariables variables) throws HopException {
     try {
       String actualHomeFolder = variables.resolve(getProjectHome());
-      FileObject actualHome = HopVfs.getFileObject(actualHomeFolder);
+      FileObject actualHome = HopVfs.getFileObject(actualHomeFolder, variables);
       if (!actualHome.exists()) {
         throw new HopException(
             "Project '"
@@ -182,7 +182,7 @@ public class ProjectConfig {
     }
     Project project = new Project(configFilename);
     try {
-      if (HopVfs.getFileObject(configFilename).exists()) {
+      if (HopVfs.getFileObject(configFilename, variables).exists()) {
         project.readFromFile();
       }
     } catch (Exception e) {
