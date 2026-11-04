@@ -59,9 +59,14 @@ import picocli.CommandLine.Option;
 @HopCommand(id = "naming-check", description = "Validate names against Naming Schemes")
 @Command(
     versionProvider = HopVersionProvider.class,
-    mixinStandardHelpOptions = true,
     description = "Validate names against project Naming Schemes")
 public class HopNamingCheck implements Runnable, IHopCommand, IHasHopMetadataProvider {
+
+  @Option(
+      names = {"-h", "--help"},
+      usageHelp = true,
+      description = "Displays this help message and quits.")
+  private boolean helpRequested;
 
   @Option(
       names = {"-v", "--version"},

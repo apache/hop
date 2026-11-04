@@ -63,12 +63,15 @@ import picocli.CommandLine.Parameters;
 
 @Getter
 @Setter
-@Command(
-    versionProvider = HopVersionProvider.class,
-    description = "Search in Hop metadata",
-    mixinStandardHelpOptions = true)
+@Command(versionProvider = HopVersionProvider.class, description = "Search in Hop metadata")
 @HopCommand(id = "search", description = "Search in Hop metadata")
 public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand {
+  @Option(
+      names = {"-h", "--help"},
+      usageHelp = true,
+      description = "Displays this help message and quits.")
+  private boolean helpRequested;
+
   @Option(
       names = {"-v", "--version"},
       versionHelp = true,
