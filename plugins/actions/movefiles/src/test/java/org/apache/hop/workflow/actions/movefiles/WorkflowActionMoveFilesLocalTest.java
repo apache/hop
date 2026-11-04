@@ -124,6 +124,7 @@ class WorkflowActionMoveFilesLocalTest {
 
     Result result = action.execute(new Result(), 0);
     assertFalse(result.isResult(), "Move should not succeed when destination exists");
+    assertEquals(1, result.getNrErrors(), "Fail on existing destination must count one error");
     assertTrue(Files.exists(sourceFile), "Source file should still exist");
     assertEquals(
         originalContent,

@@ -264,9 +264,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     PKG, CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
             successConditionBrokenExit = true;
           }
-          result.setNrErrors(nrErrors);
-          displayResults();
-          return result;
+          return finishWithSuccessCondition(result);
         }
 
         resultRow = rows.get(iteration);
@@ -324,9 +322,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     PKG, CONST_ACTION_MOVE_FILES_ERROR_SUCCESS_CONDITIONBROKEN, "" + nrErrors));
             successConditionBrokenExit = true;
           }
-          result.setNrErrors(nrErrors);
-          displayResults();
-          return result;
+          return finishWithSuccessCondition(result);
         }
 
         if (!Utils.isEmpty(vFileToMove.getSourceFileFolder())
@@ -366,15 +362,20 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    // Success Condition
+    return finishWithSuccessCondition(result);
+  }
+
+  /**
+   * Apply the success condition to {@code result}. Used both for the normal end of {@link #execute}
+   * and for early exit when the error limit is reached, so the same nrErrors cannot yield true in
+   * one path and false in the other.
+   */
+  private Result finishWithSuccessCondition(Result result) {
     result.setNrErrors(nrErrors);
     result.setNrLinesWritten(nrSuccess);
-    if (getSuccessStatus()) {
-      result.setResult(true);
-    }
+    result.setResult(getSuccessStatus());
 
     displayResults();
-
     return result;
   }
 
@@ -390,10 +391,11 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean getSuccessStatus() {
+    // SUCCESS_IF_ERRORS_LESS matches the UI label "Nr errors lesser than" (strict <).
     return (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
         || (nrSuccess >= limitFiles
             && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED))
-        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
+        || (nrErrors < limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
   }
 
   private boolean processFileFolder(
@@ -440,9 +442,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                     "ActionMoveFiles.Log.CanNotMoveFolderToFile",
                     realSourceFilefoldername,
                     realDestinationFilefoldername));
-
-            // Update Errors
-            updateErrors();
+            // Leave entryStatus false so the caller counts the error once.
           } else {
             if (destinationFileFolder.getType().equals(FileType.FOLDER)
                 && sourceFileFolder.getType().equals(FileType.FILE)) {
@@ -565,7 +565,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
               if (fileObjects != null) {
                 for (int j = 0; j < fileObjects.length && !parentWorkflow.isStopped(); j++) {
-                  // Success condition broken?
+                  // Success condition broken? Errors are already counted; return true so the
+                  // caller does not increment nrErrors again.
                   if (successConditionBroken) {
                     if (!successConditionBrokenExit) {
                       logError(
@@ -575,7 +576,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                               "" + nrErrors));
                       successConditionBrokenExit = true;
                     }
-                    return false;
+                    return true;
                   }
                   // Fetch files in list one after one ...
                   currentFile = fileObjects[j];
@@ -829,6 +830,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
               }
 
+              updateSuccess();
+              retVal = true;
             } else {
               switch (ifExistsOption(ifMovedFileExists)) {
                 case "overwrite_file" -> {
@@ -887,9 +890,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   updateSuccess();
                   retVal = true;
                 }
-                case FAIL ->
-                    // Update Errors
-                    updateErrors();
+                case FAIL -> retVal = false; // caller counts the error once
                 case CONST_DO_NOTHING -> retVal = true;
                 default ->
                     logError(
@@ -900,9 +901,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               }
             }
           }
-          case FAIL ->
-              // Update Errors
-              updateErrors();
+          case FAIL -> retVal = false; // caller counts the error once
           case CONST_DO_NOTHING -> retVal = true;
           default ->
               logError(
@@ -921,7 +920,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               destinationFilename.toString(),
               e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
           e);
-      updateErrors();
+      // Leave retVal false so the caller counts the error once.
     } finally {
       if (destinationFile != null) {
         try {
@@ -942,7 +941,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result,
       FileObject moveToFolderFolder) {
-    boolean entryStatus = false;
+    // Default true: skipping the base folder / non-matching wildcard is not an error. When we do
+    // call moveFile, propagate its result — do not force true afterwards (#9175).
+    boolean entryStatus = true;
     FileObject filename = null;
 
     try {
@@ -963,7 +964,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                       CONST_ACTION_MOVE_FILES_ERROR_GETTING_FILENAME,
                       currentFile.getName().getBaseName(),
                       e.toString())));
-          return entryStatus;
+          return false;
         }
 
         int lenCurrent = sourceShortFilename.length();
@@ -1040,9 +1041,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           }
         }
       }
-      entryStatus = true;
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionMoveFiles.Log.Error", e.toString()));
+      entryStatus = false;
     } finally {
       if (filename != null) {
         try {
