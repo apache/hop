@@ -118,4 +118,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged. With *Copy previous results to args*, the source, destination and wildcard come from the first three fields of each result row.
 |===
 
-NOTE: With *Success when number of errors lesser than*, the action stops and is false as soon as the number of errors reaches *Nr errors lesser than*, but when the last file brings it to that number, the action is still true. With *If destination file exists* set to *Fail*, a file that already exists counts as two errors.
+NOTE: With *Success when number of errors lesser than*, the action stops and is false as soon as the number of errors reaches *Nr errors lesser than* (strictly fewer errors than the limit is required for success).

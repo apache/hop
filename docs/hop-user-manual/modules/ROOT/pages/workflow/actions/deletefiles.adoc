@@ -48,7 +48,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |True|Every file and folder in the list was processed. A path that doesn't exist counts as already deleted. For a single file the wildcard is not used.
 |False|A file could not be deleted. The number of errors is the number of entries in the list that failed.
 |Result files|Passed on unchanged. The deleted files are not added.
-|Result rows|Passed on unchanged. With *Copy previous results to args*, the action takes the path from the first field and the wildcard from the second field of each result row, and ignores the list in the dialog, also when there are no result rows. A row with fewer than two fields stops the action: the remaining rows are not processed, and the action is still true.
+|Result rows|Passed on unchanged. With *Copy previous results to args*, the action takes the path from the first field and the wildcard from the second field of each result row, and ignores the list in the dialog, also when there are no result rows. A row with fewer than two fields stops the action before anything is deleted: nothing is deleted, and the action is false.
 |===
 
-NOTE: An invalid regular expression in *Wildcard* deletes nothing, and the action is still true.
+NOTE: An invalid regular expression in *Wildcard* deletes nothing, and the action is false.

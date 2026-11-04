@@ -317,12 +317,20 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
    * <p>The DDL runs with autocommit on. Inside the data transaction a table or index created here
    * would be undone by the rollback of a single failed row, and an index would hold its locks for
    * the length of the load.
+   *
+   * <p>Not on a connection shared by a transactional pipeline: switching it to autocommit commits
+   * the open transaction, with the rows the other transforms wrote so far, and a later rollback of
+   * the pipeline can no longer undo them. There the DDL runs in the pipeline's transaction (it is
+   * transactional in PostgreSQL), and the commit mode is the pipeline's to keep.
    */
   void prepareSchemaAndCommitMode(String schemaName, String tableName) throws HopException {
+    boolean sharedConnection = !Utils.isEmpty(data.database.getConnectionGroup());
     // The HNSW index and the mapped-column ALTERs are independent options, so they have to run on
     // an existing table too, not only when this transform creates one.
     if (meta.isCreateTableIfMissing() || meta.isCreateHnswIndex() || hasColumnMappings()) {
-      data.database.setCommit(0);
+      if (!sharedConnection) {
+        data.database.setCommit(0);
+      }
       VectorDistanceMetric indexMetric =
           meta.getIndexMetric() != null ? meta.getIndexMetric() : VectorDistanceMetric.COSINE;
       PgVectorDatabase.ensureSchema(
@@ -333,7 +341,9 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
           indexMetric,
           Const.toInt(resolve(meta.getEmbeddingDimensions()), 768));
     }
-    data.database.setCommit(data.commitSize);
+    if (!sharedConnection) {
+      data.database.setCommit(data.commitSize);
+    }
   }
 
   private void openDatabase() throws HopException {

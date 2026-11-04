@@ -370,38 +370,8 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       }
     }
 
-    StringBuilder strpol;
-    // Trimming
-    switch (trimType) {
-      case IValueMeta.TRIM_TYPE_LEFT:
-        strpol = new StringBuilder(pol);
-        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
-          strpol.deleteCharAt(0);
-        }
-        pol = strpol.toString();
-
-        break;
-      case IValueMeta.TRIM_TYPE_RIGHT:
-        strpol = new StringBuilder(pol);
-        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
-          strpol.deleteCharAt(strpol.length() - 1);
-        }
-        pol = strpol.toString();
-
-        break;
-      case IValueMeta.TRIM_TYPE_BOTH:
-        strpol = new StringBuilder(pol);
-        while (!strpol.isEmpty() && strpol.charAt(0) == ' ') {
-          strpol.deleteCharAt(0);
-        }
-        while (!strpol.isEmpty() && strpol.charAt(strpol.length() - 1) == ' ') {
-          strpol.deleteCharAt(strpol.length() - 1);
-        }
-        pol = strpol.toString();
-        break;
-      default:
-        break;
-    }
+    // Trim the same way as every other value type (Unicode whitespace, non-breaking space)
+    pol = Const.trimToType(pol, trimType);
 
     // On with the regular program...
     // Simply call the ValueMeta routines to do the conversion

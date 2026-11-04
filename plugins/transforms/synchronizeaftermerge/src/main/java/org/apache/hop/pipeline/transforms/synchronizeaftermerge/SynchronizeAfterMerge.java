@@ -486,6 +486,9 @@ public class SynchronizeAfterMerge
         } else {
           putError(data.inputRowMeta, row, 1, errorMessage, null, "SUYNC001");
         }
+      } else {
+        // A row goes to the error hop or to the output, never to both.
+        putRow(data.outputRowMeta, row);
       }
     }
   }
@@ -772,10 +775,8 @@ public class SynchronizeAfterMerge
     }
 
     try {
-      lookupValues(nextRow); // add new values to the row in rowset[0].
-      if (!data.batchMode) {
-        putRow(data.outputRowMeta, nextRow); // copy row to output rowset(s)
-      }
+      // Passes the row on to the output or the error hop, in batch mode once it is committed.
+      lookupValues(nextRow);
 
       if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(

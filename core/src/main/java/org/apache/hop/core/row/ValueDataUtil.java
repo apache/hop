@@ -57,6 +57,7 @@ public class ValueDataUtil {
   private static final Log log = LogFactory.getLog(ValueDataUtil.class);
   private static final String CONST_ROUND_ONLY_WORK_ON_NUMERIC =
       "The 'round' function only works on numeric data";
+  private static final BigDecimal HALF = new BigDecimal("0.5");
 
   /**
    * System property sets rounding mode of calculator's function ROUND(A,B)
@@ -548,7 +549,7 @@ public class ValueDataUtil {
       case IValueMeta.TYPE_INTEGER ->
           metaA.getInteger(dataA) + metaB.getInteger(dataB) + metaC.getInteger(dataC);
       case IValueMeta.TYPE_BOOLEAN ->
-          metaA.getBoolean(dataA) || metaB.getBoolean(dataB) || metaB.getBoolean(dataC);
+          metaA.getBoolean(dataA) || metaB.getBoolean(dataB) || metaC.getBoolean(dataC);
       case IValueMeta.TYPE_BIGNUMBER ->
           metaA.getBigNumber(dataA).add(metaB.getBigNumber(dataB).add(metaC.getBigNumber(dataC)));
       default ->
@@ -949,7 +950,9 @@ public class ValueDataUtil {
     return switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER -> (double) Math.round(metaA.getNumber(dataA));
       case IValueMeta.TYPE_INTEGER -> metaA.getInteger(dataA);
-      case IValueMeta.TYPE_BIGNUMBER -> new BigDecimal(Math.round(metaA.getNumber(dataA)));
+        // Math.round rounds half up towards positive infinity: floor(x + 0.5)
+      case IValueMeta.TYPE_BIGNUMBER ->
+          metaA.getBigNumber(dataA).add(HALF).setScale(0, RoundingMode.FLOOR);
       default -> throw new HopValueException(CONST_ROUND_ONLY_WORK_ON_NUMERIC);
     };
   }
@@ -1065,7 +1068,9 @@ public class ValueDataUtil {
     return switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER -> Math.ceil(metaA.getNumber(dataA));
       case IValueMeta.TYPE_INTEGER -> metaA.getInteger(dataA);
-      case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(Math.ceil(metaA.getNumber(dataA)));
+        // scale 1, as the result always had when it went through BigDecimal.valueOf(double)
+      case IValueMeta.TYPE_BIGNUMBER ->
+          metaA.getBigNumber(dataA).setScale(0, RoundingMode.CEILING).setScale(1);
       default -> throw new HopValueException("The 'ceil' function only works on numeric data");
     };
   }
@@ -1078,7 +1083,9 @@ public class ValueDataUtil {
     return switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER -> Math.floor(metaA.getNumber(dataA));
       case IValueMeta.TYPE_INTEGER -> metaA.getInteger(dataA);
-      case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(Math.floor(metaA.getNumber(dataA)));
+        // scale 1, as the result always had when it went through BigDecimal.valueOf(double)
+      case IValueMeta.TYPE_BIGNUMBER ->
+          metaA.getBigNumber(dataA).setScale(0, RoundingMode.FLOOR).setScale(1);
       default -> throw new HopValueException("The 'floor' function only works on numeric data");
     };
   }
@@ -1091,9 +1098,8 @@ public class ValueDataUtil {
 
     return switch (metaA.getType()) {
       case IValueMeta.TYPE_NUMBER -> Math.abs(metaA.getNumber(dataA));
-      case IValueMeta.TYPE_INTEGER ->
-          metaA.getInteger(Math.abs(metaA.getNumber(dataA).longValue()));
-      case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(Math.abs(metaA.getNumber(dataA)));
+      case IValueMeta.TYPE_INTEGER -> Math.abs(metaA.getInteger(dataA));
+      case IValueMeta.TYPE_BIGNUMBER -> metaA.getBigNumber(dataA).abs();
       default -> throw new HopValueException("The 'abs' function only works on numeric data");
     };
   }
@@ -1121,7 +1127,7 @@ public class ValueDataUtil {
         return metaA.getInteger(dataA) % metaB.getInteger(dataB);
       case IValueMeta.TYPE_BIGNUMBER:
         BigDecimal aValue = metaA.getBigNumber(dataA);
-        BigDecimal bValue = metaA.getBigNumber(dataB);
+        BigDecimal bValue = metaB.getBigNumber(dataB);
         BigDecimal result =
             aValue.remainder(
                 bValue, new MathContext(getMaxPrecision(aValue, bValue), RoundingMode.HALF_EVEN));
@@ -1231,6 +1237,9 @@ public class ValueDataUtil {
 
   public static Object addDays(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1241,6 +1250,9 @@ public class ValueDataUtil {
 
   public static Object addHours(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1251,6 +1263,9 @@ public class ValueDataUtil {
 
   public static Object addMinutes(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1261,6 +1276,9 @@ public class ValueDataUtil {
 
   public static Object addSeconds(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1294,7 +1312,7 @@ public class ValueDataUtil {
 
       return (cal.getTime());
     } else {
-      throw new HopValueException("Unable to add months with a null value");
+      return null;
     }
   }
 

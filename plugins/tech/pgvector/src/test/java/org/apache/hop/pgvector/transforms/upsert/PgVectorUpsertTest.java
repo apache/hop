@@ -307,6 +307,27 @@ class PgVectorUpsertTest {
   }
 
   @Test
+  void leavesTheCommitModeOfASharedConnectionAlone() throws Exception {
+    // Switching a connection shared by a transactional pipeline to autocommit commits the rows the
+    // other transforms wrote so far.
+    PgVectorUpsertMeta meta = newMeta();
+    meta.setCreateTableIfMissing(true);
+    meta.setCreateHnswIndex(true);
+    meta.setEmbeddingDimensions("768");
+
+    PgVectorUpsertData data = newData(meta, mock(PreparedStatement.class));
+    data.commitSize = 500;
+    when(database.getConnectionGroup()).thenReturn("pipeline-transaction");
+    PgVectorUpsert transform =
+        new PgVectorUpsert(
+            helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+    transform.prepareSchemaAndCommitMode("public", "chunks");
+
+    verify(database, atLeastOnce()).execStatement(anyString());
+    verify(database, never()).setCommit(anyInt());
+  }
+
+  @Test
   void refusesToDeleteADocumentOnceTheTrackedSetIsFull() throws Exception {
     // Evicting an entry would let a document be deleted twice, the second time taking the chunks
     // this run had already written for it.
