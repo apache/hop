@@ -22,35 +22,37 @@ limitations under the License.
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
-  <created_user>-</created_user>
-  <modified_user>-</modified_user>
-  <created_date>2022/11/08 21:14:33.383</created_date>
-  <modified_date>2026/11/03 22:59:59.771</modified_date>
-  <created_hop_version/>
-  <modified_hop_version>2.21.0-SNAPSHOT</modified_hop_version>
   <workflow_version/>
-  <parameters/>
+  <created_user>-</created_user>
+  <created_date>2022/11/08 21:14:33.383</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2022/11/08 21:14:33.383</modified_date>
+  <parameters>
+    </parameters>
   <actions>
     <action>
-      <repeat>N</repeat>
-      <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <DayOfMonth>1</DayOfMonth>
-      <weekDay>1</weekDay>
-      <minutes>0</minutes>
-      <hour>12</hour>
-      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <name>Start</name>
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
       <xloc>96</xloc>
       <yloc>64</yloc>
-      <parallel>N</parallel>
       <attributes_hac/>
     </action>
     <action>
+      <name>0048-simple-mapping-parent-no-output.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
       <filename>${PROJECT_HOME}/0048-simple-mapping-parent-no-output.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
@@ -67,16 +69,42 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <run_configuration>local</run_configuration>
-      <name>0048-simple-mapping-parent-no-output.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
+      <parallel>N</parallel>
       <xloc>304</xloc>
       <yloc>64</yloc>
-      <parallel>N</parallel>
       <attributes_hac/>
     </action>
     <action>
+      <name>0048-simple-mapping-parent-no-io.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0048-simple-mapping-parent-no-io.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>N</set_logfile>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run simple-mapping tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
       <test_names>
         <test_name>
           <name>0048-simple-mapping-parent-01 UNIT</name>
@@ -87,14 +115,37 @@ limitations under the License.
         <test_name>
           <name>0048-simple-mapping-verify-no-output UNIT</name>
         </test_name>
+        <test_name>
+          <name>0048-simple-mapping-verify-no-io UNIT</name>
+        </test_name>
       </test_names>
-      <name>Run simple-mapping tests</name>
-      <description/>
-      <type>RunPipelineTests</type>
-      <attributes/>
-      <xloc>560</xloc>
-      <yloc>64</yloc>
       <parallel>N</parallel>
+      <xloc>720</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete no-output cube</name>
+      <description/>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <filename>${java.io.tmpdir}/0048-simple-mapping-no-output.cube</filename>
+      <fail_if_file_not_exists>N</fail_if_file_not_exists>
+      <parallel>N</parallel>
+      <xloc>928</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete no-io cube</name>
+      <description/>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <filename>${java.io.tmpdir}/0048-simple-mapping-no-io.cube</filename>
+      <fail_if_file_not_exists>N</fail_if_file_not_exists>
+      <parallel>N</parallel>
+      <xloc>1136</xloc>
+      <yloc>64</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -102,18 +153,40 @@ limitations under the License.
     <hop>
       <from>Start</from>
       <to>0048-simple-mapping-parent-no-output.hpl</to>
+      <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-      <enabled>Y</enabled>
     </hop>
     <hop>
       <from>0048-simple-mapping-parent-no-output.hpl</from>
-      <to>Run simple-mapping tests</to>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
+      <to>0048-simple-mapping-parent-no-io.hpl</to>
       <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0048-simple-mapping-parent-no-io.hpl</from>
+      <to>Run simple-mapping tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Run simple-mapping tests</from>
+      <to>Delete no-output cube</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Delete no-output cube</from>
+      <to>Delete no-io cube</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
-  <notepads/>
+  <notepads>
+  </notepads>
   <attributes/>
 </workflow>
