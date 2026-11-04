@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
@@ -188,9 +190,30 @@ class SynchronizeAfterMergePostgresIT {
     return content.toString();
   }
 
+  /**
+   * Every input row leaves the transform once: on the output or on the error hop, never on both.
+   */
+  private static void assertEveryRowLeavesOnce(
+      int rows, List<Object[]> output, List<Object[]> errors) {
+    Set<Long> seen = new TreeSet<>();
+    List<Object[]> all = new ArrayList<>(output);
+    if (errors != null) {
+      all.addAll(errors);
+    }
+    for (Object[] row : all) {
+      assertTrue(seen.add((Long) row[0]), "row " + row[0] + " left the transform twice");
+    }
+    assertEquals(rows, seen.size(), "rows left on neither stream");
+  }
+
   /** A Synchronize after merge, with an error hop when errors isn't null. */
   private static SynchronizeAfterMerge synchronize(
-      String name, String table, int commitSize, Queue<Object[]> input, List<Object[]> errors)
+      String name,
+      String table,
+      int commitSize,
+      Queue<Object[]> input,
+      List<Object[]> output,
+      List<Object[]> errors)
       throws Exception {
     IRowMeta inputRowMeta = inputRowMeta();
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -250,8 +273,7 @@ class SynchronizeAfterMergePostgresIT {
 
           @Override
           public void putRow(IRowMeta rowMeta, Object[] row) {
-            // Not counted: without batch updates processRow() also passes on a row that went
-            // to the error hop, which this test doesn't cover.
+            output.add(row);
           }
 
           @Override
@@ -285,9 +307,10 @@ class SynchronizeAfterMergePostgresIT {
   @ValueSource(ints = {100, 1})
   void onlyTheFailingRowsGoToTheErrorHop(int commitSize) throws Exception {
     createTarget("sync_target", ROWS);
+    List<Object[]> output = new ArrayList<>();
     List<Object[]> errors = new ArrayList<>();
     SynchronizeAfterMerge transform =
-        synchronize("sync", "sync_target", commitSize, rows(ROWS, "a", 97), errors);
+        synchronize("sync", "sync_target", commitSize, rows(ROWS, "a", 97), output, errors);
 
     assertTrue(transform.init());
     try {
@@ -300,6 +323,7 @@ class SynchronizeAfterMergePostgresIT {
 
     assertEquals(0, transform.getErrors(), "the transform failed");
     assertEquals(expectedErrors(ROWS, 97), errors.size());
+    assertEveryRowLeavesOnce(ROWS, output, errors);
     assertEquals(expectedTable(ROWS, "a", 97), table("sync_target"));
   }
 
@@ -314,14 +338,18 @@ class SynchronizeAfterMergePostgresIT {
     createTarget("sync_tx_b", ROWS);
     List<Object[]> errorsA = Collections.synchronizedList(new ArrayList<>());
     List<Object[]> errorsB = Collections.synchronizedList(new ArrayList<>());
+    List<Object[]> outputA = Collections.synchronizedList(new ArrayList<>());
+    List<Object[]> outputB = Collections.synchronizedList(new ArrayList<>());
 
     SharedConnectionRun run = new SharedConnectionRun();
-    run.join(synchronize("sync A", "sync_tx_a", commitSize, rows(ROWS, "a", 97), errorsA));
-    run.join(synchronize("sync B", "sync_tx_b", commitSize, rows(ROWS, "b", 89), errorsB));
+    run.join(synchronize("sync A", "sync_tx_a", commitSize, rows(ROWS, "a", 97), outputA, errorsA));
+    run.join(synchronize("sync B", "sync_tx_b", commitSize, rows(ROWS, "b", 89), outputB, errorsB));
     assertTrue(run.run(), "the transaction was rolled back");
 
     assertEquals(expectedErrors(ROWS, 97), errorsA.size());
     assertEquals(expectedErrors(ROWS, 89), errorsB.size());
+    assertEveryRowLeavesOnce(ROWS, outputA, errorsA);
+    assertEveryRowLeavesOnce(ROWS, outputB, errorsB);
     assertEquals(expectedTable(ROWS, "a", 97), table("sync_tx_a"));
     assertEquals(expectedTable(ROWS, "b", 89), table("sync_tx_b"));
   }
@@ -332,15 +360,25 @@ class SynchronizeAfterMergePostgresIT {
     createTarget("sync_tx_err", ROWS);
     createTarget("sync_tx_plain", ROWS);
     List<Object[]> errors = Collections.synchronizedList(new ArrayList<>());
+    List<Object[]> output = Collections.synchronizedList(new ArrayList<>());
+    List<Object[]> plainOutput = Collections.synchronizedList(new ArrayList<>());
 
     SharedConnectionRun run = new SharedConnectionRun();
-    run.join(synchronize("with error hop", "sync_tx_err", 100, rows(ROWS, "a", 13), errors));
+    run.join(
+        synchronize("with error hop", "sync_tx_err", 100, rows(ROWS, "a", 13), output, errors));
     run.join(
         synchronize(
-            "without error hop", "sync_tx_plain", 100, rows(ROWS, "p", Integer.MAX_VALUE), null));
+            "without error hop",
+            "sync_tx_plain",
+            100,
+            rows(ROWS, "p", Integer.MAX_VALUE),
+            plainOutput,
+            null));
     assertTrue(run.run(), "the transaction was rolled back");
 
     assertEquals(expectedErrors(ROWS, 13), errors.size());
+    assertEveryRowLeavesOnce(ROWS, output, errors);
+    assertEveryRowLeavesOnce(ROWS, plainOutput, null);
     assertEquals(expectedTable(ROWS, "a", 13), table("sync_tx_err"));
     assertEquals(expectedTable(ROWS, "p", Integer.MAX_VALUE), table("sync_tx_plain"));
   }
