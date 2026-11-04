@@ -52,6 +52,13 @@ ENV HOP_PARENT_PROJECT_CONFIG_FILE_NAME=project-config.json
 ENV HOP_ENVIRONMENT_NAME=environment1
 # comma separated list of paths to environment config files (including filename and file extension).
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
+# Metadata export JSON itself (the document hop-conf --export-metadata writes).
+# Imported into the shared metadata folder before a project is registered.
+# No file and no volume: put the document in this variable. Leave empty to skip.
+ENV HOP_SHARED_METADATA_IMPORT_JSON=
+# Path of that same metadata export when it is already a file in the container.
+# Set only one of HOP_SHARED_METADATA_IMPORT_JSON and HOP_SHARED_METADATA_IMPORT_FILE.
+ENV HOP_SHARED_METADATA_IMPORT_FILE=
 # hop run configuration to use
 
 

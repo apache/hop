@@ -128,17 +128,21 @@ When using an environment a project has to be created too
 |
 | This is a comma separated list of paths to environment config files (including filename and file extension).
 
-|```HOP_CONFIG_SHARED_METADATA```
+|```HOP_SHARED_METADATA_IMPORT_JSON```
 |
-| A metadata export JSON document (the same file `hop-conf --export-metadata` writes).
-The entrypoint imports it into the shared metadata folder before a project is registered, so a project home such as `git-project:///` can be opened.
-Set only one of `HOP_CONFIG_SHARED_METADATA` and `HOP_CONFIG_SHARED_METADATA_FILE`.
-When the shared folder already contains metadata the import is skipped, so a container restart does not replace objects changed after the first start. Empty the folder, or run `hop-conf.sh --shared-metadata-import=<file>`, to import again.
+| The metadata export JSON document itself, the same document `hop-conf --export-metadata` writes.
+The entrypoint passes it to `hop-conf --shared-metadata-import-json` before a project is registered.
+No file and no volume: set the variable to the document, which is what you want when a Kubernetes secret or config map should not be mounted.
+A HashiCorp Vault variable resolver and a Git repository named `git-project` in that document let the project home be `git-project:///`.
+The shared folder stays a local path, by default `'${HOP_CONFIG_FOLDER}/metadata'`.
+Leave the variable empty to skip the import.
+Set only one of `HOP_SHARED_METADATA_IMPORT_JSON` and `HOP_SHARED_METADATA_IMPORT_FILE`.
 
-|```HOP_CONFIG_SHARED_METADATA_FILE```
+|```HOP_SHARED_METADATA_IMPORT_FILE```
 |
-| Path of a metadata export JSON file mounted into the container. Same import as `HOP_CONFIG_SHARED_METADATA`.
-A HashiCorp Vault variable resolver and a Git repository named `git-project` in that export let the project home be `git-project:///`. The shared folder itself stays a local path, by default `'${HOP_CONFIG_FOLDER}/metadata'`.
+| Path of that same metadata export when the file is already in the container.
+The entrypoint passes it to `hop-conf --shared-metadata-import-file`.
+Use the JSON variable instead when you do not want to mount a file.
 
 |```HOP_OPTIONS```
 |`-XX:+AggressiveHeap`

@@ -19,6 +19,7 @@ package org.apache.hop.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -92,7 +93,7 @@ class SharedMetadataConfigPluginTest {
     Path export = tempDir.resolve("export.json");
     Files.writeString(export, exportJson("host-a"));
 
-    assertTrue(handle("--shared-metadata-import=" + export));
+    assertTrue(handle("--shared-metadata-import-file=" + export));
     Path object = tempDir.resolve("metadata").resolve("server").resolve("server1.json");
     assertTrue(Files.exists(object));
     assertTrue(Files.readString(object).contains("host-a"));
@@ -103,7 +104,7 @@ class SharedMetadataConfigPluginTest {
     Files.writeString(keep, "{ \"name\" : \"keep\" }");
 
     Files.writeString(export, exportJson("host-b"));
-    assertTrue(handle("--shared-metadata-import=" + export));
+    assertTrue(handle("--shared-metadata-import-file=" + export));
     String replaced = Files.readString(object);
     assertTrue(replaced.contains("host-b"));
     assertFalse(replaced.contains("host-a"));
@@ -111,17 +112,23 @@ class SharedMetadataConfigPluginTest {
   }
 
   @Test
-  void importIfEmptySkipsAFolderThatAlreadyHasMetadata() throws Exception {
-    Path export = tempDir.resolve("export.json");
-    Files.writeString(export, exportJson("host-a"));
-    assertTrue(handle("--shared-metadata-import-if-empty=" + export));
-
-    Files.writeString(export, exportJson("host-b"));
-    assertTrue(handle("--shared-metadata-import-if-empty=" + export));
+  void importJsonWritesTheDocumentWithoutAFile() throws Exception {
+    assertTrue(handle("--shared-metadata-import-json=" + exportJson("host-a")));
     String stored =
         Files.readString(tempDir.resolve("metadata").resolve("server").resolve("server1.json"));
     assertTrue(stored.contains("host-a"));
-    assertFalse(stored.contains("host-b"));
+  }
+
+  @Test
+  void jsonAndFileTogetherAreRejected() throws Exception {
+    Path export = tempDir.resolve("export.json");
+    Files.writeString(export, exportJson("host-a"));
+    assertThrows(
+        HopException.class,
+        () ->
+            handle(
+                "--shared-metadata-import-json=" + exportJson("host-b"),
+                "--shared-metadata-import-file=" + export));
   }
 
   private boolean handle(String... args) throws HopException {

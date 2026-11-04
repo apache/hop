@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -51,20 +50,21 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
   private String sharedMetadataFolder;
 
   @CommandLine.Option(
-      names = {"--shared-metadata-import"},
+      names = {"--shared-metadata-import-json"},
       description =
-          "Import a metadata export JSON file into the shared metadata folder. An object of the"
-              + " same name is replaced. Other objects in the folder are left in place. When no"
+          "Import a metadata export by passing the JSON document itself. This is the same document"
+              + " hop-conf --export-metadata writes. No file is read. An object of the same name"
+              + " is replaced. Other objects in the folder are left in place. When no shared"
               + " folder is configured yet, ${HOP_CONFIG_FOLDER}/metadata is used and saved.")
-  private String sharedMetadataImport;
+  private String sharedMetadataImportJson;
 
   @CommandLine.Option(
-      names = {"--shared-metadata-import-if-empty"},
+      names = {"--shared-metadata-import-file"},
       description =
-          "Import a metadata export JSON file into the shared metadata folder only when that"
-              + " folder does not already contain metadata. A later start of a container leaves an"
-              + " existing folder unchanged.")
-  private String sharedMetadataImportIfEmpty;
+          "Import a metadata export JSON file into the shared metadata folder. Same document and"
+              + " same result as --shared-metadata-import-json. Use this when the export is"
+              + " already a file.")
+  private String sharedMetadataImportFile;
 
   @Override
   public boolean handleOption(
@@ -80,20 +80,23 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
               : "Shared metadata folder set to '" + sharedMetadataFolder + "'");
       changed = true;
     }
-    if (StringUtils.isNotEmpty(sharedMetadataImport)) {
-      importExport(channel, variables, sharedMetadataImport, false);
+    if (StringUtils.isNotEmpty(sharedMetadataImportJson)
+        && StringUtils.isNotEmpty(sharedMetadataImportFile)) {
+      throw new HopException(
+          "Set only one of --shared-metadata-import-json and --shared-metadata-import-file");
+    }
+    if (StringUtils.isNotEmpty(sharedMetadataImportJson)) {
+      importJson(channel, variables, sharedMetadataImportJson);
       changed = true;
     }
-    if (StringUtils.isNotEmpty(sharedMetadataImportIfEmpty)) {
-      importExport(channel, variables, sharedMetadataImportIfEmpty, true);
+    if (StringUtils.isNotEmpty(sharedMetadataImportFile)) {
+      importJson(channel, variables, readExport(variables.resolve(sharedMetadataImportFile)));
       changed = true;
     }
     return changed;
   }
 
-  private void importExport(
-      ILogChannel log, IVariables variables, String filename, boolean onlyIfEmpty)
-      throws HopException {
+  private void importJson(ILogChannel log, IVariables variables, String json) throws HopException {
     String configured = HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, "");
     if (StringUtils.isEmpty(StringUtils.trim(configured))) {
       configured = SharedMetadata.DEFAULT_FOLDER;
@@ -102,15 +105,7 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
     }
     String resolved = SharedMetadata.resolveFolder(variables, configured);
     SharedMetadata.checkLocalFolder(resolved);
-    if (onlyIfEmpty && folderHasMetadata(resolved)) {
-      log.logBasic(
-          "Shared metadata folder '"
-              + resolved
-              + "' already contains metadata. Leaving it unchanged.");
-      return;
-    }
 
-    String json = readExport(variables.resolve(filename));
     SerializableMetadataProvider imported = new SerializableMetadataProvider(json);
     JsonMetadataProvider store = new JsonMetadataProvider(Encr.getEncoder(), resolved, variables);
     int saved = 0;
@@ -132,38 +127,6 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
       return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     } catch (Exception e) {
       throw new HopException("Unable to read metadata export '" + filename + "'", e);
-    }
-  }
-
-  static boolean folderHasMetadata(String resolved) throws HopException {
-    try (FileObject folder = HopVfs.getFileObject(resolved)) {
-      if (!folder.exists() || !folder.isFolder()) {
-        return false;
-      }
-      FileObject[] children = folder.getChildren();
-      if (children == null) {
-        return false;
-      }
-      for (FileObject child : children) {
-        if (child.isFile() && child.getName().getBaseName().endsWith(".json")) {
-          return true;
-        }
-        if (!child.isFolder()) {
-          continue;
-        }
-        FileObject[] files = child.getChildren();
-        if (files == null) {
-          continue;
-        }
-        for (FileObject file : files) {
-          if (file.isFile() && file.getName().getBaseName().endsWith(".json")) {
-            return true;
-          }
-        }
-      }
-      return false;
-    } catch (Exception e) {
-      throw new HopException("Unable to read shared metadata folder '" + resolved + "'", e);
     }
   }
 }

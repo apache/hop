@@ -349,26 +349,19 @@ register_hop_project() {
 # (git-project:///, my-smb://, ...) needs that metadata to exist first.
 #
 import_shared_metadata() {
-  if [ -n "${HOP_CONFIG_SHARED_METADATA:-}" ] && [ -n "${HOP_CONFIG_SHARED_METADATA_FILE:-}" ]; then
-    log "Error: set only one of HOP_CONFIG_SHARED_METADATA and HOP_CONFIG_SHARED_METADATA_FILE"
+  if [ -n "${HOP_SHARED_METADATA_IMPORT_JSON:-}" ] && [ -n "${HOP_SHARED_METADATA_IMPORT_FILE:-}" ]; then
+    log "Error: set only one of HOP_SHARED_METADATA_IMPORT_JSON and HOP_SHARED_METADATA_IMPORT_FILE"
     exitWithCode 9
   fi
-  local file=""
-  local cleanup=""
-  if [ -n "${HOP_CONFIG_SHARED_METADATA_FILE:-}" ]; then
-    file="${HOP_CONFIG_SHARED_METADATA_FILE}"
-  elif [ -n "${HOP_CONFIG_SHARED_METADATA:-}" ]; then
-    file="$(mktemp /tmp/hop-shared-metadata.XXXXXX.json)"
-    cleanup="${file}"
-    printf '%s' "${HOP_CONFIG_SHARED_METADATA}" > "${file}"
+  local code=0
+  if [ -n "${HOP_SHARED_METADATA_IMPORT_JSON:-}" ]; then
+    log "Importing shared metadata from the JSON in HOP_SHARED_METADATA_IMPORT_JSON"
+    "${DEPLOYMENT_PATH}"/hop-conf.sh --shared-metadata-import-json="${HOP_SHARED_METADATA_IMPORT_JSON}" || code=$?
+  elif [ -n "${HOP_SHARED_METADATA_IMPORT_FILE:-}" ]; then
+    log "Importing shared metadata from file ${HOP_SHARED_METADATA_IMPORT_FILE}"
+    "${DEPLOYMENT_PATH}"/hop-conf.sh --shared-metadata-import-file="${HOP_SHARED_METADATA_IMPORT_FILE}" || code=$?
   else
     return 0
-  fi
-  log "Importing shared metadata into the Hop configuration"
-  local code=0
-  "${DEPLOYMENT_PATH}"/hop-conf.sh --shared-metadata-import-if-empty="${file}" || code=$?
-  if [ -n "${cleanup}" ]; then
-    rm -f "${cleanup}"
   fi
   if [ "${code}" -ne 0 ]; then
     log "Error: shared metadata import failed with exit code ${code}"
