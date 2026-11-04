@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -77,7 +78,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
 
       // Now create objects to do string to data type conversion...
       //
-      data.conversionMeta = data.outputMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.conversionMeta = ValueMetaFactory.createParseRowMeta(data.outputMeta);
 
       data.delimiter = resolve(meta.getDelimiter());
       data.enclosure = resolve(meta.getEnclosure());

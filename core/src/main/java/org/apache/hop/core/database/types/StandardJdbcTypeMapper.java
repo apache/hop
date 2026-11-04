@@ -243,10 +243,7 @@ public final class StandardJdbcTypeMapper {
 
       if (lazyConversion && valtype == IValueMeta.TYPE_STRING) {
         valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
-        IValueMeta storageMetaData =
-            ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
-        storageMetaData.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-        valueMeta.setStorageMetadata(storageMetaData);
+        valueMeta.setStorageMetadata(ValueMetaFactory.createParseMeta(valueMeta));
       }
 
       // Only the result set metadata path can offer this hook, which is what it took before.

@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -68,7 +69,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
       if (meta.isSelectFields()) {
         // Consider only selected fields

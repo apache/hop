@@ -37,6 +37,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringEvaluationResult;
 import org.apache.hop.core.util.StringEvaluator;
 import org.apache.hop.core.util.Utils;
@@ -203,7 +204,7 @@ public class TextFileCSVImportProgressDialog<T extends ITextFileInputField>
       valueMeta.setStorageMetadata(null);
       valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     }
-    IRowMeta convertRowMeta = outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    IRowMeta convertRowMeta = ValueMetaFactory.createParseRowMeta(outputRowMeta);
 
     ICsvInputAwareMeta<T> inputMeta = meta.clone();
     for (int i = 0; i < nrFields; i++) {

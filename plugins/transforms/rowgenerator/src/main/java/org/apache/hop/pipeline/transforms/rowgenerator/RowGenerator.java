@@ -89,7 +89,7 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
         valueMeta.setDecimalSymbol(field.getDecimal());
         valueMeta.setOrigin(origin);
 
-        IValueMeta stringMeta = ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
+        IValueMeta stringMeta = ValueMetaFactory.createParseMeta(valueMeta);
 
         if (field.isSetEmptyString()) {
           // Set empty string

@@ -28,6 +28,7 @@ import java.util.BitSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputData;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,7 +45,7 @@ class RowOutputConverterNullTest {
       data.outputRowMeta = new RowMeta();
       data.outputRowMeta.addValueMeta(new ValueMetaString("nullValue"));
       data.outputRowMeta.addValueMeta(new ValueMetaString("emptyValue"));
-      data.convertRowMeta = data.outputRowMeta.cloneToType(ValueMetaString.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
       data.totalpreviousfields = 0;
       data.repeatedFields = new BitSet();
       RowOutputConverter converter = new RowOutputConverter(mock(ILogChannel.class));

@@ -900,7 +900,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
       try {
         initBasics(i, field);
-        IValueMeta stringMeta = cloneValueMeta(data.constantsMeta[i], IValueMeta.TYPE_STRING);
+        IValueMeta stringMeta = ValueMetaFactory.createParseMeta(data.constantsMeta[i]);
         initMinMaxValues(i, stringMeta);
         initMinStringLength(i);
         initMaxStringLength(i);
@@ -1029,9 +1029,5 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
   protected IValueMeta createValueMeta(String name, String type) throws HopPluginException {
     int dataType = ValueMetaFactory.getIdForValueMeta(type);
     return ValueMetaFactory.createValueMeta(name, dataType);
-  }
-
-  protected IValueMeta cloneValueMeta(IValueMeta valueMeta, int type) throws HopPluginException {
-    return ValueMetaFactory.cloneValueMeta(valueMeta, type);
   }
 }

@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopRuntimeException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +64,7 @@ public abstract class BaseCsvParsingTest
   protected void setFields(CsvInputField... fields) throws Exception {
     meta.setFields(fields);
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
-    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
   }
 
   /** For BaseFileInput fields. */

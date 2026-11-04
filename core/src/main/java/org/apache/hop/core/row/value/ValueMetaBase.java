@@ -5504,9 +5504,7 @@ public class ValueMetaBase implements IValueMeta {
         // Also set the storage metadata. a copy of the parent, set to String too.
         //
         try {
-          IValueMeta storageMetaData = ValueMetaFactory.cloneValueMeta(v, IValueMeta.TYPE_STRING);
-          storageMetaData.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-          v.setStorageMetadata(storageMetaData);
+          v.setStorageMetadata(ValueMetaFactory.createParseMeta(v));
         } catch (Exception e) {
           throw new SQLException(e);
         }

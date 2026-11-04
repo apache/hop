@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -61,7 +62,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
 
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.setConvertRowMeta(data.getOutputRowMeta().cloneToType(IValueMeta.TYPE_STRING));
+      data.setConvertRowMeta(ValueMetaFactory.createParseRowMeta(data.getOutputRowMeta()));
 
       // Consider only selected fields
       List<SetValueConstantMeta.Field> fields = meta.getFields();

@@ -42,6 +42,7 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -357,7 +358,7 @@ public final class DebugSessionStore {
     }
     IRowMeta rowMeta = rowSet.getRowMeta();
     // convertDataFromString expects the source description to be a string, not the target type.
-    IRowMeta convertMeta = rowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    IRowMeta convertMeta = ValueMetaFactory.createParseRowMeta(rowMeta);
     int added = 0;
     try (BufferedReader reader =
         new BufferedReader(

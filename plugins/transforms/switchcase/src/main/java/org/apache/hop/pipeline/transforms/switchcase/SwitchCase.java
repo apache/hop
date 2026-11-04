@@ -113,8 +113,7 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {
       data.valueMeta.setConversionMask(meta.getCaseValueFormat());
       data.valueMeta.setGroupingSymbol(meta.getCaseValueGroup());
       data.valueMeta.setDecimalSymbol(meta.getCaseValueDecimal());
-      data.stringValueMeta =
-          ValueMetaFactory.cloneValueMeta(data.valueMeta, IValueMeta.TYPE_STRING);
+      data.stringValueMeta = ValueMetaFactory.createParseMeta(data.valueMeta);
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "SwitchCase.Log.UnexpectedError", e));
     }

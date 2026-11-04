@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.propertyinput;
 
 import java.util.Arrays;
 import org.apache.hop.core.exception.HopRuntimeException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.PIField;
@@ -56,7 +56,7 @@ class BasePropertyParsingTest
   protected void setFields(PIField... fields) throws Exception {
     meta.setInputFields(Arrays.asList(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
-    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
   }
 
   /** For BaseFileInput fields. */
