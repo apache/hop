@@ -30,7 +30,7 @@ The steps on this page and the detail pages for Spark, Flink and Google Dataflow
 
 === Java
 
-You'll already have Java installed to run Apache Hop. Both Apache Hop and Beam require a Java 21 environment.
+You'll already have Java installed to run Apache Hop. Both Apache Hop and Beam require a Java {java-version} environment.
 
 Double-check your java version with the `java -version` command. Your output should look similar to the one below.
 

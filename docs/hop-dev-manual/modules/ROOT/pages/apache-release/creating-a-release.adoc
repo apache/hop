@@ -401,6 +401,8 @@ Update following files and set the correct documentation version and name
 
 Remove the `prerelease` and `display_version` attributes
 
+Check that the version attributes under `asciidoc.attributes` in both files still match the poms, see xref:writing-documentation.adoc#_version_attributes[Version attributes].
+
 
 == [[CreatingAKey]]Creating a key
 

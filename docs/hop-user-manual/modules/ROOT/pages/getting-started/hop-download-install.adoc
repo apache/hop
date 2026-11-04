@@ -44,7 +44,7 @@ OpenJDK Runtime Environment (build 21.0.10)
 OpenJDK 64-Bit Server VM (build 21.0.10, mixed mode, sharing)
 ----
 
-If that command is not found, or reports an older version, install a Java 21 runtime first.
+If that command is not found, or reports an older version, install a Java {java-version} runtime first.
 See xref:supported-jvms.adoc[Supported Java Versions] for which runtimes are known to work, and which one to avoid.
 
 == Download and unzip

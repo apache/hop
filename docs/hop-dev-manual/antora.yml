@@ -21,3 +21,6 @@ version: 2.21.0
 prerelease: true
 nav:
   - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    java-version: '21'

@@ -67,7 +67,7 @@ Otherwise, the filename is skipped.
 The Text File Input transform can search for files by wildcard in the form of a regular expression.
 Regular expressions are more sophisticated than using '*' and '?' wildcards.
 
-The expressions use the Java syntax, described in https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html[java.util.regex.Pattern]:
+The expressions use the Java syntax, described in https://docs.oracle.com/en/java/javase/{java-version}/docs/api/java.base/java/util/regex/Pattern.html[java.util.regex.Pattern]:
 
 * The expression has to match the whole file name, as if it started with `^` and ended with `$`. `userdata` only selects a file named `userdata`, not `userdata.txt`.
 * The expression is matched against the file name only, not against its folder, also when sub folders are included.

@@ -22,3 +22,10 @@ prerelease: true
 display_version: 2.21.0 (pre-release)
 nav:
   - modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    java-version: '21'
+    beam-version: '2.74.0'
+    beam-spark-version: '3.5.8'
+    spark-version: '4.1.3'
+    flink-version: '1.19'

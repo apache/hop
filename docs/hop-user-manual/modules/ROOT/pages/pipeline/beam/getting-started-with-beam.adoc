@@ -52,7 +52,7 @@ Here is the documentation for the relevant plugins:
 
 [NOTE]
 ====
-*Java:* Hop requires *Java 21* for the Hop process (GUI, hop-run, hop-server) and for the fat jar executed on Beam workers. Spark/Flink clusters must run a JVM that can load that bytecode (Java 21).
+*Java:* Hop requires *Java {java-version}* for the Hop process (GUI, hop-run, hop-server) and for the fat jar executed on Beam workers. Spark/Flink clusters must run a JVM that can load that bytecode (Java {java-version}).
 
 *Spark (measured):* With Hop 2.19 / Beam 2.74 on *Java 21*, only *Spark 3.5.x* is supported for client-mode submit (`spark://…`). Spark 3.4 and earlier fail on Java 21 with `NoSuchMethodException: java.nio.DirectByteBuffer.<init>(long,int)` ([SPARK-42369](https://issues.apache.org/jira/browse/SPARK-42369), fixed in Spark 3.5.0). Matching client packs to the cluster does not overcome that JDK limit. See `integration-tests/spark/MATRIX-REPORT.md`. Beam upstream docs may still mention 3.2.x; that is not Hop’s measured support on Java 21.
 ====

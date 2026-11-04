@@ -24,7 +24,7 @@ limitations under the License.
 
 == Description
 
-Publish one Splunk HTTP Event Collector (HEC) event for each incoming Hop row using Apache Beam SplunkIO 2.74.0. Connect exactly one incoming transform. This is a terminal sink; it does not produce downstream rows. There is no Splunk input transform: SplunkIO is write-only.
+Publish one Splunk HTTP Event Collector (HEC) event for each incoming Hop row using Apache Beam SplunkIO {beam-version}. Connect exactly one incoming transform. This is a terminal sink; it does not produce downstream rows. There is no Splunk input transform: SplunkIO is write-only.
 
 The HEC token is sent as `Authorization: Splunk <token>`. The request URL is the configured base URL plus `/services/collector/event`. Declared Beam compatibility is not a remote-runner certification.
 

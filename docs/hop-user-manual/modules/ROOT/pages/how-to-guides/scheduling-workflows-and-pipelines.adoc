@@ -101,7 +101,7 @@ They are CI systems first; use them when that is already where the work is trigg
 
 For *hop-run on a host*:
 
-* A Hop client on that host (the same archive you unzip for Hop Gui), and Java 21 on `PATH` or in `HOP_JAVA_HOME` / `JAVA_HOME`.
+* A Hop client on that host (the same archive you unzip for Hop Gui), and Java {java-version} on `PATH` or in `HOP_JAVA_HOME` / `JAVA_HOME`.
 See xref:installation-configuration.adoc[Installation and configuration].
 * The project and a lifecycle environment registered in `HOP_CONFIG_FOLDER`, so `-e prod` is enough.
 See xref:projects/projects-environments.adoc[Projects and environments] and the xref:hop-server/deploy-git-checkout.adoc[git checkout] setup.

@@ -40,6 +40,7 @@
         <lakehouse.connectors.dir>${project.basedir}/target/lakehouse-connectors</lakehouse.connectors.dir>
         <scala.binary.version>2.13</scala.binary.version>
         <spark.parquet.version>1.16.0</spark.parquet.version>
+        <!-- Also update spark-version in docs/hop-user-manual/antora.yml -->
         <spark.version>4.1.3</spark.version>
         <spark.version.prefix>4.1</spark.version.prefix>
     </properties>

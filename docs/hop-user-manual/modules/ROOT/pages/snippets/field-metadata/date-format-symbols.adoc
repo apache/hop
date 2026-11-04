@@ -16,7 +16,7 @@ under the License.
 ////
 
 Date and timestamp format masks follow Java `SimpleDateFormat`.
-See the https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html[Java 21 SimpleDateFormat] documentation for the full pattern language.
+See the https://docs.oracle.com/en/java/javase/{java-version}/docs/api/java.base/java/text/SimpleDateFormat.html[Java {java-version} SimpleDateFormat] documentation for the full pattern language.
 
 [options="header"]
 |===

@@ -307,7 +307,7 @@ Host data under `/tmp/spark-demo-dist/hop-data` is left in place so you can keep
 |`HOP_DATA` must be the **shared** volume path (`file:///data/hop-data`). Do not point Dataset paths at package `PROJECT_HOME`.
 
 |ClassNotFoundException / wrong Spark
-|Fat jar must be **`native-provided`**. Cluster image must be Spark **4.1.x** + **Java 21**. Do not mix Beam Spark 3 fat jars.
+|Fat jar must be **`native-provided`**. Cluster image must be Spark **4.1.x** + **Java {java-version}**. Do not mix Beam Spark 3 fat jars.
 
 |Driver cannot reverse-connect workers
 |Submit script sets `spark.driver.host=spark` (master hostname on the compose network). Adjust if you change service names.

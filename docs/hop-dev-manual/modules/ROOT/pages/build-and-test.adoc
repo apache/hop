@@ -20,7 +20,7 @@ under the License.
 
 == What you need
 
-* A JDK 21. The build targets Java 21 and the tests are skipped on anything older.
+* A JDK {java-version}. The build targets Java {java-version} and the tests are skipped on anything older.
 * Maven 3.6.3 or newer — or nothing at all, and use the bundled wrapper `./mvnw`.
 
 [source,bash]
