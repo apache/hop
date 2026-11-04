@@ -48,6 +48,8 @@ class SimpleMappingMetaInjectionTest {
 
     assertTrue(keys.contains("filename"));
     assertTrue(keys.contains("runConfiguration"));
+    assertTrue(keys.contains("NO_INPUT"));
+    assertTrue(keys.contains("NO_OUTPUT"));
     assertTrue(keys.contains("INPUT_SOURCE_TRANSFORM"));
     assertTrue(keys.contains("INPUT_TARGET_TRANSFORM"));
     assertTrue(keys.contains("OUTPUT_SOURCE_TRANSFORM"));
@@ -73,6 +75,8 @@ class SimpleMappingMetaInjectionTest {
 
     Map<String, Object> injectionKeyMap = new HashMap<>();
     injectionKeyMap.put("filename", "child.hpl");
+    injectionKeyMap.put("NO_INPUT", "Y");
+    injectionKeyMap.put("NO_OUTPUT", "Y");
     injectionKeyMap.put("INPUT_SOURCE_TRANSFORM", "Reader");
     injectionKeyMap.put("INPUT_TARGET_TRANSFORM", "Mapping input");
     injectionKeyMap.put("OUTPUT_SOURCE_TRANSFORM", "Mapping output");
@@ -115,6 +119,8 @@ class SimpleMappingMetaInjectionTest {
         new MemoryMetadataProvider(), meta, injectionKeyMap, injectionGroupMap);
 
     assertEquals("child.hpl", meta.getFilename());
+    assertTrue(meta.isNoInput());
+    assertTrue(meta.isNoOutput());
     assertEquals("Reader", meta.getInputMapping().getInputTransformName());
     assertEquals("Mapping input", meta.getInputMapping().getOutputTransformName());
     assertEquals("Mapping output", meta.getOutputMapping().getInputTransformName());

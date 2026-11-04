@@ -28,6 +28,8 @@
         <schema_name/>
     </partitioning>
     <filename>${PROJECT_HOME}/mapping-sum.hpl</filename>
+    <no_input>N</no_input>
+    <no_output>N</no_output>
     <mappings>
         <input>
             <mapping>
