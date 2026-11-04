@@ -170,6 +170,20 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
     boolean deleteFile = getAction() == ActionType.DELETE;
 
+    try {
+      if (specifyWildcard) {
+        if (!Utils.isEmpty(wildcard)) {
+          wildcardPattern = Pattern.compile(resolve(wildcard));
+        }
+        if (!Utils.isEmpty(wildcardExclude)) {
+          wildcardExcludePattern = Pattern.compile(resolve(wildcardExclude));
+        }
+      }
+    } catch (PatternSyntaxException e) {
+      logError(BaseMessages.getString(PKG, "ActionCopyMoveResultFilenames.Error", e.toString()));
+      return result;
+    }
+
     String realdestinationFolder = null;
     if (!deleteFile) {
       realdestinationFolder = resolve(getDestinationFolder());
@@ -177,17 +191,6 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
       if (!createDestinationFolder(realdestinationFolder)) {
         return result;
       }
-    }
-    try {
-      if (!Utils.isEmpty(wildcard)) {
-        wildcardPattern = Pattern.compile(resolve(wildcard));
-      }
-      if (!Utils.isEmpty(wildcardExclude)) {
-        wildcardExcludePattern = Pattern.compile(resolve(wildcardExclude));
-      }
-    } catch (PatternSyntaxException e) {
-      logError(BaseMessages.getString(PKG, "ActionCopyMoveResultFilenames.Error", e.toString()));
-      return result;
     }
 
     nrErrors = 0;

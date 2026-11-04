@@ -80,14 +80,34 @@ class XmlWellFormedResultTest {
   }
 
   @Test
+  void basenameWildcardMatchesFileNameInSubfolder() throws Exception {
+    Path subFolder = Files.createDirectory(folder.resolve("nested"));
+    Files.writeString(subFolder.resolve("good.xml"), WELL_FORMED, StandardCharsets.UTF_8);
+    Files.writeString(folder.resolve("skip.xml"), WELL_FORMED, StandardCharsets.UTF_8);
+
+    XmlWellFormedField field = new XmlWellFormedField();
+    field.setSourceFilefolder(folder.toString());
+    field.setWildcard("good\\.xml");
+    action.setSourceFileFolders(List.of(field));
+    action.includeSubfolders = true;
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult());
+    assertEquals(0, result.getNrErrors());
+    assertEquals(
+        1, result.getNrLinesWritten(), "basename wildcard must check the nested file by name");
+  }
+
+  @Test
   void oneFieldResultRowUsesEmptyWildcard() throws Exception {
-    Path xml = Files.writeString(folder.resolve("good.xml"), WELL_FORMED, StandardCharsets.UTF_8);
+    Files.writeString(folder.resolve("good.xml"), WELL_FORMED, StandardCharsets.UTF_8);
 
     action.argFromPrevious = true;
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("filename"));
-    RowMetaAndData row = new RowMetaAndData(rowMeta, new Object[] {xml.toString()});
+    RowMetaAndData row = new RowMetaAndData(rowMeta, new Object[] {folder.toString()});
 
     Result previous = new Result();
     previous.getRows().add(row);
@@ -96,6 +116,7 @@ class XmlWellFormedResultTest {
 
     assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
-    assertEquals(1, result.getNrLinesWritten());
+    assertEquals(
+        1, result.getNrLinesWritten(), "a one-field folder row must check the whole folder");
   }
 }

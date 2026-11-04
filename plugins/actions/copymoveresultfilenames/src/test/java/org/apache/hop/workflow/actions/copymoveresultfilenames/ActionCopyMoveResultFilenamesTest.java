@@ -126,10 +126,11 @@ class ActionCopyMoveResultFilenamesTest {
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     workflow.setStopped(false);
 
+    Path destination = tempDir.resolve("out");
     ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
     action.setParentWorkflow(workflow);
     action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
-    action.setDestinationFolder(tempDir.resolve("out").toString());
+    action.setDestinationFolder(destination.toString());
     action.setCreateDestinationFolder(true);
     action.setSpecifyWildcard(true);
     action.setWildcard("[");
@@ -145,10 +146,13 @@ class ActionCopyMoveResultFilenamesTest {
 
     assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
+    assertFalse(
+        Files.exists(destination),
+        "destination folder must not be created when the wildcard is invalid");
   }
 
   @Test
-  void invalidExcludeWildcardMakesActionFalseWithOneError() throws Exception {
+  void invalidExcludeWildcardMakesActionFalseWithOneError() {
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     workflow.setStopped(false);
 
@@ -163,6 +167,34 @@ class ActionCopyMoveResultFilenamesTest {
 
     assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
+  }
+
+  @Test
+  void leftoverInvalidWildcardIsIgnoredWhenLimitActionToIsOff() throws Exception {
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    workflow.setStopped(false);
+
+    Path destination = tempDir.resolve("out-no-limit");
+    ActionCopyMoveResultFilenames action = new ActionCopyMoveResultFilenames();
+    action.setParentWorkflow(workflow);
+    action.setAction(ActionCopyMoveResultFilenames.ActionType.COPY);
+    action.setDestinationFolder(destination.toString());
+    action.setCreateDestinationFolder(true);
+    action.setSpecifyWildcard(false);
+    action.setWildcard("[");
+
+    Result result = new Result();
+    Path source = Files.writeString(tempDir.resolve("file-no-limit.txt"), "data");
+    ResultFile resultFile =
+        new ResultFile(
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(source.toString()), "wf", "action");
+    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+
+    result = action.execute(result, 0);
+
+    assertTrue(result.isResult());
+    assertEquals(0, result.getNrErrors());
+    assertTrue(Files.exists(destination.resolve("file-no-limit.txt")));
   }
 
   private static List<ICheckResult> check(ActionCopyMoveResultFilenames action) {
