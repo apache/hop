@@ -40,8 +40,8 @@ public class MailValidation {
 
   private static final Class<?> PKG = ActionMailValidator.class;
 
-  public static boolean isRegExValid(String emailAdress) {
-    return GenericValidator.isEmail(emailAdress);
+  public static boolean isRegExValid(String emailAddress) {
+    return GenericValidator.isEmail(emailAddress);
   }
 
   /**
@@ -86,8 +86,6 @@ public class MailValidation {
   private static void say(BufferedWriter wr, String text) throws IOException {
     wr.write(text + "\r\n");
     wr.flush();
-
-    return;
   }
 
   private static ArrayList<String> getMX(String hostName) throws NamingException {
@@ -111,22 +109,57 @@ public class MailValidation {
     // Huzzah! we have machines to try. Return them as an array list
     // NOTE: We SHOULD take the preference into account to be absolutely
     // correct. This is left as an exercise for anyone who cares.
+    //
+    // MX values look like "10 mail.example.com." while A values are a bare
+    // address ("34.223.124.45"). Parse both formats so the A-record fallback
+    // above actually reaches SMTP on port 25.
     ArrayList<String> res = new ArrayList<>();
     NamingEnumeration<?> en = attr.getAll();
 
     while (en.hasMore()) {
-      String x = (String) en.next();
-      String[] f = x.split(" ");
-      if (f[1].endsWith(".")) {
-        f[1] = f[1].substring(0, (f[1].length() - 1));
+      String host = extractMailHost((String) en.next());
+      if (host != null) {
+        res.add(host);
       }
-      res.add(f[1]);
     }
     return res;
   }
 
   /**
-   * Validate an email address This code is from : http://www.rgagnon.com/javadetails/java-0452.html
+   * Extract a mail host from a DNS attribute value.
+   *
+   * <p>MX records are stored as {@code preference host} (e.g. {@code 40
+   * alt4.gmail-smtp-in.l.google.com.}). A records are a single address (e.g. {@code
+   * 34.223.124.45}).
+   *
+   * @param dnsAttributeValue raw MX or A attribute value from JNDI DNS
+   * @return host or IP to contact, or {@code null} if the value is empty
+   */
+  static String extractMailHost(String dnsAttributeValue) {
+    if (dnsAttributeValue == null) {
+      return null;
+    }
+    String[] parts = dnsAttributeValue.trim().split("\\s+");
+    if (parts.length == 0 || Utils.isEmpty(parts[0])) {
+      return null;
+    }
+    String host;
+    if (parts.length >= 2) {
+      // MX: preference + host
+      host = parts[1];
+    } else {
+      // A: bare address / hostname
+      host = parts[0];
+    }
+    if (host.endsWith(".")) {
+      host = host.substring(0, host.length() - 1);
+    }
+    return Utils.isEmpty(host) ? null : host;
+  }
+
+  /**
+   * Validate an email address This code is from : <a
+   * href="http://www.rgagnon.com/javadetails/java-0452.html">java details</a>
    */
   public static MailValidationResult isAddressValid(
       ILogChannel log,
