@@ -29,6 +29,7 @@
     <name>Hop Plugins Engines Beam</name>
 
     <properties>
+        <!-- Also update beam-spark-version in docs/hop-user-manual/antora.yml -->
         <spark.version>3.5.8</spark.version>
     </properties>
 
@@ -364,6 +365,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
+            <!-- Also update flink-version in docs/hop-user-manual/antora.yml -->
             <artifactId>beam-runners-flink-1.19</artifactId>
             <exclusions>
                 <exclusion>

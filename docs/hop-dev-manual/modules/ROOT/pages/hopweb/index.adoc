@@ -53,7 +53,7 @@ Additional info in xref:hopweb/developer-guide.adoc#_building_the_hop_web_docker
 
 We'll use Apache Tomcat in this example. If you use another application server, the process should be similar.
 
-Hop 2.x is built with Java {java-version}, so you'll need to https://tomcat.apache.org/download-10.cgi[download the latest Tomcat 10] (or use the official Tomcat 10 Docker image).
+This version of Hop is built with Java {java-version}, so you'll need to https://tomcat.apache.org/download-10.cgi[download the latest Tomcat 10] (or use the official Tomcat 10 Docker image).
 
 Copy or extract the following files from your Hop build, where `$CATALINA_HOME` is your Tomcat installation folder.
 

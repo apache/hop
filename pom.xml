@@ -99,6 +99,7 @@
     <properties>
         <!-- One version of each library in the client assembly. hop-libs uses the same properties. -->
         <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
+        <!-- Also update beam-version in docs/hop-user-manual/antora.yml -->
         <apache-beam.version>2.74.0</apache-beam.version>
         <api-common.version>2.62.0</api-common.version>
         <assembly_appendId>false</assembly_appendId>
@@ -206,6 +207,7 @@
         <spotless.skip>false</spotless.skip>
         <stax2-api.version>4.3.2</stax2-api.version>
         <swtbot.version>4.3.0</swtbot.version>
+        <!-- Also update java-version in docs/hop-user-manual/antora.yml and docs/hop-dev-manual/antora.yml, and the JRE in docker/Dockerfile -->
         <target.jdk.version>21</target.jdk.version>
         <tm4e.core.version>0.17.2</tm4e.core.version>
         <ui.test.argLine></ui.test.argLine>

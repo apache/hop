@@ -65,6 +65,28 @@ The path is relative to the user manual on the website, and it is what the help 
 
 Anything a plugin developer needs — rather than a user — belongs in this manual instead.
 
+== Version attributes
+
+The versions of Java, Apache Beam, Spark and Flink that Hop uses are attributes in the `antora.yml` of the manual, so a page doesn't repeat the number:
+
+[options="header",cols="1,1,2"]
+|===
+|Attribute |Manual |Comes from
+|`+{java-version}+` |user and dev manual |`target.jdk.version` in the root `pom.xml`
+|`+{beam-version}+` |user manual |`apache-beam.version` in the root `pom.xml`
+|`+{beam-spark-version}+` |user manual |`spark.version` in `plugins/engines/beam/pom.xml` (the Spark of the Beam Spark runner)
+|`+{spark-version}+` |user manual |`spark.version` in `plugins/engines/spark/pom.xml` (the native Spark engine)
+|`+{flink-version}+` |user manual |the `beam-runners-flink-<version>` dependency in `plugins/engines/beam/pom.xml`
+|===
+
+Use an attribute where the text means the version Hop uses now: `+Hop requires Java {java-version}+`.
+Keep the number where it shouldn't change with an upgrade: a past version (`since 2.15.0`), a measurement or a log example, a table with a row per release, or the behaviour of one specific version of a library.
+A code block only replaces attributes when it has `subs="attributes+"`: `++[source,bash,subs="attributes+"]++`.
+
+When a pull request changes one of these versions in a pom, it also updates the attribute in the `antora.yml` files listed above, so the `next` documentation shows the new version.
+A comment next to each of them in the poms says so.
+A new Java version also changes the JRE that `docker/Dockerfile` installs, which xref:docker-build.adoc[Building the Docker images] and the Docker container page of the user manual describe with `+{java-version}+`.
+
 == Previewing the documentation locally
 
 The manuals are published by the Antora playbooks in the https://github.com/apache/hop-website[apache/hop-website] repository, not this one.
