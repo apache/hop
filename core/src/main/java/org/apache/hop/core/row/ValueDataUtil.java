@@ -1231,6 +1231,9 @@ public class ValueDataUtil {
 
   public static Object addDays(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1241,6 +1244,9 @@ public class ValueDataUtil {
 
   public static Object addHours(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1251,6 +1257,9 @@ public class ValueDataUtil {
 
   public static Object addMinutes(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1261,6 +1270,9 @@ public class ValueDataUtil {
 
   public static Object addSeconds(IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB)
       throws HopValueException {
+    if (dataA == null || dataB == null) {
+      return null;
+    }
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(metaA.getDate(dataA));
@@ -1294,7 +1306,7 @@ public class ValueDataUtil {
 
       return (cal.getTime());
     } else {
-      throw new HopValueException("Unable to add months with a null value");
+      return null;
     }
   }
 
