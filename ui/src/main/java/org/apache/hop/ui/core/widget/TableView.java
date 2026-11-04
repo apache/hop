@@ -5941,11 +5941,12 @@ public class TableView extends Composite {
    * Data column under a header click, or -1 for the row-number column or a miss.
    *
    * <p>{@code x} is in {@link org.eclipse.swt.widgets.Control#toControl(int, int)} space. {@link
-   * TableItem#getBounds(int)} is in that same space: on GTK both are bin-window coordinates, so a
-   * horizontal scroll leaves the bounds where they are and moves the client-area origin instead.
-   * Subtracting {@link ScrollBar#getSelection()} from the column widths shifts the hit a second
-   * time. On Windows the scrollbar position is device pixels while the click and the cell bounds
-   * are in points.
+   * TableItem#getBounds(int)} is in that same space. On GTK both are bin-window coordinates, so a
+   * horizontal scroll leaves the bounds where they are and moves the client-area origin instead. On
+   * Cocoa both are {@code NSTableView} document coordinates. Subtracting {@link
+   * ScrollBar#getSelection()} from those edges shifts the hit a second time on GTK and Cocoa. On
+   * Windows the click is relative to the visible area, and the scrollbar position is device pixels
+   * while the click and the cell bounds are in points.
    */
   private int findDataColumnAtX(int x) {
     if (table.getItemCount() > 0) {
@@ -5963,60 +5964,173 @@ public class TableView extends Composite {
    */
   private int findDataColumnFromItemBounds(int x) {
     TableItem item = table.getItem(0);
-    int count = table.getColumnCount();
-    int[] tableIndex = new int[count];
-    int[] left = new int[count];
-    int[] right = new int[count];
-    int n = 0;
-    for (int i = 0; i < count; i++) {
-      Rectangle bounds = item.getBounds(i);
-      if (bounds == null || bounds.width <= 0) {
+    int[] order = getColumnOrderSafe();
+    int[] columnIndexes = new int[order.length];
+    int[] lefts = new int[order.length];
+    int[] rights = new int[order.length];
+    int count = 0;
+    for (int tableIdx : order) {
+      if (tableIdx < 0 || tableIdx >= table.getColumnCount()) {
         continue;
       }
-      tableIndex[n] = i;
-      left[n] = bounds.x;
-      right[n] = bounds.x + bounds.width;
-      n++;
+      Rectangle bounds = item.getBounds(tableIdx);
+      if (bounds == null) {
+        continue;
+      }
+      columnIndexes[count] = tableIdx;
+      lefts[count] = bounds.x;
+      rights[count] = bounds.x + bounds.width;
+      count++;
     }
-    if (n == 0) {
+    if (!hasPaintedColumn(lefts, rights, count)) {
       return Integer.MIN_VALUE;
     }
-    for (int i = 1; i < n; i++) {
-      int leftEdge = left[i];
-      int rightEdge = right[i];
-      int index = tableIndex[i];
-      int j = i;
-      while (j > 0 && left[j - 1] > leftEdge) {
-        left[j] = left[j - 1];
-        right[j] = right[j - 1];
-        tableIndex[j] = tableIndex[j - 1];
-        j--;
-      }
-      left[j] = leftEdge;
-      right[j] = rightEdge;
-      tableIndex[j] = index;
+    return hitTestDataColumn(
+        Arrays.copyOf(columnIndexes, count),
+        Arrays.copyOf(lefts, count),
+        Arrays.copyOf(rights, count),
+        x);
+  }
+
+  /**
+   * Width walk used only before a row has been measured. GTK and Cocoa already report the click in
+   * content coordinates. Windows and Hop Web report it relative to the visible area ({@code
+   * getClientArea().x == 0}), so the horizontal scroll is added there.
+   */
+  private int findDataColumnAtXFromWidths(int x) {
+    int columnCount = table.getColumnCount();
+    int[] widths = new int[columnCount];
+    int contentWidth = 0;
+    for (int i = 0; i < columnCount; i++) {
+      TableColumn column = table.getColumn(i);
+      int width = column == null || column.isDisposed() ? 0 : Math.max(column.getWidth(), 0);
+      widths[i] = width;
+      contentWidth += width;
     }
-    for (int i = 0; i < n; i++) {
-      // The next painted column starts the hit region, so the gap between them still counts.
-      int edge = (i + 1 < n) ? left[i + 1] : right[i];
-      if (x >= left[i] && x < edge) {
-        return tableIndex[i] == 0 ? -1 : tableIndex[i] - 1;
+    int scroll = emptyGridScrollOffset(contentWidth);
+    return hitTestDataColumnFromWidths(getColumnOrderSafe(), widths, x, scroll);
+  }
+
+  /** Points to add when the empty grid's click is relative to the visible area. */
+  private int emptyGridScrollOffset(int contentWidth) {
+    Rectangle client = table.getClientArea();
+    int clientX = client == null ? 0 : client.x;
+    ScrollBar bar = table.getHorizontalBar();
+    if (bar == null || bar.isDisposed()) {
+      return emptyGridScrollOffset(clientX, 0, 0, contentWidth);
+    }
+    return emptyGridScrollOffset(clientX, bar.getSelection(), bar.getMaximum(), contentWidth);
+  }
+
+  private static boolean hasPaintedColumn(int[] lefts, int[] rights, int count) {
+    for (int i = 0; i < count; i++) {
+      if (rights[i] > lefts[i]) {
+        return true;
       }
+    }
+    return false;
+  }
+
+  /**
+   * Column under {@code x}. {@code columnIndexes}, {@code lefts} and {@code rights} are parallel
+   * and already in visual order, the order {@link #getColumnOrderSafe()} returns, along which the
+   * edges increase. A column whose right edge is not past its left edge is hidden (width 0) and is
+   * skipped. The hit region of a painted column runs up to the next painted column's left edge, so
+   * the gap between them still counts. Index 0 is the row-number column and resolves to -1, as does
+   * a click that misses every column.
+   *
+   * @param columnIndexes table column indexes in visual order
+   * @param lefts left edges in that same order
+   * @param rights right edges in that same order
+   * @param x click position in the same coordinate space as the edges
+   * @return the data column (table index minus one), or -1
+   */
+  static int hitTestDataColumn(int[] columnIndexes, int[] lefts, int[] rights, int x) {
+    int previous = -1;
+    for (int i = 0; i < columnIndexes.length; i++) {
+      if (rights[i] <= lefts[i]) {
+        continue;
+      }
+      if (previous >= 0 && x >= lefts[previous] && x < lefts[i]) {
+        return dataColumnAt(columnIndexes[previous]);
+      }
+      previous = i;
+    }
+    if (previous >= 0 && x >= lefts[previous] && x < rights[previous]) {
+      return dataColumnAt(columnIndexes[previous]);
     }
     return -1;
   }
 
-  /** Width walk used only before a row has been measured. Scroll is not applied. */
-  private int findDataColumnAtXFromWidths(int x) {
-    int pos = 0;
-    for (int tableIdx : getColumnOrderSafe()) {
-      int width = table.getColumn(tableIdx).getWidth();
-      if (width > 0 && x >= pos && x < pos + width) {
-        return tableIdx == 0 ? -1 : tableIdx - 1;
+  /**
+   * Width walk for an empty grid. Columns are laid out from the content origin in {@code
+   * columnOrder}, skipping width 0, and {@code scrollOffset} is added to {@code x} when the click
+   * is relative to the visible area.
+   *
+   * @param columnOrder visual column order
+   * @param widths width of each table column, indexed by creation order
+   * @param x click position
+   * @param scrollOffset points to add to {@code x}; 0 when the click is already in content
+   *     coordinates
+   * @return the data column, or -1
+   */
+  static int hitTestDataColumnFromWidths(int[] columnOrder, int[] widths, int x, int scrollOffset) {
+    int[] columnIndexes = new int[columnOrder.length];
+    int[] lefts = new int[columnOrder.length];
+    int[] rights = new int[columnOrder.length];
+    int position = 0;
+    int count = 0;
+    for (int tableIdx : columnOrder) {
+      if (tableIdx < 0 || tableIdx >= widths.length) {
+        continue;
       }
-      pos += Math.max(width, 0);
+      int width = Math.max(widths[tableIdx], 0);
+      columnIndexes[count] = tableIdx;
+      lefts[count] = position;
+      rights[count] = position + width;
+      position += width;
+      count++;
     }
-    return -1;
+    if (count == 0) {
+      return -1;
+    }
+    return hitTestDataColumn(
+        Arrays.copyOf(columnIndexes, count),
+        Arrays.copyOf(lefts, count),
+        Arrays.copyOf(rights, count),
+        x + scrollOffset);
+  }
+
+  /**
+   * Points to add to a click that is relative to the visible area, so it lines up with column
+   * widths measured from the content origin.
+   *
+   * <p>GTK and Cocoa keep the click in content coordinates once the client-area origin has moved,
+   * so the offset is zero whenever {@code clientAreaX} is not 0. Windows leaves the client area at
+   * x 0 and reports the scrollbar in device pixels, converted with {@code selection * contentWidth
+   * / maximum}. A maximum of 0 is not that device-pixel range: Hop Web (RAP) leaves the maximum at
+   * 0 and stores the scroll in the selection, already in the same pixels as the column widths, so
+   * the selection itself is the offset and the division is skipped.
+   *
+   * @param clientAreaX {@code Table.getClientArea().x}
+   * @param selection horizontal {@link ScrollBar#getSelection()}
+   * @param maximum horizontal {@link ScrollBar#getMaximum()}
+   * @param contentWidth sum of the column widths, in points
+   * @return the scroll in points, or 0 when it must not be applied
+   */
+  static int emptyGridScrollOffset(int clientAreaX, int selection, int maximum, int contentWidth) {
+    if (clientAreaX != 0 || selection <= 0 || contentWidth <= 0) {
+      return 0;
+    }
+    if (maximum <= 0) {
+      return selection;
+    }
+    long offset = (long) selection * contentWidth / maximum;
+    return offset > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) offset;
+  }
+
+  private static int dataColumnAt(int tableIndex) {
+    return tableIndex == 0 ? -1 : tableIndex - 1;
   }
 
   public IRowMeta getRowWithoutValues() {
