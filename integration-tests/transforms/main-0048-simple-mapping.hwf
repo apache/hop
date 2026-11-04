@@ -148,6 +148,42 @@ limitations under the License.
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>Delete no-output cube after failure</name>
+      <description/>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <filename>${java.io.tmpdir}/0048-simple-mapping-no-output.cube</filename>
+      <fail_if_file_not_exists>N</fail_if_file_not_exists>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete no-io cube after failure</name>
+      <description/>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <filename>${java.io.tmpdir}/0048-simple-mapping-no-io.cube</filename>
+      <fail_if_file_not_exists>N</fail_if_file_not_exists>
+      <parallel>N</parallel>
+      <xloc>720</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>Simple mapping integration test failed</message>
+      <loglevel>Error</loglevel>
+      <parallel>N</parallel>
+      <xloc>928</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -162,25 +198,60 @@ limitations under the License.
       <to>0048-simple-mapping-parent-no-io.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0048-simple-mapping-parent-no-output.hpl</from>
+      <to>Delete no-output cube after failure</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>0048-simple-mapping-parent-no-io.hpl</from>
       <to>Run simple-mapping tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0048-simple-mapping-parent-no-io.hpl</from>
+      <to>Delete no-output cube after failure</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>Run simple-mapping tests</from>
       <to>Delete no-output cube</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run simple-mapping tests</from>
+      <to>Delete no-output cube after failure</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
     </hop>
     <hop>
       <from>Delete no-output cube</from>
       <to>Delete no-io cube</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete no-output cube after failure</from>
+      <to>Delete no-io cube after failure</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Delete no-io cube after failure</from>
+      <to>Abort workflow</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
