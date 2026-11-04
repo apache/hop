@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.beam.runners.dataflow.DataflowRunner;
@@ -397,7 +398,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
    * @return The sanitezed name without spaces and other special characters
    */
   private String sanitizeJobName(String name) {
-    String newName = name.toLowerCase();
+    String newName = name.toLowerCase(Locale.ROOT);
     if (name.matches("^[0-9].*")) {
       newName = "hop-" + newName;
     }
