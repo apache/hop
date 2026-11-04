@@ -31,6 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -42,6 +43,7 @@ import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.SharedMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +71,16 @@ class SharedMetadataTest {
   @AfterEach
   void clearShared() {
     HopMetadataInstance.setSharedMetadataProvider(null);
+  }
+
+  /** The registry is process-wide. Leave shared-note behind and later tests count an extra type. */
+  @AfterAll
+  static void unregisterSharedNote() {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    IPlugin plugin = registry.findPluginWithId(MetadataPluginType.class, "shared-note");
+    if (plugin != null) {
+      registry.removePlugin(MetadataPluginType.class, plugin);
+    }
   }
 
   @Test
