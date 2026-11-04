@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -140,6 +141,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private int commitsize;
 
   @Getter @Setter private Connection connection;
+
+  /**
+   * The lock of a connection shared by a transactional pipeline on a database that uses savepoints,
+   * or null. See {@link #runInSavepoint(ISavepointWork)}.
+   */
+  @Getter
+  @Setter(AccessLevel.PACKAGE)
+  private SharedConnectionLock sharedConnectionLock;
 
   private Statement selStmt;
   private PreparedStatement pstmt;
@@ -352,9 +361,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       // If we have a connection group or transaction ID, disable auto commit!
       //
       setAutoCommit(false);
+
+      // Transforms with an error hop set a savepoint per row on these databases. On a shared
+      // connection those savepoints have to take turns, see SharedConnectionLock.
+      //
+      if (databaseMeta.getIDatabase().isUseSafePoints()) {
+        this.sharedConnectionLock = SharedConnectionLock.wrap(this.connection);
+        this.connection = this.sharedConnectionLock.getConnection();
+      }
     }
 
     anotherDb.connection = this.connection;
+    anotherDb.sharedConnectionLock = this.sharedConnectionLock;
     anotherDb.copy = this.opened;
   }
 
@@ -749,6 +767,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         connection.close();
         connection = null;
       }
+      sharedConnectionLock = null;
       dbmd = null;
 
       if (log.isDetailed()) {
@@ -5163,6 +5182,66 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     } catch (SQLException e) {
       throw new HopDatabaseException(
           BaseMessages.getString(PKG, "Database.Exception.UnableToRollbackToSavepoint"), e);
+    }
+  }
+
+  /**
+   * Whether a transform should run each row behind a savepoint ({@link
+   * #runInSavepoint(ISavepointWork)}): it sends failed rows to an error hop, and on this database a
+   * failed statement aborts the transaction until it is rolled back (PostgreSQL and its
+   * look-alikes), so without a savepoint every row after a failed one would fail too.
+   *
+   * @param errorHandling whether the transform sends failed rows to an error hop
+   * @return true if every row needs a savepoint
+   */
+  public boolean isUsingRowSavepoints(boolean errorHandling) {
+    return errorHandling && databaseMeta.getIDatabase().isUseSafePoints() && !isAutoCommit();
+  }
+
+  /**
+   * Runs the SQL of one row behind a savepoint. When the work succeeds the savepoint is released
+   * (where the database releases savepoints) and the work's result is returned. When it fails, the
+   * transaction is rolled back to the savepoint, so only this row's statements are undone and the
+   * next rows can still run, and the failure is thrown again.
+   *
+   * <p>On a connection shared by a transactional pipeline the whole section, from the savepoint to
+   * its release or rollback, holds the {@link SharedConnectionLock}: no other transform runs a
+   * statement inside it. Pass rows on and commit after this method returns, never inside the work.
+   *
+   * @param work the statements of the row
+   * @return what the work returned
+   * @throws HopException the failure of the work, with a failed rollback added as suppressed
+   */
+  public <T> T runInSavepoint(ISavepointWork<T> work) throws HopException {
+    SharedConnectionLock lock = sharedConnectionLock;
+    boolean release = getDatabaseMeta().getIDatabase().isReleaseSavepoint();
+    if (lock != null) {
+      lock.lock();
+    }
+    try {
+      Savepoint savepoint = setSavepoint();
+      T result;
+      try {
+        result = work.run();
+      } catch (HopException | RuntimeException e) {
+        try {
+          rollback(savepoint);
+          if (release) {
+            releaseSavepoint(savepoint);
+          }
+        } catch (HopException rollbackFailure) {
+          e.addSuppressed(rollbackFailure);
+        }
+        throw e;
+      }
+      if (release) {
+        releaseSavepoint(savepoint);
+      }
+      return result;
+    } finally {
+      if (lock != null) {
+        lock.unlock();
+      }
     }
   }
 

@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import java.sql.PreparedStatement;
-import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -83,9 +82,12 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
   public int commitSize;
   public DatabaseMeta databaseMeta;
   public boolean specialErrorHandling;
-  public Savepoint savepoint;
-  public boolean releaseSavepoint;
-  public boolean supportsSavePoints;
+
+  /**
+   * Whether every row runs behind a savepoint: with an error hop on a database where a failed
+   * statement aborts the transaction (PostgreSQL).
+   */
+  public boolean useSavepoints;
 
   public List<Object[]> batchBuffer;
 
@@ -112,6 +114,5 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
     realSchemaTable = null;
     commitCounterMap = new HashMap<>();
     batchBuffer = new ArrayList<>();
-    releaseSavepoint = true;
   }
 }

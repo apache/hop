@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.redshift;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.database.IDatabase;
@@ -38,5 +39,11 @@ class ReleaseSavePointTest {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /** Redshift can't roll back to a savepoint: no savepoint per row, unlike PostgreSQL. */
+  @Test
+  void noSavepointPerRow() {
+    assertFalse(new RedshiftDatabaseMeta().isUseSafePoints());
   }
 }

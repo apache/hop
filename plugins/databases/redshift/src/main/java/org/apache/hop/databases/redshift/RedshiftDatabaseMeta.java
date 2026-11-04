@@ -454,4 +454,14 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
   public String getGuiWidgetsListenerClassName() {
     return "org.apache.hop.databases.redshift.RedshiftWidgetsListener";
   }
+
+  /**
+   * Not inherited from PostgreSQL: Redshift doesn't support {@code ROLLBACK TO SAVEPOINT}, so a
+   * savepoint can't undo a failed row. Transforms with an error hop write without savepoints, as
+   * they did before, and a failed statement still aborts the rest of its transaction.
+   */
+  @Override
+  public boolean isUseSafePoints() {
+    return false;
+  }
 }

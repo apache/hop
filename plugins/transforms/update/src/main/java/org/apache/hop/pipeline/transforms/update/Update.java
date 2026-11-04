@@ -122,7 +122,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
               data.stringFieldnames += data.lookupParameterRowMeta.getValueMeta(i).getName();
             }
           }
-          putError(rowMeta, row, 1L, data.stringErrorKeyNotFound, data.stringFieldnames, "UPD001");
+          // Sent to the error hop by processRow(), after the savepoint section of this row.
+          data.keyNotFound = true;
         } else {
           throw new HopDatabaseException(
               BaseMessages.getString(PKG, "Update.Exception.KeyCouldNotFound")
@@ -186,7 +187,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
                   + data.lookupParameterRowMeta.getString(lookupRow));
         }
         data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
-        data.db.insertRow(data.prepStatementUpdate, meta.isUseBatchUpdate(), true);
+        data.db.insertRow(data.prepStatementUpdate, data.batchMode, !data.useSavepoints);
         incrementLinesUpdated();
       } else {
         incrementLinesSkipped();
@@ -329,8 +330,18 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     }
 
     try {
+      data.keyNotFound = false;
+      IRowMeta inputRowMeta = getInputRowMeta();
       Object[] outputRow =
-          lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
+          data.useSavepoints
+              ? data.db.runInSavepoint(() -> lookupValues(inputRowMeta, r))
+              : lookupValues(inputRowMeta, r); // add new values to the row in rowset[0].
+      if (data.useSavepoints) {
+        commitEveryCommitSize();
+      }
+      if (data.keyNotFound) {
+        putError(inputRowMeta, r, 1L, data.stringErrorKeyNotFound, data.stringFieldnames, "UPD001");
+      }
       if (outputRow != null) {
         putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
       }
@@ -529,6 +540,18 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     }
   }
 
+  /**
+   * Commits when the commit size is reached, for rows that run behind a savepoint: those don't let
+   * {@link Database#insertRow} commit, since a commit inside the savepoint section would end it.
+   */
+  private void commitEveryCommitSize() throws HopException {
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= data.commitSize) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
+  }
+
   @Override
   public boolean init() {
 
@@ -549,7 +572,15 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           logDetailed(BaseMessages.getString(PKG, "Update.Log.ConnectedToDB"));
         }
 
-        data.db.setCommit(meta.getCommitSize(this));
+        data.commitSize = meta.getCommitSize(this);
+        data.db.setCommit(data.commitSize);
+        data.useSavepoints =
+            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
+        // A failed row in a batch can't be undone on its own: with savepoints, no batch.
+        data.batchMode = meta.isUseBatchUpdate() && !data.useSavepoints;
+        if (meta.isUseBatchUpdate() && data.useSavepoints) {
+          logBasic(BaseMessages.getString(PKG, "Update.Log.BatchOffForErrorHandling"));
+        }
 
         return true;
       } catch (HopException ke) {
@@ -580,7 +611,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         if (!data.db.isAutoCommit()) {
           if (getErrors() == 0) {
             if (dispose) {
-              data.db.emptyAndCommit(data.prepStatementUpdate, meta.isUseBatchUpdate());
+              data.db.emptyAndCommit(data.prepStatementUpdate, data.batchMode);
               data.prepStatementUpdate = null;
             } else {
               data.db.commit();

@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0050-mssql-shared-connection-error-hops</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Transforms with an error hop on a database that undoes only the failed statement, sharing one connection (transactional) or one thread (single threaded): only the failing rows may be rejected, and no good row may be lost</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/11/03 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/11/03 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>reset tables (normal local)</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/0050-mssql-shared-connection-error-hops.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>run normal local</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0050-mssql-shared-connection-error-hops.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check normal local</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>mssql-2022</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>1</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT 1
+WHERE (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;a&apos;) = 2970 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;a&apos;) = 4456395
+  AND (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;x&apos;) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;x&apos;) = 45105
+  AND (SELECT COUNT(*) FROM it0050_err_a) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_a) = 45105
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;a&apos;) = 2937 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;a&apos;) = 4406466
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;x&apos;) = 31 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;x&apos;) = 23744
+  AND (SELECT COUNT(*) FROM it0050_err_b) = 33 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_b) = 49929
+  AND (SELECT COUNT(*) FROM it0050_c) = 2901 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_c) = 4351188
+  AND (SELECT COUNT(*) FROM it0050_err_c) = 36 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_c) = 55278
+  AND (SELECT COUNT(*) FROM it0050_d) = 136 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_d) = 205849
+  AND (SELECT COUNT(*) FROM it0050_err_d) = 37 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_d) = 55537
+  AND (SELECT COUNT(*) FROM it0050_e) = 2823 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_e) = 4232798
+  AND (SELECT COUNT(*) FROM it0050_err_e) = 41 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_e) = 62853</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>reset tables (normal transactional)</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/0050-mssql-shared-connection-error-hops.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>run normal transactional</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0050-mssql-shared-connection-error-hops.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>transactional</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check normal transactional</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>mssql-2022</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>1</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT 1
+WHERE (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;a&apos;) = 2970 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;a&apos;) = 4456395
+  AND (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;x&apos;) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;x&apos;) = 45105
+  AND (SELECT COUNT(*) FROM it0050_err_a) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_a) = 45105
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;a&apos;) = 2937 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;a&apos;) = 4406466
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;x&apos;) = 31 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;x&apos;) = 23744
+  AND (SELECT COUNT(*) FROM it0050_err_b) = 33 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_b) = 49929
+  AND (SELECT COUNT(*) FROM it0050_c) = 2901 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_c) = 4351188
+  AND (SELECT COUNT(*) FROM it0050_err_c) = 36 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_c) = 55278
+  AND (SELECT COUNT(*) FROM it0050_d) = 136 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_d) = 205849
+  AND (SELECT COUNT(*) FROM it0050_err_d) = 37 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_d) = 55537
+  AND (SELECT COUNT(*) FROM it0050_e) = 2823 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_e) = 4232798
+  AND (SELECT COUNT(*) FROM it0050_err_e) = 41 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_e) = 62853</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>reset tables (single threaded local)</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/0050-mssql-shared-connection-error-hops.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>272</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>run single threaded local</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0050-mssql-shared-connection-error-hops-single-threaded.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>272</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check single threaded local</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>mssql-2022</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>1</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT 1
+WHERE (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;a&apos;) = 2970 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;a&apos;) = 4456395
+  AND (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;x&apos;) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;x&apos;) = 45105
+  AND (SELECT COUNT(*) FROM it0050_err_a) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_a) = 45105
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;a&apos;) = 2937 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;a&apos;) = 4406466
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;x&apos;) = 31 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;x&apos;) = 23744
+  AND (SELECT COUNT(*) FROM it0050_err_b) = 33 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_b) = 49929
+  AND (SELECT COUNT(*) FROM it0050_c) = 2901 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_c) = 4351188
+  AND (SELECT COUNT(*) FROM it0050_err_c) = 36 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_c) = 55278
+  AND (SELECT COUNT(*) FROM it0050_d) = 136 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_d) = 205849
+  AND (SELECT COUNT(*) FROM it0050_err_d) = 37 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_d) = 55537
+  AND (SELECT COUNT(*) FROM it0050_e) = 2823 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_e) = 4232798
+  AND (SELECT COUNT(*) FROM it0050_err_e) = 41 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_e) = 62853</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>272</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>reset tables (single threaded transactional)</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql/>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>T</sqlfromfile>
+      <sqlfilename>${PROJECT_HOME}/scripts/0050-mssql-shared-connection-error-hops.sql</sqlfilename>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>384</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>run single threaded transactional</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0050-mssql-shared-connection-error-hops-single-threaded.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>transactional</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>384</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check single threaded transactional</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>mssql-2022</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>1</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT 1
+WHERE (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;a&apos;) = 2970 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;a&apos;) = 4456395
+  AND (SELECT COUNT(*) FROM it0050_a WHERE name = &apos;x&apos;) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_a WHERE name = &apos;x&apos;) = 45105
+  AND (SELECT COUNT(*) FROM it0050_err_a) = 30 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_a) = 45105
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;a&apos;) = 2937 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;a&apos;) = 4406466
+  AND (SELECT COUNT(*) FROM it0050_b WHERE name = &apos;x&apos;) = 31 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_b WHERE name = &apos;x&apos;) = 23744
+  AND (SELECT COUNT(*) FROM it0050_err_b) = 33 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_b) = 49929
+  AND (SELECT COUNT(*) FROM it0050_c) = 2901 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_c) = 4351188
+  AND (SELECT COUNT(*) FROM it0050_err_c) = 36 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_c) = 55278
+  AND (SELECT COUNT(*) FROM it0050_d) = 136 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_d) = 205849
+  AND (SELECT COUNT(*) FROM it0050_err_d) = 37 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_d) = 55537
+  AND (SELECT COUNT(*) FROM it0050_e) = 2823 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_e) = 4232798
+  AND (SELECT COUNT(*) FROM it0050_err_e) = 41 AND (SELECT COALESCE(SUM(id), 0) FROM it0050_err_e) = 62853</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>384</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>reset tables (normal local)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>reset tables (normal local)</from>
+      <to>run normal local</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>run normal local</from>
+      <to>check normal local</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check normal local</from>
+      <to>reset tables (normal transactional)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>reset tables (normal transactional)</from>
+      <to>run normal transactional</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>run normal transactional</from>
+      <to>check normal transactional</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check normal transactional</from>
+      <to>reset tables (single threaded local)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>reset tables (single threaded local)</from>
+      <to>run single threaded local</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>run single threaded local</from>
+      <to>check single threaded local</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check single threaded local</from>
+      <to>reset tables (single threaded transactional)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>reset tables (single threaded transactional)</from>
+      <to>run single threaded transactional</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>run single threaded transactional</from>
+      <to>check single threaded transactional</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

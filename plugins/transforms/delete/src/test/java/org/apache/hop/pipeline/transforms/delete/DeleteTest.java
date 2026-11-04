@@ -126,6 +126,8 @@ class DeleteTest {
   @Test
   void testProcessRowUsesBatchWhenEnabled() throws HopException {
     meta.setUseBatchUpdate(true);
+    // init() decides this; these tests skip init(). No error hop, so batching stays on.
+    data.batchMode = true;
 
     Database db = mock(Database.class);
     PreparedStatement preparedStatement = mock(PreparedStatement.class);
@@ -183,6 +185,8 @@ class DeleteTest {
   @Test
   void testDisposeCallsEmptyAndCommitWhenBatchEnabled() throws Exception {
     meta.setUseBatchUpdate(true);
+    // init() decides this; these tests skip init(). No error hop, so batching stays on.
+    data.batchMode = true;
 
     Database db = mock(Database.class);
     PreparedStatement preparedStatement = mock(PreparedStatement.class);

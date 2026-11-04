@@ -237,8 +237,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
 
     try {
-      Object[] outputRow =
-          lookupValues(data.inputRowMeta, r); // add new values to the row in rowset[0].
+      Object[] outputRow;
+      if (data.useSavepoints) {
+        outputRow = data.db.runInSavepoint(() -> lookupValues(data.inputRowMeta, r));
+        commitEveryCommitSize();
+      } else {
+        outputRow = lookupValues(data.inputRowMeta, r); // add new values to the row in rowset[0].
+      }
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
       if (checkFeedback(getLinesRead()) && isBasic()) {
@@ -247,6 +252,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     } catch (HopException e) {
       String errorMessage;
       if (getTransformMeta().isDoingErrorHandling()) {
+        if (data.useSavepoints) {
+          forgetUndoneRow();
+        }
         // Simply add this row to the error row
         putError(getInputRowMeta(), r, 1, e.toString(), null, "ISU001");
       } else {
@@ -1448,7 +1456,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     // INSERT NEW VALUE!
     data.db.setValues(data.insertRowMeta, insertRow, data.prepStatementInsert);
-    data.db.insertRow(data.prepStatementInsert);
+    data.db.insertRow(data.prepStatementInsert, false, !data.useSavepoints);
 
     if (isDebug()) {
       logDebug("Row inserted!");
@@ -1532,7 +1540,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       if (isDebug()) {
         logDebug("Values set for update (" + data.updateRowMeta.size() + ")");
       }
-      data.db.insertRow(data.prepStatementUpdate); // do the actual update
+      data.db.insertRow(
+          data.prepStatementUpdate, false, !data.useSavepoints); // do the actual update
       if (isDebug()) {
         logDebug("Row updated!");
       }
@@ -1641,7 +1650,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     data.db.setValues(
         data.dimensionUpdateRowMeta, dimensionUpdateRow, data.prepStatementDimensionUpdate);
-    data.db.insertRow(data.prepStatementDimensionUpdate);
+    data.db.insertRow(data.prepStatementDimensionUpdate, false, !data.useSavepoints);
   }
 
   // This updates all versions of a dimension entry.
@@ -1747,7 +1756,10 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         punchThroughRow,
         data.prepStatementPunchThrough); // set values for
     // update
-    data.db.insertRow(data.prepStatementPunchThrough); // do the actual punch through update
+    data.db.insertRow(
+        data.prepStatementPunchThrough,
+        false,
+        !data.useSavepoints); // do the actual punch through update
   }
 
   /**
@@ -1790,6 +1802,29 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     cacheValues[cacheIndex] = valueDateTo;
 
     return cacheValues;
+  }
+
+  /**
+   * After a failed row was rolled back to its savepoint: the cache may still hold what the row
+   * wrote before a later statement of it failed (a new version, then a punch through), so it is
+   * emptied. Misses read the dimension again.
+   */
+  private void forgetUndoneRow() {
+    if (data.cache != null) {
+      data.cache.clear();
+    }
+  }
+
+  /**
+   * Commits when the commit size is reached, for rows that run behind a savepoint: those don't let
+   * {@link Database#insertRow} commit, since a commit inside the savepoint section would end it.
+   */
+  private void commitEveryCommitSize() throws HopException {
+    data.rowsSinceCommit++;
+    if (data.rowsSinceCommit >= meta.getCommitSize()) {
+      data.db.commit();
+      data.rowsSinceCommit = 0;
+    }
   }
 
   /**
@@ -2214,6 +2249,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         logDetailed(BaseMessages.getString(PKG, "DimensionLookup.Log.ConnectedToDB"));
       }
       data.db.setCommit(meta.getCommitSize());
+      data.useSavepoints = data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
 
       return true;
     } catch (HopException ke) {

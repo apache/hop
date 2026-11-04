@@ -28,6 +28,17 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class InsertUpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 
+  /**
+   * Whether each row runs behind a savepoint: with an error hop on a database that rejects every
+   * statement after a failed one until the transaction is rolled back (PostgreSQL).
+   */
+  public boolean useSavepoints;
+
+  /** Rows written since the last commit, when the transform commits itself (with savepoints). */
+  public int rowsSinceCommit;
+
+  public int commitSize;
+
   public int[] keynrs; // nr of keylookup -value in row...
   public int[] keynrs2; // nr of keylookup2-value in row...
   public int[] valuenrs; // Stream valuename nrs to prevent searches.

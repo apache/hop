@@ -34,6 +34,15 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
 
   public Database db;
 
+  /**
+   * Whether each row runs behind a savepoint: with an error hop on a database that rejects every
+   * statement after a failed one until the transaction is rolled back (PostgreSQL).
+   */
+  public boolean useSavepoints;
+
+  /** Rows written since the last commit, when the transform commits itself (with savepoints). */
+  public int rowsSinceCommit;
+
   public Date minDate;
   public Date maxDate;
 
