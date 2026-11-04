@@ -957,8 +957,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         }
         if (anyZipped) {
           result.setResult(true);
-        } else if (!rows.isEmpty()) {
-          // Rows were present but none produced a zip (empty fields) — do not inherit previous.
+        } else {
+          // No row produced a zip (empty list or only empty fields) — do not inherit previous.
           return errorResult(result);
         }
       } catch (Exception e) {

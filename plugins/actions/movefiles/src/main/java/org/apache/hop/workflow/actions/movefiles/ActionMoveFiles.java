@@ -830,6 +830,8 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
               }
 
+              updateSuccess();
+              retVal = true;
             } else {
               switch (ifExistsOption(ifMovedFileExists)) {
                 case "overwrite_file" -> {
@@ -899,8 +901,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               }
             }
           }
-            // caller counts the error once
-          case FAIL -> retVal = false;
+          case FAIL -> retVal = false; // caller counts the error once
           case CONST_DO_NOTHING -> retVal = true;
           default ->
               logError(

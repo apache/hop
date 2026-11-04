@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -207,16 +206,7 @@ public class ActionDeleteFiles extends ActionBase {
             logDetailed(BaseMessages.getString(PKG, "ActionDeleteFiles.ProcessingFolder", path));
           }
 
-          final Pattern compiledWildcard;
-          try {
-            compiledWildcard = compileWildcard(wildcard);
-          } catch (PatternSyntaxException e) {
-            logError(
-                BaseMessages.getString(
-                    PKG, "ActionDeleteFiles.CouldNotProcess", path, e.getMessage()),
-                e);
-            return false;
-          }
+          final Pattern compiledWildcard = compileWildcard(wildcard);
 
           int totalDeleted =
               fileFolder.delete(

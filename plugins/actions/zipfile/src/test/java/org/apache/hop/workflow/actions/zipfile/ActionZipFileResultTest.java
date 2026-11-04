@@ -85,6 +85,49 @@ class ActionZipFileResultTest {
   }
 
   /**
+   * Get arguments from previous with no result rows must set result false (not inherit the previous
+   * true).
+   */
+  @Test
+  void fromPreviousWithNoRowsFailsTheAction() {
+    ActionZipFile action = newAction();
+    action.setFromPrevious(true);
+
+    Result previous = new Result();
+    previous.setResult(true);
+    previous.setRows(List.of());
+
+    Result result = action.execute(previous, 0);
+
+    assertFalse(result.isResult(), "no previous rows must not keep the previous true result");
+    assertEquals(1, result.getNrErrors());
+  }
+
+  /**
+   * Get arguments from previous: rows with an empty source or zip file name are skipped. When every
+   * row is skipped, the action is false (it does not inherit the previous true result).
+   */
+  @Test
+  void fromPreviousWithOnlySkippedRowsFailsTheAction() {
+    ActionZipFile action = newAction();
+    action.setFromPrevious(true);
+
+    Result previous = new Result();
+    previous.setResult(true);
+    previous.setRows(
+        List.of(
+            row("", ramFolder + "/out/skipped.zip"),
+            row(ramFolder + "/source/a.txt", ""),
+            row("", "")));
+
+    Result result = action.execute(previous, 0);
+
+    assertFalse(
+        result.isResult(), "all-skipped previous rows must not keep the previous true result");
+    assertEquals(1, result.getNrErrors());
+  }
+
+  /**
    * #9175 case 5: Get arguments from previous must set result true on success so a prior false hop
    * is not inherited.
    */

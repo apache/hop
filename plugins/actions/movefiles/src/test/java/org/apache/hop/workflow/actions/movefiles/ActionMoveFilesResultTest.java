@@ -161,6 +161,59 @@ class ActionMoveFilesResultTest {
     assertEquals(1, result.getNrErrors(), "one existing destination must be one error");
   }
 
+  /**
+   * Folder source + Move to folder: when the destination file exists but the move-to folder does
+   * not yet contain that name, the move succeeds and must set retVal / updateSuccess (otherwise
+   * each moved file is counted as an error).
+   */
+  @Test
+  void moveToFolderSucceedsWhenDestinationExistsAndMoveToIsFree() throws Exception {
+    write(sourceFolder.resolve("a.txt"), "SOURCE");
+    write(destinationFolder.resolve("a.txt"), "ALREADY-HERE");
+    Path moveToFolder = Files.createDirectories(testFolder.resolve("move-to"));
+
+    action.setDestinationIsAFile(false);
+    action.setIfFileExists(ActionMoveFiles.MOVE_FILE);
+    action.setDestinationFolder(moveToFolder.toString());
+    action.setIfMovedFileExists(ActionMoveFiles.FAIL);
+    action.setSuccessCondition(ActionMoveFiles.SUCCESS_IF_NO_ERRORS);
+    action.setFilesToMove(
+        List.of(entry(sourceFolder.toString(), destinationFolder.toString(), ".*\\.txt")));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "successful move-to-folder must not count as an error");
+    assertEquals(0, result.getNrErrors());
+    assertFalse(Files.exists(sourceFolder.resolve("a.txt")));
+    assertTrue(Files.exists(moveToFolder.resolve("a.txt")));
+  }
+
+  /**
+   * Single-file source + Move to folder: same moveFile() branch as the folder-source case; without
+   * updateSuccess / retVal=true a successful move was counted as an error (already wrong on main).
+   */
+  @Test
+  void moveToFolderSucceedsForSingleFileWhenDestinationExistsAndMoveToIsFree() throws Exception {
+    Path sourceFile = write(sourceFolder.resolve("a.txt"), "SOURCE");
+    Path destinationFile = write(destinationFolder.resolve("a.txt"), "ALREADY-HERE");
+    Path moveToFolder = Files.createDirectories(testFolder.resolve("move-to-file"));
+
+    action.setDestinationIsAFile(true);
+    action.setIfFileExists(ActionMoveFiles.MOVE_FILE);
+    action.setDestinationFolder(moveToFolder.toString());
+    action.setIfMovedFileExists(ActionMoveFiles.FAIL);
+    action.setSuccessCondition(ActionMoveFiles.SUCCESS_IF_NO_ERRORS);
+    action.setFilesToMove(List.of(entry(sourceFile.toString(), destinationFile.toString())));
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(
+        result.isResult(), "successful single-file move-to-folder must not count as an error");
+    assertEquals(0, result.getNrErrors());
+    assertFalse(Files.exists(sourceFile));
+    assertTrue(Files.exists(moveToFolder.resolve("a.txt")));
+  }
+
   private static ActionMoveFiles.FileToMove entry(String source, String destination) {
     return entry(source, destination, null);
   }
