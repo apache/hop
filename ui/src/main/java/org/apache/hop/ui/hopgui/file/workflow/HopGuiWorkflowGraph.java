@@ -2830,6 +2830,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/stop.svg")
   @Override
   public void stop() {
+    if (workflow == null) {
+      return;
+    }
+    // The first click asks the workflow to stop. While an action is still inside that stop, a
+    // second click interrupts the pipeline threads that did not leave their blocking call.
+    if (workflow.isActive() && workflow.isStopped()) {
+      workflow.forceStop();
+      updateGui();
+      return;
+    }
 
     if ((isRunning() && !halting)) {
       halting = true;
@@ -4779,11 +4789,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_UNDO_ID, snapshotUndo.canUndo());
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REDO_ID, snapshotUndo.canRedo());
 
-              // Enable/disable the execution toolbar buttons
+              // Enable/disable the execution toolbar buttons.
+              // Halting is still active: Stop stays enabled so a second click can force-stop.
               //
+              boolean stopping = workflow.isActive() && workflow.isStopped();
               boolean running = isRunning() && !workflow.isStopped();
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);
+              boolean executing = running || stopping;
+              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !executing);
+              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, executing);
 
               // Enable/disable the navigate to execution info button
               //
@@ -4800,7 +4813,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   TOOLBAR_ITEM_TO_EXECUTION_INFO, hasExecutionInfoLocations);
 
               hopGui.setUndoMenu(snapshotUndo.canUndo(), snapshotUndo.canRedo());
-              hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
+              hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), executing, false);
 
               // Enable the align/distribute toolbar menus if one or more actions are selected.
               //
@@ -5631,7 +5644,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped", workflowMeta.getName()));
     }
     updateGui();
-    executionGuiSession.stopIfCurrent(stopped, this::stopRedrawTimer);
+    // The action that was running may still be inside its pipeline. Stopping the redraw here
+    // froze the running icon on that action. The timer ends once the workflow is no longer active.
+    if (!stopped.isActive()) {
+      executionGuiSession.stopIfCurrent(stopped, this::stopRedrawTimer);
+    }
   }
 
   @Override
@@ -6162,6 +6179,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           if (hopDisplay().isDisposed()) {
             return;
           }
+          // A stopped workflow does not set finished while an action is still returning.
+          // Paint once more when it goes idle, then drop the timer.
+          boolean idleAfterStop = !engine.isActive() && engine.isStopped();
           hopDisplay()
               .asyncExec(
                   () -> {
@@ -6174,6 +6194,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                       updateGui();
                     }
                   });
+          if (idleAfterStop) {
+            executionGuiSession.stopIfCurrent(engine, HopGuiWorkflowGraph.this::stopRedrawTimer);
+          }
         });
   }
 

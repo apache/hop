@@ -122,13 +122,36 @@ public class RunThread implements Runnable {
         transform.stopAll();
       }
     } finally {
-      transform.dispose();
-      transform.setExecutionEndDate(new Date());
-      // If the transform was stopped it never flagged the last row
-      if (transform.getLastRowWrittenDate() == null) {
-        transform.setLastRowWrittenDate(transform.getExecutionEndDate());
+      try {
+        transform.dispose();
+      } catch (Throwable t) {
+        // dispose() used to escape this finally and skip markStop(). The thread was dead and
+        // isRunning() stayed true, so the transform sat in Halting forever.
+        try {
+          log.logError(BaseMessages.getString("System.Log.UnexpectedError"), t);
+        } catch (Throwable loggingFailure) {
+          // Logging can fail on its own (out of memory). The status update below still has to run.
+        }
+        try {
+          transform.setErrors(1);
+        } catch (Throwable ignored) {
+          // The status update below still has to run.
+        }
       }
-      transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_STOP);
+      try {
+        transform.setExecutionEndDate(new Date());
+        // If the transform was stopped it never flagged the last row
+        if (transform.getLastRowWrittenDate() == null) {
+          transform.setLastRowWrittenDate(transform.getExecutionEndDate());
+        }
+        transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_STOP);
+      } catch (Throwable t) {
+        try {
+          log.logError("UnexpectedError: " + Const.getStackTracker(t));
+        } catch (Throwable ignored) {
+          // Keep going until markStop().
+        }
+      }
       try {
         long li = transform.getLinesInput();
         long lo = transform.getLinesOutput();
@@ -167,7 +190,11 @@ public class RunThread implements Runnable {
         //
         log.logError("UnexpectedError: " + Const.getStackTracker(t));
       } finally {
-        transform.markStop();
+        try {
+          transform.markStop();
+        } catch (Throwable t) {
+          log.logError("UnexpectedError: " + Const.getStackTracker(t));
+        }
       }
     }
   }

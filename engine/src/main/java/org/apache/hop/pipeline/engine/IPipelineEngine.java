@@ -176,6 +176,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
   void stopAll();
 
   /**
+   * Stop the execution, then interrupt transform threads that are still inside a blocking call.
+   * {@link #stopAll()} is one-shot, so a second request has to come through here.
+   */
+  default void forceStop() {
+    stopAll();
+  }
+
+  /**
    * See if there are any halted components in the engine: actions, auditing, ...
    *
    * @return True if there are halted components

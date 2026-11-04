@@ -72,6 +72,28 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
 
   void stopExecution();
 
+  /**
+   * Remember a pipeline a Pipeline action is waiting on. A second stop can then interrupt it after
+   * {@link #stopExecution()} has already asked it to stop.
+   */
+  default void registerActivePipeline(IPipelineEngine<?> pipeline) {
+    // Engines that do not run actions locally have nothing to track.
+  }
+
+  /** Drop a pipeline registered with {@link #registerActivePipeline}. */
+  default void unregisterActivePipeline(IPipelineEngine<?> pipeline) {
+    // Engines that do not run actions locally have nothing to track.
+  }
+
+  /**
+   * Stop this workflow and force-stop pipelines registered with {@link #registerActivePipeline}.
+   * The first request is {@link #stopExecution()}. This is the follow-up when that stop is still
+   * inside a pipeline action.
+   */
+  default void forceStop() {
+    stopExecution();
+  }
+
   boolean isInitialized();
 
   boolean isActive();

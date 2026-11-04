@@ -7101,6 +7101,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           SWT.ICON_ERROR | SWT.OK);
       return;
     }
+    // stopAll() is one-shot. A second click, while transforms are still Halting, interrupts them.
+    if (pipeline != null && pipeline.isStopped() && !pipeline.isFinished()) {
+      pipeline.forceStop();
+      updateGui();
+      return;
+    }
     if ((isRunning() && !halting)) {
       halting = true;
       pipeline.stopAll();
@@ -7873,9 +7879,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               // Enable/disable the execution toolbar buttons
               //
               boolean running = isRunning();
+              // The engine stays running while a transform is Halting. isRunning() is false then
+              // because the pipeline is already stopped, and Stop has to stay available.
+              boolean haltingPipeline =
+                  pipeline != null && pipeline.isStopped() && !pipeline.isFinished();
               boolean paused = running && pipeline.isPaused();
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running || paused);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);
+              toolBarWidgets.enableToolbarItem(
+                  TOOLBAR_ITEM_START, (!running && !haltingPipeline) || paused);
+              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running || haltingPipeline);
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PAUSE, running && !paused);
 
               // Enable/disable the navigate to execution info button
@@ -7893,7 +7904,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   TOOLBAR_ITEM_TO_EXECUTION_INFO, hasExecutionInfoLocations);
 
               hopGui.setUndoMenu(snapshotUndo.canUndo(), snapshotUndo.canRedo());
-              hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
+              hopGui.handleFileCapabilities(
+                  fileType, pipelineMeta.hasChanged(), running || haltingPipeline, paused);
 
               // Enable the align/distribute menus if one or more transforms are selected.
               //
