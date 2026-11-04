@@ -26,6 +26,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -151,6 +156,21 @@ class PgVectorUpsertPostgresIT {
   private static PgVectorUpsert upsert(
       String name, String table, int commitSize, Queue<Object[]> input, List<Object[]> errors)
       throws Exception {
+    return upsert(name, table, commitSize, input::poll, errors, false);
+  }
+
+  /**
+   * An upsert into table, with an error hop when errors isn't null, that creates the table and an
+   * HNSW index when createSchema is set.
+   */
+  private static PgVectorUpsert upsert(
+      String name,
+      String table,
+      int commitSize,
+      Supplier<Object[]> input,
+      List<Object[]> errors,
+      boolean createSchema)
+      throws Exception {
     IRowMeta inputRowMeta = inputRowMeta();
     PipelineMeta pipelineMeta = new PipelineMeta();
     // Not named metadataProvider: inside the transform that name is BaseTransform's own field.
@@ -163,8 +183,8 @@ class PgVectorUpsertPostgresIT {
     meta.setSchemaName("public");
     meta.setTableName(table);
     meta.setEmbeddingDimensions("2");
-    meta.setCreateTableIfMissing(false);
-    meta.setCreateHnswIndex(false);
+    meta.setCreateTableIfMissing(createSchema);
+    meta.setCreateHnswIndex(createSchema);
     meta.setCommitSize(Integer.toString(commitSize));
     TransformMeta transformMeta = new TransformMeta(name, meta);
     pipelineMeta.addTransform(transformMeta);
@@ -189,7 +209,7 @@ class PgVectorUpsertPostgresIT {
 
           @Override
           public Object[] getRow() {
-            Object[] row = input.poll();
+            Object[] row = input.get();
             return row == null ? null : row.clone();
           }
 
@@ -282,5 +302,72 @@ class PgVectorUpsertPostgresIT {
     assertEquals(ROWS / 13, errors.size());
     assertEquals(ROWS - ROWS / 13, count("SELECT count(*) FROM vec_tx_err"));
     assertEquals(ROWS, count("SELECT count(*) FROM vec_tx_plain"));
+  }
+
+  /**
+   * In a transactional pipeline the schema DDL runs in the pipeline's transaction. It used to
+   * switch the shared connection to autocommit, which commits the open transaction: the rows the
+   * other transforms had written so far were committed halfway through the run, so a later rollback
+   * of the pipeline could no longer undo them.
+   */
+  @Test
+  void theSchemaDdlDoesNotCommitTheTransactionOfAPipeline() throws Exception {
+    createTable("vec_tx_writer");
+    execute("DROP TABLE IF EXISTS vec_tx_ddl");
+    CountDownLatch writerWrote = new CountDownLatch(1);
+    CountDownLatch schemaCreated = new CountDownLatch(1);
+    AtomicLong committedHalfway = new AtomicLong(-1);
+
+    // The writer batches 20 rows into the transaction (commit size 10), then waits for the schema.
+    AtomicInteger written = new AtomicInteger();
+    Supplier<Object[]> writerInput =
+        () -> {
+          int chunk = written.incrementAndGet();
+          if (chunk <= 20) {
+            return new Object[] {"doc", (long) chunk, "w", "[1,2]"};
+          }
+          if (chunk == 21) {
+            writerWrote.countDown();
+            await(schemaCreated);
+            try {
+              committedHalfway.set(count("SELECT count(*) FROM vec_tx_writer"));
+            } catch (Exception e) {
+              throw new IllegalStateException(e);
+            }
+          }
+          return null;
+        };
+
+    // Its first row creates the table and index; asking for the second means that is done.
+    AtomicInteger asked = new AtomicInteger();
+    Supplier<Object[]> schemaInput =
+        () -> {
+          if (asked.incrementAndGet() == 1) {
+            await(writerWrote);
+            return new Object[] {"doc", 1L, "s", "[1,2]"};
+          }
+          schemaCreated.countDown();
+          return null;
+        };
+
+    SharedConnectionRun run = new SharedConnectionRun().timeoutSeconds(60);
+    run.join(upsert("writer", "vec_tx_writer", 10, writerInput, null, false));
+    run.join(upsert("with schema", "vec_tx_ddl", 10, schemaInput, null, true));
+    assertTrue(run.run(), "the transaction was rolled back");
+
+    assertEquals(0, committedHalfway.get(), "the rows of the writer were committed halfway");
+    assertEquals(20, count("SELECT count(*) FROM vec_tx_writer"));
+    assertEquals(1, count("SELECT count(*) FROM vec_tx_ddl"));
+  }
+
+  private static void await(CountDownLatch latch) {
+    try {
+      if (!latch.await(30, TimeUnit.SECONDS)) {
+        throw new IllegalStateException("timed out");
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    }
   }
 }
