@@ -69,6 +69,9 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
   protected int lineWidth;
   protected float magnification;
 
+  /** How hops are drawn: straight or curved. Read from the Hop GUI options. */
+  protected HopLineShape hopLineShape;
+
   protected Object subject;
   protected IVariables variables;
 
@@ -133,6 +136,7 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     this.miniIconSize = iconSize / 2;
     this.lineWidth = lineWidth;
     this.gridSize = gridSize;
+    this.hopLineShape = HopLineShape.getConfigured();
 
     this.magnification = 1.0f;
     this.zoomFactor = zoomFactor;
@@ -640,6 +644,44 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
     int y2 = to.y + iconSize / 2;
 
     return new int[] {x1, y1, x2, y2};
+  }
+
+  /**
+   * Build the path of a hop between two points in screen coordinates.
+   *
+   * @param startObject the source transform or action, or a {@link Point} while a hop is dragged
+   * @param endObject the target transform or action, or a {@link Point} while a hop is dragged
+   */
+  protected HopPath createHopPath(
+      int x1, int y1, int x2, int y2, Object startObject, Object endObject) {
+    return HopPath.create(
+        hopLineShape, x1, y1, x2, y2, iconSize, isIcon(startObject), isIcon(endObject));
+  }
+
+  private static boolean isIcon(Object object) {
+    return object != null && !(object instanceof Point);
+  }
+
+  /**
+   * Where the arrow sits on a hop, as a fraction of its length. A straight hop keeps the arrow past
+   * the middle; a curved hop puts it just in front of the target icon.
+   *
+   * @param factor the straight-line position factor (0 to 2, 1 is the middle)
+   */
+  protected double getArrowFraction(HopPath path, double factor) {
+    if (!path.isCurved()) {
+      return factor / 2;
+    }
+    double length = path.getLength();
+    if (length <= 0) {
+      return 1;
+    }
+    return Math.max(0.5, 1 - (miniIconSize * 0.6) / length);
+  }
+
+  /** Where the hop icons (copy, error, info, ...) start, as a fraction of the hop length. */
+  protected double getHopIconFraction(HopPath path) {
+    return path.isCurved() ? 0.5 : 0.4;
   }
 
   @SuppressWarnings("javabugs:S2259") // callers pass a line from getLine() with non-null endpoints

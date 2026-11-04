@@ -61,6 +61,8 @@ import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.CanvasSvgRenderResult;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.HopLineShape;
+import org.apache.hop.core.gui.HopPath;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.IUndo;
@@ -5585,6 +5587,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private boolean pointOnLine(int x, int y, int[] line) {
+    if (HopLineShape.getConfigured() == HopLineShape.CURVED) {
+      HopPath path = HopPath.curved(line[0], line[1], line[2], line[3], iconSize, true, true);
+      return path.distanceTo(x, y) <= HOP_SEL_MARGIN / 2.0 + 1;
+    }
     int dx;
     int dy;
     int pm = HOP_SEL_MARGIN / 2;

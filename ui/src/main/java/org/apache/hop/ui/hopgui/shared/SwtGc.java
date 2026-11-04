@@ -42,6 +42,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.LineAttributes;
+import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
@@ -259,6 +260,19 @@ public class SwtGc implements IGc {
   @Override
   public void drawPolyline(int[] polyline) {
     gc.drawPolyline(polyline);
+  }
+
+  @Override
+  public void drawCubicCurve(
+      double x1, double y1, double cx1, double cy1, double cx2, double cy2, double x2, double y2) {
+    Path path = new Path(gc.getDevice());
+    try {
+      path.moveTo((float) x1, (float) y1);
+      path.cubicTo((float) cx1, (float) cy1, (float) cx2, (float) cy2, (float) x2, (float) y2);
+      gc.drawPath(path);
+    } finally {
+      path.dispose();
+    }
   }
 
   @Override

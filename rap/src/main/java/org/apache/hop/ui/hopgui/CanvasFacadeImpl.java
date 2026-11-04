@@ -50,6 +50,7 @@ public class CanvasFacadeImpl extends CanvasFacade {
     JsonObject jsonProps = new JsonObject();
     jsonProps.add("themeId", PropsUi.getInstance().isDarkMode() ? "dark" : "light");
     jsonProps.add("gridSize", PropsUi.getInstance().getCanvasGridSize());
+    jsonProps.add("hopLineShape", PropsUi.getInstance().getHopLineShape().getCode());
     jsonProps.add("showGrid", PropsUi.getInstance().isShowCanvasGridEnabled());
     jsonProps.add("iconSize", PropsUi.getInstance().getIconSize());
     jsonProps.add("magnification", (float) (magnification * PropsUi.getNativeZoomFactor()));

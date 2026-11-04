@@ -24,6 +24,7 @@ let clicked = null;
 let hopStartNode = null;  // Track the start node for hop creation separately
 let iconOffsetX = 0, iconOffsetY = 0;  // Track where in the icon the user clicked (like desktop client)
 let offsetX, offsetY, magnification, gridSize, showGrid;
+let hopLineShape = "STRAIGHT";  // STRAIGHT or CURVED, see HopLineShape.java
 let fgColor, bgColor, selectedNodeColor, nodeColor;
 let canvasWidth = 0, canvasHeight = 0;  // Store canvas dimensions for mouse wheel zoom calculations
 let panStartMouseX = 0, panStartMouseY = 0;  // Mouse position when pan started
@@ -81,6 +82,7 @@ const handleEvent = function (event) {
     magnification = props.magnification;
     gridSize = props.gridSize;  // Always set for snapping
     showGrid = props.showGrid;  // Control visibility only
+    hopLineShape = props.hopLineShape || "STRAIGHT";
 
     const iconSize = Math.round(props.iconSize * magnification);
     
@@ -648,10 +650,39 @@ function drawHops(hops, gc, mode, nodes, dx, iconSize, dy) {
             toY = c.y;
         }
         
-        gc.moveTo(fromX, fromY);
-        gc.lineTo(toX, toY);
+        if (hopLineShape === "CURVED") {
+            drawCurvedHop(gc, fromX, fromY, toX, toY, defaultLogicalIcon * magnification / 2);
+        } else {
+            gc.moveTo(fromX, fromY);
+            gc.lineTo(toX, toY);
+        }
         gc.stroke();
     });
+}
+
+/**
+ * Same curve as HopPath.curved() in Java: leave the source icon on the side that faces the
+ * target, enter the target on the opposite side. Coordinates are icon centers in screen pixels.
+ */
+function drawCurvedHop(gc, x1, y1, x2, y2, half) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    let dirX = 0, dirY = 0;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+        dirX = dx >= 0 ? 1 : -1;
+    } else {
+        dirY = dy >= 0 ? 1 : -1;
+    }
+    const sx = x1 + dirX * half, sy = y1 + dirY * half;
+    const ex = x2 - dirX * half, ey = y2 - dirY * half;
+    const minControl = 20 * magnification;
+    const maxControl = 150 * magnification;
+    const control = Math.min(maxControl, Math.max(minControl, Math.hypot(ex - sx, ey - sy) / 2));
+    gc.moveTo(sx, sy);
+    gc.bezierCurveTo(
+        sx + dirX * control, sy + dirY * control,
+        ex - dirX * control, ey - dirY * control,
+        ex, ey);
 }
 
 function drawNodes(nodes, mode, dx, dy, gc, iconSize) {

@@ -169,6 +169,30 @@ public interface IGc {
 
   void drawPolyline(int[] polyline);
 
+  /**
+   * Draw a cubic Bézier curve from (x1,y1) to (x2,y2) with control points (cx1,cy1) and (cx2,cy2),
+   * using the current foreground color, line width and line style. The default draws the curve as a
+   * polyline; implementations should draw a smooth curve.
+   */
+  default void drawCubicCurve(
+      double x1, double y1, double cx1, double cy1, double cx2, double cy2, double x2, double y2) {
+    int segments = 32;
+    int[] polyline = new int[(segments + 1) * 2];
+    for (int i = 0; i <= segments; i++) {
+      double t = (double) i / segments;
+      double u = 1 - t;
+      polyline[i * 2] =
+          (int)
+              Math.round(
+                  u * u * u * x1 + 3 * u * u * t * cx1 + 3 * u * t * t * cx2 + t * t * t * x2);
+      polyline[i * 2 + 1] =
+          (int)
+              Math.round(
+                  u * u * u * y1 + 3 * u * u * t * cy1 + 3 * u * t * t * cy2 + t * t * t * y2);
+    }
+    drawPolyline(polyline);
+  }
+
   void setAntialias(boolean antiAlias);
 
   void setTransform(float translationX, float translationY, float magnification);

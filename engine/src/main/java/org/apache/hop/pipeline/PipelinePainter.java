@@ -35,6 +35,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.HopPath;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IGc.EColor;
 import org.apache.hop.core.gui.IGc.EFont;
@@ -882,10 +883,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       PipelineHopMeta pipelineHop,
       TransformMeta fromTransform,
       TransformMeta toTransform,
-      int x1,
-      int y1,
-      int x2,
-      int y2) {
+      HopPath path) {
     if (!(pipeline instanceof Pipeline localPipeline)
         || localPipeline.getDebugController() == null) {
       return;
@@ -935,8 +933,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     int height = extent.y + padY * 2;
     // The sample-data badge uses 0.30. Keep the pill further along the hop.
     double pillPosition = 0.62;
-    int x = (int) (x1 + pillPosition * (x2 - x1)) - width / 2;
-    int y = (int) (y1 + pillPosition * (y2 - y1)) - height / 2;
+    double[] pillPoint = path.pointAt(pillPosition);
+    int x = (int) pillPoint[0] - width / 2;
+    int y = (int) pillPoint[1] - height / 2;
 
     boolean empty = unread == 0;
     int backpressure = Math.max(1, (int) (localPipeline.getRowSetSize() * 0.99));
@@ -993,10 +992,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       PipelineHopMeta pipelineHop,
       TransformMeta fromTransform,
       TransformMeta toTransform,
-      int x1,
-      int y1,
-      int x2,
-      int y2)
+      HopPath path)
       throws HopException {
     if (Utils.isEmpty(outputHopRowsMap) || pipelineHop == null || fromTransform == null) {
       return;
@@ -1009,8 +1005,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Place at ~30% of the hop length from the source transform
     double hopDataPosition = 0.30;
-    int iconX = (int) (x1 + hopDataPosition * (x2 - x1)) - miniIconSize / 2;
-    int iconY = (int) (y1 + hopDataPosition * (y2 - y1)) - miniIconSize / 2;
+    double[] iconPoint = path.pointAt(hopDataPosition);
+    int iconX = (int) iconPoint[0] - miniIconSize / 2;
+    int iconY = (int) iconPoint[1] - miniIconSize / 2;
 
     gc.drawImage(EImage.DATA, iconX, iconY, magnification);
     areaOwners.add(
@@ -1420,34 +1417,28 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       throws HopException {
     int mx;
     int my;
-    int a;
-    int b;
-    int dist;
     double angle;
 
-    gc.drawLine(x1, y1, x2, y2);
-
-    // What's the distance between the 2 points?
-    a = Math.abs(x2 - x1);
-    b = Math.abs(y2 - y1);
-    dist = (int) Math.sqrt(a * a + b * b);
+    HopPath path = createHopPath(x1, y1, x2, y2, startObject, endObject);
+    path.draw(gc);
 
     // determine factor (position of arrow to left side or right side
     // 0-->100%)
     if (factor < 0) {
-      if (dist >= 2 * iconSize) {
+      if (path.getLength() >= 2 * iconSize) {
         factor = 1.3;
       } else {
         factor = 1.2;
       }
     }
 
-    // in between 2 points
-    mx = (int) (x1 + factor * (x2 - x1) / 2);
-    my = (int) (y1 + factor * (y2 - y1) / 2);
+    double arrowFraction = getArrowFraction(path, factor);
+    double[] arrowPoint = path.pointAt(arrowFraction);
+    mx = (int) arrowPoint[0];
+    my = (int) arrowPoint[1];
 
     // calculate points for arrowhead
-    angle = Math.atan2(y2 - y1, x2 - x1) + (Math.PI / 2);
+    angle = path.angleAt(arrowFraction) + (Math.PI / 2);
 
     boolean q1 = Math.toDegrees(angle) >= 0 && Math.toDegrees(angle) < 90;
     boolean q2 = Math.toDegrees(angle) >= 90 && Math.toDegrees(angle) < 180;
@@ -1461,11 +1452,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
 
     if (startObject instanceof TransformMeta fs && endObject instanceof TransformMeta ts) {
-      factor = 0.8;
-
       // in between 2 points
-      mx = (int) (x1 + factor * (x2 - x1) / 2) - miniIconSize / 2;
-      my = (int) (y1 + factor * (y2 - y1) / 2) - miniIconSize / 2;
+      double[] iconPoint = path.pointAt(getHopIconFraction(path));
+      mx = (int) iconPoint[0] - miniIconSize / 2;
+      my = (int) iconPoint[1] - miniIconSize / 2;
 
       boolean errorHop =
           fs.isSendingErrorRowsToTransform(ts)
@@ -1588,8 +1578,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       // Data preview icon near the source transform for hop-level samples (target hops, etc.)
       //
-      drawHopOutputDataIndicator(pipelineHop, fs, ts, x1, y1, x2, y2);
-      drawDebugHopPill(pipelineHop, fs, ts, x1, y1, x2, y2);
+      drawHopOutputDataIndicator(pipelineHop, fs, ts, path);
+      drawDebugHopPill(pipelineHop, fs, ts, path);
     }
 
     PipelinePainterExtension extension =

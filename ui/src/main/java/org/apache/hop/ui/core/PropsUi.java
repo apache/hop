@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.gui.HopLineShape;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.IGuiSize;
 import org.apache.hop.core.gui.Point;
@@ -1335,6 +1336,15 @@ public class PropsUi extends Props {
 
   public void setAutoLayoutDirection(String direction) {
     setProperty(AUTO_LAYOUT_DIRECTION, direction);
+  }
+
+  /** How hops are drawn on the pipeline and workflow canvas. Defaults to straight lines. */
+  public HopLineShape getHopLineShape() {
+    return HopLineShape.lookupCode(getProperty(HopLineShape.GUI_PROPERTY_KEY));
+  }
+
+  public void setHopLineShape(HopLineShape shape) {
+    setProperty(HopLineShape.GUI_PROPERTY_KEY, shape.getCode());
   }
 
   /** Auto-layout distance between consecutive layers, along the flow direction. */
