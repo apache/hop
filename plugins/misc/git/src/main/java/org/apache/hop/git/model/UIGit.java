@@ -768,14 +768,29 @@ public class UIGit extends VCS {
       throw new HopException(
           "You have uncommitted changes. Please commit work before pulling changes.");
     }
-    if (!hasRemote()) {
-      throw new HopException("There is no remote set up to pull from. Please set this up first.");
-    }
 
     try {
+      Repository repository = git.getRepository();
+      String branch = getPullBranchName(repository);
+      BranchConfig branchConfig = new BranchConfig(repository.getConfig(), branch);
+      String remote = branchConfig.getRemote();
+      if (remote == null) {
+        remote = Constants.DEFAULT_REMOTE_NAME;
+      }
+
       // Pull = Fetch + Merge
-      git.fetch().setCredentialsProvider(credentialsProvider).call();
-      return mergeBranch(getPullBranch(), MergeStrategy.RECURSIVE);
+      if (!BranchConfig.LOCAL_REPOSITORY.equals(remote)) {
+        if (!repository
+            .getConfig()
+            .getSubsections(ConfigConstants.CONFIG_REMOTE_SECTION)
+            .contains(remote)) {
+          throw new HopException(
+              "There is no remote set up to pull from. Please set this up first.");
+        }
+        git.fetch().setRemote(remote).setCredentialsProvider(credentialsProvider).call();
+      }
+      return mergeBranch(
+          getPullBranch(repository, branch, branchConfig, remote), MergeStrategy.RECURSIVE);
     } catch (TransportException e) {
       if (e.getMessage()
               .contains(
@@ -803,17 +818,33 @@ public class UIGit extends VCS {
     return false;
   }
 
-  private String getPullBranch() throws HopException, IOException {
-    Repository repository = git.getRepository();
-    String branch = getBranch();
-    String trackingBranch = new BranchConfig(repository.getConfig(), branch).getTrackingBranch();
-    String pullBranch =
-        trackingBranch == null
-            ? Constants.DEFAULT_REMOTE_NAME + "/" + branch
-            : Repository.shortenRefName(trackingBranch);
+  private String getPullBranchName(Repository repository) throws HopException, IOException {
+    String fullBranch = repository.getFullBranch();
+    if (fullBranch == null || !fullBranch.startsWith(Constants.R_HEADS)) {
+      throw new HopException("Cannot pull because HEAD is not on a branch.");
+    }
+    return Repository.shortenRefName(fullBranch);
+  }
+
+  private String getPullBranch(
+      Repository repository, String branch, BranchConfig branchConfig, String remote)
+      throws HopException, IOException {
+    String mergeBranch = branchConfig.getMerge();
+    String pullBranch;
+    if (mergeBranch == null) {
+      pullBranch = Constants.DEFAULT_REMOTE_NAME + "/" + branch;
+    } else if (BranchConfig.LOCAL_REPOSITORY.equals(remote)) {
+      pullBranch = Repository.shortenRefName(mergeBranch);
+    } else {
+      String trackingBranch = branchConfig.getTrackingBranch();
+      pullBranch =
+          trackingBranch == null
+              ? remote + "/" + Repository.shortenRefName(mergeBranch)
+              : Repository.shortenRefName(trackingBranch);
+    }
 
     if (repository.resolve(pullBranch) == null) {
-      if (trackingBranch == null) {
+      if (mergeBranch == null) {
         throw new HopException(
             "There is no upstream branch configured for '"
                 + branch
