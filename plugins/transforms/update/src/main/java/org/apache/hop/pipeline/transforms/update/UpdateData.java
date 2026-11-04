@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.update;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -33,8 +35,24 @@ public class UpdateData extends BaseTransformData implements ITransformData {
    */
   public boolean useSavepoints;
 
-  /** Whether the statements go out in JDBC batches: asked for, and no savepoint per row. */
+  /**
+   * Whether the statements go out in JDBC batches: asked for, no savepoint per row, a commit size
+   * and a database that runs batches on this connection.
+   */
   public boolean batchMode;
+
+  /**
+   * A row whose UPDATE is in the current JDBC batch. It stays here until the batch has run, so it
+   * only goes to the output or the error hop once the database has said which it is.
+   *
+   * @param inputRow the row as it came in, for the error hop
+   * @param outputRow the row for the output
+   * @param bindValues the UPDATE parameters, to send the row again when the database never tried it
+   */
+  public record BatchedRow(Object[] inputRow, Object[] outputRow, Object[] bindValues) {}
+
+  /** The rows in the current JDBC batch, in the order they were added to it. */
+  public final List<BatchedRow> batchBuffer = new ArrayList<>();
 
   /** The lookup of the current row found no row to update, with an error hop to send it to. */
   public boolean keyNotFound;
