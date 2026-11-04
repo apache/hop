@@ -40,10 +40,13 @@ It is loaded before any project. See xref:projects/metadata.adoc#SharedMetadata[
 |Set the shared metadata folder. The path is stored as given, so `'${HOP_CONFIG_FOLDER}/metadata'` stays unresolved until Hop starts. An empty value (`--shared-metadata-folder=`) clears it.
 
 |`--shared-metadata-import-json=<json>`
-|Import a metadata export by passing the JSON document itself. This is the same document `hop-conf --export-metadata` writes. No file is read, so the document can come from an environment variable. An object of the same name is replaced. Other objects in the folder stay. When no folder is configured yet, Hop uses `'${HOP_CONFIG_FOLDER}/metadata'` and saves that.
+|Import a metadata export by passing the JSON document itself. This is the same document `--export-shared-metadata` and `hop-conf --export-metadata` write. No file is read, so the document can come from an environment variable. An object of the same name is replaced. Other objects in the folder stay. When no folder is configured yet, Hop uses `'${HOP_CONFIG_FOLDER}/metadata'` and saves that.
 
 |`--shared-metadata-import-file=<file>`
 |Import that same document from a file. Use this when the export is already on disk. Set only one of `--shared-metadata-import-json` and `--shared-metadata-import-file`.
+
+|`-xsm` / `--export-shared-metadata=<file>`
+|Export the shared metadata folder to one JSON file. The file is the document the two import options read. The shared folder has to be set already. Hop does not create a default folder just to export it.
 
 |===
 

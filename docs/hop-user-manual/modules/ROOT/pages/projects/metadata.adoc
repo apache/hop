@@ -49,6 +49,15 @@ image::hop-gui/shared-metadata-folder.png[Shared metadata folder on the General 
 hop-conf.sh --shared-metadata-folder='${HOP_CONFIG_FOLDER}/metadata'
 ----
 
+Export that folder to the same JSON document a project export writes:
+
+[source,shell]
+----
+hop-conf.sh -xsm=/tmp/shared-metadata.json
+----
+
+`--export-shared-metadata` is the long name. The file is what `--shared-metadata-import-file` reads, and the text of the file is what `--shared-metadata-import-json` takes. The folder has to be set already.
+
 An empty folder option means there is no shared metadata.
 The folder is a local path. It cannot be a named VFS scheme, because that scheme is defined by the metadata being read.
 

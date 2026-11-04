@@ -18,9 +18,11 @@
 package org.apache.hop.config;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -38,7 +40,7 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.util.SharedMetadata;
 import picocli.CommandLine;
 
-/** Sets the shared metadata folder and imports a metadata export into it. */
+/** Sets the shared metadata folder, and imports or exports a metadata document for it. */
 @ConfigPlugin(id = "shared-metadata", description = "Shared metadata for the Hop configuration")
 public class SharedMetadataConfigPlugin implements IConfigOptions {
 
@@ -53,9 +55,10 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
       names = {"--shared-metadata-import-json"},
       description =
           "Import a metadata export by passing the JSON document itself. This is the same document"
-              + " hop-conf --export-metadata writes. No file is read. An object of the same name"
-              + " is replaced. Other objects in the folder are left in place. When no shared"
-              + " folder is configured yet, ${HOP_CONFIG_FOLDER}/metadata is used and saved.")
+              + " --export-shared-metadata and hop-conf --export-metadata write. No file is read."
+              + " An object of the same name is replaced. Other objects in the folder are left in"
+              + " place. When no shared folder is configured yet, ${HOP_CONFIG_FOLDER}/metadata is"
+              + " used and saved.")
   private String sharedMetadataImportJson;
 
   @CommandLine.Option(
@@ -65,6 +68,14 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
               + " same result as --shared-metadata-import-json. Use this when the export is"
               + " already a file.")
   private String sharedMetadataImportFile;
+
+  @CommandLine.Option(
+      names = {"-xsm", "--export-shared-metadata"},
+      description =
+          "Export the shared metadata folder to a single JSON file. The file is the document"
+              + " --shared-metadata-import-json and --shared-metadata-import-file read. The shared"
+              + " folder has to be set already.")
+  private String sharedMetadataExportFile;
 
   @Override
   public boolean handleOption(
@@ -91,6 +102,10 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
     }
     if (StringUtils.isNotEmpty(sharedMetadataImportFile)) {
       importJson(channel, variables, readExport(variables.resolve(sharedMetadataImportFile)));
+      changed = true;
+    }
+    if (StringUtils.isNotEmpty(sharedMetadataExportFile)) {
+      exportSharedMetadata(channel, variables, sharedMetadataExportFile);
       changed = true;
     }
     return changed;
@@ -122,11 +137,46 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
     log.logBasic("Imported " + saved + " shared metadata object(s) into '" + resolved + "'");
   }
 
+  private void exportSharedMetadata(ILogChannel log, IVariables variables, String filename)
+      throws HopException {
+    String configured = HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, "");
+    if (StringUtils.isEmpty(StringUtils.trim(configured))) {
+      throw new HopException(
+          "No shared metadata folder is configured. Set it with --shared-metadata-folder");
+    }
+    String resolved = SharedMetadata.resolveFolder(variables, configured);
+    SharedMetadata.checkLocalFolder(resolved);
+    String target = variables.resolve(filename);
+    if (StringUtils.isEmpty(StringUtils.trim(target))) {
+      throw new HopException("Please specify the file to write the shared metadata export to");
+    }
+
+    JsonMetadataProvider store = new JsonMetadataProvider(Encr.getEncoder(), resolved, variables);
+    String json = new SerializableMetadataProvider(store).toJson();
+    writeExport(target, json);
+    log.logBasic("Exported shared metadata from '" + resolved + "' to '" + target + "'");
+  }
+
   private static String readExport(String filename) throws HopException {
     try (InputStream inputStream = HopVfs.getInputStream(filename)) {
       return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
     } catch (Exception e) {
       throw new HopException("Unable to read metadata export '" + filename + "'", e);
+    }
+  }
+
+  private static void writeExport(String filename, String json) throws HopException {
+    try {
+      FileObject file = HopVfs.getFileObject(filename);
+      FileObject parent = file.getParent();
+      if (parent != null && !parent.exists()) {
+        parent.createFolder();
+      }
+      try (OutputStream outputStream = HopVfs.getOutputStream(file, false)) {
+        outputStream.write(json.getBytes(StandardCharsets.UTF_8));
+      }
+    } catch (Exception e) {
+      throw new HopException("Unable to write shared metadata export '" + filename + "'", e);
     }
   }
 }

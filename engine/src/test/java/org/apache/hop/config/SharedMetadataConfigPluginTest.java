@@ -120,6 +120,37 @@ class SharedMetadataConfigPluginTest {
   }
 
   @Test
+  void exportWritesTheSharedFolderAndImportsBack() throws Exception {
+    assertTrue(handle("--shared-metadata-import-json=" + exportJson("host-a")));
+
+    Path exported = tempDir.resolve("out").resolve("shared-metadata.json");
+    assertTrue(handle("--export-shared-metadata=" + exported));
+    String json = Files.readString(exported);
+    assertTrue(json.contains("server1"));
+    assertTrue(json.contains("host-a"));
+    assertFalse(json.contains("host-b"));
+
+    Path withShortOption = tempDir.resolve("shared-short.json");
+    assertTrue(handle("-xsm=" + withShortOption));
+    assertEquals(json, Files.readString(withShortOption));
+
+    Files.delete(tempDir.resolve("metadata").resolve("server").resolve("server1.json"));
+    assertTrue(handle("--shared-metadata-import-file=" + exported));
+    String restored =
+        Files.readString(tempDir.resolve("metadata").resolve("server").resolve("server1.json"));
+    assertTrue(restored.contains("host-a"));
+  }
+
+  @Test
+  void exportWithoutAConfiguredFolderIsRejected() {
+    HopException exception =
+        assertThrows(
+            HopException.class,
+            () -> handle("--export-shared-metadata=" + tempDir.resolve("out.json")));
+    assertTrue(exception.getMessage().contains("No shared metadata folder is configured"));
+  }
+
+  @Test
   void jsonAndFileTogetherAreRejected() throws Exception {
     Path export = tempDir.resolve("export.json");
     Files.writeString(export, exportJson("host-a"));

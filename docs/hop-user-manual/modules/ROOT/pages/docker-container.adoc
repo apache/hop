@@ -130,7 +130,7 @@ When using an environment a project has to be created too
 
 |```HOP_SHARED_METADATA_IMPORT_JSON```
 |
-| The metadata export JSON document itself, the same document `hop-conf --export-metadata` writes.
+| The metadata export JSON document itself, the same document `hop-conf --export-shared-metadata` or `hop-conf --export-metadata` writes.
 The entrypoint passes it to `hop-conf --shared-metadata-import-json` before a project is registered.
 No file and no volume: set the variable to the document, which is what you want when a Kubernetes secret or config map should not be mounted.
 A HashiCorp Vault variable resolver and a Git repository named `git-project` in that document let the project home be `git-project:///`.
