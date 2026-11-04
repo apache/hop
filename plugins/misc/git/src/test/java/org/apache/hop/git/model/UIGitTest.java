@@ -50,6 +50,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
@@ -62,6 +63,7 @@ import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -278,6 +280,171 @@ public class UIGitTest extends RepositoryTestCase {
     git2.close();
 
     assertTrue(uiGit.pull());
+  }
+
+  @Test
+  public void testPullFromConfiguredUpstreamWithDifferentName() throws Exception {
+    setupRemote();
+    Git git2 = new Git(db2);
+
+    File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
+    FileUtils.writeStringToFile(sourceFile, "Initial content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Initial commit").call();
+
+    git.fetch().call();
+    git.checkout()
+        .setCreateBranch(true)
+        .setName("local-feature")
+        .setStartPoint("origin/master")
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+        .call();
+
+    FileUtils.writeStringToFile(sourceFile, "Updated content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Update remote branch").call();
+
+    assertTrue(uiGit.pull());
+    assertEquals(
+        "Updated content",
+        FileUtils.readFileToString(
+            new File(db.getWorkTree(), "SomeFile.txt"), StandardCharsets.UTF_8));
+
+    git2.close();
+  }
+
+  @Test
+  public void testPullFetchesConfiguredRemote() throws Exception {
+    setupRemote();
+    URIish uri = new URIish(db2.getDirectory().toURI().toURL());
+    git.remoteAdd().setName("upstream").setUri(uri).call();
+    Git git2 = new Git(db2);
+
+    File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
+    FileUtils.writeStringToFile(sourceFile, "Initial content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Initial commit").call();
+
+    git.fetch().setRemote("upstream").call();
+    git.checkout()
+        .setCreateBranch(true)
+        .setName("local-feature")
+        .setStartPoint("upstream/master")
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+        .call();
+
+    FileUtils.writeStringToFile(sourceFile, "Updated content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Update upstream branch").call();
+
+    assertTrue(uiGit.pull());
+    assertEquals(
+        "Updated content",
+        FileUtils.readFileToString(
+            new File(db.getWorkTree(), "SomeFile.txt"), StandardCharsets.UTF_8));
+
+    git2.close();
+  }
+
+  @Test
+  public void testPullReportsConfiguredUpstreamMissingWhenFetchRefspecDoesNotMatch()
+      throws Exception {
+    setupRemote();
+    Git git2 = new Git(db2);
+
+    FileUtils.writeStringToFile(
+        new File(db2.getWorkTree(), "SomeFile.txt"), "Initial content", StandardCharsets.UTF_8);
+    git2.add().addFilepattern("SomeFile.txt").call();
+    git2.commit().setMessage("Initial commit").call();
+
+    git.fetch().call();
+    git.checkout()
+        .setCreateBranch(true)
+        .setName("local-feature")
+        .setStartPoint("origin/master")
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+        .call();
+    RefUpdate localTrackingBranch = db.updateRef("refs/remotes/origin/local-feature");
+    localTrackingBranch.setNewObjectId(db.resolve(Constants.HEAD));
+    localTrackingBranch.update();
+
+    db.getConfig()
+        .setString(
+            ConfigConstants.CONFIG_REMOTE_SECTION,
+            Constants.DEFAULT_REMOTE_NAME,
+            "fetch",
+            "+refs/heads/master:refs/remotes/origin/master");
+    db.getConfig()
+        .setString(
+            ConfigConstants.CONFIG_BRANCH_SECTION,
+            "local-feature",
+            ConfigConstants.CONFIG_KEY_MERGE,
+            "refs/heads/remote-feature");
+    db.getConfig().save();
+
+    HopException exception = assertThrows(HopException.class, uiGit::pull);
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("configured upstream branch 'origin/remote-feature' does not exist"));
+    assertNull(exception.getCause());
+
+    git2.close();
+  }
+
+  @Test
+  public void testPullFromLocalUpstreamDoesNotRequireRemote() throws Exception {
+    initialCommit();
+    git.checkout().setCreateBranch(true).setName("source").call();
+    writeTrashFile("SomeFile.txt", "Local upstream content");
+    git.add().addFilepattern("SomeFile.txt").call();
+    git.commit().setMessage("Update local upstream").call();
+    git.checkout().setName("master").call();
+
+    db.getConfig()
+        .setString(
+            ConfigConstants.CONFIG_BRANCH_SECTION,
+            "master",
+            ConfigConstants.CONFIG_KEY_REMOTE,
+            ".");
+    db.getConfig()
+        .setString(
+            ConfigConstants.CONFIG_BRANCH_SECTION,
+            "master",
+            ConfigConstants.CONFIG_KEY_MERGE,
+            "refs/heads/source");
+    db.getConfig().save();
+
+    assertTrue(uiGit.pull());
+    assertEquals(
+        "Local upstream content",
+        FileUtils.readFileToString(
+            new File(db.getWorkTree(), "SomeFile.txt"), StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testPullFromDetachedHeadReportsClearError() throws Exception {
+    setupRemote();
+    initialCommit();
+    git.checkout().setName(db.resolve(Constants.HEAD).name()).call();
+
+    HopException exception = assertThrows(HopException.class, uiGit::pull);
+
+    assertTrue(exception.getMessage().contains("not on a branch"));
+    assertNull(exception.getCause());
+  }
+
+  @Test
+  public void testPullWithoutUpstreamReportsClearError() throws Exception {
+    setupRemote();
+    initialCommit();
+
+    HopException exception = assertThrows(HopException.class, uiGit::pull);
+
+    assertTrue(exception.getMessage().contains("no upstream branch configured for 'master'"));
+    assertTrue(exception.getMessage().contains("'origin/master' does not exist"));
+    assertNull(exception.getCause());
   }
 
   @Test
