@@ -39,6 +39,8 @@ A project's metadata is stored in `+${PROJECT_HOME}/metadata+`, but can be overr
 Metadata that has to exist before a project is opened is stored with the Hop configuration, not in a project.
 A HashiCorp Vault variable resolver and a Git repository named `git-project` in that metadata let a project home be `git-project:///`.
 The same applies to SMB and the other named VFS schemes.
+A container passes that document in `HOP_SHARED_METADATA_IMPORT_JSON` and uses the connection name as the project folder.
+See xref:docker-container.adoc#ProjectHomeOnGit[Project home on a Git repository].
 
 Set the folder in the configuration perspective, on the General tab, under the `hop-config.json` filename, or with Hop Conf:
 
