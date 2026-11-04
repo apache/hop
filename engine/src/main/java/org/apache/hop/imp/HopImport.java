@@ -54,10 +54,7 @@ import picocli.CommandLine.ParameterException;
 @SuppressWarnings("java:S106")
 @Getter
 @Setter
-@Command(
-    description = "Import metadata",
-    versionProvider = HopVersionProvider.class,
-    mixinStandardHelpOptions = true)
+@Command(description = "Import metadata", versionProvider = HopVersionProvider.class)
 @HopCommand(id = "import", description = "Import ")
 public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final String CONST_IMPORT = "Import is ";
@@ -120,6 +117,12 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       names = {"-l", "--list-plugins"},
       description = "List the available import plugins")
   private Boolean listPluginTypes;
+
+  @Option(
+      names = {"-h", "--help"},
+      usageHelp = true,
+      description = "Displays this help message and quits.")
+  private boolean helpRequested;
 
   @Option(
       names = {"-v", "--version"},
