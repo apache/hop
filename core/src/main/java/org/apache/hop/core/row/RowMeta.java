@@ -1328,19 +1328,11 @@ public class RowMeta implements IRowMeta {
     for (int i = 0; i < nrValues; i++) {
       Node valueMetaNode = XmlHandler.getSubNodeByNr(node, ValueMetaBase.XML_META_TAG, i);
 
-      // Load the base value metadata from XML
+      // Load the base value metadata from XML. Add it as loaded: copying it through
+      // ValueMetaFactory.cloneInfo() would drop the currency symbol, sort order and padding.
       int valueType = ValueMetaBase.getType(XmlHandler.getTagValue(valueMetaNode, "type"));
-      IValueMeta valueMetaSource = ValueMetaFactory.createValueMeta(valueType);
-      ValueMetaBase.loadBaseValueMetaFromXml(valueMetaSource, valueMetaNode);
-
-      // Clone the metadata
-      IValueMeta valueMeta =
-          ValueMetaFactory.createValueMeta(
-              valueMetaSource.getName(),
-              valueMetaSource.getType(),
-              valueMetaSource.getLength(),
-              valueMetaSource.getPrecision());
-      ValueMetaFactory.cloneInfo(valueMetaSource, valueMeta);
+      IValueMeta valueMeta = ValueMetaFactory.createValueMeta(valueType);
+      ValueMetaBase.loadBaseValueMetaFromXml(valueMeta, valueMetaNode);
       addValueMeta(valueMeta);
     }
   }
