@@ -1092,6 +1092,31 @@ public class UIGitTest extends RepositoryTestCase {
     assertFalse(unstaged.contains("output/generated.txt"));
   }
 
+  @Test
+  public void testCleanLeavesFilesIgnoredWithoutRegardToCase() throws Exception {
+    initialCommit();
+
+    writeTrashFile(".gitignore", "output/\n");
+    File ignored = writeTrashFile("logging/Output/results.csv", "ignored");
+    File untracked = writeTrashFile("logging/untracked-test.txt", "untracked");
+
+    db.getConfig()
+        .setBoolean(
+            ConfigConstants.CONFIG_CORE_SECTION,
+            null,
+            CaseInsensitiveIgnores.CONFIG_KEY_IGNORECASE,
+            true);
+    db.getConfig().save();
+
+    // git ignores "Output/" through the "output/" rule, so a clean doesn't offer it
+    assertEquals(List.of("logging/untracked-test.txt"), uiGit.getUntrackedPathFiles("logging"));
+
+    // Nor does it remove it when it's passed in anyway
+    uiGit.cleanPaths(List.of("logging/Output/results.csv", "logging/untracked-test.txt"));
+    assertTrue(ignored.exists());
+    assertFalse(untracked.exists());
+  }
+
   private List<String> getUnstagedFileNames() {
     return uiGit.getUnstagedFiles().stream().map(UIFile::getName).toList();
   }
