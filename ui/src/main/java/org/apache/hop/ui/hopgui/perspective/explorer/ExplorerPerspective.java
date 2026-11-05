@@ -2440,6 +2440,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     return result;
   }
 
+  public HopGuiWorkflowGraph findOpenWorkflow(String filename) {
+    TabItemHandler handler = findTabItemHandler(filename);
+    if (handler != null && handler.getTypeHandler() instanceof HopGuiWorkflowGraph graph) {
+      return graph;
+    }
+    return null;
+  }
+
   protected TabItemHandler findTabItemHandler(String filename) {
     if (filename != null) {
       for (TabItemHandler item : items) {

@@ -132,6 +132,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
   protected final WorkflowMeta workflowMeta;
 
+  public WorkflowMeta getWorkflowMeta() {
+    return workflowMeta;
+  }
+
   protected ActionMeta selectedAction;
   protected ExecutionData selectedExecutionData;
 

@@ -98,48 +98,76 @@ public class HopGuiWorkflowRunDelegate {
         newWorkflowExecutionConfigurationDialog(executionConfiguration, workflowMeta);
 
     if (dialog.open()) {
-
-      // Engine-compatibility pre-flight: refuse to start a workflow that contains actions the
-      // selected workflow engine marks UNSUPPORTED. The user can explicitly "Run anyway".
-      List<EngineCompatibilityChecker.Violation> compatViolations =
-          EngineCompatibilityRunGate.checkWorkflowForRun(
-              workflowMeta,
-              executionConfiguration.getRunConfiguration(),
-              hopGui.getMetadataProvider());
-      if (!compatViolations.isEmpty()) {
-        String compatEngineId = "";
-        try {
-          WorkflowRunConfiguration wrc =
-              hopGui
-                  .getMetadataProvider()
-                  .getSerializer(WorkflowRunConfiguration.class)
-                  .load(executionConfiguration.getRunConfiguration());
-          if (wrc != null && wrc.getEngineRunConfiguration() != null) {
-            compatEngineId = wrc.getEngineRunConfiguration().getEnginePluginId();
-          }
-        } catch (Exception ignored) {
-          // dialog still works with the empty-label fallback
-        }
-        if (!EngineCompatibilityRunGate.confirmRunAnyway(
-            hopGui.getShell(), "workflow", compatEngineId, compatViolations)) {
-          return;
-        }
-        // Run-scoped (not persisted): propagate the override into the execution variables so the
-        // engine-side deep gate in Workflow.executeFromStart and any nested child pipelines/
-        // workflows honor it.
-        executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
-      }
-
-      workflowGraph.workflowLogDelegate.addWorkflowLog();
-
-      ExtensionPointHandler.callExtensionPoint(
-          LogChannel.UI,
-          workflowGraph.getVariables(),
-          HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id,
-          executionConfiguration);
-
-      workflowGraph.start(executionConfiguration);
+      launchConfiguredWorkflow(workflowMeta, executionConfiguration);
     }
+  }
+
+  /**
+   * Opens the execution dialog for a configuration that is already filled in, then uses the same
+   * compatibility check and start path as {@link #executeWorkflow(IVariables, WorkflowMeta,
+   * String)}.
+   */
+  public void executePreparedWorkflow(
+      WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration)
+      throws HopException {
+    if (workflowMeta == null || executionConfiguration == null) {
+      return;
+    }
+    if (!HopSecurityUi.check(Permission.RUN_EXECUTE)) {
+      return;
+    }
+    WorkflowExecutionConfigurationDialog dialog =
+        newWorkflowExecutionConfigurationDialog(executionConfiguration, workflowMeta);
+    if (dialog.open()) {
+      launchConfiguredWorkflow(workflowMeta, executionConfiguration);
+    }
+  }
+
+  /**
+   * Runs a workflow from a configuration the user has already confirmed. Shared by the toolbar run
+   * action and the Execution perspective Replay action.
+   */
+  public void launchConfiguredWorkflow(
+      WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration)
+      throws HopException {
+    List<EngineCompatibilityChecker.Violation> compatViolations =
+        EngineCompatibilityRunGate.checkWorkflowForRun(
+            workflowMeta,
+            executionConfiguration.getRunConfiguration(),
+            hopGui.getMetadataProvider());
+    if (!compatViolations.isEmpty()) {
+      String compatEngineId = "";
+      try {
+        WorkflowRunConfiguration wrc =
+            hopGui
+                .getMetadataProvider()
+                .getSerializer(WorkflowRunConfiguration.class)
+                .load(executionConfiguration.getRunConfiguration());
+        if (wrc != null && wrc.getEngineRunConfiguration() != null) {
+          compatEngineId = wrc.getEngineRunConfiguration().getEnginePluginId();
+        }
+      } catch (Exception ignored) {
+        // dialog still works with the empty-label fallback
+      }
+      if (!EngineCompatibilityRunGate.confirmRunAnyway(
+          hopGui.getShell(), "workflow", compatEngineId, compatViolations)) {
+        return;
+      }
+      // Run-scoped (not persisted): propagate the override into the execution variables so the
+      // engine-side deep gate in Workflow.executeFromStart and any nested child pipelines/
+      // workflows honor it.
+      executionConfiguration.getVariablesMap().put(Const.HOP_ALLOW_UNSUPPORTED, "Y");
+    }
+
+    workflowGraph.workflowLogDelegate.addWorkflowLog();
+
+    ExtensionPointHandler.callExtensionPoint(
+        LogChannel.UI,
+        workflowGraph.getVariables(),
+        HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id,
+        executionConfiguration);
+
+    workflowGraph.start(executionConfiguration);
   }
 
   @VisibleForTesting

@@ -1,0 +1,92 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ReplayGates]]
+:imagesdir: ../assets/images
+:description: Replay Gates record a successful workflow action so the Replay engine can restore that result instead of running the action again.
+
+= Replay Gates and Workflow Replay
+
+== Overview
+
+A *Replay Gate* is a checkpoint on a workflow action. When the action finishes successfully, Hop writes an `action_manifest.json` file for that run. The *Hop Replay workflow engine* can later skip the action and put the saved result back into the workflow.
+
+Gates are stored on the action. Renaming the action keeps the gate. Deleting the action removes it.
+
+This version does not spool pipeline transform rows, and it does not expire gates on a timer.
+
+[NOTE]
+====
+Local, remote, and other workflow engines record a gate when an action succeeds. They never skip an action. Only the Replay engine skips.
+====
+
+== What is stored
+
+For each enabled gate the manifest is written under the spool folder, then `workflows`, the workflow name, the execution id, and the action name, in a file called `action_manifest.json`.
+
+The execution id is the workflow log channel id of the run that produced the gate. A Replay run reads and writes that same id when *Source execution ID* is set, or when the variable `HOP_REPLAY_SOURCE_EXECUTION_ID` is set. The variable wins when both are set, so two runs do not share manifests.
+
+The manifest stores:
+
+* The action result, including result files and result rows.
+* Workflow variables whose values changed while the action ran. Internal Hop variables are not included.
+* A SHA-256 hash of the action's XML, the workflow's resolved parameters, and the variables referenced with the `+${NAME}+` syntax in that XML.
+
+A gate is sealed only when the action result is successful, has no errors, and the action was not stopped. A later failure of that action deletes its manifest. When the whole workflow completes successfully, Hop deletes the execution folder, so a later Replay of that same execution runs the actions again.
+
+The default spool folder is the project home, then `.hop/spool`.
+
+== What Replay skips
+
+On a Replay run, each action is decided on its own path:
+
+* The Start action always runs.
+* An action with a sealed manifest for this execution id, whose hash still matches, is skipped. Its result and changed variables are restored. The workflow graph shows the checkpoint icon and the action result comment `Restored from replay gate`.
+* Anything else runs. From that action onward, the same path runs as well, including actions that still have a sealed gate. A parallel branch keeps its own decision: one branch running does not force the other branch to run.
+* *Start action name* is case-sensitive. That action runs, and so does the rest of its path. An earlier action that has no matching gate also runs, and then the rest of that path runs. Replay does not truncate a table again and then skip the load that filled it.
+
+== Responsibilities of the data engineer
+
+Replay restores Hop's result and the variables the action changed. It does not roll back a database, a file, or an API call the action already made.
+
+Put gates on actions that are safe to skip, and make actions that you may have to run again idempotent. An action without a gate is executed, and everything after it on that path is executed too. Place gates on the whole prefix you want to skip, from Start up to the failure.
+
+A change to the action, to a workflow parameter, or to a variable referenced from the action XML makes that gate invalid. Moving the action on the canvas does not, because the hash uses the action XML rather than the icon position.
+
+Clean up old execution folders under the spool directory yourself. There is no retention setting.
+
+== Configuring a gate
+
+1. Open the workflow.
+2. Right-click an action and select *Configure Replay Gate*.
+3. Enable the gate, optionally set a spool folder and a description, and click *OK*.
+4. A badge is drawn on the action icon.
+
+== Replaying a failed workflow
+
+1. Open the execution in the *Execution* perspective.
+2. Click *Replay this workflow*. The button is part of the Replay engine plugin, so it is not shown when that plugin is not installed.
+3. The execution dialog opens with the first run configuration whose engine id is `Replay` selected, when one exists.
+4. The dialog receives the workflow parameters from the selected execution, the variables the workflow uses, and `HOP_REPLAY_SOURCE_EXECUTION_ID` set to that execution's id. It does not copy every variable captured on the old run.
+5. Launch. Hop switches to the workflow and runs it with the Replay engine.
+
+You can also select a Replay run configuration yourself, and set *Source execution ID* or *Start action name* on that configuration. See xref:workflow/workflow-run-configurations/replay-workflow-engine.adoc[Replay Workflow Engine].
+
+== Related Topics
+
+* xref:workflow/workflow-run-configurations/replay-workflow-engine.adoc[Replay Workflow Engine Run Configuration]
+* xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
+* xref:hop-gui/perspective-execution-information.adoc[Execution Information Perspective]

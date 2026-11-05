@@ -1,0 +1,73 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[ReplayWorkflowEngine]]
+:imagesdir: ../assets/images
+:description: The Replay workflow engine skips actions whose sealed gates still match the source execution and runs the rest.
+
+= Replay Workflow Engine
+
+The *Hop replay workflow engine* runs a workflow locally, like the local engine, and skips an action when a sealed xref:workflow/replay-gate.adoc[Replay Gate] for the source execution still matches.
+
+Other engines record those gates and do not skip. A Replay run that finishes successfully deletes the gates for that execution.
+
+=== Options
+
+This engine adds two fields to the local workflow run configuration.
+
+[options="header",cols="1,4"]
+|===
+|Option|Description
+
+|Source execution ID
+|Optional execution id whose sealed gates are read and updated. Leave it empty to use the variable `HOP_REPLAY_SOURCE_EXECUTION_ID` when that is set, or this run's own log channel id when it is not. The Execution perspective Replay button sets the variable for that launch and does not write the id back into the saved run configuration.
+
+|Start action name
+|Optional, case-sensitive action name. That action runs even when its gate is sealed, and the rest of its path runs too. Earlier actions are still restored when their gates match. An earlier action without a matching gate runs, and then the rest of that path runs as well.
+
+|Make this workflow transactional
+|Same as the local engine. One database connection is used per database, and Hop commits or rolls back at the end of the workflow.
+
+|Safe mode
+|Same as the local engine. Hop checks that rows passed through pipelines launched by this workflow keep a single layout.
+|===
+
+=== Creating a run configuration
+
+1. In the *Metadata* perspective, create a *Workflow Run Configuration*.
+2. Choose *Hop replay workflow engine*.
+3. Optionally set an xref:metadata-types/execution-information-location.adoc[Execution Information Location].
+4. Save.
+
+The saved copy of a Replay run configuration keeps *Source execution ID* and *Start action name*.
+
+=== Running
+
+* *Execution perspective*: open a workflow execution and click *Replay this workflow*.
++
+image:replay/replay-workflow-execution-viewer.png[Replay Workflow Toolbar Icon,width="85%"]
+* *Hop Run*: pass the run configuration name with `-r`. Set `HOP_REPLAY_SOURCE_EXECUTION_ID` to the failed run's id when you do not want to store that id in the run configuration.
++
+[source,bash]
+----
+./hop-run.sh -j my-project -e dev -f workflows/main-workflow.hwf -r replay
+----
+
+=== Related Topics
+
+* xref:workflow/replay-gate.adoc[Replay Gates and Workflow Replay]
+* xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[Workflow Run Configurations]
+* xref:workflow/workflow-run-configurations/native-local-workflow-engine.adoc[Native Local Workflow Engine]
