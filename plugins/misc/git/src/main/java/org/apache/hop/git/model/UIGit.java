@@ -1443,7 +1443,7 @@ public class UIGit extends VCS {
       return;
     }
     try {
-      Set<String> untracked = git.status().call().getUntracked();
+      Set<String> untracked = getUntrackedNotIgnored(git.status().call());
       File workTree = new File(directory);
       for (String path : paths) {
         String normalizedPath = normalizePathForJGit(path);
@@ -1515,7 +1515,7 @@ public class UIGit extends VCS {
       if (normalizedPath != null && !".".equals(normalizedPath)) {
         statusCommand = statusCommand.addPath(normalizedPath);
       }
-      List<String> files = new ArrayList<>(statusCommand.call().getUntracked());
+      List<String> files = new ArrayList<>(getUntrackedNotIgnored(statusCommand.call()));
       Collections.sort(files);
       return files;
     } catch (Exception e) {
@@ -2021,6 +2021,16 @@ public class UIGit extends VCS {
       LogChannel.UI.logError("Error checking whether git ignores '" + normalizedPath + "'", e);
     }
     return false;
+  }
+
+  /**
+   * The untracked files of a status that git itself doesn't ignore: what a git clean removes. JGit
+   * also reports the files that only a case insensitive ignore rule matches as untracked.
+   */
+  private Set<String> getUntrackedNotIgnored(Status status) {
+    Set<String> untracked = new HashSet<>(status.getUntracked());
+    untracked.removeAll(getCaseInsensitiveIgnored(untracked));
+    return untracked;
   }
 
   /**
