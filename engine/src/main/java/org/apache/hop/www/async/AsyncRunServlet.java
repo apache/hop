@@ -91,7 +91,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
     IVariables variables = pipelineMap.getHopServerConfig().getVariables();
 
     MultiMetadataProvider metadataProvider =
-        new MultiMetadataProvider(Encr.getEncoder(), new ArrayList<>(), variables);
+        HopMetadataUtil.createMulti(Encr.getEncoder(), new ArrayList<>(), variables);
     metadataProvider.getProviders().add(HopMetadataUtil.getStandardHopMetadataProvider(variables));
 
     String metadataFolder = pipelineMap.getHopServerConfig().getMetadataFolder();

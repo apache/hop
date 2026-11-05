@@ -19,6 +19,7 @@
 package org.apache.hop.metadata.util;
 
 import org.apache.hop.core.scope.IHopScope;
+import org.apache.hop.metadata.serializer.memory.SharedMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 /**
@@ -32,6 +33,12 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
  */
 public class HopMetadataInstance {
   private static HopMetadataInstance instance;
+
+  /**
+   * Shared configuration metadata. One instance for the whole process, including Hop Web, where the
+   * current project metadata is per session.
+   */
+  private static volatile SharedMetadataProvider sharedMetadataProvider;
 
   private IHopScope<MultiMetadataProvider> scope = IHopScope.process();
 
@@ -58,10 +65,39 @@ public class HopMetadataInstance {
   }
 
   public static void setMetadataProvider(MultiMetadataProvider metadataProvider) {
+    if (metadataProvider != null) {
+      ensureSharedFirst(metadataProvider);
+    }
     getInstance().scope.set(metadataProvider);
   }
 
   public static MultiMetadataProvider getMetadataProvider() {
     return getInstance().scope.get();
+  }
+
+  public static SharedMetadataProvider getSharedMetadataProvider() {
+    return sharedMetadataProvider;
+  }
+
+  public static void setSharedMetadataProvider(SharedMetadataProvider provider) {
+    sharedMetadataProvider = provider;
+  }
+
+  /**
+   * Insert the shared provider at the front of a stack that does not already contain it. A stack
+   * built by {@link HopMetadataUtil#getStandardHopMetadataProvider} is left as it is.
+   */
+  private static void ensureSharedFirst(MultiMetadataProvider metadataProvider) {
+    SharedMetadataProvider shared = sharedMetadataProvider;
+    if (shared == null || metadataProvider.getProviders() == null) {
+      return;
+    }
+    if (HopMetadataUtil.containsShared(metadataProvider.getProviders(), shared)) {
+      return;
+    }
+    metadataProvider.setProviders(
+        HopMetadataUtil.withSharedFirst(
+            metadataProvider.getProviders(), metadataProvider.getVariables()));
+    MetadataPlaces.prependShared(metadataProvider, shared);
   }
 }

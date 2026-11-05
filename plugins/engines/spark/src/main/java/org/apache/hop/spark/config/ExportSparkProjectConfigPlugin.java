@@ -31,6 +31,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.spark.pkg.PackageExportFilter;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import picocli.CommandLine;
@@ -168,7 +169,10 @@ public class ExportSparkProjectConfigPlugin implements IConfigOptions {
       FileObject metaFo = HopVfs.getFileObject(metaFolder);
       if (metaFo.exists() && metaFo.getType() == FileType.FOLDER) {
         log.logBasic("Loading metadata from " + metaFolder);
-        return new JsonMetadataProvider(Encr.getEncoder(), metaFolder, variables);
+        return HopMetadataUtil.createMulti(
+            Encr.getEncoder(),
+            java.util.List.of(new JsonMetadataProvider(Encr.getEncoder(), metaFolder, variables)),
+            variables);
       }
     } catch (HopException e) {
       throw e;

@@ -41,6 +41,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -197,7 +198,7 @@ public class MainSpark {
     // load connections from the export — not only from a hop-config metadata folder (empty on
     // Databricks drivers). Reset HopVfs so scheme providers are registered against this metadata.
     MultiMetadataProvider metadataProvider =
-        new MultiMetadataProvider(
+        HopMetadataUtil.createMulti(
             Encr.getEncoder(), List.<IHopMetadataProvider>of(serializableMetadata), variables);
     HopMetadataInstance.setMetadataProvider(metadataProvider);
     HopVfs.reset();

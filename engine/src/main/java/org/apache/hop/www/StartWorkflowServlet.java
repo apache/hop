@@ -30,13 +30,14 @@ import java.util.UUID;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -132,10 +133,12 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
             WorkflowConfiguration workflowConfiguration =
                 getWorkflowMap().getConfiguration(workflowName);
             IHopMetadataProvider metadataProvider =
-                new MultiMetadataProvider(
-                    variables,
-                    getServerConfig().getMetadataProvider(),
-                    workflowConfiguration.getMetadataProvider());
+                HopMetadataUtil.createMulti(
+                    Encr.getEncoder(),
+                    HopMetadataUtil.providersOf(
+                        getServerConfig().getMetadataProvider(),
+                        workflowConfiguration.getMetadataProvider()),
+                    variables);
 
             // This new workflow execution engine instance needs a new container ID...
             //

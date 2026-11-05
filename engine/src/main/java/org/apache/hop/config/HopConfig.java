@@ -24,6 +24,7 @@ import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.hop.Hop;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.util.SharedMetadata;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ExecutionException;
@@ -46,6 +47,7 @@ public class HopConfig extends HopConfigBase implements Runnable, IHasHopMetadat
 
       hopConfig.buildLogChannel();
 
+      SharedMetadata.install(hopConfig.variables);
       hopConfig.buildMetadataProvider();
 
       CommandLine.ParseResult parseResult = hopConfig.cmd.parseArgs(args);

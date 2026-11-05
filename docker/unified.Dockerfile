@@ -77,13 +77,16 @@ RUN if [ ! -f "pom.xml" ]; then \
         exit 1; \
     fi
 
-# Build with Maven - produces artifacts in target/ folders
+# Build with Maven - produces artifacts in target/ folders.
+# config-doc rewrites the manual. It is on unless this property is false, and
+# the image does not ship that output. Same switch the release build uses.
 RUN mvn clean install -T ${MAVEN_THREADS} -B -C -e -V \
     -Djacoco.skip=true \
     -Drat.skip=true \
     -Dcheckstyle.skip=true \
     -Dspotless.skip=true \
     -DskipTests=true \
+    -Dconfig-doc=false \
     -Daether.syncContext.named.time=300 \
     --file pom.xml
 
@@ -311,6 +314,10 @@ ENV HOP_PARENT_PROJECT_FOLDER=
 ENV HOP_PARENT_PROJECT_CONFIG_FILE_NAME=project-config.json
 ENV HOP_ENVIRONMENT_NAME=
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
+# Metadata export JSON itself. No file and no volume. Leave empty to skip.
+ENV HOP_SHARED_METADATA_IMPORT_JSON=
+# Path of that same export when it is already a file. Set only one of the two.
+ENV HOP_SHARED_METADATA_IMPORT_FILE=
 ENV HOP_RUN_CONFIG=
 ENV HOP_RUN_PARAMETERS=
 ENV HOP_START_ACTION=
@@ -397,6 +404,10 @@ ENV HOP_PARENT_PROJECT_FOLDER=
 ENV HOP_PARENT_PROJECT_CONFIG_FILE_NAME=project-config.json
 ENV HOP_ENVIRONMENT_NAME=environment1
 ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
+# Metadata export JSON itself. No file and no volume. Leave empty to skip.
+ENV HOP_SHARED_METADATA_IMPORT_JSON=
+# Path of that same export when it is already a file. Set only one of the two.
+ENV HOP_SHARED_METADATA_IMPORT_FILE=
 
 # Set TOMCAT start variables
 ENV CATALINA_OPTS='${HOP_OPTIONS} \

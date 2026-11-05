@@ -24,7 +24,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -53,6 +56,10 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
    * that will be taken. This gives the possibility to override existing objects in parent projects
    * with local versions.
    *
+   * <p>A provider is skipped only when it cannot be asked ({@code getSerializer()} or {@code
+   * exists()} throws). Once {@code exists()} is true, a failure while reading the object is that
+   * object's own error and is not replaced with the same name from a parent project.
+   *
    * @param objectName The name of the object to load
    * @return The object or null if it couldn't be found
    * @throws HopException
@@ -62,16 +69,28 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
 
     List<IHopMetadataProvider> providers = multiProvider.getProviders();
     ListIterator<IHopMetadataProvider> providerIterator = providers.listIterator(providers.size());
+    boolean anyAnswered = false;
+    HopException lastFailure = null;
     while (providerIterator.hasPrevious()) {
       IHopMetadataProvider provider = providerIterator.previous();
-      IHopMetadataSerializer<T> serializer = provider.getSerializer(managedClass);
-      if (serializer.exists(objectName)) {
+      IHopMetadataSerializer<T> serializer;
+      boolean found;
+      try {
+        serializer = provider.getSerializer(managedClass);
+        found = serializer.exists(objectName);
+      } catch (Exception e) {
+        lastFailure = unavailable(provider, "load", objectName, e);
+        continue;
+      }
+      anyAnswered = true;
+      if (found) {
         return serializer.load(objectName);
       }
     }
 
-    // Not found, sorry!
-    //
+    if (!anyAnswered && lastFailure != null) {
+      throw lastFailure;
+    }
     return null;
   }
 
@@ -135,8 +154,18 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
   @Override
   public List<String> listObjectNames() throws HopException {
     Set<String> set = new HashSet<>();
+    boolean anyAnswered = false;
+    HopException lastFailure = null;
     for (IHopMetadataProvider provider : multiProvider.getProviders()) {
-      set.addAll(provider.getSerializer(managedClass).listObjectNames());
+      try {
+        set.addAll(provider.getSerializer(managedClass).listObjectNames());
+        anyAnswered = true;
+      } catch (Exception e) {
+        lastFailure = unavailable(provider, "list", null, e);
+      }
+    }
+    if (!anyAnswered && lastFailure != null) {
+      throw lastFailure;
     }
     return new ArrayList<>(set);
   }
@@ -146,22 +175,46 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
   public String readVirtualPath(String name) throws HopException {
     List<IHopMetadataProvider> providers = multiProvider.getProviders();
     ListIterator<IHopMetadataProvider> providerIterator = providers.listIterator(providers.size());
+    boolean anyAnswered = false;
+    HopException lastFailure = null;
     while (providerIterator.hasPrevious()) {
       IHopMetadataProvider provider = providerIterator.previous();
-      IHopMetadataSerializer<T> serializer = provider.getSerializer(managedClass);
-      if (serializer.exists(name)) {
+      IHopMetadataSerializer<T> serializer;
+      boolean found;
+      try {
+        serializer = provider.getSerializer(managedClass);
+        found = serializer.exists(name);
+      } catch (Exception e) {
+        lastFailure = unavailable(provider, "read", name, e);
+        continue;
+      }
+      anyAnswered = true;
+      if (found) {
         return serializer.readVirtualPath(name);
       }
+    }
+    if (!anyAnswered && lastFailure != null) {
+      throw lastFailure;
     }
     throw new HopException("Object '" + name + "' does not exist");
   }
 
   @Override
   public boolean exists(String name) throws HopException {
+    boolean anyAnswered = false;
+    HopException lastFailure = null;
     for (IHopMetadataProvider provider : multiProvider.getProviders()) {
-      if (provider.getSerializer(managedClass).exists(name)) {
-        return true;
+      try {
+        if (provider.getSerializer(managedClass).exists(name)) {
+          return true;
+        }
+        anyAnswered = true;
+      } catch (Exception e) {
+        lastFailure = unavailable(provider, "find", name, e);
       }
+    }
+    if (!anyAnswered && lastFailure != null) {
+      throw lastFailure;
     }
     return false;
   }
@@ -175,11 +228,46 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
     //
     List<IHopMetadataProvider> providers = multiProvider.getProviders();
     ListIterator<IHopMetadataProvider> iterator = providers.listIterator(providers.size());
+    boolean anyAnswered = false;
+    HopException lastFailure = null;
     while (iterator.hasPrevious()) {
       IHopMetadataProvider provider = iterator.previous();
-      set.addAll(provider.getSerializer(managedClass).loadAll());
+      try {
+        set.addAll(provider.getSerializer(managedClass).loadAll());
+        anyAnswered = true;
+      } catch (Exception e) {
+        lastFailure = unavailable(provider, "load", null, e);
+      }
+    }
+    if (!anyAnswered && lastFailure != null) {
+      throw lastFailure;
     }
     return new ArrayList<>(set);
+  }
+
+  /**
+   * A provider that cannot be read (a project folder on a VFS scheme that is not registered yet)
+   * does not hide the objects of the providers that can.
+   */
+  private HopException unavailable(
+      IHopMetadataProvider provider, String action, String name, Exception e) {
+    String message =
+        "Could not "
+            + action
+            + " metadata"
+            + (name == null ? "" : " '" + name + "'")
+            + " from "
+            + provider.getDescription()
+            + ". That provider was skipped.";
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logError(message, e);
+    } else {
+      System.err.println(message + Const.CR + Const.getStackTracker(e));
+    }
+    if (e instanceof HopException hopException) {
+      return hopException;
+    }
+    return new HopException(message, e);
   }
 
   @Override

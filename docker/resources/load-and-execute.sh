@@ -345,6 +345,32 @@ register_hop_project() {
   "${DEPLOYMENT_PATH}"/hop-conf.sh "${conf_args[@]}"
 }
 
+# Import shared metadata before a project is registered. A project home on a named VFS scheme
+# (git-project:///, my-smb://, ...) needs that metadata to exist first.
+#
+import_shared_metadata() {
+  if [ -n "${HOP_SHARED_METADATA_IMPORT_JSON:-}" ] && [ -n "${HOP_SHARED_METADATA_IMPORT_FILE:-}" ]; then
+    log "Error: set only one of HOP_SHARED_METADATA_IMPORT_JSON and HOP_SHARED_METADATA_IMPORT_FILE"
+    exitWithCode 9
+  fi
+  local code=0
+  if [ -n "${HOP_SHARED_METADATA_IMPORT_JSON:-}" ]; then
+    log "Importing shared metadata from the JSON in HOP_SHARED_METADATA_IMPORT_JSON"
+    "${DEPLOYMENT_PATH}"/hop-conf.sh --shared-metadata-import-json="${HOP_SHARED_METADATA_IMPORT_JSON}" || code=$?
+  elif [ -n "${HOP_SHARED_METADATA_IMPORT_FILE:-}" ]; then
+    log "Importing shared metadata from file ${HOP_SHARED_METADATA_IMPORT_FILE}"
+    "${DEPLOYMENT_PATH}"/hop-conf.sh --shared-metadata-import-file="${HOP_SHARED_METADATA_IMPORT_FILE}" || code=$?
+  else
+    return 0
+  fi
+  if [ "${code}" -ne 0 ]; then
+    log "Error: shared metadata import failed with exit code ${code}"
+    exitWithCode "${code}"
+  fi
+}
+
+import_shared_metadata
+
 # If a project folder is defined we assume that we want to create it in the container
 #
 if [ -n "${HOP_PROJECT_FOLDER}" ]; then

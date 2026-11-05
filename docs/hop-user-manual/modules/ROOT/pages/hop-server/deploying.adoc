@@ -154,8 +154,11 @@ On a read-only root filesystem, point `HOP_SHARED_JDBC_FOLDERS` and `HOP_PLUGIN_
 
 === The project you mount
 
-Set `HOP_PROJECT_FOLDER` to a real directory.
-Hop resolves that home before it loads named VFS connections, and the Git scheme exists only after the connection has been read from a folder Hop can already open.
+Set `HOP_PROJECT_FOLDER` to a real directory when the Git connection is stored in that project.
+Hop resolves the project home before it loads that project's metadata, so the Git scheme has to come from a folder Hop can already open.
+
+Import the connection as shared metadata and the project home can be the connection root, with no volume for the project.
+See xref:docker-container.adoc#ProjectHomeOnGit[Project home on a Git repository].
 
 Mount a small project that holds the connection and the metadata the run needs.
 The pipelines and workflows stay in the remote repository.

@@ -128,6 +128,23 @@ When using an environment a project has to be created too
 |
 | This is a comma separated list of paths to environment config files (including filename and file extension).
 
+|```HOP_SHARED_METADATA_IMPORT_JSON```
+|
+| The metadata export JSON document itself, the same document `hop-conf --export-shared-metadata` or `hop-conf --export-metadata` writes.
+The entrypoint passes it to `hop-conf --shared-metadata-import-json` before a project is registered.
+No file and no volume: set the variable to the document, which is what you want when a Kubernetes secret or config map should not be mounted.
+A HashiCorp Vault variable resolver and a Git repository named `git-project` in that document let the project home be `git-project:///`.
+A worked example is <<ProjectHomeOnGit>>.
+The shared folder stays a local path, by default `'${HOP_CONFIG_FOLDER}/metadata'`.
+Leave the variable empty to skip the import.
+Set only one of `HOP_SHARED_METADATA_IMPORT_JSON` and `HOP_SHARED_METADATA_IMPORT_FILE`.
+
+|```HOP_SHARED_METADATA_IMPORT_FILE```
+|
+| Path of that same metadata export when the file is already in the container.
+The entrypoint passes it to `hop-conf --shared-metadata-import-file`.
+Use the JSON variable instead when you do not want to mount a file.
+
 |```HOP_OPTIONS```
 |`-XX:+AggressiveHeap`
 | Any JRE options you want to set.
@@ -359,6 +376,99 @@ docker run -it --rm \
 ----
 
 The value of `HOP_PARENT_PROJECT_NAME` should match `parentProjectName` in the child project's `project-config.json`.
+
+[[ProjectHomeOnGit]]
+=== Project home on a Git repository
+
+The entrypoint imports shared metadata before it registers a project.
+Put a xref:metadata-types/git-vfs-connection.adoc[Git repository] connection in `HOP_SHARED_METADATA_IMPORT_JSON`, install `hop-tech-git-vfs`, and set `HOP_PROJECT_FOLDER` to that connection's root.
+The name of the connection is the scheme, so a connection named `git` is opened as `git://`.
+No project folder is mounted.
+
+The repository in this example is fictional.
+It has to contain `project-config.json` and the pipeline named by `HOP_FILE_PATH`.
+The entrypoint passes `--project-keep-config-file`, and the connection is read-only, so that config file has to be in the repository already.
+`HOP_RUN_CONFIG=local` uses the `local` run configuration shipped in the image.
+
+The entrypoint warns that `git://` is not a directory in the container.
+That check is a shell test for a real folder.
+Hop still opens the project through the Git connection.
+
+A locally built image is tagged `hop:Development`.
+The published snapshot image is `apache/hop:Development`.
+
+[source,bash]
+----
+export SHARED_METADATA='{ "git-vfs-connection": [ { "description": "Example repository", "readOnly": true, "cacheMinutes": "2", "userName": null, "repositoryUrl": "https://github.com/example/hop-project.git", "revision": "main", "password": null, "virtualPath": "", "acceptUnknownHosts": false, "privateKeyPassphrase": null, "basePath": null, "privateKeyFile": null, "alwaysFetch": false, "name": "git", "sshUser": null, "timeoutSeconds": null, "authType": "NONE", "cacheFolder": null, "knownHostsFile": null } ]}'
+
+docker run --rm \
+        -e HOP_PLUGINS_DOWNLOAD='hop-tech-git-vfs' \
+        -e HOP_SHARED_METADATA_IMPORT_JSON="${SHARED_METADATA}" \
+        -e HOP_PROJECT_FOLDER='git://' \
+        -e HOP_PROJECT_NAME='git-test' \
+        -e HOP_OPTIONS='-Xmx4g' \
+        -e HOP_FILE_PATH='generate-rows.hpl' \
+        -e HOP_RUN_PARAMETERS='NR_ROWS=30m' \
+        -e HOP_RUN_CONFIG='local' \
+        hop:Development
+----
+
+.Container log
+[%collapsible]
+=====
+[source,text]
+----
+2026/11/04 19:22:40 - Running the entrypoint script with PID 8
+2026/11/04 19:22:40 - Installing marketplace plugins: hop-tech-git-vfs
+2026/11/04 19:22:41 - General - Regional settings: language=en_US format=en_US timezone=GMT source=installation:OPERATING_SYSTEM
+Resolved hop-tech-git-vfs → org.apache.hop:hop-tech-git-vfs:2.21.0-SNAPSHOT
+2026/11/04 19:22:42 - Marketplace - Downloading org.apache.hop:hop-tech-git-vfs:2.21.0-SNAPSHOT from https://repository.apache.org/content/groups/public/org/apache/hop/hop-tech-git-vfs/2.21.0-SNAPSHOT/hop-tech-git-vfs-2.21.0-20261104.104429-1.zip
+Downloading: org.apache.hop:hop-tech-git-vfs:2.21.0-SNAPSHOT (5.5MB)
+2026/11/04 19:22:42 - Marketplace - Downloaded /opt/hop/plugins/.staging/.download/hop-tech-git-vfs-2.21.0-SNAPSHOT.zip (5807456 bytes)
+  Unpacking...
+  Installing files...
+2026/11/04 19:22:42 - Marketplace - Installed org.apache.hop:hop-tech-git-vfs:2.21.0-SNAPSHOT. Restart Hop to load the plugin.
+Plugin org.apache.hop:hop-tech-git-vfs:2.21.0-SNAPSHOT installed under /opt/hop from repo 'asf'. Restart Hop to load it.
+2026/11/04 19:22:43 - Importing shared metadata from the JSON in HOP_SHARED_METADATA_IMPORT_JSON
+2026/11/04 19:22:44 - General - Regional settings: language=en_US format=en_US timezone=GMT source=installation:OPERATING_SYSTEM
+Search: include project text files set to 'true'
+Search: search as you type set to 'true'
+Validate database connections on save is now enabled
+Shared metadata folder set to '${HOP_CONFIG_FOLDER}/metadata'
+Imported 1 shared metadata object(s) into '/opt/hop/config/metadata'
+2026/11/04 19:22:44 - The project folder for git-test is set to: git://
+2026/11/04 19:22:44 - Warning: the folder specified in variable HOP_PROJECT_FOLDER does not exist in the container: git://
+2026/11/04 19:22:46 - Registering project git-test in the Hop container configuration (home=git://)
+2026/11/04 19:22:46 - /opt/hop/hop-conf.sh --project=git-test --project-create --project-home=git:// --project-config-file=project-config.json --project-keep-config-file
+2026/11/04 19:22:47 - General - Regional settings: language=en_US format=en_US timezone=GMT source=installation:OPERATING_SYSTEM
+2026/11/04 19:22:48 - General - Shared metadata loaded from '/opt/hop/config/metadata'
+Creating project 'git-test'
+Project 'git-test' was created for home folder : git://
+Configuration file for project 'git-test' was saved to : git:///project-config.json
+Search: include project text files set to 'true'
+Search: search as you type set to 'true'
+Validate database connections on save is now enabled
+2026/11/04 19:22:52 - Not creating an environment in the container
+2026/11/04 19:22:52 - Running a single hop workflow / pipeline (generate-rows.hpl)
+2026/11/04 19:22:53 - General - Regional settings: language=en_US format=en_US timezone=GMT source=installation:OPERATING_SYSTEM
+2026/11/04 19:22:53 - HopRun - Enabling project 'git-test'
+2026/11/04 19:22:53 - HopRun - Regional settings: language=en_US format=en_US timezone=GMT source=installation:OPERATING_SYSTEM
+2026/11/04 19:22:53 - HopRun - Two-way password encoder initialized with plugin ID 'Hop' for project 'git-test'
+2026/11/04 19:22:53 - HopRun - Project 'git-test' metadata folder: git:///metadata
+2026/11/04 19:22:53 - HopRun - Relative path filename specified: git:///generate-rows.hpl
+2026/11/04 19:22:53 - HopRun - Starting pipeline: git:///generate-rows.hpl
+2026/11/04 19:22:53 - General - VFS namespace of pipeline generate-rows : named connections registered []
+2026/11/04 19:22:53 - General - Created a VFS namespace for pipeline generate-rows, holding the named VFS connections of Multi Metadata Provider with 1 providers: JSON metadata in folder git:///metadata
+2026/11/04 19:22:53 - generate-rows - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2026/11/04 19:22:53 - generate-rows - Execution started for pipeline [generate-rows]
+2026/11/04 19:23:08 - 10m.0 - Finished processing (I=0, O=0, R=0, W=30000000, U=0, E=0)
+2026/11/04 19:23:08 - id.0 - Finished processing (I=0, O=0, R=30000000, W=30000000, U=0, E=0)
+2026/11/04 19:23:08 - Dummy (do nothing).0 - Finished processing (I=0, O=0, R=30000000, W=30000000, U=0, E=0)
+2026/11/04 19:23:08 - generate-rows - Pipeline duration : 14.709 seconds [ 14.709" ]
+2026/11/04 19:23:08 - generate-rows - Execution finished on a local pipeline engine with run configuration 'local'
+HopRun exit.
+----
+=====
 
 === Running the long-lived container (server)
 

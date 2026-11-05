@@ -39,7 +39,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -152,7 +152,7 @@ public class KettleImportDialog extends Dialog {
     this.configuredSourceFolder = kettleImport.getInputFolderName();
     this.scratchMetadata = new MemoryMetadataProvider(Encr.getEncoder(), variables);
     this.dialogMetadataProvider =
-        new MultiMetadataProvider(Encr.getEncoder(), List.of(scratchMetadata), variables);
+        HopMetadataUtil.createMulti(Encr.getEncoder(), List.of(scratchMetadata), variables);
 
     this.projectNames = listProjectNames();
   }
@@ -738,7 +738,7 @@ public class KettleImportDialog extends Dialog {
     }
     providers.add(scratchMetadata);
     applyMetadataProvider(
-        new MultiMetadataProvider(Encr.getEncoder(), providers, variables), metadataFolder);
+        HopMetadataUtil.createMulti(Encr.getEncoder(), providers, variables), metadataFolder);
   }
 
   private String peekTargetFolder() {
@@ -807,7 +807,7 @@ public class KettleImportDialog extends Dialog {
     applyMetadataProvider(json, metadataFolder);
     kettleImport.setMetadataTargetFolder(metadataFolder);
     kettleImport.setMetadataProvider(
-        new MultiMetadataProvider(Encr.getEncoder(), List.of(json), variables));
+        HopMetadataUtil.createMulti(Encr.getEncoder(), List.of(json), variables));
   }
 
   static void copyNamed(

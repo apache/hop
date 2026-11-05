@@ -57,6 +57,7 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.util.SharedMetadata;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformStatus;
@@ -725,8 +726,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       //
       JarCache.getInstance().clear();
 
-      // Set up the metadata to use
+      // Set up the metadata to use. Shared metadata is installed first so it is on every stack
+      // this server builds, including one replaced when a project is enabled.
       //
+      SharedMetadata.install(hopServer.variables);
       hopServer.metadataProvider =
           HopMetadataUtil.getStandardHopMetadataProvider(hopServer.variables);
       HopMetadataInstance.setMetadataProvider(hopServer.metadataProvider);

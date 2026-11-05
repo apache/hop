@@ -125,6 +125,16 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     this.originalName = null;
   }
 
+  /** True when this object was loaded from a metadata provider and still has that name. */
+  public boolean isPersisted() {
+    return StringUtils.isNotEmpty(originalName);
+  }
+
+  /** Copy the open editor into the metadata object, the same way a save does. */
+  public void copyWidgetsToMetadata() {
+    getWidgetsContent(metadata);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

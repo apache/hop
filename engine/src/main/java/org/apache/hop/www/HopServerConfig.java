@@ -31,6 +31,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.server.HopServerMeta;
 import org.w3c.dom.Node;
 
@@ -72,7 +73,7 @@ public class HopServerConfig implements IXml {
     variables = Variables.getADefaultVariableSpace();
     // An empty list of metadata providers by default
     metadataProvider =
-        new MultiMetadataProvider(Encr.getEncoder(), Collections.emptyList(), variables);
+        HopMetadataUtil.createMulti(Encr.getEncoder(), Collections.emptyList(), variables);
   }
 
   public HopServerConfig(HopServerMeta hopServer) {

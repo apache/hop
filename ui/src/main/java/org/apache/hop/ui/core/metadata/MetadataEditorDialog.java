@@ -33,6 +33,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -87,6 +88,8 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     fdHelp.left = new FormAttachment(0, 0);
     wHelp.setLayoutData(fdHelp);
 
+    Control location = MetadataLocationCombo.create(shell, editor);
+
     // Create editor content area
     Composite area = new Composite(shell, SWT.NONE);
     FormLayout layout = new FormLayout();
@@ -95,7 +98,11 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     area.setLayout(layout);
     FormData fdArea = new FormData();
     fdArea.left = new FormAttachment(0, 0);
-    fdArea.top = new FormAttachment(0, 0);
+    if (location == null) {
+      fdArea.top = new FormAttachment(0, 0);
+    } else {
+      fdArea.top = new FormAttachment(location, PropsUi.getMargin());
+    }
     fdArea.right = new FormAttachment(100, 0);
     fdArea.bottom = new FormAttachment(wOk, -PropsUi.getMargin());
     area.setLayoutData(fdArea);

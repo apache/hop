@@ -64,6 +64,8 @@ import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
 import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.metadata.util.MetadataPlace;
+import org.apache.hop.metadata.util.MetadataPlaces;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -81,6 +83,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
+import org.apache.hop.ui.core.metadata.MetadataLocationCombo;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.security.HopSecurityUi;
 import org.apache.hop.ui.core.widget.FolderTreeIcons;
@@ -894,6 +897,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       BaseTransformDialog.positionBottomButtons(composite, buttons, PropsUi.getMargin(), null);
     }
 
+    Control location = MetadataLocationCombo.create(composite, editor);
+
     // Create editor content area
     //
     Composite area = new Composite(composite, SWT.NONE);
@@ -903,7 +908,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     area.setLayout(layoutArea);
     FormData fdArea = new FormData();
     fdArea.left = new FormAttachment(0, 0);
-    fdArea.top = new FormAttachment(0, 0);
+    if (location == null) {
+      fdArea.top = new FormAttachment(0, 0);
+    } else {
+      fdArea.top = new FormAttachment(location, PropsUi.getMargin());
+    }
     fdArea.right = new FormAttachment(100, 0);
     if (buttons != null) {
       fdArea.bottom = new FormAttachment(buttons[0], -PropsUi.getMargin());
@@ -2319,10 +2328,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             HopMetadataUtil.duplicateProviderChoices(
                 hopGui.getMetadataProvider(), targetProviderName);
         if (!providerChoices.isEmpty()) {
+          List<MetadataPlace> places = MetadataPlaces.of(hopGui.getMetadataProvider());
+          String[] labels = new String[providerChoices.size()];
+          for (int i = 0; i < providerChoices.size(); i++) {
+            labels[i] = MetadataPlaces.labelOf(places, providerChoices.get(i));
+          }
           EnterSelectionDialog dialog =
               new EnterSelectionDialog(
                   getShell(),
-                  providerChoices.toArray(new String[0]),
+                  labels,
                   BaseMessages.getString(
                       PKG, "MetadataPerspective.DuplicateMetadata.SelectProvider.Title"),
                   BaseMessages.getString(
@@ -2333,7 +2347,17 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
           if (chosen == null) {
             return;
           }
-          targetProviderName = chosen;
+          int chosenIndex = -1;
+          for (int i = 0; i < labels.length; i++) {
+            if (labels[i].equals(chosen)) {
+              chosenIndex = i;
+              break;
+            }
+          }
+          if (chosenIndex < 0) {
+            return;
+          }
+          targetProviderName = providerChoices.get(chosenIndex);
         }
 
         int copyNr = 2;

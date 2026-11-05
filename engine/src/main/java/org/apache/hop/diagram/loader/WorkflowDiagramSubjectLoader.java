@@ -38,7 +38,16 @@ public class WorkflowDiagramSubjectLoader implements IDiagramSubjectLoader {
     if (metadataProvider == null) {
       metadataProvider = org.apache.hop.metadata.util.HopMetadataInstance.getMetadataProvider();
       if (metadataProvider == null) {
-        metadataProvider = new org.apache.hop.metadata.serializer.json.JsonMetadataProvider();
+        if (variables == null) {
+          metadataProvider = new org.apache.hop.metadata.serializer.json.JsonMetadataProvider();
+        } else {
+          metadataProvider =
+              org.apache.hop.metadata.util.HopMetadataUtil.createMulti(
+                  org.apache.hop.core.encryption.Encr.getEncoder(),
+                  java.util.List.of(
+                      new org.apache.hop.metadata.serializer.json.JsonMetadataProvider()),
+                  variables);
+        }
       }
     }
     return new WorkflowMeta(variables, filename, metadataProvider);
