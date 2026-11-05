@@ -153,6 +153,8 @@ Some of these settings only take effect after Hop GUI is restarted; the dialog s
 
 |Line width on workspace|The width hops are drawn with on the canvas, in pixels.|1
 
+|Hop line shape|How hops are drawn on the canvas. *Straight* draws a line from icon center to icon center. *Curved* draws a smooth curve that leaves and enters each icon on the side facing the other icon.|Straight
+
 |Dialog middle percentage|Where the divider between labels and input fields sits in dialogs, as a percentage of the dialog width. Raise it where a translation makes labels too wide for their column.|35
 |===
 

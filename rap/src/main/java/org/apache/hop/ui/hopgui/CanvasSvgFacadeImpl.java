@@ -202,6 +202,7 @@ public class CanvasSvgFacadeImpl extends CanvasSvgFacade {
     props.add("offsetY", offset.y);
     props.add("iconSize", PropsUi.getInstance().getIconSize());
     props.add("gridSize", PropsUi.getInstance().getCanvasGridSize());
+    props.add("hopLineShape", PropsUi.getInstance().getHopLineShape().getCode());
     props.add("showGrid", PropsUi.getInstance().isShowCanvasGridEnabled());
     props.add("useDoubleClick", PropsUi.getInstance().useDoubleClick());
     if (canvasSize != null) {

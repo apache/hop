@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.gui.HopLineShape;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -97,6 +98,7 @@ public class ConfigGuiOptionsTab {
 
   private Text wIconSize;
   private Text wLineWidth;
+  private Combo wHopLineShape;
   private Text wMiddlePct;
   private Combo wGlobalZoom;
   private Text wGridSize;
@@ -191,6 +193,7 @@ public class ConfigGuiOptionsTab {
       // Reload text fields and checkboxes
       wIconSize.setText(Integer.toString(props.getIconSize()));
       wLineWidth.setText(Integer.toString(props.getLineWidth()));
+      wHopLineShape.setText(props.getHopLineShape().getDescription());
       wMiddlePct.setText(Integer.toString(props.getMiddlePct()));
       wGridSize.setText(Integer.toString(props.getCanvasGridSize()));
       wShowCanvasGrid.setSelection(props.isShowCanvasGridEnabled());
@@ -470,6 +473,19 @@ public class ConfigGuiOptionsTab {
           }
         });
     lastAppearanceControl = wLineWidth;
+
+    // Hop line shape: straight or curved
+    Control[] hopLineShapeControls =
+        createComboField(
+            appearanceContent,
+            "EnterOptionsDialog.HopLineShape.Label",
+            "EnterOptionsDialog.HopLineShape.ToolTip",
+            HopLineShape.getDescriptions(),
+            lastAppearanceControl,
+            margin);
+    wHopLineShape = (Combo) hopLineShapeControls[1];
+    wHopLineShape.setText(props.getHopLineShape().getDescription());
+    lastAppearanceControl = wHopLineShape;
 
     // Dialog middle percentage
     Control[] middlePctControls =
@@ -1341,6 +1357,7 @@ public class ConfigGuiOptionsTab {
     props.setGraphFont(graphFontData);
     props.setIconSize(Const.toInt(wIconSize.getText(), props.getIconSize()));
     props.setLineWidth(Const.toInt(wLineWidth.getText(), props.getLineWidth()));
+    props.setHopLineShape(HopLineShape.lookupDescription(wHopLineShape.getText()));
     props.setMiddlePct(Const.toInt(wMiddlePct.getText(), props.getMiddlePct()));
     props.setCanvasGridSize(Const.toInt(wGridSize.getText(), 1));
     int directionIndex = wAutoLayoutDirection.getSelectionIndex();

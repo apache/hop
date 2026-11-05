@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.HopPath;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IGc.EColor;
 import org.apache.hop.core.gui.IGc.EFont;
@@ -566,34 +567,28 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       throws HopException {
     int mx;
     int my;
-    int a;
-    int b;
-    int dist;
     double angle;
 
-    gc.drawLine(x1, y1, x2, y2);
-
-    // What's the distance between the 2 points?
-    a = Math.abs(x2 - x1);
-    b = Math.abs(y2 - y1);
-    dist = (int) Math.sqrt(a * a + b * b);
+    HopPath path = createHopPath(x1, y1, x2, y2, startObject, endObject);
+    path.draw(gc);
 
     // determine factor (position of arrow to left side or right side
     // 0-->100%)
     if (factor < 0) {
-      if (dist >= 2 * iconSize) {
+      if (path.getLength() >= 2 * iconSize) {
         factor = 1.3;
       } else {
         factor = 1.2;
       }
     }
 
-    // in between 2 points
-    mx = (int) (x1 + factor * (x2 - x1) / 2);
-    my = (int) (y1 + factor * (y2 - y1) / 2);
+    double arrowFraction = getArrowFraction(path, factor);
+    double[] arrowPoint = path.pointAt(arrowFraction);
+    mx = (int) arrowPoint[0];
+    my = (int) arrowPoint[1];
 
     // calculate points for arrowhead
-    angle = Math.atan2(y2 - y1, x2 - x1) + (Math.PI / 2);
+    angle = path.angleAt(arrowFraction) + (Math.PI / 2);
 
     boolean q1 = Math.toDegrees(angle) >= 0 && Math.toDegrees(angle) < 90;
     boolean q2 = Math.toDegrees(angle) >= 90 && Math.toDegrees(angle) < 180;
@@ -608,21 +603,21 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     // Display an icon above the hop...
     //
-    factor = 0.8;
-
-    // in between 2 points
-    mx = (int) (x1 + factor * (x2 - x1) / 2) - miniIconSize / 2;
-    my = (int) (y1 + factor * (y2 - y1) / 2) - miniIconSize / 2;
+    double iconFraction = getHopIconFraction(path);
+    double[] iconPoint = path.pointAt(iconFraction);
+    mx = (int) iconPoint[0] - miniIconSize / 2;
+    my = (int) iconPoint[1] - miniIconSize / 2;
 
     if (workflowHop != null) {
 
       if (workflowHop.getFromAction().isLaunchingInParallel()) {
 
         // in between 2 points
-        mx = (int) (x1 + factor * (x2 - x1) / 2);
-        my = (int) (y1 + factor * (y2 - y1) / 2);
+        mx = (int) iconPoint[0];
+        my = (int) iconPoint[1];
+        double iconAngle = path.angleAt(iconFraction) + (Math.PI / 2);
         EImage image = (workflowHop.isEnabled()) ? EImage.PARALLEL : EImage.PARALLEL_DISABLED;
-        gc.drawImage(image, mx, my, magnification, angle);
+        gc.drawImage(image, mx, my, magnification, iconAngle);
         areaOwners.add(
             new AreaOwner(
                 AreaType.WORKFLOW_HOP_PARALLEL_ICON,

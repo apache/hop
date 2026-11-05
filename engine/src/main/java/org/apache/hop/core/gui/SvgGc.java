@@ -28,6 +28,7 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -348,6 +349,21 @@ public class SvgGc implements IGc {
   @Override
   public void drawLine(int x, int y, int x2, int y2) {
     gc.drawLine(x + xOffset, y + yOffset, x2 + xOffset, y2 + yOffset);
+  }
+
+  @Override
+  public void drawCubicCurve(
+      double x1, double y1, double cx1, double cy1, double cx2, double cy2, double x2, double y2) {
+    gc.draw(
+        new CubicCurve2D.Double(
+            x1 + xOffset,
+            y1 + yOffset,
+            cx1 + xOffset,
+            cy1 + yOffset,
+            cx2 + xOffset,
+            cy2 + yOffset,
+            x2 + xOffset,
+            y2 + yOffset));
   }
 
   @Override
