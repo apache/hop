@@ -56,6 +56,10 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
    * that will be taken. This gives the possibility to override existing objects in parent projects
    * with local versions.
    *
+   * <p>A provider is skipped only when it cannot be asked ({@code getSerializer()} or {@code
+   * exists()} throws). Once {@code exists()} is true, a failure while reading the object is that
+   * object's own error and is not replaced with the same name from a parent project.
+   *
    * @param objectName The name of the object to load
    * @return The object or null if it couldn't be found
    * @throws HopException
@@ -69,14 +73,18 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
     HopException lastFailure = null;
     while (providerIterator.hasPrevious()) {
       IHopMetadataProvider provider = providerIterator.previous();
+      IHopMetadataSerializer<T> serializer;
+      boolean found;
       try {
-        IHopMetadataSerializer<T> serializer = provider.getSerializer(managedClass);
-        if (serializer.exists(objectName)) {
-          return serializer.load(objectName);
-        }
-        anyAnswered = true;
+        serializer = provider.getSerializer(managedClass);
+        found = serializer.exists(objectName);
       } catch (Exception e) {
         lastFailure = unavailable(provider, "load", objectName, e);
+        continue;
+      }
+      anyAnswered = true;
+      if (found) {
+        return serializer.load(objectName);
       }
     }
 
@@ -171,14 +179,18 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
     HopException lastFailure = null;
     while (providerIterator.hasPrevious()) {
       IHopMetadataProvider provider = providerIterator.previous();
+      IHopMetadataSerializer<T> serializer;
+      boolean found;
       try {
-        IHopMetadataSerializer<T> serializer = provider.getSerializer(managedClass);
-        if (serializer.exists(name)) {
-          return serializer.readVirtualPath(name);
-        }
-        anyAnswered = true;
+        serializer = provider.getSerializer(managedClass);
+        found = serializer.exists(name);
       } catch (Exception e) {
         lastFailure = unavailable(provider, "read", name, e);
+        continue;
+      }
+      anyAnswered = true;
+      if (found) {
+        return serializer.readVirtualPath(name);
       }
     }
     if (!anyAnswered && lastFailure != null) {

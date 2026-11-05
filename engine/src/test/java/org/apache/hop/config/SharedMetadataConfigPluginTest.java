@@ -19,6 +19,7 @@ package org.apache.hop.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,6 +36,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.SharedMetadata;
 import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.AfterEach;
@@ -139,6 +141,35 @@ class SharedMetadataConfigPluginTest {
     String restored =
         Files.readString(tempDir.resolve("metadata").resolve("server").resolve("server1.json"));
     assertTrue(restored.contains("host-a"));
+  }
+
+  @Test
+  void nonLocalFolderIsRejectedAndNotSaved() {
+    HopException exception =
+        assertThrows(
+            HopException.class, () -> handle("--shared-metadata-folder=git-project:///shared"));
+    assertTrue(exception.getMessage().contains("not a local folder"));
+    assertEquals("", HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""));
+  }
+
+  @Test
+  void fileFolderIsSaved() throws Exception {
+    assertTrue(handle("--shared-metadata-folder=file:///tmp/hop-shared"));
+    assertEquals(
+        "file:///tmp/hop-shared", HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""));
+  }
+
+  @Test
+  void anAlreadySavedNonLocalFolderCanStillBeCleared() throws Exception {
+    HopConfig.getInstance().getConfigMap().put(SharedMetadata.CONFIG_KEY, "git-project:///shared");
+    try {
+      SharedMetadata.install(variables);
+      assertNull(HopMetadataInstance.getSharedMetadataProvider());
+      assertTrue(handle("--shared-metadata-folder="));
+      assertEquals("", HopConfig.readOptionString(SharedMetadata.CONFIG_KEY, ""));
+    } finally {
+      HopMetadataInstance.setSharedMetadataProvider(null);
+    }
   }
 
   @Test

@@ -682,6 +682,9 @@ public class ConfigGeneralOptionsTab {
     SharedMetadataProvider previousShared = HopMetadataInstance.getSharedMetadataProvider();
     MultiMetadataProvider previousProvider = hopGui.getMetadataProvider();
     try {
+      if (!value.isEmpty()) {
+        SharedMetadata.checkLocalFolder(SharedMetadata.resolveFolder(hopGui.getVariables(), value));
+      }
       HopConfig.getInstance().saveOption(SharedMetadata.CONFIG_KEY, value);
       SharedMetadata.install(hopGui.getVariables());
       MultiMetadataProvider next =

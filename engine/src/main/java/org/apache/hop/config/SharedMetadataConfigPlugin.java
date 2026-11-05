@@ -48,7 +48,8 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
       names = {"--shared-metadata-folder"},
       description =
           "Folder for metadata shared by the whole Hop configuration. Stored in hop-config.json."
-              + " An empty value clears it. Example: ${HOP_CONFIG_FOLDER}/metadata")
+              + " An empty value clears it. The folder has to be a local path or a file:// URL."
+              + " Example: ${HOP_CONFIG_FOLDER}/metadata")
   private String sharedMetadataFolder;
 
   @CommandLine.Option(
@@ -84,6 +85,10 @@ public class SharedMetadataConfigPlugin implements IConfigOptions {
     ILogChannel channel = log == null ? LogChannel.GENERAL : log;
     boolean changed = false;
     if (sharedMetadataFolder != null) {
+      if (StringUtils.isNotEmpty(StringUtils.trim(sharedMetadataFolder))) {
+        SharedMetadata.checkLocalFolder(
+            SharedMetadata.resolveFolder(variables, sharedMetadataFolder));
+      }
       HopConfig.getInstance().saveOption(SharedMetadata.CONFIG_KEY, sharedMetadataFolder);
       channel.logBasic(
           StringUtils.isEmpty(sharedMetadataFolder)

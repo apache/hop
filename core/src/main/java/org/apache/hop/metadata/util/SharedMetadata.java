@@ -41,8 +41,10 @@ public final class SharedMetadata {
 
   /**
    * Read {@link #CONFIG_KEY}. A blank value clears the shared provider. A folder whose scheme is a
-   * named VFS connection is rejected: that connection cannot be used to read the metadata that
-   * defines it.
+   * named VFS connection is not loaded: that connection cannot be used to read the metadata that
+   * defines it. The problem is logged and Hop starts without shared metadata, so a bad value
+   * already stored in {@code hop-config.json} does not stop hop-conf, hop-run, Hop GUI or Hop
+   * Server.
    */
   public static void install(IVariables variables) throws HopException {
     String configured = HopConfig.readOptionString(CONFIG_KEY, "");
@@ -51,11 +53,30 @@ public final class SharedMetadata {
       return;
     }
     String resolved = resolveFolder(variables, configured);
-    checkLocalFolder(resolved);
+    try {
+      checkLocalFolder(resolved);
+    } catch (HopException e) {
+      HopMetadataInstance.setSharedMetadataProvider(null);
+      log(
+          "Shared metadata folder '"
+              + resolved
+              + "' was not loaded. Hop is starting without shared metadata. "
+              + e.getMessage(),
+          e);
+      return;
+    }
     SharedMetadataProvider provider = new SharedMetadataProvider(variables, resolved, configured);
     HopMetadataInstance.setSharedMetadataProvider(provider);
     if (HopLogStore.isInitialized()) {
       LogChannel.GENERAL.logBasic("Shared metadata loaded from '" + resolved + "'");
+    }
+  }
+
+  private static void log(String message, Exception e) {
+    if (HopLogStore.isInitialized()) {
+      LogChannel.GENERAL.logError(message, e);
+    } else {
+      System.err.println(message + Const.CR + Const.getStackTracker(e));
     }
   }
 

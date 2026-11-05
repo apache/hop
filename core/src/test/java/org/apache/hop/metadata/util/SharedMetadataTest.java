@@ -27,8 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
@@ -93,6 +95,58 @@ class SharedMetadataTest {
   void localFolderCheckAllowsAFilePath() throws Exception {
     SharedMetadata.checkLocalFolder(tempDir.toString());
     SharedMetadata.checkLocalFolder("file:///tmp/hop-shared");
+  }
+
+  @Test
+  void installSkipsANonLocalFolderAndClearsTheProvider() throws Exception {
+    String folder = tempDir.resolve("metadata").toString();
+    HopMetadataInstance.setSharedMetadataProvider(
+        new SharedMetadataProvider(variables, folder, folder));
+    withConfiguredFolder(
+        "git-project:///shared",
+        () -> {
+          SharedMetadata.install(variables);
+          assertNull(HopMetadataInstance.getSharedMetadataProvider());
+        });
+  }
+
+  @Test
+  void installLoadsALocalFolder() throws Exception {
+    String folder = tempDir.resolve("metadata").toString();
+    new SharedMetadataProvider(variables, folder, folder)
+        .getSerializer(SharedNote.class)
+        .save(new SharedNote("vault", "kubernetes"));
+    withConfiguredFolder(
+        folder,
+        () -> {
+          SharedMetadata.install(variables);
+          SharedNote loaded =
+              HopMetadataInstance.getSharedMetadataProvider()
+                  .getSerializer(SharedNote.class)
+                  .load("vault");
+          assertEquals("kubernetes", loaded.getText());
+        });
+  }
+
+  private void withConfiguredFolder(String configured, ConfiguredAction action) throws Exception {
+    Map<String, Object> configMap = HopConfig.getInstance().getConfigMap();
+    Object previous = configMap.get(SharedMetadata.CONFIG_KEY);
+    configMap.put(SharedMetadata.CONFIG_KEY, configured);
+    try {
+      action.run();
+    } finally {
+      if (previous == null) {
+        configMap.remove(SharedMetadata.CONFIG_KEY);
+      } else {
+        configMap.put(SharedMetadata.CONFIG_KEY, previous);
+      }
+      HopMetadataInstance.setSharedMetadataProvider(null);
+    }
+  }
+
+  @FunctionalInterface
+  private interface ConfiguredAction {
+    void run() throws Exception;
   }
 
   @Test

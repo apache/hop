@@ -37,7 +37,7 @@ It is loaded before any project. See xref:projects/metadata.adoc#SharedMetadata[
 |Option |Description
 
 |`--shared-metadata-folder=<path>`
-|Set the shared metadata folder. The path is stored as given, so `'${HOP_CONFIG_FOLDER}/metadata'` stays unresolved until Hop starts. An empty value (`--shared-metadata-folder=`) clears it.
+|Set the shared metadata folder. The path is stored as given, so `'${HOP_CONFIG_FOLDER}/metadata'` stays unresolved until Hop starts. It has to resolve to a local path or a `file://` URL. A named VFS scheme is rejected and is not saved. An empty value (`--shared-metadata-folder=`) clears it. A value that is already stored and is not local is skipped at startup, so Hop still starts and this option can clear it.
 
 |`--shared-metadata-import-json=<json>`
 |Import a metadata export by passing the JSON document itself. This is the same document `--export-shared-metadata` and `hop-conf --export-metadata` write. No file is read, so the document can come from an environment variable. An object of the same name is replaced. Other objects in the folder stay. When no folder is configured yet, Hop uses `'${HOP_CONFIG_FOLDER}/metadata'` and saves that.
