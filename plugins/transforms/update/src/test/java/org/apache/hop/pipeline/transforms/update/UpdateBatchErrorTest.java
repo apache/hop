@@ -94,7 +94,9 @@ class UpdateBatchErrorTest {
     data.prepStatementUpdate = statement;
     for (long id = 0; id < BATCH; id++) {
       Object[] row = {id};
-      data.batchBuffer.add(new UpdateData.BatchedRow(row, row, row));
+      UpdateData.PendingRow pending = UpdateData.PendingRow.batched(row, row, row);
+      data.batchBuffer.add(pending);
+      data.pendingRows.add(pending);
     }
 
     update = spy(new Update(transformMeta, meta, data, 0, pipelineMeta, new LocalPipelineEngine()));
@@ -143,6 +145,7 @@ class UpdateBatchErrorTest {
         all,
         "every row of the batch must leave on exactly one stream");
     assertTrue(data.batchBuffer.isEmpty(), "the batch must be emptied");
+    assertTrue(data.pendingRows.isEmpty(), "the pending rows must be emptied");
   }
 
   /** SQL Server, MySQL, H2: one count per row. */
@@ -211,6 +214,28 @@ class UpdateBatchErrorTest {
 
     assertEquals(List.of(5L), errors);
     assertEveryRowLeftOnce();
+  }
+
+  /**
+   * Rows that need no update wait behind the batch: the output keeps the order the rows came in,
+   * also when the batch fails.
+   */
+  @Test
+  void rowsThatWaitedBehindTheBatchKeepTheirPlace() throws HopException {
+    // 100 and 101 came in after batched row 2, 102 after batched row 7; 103 is an error of its own.
+    data.pendingRows.add(3, UpdateData.PendingRow.output(new Object[] {100L}));
+    data.pendingRows.add(4, UpdateData.PendingRow.output(new Object[] {101L}));
+    data.pendingRows.add(10, UpdateData.PendingRow.output(new Object[] {102L}));
+    data.pendingRows.add(
+        11, UpdateData.PendingRow.error(new Object[] {103L}, "not found", "id", "UPD001"));
+
+    update.routeFailedBatch("failed", counts(BATCH, 3), null);
+
+    assertEquals(List.of(0L, 1L, 2L, 100L, 101L, 4L, 5L, 6L, 7L, 102L, 8L, 9L), output);
+    assertEquals(List.of(3L, 103L), errors);
+    assertEquals(BATCH - 1, update.getLinesUpdated());
+    assertTrue(data.pendingRows.isEmpty());
+    assertTrue(data.batchBuffer.isEmpty());
   }
 
   @Test

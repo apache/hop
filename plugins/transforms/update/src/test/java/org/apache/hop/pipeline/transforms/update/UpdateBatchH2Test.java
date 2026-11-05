@@ -28,6 +28,8 @@ import java.util.StringJoiner;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.LongFunction;
+import java.util.stream.LongStream;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -66,6 +68,9 @@ class UpdateBatchH2Test {
 
   private DatabaseMeta databaseMeta;
 
+  /** How many rows had gone to the output each time the transform read a row. */
+  private final List<Integer> outputSizeAtRead = new ArrayList<>();
+
   @BeforeAll
   static void setUpOnce() throws Exception {
     HopClientEnvironment.init();
@@ -91,11 +96,23 @@ class UpdateBatchH2Test {
 
   /** Every row is set to 'a', except the bad ones, whose name is too long for the column. */
   private static Queue<Object[]> input() {
+    return input(id -> bad(id) ? "toolong" : "a");
+  }
+
+  private static Queue<Object[]> input(LongFunction<String> name) {
     Queue<Object[]> input = new ConcurrentLinkedQueue<>();
     for (long id = 1; id <= ROWS; id++) {
-      input.add(new Object[] {id, bad(id) ? "toolong" : "a"});
+      input.add(new Object[] {id, name.apply(id)});
     }
     return input;
+  }
+
+  private static List<Long> idList(List<Object[]> rows) {
+    List<Long> ids = new ArrayList<>();
+    for (Object[] row : rows) {
+      ids.add((Long) row[0]);
+    }
+    return ids;
   }
 
   private String table() throws Exception {
@@ -159,6 +176,7 @@ class UpdateBatchH2Test {
 
           @Override
           public Object[] getRow() {
+            outputSizeAtRead.add(output.size());
             Object[] row = input.poll();
             return row == null ? null : row.clone();
           }
@@ -224,6 +242,57 @@ class UpdateBatchH2Test {
     assertEquals(0, update.getErrors());
     assertEquals(expectedOutput.size(), update.getLinesUpdated());
     assertEquals(expectedTable(true), table());
+  }
+
+  /**
+   * Rows that need no update wait for the batch in front of them, so the output keeps the order of
+   * the input. Here the even rows already hold their value and only the odd ones are updated.
+   */
+  @Test
+  void theOutputKeepsTheOrderOfTheInput() throws Exception {
+    List<Object[]> output = new ArrayList<>();
+    List<Object[]> errors = new ArrayList<>();
+    Update update =
+        update(input(id -> id % 2 == 0 ? "x" : bad(id) ? "toolong" : "a"), output, errors);
+
+    run(update);
+
+    List<Long> expectedOutput = new ArrayList<>();
+    List<Long> expectedErrors = new ArrayList<>();
+    StringJoiner expectedTable = new StringJoiner(",");
+    for (long id = 1; id <= ROWS; id++) {
+      boolean failed = id % 2 != 0 && bad(id);
+      (failed ? expectedErrors : expectedOutput).add(id);
+      expectedTable.add(id + ":" + (id % 2 != 0 && !failed ? "a" : "x"));
+    }
+    assertEquals(expectedOutput, idList(output));
+    assertEquals(expectedErrors, idList(errors));
+    assertEquals(0, update.getErrors());
+    assertEquals(ROWS / 2 - expectedErrors.size(), update.getLinesUpdated());
+    assertEquals(ROWS / 2, update.getLinesSkipped());
+    assertEquals(expectedTable.toString(), table());
+  }
+
+  /**
+   * Only the first row needs an update. The rows behind it wait for the batch, but no more than a
+   * commit size of them: the batch then runs before it is full, so they don't pile up in memory.
+   */
+  @Test
+  void rowsWaitingBehindTheBatchAreCappedAtTheCommitSize() throws Exception {
+    List<Object[]> output = new ArrayList<>();
+    List<Object[]> errors = new ArrayList<>();
+    Update update = update(input(id -> id == 1 ? "a" : "x"), output, errors);
+
+    run(update);
+
+    assertEquals(LongStream.rangeClosed(1, ROWS).boxed().toList(), idList(output));
+    assertTrue(errors.isEmpty());
+    assertEquals(1, update.getLinesUpdated());
+    for (int read = 0; read < outputSizeAtRead.size(); read++) {
+      assertTrue(
+          read - outputSizeAtRead.get(read) <= COMMIT_SIZE,
+          "more than a commit size of rows waited at read " + read);
+    }
   }
 
   @Test

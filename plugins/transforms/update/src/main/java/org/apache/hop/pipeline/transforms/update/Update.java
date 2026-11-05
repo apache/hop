@@ -200,7 +200,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           // Only added to the batch: flushBatch() runs it, then passes the row on to the output or
           // to the error hop, depending on what the database says about this row.
           data.db.insertRow(data.prepStatementUpdate, true, false);
-          data.batchBuffer.add(new UpdateData.BatchedRow(row, outputRow, updateRow));
+          UpdateData.PendingRow pending = UpdateData.PendingRow.batched(row, outputRow, updateRow);
+          data.batchBuffer.add(pending);
+          data.pendingRows.add(pending);
           batched = true;
         } else {
           data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
@@ -359,10 +361,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         commitEveryCommitSize();
       }
       if (data.keyNotFound) {
-        putError(inputRowMeta, r, 1L, data.stringErrorKeyNotFound, data.stringFieldnames, "UPD001");
+        putErrorInOrder(r, data.stringErrorKeyNotFound, data.stringFieldnames, "UPD001");
       }
       if (outputRow != null) {
-        putRow(data.outputRowMeta, outputRow); // copy non-ignored rows to output rowset(s)
+        putRowInOrder(outputRow); // copy non-ignored rows to output rowset(s)
       }
       if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "Update.Log.LineNumber") + getLinesRead());
@@ -381,17 +383,77 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "UPD001");
+        putErrorInOrder(r, errorMessage, null, "UPD001");
       }
     }
 
     // Outside the try above: a failed batch is about the rows in it, not about this row.
-    if (data.batchMode && data.batchBuffer.size() >= data.commitSize && !flushBatchOrStop()) {
+    // The rows waiting behind the batch count as well, so that memory stays at one commit size
+    // when few rows need an update: the batch then runs before it is full.
+    if (data.batchMode && data.pendingRows.size() >= data.commitSize && !flushBatchOrStop()) {
       setOutputDone();
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Passes a row on to the output, after the rows of a pending batch that came in before it.
+   *
+   * @param outputRow the row for the output
+   */
+  private void putRowInOrder(Object[] outputRow) throws HopTransformException {
+    if (data.batchBuffer.isEmpty()) {
+      putRow(data.outputRowMeta, outputRow);
+    } else {
+      data.pendingRows.add(UpdateData.PendingRow.output(outputRow));
+    }
+  }
+
+  /**
+   * Passes a row on to the error hop, after the rows of a pending batch that came in before it.
+   *
+   * @param inputRow the row as it came in
+   */
+  private void putErrorInOrder(
+      Object[] inputRow, String errorMessage, String errorFields, String errorCode)
+      throws HopTransformException {
+    if (data.batchBuffer.isEmpty()) {
+      putError(getInputRowMeta(), inputRow, 1L, errorMessage, errorFields, errorCode);
+    } else {
+      data.pendingRows.add(
+          UpdateData.PendingRow.error(inputRow, errorMessage, errorFields, errorCode));
+    }
+  }
+
+  /**
+   * Passes every pending row on in the order the rows came in: a failed row to the error hop, the
+   * others to the output. Empties the batch.
+   */
+  private void releasePendingRows() throws HopTransformException {
+    for (UpdateData.PendingRow row : data.pendingRows) {
+      if (row.isFailed()) {
+        putError(
+            getInputRowMeta(),
+            row.getInputRow(),
+            1L,
+            row.getErrorMessage(),
+            row.getErrorFields(),
+            row.getErrorCode());
+      } else {
+        putRow(data.outputRowMeta, row.getOutputRow());
+        if (row.isBatched()) {
+          incrementLinesUpdated();
+        }
+      }
+    }
+    clearPendingRows();
+  }
+
+  private void clearPendingRows() {
+    data.pendingRows.clear();
+    data.batchBuffer.clear();
   }
 
   /**
@@ -412,8 +474,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   }
 
   /**
-   * Runs and commits the JDBC batch, then passes every row in it on: to the output when the
-   * database updated it, to the error hop when it didn't.
+   * Runs and commits the JDBC batch, then passes every pending row on in the order the rows came
+   * in: a row of the batch goes to the output when the database updated it and to the error hop
+   * when it didn't; the rows that waited between them go where they were already headed.
    *
    * <p>Before, a row went to the output as soon as it was added to the batch, and a failed batch
    * only surfaced on the row that happened to run it, at the commit size. So the error hop got that
@@ -439,7 +502,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       data.db.clearBatch(statement);
       if (!getTransformMeta().isDoingErrorHandling()) {
         data.db.rollback();
-        data.batchBuffer.clear();
+        clearPendingRows();
         throw be;
       }
       // Keep what the database did apply, then sort out the rows.
@@ -447,16 +510,13 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       routeFailedBatch(be.toString(), be.getUpdateCounts(), be.getExceptionsList());
       return;
     }
-    for (UpdateData.BatchedRow row : data.batchBuffer) {
-      putRow(data.outputRowMeta, row.outputRow());
-      incrementLinesUpdated();
-    }
-    data.batchBuffer.clear();
+    releasePendingRows();
   }
 
   /**
-   * Passes every row of a failed batch on to exactly one stream, whatever shape the update counts
-   * of the driver have.
+   * Works out which rows of a failed batch the database refused, whatever shape the update counts
+   * of the driver have, then passes every pending row on to exactly one stream, in the order the
+   * rows came in.
    *
    * <ul>
    *   <li>One count per row, with {@link Statement#EXECUTE_FAILED} at the rows that failed: SQL
@@ -474,10 +534,10 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   @VisibleForTesting
   void routeFailedBatch(String errorMessage, int[] updateCounts, List<Exception> exceptionsList)
       throws HopException {
-    List<UpdateData.BatchedRow> buffer = data.batchBuffer;
+    List<UpdateData.PendingRow> buffer = data.batchBuffer;
     int size = buffer.size();
     if (updateCounts != null && updateCounts.length > size) {
-      buffer.clear();
+      clearPendingRows();
       throw new HopException(
           BaseMessages.getString(
               PKG, "Update.Exception.BatchCountsMismatch", updateCounts.length, size));
@@ -492,17 +552,13 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       int counted = counts == null ? 0 : counts.length;
       int exceptionNr = 0;
       for (int i = 0; i < counted; i++) {
-        UpdateData.BatchedRow row = buffer.get(from + i);
         // SUCCESS_NO_INFO and a count of zero (no row matched the key) are not failures.
-        if (counts[i] != Statement.EXECUTE_FAILED) {
-          putRow(data.outputRowMeta, row.outputRow());
-          incrementLinesUpdated();
-        } else {
+        if (counts[i] == Statement.EXECUTE_FAILED) {
           String rowMessage = message;
           if (exceptionNr < exceptions.size()) {
             rowMessage = exceptions.get(exceptionNr++).toString();
           }
-          putError(getInputRowMeta(), row.inputRow(), 1L, rowMessage, null, "UPD002");
+          buffer.get(from + i).fail(rowMessage, null, "UPD002");
         }
       }
       from += counted;
@@ -512,13 +568,13 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
       if (counts == null) {
         for (int i = from; i < size; i++) {
-          putError(getInputRowMeta(), buffer.get(i).inputRow(), 1L, message, null, "UPD002");
+          buffer.get(i).fail(message, null, "UPD002");
         }
         break;
       }
 
       // The driver stopped here: this is the row it refused.
-      putError(getInputRowMeta(), buffer.get(from).inputRow(), 1L, message, null, "UPD002");
+      buffer.get(from).fail(message, null, "UPD002");
       from++;
       if (from >= size) {
         break;
@@ -535,7 +591,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         exceptions = be.getExceptionsList() == null ? List.of() : be.getExceptionsList();
       }
     }
-    buffer.clear();
+    releasePendingRows();
   }
 
   /**
@@ -548,7 +604,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     try {
       for (int i = from; i < to; i++) {
         data.db.setValues(
-            data.updateParameterRowMeta, data.batchBuffer.get(i).bindValues(), statement);
+            data.updateParameterRowMeta, data.batchBuffer.get(i).getBindValues(), statement);
         statement.addBatch();
       }
       int[] counts = statement.executeBatch();
