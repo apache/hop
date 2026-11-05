@@ -59,5 +59,3 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-WARNING: *User (SNMP V3)* is not kept. When the workflow is loaded from its file, the target type is read back as *Community (SNMP V1)*, so the action sends an SNMP V1 trap with *Community string*, and *User*, *Passphrase* and *Engine ID* are not used.

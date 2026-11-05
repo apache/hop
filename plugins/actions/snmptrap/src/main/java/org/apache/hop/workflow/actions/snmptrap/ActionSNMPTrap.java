@@ -141,14 +141,14 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   }
 
   public String getTargetTypeCode(String tt) {
-    if (tt == null) {
+    if (Utils.isEmpty(tt)) {
       return targetTypeCode[0];
     }
-    if (tt.equals(targetTypeDesc[1])) {
+    // The dialog passes the localized description. Metadata load passes the stored code.
+    if (tt.equalsIgnoreCase(targetTypeCode[1]) || tt.equalsIgnoreCase(targetTypeDesc[1])) {
       return targetTypeCode[1];
-    } else {
-      return targetTypeCode[0];
     }
+    return targetTypeCode[0];
   }
 
   /**

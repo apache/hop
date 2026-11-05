@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
@@ -29,10 +32,12 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
+/** Unit test for {@link ActionSNMPTrap} */
 class ActionSNMPTrapTest {
 
-  private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSNMPTrap action;
 
   @BeforeAll
@@ -42,7 +47,7 @@ class ActionSNMPTrapTest {
 
   @BeforeEach
   void setUp() {
-    workflow = new LocalWorkflowEngine(new WorkflowMeta());
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionSNMPTrap();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
     action.setParentWorkflow(workflow);
@@ -53,16 +58,40 @@ class ActionSNMPTrapTest {
   void testSerialization() throws Exception {
     HopClientEnvironment.init();
 
-    ActionSNMPTrap action =
+    ActionSNMPTrap trap =
         ActionSerializationTestUtil.testSerialization(
             "/snmp-trap-action.xml", ActionSNMPTrap.class);
 
-    assertEquals("awesomeserver", action.getServerName());
-    assertEquals("5000", action.getTimeout());
-    assertEquals("162", action.getPort());
-    assertEquals("2", action.getNrretry());
-    assertEquals("13131", action.getOid());
-    assertEquals("averynicemessage", action.getMessage());
-    assertEquals("community", action.getTargettype());
+    assertEquals("awesomeserver", trap.getServerName());
+    assertEquals("5000", trap.getTimeout());
+    assertEquals("162", trap.getPort());
+    assertEquals("2", trap.getNrretry());
+    assertEquals("13131", trap.getOid());
+    assertEquals("averynicemessage", trap.getMessage());
+    assertEquals("community", trap.getTargettype());
+  }
+
+  @Test
+  void userTargetTypeCodeIsKeptWhenLoaded() throws Exception {
+    HopClientEnvironment.init();
+
+    action.setTargettype("user");
+    assertEquals("user", action.getTargettype());
+    action.setTargettype("USER");
+    assertEquals("user", action.getTargettype());
+    action.setTargettype(ActionSNMPTrap.targetTypeDesc[1]);
+    assertEquals("user", action.getTargettype());
+
+    String xml =
+        XmlHandler.openTag(ActionMeta.XML_TAG)
+            + "<name>Send v3 trap</name><targettype>user</targettype>"
+            + XmlHandler.closeTag(ActionMeta.XML_TAG);
+    Document document = XmlHandler.loadXmlString(xml);
+    Node node = XmlHandler.getSubNode(document, ActionMeta.XML_TAG);
+    ActionSNMPTrap loaded =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, ActionSNMPTrap.class, new MemoryMetadataProvider());
+
+    assertEquals("user", loaded.getTargettype());
   }
 }
