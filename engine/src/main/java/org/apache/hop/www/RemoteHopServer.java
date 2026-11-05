@@ -459,6 +459,9 @@ public class RemoteHopServer {
   }
 
   public static long getDelay(int trial, int retryBackoffIncrements) {
+    if (retryBackoffIncrements <= 0) {
+      return 0;
+    }
     long current = retryBackoffIncrements;
     long previous = 0;
     for (int i = 0; i < trial; i++) {
@@ -466,7 +469,11 @@ public class RemoteHopServer {
       current = current + previous;
       previous = tmp;
     }
-    return current + RANDOM.nextInt((int) Math.min(Integer.MAX_VALUE, current / 4L));
+    long jitterBound = current / 4L;
+    if (jitterBound <= 0) {
+      return current;
+    }
+    return current + RANDOM.nextInt((int) Math.min(Integer.MAX_VALUE, jitterBound));
   }
 
   public String execService(IVariables variables, String service) throws Exception {

@@ -309,6 +309,13 @@ class RemoteHopServerTest {
 
   @Test
   void testGetDelay() {
+    // boundary cases with increments < 4 must not throw IllegalArgumentException
+    assertEquals(0, RemoteHopServer.getDelay(0, 0));
+    assertEquals(0, RemoteHopServer.getDelay(2, -1));
+    assertEquals(1, RemoteHopServer.getDelay(0, 1));
+    assertEquals(2, RemoteHopServer.getDelay(0, 2));
+    assertEquals(3, RemoteHopServer.getDelay(0, 3));
+
     // first attempt: backoff + a jitter of at most backoff/4
     assertTrue(RemoteHopServer.getDelay(0, 1000) >= 1000);
     assertTrue(RemoteHopServer.getDelay(0, 1000) < 1250);
