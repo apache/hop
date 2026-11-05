@@ -120,7 +120,10 @@ class HopAiConfigOptionPluginUiTest extends SwtBotTestBase {
           assertEquals(0, onUi(line::getItemCount));
           assertEquals("ollama", onUi(line::getText), "the setting itself stays");
           assertTrue(onUi(() -> warning(widgets.get()).isVisible()));
-          assertTrue(onUi(() -> warning(widgets.get()).getText()).contains("'ollama'"));
+          String note = onUi(() -> warning(widgets.get()).getText());
+          assertTrue(note.contains("'ollama'"));
+          // The name is the Hop-wide default, not something left over from the other project.
+          assertTrue(note.contains("default for all projects"), note);
 
           onUi(
               () -> {
