@@ -31,12 +31,15 @@
     <name>Hop Plugins Actions Send Nagios passive check</name>
 
     <properties>
-        <jsendnsca.version>2.1</jsendnsca.version>
+        <jsendnsca.version>3.0.0</jsendnsca.version>
     </properties>
 
     <dependencies>
+        <!-- 3.0.0 keeps the com.googlecode.jsendnsca packages and uses commons-lang3.
+             Rijndael and Blowfish in its Encryption enum need BouncyCastle.
+             Both are already in lib/core, so transitives stay out of the plugin lib. -->
         <dependency>
-            <groupId>com.googlecode.jsendnsca</groupId>
+            <groupId>com.github.jsendnsca</groupId>
             <artifactId>jsendnsca</artifactId>
             <version>${jsendnsca.version}</version>
             <exclusions>
@@ -47,18 +50,4 @@
             </exclusions>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>clojars</id>
-            <name>Clojars</name>
-            <url>https://clojars.org/repo/</url>
-        </repository>
-    </repositories>
 </project>

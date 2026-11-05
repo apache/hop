@@ -74,5 +74,3 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-WARNING: Since Hop 2.18 the action can't send a check: the library it uses (jsendnsca) needs `commons-lang` 2, which Hop no longer ships. The workflow stops with `NoClassDefFoundError: org/apache/commons/lang/Validate`, and no hop from the action is followed. Only an empty *Host name/IP address* or *Message* still makes the action false. The table above describes the action with that library available (tested with `commons-lang-2.6.jar` added to the lib folder of the plugin).
