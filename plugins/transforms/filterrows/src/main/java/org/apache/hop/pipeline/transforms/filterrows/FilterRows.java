@@ -74,7 +74,10 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(getInputRowMeta(), getTransformName(), null, null, this, metadataProvider);
+      // getFields() clears sortedDescending on the condition fields, or the comparisons would be
+      // inverted. Do that on a private copy: getInputRowMeta() is shared with the hop.
+      data.conditionRowMeta = getInputRowMeta().clone();
+      meta.getFields(data.conditionRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // if filter refers to non-existing fields, throw exception
       checkNonExistingFields();
@@ -119,7 +122,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> {
       }
     }
 
-    boolean keep = keepRow(getInputRowMeta(), r); // Keep this row?
+    boolean keep = keepRow(data.conditionRowMeta, r); // Keep this row?
     if (!data.chosesTargetTransforms) {
       if (keep) {
         putRow(data.outputRowMeta, r); // copy row to output rowset(s)
