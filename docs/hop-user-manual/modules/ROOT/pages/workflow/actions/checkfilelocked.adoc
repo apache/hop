@@ -49,9 +49,9 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|No file is locked. A file or folder that does not exist is not checked and does not make the action false. With nothing to check, the action is true too.
-|False|A file is locked: it cannot be renamed to its own name. The action stops at the first locked file, and the number of errors is 1.
+|False|A file is locked: it cannot be renamed to its own name. The action stops at the first locked file, and the number of errors is 1. The action is also false, with 1 error, when *Wildcard* is not a valid regular expression, or when an error stops the check.
 |Result files|Passed on unchanged.
-|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows.
+|Result rows|Passed on unchanged. With *Copy previous results to args?*, the file or folder comes from the first field and the wildcard from the second field of each result row, and the list in the dialog is not used, also when there are no result rows. A row with only one field is checked without a wildcard.
 |===
 
-NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed. Checking stops at a result row with only one field: that row and the rows after it are not checked, the error is logged, and the action is still true. An invalid regular expression in *Wildcard* is logged as an error for each file, no file in that folder is checked, and the action is still true.
+NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed.

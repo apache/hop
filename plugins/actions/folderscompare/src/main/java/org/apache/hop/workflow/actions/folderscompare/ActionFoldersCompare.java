@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -34,6 +35,7 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.util.Utils;
@@ -211,9 +213,12 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
               result.setResult(equalFileContents(folder1, folder2, result));
             } else if (folder1.getType() == FileType.FOLDER) {
               // We compare 2 folders ...
+              Pattern wildcardPattern = compileWildcard();
 
-              FileObject[] list1 = folder1.findFiles(new TextFileSelector(folder1.toString()));
-              FileObject[] list2 = folder2.findFiles(new TextFileSelector(folder2.toString()));
+              FileObject[] list1 =
+                  folder1.findFiles(new TextFileSelector(folder1.toString(), wildcardPattern));
+              FileObject[] list2 =
+                  folder2.findFiles(new TextFileSelector(folder2.toString(), wildcardPattern));
 
               int lenList1 = list1.length;
               int lenList2 = list2.length;
@@ -237,14 +242,17 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                 HashMap<String, String> collection1 = new HashMap<>();
                 HashMap<String, String> collection2 = new HashMap<>();
 
+                // Key the entries on their path relative to the compared folder, so that
+                // s1/x.txt and s2/x.txt are different entries.
                 for (FileObject object : list1) {
-                  // Put files list1 in TreeMap collection1
-                  collection1.put(object.getName().getBaseName(), object.toString());
+                  collection1.put(
+                      folder1.getName().getRelativeName(object.getName()), object.toString());
                 }
 
                 for (FileObject fileObject : list2) {
-                  // Put files list2 in TreeMap collection2
-                  collection2.put(fileObject.getName().getBaseName(), fileObject.toString());
+                  collection2.put(
+                      folder2.getName().getRelativeName(fileObject.getName()),
+                      fileObject.toString());
                 }
 
                 // Let's now fetch Folder1
@@ -403,7 +411,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           BaseMessages.getString(
               PKG,
               "ActionFoldersCompare.Log.ErrorComparing",
-              realFilename2,
+              realFilename1,
               realFilename2,
               e.getMessage()));
     } finally {
@@ -434,11 +442,13 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
   private class TextFileSelector implements FileSelector {
     String sourceFolder = null;
+    private final Pattern wildcardPattern;
 
-    public TextFileSelector(String sourcefolderin) {
+    public TextFileSelector(String sourcefolderin, Pattern wildcardPattern) {
       if (!Utils.isEmpty(sourcefolderin)) {
         sourceFolder = sourcefolderin;
       }
+      this.wildcardPattern = wildcardPattern;
     }
 
     @Override
@@ -456,7 +466,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           // In the Base Folder...
           if ((info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
               || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
-              || (getFileWildcard(shortFilename) && compareOnly.equals("specify"))
+              || (compareOnly.equals("specify") && matchesWildcard(shortFilename))
               || (compareOnly.equals("all"))) {
             returncode = true;
           }
@@ -466,7 +476,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           if ((includeSubFolders
                   && (info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
               || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
-              || (getFileWildcard(shortFilename) && compareOnly.equals("specify"))
+              || (compareOnly.equals("specify") && matchesWildcard(shortFilename))
               || (compareOnly.equals("all")))) {
             returncode = true;
           }
@@ -485,24 +495,42 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     public boolean traverseDescendents(FileSelectInfo info) {
       return info.getDepth() == 0 || includeSubFolders;
     }
+
+    /**
+     * @param selectedFile The selected file
+     * @return True if the selected file matches the wildcard, or if there is no wildcard
+     */
+    private boolean matchesWildcard(String selectedFile) {
+      if (wildcardPattern == null) {
+        return true;
+      }
+      Matcher matcher = wildcardPattern.matcher(selectedFile);
+      return matcher.matches();
+    }
   }
 
   /**
-   * @param selectedFile The selected file
-   * @return True if the selected file matches the wildcard
+   * Compile the resolved wildcard. It is only used when the files to compare are specified with a
+   * wildcard.
+   *
+   * @return the compiled wildcard, or null if there is no wildcard to apply
+   * @throws HopException if the wildcard is not a valid regular expression
    */
-  private boolean getFileWildcard(String selectedFile) {
-    Pattern pattern;
-    boolean getIt = true;
-
-    if (!Utils.isEmpty(wildcard)) {
-      pattern = Pattern.compile(wildcard);
-      // First see if the file matches the regular expression!
-      Matcher matcher = pattern.matcher(selectedFile);
-      getIt = matcher.matches();
+  private Pattern compileWildcard() throws HopException {
+    if (!"specify".equals(compareOnly)) {
+      return null;
     }
-
-    return getIt;
+    String realWildcard = getRealWildcard();
+    if (Utils.isEmpty(realWildcard)) {
+      return null;
+    }
+    try {
+      return Pattern.compile(realWildcard);
+    } catch (PatternSyntaxException e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "ActionFoldersCompare.Log.InvalidWildcard", realWildcard, e.getMessage()));
+    }
   }
 
   @Override
