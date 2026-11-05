@@ -247,7 +247,9 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
                 switch (sum) {
                   case Long l -> l / count;
                   case Double d -> d / count;
-                  case BigDecimal bd -> bd.divide(BigDecimal.valueOf(count));
+                    // rounded the same way as the Group by and Memory group by averages
+                  case BigDecimal bd ->
+                      ValueDataUtil.divideBigDecimals(bd, BigDecimal.valueOf(count), null);
                   default -> null;
                 };
           }
