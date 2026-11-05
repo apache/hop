@@ -280,19 +280,21 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           if (aggregate.mean == null) {
             aggregate.mean = new double[meta.getAggregates().size()];
           }
-          aggregate.counts[i]++;
-          double n = aggregate.counts[i];
-          double x = subjMeta.getNumber(subj);
-          // for standard deviation null is exact 0
-          double sum = value == null ? Double.valueOf(0) : (Double) value;
-          double mean = aggregate.mean[i];
+          if (!subjMeta.isNull(subj)) {
+            aggregate.counts[i]++;
+            double n = aggregate.counts[i];
+            double x = subjMeta.getNumber(subj);
+            // for standard deviation null is exact 0
+            double sum = value == null ? Double.valueOf(0) : (Double) value;
+            double mean = aggregate.mean[i];
 
-          double delta = x - mean;
-          mean = mean + (delta / n);
-          sum = sum + delta * (x - mean);
+            double delta = x - mean;
+            mean = mean + (delta / n);
+            sum = sum + delta * (x - mean);
 
-          aggregate.mean[i] = mean;
-          aggregate.agg[i] = sum;
+            aggregate.mean[i] = mean;
+            aggregate.agg[i] = sum;
+          }
           break;
         case CountDistinct:
           if (aggregate.distinctObjs == null) {
@@ -518,8 +520,11 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
         case Maximum:
           break;
         case StandardDeviation:
-          double sum = (Double) ag / aggregate.counts[i];
-          ag = Math.sqrt(sum);
+          if (ag != null) {
+            // all values null: no deviation, like Group by
+            double sum = (Double) ag / aggregate.counts[i];
+            ag = Math.sqrt(sum);
+          }
           break;
         case ConcatComma, ConcatString:
           ag = ((StringBuilder) ag).toString();
