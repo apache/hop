@@ -18,7 +18,10 @@
 package org.apache.hop.beam.core.transform;
 
 import static org.apache.hop.beam.core.transform.BeamBQOutputTransform.validateBQFieldName;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
 import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.Test;
 
@@ -53,12 +56,22 @@ class BeamBQOutputTransformTest {
         "no Exception thrown: BQ field name only contain letters, digits or underscore");
   }
 
-  public void needsException(String fieldName, String exceptionDescription) {
+  @Test
+  void testValidateBQFieldNameIgnoresDefaultLocale() throws Exception {
+    Locale defaultLocale = Locale.getDefault();
+    Locale.setDefault(Locale.forLanguageTag("tr-TR"));
     try {
-      validateBQFieldName(fieldName);
-      throw new HopException(exceptionDescription);
-    } catch (Exception e) {
-      // OK!
+      validateBQFieldName("ID");
+      validateBQFieldName("CUSTOMER_ID");
+      HopException prefixError =
+          assertThrows(HopException.class, () -> validateBQFieldName("_FILE_ID"));
+      assertTrue(prefixError.getMessage().contains("can not start with : _FILE_"));
+    } finally {
+      Locale.setDefault(defaultLocale);
     }
+  }
+
+  public void needsException(String fieldName, String exceptionDescription) {
+    assertThrows(HopException.class, () -> validateBQFieldName(fieldName), exceptionDescription);
   }
 }

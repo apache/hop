@@ -18,7 +18,6 @@
 package org.apache.hop.beam.pipeline.handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -109,25 +108,36 @@ class BeamAvroFileIOTest {
     Path file = tempDir.resolve("rows.avro");
     writeTwoRows(file);
 
-    try (DataFileStream<GenericRecord> in =
-        new DataFileStream<>(Files.newInputStream(file), new GenericDatumReader<>())) {
-      GenericRecord first = in.next();
-      assertEquals("alice", first.get("name").toString());
-      assertEquals(1L, first.get("id"));
-      GenericRecord second = in.next();
-      assertEquals("bob", second.get("name").toString());
-      assertEquals(2L, second.get("id"));
-      assertFalse(in.hasNext());
-    }
-
-    assertEquals(List.of("keep-me|alice|1", "keep-me|bob|2"), readBack(file, null));
+    // Beam doesn't keep element order through a write: compare without order.
+    assertEquals(List.of("alice|1", "bob|2"), sorted(recordsInFile(file)));
+    assertEquals(List.of("keep-me|alice|1", "keep-me|bob|2"), sorted(readBack(file, null)));
   }
 
   @Test
   void rowLimitCapsWhatOneWorkerEmits() throws Exception {
     Path file = tempDir.resolve("limited.avro");
     writeTwoRows(file);
-    assertEquals(List.of("keep-me|alice|1"), readBack(file, "1"));
+    // The limit keeps the first record of the file, whichever row Beam wrote first.
+    String first = recordsInFile(file).get(0);
+    assertEquals(List.of("keep-me|" + first), readBack(file, "1"));
+  }
+
+  private static List<String> recordsInFile(Path file) throws Exception {
+    List<String> records = new ArrayList<>();
+    try (DataFileStream<GenericRecord> in =
+        new DataFileStream<>(Files.newInputStream(file), new GenericDatumReader<>())) {
+      while (in.hasNext()) {
+        GenericRecord record = in.next();
+        records.add(record.get("name") + "|" + record.get("id"));
+      }
+    }
+    return records;
+  }
+
+  private static List<String> sorted(List<String> values) {
+    List<String> copy = new ArrayList<>(values);
+    Collections.sort(copy);
+    return copy;
   }
 
   @Test
