@@ -35,7 +35,6 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionBuilder;
@@ -447,9 +446,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 lastTransform);
 
         IExecutionDataSamplerStore samplerStore = sampler.createSamplerStore(samplerMeta);
-        IRowMeta inputRowMeta = getPipelineMeta().getPrevTransformFields(this, combi.transformMeta);
-        IRowMeta outputRowMeta = getPipelineMeta().getTransformFields(this, combi.transformMeta);
-        samplerStore.init(this, inputRowMeta, outputRowMeta);
+
+        // Don't ask the transforms for their fields: the samplers take the layout from the rows
+        // they sample. Asking can run the work of a transform an extra time, for example the SQL
+        // of a Table Input on SQL Server, inserts and procedure calls included. See #9036.
+        //
+        samplerStore.init(this, null, null);
         IRowListener rowListener = samplerStore.createRowListener(sampler);
 
         // Keep the stores and samplers safe. We'll need them later on.

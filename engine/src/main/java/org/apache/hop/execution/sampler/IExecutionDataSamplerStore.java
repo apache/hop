@@ -28,11 +28,13 @@ import org.apache.hop.pipeline.transform.IRowListener;
 public interface IExecutionDataSamplerStore {
 
   /**
-   * Initializes this sampler store
+   * Initializes this sampler store. The row metadata is optional: the local pipeline engine passes
+   * null, because working out the fields of a transform can run its work an extra time (a Table
+   * Input query, for example). Take the layout from the rows passed to the sampler.
    *
    * @param variables The variables to resolve with
-   * @param inputRowMeta Transform input row metadata
-   * @param outputRowMeta Transform output row metadata
+   * @param inputRowMeta Transform input row metadata, or null if not known
+   * @param outputRowMeta Transform output row metadata, or null if not known
    */
   void init(IVariables variables, IRowMeta inputRowMeta, IRowMeta outputRowMeta);
 
