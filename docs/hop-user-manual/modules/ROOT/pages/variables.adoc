@@ -245,6 +245,10 @@ Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the 
 See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.
 |HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES|N|Set this variable to Y to allow your pipeline to pass 'null' fields and/or empty types.
 |HOP_ALLOW_UNCONSUMED_MAIN_INPUT|N|Set this variable to Y to start a pipeline that has main hops into transforms that do not consume input (for example existing files whose upstream produces no rows). Default N fails init and stops on leftover input. Verify still reports an error. See xref:pipeline/pipeline-sources.adoc[Pipeline sources].
+|HOP_BINARY_FIELDS_AVOID_HEX_PREVIEW|false|Set this variable to true to show the content of binary fields as text, for example for CLOB database fields, in preview windows, in the results of the xref:hop-gui/perspective-database.adoc[Database perspective] and in the preview of a Parquet file.
+By default a binary value is shown as its hexadecimal representation.
+Hop only reads this variable from the configuration perspective.
+Restart Hop GUI after changing it: the preview windows read it once.
 |HOP_DATABASE_CONNECTION_TIMEOUT|30|Default login/connection timeout in **seconds** applied when opening a JDBC database connection (maps to `DriverManager.setLoginTimeout`).
 Defaults to `30`; set to `0` to impose no timeout (a stalled connect can then block indefinitely).
 The setting is advisory: some JDBC drivers ignore it in favor of their own connection options.
@@ -278,6 +282,9 @@ A negative value, for example -1, disables the interval flush.
 |HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT|N|Set this variable to N to preserve global log variables defined in pipeline / workflow Properties -> Log panel.
 Changing it to true will clear it when export pipeline / workflow.
 |HOP_GRAPH_LOGGING_CONNECTION||Set this variable to the name of a Neo4j connection or a graph database connection of a Cypher database to enable execution logging to that database.
+|HOP_IMPORT_ENVIRONMENT_VARIABLES|N|Set this variable to Y to make the operating system environment variables available as Hop variables, so that `+${NAME}+` resolves an exported environment variable.
+Environment variables have the lowest precedence: a variable with the same name set with `-D` or in the configuration perspective keeps its value.
+You can set this variable in the configuration perspective, with `-D` in `HOP_OPTIONS`, or as an environment variable itself, for example in a container.
 |HOP_JSON_INPUT_INCLUDE_NULLS|Y|Name of te variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is "Y" then nulls will be included otherwise they will not be included (default behavior)
 |HOP_LENIENT_STRING_TO_NUMBER_CONVERSION|N|System wide flag to allow lenient string to number conversion for backward compatibility.
 If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol).
@@ -316,10 +323,18 @@ See xref:hop-server/index.adoc[Hop Server].
 |HOP_SERVER_OBJECT_TIMEOUT_MINUTES|1440|This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up.
 The default value is 1440 (one day).
 |HOP_SERVER_REFRESH_STATUS|-|A variable to configure refresh for Hop server workflow/pipeline status page
+|HOP_SERVER_RETRIES|0|The number of times Hop retries a failed request for the status of a pipeline running on a Hop Server, for example while it monitors a pipeline it runs remotely.
+With 0 (default), the first failure is reported.
+Other requests to the server are not retried.
+|HOP_SERVER_RETRY_BACKOFF_INCREMENTS|1000|The base wait in milliseconds between the retries set with HOP_SERVER_RETRIES.
+The wait grows with each retry (1, 1, 2, 3, 5... times this value), plus a random extra of up to a quarter.
 |HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE|N|Set this variable to N to preserve enclosure symbol after splitting the string in the Split fields transform.
 Changing it to true will remove first and last enclosure symbol from the resulting string chunks.
 |HOP_SYSTEM_HOSTNAME||You can use this variable to speed up hostname lookup.
 Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.
+|HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN|0|Extra width in pixels added to each column when Hop GUI sizes the columns of a table to their content.
+Use it when the columns are a bit too narrow.
+Hop only reads this variable from the configuration perspective, and only once: restart Hop GUI after changing it.
 |HOP_TEXT_TAB_SIZE|2|Number of spaces Tab inserts and Shift+Tab removes on the selected lines of a multi-line text field. A line that already starts with a tab gains another tab. Set the value to 0 to insert a tab on every selected line. Useful when writing JavaScript, JSON, XML, and similar files that benefit from proper indentation to recognize file or code structures. Resolved from the Hop configuration, then the environment variable, then a Java system property. See xref:hop-gui/shortcuts.adoc[Hop Shortcuts].
 |HOP_TIMEZONE||The default timezone in effect for date and timestamp conversion (IANA id, for example `Europe/Brussels`). Set automatically when a lifecycle environment with a timezone is enabled. See xref:projects/projects-environments.adoc[Projects and Environments].
 |HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT|0|The maximum number of transform performance snapshots to keep in memory.
@@ -353,6 +368,9 @@ Additionally, the following environment variables can help you to add even more 
 |===
 |Variable|Default|Description
 |HOP_AUTO_CREATE_CONFIG|N|Set this variable to 'Y' to automatically create config file when it's missing.
+|HOP_CONSOLE_COLORS|auto|Whether log lines written to the console use ANSI colors: `true` (always), `false` (never) or `auto` (only when the output goes to a terminal, not to a file or a pipe).
+Only error lines are colored, in red.
+Set it as an environment variable or with `-D` in `HOP_OPTIONS`: a value set in the configuration perspective has no effect.
 |HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `+${HOP_CONFIG_IN_MEMORY}+` equivalent on the command line is `-ime` / `--in-memory`.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
