@@ -96,7 +96,9 @@ public class RowBuffer {
 
   @Override
   public int hashCode() {
-    return Objects.hash(rowMeta, buffer);
+    // equals() compares the rows value by value, so the arrays themselves (hashed by identity)
+    // must not take part here.
+    return Objects.hash(rowMeta, buffer.size());
   }
 
   @Override

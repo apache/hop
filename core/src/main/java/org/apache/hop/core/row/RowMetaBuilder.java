@@ -55,12 +55,12 @@ public class RowMetaBuilder {
   }
 
   public RowMetaBuilder addNumber(String name, int length, int precision) {
-    rowMeta.addValueMeta(new ValueMetaNumber(name, length, -1));
+    rowMeta.addValueMeta(new ValueMetaNumber(name, length, precision));
     return this;
   }
 
   public RowMetaBuilder addBigNumber(String name, int length, int precision) {
-    rowMeta.addValueMeta(new ValueMetaBigNumber(name, length, -1));
+    rowMeta.addValueMeta(new ValueMetaBigNumber(name, length, precision));
     return this;
   }
 
