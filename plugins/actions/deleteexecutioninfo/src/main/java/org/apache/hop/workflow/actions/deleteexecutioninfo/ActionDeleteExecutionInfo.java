@@ -172,6 +172,11 @@ public class ActionDeleteExecutionInfo extends ActionBase implements IAction {
     return result;
   }
 
+  @Override
+  public boolean isEvaluation() {
+    return true;
+  }
+
   /** Start dates strictly before this instant are deleted. */
   Date cutoff() throws HopException {
     String resolved = resolve(age);

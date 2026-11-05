@@ -23,7 +23,10 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -89,6 +92,13 @@ public class ActionSetPasswordEncoder extends ActionBase implements Cloneable, I
       if (Utils.isEmpty(pluginId)) {
         throw new HopException(
             BaseMessages.getString(PKG, "ActionSetPasswordEncoder.Error.PluginIdMissing"));
+      }
+      IPlugin plugin =
+          PluginRegistry.getInstance()
+              .findPluginWithId(TwoWayPasswordEncoderPluginType.class, pluginId);
+      if (plugin == null) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ActionSetPasswordEncoder.Error.PluginNotFound", pluginId));
       }
 
       // Optionally promote a named variable's value into HOP_AES_ENCODER_KEY for the encoder.

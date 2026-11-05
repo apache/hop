@@ -57,13 +57,11 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|The executions were deleted, with 0 errors. No execution to delete, or a root folder that doesn't exist yet, is also true. The result is not used for hops: see the WARNING.
-|False|The number of errors is 1. *Execution information location* is empty or doesn't exist, *Older than* is empty, 0, negative or not a number while *Delete all executions in this location* is unchecked, or an execution can't be deleted (for example a read-only folder).
+|True|The executions were deleted, with 0 errors. No execution to delete, or a root folder that doesn't exist yet, is also true. A success hop is followed.
+|False|The number of errors is 1. *Execution information location* is empty or doesn't exist, *Older than* is empty, 0, negative or not a number while *Delete all executions in this location* is unchecked, or an execution can't be deleted (for example a read-only folder). A failure hop is followed.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |Lines deleted|The number of executions deleted. A File location counts each run once, with everything it ran (child pipelines, actions, transforms). A Caching file location counts the workflow and each pipeline it ran separately. When the action is false, the value of the previous action is passed on.
 |===
-
-WARNING: A success or failure hop from this action is never followed, whatever the result: only an unconditional hop is. The result and the metrics are still passed on to the next action.
 
 NOTE: A Caching file location only deletes the executions of the project the workflow runs in, when both have a project id: an execution stored without project id is deleted from any project, and a workflow that runs in a project without project id deletes the executions of every project. A File location deletes the executions of every project that writes to it.
