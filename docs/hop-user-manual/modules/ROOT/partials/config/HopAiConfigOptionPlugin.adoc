@@ -28,7 +28,7 @@ These options are stored under `pass:c[hopAiConfig]` in `hop-config.json`.
 |`pass:c[false]`
 
 |pass:c[Default AI provider]
-|pass:c[Named AI Provider metadata used by the AI Assistant. Pipelines can still pick a different provider. Accepts variables.]
+|pass:c[Named AI Provider metadata used by the AI Assistant. This one setting applies to all projects, while each project has its own AI providers. Pipelines can still pick a different provider. Accepts variables.]
 |
 
 |pass:c[Allow sending full XML]
