@@ -201,7 +201,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       }
       return changed;
     } catch (Exception e) {
-      throw new HopException("Error handling environment configuration options", e);
+      throw new HopException("Error handling project configuration options", e);
     }
   }
 
@@ -265,7 +265,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     config.removeProjectConfig(projectName);
     ProjectsConfigSingleton.saveConfig();
 
-    log.logBasic(CONST_PROJECT + projectName + " was removed from the configuration");
+    log.logBasic(CONST_PROJECT + projectName + "' was removed from the configuration");
   }
 
   private void modifyProject(ILogChannel log, ProjectsConfig config, IVariables variables)
@@ -387,16 +387,19 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
         new ProjectConfig(
             projectName, projectHome, Const.NVL(projectConfigFile, defaultProjectConfigFilename));
 
-    config.addProjectConfig(projectConfig);
-    ProjectsConfigSingleton.saveConfig();
-
-    log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
-
+    // This fails when the home folder doesn't exist: do it before the project is registered.
+    //
     String configFilename = projectConfig.getActualProjectConfigFilename(variables);
     boolean configFileExisted = false;
     try (FileObject configFile = HopVfs.getFileObject(configFilename)) {
       configFileExisted = configFile.exists();
     }
+
+    config.addProjectConfig(projectConfig);
+    ProjectsConfigSingleton.saveConfig();
+
+    log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
+
     Project project = projectConfig.loadProject(variables);
     // Keep an existing parent from a pre-existing project-config.json (Docker
     // --project-keep-config-file). Only fall back to the standard parent when none is set.
