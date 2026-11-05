@@ -308,6 +308,20 @@ class ScriptTest {
   }
 
   @Test
+  void getValueFromScript_bignumberType_double_keepsFraction() throws HopValueException {
+    meta.getFields().add(createField("bn", "BigNumber"));
+    assertEquals(
+        0, new BigDecimal("2.75").compareTo((BigDecimal) script.getValueFromScript(2.75d, 0)));
+  }
+
+  @Test
+  void getValueFromScript_bignumberType_stringWithFraction_keepsFraction()
+      throws HopValueException {
+    meta.getFields().add(createField("bn", "BigNumber"));
+    assertEquals(new BigDecimal("12.345"), script.getValueFromScript("12.345", 0));
+  }
+
+  @Test
   void getValueFromScript_binaryType_returnsResult() throws HopValueException {
     meta.getFields().add(createField("bin", "Binary"));
     byte[] bytes = new byte[] {1, 2, 3};

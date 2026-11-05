@@ -548,8 +548,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                 return null;
               } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER)) {
                 Number nb = (Number) result;
-                // sure
-                return new BigDecimal(nb.longValue());
+                return BigDecimal.valueOf(nb.doubleValue());
               } else if (classType.equalsIgnoreCase(
                   CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)) {
                 // Is it a BigDecimal class ?
@@ -568,9 +567,9 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               } else if (classType.equalsIgnoreCase("java.lang.Long")) {
                 return new BigDecimal((Long) result);
               } else if (classType.equalsIgnoreCase(CONST_JAVA_LANG_DOUBLE)) {
-                return new BigDecimal(((Double) result).longValue());
+                return BigDecimal.valueOf((Double) result);
               } else if (classType.equalsIgnoreCase("java.lang.String")) {
-                return new BigDecimal(Long.parseLong((String) result));
+                return new BigDecimal((String) result);
               } else {
                 throw new HopRuntimeException(
                     "JavaScript conversion to BigNumber not implemented for " + classType);
