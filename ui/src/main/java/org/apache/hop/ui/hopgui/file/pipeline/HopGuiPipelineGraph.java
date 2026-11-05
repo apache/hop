@@ -7358,11 +7358,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     executionGuiSession.stopIfCurrent(engine, this::stopRedrawTimer);
   }
 
-  /** Copies the live hop and transform counts into the debugger tables. */
+  /**
+   * Copies the live hop and transform counts into the debugger tables. Callers include engine
+   * threads (finished/stopped listeners), so the widget work always runs on the display thread.
+   */
   private void refreshDebugPanel() {
-    if (debugDelegate != null) {
-      debugDelegate.refresh();
+    if (debugDelegate == null || !isUiAlive()) {
+      return;
     }
+    hopDisplay()
+        .asyncExec(
+            () -> {
+              if (isUiAlive() && debugDelegate != null) {
+                debugDelegate.refresh();
+              }
+            });
   }
 
   protected void stopRedrawTimer() {
