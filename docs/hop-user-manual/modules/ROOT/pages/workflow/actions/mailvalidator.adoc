@@ -55,11 +55,11 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|Every address in *Email address* is valid, with 0 errors. With *SMTP check*, a mail server also accepted *Email sender* and each address.
-|False|The number of errors is 1. *Email address* is empty, an address is not a valid email address, *SMTP check* is selected while *Email sender* is empty, or with *SMTP check* the mail server refuses *Email sender* or an address, the domain doesn't exist or has no MX record, or the server can't be reached. The addresses are checked one after the other, and the first one that is not valid ends the check.
+|False|The number of errors is 1. *Email address* is empty, an address is not a valid email address, *SMTP check* is selected while *Email sender* is empty, or with *SMTP check* the mail server refuses *Email sender* or an address, the domain doesn't exist or has no MX or A record, or the server can't be reached. The addresses are checked one after the other, and the first one that is not valid ends the check.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
 
 NOTE: The addresses must be separated by exactly one space: two spaces, or a comma, make the check fail.
 
-NOTE: *SMTP check* connects to port 25 of the mail servers of the domain (its MX records), or of *Default SMTP server* when it is set, and asks whether it accepts *Email sender* and the address. Without *Default SMTP server*, an address of a domain that has no MX record always fails, even when the domain has an A record: the check fails with "Error getting machines : Index 1 out of bounds for length 1".
+NOTE: *SMTP check* connects to port 25 of the mail servers of the domain (its MX records, or its A record when it has no MX record), or of *Default SMTP server* when it is set, and asks whether it accepts *Email sender* and the address.
