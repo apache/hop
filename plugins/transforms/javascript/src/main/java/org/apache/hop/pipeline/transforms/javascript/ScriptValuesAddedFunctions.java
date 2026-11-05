@@ -862,7 +862,8 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         String filler = Context.toString(argList[1]);
         int size = (int) Context.toNumber(argList[2]);
 
-        while (valueToPad.length() < size) {
+        // an empty filler can never reach the size
+        while (!filler.isEmpty() && valueToPad.length() < size) {
           valueToPad = filler + valueToPad;
         }
         return valueToPad;
@@ -886,7 +887,8 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         String filler = Context.toString(argList[1]);
         int size = (int) Context.toNumber(argList[2]);
 
-        while (valueToPad.length() < size) {
+        // an empty filler can never reach the size
+        while (!filler.isEmpty() && valueToPad.length() < size) {
           valueToPad = valueToPad + filler;
         }
         return valueToPad;
