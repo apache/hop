@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -455,6 +456,30 @@ public final class VfsFileTransfer {
     }
     try {
       return HopVfs.getFilename(left).equals(HopVfs.getFilename(right));
+    } catch (Exception ignored) {
+      return false;
+    }
+  }
+
+  /**
+   * True when both objects name one file. {@link #same} compares the path as written, so on a
+   * case-insensitive disk {@code data.csv} and {@code Data.csv} are not the same to it. The local
+   * disk still has one canonical path for that pair, which is what a letter-case rename is. Two
+   * different files stay different, including on a case-sensitive disk.
+   */
+  static boolean sameFile(FileObject left, FileObject right) {
+    if (same(left, right)) {
+      return true;
+    }
+    try {
+      String leftName = HopVfs.getFilename(left);
+      String rightName = HopVfs.getFilename(right);
+      if (!HopVfs.isLocalFileSystem(leftName) || !HopVfs.isLocalFileSystem(rightName)) {
+        return false;
+      }
+      // The canonical path is the on-disk identity. Comparing the File objects themselves would
+      // ignore case on Windows even when the directory is case-sensitive.
+      return new File(leftName).getCanonicalPath().equals(new File(rightName).getCanonicalPath());
     } catch (Exception ignored) {
       return false;
     }

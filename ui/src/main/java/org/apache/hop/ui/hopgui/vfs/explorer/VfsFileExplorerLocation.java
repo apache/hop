@@ -2193,7 +2193,7 @@ public class VfsFileExplorerLocation extends Composite {
               PKG, "VfsFileExplorer.Rename.NoParent", file.getName().getBaseName()));
     }
     FileObject destination = parent.resolveFile(newName);
-    if (destination.exists() && !VfsFileTransfer.same(file, destination)) {
+    if (destination.exists() && !VfsFileTransfer.sameFile(file, destination)) {
       throw new IllegalStateException(
           BaseMessages.getString(PKG, "VfsFileExplorer.Transfer.Exists", newName));
     }
