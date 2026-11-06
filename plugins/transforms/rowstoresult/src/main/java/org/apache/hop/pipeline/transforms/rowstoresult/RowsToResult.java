@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.rowstoresult;
 
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -45,25 +46,52 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
 
     Object[] r = getRow(); // get row, set busy!
     if (r == null) { // no more input to be expected...
-
-      ((Pipeline) getPipeline()).getResultRows().addAll(data.rows);
-
+      handOverRows();
       setOutputDone();
       return false;
     }
 
-    // Add all rows to rows buffer...
-    data.rows.add(new RowMetaAndData(getInputRowMeta(), r));
-    data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-    putRow(data.outputRowMeta, r); // copy row to possible alternate
-    // rowset(s).
+    if (first) {
+      first = false;
+      data.outputRowMeta = getInputRowMeta().clone();
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+      data.resultRowMeta = data.outputRowMeta.clone();
+    }
+
+    // Keep a copy of the row: the transforms after this one get the same array and may change it
+    // in place.
+    data.rows.add(new RowMetaAndData(data.resultRowMeta, data.resultRowMeta.cloneRow(r)));
+    putRow(data.outputRowMeta, r);
 
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "RowsToResult.Log.LineNumber") + getLinesRead());
     }
 
     return true;
+  }
+
+  /**
+   * The single threaded executor calls processRow() only for the rows waiting on the input, so it
+   * never reaches the end of the input there. Hand over the rows of every batch instead.
+   */
+  @Override
+  public void batchComplete() throws HopException {
+    handOverRows();
+  }
+
+  /**
+   * Adds the buffered rows to the pipeline's result rows and empties the buffer. Several copies, or
+   * several Copy rows to result transforms, add to the same list, so the list is locked.
+   */
+  private void handOverRows() {
+    if (data.rows.isEmpty()) {
+      return;
+    }
+    List<RowMetaAndData> resultRows = ((Pipeline) getPipeline()).getResultRows();
+    synchronized (resultRows) {
+      resultRows.addAll(data.rows);
+    }
+    data.rows.clear();
   }
 
   @Override
