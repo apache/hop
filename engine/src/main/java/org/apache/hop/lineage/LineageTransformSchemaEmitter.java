@@ -74,6 +74,13 @@ public final class LineageTransformSchemaEmitter {
     if (combi == null || combi.transform == null) {
       return;
     }
+    // The design-graph fallback below asks transforms for their fields, which can run their work
+    // again (the SQL of a Table Input on SQL Server, for example). Don't do that for events that
+    // the hub would drop anyway. See #9036.
+    //
+    if (!LineageHub.getInstance().isEnabled()) {
+      return;
+    }
     LineageContext ctxRuntime = buildRuntimeTransformSchemaContext(combi);
     if (ctxRuntime == null) {
       return;
