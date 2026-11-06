@@ -22,6 +22,7 @@ import java.io.Serial;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -134,8 +135,18 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     folderscount = 0;
     pattern = null;
 
-    if (!Utils.isEmpty(getWildcard())) {
-      pattern = Pattern.compile(getRealWildcard());
+    // The wildcard only applies when the search is limited to it
+    String realWildcard = getRealWildcard();
+    if (isSpecifyWildcard() && !Utils.isEmpty(realWildcard)) {
+      try {
+        pattern = Pattern.compile(realWildcard);
+      } catch (PatternSyntaxException e) {
+        logError(
+            BaseMessages.getString(
+                PKG, "ActionFolderIsEmpty.Error.InvalidWildcard", realWildcard, e.getMessage()));
+        result.setNrErrors(1);
+        return result;
+      }
     }
 
     if (folderName != null) {

@@ -90,4 +90,31 @@ class WorkflowActionFolderIsEmptyTest {
     assertFalse(result.isResult(), "For non-empty folder result should be false");
     assertEquals(0, result.getNrErrors(), "There should be still no errors");
   }
+
+  /** An invalid regular expression fails the action instead of the workflow, see #9117. */
+  @Test
+  void invalidWildcardIsAnActionError() {
+    action.setFolderName(emptyDir);
+    action.setSpecifyWildcard(true);
+    action.setWildcard("${MASK}");
+    action.setVariable("MASK", "[");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult(), "an invalid wildcard must fail the action");
+    assertEquals(1, result.getNrErrors());
+  }
+
+  /** The wildcard is not used when the search is not limited to it, see #9117. */
+  @Test
+  void invalidWildcardIsIgnoredWhenNotLimitingTheSearch() {
+    action.setFolderName(emptyDir);
+    action.setSpecifyWildcard(false);
+    action.setWildcard("[");
+
+    Result result = action.execute(new Result(), 0);
+
+    assertTrue(result.isResult(), "For empty folder result should be true");
+    assertEquals(0, result.getNrErrors());
+  }
 }

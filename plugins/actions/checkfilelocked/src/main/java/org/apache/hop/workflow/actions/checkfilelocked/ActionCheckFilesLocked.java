@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -29,7 +30,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -123,12 +123,15 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
       }
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionCheckFilesLocked.ErrorRunningAction", e));
+      // Not every file could be checked, so the check did not pass
+      previousResult.setResult(false);
+      previousResult.setNrErrors(1);
     }
 
     return previousResult;
   }
 
-  private boolean isOneSpecifiedFileLocked() {
+  private boolean isOneSpecifiedFileLocked() throws HopException {
     boolean oneFileLocked = false;
     for (int i = 0; i < checkedFiles.size() && !parentWorkflow.isStopped() && !oneFileLocked; i++) {
       CheckedFile checkedFile = checkedFiles.get(i);
@@ -147,7 +150,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return oneFileLocked;
   }
 
-  private boolean isOneArgumentsFileLocked(List<RowMetaAndData> rows) throws HopValueException {
+  private boolean isOneArgumentsFileLocked(List<RowMetaAndData> rows) throws HopException {
     boolean oneFileLocked = false;
     // Copy the input row to the (command line) arguments
     for (int iteration = 0;
@@ -155,9 +158,9 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
         iteration++) {
       RowMetaAndData resultRow = rows.get(iteration);
 
-      // Get values from previous result
-      String fileFolderPrevious = resultRow.getString(0, "");
-      String fileMasksPrevious = resultRow.getString(1, "");
+      // Get values from previous result. A missing field counts as empty.
+      String fileFolderPrevious = resultRow.size() > 0 ? resultRow.getString(0, "") : "";
+      String fileMasksPrevious = resultRow.size() > 1 ? resultRow.getString(1, "") : "";
 
       // ok we can process this file/folder
       if (isDetailed()) {
@@ -174,10 +177,11 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return oneFileLocked;
   }
 
-  private boolean processCheckedFilesLine(String name, String wildcard) {
+  private boolean processCheckedFilesLine(String name, String wildcard) throws HopException {
     boolean locked = false;
     String realFileFolderName = resolve(name);
-    String realWildcard = resolve(wildcard);
+    // An invalid wildcard would leave every file of the folder unchecked: fail the action instead
+    Pattern wildcardPattern = compileWildcard(resolve(wildcard));
 
     try (FileObject fileFolder = HopVfs.getFileObject(realFileFolderName, getVariables())) {
       FileObject[] files = new FileObject[] {fileFolder};
@@ -191,7 +195,8 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
                     PKG, "ActionCheckFilesLocked.ProcessingFolder", realFileFolderName));
           }
           // Retrieve all files
-          files = fileFolder.findFiles(new TextFileSelector(fileFolder.toString(), realWildcard));
+          files =
+              fileFolder.findFiles(new TextFileSelector(fileFolder.toString(), wildcardPattern));
 
           if (isDetailed()) {
             logDetailed(
@@ -243,19 +248,30 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return oneFileLocked;
   }
 
+  private Pattern compileWildcard(String realWildcard) throws HopException {
+    if (Utils.isEmpty(realWildcard)) {
+      return null;
+    }
+    try {
+      return Pattern.compile(realWildcard);
+    } catch (PatternSyntaxException e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "ActionCheckFilesLocked.Error.InvalidWildcard", realWildcard, e.getMessage()));
+    }
+  }
+
   private class TextFileSelector implements FileSelector {
-    String fileWildcard = null;
+    Pattern fileWildcard = null;
     String sourceFolder = null;
 
-    public TextFileSelector(String sourcefolderin, String filewildcard) {
+    public TextFileSelector(String sourcefolderin, Pattern filewildcard) {
 
       if (!Utils.isEmpty(sourcefolderin)) {
         sourceFolder = sourcefolderin;
       }
 
-      if (!Utils.isEmpty(filewildcard)) {
-        fileWildcard = filewildcard;
-      }
+      fileWildcard = filewildcard;
     }
 
     @Override
@@ -307,17 +323,12 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
      * @param wildcard The wildcard
      * @return True if the selected file matches the wildcard
      */
-    private boolean getFileWildcard(String selectedFile, String wildcard) {
-      boolean getIt = true;
-
-      if (!Utils.isEmpty(wildcard)) {
-        Pattern pattern = Pattern.compile(wildcard);
-        // First see if the file matches the regular expression!
-        Matcher matcher = pattern.matcher(selectedFile);
-        getIt = matcher.matches();
+    private boolean getFileWildcard(String selectedFile, Pattern wildcard) {
+      if (wildcard == null) {
+        return true;
       }
-
-      return getIt;
+      Matcher matcher = wildcard.matcher(selectedFile);
+      return matcher.matches();
     }
 
     @Override

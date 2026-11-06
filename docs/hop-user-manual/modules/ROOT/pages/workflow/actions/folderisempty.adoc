@@ -44,10 +44,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The folder holds no files. Subfolders do not count; with *Include subfolders*, the files in them do. With *Limit search to (RegExp)*, only files whose whole name matches *Wildcard (RegExp)* count.
-|False|The folder holds a file: the number of errors is 0. The folder does not exist, the path is a file, or no folder name is set: the number of errors is 1.
+|False|The folder holds a file: the number of errors is 0. The folder does not exist, the path is a file, no folder name is set, or *Wildcard (RegExp)* is not a valid regular expression while *Limit search to (RegExp)* is selected: the number of errors is 1.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |Lines input|When the action is true, the number of subfolders found. Otherwise the value of the previous action is passed on.
 |===
-
-NOTE: An invalid regular expression in *Wildcard (RegExp)* stops the workflow with an error, and no hop is followed, also when *Limit search to (RegExp)* is not selected.
