@@ -38,6 +38,7 @@ integration-tests/surefire-reports/spreadsheet/exelwriter-testfile.xlsx
 **/*.json.old
 yarn-error.log
 integration-tests/scripts/*.json
+.yca
 
 docs/content
 docs/public

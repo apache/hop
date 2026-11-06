@@ -47,6 +47,7 @@ import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkGenericTransformHandler;
+import org.apache.hop.spark.pipeline.handler.SparkJdbcInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMaintenanceHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMergeHandler;
@@ -85,7 +86,8 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
-          SparkConst.SPARK_SQL_PLUGIN_ID);
+          SparkConst.SPARK_SQL_PLUGIN_ID,
+          SparkConst.TABLE_INPUT_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
@@ -188,6 +190,7 @@ public class HopPipelineMetaToSparkConverter {
     transformHandlers.put(
         SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
     transformHandlers.put(SparkConst.SPARK_SQL_PLUGIN_ID, new SparkSqlHandler());
+    transformHandlers.put(SparkConst.TABLE_INPUT_PLUGIN_ID, new SparkJdbcInputHandler());
   }
 
   public void validatePipeline() throws HopException {
