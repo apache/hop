@@ -100,22 +100,24 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
 
   /**
    * Emits one event, retrying <i>transient</i> failures up to {@code maxRetries} times with
-   * exponential backoff. Returns {@code true} on success.
+   * exponential backoff.
    */
   @Override
-  public boolean emit(RunEvent event) {
+  public Result emit(RunEvent event) {
     int attempts = Math.max(1, maxRetries + 1);
     OpenLineageClientException lastError = null;
+    int status = -1;
     int attempt = 0;
     for (; attempt < attempts; attempt++) {
       try {
         client.emit(event);
         successCount.incrementAndGet();
-        return true;
+        return Result.SENT;
       } catch (OpenLineageClientException e) {
         lastError = e;
-        if (!isRetryable(e)) {
-          break; // the collector rejected the event itself; resending cannot change that
+        status = statusOf(e);
+        if (!OpenLineageEmitter.isTransient(status)) {
+          break; // a 4xx: the same request would get the same answer
         }
         if (attempt < attempts - 1 && !backoff(attempt)) {
           break; // interrupted while waiting to retry
@@ -123,35 +125,28 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
       }
     }
     failureCount.incrementAndGet();
+    Result result = OpenLineageEmitter.failureOf(status);
     log.logError(
         "Failed to POST OpenLineage event to "
             + collectorUri
             + " after "
             + Math.min(attempt + 1, attempts)
-            + " attempt(s)",
+            + " attempt(s)"
+            + (result == Result.REJECTED
+                ? "; the collector refused it, it will not be resent"
+                : ""),
         lastError);
-    return false;
+    return result;
   }
 
-  /**
-   * Whether resending the event could plausibly succeed. Connection and 5xx failures are transient;
-   * a 4xx means the collector understood the request and rejected it (bad payload, bad
-   * credentials), so retrying only spends the backoff before failing identically. The two
-   * exceptions are 408 (request timeout) and 429 (too many requests), which explicitly invite a
-   * retry.
-   */
-  private static boolean isRetryable(OpenLineageClientException e) {
+  /** The HTTP status of a failed emit, or {@code -1} when there was no response at all. */
+  private static int statusOf(OpenLineageClientException e) {
     for (Throwable t = e; t != null; t = t.getCause()) {
       if (t instanceof HttpTransportResponseException response) {
-        int status = response.getStatusCode();
-        if (status < 400 || status >= 500) {
-          return true;
-        }
-        return status == 408 || status == 429;
+        return response.getStatusCode();
       }
     }
-    // No HTTP response at all (connect timeout, DNS, reset): worth another try.
-    return true;
+    return -1;
   }
 
   /** Sleeps {@code retryBackoffMs * 2^attempt}; returns false if interrupted. */
