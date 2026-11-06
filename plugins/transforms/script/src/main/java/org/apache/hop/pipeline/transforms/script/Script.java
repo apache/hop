@@ -19,6 +19,7 @@
 package org.apache.hop.pipeline.transforms.script;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -36,6 +37,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -53,6 +55,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITransform {
   private static final Class<?> PKG = Script.class;
+
+  /**
+   * Converts a Double script result to a BigNumber; NORMAL storage keeps no state, so it is shared.
+   */
+  private static final IValueMeta DOUBLE_RESULT_META = new ValueMetaNumber("scriptResult");
 
   public static final int ABORT_PIPELINE = -1;
   public static final int ERROR_PIPELINE = -2;
@@ -548,8 +555,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                 return null;
               } else if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_NUMBER)) {
                 Number nb = (Number) result;
-                // sure
-                return new BigDecimal(nb.longValue());
+                return floatingPointToBigNumber(field, nb.doubleValue());
               } else if (classType.equalsIgnoreCase(
                   CONST_ORG_MOZILLA_JAVASCRIPT_NATIVE_JAVA_OBJECT)) {
                 // Is it a BigDecimal class ?
@@ -559,18 +565,24 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
                   String string = (String) result;
                   return new BigDecimal(string);
                 }
-              } else if (classType.equalsIgnoreCase("java.lang.Byte")) {
-                return new BigDecimal(((java.lang.Byte) result).longValue());
-              } else if (classType.equalsIgnoreCase("java.lang.Short")) {
-                return new BigDecimal(((Short) result).longValue());
-              } else if (classType.equalsIgnoreCase("java.lang.Integer")) {
-                return new BigDecimal(((Integer) result).longValue());
-              } else if (classType.equalsIgnoreCase("java.lang.Long")) {
-                return new BigDecimal((Long) result);
-              } else if (classType.equalsIgnoreCase(CONST_JAVA_LANG_DOUBLE)) {
-                return new BigDecimal(((Double) result).longValue());
-              } else if (classType.equalsIgnoreCase("java.lang.String")) {
-                return new BigDecimal(Long.parseLong((String) result));
+              } else if (result instanceof BigDecimal bigDecimal) {
+                // Groovy decimal literals and arithmetic
+                return bigDecimal;
+              } else if (result instanceof BigInteger bigInteger) {
+                // Groovy, Jython and JavaScript BigInt
+                return new BigDecimal(bigInteger);
+              } else if (result instanceof Double || result instanceof Float) {
+                // A Float goes through its own text, so 0.1f stays 0.1 instead of 0.10000000149...
+                double value =
+                    result instanceof Float
+                        ? Double.parseDouble(result.toString())
+                        : (Double) result;
+                return floatingPointToBigNumber(field, value);
+              } else if (result instanceof Number number) {
+                // Byte, Short, Integer, Long
+                return BigDecimal.valueOf(number.longValue());
+              } else if (result instanceof String string) {
+                return new BigDecimal(string);
               } else {
                 throw new HopRuntimeException(
                     "JavaScript conversion to BigNumber not implemented for " + classType);
@@ -606,6 +618,21 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     } else {
       throw new HopValueException("No name was specified for result value #" + (i + 1));
     }
+  }
+
+  /**
+   * A floating point script result as a BigNumber, converted the way any Number field is (no
+   * scientific notation for whole numbers from 1e7 upwards). NaN and Infinity, which no BigDecimal
+   * can hold, fail with the field name instead of a bare NumberFormatException.
+   */
+  private static BigDecimal floatingPointToBigNumber(ScriptMeta.SField field, double value)
+      throws HopValueException {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      throw new HopValueException(
+          BaseMessages.getString(
+              PKG, "Script.Exception.NotFiniteBigNumber", field.getName(), Double.toString(value)));
+    }
+    return DOUBLE_RESULT_META.getBigNumber(value);
   }
 
   private void processEndOfStream() {
