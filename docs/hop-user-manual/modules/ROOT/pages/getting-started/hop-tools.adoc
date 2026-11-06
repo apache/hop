@@ -57,15 +57,23 @@ Linux, macOS::
 [source,shell]
 ----
 Commands:
-  help     Display help information about the specified command.
-  conf     Configure Hop
-  encrypt  Encrypt secrets
-  gui      The Hop GUI
-  import   Import metadata
-  run      Run a pipeline or workflow
-  search   Search in Hop metadata
-  server   Run a Hop server
-  setup    Configure Hop environment variables
+  help          Display help information about the specified command.
+  conf          Configure Hop
+  driver        Manage JDBC drivers (list, install)
+  encrypt       Encrypt secrets
+  export        Export pipeline, workflow, or model diagrams to various formats
+                  (SVG, Mermaid, etc.)
+  gui           The Hop GUI
+  import        Import metadata
+  marketplace   Install and manage optional Hop plugins from a Maven repository
+  naming-check  Validate names against project Naming Schemes
+  run           Run a pipeline or workflow
+  search        Search in Hop metadata
+  server        Run a Hop server
+  setup         Configure Hop launcher environment variables
+                  (HOP_CONFIG_FOLDER, HOP_AUDIT_FOLDER, HOP_JAVA_HOME,
+                  HOP_OPTIONS, HOP_SHARED_JDBC_FOLDERS). Distinct from hop
+                  conf, which edits hop-config.json.
 ----
 
 Two options are worth knowing before anything else, because nearly every command takes them:
@@ -124,24 +132,33 @@ NOTE: the older `hop-run.sh`, `hop-conf.sh` and friends still ship and still wor
 |Convert a Kettle/PDI repository into a Hop project.
 |xref:hop-vs-kettle/import-kettle-projects.adoc[Import Kettle projects]
 
-|`hop doc`
-|Generate documentation for your own Hop project, in Markdown or HTML.
-|xref:hop-tools/hop-doc.adoc[Hop Doc]
+|`hop driver`
+|List the JDBC drivers Hop can download, and install them.
+|xref:hop-tools/hop-driver.adoc[Hop Driver]
+
+|`hop export`
+|Export pipeline and workflow diagrams to SVG or Mermaid, for one file or a whole folder.
+|xref:hop-tools/hop-export.adoc[Hop Export]
+
+|`hop marketplace`
+|Install optional plugins into a Hop client from a Maven repository.
+|xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
 |===
 
-Some tools are optional plugins rather than part of the standard client:
+Some tools are optional plugins rather than part of the standard client.
+Install them with `hop marketplace`:
 
 [options="header",cols="20%,50%,30%"]
 |===
 |Tool|What you use it for|Read more
 
-|Marketplace
-|Install optional plugins into a running Hop client from a Maven repository.
-|xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
-
 |`hop lint`
 |Static analysis over a project: check pipelines, workflows and metadata without running them. Useful as a build step.
 |xref:hop-tools/hop-lint.adoc[Hop Lint]
+
+|`hop doc`
+|Generate documentation for your own Hop project, in Markdown or HTML.
+|xref:hop-tools/hop-doc.adoc[Hop Doc]
 
 |PyHop
 |Drive Hop from Python.

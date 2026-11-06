@@ -1,0 +1,127 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopDriver]]
+:description: hop driver lists the JDBC drivers Hop can download and installs them from Maven Central or another Maven repository.
+
+= hop driver
+
+`hop driver` lists the JDBC drivers that Hop knows how to download, and installs them with the libraries they need.
+
+The database plugins declare which driver they use.
+`hop driver` reads that list, so it only knows the database types installed in your Hop.
+
+See xref:database/databases.adoc#_adding_jdbc_drivers[Adding JDBC drivers] for the other ways to get a driver: the *Download driver* button in the connection editor, and the `HOP_DRIVERS_DOWNLOAD` variable of the Docker image.
+
+[source,bash]
+----
+hop driver list
+hop driver install <driver-id> [options]
+----
+
+== hop driver list
+
+Lists every downloadable driver, with its license category and whether it is installed.
+
+[source,bash]
+----
+$ ./hop driver list
+JDBC drivers declared by the database plugins
+Scanned folders: [/opt/hop/lib/jdbc]
+
+ID           DATABASE                   LIC   INSTALLED  ARTIFACT:VERSION
+----         --------                   ---   ---------  ----------------
+derby        Apache Derby               A     yes        org.apache.derby:derbyclient:<version>
+duckdb       DuckDB                     A     no         org.duckdb:duckdb_jdbc:<version>
+mysql        MySQL                      X     no         com.mysql:mysql-connector-j:<version>
+oracle       Oracle                     X     no         com.oracle.database.jdbc:ojdbc11:<version>
+postgresql   PostgreSQL                 A     yes        org.postgresql:postgresql:<version>
+...
+----
+
+[options="header", cols="1,3"]
+|===
+|Column|Description
+|`ID`|The id to pass to `hop driver install`.
+|`DATABASE`|The database type.
+|`LIC`|The ASF license category of the driver. `A` and `B` drivers may ship with Hop. `X` drivers are restricted, for example proprietary, GPL or LGPL licensed. Hop never ships them, and only downloads them when you accept the vendor's license.
+|`INSTALLED`|`yes` when a jar of the driver, in any version, is in one of the scanned folders.
+|`ARTIFACT:VERSION`|The Maven artifact and the version that `hop driver install` downloads by default.
+|===
+
+The scanned folders are the entries of `HOP_SHARED_JDBC_FOLDERS`, or `lib/jdbc` when that variable is not set.
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+|`--target <folder>`|Only check this folder for installed drivers.
+|===
+
+== hop driver install
+
+Downloads a driver, with the libraries it depends on, and copies the jars into a JDBC folder.
+Restart Hop, Hop Server or the worker afterwards so the driver is loaded.
+
+[source,bash]
+----
+hop driver install postgresql
+hop driver install oracle --accept-license
+hop driver install mariadb --accept-license --driver-version <version>
+hop driver install duckdb --target /opt/hop-drivers
+----
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+|`<driver-id>`|The `ID` of the driver in `hop driver list`.
+|`--accept-license`|Accept the vendor's license. Required for restricted (`LIC` `X`) drivers. Without it, Hop prints the license and the vendor's links and installs nothing.
+|`--driver-version <version>`|The version to install. By default, the version shown by `hop driver list`.
+|`--force`|Download and install the driver again, also when the same version is already installed.
+|`--repo <url>`|The Maven repository to download from instead of Maven Central, for example an internal mirror. A driver that is published in another repository, such as MonetDB, is also looked up there.
+|`--target <folder>`|The folder to install into. By default, the first entry of `HOP_SHARED_JDBC_FOLDERS` that is not `lib/jdbc`. Without such an entry, `lib/jdbc`.
+|===
+
+The default target keeps downloaded drivers out of Hop's own `lib/jdbc` folder as soon as `HOP_SHARED_JDBC_FOLDERS` names another folder.
+See xref:database/databases.adoc#_adding_a_driver_manually[Adding a driver manually] for `HOP_SHARED_JDBC_FOLDERS`.
+
+Some drivers need extra jars at runtime.
+`hop driver install` downloads them too, and installs a missing one when the driver itself is already there.
+For example, the Oracle driver gets `oraclepki`, which connections with an Oracle Wallet need.
+
+=== Drivers that are already installed
+
+When the same version is already in the target folder, `hop driver install` only says so.
+Use `--force` to download it again.
+
+Hop only looks for installed drivers in the scanned folders: the entries of `HOP_SHARED_JDBC_FOLDERS`, or `lib/jdbc`.
+A `--target` folder outside them is downloaded into again on every install.
+
+When the driver is also in another scanned folder, for example the bundled one in `lib/jdbc`, Hop prints a note and leaves that copy in place.
+Remove the copy you don't want, so that the driver is not loaded twice.
+
+Downloaded files are cached in `.hop/driver-cache` in your home folder.
+
+=== Exit codes
+
+[options="header", cols="1,3"]
+|===
+|Code|Meaning
+|`0`|The driver is installed, or was already installed.
+|`1`|The download or the install failed. The error is printed.
+|`2`|The driver is restricted and `--accept-license` was not given.
+|`3`|No database type in this Hop uses that id.
+|`4`|The database type exists, but declares no driver that can be downloaded. Download the driver from the vendor and copy it into the JDBC folder.
+|===

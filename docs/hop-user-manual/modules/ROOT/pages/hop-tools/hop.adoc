@@ -28,7 +28,7 @@ The main goal is to have a single wrapper script to make maintenance easier for 
 == Usage
 
 To see the usage of the `hop` tool, you can simply use the `help` command to see which commands are available.
-The command list depends on the plugins in your installation; the sample below shows the common options and a typical set of commands.
+The command list depends on the plugins in your installation; the sample below is the standard Hop client, without optional plugins.
 
 [source,bash]
 ----
@@ -40,38 +40,85 @@ Usage: hop [-hV] [--dev-debug] [--dev-debug-wait] [-ime]
            <environments>...]]... [-pl=<projectLocations>[,
            <projectLocations>...]]... [-s=<systemProperties>[,
            <systemProperties>...]]... [COMMAND]
+      --dev-debug         Allow a Hop developer to debug remotely
+      --dev-debug-wait    Allow a Hop developer to debug remotely. The script
+                            will wait until a debugging session is set up.
   -e, --environment=<environmentOption>
-                         The name of the lifecycle environment to use
-  -h, --help             Show this help message and exit.
-      -ime, --in-memory  Keep configuration in memory without persisting to
-                           hop-config.json
+                          The name of the lifecycle environment to use
+      --environment-conf-files,
+        --environment-config-files=<environmentConfigFiles>[,
+        <environmentConfigFiles>...]
+                          Comma-separated list of configuration files to apply
+                            to the project or environment
+      --environments=<environments>[,<environments>...]
+                          Comma-separated list of environment definitions (name=
+                            [project:]configFile1;configFile2)
+  -h, --help              Show this help message and exit.
+      -ime, --in-memory   Keep configuration in memory without persisting to
+                            hop-config.json
   -j, --project=<projectOption>
-                         The name of the project to use
+                          The name of the project to use
       -pl, --project-locations=<projectLocations>[,<projectLocations>...]
-                         Comma-separated list of project locations
-                           (name=location or archive files)
+                          Comma-separated list of project locations
+                            (name=location or archive files)
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
-                         A comma separated list of KEY=VALUE pairs
-  -V, --version          Print version information and exit.
+                          A comma separated list of KEY=VALUE pairs
+  -V, --version           Print version information and exit.
 Commands:
-  help     Display help information about the specified command.
-  conf     Configure Hop
-  encrypt  Encrypt secrets
-  gui      The Hop GUI
-  import   Import metadata
-  run      Run a pipeline or workflow
-  search   Search in Hop metadata
-  server   Run a Hop server
-  setup    Configure Hop environment variables
+  help          Display help information about the specified command.
+  conf          Configure Hop
+  driver        Manage JDBC drivers (list, install)
+  encrypt       Encrypt secrets
+  export        Export pipeline, workflow, or model diagrams to various formats
+                  (SVG, Mermaid, etc.)
+  gui           The Hop GUI
+  import        Import metadata
+  marketplace   Install and manage optional Hop plugins from a Maven repository
+  naming-check  Validate names against project Naming Schemes
+  run           Run a pipeline or workflow
+  search        Search in Hop metadata
+  server        Run a Hop server
+  setup         Configure Hop launcher environment variables
+                  (HOP_CONFIG_FOLDER, HOP_AUDIT_FOLDER, HOP_JAVA_HOME,
+                  HOP_OPTIONS, HOP_SHARED_JDBC_FOLDERS). Distinct from hop
+                  conf, which edits hop-config.json.
 ----
 
 =====
+
+== Commands
+
+[options="header", cols="1,1,3"]
+|===
+|Command|Plugin|Page
+|`arrow`|Apache Arrow (optional)|xref:hop-tools/hop-arrow-command.adoc[hop arrow]
+|`conf`||xref:hop-tools/hop-conf/hop-conf.adoc[hop conf]
+|`doc`|Documentation (optional)|xref:hop-tools/hop-doc.adoc[hop doc]
+|`driver`||xref:hop-tools/hop-driver.adoc[hop driver]
+|`encrypt`||xref:hop-tools/hop-encrypt.adoc[hop encrypt]
+|`export`||xref:hop-tools/hop-export.adoc[hop export]
+|`gui`||xref:hop-tools/hop-gui.adoc[hop gui]
+|`import`||xref:hop-tools/hop-import.adoc[hop import]
+|`lint`|Lint (optional)|xref:hop-tools/hop-lint.adoc[hop lint]
+|`marketplace`||xref:hop-tools/hop-marketplace.adoc[hop marketplace]
+|`naming-check`||xref:metadata-types/naming-scheme.adoc#_checking_names_in_ci[Naming scheme: checking names in CI]
+|`python`|PyHop (optional)|xref:hop-tools/hop-python/hop-python.adoc[hop python]
+|`run`||xref:hop-run/index.adoc[hop run]
+|`search`||xref:hop-tools/hop-search.adoc[hop search]
+|`server`||xref:hop-server/index.adoc[hop server]
+|`setup`||xref:hop-tools/hop-setup.adoc[hop setup]
+|===
+
+The commands marked optional only exist once their plugin is installed from the xref:hop-tools/hop-marketplace.adoc[marketplace].
+`hop help` then lists them as well.
 
 == Options
 
 [options="header"]
 |===
 |Short|Extended|Description
+||`--dev-debug`|For Hop developers: let a Java debugger connect on port 5010.
+||`--dev-debug-wait`|As `--dev-debug`, but Hop waits until the debugger is connected before it starts.
 |`-e`|`--environment`|The name of the lifecycle environment to enable before the subcommand runs.
 |`-h`|`--help`|Displays this help message and quits.
 |`-ime`|`--in-memory`|Keep Hop configuration in memory. Changes are not written to `hop-config.json`. Implied by `--project-locations` and `--environments`.

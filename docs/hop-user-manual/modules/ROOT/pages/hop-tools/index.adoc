@@ -21,17 +21,22 @@ Even though Hop developers will spend the majority of their time in Hop Gui, Hop
 
 This page provides an overview of the tools that are available in the platform.
 
-* xref:hop-tools/hop.adoc[Hop]
-* xref:hop-tools/hop-setup.adoc[Hop Setup]
-* xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]
-* xref:hop-tools/hop-conf/hop-conf.adoc[Hop Conf]
-* xref:hop-tools/hop-encrypt.adoc[Hop Encrypt]
-* xref:hop-tools/hop-gui.adoc[Hop Gui]
-* xref:hop-run/index.adoc[Hop Run]
-* xref:hop-tools/hop-search.adoc[Hop Search]
-* xref:hop-tools/hop-import.adoc[Hop Import]
-* xref:hop-tools/hop-doc.adoc[Hop Documentation]
-* xref:hop-tools/hop-python/hop-python.adoc[Hop Python (PyHop)]
-* xref:hop-tools/hop-arrow-command.adoc[Hop Arrow (Flight server)]
+Each tool is a command of the xref:hop-tools/hop.adoc[hop] launcher, for example `hop run`.
+`hop arrow`, `hop doc`, `hop lint` and `hop python` come with optional plugins: they are only there once the plugin is installed from the xref:hop-tools/hop-marketplace.adoc[marketplace].
 
-* xref:hop-server/index.adoc[Hop Server]
+* xref:hop-tools/hop.adoc[hop]: the launcher, its options and the list of commands
+* xref:hop-tools/hop-arrow-command.adoc[hop arrow]: start an Apache Arrow Flight or socket server
+* xref:hop-tools/hop-conf/hop-conf.adoc[hop conf]: manage projects, environments and other configuration
+* xref:hop-tools/hop-doc.adoc[hop doc]: write documentation for a project
+* xref:hop-tools/hop-driver.adoc[hop driver]: list and install JDBC drivers
+* xref:hop-tools/hop-encrypt.adoc[hop encrypt]: encrypt or obfuscate a password
+* xref:hop-tools/hop-export.adoc[hop export]: export pipeline and workflow diagrams to SVG or Mermaid
+* xref:hop-tools/hop-gui.adoc[hop gui]: start Hop Gui
+* xref:hop-tools/hop-import.adoc[hop import]: import and convert metadata from other tools, such as Kettle/PDI
+* xref:hop-tools/hop-lint.adoc[hop lint]: check pipelines, workflows and metadata against the lint rules
+* xref:hop-tools/hop-marketplace.adoc[hop marketplace]: install and manage optional plugins
+* xref:hop-tools/hop-python/hop-python.adoc[hop python]: start the gateway for Hop Python (PyHop)
+* xref:hop-run/index.adoc[hop run]: run a pipeline or a workflow
+* xref:hop-tools/hop-search.adoc[hop search]: search the metadata of a project
+* xref:hop-server/index.adoc[hop server]: start a Hop Server
+* xref:hop-tools/hop-setup.adoc[hop setup]: set the environment variables of the launcher, such as `HOP_CONFIG_FOLDER`
