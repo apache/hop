@@ -26,8 +26,17 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
 public class RowsToResultData extends BaseTransformData implements ITransformData {
+  /** Rows buffered by this copy, not yet handed over to the pipeline's result rows. */
   public List<RowMetaAndData> rows;
+
+  /** The metadata of the rows passed on to the next transforms, built on the first row. */
   public IRowMeta outputRowMeta;
+
+  /**
+   * The metadata stored with every result row, built on the first row. It is a separate copy of
+   * {@link #outputRowMeta}: the result rows leave the pipeline, so nothing downstream shares it.
+   */
+  public IRowMeta resultRowMeta;
 
   public RowsToResultData() {
     super();
