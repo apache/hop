@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
@@ -252,6 +253,62 @@ class PipelineMetricsGrouperTest {
     assertEquals("copy 0", childCells.get(0));
     assertEquals("0", childCells.get(1));
     assertTrue(parentCells.get(2).replace(",", "").replace(" ", "").contains("30"));
+  }
+
+  @Test
+  void parentSpeedTotalUsesTheLocalNumberFormat() {
+    Locale previous = Locale.getDefault();
+    try {
+      for (Locale locale :
+          List.of(
+              Locale.US,
+              Locale.forLanguageTag("nl-BE"),
+              Locale.forLanguageTag("de-DE"),
+              Locale.forLanguageTag("fr-FR"))) {
+        assertParentSpeedTotal(locale);
+      }
+    } finally {
+      Locale.setDefault(previous);
+    }
+  }
+
+  /**
+   * Formats each copy the way {@code TransformStatus} does ({@code " " + decimalFormat}) and checks
+   * the parent total. Also repeats the number with U+202F and U+00A0 as the grouping separator, the
+   * two spaces fr-FR uses.
+   */
+  private static void assertParentSpeedTotal(Locale locale) {
+    Locale.setDefault(locale);
+    DecimalFormat format = new DecimalFormat(PipelineMetricsGrouper.SPEED_PATTERN);
+    String formatted = format.format(12_345);
+    char grouping = format.getDecimalFormatSymbols().getGroupingSeparator();
+    assertTrue(formatted.indexOf(grouping) >= 0, locale.toLanguageTag());
+
+    assertGroupedSpeedTotals(format, " " + formatted, locale.toLanguageTag());
+    if (grouping != '\u202f') {
+      assertGroupedSpeedTotals(
+          format, " " + formatted.replace(grouping, '\u202f'), locale.toLanguageTag() + " U+202F");
+    }
+    if (grouping != '\u00a0') {
+      assertGroupedSpeedTotals(
+          format, " " + formatted.replace(grouping, '\u00a0'), locale.toLanguageTag() + " U+00A0");
+    }
+  }
+
+  private static void assertGroupedSpeedTotals(DecimalFormat format, String speed, String label) {
+    EngineMetrics metrics = new EngineMetrics();
+    List<IEngineComponent> copies = new ArrayList<>();
+    for (int copy = 0; copy < 4; copy++) {
+      EngineComponent component = component("Read", copy);
+      copies.add(component);
+      metrics.setComponentSpeed(component, speed);
+    }
+
+    PipelineMetricsNode parent =
+        PipelineMetricsGrouper.group(copies, metrics, List.of(INPUT), NOW).get(0);
+
+    assertEquals(49_380L, parent.getSpeedValue(), label);
+    assertEquals(format.format(49_380), parent.getSpeedText(), label);
   }
 
   private static List<String> names(List<PipelineMetricsNode> nodes) {

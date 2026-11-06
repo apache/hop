@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
 import java.text.DecimalFormat;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -41,7 +42,19 @@ final class PipelineMetricsGrouper {
   static final int LEADING_COLUMNS = 2;
   static final int TRAILING_COLUMNS = 3;
 
-  private static final String SPEED_PATTERN = "#,###,###,###,##0";
+  /**
+   * Same pattern {@code TransformStatus} uses ({@code new DecimalFormat("#,###,###,###,##0")}). The
+   * formatter itself supplies the desktop locale's grouping separator.
+   */
+  static final String SPEED_PATTERN = "#,###,###,###,##0";
+
+  /** No-break space. Some JDKs use this as the fr-FR grouping separator. */
+  private static final char NO_BREAK_SPACE = '\u00a0';
+
+  /** Narrow no-break space. Current JDKs use this as the fr-FR grouping separator. */
+  private static final char NARROW_NO_BREAK_SPACE = '\u202f';
+
+  private static final String SPEED_UNIT = "(?i)(?:rows/s|rows|runs|flushes|r)";
 
   /**
    * Highest priority first. A parent shows the first of these that any copy is in, so one halted
@@ -256,17 +269,33 @@ final class PipelineMetricsGrouper {
   /**
    * {@code -} and blank are "no sample", not zero. Grouped integers ({@code 1,000}) and decimals
    * are accepted. A trailing unit such as {@code rows/s} is ignored.
+   *
+   * <p>{@code TransformStatus} formats speed with {@code new DecimalFormat(SPEED_PATTERN)} in the
+   * desktop locale and prefixes a space. That form is parsed first. Padding is removed with the
+   * same character range as {@link String#trim()} ({@code <= ' '}), which drops that prefix and
+   * leaves a grouping separator of U+202F or U+00A0 in the number. Replacing either separator with
+   * a normal space would stop the parse after the first group.
    */
   static Double parseSpeed(String raw) {
     if (raw == null) {
       return null;
     }
-    String trimmed = raw.trim();
+    String rough = raw.trim();
+    if (rough.isEmpty() || "-".equals(rough)) {
+      return null;
+    }
+    DecimalFormat format = new DecimalFormat(SPEED_PATTERN);
+    char grouping = format.getDecimalFormatSymbols().getGroupingSeparator();
+    String trimmed = trimPadding(raw, grouping);
     if (trimmed.isEmpty() || "-".equals(trimmed)) {
       return null;
     }
+    Double local = parseLocalSpeed(format, grouping, trimmed);
+    if (local != null) {
+      return local;
+    }
     trimmed = trimmed.replace(",", "");
-    trimmed = trimmed.replaceAll("(?i)\\s+(rows/s|rows|runs|flushes|r)$", "");
+    trimmed = trimmed.replaceAll("\\s+" + SPEED_UNIT + "$", "");
     if (trimmed.isEmpty() || "-".equals(trimmed)) {
       return null;
     }
@@ -275,6 +304,54 @@ final class PipelineMetricsGrouper {
     } catch (NumberFormatException e) {
       return null;
     }
+  }
+
+  /**
+   * Parses text written by {@code new DecimalFormat(SPEED_PATTERN)} in the default locale. Returns
+   * null when {@code text} is not that form, so the caller can fall back to comma stripping.
+   */
+  private static Double parseLocalSpeed(DecimalFormat format, char grouping, String text) {
+    String normalized = text;
+    if (grouping != NO_BREAK_SPACE) {
+      normalized = normalized.replace(NO_BREAK_SPACE, grouping);
+    }
+    if (grouping != NARROW_NO_BREAK_SPACE) {
+      normalized = normalized.replace(NARROW_NO_BREAK_SPACE, grouping);
+    }
+    ParsePosition position = new ParsePosition(0);
+    Number parsed = format.parse(normalized, position);
+    if (parsed == null || position.getIndex() == 0) {
+      return null;
+    }
+    String remainder = normalized.substring(position.getIndex()).trim();
+    if (!remainder.isEmpty() && !remainder.matches(SPEED_UNIT)) {
+      return null;
+    }
+    return parsed.doubleValue();
+  }
+
+  /**
+   * Drops leading and trailing padding. Characters {@code <= ' '} always go, including the space
+   * {@code TransformStatus} prefixes. A grouping separator that is itself a Unicode space (U+202F
+   * or U+00A0) stays, including when it is the first character of the number.
+   */
+  private static String trimPadding(String raw, char grouping) {
+    int start = 0;
+    int end = raw.length();
+    while (start < end && isPadding(raw.charAt(start), grouping)) {
+      start++;
+    }
+    while (end > start && isPadding(raw.charAt(end - 1), grouping)) {
+      end--;
+    }
+    return raw.substring(start, end);
+  }
+
+  private static boolean isPadding(char c, char grouping) {
+    if (c <= ' ') {
+      return true;
+    }
+    return c != grouping && Character.isSpaceChar(c);
   }
 
   private static String statusText(EngineMetrics engineMetrics, IEngineComponent component) {
