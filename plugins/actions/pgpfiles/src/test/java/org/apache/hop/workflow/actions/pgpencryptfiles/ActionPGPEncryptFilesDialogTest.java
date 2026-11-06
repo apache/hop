@@ -104,6 +104,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
           typeInto(grid, 0, headers.indexOf(label("Wildcard")), "typed-under-wildcard");
           typeInto(grid, 0, headers.indexOf(label("UserID")), "typed-under-user-id");
           typeInto(grid, 0, headers.indexOf(label("LocalUser")), "typed-under-local-user");
+          typeInto(grid, 0, headers.indexOf(label("Passphrase")), "typed-under-passphrase");
           typeInto(grid, 0, headers.indexOf(label("DestinationFileFolder")), "typed-under-dest");
         });
 
@@ -112,6 +113,7 @@ class ActionPGPEncryptFilesDialogTest extends SwtBotTestBase {
     assertEquals("typed-under-wildcard", row.getWildcard(), label("Wildcard"));
     assertEquals("typed-under-user-id", row.getUserId(), label("UserID"));
     assertEquals("typed-under-local-user", row.getLocalUser(), label("LocalUser"));
+    assertEquals("typed-under-passphrase", row.getPassphrase(), label("Passphrase"));
     assertEquals(
         "typed-under-dest", row.getDestinationFileFolder(), label("DestinationFileFolder"));
   }

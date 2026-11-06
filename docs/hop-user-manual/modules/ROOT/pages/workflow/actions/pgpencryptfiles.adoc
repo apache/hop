@@ -37,13 +37,14 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |GPG location|The file path of the GnuPG executable (e.g. `/usr/bin/gpg`).
 |Use ASCII mode|Whether or not to use ASCII mode when encrypting.
 |Include Subfolders|Also processes the files in the subfolders of a source folder.
-|Copy previous results to args|Take the rows below from the result of the previous action instead of from the grid. The fields are read by position: action, file/folder source, wildcard, user ID, file/folder destination, and optionally signing key as a sixth field.
+|Copy previous results to args|Take the rows below from the result of the previous action instead of from the grid. The fields are read by position: action, file/folder source, wildcard, user ID, file/folder destination, and optionally signing key as a sixth field and passphrase as a seventh.
 |Action|Encrypt, Sign, Sign and Encrypt
 |File/Folder source|The file to encrypt, can be added to the Files/Folders list using Add.
 |File/Folder destination|The destination of the encrypted files.
 |Wildcard|A regex wildcard.
 |User ID|User ID of the key to encrypt to, passed to GnuPG as `-r`. Required for Encrypt and Sign and Encrypt, and not used by Sign.
 |Signing key|User ID of the key to sign with, passed to GnuPG as `-u`. Used by Sign and Sign and Encrypt; leave it empty to sign with the default key from the GnuPG configuration.
+|Passphrase|Passphrase of the signing key. Sent to GnuPG on standard input, never on the command line. Leave it empty when the key has no passphrase. Ignored by Encrypt.
 |Files/Folders|The files to encrypt.
 |===
 
@@ -61,7 +62,7 @@ GnuPG package must be installed in the runtime environment and encryption keys a
 |Specify Date time format|Whether or not to specify the date time format.
 |Date time format|The format of the date time.
 |Add date before extension|Before or after extension.
-|If destination file exists a|What to do when the destination file already exists. See the WARNING under <<Result>>.
+|If destination file exists a|What to do when the destination file already exists. The file is encrypted or signed first; *Delete source file* then removes the source, and *Move source file to folder* then moves the source. *Create file with unique name* writes a new file and leaves the existing one in place. *Do nothing* leaves an existing file unchanged.
 
 * Do nothing (default)
 * Overwrite destination file
@@ -113,17 +114,17 @@ What this action passes on to the next action. See xref:workflow/action-results.
 * Success when all works fine (default): no file failed. An empty Files/Folders list, no file matching the wildcard, or *Copy previous results to args* without previous result rows is also true.
 * Success when at least x files decrypted: at least *Nr errors lesser than* files were encrypted or signed, whatever the number of errors.
 * Success when number of errors lesser than: the number of errors is at most *Nr errors lesser than*. When an entry of the list brings the errors to that number and entries are left, the action stops and is false; when the last entry does, the action is still true.
-|False|The success condition is not met. A file or an entry of the list fails, and counts as an error, when its source doesn't exist, the destination folder doesn't exist and *Create destination folder* is unchecked, GnuPG fails (an unknown or empty *User ID*, a signing key that needs a passphrase), the destination file exists and *If destination file exists* is *Fail*, or a folder is the source while *Destination is a file* is checked. It is also false, before any file and whatever the success condition, when *If destination file exists* is *Move source file to folder* while *Destination folder* is empty, or doesn't exist and *Create folder* is unchecked. With *Success when all works fine* or *Success when number of errors lesser than*, the action stops once the condition is broken: the remaining files are not processed.
-|Errors|The number of files and entries that failed. Inside a folder, when files are left after the one that breaks the success condition, that failure counts as two errors. A *GPG location* that is empty or not found counts as 1 error, before any file: the action is false with *Success when all works fine* and *Success when at least x files decrypted*, and true with *Success when number of errors lesser than*.
-|Result files|With *Add files to result files name*, an encrypted file that didn't exist yet in the destination is added unless *If destination file exists* is *Do nothing* (the default) or *Fail*: with the default, no file is added. When the destination file already exists, a file is added only with *Overwrite destination file* or *Create file with unique name*, and with *Move source file to folder* the moved source file is added. The result files of the previous action are kept.
+|False|The success condition is not met. A file or an entry of the list fails, and counts as an error, when its source doesn't exist, the destination folder doesn't exist and *Create destination folder* is unchecked, GnuPG fails (an unknown or empty *User ID*, a missing or wrong passphrase for a signing key that needs one), the destination file exists and *If destination file exists* is *Fail*, or a folder is the source while *Destination is a file* is checked. It is also false, before any file and whatever the success condition, when *If destination file exists* is *Move source file to folder* while *Destination folder* is empty, or doesn't exist and *Create folder* is unchecked. With *Success when all works fine* or *Success when number of errors lesser than*, the action stops once the condition is broken: the remaining files are not processed.
+|Errors|The number of files and entries that failed. Inside a folder, the action stops once the success condition is broken, and that failure counts as one error. A *GPG location* that is empty or not found counts as 1 error, before any file: the action is false with *Success when all works fine* and *Success when at least x files decrypted*, and true with *Success when number of errors lesser than*.
+|Result files|With *Add files to result files name*, the encrypted or signed file is added. That includes a file that did not exist yet, whatever *If destination file exists* says, because that option only applies when the destination already exists. When it does, the written file is added for *Overwrite destination file*, *Create file with unique name* (the new file), *Delete source file* and *Move source file to folder* (the encrypted destination, not the moved source). *Do nothing* and *Fail* add nothing. The result files of the previous action are kept.
 |Result rows|Passed on unchanged.
-|Lines written|The number of files encrypted or signed. A file left in place by *Do nothing*, deleted or moved is not counted. When the check of *Destination folder* (Move to folder) fails, or the action stops on the success condition between two entries of the list, the value of the previous action is passed on.
+|Lines written|The number of files encrypted or signed. *Delete source file* and *Move source file to folder* count that file. A file left in place by *Do nothing*, and a file rejected by *Fail*, are not counted. When the check of *Destination folder* (Move to folder) fails, or the action stops on the success condition between two entries of the list, the value of the previous action is passed on.
 |===
 
 NOTE: The encrypted or signed file keeps the name of the source file: `a.txt` becomes `a.txt` in the destination folder, no extension is added.
 
-WARNING: *If destination file exists* doesn't always do what its name says. *Create file with unique name* builds a new name (the date and time added after the file name, for example `a.txt30102026_140920035`) but writes to the existing file, which is overwritten; the new name, which doesn't exist, is added to the result files. *Delete source file* deletes the existing destination file, not the source, and encrypts nothing. *Move source file to folder* moves the source file to *Destination folder* without encrypting it. With *Do nothing*, the existing file is kept and the source is not encrypted.
+NOTE: *Create file with unique name* adds the date and time after the file name (for example `a.txt30102026_140920035`) and writes the encrypted or signed data there. The existing file is left as it is.
 
-NOTE: The action has no passphrase option: for *Sign* and *Sign and encrypt*, GnuPG must be able to use the signing key without asking for one, for example a key without passphrase or a passphrase already held by `gpg-agent`. Otherwise the file fails.
+NOTE: For *Sign* and *Sign and encrypt*, put the signing key's passphrase in *Passphrase* when the key has one. It is handed to GnuPG on standard input together with `--pinentry-mode loopback`. An empty passphrase asks GnuPG to sign without one.
 
 NOTE: With *Include Subfolders* and *Do not keep folder structure* unchecked, a file in a subfolder is written to the same subfolder in the destination. GnuPG doesn't create that subfolder, so the file fails when it doesn't exist.

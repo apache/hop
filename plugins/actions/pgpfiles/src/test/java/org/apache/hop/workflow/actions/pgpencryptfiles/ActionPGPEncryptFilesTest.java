@@ -19,6 +19,7 @@
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,9 +28,15 @@ import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 class ActionPGPEncryptFilesTest {
   @BeforeEach
@@ -77,6 +84,7 @@ class ActionPGPEncryptFilesTest {
     assertEquals("user1", f.getUserId());
     // Written before the signing key had a field of its own, so it has none.
     assertNull(f.getLocalUser());
+    assertNull(f.getPassphrase());
     assertEquals("target1", f.getDestinationFileFolder());
     assertEquals("wildcard1", f.getWildcard());
     f = action.getPgpFiles().get(1);
@@ -91,7 +99,31 @@ class ActionPGPEncryptFilesTest {
     assertEquals("folder3", f.getSourceFileFolder());
     assertEquals("user3", f.getUserId());
     assertEquals("signer3", f.getLocalUser());
+    assertNull(f.getPassphrase());
     assertEquals("target3", f.getDestinationFileFolder());
     assertEquals("wildcard3", f.getWildcard());
+  }
+
+  /** A passphrase is a secret: the workflow XML stores it encrypted, and loading gives it back. */
+  @Test
+  void passphraseIsStoredEncryptedAndLoadedAsPlaintext() throws Exception {
+    ActionPGPEncryptFiles action = new ActionPGPEncryptFiles("pgp");
+    ActionPGPEncryptFiles.PgpFile file = new ActionPGPEncryptFiles.PgpFile();
+    file.setActionType(ActionPGPEncryptFiles.ActionType.SIGN);
+    file.setSourceFileFolder("plain.txt");
+    file.setPassphrase("secret");
+    file.setDestinationFileFolder("plain.txt.asc");
+    action.getPgpFiles().add(file);
+
+    String xml = ActionSerializationTestUtil.getXml(action);
+    assertFalse(xml.contains(">secret<"), xml);
+    assertTrue(xml.contains("Encrypted "), xml);
+
+    Document document = XmlHandler.loadXmlString(xml);
+    Node node = XmlHandler.getSubNode(document, ActionMeta.XML_TAG);
+    ActionPGPEncryptFiles loaded =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, ActionPGPEncryptFiles.class, new MemoryMetadataProvider());
+    assertEquals("secret", loaded.getPgpFiles().getFirst().getPassphrase());
   }
 }
