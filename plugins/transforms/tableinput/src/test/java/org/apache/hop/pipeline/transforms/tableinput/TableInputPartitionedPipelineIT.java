@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Connection;
@@ -94,7 +95,7 @@ class TableInputPartitionedPipelineIT {
   }
 
   /** Builds a pipeline TableInput (N copies) -> Dummy and returns the collected id rows. */
-  private List<Long> runPipeline(int copies, int partitions) throws Exception {
+  private List<Long> runPipeline(int copies, int partitions, boolean preview) throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(getClass().getName());
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
@@ -127,7 +128,7 @@ class TableInputPartitionedPipelineIT {
 
     LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta);
     pipeline.setVariables(new Variables());
-    pipeline.setPreview(true); // surface init errors in the exception
+    pipeline.setPreview(preview); // preview must be explicit; normal runs must be partitioned
     try {
       pipeline.prepareExecution();
     } catch (Exception e) {
@@ -153,16 +154,16 @@ class TableInputPartitionedPipelineIT {
               .getBuffer(pipeline.getLogChannelId(), true)
               .toString();
       System.err.println("=== PIPELINE LOG (errors) ===\n" + logText);
+      throw new IllegalStateException("pipeline ran with errors");
     }
 
-    assertEquals(0, pipeline.getErrors(), "pipeline must run without errors");
     return ids;
   }
 
   @Test
   void copiesMatchPartitionsReadsAllRowsOnce() throws Exception {
     int partitions = 4;
-    List<Long> ids = runPipeline(partitions, partitions);
+    List<Long> ids = runPipeline(partitions, partitions, false);
     assertEquals(ROWS, ids.size(), "all rows must be read exactly once");
     Set<Long> unique = new HashSet<>(ids);
     assertEquals(ROWS, unique.size(), "no duplicates");
@@ -174,14 +175,132 @@ class TableInputPartitionedPipelineIT {
   @Test
   void extraCopiesDoNotDuplicateRows() throws Exception {
     // 4 configured partitions but 6 copies: copies 4 and 5 read empty ranges
-    List<Long> ids = runPipeline(6, 4);
+    List<Long> ids = runPipeline(6, 4, false);
     assertEquals(ROWS, ids.size(), "extra copies must not duplicate rows");
   }
 
   @Test
   void singlePartitionReadsWholeTable() throws Exception {
-    List<Long> ids = runPipeline(1, 1);
+    List<Long> ids = runPipeline(1, 1, false);
     assertEquals(ROWS, ids.size());
+  }
+
+  @Test
+  void singleCopyWithMultipleConfiguredPartitionsReadsWholeTable() throws Exception {
+    // A single copy is not a partitioned read: the whole result is returned without predicates,
+    // so all rows appear exactly once even though 4 partitions are configured.
+    List<Long> ids = runPipeline(1, 4, false);
+    assertEquals(ROWS, ids.size());
+    Set<Long> unique = new HashSet<>(ids);
+    assertEquals(ROWS, unique.size(), "single copy must not duplicate rows");
+    for (long i = 0; i < ROWS; i++) {
+      assertTrue(unique.contains(i), "row " + i + " must be present");
+    }
+  }
+
+  @Test
+  void previewWithSingleCopyReadsWholeTable() throws Exception {
+    // Preview (single clone, like the GUI) reads the whole result even though 4 partitions are
+    // configured: no partition predicates are applied.
+    List<Long> ids = runPipeline(1, 4, true);
+    assertEquals(ROWS, ids.size());
+    Set<Long> unique = new HashSet<>(ids);
+    assertEquals(ROWS, unique.size(), "preview must not slice by partition");
+  }
+
+  @Test
+  void multiCopyPreviewReadsWholeTablePerCopyLikeUnpartitioned() throws Exception {
+    // With several copies and preview, every copy reads the whole table (no predicates), exactly
+    // like an unpartitioned multi-copy Table Input run: N copies x full result.
+    List<Long> ids = runPipeline(4, 4, true);
+    assertEquals(ROWS * 4L, ids.size());
+  }
+
+  @Test
+  void insufficientCopiesFailInNonPreviewRun() {
+    // Fewer copies than configured partitions must fail (preview full-read exempts the single
+    // reader; normal multi-copy runs must slice per copy).
+    assertThrows(
+        Exception.class,
+        () -> runPipeline(2, 4, false),
+        "2 copies for 4 configured partitions must not silently miss rows");
+  }
+
+  @Test
+  void invalidReversedBoundsFailEvenInPreview() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName(getClass().getName());
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    provider.getSerializer(DatabaseMeta.class).save(connectionMeta());
+    pipelineMeta.setMetadataProvider(provider);
+
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection(CONNECTION_NAME);
+    meta.setSql("SELECT id, val FROM T");
+    meta.setUseNamedParameters(false);
+    meta.setJdbcPartitionColumn("id");
+    meta.setJdbcLowerBound("1000");
+    meta.setJdbcUpperBound("0");
+    meta.setJdbcNumPartitions("4");
+
+    String tableInputPluginId =
+        org.apache.hop.core.plugins.PluginRegistry.getInstance()
+            .getPluginId(TransformPluginType.class, meta);
+    TransformMeta tableInput = new TransformMeta(tableInputPluginId, "TableInput", meta);
+    tableInput.setCopies(1);
+    pipelineMeta.addTransform(tableInput);
+
+    DummyMeta dummyMeta = new DummyMeta();
+    String dummyPluginId =
+        org.apache.hop.core.plugins.PluginRegistry.getInstance()
+            .getPluginId(TransformPluginType.class, dummyMeta);
+    TransformMeta dummy = new TransformMeta(dummyPluginId, "Output", dummyMeta);
+    pipelineMeta.addTransform(dummy);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(tableInput, dummy));
+
+    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.setVariables(new Variables());
+    pipeline.setPreview(true);
+    // invalid bounds must be rejected, not silently read as the whole table
+    assertThrows(Exception.class, pipeline::prepareExecution);
+  }
+
+  @Test
+  void nonNumericBoundsFailEvenInPreview() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName(getClass().getName());
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    provider.getSerializer(DatabaseMeta.class).save(connectionMeta());
+    pipelineMeta.setMetadataProvider(provider);
+
+    TableInputMeta meta = new TableInputMeta();
+    meta.setConnection(CONNECTION_NAME);
+    meta.setSql("SELECT id, val FROM T");
+    meta.setUseNamedParameters(false);
+    meta.setJdbcPartitionColumn("id");
+    meta.setJdbcLowerBound("abc");
+    meta.setJdbcUpperBound("0");
+    meta.setJdbcNumPartitions("4");
+
+    String tableInputPluginId =
+        org.apache.hop.core.plugins.PluginRegistry.getInstance()
+            .getPluginId(TransformPluginType.class, meta);
+    TransformMeta tableInput = new TransformMeta(tableInputPluginId, "TableInput", meta);
+    tableInput.setCopies(1);
+    pipelineMeta.addTransform(tableInput);
+
+    DummyMeta dummyMeta = new DummyMeta();
+    String dummyPluginId =
+        org.apache.hop.core.plugins.PluginRegistry.getInstance()
+            .getPluginId(TransformPluginType.class, dummyMeta);
+    TransformMeta dummy = new TransformMeta(dummyPluginId, "Output", dummyMeta);
+    pipelineMeta.addTransform(dummy);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(tableInput, dummy));
+
+    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta);
+    pipeline.setVariables(new Variables());
+    pipeline.setPreview(true);
+    assertThrows(Exception.class, pipeline::prepareExecution);
   }
 
   private static final class LoggingObjectForTest extends LoggingObject {

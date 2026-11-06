@@ -34,7 +34,6 @@ class SparkJdbcInputHandlerTest {
     TableInputMeta meta = new TableInputMeta();
     meta.setConnection("some-connection");
     meta.setSql("SELECT id, val FROM T");
-    meta.setUseNamedParameters(false);
     meta.setJdbcPartitionColumn("id");
     meta.setJdbcLowerBound("0");
     meta.setJdbcUpperBound("1000");
@@ -47,6 +46,17 @@ class SparkJdbcInputHandlerTest {
     assertTrue(
         SparkJdbcInputHandler.isNativePartitionedRead(partitionedMeta(), new Variables(), false),
         "a partitioned Table Input with no incoming hop is read natively");
+  }
+
+  @Test
+  void nativeReadWithDefaultUseNamedParametersFlag() {
+    // The decision inspects the effective SQL, not the useNamedParameters flag: the flag only
+    // changes how the SQL is prepared and legacy metadata leaves it unset while the SQL is clean.
+    TableInputMeta meta = partitionedMeta();
+    assertTrue(meta.isUseNamedParameters());
+    assertTrue(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "the default named-parameter flag must not disqualify a SQL-clean read");
   }
 
   @Test
@@ -74,10 +84,56 @@ class SparkJdbcInputHandlerTest {
   }
 
   @Test
-  void fallbackForNamedParameters() {
+  void fallbackWhenSqlHasNamedParameters() {
     TableInputMeta meta = partitionedMeta();
-    meta.setUseNamedParameters(true);
+    meta.setSql("SELECT id, val FROM T WHERE id = {param}");
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "named parameters in the effective SQL cannot be bound by the native read");
+  }
+
+  @Test
+  void fallbackWhenSqlHasPositionalPlaceholders() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setSql("SELECT id, val FROM T WHERE id = ?");
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "positional placeholders cannot be bound by the native read");
+  }
+
+  @Test
+  void fallbackWhenSqlIsMissingAndMetaCannotParse() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setSql(null);
+    // null SQL would normally be rejected at validation; the decision must stay conservative
     assertFalse(SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false));
+  }
+
+  @Test
+  void fallbackWhenSqlFileCannotBeLoaded() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setSqlFromFile("hop://nonexistent/file.sql");
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "unreadable SQL file must fall back instead of throwing from the decision");
+  }
+
+  @Test
+  void fallbackWhenSqlHasUnclosedNamedParameterBraces() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setSql("SELECT id, val FROM T WHERE id = {param");
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "unparseable SQL falls back so the classic engine reports the real error");
+  }
+
+  @Test
+  void fallbackWhenLookupStreamConfigured() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setLookup("param_stream");
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "a lookup stream feeds parameters, so the read is not a standalone partitioned source");
   }
 
   @Test
@@ -87,6 +143,26 @@ class SparkJdbcInputHandlerTest {
     assertFalse(
         SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
         "the row limit applies to the whole read, not to each partition");
+  }
+
+  @Test
+  void unlimitedWhenRowLimitIsZero() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setRowLimit("0");
+    assertTrue(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "rowLimit 0 means unlimited, exactly like the classic engine");
+  }
+
+  @Test
+  void unlimitedWhenRowLimitResolvesToZero() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setRowLimit("${ROW_LIMIT}");
+    Variables variables = new Variables();
+    variables.setVariable("ROW_LIMIT", "0");
+    assertTrue(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, variables, false),
+        "a row limit resolving to 0 is unlimited, matching the classic engine");
   }
 
   @Test
@@ -109,5 +185,14 @@ class SparkJdbcInputHandlerTest {
     assertFalse(
         SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
         "unresolved variables leave the partition column empty, so the read is not partitioned");
+  }
+
+  @Test
+  void stringsInsideSqlLiteralsAreNotTreatedAsParameters() {
+    TableInputMeta meta = partitionedMeta();
+    meta.setSql("SELECT id, val FROM T WHERE val = 'don''t {look} ? here'");
+    assertTrue(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "placeholders inside string literals are not JDBC parameters");
   }
 }

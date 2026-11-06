@@ -19,6 +19,7 @@ package org.apache.hop.spark.pipeline.handler;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -30,6 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputPartitioning;
+import org.apache.hop.pipeline.transforms.tableinput.TableInputSql;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
@@ -47,9 +49,9 @@ import org.apache.spark.sql.SparkSession;
  * spark.read.jdbc} data source: one disjoint range per Spark task, exactly like the classic engine
  * reads one range per transform copy.
  *
- * <p>Any configuration the native reader cannot reproduce (execute-per-row, named parameters, row
- * limit, incoming parameter rows) falls back to the generic single-task handler so behavior is
- * unchanged for existing pipelines.
+ * <p>Any configuration the native reader cannot reproduce (execute-per-row, effective SQL
+ * parameters, row limit, incoming parameter rows) falls back to the generic single-task handler so
+ * behavior is unchanged for existing pipelines.
  */
 public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
 
@@ -60,6 +62,8 @@ public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
     super.setMetricsAccumulator(metricsAccumulator);
     // The generic handler runs the fallback path; the converter only propagates metrics to the
     // registered handlers, so this delegate has to be wired here explicitly.
+    // Execution-data sampling is only wired to the converter's own generic handler, so sampling
+    // coverage of a fallback Table Input is best-effort (the native Spark path has no sampling).
     fallback.setMetricsAccumulator(metricsAccumulator);
   }
 
@@ -80,16 +84,56 @@ public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
 
   /**
    * Whether this handler can natively (parallel) read the given Table Input configuration:
-   * partitioned read requested, no per-row execution, no named parameters, no row limit, and no
-   * incoming parameter rows. Variables must already be the resolved ones.
+   * partitioned read requested, no per-row execution, no JDBC parameters in the effective SQL, no
+   * effective row limit, and no incoming parameter rows. Variables must already be the resolved
+   * ones.
+   *
+   * <p>The SQL is inspected directly (named {@code {param}} and positional {@code ?} placeholders
+   * both disqualify) rather than relying on the {@code useNamedParameters} flag: the flag only
+   * changes how the SQL is prepared, and legacy metadata keeps it unset while the SQL still
+   * contains placeholders. A parse failure is treated as a fallback so the classic engine keeps its
+   * established behavior.
+   *
+   * <p>The effective row limit is compared after the same resolution used by the classic engine
+   * ({@link org.apache.hop.core.Const#toIntExpanded(String, int)} with default 0 = unlimited), so
+   * {@code rowLimit="0"} or a variable resolving to zero still reads the whole table natively.
    */
-  static boolean isNativePartitionedRead(
+  public static boolean isNativePartitionedRead(
       TableInputMeta meta, IVariables variables, boolean incomingInput) {
-    return TableInputPartitioning.isPartitioningConfigured(meta, variables)
-        && !meta.isExecuteEachInputRow()
-        && !meta.isUseNamedParameters()
-        && Utils.isEmpty(meta.getRowLimit())
-        && !incomingInput;
+    if (incomingInput
+        || meta.isExecuteEachInputRow()
+        || !Utils.isEmpty(meta.getLookup())
+        || !TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
+      return false;
+    }
+    if (!hasUnlimitedEffectiveRowLimit(meta, variables)) {
+      return false;
+    }
+    // Decide by the actual SQL: named or positional placeholders disqualify.
+    try {
+      String sql = meta.getEffectiveSql(variables);
+      if (meta.isVariableReplacementActive()) {
+        sql = variables.resolve(sql);
+      }
+      // Empty SQL has no bindable parameters but would produce a broken native read (the classic
+      // engine reports "no SQL" with the pipeline context); keep the conservative fallback.
+      if (Utils.isEmpty(sql)) {
+        return false;
+      }
+      TableInputSql.Parsed parsed = TableInputSql.parse(sql);
+      return !parsed.hasNamedParameters() && parsed.getPositionalParameterCount() == 0;
+    } catch (HopException e) {
+      return false;
+    }
+  }
+
+  /** The effective row limit is unlimited when empty or resolving to a non-positive number. */
+  private static boolean hasUnlimitedEffectiveRowLimit(TableInputMeta meta, IVariables variables) {
+    String rowLimit = meta.getRowLimit();
+    if (Utils.isEmpty(rowLimit)) {
+      return true;
+    }
+    return Const.toIntExpanded(variables.resolve(rowLimit), 0) <= 0;
   }
 
   @Override
