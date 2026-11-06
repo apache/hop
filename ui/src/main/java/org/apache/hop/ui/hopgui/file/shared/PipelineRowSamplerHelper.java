@@ -17,13 +17,12 @@
 
 package org.apache.hop.ui.hopgui.file.shared;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -48,6 +47,11 @@ import org.apache.hop.pipeline.transform.RowToAdapter;
  * <p>Supports both transform-level samples ({@code IRowListener} / {@code putRow}) and hop-level
  * samples ({@code IRowToListener} / {@code putRowTo}) for target hops such as Filter and
  * Switch/Case.
+ *
+ * <p>The listeners run for every row the sampled transform writes, so they do as little as possible
+ * per row: each listener resolves its buffer once, and a row is only cloned when it is kept. First
+ * stops cloning once the buffer is full, Random clones only the rows that land in the reservoir,
+ * and Last keeps a fixed ring of rows instead of a linked list.
  */
 public final class PipelineRowSamplerHelper {
 
@@ -135,11 +139,6 @@ public final class PipelineRowSamplerHelper {
     if (meta == null) {
       return;
     }
-    // Created once per pipeline start and shared by all the row listeners below
-    @SuppressWarnings("java:S2119")
-    final Random random = new Random();
-    // Per-key counters for Random sampling (transform name or hop key)
-    final Map<String, AtomicInteger> rowCounters = new ConcurrentHashMap<>();
     for (final String transformName : meta.getTransformNames()) {
       IEngineComponent component = pipeline.findComponent(transformName, 0);
       if (component == null) {
@@ -149,18 +148,18 @@ public final class PipelineRowSamplerHelper {
       // Transform-level samples (main putRow path)
       component.addRowListener(
           new RowAdapter() {
+            private RowSampler sampler;
+
             @Override
             public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                 throws HopTransformException {
-              applySample(
-                  targetMap,
-                  transformName,
-                  rowMeta,
-                  row,
-                  sampleType,
-                  sampleSize,
-                  random,
-                  rowCounters);
+              RowSampler s = sampler;
+              if (s == null) {
+                s = createSampler(sampleType, sampleSize, rowMeta);
+                targetMap.put(transformName, s.getRowBuffer());
+                sampler = s;
+              }
+              s.sample(rowMeta, row);
             }
           });
 
@@ -168,72 +167,187 @@ public final class PipelineRowSamplerHelper {
       if (hopTargetMap != null) {
         component.addRowToListener(
             new RowToAdapter() {
+              // One sampler per target row set, so the hop key is built once per hop, not per row
+              private final Map<IRowSet, RowSampler> samplers = new ConcurrentHashMap<>();
+
               @Override
               public void rowWrittenTo(IRowMeta rowMeta, Object[] row, IRowSet rowSet)
                   throws HopTransformException {
-                String key = hopKey(rowSet);
-                if (StringUtils.isEmpty(key) || key.equals(HOP_KEY_SEPARATOR)) {
+                if (rowSet == null) {
                   return;
                 }
-                applySample(
-                    hopTargetMap, key, rowMeta, row, sampleType, sampleSize, random, rowCounters);
+                RowSampler s = samplers.get(rowSet);
+                if (s == null) {
+                  String key = hopKey(rowSet);
+                  if (StringUtils.isEmpty(key) || key.equals(HOP_KEY_SEPARATOR)) {
+                    return;
+                  }
+                  s = createSampler(sampleType, sampleSize, rowMeta);
+                  hopTargetMap.put(key, s.getRowBuffer());
+                  samplers.put(rowSet, s);
+                }
+                s.sample(rowMeta, row);
               }
             });
       }
     }
   }
 
-  /** Apply First/Last/Random sampling into the map. */
-  private static void applySample(
-      Map<String, RowBuffer> targetMap,
-      String key,
-      IRowMeta rowMeta,
-      Object[] row,
-      SampleType sampleType,
-      int sampleSize,
-      Random random,
-      Map<String, AtomicInteger> rowCounters)
-      throws HopTransformException {
-    RowBuffer rowBuffer = targetMap.get(key);
-    if (rowBuffer == null) {
-      rowBuffer = new RowBuffer(rowMeta);
-      if (sampleType == SampleType.Last) {
-        rowBuffer.setBuffer(Collections.synchronizedList(new LinkedList<>()));
-      } else {
-        rowBuffer.setBuffer(Collections.synchronizedList(new ArrayList<>()));
-      }
-      targetMap.put(key, rowBuffer);
-    }
+  /**
+   * Create the sampler for one transform or hop. Package-private for tests.
+   *
+   * @param sampleType First, Last or Random
+   * @param sampleSize the number of rows to keep
+   * @param rowMeta the layout of the sampled rows
+   * @return a new sampler with an empty buffer
+   */
+  static RowSampler createSampler(SampleType sampleType, int sampleSize, IRowMeta rowMeta) {
+    return switch (sampleType) {
+      case First -> new FirstRowsSampler(rowMeta, sampleSize);
+      case Last -> new LastRowsSampler(rowMeta, sampleSize);
+      case Random -> new RandomRowsSampler(rowMeta, sampleSize);
+      default -> throw new IllegalArgumentException("Unsupported sample type " + sampleType);
+    };
+  }
+
+  private static Object[] copyRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     try {
-      row = rowMeta.cloneRow(row);
+      return rowMeta.cloneRow(row);
     } catch (HopValueException e) {
       throw new HopTransformException("Error copying row for preview", e);
     }
-    switch (sampleType) {
-      case First:
-        if (rowBuffer.size() < sampleSize) {
-          rowBuffer.addRow(row);
+  }
+
+  /**
+   * Keeps a sample of the rows of one transform or hop in a {@link RowBuffer}. Readers lock the
+   * buffer's list ({@code synchronized (rowBuffer.getBuffer())}) to get a consistent view, so every
+   * change to the list happens under that same lock.
+   */
+  abstract static class RowSampler {
+    protected final RowBuffer rowBuffer;
+    protected final int sampleSize;
+
+    RowSampler(RowBuffer rowBuffer, int sampleSize) {
+      this.rowBuffer = rowBuffer;
+      this.sampleSize = sampleSize;
+    }
+
+    RowBuffer getRowBuffer() {
+      return rowBuffer;
+    }
+
+    abstract void sample(IRowMeta rowMeta, Object[] row) throws HopTransformException;
+  }
+
+  /** Keeps the first rows, then ignores the rest without cloning them. */
+  static final class FirstRowsSampler extends RowSampler {
+    private volatile boolean full;
+
+    FirstRowsSampler(IRowMeta rowMeta, int sampleSize) {
+      super(new RowBuffer(rowMeta), sampleSize);
+    }
+
+    @Override
+    void sample(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      if (full) {
+        return;
+      }
+      List<Object[]> rows = rowBuffer.getBuffer();
+      synchronized (rows) {
+        if (rows.size() < sampleSize) {
+          rows.add(copyRow(rowMeta, row));
         }
-        break;
-      case Last:
-        rowBuffer.addRow(0, row);
-        if (rowBuffer.size() > sampleSize) {
-          rowBuffer.removeRow(rowBuffer.size() - 1);
+        full = rows.size() >= sampleSize;
+      }
+    }
+  }
+
+  /** Keeps the last rows in a fixed ring, newest first. */
+  static final class LastRowsSampler extends RowSampler {
+    private final LastRowsList rows;
+
+    LastRowsSampler(IRowMeta rowMeta, int sampleSize) {
+      super(new RowBuffer(rowMeta), sampleSize);
+      rows = new LastRowsList(sampleSize);
+      rowBuffer.setBuffer(rows);
+    }
+
+    @Override
+    void sample(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      rows.addNewest(copyRow(rowMeta, row));
+    }
+  }
+
+  /**
+   * Keeps a uniform random sample (reservoir sampling). Only the rows that enter the reservoir are
+   * cloned.
+   */
+  static final class RandomRowsSampler extends RowSampler {
+    private long rowsSeen;
+
+    RandomRowsSampler(IRowMeta rowMeta, int sampleSize) {
+      super(new RowBuffer(rowMeta), sampleSize);
+    }
+
+    @Override
+    void sample(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      List<Object[]> rows = rowBuffer.getBuffer();
+      synchronized (rows) {
+        long seen = ++rowsSeen;
+        if (seen <= sampleSize) {
+          rows.add(copyRow(rowMeta, row));
+          return;
         }
-        break;
-      case Random:
-        int nrRows = rowCounters.computeIfAbsent(key, k -> new AtomicInteger(0)).incrementAndGet();
-        if (rowBuffer.size() < sampleSize) {
-          rowBuffer.addRow(row);
-        } else {
-          int randomIndex = random.nextInt(nrRows);
-          if (randomIndex < sampleSize) {
-            rowBuffer.setRow(randomIndex, row);
-          }
+        long index = ThreadLocalRandom.current().nextLong(seen);
+        if (index < sampleSize) {
+          rows.set((int) index, copyRow(rowMeta, row));
         }
-        break;
-      default:
-        break;
+      }
+    }
+  }
+
+  /**
+   * A fixed-size ring of rows exposed as a list, newest row at index 0. Adding a row once the ring
+   * is full replaces the oldest one, without allocating a node or shifting elements. All access
+   * locks the list itself, the same lock {@code Collections.synchronizedList} uses, so readers can
+   * keep doing {@code synchronized (rowBuffer.getBuffer())}.
+   */
+  static final class LastRowsList extends AbstractList<Object[]> {
+    private final Object[][] ring;
+    private int next;
+    private int size;
+
+    LastRowsList(int capacity) {
+      ring = new Object[capacity][];
+    }
+
+    synchronized void addNewest(Object[] row) {
+      ring[next] = row;
+      next = (next + 1) % ring.length;
+      if (size < ring.length) {
+        size++;
+      }
+    }
+
+    @Override
+    public synchronized Object[] get(int index) {
+      if (index < 0 || index >= size) {
+        throw new IndexOutOfBoundsException("Index " + index + ", size " + size);
+      }
+      return ring[Math.floorMod(next - 1 - index, ring.length)];
+    }
+
+    @Override
+    public synchronized int size() {
+      return size;
+    }
+
+    @Override
+    public synchronized void clear() {
+      Arrays.fill(ring, null);
+      next = 0;
+      size = 0;
+      modCount++;
     }
   }
 }

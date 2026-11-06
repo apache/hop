@@ -35,6 +35,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -6575,8 +6576,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private void addRowsSamplerToPipeline(IPipelineEngine<PipelineMeta> pipeline) {
     try {
-      outputRowsMap = new HashMap<>();
-      outputHopRowsMap = new HashMap<>();
+      outputRowsMap = new ConcurrentHashMap<>();
+      outputHopRowsMap = new ConcurrentHashMap<>();
       PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap, outputHopRowsMap);
     } catch (Exception e) {
       // Ignore: run config not local or sample type not set
@@ -6592,8 +6593,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (pipeline == null) {
       return;
     }
-    outputRowsMap = new HashMap<>();
-    outputHopRowsMap = new HashMap<>();
+    outputRowsMap = new ConcurrentHashMap<>();
+    outputHopRowsMap = new ConcurrentHashMap<>();
     PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap, outputHopRowsMap);
   }
 
