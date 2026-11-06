@@ -65,6 +65,9 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
   @Override
   public boolean processRow() throws HopException {
     if (first && !meta.isFileField()) {
+      // Once per transform copy: list the files and build the row metadata only on the first row.
+      first = false;
+
       data.files = meta.getFiles(this);
       if (data.files == null || data.files.nrOfFiles() == 0) {
         setOutputDone(); // signal end to receiver(s)
