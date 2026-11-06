@@ -49,6 +49,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.cube.CubeFilename;
+import org.apache.hop.pipeline.transforms.cube.CubeStreams;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
@@ -234,7 +235,7 @@ public class CubeInputMeta extends BaseTransformMeta<CubeInput, CubeInputData> {
         CubeFilename.resolve(variables, file.getName(), usesTransformNrInFilename(), 0);
     try (InputStream is = HopVfs.getInputStream(filename, variables);
         GZIPInputStream fis = new GZIPInputStream(is);
-        DataInputStream dis = new DataInputStream(fis)) {
+        DataInputStream dis = CubeStreams.dataInput(fis)) {
       IRowMeta add = new RowMeta(dis);
       for (int i = 0; i < add.size(); i++) {
         add.getValueMeta(i).setOrigin(name);
