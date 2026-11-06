@@ -204,6 +204,50 @@ class GpgArgumentPassingTest {
   }
 
   @Test
+  void signFileSendsThePassphraseOverStdin() throws Exception {
+    gpg().signFile("plain.txt", "signer@example.org", PASSPHRASE, "plain.txt.asc", true);
+    assertPassphraseOnStdinOnly("signFile");
+    assertLocalUser("signer@example.org", "signFile");
+  }
+
+  @Test
+  void signFileWithoutAPassphraseAsksForNoFileDescriptor() throws Exception {
+    gpg().signFile("plain.txt", "signer@example.org", "plain.txt.asc", true);
+    List<String> args = recordedArguments();
+    assertFalse(
+        args.contains("--passphrase-fd"),
+        "without a passphrase GnuPG must not be told to read one: " + args);
+    assertEquals("", recordedStdin(), "nothing must be written to stdin without a passphrase");
+  }
+
+  @Test
+  void signAndEncryptFileSendsThePassphraseOverStdin() throws Exception {
+    gpg()
+        .signAndEncryptFile(
+            "plain.txt",
+            "recipient@example.org",
+            "signer@example.org",
+            PASSPHRASE,
+            "sealed.asc",
+            true);
+    assertPassphraseOnStdinOnly("signAndEncryptFile");
+    assertRecipient("recipient@example.org", "signAndEncryptFile");
+    assertLocalUser("signer@example.org", "signAndEncryptFile");
+  }
+
+  @Test
+  void signAndEncryptFileWithoutAPassphraseAsksForNoFileDescriptor() throws Exception {
+    gpg()
+        .signAndEncryptFile(
+            "plain.txt", "recipient@example.org", "signer@example.org", "sealed.asc", true);
+    List<String> args = recordedArguments();
+    assertFalse(
+        args.contains("--passphrase-fd"),
+        "without a passphrase GnuPG must not be told to read one: " + args);
+    assertEquals("", recordedStdin(), "nothing must be written to stdin without a passphrase");
+  }
+
+  @Test
   void decryptFileSendsThePassphraseOverStdin() throws Exception {
     gpg().decryptFile("sealed.asc", PASSPHRASE, "opened.txt");
     assertPassphraseOnStdinOnly("decryptFile");

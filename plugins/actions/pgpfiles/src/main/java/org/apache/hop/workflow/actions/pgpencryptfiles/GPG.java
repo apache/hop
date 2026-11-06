@@ -126,7 +126,8 @@ public class GPG {
       file = HopVfs.getFileObject(getGpgExeFile(), variables);
 
       if (!file.exists()) {
-        throw new HopException(BaseMessages.getString(PKG, "GPG.GPGFilenameNotFound"));
+        throw new HopException(
+            BaseMessages.getString(PKG, "GPG.GPGFilenameNotFound", getGpgExeFile()));
       }
       // The file exists
       if (!file.getType().equals(FileType.FILE)) {
@@ -439,8 +440,30 @@ public class GPG {
   public void signAndEncryptFile(
       FileObject file, String userID, String localUser, FileObject cryptedFile, boolean asciiMode)
       throws HopException {
+    signAndEncryptFile(file, userID, localUser, null, cryptedFile, asciiMode);
+  }
+
+  /**
+   * Sign and encrypt a file.
+   *
+   * @param passPhrase passphrase of the signing key, or empty when that key has none. It is written
+   *     to GnuPG's standard input, never placed on the command line.
+   */
+  public void signAndEncryptFile(
+      FileObject file,
+      String userID,
+      String localUser,
+      String passPhrase,
+      FileObject cryptedFile,
+      boolean asciiMode)
+      throws HopException {
     signAndEncryptFile(
-        HopVfs.getFilename(file), userID, localUser, HopVfs.getFilename(cryptedFile), asciiMode);
+        HopVfs.getFilename(file),
+        userID,
+        localUser,
+        passPhrase,
+        HopVfs.getFilename(cryptedFile),
+        asciiMode);
   }
 
   /**
@@ -471,6 +494,23 @@ public class GPG {
   public void signAndEncryptFile(
       String filename, String userID, String localUser, String cryptedFilename, boolean asciiMode)
       throws HopException {
+    signAndEncryptFile(filename, userID, localUser, null, cryptedFilename, asciiMode);
+  }
+
+  /**
+   * Sign and encrypt a file.
+   *
+   * @param passPhrase passphrase of the signing key, or empty when that key has none. It is written
+   *     to GnuPG's standard input, never placed on the command line.
+   */
+  public void signAndEncryptFile(
+      String filename,
+      String userID,
+      String localUser,
+      String passPhrase,
+      String cryptedFilename,
+      boolean asciiMode)
+      throws HopException {
 
     try {
       List<String> args = new ArrayList<>(BATCH_YES);
@@ -479,6 +519,10 @@ public class GPG {
       }
       addRecipient(args, userID);
       addLocalUser(args, localUser);
+      boolean withPassPhrase = !Utils.isEmpty(passPhrase);
+      if (withPassPhrase) {
+        addPassPhraseFromStdin(args);
+      }
       args.add("--output");
       args.add(cryptedFilename);
       args.add("--encrypt");
@@ -486,7 +530,7 @@ public class GPG {
       args.add(END_OF_OPTIONS);
       args.add(filename);
 
-      execGnuPG(args, null, true);
+      execGnuPG(args, withPassPhrase ? passPhrase : null, true);
     } catch (Exception e) {
       throw new HopException(e);
     }
@@ -508,19 +552,39 @@ public class GPG {
    */
   public void signFile(String filename, String localUser, String signedFilename, boolean asciiMode)
       throws HopException {
+    signFile(filename, localUser, null, signedFilename, asciiMode);
+  }
+
+  /**
+   * Sign a file.
+   *
+   * @param passPhrase passphrase of the signing key, or empty when that key has none. It is written
+   *     to GnuPG's standard input, never placed on the command line.
+   */
+  public void signFile(
+      String filename,
+      String localUser,
+      String passPhrase,
+      String signedFilename,
+      boolean asciiMode)
+      throws HopException {
     try {
       List<String> args = new ArrayList<>(BATCH_YES);
       if (asciiMode) {
         args.add("-a");
       }
       addLocalUser(args, localUser);
+      boolean withPassPhrase = !Utils.isEmpty(passPhrase);
+      if (withPassPhrase) {
+        addPassPhraseFromStdin(args);
+      }
       args.add("--output");
       args.add(signedFilename);
       args.add(asciiMode ? "--clearsign" : "--sign");
       args.add(END_OF_OPTIONS);
       args.add(filename);
 
-      execGnuPG(args, null, true);
+      execGnuPG(args, withPassPhrase ? passPhrase : null, true);
 
     } catch (Exception e) {
       throw new HopException(e);
@@ -539,8 +603,29 @@ public class GPG {
    */
   public void signFile(FileObject file, String localUser, FileObject signedFile, boolean asciiMode)
       throws HopException {
+    signFile(file, localUser, null, signedFile, asciiMode);
+  }
+
+  /**
+   * Sign a file.
+   *
+   * @param passPhrase passphrase of the signing key, or empty when that key has none. It is written
+   *     to GnuPG's standard input, never placed on the command line.
+   */
+  public void signFile(
+      FileObject file,
+      String localUser,
+      String passPhrase,
+      FileObject signedFile,
+      boolean asciiMode)
+      throws HopException {
     try {
-      signFile(HopVfs.getFilename(file), localUser, HopVfs.getFilename(signedFile), asciiMode);
+      signFile(
+          HopVfs.getFilename(file),
+          localUser,
+          passPhrase,
+          HopVfs.getFilename(signedFile),
+          asciiMode);
 
     } catch (Exception e) {
       throw new HopException(e);

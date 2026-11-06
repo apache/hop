@@ -238,133 +238,138 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
       }
     }
 
-    gpg = new GPG(resolve(gpgLocation), getLogChannel(), getVariables());
+    try {
+      gpg = new GPG(resolve(gpgLocation), getLogChannel(), getVariables());
 
-    if (argFromPrevious && isDetailed()) {
-      logDetailed(
-          BaseMessages.getString(
-              PKG,
-              "ActionPGPDecryptFiles.Log.ArgFromPrevious.Found",
-              (rows != null ? rows.size() : 0) + ""));
-    }
-    if (argFromPrevious && rows != null) {
-      for (RowMetaAndData row : rows) {
-        // Success condition broken?
-        if (successConditionBroken) {
-          if (!successConditionBrokenExit) {
-            logError(
-                BaseMessages.getString(
-                    PKG,
-                    CONST_ACTION_PGP_DECRYPT_FILES_ERROR_SUCCESS_CONDITION_BROKEN,
-                    "" + nrErrors));
-            successConditionBrokenExit = true;
+      if (argFromPrevious && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionPGPDecryptFiles.Log.ArgFromPrevious.Found",
+                (rows != null ? rows.size() : 0) + ""));
+      }
+      if (argFromPrevious && rows != null) {
+        for (RowMetaAndData row : rows) {
+          // Success condition broken?
+          if (successConditionBroken) {
+            if (!successConditionBrokenExit) {
+              logError(
+                  BaseMessages.getString(
+                      PKG,
+                      CONST_ACTION_PGP_DECRYPT_FILES_ERROR_SUCCESS_CONDITION_BROKEN,
+                      "" + nrErrors));
+              successConditionBrokenExit = true;
+            }
+            result.setNrErrors(nrErrors);
+            displayResults();
+            return result;
           }
-          result.setNrErrors(nrErrors);
-          displayResults();
-          return result;
+
+          resultRow = row;
+
+          // Get source and destination file names, also wildcard
+          String vSourceFileFolderPrevious = resultRow.getString(0, null);
+          String vWildcardPrevious = resolve(resultRow.getString(1, null));
+          String vPassPhrasePrevious =
+              Encr.decryptPasswordOptionallyEncrypted(resultRow.getString(2, null));
+          String vDestinationFileFolderPrevious = resultRow.getString(3, null);
+
+          if (!Utils.isEmpty(vSourceFileFolderPrevious)
+              && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionPGPDecryptFiles.Log.ProcessingRow",
+                      vSourceFileFolderPrevious,
+                      vDestinationFileFolderPrevious,
+                      vWildcardPrevious));
+            }
+
+            if (!processFileFolder(
+                vSourceFileFolderPrevious,
+                vPassPhrasePrevious,
+                vDestinationFileFolderPrevious,
+                vWildcardPrevious,
+                parentWorkflow,
+                result,
+                moveToFolder)) {
+              // The move process fail
+              // Update Errors
+              updateErrors();
+            }
+          } else {
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionPGPDecryptFiles.Log.IgnoringRow",
+                      vSourceFileFolderPrevious,
+                      vDestinationFileFolderPrevious,
+                      vWildcardPrevious));
+            }
+          }
         }
-
-        resultRow = row;
-
-        // Get source and destination file names, also wildcard
-        String vSourceFileFolderPrevious = resultRow.getString(0, null);
-        String vWildcardPrevious = resolve(resultRow.getString(1, null));
-        String vPassPhrasePrevious =
-            Encr.decryptPasswordOptionallyEncrypted(resultRow.getString(2, null));
-        String vDestinationFileFolderPrevious = resultRow.getString(3, null);
-
-        if (!Utils.isEmpty(vSourceFileFolderPrevious)
-            && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionPGPDecryptFiles.Log.ProcessingRow",
-                    vSourceFileFolderPrevious,
-                    vDestinationFileFolderPrevious,
-                    vWildcardPrevious));
+      } else if (!filesToDecrypt.isEmpty()) {
+        for (FileToDecrypt fileToDecrypt : filesToDecrypt) {
+          if (parentWorkflow.isStopped()) {
+            break;
+          }
+          // Success condition broken?
+          if (successConditionBroken) {
+            if (!successConditionBrokenExit) {
+              logError(
+                  BaseMessages.getString(
+                      PKG,
+                      CONST_ACTION_PGP_DECRYPT_FILES_ERROR_SUCCESS_CONDITION_BROKEN,
+                      "" + nrErrors));
+              successConditionBrokenExit = true;
+            }
+            result.setNrErrors(nrErrors);
+            displayResults();
+            return result;
           }
 
-          if (!processFileFolder(
-              vSourceFileFolderPrevious,
-              vPassPhrasePrevious,
-              vDestinationFileFolderPrevious,
-              vWildcardPrevious,
-              parentWorkflow,
-              result,
-              moveToFolder)) {
-            // The move process fail
-            // Update Errors
-            updateErrors();
-          }
-        } else {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionPGPDecryptFiles.Log.IgnoringRow",
-                    vSourceFileFolderPrevious,
-                    vDestinationFileFolderPrevious,
-                    vWildcardPrevious));
+          if (!Utils.isEmpty(fileToDecrypt.getSourceFileFolder())
+              && !Utils.isEmpty(fileToDecrypt.getDestinationFileFolder())) {
+            // ok we can process this file/folder
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionPGPDecryptFiles.Log.ProcessingRow",
+                      fileToDecrypt.getSourceFileFolder(),
+                      fileToDecrypt.getDestinationFileFolder(),
+                      fileToDecrypt.getWildcard()));
+            }
+
+            if (!processFileFolder(
+                fileToDecrypt.getSourceFileFolder(),
+                Encr.decryptPasswordOptionallyEncrypted(resolve(fileToDecrypt.getPassphrase())),
+                fileToDecrypt.getDestinationFileFolder(),
+                fileToDecrypt.getWildcard(),
+                parentWorkflow,
+                result,
+                moveToFolder)) {
+              // Update Errors
+              updateErrors();
+            }
+          } else {
+            if (isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionPGPDecryptFiles.Log.IgnoringRow",
+                      fileToDecrypt.getSourceFileFolder(),
+                      fileToDecrypt.getDestinationFileFolder(),
+                      fileToDecrypt.getWildcard()));
+            }
           }
         }
       }
-    } else if (!filesToDecrypt.isEmpty()) {
-      for (FileToDecrypt fileToDecrypt : filesToDecrypt) {
-        if (parentWorkflow.isStopped()) {
-          break;
-        }
-        // Success condition broken?
-        if (successConditionBroken) {
-          if (!successConditionBrokenExit) {
-            logError(
-                BaseMessages.getString(
-                    PKG,
-                    CONST_ACTION_PGP_DECRYPT_FILES_ERROR_SUCCESS_CONDITION_BROKEN,
-                    "" + nrErrors));
-            successConditionBrokenExit = true;
-          }
-          result.setNrErrors(nrErrors);
-          displayResults();
-          return result;
-        }
-
-        if (!Utils.isEmpty(fileToDecrypt.getSourceFileFolder())
-            && !Utils.isEmpty(fileToDecrypt.getDestinationFileFolder())) {
-          // ok we can process this file/folder
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionPGPDecryptFiles.Log.ProcessingRow",
-                    fileToDecrypt.getSourceFileFolder(),
-                    fileToDecrypt.getDestinationFileFolder(),
-                    fileToDecrypt.getWildcard()));
-          }
-
-          if (!processFileFolder(
-              fileToDecrypt.getSourceFileFolder(),
-              Encr.decryptPasswordOptionallyEncrypted(resolve(fileToDecrypt.getPassphrase())),
-              fileToDecrypt.getDestinationFileFolder(),
-              fileToDecrypt.getWildcard(),
-              parentWorkflow,
-              result,
-              moveToFolder)) {
-            // Update Errors
-            updateErrors();
-          }
-        } else {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionPGPDecryptFiles.Log.IgnoringRow",
-                    fileToDecrypt.getSourceFileFolder(),
-                    fileToDecrypt.getDestinationFileFolder(),
-                    fileToDecrypt.getWildcard()));
-          }
-        }
-      }
+    } catch (Exception e) {
+      updateErrors();
+      logError(BaseMessages.getString(PKG, "ActionPGPDecryptFiles.Error", e.getMessage()));
     }
 
     // Success Condition
@@ -560,7 +565,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                               "" + nrErrors));
                       successConditionBrokenExit = true;
                     }
-                    return false;
+                    break;
                   }
                   // Fetch files in list one after one ...
                   currentFile = fileObjects[j];
@@ -662,10 +667,8 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                   destinationFileName.getName().toString()));
         }
 
-        // add filename to result filename
-        if (addResultFilenames
-            && !ifFileExists.equals("fail")
-            && !ifFileExists.equals(CONST_DO_NOTHING)) {
+        // The destination did not exist, so the option for an existing file does not apply.
+        if (addResultFilenames) {
           addFileToResultFilenames(destinationFileName.toString(), result, parentWorkflow);
         }
 
@@ -737,14 +740,15 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
             updateSuccess();
           }
           case CONST_DELETE_FILE -> {
-            destinationFileName.delete();
+            sourceFileName.delete();
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG,
                       "ActionPGPDecryptFiles.Log.FileDeleted",
-                      destinationFileName.getName().toString()));
+                      sourceFileName.getName().toString()));
             }
+            updateSuccess();
           }
           case CONST_MOVE_FILE -> {
             String shortFilename = shortFileName;
@@ -775,7 +779,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
               // add filename to result filename
               if (addResultFilenames
-                  && !ifFileExists.equals("fail")
+                  && !ifFileExists.equals(CONST_FAIL)
                   && !ifFileExists.equals(CONST_DO_NOTHING)) {
                 addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
               }
@@ -794,7 +798,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
                   // add filename to result filename
                   if (addResultFilenames
-                      && !ifFileExists.equals("fail")
+                      && !ifFileExists.equals(CONST_FAIL)
                       && !ifFileExists.equals(CONST_DO_NOTHING)) {
                     addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
                   }

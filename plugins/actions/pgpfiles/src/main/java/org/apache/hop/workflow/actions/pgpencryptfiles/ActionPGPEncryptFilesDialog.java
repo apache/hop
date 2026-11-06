@@ -520,6 +520,10 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
           new ColumnInfo(
+              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Passphrase.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
               BaseMessages.getString(
                   PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Label"),
               ColumnInfo.COLUMN_TYPE_TEXT,
@@ -535,6 +539,9 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     columnInfos[4].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.LocalUser.Tooltip"));
     columnInfos[5].setToolTip(
+        BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Passphrase.Tooltip"));
+    columnInfos[5].setPasswordField(true);
+    columnInfos[6].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Tooltip"));
 
     columnInfos[0].setUsingVariables(true);
@@ -543,6 +550,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     columnInfos[3].setUsingVariables(true);
     columnInfos[4].setUsingVariables(true);
     columnInfos[5].setUsingVariables(true);
+    columnInfos[6].setUsingVariables(true);
 
     wFields =
         new TableView(
@@ -572,6 +580,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
                 ActionPGPEncryptFiles.ActionType.ENCRYPT.getDescription(),
                 wSourceFileFolder.getText(),
                 wWildcard.getText(),
+                null,
                 null,
                 null,
                 wDestinationFileFolder.getText());
@@ -606,7 +615,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
           if (idx >= 0) {
             String[] string = wFields.getItem(idx);
             wSourceFileFolder.setText(string[1]);
-            wDestinationFileFolder.setText(string[5]);
+            wDestinationFileFolder.setText(string[6]);
             wWildcard.setText(string[2]);
             wFields.remove(idx);
           }
@@ -1557,7 +1566,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
       ti.setText(3, Const.NVL(pgpFile.getWildcard(), ""));
       ti.setText(4, Const.NVL(pgpFile.getUserId(), ""));
       ti.setText(5, Const.NVL(pgpFile.getLocalUser(), ""));
-      ti.setText(6, Const.NVL(pgpFile.getDestinationFileFolder(), ""));
+      ti.setText(6, Const.NVL(pgpFile.getPassphrase(), ""));
+      ti.setText(7, Const.NVL(pgpFile.getDestinationFileFolder(), ""));
     }
     wFields.optimizeTableView();
   }
@@ -1652,7 +1662,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
       pgpFile.setWildcard(item.getText(3));
       pgpFile.setUserId(item.getText(4));
       pgpFile.setLocalUser(item.getText(5));
-      pgpFile.setDestinationFileFolder(item.getText(6));
+      pgpFile.setPassphrase(item.getText(6));
+      pgpFile.setDestinationFileFolder(item.getText(7));
     }
     dispose();
   }
