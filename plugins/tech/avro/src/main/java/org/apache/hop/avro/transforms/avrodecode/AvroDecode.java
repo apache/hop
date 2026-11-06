@@ -18,6 +18,10 @@
 package org.apache.hop.avro.transforms.avrodecode;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
@@ -71,6 +75,19 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
                 + valueMeta.getTypeDesc());
       }
       data.avroValueMeta = (ValueMetaAvroRecord) valueMeta;
+
+      // The target fields don't change during the run: resolve their names and build their value
+      // metadata once. Creating value metadata scans the plugin registry.
+      List<TargetField> targetFields = meta.getTargetFields();
+      data.avroFieldNames = new String[targetFields.size()];
+      data.targetValueMetas = new IValueMeta[targetFields.size()];
+      data.standardValueMetas = new ArrayList<>(targetFields.size());
+      for (int i = 0; i < targetFields.size(); i++) {
+        TargetField targetField = targetFields.get(i);
+        data.avroFieldNames[i] = resolve(targetField.getSourceField());
+        data.targetValueMetas[i] = targetField.createTargetValueMeta(this);
+        data.standardValueMetas.add(new HashMap<>());
+      }
     }
 
     GenericRecord genericRecord = data.avroValueMeta.getGenericRecord(row[data.inputIndex]);
@@ -79,18 +96,16 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
 
       int idx = getInputRowMeta().size();
       Object[] outputRow = RowDataUtil.createResizedCopy(row, data.outputRowMeta.size());
-      for (TargetField targetField : meta.getTargetFields()) {
-        String avroFieldName = resolve(targetField.getSourceField());
+      for (int i = 0; i < data.avroFieldNames.length; i++) {
+        String avroFieldName = data.avroFieldNames[i];
         Schema.Field field = schema.getField(avroFieldName);
         Object avroValue = genericRecord.get(avroFieldName);
         Object hopValue = getStandardHopObject(field, avroValue);
 
         // Did the user ask for a different data type?
         //
-        IValueMeta standardValueMeta =
-            ValueMetaFactory.createValueMeta("standard", getStandardHopType(field));
-        IValueMeta targetValueMeta = targetField.createTargetValueMeta(this);
-        standardValueMeta.setConversionMask(targetValueMeta.getConversionMask());
+        IValueMeta targetValueMeta = data.targetValueMetas[i];
+        IValueMeta standardValueMeta = getStandardValueMeta(i, getStandardHopType(field));
 
         // Convert the data if needed
         //
@@ -103,6 +118,22 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
     }
 
     return true;
+  }
+
+  /**
+   * The value metadata of the Hop type an Avro field arrives as, for one target field, with the
+   * target's conversion mask. The type comes from each record's schema and can differ between
+   * records, so it is kept per type.
+   */
+  private IValueMeta getStandardValueMeta(int targetIndex, int hopType) throws HopException {
+    Map<Integer, IValueMeta> byType = data.standardValueMetas.get(targetIndex);
+    IValueMeta standardValueMeta = byType.get(hopType);
+    if (standardValueMeta == null) {
+      standardValueMeta = ValueMetaFactory.createValueMeta("standard", hopType);
+      standardValueMeta.setConversionMask(data.targetValueMetas[targetIndex].getConversionMask());
+      byType.put(hopType, standardValueMeta);
+    }
+    return standardValueMeta;
   }
 
   public static int getStandardHopType(Schema.Field field) throws HopException {
