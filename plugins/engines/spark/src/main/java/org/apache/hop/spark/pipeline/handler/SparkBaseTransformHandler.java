@@ -18,18 +18,17 @@
 package org.apache.hop.spark.pipeline.handler;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.pipeline.ISparkPipelineTransformHandler;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.w3c.dom.Node;
 
 public abstract class SparkBaseTransformHandler implements ISparkPipelineTransformHandler {
 
@@ -70,25 +69,19 @@ public abstract class SparkBaseTransformHandler implements ISparkPipelineTransfo
     return false;
   }
 
-  protected Node getTransformXmlNode(TransformMeta transformMeta) throws HopException {
-    String xml = transformMeta.getXml();
-    return XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
-  }
-
+  /**
+   * Loads a detached copy of this transform's metadata from its XML snapshot (never mutating the
+   * live pipeline instance) and resolves info/target transforms against the pipeline.
+   *
+   * @see HopSparkUtil#loadTransformMetadata(ITransformMeta, TransformMeta, IHopMetadataProvider,
+   *     PipelineMeta)
+   */
   protected void loadTransformMetadata(
       ITransformMeta meta,
       TransformMeta transformMeta,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta)
       throws HopException {
-    // Prefer live instance when classloaders match (normal Hop driver)
-    if (meta.getClass().isInstance(transformMeta.getTransform())) {
-      ITransformMeta live = transformMeta.getTransform();
-      // Copy via XML round-trip so we never mutate the live pipeline meta
-      meta.loadXml(getTransformXmlNode(transformMeta), metadataProvider);
-    } else {
-      meta.loadXml(getTransformXmlNode(transformMeta), metadataProvider);
-    }
-    meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+    HopSparkUtil.loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
   }
 }

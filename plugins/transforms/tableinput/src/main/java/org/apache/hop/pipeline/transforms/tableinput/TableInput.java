@@ -501,22 +501,52 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
             "Incomplete or invalid JDBC partition configuration: all four options are required.");
         return false;
       }
+      boolean fullRead = true;
       if (TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
         int copies = getTransformMeta() != null ? getTransformMeta().getCopies(this) : 1;
         int configured = TableInputPartitioning.resolveNumPartitions(meta, variables);
-        if (copies < configured) {
-          logError(
-              "Table Input requires at least "
-                  + configured
-                  + " copies for the configured JDBC partitions; got "
-                  + copies);
-          return false;
+        // Single copy or preview reads the whole result without any partition predicate, matching
+        // the classic non-partitioned behavior. Multiple copies are only restricted when there are
+        // fewer copies than configured partitions (extra copies read empty ranges).
+        boolean preview = getPipeline() != null && getPipeline().isPreview();
+        if (copies == 1 || preview) {
+          try {
+            // Validate bounds even though no predicate is applied (single copy / preview).
+            TableInputPartitioning.resolveSlice(meta, variables, databaseMeta, 0);
+          } catch (IllegalArgumentException e) {
+            logError("Invalid JDBC partition configuration: " + e.getMessage());
+            return false;
+          }
+          if (preview) {
+            logBasic(
+                "JDBC partitioning configured but preview reads the whole result ("
+                    + configured
+                    + " partitions configured, single reader)");
+          } else if (isDetailed()) {
+            logDetailed(
+                "JDBC partitioning configured but a single copy reads the whole result ("
+                    + configured
+                    + " partitions configured)");
+          }
+        } else {
+          fullRead = false;
+          if (copies < configured) {
+            logError(
+                "Table Input requires at least "
+                    + configured
+                    + " copies for the configured JDBC partitions; got "
+                    + copies);
+            return false;
+          }
         }
+      }
+      if (TableInputPartitioning.isPartitioningConfigured(meta, variables) && !fullRead) {
         try {
           data.partitionSlice =
               TableInputPartitioning.resolveSlice(meta, variables, databaseMeta, getCopy());
           if (data.partitionSlice != null) {
             if (isDetailed()) {
+              int copies = getTransformMeta() != null ? getTransformMeta().getCopies(this) : 1;
               logDetailed(
                   BaseMessages.getString(
                       PKG,
