@@ -63,6 +63,7 @@ Commands:
   search   Search in Hop metadata
   server   Run a Hop server
   setup    Configure Hop environment variables
+  xml-schema Generate and validate XML schemas
 ----
 
 =====

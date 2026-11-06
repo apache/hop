@@ -1,0 +1,133 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopXmlSchema]]
+:imagesdir: ../assets/images
+:description: Generate and validate W3C XML Schema definitions (XSD) for Hop pipelines, workflows, transforms, and actions.
+
+= hop xml-schema
+
+Apache Hop serializes pipelines, workflows, transforms, and actions to XML through metadata annotations. The XML Schema generator creates standard W3C XML Schema (`.xsd`) definitions that describe Hop files:
+
+* **Pipelines**: `pipeline.xsd` describing pipeline definitions (`.hpl`).
+* **Workflows**: `workflow.xsd` describing workflow definitions (`.hwf`).
+* **Transforms**: Individual schemas for all loaded transform plugins (`transforms/<pluginId>.xsd`).
+* **Actions**: Individual schemas for all loaded action plugins (`actions/<pluginId>.xsd`).
+
+These XML schemas can be used to validate pipeline and workflow files in CI/CD pipelines, enable XML code completion and real-time schema validation in XML editors and IDEs (such as VS Code, IntelliJ IDEA, or Eclipse), and document Hop XML file structures.
+
+The feature is accessible both visually in Hop GUI and headlessly from the command line with `hop xml-schema`.
+
+== Hop GUI: Generate XML Schemas Dialog
+
+In Hop GUI, you can open the generator from the main menu: **Tools -> Generate XML Schemas...**.
+
+image::hop-gui/generate-xml-schemas.png[Generate XML Schemas dialog,width="75%"]
+
+The dialog options match the command-line options:
+
+[cols="1,3", options="header"]
+|===
+|Option |Description
+
+|**Target folder**
+|The destination directory where the `.xsd` files will be exported. Supports local file paths as well as Apache Commons VFS URLs (e.g. `file:///path/to/schemas`).
+
+|**Export pipeline schema**
+|Generates `pipeline.xsd` for pipeline (`.hpl`) definitions. Checked by default.
+
+|**Export workflow schema**
+|Generates `workflow.xsd` for workflow (`.hwf`) definitions. Checked by default.
+
+|**Export transform schemas**
+|Generates individual XML schemas for all registered transform plugins in a `transforms/` subfolder. Checked by default.
+
+|**Export action schemas**
+|Generates individual XML schemas for all registered action plugins in an `actions/` subfolder. Checked by default.
+
+|**Plugin filter (optional)**
+|An optional regular expression or substring filter (e.g. `Table.*` or `Abort`) to restrict which transform or action schemas are generated.
+
+|**Strict element order**
+|Enforces strict class declaration order in the generated schema. When unchecked (default), elements are allowed in any order via `<xs:choice minOccurs="0" maxOccurs="unbounded">`, matching standard Hop serialization.
+|===
+
+Click **OK** to run the export with a progress monitor. When generation finishes, a summary dialog reports the count of exported schemas.
+
+== Command Line: hop xml-schema
+
+The `hop xml-schema` command (alias: `hop schema`) generates or validates XML schemas directly from the command line.
+
+=== Usage
+
+[source,bash]
+----
+hop xml-schema -t /path/to/schemas                     # Export all schemas
+hop xml-schema -t /path/to/schemas -p                  # Export pipeline.xsd only
+hop xml-schema -t /path/to/schemas -w                  # Export workflow.xsd only
+hop xml-schema -t /path/to/schemas --transforms        # Export transform schemas only
+hop xml-schema -t /path/to/schemas --actions           # Export action schemas only
+hop xml-schema -t /path/to/schemas --transforms -f Abort # Export only transforms matching "Abort"
+hop xml-schema -v path/to/pipeline.hpl                 # Validate a pipeline file against its schema
+hop xml-schema -v path/to/workflow.hwf                 # Validate a workflow file against its schema
+----
+
+=== Options
+
+[cols="1,1,3", options="header"]
+|===
+|Short |Extended |Description
+
+|`-t`
+|`--target-folder`
+|Destination directory for generated XML schemas (supports Apache Commons VFS URLs).
+
+|`-p`
+|`--pipeline`, `--export-pipeline`
+|Export the pipeline XML schema (`pipeline.xsd`).
+
+|`-w`
+|`--workflow`, `--export-workflow`
+|Export the workflow XML schema (`workflow.xsd`).
+
+|
+|`--transforms`, `--export-transforms`
+|Export individual transform XML schemas (`transforms/*.xsd`).
+
+|
+|`--actions`, `--export-actions`
+|Export individual action XML schemas (`actions/*.xsd`).
+
+|`-a`
+|`--all`
+|Export all schemas (pipeline, workflow, transforms, actions). This is the default if none of `-p`, `-w`, `--transforms`, or `--actions` are explicitly given.
+
+|`-f`
+|`--filter`
+|Plugin ID filter pattern (regex or substring) for transform and action plugins.
+
+|`-s`
+|`--strict-order`
+|Enforce strict class declaration order instead of flexible choice order.
+
+|`-v`
+|`--validate`
+|Validate a pipeline (`.hpl`) or workflow (`.hwf`) file against XML schema and report any errors.
+
+|`-h`
+|`--help`
+|Displays help information and available options.
+|===
