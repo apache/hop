@@ -116,6 +116,9 @@ public class RowMeta implements IRowMeta {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     RowMeta rowMeta = (RowMeta) o;
+    if (valueMetaList.size() != rowMeta.size()) {
+      return false;
+    }
     for (int i = 0; i < valueMetaList.size(); i++) {
       IValueMeta thisValue = valueMetaList.get(i);
       IValueMeta thatValue = rowMeta.getValueMeta(i);
@@ -1224,6 +1227,13 @@ public class RowMeta implements IRowMeta {
    */
   @Override
   public int hashCode(Object[] rowData) throws HopValueException {
+    // Only the values this row metadata describes: a row is usually longer than its metadata
+    // (RowDataUtil.OVER_ALLOCATE_SIZE), and that padding must not change the hash. For a row of
+    // exactly size() values the result is the same as Arrays.deepHashCode(rowData).
+    int size = size();
+    if (rowData != null && rowData.length > size) {
+      return Arrays.deepHashCode(Arrays.copyOf(rowData, size));
+    }
     return Arrays.deepHashCode(rowData);
   }
 

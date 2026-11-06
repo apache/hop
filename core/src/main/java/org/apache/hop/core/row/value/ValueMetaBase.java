@@ -514,37 +514,33 @@ public class ValueMetaBase implements IValueMeta {
 
   @Override
   public int hashCode() {
-    int result =
-        Objects.hash(
-            name,
-            length,
-            precision,
-            type,
-            trimType,
-            roundingType,
-            storageType,
-            origin,
-            comments,
-            conversionMask,
-            stringEncoding,
-            decimalSymbol,
-            groupingSymbol,
-            currencySymbol,
-            collatorStrength,
-            caseInsensitive,
-            collatorDisabled,
-            sortedDescending,
-            outputPaddingEnabled,
-            largeTextField,
-            collatorLocale,
-            collator,
-            dateFormatLocale,
-            dateFormatTimeZone,
-            dateFormatLenient,
-            lenientStringToNumber,
-            emptyStringAndNullAreDifferent);
-    result = 31 * result + Arrays.hashCode(index);
-    return result;
+    // Only the values equals() compares, or equal value metadata would hash differently.
+    // Use the getters: getPrecision() is fixed for Integer, Binary, String and Boolean.
+    return Objects.hash(
+        name,
+        getLength(),
+        getPrecision(),
+        type,
+        trimType,
+        roundingType,
+        storageType,
+        conversionMask,
+        stringEncoding,
+        decimalSymbol,
+        groupingSymbol,
+        currencySymbol,
+        collatorStrength,
+        caseInsensitive,
+        collatorDisabled,
+        sortedDescending,
+        outputPaddingEnabled,
+        largeTextField,
+        collatorLocale,
+        dateFormatLocale,
+        dateFormatTimeZone,
+        dateFormatLenient,
+        lenientStringToNumber,
+        emptyStringAndNullAreDifferent);
   }
 
   public static final String[] SINGLE_BYTE_ENCODINGS =

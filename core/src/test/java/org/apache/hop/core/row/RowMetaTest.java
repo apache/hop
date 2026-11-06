@@ -39,6 +39,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -500,6 +501,8 @@ class RowMetaTest {
   @Test
   void testHashCode() {
     rowMeta.clear();
+    // the hash covers the values the row metadata describes
+    rowMeta.addValueMeta(new ValueMetaBinary("bin"));
     byte[] byteArray = new byte[] {49, 50, 51};
     Object[] objArray = new Object[] {byteArray};
     try {

@@ -112,6 +112,12 @@ public class RowMetaAndData implements Cloneable {
 
   @Override
   public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof RowMetaAndData)) {
+      return false;
+    }
     try {
       return rowMeta.compare(data, ((RowMetaAndData) obj).getData()) == 0;
     } catch (HopValueException e) {

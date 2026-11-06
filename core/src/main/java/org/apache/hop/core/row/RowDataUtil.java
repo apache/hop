@@ -34,7 +34,7 @@ package org.apache.hop.core.row;
  * desired number of fields.
  */
 public class RowDataUtil {
-  public static int OVER_ALLOCATE_SIZE = 10;
+  public static final int OVER_ALLOCATE_SIZE = 10;
 
   /**
    * Allocate a new Object array. However, over allocate by a constant factor to make adding values
@@ -77,6 +77,9 @@ public class RowDataUtil {
    * @return A new object array, resized.
    */
   public static Object[] createResizedCopy(Object[] objects, int newSize) {
+    if (objects == null) {
+      return allocateRowData(newSize);
+    }
 
     Object[] newObjects;
     if (objects.length < newSize) {
@@ -84,10 +87,7 @@ public class RowDataUtil {
     } else {
       newObjects = new Object[objects.length];
     }
-
-    if (objects != null) {
-      System.arraycopy(objects, 0, newObjects, 0, objects.length);
-    }
+    System.arraycopy(objects, 0, newObjects, 0, objects.length);
     return newObjects;
   }
 
