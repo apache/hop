@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,8 @@ class BlockingTransformMetaTest {
     meta.setCacheSize(123456);
     meta.setPassAllRows(false);
     meta.setPrefix("blocking");
+    meta.setCompressFilesVariable("COMPRESS_SPOOL_FILES");
+    meta.setCompressionLevel(GzipCompressionLevel.SMALLEST);
 
     String xml = meta.getXml();
 
@@ -49,5 +53,33 @@ class BlockingTransformMetaTest {
     assertEquals(meta.getCacheSize(), meta2.getCacheSize());
     assertEquals(meta.isPassAllRows(), meta2.isPassAllRows());
     assertEquals(meta.getPrefix(), meta2.getPrefix());
+    assertEquals("COMPRESS_SPOOL_FILES", meta2.getCompressFilesVariable());
+    assertEquals(GzipCompressionLevel.SMALLEST, meta2.getCompressionLevel());
+  }
+
+  @Test
+  void testNewTransformUsesTheFastestLevel() {
+    // Hop GUI calls setDefault() on a transform it creates, never on one it loads
+    BlockingTransformMeta meta = new BlockingTransformMeta();
+    meta.setDefault();
+    assertEquals(GzipCompressionLevel.FASTEST, meta.getCompressionLevel());
+  }
+
+  @Test
+  void testOlderXmlWithoutLevelKeepsLevelSix() throws Exception {
+    // A transform saved before the compression level option: no level, no variable
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + "<compress>Y</compress><pass_all_rows>Y</pass_all_rows>"
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+
+    BlockingTransformMeta meta = new BlockingTransformMeta();
+    meta.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
+
+    assertNull(meta.getCompressFilesVariable());
+    assertNull(meta.getCompressionLevel());
+    assertEquals(
+        GzipCompressionLevel.STANDARD,
+        GzipCompressionLevel.orNotStoredDefault(meta.getCompressionLevel()));
   }
 }

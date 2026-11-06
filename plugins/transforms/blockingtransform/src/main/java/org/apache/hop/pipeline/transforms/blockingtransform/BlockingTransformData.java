@@ -32,11 +32,18 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class BlockingTransformData extends BaseTransformData implements ITransformData {
   public List<FileObject> files;
   public List<Object[]> buffer;
+
+  /** Position of the next row to pass on from {@link #buffer} when no rows went to disk. */
+  public int bufferIndex;
+
   public List<InputStream> fis;
   public List<CountingInputStream> countingInputStreams;
   public List<GZIPInputStream> gzis;
   public List<DataInputStream> dis;
   public List<Object[]> rowbuffer;
+
+  /** Whether the temporary files are compressed, resolved when the transform starts. */
+  public boolean compressFiles;
 
   public IRowMeta outputRowMeta;
 

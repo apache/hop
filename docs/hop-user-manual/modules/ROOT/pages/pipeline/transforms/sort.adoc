@@ -52,6 +52,10 @@ The native Spark engine does support this transform: it is mapped onto a Spark s
 |Sort size|The more rows you store in memory, the faster the sorting process because fewer temporary files must be used and less I/O is generated.
 |Free memory threshold (in %)|If the sort algorithm finds that it has less available free memory than the indicated number, it will start to page data to disk.
 |Compress TMP Files|Compresses temporary files when they are needed to complete the sort.
+You can also give a variable: when it is set, its value (Y or N) decides whether the files are compressed.
+|Compression level|How hard to compress the temporary files: 1 - Fastest, 2 - Very fast, 3 - Fast, 4 - Balanced, faster, 5 - Balanced, 6 - Standard (the Java default), 7 - Smaller files, 8 - Very small files, 9 - Smallest files.
+Temporary files are read back only once, so a low level is usually best.
+A new transform uses 1 - Fastest. A transform saved before this option existed keeps 6 - Standard, the level it always used.
 |Only pass unique rows?|Enable if you want to pass unique rows only to the output stream(s).
 |Fields table|Specify the fields and direction (ascending/descending) to sort.
 You can specify whether to perform a case sensitive sort (optional)
