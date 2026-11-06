@@ -20,6 +20,8 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -455,6 +457,35 @@ public final class VfsFileTransfer {
     }
     try {
       return HopVfs.getFilename(left).equals(HopVfs.getFilename(right));
+    } catch (Exception ignored) {
+      return false;
+    }
+  }
+
+  /**
+   * True when both objects name one file. {@link #same} compares the path as written, so on a
+   * case-insensitive disk {@code data.csv} and {@code Data.csv} are not the same to it. A local
+   * pair counts only when the names differ by letter case, neither path is a symbolic link, and the
+   * disk reports one file. A link and the file it points to stay different, so renaming the link
+   * does not replace that file.
+   */
+  static boolean sameFile(FileObject left, FileObject right) {
+    if (same(left, right)) {
+      return true;
+    }
+    try {
+      String leftName = HopVfs.getFilename(left);
+      String rightName = HopVfs.getFilename(right);
+      if (!leftName.equalsIgnoreCase(rightName)
+          || !HopVfs.isLocalFileSystem(leftName)
+          || !HopVfs.isLocalFileSystem(rightName)) {
+        return false;
+      }
+      Path leftPath = Path.of(leftName);
+      Path rightPath = Path.of(rightName);
+      return !Files.isSymbolicLink(leftPath)
+          && !Files.isSymbolicLink(rightPath)
+          && Files.isSameFile(leftPath, rightPath);
     } catch (Exception ignored) {
       return false;
     }

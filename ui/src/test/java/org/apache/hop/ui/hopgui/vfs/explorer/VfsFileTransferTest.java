@@ -22,13 +22,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.abort;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
+import java.util.stream.Stream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.vfs.HopVfs;
@@ -312,6 +318,63 @@ class VfsFileTransferTest {
   }
 
   @Test
+  void aCaseOnlyLocalNameIsTheSameFile() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-case");
+    try {
+      Path file = Files.writeString(dir.resolve("data.csv"), "hello");
+      Path other = Files.writeString(dir.resolve("other.csv"), "x");
+      FileObject source = HopVfs.getFileObject(file.toString());
+      FileObject otherCase = source.getParent().resolveFile("Data.csv");
+      FileObject different = HopVfs.getFileObject(other.toString());
+
+      assertTrue(VfsFileTransfer.sameFile(source, source));
+      assertFalse(VfsFileTransfer.sameFile(source, different));
+      if (otherCase.exists()) {
+        assertFalse(VfsFileTransfer.same(source, otherCase));
+        assertTrue(VfsFileTransfer.sameFile(source, otherCase));
+      } else {
+        assertFalse(VfsFileTransfer.sameFile(source, otherCase));
+      }
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void aSymbolicLinkIsNotTheSameFileAsItsTarget() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-link");
+    try {
+      Path target = Files.writeString(dir.resolve("a.csv"), "precious");
+      Path link = symbolicLink(dir.resolve("link.csv"), target.getFileName());
+      assertFalse(
+          VfsFileTransfer.sameFile(
+              HopVfs.getFileObject(link.toString()), HopVfs.getFileObject(target.toString())));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void aCaseOnlySymbolicLinkIsNotTheSameFile() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-case-link");
+    try {
+      Path stored = Files.writeString(dir.resolve("data.csv"), "hello");
+      Path link;
+      try {
+        link = Files.createSymbolicLink(dir.resolve("Data.csv"), stored.getFileName());
+      } catch (UnsupportedOperationException | IOException e) {
+        abort("a distinct case-only symbolic link is not available: " + e.getMessage());
+        return;
+      }
+      assertFalse(
+          VfsFileTransfer.sameFile(
+              HopVfs.getFileObject(link.toString()), HopVfs.getFileObject(stored.toString())));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
   void aDroppedPathInsideAnotherIsLeftOut() {
     assertEquals(
         List.of("/data", "/other.txt"),
@@ -364,6 +427,26 @@ class VfsFileTransferTest {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     } finally {
       file.close();
+    }
+  }
+
+  private static Path symbolicLink(Path link, Path relativeTarget) {
+    try {
+      return Files.createSymbolicLink(link, relativeTarget);
+    } catch (UnsupportedOperationException | IOException e) {
+      abort("symbolic links are not available: " + e.getMessage());
+      return null;
+    }
+  }
+
+  private static void deleteTree(Path dir) throws Exception {
+    if (dir == null || !Files.exists(dir)) {
+      return;
+    }
+    try (Stream<Path> paths = Files.walk(dir)) {
+      for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+        Files.deleteIfExists(path);
+      }
     }
   }
 
