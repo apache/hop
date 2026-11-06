@@ -607,6 +607,7 @@ under the License.
 ** xref:technology/avro/index.adoc[Avro]
 ** xref:technology/azure/index.adoc[Azure]
 ** xref:technology/cassandra/index.adoc[Cassandra]
+** xref:technology/datahub/index.adoc[DataHub]
 ** xref:technology/falkordb/index.adoc[FalkorDB]
 ** xref:technology/graph-databases/index.adoc[Graph databases]
 ** xref:technology/gremlin/index.adoc[Gremlin]
