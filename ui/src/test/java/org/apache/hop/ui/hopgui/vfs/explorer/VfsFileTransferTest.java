@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.abort;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -339,6 +341,40 @@ class VfsFileTransferTest {
   }
 
   @Test
+  void aSymbolicLinkIsNotTheSameFileAsItsTarget() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-link");
+    try {
+      Path target = Files.writeString(dir.resolve("a.csv"), "precious");
+      Path link = symbolicLink(dir.resolve("link.csv"), target.getFileName());
+      assertFalse(
+          VfsFileTransfer.sameFile(
+              HopVfs.getFileObject(link.toString()), HopVfs.getFileObject(target.toString())));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void aCaseOnlySymbolicLinkIsNotTheSameFile() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-case-link");
+    try {
+      Path stored = Files.writeString(dir.resolve("data.csv"), "hello");
+      Path link;
+      try {
+        link = Files.createSymbolicLink(dir.resolve("Data.csv"), stored.getFileName());
+      } catch (UnsupportedOperationException | IOException e) {
+        abort("a distinct case-only symbolic link is not available: " + e.getMessage());
+        return;
+      }
+      assertFalse(
+          VfsFileTransfer.sameFile(
+              HopVfs.getFileObject(link.toString()), HopVfs.getFileObject(stored.toString())));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
   void aDroppedPathInsideAnotherIsLeftOut() {
     assertEquals(
         List.of("/data", "/other.txt"),
@@ -391,6 +427,15 @@ class VfsFileTransferTest {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     } finally {
       file.close();
+    }
+  }
+
+  private static Path symbolicLink(Path link, Path relativeTarget) {
+    try {
+      return Files.createSymbolicLink(link, relativeTarget);
+    } catch (UnsupportedOperationException | IOException e) {
+      abort("symbolic links are not available: " + e.getMessage());
+      return null;
     }
   }
 
