@@ -740,19 +740,6 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
             updateSuccess();
           }
           case CONST_DELETE_FILE -> {
-            gpg.decryptFile(sourceFileName, passPhrase, destinationFileName);
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      CONST_ACTION_PGP_DECRYPT_FILES_LOG_FILE_DECRYPTED,
-                      sourceFileName.getName().toString(),
-                      destinationFileName.getName().toString()));
-            }
-            if (addResultFilenames) {
-              addFileToResultFilenames(destinationFileName.toString(), result, parentWorkflow);
-            }
-            updateSuccess();
             sourceFileName.delete();
             if (isDetailed()) {
               logDetailed(
@@ -761,22 +748,9 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                       "ActionPGPDecryptFiles.Log.FileDeleted",
                       sourceFileName.getName().toString()));
             }
+            updateSuccess();
           }
           case CONST_MOVE_FILE -> {
-            gpg.decryptFile(sourceFileName, passPhrase, destinationFileName);
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      CONST_ACTION_PGP_DECRYPT_FILES_LOG_FILE_DECRYPTED,
-                      sourceFileName.getName().toString(),
-                      destinationFileName.getName().toString()));
-            }
-            if (addResultFilenames) {
-              addFileToResultFilenames(destinationFileName.toString(), result, parentWorkflow);
-            }
-            updateSuccess();
-
             String shortFilename = shortFileName;
             // return destination short filename
             try {
@@ -793,7 +767,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                 moveToFolderFolder.toString() + Const.FILE_SEPARATOR + shortFilename;
             destinationFile = HopVfs.getFileObject(moveToFileNameFull, getVariables());
             if (!destinationFile.exists()) {
-              HopVfs.moveFile(sourceFileName, destinationFile);
+              sourceFileName.moveTo(destinationFile);
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
@@ -803,10 +777,17 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                         destinationFile.getName().toString()));
               }
 
+              // add filename to result filename
+              if (addResultFilenames
+                  && !ifFileExists.equals(CONST_FAIL)
+                  && !ifFileExists.equals(CONST_DO_NOTHING)) {
+                addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
+              }
+
             } else {
               switch (ifMovedFileExists) {
                 case CONST_OVERWRITE_FILE -> {
-                  HopVfs.moveFile(sourceFileName, destinationFile);
+                  sourceFileName.moveTo(destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
@@ -814,6 +795,15 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                             "ActionPGPDecryptFiles.Log.FileOverwrite",
                             destinationFile.getName().toString()));
                   }
+
+                  // add filename to result filename
+                  if (addResultFilenames
+                      && !ifFileExists.equals(CONST_FAIL)
+                      && !ifFileExists.equals(CONST_DO_NOTHING)) {
+                    addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
+                  }
+
+                  updateSuccess();
                 }
                 case CONST_UNIQUE_NAME -> {
                   SimpleDateFormat daf = new SimpleDateFormat();
@@ -826,7 +816,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                       moveToFolderFolder + Const.FILE_SEPARATOR + shortFilename;
                   destinationFile = HopVfs.getFileObject(destinationFileNameFull, getVariables());
 
-                  HopVfs.moveFile(sourceFileName, destinationFile);
+                  sourceFileName.moveTo(destinationFile);
                   if (isDetailed()) {
                     logDetailed(
                         BaseMessages.getString(
@@ -834,6 +824,15 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                             CONST_ACTION_PGP_DECRYPT_FILES_LOG_FILE_DECRYPTED,
                             destinationFile.getName().toString()));
                   }
+
+                  // add filename to result filename
+                  if (addResultFilenames
+                      && !ifFileExists.equals(CONST_FAIL)
+                      && !ifFileExists.equals(CONST_DO_NOTHING)) {
+                    addFileToResultFilenames(destinationFile.toString(), result, parentWorkflow);
+                  }
+
+                  updateSuccess();
                 }
                 case CONST_FAIL ->
                     // Update Errors

@@ -107,7 +107,7 @@ class ActionPGPFilesConflictTest {
   }
 
   @Test
-  void deleteSourceEncryptsIntoTheDestinationThenRemovesTheSource() throws Exception {
+  void deleteSourceRemovesTheSourceAndLeavesTheDestination() throws Exception {
     Path source = file("delete/plain.txt", "PLAIN");
     Path destination = file("delete/out/plain.txt", "OLD");
     ActionPGPEncryptFiles action = encrypt("delete_file", source, destination);
@@ -115,14 +115,14 @@ class ActionPGPFilesConflictTest {
 
     assertTrue(result.isResult());
     assertEquals(1, result.getNrLinesWritten());
+    assertEquals(0, result.getNrErrors());
     assertFalse(Files.exists(source));
-    assertEquals("PLAIN", Files.readString(destination));
-    assertEquals(1, result.getResultFiles().size());
-    assertTrue(result.getResultFiles().keySet().iterator().next().contains("plain.txt"));
+    assertEquals("OLD", Files.readString(destination));
+    assertEquals(0, result.getResultFiles().size());
   }
 
   @Test
-  void moveSourceEncryptsFirstAndThenMovesThePlaintext() throws Exception {
+  void moveSourceLeavesTheDestinationAndMovesTheSource() throws Exception {
     Path source = file("move/plain.txt", "PLAIN");
     Path destination = file("move/out/plain.txt", "OLD");
     Path moved = root.resolve("move/moved");
@@ -133,14 +133,37 @@ class ActionPGPFilesConflictTest {
     Result result = action.execute(new Result(), 0);
 
     assertTrue(result.isResult());
-    assertEquals(1, result.getNrLinesWritten());
+    assertEquals(0, result.getNrLinesWritten());
+    assertEquals(0, result.getNrErrors());
     assertFalse(Files.exists(source));
-    assertEquals("PLAIN", Files.readString(destination));
+    assertEquals("OLD", Files.readString(destination));
     assertEquals("PLAIN", Files.readString(moved.resolve("plain.txt")));
     assertEquals(1, result.getResultFiles().size());
     String registered = result.getResultFiles().keySet().iterator().next();
-    assertTrue(registered.contains("out"), registered);
-    assertFalse(registered.contains("moved"), registered);
+    assertTrue(registered.contains("moved"), registered);
+    assertFalse(registered.contains("out"), registered);
+  }
+
+  @Test
+  void moveFailsWhenTheMovedFileExistsAndCountsOnlyAnError() throws Exception {
+    Path source = file("move-fail/plain.txt", "PLAIN");
+    Path destination = file("move-fail/out/plain.txt", "OLD");
+    Path moved = root.resolve("move-fail/moved");
+    Files.createDirectories(moved);
+    Files.writeString(moved.resolve("plain.txt"), "ALREADY");
+    ActionPGPEncryptFiles action = encrypt("move_file", source, destination);
+    action.setDestinationFolder(moved.toString());
+    action.setCreateMoveToFolder(true);
+    action.setIfMovedFileExists("fail");
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.isResult());
+    assertEquals(1, result.getNrErrors());
+    assertEquals(0, result.getNrLinesWritten());
+    assertEquals("PLAIN", Files.readString(source));
+    assertEquals("OLD", Files.readString(destination));
+    assertEquals("ALREADY", Files.readString(moved.resolve("plain.txt")));
+    assertEquals(0, result.getResultFiles().size());
   }
 
   @Test
@@ -158,20 +181,21 @@ class ActionPGPFilesConflictTest {
   }
 
   @Test
-  void decryptDeleteSourceWritesTheDestinationThenRemovesTheSource() throws Exception {
+  void decryptDeleteSourceRemovesTheSourceAndLeavesTheDestination() throws Exception {
     Path source = file("d-delete/sealed.gpg", "SEALED");
     Path destination = file("d-delete/out/sealed.gpg", "OLD");
     Result result = decrypt(source, destination);
 
     assertTrue(result.isResult());
     assertEquals(1, result.getNrLinesWritten());
+    assertEquals(0, result.getNrErrors());
     assertFalse(Files.exists(source));
-    assertEquals("SEALED", Files.readString(destination));
-    assertEquals(1, result.getResultFiles().size());
+    assertEquals("OLD", Files.readString(destination));
+    assertEquals(0, result.getResultFiles().size());
   }
 
   @Test
-  void decryptMoveSourceWritesTheDestinationThenMovesTheSource() throws Exception {
+  void decryptMoveSourceLeavesTheDestinationAndMovesTheSource() throws Exception {
     Path source = file("d-move/sealed.gpg", "SEALED");
     Path destination = file("d-move/out/sealed.gpg", "OLD");
     Path moved = root.resolve("d-move/moved");
@@ -183,12 +207,14 @@ class ActionPGPFilesConflictTest {
     Result result = action.execute(new Result(), 0);
 
     assertTrue(result.isResult());
-    assertEquals(1, result.getNrLinesWritten());
-    assertEquals("SEALED", Files.readString(destination));
+    assertEquals(0, result.getNrLinesWritten());
+    assertEquals(0, result.getNrErrors());
+    assertFalse(Files.exists(source));
+    assertEquals("OLD", Files.readString(destination));
     assertEquals("SEALED", Files.readString(moved.resolve("sealed.gpg")));
     String registered = result.getResultFiles().keySet().iterator().next();
-    assertTrue(registered.contains("out"), registered);
-    assertFalse(registered.contains("moved"), registered);
+    assertTrue(registered.contains("moved"), registered);
+    assertFalse(registered.contains("out"), registered);
   }
 
   @Test
