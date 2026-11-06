@@ -17,7 +17,10 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -27,6 +30,15 @@ public class AvroDecodeData extends BaseTransformData implements ITransformData 
   public IRowMeta outputRowMeta;
   public int inputIndex;
   public ValueMetaAvroRecord avroValueMeta;
+
+  /** Per target field, built on the first row: the resolved Avro field name. */
+  public String[] avroFieldNames;
+
+  /** Per target field, built on the first row: the value metadata to convert to. */
+  public IValueMeta[] targetValueMetas;
+
+  /** Per target field: the value metadata of the Hop type the value arrives as, by type. */
+  public List<Map<Integer, IValueMeta>> standardValueMetas;
 
   public AvroDecodeData() {
     // Do nothing
