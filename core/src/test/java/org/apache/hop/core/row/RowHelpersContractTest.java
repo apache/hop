@@ -126,5 +126,18 @@ class RowHelpersContractTest {
 
     assertEquals(one, two);
     assertEquals(one.hashCode(), two.hashCode());
+
+    // getPrecision() is fixed for these types, so the stored precision must not change the hash.
+    ValueMetaInteger plain = new ValueMetaInteger("id");
+    ValueMetaInteger withPrecision = new ValueMetaInteger("id");
+    withPrecision.setPrecision(0);
+    assertEquals(plain, withPrecision);
+    assertEquals(plain.hashCode(), withPrecision.hashCode());
+
+    ValueMetaString text = new ValueMetaString("text");
+    ValueMetaString textWithPrecision = new ValueMetaString("text");
+    textWithPrecision.setPrecision(3);
+    assertEquals(text, textWithPrecision);
+    assertEquals(text.hashCode(), textWithPrecision.hashCode());
   }
 }

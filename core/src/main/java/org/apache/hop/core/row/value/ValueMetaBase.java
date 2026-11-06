@@ -514,11 +514,12 @@ public class ValueMetaBase implements IValueMeta {
 
   @Override
   public int hashCode() {
-    // Only the fields equals() compares, or equal value metadata would hash differently.
+    // Only the values equals() compares, or equal value metadata would hash differently.
+    // Use the getters: getPrecision() is fixed for Integer, Binary, String and Boolean.
     return Objects.hash(
         name,
-        length,
-        precision,
+        getLength(),
+        getPrecision(),
         type,
         trimType,
         roundingType,
