@@ -22,7 +22,9 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageActionStartListener;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -30,12 +32,19 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 @ExtensionPoint(
     id = "LineageHubWorkflowStartXp",
     extensionPointId = "WorkflowStart",
-    description = "Emits lineage RUN_LIFECYCLE STARTED for workflow executions")
+    description =
+        "Emits lineage RUN_LIFECYCLE STARTED for workflow executions and registers the action"
+            + " start listener")
 public class LineageHubWorkflowStartXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
     LineageRunLifecycleEmitter.emitWorkflow(workflow, RunLifecyclePhase.STARTED, null);
+    // Action starts are emitted from an action listener: only there does the cloned action, and
+    // with it the action run's id, exist.
+    if (LineageHub.getInstance().isEnabled()) {
+      LineageActionStartListener.register(workflow);
+    }
   }
 }

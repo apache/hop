@@ -37,5 +37,11 @@ public enum LineageEventKind {
    * PipelineGraphLineagePayload}). Sinks need it to attribute a dataset to the transform that
    * touched it rather than to the whole pipeline.
    */
-  PIPELINE_GRAPH
+  PIPELINE_GRAPH,
+  /**
+   * The workflow's hop graph, emitted once per run next to its start (payload: {@link
+   * PipelineGraphLineagePayload}, its transitions naming actions). Sinks use it to say which action
+   * follows which.
+   */
+  WORKFLOW_GRAPH
 }
