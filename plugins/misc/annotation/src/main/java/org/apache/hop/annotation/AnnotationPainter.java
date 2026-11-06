@@ -63,8 +63,10 @@ public final class AnnotationPainter {
     }
 
     gc.setFont(IGc.EFont.NOTE);
+    // Unscaled pixels. setTransform already scales what is drawn, and textExtent measures in that
+    // same space. The click area below is this rectangle; screen2real converts the mouse into it.
     float magnification = gc.getMagnification();
-    int maxWidth = AnnotationGeometry.scale(AnnotationGeometry.MAX_TEXT_WIDTH_PX, magnification);
+    int maxWidth = AnnotationGeometry.MAX_TEXT_WIDTH_PX;
     List<String> lines = AnnotationGeometry.wrap(text, maxWidth, line -> gc.textExtent(line).x);
     if (lines.isEmpty()) {
       return;
@@ -87,7 +89,7 @@ public final class AnnotationPainter {
     RgbColor background = NotePadStyle.backgroundColor(NotePadType.GENERAL);
     RgbColor border = NotePadStyle.borderColor(NotePadType.GENERAL);
     RgbColor foreground = NotePadStyle.textColor(NotePadType.GENERAL);
-    int radius = AnnotationGeometry.scale(AnnotationGeometry.RADIUS_PX, magnification);
+    int radius = AnnotationGeometry.RADIUS_PX;
 
     if (annotation.isDashedLine()) {
       AnnotationGeometry.Segment connector = AnnotationGeometry.connector(balloon, icon);
@@ -107,7 +109,7 @@ public final class AnnotationPainter {
         balloon.x(), balloon.y(), balloon.width(), balloon.height(), radius, radius);
 
     gc.setForeground(foreground.red(), foreground.green(), foreground.blue());
-    int padding = AnnotationGeometry.scale(AnnotationGeometry.PADDING_PX, magnification);
+    int padding = AnnotationGeometry.PADDING_PX;
     int textX = balloon.x() + padding;
     int textY = balloon.y() + padding;
     for (int i = 0; i < lines.size(); i++) {

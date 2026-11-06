@@ -18,6 +18,7 @@
 package org.apache.hop.annotation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -126,6 +127,65 @@ class AnnotationPainterTest {
   }
 
   @Test
+  void calloutSizeAndClickAreaDoNotDependOnMagnification() {
+    // 25 characters fit in MAX_TEXT_WIDTH_PX (25 * 7 = 175). The whole line is 217, which fits
+    // only when the wrap width is scaled by the zoom a second time.
+    String text = "1234567890123456789012345 extra";
+    Annotation annotation = new Annotation();
+    annotation.setText(text);
+    annotation.setDashedLine(false);
+    annotation.setPlacement(AnnotationPlacement.TOP);
+    DPoint offset = new DPoint(4, 6);
+    Bounds icon = new Bounds(100, 80, 32, 32);
+
+    AreaOwner first = null;
+    for (float magnification : new float[] {0.5f, 1f, 2f}) {
+      StubGc gc = new StubGc();
+      gc.magnification = magnification;
+      List<AreaOwner> areas = new ArrayList<>();
+      AnnotationPainter.paint(
+          gc, areas, offset, new TransformMeta(), 100, 80, 32, false, annotation);
+
+      assertEquals(2, gc.drawnText.size(), "magnification " + magnification);
+      Bounds expected =
+          AnnotationGeometry.balloon(icon, 25 * 7, 2 * 10, AnnotationPlacement.TOP, magnification);
+      assertEquals(expected.x(), gc.roundX);
+      assertEquals(expected.y(), gc.roundY);
+      assertEquals(expected.width(), gc.roundWidth);
+      assertEquals(expected.height(), gc.roundHeight);
+      assertEquals(AnnotationGeometry.RADIUS_PX, gc.roundRadius);
+      assertEquals(expected.x() + AnnotationGeometry.PADDING_PX, gc.textX);
+      assertEquals(expected.y() + AnnotationGeometry.PADDING_PX, gc.textY);
+      assertEquals(25 * 7 + 2 * AnnotationGeometry.PADDING_PX, expected.width());
+      assertEquals(2 * 10 + 2 * AnnotationGeometry.PADDING_PX, expected.height());
+
+      AreaOwner area = areas.get(0);
+      assertEquals(expected.width(), area.getArea().width);
+      assertEquals(expected.height(), area.getArea().height);
+      assertEquals(expected.x() - 4, area.getArea().x);
+      assertEquals(expected.y() - 6, area.getArea().y);
+
+      // screen2real: graph = canvas / magnification - offset. The GC transform drew the balloon
+      // at canvas = magnification * draw, and the click rectangle is draw minus offset.
+      double canvasX = magnification * expected.centerX();
+      double canvasY = magnification * expected.centerY();
+      int graphX = (int) Math.round(canvasX / magnification - offset.x);
+      int graphY = (int) Math.round(canvasY / magnification - offset.y);
+      assertTrue(area.contains(graphX, graphY), "magnification " + magnification);
+      assertFalse(area.contains(area.getArea().x - 1, graphY));
+
+      if (first == null) {
+        first = area;
+      } else {
+        assertEquals(first.getArea().x, area.getArea().x);
+        assertEquals(first.getArea().y, area.getArea().y);
+        assertEquals(first.getArea().width, area.getArea().width);
+        assertEquals(first.getArea().height, area.getArea().height);
+      }
+    }
+  }
+
+  @Test
   void painterExtensionReadsTheStoredAnnotation() throws HopException {
     TransformMeta transform = new TransformMeta();
     Annotation annotation = new Annotation();
@@ -179,10 +239,17 @@ class AnnotationPainterTest {
   /** Minimal IGc that records the callout colors and shape. */
   private static final class StubGc implements IGc {
     private int lineWidth = 1;
+    private float magnification = 1f;
     private IGc.EFont font;
     private int backgroundRed = -1;
     private int roundX;
     private int roundY;
+    private int roundWidth;
+    private int roundHeight;
+    private int roundRadius;
+    private int textX;
+    private int textY;
+    private boolean textPositionRecorded;
     private int roundRectLineWidth = -1;
     private final List<String> drawnText = new ArrayList<>();
     private IGc.ELineStyle lineStyle = IGc.ELineStyle.SOLID;
@@ -283,11 +350,20 @@ class AnnotationPainterTest {
 
     @Override
     public void drawText(String text, int x, int y) {
-      drawnText.add(text);
+      recordText(text, x, y);
     }
 
     @Override
     public void drawText(String text, int x, int y, boolean transparent) {
+      recordText(text, x, y);
+    }
+
+    private void recordText(String text, int x, int y) {
+      if (!textPositionRecorded) {
+        textX = x;
+        textY = y;
+        textPositionRecorded = true;
+      }
       drawnText.add(text);
     }
 
@@ -296,6 +372,9 @@ class AnnotationPainterTest {
         int x, int y, int width, int height, int circleWidth, int circleHeight) {
       roundX = x;
       roundY = y;
+      roundWidth = width;
+      roundHeight = height;
+      roundRadius = circleWidth;
     }
 
     @Override
@@ -321,7 +400,7 @@ class AnnotationPainterTest {
 
     @Override
     public float getMagnification() {
-      return 1f;
+      return magnification;
     }
 
     @Override

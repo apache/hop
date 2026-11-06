@@ -52,27 +52,21 @@ public final class AnnotationGeometry {
   public record Segment(int x1, int y1, int x2, int y2) {}
 
   /**
-   * Scales a pixel constant by the canvas magnification. A non-positive magnification is treated as
-   * 1.
-   *
-   * @param pixels the unscaled size
-   * @param magnification the canvas magnification
-   * @return at least 1
-   */
-  public static int scale(int pixels, float magnification) {
-    float factor = magnification > 0f ? magnification : 1f;
-    return Math.max(1, Math.round(pixels * factor));
-  }
-
-  /**
    * Balloon rectangle for the measured text. Padding is added here. The text size is the wrapped
    * block, not including padding.
+   *
+   * <p>{@code magnification} is not applied. {@code SwtGc.setTransform} and {@code
+   * SvgGc.setTransform} already scale everything drawn, and {@code IGc#textExtent} measures in that
+   * unscaled space. The graph hit-tests with {@code screen2real}, which divides the canvas point by
+   * the same factor and subtracts the scroll offset before comparing it to the click rectangle.
+   * That rectangle is this balloon with the offset removed, so a click lands at every zoom while
+   * the gap and padding stay {@link #GAP_PX} and {@link #PADDING_PX}.
    *
    * @param icon icon rectangle
    * @param textWidth wrapped text width
    * @param textHeight wrapped text height
    * @param placement where the balloon sits; null is {@link AnnotationPlacement#TOP}
-   * @param magnification canvas magnification
+   * @param magnification canvas magnification, accepted and not applied
    * @return the balloon, fully outside the icon when the gap is positive
    */
   public static Bounds balloon(
@@ -81,8 +75,11 @@ public final class AnnotationGeometry {
       int textHeight,
       AnnotationPlacement placement,
       float magnification) {
-    int gap = scale(GAP_PX, magnification);
-    int padding = scale(PADDING_PX, magnification);
+    // The graphics transform already scales these pixels. Multiplying by magnification would
+    // scale the callout a second time. The parameter stays so callers and tests can pass the
+    // canvas zoom and see that the rectangle does not change.
+    int gap = GAP_PX;
+    int padding = PADDING_PX;
     int width = Math.max(0, textWidth) + 2 * padding;
     int height = Math.max(0, textHeight) + 2 * padding;
     AnnotationPlacement side = placement == null ? AnnotationPlacement.TOP : placement;
