@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.cube.CubeFilename;
+import org.apache.hop.pipeline.transforms.cube.CubeStreams;
 
 public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 
@@ -133,7 +134,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       input = HopVfs.getInputStream(filename, variables);
       input = new CountingInputStream(input);
       GZIPInputStream gzip = new GZIPInputStream(input);
-      dataInput = new DataInputStream(gzip);
+      dataInput = CubeStreams.dataInput(gzip);
       IRowMeta layout = new RowMeta(dataInput);
       if (data.meta != null && !sameLayout(data.meta, layout)) {
         throw new HopException(
@@ -234,7 +235,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
     }
     try (InputStream is = HopVfs.getInputStream(filename, variables);
         GZIPInputStream fis = new GZIPInputStream(is);
-        DataInputStream dis = new DataInputStream(fis)) {
+        DataInputStream dis = CubeStreams.dataInput(fis)) {
       data.meta = new RowMeta(dis);
       data.referenceFilename = filename;
     } catch (HopException e) {
