@@ -20,11 +20,13 @@ package org.apache.hop.pipeline.transforms.sort;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -40,6 +42,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -68,6 +71,8 @@ public class SortRowsDialog extends BaseTransformDialog {
   private TextVar wFreeMemory;
 
   private CheckBoxVar wCompress;
+
+  private CCombo wCompressionLevel;
 
   private Button wUniqueRows;
 
@@ -209,14 +214,39 @@ public class SortRowsDialog extends BaseTransformDialog {
           }
         });
 
-    // Using compression for temporary files?
+    // How hard to compress the temporary files
+    Label wlCompressionLevel = new Label(shell, SWT.RIGHT);
+    wlCompressionLevel.setText(
+        BaseMessages.getString(PKG, "SortRowsDialog.CompressionLevel.Label"));
+    wlCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "SortRowsDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wlCompressionLevel);
+    FormData fdlCompressionLevel = new FormData();
+    fdlCompressionLevel.left = new FormAttachment(0, 0);
+    fdlCompressionLevel.right = new FormAttachment(middle, -margin);
+    fdlCompressionLevel.top = new FormAttachment(wCompress, margin);
+    wlCompressionLevel.setLayoutData(fdlCompressionLevel);
+    wCompressionLevel = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wCompressionLevel.setItems(
+        IEnumHasCodeAndDescription.getDescriptions(GzipCompressionLevel.class));
+    wCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "SortRowsDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wCompressionLevel);
+    wCompressionLevel.addModifyListener(lsMod);
+    FormData fdCompressionLevel = new FormData();
+    fdCompressionLevel.left = new FormAttachment(middle, 0);
+    fdCompressionLevel.top = new FormAttachment(wCompress, margin);
+    fdCompressionLevel.right = new FormAttachment(100, 0);
+    wCompressionLevel.setLayoutData(fdCompressionLevel);
+
+    // Only pass unique rows?
     Label wlUniqueRows = new Label(shell, SWT.RIGHT);
     wlUniqueRows.setText(BaseMessages.getString(PKG, "SortRowsDialog.UniqueRows.Label"));
     PropsUi.setLook(wlUniqueRows);
     FormData fdlUniqueRows = new FormData();
     fdlUniqueRows.left = new FormAttachment(0, 0);
     fdlUniqueRows.right = new FormAttachment(middle, -margin);
-    fdlUniqueRows.top = new FormAttachment(wCompress, margin);
+    fdlUniqueRows.top = new FormAttachment(wCompressionLevel, margin);
     wlUniqueRows.setLayoutData(fdlUniqueRows);
     wUniqueRows = new Button(shell, SWT.CHECK);
     wUniqueRows.setToolTipText(BaseMessages.getString(PKG, "SortRowsDialog.UniqueRows.Tooltip"));
@@ -361,6 +391,8 @@ public class SortRowsDialog extends BaseTransformDialog {
     wFreeMemory.setText(Const.NVL(input.getFreeMemoryLimit(), ""));
     wCompress.setSelection(input.isCompressFiles());
     wCompress.setVariableName(input.getCompressFilesVariable());
+    wCompressionLevel.select(
+        GzipCompressionLevel.orNotStoredDefault(input.getCompressionLevel()).getIndex());
     wUniqueRows.setSelection(input.isOnlyPassingUniqueRows());
 
     Table table = wFields.table;
@@ -424,6 +456,11 @@ public class SortRowsDialog extends BaseTransformDialog {
     log.logDetailed("Sort rows", "Compression is set to " + wCompress.getSelection());
     input.setCompressFiles(wCompress.getSelection());
     input.setCompressFilesVariable(wCompress.getVariableName());
+    input.setCompressionLevel(
+        IEnumHasCodeAndDescription.lookupDescription(
+            GzipCompressionLevel.class,
+            wCompressionLevel.getText(),
+            GzipCompressionLevel.NOT_STORED_DEFAULT));
     input.setOnlyPassingUniqueRows(wUniqueRows.getSelection());
 
     int nrFields = wFields.nrNonEmpty();

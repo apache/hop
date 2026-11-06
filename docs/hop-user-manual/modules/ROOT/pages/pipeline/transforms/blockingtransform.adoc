@@ -40,5 +40,9 @@ Use the Blocking transform for triggering plugins, stored procedures, Java scrip
 |Spool directory|The directory in which the temporary files are stored if needed; the default is the standard temporary directory for the system
 |Spool-file prefix|Choose a recognizable prefix to identify the files when they appear in the temp directory
 |Cache size|The more rows you can store in memory, the faster the transform works
-|Compress spool files?|Compresses temporary files when they are needed
+|Compress spool files?|Compresses temporary files when they are needed.
+You can also give a variable: when it is set, its value (Y or N) decides whether the files are compressed.
+|Compression level|How hard to compress the spool files: 1 - Fastest, 2 - Very fast, 3 - Fast, 4 - Balanced, faster, 5 - Balanced, 6 - Standard (the Java default), 7 - Smaller files, 8 - Very small files, 9 - Smallest files.
+Spool files are read back only once, so a low level is usually best.
+A new transform uses 1 - Fastest. A transform saved before this option existed keeps 6 - Standard, the level it always used.
 |===

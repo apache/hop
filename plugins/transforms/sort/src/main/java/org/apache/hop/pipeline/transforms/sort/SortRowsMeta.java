@@ -30,6 +30,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -96,6 +97,13 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   @HopMetadataProperty(key = "compress_variables", injectionKey = "COMPRESS_VARIABLE")
   private String compressFilesVariable;
 
+  /** How hard to compress the temporary files, from 1 (fastest) to 9 (smallest files). */
+  @HopMetadataProperty(
+      key = "compression_level",
+      storeWithCode = true,
+      injectionKey = "COMPRESSION_LEVEL")
+  private GzipCompressionLevel compressionLevel;
+
   public SortRowsMeta() {
     super();
     sortFields = new ArrayList<>();
@@ -105,7 +113,17 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     freeMemoryLimit = null;
     compressFiles = false;
     compressFilesVariable = null;
+    // No level here: a transform loaded without one keeps null and runs at
+    // GzipCompressionLevel.NOT_STORED_DEFAULT, the level it always used.
+    compressionLevel = null;
     onlyPassingUniqueRows = false;
+  }
+
+  /** Called for a newly created transform only, not when a saved one is loaded. */
+  @Override
+  public void setDefault() {
+    super.setDefault();
+    compressionLevel = GzipCompressionLevel.NEW_TRANSFORM_DEFAULT;
   }
 
   /**

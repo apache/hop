@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.sort;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.injection.BaseMetadataInjectionTestJunit5;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ class SortRowsMetaInjectionTest extends BaseMetadataInjectionTestJunit5<SortRows
     check("COLLATOR_ENABLED", () -> meta.getSortFields().get(0).isCollatorEnabled());
     check("COLLATOR_STRENGTH", () -> meta.getSortFields().get(0).getCollatorStrength());
     check("COMPRESS_VARIABLE", () -> meta.getCompressFilesVariable());
+    check("COMPRESSION_LEVEL", () -> meta.getCompressionLevel(), GzipCompressionLevel.class);
     //    check("NAME", () -> meta.getFieldName()[0]);
     //    check("SORT_ASCENDING", () -> meta.getAscending()[0]);
     //    check("IGNORE_CASE", () -> meta.getCaseSensitive()[0]);

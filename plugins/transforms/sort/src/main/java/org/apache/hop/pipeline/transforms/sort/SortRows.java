@@ -35,6 +35,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -136,8 +137,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       OutputStream outputStream = HopVfs.getOutputStream(fileObject, false);
       CountingOutputStream counting = new CountingOutputStream(outputStream);
       if (data.compressFiles) {
-        gzos = new GZIPOutputStream(new BufferedOutputStream(counting));
-        dos = new DataOutputStream(gzos);
+        gzos =
+            GzipCompressionLevel.orNotStoredDefault(meta.getCompressionLevel())
+                .newOutputStream(new BufferedOutputStream(counting));
+        // Buffer above the GZIP stream too, so values are compressed in blocks, not one by one.
+        dos = new DataOutputStream(new BufferedOutputStream(gzos, 500000));
       } else {
         dos = new DataOutputStream(new BufferedOutputStream(counting, 500000));
         gzos = null;
@@ -222,7 +226,8 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
   }
 
   private DataInputStream getDataInputStream(GZIPInputStream gzipInputStream) {
-    DataInputStream result = new DataInputStream(gzipInputStream);
+    // Buffer above the GZIP stream, so values are decompressed in blocks, not one by one.
+    DataInputStream result = new DataInputStream(new BufferedInputStream(gzipInputStream, 50000));
     data.gzis.add(gzipInputStream);
     return result;
   }

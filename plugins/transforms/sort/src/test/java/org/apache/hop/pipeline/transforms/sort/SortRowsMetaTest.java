@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.sort;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.Collator;
@@ -29,10 +30,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -48,6 +53,31 @@ class SortRowsMetaTest {
    * @throws HopException
    */
   @Test
+  void testNewTransformUsesTheFastestLevel() {
+    // Hop GUI calls setDefault() on a transform it creates, never on one it loads
+    SortRowsMeta meta = new SortRowsMeta();
+    meta.setDefault();
+    assertEquals(GzipCompressionLevel.FASTEST, meta.getCompressionLevel());
+  }
+
+  @Test
+  void testOlderXmlWithoutLevelKeepsLevelSix() throws Exception {
+    // A transform saved before the compression level option
+    String transformXml =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + "<compress>Y</compress><sort_size>1000</sort_size>"
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+
+    SortRowsMeta meta = new SortRowsMeta();
+    meta.loadXml(XmlHandler.loadXmlString(transformXml, TransformMeta.XML_TAG), null);
+
+    assertNull(meta.getCompressionLevel());
+    assertEquals(
+        GzipCompressionLevel.STANDARD,
+        GzipCompressionLevel.orNotStoredDefault(meta.getCompressionLevel()));
+  }
+
+  @Test
   void testRoundTrips() throws Exception {
     List<String> attributes =
         Arrays.asList(
@@ -57,6 +87,7 @@ class SortRowsMetaTest {
             "FreeMemoryLimit",
             "CompressFiles",
             "CompressFilesVariable",
+            "CompressionLevel",
             "OnlyPassingUniqueRows",
             "SortFields");
 
@@ -74,6 +105,8 @@ class SortRowsMetaTest {
     fieldLoadSaveValidatorAttributeMap.put("FreeMemoryLimit", stringFieldLoadSaveValidator);
     fieldLoadSaveValidatorAttributeMap.put("CompressFiles", booleanFieldLoadSaveValidator);
     fieldLoadSaveValidatorAttributeMap.put("CompressFilesVariable", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put(
+        "CompressionLevel", new EnumLoadSaveValidator<>(GzipCompressionLevel.SMALLEST));
     fieldLoadSaveValidatorAttributeMap.put("OnlyPassingUniqueRows", booleanFieldLoadSaveValidator);
 
     LoadSaveTester<SortRowsMeta> loadSaveTester =

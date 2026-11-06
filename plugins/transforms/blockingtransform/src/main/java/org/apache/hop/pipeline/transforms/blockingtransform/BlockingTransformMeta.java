@@ -19,9 +19,12 @@ package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import java.io.File;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -63,6 +66,18 @@ public class BlockingTransformMeta
   @HopMetadataProperty(key = "compress")
   private boolean compressFiles;
 
+  /** A variable that switches compression on or off, overriding {@link #compressFiles}. */
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "compress_variables")
+  private String compressFilesVariable;
+
+  /** How hard to compress the temporary files, from 1 (fastest) to 9 (smallest files). */
+  @Getter
+  @Setter
+  @HopMetadataProperty(key = "compression_level", storeWithCode = true)
+  private GzipCompressionLevel compressionLevel;
+
   /** Pass all rows, or only the last one. Only the last row was the original behaviour. */
   @HopMetadataProperty(key = "pass_all_rows")
   private boolean passAllRows;
@@ -76,6 +91,17 @@ public class BlockingTransformMeta
     prefix = "block";
     cacheSize = CACHE_SIZE;
     compressFiles = true;
+    compressFilesVariable = null;
+    // No level here: a transform loaded without one keeps null and runs at
+    // GzipCompressionLevel.NOT_STORED_DEFAULT, the level it always used.
+    compressionLevel = null;
+  }
+
+  /** Called for a newly created transform only, not when a saved one is loaded. */
+  @Override
+  public void setDefault() {
+    super.setDefault();
+    compressionLevel = GzipCompressionLevel.NEW_TRANSFORM_DEFAULT;
   }
 
   @Override

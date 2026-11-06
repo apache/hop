@@ -30,6 +30,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.io.CountingInputStream;
@@ -49,6 +50,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> {
 
   private static final Class<?> PKG = BlockingTransformMeta.class;
+
+  /**
+   * Buffer between the row data and the (compressed) temp file, so values are written and read in
+   * blocks rather than one at a time.
+   */
+  private static final int TEMP_FILE_BUFFER_SIZE = 65536;
 
   private Object[] lastRow;
 
@@ -85,11 +92,13 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         data.files.add(fileObject); // Remember the files!
         OutputStream outputStream = HopVfs.getOutputStream(fileObject, false);
         CountingOutputStream counting = new CountingOutputStream(outputStream);
-        if (meta.isCompressFiles()) {
-          gzos = new GZIPOutputStream(new BufferedOutputStream(counting));
-          dos = new DataOutputStream(gzos);
+        if (data.compressFiles) {
+          gzos =
+              GzipCompressionLevel.orNotStoredDefault(meta.getCompressionLevel())
+                  .newOutputStream(new BufferedOutputStream(counting));
+          dos = new DataOutputStream(new BufferedOutputStream(gzos, TEMP_FILE_BUFFER_SIZE));
         } else {
-          dos = new DataOutputStream(counting);
+          dos = new DataOutputStream(new BufferedOutputStream(counting, TEMP_FILE_BUFFER_SIZE));
           gzos = null;
         }
 
@@ -141,13 +150,16 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         data.countingInputStreams.add(countingFi);
         data.fis.add(countingFi);
         DataInputStream di;
-        if (meta.isCompressFiles()) {
+        if (data.compressFiles) {
           GZIPInputStream gzfi =
               new GZIPInputStream(new BufferedInputStream(data.fis.get(data.fis.size() - 1)));
-          di = new DataInputStream(gzfi);
+          di = new DataInputStream(new BufferedInputStream(gzfi, TEMP_FILE_BUFFER_SIZE));
           data.gzis.add(gzfi);
         } else {
-          di = new DataInputStream(data.fis.get(data.fis.size() - 1));
+          di =
+              new DataInputStream(
+                  new BufferedInputStream(
+                      data.fis.get(data.fis.size() - 1), TEMP_FILE_BUFFER_SIZE));
         }
         data.dis.add(di);
 
@@ -176,10 +188,15 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
     }
 
     if (data.files.isEmpty()) {
-      if (!data.buffer.isEmpty()) {
-        retval = data.buffer.get(0);
-        data.buffer.remove(0);
+      // Walk the buffer in order instead of removing its first row, which moves all the others.
+      // Each slot is cleared once passed on, so the memory is still freed as the rows leave.
+      if (data.bufferIndex < data.buffer.size()) {
+        retval = data.buffer.get(data.bufferIndex);
+        data.buffer.set(data.bufferIndex, null);
+        data.bufferIndex++;
       } else {
+        data.buffer.clear();
+        data.bufferIndex = 0;
         retval = null;
       }
     } else {
@@ -194,7 +211,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         FileObject file = data.files.get(0);
         DataInputStream di = data.dis.get(0);
         InputStream fi = data.fis.get(0);
-        GZIPInputStream gzfi = (meta.isCompressFiles()) ? data.gzis.get(0) : null;
+        GZIPInputStream gzfi = (data.compressFiles) ? data.gzis.get(0) : null;
 
         try {
           data.rowbuffer.add(0, data.outputRowMeta.readData(di));
@@ -267,7 +284,9 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
   public boolean init() {
 
     if (super.init()) {
-      // Add init code here.
+      // Compress the temporary files? A variable, when given, decides.
+      data.compressFiles =
+          getVariableBoolean(meta.getCompressFilesVariable(), meta.isCompressFiles());
       return true;
     }
     return false;

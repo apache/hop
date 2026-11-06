@@ -18,15 +18,19 @@
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -60,7 +64,10 @@ public class BlockingTransformDialog extends BaseTransformDialog {
   private Text wCacheSize;
 
   private Label wlCompress;
-  private Button wCompress;
+  private CheckBoxVar wCompress;
+
+  private Label wlCompressionLevel;
+  private CCombo wCompressionLevel;
 
   public BlockingTransformDialog(
       Shell parent,
@@ -203,7 +210,7 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     fdlCompress.right = new FormAttachment(middle, -margin);
     fdlCompress.top = new FormAttachment(wCacheSize, margin);
     wlCompress.setLayoutData(fdlCompress);
-    wCompress = new Button(wContent, SWT.CHECK);
+    wCompress = new CheckBoxVar(variables, wContent, SWT.CHECK, "");
     PropsUi.setLook(wCompress);
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment(middle, 0);
@@ -217,6 +224,31 @@ public class BlockingTransformDialog extends BaseTransformDialog {
             input.setChanged();
           }
         });
+
+    // How hard to compress the temporary files
+    wlCompressionLevel = new Label(wContent, SWT.RIGHT);
+    wlCompressionLevel.setText(
+        BaseMessages.getString(PKG, "BlockingTransformDialog.CompressionLevel.Label"));
+    wlCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "BlockingTransformDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wlCompressionLevel);
+    FormData fdlCompressionLevel = new FormData();
+    fdlCompressionLevel.left = new FormAttachment(0, 0);
+    fdlCompressionLevel.right = new FormAttachment(middle, -margin);
+    fdlCompressionLevel.top = new FormAttachment(wCompress, margin);
+    wlCompressionLevel.setLayoutData(fdlCompressionLevel);
+    wCompressionLevel = new CCombo(wContent, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wCompressionLevel.setItems(
+        IEnumHasCodeAndDescription.getDescriptions(GzipCompressionLevel.class));
+    wCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "BlockingTransformDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wCompressionLevel);
+    wCompressionLevel.addModifyListener(lsMod);
+    FormData fdCompressionLevel = new FormData();
+    fdCompressionLevel.left = new FormAttachment(middle, 0);
+    fdCompressionLevel.top = new FormAttachment(wCompress, margin);
+    fdCompressionLevel.right = new FormAttachment(100, 0);
+    wCompressionLevel.setLayoutData(fdCompressionLevel);
 
     wContent.pack();
     Rectangle bounds = wContent.getBounds();
@@ -247,6 +279,9 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     }
     wCacheSize.setText("" + input.getCacheSize());
     wCompress.setSelection(input.isCompressFiles());
+    wCompress.setVariableName(input.getCompressFilesVariable());
+    wCompressionLevel.select(
+        GzipCompressionLevel.orNotStoredDefault(input.getCompressionLevel()).getIndex());
   }
 
   private void cancel() {
@@ -269,6 +304,12 @@ public class BlockingTransformDialog extends BaseTransformDialog {
       logDetailed("Compression is set to " + wCompress.getSelection());
     }
     input.setCompressFiles(wCompress.getSelection());
+    input.setCompressFilesVariable(wCompress.getVariableName());
+    input.setCompressionLevel(
+        IEnumHasCodeAndDescription.lookupDescription(
+            GzipCompressionLevel.class,
+            wCompressionLevel.getText(),
+            GzipCompressionLevel.NOT_STORED_DEFAULT));
     input.setPassAllRows(wPassAllRows.getSelection());
 
     dispose();
@@ -285,5 +326,7 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     wCacheSize.setEnabled(wPassAllRows.getSelection());
     wlCompress.setEnabled(wPassAllRows.getSelection());
     wCompress.setEnabled(wPassAllRows.getSelection());
+    wlCompressionLevel.setEnabled(wPassAllRows.getSelection());
+    wCompressionLevel.setEnabled(wPassAllRows.getSelection());
   }
 }
