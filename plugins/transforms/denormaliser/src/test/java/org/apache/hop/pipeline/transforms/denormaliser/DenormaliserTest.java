@@ -114,11 +114,18 @@ class DenormaliserTest {
 
   @Test
   void averageOfBigNumbersDoesNotFailOnANonTerminatingQuotient() throws Exception {
-    // Rounded like the Group by average: to the larger precision of the sum and the count
+    // No exact decimal result: rounded like the Group by average, to the larger precision of the
+    // sum and the count
     assertEquals(new BigDecimal("0.3"), bigNumberAverage(BigDecimal.ONE, 3));
     assertEquals(new BigDecimal("33.333"), bigNumberAverage(new BigDecimal("100.00"), 3));
-    // Group by rounds 3 / 2 to one digit as well; step 6 revisits this precision
-    assertEquals(new BigDecimal("2"), bigNumberAverage(new BigDecimal("3"), 2));
+  }
+
+  @Test
+  void averageOfBigNumbersStaysExactWhenThereIsAnExactResult() throws Exception {
+    // These averages were exact before the fix and must not change
+    assertEquals(new BigDecimal("1.5"), bigNumberAverage(new BigDecimal("3"), 2));
+    assertEquals(new BigDecimal("3.75"), bigNumberAverage(new BigDecimal("15"), 4));
+    assertEquals(new BigDecimal("12.375"), bigNumberAverage(new BigDecimal("99"), 8));
   }
 
   private Object bigNumberAverage(BigDecimal sum, long count) throws Exception {
