@@ -2142,7 +2142,7 @@ public class TableView extends Composite {
 
   public static @NonNull IRowMeta buildTableSourceRowMeta(
       IRowMeta rowMeta, IRowMeta conversionRowMeta) throws HopValueException {
-    final IRowMeta sourceRowMeta = rowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    final IRowMeta sourceRowMeta = ValueMetaFactory.createParseRowMeta(rowMeta);
 
     // Set it all to string...
     // Also set the storage value metadata: this will allow us to convert back

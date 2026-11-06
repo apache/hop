@@ -323,8 +323,7 @@ public class EditRowsDialog {
     try {
       stringRowMeta = new RowMeta();
       for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
-        IValueMeta stringValueMeta =
-            ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
+        IValueMeta stringValueMeta = ValueMetaFactory.createParseMeta(valueMeta);
         stringRowMeta.addValueMeta(stringValueMeta);
       }
 

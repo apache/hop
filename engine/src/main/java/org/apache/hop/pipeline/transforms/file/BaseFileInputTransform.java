@@ -26,8 +26,8 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
@@ -144,7 +144,7 @@ public abstract class BaseFileInputTransform<
         data.outputRowMeta, getTransformName(), infoTransform, null, this, metadataProvider);
     // Create convert meta-data objects that will contain Date & Number formatters
     //
-    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
     BaseFileInputTransformUtils.handleMissingFiles(
         data.files, getLogChannel(), errorIgnored, data.dataErrorLineHandler);

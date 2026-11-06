@@ -27,9 +27,12 @@ import java.util.List;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.json.simple.JSONObject;
 
 /** This class will hand out value meta objects from the plugin registry. */
@@ -81,6 +84,58 @@ public class ValueMetaFactory {
     cloneInfo(source, target);
 
     return target;
+  }
+
+  /**
+   * Creates the String value metadata to parse text into {@code target} with: a constant, a default
+   * value, a lookup key or a value read from a file. Pass it as the source metadata, for example
+   * {@code target.convertData(parseMeta, text)} or {@code target.convertDataFromString(text,
+   * parseMeta, nullIf, ifNull, trimType)}.
+   *
+   * <p>The result carries everything that decides how text is parsed: the conversion mask, the
+   * decimal, grouping and currency symbols, the trim type, the string encoding, the date format
+   * locale, time zone and leniency, and lenient number parsing. It always has normal storage: the
+   * text to parse is a plain {@code String}, also when the target is a lazy (binary string) field.
+   *
+   * @param target the field the text is parsed into
+   * @return a new String value meta, safe to change
+   * @throws HopPluginException if the String value type can't be loaded
+   */
+  public static IValueMeta createParseMeta(IValueMeta target) throws HopPluginException {
+    IValueMeta parseMeta = cloneValueMeta(target, IValueMeta.TYPE_STRING);
+    // cloneInfo() drops the currency symbol, which a mask with a currency sign needs to parse
+    // the text the field itself writes
+    parseMeta.setCurrencySymbol(target.getCurrencySymbol());
+    // cloneInfo() copies the target's storage: a lazy target would make every parse fail with a
+    // ClassCastException, because the text is a String and not a byte[]
+    parseMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+    parseMeta.setStorageMetadata(null);
+    parseMeta.setIndex(null);
+    // A String meta parses with the mask or the default parse masks; its length plays no part
+    parseMeta.setLength(-1, -1);
+    return parseMeta;
+  }
+
+  /**
+   * Creates the parse metadata of every field in {@code target}, in the same order: see {@link
+   * #createParseMeta(IValueMeta)}.
+   *
+   * @param target the row metadata of the fields the text is parsed into
+   * @return new row metadata with one String value meta per field
+   * @throws HopValueException if the String value type can't be loaded
+   */
+  public static IRowMeta createParseRowMeta(IRowMeta target) throws HopValueException {
+    List<IValueMeta> parseMetas = new ArrayList<>(target.size());
+    try {
+      for (IValueMeta valueMeta : target.getValueMetaList()) {
+        parseMetas.add(createParseMeta(valueMeta));
+      }
+    } catch (HopPluginException e) {
+      throw new HopValueException(e);
+    }
+    IRowMeta parseRowMeta = new RowMeta();
+    parseRowMeta.setValueMetaList(parseMetas);
+    return parseRowMeta;
   }
 
   public static void cloneInfo(IValueMeta source, IValueMeta target) throws HopPluginException {

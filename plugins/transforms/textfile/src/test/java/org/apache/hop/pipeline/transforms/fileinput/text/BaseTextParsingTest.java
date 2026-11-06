@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import java.util.List;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.InputFile;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -64,6 +64,6 @@ public abstract class BaseTextParsingTest
   protected void setFields(TextFileInputField... fields) throws Exception {
     meta.getInputFields().addAll(List.of(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
-    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
   }
 }

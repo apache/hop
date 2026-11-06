@@ -252,11 +252,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
                 // This layout is then taken further down the road by the metadata through the
                 // pipeline.
                 //
-                IValueMeta storageMetadata =
-                    ValueMetaFactory.cloneValueMeta(v, IValueMeta.TYPE_STRING);
-                storageMetadata.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-                storageMetadata.setLength(
-                    -1, -1); // we don't really know the lengths of the strings read in advance.
+                IValueMeta storageMetadata = ValueMetaFactory.createParseMeta(v);
                 v.setStorageMetadata(storageMetadata);
 
                 v.setOrigin(origin);
@@ -295,11 +291,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
           // Preview will show the data the same way as we read it.
           // This layout is then taken further down the road by the metadata through the pipeline.
           //
-          IValueMeta storageMetadata =
-              ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING);
-          storageMetadata.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-          storageMetadata.setLength(
-              -1, -1); // we don't really know the lengths of the strings read in advance.
+          IValueMeta storageMetadata = ValueMetaFactory.createParseMeta(valueMeta);
           valueMeta.setStorageMetadata(storageMetadata);
 
           valueMeta.setOrigin(origin);

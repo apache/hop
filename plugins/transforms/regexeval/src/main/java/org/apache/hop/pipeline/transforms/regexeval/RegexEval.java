@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -121,7 +122,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
 
       // Now create objects to do string to data type conversion...
       //
-      data.conversionRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.conversionRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
     }
 
     // reserve room

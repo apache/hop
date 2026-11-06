@@ -31,9 +31,9 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.io.CountingInputStream;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
@@ -93,7 +93,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
 
           // Create convert meta-data objects that will contain Date & Number formatters
           //
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
           if (meta.isFileInField()) {
             // Check is filename field is provided
@@ -463,7 +463,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
 
           // Create convert meta-data objects that will contain Date & Number formatters
           //
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
         } catch (Exception e) {
           logError("Error at step initialization: " + e.toString());
           logError(Const.getStackTracker(e));

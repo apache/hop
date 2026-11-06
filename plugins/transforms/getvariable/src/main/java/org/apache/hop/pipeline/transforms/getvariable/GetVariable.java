@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -71,7 +72,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
 
       // Create a copy of the output row metadata to do the data conversion...
       //
-      data.conversionMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.conversionMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
       // Add the variables to the row...
       //

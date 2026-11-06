@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -63,7 +64,7 @@ public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> {
 
       // Use these metadata values to convert data...
       //
-      data.convertMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
     }
 
     Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());

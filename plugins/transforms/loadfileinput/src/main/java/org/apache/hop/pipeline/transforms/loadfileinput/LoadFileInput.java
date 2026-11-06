@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -96,7 +97,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type
           // after the processing.
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
           if (meta.isFileInField()) {
             // Check is filename field is provided
@@ -502,7 +503,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non-binary content is handled as a String. It would be converted to the target type
           // after the processing.
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
         } catch (Exception e) {
           logError("Error at transform initialization: " + e.toString());
           logError(Const.getStackTracker(e));

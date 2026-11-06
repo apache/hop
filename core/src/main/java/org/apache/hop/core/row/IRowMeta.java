@@ -259,7 +259,12 @@ public interface IRowMeta extends Cloneable {
    * @param targetType The target type
    * @return The cloned metadata
    * @throws HopValueException if the target type could not be loaded from the plugin registry
+   * @deprecated To parse text into these fields, use {@link
+   *     org.apache.hop.core.row.value.ValueMetaFactory#createParseRowMeta(IRowMeta)}: this copy
+   *     keeps the storage type of lazy fields and drops the currency symbol, so parsing with it
+   *     fails for those fields.
    */
+  @Deprecated(since = "2.21")
   IRowMeta cloneToType(int targetType) throws HopValueException;
 
   /**

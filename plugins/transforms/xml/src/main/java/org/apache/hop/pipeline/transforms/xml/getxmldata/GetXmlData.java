@@ -477,13 +477,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           // Create convert meta-data objects that will contain Date & Number formatters
           data.convertRowMeta = new RowMeta();
           for (IValueMeta valueMeta : data.convertRowMeta.getValueMetaList()) {
-            data.convertRowMeta.addValueMeta(
-                ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING));
+            data.convertRowMeta.addValueMeta(ValueMetaFactory.createParseMeta(valueMeta));
           }
 
           // For String to <type> conversions, we allocate a conversion meta data row as well...
           //
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
           // Check is XML field is provided
           if (Utils.isEmpty(meta.getXmlField())) {
@@ -845,7 +844,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       // Create convert meta-data objects that will contain Date & Number formatters
       // For String to <type> conversions, we allocate a conversion meta data row as well...
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
     }
     // Grab a row
     Object[] r = getXmlRow();

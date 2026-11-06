@@ -150,8 +150,11 @@ public class RowMeta implements IRowMeta {
    * @return The cloned metadata
    * @throws org.apache.hop.core.exception.HopValueException if the target type could not be loaded
    *     from the plugin registry
+   * @deprecated To parse text into these fields, use {@link
+   *     org.apache.hop.core.row.value.ValueMetaFactory#createParseRowMeta(IRowMeta)}.
    */
   @Override
+  @Deprecated(since = "2.21")
   public IRowMeta cloneToType(int targetType) throws HopValueException {
     lock.readLock().lock();
     try {

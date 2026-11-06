@@ -36,9 +36,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingInputStream;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -240,7 +240,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
     // Create convert meta-data objects that will contain Date & Number formatters
-    data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+    data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
     // behave differently if the incoming value is JsonNode or String
     if (data.inputRowMeta != null

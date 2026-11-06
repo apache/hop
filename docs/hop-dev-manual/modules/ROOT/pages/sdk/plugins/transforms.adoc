@@ -188,6 +188,42 @@ The dialog extends `BaseTransformDialog`.
 Annotate the metadata fields with `@GuiWidgetElement` and build them with `GuiCompositeWidgets`.
 The `open()` recipe is xref:annotation-derived-widgets.adoc[Annotation derived widgets], under "Transform and action dialogs".
 
+== Parsing text into a field
+
+A transform that turns text into a typed value parses it with String metadata built from the target field.
+Examples are a value read from a file, a constant, a default value or a lookup key.
+Build that metadata with `ValueMetaFactory.createParseMeta` for one field or `ValueMetaFactory.createParseRowMeta` for a whole row.
+Build it once, for example on the first row, and keep it in the data class.
+
+[source,java]
+----
+if (first) {
+  first = false;
+  data.outputRowMeta = getInputRowMeta().clone();
+  meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+  data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
+}
+
+for (int i = 0; i < data.outputRowMeta.size(); i++) {
+  IValueMeta valueMeta = data.outputRowMeta.getValueMeta(i);
+  IValueMeta convertMeta = data.convertRowMeta.getValueMeta(i);
+  outputRow[i] = valueMeta.convertDataFromString(texts[i], convertMeta, null, null, 0);
+}
+----
+
+The parse metadata keeps everything that decides how text is parsed: the conversion mask, the decimal, grouping and currency symbols, the trim type, the string encoding, the date format locale, time zone and leniency.
+It always has normal storage, because the text to parse is a plain `String`, also when the target field is lazy (binary string).
+Pass it as the source metadata, to `convertDataFromString(text, parseMeta, nullIf, ifNull, trimType)` or `convertData(parseMeta, text)`.
+
+Don't build the parse metadata in any of these ways:
+
+* `rowMeta.cloneToType(IValueMeta.TYPE_STRING)` or `ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_STRING)`: drops the currency symbol and keeps the storage type of a lazy field.
+With a `¤` mask the field then can't read back the text it writes, and a lazy field fails with a `ClassCastException`.
+`IRowMeta.cloneToType` is deprecated for this reason.
+* `new ValueMetaString(name)`: has none of the target's mask or symbols, so every value is parsed with the defaults of the machine.
+
+`plugins/transforms/datagrid` (`DataGrid`) is a short example of this pattern.
+
 == Concrete Codebase Examples
 
 * `plugins/transforms/detectemptystream`: Minimal transform example.

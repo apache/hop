@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -63,7 +64,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
       // Search records once
       search(data.staticSearchBase, data.staticFilter);
@@ -153,7 +154,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
       if (meta.isDynamicSearch()) {
         data.indexOfSearchBaseField =

@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -85,7 +86,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
 
       // Create convert meta-data objects that will contain Date & Number formatters
       //
-      data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
     }
     try {
       // Grab one row
@@ -386,7 +387,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
           data.totalPreviousFields = data.inputRowMeta.size();
 
           // Create convert meta-data objects that will contain Date & Number formatters
-          data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
+          data.convertRowMeta = ValueMetaFactory.createParseRowMeta(data.outputRowMeta);
 
           // Check is filename field is provided
           if (Utils.isEmpty(meta.getDynamicFilenameField())) {
