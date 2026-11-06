@@ -107,6 +107,8 @@ cd integration-tests/scripts
 . Surefire Reports
 +
 We generate xml reports that can be used by Jenkins to generate reports. these result reports can be found in the `integration-tests/surefire-reports` folder.
+By default, `run-tests.sh` runs each project with `integration-tests/scripts/run-project-tests.hpl`, and its xref:{page-component-version}@manual::pipeline/transforms/surefirereport.adoc[Surefire report output] transform writes the report.
+The script writes the report itself when it runs each workflow in a JVM of its own (`HOP_IT_PER_TEST_JVM=true` or `TEST_FILTER`), and when the suite doesn't start or runs out of time.
 
 === Testing script
 

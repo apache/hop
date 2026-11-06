@@ -1,0 +1,103 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Surefire report output transform writes a Maven Surefire (JUnit) XML report from test result rows, for a CI server such as Jenkins or GitLab.
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+
+= image:transforms/icons/surefirereport.svg[Surefire report output transform Icon, role="image-doc-icon"] Surefire report output
+
+== Description
+
+The Surefire report output transform turns rows with test results into a Maven Surefire XML report, the JUnit format that CI servers such as Jenkins and GitLab read.
+Each row becomes one test case.
+
+The report is written when the last row has arrived.
+The rows pass through unchanged, so the transform can sit in the middle of a pipeline.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Report filename|The XML file to write. Variables are allowed.
+|Test suite name|The name of the test suite in the report. Default: `tests`.
+|Create parent folder|Create the folder of the report file when it doesn't exist.
+|Test name field|The field with the name of the test. Required. The value is shortened: everything up to the last `/` or `\`, a `main-` or `main_` prefix and a `.hwf` extension are removed, so `/project/tests/main-load-orders.hwf` becomes `load-orders`.
+|Duration field|The field with the duration of the test, in seconds.
+|Duration is in milliseconds|The duration field is in milliseconds, for example the `ExecutionTime` of a Workflow executor.
+|Result field a|The field with the result of the test. Without it, every test passes.
+
+* Boolean: `true` passes.
+* Number: `0` passes, any other number fails.
+* Text: `PASS`, `PASSED`, `SUCCESS`, `OK`, `Y`, `YES` or `TRUE` passes, `SKIP` or `SKIPPED` is skipped, and `ERROR` is an error. Upper or lower case doesn't matter.
+
+Any other value, or an empty one, fails.
+|System-out field|The field with the log of the test, for example the `ExecutionLogText` of a Workflow executor.
+|System-err field|The field with the error output of the test.
+|Failure message field|The message of a failed, errored or skipped test.
+|Failure type field|The type of a failed or errored test. Default: the test name.
+|Fail pipeline on test failure|After writing the report, stop the pipeline with an error when a test failed or had an error.
+|===
+
+== Example: a report for a folder of test workflows
+
+Hop's own integration tests use this transform to report their results to Jenkins, in link:https://github.com/apache/hop/blob/main/integration-tests/scripts/run-project-tests.hpl[`run-project-tests.hpl`]:
+
+// Made with hop export, from the root of the source tree:
+// hop export -f integration-tests/scripts/run-project-tests.hpl -o docs/hop-user-manual/modules/ROOT/assets/images/transforms/surefirereport/run-project-tests.svg
+image::transforms/surefirereport/run-project-tests.svg[The run-project-tests pipeline: get main workflows, run-workflow.hwf and Surefire Report Output,width="60%"]
+
+. xref:pipeline/transforms/getfilenames.adoc[Get file names] lists the workflows of the project whose name starts with `main`, including its subfolders.
+. xref:pipeline/transforms/workflow-executor.adoc[Workflow executor] runs each of these workflows, through a small workflow that gets the file name as a parameter, and sends the execution results to the Surefire report output transform.
+. Surefire report output uses `filename` as the test name field, `ExecutionTime` as the duration field (in milliseconds), `ExecutionResult` as the result field, and `ExecutionLogText` as the system-out field. *Fail pipeline on test failure* is on, so a failed test also ends the pipeline with an error.
+
+For `main-load-customers.hwf`, which succeeds, and `main-load-orders.hwf`, which ends with an Abort action, the report looks like this (the logs are shortened):
+
+[source,xml]
+----
+<testsuite ... version="3.0" name="my-project" time="0.131" tests="2" errors="0" skipped="0" failures="1">
+<testcase name="load-customers" time="0.071">
+<system-out>
+<![CDATA[2026/11/06 11:49:07 - run-workflow - Start of workflow execution
+...
+]]>
+</system-out>
+</testcase>
+<testcase name="load-orders" time="0.060">
+<failure type="load-orders"></failure>
+<system-out>
+<![CDATA[2026/11/06 11:49:07 - run-workflow - Start of workflow execution
+...
+2026/11/06 11:49:07 - Abort - ERROR: stop
+...
+]]>
+</system-out>
+</testcase>
+</testsuite>
+----
+
+== Notes
+
+* Run the transform in one copy. Each copy writes its own report to the same file, so with more copies the report misses tests, or the transform fails.
+* The report filename is a local file path. VFS locations such as `s3://` or `file://` URLs are not supported.
+* ANSI color codes and characters that XML can't hold are removed from the texts in the report.
+
+== Samples
+
+The samples project has `transforms/surefire-report-output.hpl`, which writes a report for two tests from a Data grid.
