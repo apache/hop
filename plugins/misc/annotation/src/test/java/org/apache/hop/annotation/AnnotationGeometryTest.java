@@ -27,6 +27,7 @@ import org.apache.hop.annotation.AnnotationGeometry.Segment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class AnnotationGeometryTest {
 
@@ -35,12 +36,11 @@ class AnnotationGeometryTest {
   @ParameterizedTest
   @EnumSource(AnnotationPlacement.class)
   void balloonSitsOutsideTheIconOnThatSide(AnnotationPlacement placement) {
-    int gap = AnnotationGeometry.scale(AnnotationGeometry.GAP_PX, 1f);
+    int gap = AnnotationGeometry.GAP_PX;
     Bounds balloon = AnnotationGeometry.balloon(ICON, 40, 16, placement, 1f);
 
     assertFalse(balloon.overlaps(ICON));
-    assertEquals(
-        40 + 2 * AnnotationGeometry.scale(AnnotationGeometry.PADDING_PX, 1f), balloon.width());
+    assertEquals(40 + 2 * AnnotationGeometry.PADDING_PX, balloon.width());
     switch (placement) {
       case TOP -> {
         assertEquals(ICON.y(), balloon.y() + balloon.height() + gap);
@@ -78,15 +78,27 @@ class AnnotationGeometryTest {
     }
   }
 
-  @Test
-  void magnifiedGapMovesTheBalloonFurtherFromTheIcon() {
-    Bounds near = AnnotationGeometry.balloon(ICON, 20, 10, AnnotationPlacement.TOP, 1f);
-    Bounds far = AnnotationGeometry.balloon(ICON, 20, 10, AnnotationPlacement.TOP, 2f);
-    int gap = AnnotationGeometry.scale(AnnotationGeometry.GAP_PX, 2f);
+  @ParameterizedTest
+  @ValueSource(floats = {0.5f, 1f, 2f})
+  void balloonSizeDoesNotDependOnMagnification(float magnification) {
+    for (AnnotationPlacement placement : AnnotationPlacement.values()) {
+      assertEquals(
+          AnnotationGeometry.balloon(ICON, 40, 16, placement, 1f),
+          AnnotationGeometry.balloon(ICON, 40, 16, placement, magnification),
+          placement.name());
+    }
 
-    assertEquals(24, gap);
-    assertEquals(ICON.y(), far.y() + far.height() + gap);
-    assertTrue(far.y() < near.y());
+    Bounds balloon =
+        AnnotationGeometry.balloon(ICON, 40, 16, AnnotationPlacement.TOP, magnification);
+    assertEquals(40 + 2 * AnnotationGeometry.PADDING_PX, balloon.width());
+    assertEquals(16 + 2 * AnnotationGeometry.PADDING_PX, balloon.height());
+    assertEquals(AnnotationGeometry.GAP_PX, ICON.y() - (balloon.y() + balloon.height()));
+    assertEquals(ICON.centerX(), balloon.centerX());
+
+    Bounds right =
+        AnnotationGeometry.balloon(ICON, 40, 16, AnnotationPlacement.RIGHT, magnification);
+    assertEquals(AnnotationGeometry.GAP_PX, right.x() - (ICON.x() + ICON.width()));
+    assertEquals(ICON.centerY(), right.centerY());
   }
 
   @Test

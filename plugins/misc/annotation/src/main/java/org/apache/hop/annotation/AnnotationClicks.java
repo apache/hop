@@ -32,6 +32,7 @@ import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExten
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -42,21 +43,25 @@ public final class AnnotationClicks {
   private static final Class<?> PKG = Annotation.class;
 
   /**
-   * True after a press on a callout until the matching release. The UI thread is the only writer.
+   * Set on the graph canvas for the gesture that pressed a callout. Hop Web runs every session in
+   * one JVM, so a static flag would let one user's press send another user's mouse-up through
+   * {@code swallowRelease}. That mouse-up calls {@code setPreventingDefault(true)}, and the graph
+   * then calls {@code clearSettings()} and returns, dropping the hop, selection or move.
    */
-  private static boolean calloutPressed;
+  private static final String CALLOUT_PRESSED = "annotation-callout-pressed";
 
   private AnnotationClicks() {}
 
   public static void pipelineMouseDown(HopGuiPipelineGraphExtension extension) {
+    Canvas canvas = pipelineCanvas(extension);
     if (!claim(
         extension == null ? null : extension.getAreaOwner(),
         extension == null ? null : extension.getEvent())) {
-      calloutPressed = false;
+      clearPressed(canvas);
       return;
     }
     extension.setPreventingDefault(true);
-    calloutPressed = true;
+    markPressed(canvas);
     if (extension.getEvent().button != 1) {
       return;
     }
@@ -68,10 +73,12 @@ public final class AnnotationClicks {
 
   public static void pipelineMouseUp(HopGuiPipelineGraphExtension extension) {
     if (extension == null) {
-      calloutPressed = false;
       return;
     }
-    swallowRelease(extension.getAreaOwner(), () -> extension.setPreventingDefault(true));
+    swallowRelease(
+        pipelineCanvas(extension),
+        extension.getAreaOwner(),
+        () -> extension.setPreventingDefault(true));
   }
 
   public static void pipelineDoubleClick(HopGuiPipelineGraphExtension extension) {
@@ -81,14 +88,15 @@ public final class AnnotationClicks {
   }
 
   public static void workflowMouseDown(HopGuiWorkflowGraphExtension extension) {
+    Canvas canvas = workflowCanvas(extension);
     if (!claim(
         extension == null ? null : extension.getAreaOwner(),
         extension == null ? null : extension.getEvent())) {
-      calloutPressed = false;
+      clearPressed(canvas);
       return;
     }
     extension.setPreventingDefault(true);
-    calloutPressed = true;
+    markPressed(canvas);
     if (extension.getEvent().button != 1) {
       return;
     }
@@ -100,10 +108,12 @@ public final class AnnotationClicks {
 
   public static void workflowMouseUp(HopGuiWorkflowGraphExtension extension) {
     if (extension == null) {
-      calloutPressed = false;
       return;
     }
-    swallowRelease(extension.getAreaOwner(), () -> extension.setPreventingDefault(true));
+    swallowRelease(
+        workflowCanvas(extension),
+        extension.getAreaOwner(),
+        () -> extension.setPreventingDefault(true));
   }
 
   public static void workflowDoubleClick(HopGuiWorkflowGraphExtension extension) {
@@ -236,11 +246,46 @@ public final class AnnotationClicks {
         && beforeDashed == afterDashed;
   }
 
-  private static void swallowRelease(AreaOwner areaOwner, Runnable preventDefault) {
-    if (!calloutPressed && !isCallout(areaOwner)) {
+  private static Canvas pipelineCanvas(HopGuiPipelineGraphExtension extension) {
+    if (extension == null || extension.getPipelineGraph() == null) {
+      return null;
+    }
+    return extension.getPipelineGraph().getCanvas();
+  }
+
+  private static Canvas workflowCanvas(HopGuiWorkflowGraphExtension extension) {
+    if (extension == null || extension.getWorkflowGraph() == null) {
+      return null;
+    }
+    return extension.getWorkflowGraph().getCanvas();
+  }
+
+  /** Remember the press on this graph's canvas. A disposed canvas can no longer receive the up. */
+  private static void markPressed(Canvas canvas) {
+    if (canvas == null || canvas.isDisposed()) {
       return;
     }
-    calloutPressed = false;
+    canvas.setData(CALLOUT_PRESSED, Boolean.TRUE);
+  }
+
+  private static void clearPressed(Canvas canvas) {
+    if (canvas == null || canvas.isDisposed()) {
+      return;
+    }
+    canvas.setData(CALLOUT_PRESSED, null);
+  }
+
+  private static boolean isPressed(Canvas canvas) {
+    return canvas != null
+        && !canvas.isDisposed()
+        && Boolean.TRUE.equals(canvas.getData(CALLOUT_PRESSED));
+  }
+
+  private static void swallowRelease(Canvas canvas, AreaOwner areaOwner, Runnable preventDefault) {
+    if (!isPressed(canvas) && !isCallout(areaOwner)) {
+      return;
+    }
+    clearPressed(canvas);
     preventDefault.run();
   }
 
