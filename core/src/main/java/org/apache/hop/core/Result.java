@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +30,7 @@ import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
@@ -209,11 +211,7 @@ public class Result implements Cloneable {
 
       // Clone result rows and files as well...
       if (rows != null) {
-        List<RowMetaAndData> clonedRows = new ArrayList<>();
-        for (RowMetaAndData row : rows) {
-          clonedRows.add(row.clone());
-        }
-        result.setRows(clonedRows);
+        result.setRows(cloneRows(rows));
       }
 
       if (resultFiles != null) {
@@ -229,6 +227,32 @@ public class Result implements Cloneable {
     } catch (CloneNotSupportedException e) {
       return null;
     }
+  }
+
+  /**
+   * Deep copy of the result rows. Each distinct row metadata is cloned once, and its clone is
+   * shared by every row that shared the original: cloning row metadata rebuilds its number and date
+   * formats, and the engine clones the result before every workflow action. The metadata is matched
+   * by identity, so rows with their own metadata keep their own clone. Every row still gets a new
+   * copy of its values.
+   */
+  private static List<RowMetaAndData> cloneRows(List<RowMetaAndData> rows) {
+    List<RowMetaAndData> clonedRows = new ArrayList<>(rows.size());
+    Map<IRowMeta, IRowMeta> clonedRowMetas = new IdentityHashMap<>();
+    for (RowMetaAndData row : rows) {
+      IRowMeta rowMeta = row.getRowMeta();
+      if (rowMeta == null) {
+        clonedRows.add(row.clone());
+        continue;
+      }
+      IRowMeta clonedRowMeta = clonedRowMetas.computeIfAbsent(rowMeta, IRowMeta::clone);
+      try {
+        clonedRows.add(new RowMetaAndData(clonedRowMeta, rowMeta.cloneRow(row.getData())));
+      } catch (HopValueException e) {
+        throw new HopRuntimeException("Problem with clone row detected in RowMetaAndData", e);
+      }
+    }
+    return clonedRows;
   }
 
   /**
