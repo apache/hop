@@ -39,6 +39,7 @@
         <module>cassandra</module>
         <module>copilot</module>
         <module>databricks</module>
+        <module>datahub</module>
         <module>dropbox</module>
         <module>elastic</module>
         <module>falkordb</module>
