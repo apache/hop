@@ -22,12 +22,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.kie.api.KieBase;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.Message;
+import org.kie.api.builder.ReleaseId;
 import org.kie.api.builder.Results;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
@@ -40,7 +45,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
 
   private IRowMeta outputRowMeta;
 
-  private KieHelper kieHelper;
+  private KieBase kieBase;
 
   private Rules.Column[] columnList;
 
@@ -74,6 +79,12 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
     return outputRowMeta;
   }
 
+  /**
+   * Compiles the rules once. Every row then runs in a new session on the compiled rule base, so the
+   * DRL is not parsed and compiled again for each row.
+   *
+   * @throws RuleValidationException when the rules do not compile
+   */
   public void initializeRules() throws RuleValidationException {
 
     // To ensure the plugin classloader use for dependency resolution
@@ -81,24 +92,37 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
     ClassLoader loader = getClass().getClassLoader();
     Thread.currentThread().setContextClassLoader(loader);
 
-    Resource ruleSet = null;
+    try {
+      Resource ruleSet;
+      if (ruleString != null) {
+        ruleSet = ResourceFactory.newReaderResource(new StringReader(ruleString));
+      } else {
+        ruleSet = ResourceFactory.newFileResource(ruleFilePath);
+      }
 
-    if (ruleString != null) {
-      ruleSet = ResourceFactory.newReaderResource(new StringReader(ruleString));
-    } else {
-      ruleSet = ResourceFactory.newFileResource(ruleFilePath);
+      // A release id of its own: the default one is shared by every rule set built in this JVM,
+      // so another transform building its rules at the same time could replace ours.
+      KieServices kieServices = KieServices.Factory.get();
+      ReleaseId releaseId =
+          kieServices.newReleaseId("org.apache.hop", "rules-executor-" + UUID.randomUUID(), "1.0");
+
+      KieHelper kieHelper = new KieHelper().setClassLoader(loader).setReleaseId(releaseId);
+      kieHelper.addResource(ruleSet, ResourceType.DRL);
+
+      KieBuilder kieBuilder = kieServices.newKieBuilder(kieHelper.kfs, loader).buildAll();
+      Results results = kieBuilder.getResults();
+      if (results.hasMessages(Message.Level.ERROR)) {
+        throw new RuleValidationException(results.getMessages());
+      }
+
+      kieBase = kieServices.newKieContainer(releaseId, loader).getKieBase();
+
+      // The rule base is built: the module is not needed in the shared repository any more.
+      kieServices.getRepository().removeKieModule(releaseId);
+    } finally {
+      // reset classloader back to original
+      Thread.currentThread().setContextClassLoader(orig);
     }
-
-    kieHelper = new KieHelper();
-    kieHelper.addResource(ruleSet, ResourceType.DRL);
-
-    Results results1 = kieHelper.verify();
-    if (results1.hasMessages(Message.Level.ERROR)) {
-      throw new RuleValidationException(results1.getMessages());
-    }
-
-    // reset classloader back to original
-    Thread.currentThread().setContextClassLoader(orig);
   }
 
   public void initializeColumns(IRowMeta inputRowMeta) {
@@ -138,24 +162,26 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
     ClassLoader loader = getClass().getClassLoader();
     Thread.currentThread().setContextClassLoader(loader);
 
-    if (kieHelper != null) {
-      KieSession session = kieHelper.getKieContainer().newKieSession();
+    try {
+      if (kieBase != null) {
+        // A new session per row, so facts of one row never reach the next.
+        // KieSession.close() delegates to dispose()
+        try (KieSession session = kieBase.newKieSession()) {
+          for (Rules.Column column : columnList) {
+            session.insert(column);
+          }
 
-      for (Rules.Column column : columnList) {
-        session.insert(column);
+          session.fireAllRules();
+
+          Collection<Object> oList = fetchColumns(session);
+          for (Object o : oList) {
+            resultMap.put(((Rules.Column) o).getName(), (Rules.Column) o);
+          }
+        }
       }
-
-      session.fireAllRules();
-
-      Collection<Object> oList = fetchColumns(session);
-      for (Object o : oList) {
-        resultMap.put(((Rules.Column) o).getName(), (Rules.Column) o);
-      }
-
-      session.dispose();
+    } finally {
+      Thread.currentThread().setContextClassLoader(orig);
     }
-
-    Thread.currentThread().setContextClassLoader(orig);
   }
 
   protected Collection<Object> fetchColumns(KieSession session) {
