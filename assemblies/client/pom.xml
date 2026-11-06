@@ -29,6 +29,11 @@
     <name>Hop Client</name>
 
     <properties>
+        <!-- hop-client is a release distribution artifact (staged to dist.apache.org), so it
+             must be deployed like any other module despite the assemblies/ parent's
+             maven.deploy.skip=true, which only exists to keep the other assembly zips
+             (web, plugins, static) out of Nexus/Maven Central. -->
+        <maven.deploy.skip>false</maven.deploy.skip>
         <org.eclipse.swt.cocoa.macosx.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.aarch64.version>
         <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
         <org.eclipse.swt.gtk.linux.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.aarch64.version>
