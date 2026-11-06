@@ -112,8 +112,12 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
 
     writeRowToFile(getInputRowMeta(), r);
 
-    data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    // Built once: the input row metadata doesn't change during the stream. The first flag can't
+    // tell, writeRowToFile() has already reset it.
+    if (data.outputRowMeta == null) {
+      data.outputRowMeta = getInputRowMeta().clone();
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    }
     putRow(data.outputRowMeta, r); // in case we want it to go further...
 
     if (checkFeedback(getLinesOutput()) && isBasic()) {
@@ -200,7 +204,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
               elementName = outputField.getFieldName();
             }
 
-            if (!(valueMeta.isNull(valueData) && meta.getFileDetails().isOmitNullValues())) {
+            if (!(meta.getFileDetails().isOmitNullValues() && valueMeta.isNull(valueData))) {
               writeField(valueMeta, valueData, elementName);
             }
           }

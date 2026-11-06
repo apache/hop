@@ -72,6 +72,10 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
         stopAll();
         return false;
       }
+
+      // Built once: the input row metadata doesn't change during the stream.
+      data.outputRowMeta = getInputRowMeta().clone();
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     }
 
     // OK, get the filename field from the row
@@ -94,8 +98,6 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
     }
 
     // Copy to any possible next transforms...
-    data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     putRow(data.outputRowMeta, r); // copy row to possible alternate
     // rowset(s).
 
