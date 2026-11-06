@@ -19,7 +19,9 @@ package org.apache.hop.pipeline.transforms.javascript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -30,6 +32,26 @@ import org.mozilla.javascript.EvaluatorException;
 
 class ScriptValuesAddedFunctionsTest {
   private static final String FORMATTER = "yyyy-MM-dd HH:mm:ss";
+
+  @Test
+  void padWithAnEmptyFillerReturnsTheValue() {
+    Object[] args = new Object[] {"ab", "", 5.0};
+
+    assertTimeoutPreemptively(
+        Duration.ofSeconds(5),
+        () -> {
+          assertEquals("ab", ScriptValuesAddedFunctions.lpad(null, null, args, null));
+          assertEquals("ab", ScriptValuesAddedFunctions.rpad(null, null, args, null));
+        });
+  }
+
+  @Test
+  void padFillsUpToTheSize() {
+    Object[] args = new Object[] {"ab", "*", 4.0};
+
+    assertEquals("**ab", ScriptValuesAddedFunctions.lpad(null, null, args, null));
+    assertEquals("ab**", ScriptValuesAddedFunctions.rpad(null, null, args, null));
+  }
 
   @Test
   void testTruncDate() {
