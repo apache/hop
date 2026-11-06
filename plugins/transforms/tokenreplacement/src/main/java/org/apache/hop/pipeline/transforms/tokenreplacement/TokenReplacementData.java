@@ -18,10 +18,12 @@
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -50,6 +52,35 @@ public class TokenReplacementData extends BaseTransformData implements ITransfor
   public IRowMeta inputRowMeta;
 
   public int rowNumber;
+
+  /** Position of each token field in the input row, looked up on the first row. */
+  public int[] tokenFieldIndexes;
+
+  /** Token name to the position of its value in the token values of a row. */
+  public Map<String, Integer> tokenValuePositions;
+
+  public String tokenStartMarker;
+  public String tokenEndMarker;
+  public boolean emptyStringDiffersFromNull;
+
+  /** The template typed in the transform, split once. */
+  public TokenTemplate textTemplate;
+
+  /** Position of the template field in the input row, -1 until it is looked up. */
+  public int inputFieldIndex = -1;
+
+  /** The last template read from the template field, and how it was split. */
+  public String fieldTemplateText;
+
+  public TokenTemplate fieldTemplate;
+
+  /** Reused for every row: the output text, and the buffer an input file is read through. */
+  public final StringBuilder outputText = new StringBuilder();
+
+  public final char[] readBuffer = new char[5000];
+
+  /** The output file encoding, looked up on the first write. */
+  public Charset outputCharset;
 
   public TokenReplacementData() {
     super();
