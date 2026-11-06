@@ -398,31 +398,43 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     config.addProjectConfig(projectConfig);
     ProjectsConfigSingleton.saveConfig();
 
+    Project project;
+    try {
+      project = projectConfig.loadProject(variables);
+      // Keep an existing parent from a pre-existing project-config.json (Docker
+      // --project-keep-config-file). Only fall back to the standard parent when none is set.
+      // --project-parent still wins via modifyProjectSettings below.
+      //
+      if (StringUtils.isEmpty(project.getParentProjectName())) {
+        project.setParentProjectName(config.findRegisteredStandardParentProject());
+      }
+      // A brand-new config file starts from the project name. An existing file keeps its id,
+      // including none, so a 2.19.0 project is not switched on to execution filtering.
+      if (!configFileExisted && StringUtils.isEmpty(project.getProjectId())) {
+        project.setProjectId(projectName);
+      }
+      modifyProjectSettings(project);
+
+      // Check to see if there's not a loop in the project parent hierarchy
+      //
+      project.verifyProjectsChain(projectName, variables);
+
+      // Always save, even if it's an empty file
+      //
+      project.saveToFile(projectKeepConfigFile);
+    } catch (Exception e) {
+      // Don't leave a registered project without a configuration file behind.
+      //
+      try {
+        config.removeProjectConfig(projectName);
+        ProjectsConfigSingleton.saveConfig();
+      } catch (Exception rollbackException) {
+        e.addSuppressed(rollbackException);
+      }
+      throw e;
+    }
+
     log.logBasic(CONST_PROJECT + projectName + "' was created for home folder : " + projectHome);
-
-    Project project = projectConfig.loadProject(variables);
-    // Keep an existing parent from a pre-existing project-config.json (Docker
-    // --project-keep-config-file). Only fall back to the standard parent when none is set.
-    // --project-parent still wins via modifyProjectSettings below.
-    //
-    if (StringUtils.isEmpty(project.getParentProjectName())) {
-      project.setParentProjectName(config.findRegisteredStandardParentProject());
-    }
-    // A brand-new config file starts from the project name. An existing file keeps its id,
-    // including none, so a 2.19.0 project is not switched on to execution filtering.
-    if (!configFileExisted && StringUtils.isEmpty(project.getProjectId())) {
-      project.setProjectId(projectName);
-    }
-    modifyProjectSettings(project);
-
-    // Check to see if there's not a loop in the project parent hierarchy
-    //
-    project.verifyProjectsChain(projectName, variables);
-
-    // Always save, even if it's an empty file
-    //
-    project.saveToFile(projectKeepConfigFile);
-
     log.logBasic(
         "Configuration file for project '"
             + projectName

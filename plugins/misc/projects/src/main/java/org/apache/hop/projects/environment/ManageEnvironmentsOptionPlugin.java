@@ -267,6 +267,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
       validateConfigFiles(log, variables, environment);
     } else {
       Project project = projectConfig.loadProject(variables);
+      // Project variables only, so '${PROJECT_HOME}' in the configuration file paths resolves.
+      // enableProject() below applies them again, together with the configuration files.
+      //
       project.modifyVariables(variables, projectConfig, new ArrayList<>(), environmentName);
 
       validateConfigFiles(log, variables, environment);

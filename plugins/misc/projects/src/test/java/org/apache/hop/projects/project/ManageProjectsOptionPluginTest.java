@@ -17,10 +17,12 @@
 
 package org.apache.hop.projects.project;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
@@ -58,6 +60,32 @@ class ManageProjectsOptionPluginTest {
               () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
       assertTrue(exception.getCause().getMessage().contains("does not exist"));
       assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig(name));
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeProjectConfig(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createThatFailsAfterRegisteringRollsTheProjectBack() {
+    String name = "issue-9007-parent-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try {
+      ManageProjectsOptionPlugin plugin = new ManageProjectsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--project-create",
+              "--project=" + name,
+              "--project-home=" + tempDir,
+              "--project-parent=" + name);
+
+      HopException exception =
+          assertThrows(
+              HopException.class,
+              () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+      assertTrue(exception.getCause().getMessage().contains("can not be the same"));
+      assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig(name));
+      assertFalse(Files.exists(tempDir.resolve("project-config.json")));
     } finally {
       ProjectsConfigSingleton.getConfig().removeProjectConfig(name);
       HopConfig.setInMemoryMode(false);
