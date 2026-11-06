@@ -27,6 +27,10 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class FilterRowsData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
+
+  /** The input row metadata with sortedDescending cleared, to evaluate the condition with. */
+  public IRowMeta conditionRowMeta;
+
   public IRowSet trueRowSet;
   public IRowSet falseRowSet;
   public boolean chosesTargetTransforms;

@@ -25,6 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -33,6 +38,7 @@ import java.util.Date;
 import java.util.stream.Stream;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
@@ -233,6 +239,42 @@ class FilterRowsTest {
     assertTrue(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2021-12-31")}));
     assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-01")}));
     assertFalse(runtimeCondition.evaluate(rowMeta, new Object[] {iso.parse("2022-01-02")}));
+  }
+
+  @Test
+  void descendingFieldIsComparedAscendingWithoutChangingTheSharedInputMeta() throws Exception {
+    Condition.CValue ten = new Condition.CValue();
+    ten.setName("constant");
+    ten.setType("Integer");
+    ten.setText("10");
+    ten.setNullValue(false);
+    ten.setLength(-1);
+    ten.setPrecision(-1);
+
+    Condition condition = new Condition();
+    condition.setLeftValueName("value");
+    condition.setFunction(SMALLER);
+    condition.setRightValue(ten);
+
+    FilterRows transform = spy(createTransform(condition));
+    assertTrue(transform.init());
+
+    RowMeta inputRowMeta = new RowMeta();
+    ValueMetaInteger value = new ValueMetaInteger("value");
+    value.setSortedDescending(true);
+    inputRowMeta.addValueMeta(value);
+    transform.setInputRowMeta(inputRowMeta);
+
+    Object[] row = new Object[] {5L};
+    doReturn(row).when(transform).getRow();
+    doNothing().when(transform).putRow(any(IRowMeta.class), any(Object[].class));
+
+    transform.processRow();
+
+    // 5 < 10: kept, so the descending sort order did not invert the comparison
+    verify(transform).putRow(any(IRowMeta.class), any(Object[].class));
+    // the hop's row metadata is shared with the previous transform and stays untouched
+    assertTrue(inputRowMeta.getValueMeta(0).isSortedDescending());
   }
 
   private static Stream<Arguments> variableValueTypes() throws Exception {
