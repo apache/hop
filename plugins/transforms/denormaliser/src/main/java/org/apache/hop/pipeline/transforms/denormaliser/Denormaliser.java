@@ -247,7 +247,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
                 switch (sum) {
                   case Long l -> l / count;
                   case Double d -> d / count;
-                  case BigDecimal bd -> bd.divide(BigDecimal.valueOf(count));
+                  case BigDecimal bd -> bigNumberAverage(bd, count);
                   default -> null;
                 };
           }
@@ -474,5 +474,19 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
    */
   void setMinNullIsValued(boolean minNullIsValued) {
     this.minNullIsValued = minNullIsValued;
+  }
+
+  /**
+   * The exact average when it has a finite decimal expansion, as before. Only a quotient such as
+   * 1/3, where an exact divide throws an ArithmeticException, is rounded like the Group by and
+   * Memory group by averages.
+   */
+  private static BigDecimal bigNumberAverage(BigDecimal sum, long count) {
+    BigDecimal divisor = BigDecimal.valueOf(count);
+    try {
+      return sum.divide(divisor);
+    } catch (ArithmeticException e) {
+      return ValueDataUtil.divideBigDecimals(sum, divisor, null);
+    }
   }
 }
