@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -39,6 +39,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -127,48 +128,47 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       }
     }
 
-    // Create token resolver
-    TokenResolver resolver = new TokenResolver();
-
-    for (TokenReplacementField field : meta.getTokenReplacementFields()) {
-      if (data.inputRowMeta.indexOfValue(field.getName()) >= 0) {
-        String fieldValue = resolve(data.inputRowMeta.getString(r, field.getName(), null));
-        if (fieldValue == null
-            && !BooleanUtils.toBoolean(
-                Const.getEnvironmentVariable("KETTLE_EMPTY_STRING_DIFFERS_FROM_NULL", "N"))) {
-          fieldValue = Const.nullToEmpty(fieldValue);
-        }
-        resolver.addToken(field.getTokenName(), fieldValue);
-      } else {
-        throw new HopValueException("Field " + field.getName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
-      }
+    // The value of every token field in this row, by its position in the transform's field list
+    if (data.tokenValuePositions == null) {
+      prepareTokens();
     }
+    String[] tokenValues = getTokenValues(r);
 
-    Reader reader;
+    // Text and field input: the template, split into fixed text and tokens.
+    // File input: streamed through a reader, so large files are never read into memory at once.
+    TokenTemplate template = null;
+    Reader reader = null;
     String inputFilename = "";
 
     if (meta.getInputType().equalsIgnoreCase("text")) {
-      reader =
-          new TokenReplacingReader(
-              resolver,
-              new StringReader(meta.getInputText()),
-              resolve(meta.getTokenStartString()),
-              resolve(meta.getTokenEndString()));
+      if (data.textTemplate == null) {
+        data.textTemplate =
+            TokenTemplate.parse(
+                Const.NVL(meta.getInputText(), ""),
+                data.tokenStartMarker,
+                data.tokenEndMarker,
+                data.tokenValuePositions);
+      }
+      template = data.textTemplate;
 
     } else if (meta.getInputType().equalsIgnoreCase(CONST_FIELD)) {
-      if (data.inputRowMeta.indexOfValue(meta.getInputFieldName()) >= 0) {
-        String inputString = data.inputRowMeta.getString(r, meta.getInputFieldName(), "");
-        reader =
-            new TokenReplacingReader(
-                resolver,
-                new StringReader(inputString),
-                resolve(meta.getTokenStartString()),
-                resolve(meta.getTokenEndString()));
-
-      } else {
-        throw new HopValueException(
-            "Input field " + meta.getInputFieldName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
+      if (data.inputFieldIndex < 0) {
+        data.inputFieldIndex = data.inputRowMeta.indexOfValue(meta.getInputFieldName());
+        if (data.inputFieldIndex < 0) {
+          throw new HopValueException(
+              "Input field " + meta.getInputFieldName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
+        }
       }
+      String inputString = Const.NVL(data.inputRowMeta.getString(r, data.inputFieldIndex), "");
+      // Rows often share the same template: split it again only when it changes
+      if (data.fieldTemplate == null || !inputString.equals(data.fieldTemplateText)) {
+        data.fieldTemplate =
+            TokenTemplate.parse(
+                inputString, data.tokenStartMarker, data.tokenEndMarker, data.tokenValuePositions);
+        data.fieldTemplateText = inputString;
+      }
+      template = data.fieldTemplate;
+
     } else if (meta.getInputType().equalsIgnoreCase("file")) {
       if (meta.isInputFileNameInField()) {
         if (data.inputRowMeta.indexOfValue(resolve(meta.getInputFileNameField())) >= 0) {
@@ -194,11 +194,11 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       String inputEncoding = Const.NVL(resolve(meta.getOutputFileEncoding()), Const.UTF_8);
       reader =
           new TokenReplacingReader(
-              resolver,
+              getTokenResolver(tokenValues),
               new InputStreamReader(
                   data.currentCountingInputStream, Charset.forName(inputEncoding)),
-              resolve(meta.getTokenStartString()),
-              resolve(meta.getTokenEndString()));
+              data.tokenStartMarker,
+              data.tokenEndMarker);
 
       if (meta.isAddInputFileNameToResult()) {
         ResultFile resultFile =
@@ -214,12 +214,9 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       throw new HopException("Unsupported input type " + meta.getInputType());
     }
 
-    Writer stringWriter = null;
     OutputStream bufferedWriter = null;
 
-    if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
-      stringWriter = new StringWriter(5000);
-    } else {
+    if (!meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
       if (meta.getOutputType().equalsIgnoreCase("file")) {
 
         if (inputFilename.equals(outputFilename)) {
@@ -241,58 +238,55 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     }
 
     String output = "";
+    boolean toField = meta.getOutputType().equalsIgnoreCase(CONST_FIELD);
+    StringBuilder text = data.outputText;
+    text.setLength(0);
 
     try {
-      char[] cbuf = new char[5000];
-      int length = 0;
-      while ((length = reader.read(cbuf)) > 0) {
-        if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
-          stringWriter.write(cbuf, 0, length);
-        } else if (meta.getOutputType().equalsIgnoreCase("file")) {
-          CharBuffer cBuffer = CharBuffer.wrap(cbuf, 0, length);
-          ByteBuffer bBuffer = Charset.forName(meta.getOutputFileEncoding()).encode(cBuffer);
-          byte[] bytes = new byte[bBuffer.limit()];
-          bBuffer.get(bytes);
-          bufferedWriter.write(bytes);
-        } // No else.  Anything else will be thrown to a Hop exception prior to getting here.
-        cbuf = new char[5000];
+      if (template != null) {
+        template.appendTo(tokenValues, text);
+        if (!toField) {
+          writeText(bufferedWriter, text);
+        }
+      } else {
+        int length;
+        while ((length = reader.read(data.readBuffer)) > 0) {
+          if (toField) {
+            text.append(data.readBuffer, 0, length);
+          } else {
+            writeText(bufferedWriter, CharBuffer.wrap(data.readBuffer, 0, length));
+          }
+        }
       }
 
-      if (meta.getOutputType().equalsIgnoreCase(CONST_FIELD)) {
-        output += stringWriter.toString();
-      } else if (meta.getOutputType().equalsIgnoreCase("file")) {
+      if (toField) {
+        output = text.toString();
+      } else {
         bufferedWriter.write(meta.getOutputFileFormatString().getBytes());
       }
     } catch (IOException ex) {
       throw new HopException(ex.getMessage(), ex);
     } finally {
-      try {
-        if (data.currentCountingInputStream != null) {
-          long bytesIn = data.currentCountingInputStream.getCount();
-          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesIn;
-          if (meta.getInputType().equalsIgnoreCase("file")
-              && !Utils.isEmpty(inputFilename)
-              && bytesIn > 0) {
-            try {
-              FileObject inFile = HopVfs.getFileObject(inputFilename, variables);
-              LineageFileIoEmitter.emitTransformFileIo(
-                  this, FileIoOperation.READ, inFile, null, bytesIn, true, null);
-            } catch (Exception ignored) {
-              // optional lineage
+      if (reader != null) {
+        try {
+          if (data.currentCountingInputStream != null) {
+            long bytesIn = data.currentCountingInputStream.getCount();
+            dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytesIn;
+            if (!Utils.isEmpty(inputFilename) && bytesIn > 0) {
+              try {
+                FileObject inFile = HopVfs.getFileObject(inputFilename, variables);
+                LineageFileIoEmitter.emitTransformFileIo(
+                    this, FileIoOperation.READ, inFile, null, bytesIn, true, null);
+              } catch (Exception ignored) {
+                // optional lineage
+              }
             }
           }
+          data.currentCountingInputStream = null;
+          reader.close();
+        } catch (IOException ex) {
+          throw new HopException(ex.getMessage(), ex);
         }
-        data.currentCountingInputStream = null;
-        reader.close();
-        if (stringWriter != null) {
-          stringWriter.close();
-        }
-
-        reader = null;
-        stringWriter = null;
-
-      } catch (IOException ex) {
-        throw new HopException(ex.getMessage(), ex);
       }
     }
 
@@ -309,6 +303,87 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     }
 
     return result;
+  }
+
+  /**
+   * Looks up, once, what every row needs: the position of each token field, the token markers and
+   * whether an empty string differs from null.
+   */
+  private void prepareTokens() throws HopValueException {
+    List<TokenReplacementField> fields = meta.getTokenReplacementFields();
+    int[] indexes = new int[fields.size()];
+    Map<String, Integer> positions = new HashMap<>();
+    for (int i = 0; i < indexes.length; i++) {
+      TokenReplacementField field = fields.get(i);
+      indexes[i] = data.inputRowMeta.indexOfValue(field.getName());
+      if (indexes[i] < 0) {
+        throw new HopValueException("Field " + field.getName() + CONST_NOT_FOUND_ON_INPUT_STREAM);
+      }
+      // When two fields share a token name, the last one wins, as before
+      positions.put(field.getTokenName(), i);
+    }
+    data.tokenStartMarker = resolve(meta.getTokenStartString());
+    data.tokenEndMarker = resolve(meta.getTokenEndString());
+    data.emptyStringDiffersFromNull =
+        BooleanUtils.toBoolean(
+            Const.getEnvironmentVariable("KETTLE_EMPTY_STRING_DIFFERS_FROM_NULL", "N"));
+    data.tokenFieldIndexes = indexes;
+    data.tokenValuePositions = positions;
+  }
+
+  /**
+   * The value of every token field in a row. Variables in a value are resolved; a null value
+   * becomes an empty string unless KETTLE_EMPTY_STRING_DIFFERS_FROM_NULL is set, and then keeps its
+   * token as written.
+   */
+  private String[] getTokenValues(Object[] row) throws HopValueException {
+    String[] values = new String[data.tokenFieldIndexes.length];
+    for (int i = 0; i < values.length; i++) {
+      String value = resolveValue(data.inputRowMeta.getString(row, data.tokenFieldIndexes[i]));
+      if (value == null && !data.emptyStringDiffersFromNull) {
+        value = "";
+      }
+      values[i] = value;
+    }
+    return values;
+  }
+
+  /**
+   * Resolves the variables in a field value. A value without a variable expression comes out of
+   * {@link #resolve(String)} unchanged, so that (synchronized) call is skipped for it.
+   */
+  private String resolveValue(String value) {
+    if (Utils.isEmpty(value) || !mayContainVariables(value)) {
+      return value;
+    }
+    return resolve(value);
+  }
+
+  /** True when a text holds one of the expressions that {@link #resolve(String)} replaces. */
+  static boolean mayContainVariables(String text) {
+    return text.contains(StringUtil.UNIX_OPEN)
+        || text.contains(StringUtil.WINDOWS_OPEN)
+        || text.contains(StringUtil.HEX_OPEN)
+        || text.contains(StringUtil.RESOLVER_OPEN);
+  }
+
+  /** The token values of a row by token name, for the reader of an input file. */
+  private TokenResolver getTokenResolver(String[] tokenValues) {
+    TokenResolver resolver = new TokenResolver();
+    List<TokenReplacementField> fields = meta.getTokenReplacementFields();
+    for (int i = 0; i < tokenValues.length; i++) {
+      resolver.addToken(fields.get(i).getTokenName(), tokenValues[i]);
+    }
+    return resolver;
+  }
+
+  /** Writes text to an output file in the output file encoding. */
+  private void writeText(OutputStream outputStream, CharSequence text) throws IOException {
+    if (data.outputCharset == null) {
+      data.outputCharset = Charset.forName(meta.getOutputFileEncoding());
+    }
+    ByteBuffer bytes = data.outputCharset.encode(CharBuffer.wrap(text));
+    outputStream.write(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining());
   }
 
   @Override
