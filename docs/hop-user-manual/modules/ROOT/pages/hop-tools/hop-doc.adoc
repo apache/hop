@@ -6,153 +6,112 @@ regarding copyright ownership.  The ASF licenses this file
 to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
-
   http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing,
-software distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing
-permissions and limitations under the License.
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
 ////
-:description: Hop Doc generates project documentation
-= Hop Doc
+[[HopDoc]]
+:description: hop doc writes documentation for a Hop project in Markdown, and optionally HTML: a page per pipeline and workflow with its diagram, an index, and an overview of the metadata.
+:page-marketplace: hop-misc-documentation
+:page-aliases: hop-doc/index.adoc
 
-Hop Doc generates documentation for Hop projects in Markdown format with optional HTML output.
+= hop doc
+
+`hop doc` writes documentation for a Hop project in https://www.markdownguide.org/basic-syntax/[Markdown] format.
+It writes a page per pipeline and workflow with its diagram, and an index that links them.
+You can publish the Markdown with a tool such as https://www.mkdocs.org/[MkDocs], or let `hop doc` write HTML as well.
+
+`hop doc` is part of the *Documentation* plugin, which is not in the standard Hop client.
+Install it from the xref:hop-tools/hop-marketplace.adoc[marketplace], where it is listed under Miscellaneous, or from the command line:
+
+[source,bash]
+----
+hop marketplace install hop-misc-documentation
+----
+
+The same plugin has the xref:workflow/actions/documentation.adoc[Build documentation] action, which does the same from a workflow.
 
 == Usage
 
-Generate documentation for a Hop project:
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop.bat doc -j my-project -t C:\docs\my-project
+hop.bat doc -j my-project -t C:\docs\my-project -ip -in -im --generate-html
+----
+--
 
-[source,command]
+Linux, macOS::
++
+--
+[source,shell]
 ----
-./hop.bat doc -s /path/to/project -t /path/to/docs [--generate-html] [--remove-markdown]
+./hop doc -j my-project -t /tmp/docs/my-project
+./hop doc -j my-project -t /tmp/docs/my-project -ip -in -im --generate-html
 ----
-
-Or using Hop project variables:
-[source,command]
-----
-./hop.bat run -j my-project doc -t /path/to/docs --generate-html
-----
+--
+====
 
 == Options
 
-[options="header"]
+[options="header", cols="1,3"]
 |===
-|Option |Description |Default
-|-s, --source-folder |Source project folder to document |Required (or use project)
-|-t, --target-folder |Target documentation folder |Required
-|-ip, --include-parameters |Include pipeline/workflow parameters |true
-|-in, --include-notes |Include notes text |false
-|-im, --include-metadata |Include metadata overview |true
-|-n, --project-name |Project name |"Hop" (or HOP_PROJECT_NAME)
-|-gh, --generate-html |Generate HTML versions of all docs |false
-|-rmmd, --remove-markdown |Remove .md files after HTML generation |false
+|Option|Description
+|`-j`, `--project <name>`|The project to document. See <<_which_folder_is_documented,Which folder is documented>>.
+|`-e`, `--environment <name>`|Enable an environment, and document its project.
+|`-t`, `--target-folder <folder>`|The folder to write the documentation to. Required. It is created when it doesn't exist.
+|`-s`, `--source-folder <folder>`|The folder to document, when no project is enabled.
+|`-n`, `--project-name <name>`|The name in the title of the index, when no project is enabled. The default is `Hop`.
+|`-ip`, `--include-parameters`|List the parameters of each pipeline and workflow.
+|`-in`, `--include-notes`|List the text of the notes of each pipeline and workflow.
+|`-im`, `--include-metadata`|Add an overview of the metadata elements of the project, such as connections and run configurations.
+|`-gh`, `--generate-html`|Also write an HTML file next to each Markdown file. The HTML index links to the HTML pages.
+|`-rmmd`, `--remove-markdown`|With `--generate-html`, remove the Markdown files once the HTML is written. Without `--generate-html` it does nothing.
 |===
 
-== Examples
+All the `-ip`, `-in`, `-im`, `-gh` and `-rmmd` options are off unless you give them.
 
-=== Basic Documentation
+Run `hop doc --help` for the full list, which also has `-pl`, `--environments` and the other options of the xref:hop-tools/hop.adoc[hop] command.
 
-Generate Markdown documentation only:
+== Which folder is documented
 
-[tabs]
-====
-Windows::
-+
---
-[source,shell]
-----
-./hop.bat doc -s "C:\Projects\my-hop-project" -t "C:\yourLocation\docs"
-----
+When a project is enabled, `hop doc` documents the home folder of that project, and uses the project's name in the index.
+`-s` and `-n` are then not used.
 
-Linux/macOS::
-+
---
-[source,shell]
-----
-./hop doc -s ~/projects/my-hop-project -t ~/docs
-----
-====
+A project is enabled with `-j` or `-e`, and otherwise the default project of your Hop configuration is used.
+The standard configuration has the `default` project as its default project, so name the project you want with `-j`.
 
-=== HTML Documentation
+`-s` and `-n` are only used when no project is enabled, for example when the Hop configuration has no default project.
 
-Generate HTML + remove Markdown source:
+== What is written
 
-[tabs]
-====
-Windows::
-+
---
-[source,shell]
-----
-./hop.bat doc -s "C:\Projects\my-hop-project" -t "C:\yourLocation\docs" --generate-html --remove-markdown
-----
+The target folder gets the same subfolders as the project.
+For each pipeline and workflow, `hop doc` writes a page next to where the file is in the project: `pipelines/load-orders.hpl` becomes `pipelines/load-orders-pipeline.md`, and `main.hwf` becomes `main-workflow.md`.
 
-Generates:
 [source]
 ----
-C:\docs\
-├── index.html (project TOC)
-├── pipelines\
-│   └── my-pipeline.html
-├── workflows\
-│   └── my-workflow.html
-└── assets\
-    ├── styles.css
-    └── images\
-----
-
-Linux/macOS::
-+
---
-[source,shell]
-----
-./hop doc -s ~/projects/my-hop-project -t ~/docs --generate-html --remove-markdown
-----
-====
-
-=== Using Hop Project Context
-
-[source,shell]
-----
-./hop.bat run -j IT-mongo doc -t "C:\yourLocation\docs" --generate-html
-----
-
-Uses `HOP_PROJECT_HOME` and `HOP_PROJECT_NAME` automatically.
-
-== Workflow Action Usage
-
-Add "Documentation" action to any Hop workflow:
-
-1. Drag **Documentation** action from Utility category
-2. Set **Target folder** (`C:\yourLocation\docs`)
-3. Optional: Check **Generate HTML**
-4. Optional: Check **Remove markdown** (only when Generate HTML enabled)
-5. Configure content options:
-   - ☑ **Include parameters** (optional)
-   - ☑ **Include metadata** (optional)
-   - ☐ **Include notes** (optional)
-
-== Generated Structure
-
 docs/
-├── index.html (Table of Contents)
-├── pipelines/ (all .hpl files)
-│ ├── pipeline1.html
-│ └── subfolder/
-│ └── pipeline2.html
-├── workflows/ (all .hwf files)
-│ └── workflow1.html
-├── metadata/ (metadata overview)
+├── index.md                          table of contents, linking every page
+├── pipelines/
+│   └── load-orders-pipeline.md
+├── main-workflow.md
+├── metadata/                         with --include-metadata
 └── assets/
-├── styles.css
-└── images/
+    ├── styles.css
+    └── images/                       an SVG diagram per pipeline and workflow
+----
 
-== Notes
+Each page has the file name, the date the file was last changed and the diagram, plus the notes and the parameters when you ask for them.
 
-* `--remove-markdown` is **automatically disabled** if `--generate-html` is false
-* HTML output includes custom CSS styling and responsive images
-* All links in `index.html` automatically point to `.html` files
-* Supports nested folders and metadata documentation
-* Uses CommonMark for Markdown → HTML conversion
+With `--generate-html`, each `.md` file gets an `.html` file next to it, including `index.html`.
+With `--remove-markdown` as well, only the HTML files, the images and the styles remain.
+
+Files that are already in the target folder stay, so remove the old documentation first when files were renamed or deleted in the project.
