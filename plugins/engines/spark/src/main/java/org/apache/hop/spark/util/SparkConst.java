@@ -39,6 +39,7 @@ public final class SparkConst {
   public static final String UNIQUE_ROWS_PLUGIN_ID = "Unique";
   public static final String UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID = "UniqueRowsByHashSet";
   public static final String SORT_ROWS_PLUGIN_ID = "SortRows";
+  public static final String TABLE_INPUT_PLUGIN_ID = "TableInput";
   public static final String GROUP_BY_PLUGIN_ID = "GroupBy";
   public static final String JOIN_ROWS_PLUGIN_ID = "JoinRows";
   public static final String MASK_FIELDS_PLUGIN_ID = "MaskFields";

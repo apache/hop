@@ -563,6 +563,8 @@
                         <exclude>.asf.yaml</exclude>
                         <exclude>**/licenses/*</exclude>
                         <exclude>**/target/**</exclude>
+                        <!-- Local generated code graph and analysis cache -->
+                        <exclude>.yca/**</exclude>
                         <exclude>**/.gitkeep</exclude>
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.json</exclude>

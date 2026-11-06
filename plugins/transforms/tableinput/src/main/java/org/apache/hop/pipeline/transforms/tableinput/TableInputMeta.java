@@ -131,6 +131,32 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       injectionKeyDescription = "TableInputMeta.Injection.ValidateSpecifiedFields")
   private boolean validateSpecifiedFields;
 
+  /**
+   * JDBC partition column used for a parallel (partitioned) read. When set together with {@link
+   * #jdbcLowerBound}, {@link #jdbcUpperBound} and {@link #jdbcNumPartitions}, the query is sliced
+   * into disjoint ranges of this column. The classic Hop engine reads one slice per transform copy,
+   * the native Spark engine reads one slice per Spark task via spark.read.jdbc. Empty (default) =
+   * one single full read, current behavior.
+   */
+  @HopMetadataProperty(key = "jdbc_partition_column")
+  private String jdbcPartitionColumn;
+
+  /** Inclusive lower bound of the partition column range. Variable-resolvable. */
+  @HopMetadataProperty(key = "jdbc_lower_bound")
+  private String jdbcLowerBound;
+
+  /** Exclusive upper bound of the partition column range. Variable-resolvable. */
+  @HopMetadataProperty(key = "jdbc_upper_bound")
+  private String jdbcUpperBound;
+
+  /**
+   * Number of parallel reads (slices). On the classic engine this should match the transform copy
+   * count; on the native Spark engine it becomes spark.read.jdbc numPartitions. Empty or 0
+   * (default) = one single full read, current behavior.
+   */
+  @HopMetadataProperty(key = "jdbc_num_partitions")
+  private String jdbcNumPartitions;
+
   @HopMetadataProperty(
       key = "field",
       groupKey = "fields",
