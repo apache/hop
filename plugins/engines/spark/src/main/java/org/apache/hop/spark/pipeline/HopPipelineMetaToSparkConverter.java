@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
@@ -225,12 +226,29 @@ public class HopPipelineMetaToSparkConverter {
 
       for (TransformMeta transformMeta : transforms) {
         String pluginId = transformMeta.getTransformPluginId();
-        ISparkPipelineTransformHandler handler =
-            transformHandlers.getOrDefault(pluginId, genericTransformHandler);
-        boolean nativeHandler = transformHandlers.containsKey(pluginId);
 
         List<TransformMeta> previousTransforms =
             pipelineMeta.findPreviousTransforms(transformMeta, false);
+
+        // Per-transform handler selection: Table Input only runs through its native JDBC handler
+        // when the partitioned read actually applies; any other configuration (parameters in the
+        // SQL, per-row execution, incoming parameter stream, lookup, row limit) keeps the generic
+        // handler so the multi-input union below and driver-side sampling are preserved.
+        ISparkPipelineTransformHandler handler =
+            transformHandlers.getOrDefault(pluginId, genericTransformHandler);
+        if (SparkConst.TABLE_INPUT_PLUGIN_ID.equals(pluginId)
+            && handler instanceof SparkJdbcInputHandler) {
+          TableInputMeta tableInputMeta = new TableInputMeta();
+          HopSparkUtil.loadTransformMetadata(
+              tableInputMeta, transformMeta, metadataProvider, pipelineMeta);
+          if (SparkJdbcInputHandler.isNativePartitionedRead(
+              tableInputMeta, variables, !previousTransforms.isEmpty())) {
+            handler = transformHandlers.get(pluginId);
+          } else {
+            handler = genericTransformHandler;
+          }
+        }
+        boolean nativeHandler = handler != genericTransformHandler;
 
         Dataset<Row> input = null;
         IRowMeta rowMeta;
