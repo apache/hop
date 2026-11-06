@@ -43,6 +43,9 @@ public class TableInputData extends BaseTransformData implements ITransformData 
   /** JDBC column index for each specified output field, or null when specify-fields is off. */
   public int[] specifiedMapping;
 
+  /** Resolved partitioning slice for this copy, or null when partitioning is not configured. */
+  public TableInputPartitioning.TableInputPartitionSlice partitionSlice;
+
   public TableInputData() {
     super();
 
