@@ -52,7 +52,7 @@ The `Get mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server an
 2+|Target folder
 |Target directory|The directory in which you want to put the mail files.
 |Create folder|check to create the specified target directory if it doesn't exist
-|Target filename pattern|The filename pattern (start of filename). The default pattern is `name_{SYS\|hhmmss_MMddyyyy\|}_#IdFile#.mail`
+|Target filename pattern|The filename pattern (start of filename). The default pattern is `name_{SYS\|hhmmss_MMddyyyy\|}_#IdFile#.mail`. `#IdFile#` is replaced with the number of the saved message, starting at 1 and counting over all folders, so with *Include subfolders* every message gets its own file.
 |Save message content|check to save the message body text for retrieved email messages
 |Get mail attachment|check to save the attachments for retrieved email messages
 |Different folder for attachment|check to save the attachments for retrieved email messages in a different folder than the message body
@@ -148,12 +148,10 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |Lines written|The number of messages saved with *Save message content*.
 |Files retrieved|The number of attachments saved.
-|Lines deleted|The number of messages deleted, by the *Delete messages* action, *Delete emails after retrieval* or *Delete message* after retrieval. A message moved on its own also counts here: with *Move message to folder* after retrieval, or with the *Move messages to folder* action and *Retrieve the first...emails*.
-|Lines updated|The number of messages moved to another IMAP folder.
+|Lines deleted|The number of messages deleted, by the *Delete messages* action, *Delete emails after retrieval* or *Delete message* after retrieval.
+|Lines updated|The number of messages moved to another IMAP folder. A moved message only counts here, not in *Lines deleted*.
 |===
 
 When the action is false, these metrics keep the values of the previous action.
-
-NOTE: The `#IdFile#` number in *Target filename pattern* starts again in each folder: with *Include subfolders*, a message of a subfolder can overwrite the file of a message of the first folder.
 
 NOTE: *Retrieve the first...emails* also applies to the *Delete messages* and *Move messages to folder* actions: only that number of messages is deleted or moved.

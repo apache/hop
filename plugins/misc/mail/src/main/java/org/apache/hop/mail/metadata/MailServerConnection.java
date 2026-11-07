@@ -636,7 +636,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   }
 
   private void setDeletedMessagesCounter() {
-    this.nrDeletedMessages = getMessagesCount();
+    this.nrDeletedMessages += getMessagesCount();
   }
 
   /** Update count of moved messages. */
@@ -646,7 +646,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   /** Set count of moved messages. */
   private void setMovedMessagesCounter() {
-    this.nrMovedMessages = getMessagesCount();
+    this.nrMovedMessages += getMessagesCount();
   }
 
   public void updateSavedMessagesCounter() {
@@ -929,8 +929,9 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       // move all messages
       this.folder.copyMessages(new Message[] {this.message}, this.destinationIMAPFolder);
       updatedMovedMessagesCounter();
-      // Make sure to delete messages
-      deleteMessage();
+      // Flag the original as deleted. Do not call deleteMessage(): a moved message only counts
+      // as moved, not also as deleted.
+      this.message.setFlag(Flags.Flag.DELETED, true);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(

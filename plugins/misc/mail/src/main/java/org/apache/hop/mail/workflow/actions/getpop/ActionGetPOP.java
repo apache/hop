@@ -222,6 +222,12 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private MailServerConnection connection;
   private MailConnection mailConn;
 
+  /**
+   * Number of messages saved so far in this run, over all folders. Replaces #IdFile# so a message
+   * of a subfolder does not overwrite one of an earlier folder.
+   */
+  private int savedMessageIndex;
+
   private Pattern attachementPattern;
 
   public ActionGetPOP(String n) {
@@ -324,6 +330,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     connection = null;
     Session session = null;
     mailConn = null;
+    savedMessageIndex = 0;
     Date beginDate = null;
     Date endDate = null;
 
@@ -903,7 +910,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   }
                   if (isSaveMessage()) {
                     // get local message filename
-                    String localfilenameMessage = replaceTokens(realFilenamePattern, i);
+                    String localfilenameMessage =
+                        replaceTokens(realFilenamePattern, savedMessageIndex++);
 
                     if (isDebug()) {
                       logDebug(
@@ -1072,7 +1080,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   }
                   if (isSaveMessage()) {
                     // get local message filename
-                    String localfilenameMessage = replaceTokens(realFilenamePattern, i);
+                    String localfilenameMessage =
+                        replaceTokens(realFilenamePattern, savedMessageIndex++);
 
                     if (isDebug()) {
                       logDebug(

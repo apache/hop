@@ -962,8 +962,9 @@ public class MailConnection {
       // move all messages
       this.folder.copyMessages(new Message[] {this.message}, this.destinationIMAPFolder);
       updatedMovedMessagesCounter();
-      // Make sure to delete messages
-      deleteMessage();
+      // Flag the original as deleted. Do not call deleteMessage(): a moved message only counts
+      // as moved, not also as deleted.
+      this.message.setFlag(Flag.DELETED, true);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
@@ -1044,7 +1045,7 @@ public class MailConnection {
   }
 
   private void setDeletedMessagesCounter() {
-    this.nrDeletedMessages = getMessagesCount();
+    this.nrDeletedMessages += getMessagesCount();
   }
 
   /**
@@ -1063,7 +1064,7 @@ public class MailConnection {
 
   /** Set count of moved messages. */
   private void setMovedMessagesCounter() {
-    this.nrMovedMessages = getMessagesCount();
+    this.nrMovedMessages += getMessagesCount();
   }
 
   /**
