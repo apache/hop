@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
     id = "LineageHubPipelineCompletedXp",
     extensionPointId = "PipelineCompleted",
     description =
-        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED at pipeline completion and flushes the lineage hub")
+        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED at pipeline completion and flushes the lineage hub for a top-level run")
 public class LineageHubPipelineCompletedXp
     implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
   @Override
@@ -44,6 +44,9 @@ public class LineageHubPipelineCompletedXp
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitPipeline(pipeline, phase, null);
-    LineageHub.getInstance().flushQuietly();
+    // Only a top-level run waits for delivery; a nested run's events are flushed by its parent.
+    if (LineageRunLifecycleEmitter.isTopLevel(pipeline)) {
+      LineageHub.getInstance().flushQuietly();
+    }
   }
 }

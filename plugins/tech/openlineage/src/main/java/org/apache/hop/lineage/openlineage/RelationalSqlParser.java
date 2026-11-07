@@ -24,6 +24,7 @@ import io.openlineage.sql.OpenLineageSql;
 import io.openlineage.sql.SqlMeta;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
@@ -101,7 +102,7 @@ final class RelationalSqlParser {
       return new Tables(
           toTables(meta.inTables()),
           toTables(meta.outTables()),
-          toColumnEdges(meta.columnLineage()));
+          toColumnEdges(meta.columnLineage(), sql));
     } catch (Throwable t) {
       // Native parse failures can surface as Errors (e.g. UnsatisfiedLinkError), not Exceptions.
       logDebug(
@@ -127,11 +128,16 @@ final class RelationalSqlParser {
    * Converts the parser's per-column lineage to neutral {@link ColumnEdge}s. Only source columns
    * whose origin table the parser resolved are kept (an unresolved origin cannot reference a
    * dataset); edges left with no resolvable source are dropped.
+   *
+   * <p>For an {@code INSERT INTO t (a, b) SELECT …} the parser names each output field after the
+   * SELECT expression. {@link InsertSelectRenames} supplies the target column for that name, so a
+   * write to a table with different column names is reported against the columns it actually wrote.
    */
-  private static List<ColumnEdge> toColumnEdges(List<ColumnLineage> columnLineage) {
+  private static List<ColumnEdge> toColumnEdges(List<ColumnLineage> columnLineage, String sql) {
     if (columnLineage == null || columnLineage.isEmpty()) {
       return List.of();
     }
+    Map<String, String> targets = InsertSelectRenames.of(sql);
     List<ColumnEdge> edges = new ArrayList<>(columnLineage.size());
     for (ColumnLineage cl : columnLineage) {
       ColumnMeta descendant = cl.descendant();
@@ -153,7 +159,8 @@ final class RelationalSqlParser {
                 source.name()));
       }
       if (!refs.isEmpty()) {
-        edges.add(new ColumnEdge(descendant.name(), refs));
+        String outputField = targets.getOrDefault(descendant.name(), descendant.name());
+        edges.add(new ColumnEdge(outputField, refs));
       }
     }
     return edges;

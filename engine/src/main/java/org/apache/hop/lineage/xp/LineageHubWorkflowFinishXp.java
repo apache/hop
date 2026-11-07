@@ -32,7 +32,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     id = "LineageHubWorkflowFinishXp",
     extensionPointId = "WorkflowFinish",
     description =
-        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a workflow ends and flushes the lineage hub")
+        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a workflow ends and flushes the lineage hub for a top-level run")
 public class LineageHubWorkflowFinishXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
   @Override
   public void callExtensionPoint(
@@ -43,6 +43,9 @@ public class LineageHubWorkflowFinishXp implements IExtensionPoint<IWorkflowEngi
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitWorkflow(workflow, phase, null);
-    LineageHub.getInstance().flushQuietly();
+    // Only a top-level run waits for delivery; a nested run's events are flushed by its parent.
+    if (LineageRunLifecycleEmitter.isTopLevel(workflow)) {
+      LineageHub.getInstance().flushQuietly();
+    }
   }
 }
