@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.surefirereport;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.hop.core.exception.HopException;
@@ -223,9 +224,18 @@ public class SurefireReportOutput
     }
 
     Path reportPath = Paths.get(filename);
-    if (meta.isCreateParentFolder() && reportPath.getParent() != null) {
+    Path parentFolder = reportPath.getParent();
+    if (parentFolder != null && !Files.isDirectory(parentFolder)) {
+      if (!meta.isCreateParentFolder()) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG,
+                "SurefireReportOutput.Error.ParentFolderDoesNotExist",
+                parentFolder,
+                filename));
+      }
       try {
-        java.nio.file.Files.createDirectories(reportPath.getParent());
+        Files.createDirectories(parentFolder);
       } catch (Exception e) {
         throw new HopException(
             BaseMessages.getString(
