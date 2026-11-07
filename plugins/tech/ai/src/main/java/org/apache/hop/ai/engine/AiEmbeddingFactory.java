@@ -63,17 +63,38 @@ public final class AiEmbeddingFactory {
         Utils.isEmpty(modelName)
             ? variables.resolve(provider.resolveModelName(AiModelRole.EMBEDDING))
             : variables.resolve(modelName);
-    return new ResolvedEmbeddingModel(
-        createEmbeddingModel(provider, resolvedName, variables), resolvedName);
-  }
-
-  /** An embedding model and the name of the model it talks to. */
-  public record ResolvedEmbeddingModel(EmbeddingModel model, String modelName) {}
-
-  public static EmbeddingModel createEmbeddingModel(
-      AiProvider provider, String modelName, IVariables variables) throws HopException {
     // of() rejects a null or half configured provider, so there is one guard, not two.
     AiProviderSettings settings = AiProviderSettings.of(provider, variables);
+    return new ResolvedEmbeddingModel(
+        createEmbeddingModel(provider, settings, resolvedName, variables),
+        resolvedName,
+        provider.getName(),
+        settings.baseUrl());
+  }
+
+  /**
+   * An embedding model, the name of the model it talks to, and where it lives: the provider name
+   * and the resolved base URL, which a failed call needs to say which endpoint did not answer.
+   */
+  public record ResolvedEmbeddingModel(
+      EmbeddingModel model, String modelName, String providerName, String baseUrl) {}
+
+  /**
+   * Builds the provider's embedding model.
+   *
+   * <p>The model makes one attempt per call: langchain4j's own retries log a full stack trace at
+   * WARN for every attempt, outside of Hop's log level. The caller retries instead, so it can say
+   * what failed in one line and keep the stack trace for debug logging.
+   */
+  public static EmbeddingModel createEmbeddingModel(
+      AiProvider provider, String modelName, IVariables variables) throws HopException {
+    return createEmbeddingModel(
+        provider, AiProviderSettings.of(provider, variables), modelName, variables);
+  }
+
+  private static EmbeddingModel createEmbeddingModel(
+      AiProvider provider, AiProviderSettings settings, String modelName, IVariables variables)
+      throws HopException {
 
     // Resolution order: the transform's override, then the provider's EMBEDDING row. The
     // provider's plain modelName is the chat model and is deliberately not a fallback here.
@@ -103,7 +124,7 @@ public final class AiEmbeddingFactory {
 
   private static EmbeddingModel ollamaModel(AiProviderSettings settings, String model) {
     OllamaEmbeddingModel.OllamaEmbeddingModelBuilder builder =
-        OllamaEmbeddingModel.builder().baseUrl(settings.baseUrl()).modelName(model);
+        OllamaEmbeddingModel.builder().baseUrl(settings.baseUrl()).modelName(model).maxRetries(0);
     if (settings.timeout() != null) {
       builder.timeout(settings.timeout());
     }
@@ -112,7 +133,7 @@ public final class AiEmbeddingFactory {
 
   private static EmbeddingModel openAiModel(AiProviderSettings settings, String model) {
     OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder =
-        OpenAiEmbeddingModel.builder().modelName(model);
+        OpenAiEmbeddingModel.builder().modelName(model).maxRetries(0);
     if (!Utils.isEmpty(settings.baseUrl())) {
       builder.baseUrl(settings.baseUrl());
     }

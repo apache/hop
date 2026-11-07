@@ -303,7 +303,12 @@ public class EmbedTextMeta extends BaseTransformMeta<EmbedText, EmbedTextData> {
     }
     // Batch size accepts variables, which a design-time check cannot resolve. Only a value that is
     // genuinely fixed can be judged here.
-    if (isResolvedNumberBad(variables, batchSize, size -> size < 1)) {
+    String resolvedBatchSize = variables.resolve(batchSize);
+    if (!Utils.isEmpty(resolvedBatchSize)
+        && !StringUtil.containsVariableToken(resolvedBatchSize)
+        && Const.toInt(resolvedBatchSize, Integer.MIN_VALUE) == Integer.MIN_VALUE) {
+      error(remarks, transformMeta, "EmbedText.Validation.BatchSizeNotANumber", resolvedBatchSize);
+    } else if (isResolvedNumberBad(variables, batchSize, size -> size < 1)) {
       error(remarks, transformMeta, "EmbedText.Validation.BatchSizePositive");
     }
     if (includeModelMetadata && Utils.isEmpty(modelField) && Utils.isEmpty(dimensionsField)) {
