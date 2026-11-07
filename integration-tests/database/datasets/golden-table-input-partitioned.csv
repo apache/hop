@@ -1,0 +1,13 @@
+row_id,partition_id,payload
+1,,null-partition
+2,-10,below-lower
+3,0,lower-bound
+4,19,before-first
+5,20,first-boundary
+6,39,before-second
+7,40,second-boundary
+8,59,before-third
+9,60,third-boundary
+10,79,before-upper
+11,80,upper-bound
+12,100,above-upper

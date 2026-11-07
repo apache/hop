@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "row_id",
+          "data_set_field": "row_id"
+        },
+        {
+          "transform_field": "partition_id",
+          "data_set_field": "partition_id"
+        },
+        {
+          "transform_field": "payload",
+          "data_set_field": "payload"
+        }
+      ],
+      "field_order": [
+        "row_id"
+      ],
+      "data_set_name": "golden-table-input-partitioned",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-table-input-partitioned UNIT",
+  "description": "Partitioned Table Input read (4 copies, partition_id 0..80/4) returns every row exactly once",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0008-table-input-partitioned.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "row_id",
+          "data_set_field": "row_id"
+        },
+        {
+          "transform_field": "partition_id",
+          "data_set_field": "partition_id"
+        },
+        {
+          "transform_field": "payload",
+          "data_set_field": "payload"
+        }
+      ],
+      "field_order": [
+        "row_id"
+      ],
+      "data_set_name": "0011-table-input-partitioned-golden",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-table-input-partitioned-validation UNIT",
+  "description": "Native Spark partitioned Table Input read (1 copy, 4 JDBC partitions on H2) returns every row exactly once",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0011-table-input-partitioned-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -50,6 +50,21 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>Init partition table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>unit-test-db</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sqlfilename>${PROJECT_HOME}/scripts/0008-table-input-partitioned.sql</sqlfilename>
+      <sqlfromfile>Y</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>304</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>0008-table-input.hpl</name>
       <description/>
       <type>PIPELINE</type>
@@ -300,6 +315,47 @@ limitations under the License.
       <yloc>176</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>0008-table-input-partitioned.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0008-table-input-partitioned.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1600</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0008-table-input-partitioned UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>1840</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -368,6 +424,27 @@ limitations under the License.
     <hop>
       <from>0008-table-input-named-and-variable.hpl</from>
       <to>0008-table-input-specify-fields.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>SQL</from>
+      <to>Init partition table</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Init partition table</from>
+      <to>0008-table-input-partitioned.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0008-table-input-partitioned.hpl</from>
+      <to>Run Pipeline Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
