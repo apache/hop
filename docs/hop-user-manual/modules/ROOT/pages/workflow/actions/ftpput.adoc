@@ -63,7 +63,7 @@ Select encoding that is valid for your server.
 |Browse...|Browse the filesystem for a local directory.
 |Wildcard (regular expression)|If you are uploading multiple files, specify a regular expression that defines the set of files you want to upload.
 |Remove files after transferal|Enable to remove files from the local directory after they've been uploaded.
-|Don't overwrite files|Enable to skip files that already exist in the remote directory. See the WARNING under <<Result>>.
+|Don't overwrite files|Enable to skip files that already exist in the remote directory. A skipped file is not an error, and *Remove files after transferal* leaves it in the local directory.
 |Remote directory|The directory on the FTP server to upload files to.
 |Test folder|Test if the remote directory exists. This connects to the FTP server and attempts to access the specified directory. If this directory doesn't exist, the upload fails.
 |===
@@ -86,10 +86,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|Every matching file was uploaded, with 0 errors. No file matching the wildcard is also true.
+|True|Every matching file was uploaded, or skipped by *Don't overwrite files*, with 0 errors. No file matching the wildcard is also true.
 |False|A file can't be uploaded, the server can't be reached or refuses the login, the remote directory doesn't exist, *Local directory* is empty or doesn't exist, or the wildcard is not a valid regular expression. The number of errors is the number of files that failed, or 1 when the action fails before the upload.
 |Result files|Passed on unchanged: the uploaded files are not added.
 |Result rows|Passed on unchanged.
 |===
-
-WARNING: With *Don't overwrite files* and *Remove files after transferal* both checked, a local file that already exists on the server is not uploaded, but it is still removed from the local directory.

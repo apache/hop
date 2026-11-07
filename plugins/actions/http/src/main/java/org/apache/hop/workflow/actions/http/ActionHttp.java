@@ -337,9 +337,6 @@ public class ActionHttp extends ActionBase {
           }
         }
 
-        // Create the output File...
-        outputFile = new CountingOutputStream(HopVfs.getOutputStream(realTargetFile, fileAppended));
-
         URI uri = toUri(urlToUse);
         HttpHost target = HttpClientManager.createHttpHost(uri);
 
@@ -411,6 +408,11 @@ public class ActionHttp extends ActionBase {
               if (!Utils.isEmpty(resolvedReplyVariable)) {
                 replyBuffer = new ByteArrayOutputStream();
               }
+
+              // Open the target only now: opening it truncates it, and a request that failed or
+              // came back with an error status must leave an existing target file as it was.
+              outputFile =
+                  new CountingOutputStream(HopVfs.getOutputStream(realTargetFile, fileAppended));
 
               input =
                   new CountingInputStream(
@@ -519,6 +521,13 @@ public class ActionHttp extends ActionBase {
 
       result.setBytesReadThisAction(result.getBytesReadThisAction() + bytesReadThisRow);
       result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + bytesWrittenThisRow);
+    }
+
+    // With "Run for every result row" an earlier row that succeeded has already set the result to
+    // true. A later row that failed makes the action fail, or the workflow would follow the
+    // success hop with errors.
+    if (result.getNrErrors() > 0) {
+      result.setResult(false);
     }
 
     return result;
