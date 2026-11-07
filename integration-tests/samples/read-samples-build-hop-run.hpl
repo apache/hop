@@ -604,10 +604,6 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>requires a stored procedure in the database</item>
       </line>
       <line>
-        <item>get-table-names.hpl</item>
-        <item>fails on the H2 2.x metadata of the hop-samples connection (INFORMATION_SCHEMA.CONSTANTS)</item>
-      </line>
-      <line>
         <item>http-client.hpl</item>
         <item>requires network access to the URL</item>
       </line>

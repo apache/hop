@@ -5256,10 +5256,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @throws HopDatabaseException
    */
   public String[] getPrimaryKeyColumnNames(String tableName) throws HopDatabaseException {
+    return getPrimaryKeyColumnNames(null, tableName);
+  }
+
+  /**
+   * Return the primary key column names of a table in a specific schema.
+   *
+   * @param schemaName The unquoted schema name. Null or empty does not filter on schema.
+   * @param tableName The unquoted table name.
+   * @throws HopDatabaseException
+   */
+  public String[] getPrimaryKeyColumnNames(String schemaName, String tableName)
+      throws HopDatabaseException {
     List<String> names = new ArrayList<>();
     ResultSet allkeys = null;
     try {
-      allkeys = getDatabaseMetaData().getPrimaryKeys(null, null, tableName);
+      allkeys =
+          getDatabaseMetaData()
+              .getPrimaryKeys(null, Utils.isEmpty(schemaName) ? null : schemaName, tableName);
       while (allkeys.next()) {
         String keyname = allkeys.getString("PK_NAME");
         String colName = allkeys.getString("COLUMN_NAME");
