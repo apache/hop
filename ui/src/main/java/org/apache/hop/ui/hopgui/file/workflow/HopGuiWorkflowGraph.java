@@ -4792,7 +4792,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               // Enable/disable the execution toolbar buttons.
               // Halting is still active: Stop stays enabled so a second click can force-stop.
               //
-              boolean stopping = workflow.isActive() && workflow.isStopped();
+              boolean stopping = workflow != null && workflow.isActive() && workflow.isStopped();
               boolean running = isRunning() && !workflow.isStopped();
               boolean executing = running || stopping;
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !executing);
