@@ -175,9 +175,6 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     FileObject filefolder = null;
 
     try {
-      // Compile once up front so an invalid mask fails the entry (issue #9264),
-      // instead of being swallowed while selecting each file.
-      Pattern compiledWildcard = compileWildcard(realWildcard);
       filefolder = HopVfs.getFileObject(realFileFolderName, getVariables());
       if (!filefolder.exists()) {
         if (isBasic()) {
@@ -188,9 +185,13 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
         return false;
       }
       if (filefolder.getType() == FileType.FILE) {
+        // Wildcard applies only to folders; a file entry is added as-is.
         addToResultFiles(filefolder.toString(), parentWorkflow, result);
       } else {
-        addMatchingFilesFromFolder(filefolder, compiledWildcard, parentWorkflow, result);
+        // Compile once so an invalid mask fails the folder entry (issue #9264),
+        // instead of being swallowed while selecting each file.
+        addMatchingFilesFromFolder(
+            filefolder, compileWildcard(realWildcard), parentWorkflow, result);
       }
       return true;
     } catch (Exception e) {
@@ -244,8 +245,8 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
   }
 
   /**
-   * Compile the file-mask regex once. An invalid expression must fail the action instead of being
-   * swallowed while selecting files.
+   * Compile the folder file-mask regex once. An invalid expression must fail that folder entry
+   * instead of being swallowed while selecting files. Not used for file entries.
    */
   private static Pattern compileWildcard(String wildcard) {
     if (Utils.isEmpty(wildcard)) {
