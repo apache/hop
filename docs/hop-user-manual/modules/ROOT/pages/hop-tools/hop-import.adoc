@@ -25,7 +25,7 @@ See xref:hop-vs-kettle/import-kettle-projects.adoc[Import Kettle (PDI) projects]
 
 == Usage
 
-Usage help can be obtained by running hop-import with the `-h` option, even when other options are specified:
+Run `hop import -h` to see the options, also when other options are given. `hop-import.sh -h` and `hop-import.bat -h` show the same list:
 
 &nbsp; +
 
@@ -35,15 +35,19 @@ Usage help can be obtained by running hop-import with the `-h` option, even when
 
 [source]
 ----
-Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
-                    [-j=<jdbcPropertiesFilename>]
-                    [-k=<kettlePropertiesFilename>] [-o=<outputFolderName>]
-                    [-s=<sharedXmlFilename>] [-t=<type>]
+Usage: hop import [-efhlpv] [--no-apply-naming-schemes]
+                  [-c=<targetConfigFilename>] [-i=<inputFolderName>]
+                  [-j=<jdbcPropertiesFilename>] [-k=<kettlePropertiesFilename>]
+                  [-n=<namingSchemeName>] [-o=<outputFolderName>]
+                  [-P=<projectName>] [-r=<defaultPipelineRunConfiguration>]
+                  [-s=<sharedXmlFilename>] [-t=<type>]
+                  [-w=<defaultWorkflowRunConfiguration>]
+Import metadata
   -c, --target-config-file=<targetConfigFilename>
-                        The target config file to write variables to
+                        The target config file to write variable to
   -e, --skip-existing   Skip existing files in the target folders
   -f, --skip-folders    Skip import of sub-folders
-  -h, --help            Displays this help message and quits
+  -h, --help            Displays this help message and quits.
   -i, --input=<inputFolderName>
                         The input folder to read from
   -j, --jdbc-properties=<jdbcPropertiesFilename>
@@ -51,19 +55,31 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
   -k, --kettle-properties=<kettlePropertiesFilename>
                         The kettle.properties file to read from
   -l, --list-plugins    List the available import plugins
+  -n, --naming-scheme=<namingSchemeName>
+                        Naming scheme metadata name in the target folder to
+                          apply to relational connections
+      --no-apply-naming-schemes
+                        Do not apply a naming scheme; connection names are
+                          still aligned to one spelling
   -o, --output=<outputFolderName>
                         The output folder to write to
   -p, --skip-hidden     Skip import of hidden files and folders
+  -P, --project=<projectName>
+                        Import into this project. An existing project's home
+                          folder is used as the target folder, an unknown
+                          project is registered at the target folder.
+  -r, --pipeline-run-configuration=<defaultPipelineRunConfiguration>
+                        The run configuration to set on every imported
+                          pipeline. Without it the name found in the source
+                          file is kept.
   -s, --shared-xml=<sharedXmlFilename>
                         The shared.xml file to read from
   -t, --type=<type>     The type of import plugin to use (e.g. kettle)
-  -n, --naming-scheme=<name>
-                        Naming scheme metadata name in the target folder
-                        to apply to relational connections
-      --no-apply-naming-schemes
-                        Do not apply a naming scheme; connection names are
-                        still aligned to one spelling
-  -v, --version         Print version information and exit   
+  -v, --version         Print version information and exit
+  -w, --workflow-run-configuration=<defaultWorkflowRunConfiguration>
+                        The run configuration to set on every imported
+                          workflow. Without it the name found in the source
+                          file is kept.
 ----
 
 =====
@@ -71,6 +87,31 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
 &nbsp; +
 
 Place naming-scheme JSON files in `<output>/metadata/naming-scheme/` before running the command (or create them in the target project in Hop Gui). The unique *Hop metadata* scheme, or a unique *General* scheme, is applied to imported relational connection names. Use `--naming-scheme` to pick one by name.
+
+== Run configurations and projects
+
+The job entries in a Kettle job can name a run configuration, for example `Pentaho local`, that doesn't exist in Hop.
+
+* `-r` sets the run configuration of every imported Pipeline action, and of the Simple mapping and Metadata injection transforms.
+* `-w` sets the run configuration of every imported Workflow action.
+
+Without them, a Pipeline or Workflow action keeps the name in the Kettle file, or gets `local` when it has none.
+
+`-P` imports into a project:
+
+* When the project exists, its home folder is the output folder, and `-o` is ignored.
+* Otherwise the project is registered with the `-o` folder as its home, after both folders are checked.
+
+[source,shell]
+----
+hop import \
+  --type kettle \
+  --input /projects/kettle/inventory \
+  --output /projects/hop/inventory \
+  --project inventory \
+  --pipeline-run-configuration local \
+  --workflow-run-configuration local
+----
 
 == Examples
 
