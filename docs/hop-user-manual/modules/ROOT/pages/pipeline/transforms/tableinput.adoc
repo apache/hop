@@ -209,6 +209,17 @@ where id > ${PRM_ID} AND lastdate > ?;
 [#parallel-reading]
 == Parallel reading
 
+=== Built-in partitioned read
+
+Set all four JDBC partition options on the *Options* tab to split a query over a numeric result column.
+The lower and upper bounds determine the partition stride; they do not filter the result, and the first partition includes null values.
+The query must be valid as a subquery and expose the partition column.
+On the classic engine, set the number of transform copies to at least the configured number of partitions; each copy uses a separate connection unless the run configuration shares connections.
+On native Spark, a compatible source uses Spark JDBC partitions; configurations with incoming rows, named parameters, per-row execution or a row limit fall back to the generic handler.
+Concurrent connections may observe different database snapshots, so use an appropriate consistency strategy.
+
+=== Manual partitioning
+
 Keep `NR_COPIES` as a parameter of the pipeline. On the pipeline properties *Parameters* tab, give it a default and a description so the copy count is documented with the pipeline and easy to change for a run. Changing that one value lets you test the limit of the source database's capacity. See xref:fields-parameters-variables.adoc#_parameters[Parameters].
 
 A large read often keeps one database session busy on a single CPU core, while the network and the disks still have capacity. Several copies of the same Table Input share that read. Unless the copies share a connection, each copy runs the query on its own session, and a predicate assigns that copy its own slice of the rows.
@@ -230,7 +241,7 @@ The statements stay the same apart from the copy number. *Limit size* and a SQL 
 
 The next transform receives the rows from every copy. One copy of that transform merges the slices into a single stream.
 
-Leave Table Input unpartitioned. A partition schema sets the number of copies itself.
+For this manual approach, leave the JDBC partition options empty. A Hop partition schema sets the number of copies itself.
 
 === Integer keys
 
@@ -401,6 +412,11 @@ On the *Fields* tab you can define the output schema instead of asking the datab
 |Insert data from transform|Optional. Names the hop that should be treated as informational (parameter rows, not the SQL result). Parameter values are read from **all** incoming hops. Leave empty when you only need the connected hops as parameter sources. When the SQL has no bind placeholder, the incoming rows are never bound (only drained when *Execute for each row* is off).
 |Execute for each row?|When incoming hops exist, run the SQL query once for each incoming row. Disable to concatenate all incoming rows into a single parameter list (legacy `WHERE bar IN (?,?,?)` from several one-field rows). Incoming hops with different layouts still produce the mixed-layout warning. When the SQL has no bind placeholder, nothing is ever bound: with this option **off** the incoming rows are only drained and the query runs once without parameters; with it **on** the query runs once per incoming row, still without parameters.
 |Limit size|Maximum number of rows to return from the query. `0` means no limit. See <<limit-size-vs-sql-limit,Limit size vs. SQL LIMIT>> below.
+|JDBC partition column|Numeric column exposed by the query used to split the read.
+|JDBC lower bound|Lower bound for calculating partition strides, not a row filter.
+|JDBC upper bound|Upper bound for calculating partition strides, not a row filter.
+|JDBC number of partitions|Number of partitions; classic execution requires at least this many transform copies.
+
 |Specify output fields|Define the output field list instead of reading column metadata from the database.
 |Validate specified fields|When specifying fields, fail if the query result names or types do not match the list.
 |===
