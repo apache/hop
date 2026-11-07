@@ -75,40 +75,37 @@ public class Neo4jIndex extends ActionBase implements IAction {
     // Success unless something goes wrong, whatever the result of the previous action
     result.setResult(true);
 
-    connection =
-        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
+    try {
+      connection =
+          NeoConnectionUtils.getGraphConnection(getMetadataProvider(), resolve(connectionName));
 
-    if (connection == null) {
-      result.setResult(false);
-      result.increaseErrors(1L);
-      throw new HopException("Please specify a Neo4j connection to use");
-    }
-
-    // Loop over the index updates to see which need deleting...
-    //
-    for (IndexUpdate indexUpdate : indexUpdates) {
-      if (indexUpdate.getType() == null) {
-        throw new HopException("Please make sure to always specify an index update type");
+      for (IndexUpdate indexUpdate : indexUpdates) {
+        if (indexUpdate.getType() == null) {
+          throw new HopException("Please make sure to always specify an index update type");
+        }
       }
-      switch (indexUpdate.getType()) {
-        case DROP:
+
+      // Drop the indexes first...
+      //
+      for (IndexUpdate indexUpdate : indexUpdates) {
+        if (indexUpdate.getType() == UpdateType.DROP) {
           dropIndex(indexUpdate);
-          break;
-        default:
-          break;
+        }
       }
-    }
 
-    // Create the indexes if needed
-    //
-    for (IndexUpdate indexUpdate : indexUpdates) {
-      switch (indexUpdate.getType()) {
-        case CREATE:
+      // ... then create the indexes
+      //
+      for (IndexUpdate indexUpdate : indexUpdates) {
+        if (indexUpdate.getType() == UpdateType.CREATE) {
           createIndex(indexUpdate);
-          break;
-        default:
-          break;
+        }
       }
+    } catch (Exception e) {
+      // The updates before the failing one stay done, the ones after it are not run
+      //
+      logError("Error updating the graph database indexes", e);
+      result.setResult(false);
+      result.setNrErrors(1);
     }
 
     return result;
