@@ -67,6 +67,9 @@ limitations under the License.
           <name>0115-text-chunker-structure-markdown UNIT</name>
         </test_name>
         <test_name>
+          <name>0115-text-chunker-structure-headings UNIT</name>
+        </test_name>
+        <test_name>
           <name>0117-text-chunker-redaction UNIT</name>
         </test_name>
       </test_names>

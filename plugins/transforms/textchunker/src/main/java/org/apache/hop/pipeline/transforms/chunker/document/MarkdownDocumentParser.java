@@ -16,12 +16,28 @@
  */
 package org.apache.hop.pipeline.transforms.chunker.document;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.pipeline.transforms.chunker.document.HeadingParserSupport.Heading;
+import org.apache.hop.pipeline.transforms.chunker.document.HeadingParserSupport.Line;
 
-/** Splits Markdown on {@code #} headings and builds a section tree. */
+/**
+ * Splits Markdown on {@code #} headings and builds a section tree. Lines inside a fenced code block
+ * ({@code ```} or {@code ~~~}) are never headings, so a shell comment in a code sample stays in the
+ * section body.
+ */
 public final class MarkdownDocumentParser implements DocumentParser {
 
-  private static final Pattern HEADING = Pattern.compile("(?m)^(#{1,6})\\s+(.+)$");
+  /** An ATX heading: 1-6 {@code #}, then a space or tab and the title, on a single line. */
+  private static final Pattern HEADING = Pattern.compile("^(#{1,6})[ \\t]+(\\S.*)$");
+
+  /** The optional closing sequence of an ATX heading ({@code ## Install ##}). */
+  private static final Pattern CLOSING_SEQUENCE = Pattern.compile("(?:^|[ \\t]+)#+[ \\t]*$");
+
+  /** A code fence: up to 3 spaces of indentation, then 3 or more backticks or tildes. */
+  private static final Pattern FENCE = Pattern.compile("^ {0,3}(`{3,}|~{3,})(.*)$");
 
   @Override
   public ContentType getContentType() {
@@ -30,6 +46,46 @@ public final class MarkdownDocumentParser implements DocumentParser {
 
   @Override
   public DocumentNode parse(String text) {
-    return HeadingParserSupport.parse(text, HEADING, marker -> marker.length());
+    if (text == null || text.isEmpty()) {
+      return DocumentNode.root("");
+    }
+    return HeadingParserSupport.parse(text, findHeadings(text));
+  }
+
+  /** The headings of a Markdown text, skipping fenced code blocks. */
+  static List<Heading> findHeadings(String text) {
+    List<Heading> headings = new ArrayList<>();
+    String openFence = null;
+    for (Line line : HeadingParserSupport.lines(text)) {
+      Matcher fence = FENCE.matcher(line.text());
+      if (openFence != null) {
+        // A fence closes on the same character, at least as long, with nothing after it.
+        if (fence.matches()
+            && fence.group(1).charAt(0) == openFence.charAt(0)
+            && fence.group(1).length() >= openFence.length()
+            && fence.group(2).isBlank()) {
+          openFence = null;
+        }
+        continue;
+      }
+      if (fence.matches() && !(fence.group(1).charAt(0) == '`' && fence.group(2).contains("`"))) {
+        openFence = fence.group(1);
+        continue;
+      }
+      Heading heading = heading(line);
+      if (heading != null) {
+        headings.add(heading);
+      }
+    }
+    return headings;
+  }
+
+  private static Heading heading(Line line) {
+    Matcher matcher = HEADING.matcher(line.text());
+    if (!matcher.matches()) {
+      return null;
+    }
+    String title = CLOSING_SEQUENCE.matcher(matcher.group(2).strip()).replaceFirst("");
+    return new Heading(matcher.group(1).length(), title.strip(), line.start(), line.end());
   }
 }
