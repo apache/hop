@@ -223,6 +223,13 @@ public class ActionMysqlBulkFile extends ActionBase {
 
         if (connection != null) {
           DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+          if (databaseMeta == null) {
+            result.setNrErrors(1);
+            logError(
+                BaseMessages.getString(
+                    PKG, "ActionMysqlBulkFile.Error.ConnectionNotFound", connection));
+            return result;
+          }
 
           // User has specified a connection, We can continue ...
           try (Database db = new Database(this, this, databaseMeta)) {
@@ -312,7 +319,9 @@ public class ActionMysqlBulkFile extends ActionBase {
                       + realTablename
                       + " "
                       + limitNbrLignes
-                      + " LOCK IN SHARE MODE";
+                      // MySQL 8+ rejects HIGH_PRIORITY combined with a locking clause
+                      // (error 3569, "Table appears in multiple locking clauses").
+                      + (isHighPriority() ? "" : " LOCK IN SHARE MODE");
 
               try {
                 if (isDetailed()) {
