@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -372,6 +374,226 @@ class VfsFileTransferTest {
     } finally {
       deleteTree(dir);
     }
+  }
+
+  @Test
+  void deletingALinkToAFolderKeepsTheFilesItPointsTo() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-delete-link");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path view = Files.createDirectories(dir.resolve("view"));
+      Path link = symbolicLink(view.resolve("link"), real);
+
+      VfsFileTransfer.delete(HopVfs.getFileObject(link.toString()));
+
+      assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+      assertEquals("keep", Files.readString(keep));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void deletingAFolderKeepsTheFilesOfALinkInsideIt() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-delete-folder-link");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path view = Files.createDirectories(dir.resolve("view"));
+      Files.writeString(view.resolve("own.txt"), "own");
+      symbolicLink(view.resolve("link"), real);
+
+      VfsFileTransfer.delete(HopVfs.getFileObject(view.toString()));
+
+      assertFalse(Files.exists(view, LinkOption.NOFOLLOW_LINKS));
+      assertEquals("keep", Files.readString(keep));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void deletingABrokenLinkRemovesIt() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-delete-broken-link");
+    try {
+      Path link = symbolicLink(dir.resolve("link"), dir.resolve("gone"));
+
+      VfsFileTransfer.delete(HopVfs.getFileObject(link.toString()));
+
+      assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void movingALinkToAnotherFileSystemKeepsTheFilesItPointsTo() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-move-link");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path link = symbolicLink(Files.createDirectories(dir.resolve("view")).resolve("link"), real);
+      FileObject dest = folder(root, "dest");
+
+      VfsFileTransfer.transfer(
+          HopVfs.getFileObject(link.toString()), dest, VfsFileTransfer.Mode.MOVE, SKIP, null);
+
+      assertEquals("keep", read(dest.resolveFile("link/keep.txt")));
+      assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+      assertEquals("keep", Files.readString(keep));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void movingALinkOntoAnExistingFolderKeepsTheFilesItPointsTo() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-merge-link");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path link = symbolicLink(Files.createDirectories(dir.resolve("view")).resolve("link"), real);
+      FileObject dest = folder(root, "dest");
+      folder(dest, "link");
+
+      VfsFileTransfer.transfer(
+          HopVfs.getFileObject(link.toString()), dest, VfsFileTransfer.Mode.MOVE, SKIP, null);
+
+      assertEquals("keep", read(dest.resolveFile("link/keep.txt")));
+      assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+      assertEquals("keep", Files.readString(keep));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void aMergedLinkMoveWithASkippedFileKeepsTheLink() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-merge-link-skip");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path link = symbolicLink(Files.createDirectories(dir.resolve("view")).resolve("link"), real);
+      FileObject dest = folder(root, "dest");
+      write(folder(dest, "link"), "keep.txt", "existing");
+
+      VfsFileTransfer.transfer(
+          HopVfs.getFileObject(link.toString()), dest, VfsFileTransfer.Mode.MOVE, SKIP, null);
+
+      assertEquals("existing", read(dest.resolveFile("link/keep.txt")));
+      assertTrue(Files.isSymbolicLink(link));
+      assertEquals("keep", Files.readString(keep));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void copyingAFolderFollowsALinkToAnotherFolder() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-copy-link");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Files.writeString(real.resolve("keep.txt"), "keep");
+      Path view = Files.createDirectories(dir.resolve("view"));
+      symbolicLink(view.resolve("link"), real);
+      FileObject dest = folder(root, "dest");
+
+      VfsFileTransfer.transfer(
+          HopVfs.getFileObject(view.toString()), dest, VfsFileTransfer.Mode.COPY, SKIP, null);
+
+      assertEquals("keep", read(dest.resolveFile("view/link/keep.txt")));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void copyingALinkToItsOwnFolderStops() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-copy-self");
+    try {
+      Path source = Files.createDirectories(dir.resolve("source"));
+      Files.writeString(source.resolve("a.txt"), "a");
+      Path self = symbolicLink(source.resolve("self"), Path.of("."));
+      Path dest = Files.createDirectories(dir.resolve("dest"));
+
+      IOException e =
+          assertThrows(
+              IOException.class,
+              () ->
+                  VfsFileTransfer.transfer(
+                      HopVfs.getFileObject(source.toString()),
+                      HopVfs.getFileObject(dest.toString()),
+                      VfsFileTransfer.Mode.COPY,
+                      SKIP,
+                      null));
+
+      assertEquals(loopMessage(self), e.getMessage());
+      assertFalse(Files.exists(dest.resolve("source")));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void copyingALinkToAParentFolderStops() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-copy-parent");
+    try {
+      Path parent = Files.createDirectories(dir.resolve("parent"));
+      Files.writeString(parent.resolve("big.txt"), "big");
+      Path sub = Files.createDirectories(parent.resolve("sub"));
+      symbolicLink(sub.resolve("up"), Path.of(".."));
+      Path dest = Files.createDirectories(dir.resolve("dest"));
+
+      IOException e =
+          assertThrows(
+              IOException.class,
+              () ->
+                  VfsFileTransfer.transfer(
+                      HopVfs.getFileObject(sub.toString()),
+                      HopVfs.getFileObject(dest.toString()),
+                      VfsFileTransfer.Mode.COPY,
+                      SKIP,
+                      null));
+
+      assertEquals(loopMessage(sub.resolve("up").resolve("sub")), e.getMessage());
+      assertFalse(Files.exists(dest.resolve("sub")));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  @Test
+  void copyingALinkIntoTheFolderItPointsToStops() throws Exception {
+    Path dir = Files.createTempDirectory("hop-vfs-copy-into-target");
+    try {
+      Path real = Files.createDirectories(dir.resolve("real"));
+      Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+      Path link = symbolicLink(Files.createDirectories(dir.resolve("view")).resolve("link"), real);
+
+      assertThrows(
+          IOException.class,
+          () ->
+              VfsFileTransfer.transfer(
+                  HopVfs.getFileObject(link.toString()),
+                  HopVfs.getFileObject(real.toString()),
+                  VfsFileTransfer.Mode.COPY,
+                  SKIP,
+                  null));
+
+      assertFalse(Files.exists(real.resolve("link")));
+      assertEquals("keep", Files.readString(keep));
+      assertTrue(Files.isSymbolicLink(link));
+    } finally {
+      deleteTree(dir);
+    }
+  }
+
+  private static String loopMessage(Path folder) throws Exception {
+    return BaseMessages.getString(
+        VfsFileExplorer.class,
+        "VfsFileExplorer.Transfer.LinkLoop",
+        HopVfs.getFilename(HopVfs.getFileObject(folder.toString())));
   }
 
   @Test

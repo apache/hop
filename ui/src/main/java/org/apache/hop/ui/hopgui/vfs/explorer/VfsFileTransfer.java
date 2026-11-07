@@ -23,7 +23,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.function.BooleanSupplier;
@@ -38,6 +40,10 @@ import org.apache.hop.i18n.BaseMessages;
  * Copy and move of VFS files and folders. Refuses a copy onto itself or into its own child. An
  * existing file is only replaced once its new content is completely written, and an existing folder
  * is merged rather than replaced.
+ *
+ * <p>A symbolic link on the local disk is deleted and moved as a link: the files it points to stay
+ * where they are. A copy follows a link to a folder and copies what is in it, and stops when a link
+ * leads back to a folder the copy is already in.
  */
 public final class VfsFileTransfer {
 
@@ -331,16 +337,21 @@ public final class VfsFileTransfer {
         mode,
         resolver,
         cancelled,
-        progress == null ? Progress.NONE : progress);
+        progress == null ? Progress.NONE : progress,
+        new HashSet<>());
   }
 
+  /**
+   * @param open the real paths of the local folders this transfer is in, see {@link #open}
+   */
   private static void place(
       FileObject source,
       FileObject target,
       Mode mode,
       ConflictResolver resolver,
       BooleanSupplier cancelled,
-      Progress progress)
+      Progress progress,
+      Set<Path> open)
       throws IOException {
     checkCancelled(cancelled);
     if (!target.exists()) {
@@ -348,7 +359,7 @@ public final class VfsFileTransfer {
         source.moveTo(target);
         progress.fileDone();
       } else {
-        copyTree(source, target, cancelled, progress);
+        copyTree(source, target, cancelled, progress, open);
         if (mode == Mode.MOVE) {
           delete(source);
         }
@@ -368,18 +379,74 @@ public final class VfsFileTransfer {
       }
       return;
     }
-    for (FileObject child : source.getChildren()) {
-      place(
-          child,
-          target.resolveFile(child.getName().getBaseName()),
-          mode,
-          resolver,
-          cancelled,
-          progress);
+    if (mode == Mode.MOVE && localLink(source) != null) {
+      moveLinkInto(source, target, resolver, cancelled, progress, open);
+      return;
     }
-    if (mode == Mode.MOVE && source.getChildren().length == 0) {
-      // Skipped files stay behind, and so does the folder that holds them.
-      source.delete();
+    Path real = open(open, source);
+    try {
+      for (FileObject child : source.getChildren()) {
+        place(
+            child,
+            target.resolveFile(child.getName().getBaseName()),
+            mode,
+            resolver,
+            cancelled,
+            progress,
+            open);
+      }
+    } finally {
+      close(open, real);
+    }
+    if (mode == Mode.MOVE) {
+      source.refresh();
+      if (source.getChildren().length == 0) {
+        // Skipped files stay behind, and so does the folder that holds them.
+        source.delete();
+      }
+    }
+  }
+
+  /**
+   * Move a link to a folder into the existing folder {@code target}. Moving the files themselves
+   * would empty the folder the link points to, so they are copied and then the link is removed. The
+   * link stays when a file was skipped.
+   */
+  private static void moveLinkInto(
+      FileObject link,
+      FileObject target,
+      ConflictResolver resolver,
+      BooleanSupplier cancelled,
+      Progress progress,
+      Set<Path> open)
+      throws IOException {
+    boolean[] skipped = {false};
+    ConflictResolver counting =
+        (source, existing) -> {
+          Resolution resolution =
+              resolver == null ? Resolution.SKIP : resolver.resolve(source, existing);
+          if (resolution == Resolution.SKIP) {
+            skipped[0] = true;
+          }
+          return resolution;
+        };
+    Path real = open(open, link);
+    try {
+      for (FileObject child : link.getChildren()) {
+        place(
+            child,
+            target.resolveFile(child.getName().getBaseName()),
+            Mode.COPY,
+            counting,
+            cancelled,
+            progress,
+            open);
+      }
+    } finally {
+      close(open, real);
+    }
+    if (!skipped[0]) {
+      delete(link);
     }
   }
 
@@ -433,14 +500,105 @@ public final class VfsFileTransfer {
     }
   }
 
+  /**
+   * Delete a file, or a folder with everything in it. A symbolic link is removed by itself, also
+   * when it is inside the folder: the files it points to stay.
+   */
   public static void delete(FileObject file) throws FileSystemException {
-    if (file == null || !file.exists()) {
+    if (file == null) {
       return;
     }
-    if (file.isFolder()) {
+    Path link = localLink(file);
+    if (link != null) {
+      deleteLink(file, link);
+      return;
+    }
+    if (!file.exists()) {
+      return;
+    }
+    if (!file.isFolder()) {
+      file.delete();
+    } else if (localPath(file) == null) {
+      // Links are only known on the local disk. Elsewhere the provider removes the whole tree.
       file.delete(Selectors.SELECT_ALL);
     } else {
+      // Selectors.SELECT_ALL would also delete the files in a folder a link points to.
+      for (FileObject child : file.getChildren()) {
+        delete(child);
+      }
+      file.refresh();
       file.delete();
+    }
+  }
+
+  /**
+   * Commons VFS sees a link to a folder as that folder: it deletes what is in it, and does not
+   * remove the link while that folder holds files. So the link is removed from the disk directly.
+   */
+  private static void deleteLink(FileObject file, Path link) throws FileSystemException {
+    try {
+      Files.delete(link);
+    } catch (IOException e) {
+      throw new FileSystemException("vfs.provider/delete.error", e, file.getName());
+    }
+    file.refresh();
+    FileObject parent = file.getParent();
+    if (parent != null) {
+      parent.refresh();
+    }
+  }
+
+  /** The path of a file on the local disk, or null when it is elsewhere. */
+  private static Path localPath(FileObject file) {
+    try {
+      if (file == null || !"file".equals(file.getName().getScheme())) {
+        return null;
+      }
+      String name = HopVfs.getFilename(file);
+      // A network share keeps its URI.
+      return name.startsWith("file:") ? null : Path.of(name);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /** The path of a symbolic link on the local disk, or null when the file is not one. */
+  static Path localLink(FileObject file) {
+    Path path = localPath(file);
+    return path != null && Files.isSymbolicLink(path) ? path : null;
+  }
+
+  /**
+   * Note that a transfer is in {@code folder}. Following links, a copy can reach a folder it is
+   * already copying or writing into, and would then never end. Only local folders are checked: the
+   * links are on the local disk.
+   *
+   * @return the real path to pass to {@link #close}, or null when the folder is not local
+   * @throws IOException when the transfer is already in this folder
+   */
+  private static Path open(Set<Path> open, FileObject folder) throws IOException {
+    Path path = localPath(folder);
+    if (path == null) {
+      return null;
+    }
+    Path real;
+    try {
+      real = path.toRealPath();
+    } catch (IOException e) {
+      // Not checked, as before. Reading the folder reports what is wrong with it.
+      return null;
+    }
+    if (!open.add(real)) {
+      throw new IOException(
+          BaseMessages.getString(
+              PKG, "VfsFileExplorer.Transfer.LinkLoop", HopVfs.getFilename(folder)));
+    }
+    return real;
+  }
+
+  private static void close(Set<Path> open, Path real) {
+    if (real != null) {
+      open.remove(real);
     }
   }
 
@@ -510,7 +668,8 @@ public final class VfsFileTransfer {
   public static void copy(
       FileObject source, FileObject target, BooleanSupplier cancelled, Progress progress)
       throws IOException {
-    copyTree(source, target, cancelled, progress == null ? Progress.NONE : progress);
+    copyTree(
+        source, target, cancelled, progress == null ? Progress.NONE : progress, new HashSet<>());
   }
 
   /** Put the original back after the new copy could not take its name. */
@@ -529,27 +688,42 @@ public final class VfsFileTransfer {
   /**
    * A folder this creates is removed again when the copy fails or is stopped, with whatever was
    * already copied into it.
+   *
+   * @param open the real paths of the local folders being copied or written into, see {@link #open}
    */
   private static void copyTree(
-      FileObject source, FileObject target, BooleanSupplier cancelled, Progress progress)
+      FileObject source,
+      FileObject target,
+      BooleanSupplier cancelled,
+      Progress progress,
+      Set<Path> open)
       throws IOException {
     checkCancelled(cancelled);
     if (!source.isFolder()) {
       copyFile(source, target, cancelled, progress);
       return;
     }
-    target.createFolder();
+    Path realSource = open(open, source);
+    Path realTarget = null;
     try {
-      for (FileObject child : source.getChildren()) {
-        copyTree(child, target.resolveFile(child.getName().getBaseName()), cancelled, progress);
-      }
-    } catch (IOException | RuntimeException e) {
+      target.createFolder();
       try {
-        delete(target);
-      } catch (Exception ignored) {
-        // The failure itself is what gets reported.
+        realTarget = open(open, target);
+        for (FileObject child : source.getChildren()) {
+          copyTree(
+              child, target.resolveFile(child.getName().getBaseName()), cancelled, progress, open);
+        }
+      } catch (IOException | RuntimeException e) {
+        try {
+          delete(target);
+        } catch (Exception ignored) {
+          // The failure itself is what gets reported.
+        }
+        throw e;
       }
-      throw e;
+    } finally {
+      close(open, realTarget);
+      close(open, realSource);
     }
   }
 
