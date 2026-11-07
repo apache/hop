@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.environment;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -212,7 +213,6 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
 
     enableProject(log, environment, variables, hasHopMetadataProvider, config);
-    validateConfigFiles(log, variables, environment);
   }
 
   private void createEnvironment(
@@ -243,24 +243,36 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
             + HopConfig.getInstance().getConfigFilename());
 
     enableProject(log, environment, variables, hasHopMetadataProvider, config);
-
-    validateConfigFiles(log, variables, environment);
     logEnvironmentDetails(log, environment);
   }
 
+  /**
+   * Create the environment's missing configuration files, then enable its project with them.
+   *
+   * <p>The project variables are applied before the files are created, since a configuration file
+   * path can refer to them (for example '${PROJECT_HOME}'). Enabling the project reads the files,
+   * so they have to exist by then.
+   */
   private void enableProject(
       ILogChannel log,
       LifecycleEnvironment environment,
       IVariables variables,
       IHasHopMetadataProvider hasHopMetadataProvider,
       ProjectsConfig config)
-      throws HopException {
+      throws Exception {
     ProjectConfig projectConfig = config.findProjectConfig(environment.getProjectName());
     if (projectConfig == null) {
       log.logBasic(
           "Warning: referenced project '" + environment.getProjectName() + "' doesn't exist");
+      validateConfigFiles(log, variables, environment);
     } else {
       Project project = projectConfig.loadProject(variables);
+      // Project variables only, so '${PROJECT_HOME}' in the configuration file paths resolves.
+      // enableProject() below applies them again, together with the configuration files.
+      //
+      project.modifyVariables(variables, projectConfig, new ArrayList<>(), environmentName);
+
+      validateConfigFiles(log, variables, environment);
 
       // Change variables, metadata, ... for the project
       //

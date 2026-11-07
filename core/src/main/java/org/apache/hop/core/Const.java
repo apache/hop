@@ -138,13 +138,10 @@ public class Const {
           System.getProperty("HOP_AUDIT_FOLDER"),
           System.getProperty("user.dir") + File.separator + "audit");
 
-  /*
-   The name of the history folder in which the Hop local audit manager saves data
-  */
+  /** The folder that holds the Hop configuration file hop-config.json */
   @Variable(
       scope = VariableScope.SYSTEM,
-      description =
-          "The name of the history folder in which the Hop local audit manager saves data.")
+      description = "The folder that holds the Hop configuration file hop-config.json.")
   public static final String HOP_CONFIG_FOLDER =
       NVL(
           System.getProperty("HOP_CONFIG_FOLDER"),
