@@ -48,7 +48,7 @@ final class HeadingParserSupport {
     }
 
     String preamble = text.substring(0, headings.get(0).start).strip();
-    MutableNode root = new MutableNode("", preamble, 0);
+    MutableNode root = new MutableNode("", preamble, 0, skipWhitespace(text, 0));
     MutableNode[] stack = new MutableNode[7];
     stack[0] = root;
 
@@ -59,7 +59,8 @@ final class HeadingParserSupport {
       String body = text.substring(bodyStart, bodyEnd).strip();
 
       int level = Math.min(Math.max(heading.level, 1), stack.length - 1);
-      MutableNode node = new MutableNode(heading.title, body, heading.start);
+      MutableNode node =
+          new MutableNode(heading.title, body, heading.start, skipWhitespace(text, bodyStart));
       stack[level] = node;
       for (int j = level + 1; j < stack.length; j++) {
         stack[j] = null;
@@ -73,6 +74,15 @@ final class HeadingParserSupport {
     }
 
     return root.toImmutable();
+  }
+
+  /** The first position at or after {@code position} that is not whitespace. */
+  private static int skipWhitespace(String text, int position) {
+    int result = position;
+    while (result < text.length() && Character.isWhitespace(text.charAt(result))) {
+      result++;
+    }
+    return result;
   }
 
   private static final class HeadingMatch {
@@ -93,12 +103,14 @@ final class HeadingParserSupport {
     private final String title;
     private final String body;
     private final int startPosition;
+    private final int bodyStartPosition;
     private final List<MutableNode> children = new ArrayList<>();
 
-    private MutableNode(String title, String body, int startPosition) {
+    private MutableNode(String title, String body, int startPosition, int bodyStartPosition) {
       this.title = title;
       this.body = body;
       this.startPosition = startPosition;
+      this.bodyStartPosition = bodyStartPosition;
     }
 
     private DocumentNode toImmutable() {
@@ -106,7 +118,7 @@ final class HeadingParserSupport {
       for (MutableNode child : children) {
         childNodes.add(child.toImmutable());
       }
-      return new DocumentNode(title, body, startPosition, childNodes);
+      return new DocumentNode(title, body, startPosition, bodyStartPosition, childNodes);
     }
   }
 }

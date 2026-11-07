@@ -107,6 +107,39 @@ class TextChunkerMetaTest {
         "a separator set for the Character strategy must produce a warning");
   }
 
+  /**
+   * Paragraph and Structure apply the overlap only inside a paragraph or section they split. The
+   * check says so for both, as a comment: it used to warn, for Paragraph only, that the overlap was
+   * ignored.
+   */
+  @Test
+  void checkExplainsWhereParagraphAndStructureApplyTheOverlap() {
+    for (ChunkingStrategyType type : ChunkingStrategyType.values()) {
+      TextChunkerMeta meta = new TextChunkerMeta();
+      meta.setDefault();
+      meta.setInputField("body");
+      meta.setChunkingStrategy(type);
+      meta.setChunkOverlap("20");
+
+      IRowMeta prev = new RowMeta();
+      prev.addValueMeta(new ValueMetaString("body"));
+
+      List<ICheckResult> remarks = new ArrayList<>();
+      meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+      boolean explained =
+          remarks.stream()
+              .anyMatch(
+                  r ->
+                      r.getType() == ICheckResult.TYPE_RESULT_COMMENT
+                          && r.getText().contains("overlap"));
+      assertEquals(type != ChunkingStrategyType.CHARACTER, explained, type.name());
+      assertTrue(
+          remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_WARNING),
+          type + " with a valid overlap must not produce a warning");
+    }
+  }
+
   /** Chunk index, start position and total count are numbers, not strings. */
   @Test
   void exposesChunkMetadataAsIntegers() throws Exception {

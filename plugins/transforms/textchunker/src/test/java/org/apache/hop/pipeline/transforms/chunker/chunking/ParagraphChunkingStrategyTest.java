@@ -137,6 +137,64 @@ public class ParagraphChunkingStrategyTest {
     assertEquals(text, chunks.get(0).getContent());
   }
 
+  /** #9283: a whitespace-only paragraph between two separators came out as a chunk. */
+  @Test
+  public void testWhitespaceOnlyParagraphsAreNotEmitted() {
+    strategy.setSeparator("---");
+    String text = "one--- ---two";
+
+    List<Chunk> chunks = strategy.chunk(text, 6, 0);
+
+    assertEquals(2, chunks.size());
+    assertEquals("one", chunks.get(0).getContent());
+    assertEquals(0, chunks.get(0).getIndex());
+    assertEquals("two", chunks.get(1).getContent());
+    assertEquals(1, chunks.get(1).getIndex());
+    assertEquals(text.indexOf("two"), chunks.get(1).getStartPosition());
+  }
+
+  @Test
+  public void testWhitespaceOnlyParagraphIsKeptInsideAPackedChunk() {
+    strategy.setSeparator("---");
+    String text = "one--- ---two";
+
+    List<Chunk> chunks = strategy.chunk(text, 100, 0);
+
+    assertEquals(1, chunks.size());
+    assertEquals(text, chunks.get(0).getContent());
+  }
+
+  @Test
+  public void testWhitespaceOnlyTextYieldsNoChunks() {
+    assertTrue(strategy.chunk(" \n\n \t ", 100, 0).isEmpty());
+    strategy.setSeparator("---");
+    assertTrue(strategy.chunk("  ", 100, 0).isEmpty());
+  }
+
+  /** The overlap inside an oversized paragraph starts at a word, the same as for Character. */
+  @Test
+  public void testOverlapInsideAnOversizedParagraphStartsAtAWord() {
+    String text =
+        "Short one.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod"
+            + " tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis"
+            + " nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+
+    List<Chunk> chunks = strategy.chunk(text, 100, 20);
+
+    assertTrue(chunks.size() > 3);
+    for (int i = 2; i < chunks.size(); i++) {
+      Chunk chunk = chunks.get(i);
+      assertEquals(
+          text.substring(chunk.getStartPosition(), chunk.getEndPosition()), chunk.getContent());
+      assertTrue(
+          Character.isWhitespace(text.charAt(chunk.getStartPosition() - 1)),
+          "chunk " + i + " starts mid-word: " + chunk.getContent());
+      assertTrue(
+          chunk.getStartPosition() < chunks.get(i - 1).getEndPosition(),
+          "the overlap still applies inside an oversized paragraph");
+    }
+  }
+
   @Test
   public void testEmptyParagraphs() {
     String text = "First\n\n\n\nSecond";

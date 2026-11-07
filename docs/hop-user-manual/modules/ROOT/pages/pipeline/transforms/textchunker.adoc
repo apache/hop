@@ -36,7 +36,7 @@ The transform has no dependency on an AI provider or a model. It is plain text p
 |Strategy |Behaviour
 
 |Character
-|Split on a fixed character count, backing off to the nearest word boundary so words are not cut in half. Overlap carries the tail of each chunk into the next, which keeps a sentence that straddles a boundary retrievable from both sides.
+|Split on a fixed character count, backing off to the nearest word boundary so words are not cut in half. Only a word longer than the chunk size is cut, and never inside a surrogate pair such as an emoji. Overlap carries the last whole words of each chunk into the next, which keeps a sentence that straddles a boundary retrievable from both sides.
 
 |Paragraph
 |Split on paragraph breaks, packing whole paragraphs up to the chunk size. A paragraph longer than the chunk size falls back to character splitting. By default a paragraph break is a blank line (any `\LF`, `\CR` or `\CRLF` line ending); the optional *Paragraph separator* option replaces it with a literal separator.
@@ -79,7 +79,7 @@ The Hop-native parsers make a pipeline, a workflow or a metadata file retrievabl
 |Content type|Document format used by the Structure strategy.
 |Content type field|Optional field naming the content type per row, for a stream that mixes formats.
 |Chunk size|Maximum chunk size in characters. For Paragraph and Structure this is a ceiling that triggers the character fallback.
-|Chunk overlap|Characters carried from the end of one chunk into the start of the next. Character strategy only.
+|Chunk overlap|Maximum number of characters carried from the end of one chunk into the start of the next. The overlap starts at a word boundary, so it holds whole words and can be shorter than this value, or empty when no word starts in that span. Paragraph and Structure only apply it inside a paragraph or section that is split with the character fallback.
 |Include metadata|Add the chunk metadata fields below to the output.
 |Chunk index field|Output field for the position of the chunk within its document.
 |Chunk start position field|Output field for the character offset of the chunk in the source text.
@@ -89,8 +89,10 @@ The Hop-native parsers make a pipeline, a workflow or a metadata file retrievabl
 
 == Notes
 
-Chunk overlap applies to the Character strategy. The Paragraph and Structure strategies split on natural boundaries, where an overlap would duplicate whole paragraphs or sections between neighbouring chunks.
+Chunk overlap never crosses a paragraph or section boundary. The Paragraph and Structure strategies split on natural boundaries, where an overlap would duplicate whole paragraphs or sections between neighbouring chunks. They only apply it between the pieces of a paragraph or section that is longer than the chunk size. Every chunk adds text the previous chunk did not hold: when an overlap would only repeat the previous chunk, the next chunk starts where the previous one ended.
 
-The Structure strategy drops chunks that contain only whitespace. The chunk index and total chunk count cover only the chunks that are emitted. Text that yields no chunks produces a single row with an empty chunk and a total of 0, the same as empty text.
+The chunk start position is the character offset in the input text. For a section of the Structure strategy, the first chunk starts at the section heading and the chunks a long section is split into start where their own text is.
+
+All strategies drop chunks that contain only whitespace. The chunk index and total chunk count cover only the chunks that are emitted. Text that yields no chunks produces a single row with an empty chunk and a total of 0, the same as empty text.
 
 Keep *Include metadata* enabled when the chunks are going into a vector store: the document ID and chunk index are what let a later search merge neighbouring chunks back into a passage, and re-index a single document without touching the rest.

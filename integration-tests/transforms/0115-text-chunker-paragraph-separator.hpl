@@ -59,6 +59,9 @@ limitations under the License.
       <line>
         <item>First part.&lt;PARA&gt;Second part.&lt;PARA&gt;Third part.</item>
       </line>
+      <line>
+        <item>one&lt;PARA&gt;                    &lt;PARA&gt;two</item>
+      </line>
     </data>
     <fields>
       <field>

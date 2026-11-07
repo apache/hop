@@ -1,0 +1,14 @@
+chunk_text,chunk_index,chunk_start_position,total_chunks
+"supercalifragilistic ",0,0,5
+"supercalifragilistic ",1,21,5
+"supercalifragilistic ",2,42,5
+"supercalifragilistic ",3,63,5
+"supercalifragilistic",4,84,5
+"Apache Hop is a data ",0,0,4
+"orchestration platform ",1,21,4
+"platform for building ",2,35,4
+"for building pipelines",3,44,4
+"a                        ",0,0,2
+"           b",1,50,2
+"😀😀😀😀😀😀😀😀😀😀😀😀",0,0,2
+"😀😀😀😀😀😀😀😀😀",1,8,2
