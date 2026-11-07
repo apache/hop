@@ -23,10 +23,20 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
@@ -41,6 +51,7 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -357,6 +368,160 @@ class ExecProcessTest {
             smh.transformMeta, meta, new ExecProcessData(), 0, smh.pipelineMeta, smh.pipeline);
 
     assertFalse(transform.init());
+  }
+
+  @Test
+  @Timeout(10)
+  void stopWhileDrainingOutputDoesNotWaitForEndOfStream() throws Exception {
+    HopEnvironment.init();
+    final var transform =
+        newTransform(metaForArgumentsMode(), inputRowMetaForArguments(), new Object[] {"test"});
+    final var runtime = mock(Runtime.class);
+    final var process = mock(Process.class);
+    final var stdout = new BlockingInputStream();
+    when(process.getInputStream()).thenReturn(stdout);
+    when(process.getErrorStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(process.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+    when(process.waitFor(100, TimeUnit.MILLISECONDS)).thenReturn(true);
+    when(process.descendants()).thenAnswer(invocation -> Stream.empty());
+    when(runtime.exec(any(String[].class))).thenReturn(process);
+    transform.getData().runtime = runtime;
+    final var executor = Executors.newSingleThreadExecutor();
+    try {
+      final var running = executor.submit(transform::processRow);
+      assertTrue(stdout.reading.await(5, TimeUnit.SECONDS));
+      transform.stopRunning();
+      transform.stopRunning();
+      assertFalse(running.get(5, TimeUnit.SECONDS));
+      assertTrue(stdout.closed.await(5, TimeUnit.SECONDS));
+      assertEquals(0, transform.getErrors());
+      assertEquals(0, transform.getOutputRowSets().getFirst().size());
+    } finally {
+      stdout.close();
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  @Timeout(10)
+  void stopDuringLaunchCancelsTheNewProcessWithoutBlockingStopper() throws Exception {
+    HopEnvironment.init();
+    final var transform =
+        newTransform(metaForArgumentsMode(), inputRowMetaForArguments(), new Object[] {"test"});
+    final var runtime = mock(Runtime.class);
+    final var process = mock(Process.class);
+    final var launching = new CountDownLatch(1);
+    final var releaseLaunch = new CountDownLatch(1);
+    final var destroyed = new CountDownLatch(1);
+    when(runtime.exec(any(String[].class)))
+        .thenAnswer(
+            invocation -> {
+              launching.countDown();
+              assertTrue(releaseLaunch.await(5, TimeUnit.SECONDS));
+              return process;
+            });
+    when(process.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(process.getErrorStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(process.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+    when(process.isAlive()).thenReturn(true);
+    when(process.descendants()).thenAnswer(invocation -> Stream.empty());
+    when(process.destroyForcibly())
+        .thenAnswer(
+            invocation -> {
+              destroyed.countDown();
+              return process;
+            });
+    transform.getData().runtime = runtime;
+    final var executor = Executors.newSingleThreadExecutor();
+    try {
+      final var running = executor.submit(transform::processRow);
+      assertTrue(launching.await(5, TimeUnit.SECONDS));
+      transform.stopRunning();
+      releaseLaunch.countDown();
+      assertFalse(running.get(5, TimeUnit.SECONDS));
+      assertTrue(destroyed.await(5, TimeUnit.SECONDS));
+      assertEquals(0, transform.getErrors());
+    } finally {
+      releaseLaunch.countDown();
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  @Timeout(10)
+  void cancellationRetainsChildrenObservedBeforeParentExit() throws Exception {
+    HopEnvironment.init();
+    final var transform =
+        newTransform(metaForArgumentsMode(), inputRowMetaForArguments(), new Object[] {"test"});
+    final var runtime = mock(Runtime.class);
+    final var process = mock(Process.class);
+    final var descendant = mock(ProcessHandle.class);
+    final var destroyed = new CountDownLatch(1);
+    final var stdout = new BlockingInputStream();
+    when(descendant.destroyForcibly())
+        .thenAnswer(
+            invocation -> {
+              destroyed.countDown();
+              return true;
+            });
+    when(process.descendants()).thenReturn(Stream.of(descendant), Stream.empty());
+    when(process.getInputStream()).thenReturn(stdout);
+    when(process.getErrorStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(process.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+    when(process.waitFor(100, TimeUnit.MILLISECONDS)).thenReturn(true);
+    when(runtime.exec(any(String[].class))).thenReturn(process);
+    transform.getData().runtime = runtime;
+    final var executor = Executors.newSingleThreadExecutor();
+    try {
+      final var running = executor.submit(transform::processRow);
+      assertTrue(stdout.reading.await(5, TimeUnit.SECONDS));
+      transform.stopRunning();
+      assertFalse(running.get(5, TimeUnit.SECONDS));
+      assertTrue(destroyed.await(5, TimeUnit.SECONDS));
+    } finally {
+      stdout.close();
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  void stopBeforeLaunchDoesNotStartAProcess() throws Exception {
+    HopEnvironment.init();
+    final var transform =
+        newTransform(metaForArgumentsMode(), inputRowMetaForArguments(), new Object[] {"test"});
+    final var runtime = mock(Runtime.class);
+    transform.getData().runtime = runtime;
+    transform.stopRunning();
+    assertFalse(transform.processRow());
+    verify(runtime, never()).exec(any(String[].class));
+  }
+
+  private static final class BlockingInputStream extends InputStream {
+    private final CountDownLatch reading = new CountDownLatch(1);
+    private final CountDownLatch closed = new CountDownLatch(1);
+
+    @Override
+    public int read() {
+      reading.countDown();
+      boolean interrupted = false;
+      while (true) {
+        try {
+          closed.await();
+          break;
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
+      return -1;
+    }
+
+    @Override
+    public void close() {
+      closed.countDown();
+    }
   }
 
   private ExecProcess newTransform(ExecProcessMeta meta, IRowMeta rowMeta, Object[] row) {

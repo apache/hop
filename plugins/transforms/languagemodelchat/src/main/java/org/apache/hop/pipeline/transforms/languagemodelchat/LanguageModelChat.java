@@ -17,13 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.languagemodelchat;
 
-import static java.lang.Runtime.getRuntime;
 import static java.lang.System.arraycopy;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.util.concurrent.Executors.newWorkStealingPool;
 import static java.util.concurrent.ForkJoinPool.commonPool;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
@@ -37,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -62,8 +60,8 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
   private LanguageModelChatMeta modelMeta;
 
-  private int parallelism = 1;
-  private ForkJoinPool executor;
+  private volatile ExecutorService executor;
+  private volatile boolean ownsExecutor;
   private final int cores = Runtime.getRuntime().availableProcessors();
   private final AtomicInteger jobs = new AtomicInteger(0);
   private final int maxJobs = cores * 100;
@@ -86,20 +84,13 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
         try {
           lock.wait();
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new HopRuntimeException(e);
         }
       }
     }
 
-    if (executor != null) {
-      try {
-        while (executor.hasQueuedSubmissions() || executor.getActiveThreadCount() > 0) {
-          SECONDS.sleep(5);
-        }
-      } catch (InterruptedException e) {
-        logError(e.getMessage(), e);
-      }
-    }
+    shutdownOwnedExecutor();
 
     facadeMap.clear();
     setOutputDone();
@@ -125,14 +116,11 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       modelMeta = LanguageModelChatAiProviderSupport.resolve(meta, this, metadataProvider);
       facadeMap.put(new LanguageModel(modelMeta), new LanguageModelFacade(variables, modelMeta));
 
-      int parallelism =
-          meta.getParallelism() <= 0 ? getRuntime().availableProcessors() : meta.getParallelism();
-      if (parallelism != 0 && this.parallelism != parallelism || executor == null) {
-        if (executor != null) {
-          executor.shutdownNow();
-        }
-        executor = (ForkJoinPool) newWorkStealingPool(parallelism);
-      }
+      ownsExecutor = meta.getParallelism() != 0;
+      executor =
+          ownsExecutor
+              ? newWorkStealingPool(meta.getParallelism() < 0 ? cores : meta.getParallelism())
+              : commonPool();
 
       if (isEmpty(meta.getInputField())) {
         throw new HopException(
@@ -177,53 +165,105 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     }
 
     synchronized (lock) {
-      while (jobs.get() > maxJobs) {
+      while (jobs.get() >= maxJobs && !isStopped()) {
         try {
           lock.wait();
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new HopRuntimeException(e);
         }
       }
     }
 
-    ExecutorService exec = meta.getParallelism() == 0 ? commonPool() : executor;
-
-    exec.submit(
-        () -> {
-          try {
-            processSync(inputRow, message);
-          } catch (Exception e) {
-            try {
-              if (getTransformMeta().isDoingErrorHandling()) {
-                String errorMessage = e.toString();
-                putError(
-                    getInputRowMeta(),
-                    inputRow,
-                    1L,
-                    errorMessage,
-                    meta.getInputField(),
-                    "LanguageModelChat001");
-              } else {
-                logError(i18n("LanguageModelChat.ErrorInTransformRunning") + e.getMessage(), e);
-                setErrors(1L);
-                stopAll();
-              }
-            } catch (HopTransformException ex) {
-              logError(e.getMessage(), e);
-              logError(ex.getMessage(), ex);
-              if (!getTransformMeta().isDoingErrorHandling()) {
-                setErrors(1L);
-                stopAll();
-              }
-            }
-          } finally {
-            jobs.decrementAndGet();
-            synchronized (lock) {
-              lock.notifyAll();
-            }
-          }
-        });
+    if (isStopped()) {
+      return;
+    }
     jobs.incrementAndGet();
+    try {
+      executor.submit(
+          () -> {
+            try {
+              processSync(inputRow, message);
+            } catch (Exception e) {
+              try {
+                if (getTransformMeta().isDoingErrorHandling()) {
+                  String errorMessage = e.toString();
+                  putError(
+                      getInputRowMeta(),
+                      inputRow,
+                      1L,
+                      errorMessage,
+                      meta.getInputField(),
+                      "LanguageModelChat001");
+                } else {
+                  logError(i18n("LanguageModelChat.ErrorInTransformRunning") + e.getMessage(), e);
+                  setErrors(1L);
+                  stopAll();
+                }
+              } catch (HopTransformException ex) {
+                logError(e.getMessage(), e);
+                logError(ex.getMessage(), ex);
+                if (!getTransformMeta().isDoingErrorHandling()) {
+                  setErrors(1L);
+                  stopAll();
+                }
+              }
+            } finally {
+              jobFinished();
+            }
+          });
+    } catch (RejectedExecutionException e) {
+      jobFinished();
+      if (!isStopped()) {
+        throw e;
+      }
+    }
+  }
+
+  private void jobFinished() {
+    jobs.decrementAndGet();
+    synchronized (lock) {
+      lock.notifyAll();
+    }
+  }
+
+  private void shutdownOwnedExecutor() {
+    if (ownsExecutor && executor != null) {
+      // Accepted tasks still drain. Never await this executor from a worker stopping the pipeline.
+      executor.shutdown();
+    }
+  }
+
+  @Override
+  public void stopRunning() throws HopException {
+    setStopped(true);
+    shutdownOwnedExecutor();
+    synchronized (lock) {
+      lock.notifyAll();
+    }
+    super.stopRunning();
+  }
+
+  @Override
+  public void dispose() {
+    shutdownOwnedExecutor();
+    boolean interrupted = false;
+    synchronized (lock) {
+      while (jobs.get() > 0) {
+        try {
+          lock.wait();
+        } catch (InterruptedException e) {
+          interrupted = true;
+        }
+      }
+    }
+    // The runner disposes after processRow returns, which need not have reached normal EOF after
+    // a stop or failure. Keep facades alive until every accepted worker has left processSync.
+    facadeMap.clear();
+    super.dispose();
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   private void processSync(Object[] inputRow, String message)
