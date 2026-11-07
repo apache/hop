@@ -170,149 +170,141 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result) {
 
-    boolean rcode = true;
+    String realFileFolderName = resolve(filename);
+    String realWildcard = resolve(wildcard);
     FileObject filefolder = null;
-    String realFilefoldername = resolve(filename);
-    String realwildcard = resolve(wildcard);
 
     try {
-      filefolder = HopVfs.getFileObject(realFilefoldername, getVariables());
-      if (filefolder.exists()) {
-        // the file or folder exists
-
-        if (filefolder.getType() == FileType.FILE) {
-          // Add filename to Resultfilenames ...
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "ActionAddResultFilenames.AddingFileToResult", filefolder.toString()));
-          }
-          ResultFile resultFile =
-              new ResultFile(
-                  ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(filefolder.toString(), getVariables()),
-                  parentWorkflow.getWorkflowName(),
-                  toString());
-          result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-        } else {
-          FileObject[] list =
-              filefolder.findFiles(new TextFileSelector(filefolder.toString(), realwildcard));
-
-          for (int i = 0; i < list.length && !parentWorkflow.isStopped(); i++) {
-            // Add filename to Resultfilenames ...
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "ActionAddResultFilenames.AddingFileToResult", list[i].toString()));
-            }
-            ResultFile resultFile =
-                new ResultFile(
-                    ResultFile.FILE_TYPE_GENERAL,
-                    HopVfs.getFileObject(list[i].toString(), getVariables()),
-                    parentWorkflow.getWorkflowName(),
-                    toString());
-            result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
-          }
-        }
-
-      } else {
-        // File can not be found
+      // Compile once up front so an invalid mask fails the entry (issue #9264),
+      // instead of being swallowed while selecting each file.
+      Pattern compiledWildcard = compileWildcard(realWildcard);
+      filefolder = HopVfs.getFileObject(realFileFolderName, getVariables());
+      if (!filefolder.exists()) {
         if (isBasic()) {
           logBasic(
               BaseMessages.getString(
-                  PKG, "ActionAddResultFilenames.FileCanNotbeFound", realFilefoldername));
+                  PKG, "ActionAddResultFilenames.FileCanNotbeFound", realFileFolderName));
         }
-        rcode = false;
+        return false;
       }
+      if (filefolder.getType() == FileType.FILE) {
+        addToResultFiles(filefolder.toString(), parentWorkflow, result);
+      } else {
+        addMatchingFilesFromFolder(filefolder, compiledWildcard, parentWorkflow, result);
+      }
+      return true;
     } catch (Exception e) {
-      rcode = false;
       logError(
           BaseMessages.getString(
-              PKG, "ActionAddResultFilenames.CouldNotProcess", realFilefoldername, e.getMessage()),
+              PKG, "ActionAddResultFilenames.CouldNotProcess", realFileFolderName, e.getMessage()),
           e);
+      return false;
     } finally {
-      if (filefolder != null) {
-        try {
-          filefolder.close();
-          filefolder = null;
-        } catch (IOException ex) {
-          // Ignore
-        }
-      }
+      closeQuietly(filefolder);
     }
+  }
 
-    return rcode;
+  private void addMatchingFilesFromFolder(
+      FileObject folder,
+      Pattern compiledWildcard,
+      IWorkflowEngine<WorkflowMeta> parentWorkflow,
+      Result result)
+      throws Exception {
+    FileObject[] list = folder.findFiles(new TextFileSelector(folder.toString(), compiledWildcard));
+    for (int i = 0; i < list.length && !parentWorkflow.isStopped(); i++) {
+      addToResultFiles(list[i].toString(), parentWorkflow, result);
+    }
+  }
+
+  private void addToResultFiles(
+      String filePath, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result)
+      throws Exception {
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "ActionAddResultFilenames.AddingFileToResult", filePath));
+    }
+    ResultFile resultFile =
+        new ResultFile(
+            ResultFile.FILE_TYPE_GENERAL,
+            HopVfs.getFileObject(filePath, getVariables()),
+            parentWorkflow.getWorkflowName(),
+            toString());
+    result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+  }
+
+  private static void closeQuietly(FileObject fileFolder) {
+    if (fileFolder == null) {
+      return;
+    }
+    try {
+      fileFolder.close();
+    } catch (IOException ex) {
+      // Ignore
+    }
+  }
+
+  /**
+   * Compile the file-mask regex once. An invalid expression must fail the action instead of being
+   * swallowed while selecting files.
+   */
+  private static Pattern compileWildcard(String wildcard) {
+    if (Utils.isEmpty(wildcard)) {
+      return null;
+    }
+    return Pattern.compile(wildcard);
   }
 
   private class TextFileSelector implements FileSelector {
-    String fileWildcard = null;
-    String sourceFolder = null;
+    private final Pattern fileWildcard;
+    private final String sourceFolder;
 
-    public TextFileSelector(String sourcefolderin, String filewildcard) {
-      if (!Utils.isEmpty(sourcefolderin)) {
-        sourceFolder = sourcefolderin;
-      }
-
-      if (!Utils.isEmpty(filewildcard)) {
-        fileWildcard = filewildcard;
-      }
+    TextFileSelector(String sourceFolder, Pattern fileWildcard) {
+      this.sourceFolder = sourceFolder;
+      this.fileWildcard = fileWildcard;
     }
 
     @Override
     public boolean includeFile(FileSelectInfo info) {
-      boolean returncode = false;
       try {
-        if (!info.getFile().toString().equals(sourceFolder)) {
-          // Pass over the Base folder itself
-          String shortFilename = info.getFile().getName().getBaseName();
-
-          if (info.getFile().getParent().equals(info.getBaseFolder())
-              || (!info.getFile().getParent().equals(info.getBaseFolder()) && includeSubFolders)) {
-            if ((info.getFile().getType() == FileType.FILE && fileWildcard == null)
-                || (info.getFile().getType() == FileType.FILE
-                    && fileWildcard != null
-                    && GetFileWildcard(shortFilename, fileWildcard))) {
-              returncode = true;
-            }
-          }
+        if (info.getFile().toString().equals(sourceFolder)) {
+          return false;
         }
+        if (info.getFile().getType() != FileType.FILE) {
+          return false;
+        }
+        if (!isInScope(info)) {
+          return false;
+        }
+        return matchesWildcard(info.getFile().getName().getBaseName());
       } catch (Exception e) {
         logError(
             "Error while finding files ... in ["
                 + info.getFile().toString()
                 + "]. Exception :"
                 + e.getMessage());
-        returncode = false;
+        return false;
       }
-      return returncode;
+    }
+
+    private boolean isInScope(FileSelectInfo info) throws Exception {
+      if (info.getFile().getParent().equals(info.getBaseFolder())) {
+        return true;
+      }
+      return includeSubFolders;
+    }
+
+    private boolean matchesWildcard(String shortFilename) {
+      if (fileWildcard == null) {
+        return true;
+      }
+      Matcher matcher = fileWildcard.matcher(shortFilename);
+      return matcher.matches();
     }
 
     @Override
     public boolean traverseDescendents(FileSelectInfo info) {
       return info.getDepth() == 0 || includeSubFolders;
     }
-  }
-
-  /**********************************************************
-   *
-   * @param selectedfile
-   * @param wildcard
-   * @return True if the selectedfile matches the wildcard
-   **********************************************************/
-  private boolean GetFileWildcard(String selectedfile, String wildcard) {
-    Pattern pattern = null;
-    boolean getIt = true;
-
-    if (!Utils.isEmpty(wildcard)) {
-      pattern = Pattern.compile(wildcard);
-      // First see if the file matches the regular expression!
-      if (pattern != null) {
-        Matcher matcher = pattern.matcher(selectedfile);
-        getIt = matcher.matches();
-      }
-    }
-
-    return getIt;
   }
 
   public void setIncludeSubFolders(boolean includeSubFolders) {
@@ -346,7 +338,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
-    if (res == false) {
+    if (!res) {
       return;
     }
 
