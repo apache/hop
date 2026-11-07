@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -67,8 +66,21 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
     if (!super.init()) {
       return false;
     }
-    data.chunkSize = Const.toInt(resolve(meta.getChunkSize()), -1);
-    data.chunkOverlap = Const.toInt(resolve(meta.getChunkOverlap()), -1);
+    String sizeText = resolve(meta.getChunkSize());
+    String overlapText = resolve(meta.getChunkOverlap());
+    Integer size = TextChunkerMeta.parseNumber(sizeText, 0);
+    Integer overlap = TextChunkerMeta.parseNumber(overlapText, 0);
+    if (size == null) {
+      logError(BaseMessages.getString(PKG, "TextChunker.Validation.ChunkSizeNotANumber", sizeText));
+      return false;
+    }
+    if (overlap == null) {
+      logError(
+          BaseMessages.getString(PKG, "TextChunker.Validation.OverlapNotANumber", overlapText));
+      return false;
+    }
+    data.chunkSize = size;
+    data.chunkOverlap = overlap;
     if (data.chunkSize <= 0) {
       logError(
           BaseMessages.getString(

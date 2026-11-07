@@ -21,7 +21,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -326,14 +325,41 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     }
   }
 
+  /**
+   * Adds an output field. When the input already has a field with that name the transform writes
+   * its values into that field, so the field takes the transform's type if the types differ.
+   */
   private static void addField(IRowMeta row, IValueMeta field, String origin)
       throws HopPluginException {
     String fieldName = field.getName();
-    if (fieldName == null || fieldName.isEmpty() || row.indexOfValue(fieldName) >= 0) {
+    if (fieldName == null || fieldName.isEmpty()) {
       return;
     }
     field.setOrigin(origin);
-    row.addValueMeta(field);
+    int index = row.indexOfValue(fieldName);
+    if (index < 0) {
+      row.addValueMeta(field);
+    } else if (row.getValueMeta(index).getType() != field.getType()) {
+      row.setValueMeta(index, field);
+    }
+  }
+
+  /**
+   * Parses a resolved chunk size or overlap.
+   *
+   * @param value the resolved value
+   * @param emptyValue the value to use when nothing is configured
+   * @return the number, or {@code null} when the value is not a whole number
+   */
+  static Integer parseNumber(String value, int emptyValue) {
+    if (Utils.isEmpty(value) || value.isBlank()) {
+      return emptyValue;
+    }
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   /**
@@ -408,14 +434,24 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
       error(remarks, transformMeta, "TextChunker.Validation.OutputChunkFieldRequired");
     }
 
-    int resolvedSize = Const.toInt(variables.resolve(chunkSize), -1);
-    int resolvedOverlap = Const.toInt(variables.resolve(chunkOverlap), -1);
+    checkOutputFieldTypes(remarks, transformMeta, prev);
 
-    if (resolvedSize <= 0) {
+    String sizeText = variables.resolve(chunkSize);
+    String overlapText = variables.resolve(chunkOverlap);
+    Integer size = parseNumber(sizeText, 0);
+    Integer overlap = parseNumber(overlapText, 0);
+    int resolvedSize = size == null ? -1 : size;
+    int resolvedOverlap = overlap == null ? -1 : overlap;
+
+    if (size == null) {
+      error(remarks, transformMeta, "TextChunker.Validation.ChunkSizeNotANumber", sizeText);
+    } else if (resolvedSize <= 0) {
       error(remarks, transformMeta, "TextChunker.Validation.ChunkSizePositive");
     }
 
-    if (resolvedOverlap < 0) {
+    if (overlap == null) {
+      error(remarks, transformMeta, "TextChunker.Validation.OverlapNotANumber", overlapText);
+    } else if (resolvedOverlap < 0) {
       error(remarks, transformMeta, "TextChunker.Validation.OverlapNonNegative");
     } else if (resolvedSize > 0 && resolvedOverlap >= resolvedSize) {
       warning(remarks, transformMeta, "TextChunker.Validation.OverlapWarning");
@@ -427,6 +463,38 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
 
     if (!Utils.isEmpty(paragraphSeparator) && chunkingStrategy != ChunkingStrategyType.PARAGRAPH) {
       warning(remarks, transformMeta, "TextChunker.Validation.ParagraphSeparatorIgnored");
+    }
+  }
+
+  /** Warns when an output field already exists in the input with a different type. */
+  private void checkOutputFieldTypes(
+      List<ICheckResult> remarks, TransformMeta transformMeta, IRowMeta prev) {
+    if (prev == null) {
+      return;
+    }
+    IRowMeta output = prev.clone();
+    try {
+      getFields(output, transformMeta.getName(), null, null, null, null);
+    } catch (HopTransformException e) {
+      return;
+    }
+    for (String fieldName : getOutputFieldNames()) {
+      if (Utils.isEmpty(fieldName)) {
+        continue;
+      }
+      IValueMeta inputField = prev.searchValueMeta(fieldName);
+      IValueMeta outputField = output.searchValueMeta(fieldName);
+      if (inputField != null
+          && outputField != null
+          && inputField.getType() != outputField.getType()) {
+        warning(
+            remarks,
+            transformMeta,
+            "TextChunker.Validation.OutputFieldTypeChanged",
+            fieldName,
+            inputField.getTypeDesc(),
+            outputField.getTypeDesc());
+      }
     }
   }
 

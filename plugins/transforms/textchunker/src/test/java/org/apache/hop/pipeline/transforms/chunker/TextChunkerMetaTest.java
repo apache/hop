@@ -17,6 +17,8 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -123,6 +125,117 @@ class TextChunkerMetaTest {
     assertEquals(IValueMeta.TYPE_INTEGER, row.searchValueMeta("chunk_start_position").getType());
     assertEquals(IValueMeta.TYPE_INTEGER, row.searchValueMeta("total_chunks").getType());
     assertEquals(IValueMeta.TYPE_STRING, row.searchValueMeta("chunk_doc_id").getType());
+  }
+
+  /**
+   * The transform writes Long values into an input field that has the same name as one of its
+   * output fields, so that field must take the transform's type (#9285).
+   */
+  @Test
+  void anExistingFieldTakesTheOutputType() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("text"));
+    row.addValueMeta(new ValueMetaString("chunk_index"));
+    row.addValueMeta(new ValueMetaString("total_chunks"));
+    meta.getFields(row, "chunker", null, null, new Variables(), null);
+
+    assertEquals(6, row.size(), "existing fields are reused, not duplicated");
+    assertEquals(1, row.indexOfValue("chunk_index"), "the field keeps its position");
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(1).getType());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(2).getType());
+  }
+
+  /** An existing field of the same type keeps its own metadata, for example its length. */
+  @Test
+  void anExistingFieldOfTheSameTypeIsKept() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+
+    IRowMeta row = new RowMeta();
+    ValueMetaString text = new ValueMetaString("text", 5000, -1);
+    row.addValueMeta(text);
+    meta.setOutputChunkField("text");
+    meta.getFields(row, "chunker", null, null, new Variables(), null);
+
+    assertEquals(5000, row.searchValueMeta("text").getLength());
+  }
+
+  @Test
+  void checkWarnsWhenAnExistingFieldChangesType() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("body"));
+    prev.addValueMeta(new ValueMetaString("chunk_index"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("chunk_index")),
+        "a String chunk_index in the input must produce a warning");
+  }
+
+  @Test
+  void checkReportsAnOverlapThatIsNotANumber() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+    meta.setChunkOverlap("abc");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), null, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("'abc' is not a whole number")),
+        "an overlap of 'abc' must be reported as not a number");
+    assertFalse(
+        remarks.stream().anyMatch(r -> r.getText().contains("negative")),
+        "an overlap of 'abc' is not negative");
+  }
+
+  @Test
+  void checkReportsAChunkSizeThatIsNotANumber() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+    meta.setChunkSize("abc");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), null, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("'abc' is not a whole number")),
+        "a chunk size of 'abc' must be reported as not a number");
+  }
+
+  @Test
+  void parsesSizeAndOverlap() {
+    assertEquals(100, TextChunkerMeta.parseNumber(" 100 ", 0));
+    assertEquals(0, TextChunkerMeta.parseNumber("", 0));
+    assertEquals(0, TextChunkerMeta.parseNumber(null, 0));
+    assertEquals(-5, TextChunkerMeta.parseNumber("-5", 0));
+    assertNull(TextChunkerMeta.parseNumber("abc", 0));
+    assertNull(TextChunkerMeta.parseNumber("1.5", 0));
   }
 
   @Test
