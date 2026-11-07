@@ -133,6 +133,6 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |===
 
-WARNING: The target file is opened before the request is sent. A request that fails, for example with a 404, leaves an empty target file: an existing file is emptied, unless *Append to specified target file* is checked.
+The target file is only written when the server answers with a status below 400. A request that fails, for example with a 404, leaves an existing target file as it was and doesn't create a new one.
 
-NOTE: With *Run for every result row*, the rows are processed one after the other and the action stops at the first row that fails. The result is true as soon as one row succeeded: a first row that succeeds and a second one that fails give true with 1 error.
+NOTE: With *Run for every result row*, the rows are processed one after the other and the action stops at the first row that fails. One failed row makes the action false with 1 error, even when the rows before it succeeded; their target files are kept.

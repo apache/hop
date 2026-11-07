@@ -36,12 +36,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.AfterAll;
@@ -211,6 +215,60 @@ class ActionHttpExecutionTest {
     assertNull(workflow.getVariable("HTTP_REPLY"));
   }
 
+  @Test
+  void testHttpErrorStatusLeavesAnExistingTargetFileAlone() throws Exception {
+    File target = File.createTempFile("downloadedNotFound", ".tmp");
+    target.deleteOnExit();
+    FileUtils.writeStringToFile(target, "previous content", UTF_8);
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(false);
+    http.setUrl(httpBaseUrl() + "/notFound");
+    http.setTargetFilename(target.getCanonicalPath());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    assertEquals("previous content", FileUtils.readFileToString(target, UTF_8));
+  }
+
+  @Test
+  void testHttpForEveryRowFailsWhenALaterRowFails() throws Exception {
+    File first = File.createTempFile("downloadedFirstRow", ".tmp");
+    first.deleteOnExit();
+    Path second = Files.createTempDirectory("httpSecondRow").resolve("second.tmp");
+    second.toFile().deleteOnExit();
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("URL"));
+    rowMeta.addValueMeta(new ValueMetaString("UPLOAD"));
+    rowMeta.addValueMeta(new ValueMetaString("DESTINATION"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    rows.add(
+        new RowMetaAndData(
+            rowMeta,
+            new Object[] {httpBaseUrl() + "/downloadFile", null, first.getCanonicalPath()}));
+    rows.add(
+        new RowMetaAndData(
+            rowMeta, new Object[] {httpBaseUrl() + "/notFound", null, second.toString()}));
+    Result previousResult = new Result();
+    previousResult.setRows(rows);
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(true);
+    http.setAddFilenameToResult(false);
+
+    Result result = http.execute(previousResult, 0);
+
+    assertFalse(result.getResult(), "a failed row must fail the action");
+    assertEquals(1, result.getNrErrors());
+    assertEquals("download only payload", FileUtils.readFileToString(first, UTF_8));
+    assertFalse(Files.exists(second), "a failed row must not create an empty target file");
+  }
+
   private static void startHttpServer() throws IOException {
     httpServer = HttpServer.create(new InetSocketAddress(ActionHttpExecutionTest.HTTP_HOST, 0), 10);
     httpServer.createContext(
@@ -240,6 +298,12 @@ class ActionHttpExecutionTest {
             os.write(response);
             os.flush();
           }
+          httpExchange.close();
+        });
+    httpServer.createContext(
+        "/notFound",
+        httpExchange -> {
+          httpExchange.sendResponseHeaders(404, -1);
           httpExchange.close();
         });
     httpServer.start();
