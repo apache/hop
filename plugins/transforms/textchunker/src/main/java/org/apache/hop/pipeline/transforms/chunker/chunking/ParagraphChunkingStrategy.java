@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transforms.chunker.Chunk;
  * #setSeparator(String)} when the text uses a custom multi-byte marker instead. A paragraph that on
  * its own exceeds {@code maxSize} is split further with {@link CharacterChunkingStrategy}, because
  * a chunk larger than the limit would be rejected downstream by the embedding model rather than
- * simply being large.
+ * simply being large. The overlap applies only within that split, never between paragraphs.
  *
  * <p>Consecutive paragraphs are packed into one chunk while they fit within {@code maxSize}, which
  * is the usual contract for an embedding chunker: it keeps related text together and avoids
@@ -103,7 +103,7 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
   public List<Chunk> chunk(String text, int maxSize, int overlap) {
     List<Chunk> chunks = new ArrayList<>();
 
-    if (text == null || text.isEmpty()) {
+    if (text == null || text.isBlank()) {
       return chunks;
     }
     if (maxSize <= 0) {
@@ -183,8 +183,12 @@ public class ParagraphChunkingStrategy implements ChunkingStrategy {
     return paragraphs;
   }
 
+  /**
+   * Whitespace-only paragraphs are left out, so they never become a chunk on their own. Packing
+   * still slices the source text, so a chunk that spans one keeps it.
+   */
   private static void addParagraph(List<Paragraph> paragraphs, String text, int start, int end) {
-    if (end > start) {
+    if (end > start && !text.substring(start, end).isBlank()) {
       paragraphs.add(new Paragraph(text.substring(start, end), start));
     }
   }

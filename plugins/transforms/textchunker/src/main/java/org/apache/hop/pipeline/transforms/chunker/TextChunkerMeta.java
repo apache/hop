@@ -147,7 +147,10 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
   @HopMetadataProperty(key = "chunkSize", injectionKey = "CHUNK_SIZE")
   private String chunkSize = "1000";
 
-  /** The number of characters to overlap between chunks (for CHARACTER strategy). */
+  /**
+   * The maximum number of characters, in whole words, to overlap between chunks. Paragraph and
+   * Structure only apply it inside a paragraph or section they split with the character fallback.
+   */
   @GuiWidgetElement(
       order = "0800",
       type = GuiElementType.TEXT,
@@ -421,8 +424,14 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
       warning(remarks, transformMeta, "TextChunker.Validation.OverlapWarning");
     }
 
-    if (chunkingStrategy == ChunkingStrategyType.PARAGRAPH && resolvedOverlap > 0) {
-      warning(remarks, transformMeta, "TextChunker.Validation.ParagraphOverlapIgnored");
+    if ((chunkingStrategy == ChunkingStrategyType.PARAGRAPH
+            || chunkingStrategy == ChunkingStrategyType.STRUCTURE)
+        && resolvedOverlap > 0) {
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_COMMENT,
+              BaseMessages.getString(PKG, "TextChunker.Validation.OverlapOnlyWhenSplit"),
+              transformMeta));
     }
 
     if (!Utils.isEmpty(paragraphSeparator) && chunkingStrategy != ChunkingStrategyType.PARAGRAPH) {

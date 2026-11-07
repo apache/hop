@@ -97,6 +97,82 @@ class StructureChunkingStrategyTest {
     assertTrue(chunks.get(chunks.size() - 1).getContent().contains("beta"));
   }
 
+  /**
+   * #9283: the chunks a long section is split into reported the heading position plus their offset
+   * in the stripped body, so every chunk after the first was off by the length of the heading.
+   */
+  @Test
+  void positionsOfASplitSectionPointAtTheirTextInTheSource() {
+    StringBuilder body = new StringBuilder();
+    for (int i = 1; i <= 40; i++) {
+      body.append(String.format("word%03d ", i));
+    }
+    String text = "# Title\n\n" + body.toString().strip();
+
+    List<Chunk> chunks = strategy.chunk(text, 100, 0, ContentType.MARKDOWN);
+
+    assertTrue(chunks.size() > 2);
+    assertEquals(0, chunks.get(0).getStartPosition(), "the first chunk starts at the heading");
+    for (int i = 1; i < chunks.size(); i++) {
+      Chunk chunk = chunks.get(i);
+      String partText = chunk.getContent().substring("Title\n\n".length());
+      assertEquals(
+          partText,
+          text.substring(chunk.getStartPosition(), chunk.getEndPosition()),
+          "chunk " + i + " does not address its text in the source");
+    }
+    assertEquals(text.indexOf("word012"), chunks.get(1).getStartPosition());
+  }
+
+  @Test
+  void positionsOfASplitSectionSkipBlankLinesAfterTheHeading() {
+    String text = "## A\n\n\n   " + "alpha beta gamma delta ".repeat(10).strip();
+
+    List<Chunk> chunks = strategy.chunk(text, 40, 0, ContentType.MARKDOWN);
+
+    assertTrue(chunks.size() > 2);
+    for (int i = 1; i < chunks.size(); i++) {
+      Chunk chunk = chunks.get(i);
+      assertEquals(
+          chunk.getContent().substring("A\n\n".length()),
+          text.substring(chunk.getStartPosition(), chunk.getEndPosition()));
+    }
+  }
+
+  /** An unsplit section keeps starting at its heading. */
+  @Test
+  void anUnsplitSectionStartsAtItsHeading() {
+    String text = "# Title\n\nIntro line.\n\n## Section A\n\nBody A.";
+
+    List<Chunk> chunks = strategy.chunk(text, 200, 0, ContentType.MARKDOWN);
+
+    assertEquals(2, chunks.size());
+    assertEquals(0, chunks.get(0).getStartPosition());
+    assertEquals(text.indexOf("## Section A"), chunks.get(1).getStartPosition());
+    assertEquals(text.length(), chunks.get(1).getEndPosition());
+  }
+
+  /** The overlap inside a split section starts at a word, the same as for Character. */
+  @Test
+  void overlapInsideASplitSectionStartsAtAWord() {
+    StringBuilder body = new StringBuilder();
+    for (int i = 1; i <= 40; i++) {
+      body.append(String.format("word%03d ", i));
+    }
+    String text = "# Title\n\n" + body.toString().strip();
+
+    List<Chunk> chunks = strategy.chunk(text, 100, 20, ContentType.MARKDOWN);
+
+    assertTrue(chunks.size() > 2);
+    for (int i = 1; i < chunks.size(); i++) {
+      String partText = chunks.get(i).getContent().substring("Title\n\n".length());
+      assertTrue(partText.startsWith("word"), "chunk " + i + " starts mid-word: " + partText);
+      assertTrue(
+          chunks.get(i).getStartPosition() < chunks.get(i - 1).getEndPosition(),
+          "chunk " + i + " does not overlap the previous one");
+    }
+  }
+
   @Test
   void strategyTypeIsStructure() {
     assertEquals(ChunkingStrategyType.STRUCTURE, strategy.getType());

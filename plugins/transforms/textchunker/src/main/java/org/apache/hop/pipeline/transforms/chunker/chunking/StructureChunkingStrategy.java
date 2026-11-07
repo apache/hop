@@ -70,24 +70,33 @@ public class StructureChunkingStrategy implements ChunkingStrategy {
                 sectionText,
                 chunks.size(),
                 section.getStartPosition(),
-                section.getStartPosition() + sectionText.length()));
+                section.getBodyStartPosition() + section.getBody().length()));
       } else {
         String breadcrumb = section.breadcrumb();
         String prefix = breadcrumb.isEmpty() ? "" : breadcrumb + "\n\n";
         String body = section.getBody();
         int bodyMax = prefix.isEmpty() ? maxSize : Math.max(1, maxSize - prefix.length());
         List<Chunk> split = fallback.chunk(body, bodyMax, overlap);
+        boolean firstPart = true;
         for (Chunk part : split) {
           if (part.getContent().isBlank()) {
             continue;
           }
           String content = prefix.isEmpty() ? part.getContent() : prefix + part.getContent();
+          // The first part starts the section, heading included, like an unsplit section does.
+          // The others start where their text is in the source: the body is stripped and follows
+          // the heading, so their offsets are relative to the body, not to the section.
+          int start =
+              firstPart
+                  ? section.getStartPosition()
+                  : section.getBodyStartPosition() + part.getStartPosition();
           chunks.add(
               new Chunk(
                   content,
                   chunks.size(),
-                  section.getStartPosition() + part.getStartPosition(),
-                  section.getStartPosition() + part.getEndPosition()));
+                  start,
+                  section.getBodyStartPosition() + part.getEndPosition()));
+          firstPart = false;
         }
       }
     }
