@@ -28,7 +28,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.FileIoContentSchema;
-import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.RelationalIoLineagePayload;
@@ -462,22 +461,7 @@ public final class LineageRelationalIoEmitter {
    * locator, so the structure-roots tree is empty.
    */
   static FileIoContentSchema toContentSchema(IRowMeta rowMeta) {
-    if (rowMeta == null || rowMeta.isEmpty()) {
-      return null;
-    }
-    List<FileIoTabularColumn> columns = new ArrayList<>(rowMeta.size());
-    for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
-      columns.add(
-          new FileIoTabularColumn(
-              valueMeta.getName(),
-              valueMeta.getTypeDesc(),
-              valueMeta.getLength(),
-              valueMeta.getPrecision(),
-              null,
-              null,
-              false));
-    }
-    return new FileIoContentSchema(JDBC_FORMAT_HINT, columns, List.of());
+    return LineageFileIoEmitter.toContentSchema(rowMeta, JDBC_FORMAT_HINT);
   }
 
   /**
