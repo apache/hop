@@ -155,9 +155,9 @@ The `org.apache.hop.lineage.xp` package registers extension points that **emit**
 
 * **`TransformFinished`** — `LineageHubTransformFinishXp` — transform `FINISHED` or `FAILED` from transform error count, then `TRANSFORM_SCHEMA` events for observed input/output row shapes when non-empty
 
-* **`WorkflowBeforeActionExecution`** — `LineageHubWorkflowActionBeforeXp` — action `STARTED` (workflow log channel + action name; template action log channel id as attribute when present)
+* **Action start** — `LineageActionStartListener`, an `IActionListener` that `LineageHubWorkflowStartXp` adds to each workflow — action `STARTED` from `beforeExecution`, once the workflow has cloned the action, so the event carries the executing action's log channel id. `WorkflowBeforeActionExecution` fires before that clone exists.
 
-* **`WorkflowAfterActionExecution`** — `LineageHubWorkflowActionAfterXp` — action `FINISHED` or `FAILED` from the action `Result`; uses the executed action’s log channel id when available (`WorkflowExecutionExtension.actionLogChannelId` / `actionExecutionResult`)
+* **`WorkflowAfterActionExecution`** — `LineageHubWorkflowActionAfterXp` — action `FINISHED` or `FAILED` from the action `Result`, under the executed action's log channel id (`WorkflowExecutionExtension.actionLogChannelId`). An action the workflow skipped has no run of its own and emits nothing.
 
 Remote (`RemotePipelineEngine`) and Beam (`BeamPipelineEngine`) engines also call **`PipelineStart`** and **`PipelineFinish`** so they align with the local pipeline engine.
 

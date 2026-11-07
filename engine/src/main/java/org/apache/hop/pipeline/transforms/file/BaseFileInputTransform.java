@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.file;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.IRowSet;
@@ -26,6 +28,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.vfs.HopVfs;
@@ -175,8 +178,41 @@ public abstract class BaseFileInputTransform<
     } catch (Exception ignored) {
       // optional metadata for lineage only
     }
+    String extension = file.getName().getExtension();
     LineageFileIoEmitter.emitTransformFileIo(
-        this, FileIoOperation.READ, file, null, size, true, null);
+        this,
+        FileIoOperation.READ,
+        file,
+        null,
+        size,
+        true,
+        null,
+        LineageFileIoEmitter.toContentSchema(
+            fileRowMeta(), extension == null ? null : extension.toLowerCase(Locale.ROOT)));
+  }
+
+  /**
+   * The names of the fields this transform reads from the file itself, which make up the file's
+   * schema in its lineage; {@code null} when every output field comes from the file. Fields the
+   * transform adds (file name, row number, ...) or passes through from its input rows are not part
+   * of the file.
+   */
+  protected Set<String> fileFieldNames() {
+    return null;
+  }
+
+  private IRowMeta fileRowMeta() {
+    Set<String> names = fileFieldNames();
+    if (names == null || data.outputRowMeta == null) {
+      return data.outputRowMeta;
+    }
+    RowMeta fileRow = new RowMeta();
+    for (IValueMeta valueMeta : data.outputRowMeta.getValueMetaList()) {
+      if (names.contains(valueMeta.getName())) {
+        fileRow.addValueMeta(valueMeta);
+      }
+    }
+    return fileRow;
   }
 
   /** Read files from previous transform. */

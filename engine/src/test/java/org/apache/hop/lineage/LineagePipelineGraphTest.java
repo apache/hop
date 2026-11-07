@@ -36,6 +36,10 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -195,5 +199,29 @@ class LineagePipelineGraphTest {
     ArgumentCaptor<LineageEvent> captor = ArgumentCaptor.forClass(LineageEvent.class);
     verify(hub, atLeastOnce()).emit(captor.capture());
     return captor.getAllValues();
+  }
+
+  // A workflow's hops say which action follows which, whatever their condition; disabled hops are
+  // not part of what ran.
+  @Test
+  void workflowHopsAreReportedBetweenActions() {
+    WorkflowMeta meta = new WorkflowMeta();
+    ActionMeta load = new ActionMeta(new ActionDummy("Load"));
+    ActionMeta report = new ActionMeta(new ActionDummy("Report"));
+    ActionMeta alert = new ActionMeta(new ActionDummy("Alert"));
+    meta.addAction(load);
+    meta.addAction(report);
+    meta.addAction(alert);
+    meta.addWorkflowHop(new WorkflowHopMeta(load, report));
+    WorkflowHopMeta onFailure = new WorkflowHopMeta(load, alert);
+    onFailure.setEvaluation(false);
+    meta.addWorkflowHop(onFailure);
+    WorkflowHopMeta disabled = new WorkflowHopMeta(report, alert);
+    disabled.setEnabled(false);
+    meta.addWorkflowHop(disabled);
+
+    assertEquals(
+        List.of(new Transition("Load", "Report"), new Transition("Load", "Alert")),
+        LineageRunLifecycleEmitter.workflowTransitions(meta));
   }
 }

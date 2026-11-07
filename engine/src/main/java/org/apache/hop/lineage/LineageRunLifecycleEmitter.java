@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
+import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -55,7 +56,148 @@ public final class LineageRunLifecycleEmitter {
   public static final String FAILED = "failed";
   public static final String SUCCESS = "success";
 
+  /**
+   * The run that started this pipeline or workflow, when the engine knows it: the action a workflow
+   * ran, or the parent pipeline of a sub-pipeline. {@code parentRunId} is that subject's
+   * log-channel id and {@code parentJobName} is the job name the lineage mapper gives it (e.g.
+   * {@code my-workflow/Run orders}); both are needed to form a ParentRunFacet. Sinks that write the
+   * job tree themselves (DataHub) read the same pair.
+   */
+  public static final String ATTR_PARENT_RUN_ID = "parentRunId";
+
+  public static final String ATTR_PARENT_JOB_NAME = "parentJobName";
+
+  /**
+   * The parts {@link #ATTR_PARENT_JOB_NAME} is made of, for a sink that models workflows and
+   * pipelines apart from the jobs inside them (DataHub): the workflow and action that ran this run,
+   * or the pipeline and transform (Pipeline Executor, mapping) that did. A job name cannot be split
+   * back reliably, since names may contain the separator.
+   */
+  public static final String ATTR_PARENT_WORKFLOW_NAME = "parentWorkflowName";
+
+  public static final String ATTR_PARENT_ACTION_NAME = "parentActionName";
+  public static final String ATTR_PARENT_PIPELINE_NAME = "parentPipelineName";
+  public static final String ATTR_PARENT_TRANSFORM_NAME = "parentTransformName";
+
+  /** The description the subject's metadata gives it (pipeline, workflow, transform, action). */
+  public static final String ATTR_DESCRIPTION = "description";
+
+  private static void fillDescription(LineageContext.Builder ctx, String description) {
+    if (!Utils.isEmpty(description)) {
+      ctx.putAttribute(ATTR_DESCRIPTION, description);
+    }
+  }
+
   private LineageRunLifecycleEmitter() {}
+
+  /**
+   * Records who started this run, when the engine knows: an action that ran a pipeline or workflow,
+   * or a parent pipeline that ran a sub-pipeline. Left out entirely for a top-level run.
+   */
+  private static void fillParentFields(
+      LineageContext.Builder ctx, String parentJobName, String parentRunId) {
+    if (!Utils.isEmpty(parentJobName)) {
+      ctx.putAttribute(ATTR_PARENT_JOB_NAME, parentJobName);
+    }
+    if (!Utils.isEmpty(parentRunId)) {
+      ctx.putAttribute(ATTR_PARENT_RUN_ID, parentRunId);
+    }
+  }
+
+  /**
+   * The run that started a pipeline: its sub-pipeline parent, or the workflow action that ran it
+   * (with the workflow that owns the action). Package-private so the naming rule can be checked
+   * without starting an engine.
+   */
+  static void fillPipelineParentFields(
+      LineageContext.Builder ctx, IPipelineEngine<PipelineMeta> pipeline) {
+    IPipelineEngine<PipelineMeta> parentPipeline = pipeline.getParentPipeline();
+    if (parentPipeline != null) {
+      fillPipelineParentFields(ctx, parentPipeline, pipeline.getParent());
+      return;
+    }
+    if (pipeline.getParent() instanceof IAction parentAction) {
+      fillActionParentFields(ctx, parentAction, pipeline.getParentWorkflow());
+    }
+  }
+
+  /** A run started from a pipeline, by the transform that is its logging parent when known. */
+  private static void fillPipelineParentFields(
+      LineageContext.Builder ctx, IPipelineEngine<PipelineMeta> parentPipeline, Object parent) {
+    PipelineMeta parentMeta = parentPipeline.getPipelineMeta();
+    String parentPipelineName = parentMeta != null ? parentMeta.getName() : null;
+    fillParentFields(ctx, parentPipelineName, parentPipeline.getLogChannelId());
+    if (!Utils.isEmpty(parentPipelineName)) {
+      ctx.putAttribute(ATTR_PARENT_PIPELINE_NAME, parentPipelineName);
+      if (parent instanceof ITransform transform && !Utils.isEmpty(transform.getTransformName())) {
+        ctx.putAttribute(ATTR_PARENT_TRANSFORM_NAME, transform.getTransformName());
+      }
+    }
+  }
+
+  /**
+   * The run that started a workflow: the pipeline that ran it (Workflow Executor), the workflow
+   * action that ran it (with the workflow that owns the action), or failing that the parent
+   * workflow itself.
+   */
+  static void fillWorkflowParentFields(
+      LineageContext.Builder ctx, IWorkflowEngine<WorkflowMeta> workflow) {
+    IPipelineEngine<PipelineMeta> parentPipeline = workflow.getParentPipeline();
+    if (parentPipeline != null) {
+      fillPipelineParentFields(ctx, parentPipeline, workflow.getParent());
+      return;
+    }
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = workflow.getParentWorkflow();
+    if (workflow.getParent() instanceof IAction parentAction) {
+      fillActionParentFields(ctx, parentAction, parentWorkflow);
+      return;
+    }
+    WorkflowMeta parentMeta = parentWorkflow != null ? parentWorkflow.getWorkflowMeta() : null;
+    if (parentMeta != null) {
+      fillParentFields(ctx, parentMeta.getName(), parentWorkflow.getLogChannelId());
+    }
+  }
+
+  /**
+   * Whether a pipeline is a top-level run: not a sub-pipeline, not started by a workflow action.
+   * Only a top-level run waits for the lineage hub to drain when it completes; a nested run (a
+   * Pipeline Executor row, a mapping, a Pipeline action) leaves its events queued, and the run that
+   * contains it flushes them. Flushing on every nested completion would put a full hub drain on the
+   * path of every caller waiting for that run.
+   */
+  public static boolean isTopLevel(IPipelineEngine<PipelineMeta> pipeline) {
+    return pipeline != null
+        && pipeline.getParentPipeline() == null
+        && pipeline.getParentWorkflow() == null
+        && !(pipeline.getParent() instanceof IAction);
+  }
+
+  /** Whether a workflow is a top-level run; see {@link #isTopLevel(IPipelineEngine)}. */
+  public static boolean isTopLevel(IWorkflowEngine<WorkflowMeta> workflow) {
+    return workflow != null
+        && workflow.getParentPipeline() == null
+        && workflow.getParentWorkflow() == null
+        && !(workflow.getParent() instanceof IAction);
+  }
+
+  /** An action is named {@code <workflow>/<action>}, the convention the lineage mapper uses. */
+  private static void fillActionParentFields(
+      LineageContext.Builder ctx,
+      IAction parentAction,
+      IWorkflowEngine<WorkflowMeta> parentWorkflow) {
+    WorkflowMeta parentMeta = parentWorkflow != null ? parentWorkflow.getWorkflowMeta() : null;
+    String parentWorkflowName = parentMeta != null ? parentMeta.getName() : null;
+    String parentJobName =
+        !Utils.isEmpty(parentWorkflowName) && !Utils.isEmpty(parentAction.getName())
+            ? parentWorkflowName + "/" + parentAction.getName()
+            : null;
+    ILogChannel parentLog = parentAction.getLogChannel();
+    fillParentFields(ctx, parentJobName, parentLog != null ? parentLog.getLogChannelId() : null);
+    if (parentJobName != null) {
+      ctx.putAttribute(ATTR_PARENT_WORKFLOW_NAME, parentWorkflowName);
+      ctx.putAttribute(ATTR_PARENT_ACTION_NAME, parentAction.getName());
+    }
+  }
 
   private static void fillFilenameFields(
       LineageContext.Builder ctx, String filename, IVariables variables) {
@@ -135,6 +277,7 @@ public final class LineageRunLifecycleEmitter {
     if (!Utils.isEmpty(action.getPluginId())) {
       ctx.putAttribute("actionPluginId", action.getPluginId());
     }
+    fillDescription(ctx, action.getDescription());
     return ctx;
   }
 
@@ -147,6 +290,9 @@ public final class LineageRunLifecycleEmitter {
       ctx.transformName(combi.transformName);
     }
     ctx.copyNr(String.valueOf(combi.copy));
+    if (combi.transformMeta != null) {
+      fillDescription(ctx, combi.transformMeta.getDescription());
+    }
     return ctx;
   }
 
@@ -167,6 +313,13 @@ public final class LineageRunLifecycleEmitter {
     String pluginId = pipeline.getPluginId();
     if (!Utils.isEmpty(pluginId)) {
       ctx.putAttribute("pipelineEnginePluginId", pluginId);
+    }
+    // A sub-pipeline knows its parent pipeline; a pipeline run by a workflow action knows the
+    // action (its logging parent) and the workflow that owns it. Either way the parent's job name
+    // follows the same <owner>/<job> convention the mapper uses.
+    fillPipelineParentFields(ctx, pipeline);
+    if (meta != null) {
+      fillDescription(ctx, meta.getDescription());
     }
     ctx.putAttribute("errors", String.valueOf(pipeline.getErrors()));
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
@@ -237,6 +390,10 @@ public final class LineageRunLifecycleEmitter {
             .logChannelId(workflow.getLogChannelId())
             .workflowName(name);
     fillFilenameFields(ctx, filename, workflow);
+    fillWorkflowParentFields(ctx, workflow);
+    if (meta != null) {
+      fillDescription(ctx, meta.getDescription());
+    }
     Result result = workflow.getResult();
     ctx.putAttribute("errors", String.valueOf(result != null ? result.getNrErrors() : 0));
     if (result != null) {
@@ -246,12 +403,52 @@ public final class LineageRunLifecycleEmitter {
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
     }
+    LineageContext context = ctx.build();
     LineageHub.getInstance()
         .emit(
             LineageEvent.of(
                 LineageEventKind.RUN_LIFECYCLE,
-                ctx.build(),
+                context,
                 new RunLifecycleLineagePayload(phase, detail)));
+
+    // Like a pipeline's, the hop graph is a fact about the workflow: emitted once, next to STARTED.
+    if (phase == RunLifecyclePhase.STARTED && meta != null) {
+      List<Transition> transitions = workflowTransitions(meta);
+      if (!transitions.isEmpty()) {
+        LineageHub.getInstance()
+            .emit(
+                LineageEvent.of(
+                    LineageEventKind.WORKFLOW_GRAPH,
+                    context,
+                    new PipelineGraphLineagePayload(transitions)));
+      }
+    }
+  }
+
+  /**
+   * The enabled hops of a workflow, in workflow order, as {@code from -> to} transitions between
+   * action names. Every hop counts, whatever its condition: each is a way the workflow can go.
+   */
+  public static List<Transition> workflowTransitions(WorkflowMeta meta) {
+    if (meta == null) {
+      return List.of();
+    }
+    List<Transition> transitions = new ArrayList<>();
+    for (int i = 0; i < meta.nrWorkflowHops(); i++) {
+      WorkflowHopMeta hop = meta.getWorkflowHop(i);
+      if (hop == null
+          || !hop.isEnabled()
+          || hop.getFromAction() == null
+          || hop.getToAction() == null) {
+        continue;
+      }
+      String from = hop.getFromAction().getName();
+      String to = hop.getToAction().getName();
+      if (!Utils.isEmpty(from) && !Utils.isEmpty(to)) {
+        transitions.add(new Transition(from, to));
+      }
+    }
+    return transitions;
   }
 
   /** Terminal failure for a workflow at {@code WorkflowFinish} time. */
@@ -294,9 +491,35 @@ public final class LineageRunLifecycleEmitter {
     return combi != null && combi.transform != null && combi.transform.getErrors() > 0;
   }
 
+  /**
+   * Action {@code STARTED}, emitted by {@link LineageActionStartListener} once the workflow has
+   * cloned the action: the clone's log channel is the action run's identity, the same one its
+   * {@code FINISHED} event, its I/O events and any pipeline it starts refer to. The {@code
+   * WorkflowBeforeActionExecution} extension point fires before that clone exists, which is why the
+   * start is not emitted from there.
+   */
+  public static void emitActionStarted(IWorkflowEngine<WorkflowMeta> wf, IAction action) {
+    if (wf == null || action == null) {
+      return;
+    }
+    LineageContext.Builder ctx = actionContextBuilder(wf, action);
+    LineageHub.getInstance()
+        .emit(
+            LineageEvent.of(
+                LineageEventKind.RUN_LIFECYCLE,
+                ctx.build(),
+                new RunLifecycleLineagePayload(RunLifecyclePhase.STARTED, null)));
+  }
+
+  /**
+   * Action {@code FINISHED} or {@code FAILED}. An action the workflow skipped (an extension point
+   * set {@code executeAction} to false) never ran and has no run of its own, so it emits nothing.
+   */
   public static void emitWorkflowAction(
       WorkflowExecutionExtension extension, RunLifecyclePhase phase, String detail) {
-    if (extension == null || extension.workflow == null) {
+    if (extension == null
+        || extension.workflow == null
+        || Utils.isEmpty(extension.actionLogChannelId)) {
       return;
     }
     IWorkflowEngine<WorkflowMeta> wf = extension.workflow;
@@ -309,26 +532,18 @@ public final class LineageRunLifecycleEmitter {
     LineageContext.Builder ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.ACTION)
+            .logChannelId(extension.actionLogChannelId)
             .workflowName(workflowName)
             .actionName(actionName);
     fillFilenameFields(ctx, filename, wf);
 
     ctx.putAttribute("workflowLogChannelId", wf.getLogChannelId());
-    ctx.putAttribute("executeAction", String.valueOf(extension.executeAction));
 
     if (am != null && am.getAction() != null && am.getAction().getPluginId() != null) {
       ctx.putAttribute("actionPluginId", am.getAction().getPluginId());
     }
-
-    if (phase == RunLifecyclePhase.STARTED) {
-      ctx.logChannelId(wf.getLogChannelId());
-      if (am != null && am.getAction() != null) {
-        ctx.putAttribute(
-            "actionTemplateLogChannelId", am.getAction().getLogChannel().getLogChannelId());
-      }
-    } else {
-      String actionLogId = extension.actionLogChannelId;
-      ctx.logChannelId(!Utils.isEmpty(actionLogId) ? actionLogId : wf.getLogChannelId());
+    if (am != null) {
+      fillDescription(ctx, am.getDescription());
     }
 
     if (extension.actionExecutionResult != null) {

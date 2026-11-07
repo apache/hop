@@ -20,8 +20,10 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Result;
@@ -622,5 +624,15 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
         logError("Error sending error row", e);
       }
     }
+  }
+
+  /** The fields this transform reads from the file; added and passed-through fields are not. */
+  @Override
+  protected Set<String> fileFieldNames() {
+    Set<String> names = new HashSet<>();
+    for (TextFileInputField field : meta.getInputFields()) {
+      names.add(field.getName());
+    }
+    return names;
   }
 }

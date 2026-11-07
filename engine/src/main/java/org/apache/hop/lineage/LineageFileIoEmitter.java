@@ -17,13 +17,18 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
 import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -45,6 +50,34 @@ public final class LineageFileIoEmitter {
    */
   public static boolean isEnabled() {
     return LineageHub.getInstance().isEnabled();
+  }
+
+  /**
+   * Converts a Hop {@link IRowMeta} to the neutral {@link FileIoContentSchema} a file event
+   * carries, so a sink can describe the file's columns (name and Hop type). Returns {@code null}
+   * for a null/empty row shape. Columns have no path locator and no structure tree here: a reader
+   * that knows a hierarchy derives its own.
+   *
+   * @param rowMeta the row shape read from or written to the file
+   * @param formatHint short format name ({@code csv}, {@code json}, …), or null when unknown
+   */
+  public static FileIoContentSchema toContentSchema(IRowMeta rowMeta, String formatHint) {
+    if (rowMeta == null || rowMeta.isEmpty()) {
+      return null;
+    }
+    List<FileIoTabularColumn> columns = new ArrayList<>(rowMeta.size());
+    for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
+      columns.add(
+          new FileIoTabularColumn(
+              valueMeta.getName(),
+              valueMeta.getTypeDesc(),
+              valueMeta.getLength(),
+              valueMeta.getPrecision(),
+              null,
+              null,
+              false));
+    }
+    return new FileIoContentSchema(formatHint == null ? "" : formatHint, columns, List.of());
   }
 
   /**

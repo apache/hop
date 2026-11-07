@@ -62,6 +62,14 @@ public final class LineageHub {
   private volatile BlockingQueue<Object> queue;
 
   private final AtomicLong droppedEvents = new AtomicLong();
+
+  /**
+   * Whether the JVM exit hook is in place. A sink delivers asynchronously, so a process that exits
+   * right after its last run (hop-run calls System.exit) would lose whatever the sink still holds,
+   * typically the runs' terminal events, unless the hub shuts its sinks down on the way out.
+   */
+  private final AtomicBoolean exitHookRegistered = new AtomicBoolean(false);
+
   private final AtomicBoolean running = new AtomicBoolean(false);
 
   /**
@@ -307,6 +315,9 @@ public final class LineageHub {
       thread.setDaemon(true);
       worker = thread;
       thread.start();
+      if (this == INSTANCE && exitHookRegistered.compareAndSet(false, true)) {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown, "Hop-LineageHub-Exit"));
+      }
     }
   }
 
