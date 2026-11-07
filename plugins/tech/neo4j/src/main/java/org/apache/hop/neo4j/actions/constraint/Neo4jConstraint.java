@@ -73,40 +73,37 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     // Success unless something goes wrong, whatever the result of the previous action
     result.setResult(true);
 
-    connection =
-        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
+    try {
+      connection =
+          NeoConnectionUtils.getGraphConnection(getMetadataProvider(), resolve(connectionName));
 
-    if (connection == null) {
-      result.setResult(false);
-      result.increaseErrors(1L);
-      throw new HopException("Please specify a Neo4j connection to use");
-    }
-
-    // Loop over the constraint updates to see which need deleting...
-    //
-    for (ConstraintUpdate constraintUpdate : constraintUpdates) {
-      if (constraintUpdate.getUpdateType() == null) {
-        throw new HopException("Please make sure to always specify a constraint update type");
+      for (ConstraintUpdate constraintUpdate : constraintUpdates) {
+        if (constraintUpdate.getUpdateType() == null) {
+          throw new HopException("Please make sure to always specify a constraint update type");
+        }
       }
-      switch (constraintUpdate.getUpdateType()) {
-        case DROP:
+
+      // Drop the constraints first...
+      //
+      for (ConstraintUpdate constraintUpdate : constraintUpdates) {
+        if (constraintUpdate.getUpdateType() == UpdateType.DROP) {
           dropConstraint(constraintUpdate);
-          break;
-        default:
-          break;
+        }
       }
-    }
 
-    // Create the constraints if needed
-    //
-    for (ConstraintUpdate constraintUpdate : constraintUpdates) {
-      switch (constraintUpdate.getUpdateType()) {
-        case CREATE:
+      // ... then create the constraints
+      //
+      for (ConstraintUpdate constraintUpdate : constraintUpdates) {
+        if (constraintUpdate.getUpdateType() == UpdateType.CREATE) {
           createConstraint(constraintUpdate);
-          break;
-        default:
-          break;
+        }
       }
+    } catch (Exception e) {
+      // The updates before the failing one stay done, the ones after it are not run
+      //
+      logError("Error updating the graph database constraints", e);
+      result.setResult(false);
+      result.setNrErrors(1);
     }
 
     return result;

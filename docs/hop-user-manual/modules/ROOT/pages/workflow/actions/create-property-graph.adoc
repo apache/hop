@@ -125,11 +125,9 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The property graph was created, with 0 errors, and with *Create missing tables?* the tables that didn't exist yet. Tables that already exist are kept as they are. With *Replace an existing graph?* an existing graph with the same name is replaced.
-|False|The number of errors is 1. *Property graph name* is empty or holds a character that can't be quoted (for example `"`), the *Graph model* doesn't exist, the database can't be reached or doesn't support SQL/PGQ, the *Schema* doesn't exist, a table is missing while *Create missing tables?* is unchecked, or the graph already exists while *Replace an existing graph?* is unchecked.
+|False|The number of errors is 1. The *Relational database connection* is empty or doesn't exist, *Property graph name* is empty or holds a character that can't be quoted (for example `"`), the *Graph model* doesn't exist, the database can't be reached or doesn't support SQL/PGQ, the *Schema* doesn't exist, a table is missing while *Create missing tables?* is unchecked, or the graph already exists while *Replace an existing graph?* is unchecked.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
 
-WARNING: A *Relational database connection* that is empty or doesn't exist doesn't make the action false: the workflow stops with an error, and no hop from the action is followed.
-
-NOTE: The tables are created before the property graph. When the `CREATE PROPERTY GRAPH` statement fails, for example on a database without SQL/PGQ, the tables it created stay.
+NOTE: The tables are created before the property graph, and each statement is committed on its own. When a later statement fails, for example `CREATE PROPERTY GRAPH` on a database without SQL/PGQ, the action drops the tables it created in that run. Tables that already existed are kept. If a table can't be dropped, the error names the tables that stay.

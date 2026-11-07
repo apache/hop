@@ -77,9 +77,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|All the statements ran, with 0 errors. An empty script is also true. A query that returns rows is true too: the rows are not passed on.
-|False|The number of errors is 1. A statement fails, for example invalid Cypher, a semicolon at the end of a line instead of on a new line (Neo4j then gets two statements as one), or on Neo4j index or constraint changes and data changes in the same script, in either order (`Tried to execute Write query after executing Schema modification`, or the other way around). See <<Transactions>> for the statements that are kept.
+|False|The number of errors is 1. The *Graph database connection* is empty, doesn't exist, can't be reached or refuses the login, or a statement fails, for example invalid Cypher, a semicolon at the end of a line instead of on a new line (Neo4j then gets two statements as one), or on Neo4j index or constraint changes and data changes in the same script, in either order (`Tried to execute Write query after executing Schema modification`, or the other way around). See <<Transactions>> for the statements that are kept.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-WARNING: A *Graph database connection* that is empty, doesn't exist, can't be reached or refuses the login doesn't make the action false: the workflow stops with an error, and no hop from the action is followed.

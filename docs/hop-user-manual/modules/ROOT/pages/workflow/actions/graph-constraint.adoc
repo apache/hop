@@ -64,11 +64,11 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|All the constraint updates ran, with 0 errors. The drops run first, then the creates. An empty list is also true.
-|False|The action is never false: see the WARNING.
+|False|The number of errors is 1. A constraint update can't be done: the *Graph database connection* is empty, doesn't exist, can't be reached or refuses the login, an update has no *Update type* (a blank type comes back as CREATE when the workflow is loaded from its file), on Neo4j *Constraint name* is empty or a create has no *Object property* (a drop only uses the name), on Memgraph, which identifies a constraint by label and property, *Object name* or *Object property* is empty, or the database refuses the statement, for example NOT_NULL or NODE_KEY on Neo4j Community Edition, or a UNIQUE constraint on data that already has duplicate values. The error is in the log.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
 
-WARNING: When a constraint update can't be done, the workflow stops with an error and no hop from the action is followed: the *Graph database connection* is empty, doesn't exist or can't be reached, an update has no *Update type* (a blank type comes back as CREATE when the workflow is loaded from its file), on Neo4j *Constraint name* is empty or a create has no *Object property* (a drop only uses the name), on Memgraph, which identifies a constraint by label and property, *Object name* or *Object property* is empty, or the database refuses the statement, for example NOT_NULL or NODE_KEY on Neo4j Community Edition, or a UNIQUE constraint on data that already has duplicate values. The updates before it stay done, the ones after it are not run.
+NOTE: The updates run one by one. When one fails, the updates before it stay done and the ones after it are not run. An update without *Update type* is found before any update runs.
 
 NOTE: On Neo4j the action creates with `IF NOT EXISTS` and drops with `IF EXISTS`. Creating a constraint that already exists, or dropping one that doesn't, does nothing and the action is still true. This is also the case when a constraint with the same name exists on another label or property, or an equivalent one exists with another name: nothing is created.
