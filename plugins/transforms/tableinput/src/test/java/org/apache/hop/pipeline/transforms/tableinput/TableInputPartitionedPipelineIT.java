@@ -200,30 +200,61 @@ class TableInputPartitionedPipelineIT {
 
   @Test
   void previewWithSingleCopyReadsWholeTable() throws Exception {
-    // Preview (single clone, like the GUI) reads the whole result even though 4 partitions are
-    // configured: no partition predicates are applied.
+    // Preview with a single copy (like the GUI dialog preview) reads the whole result even though
+    // 4 partitions are configured: a single copy is never sliced by partition.
     List<Long> ids = runPipeline(1, 4, true);
     assertEquals(ROWS, ids.size());
     Set<Long> unique = new HashSet<>(ids);
-    assertEquals(ROWS, unique.size(), "preview must not slice by partition");
+    assertEquals(ROWS, unique.size(), "single-copy preview must not slice by partition");
+    for (long i = 0; i < ROWS; i++) {
+      assertTrue(unique.contains(i), "row " + i + " must be present");
+    }
   }
 
   @Test
-  void multiCopyPreviewReadsWholeTablePerCopyLikeUnpartitioned() throws Exception {
-    // With several copies and preview, every copy reads the whole table (no predicates), exactly
-    // like an unpartitioned multi-copy Table Input run: N copies x full result.
+  void multiCopyPreviewReadsAllRowsExactlyOnce() throws Exception {
+    // Preview must behave like a normal run: copies equal to partitions slice per copy, so the
+    // union is the full result exactly once (not once per copy).
     List<Long> ids = runPipeline(4, 4, true);
-    assertEquals(ROWS * 4L, ids.size());
+    assertEquals(ROWS, ids.size(), "multi-copy preview must not duplicate rows");
+    Set<Long> unique = new HashSet<>(ids);
+    assertEquals(ROWS, unique.size(), "multi-copy preview must not miss rows");
+    for (long i = 0; i < ROWS; i++) {
+      assertTrue(unique.contains(i), "row " + i + " must be present");
+    }
+  }
+
+  @Test
+  void multiCopyPreviewWithExtraCopiesReadsAllRowsExactlyOnce() throws Exception {
+    // 4 configured partitions but 6 copies in preview: copies 4 and 5 read empty ranges, so the
+    // union is still the full result exactly once.
+    List<Long> ids = runPipeline(6, 4, true);
+    assertEquals(ROWS, ids.size(), "extra preview copies must not duplicate rows");
+    Set<Long> unique = new HashSet<>(ids);
+    assertEquals(ROWS, unique.size(), "extra preview copies must not miss rows");
+    for (long i = 0; i < ROWS; i++) {
+      assertTrue(unique.contains(i), "row " + i + " must be present");
+    }
   }
 
   @Test
   void insufficientCopiesFailInNonPreviewRun() {
-    // Fewer copies than configured partitions must fail (preview full-read exempts the single
-    // reader; normal multi-copy runs must slice per copy).
+    // Fewer copies than configured partitions must fail (normal multi-copy runs must slice per
+    // copy; there is no preview exemption for multiple copies).
     assertThrows(
         Exception.class,
         () -> runPipeline(2, 4, false),
         "2 copies for 4 configured partitions must not silently miss rows");
+  }
+
+  @Test
+  void insufficientCopiesFailInPreviewRun() {
+    // Preview does not exempt multiple copies: 2 copies for 4 partitions must fail just like a
+    // normal run, otherwise preview would silently miss rows.
+    assertThrows(
+        Exception.class,
+        () -> runPipeline(2, 4, true),
+        "preview with 2 copies for 4 configured partitions must not silently miss rows");
   }
 
   @Test

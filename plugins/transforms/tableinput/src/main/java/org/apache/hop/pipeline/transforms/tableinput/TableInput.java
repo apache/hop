@@ -505,24 +505,19 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       if (TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
         int copies = getTransformMeta() != null ? getTransformMeta().getCopies(this) : 1;
         int configured = TableInputPartitioning.resolveNumPartitions(meta, variables);
-        // Single copy or preview reads the whole result without any partition predicate, matching
-        // the classic non-partitioned behavior. Multiple copies are only restricted when there are
-        // fewer copies than configured partitions (extra copies read empty ranges).
-        boolean preview = getPipeline() != null && getPipeline().isPreview();
-        if (copies == 1 || preview) {
+        // A single copy reads the whole result without any partition predicate, matching the
+        // classic non-partitioned behavior (the GUI dialog preview also runs a single copy).
+        // Multiple copies are only restricted when there are fewer copies than configured
+        // partitions (extra copies read empty ranges).
+        if (copies == 1) {
           try {
-            // Validate bounds even though no predicate is applied (single copy / preview).
+            // Validate bounds even though no predicate is applied (single reader).
             TableInputPartitioning.resolveSlice(meta, variables, databaseMeta, 0);
           } catch (IllegalArgumentException e) {
             logError("Invalid JDBC partition configuration: " + e.getMessage());
             return false;
           }
-          if (preview) {
-            logBasic(
-                "JDBC partitioning configured but preview reads the whole result ("
-                    + configured
-                    + " partitions configured, single reader)");
-          } else if (isDetailed()) {
+          if (isDetailed()) {
             logDetailed(
                 "JDBC partitioning configured but a single copy reads the whole result ("
                     + configured
