@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 /** DOM helpers for Hop .hpl / .hwf XML. */
 public final class HopXmlSupport {
@@ -81,12 +82,51 @@ public final class HopXmlSupport {
 
   private HopXmlSupport() {}
 
+  /** True when the text is an XML document whose root element is a pipeline or a workflow. */
   public static boolean looksLikeHopXml(String text) {
-    if (text == null || text.isBlank()) {
-      return false;
+    String root = rootElementName(text);
+    return "pipeline".equals(root) || "workflow".equals(root);
+  }
+
+  /**
+   * The name of the first element of an XML document, after the XML declaration, comments and a
+   * document type declaration. Returns {@code null} when the text does not start like XML, for
+   * example Markdown that mentions {@code <pipeline>} in a sentence.
+   */
+  public static String rootElementName(String text) {
+    if (text == null) {
+      return null;
     }
-    String trimmed = text.stripLeading();
-    return trimmed.contains("<pipeline") || trimmed.contains("<workflow");
+    String rest = text.strip();
+    if (rest.startsWith("\uFEFF")) {
+      rest = rest.substring(1);
+    }
+    while (rest.startsWith("<")) {
+      String terminator;
+      if (rest.startsWith("<?")) {
+        terminator = "?>";
+      } else if (rest.startsWith("<!--")) {
+        terminator = "-->";
+      } else if (rest.startsWith("<!")) {
+        terminator = ">";
+      } else {
+        int end = 1;
+        while (end < rest.length() && isNameChar(rest.charAt(end))) {
+          end++;
+        }
+        return end > 1 ? rest.substring(1, end) : null;
+      }
+      int close = rest.indexOf(terminator);
+      if (close < 0) {
+        return null;
+      }
+      rest = rest.substring(close + terminator.length()).stripLeading();
+    }
+    return null;
+  }
+
+  private static boolean isNameChar(char c) {
+    return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':';
   }
 
   /**
@@ -144,6 +184,8 @@ public final class HopXmlSupport {
       factory.setExpandEntityReferences(false);
       factory.setNamespaceAware(false);
       DocumentBuilder builder = factory.newDocumentBuilder();
+      // Without an error handler the parser prints "[Fatal Error] ..." to stderr before throwing.
+      builder.setErrorHandler(new DefaultHandler());
       return builder.parse(new InputSource(new StringReader(xml)));
     } catch (Exception e) {
       return null;

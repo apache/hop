@@ -53,10 +53,10 @@ The Structure strategy selects a parser from the content type:
 |===
 |Content type |Parsed structure
 
-|Auto|Infer from the content type field, or from the text itself.
+|Auto|Infer from the content type field, or from the text itself: a pipeline or workflow when the XML root element is `pipeline` or `workflow`, metadata when the text is a JSON object, AsciiDoc when it starts with a `= Title` document title, otherwise Markdown or AsciiDoc by which has more headings.
 |Plain|Blank-line separated blocks.
-|Markdown|`#` heading levels.
-|AsciiDoc|`=` heading levels.
+|Markdown|`#` heading levels. Lines in a fenced code block are not headings. A skipped level nests under the nearest heading above it, and the closing `#` sequence is not part of the title.
+|AsciiDoc|`=` heading levels. Lines in a delimited block (`====`, `----`, `////`, ...) are not headings.
 |Pipeline|A Hop pipeline (`.hpl`): one section per transform, plus the hops between them.
 |Workflow|A Hop workflow (`.hwf`): one section per action, plus the hops between them.
 |Metadata|A Hop metadata JSON document: an overview plus one section per entry.

@@ -90,4 +90,57 @@ class DocumentParserRegistryTest {
     assertEquals(ContentType.MARKDOWN, parser.getContentType());
     assertEquals(2, parser.parse(markdown).flattenSections().size());
   }
+
+  @Test
+  void markdownMentioningHopXmlIsNotHopXml() {
+    String text = "# Pipelines\n\nA <pipeline> runs transforms, a <workflow> runs actions.";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void detectsHopXmlAfterTheDeclarationAndLicenseComment() {
+    String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--\nlicense\n-->\n";
+    assertEquals(
+        ContentType.PIPELINE,
+        DocumentParserRegistry.detect(header + "<pipeline><info/><workflow_name/></pipeline>"));
+    assertEquals(
+        ContentType.WORKFLOW,
+        DocumentParserRegistry.detect(header + "<workflow><name/></workflow>"));
+  }
+
+  @Test
+  void markdownStartingWithAShortcodeIsNotJson() {
+    String text = "{{< note >}}\nRead this first.\n{{< /note >}}\n\n# Guide\n\nIntro.";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void detectsMetadataJson() {
+    assertEquals(
+        ContentType.METADATA, DocumentParserRegistry.detect("  {\n  \"name\": \"conn\"\n}\n"));
+  }
+
+  @Test
+  void anEqualsLineInMarkdownDoesNotMakeItAsciiDoc() {
+    String text = "# Guide\n\nThe answer:\n= 42\n\n## Next\n\nMore text.";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void asciiDocPageWithShellCommentsIsAsciiDoc() {
+    String page =
+        "////\nLicensed to the ASF\n////\n:documentationPath: /pipeline/\n:language: en_US\n\n"
+            + "[[Install]]\n= Install\n\n== Download\n\n[source,bash]\n----\n# download\n"
+            + "# unzip\n# run\n----\n";
+    assertEquals(ContentType.ASCIIDOC, DocumentParserRegistry.detect(page));
+    // Without the document title the shell comments in the listing block still do not count.
+    String fragment = page.substring(page.indexOf("== Download"));
+    assertEquals(ContentType.ASCIIDOC, DocumentParserRegistry.detect(fragment));
+  }
+
+  @Test
+  void markdownWithCodeFenceCommentsIsMarkdown() {
+    String text = "Intro\n\n## Install\n\n```\n# a\n# b\n```\n";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
 }
