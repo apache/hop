@@ -41,6 +41,10 @@ public final class SurefireReportWriter {
 
   private SurefireReportWriter() {}
 
+  /**
+   * Writes the report. The parent folder of {@code reportFile} must exist: creating it is up to the
+   * caller (the transform's "Create parent folder" option).
+   */
   public static void write(Path reportFile, String suiteName, List<SurefireTestCase> cases)
       throws IOException {
     int tests = cases.size();
@@ -58,11 +62,6 @@ public final class SurefireReportWriter {
           // PASS
         }
       }
-    }
-
-    Path parent = reportFile.getParent();
-    if (parent != null) {
-      Files.createDirectories(parent);
     }
 
     Path tmp = reportFile.resolveSibling(reportFile.getFileName().toString() + ".tmp");

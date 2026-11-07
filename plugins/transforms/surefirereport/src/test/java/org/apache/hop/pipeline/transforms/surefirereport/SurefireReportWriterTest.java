@@ -19,8 +19,10 @@ package org.apache.hop.pipeline.transforms.surefirereport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,8 +53,16 @@ class SurefireReportWriterTest {
   }
 
   @Test
+  void doesNotCreateMissingParentFolder() {
+    Path report = tempDir.resolve("missing/surefile.xml");
+
+    assertThrows(IOException.class, () -> SurefireReportWriter.write(report, "x", List.of()));
+    assertFalse(Files.exists(tempDir.resolve("missing")));
+  }
+
+  @Test
   void writesMixedResultsAndEscapes() throws Exception {
-    Path report = tempDir.resolve("nested/surefile_mixed.xml");
+    Path report = tempDir.resolve("surefile_mixed.xml");
     List<SurefireTestCase> cases = new ArrayList<>();
     cases.add(
         new SurefireTestCase("pass-test", 1.5, Status.PASS, "hello ]]> world", null, null, null));
