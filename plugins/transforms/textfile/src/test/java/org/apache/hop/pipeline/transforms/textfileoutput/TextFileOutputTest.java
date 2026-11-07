@@ -45,6 +45,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
@@ -838,6 +839,76 @@ class TextFileOutputTest {
     assertEquals("abc       ", writeStringField("abc", 10, true, true));
     assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, false, false));
     assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, true, true));
+  }
+
+  @Test
+  void enclosesNonStringFieldWhenValueContainsSeparator() throws Exception {
+    // Vector (and any non-string type) renders text that can embed the CSV separator. Quoting
+    // those fields is required for a comma-separated round trip — see apache/hop#9286.
+    assertEquals("a,\"[0.1,0.2,0.3]\"", writeIdAndRenderedField(",", false));
+  }
+
+  @Test
+  void doesNotEncloseNonStringFieldWhenSeparatorIsAbsentFromValue() throws Exception {
+    assertEquals("a;[0.1,0.2,0.3]", writeIdAndRenderedField(";", false));
+  }
+
+  @Test
+  void enclosureFixDisabledSkipsQuotingNonStringFieldWithSeparator() throws Exception {
+    assertEquals("a,[0.1,0.2,0.3]", writeIdAndRenderedField(",", true));
+  }
+
+  /**
+   * Writes {@code id} as a String and {@code rendered} through a non-String value meta whose {@code
+   * getBinaryString} returns the given text — the same path Vector takes.
+   */
+  private String writeIdAndRenderedField(String separator, boolean enclosureFixDisabled)
+      throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    meta.setEncoding(Const.UTF_8);
+    meta.setSeparator(separator);
+    meta.setEnclosure("\"");
+    meta.setEnclosureForced(false);
+    meta.setEnclosureFixDisabled(enclosureFixDisabled);
+    meta.getFileSettings().setDoNotPadFields(false);
+    meta.getFileSettings().setPadded(false);
+
+    TextFileOutputData data = new TextFileOutputData();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    data.writer = baos;
+    data.binarySeparator = separator.getBytes(StandardCharsets.UTF_8);
+    data.binaryEnclosure = "\"".getBytes(StandardCharsets.UTF_8);
+    data.binaryNewline = "\n".getBytes(StandardCharsets.UTF_8);
+
+    IValueMeta renderedMeta =
+        new ValueMetaBase("vector", IValueMeta.TYPE_NUMBER) {
+          @Override
+          public byte[] getBinaryString(Object object) {
+            return object == null ? null : object.toString().getBytes(StandardCharsets.UTF_8);
+          }
+
+          @Override
+          public boolean isNull(Object object) {
+            return object == null;
+          }
+        };
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("id"));
+    rowMeta.addValueMeta(renderedMeta);
+
+    TextFileOutput transform =
+        new TextFileOutput(
+            transformMockHelper.transformMeta,
+            meta,
+            data,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    transform.writeRow(rowMeta, new Object[] {"a", "[0.1,0.2,0.3]"});
+    String written = baos.toString(StandardCharsets.UTF_8);
+    assertTrue(written.endsWith("\n"), written);
+    return written.substring(0, written.length() - 1);
   }
 
   private String writeStringField(String value, int length, boolean doNotPad, boolean rightPad)
