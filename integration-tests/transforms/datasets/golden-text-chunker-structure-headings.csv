@@ -1,0 +1,75 @@
+case_id,chunk_text,chunk_index,chunk_start_position,total_chunks
+"asciidoc-example-block","Title
+
+Intro.",0,0,3
+"asciidoc-example-block","Title > Section
+
+Before the block.
+
+====
+Example text inside the block.
+====
+
+After the block.",1,17,3
+"asciidoc-example-block","Title > Next
+
+More text.",2,108,3
+"asciidoc-example-block-auto","Title
+
+Intro.",0,0,3
+"asciidoc-example-block-auto","Title > Section
+
+Before the block.
+
+====
+Example text inside the block.
+====
+
+After the block.",1,17,3
+"asciidoc-example-block-auto","Title > Next
+
+More text.",2,108,3
+"markdown-code-fence","Guide
+
+Intro.
+
+```bash
+# download the zip
+curl -O https://example.com/hop.zip
+```
+
+After the block.",0,0,1
+"markdown-skipped-level","Guide
+
+Intro.",0,0,2
+"markdown-skipped-level","Guide > Detail
+
+Detail text.",1,17,2
+"markdown-closing-hashes","Guide
+
+Intro.",0,0,2
+"markdown-closing-hashes","Guide > Install
+
+Install text.",1,19,2
+"auto-markdown-mentions-hop-xml","Pipelines
+
+A <pipeline> runs transforms, a <workflow> runs actions.",0,0,2
+"auto-markdown-mentions-hop-xml","Pipelines > Run
+
+Use hop-run.",1,71,2
+"auto-markdown-starts-with-brace","{{< note >}}
+Read this first.
+{{< /note >}}",0,0,3
+"auto-markdown-starts-with-brace","Guide
+
+Intro.",1,45,3
+"auto-markdown-starts-with-brace","Guide > Next
+
+More text.",2,62,3
+"auto-markdown-equals-line","Guide
+
+The answer:
+= 42",0,0,2
+"auto-markdown-equals-line","Guide > Next
+
+More text.",1,27,2

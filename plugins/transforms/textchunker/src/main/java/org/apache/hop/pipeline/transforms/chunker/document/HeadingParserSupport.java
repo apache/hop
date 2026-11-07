@@ -18,75 +18,76 @@ package org.apache.hop.pipeline.transforms.chunker.document;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.ToIntFunction;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-/** Builds a {@link DocumentNode} tree from heading markers in Markdown or AsciiDoc. */
+/** Builds a {@link DocumentNode} tree from the headings found in Markdown or AsciiDoc. */
 final class HeadingParserSupport {
+
+  /** Deepest heading level kept apart; deeper headings are nested at this level. */
+  private static final int MAX_LEVEL = 6;
 
   private HeadingParserSupport() {}
 
-  static DocumentNode parse(String text, Pattern headingPattern, ToIntFunction<String> levelFn) {
+  /** A heading line: its level (1 = top), title and the offsets of the line in the text. */
+  record Heading(int level, String title, int start, int end) {}
+
+  /** One line of the text without its line terminator, with its offsets in the text. */
+  record Line(String text, int start, int end) {}
+
+  /** Splits text into lines on {@code \n}; a trailing {@code \r} is not part of the line. */
+  static List<Line> lines(String text) {
+    List<Line> lines = new ArrayList<>();
+    int start = 0;
+    while (start <= text.length()) {
+      int newline = text.indexOf('\n', start);
+      int end = newline < 0 ? text.length() : newline;
+      int contentEnd = end > start && text.charAt(end - 1) == '\r' ? end - 1 : end;
+      lines.add(new Line(text.substring(start, contentEnd), start, contentEnd));
+      if (newline < 0) {
+        break;
+      }
+      start = newline + 1;
+    }
+    return lines;
+  }
+
+  static DocumentNode parse(String text, List<Heading> headings) {
     if (text == null || text.isEmpty()) {
       return DocumentNode.root("");
     }
-
-    Matcher matcher = headingPattern.matcher(text);
-    List<HeadingMatch> headings = new ArrayList<>();
-    while (matcher.find()) {
-      headings.add(
-          new HeadingMatch(
-              levelFn.applyAsInt(matcher.group(1)),
-              matcher.group(2).trim(),
-              matcher.start(),
-              matcher.end()));
-    }
-
     if (headings.isEmpty()) {
       return DocumentNode.root(text);
     }
 
-    String preamble = text.substring(0, headings.get(0).start).strip();
+    String preamble = text.substring(0, headings.get(0).start()).strip();
     MutableNode root = new MutableNode("", preamble, 0);
-    MutableNode[] stack = new MutableNode[7];
+    MutableNode[] stack = new MutableNode[MAX_LEVEL + 1];
     stack[0] = root;
 
     for (int i = 0; i < headings.size(); i++) {
-      HeadingMatch heading = headings.get(i);
-      int bodyStart = heading.end;
-      int bodyEnd = (i + 1 < headings.size()) ? headings.get(i + 1).start : text.length();
+      Heading heading = headings.get(i);
+      int bodyStart = heading.end();
+      int bodyEnd = (i + 1 < headings.size()) ? headings.get(i + 1).start() : text.length();
       String body = text.substring(bodyStart, bodyEnd).strip();
 
-      int level = Math.min(Math.max(heading.level, 1), stack.length - 1);
-      MutableNode node = new MutableNode(heading.title, body, heading.start);
+      int level = Math.min(Math.max(heading.level(), 1), MAX_LEVEL);
+      MutableNode node = new MutableNode(heading.title(), body, heading.start());
+      // The parent is the nearest open heading above this level, so a skipped level
+      // (# Guide followed by ### Detail) still nests under Guide.
+      MutableNode parent = root;
+      for (int j = level - 1; j > 0; j--) {
+        if (stack[j] != null) {
+          parent = stack[j];
+          break;
+        }
+      }
+      parent.children.add(node);
       stack[level] = node;
       for (int j = level + 1; j < stack.length; j++) {
         stack[j] = null;
       }
-      MutableNode parent = stack[level - 1];
-      if (parent == null) {
-        parent = stack[0];
-      }
-      parent.children.add(node);
-      stack[level] = node;
     }
 
     return root.toImmutable();
-  }
-
-  private static final class HeadingMatch {
-    private final int level;
-    private final String title;
-    private final int start;
-    private final int end;
-
-    private HeadingMatch(int level, String title, int start, int end) {
-      this.level = level;
-      this.title = title;
-      this.start = start;
-      this.end = end;
-    }
   }
 
   private static final class MutableNode {
