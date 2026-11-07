@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -242,6 +243,81 @@ class TextChunkerTest {
         new TextChunker(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
 
     assertFalse(transform.init(), "a non-positive chunk size must fail init, not drop rows");
+  }
+
+  @Test
+  void initFailsWhenTheOverlapIsNotANumber() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkOverlap("abc");
+
+    TextChunker transform =
+        new TextChunker(
+            helper.transformMeta,
+            meta,
+            new TextChunkerData(),
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+
+    assertFalse(transform.init(), "an overlap of 'abc' must fail init, not become 0");
+  }
+
+  @Test
+  void initFailsWhenTheChunkSizeIsNotANumber() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkSize("abc");
+
+    TextChunker transform =
+        new TextChunker(
+            helper.transformMeta,
+            meta,
+            new TextChunkerData(),
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+
+    assertFalse(transform.init(), "a chunk size of 'abc' must fail init");
+  }
+
+  /**
+   * Input fields named like the chunk metadata fields receive Long values, so the output row
+   * metadata must describe them as Integer (#9285).
+   */
+  @Test
+  void existingMetadataFieldsMatchTheValuesWritten() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkSize("10");
+    meta.setChunkOverlap("0");
+
+    IRowMeta inputRowMeta = rowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("chunk_index"));
+    inputRowMeta.addValueMeta(new ValueMetaString("total_chunks"));
+
+    run(
+        meta,
+        inputRowMeta,
+        List.<Object[]>of(new Object[] {"aaaaaaaa bbbbbbbb cccccccc", "old", "old"}));
+
+    assertTrue(output.size() > 1);
+    for (Object[] row : output) {
+      for (int i = 0; i < outputRowMeta.size(); i++) {
+        IValueMeta valueMeta = outputRowMeta.getValueMeta(i);
+        if (row[i] != null) {
+          assertEquals(
+              valueMeta.getNativeDataTypeClass(),
+              row[i].getClass(),
+              "value of " + valueMeta.getName() + " must match its metadata");
+        }
+      }
+    }
+    assertEquals(IValueMeta.TYPE_INTEGER, outputRowMeta.searchValueMeta("chunk_index").getType());
+    assertEquals(IValueMeta.TYPE_INTEGER, outputRowMeta.searchValueMeta("total_chunks").getType());
   }
 
   /** A multi-byte separator configured on the meta must drive the Paragraph strategy end to end. */
