@@ -42,7 +42,7 @@ Toolbar:
 * *Refresh* — reload the selected connected connection, or the connection list
 * *Edit connection* — open this connection in the Metadata perspective (or a dialog if that perspective is disabled)
 * *Open SQL editor* — new SQL tab for the selected connection (`SELECT * FROM table` when a table is selected)
-* *Generate DDL* — `CREATE TABLE` for the selected table, opened in a SQL tab
+* *Generate DDL* — `CREATE TABLE` for the selected table, with the schema and quoted names where the database needs them, opened in a SQL tab
 * *Preview table* — run `SELECT` with a dialect-aware row limit (the **Query row limit** in Configuration → Plugins → Database Perspective, default 1000)
 * *Show object information* — columns, indexes, and a **DDL** tab with `CREATE TABLE` or `CREATE VIEW`. Views use the catalog definition when the database provides it (`INFORMATION_SCHEMA`, `pg_get_viewdef`, `SHOW CREATE TABLE`, and similar).
 
@@ -59,12 +59,12 @@ Each SQL tab is bound to one connection.
 * If you have a selection, that selection is executed (all statements in it).
 * If you do not, **Run** takes the blank-line-delimited block around the caret, splits on `;`, and runs the statement at the caret. A leftover clause after a semicolon (for example `WHERE` on the next line) is not executed; use **Run all** to send every statement.
 * **Select the executed SQL in the editor** (Configuration perspective, **Plugins → Database Perspective**, on by default) highlights only the statement(s) that were sent.
-* Results appear in a sash under the editor (one tab per query, plus a messages tab). Close hides the results panel; the next run shows it again. **Open in separate window** (left of Close) opens the selected result table in a separate window.
-* Queries are capped at the **Query row limit** (Configuration perspective, **Plugins → Database Perspective**, default 1000). That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` or a SQL `LIMIT` above the option still does not pull the whole table. When the cap is hit, the Messages tab says so. Statement timeout (`+'${HOP_QUERY_PREVIEW_TIMEOUT}'+`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
+* Results appear in a sash under the editor (one tab per query, plus a messages tab). Statements that return rows without being a `SELECT` (`PRAGMA table_info(t)`, `CALL proc()`, `INSERT ... RETURNING id`) get a result tab too. For `INSERT`, `UPDATE`, `DELETE` and `MERGE` the messages tab shows the number of rows affected. Close hides the results panel; the next run shows it again. **Open in separate window** (left of Close) opens the selected result table in a separate window.
+* Queries are capped at the **Query row limit** (Configuration perspective, **Plugins → Database Perspective**, default 1000). That cap is sent to the driver (`setMaxRows`) as well as applied when reading rows, so a `SELECT *` or a SQL `LIMIT` above the option still does not pull the whole table. When a result has more rows than the cap, the Messages tab says so. Statement timeout (`+'${HOP_QUERY_PREVIEW_TIMEOUT}'+`, seconds; `0` is the driver default) applies to both queries and DDL/DML.
 
 image::hop-gui/database/database-perspective-panel.png[SQL editor with query results, Open in separate window, and the operations status line,width="90%"]
 
-Long-running work (connect, listing, SQL, DDL, table info) is shown as a one-line status at the bottom of the right-hand side (`description - connection - Done/Failed - 23 ms`). *Stop* cancels the current operation (`Statement.cancel`). *Expand* opens the operations list; *Minimize* on that list returns to the status line.
+Long-running work (connect, listing, SQL, DDL, table info) is shown as a one-line status at the bottom of the right-hand side (`description - connection - Done/Failed - 23 ms`). *Stop* cancels the current operation (`Statement.cancel`), queries as well as DDL and DML. A driver that cannot interrupt a statement lets it finish; the operation then shows *Done*, because the statement ran and was committed. *Expand* opens the operations list; *Minimize* on that list returns to the status line.
 
 Open and save `.sql` files with the normal File menu. Explorer `.sql` files stay in the File explorer; use the database icon on the content-editor toolbar to open the buffer in this perspective (you pick the connection).
 

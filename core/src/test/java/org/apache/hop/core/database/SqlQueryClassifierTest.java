@@ -261,4 +261,15 @@ class SqlQueryClassifierTest {
     assertFalse(SqlQueryClassifier.isSchemaChange("ALTER SESSION SET x = 1"));
     assertFalse(SqlQueryClassifier.isSchemaChange("DROP INDEX i"));
   }
+
+  @Test
+  void rowChangeVerbs() {
+    assertTrue(SqlQueryClassifier.isRowChange("UPDATE t SET v = 1"));
+    assertTrue(SqlQueryClassifier.isRowChange("-- note\ninsert into t values (1)"));
+    assertTrue(SqlQueryClassifier.isRowChange("WITH s AS (SELECT 1) DELETE FROM t"));
+    assertTrue(SqlQueryClassifier.isRowChange("MERGE INTO t USING s ON t.id = s.id"));
+    assertFalse(SqlQueryClassifier.isRowChange("CREATE TABLE t (id INT)"));
+    assertFalse(SqlQueryClassifier.isRowChange("SELECT 1"));
+    assertFalse(SqlQueryClassifier.isRowChange(""));
+  }
 }

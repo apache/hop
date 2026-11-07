@@ -1106,7 +1106,9 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
             operation.attachDatabase(db);
             db.connect();
             IRowMeta fields = db.getTableFields(qualified);
-            ddl = db.getCreateTableStatement(node.getObjectName(), fields, null, false, null, true);
+            // getTableFields hands out a copy of the cached layout, so quoting it is safe.
+            meta.quoteReservedWords(fields);
+            ddl = db.getCreateTableStatement(qualified, fields, null, false, null, true);
           }
           String sql = ddl;
           host.asyncExec(() -> openGeneratedSql(meta, sql));

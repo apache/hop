@@ -1016,6 +1016,62 @@ class DatabaseTest {
   }
 
   @Test
+  void cancelQueryStopsTheStatementExecStatementIsRunning() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    // The Stop button calls cancelQuery from another thread while execute() blocks.
+    when(statement.execute(anyString()))
+        .thenAnswer(
+            invocation -> {
+              db.cancelQuery();
+              return false;
+            });
+
+    db.execStatement("CREATE TABLE big AS SELECT * FROM src");
+
+    verify(statement).cancel();
+    // Once the statement is done, cancelling does not touch it again.
+    db.cancelQuery();
+    verify(statement, times(1)).cancel();
+  }
+
+  @Test
+  void cancelQueryStopsTheStatementExecuteStatementIsRunning() throws Exception {
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+    when(meta.stripCR(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    Database db = new Database(log, variables, meta);
+    db.setConnection(conn);
+    when(statement.execute(anyString()))
+        .thenAnswer(
+            invocation -> {
+              db.cancelQuery();
+              return false;
+            });
+    when(statement.getUpdateCount()).thenReturn(0);
+
+    db.executeStatement("UPDATE t SET v = 1", 10);
+
+    verify(statement).cancel();
+  }
+
+  @Test
+  void executeStatementReportsTheUpdateCount() throws Exception {
+    ExecutedStatement executed =
+        databaseAffecting(5).executeStatement("UPDATE t SET v = 1 WHERE id < 6", 1000);
+
+    assertFalse(executed.hasRows());
+    assertNull(executed.rowMeta());
+    assertEquals(5, executed.updateCount());
+    assertEquals(5, executed.result().getNrLinesUpdated());
+  }
+
+  @Test
   void execStatementIgnoresStatementsWithoutAffectedRows() throws Exception {
     Result result = databaseAffecting(0).execStatement("MERGE INTO t USING s ON t.id = s.id");
     assertEquals(0, result.getNrLinesUpdated());
