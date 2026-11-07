@@ -198,6 +198,29 @@ class ActionFtpPutExecutionTest {
   }
 
   @Test
+  @DisplayName("\"Remove\" keeps a local file that \"only put new files\" didn't upload")
+  void removeKeepsAFileThatWasSkipped(@TempDir Path localDir) throws Exception {
+    server.writeFile("p1.txt", "the-server-copy");
+    Files.writeString(localDir.resolve("p1.txt"), "the-local-copy");
+    Files.writeString(localDir.resolve("p2.txt"), "new");
+
+    ActionFtpPut put = configure(localDir, true);
+    put.setWildcard(".*\\.txt");
+    put.setRemove(true);
+    Result result = put.execute(new Result(), 0);
+
+    assertTrue(result.isResult());
+    assertEquals(0, result.getNrErrors());
+    assertEquals("the-server-copy", server.readFile("p1.txt"));
+    assertEquals("new", server.readFile("p2.txt"));
+    assertEquals(
+        "the-local-copy",
+        Files.readString(localDir.resolve("p1.txt")),
+        "a file that never reached the server must not be removed locally");
+    assertFalse(Files.exists(localDir.resolve("p2.txt")));
+  }
+
+  @Test
   @DisplayName("Without \"only put new files\" an existing file is replaced")
   void withoutOnlyNewFilesTheFileIsReplaced(@TempDir Path localDir) throws Exception {
     server.writeFile("replaced.txt", "the-server-copy");
