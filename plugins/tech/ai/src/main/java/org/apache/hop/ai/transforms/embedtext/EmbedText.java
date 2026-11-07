@@ -18,6 +18,9 @@ package org.apache.hop.ai.transforms.embedtext;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.exception.NonRetriableException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.ai.engine.AiEmbeddingFactory;
@@ -36,6 +39,15 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
 
   private static final Class<?> PKG = EmbedTextMeta.class;
 
+  /** Used when the batch size is left empty. */
+  static final int DEFAULT_BATCH_SIZE = 16;
+
+  /**
+   * Retries of a failed call, after the first attempt. The same as langchain4j's default, which
+   * this transform switches off so a retry is one log line rather than a stack trace.
+   */
+  static final int MAX_RETRIES = 2;
+
   public EmbedText(
       TransformMeta transformMeta,
       EmbedTextMeta meta,
@@ -52,7 +64,19 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
       logError(BaseMessages.getString(PKG, "EmbedText.Validation.ProviderRequired"));
       return false;
     }
-    data.batchSize = Const.toInt(resolve(meta.getBatchSize()), 16);
+    String batchSize = resolve(meta.getBatchSize());
+    if (Utils.isEmpty(batchSize)) {
+      data.batchSize = DEFAULT_BATCH_SIZE;
+    } else {
+      try {
+        data.batchSize = Integer.parseInt(batchSize.trim());
+      } catch (NumberFormatException e) {
+        // An unset variable stays as ${...}. Running with some other batch size would hide that.
+        logError(
+            BaseMessages.getString(PKG, "EmbedText.Validation.BatchSizeNotANumber", batchSize));
+        return false;
+      }
+    }
     if (data.batchSize < 1) {
       logError(BaseMessages.getString(PKG, "EmbedText.Validation.BatchSizePositive"));
       return false;
@@ -117,11 +141,11 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
     List<Embedding> embeddings = List.of();
     if (!segments.isEmpty()) {
       try {
-        embeddings = data.model.embedAll(segments).content();
+        embeddings = embedWithRetries(segments);
       } catch (Exception e) {
+        String failure = describeFailure(e);
         if (!getTransformMeta().isDoingErrorHandling()) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "EmbedText.Error.Embedding", data.modelName), e);
+          throw new HopException(failure, e);
         }
         // Only the rows that were actually in the request failed. The others carry no text, were
         // never sent, and belong in the output stream.
@@ -130,12 +154,7 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
             putRow(data.outputRowMeta, resize(rows.get(i)));
           } else {
             putError(
-                data.inputRowMeta,
-                rows.get(i),
-                1,
-                e.getMessage(),
-                meta.getInputField(),
-                "EMBEDTEXT001");
+                data.inputRowMeta, rows.get(i), 1, failure, meta.getInputField(), "EMBEDTEXT001");
           }
         }
         return;
@@ -161,12 +180,115 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
   }
 
   /**
-   * True for text that has no content to embed. langchain4j refuses a text segment that trims to
-   * nothing, which takes control characters as well as spaces, and would stop the transform before
-   * the provider is called. Unicode whitespace has nothing to embed either.
+   * Calls the provider, retrying a failure that may pass (no connection, a timeout, a rate limit, a
+   * server error). A refusal that will not change, such as a bad API key or an unknown model, fails
+   * at once.
+   */
+  private List<Embedding> embedWithRetries(List<TextSegment> segments) {
+    long delay = data.retryDelayMillis;
+    for (int attempt = 1; ; attempt++) {
+      try {
+        return data.model.embedAll(segments).content();
+      } catch (RuntimeException e) {
+        if (attempt > MAX_RETRIES || e instanceof NonRetriableException || isStopped()) {
+          throw e;
+        }
+        logBasic(
+            BaseMessages.getString(
+                PKG,
+                "EmbedText.Log.Retrying",
+                describeFailure(e),
+                String.valueOf(attempt),
+                String.valueOf(MAX_RETRIES)));
+        if (isDebug()) {
+          logDebug(Const.getStackTracker(e));
+        }
+        if (!pause(delay)) {
+          throw e;
+        }
+        delay = delay * 3 / 2;
+      }
+    }
+  }
+
+  /** Waits, but gives up as soon as the pipeline is stopped. False when the wait was cut short. */
+  private boolean pause(long millis) {
+    long until = System.currentTimeMillis() + millis;
+    try {
+      while (!isStopped()) {
+        long left = until - System.currentTimeMillis();
+        if (left <= 0) {
+          return true;
+        }
+        Thread.sleep(Math.min(left, 100L));
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    return false;
+  }
+
+  /**
+   * One line saying which model, provider and endpoint failed, and why. The exception of a failed
+   * connection carries no message of its own, so on its own it says nothing about where it went.
+   */
+  String describeFailure(Throwable e) {
+    String endpoint = endpointForMessages(data.baseUrl);
+    return BaseMessages.getString(
+        PKG,
+        "EmbedText.Error.Embedding",
+        data.modelName,
+        data.providerName,
+        Utils.isEmpty(endpoint) ? "?" : endpoint,
+        rootCause(e));
+  }
+
+  /** The deepest cause, as its class name and its message when it has one. */
+  static String rootCause(Throwable e) {
+    Throwable root = e;
+    while (root.getCause() != null && root.getCause() != root) {
+      root = root.getCause();
+    }
+    String message = root.getMessage();
+    String name = root.getClass().getSimpleName();
+    return Utils.isEmpty(message) ? name : name + ": " + message;
+  }
+
+  /**
+   * The base URL without user info, query or fragment, which is where a key would sit if someone
+   * put one in the URL. Error rows can end up in a table, so they must not carry it.
+   */
+  static String endpointForMessages(String baseUrl) {
+    if (Utils.isEmpty(baseUrl)) {
+      return "";
+    }
+    try {
+      URI uri = new URI(baseUrl.trim());
+      if (uri.getHost() == null) {
+        return uri.getRawUserInfo() == null && uri.getRawQuery() == null ? baseUrl.trim() : "";
+      }
+      return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)
+          .toString();
+    } catch (URISyntaxException e) {
+      return "";
+    }
+  }
+
+  /**
+   * True for text that has no content to embed: only whitespace, Unicode spaces (no-break, narrow
+   * no-break, ideographic, ...), control characters and invisible format characters such as the
+   * zero-width space. langchain4j refuses a segment that trims to nothing, which would stop the
+   * transform, and the others would be sent and come back as an embedding that means nothing.
    */
   static boolean hasNothingToEmbed(String text) {
-    return text == null || text.trim().isEmpty() || text.isBlank();
+    return text == null || text.codePoints().allMatch(EmbedText::isInvisible);
+  }
+
+  private static boolean isInvisible(int codePoint) {
+    return Character.isWhitespace(codePoint)
+        || Character.isSpaceChar(codePoint)
+        || Character.isISOControl(codePoint)
+        || Character.getType(codePoint) == Character.FORMAT;
   }
 
   private void withEmbedding(Object[] output, float[] vector) {
@@ -235,6 +357,8 @@ public class EmbedText extends BaseTransform<EmbedTextMeta, EmbedTextData> {
             resolve(meta.getAiProvider()), meta.getModelName(), this, getMetadataProvider());
     data.model = resolved.model();
     data.modelName = resolved.modelName();
+    data.providerName = resolved.providerName();
+    data.baseUrl = resolved.baseUrl();
   }
 
   @Override
