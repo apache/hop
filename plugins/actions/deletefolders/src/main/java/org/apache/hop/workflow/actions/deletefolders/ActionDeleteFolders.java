@@ -151,64 +151,16 @@ public class ActionDeleteFolders extends ActionBase {
     }
 
     if (argFromPrevious && rows != null) {
-      for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
-        if (successConditionBroken) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "ActionDeleteFolders.Error.SuccessConditionBroken", "" + nrErrors));
-          result.setNrErrors(nrErrors);
-          result.setNrLinesDeleted(nrSuccess);
-          return result;
-        }
-        RowMetaAndData resultRow = rows.get(iteration);
-        // Result rows are data. Leave ${...} unresolved, as the other file actions do.
-        String argsPrevious = resultRow.getString(0, null);
-        if (!StringUtils.isBlank(argsPrevious)) {
-          if (deleteFolder(argsPrevious)) {
-            updateSuccess();
-          } else {
-            updateErrors();
-          }
-        } else {
-          // empty filename !
-          logError(BaseMessages.getString(PKG, "ActionDeleteFolders.Error.EmptyLine"));
-        }
+      if (!processPreviousRows(rows, result)) {
+        return result;
       }
     } else if (fileItems != null) {
-      for (FileItem item : fileItems) {
-        if (parentWorkflow.isStopped()) break;
-        if (successConditionBroken) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "ActionDeleteFolders.Error.SuccessConditionBroken", "" + nrErrors));
-          result.setNrErrors(nrErrors);
-          result.setNrLinesDeleted(nrSuccess);
-          return result;
-        }
-        String realFileName = resolve(item.getFileName());
-        if (!StringUtils.isBlank(realFileName)) {
-          if (deleteFolder(realFileName)) {
-            updateSuccess();
-          } else {
-            updateErrors();
-          }
-        } else {
-          // empty filename !
-          logError(BaseMessages.getString(PKG, "ActionDeleteFolders.Error.EmptyLine"));
-        }
+      if (!processConfiguredFolders(result)) {
+        return result;
       }
     }
 
-    if (isDetailed()) {
-      logDetailed("=======================================");
-      logDetailed(
-          BaseMessages.getString(PKG, "ActionDeleteFolders.Log.Info.NrError", "" + nrErrors));
-      logDetailed(
-          BaseMessages.getString(
-              PKG, "ActionDeleteFolders.Log.Info.NrDeletedFolders", "" + nrSuccess));
-      logDetailed("=======================================");
-    }
-
+    logExecutionSummary();
     result.setNrErrors(nrErrors);
     result.setNrLinesDeleted(nrSuccess);
     if (getSuccessStatus()) {
@@ -218,10 +170,73 @@ public class ActionDeleteFolders extends ActionBase {
     return result;
   }
 
+  /**
+   * @return false when the success condition broke mid-list and the action should stop immediately
+   */
+  private boolean processPreviousRows(List<RowMetaAndData> rows, Result result)
+      throws HopException {
+    for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
+      if (successConditionBroken) {
+        return stopAfterBrokenCondition(result);
+      }
+      // Result rows are data. Leave ${...} unresolved, as the other file actions do.
+      processFolderName(rows.get(iteration).getString(0, null));
+    }
+    return true;
+  }
+
+  /**
+   * @return false when the success condition broke mid-list and the action should stop immediately
+   */
+  private boolean processConfiguredFolders(Result result) {
+    for (FileItem item : fileItems) {
+      if (parentWorkflow.isStopped()) {
+        break;
+      }
+      if (successConditionBroken) {
+        return stopAfterBrokenCondition(result);
+      }
+      processFolderName(resolve(item.getFileName()));
+    }
+    return true;
+  }
+
+  private void processFolderName(String folderName) {
+    if (StringUtils.isBlank(folderName)) {
+      logError(BaseMessages.getString(PKG, "ActionDeleteFolders.Error.EmptyLine"));
+      return;
+    }
+    if (deleteFolder(folderName)) {
+      nrSuccess++;
+    } else {
+      updateErrors();
+    }
+  }
+
+  private boolean stopAfterBrokenCondition(Result result) {
+    logError(
+        BaseMessages.getString(
+            PKG, "ActionDeleteFolders.Error.SuccessConditionBroken", "" + nrErrors));
+    result.setNrErrors(nrErrors);
+    result.setNrLinesDeleted(nrSuccess);
+    return false;
+  }
+
+  private void logExecutionSummary() {
+    if (!isDetailed()) {
+      return;
+    }
+    logDetailed("=======================================");
+    logDetailed(BaseMessages.getString(PKG, "ActionDeleteFolders.Log.Info.NrError", "" + nrErrors));
+    logDetailed(
+        BaseMessages.getString(
+            PKG, "ActionDeleteFolders.Log.Info.NrDeletedFolders", "" + nrSuccess));
+    logDetailed("=======================================");
+  }
+
   private void updateErrors() {
     nrErrors++;
     if (checkIfSuccessConditionBroken()) {
-      // Success condition was broken
       successConditionBroken = true;
     }
   }
@@ -231,61 +246,49 @@ public class ActionDeleteFolders extends ActionBase {
         || (nrErrors >= nrLimitFolders && getSuccessCondition() == SuccessCondition.ERRORS_LESS);
   }
 
-  private void updateSuccess() {
-    nrSuccess++;
-  }
-
   private boolean getSuccessStatus() {
+    // ERRORS_LESS matches the UI label "less than" (strict <), same as Move files (#9175 / #9264).
     return (nrErrors == 0 && getSuccessCondition() == SuccessCondition.NO_ERRORS)
         || (nrSuccess >= nrLimitFolders
             && getSuccessCondition() == SuccessCondition.AT_LEAST_X_FOLDERS_DELETED)
-        || (nrErrors <= nrLimitFolders && getSuccessCondition() == SuccessCondition.ERRORS_LESS);
+        || (nrErrors < nrLimitFolders && getSuccessCondition() == SuccessCondition.ERRORS_LESS);
   }
 
   private boolean deleteFolder(String folderName) {
-    boolean rcode = false;
-
     try (FileObject folder = HopVfs.getFileObject(folderName, getVariables())) {
-
-      if (folder.exists()) {
-        // the file or folder exists
-        if (folder.getType() == FileType.FOLDER) {
-          // It's a folder
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "ActionDeleteFolders.ProcessingFolder", folderName));
-          }
-          // Delete Files
-          int count = folder.delete(new TextFileSelector());
-
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "ActionDeleteFolders.TotalDeleted", folderName, String.valueOf(count)));
-          }
-          rcode = true;
-        } else {
-          // Error...This file is not a folder!
-          logError(
-              BaseMessages.getString(
-                  PKG, "ActionDeleteFolders.Error.NotFolder", folder.toString()));
-        }
-      } else {
-        // File already deleted, no reason to try to delete it
+      if (!folder.exists()) {
         if (isBasic()) {
           logBasic(
               BaseMessages.getString(PKG, "ActionDeleteFolders.FolderAlreadyDeleted", folderName));
         }
-        rcode = true;
+        return true;
       }
+      if (folder.getType() != FileType.FOLDER) {
+        logError(
+            BaseMessages.getString(PKG, "ActionDeleteFolders.Error.NotFolder", folder.toString()));
+        return false;
+      }
+      return deleteExistingFolder(folder, folderName);
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
               PKG, "ActionDeleteFolders.CouldNotDelete", folderName, e.getMessage()),
           e);
+      return false;
     }
+  }
 
-    return rcode;
+  private boolean deleteExistingFolder(FileObject folder, String folderName) throws Exception {
+    if (isDetailed()) {
+      logDetailed(BaseMessages.getString(PKG, "ActionDeleteFolders.ProcessingFolder", folderName));
+    }
+    int count = folder.delete(new TextFileSelector());
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionDeleteFolders.TotalDeleted", folderName, String.valueOf(count)));
+    }
+    return true;
   }
 
   @Override

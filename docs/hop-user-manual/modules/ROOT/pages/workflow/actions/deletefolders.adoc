@@ -54,4 +54,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Lines deleted|The number of folders processed: deleted, or already missing.
 |===
 
-NOTE: With *When number of errors less than*, the action stops and is false as soon as the number of errors reaches *Limit*, but when the last folder brings it to that number, the action is still true.
+NOTE: With *When number of errors less than*, the action stops and is false as soon as the number of errors reaches *Limit* (strictly fewer errors than the limit is required for success).
