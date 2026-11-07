@@ -184,11 +184,13 @@ public class ActionDatabricksJobWait extends ActionBase implements Cloneable, IA
             && "CANCELED".equalsIgnoreCase(status.getResultState())) {
           result.setNrErrors(1);
           result.setResult(false);
-          logError(
+          String msg =
               BaseMessages.getString(
                   PKG,
                   "ActionDatabricksJobWait.Error.Canceled",
-                  Const.NVL(status.getStateMessage(), "")));
+                  Const.NVL(status.getStateMessage(), ""));
+          setResultVariable(resultVariableError, msg);
+          logError(msg);
         } else {
           result.setNrErrors(1);
           result.setResult(false);

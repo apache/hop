@@ -143,6 +143,10 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
             includingMetadata,
             generateHtml,
             removeMarkdown);
+    // The result of this action is its own: true when the documentation is written.
+    // DocBuilder sets it back to false (and 1 error) when that fails.
+    //
+    prevResult.setResult(true);
     docBuilder.buildDocumentation(prevResult);
     return prevResult;
   }

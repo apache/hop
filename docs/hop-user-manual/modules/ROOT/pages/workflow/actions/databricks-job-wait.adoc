@@ -53,7 +53,7 @@ For “submit and block on this step,” use Job Run’s built-in **Wait for com
 |Poll interval (seconds)
 |Delay between status checks (default 15, at least 1)
 
-|Cancel Databricks run if workflow is stopped
+|Cancel Databricks run if workflow is stopped or the timeout is reached
 |If checked, calls `jobs/runs/cancel` when the parent workflow stops, and also when the timeout is reached
 
 |Result variables
@@ -79,4 +79,4 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |===
 
-NOTE: After every status check the action sets the result variables for the Job ID, the Run ID, the status (the result state, like `SUCCESS` or `FAILED`, once the run is `TERMINATED`, the life cycle state before that) and the run page URL (the Job ID and the URL only when Databricks returns them), in its workflow and in every parent workflow. The error variable is emptied when the action starts and holds the error message when the action is false, except for a canceled run: then it stays empty.
+NOTE: After every status check the action sets the result variables for the Job ID, the Run ID, the status (the result state, like `SUCCESS` or `FAILED`, once the run is `TERMINATED`, the life cycle state before that) and the run page URL (the Job ID and the URL only when Databricks returns them), in its workflow and in every parent workflow. The error variable is emptied when the action starts and holds the error message when the action is false.

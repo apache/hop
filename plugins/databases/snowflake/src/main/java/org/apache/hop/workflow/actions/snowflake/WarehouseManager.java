@@ -305,6 +305,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult(validate());
     if (!result.isResult()) {
+      result.setNrErrors(1);
       return result;
     }
     DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
@@ -344,12 +345,13 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     } catch (Exception ex) {
       logError("Error managing warehouse", ex);
       result.setResult(false);
+      result.setNrErrors(1);
     }
 
     return result;
   }
 
-  private String getDropSQL() {
+  String getDropSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append("DROP WAREHOUSE ");
     if (!failIfNotExists) {
@@ -359,7 +361,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getResumeSQL() {
+  String getResumeSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
@@ -369,7 +371,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getSuspendSQL() {
+  String getSuspendSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
@@ -379,7 +381,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getCreateSQL() {
+  String getCreateSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append("CREATE ");
     if (replace) {
@@ -389,7 +391,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     if (!failIfExists && !replace) {
       sql.append("IF NOT EXISTS ");
     }
-    sql.append(warehouseName).append(" WITH ");
+    sql.append(resolve(warehouseName)).append(" WITH ");
 
     if (!StringUtil.isEmpty(resolve(warehouseSize))) {
       sql.append("WAREHOUSE_SIZE = '").append(resolve(warehouseSize)).append("' ");
@@ -426,13 +428,13 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getAlterSQL() {
+  String getAlterSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
       sql.append(CONST_IF_EXISTS);
     }
-    sql.append(warehouseName).append(" SET ");
+    sql.append(resolve(warehouseName)).append(" SET ");
 
     if (!StringUtil.isEmpty(resolve(warehouseSize))) {
       sql.append("WAREHOUSE_SIZE = '").append(resolve(warehouseSize)).append("' ");
