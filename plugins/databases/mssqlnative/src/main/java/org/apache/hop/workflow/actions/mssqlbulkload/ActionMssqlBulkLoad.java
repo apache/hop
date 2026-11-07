@@ -249,7 +249,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
             // User has specified a connection, We can continue ...
             String pluginId = dbMeta.getPluginId();
             if (!("MSSQL".equals(pluginId) || "MSSQLNATIVE".equals(pluginId))) {
-
+              result.setNrErrors(1);
               logError(
                   BaseMessages.getString(
                       PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", dbMeta.getDatabaseName()));
@@ -274,6 +274,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
                 String fieldTerminator = getRealFieldTerminator();
                 if (Utils.isEmpty(fieldTerminator)
                     && (dataFileType.equals("char") || dataFileType.equals("widechar"))) {
+                  result.setNrErrors(1);
                   logError(
                       BaseMessages.getString(
                           PKG, "ActionMssqlBulkLoad.Error.FieldTerminatorMissing"));
@@ -286,16 +287,15 @@ public class ActionMssqlBulkLoad extends ActionBase {
                 }
                 // Check Specific Code page
                 if (codePage.equals("Specific")) {
-                  String realCodePage = resolve(codePage);
-                  if (specificCodePage.length() < 0) {
+                  String realCodePage = resolve(specificCodePage);
+                  if (Utils.isEmpty(realCodePage)) {
+                    result.setNrErrors(1);
                     logError(
                         BaseMessages.getString(
                             PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageMissing"));
                     return result;
-
-                  } else {
-                    useCodepage = "CODEPAGE = '" + realCodePage + "'";
                   }
+                  useCodepage = "CODEPAGE = '" + realCodePage + "'";
                 } else {
                   useCodepage = "CODEPAGE = '" + codePage + "'";
                 }
@@ -308,6 +308,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
                     // The error file is created when the command is executed. An error occurs if
                     // the file already
                     // exists.
+                    result.setNrErrors(1);
                     logError(
                         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.ErrorFileExists"));
                     return result;
@@ -338,7 +339,10 @@ public class ActionMssqlBulkLoad extends ActionBase {
 
                 // End file at
                 if (endFile > 0) {
-                  takeFirstNbrLines = "LASTROW=" + endFile;
+                  if (!takeFirstNbrLines.isEmpty()) {
+                    takeFirstNbrLines += ",";
+                  }
+                  takeFirstNbrLines += "LASTROW=" + endFile;
                 }
 
                 // Truncate table?

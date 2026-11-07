@@ -80,9 +80,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The file was loaded, with 0 errors.
-|False|The file doesn't exist, the table doesn't exist, *Source File name* is empty, the connection is unknown or can't be opened, or SQL Server refuses the load (for example a value that doesn't fit its column). The number of errors is 1.
-
-The action is also false, but with 0 errors, when the connection is not a Microsoft SQL Server connection, when *Fields terminated by* is empty while *Data file type* is char or widechar, and when *Error file* exists while *Add date time* is unchecked. The reason is logged as an error.
+|False|The file doesn't exist, the table doesn't exist, *Source File name* is empty, the connection is unknown or can't be opened, the connection is not a Microsoft SQL Server connection, *Fields terminated by* is empty while *Data file type* is char or widechar, *Codepage* is Specific while *Specific codepage* is empty, *Error file* exists while *Add date time* is unchecked, or SQL Server refuses the load (for example a value that doesn't fit its column). The number of errors is 1.
 |Result files|The source file is added when *Add file to result filenames* is checked and the load succeeded. Otherwise passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
@@ -91,6 +89,4 @@ NOTE: SQL Server reads the file, so *Source File name* must be a path that the d
 
 NOTE: When the load fails on a row, the rows before it can stay in the table: with the default options, a value that doesn't fit its column on row 2 left row 1 loaded.
 
-NOTE: SQL Server on Linux only accepts the RAW *Codepage*: the default, OEM, makes the load fail there. In this version, *Specific* sends the word `Specific` to SQL Server instead of the value of *Specific codepage*, so the load fails.
-
-NOTE: When both *Start at line* and *End at line* are set, only *End at line* is used: the load starts at the first line.
+NOTE: SQL Server on Linux only accepts the RAW *Codepage*: the default, OEM, makes the load fail there.
