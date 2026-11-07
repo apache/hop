@@ -105,9 +105,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The statement ran, with 0 errors.
-|False|The action doesn't count errors: the number of errors stays 0. *Connection* is empty, no *Action* is selected, for *Create warehouse* *Max cluster size* is not a positive number or *Min cluster size* or *Auto suspend (minutes)* is negative or not a number, the connection doesn't exist or can't connect, or Snowflake refuses the statement, for example when the warehouse exists and *Fail if warehouse exists* is checked, or doesn't exist and *Fail if warehouse does not exist* is checked.
+|False|The number of errors is 1. *Connection* is empty, no *Action* is selected, for *Create warehouse* *Max cluster size* is not a positive number or *Min cluster size* or *Auto suspend (minutes)* is negative or not a number, the connection doesn't exist or can't connect, or Snowflake refuses the statement, for example when the warehouse exists and *Fail if warehouse exists* is checked, or doesn't exist and *Fail if warehouse does not exist* is checked.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-NOTE: *Create warehouse* and *Alter warehouse* use *Warehouse name* as it is typed: variables in the name are not resolved, unlike for *Drop warehouse*, *Resume warehouse* and *Suspend warehouse*.

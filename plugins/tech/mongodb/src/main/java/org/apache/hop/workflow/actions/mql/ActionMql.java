@@ -28,6 +28,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.resource.ResourceEntry;
@@ -161,23 +162,14 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
         mqlToExecute = resolve(mqlToExecute);
       }
 
-      final String finalMql = mqlToExecute;
+      final List<Document> commands = parseCommands(mqlToExecute);
 
       wrapper.perform(
           dbName,
           db -> {
-            String trimmed = finalMql.trim();
-            // Multiple instructions
-            if (trimmed.startsWith("[")) {
-              List<Document> commands =
-                  org.bson.Document.parse("{ \"array\": " + trimmed + " }")
-                      .getList("array", Document.class);
-              for (Document cmd : commands) {
-                db.runCommand(cmd);
-              }
-            } else {
-              // One instruction
-              db.runCommand(Document.parse(trimmed));
+            for (int i = 0; i < commands.size(); i++) {
+              Document reply = db.runCommand(commands.get(i));
+              checkReply(reply, i + 1, commands.size());
             }
             return null;
           });
@@ -199,6 +191,72 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
     result.setResult(result.getNrErrors() == 0);
     return result;
+  }
+
+  /**
+   * Parse the commands to run. A JSON array holds one command per element. Anything else is read as
+   * a list of comma-separated documents, so that text after the first document is either run or
+   * reported as invalid JSON, never silently ignored.
+   *
+   * @param mqlToExecute the JSON text
+   * @return the commands, in the order they are to be run
+   * @throws HopException when there is no command
+   */
+  static List<Document> parseCommands(String mqlToExecute) throws HopException {
+    String trimmed = mqlToExecute == null ? "" : mqlToExecute.trim();
+    if (trimmed.isEmpty()) {
+      throw new HopException(BaseMessages.getString(PKG, "ActionMQL.NoCommandFound"));
+    }
+    String array = trimmed.startsWith("[") ? trimmed : "[" + trimmed + "]";
+    Document wrapper = Document.parse("{ \"array\": " + array + " }");
+    if (wrapper.size() != 1) {
+      // For example: [ {...} ], "x": 1
+      throw new HopException(BaseMessages.getString(PKG, "ActionMQL.TextAfterCommands"));
+    }
+    List<Document> commands = wrapper.getList("array", Document.class);
+    if (commands.isEmpty()) {
+      throw new HopException(BaseMessages.getString(PKG, "ActionMQL.NoCommandFound"));
+    }
+    return commands;
+  }
+
+  /**
+   * A command that MongoDB accepts can still fail to write documents. Those errors are in the reply
+   * (writeErrors, writeConcernError) while ok is 1, so runCommand() does not throw.
+   *
+   * @param reply the reply of the command
+   * @param commandNr the number of the command (1-based)
+   * @param nrCommands the number of commands
+   * @throws MongoDbException when the reply holds write errors or a write concern error
+   */
+  static void checkReply(Document reply, int commandNr, int nrCommands) throws MongoDbException {
+    if (reply == null) {
+      return;
+    }
+    List<Document> writeErrors = reply.getList("writeErrors", Document.class);
+    if (writeErrors != null && !writeErrors.isEmpty()) {
+      Document first = writeErrors.get(0);
+      throw new MongoDbException(
+          BaseMessages.getString(
+              PKG,
+              "ActionMQL.WriteErrors",
+              Integer.toString(commandNr),
+              Integer.toString(nrCommands),
+              Integer.toString(writeErrors.size()),
+              String.valueOf(first.get("code")),
+              first.getString("errmsg")));
+    }
+    Document writeConcernError = reply.get("writeConcernError", Document.class);
+    if (writeConcernError != null) {
+      throw new MongoDbException(
+          BaseMessages.getString(
+              PKG,
+              "ActionMQL.WriteConcernError",
+              Integer.toString(commandNr),
+              Integer.toString(nrCommands),
+              String.valueOf(writeConcernError.get("code")),
+              writeConcernError.getString("errmsg")));
+    }
   }
 
   @Override

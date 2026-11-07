@@ -47,7 +47,8 @@ public final class DatabricksRunWaiter {
   /**
    * @param timeoutSec 0 or negative = no timeout
    * @param pollSec minimum 1 second between polls
-   * @param cancelOnStop if true, call cancelRun when stopped or on timeout
+   * @param cancelOnStop if true, call cancelRun when the workflow is stopped and when the timeout
+   *     is reached
    */
   public static DatabricksRunStatus waitFor(
       DatabricksJobsClient client,
