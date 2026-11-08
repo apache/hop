@@ -115,6 +115,13 @@ NOTE: A signature stops working once it expires, and Hop reports the resulting f
 authentication error. Renew the token, or use `Managed Identity` where you want credentials that
 rotate for you.
 
+== Appending to a file
+
+Options such as *Append* in the Text file output transform add to an existing file.
+Hop adds the new bytes as extra blocks of the blob and commits them after the existing ones, so the existing content is not uploaded again.
+A blob that was uploaded in a single request has no blocks yet, so its content is uploaded again with the new bytes the first time.
+If the file changes while the append runs, the append fails instead of losing data.
+
 == Usage and testing
 
 To test if the configuration works you can simply upload a small CSV file in an Azure Storage folder and then use File/Open in Hop GUI.
