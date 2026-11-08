@@ -1,0 +1,49 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+services:
+  integration_test_languagemodelchat_api_keys:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      llmstub:
+        condition: service_healthy
+    links:
+      - llmstub
+    # The keys the transform should pick up from the environment when a pipeline leaves the key
+    # field at its default. The stub echoes back whichever one it receives.
+    environment:
+      - OPENAI_API_KEY=sk-it-openai
+      - MISTRAL_API_KEY=sk-it-mistral
+      - ANTHROPIC_API_KEY=sk-it-anthropic
+      - HF_ACCESS_TOKEN=hf-it-token
+
+  # Answers chat requests for every provider with the API key it received, see llm-stub.conf.
+  llmstub:
+    image: nginx:alpine
+    hostname: llmstub
+    volumes:
+      - ./resource/languagemodelchat/llm-stub.conf:/etc/nginx/nginx.conf:ro
+    # 127.0.0.1 rather than localhost: busybox wget resolves localhost to ::1 first, and this
+    # server listens on IPv4 only.
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s

@@ -72,6 +72,23 @@ public class LanguageModelChatMeta
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "LanguageModelChatMeta.Widgets";
   public static final String WIDGET_AI_PROVIDER = "0100-ai-provider";
 
+  /**
+   * The environment variables the key fields default to. Pipelines written before the defaults
+   * became variables hold these names as the key itself; see {@code
+   * LanguageModelFacade#resolveApiKey}.
+   */
+  public static final String OPENAI_API_KEY_VARIABLE = "OPENAI_API_KEY";
+
+  public static final String HUGGING_FACE_ACCESS_TOKEN_VARIABLE = "HF_ACCESS_TOKEN";
+  public static final String MISTRAL_API_KEY_VARIABLE = "MISTRAL_API_KEY";
+  public static final String ANTHROPIC_API_KEY_VARIABLE = "ANTHROPIC_API_KEY";
+
+  public static final String DEFAULT_OPENAI_API_KEY = "${" + OPENAI_API_KEY_VARIABLE + "}";
+  public static final String DEFAULT_HUGGING_FACE_ACCESS_TOKEN =
+      "${" + HUGGING_FACE_ACCESS_TOKEN_VARIABLE + "}";
+  public static final String DEFAULT_MISTRAL_API_KEY = "${" + MISTRAL_API_KEY_VARIABLE + "}";
+  public static final String DEFAULT_ANTHROPIC_API_KEY = "${" + ANTHROPIC_API_KEY_VARIABLE + "}";
+
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.AI_PROVIDER)
   @GuiWidgetElement(
       id = WIDGET_AI_PROVIDER,
@@ -97,7 +114,7 @@ public class LanguageModelChatMeta
   @HopMetadataProperty private String openAiBaseUrl = "https://api.openai.com/v1";
 
   @HopMetadataProperty(password = true)
-  private String openAiApiKey = "OPENAI_API_KEY";
+  private String openAiApiKey = DEFAULT_OPENAI_API_KEY;
 
   @HopMetadataProperty private String openAiOrganizationId;
   @HopMetadataProperty private String openAiModelName = OPENAI_GPT_6_ASTRA.toString();
@@ -123,7 +140,7 @@ public class LanguageModelChatMeta
 
   // HuggingFace
   @HopMetadataProperty(password = true)
-  private String huggingFaceAccessToken = "HF_ACCESS_TOKEN";
+  private String huggingFaceAccessToken = DEFAULT_HUGGING_FACE_ACCESS_TOKEN;
 
   @HopMetadataProperty
   private String huggingFaceModelId = HUGGING_FACE_LLAMA3_3_70B_INSTRUCT.toString();
@@ -138,7 +155,7 @@ public class LanguageModelChatMeta
   @HopMetadataProperty private String mistralBaseUrl = "https://api.mistral.ai/v1";
 
   @HopMetadataProperty(password = true)
-  private String mistralApiKey = "MISTRAL_API_KEY";
+  private String mistralApiKey = DEFAULT_MISTRAL_API_KEY;
 
   @HopMetadataProperty private String mistralModelName = MISTRAL_LARGE_LATEST.toString();
   @HopMetadataProperty private Double mistralTemperature;
@@ -175,7 +192,7 @@ public class LanguageModelChatMeta
   @HopMetadataProperty private String anthropicBaseUrl = "https://api.anthropic.com/v1/";
 
   @HopMetadataProperty(password = true)
-  private String anthropicApiKey = "ANTHROPIC_API_KEY";
+  private String anthropicApiKey = DEFAULT_ANTHROPIC_API_KEY;
 
   @HopMetadataProperty private String anthropicVersion = "2023-06-01";
 
@@ -209,7 +226,7 @@ public class LanguageModelChatMeta
     parallelism = 1;
 
     openAiBaseUrl = "https://api.openai.com/v1";
-    openAiApiKey = "OPENAI_API_KEY";
+    openAiApiKey = DEFAULT_OPENAI_API_KEY;
     openAiModelName = OPENAI_GPT_5_6_LUNA.toString();
     openAiResponseFormat = "text";
     openAiTemperature = 0.7;
@@ -221,14 +238,14 @@ public class LanguageModelChatMeta
     openAiLogRequests = false;
     openAiLogResponses = false;
 
-    huggingFaceAccessToken = "HF_ACCESS_TOKEN";
+    huggingFaceAccessToken = DEFAULT_HUGGING_FACE_ACCESS_TOKEN;
     huggingFaceModelId = HUGGING_FACE_LLAMA3_3_70B_INSTRUCT.toString();
     huggingFaceTimeout = 15;
     huggingFaceReturnFullText = false;
     huggingFaceWaitForModel = true;
 
     mistralBaseUrl = "https://api.mistral.ai/v1";
-    mistralApiKey = "MISTRAL_API_KEY";
+    mistralApiKey = DEFAULT_MISTRAL_API_KEY;
     mistralModelName = MISTRAL_LARGE_LATEST.toString();
     mistralSafePrompt = true;
     mistralTimeout = 60;
@@ -242,7 +259,7 @@ public class LanguageModelChatMeta
     ollamaMaxRetries = 3;
 
     anthropicBaseUrl = "https://api.anthropic.com/v1/";
-    anthropicApiKey = "ANTHROPIC_API_KEY";
+    anthropicApiKey = DEFAULT_ANTHROPIC_API_KEY;
     anthropicVersion = "2023-06-01";
     anthropicModelName = ANTHROPIC_CLAUDE_HAIKU_4_5.toString();
     anthropicMaxTokens = 1024;

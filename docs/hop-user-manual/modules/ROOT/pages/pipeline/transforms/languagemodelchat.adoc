@@ -175,6 +175,11 @@ Below is a table detailing parameters specific to individual language model APIs
 | Unique access value used to authenticate and authorise access to the endpoint service. The value
 is masked in the dialog and stored encrypted in the pipeline, unless it is a variable such as
 `+'${OPENAI_API_KEY}'+`, which is stored as it stands so it can be resolved at run time.
+The field defaults to the provider's own variable: `+'${OPENAI_API_KEY}'+`, `+'${ANTHROPIC_API_KEY}'+`,
+`+'${MISTRAL_API_KEY}'+` or `+'${HF_ACCESS_TOKEN}'+`. That variable is read from the Hop variables,
+and from the operating system environment variable of the same name when no Hop variable defines
+it. Pipelines saved by older versions hold the bare name, such as `OPENAI_API_KEY`, which is read
+the same way. Any other variable that is not set sends no key, and so does an empty field.
 
 |Model Name
 |Identifies which specific model to use.

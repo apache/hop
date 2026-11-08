@@ -20,13 +20,16 @@ package org.apache.hop.pipeline.transforms.languagemodelchat.internals;
 import static com.squareup.moshi.Types.newParameterizedType;
 import static dev.langchain4j.data.message.UserMessage.userMessage;
 import static java.lang.String.format;
-import static java.lang.System.getenv;
 import static java.time.Duration.ofSeconds;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.ANTHROPIC_API_KEY_VARIABLE;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.HUGGING_FACE_ACCESS_TOKEN_VARIABLE;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.MISTRAL_API_KEY_VARIABLE;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.OPENAI_API_KEY_VARIABLE;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.Message.toChatMessages;
 
 import com.squareup.moshi.JsonAdapter;
@@ -45,6 +48,7 @@ import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
@@ -57,10 +61,18 @@ public class LanguageModelFacade {
   private final JsonAdapter<List<BaseMessage>> outputJsonAdapter;
   private final LanguageModel lm;
   private final IVariables variables;
+  private final UnaryOperator<String> environment;
   private ChatModel model;
 
   public LanguageModelFacade(IVariables variables, LanguageModelChatMeta meta) {
+    this(variables, meta, System::getenv);
+  }
+
+  /** With the environment lookup handed in, so tests need not set real environment variables. */
+  LanguageModelFacade(
+      IVariables variables, LanguageModelChatMeta meta, UnaryOperator<String> environment) {
     this.variables = variables;
+    this.environment = environment;
     this.meta = (LanguageModelChatMeta) meta.clone();
     this.lm = new LanguageModel(meta);
     inputJsonAdapter =
@@ -93,11 +105,41 @@ public class LanguageModelFacade {
     return variables.resolve(trimToNull(param));
   }
 
+  /**
+   * The API key to send, or null to send none.
+   *
+   * <p>A key field defaults to the provider's own variable, such as {@code ${OPENAI_API_KEY}}. That
+   * variable is read from the Hop variables, and from the environment when no Hop variable defines
+   * it, since the operating system environment is only imported into Hop variables on request.
+   * Pipelines written before the default became a variable hold the bare name, which reads the same
+   * way. Any other variable that nothing defines sends no key, rather than its own text.
+   *
+   * @param field the key field as stored in the transform
+   * @param variableName the provider's environment variable, such as {@code OPENAI_API_KEY}
+   */
+  String resolveApiKey(String field, String variableName) {
+    String value = trimToNull(field);
+    if (value == null) {
+      return null;
+    }
+    String ownVariable = "${" + variableName + "}";
+    if (value.equals(variableName)) {
+      value = ownVariable;
+    }
+    String resolved = trimToNull(variables.resolve(value));
+    if (resolved != null && !resolved.contains("${")) {
+      return resolved;
+    }
+    if (value.equals(ownVariable)) {
+      return trimToNull(environment.apply(variableName));
+    }
+    return null;
+  }
+
   private ChatModel createOpenAiModel() {
 
     String baseUrl = resolve(meta.getOpenAiBaseUrl());
-    String apiKey = trimToNull(resolve(meta.getOpenAiApiKey()));
-    apiKey = isBlank(apiKey) ? trimToNull(getenv(meta.getOpenAiApiKey())) : apiKey;
+    String apiKey = resolveApiKey(meta.getOpenAiApiKey(), OPENAI_API_KEY_VARIABLE);
     String organizationId = resolve(meta.getOpenAiOrganizationId());
     String modelName = resolve(meta.getOpenAiModelName());
     String responseFormat = resolve(meta.getOpenAiResponseFormat());
@@ -139,9 +181,8 @@ public class LanguageModelFacade {
   private ChatModel createHuggingFaceModel() {
     String modelResource = resolve(meta.getHuggingFaceModelId());
 
-    String accessToken = trimToNull(resolve(meta.getHuggingFaceAccessToken()));
-    accessToken =
-        isBlank(accessToken) ? trimToNull(getenv(meta.getHuggingFaceAccessToken())) : accessToken;
+    String accessToken =
+        resolveApiKey(meta.getHuggingFaceAccessToken(), HUGGING_FACE_ACCESS_TOKEN_VARIABLE);
     Integer timeout = meta.getHuggingFaceTimeout();
     Double temperature = meta.getHuggingFaceTemperature();
     Integer maxNewTokens = meta.getHuggingFaceMaxNewTokens();
@@ -213,8 +254,7 @@ public class LanguageModelFacade {
   private ChatModel createAnthropicModel() {
 
     String baseUrl = resolve(meta.getAnthropicBaseUrl());
-    String apiKey = trimToNull(resolve(meta.getAnthropicApiKey()));
-    apiKey = isBlank(apiKey) ? trimToNull(getenv(meta.getAnthropicApiKey())) : apiKey;
+    String apiKey = resolveApiKey(meta.getAnthropicApiKey(), ANTHROPIC_API_KEY_VARIABLE);
     String version = resolve(meta.getAnthropicVersion());
     String modelName = resolve(meta.getAnthropicModelName());
     Double temperature = meta.getAnthropicTemperature();
@@ -246,8 +286,7 @@ public class LanguageModelFacade {
 
   private ChatModel createMistralModel() {
     String baseUrl = resolve(meta.getMistralBaseUrl());
-    String apiKey = trimToNull(resolve(meta.getMistralApiKey()));
-    apiKey = isBlank(apiKey) ? trimToNull(getenv(meta.getMistralApiKey())) : apiKey;
+    String apiKey = resolveApiKey(meta.getMistralApiKey(), MISTRAL_API_KEY_VARIABLE);
     String modelName = resolve(meta.getMistralModelName());
     Double temperature = meta.getMistralTemperature();
     Double topP = meta.getMistralTopP();
