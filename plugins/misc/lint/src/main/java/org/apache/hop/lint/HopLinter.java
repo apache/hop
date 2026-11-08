@@ -227,7 +227,7 @@ public class HopLinter {
       ProgressCallback progressCallback) {
     // In order of preference:
     // 1. Project-specific hop-lint.yml file
-    // 2. hop-lint.yml in parent directories of the project
+    // 2. hop-lint.yml in the folder or a parent folder, up to the project root
     // 3. Configuration plugin settings
     // 4. Default configuration
     loadConfigurationForContext(new File(projectPath));

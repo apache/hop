@@ -502,7 +502,12 @@ That can miss a dead file which happens to share a name with a live one, which i
 
 == Configuring a project
 
-Put a `hop-lint.yml` in the project root. It holds overrides and project-local rules only, not a copy of the rule packs:
+Put a `hop-lint.yml` in the project root. It holds overrides and project-local rules only, not a copy of the rule packs.
+
+A file is linted with the nearest `hop-lint.yml` in its own folder or a folder above it, up to the project root: the folder that holds `project-config.json`, or the project open in Hop Gui.
+A `hop-lint.yml` above the project root, in a home or workspace folder for example, is never used for the project's files.
+Paths in `exclude` and `suppress` are relative to the folder of the `hop-lint.yml` in use.
+A file that is in no project uses the nearest `hop-lint.yml` above it.
 
 [source,yaml]
 ----
