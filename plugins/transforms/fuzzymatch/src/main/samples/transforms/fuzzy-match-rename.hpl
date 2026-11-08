@@ -261,18 +261,6 @@ limitations under the License.
     </GUI>
   </transform>
   <transform_error_handling>
-    <error>
-      <source_transform>Fuzzy match</source_transform>
-      <target_transform/>
-      <is_enabled>Y</is_enabled>
-      <nr_valuename/>
-      <descriptions_valuename/>
-      <fields_valuename/>
-      <codes_valuename/>
-      <max_errors/>
-      <max_pct_errors/>
-      <min_pct_rows/>
-    </error>
   </transform_error_handling>
   <attributes/>
 </pipeline>
