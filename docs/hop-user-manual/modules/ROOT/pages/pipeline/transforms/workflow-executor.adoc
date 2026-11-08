@@ -60,6 +60,7 @@ Samples (samples project)
 |Transform name|Name of the transform.
 |Workflow|Use this option to specify a workflow stored in a file (.hwf file).
 The filename may contain variables (for example, you can use the built-in Internal.Pipeline.Filename.Directory variable to construct a filename relative to the current pipeline), or you can use the "Browse" button to select a file using a file browser.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them. *Open* is not available when *Workflow from field?* is enabled.
 |Workflow from field?|Enable to specify the workflow file name(s) in a field in the input stream.
 |Workflow field|When the previous option is enabled, you can specify the field that will contain the workflow filename(s) at runtime. The filename may contain variables.
 

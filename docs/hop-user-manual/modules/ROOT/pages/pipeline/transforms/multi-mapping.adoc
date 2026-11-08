@@ -42,7 +42,9 @@ The child pipeline is always executed with a local Hop pipeline run configuratio
 == Options
 
 * Transform name: a unique name in your pipeline
-* Pipeline: the mapping (sub-) pipeline to run
+* Pipeline: the mapping (sub-) pipeline to run.
+Click *Edit* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
+*New* creates an empty pipeline file and selects it.
 * Run configuration: local Hop run configuration only
 * Parameters tab: variables to pass into the child, plus inherit-all-variables
 * Input tabs (Add Input): one tab per input mapping

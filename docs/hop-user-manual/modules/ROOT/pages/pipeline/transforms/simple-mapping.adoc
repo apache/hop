@@ -49,6 +49,7 @@ The options are fairly self-explanatory:
 
 * Transform name: a unique name in your pipeline
 * Pipeline: The name of the mapping (sub-) pipeline to embed.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 This pipeline is executed separately and is considered a separate entity.
 It is always executed with a standard local Hop pipeline run configuration since that is currently the only one capable of streaming data into and out of transforms.
 * Parameters tab: specify the parameters you want to pass to the mapping pipeline
