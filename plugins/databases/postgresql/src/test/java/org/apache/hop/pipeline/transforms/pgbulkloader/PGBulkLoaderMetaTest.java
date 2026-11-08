@@ -17,12 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -86,6 +96,43 @@ class PGBulkLoaderMetaTest {
     pipelineMeta.addTransform(transformMeta);
 
     loader = new PGBulkLoader(transformMeta, lm, ld, 1, pipelineMeta, pipeline);
+  }
+
+  @Test
+  void testCheckWithMissingConnectionDoesNotAbortPipelineCheck() {
+    // Regression for #9386: a connection name that is not in the metadata used to throw a
+    // NullPointerException from check(), which failed the whole pipeline check.
+    MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("missing-connection");
+    pipelineMeta.setMetadataProvider(metadataProvider);
+
+    PGBulkLoaderMeta meta = new PGBulkLoaderMeta();
+    meta.setConnection("postgresql");
+    meta.setTableName("target");
+    String pluginId = PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
+    pipelineMeta.addTransform(new TransformMeta(pluginId, "loader", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    assertDoesNotThrow(
+        () ->
+            pipelineMeta.checkTransforms(remarks, false, null, new Variables(), metadataProvider));
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST.equals(
+                        r.getErrorCode())));
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && BaseMessages.getString(
+                                PGBulkLoaderMeta.class,
+                                "GPBulkLoaderMeta.CheckResult.InvalidConnection")
+                            .equals(r.getText())));
   }
 
   public static final class PGBulkLoaderMappingMetaValidator

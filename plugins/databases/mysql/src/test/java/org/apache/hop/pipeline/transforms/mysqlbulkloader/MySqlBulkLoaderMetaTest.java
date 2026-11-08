@@ -17,14 +17,69 @@
 
 package org.apache.hop.pipeline.transforms.mysqlbulkloader;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.validation.ReferencedDatabaseConnectionChecker;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MySqlBulkLoaderMetaTest {
+  @RegisterExtension
+  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+
+  @Test
+  void testCheckWithMissingConnectionDoesNotAbortPipelineCheck() throws Exception {
+    // Regression for #9386: a connection name that is not in the metadata used to throw a
+    // NullPointerException from check(), which failed the whole pipeline check.
+    HopEnvironment.init();
+    MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("missing-connection");
+    pipelineMeta.setMetadataProvider(metadataProvider);
+
+    MySqlBulkLoaderMeta meta = new MySqlBulkLoaderMeta();
+    meta.setConnection("mysql");
+    meta.setTableName("target");
+    String pluginId = PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
+    pipelineMeta.addTransform(new TransformMeta(pluginId, "loader", meta));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    assertDoesNotThrow(
+        () ->
+            pipelineMeta.checkTransforms(remarks, false, null, new Variables(), metadataProvider));
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    ReferencedDatabaseConnectionChecker.ERROR_DOES_NOT_EXIST.equals(
+                        r.getErrorCode())));
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && BaseMessages.getString(
+                                MySqlBulkLoaderMeta.class,
+                                "MySqlBulkLoaderMeta.CheckResult.InvalidConnection")
+                            .equals(r.getText())));
+  }
 
   @Test
   void testMissingFieldFormatDefaultsToOk() {

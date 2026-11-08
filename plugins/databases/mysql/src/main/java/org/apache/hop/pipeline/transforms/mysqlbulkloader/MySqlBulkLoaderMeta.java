@@ -146,10 +146,12 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
     CheckResult cr;
     StringBuilder errorMessage = new StringBuilder();
 
-    if (connection != null) {
-      DatabaseMeta databaseMeta =
-          getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
-      try (Database db = new Database(loggingObject, variables, databaseMeta); ) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
+    // A connection that is not in the metadata is reported here and by the referenced connection
+    // check. Opening a Database on a null DatabaseMeta throws and aborts the whole pipeline check.
+    if (databaseMeta != null) {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(tableName)) {
