@@ -104,6 +104,13 @@ One connection to S3 is often limited to a few MB/s, so reading many blocks at t
 Text File Input running in parallel keeps up to copies × read-ahead blocks requests in flight: 20 copies with 4 blocks each need 80 connections.
 With fewer connections allowed than that, the other requests wait for a free one.
 
+== Appending to a file
+
+Options such as *Append* in the Text file output transform add to an existing object.
+S3 has no append operation, so Hop rebuilds the object with a multipart upload: the existing content is copied on the server, and only the new bytes are uploaded.
+An object smaller than 5 MiB is read back and uploaded again with the new bytes.
+The existing content is only copied or read when the object hasn't changed since Hop opened it for the append, otherwise the append fails.
+
 == Usage and testing
 
 To test if the configuration works you can simply upload a small CSV file in an S3 bucket and then use File/Open in Hop GUI.

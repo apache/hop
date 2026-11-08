@@ -321,12 +321,16 @@ Server-side restrictions (read-only mounts, bucket policies, account permissions
 |Scheme|Read|Write|Append|List|Create/Delete|Rename|Random read|Random write|Last-modified
 
 // Hop-managed providers
-|`s3`               |✓|✓|✗|✓|✓|✓|✓|✗|read
-|`azure`            |✓|✓|✗|✓|✓|✓|✗|✗|read
-|`gs`               |✓|✓|✗|✓|✓|✗|✗|✗|read/set
+|`s3`               |✓|✓|✓|✓|✓|✓|✓|✗|read
+|`azure`            |✓|✓|✓|✓|✓|✓|✓|✗|read
+|`gs`               |✓|✓|✓|✓|✓|✗|✓|✗|read/set
 |`googledrive`      |✓|✓|✗|✓|✓|✓|✓|✗|read
 |`dropbox`          |✓|✓|✗|✓|✓|✓|✗|✗|read
 |`+<minio-conn>+`   |✓|✓|✗|✓|✓|✓|✓|✗|read
+|`+<databricks-conn>+` |✓|✓|✗|✓|✓|✓|✗|✗|read
+|`+<git-conn>+` (see below) |✓|✓|✓|✓|✓|✓|✗|✗|read
+|`+<hdfs-conn>+`    |✓|✓|✗|✓|✓|✓|✗|✗|read
+|`+<smb-conn>+`     |✓|✓|✓|✓|✓|✓|✓|✓|read
 |`webdav4`, `webdav4s`, named WebDAV connection |✓|✓|✗|✓|✓|✓|✓|✗|read
 
 // Apache VFS providers
@@ -340,3 +344,6 @@ Server-side restrictions (read-only mounts, bucket policies, account permissions
 |`ftp`, `ftps`      |✓|✓|✓|✓|✓|✓|✓|✗|read
 |`sftp`             |✓|✓|✓|✓|✓|✓|✓|✗|read/set
 |===
+
+A Git connection reads files although it doesn't declare the read capability.
+A read-only Git connection, the default, refuses writes.

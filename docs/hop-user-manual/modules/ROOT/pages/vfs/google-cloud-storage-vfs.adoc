@@ -97,6 +97,13 @@ A write is never ended.
 
 These messages are written to the general Hop log with the prefix `Google Cloud Storage:`, for example in the console output of `hop-run`.
 
+== Appending to a file
+
+Options such as *Append* in the Text file output transform add to an existing object.
+Google Cloud Storage objects can't be changed, so Hop writes the new bytes to a temporary object, joins it to the end of the existing object with a compose when the file is closed, and deletes the temporary object.
+If the object changes while the append runs, the append fails instead of losing data.
+A composed object has no MD5 hash, only a CRC32C checksum.
+
 == Usage and testing
 
 To test if the configuration works type use File/Open in the GUI and type in gs:// as a file location.
