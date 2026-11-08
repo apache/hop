@@ -51,6 +51,7 @@ See also:
 |Option|Description
 |Action name|Name of the action.
 |Workflow Filename a|Specify the XML file name of the workflow to execute. Click to browse through your local files.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 
 The selected workflow will automatically converted to a path relative to your `+${PROJECT_HOME}+`.
 

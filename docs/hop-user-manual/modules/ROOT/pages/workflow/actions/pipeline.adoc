@@ -46,6 +46,7 @@ See also:
 |Option|Description
 |Action name|Name of the action.
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 
 The selected pipelines will automatically converted to a path relative to your `+${PROJECT_HOME}+`. +
 For example, if your `+${PROJECT_HOME}+` is `/home/admin/hop/project/` and you select a pipeline `/home/admin/hop/project/subfolder/sub.hpl` than the path will automatically be converted to `+${PROJECT_HOME}/subfolder/sub.hpl+`.

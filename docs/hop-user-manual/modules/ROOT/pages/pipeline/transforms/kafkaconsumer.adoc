@@ -57,6 +57,7 @@ For example, you can run the parent pipeline on a timed schedule, drain a topic 
 |Transform name|The name for this transform
 |Kafka pipeline
 |Specify the pipeline to execute by entering its path or clicking _Browse_ and selecting the path.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 
 *Note:* this pipeline *must* start with an Injector transform.
 |===

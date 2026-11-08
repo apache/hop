@@ -48,6 +48,7 @@ This variable is detected by the Repeat action, and the loop stops. Because the 
 |Action name|The name of the workflow action.
 
 |File to repeat (.hpl or .hwf)|The filename of the pipeline or workflow to execute repeatedly.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 
 |Run configuration a|The pipeline or workflow run configuration to use.
 

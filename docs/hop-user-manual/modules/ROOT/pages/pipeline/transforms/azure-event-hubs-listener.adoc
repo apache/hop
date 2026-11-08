@@ -59,7 +59,8 @@ Please note you can use a transform like JSON Output or "Java Script" to assembl
 In order to make sure that all records are processed safely before we checkpoint the events stream, we need to run all logic we need to run, update everything we need to update, before we do so.
 To do this we pass all the rows we read in one batch to the specified batch pipeline (which will run single threaded)
 
-* Batch pipeline: the batch pipeline file name
+* Batch pipeline: the batch pipeline file name.
+Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop first asks whether to save them.
 * pipeline input transform: the name of the "Injector" or "Get records from Stream" transform to send the events to in the batch pipeline.
 * pipeline output transform: (optional) the name of the transform to read from in the batch pipeline and to use as output of this Listener transform.
 * Maximum wait time (ms): (optional but highly recommended!) The maximum time to wait before the batch pipeline is executed despite the fact that you might not have the specified number of records in the batch.
