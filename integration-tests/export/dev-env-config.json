@@ -1,0 +1,9 @@
+{
+  "variables": [
+    {
+      "name": "SAMPLE",
+      "value": "sampleValue",
+      "description": "A sample variable value"
+    }
+  ]
+}

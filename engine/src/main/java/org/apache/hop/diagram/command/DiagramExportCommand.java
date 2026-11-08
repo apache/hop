@@ -216,6 +216,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
   private void doExportSingleFile() throws HopException {
     String resolvedFile = variables.resolve(filename);
     String targetFmt = resolveTargetFormat(outputFilename, format);
+    checkFormatIsAvailable(targetFmt);
     String targetFile = resolveOutputFilename(resolvedFile, outputFilename, targetFmt);
 
     DiagramExportOptions options = new DiagramExportOptions(targetFile, targetFmt);
@@ -231,6 +232,26 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
       throw new HopException("Export failed: " + result.getErrorMessage(), result.getException());
     }
     log.logBasic("Exported " + resolvedFile + " -> " + result.getFilename());
+  }
+
+  /**
+   * Fails before anything is written when no installed exporter writes the given format, so that a
+   * typo or a format without an exporter (PDF) is not silently written as another format.
+   */
+  private void checkFormatIsAvailable(String targetFmt) throws HopException {
+    List<IDiagramExporter<?>> exporters = DiagramExportService.getInstance().getAllExporters();
+    for (IDiagramExporter<?> exporter : exporters) {
+      if ((exporter.getFormat() != null && exporter.getFormat().getId().equalsIgnoreCase(targetFmt))
+          || targetFmt.equalsIgnoreCase(exporter.getFileExtension())) {
+        return;
+      }
+    }
+    throw new HopException(
+        "No diagram exporter for format '"
+            + targetFmt
+            + "'. Available formats: "
+            + DiagramExportService.describeFormats(exporters)
+            + ". Use --list-exporters for the details.");
   }
 
   private void doBatchExport() throws HopException {
@@ -251,6 +272,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
       collectFiles(sourceDir, filesToExport, recursive);
 
       String targetFmt = resolveTargetFormat(null, format);
+      checkFormatIsAvailable(targetFmt);
       int count = 0;
 
       for (FileObject file : filesToExport) {

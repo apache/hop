@@ -76,6 +76,7 @@ integration-tests/pgp/output/
 integration-tests/lint/output/
 # hop-import writes each test's imported project, and 0005 its hop-run log, under output/
 integration-tests/import/output/
+integration-tests/export/output/
 integration-tests/spreadsheet/files/sample-file-append.xlsx
 integration-tests/spreadsheet/files/sample-file-append-test.xlsx
 integration-tests/spark-native/output

@@ -18,6 +18,8 @@
 package org.apache.hop.diagram.command;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -65,6 +67,64 @@ class DiagramExportCommandTest {
     assertTrue(Files.exists(outputFile));
     String content = Files.readString(outputFile);
     assertTrue(content.contains("flowchart LR"));
+  }
+
+  @Test
+  void testExportWithoutExporterForFormatFails() throws Exception {
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("cli-test-pipeline");
+    Path pipelineFile = tempDir.resolve("test-pipeline.hpl");
+    Files.writeString(
+        pipelineFile, pipelineMeta.getXml(new org.apache.hop.core.variables.Variables()));
+
+    // --format pdf, without -o: would be written next to the pipeline as test-pipeline.pdf
+    DiagramExportCommand pdfFormat = new DiagramExportCommand();
+    pdfFormat.setFilename(pipelineFile.toString());
+    pdfFormat.setFormat("pdf");
+    RuntimeException e = assertThrows(RuntimeException.class, pdfFormat::run);
+    assertTrue(e.getCause().getMessage().contains("'PDF'"), e.getCause().getMessage());
+    assertTrue(e.getCause().getMessage().contains("MERMAID (.mmd)"), e.getCause().getMessage());
+    assertTrue(e.getCause().getMessage().contains("SVG (.svg)"), e.getCause().getMessage());
+    assertFalse(Files.exists(tempDir.resolve("test-pipeline.pdf")));
+
+    // -o x.pdf, without --format
+    Path pdfFile = tempDir.resolve("x.pdf");
+    DiagramExportCommand pdfOutput = new DiagramExportCommand();
+    pdfOutput.setFilename(pipelineFile.toString());
+    pdfOutput.setOutputFilename(pdfFile.toString());
+    assertThrows(RuntimeException.class, pdfOutput::run);
+    assertFalse(Files.exists(pdfFile));
+
+    // a typo
+    Path fooFile = tempDir.resolve("y.foo");
+    DiagramExportCommand typo = new DiagramExportCommand();
+    typo.setFilename(pipelineFile.toString());
+    typo.setOutputFilename(fooFile.toString());
+    typo.setFormat("foo");
+    assertThrows(RuntimeException.class, typo::run);
+    assertFalse(Files.exists(fooFile));
+  }
+
+  @Test
+  void testBatchExportWithoutExporterForFormatFails() throws Exception {
+    Path sourceFolder = tempDir.resolve("source");
+    Path targetFolder = tempDir.resolve("target");
+    Files.createDirectories(sourceFolder);
+    Files.createDirectories(targetFolder);
+
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("batch-pipe");
+    Files.writeString(
+        sourceFolder.resolve("pipe.hpl"),
+        pipelineMeta.getXml(new org.apache.hop.core.variables.Variables()));
+
+    DiagramExportCommand cmd = new DiagramExportCommand();
+    cmd.setSourceFolder(sourceFolder.toString());
+    cmd.setTargetFolder(targetFolder.toString());
+    cmd.setFormat("pdf");
+
+    assertThrows(RuntimeException.class, cmd::run);
+    assertFalse(Files.exists(targetFolder.resolve("pipe.pdf")));
   }
 
   @Test

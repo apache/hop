@@ -247,7 +247,8 @@ The dialog lists unique format *names* from that list.
 . `exporter.getFileExtension()` (for example `mmd`)
 
 So `--format mermaid`, `--format MERMAID` and an output file ending in `.mmd` all select the same plugin.
-If nothing matches, the service falls back to the first exporter that supports the subject.
+`export(...)` uses the first exporter that supports the subject only when the options have no format.
+When a format is given and nothing matches, it throws a `HopException` that lists the formats that do support the subject; it never writes another format instead.
 
 `registerStaticExporter(...)` exists for tests and for code that is not a plugin.
 Production exporters should be `@DiagramExporter` classes so Jandex finds them.

@@ -20,6 +20,7 @@ package org.apache.hop.core.diagram;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -100,6 +101,33 @@ class DiagramExportServiceTest {
     assertTrue(result.isSuccess());
     assertNotNull(result.getContent());
     assertTrue(result.getContent().contains("sample"));
+    assertEquals("text/vnd.mermaid", result.getMimeType());
+  }
+
+  @Test
+  void testExportWithUnknownFormatFails() {
+    TestSubject subject = new TestSubject();
+    IExportContext context =
+        new ExportContext(new Variables(), null, null, IExportContext.ExportEnvironment.TEST);
+
+    for (String format : List.of("PDF", "foo")) {
+      DiagramExportOptions options = new DiagramExportOptions(null, format);
+      HopException e =
+          assertThrows(HopException.class, () -> service.export(subject, options, context));
+      assertTrue(e.getMessage().contains("'" + format + "'"), e.getMessage());
+      assertTrue(e.getMessage().contains("MERMAID (.mmd)"), e.getMessage());
+    }
+  }
+
+  @Test
+  void testExportWithoutFormatUsesFirstExporter() throws Exception {
+    TestSubject subject = new TestSubject();
+    IExportContext context =
+        new ExportContext(new Variables(), null, null, IExportContext.ExportEnvironment.TEST);
+
+    DiagramExportResult result =
+        service.export(subject, new DiagramExportOptions(null, null), context);
+    assertTrue(result.isSuccess());
     assertEquals("text/vnd.mermaid", result.getMimeType());
   }
 
