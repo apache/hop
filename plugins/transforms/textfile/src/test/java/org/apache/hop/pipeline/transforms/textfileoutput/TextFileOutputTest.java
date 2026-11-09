@@ -880,15 +880,13 @@ class TextFileOutputTest {
   @Test
   void doesNotEncloseDateWhenFormattedValueContainsSeparator() throws Exception {
     assertEquals(
-        "a,Jan 1, 1970",
-        writeIdAndRenderedField(",", IValueMeta.TYPE_DATE, "Jan 1, 1970", false));
+        "a,Jan 1, 1970", writeIdAndRenderedField(",", IValueMeta.TYPE_DATE, "Jan 1, 1970", false));
   }
 
   @Test
   void doesNotEncloseJsonWhenValueContainsEnclosure() throws Exception {
     assertEquals(
-        "a;{\"a\" : 1}",
-        writeIdAndRenderedField(";", IValueMeta.TYPE_JSON, "{\"a\" : 1}", false));
+        "a;{\"a\" : 1}", writeIdAndRenderedField(";", IValueMeta.TYPE_JSON, "{\"a\" : 1}", false));
   }
 
   @Test
