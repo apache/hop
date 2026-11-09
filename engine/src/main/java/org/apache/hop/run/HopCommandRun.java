@@ -18,6 +18,7 @@
 
 package org.apache.hop.run;
 
+import java.util.concurrent.Callable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -37,7 +38,7 @@ import picocli.CommandLine.Command;
 @Command(mixinStandardHelpOptions = true, description = "Run a pipeline or workflow")
 @HopCommand(id = "run", description = "Runs a pipeline or workflow")
 public class HopCommandRun extends HopRunBase
-    implements Runnable, IHasHopMetadataProvider, IHopCommand {
+    implements Callable<Integer>, IHasHopMetadataProvider, IHopCommand {
 
   public HopCommandRun() {
     super();
@@ -54,9 +55,12 @@ public class HopCommandRun extends HopRunBase
     Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_RUN);
   }
 
+  // Callable so picocli (hop.cmd.execute) gets the exit code; Runnable always exits 0.
+  // Same contract as HopRun.main: 0 = ok, 1 = pipeline/workflow failed.
   @Override
-  public void run() {
+  public Integer call() {
     System.setProperty(Const.HOP_PLATFORM_RUNTIME, "RUN");
-    super.run();
+    run();
+    return isFinishedWithoutError() ? 0 : 1;
   }
 }
