@@ -37,7 +37,7 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Write rows to a unit test data set so it can be used in pipelines and unit tests.</note>
+      <note>Write rows to the unit test data set dataset-output. The first run creates the data set and its CSV file.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
       <width>400</width>
@@ -112,10 +112,10 @@ limitations under the License.
 <transform>
     <type>DataSetOutput</type>
     <name>write data set</name>
-    <dataSetName>0108-data-set-output</dataSetName>
+    <dataSetName>dataset-output</dataSetName>
     <folderName/>
-    <csvFilename>0108-data-set-output.csv</csvFilename>
-    <recreateDataSet>N</recreateDataSet>
+    <csvFilename>dataset-output.csv</csvFilename>
+    <recreateDataSet>Y</recreateDataSet>
     <validateDataSet>Y</validateDataSet>
     <distribute>Y</distribute>
     <copies>1</copies>

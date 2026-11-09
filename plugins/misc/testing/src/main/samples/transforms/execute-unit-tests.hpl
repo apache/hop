@@ -87,7 +87,7 @@ limitations under the License.
     </fields>
     <data>
       <line>
-        <item>sample-unit-test</item>
+        <item>run-pipeline-tests-unit</item>
       </line>
     </data>
     <attributes/>

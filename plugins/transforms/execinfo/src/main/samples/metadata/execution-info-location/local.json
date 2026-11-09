@@ -1,0 +1,13 @@
+{
+  "executionInfoLocation": {
+    "local-folder": {
+      "pluginName": "File location",
+      "pluginId": "local-folder",
+      "rootFolder": "${HOP_AUDIT_FOLDER}/executions/"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "local",
+  "description": "Executions recorded in the audit folder, used by the execution-information sample",
+  "dataLoggingInterval": "5000"
+}
