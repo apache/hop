@@ -692,10 +692,12 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         // from existing files.
         if (v.isString() && meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
           writeEnclosures = true;
-        } else if (!meta.isEnclosureFixDisabled()
+        } else if ((v.isString() || v.getType() == IValueMeta.TYPE_VECTOR)
+            && !meta.isEnclosureFixDisabled()
             && containsSeparatorOrEnclosure(str, data.binarySeparator, data.binaryEnclosure)) {
-          // Quote any field whose rendered text embeds the separator or enclosure — including
-          // Vector's canonical form [0.1,0.2,0.3] — so a comma-separated file can be read back.
+          // Quote String and Vector when the rendered text embeds the separator or enclosure.
+          // Vector's canonical form [0.1,0.2,0.3] needs this for a comma-separated round trip.
+          // Other types (JSON, Binary, Number, Date) keep their previous unquoted output.
           writeEnclosures = true;
         }
 
