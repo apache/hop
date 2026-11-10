@@ -27,6 +27,8 @@ import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -39,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.QueueRowSet;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -244,6 +247,62 @@ class LanguageModelChatLifecycleTest {
     } finally {
       releaseOutput.countDown();
       disposer.shutdownNow();
+    }
+  }
+
+  @Test
+  void finishWaitsForSlowChatOutputBeforeClosingOutput() throws Exception {
+    // Regression: the 30 s drain cap used to apply on the normal end-of-input path too, so finish()
+    // abandoned a slow in-flight chat, cleared the facades and closed the output, dropping the row.
+    // finish() must wait without a cap so the row is still delivered.
+    final var chatStarted = new CountDownLatch(1);
+    final var releaseChat = new CountDownLatch(1);
+    try (final var facades =
+        mockConstruction(
+            LanguageModelFacade.class,
+            (facade, context) -> {
+              final var aiMessage = mock(AiMessage.class);
+              when(aiMessage.text()).thenReturn("answer");
+              final var aiResponse = mock(ChatResponse.class);
+              when(aiResponse.aiMessage()).thenReturn(aiMessage);
+              when(facade.inputToChatMessages(any())).thenReturn(List.of());
+              when(facade.chat(any()))
+                  .thenAnswer(
+                      invocation -> {
+                        chatStarted.countDown();
+                        assertTrue(releaseChat.await(5, TimeUnit.SECONDS));
+                        return aiResponse;
+                      });
+            })) {
+      final var transform = transform(1);
+      transform.getMeta().setMock(false);
+      assertTrue(transform.processRow());
+      assertTrue(chatStarted.await(5, TimeUnit.SECONDS));
+      final var eof = Executors.newSingleThreadExecutor();
+      try {
+        final var completion =
+            eof.submit(
+                () -> {
+                  try {
+                    assertFalse(transform.processRow());
+                  } catch (HopException e) {
+                    throw new AssertionError(e);
+                  }
+                });
+        // The end-of-input path must keep waiting for the in-flight chat rather than abandoning it
+        // after a short drain cap and closing the output.
+        Thread.sleep(100);
+        assertFalse(completion.isDone());
+        releaseChat.countDown();
+        completion.get(5, TimeUnit.SECONDS);
+        final var row = transform.getOutputRowSets().getFirst().getRow();
+        assertEquals("answer", row[transform.getData().indexOfOutput]);
+        assertEquals(0, transform.getErrors());
+        transform.dispose();
+      } finally {
+        releaseChat.countDown();
+        eof.shutdownNow();
+      }
     }
   }
 }

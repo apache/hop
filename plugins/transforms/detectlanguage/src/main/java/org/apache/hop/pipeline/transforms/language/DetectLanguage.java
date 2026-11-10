@@ -107,6 +107,29 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     }
   }
 
+  /**
+   * Wait for every accepted job to complete on the normal end-of-input path. Unlike {@link
+   * #awaitJobs(long)} there is no timeout: rows that are merely slow must not be lost because the
+   * output is closed while workers still run. A stop (see {@link #stopRunning()}) breaks the wait.
+   */
+  private void awaitJobsUncapped() {
+    boolean interrupted = false;
+    synchronized (lock) {
+      while (jobs > 0 && !isStopped()) {
+        try {
+          lock.wait(1_000L);
+        } catch (InterruptedException e) {
+          // Accepted work should finish before output is closed, but an interrupted waiter must
+          // not hold up the transform or the pipeline.
+          interrupted = true;
+        }
+      }
+    }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
   private void checkFailure() throws HopException {
     synchronized (lock) {
       if (failure != null) {
@@ -117,7 +140,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
   }
 
   private void finish() throws HopException {
-    awaitJobs();
+    awaitJobsUncapped();
     checkFailure();
     setOutputDone();
   }

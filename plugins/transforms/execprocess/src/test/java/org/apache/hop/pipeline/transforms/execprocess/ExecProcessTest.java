@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
@@ -528,6 +529,59 @@ class ExecProcessTest {
       verify(process).destroy();
       verify(process, never()).destroyForcibly();
     } finally {
+      stdout.close();
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  @Timeout(10)
+  void forceKillRunsInlineOnTransformThreadBeforeProcessRowReturns() throws Exception {
+    // Regression: the forced kill used to run on a daemon cleanup thread that hop-run's
+    // System.exit() could kill before destroyForcibly() ever ran, leaving a SIGTERM-ignoring
+    // command running. The graceful-then-forced kill must now run inline on the transform thread so
+    // processRow() does not return until the process has been forcibly killed.
+    HopEnvironment.init();
+    final var transform =
+        newTransform(metaForArgumentsMode(), inputRowMetaForArguments(), new Object[] {"test"});
+    final var runtime = mock(Runtime.class);
+    final var process = mock(Process.class);
+    final var stdout = new BlockingInputStream();
+    final var forceKillEntered = new CountDownLatch(1);
+    final var releaseForceKill = new CountDownLatch(1);
+    when(process.getInputStream()).thenReturn(stdout);
+    when(process.getErrorStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+    when(process.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+    when(process.isAlive()).thenReturn(true);
+    when(process.descendants()).thenAnswer(invocation -> Stream.empty());
+    // The process never exits on its own, neither in the poll loop nor within the grace period.
+    when(process.waitFor(1, TimeUnit.SECONDS)).thenReturn(false);
+    when(process.waitFor(30, TimeUnit.SECONDS)).thenReturn(false);
+    when(process.destroyForcibly())
+        .thenAnswer(
+            invocation -> {
+              forceKillEntered.countDown();
+              assertTrue(releaseForceKill.await(5, TimeUnit.SECONDS));
+              return process;
+            });
+    when(runtime.exec(any(String[].class))).thenReturn(process);
+    transform.getData().runtime = runtime;
+    final var executor = Executors.newSingleThreadExecutor();
+    try {
+      final var running = executor.submit(transform::processRow);
+      assertTrue(stdout.reading.await(5, TimeUnit.SECONDS));
+      transform.stopRunning();
+      assertTrue(forceKillEntered.await(5, TimeUnit.SECONDS));
+      // processRow is still running because the forced kill holds the transform thread; it must not
+      // have returned and left the kill to a background thread that System.exit() could kill.
+      assertThrows(TimeoutException.class, () -> running.get(2, TimeUnit.SECONDS));
+      releaseForceKill.countDown();
+      assertFalse(running.get(5, TimeUnit.SECONDS));
+      verify(process).destroy();
+      verify(process).destroyForcibly();
+      assertEquals(0, transform.getErrors());
+    } finally {
+      releaseForceKill.countDown();
       stdout.close();
       executor.shutdownNow();
     }

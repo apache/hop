@@ -82,7 +82,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   }
 
   private void finish() {
-    awaitJobs();
+    awaitJobsUncapped();
     shutdownOwnedExecutor();
 
     facadeMap.clear();
@@ -117,6 +117,29 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
                 + " asynchronous job(s) that did not finish within "
                 + timeoutMillis
                 + " ms");
+      }
+    }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Wait for every accepted job to complete on the normal end-of-input path. Unlike {@link
+   * #awaitJobs(long)} there is no timeout: rows that are merely slow must not be lost because the
+   * output is closed (and the facades dropped) while workers still run. A stop breaks the wait.
+   */
+  private void awaitJobsUncapped() {
+    boolean interrupted = false;
+    synchronized (lock) {
+      while (jobs.get() > 0 && !isStopped()) {
+        try {
+          lock.wait(1_000L);
+        } catch (InterruptedException e) {
+          // Accepted work should finish before output is closed, but an interrupted waiter must
+          // not hold up the transform or the pipeline.
+          interrupted = true;
+        }
       }
     }
     if (interrupted) {

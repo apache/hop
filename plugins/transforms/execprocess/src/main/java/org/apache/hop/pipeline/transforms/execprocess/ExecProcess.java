@@ -298,8 +298,9 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
           closeProcessStream(child.getInputStream());
           closeProcessStream(child.getErrorStream());
         } else {
-          // Aborted: destroy the process (graceful then forced) and close its streams off the
-          // pipeline and transform threads.
+          // Aborted: destroy the process (graceful then forced) inline on the transform thread so a
+          // hop-run shutdown that exits the JVM cannot orphan a still-running command, then close
+          // its streams on a background thread.
           cleanupProcess(child, execution);
         }
       }
@@ -329,44 +330,61 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   }
 
   private void cleanupProcess(final Process process, final ProcessExecution execution) {
-    // Process.destroy, the 30 s grace wait and stream.close may themselves block in native I/O or
-    // on a reader's monitor. None of that belongs on the pipeline's stopping or transform thread.
-    final var cleanup =
+    // Aborted: stop the process right away on the transform thread so a hop-run shutdown that calls
+    // System.exit() cannot orphan a still-running command. Only the stream close, that can block in
+    // native I/O or on a reader's monitor, is deferred to a background thread.
+    killProcess(process, execution);
+    closeStreamsAsync(process);
+  }
+
+  /**
+   * Stop the process gracefully (SIGTERM) and, after a grace period, force it (SIGKILL). This runs
+   * on the transform thread before processRow returns, so a pipeline shutdown that exits the JVM
+   * cannot orphan a still-running command. The daemon cleanup that used to own this work could be
+   * killed by System.exit() before the forced kill ever ran.
+   */
+  private void killProcess(final Process process, final ProcessExecution execution) {
+    try {
+      try (final var descendants = process.descendants()) {
+        descendants.forEach(execution.descendants::add);
+      }
+      // Ask gracefully first (SIGTERM) so a script trapping it can clean up and roll back, then
+      // fall back to a forced kill (SIGKILL) only if it does not exit.
+      execution.descendants.forEach(ProcessHandle::destroy);
+      if (process.isAlive()) {
+        process.destroy();
+      }
+      if (!process.waitFor(GRACE_PERIOD_SECONDS, TimeUnit.SECONDS)) {
+        execution.descendants.forEach(ProcessHandle::destroyForcibly);
+        if (process.isAlive()) {
+          process.destroyForcibly();
+        }
+      }
+    } catch (InterruptedException e) {
+      // A forced kill still makes sure the process goes away without waiting again.
+      Thread.currentThread().interrupt();
+      execution.descendants.forEach(ProcessHandle::destroyForcibly);
+      if (process.isAlive()) {
+        process.destroyForcibly();
+      }
+    }
+  }
+
+  /**
+   * Close the process streams on a daemon thread. stream.close() may block in native I/O or on a
+   * reader's monitor, so it must not run inline on the transform or pipeline thread.
+   */
+  private void closeStreamsAsync(final Process process) {
+    final var closer =
         new Thread(
             () -> {
-              try {
-                try (final var descendants = process.descendants()) {
-                  descendants.forEach(execution.descendants::add);
-                }
-                // Ask gracefully first (SIGTERM) so a script trapping it can clean up and roll
-                // back, then fall back to a forced kill (SIGKILL) only if it does not exit.
-                execution.descendants.forEach(ProcessHandle::destroy);
-                if (process.isAlive()) {
-                  process.destroy();
-                }
-                if (!process.waitFor(GRACE_PERIOD_SECONDS, TimeUnit.SECONDS)) {
-                  execution.descendants.forEach(ProcessHandle::destroyForcibly);
-                  if (process.isAlive()) {
-                    process.destroyForcibly();
-                  }
-                }
-              } catch (InterruptedException e) {
-                // The cleanup is best-effort on a daemon thread: a forced kill still makes sure the
-                // process goes away without waiting again.
-                Thread.currentThread().interrupt();
-                execution.descendants.forEach(ProcessHandle::destroyForcibly);
-                if (process.isAlive()) {
-                  process.destroyForcibly();
-                }
-              } finally {
-                closeProcessStream(process.getOutputStream());
-                closeProcessStream(process.getInputStream());
-                closeProcessStream(process.getErrorStream());
-              }
+              closeProcessStream(process.getOutputStream());
+              closeProcessStream(process.getInputStream());
+              closeProcessStream(process.getErrorStream());
             },
             "hop-execprocess-cleanup");
-    cleanup.setDaemon(true);
-    cleanup.start();
+    closer.setDaemon(true);
+    closer.start();
   }
 
   private void closeProcessStream(final Closeable stream) {
@@ -379,7 +397,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
   private static final class ProcessExecution {
     private final AtomicBoolean cancelled = new AtomicBoolean();
-    // Owned by the executing thread, then handed off to the cleanup thread after execution.
+    // Owned by the executing (transform) thread, which also performs the graceful-then-forced kill.
     private final Set<ProcessHandle> descendants = new HashSet<>();
     private final ExecutorService readers =
         Executors.newFixedThreadPool(
