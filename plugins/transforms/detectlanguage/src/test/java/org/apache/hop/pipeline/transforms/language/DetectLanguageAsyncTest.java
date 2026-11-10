@@ -308,6 +308,90 @@ class DetectLanguageAsyncTest {
     }
   }
 
+  @Test
+  void eofWaitsForSlowInFlightJobAndDeliversRowBeforeOutputDone() throws Exception {
+    // Regression: the 30 s drain cap used to apply on the normal end-of-input path too, so finish()
+    // abandoned jobs still running after 30 s and dropped their rows. finish() must wait without a
+    // cap and only then close the output.
+    ExecutorService workers = Executors.newSingleThreadExecutor();
+    ExecutorService caller = Executors.newSingleThreadExecutor();
+    CountDownLatch entered = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicInteger outputs = new AtomicInteger();
+    try {
+      setField("executor", workers);
+      doAnswer(
+              invocation -> {
+                entered.countDown();
+                assertTrue(release.await(5, TimeUnit.SECONDS));
+                outputs.incrementAndGet();
+                return null;
+              })
+          .when(transform)
+          .putRow(any(), any());
+      assertTrue(transform.processRow());
+      assertTrue(entered.await(5, TimeUnit.SECONDS));
+      // Run the EOF step on its own thread so we can observe that, while a job is still in flight,
+      // it keeps waiting instead of dropping the job and closing the output on a short drain cap.
+      CountDownLatch draining = new CountDownLatch(1);
+      Future<?> completion =
+          caller.submit(
+              () -> {
+                draining.countDown();
+                try {
+                  assertFalse(transform.processRow());
+                } catch (HopException e) {
+                  throw new AssertionError(e);
+                }
+              });
+      assertTrue(draining.await(5, TimeUnit.SECONDS));
+      // The in-flight job is still running; the EOF path must not have returned (closed the output)
+      // yet, even though it has been waiting longer than any sub-second drain cap.
+      Thread.sleep(100);
+      assertFalse(completion.isDone());
+      release.countDown();
+      completion.get(5, TimeUnit.SECONDS);
+      assertEquals(1, outputs.get());
+      verify(transform).setOutputDone();
+      assertFalse(workers.isShutdown());
+    } finally {
+      release.countDown();
+      workers.shutdownNow();
+      caller.shutdownNow();
+      assertTrue(workers.awaitTermination(5, TimeUnit.SECONDS));
+      assertTrue(caller.awaitTermination(5, TimeUnit.SECONDS));
+    }
+  }
+
+  @Test
+  void eofHonoursStopToShortCircuitUncappedWait() throws Exception {
+    // Regression: finish() waits without a cap for in-flight jobs, so a stop must still break the
+    // wait and close the output, otherwise a never-completing job would hang the transform.
+    ExecutorService workers = Executors.newSingleThreadExecutor();
+    CountDownLatch entered = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    try {
+      setField("executor", workers);
+      doAnswer(
+              invocation -> {
+                entered.countDown();
+                assertTrue(release.await(5, TimeUnit.SECONDS));
+                return null;
+              })
+          .when(transform)
+          .putRow(any(), any());
+      assertTrue(transform.processRow());
+      assertTrue(entered.await(5, TimeUnit.SECONDS));
+      doReturn(true).when(transform).isStopped();
+      assertFalse(transform.processRow());
+      verify(transform).setOutputDone();
+    } finally {
+      release.countDown();
+      workers.shutdownNow();
+      assertTrue(workers.awaitTermination(5, TimeUnit.SECONDS));
+    }
+  }
+
   private void setParallelism(boolean parallelism) {
     ((DetectLanguageMeta) transformMeta.getTransform()).setParallelism(parallelism);
   }
