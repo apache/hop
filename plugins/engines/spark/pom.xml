@@ -302,6 +302,12 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-salesforce</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Filter Rows for target-stream unit tests -->
         <dependency>
             <groupId>org.apache.hop</groupId>

@@ -740,6 +740,14 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>requires Salesforce credentials</item>
       </line>
       <line>
+        <item>salesforce-bulk-load.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
+        <item>salesforce-bulk-input.hpl</item>
+        <item>requires Salesforce credentials</item>
+      </line>
+      <line>
         <item>pgvector-search.hpl</item>
         <item>requires PostgreSQL with the pgvector extension</item>
       </line>

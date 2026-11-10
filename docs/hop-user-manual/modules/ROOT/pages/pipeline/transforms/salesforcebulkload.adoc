@@ -1,0 +1,70 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+:description: Experimental transform that loads Salesforce records with Bulk API 2.0.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-tech-salesforce
+
+= image:transforms/icons/salesforcebulkload.svg[Salesforce bulk load transform icon, role="image-doc-icon"] Salesforce bulk load
+
+== Description
+
+WARNING: This transform is experimental. The dialog and the saved pipeline may still change.
+
+Salesforce bulk load inserts, updates, upserts, deletes, or hard-deletes records through Bulk API 2.0.
+It collects the input rows into a CSV file, creates one ingest job, and waits until Salesforce finishes it.
+A job that grows past *Maximum bytes per job* is closed and another job is started.
+The five SOAP transforms (Input, Insert, Update, Upsert, and Delete) are unchanged and remain the right choice for a small synchronous call.
+
+The transform reuses a xref:metadata-types/salesforce-connection.adoc[Salesforce connection].
+An OAuth or JWT connection supplies the access token.
+A username and password connection logs in with the SOAP API and sends that session id as the bearer token.
+
+Bulk API 2.0 speaks CSV only and handles one Salesforce object per job.
+On update and upsert, a null value is written as `#N/A` so Salesforce clears the field.
+An empty string does not clear an existing value.
+On insert, a null is an empty field.
+Result files are not in input order.
+Rows are matched on the id for update and delete, on the external id for upsert, and on every mapped value for insert.
+Two identical input rows are paired in input order, which is ambiguous if Salesforce also rewrites the values.
+
+A failed row is sent to the error hop when one is connected.
+Otherwise the row is written to the main output with the success field set to false.
+Rows that Salesforce already committed are not rolled back.
+
+== Options
+
+* *Salesforce connection*. The connection metadata.
+* *Salesforce object*. The object API name, for example `Account`.
+* *Operation*. Insert, update, upsert, delete, or hard delete.
+* *External id field*. Required for upsert. The same field must be in the field map.
+* *Concurrency*. Parallel is faster. Serial avoids row-lock errors when many rows share a parent.
+* *Line ending* and *Column delimiter*. Written into the CSV and declared on the job.
+* *Timeout* and *Poll interval*. Seconds to wait for a job, and how often to ask for its state. The defaults are 3600 and 10.
+* *Maximum bytes per job*. Default 104857600, which is under the 150 MB Bulk API limit.
+* *Salesforce id field*, *Job id field*, *Success field*, and *Error field*. Output fields. Leave a name empty to omit that field.
+
+The field map names a stream field and the Salesforce field API name.
+The CSV header uses that API name, including its case.
+
+== Limits
+
+Bulk API 2.0 has no service level agreement.
+A job can stay open for 24 hours, and Salesforce keeps the result files for 7 days.
+Daily org limits include 150 million records and 15,000 batches, shared with Bulk API 1.0.

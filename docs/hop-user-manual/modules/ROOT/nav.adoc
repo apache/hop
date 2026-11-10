@@ -297,6 +297,8 @@ under the License.
 *** xref:pipeline/transforms/rowgenerator.adoc[Row Generator]
 *** xref:pipeline/transforms/rownormaliser.adoc[Row Normaliser]
 *** xref:pipeline/transforms/runssh.adoc[Run SSH commands]
+*** xref:pipeline/transforms/salesforcebulkinput.adoc[Salesforce bulk input]
+*** xref:pipeline/transforms/salesforcebulkload.adoc[Salesforce bulk load]
 *** xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]
 *** xref:pipeline/transforms/salesforceinput.adoc[Salesforce Input]
 *** xref:pipeline/transforms/salesforceinsert.adoc[Salesforce Insert]

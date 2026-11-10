@@ -131,7 +131,11 @@ public class HopPipelineMetaToBeamPipelineConverter {
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
       Map.of(
           BeamConst.STRING_MASK_FIELDS_PLUGIN_ID,
-          "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token.");
+          "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token.",
+          BeamConst.STRING_SALESFORCE_BULK_LOAD_PLUGIN_ID,
+          "Salesforce bulk load is not supported on Beam. The transform buffers rows and sends them as one Bulk API job, so splitting the rows across workers would open separate jobs.",
+          BeamConst.STRING_SALESFORCE_BULK_INPUT_PLUGIN_ID,
+          "Salesforce bulk input is not supported on Beam. The transform runs one query job and reads the result pages in order.");
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;

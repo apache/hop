@@ -73,6 +73,23 @@ class BeamPipelineEngineSupportsTest {
   }
 
   @Test
+  void salesforceBulkPluginIdsAreHardBanned() {
+    // Ban by plugin id. Referencing the Salesforce classes here would put them on the Beam engine
+    // class loader.
+    for (String id :
+        new String[] {
+          BeamConst.STRING_SALESFORCE_BULK_LOAD_PLUGIN_ID,
+          BeamConst.STRING_SALESFORCE_BULK_INPUT_PLUGIN_ID
+        }) {
+      EngineCompatibility verdict = engine.supports(pluginWithIdAndMainType(id, Object.class));
+      assertTrue(verdict.isUnsupported(), id);
+      assertEquals(
+          HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(id),
+          verdict.getReason());
+    }
+  }
+
+  @Test
   void maskFieldsPluginIdIsHardBanned() {
     // Ban by plugin id. Referencing MaskFieldsMeta here would put that class on the Beam engine
     // class loader, which is what broke every Beam run after the transform was added.

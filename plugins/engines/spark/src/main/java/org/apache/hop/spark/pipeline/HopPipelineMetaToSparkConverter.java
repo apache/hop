@@ -100,7 +100,11 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.JOIN_ROWS_PLUGIN_ID,
           "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead.",
           SparkConst.MASK_FIELDS_PLUGIN_ID,
-          "Mask fields is not supported on the native Spark engine. Every partition keeps its own mapping and sequence, so the same source value would not stay the same token.");
+          "Mask fields is not supported on the native Spark engine. Every partition keeps its own mapping and sequence, so the same source value would not stay the same token.",
+          SparkConst.SALESFORCE_BULK_LOAD_PLUGIN_ID,
+          "Salesforce bulk load is not supported on the native Spark engine. The transform buffers rows and sends them as one Bulk API job, so each partition would open its own job.",
+          SparkConst.SALESFORCE_BULK_INPUT_PLUGIN_ID,
+          "Salesforce bulk input is not supported on the native Spark engine. The transform runs one query job and reads the result pages in order.");
 
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;
