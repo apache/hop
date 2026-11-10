@@ -37,7 +37,7 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Read the rows of a unit test data set. Create a data set named 0108-data-set-output before running.</note>
+      <note>Read the rows of the unit test data set run-pipeline-tests-input.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
       <width>400</width>
@@ -61,8 +61,8 @@ limitations under the License.
   </order>
 <transform>
     <type>DataSetInput</type>
-    <name>golden-data-stream</name>
-    <dataSetName>golden-data-stream</dataSetName>
+    <name>read data set</name>
+    <dataSetName>run-pipeline-tests-input</dataSetName>
     <distribute>Y</distribute>
     <copies>1</copies>
     <partitioning>
