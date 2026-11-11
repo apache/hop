@@ -88,6 +88,19 @@ class VfsExplorerStatusTest {
   }
 
   @Test
+  void aSkippedLinkLoopIsReportedWhenTheCopyEnds() {
+    VfsExplorerOperation operation = new VfsExplorerOperation("Copying", "file:///tmp");
+    operation.progress().linkLoopSkipped("/data/self");
+    operation.complete();
+    assertEquals(VfsExplorerOperation.Status.FAILED, operation.getStatus());
+    assertTrue(operation.getErrorMessage().contains("/data/self"));
+
+    operation.fail(new IllegalStateException("disk full"));
+    assertTrue(operation.getErrorMessage().startsWith("disk full\n"));
+    assertTrue(operation.getErrorMessage().contains("/data/self"));
+  }
+
+  @Test
   void stopWinsOverADriverFailure() {
     VfsExplorerOperation operation = new VfsExplorerOperation("Listing", "smb://share");
     operation.cancel();

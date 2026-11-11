@@ -137,6 +137,7 @@ import org.apache.hop.ui.hopgui.shared.CanvasSvgHelper;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SashFormMemory;
 import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileExplorerViews;
+import org.apache.hop.ui.hopgui.vfs.explorer.VfsFileTransfer;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -1375,10 +1376,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         return;
       }
 
+      // VfsFileTransfer.delete() removes a link by itself. FileObject.deleteAll() would delete the
+      // files in the folder it points to.
+      //
       if (fileObjects.size() == 1) {
-        if (fileObjects.get(0).deleteAll() > 0) {
-          removeTreeItemAfterDelete(items.get(0), filenamesPerItem.get(0));
-        }
+        VfsFileTransfer.delete(fileObjects.get(0));
+        removeTreeItemAfterDelete(items.get(0), filenamesPerItem.get(0));
         return;
       }
 
@@ -1387,10 +1390,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       //
       List<String> deletedFilenames = new ArrayList<>();
       for (int i = 0; i < fileObjects.size(); i++) {
-        if (fileObjects.get(i).deleteAll() > 0) {
-          updateLastSelectedFolderAfterDelete(items.get(i));
-          deletedFilenames.addAll(filenamesPerItem.get(i));
-        }
+        VfsFileTransfer.delete(fileObjects.get(i));
+        updateLastSelectedFolderAfterDelete(items.get(i));
+        deletedFilenames.addAll(filenamesPerItem.get(i));
       }
       closeTabsForFilenames(deletedFilenames);
       refresh();

@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.vfs.explorer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.Getter;
@@ -50,6 +53,9 @@ public class VfsExplorerOperation {
 
   private final AtomicLong bytesDone = new AtomicLong();
 
+  /** Folders a copy or move left out because a link led back into it, as messages. */
+  private final List<String> skippedLinks = new CopyOnWriteArrayList<>();
+
   public VfsExplorerOperation(String description, String location) {
     this.description = description == null ? "" : description;
     this.location = location == null ? "" : location;
@@ -80,7 +86,15 @@ public class VfsExplorerOperation {
     return cancelled;
   }
 
+  /**
+   * Done. A copy or move that left out a folder because of a link loop transferred the rest, but
+   * ends as failed, so the folders it left out are shown.
+   */
   public void complete() {
+    if (!cancelled && !skippedLinks.isEmpty()) {
+      fail(null, null);
+      return;
+    }
     status = cancelled ? Status.CANCELLED : Status.DONE;
     endTime = System.currentTimeMillis();
     worker = null;
@@ -88,7 +102,12 @@ public class VfsExplorerOperation {
 
   public void fail(String message, String detail) {
     status = cancelled ? Status.CANCELLED : Status.FAILED;
-    errorMessage = message;
+    List<String> lines = new ArrayList<>();
+    if (!isBlank(message)) {
+      lines.add(message);
+    }
+    lines.addAll(skippedLinks);
+    errorMessage = String.join("\n", lines);
     this.detail = detail;
     endTime = System.currentTimeMillis();
     worker = null;
@@ -180,6 +199,13 @@ public class VfsExplorerOperation {
       @Override
       public void fileDone() {
         filesDone.incrementAndGet();
+      }
+
+      @Override
+      public void linkLoopSkipped(String folder) {
+        skippedLinks.add(
+            BaseMessages.getString(
+                VfsFileExplorer.PKG, "VfsFileExplorer.Transfer.LinkLoop", folder));
       }
     };
   }
