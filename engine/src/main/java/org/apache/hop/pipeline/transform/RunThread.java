@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transform;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -119,6 +120,10 @@ public class RunThread implements Runnable {
         e.printStackTrace();
       } finally {
         transform.setErrors(1);
+        // Before stopping the others: the first transform to report is the root cause
+        if (transform.getPipeline() instanceof Pipeline pipeline) {
+          pipeline.reportTransformFailure(transform, FailurePhase.RUN, t);
+        }
         transform.stopAll();
       }
     } finally {

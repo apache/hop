@@ -61,6 +61,42 @@ The failure only shows up on the engine you were not testing on.
 Extension points run inline, on the thread that fired them.
 Anything slow belongs on a queue, not in `callExtensionPoint`.
 
+=== Failures
+
+NOTE: Experimental in 2.21: the shape of the failure object can still change.
+
+When a transform, action, pipeline or workflow fails, Hop announces it as an `ExecutionFailure` (`org.apache.hop.core.failure`): what failed, in which phase, why, and in which category.
+
+[cols="1,3"]
+|===
+|Extension point |Fired when
+
+|`TransformFailed`
+|A transform threw an exception in `init()` or `processRow()`, its `init()` returned false, or it finished with errors without throwing.
+Once per transform copy.
+
+|`PipelineFailed`
+|The pipeline failed as a whole: after its finished listeners, before `PipelineCompleted`.
+Also when it failed to initialize or to prepare.
+
+|`ActionFailed`
+|An action threw an exception, or its error count went up.
+An action on a failure hop that only passes on the errors it was given, like Write to log, did not fail.
+
+|`WorkflowFailed`
+|The workflow ended with a false result, the rule `hop-run` uses for its exit code.
+Not when someone stopped it and nothing went wrong.
+|===
+
+A transform or action failure names the component (name, plugin id, copy) and carries the cause: the exception class and message, the root cause, the first SQL state, and a stack trace cut off at 16,000 characters.
+When the transform or action only logged an error, the cause is that last error line, and `cause.fromLog` is true.
+A pipeline or workflow failure points at the failure that brought it down through `causedBy`, and so does an action whose child pipeline or workflow failed: `getRootCause()` follows the chain from a workflow down to the transform where it started.
+
+`category` comes from fixed rules on exception class names and SQL states (`FailureClassifier`), tried from the root cause outwards, never from the wording of a message.
+Every failure in a chain carries the category of its root cause, so a rule like "retry on `CONNECTIVITY`" can look at the top of the chain.
+
+The local engines also offer the failures without a plugin: `Pipeline.addExecutionFailureListener()` and `Workflow.addExecutionFailureListener()`, and `getFailures()` / `getRunFailure()` once the run is done.
+
 == Logging
 
 A logging plugin participates in the lifecycle of the logging subsystem.

@@ -44,6 +44,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.failure.ExecutionFailure;
+import org.apache.hop.core.failure.FailurePhase;
+import org.apache.hop.core.failure.IExecutionFailureListener;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
@@ -68,6 +71,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
+import org.apache.hop.execution.failure.ExecutionFailures;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -142,6 +146,20 @@ public abstract class Workflow extends Variables
 
   /** A flat list of results in THIS workflow, in the order of execution of actions */
   protected final LinkedList<ActionResult> actionResults = new LinkedList<>();
+
+  /**
+   * How many action failures are kept: a repeating workflow could otherwise collect them forever.
+   */
+  private static final int MAX_ACTION_FAILURES = 100;
+
+  /** The last action failures of the current execution, in the order they happened. */
+  private final List<ExecutionFailure> failures = Collections.synchronizedList(new ArrayList<>());
+
+  /** The failure of the current execution as a whole, null while it has not failed. */
+  private volatile ExecutionFailure runFailure;
+
+  private final List<IExecutionFailureListener> executionFailureListeners =
+      Collections.synchronizedList(new ArrayList<>());
 
   protected Date executionStartDate;
 
@@ -309,6 +327,9 @@ public abstract class Workflow extends Variables
 
   @Override
   public Result startExecution() {
+    Throwable thrown = null;
+    failures.clear();
+    runFailure = null;
 
     try {
       // Create a new log channel at every start of an execution
@@ -342,6 +363,7 @@ public abstract class Workflow extends Variables
 
       result = executeFromStart();
     } catch (Throwable je) {
+      thrown = je;
       log.logError(
           BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", je.getMessage()), je);
 
@@ -361,6 +383,15 @@ public abstract class Workflow extends Variables
       try {
         executionEndDate = new Date();
 
+        // A false result is a failure, as hop-run's exit code has it, unless someone stopped the
+        // workflow and nothing went wrong
+        if (result != null
+            && !result.isResult()
+            && !(isStopped() && result.getNrErrors() == 0 && thrown == null)) {
+          reportRunFailure(thrown);
+        }
+        passRunFailureOn();
+
         ExtensionPointHandler.callExtensionPoint(
             log, this, HopExtensionPoint.WorkflowFinish.id, this);
 
@@ -375,6 +406,8 @@ public abstract class Workflow extends Variables
         result.setResult(false);
         log.logError(
             BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
+        reportRunFailure(e);
+        passRunFailureOn();
 
         emergencyWriteWorkflowTracker(result);
       } finally {
@@ -390,6 +423,106 @@ public abstract class Workflow extends Variables
     }
 
     return result;
+  }
+
+  /**
+   * Did the action fail, or did it pass on the errors of an action before it? An action on a
+   * failure hop - Write to log, for one - often leaves the error count it was given as it is.
+   */
+  private static boolean actionFailed(long errorsBefore, Result result, IAction action) {
+    if (result.getNrErrors() <= 0) {
+      return false;
+    }
+    if (result.getNrErrors() > errorsBefore || !result.getFailures().isEmpty()) {
+      return true;
+    }
+    return !result.isResult()
+        && action.getLogChannel() != null
+        && ExecutionFailures.hasLoggedError(action.getLogChannel().getLogChannelId());
+  }
+
+  /**
+   * Record and announce the failure of an action: the {@link HopExtensionPoint#ActionFailed}
+   * extension point, then the execution failure listeners. Never throws.
+   */
+  private void reportActionFailure(
+      ActionMeta actionMeta, IAction action, Result actionResult, Throwable throwable) {
+    try {
+      ExecutionFailure failure =
+          ExecutionFailures.forAction(this, actionMeta, action, actionResult, throwable);
+      synchronized (failures) {
+        failures.add(failure);
+        while (failures.size() > MAX_ACTION_FAILURES) {
+          failures.remove(0);
+        }
+      }
+      ExecutionFailures.announce(
+          action.getLogChannel() == null ? log : action.getLogChannel(),
+          this,
+          HopExtensionPoint.ActionFailed.id,
+          failure,
+          executionFailureListeners);
+    } catch (Throwable e) {
+      // Reporting a failure must never get in the way of handling it
+      log.logError("Unable to report the failure of action " + actionMeta.getName(), e);
+    }
+  }
+
+  /**
+   * Record and announce the failure of this workflow as a whole, once per execution: caused by the
+   * last action that failed, or else by what was thrown.
+   */
+  private void reportRunFailure(Throwable throwable) {
+    try {
+      ExecutionFailure failure;
+      synchronized (failures) {
+        if (runFailure != null) {
+          return;
+        }
+        ExecutionFailure last = failures.isEmpty() ? null : failures.get(failures.size() - 1);
+        failure = ExecutionFailures.forRun(this, FailurePhase.RUN, last, throwable);
+        runFailure = failure;
+      }
+      ExecutionFailures.announce(
+          log, this, HopExtensionPoint.WorkflowFailed.id, failure, executionFailureListeners);
+    } catch (Throwable e) {
+      log.logError("Unable to report the failure of workflow " + getWorkflowName(), e);
+    }
+  }
+
+  /**
+   * The result of a workflow carries its own failure, and nothing else: a parent action reads why
+   * this workflow failed from it, not why an action that was handled along the way did.
+   */
+  private void passRunFailureOn() {
+    if (result != null) {
+      List<ExecutionFailure> resultFailures = new ArrayList<>();
+      if (runFailure != null) {
+        resultFailures.add(runFailure);
+      }
+      result.setFailures(resultFailures);
+    }
+  }
+
+  /** The last action failures of the current execution (at most 100), oldest first. */
+  public List<ExecutionFailure> getFailures() {
+    synchronized (failures) {
+      return new ArrayList<>(failures);
+    }
+  }
+
+  /** The failure of the current execution as a whole, or null if it has not failed. */
+  public ExecutionFailure getRunFailure() {
+    return runFailure;
+  }
+
+  /** Be told about every action failure and the workflow failure of this workflow. */
+  public void addExecutionFailureListener(IExecutionFailureListener listener) {
+    executionFailureListeners.add(listener);
+  }
+
+  public void removeExecutionFailureListener(IExecutionFailureListener listener) {
+    executionFailureListeners.remove(listener);
   }
 
   private void emergencyWriteWorkflowTracker(Result result) {
@@ -854,8 +987,14 @@ public abstract class Workflow extends Variables
       activeActions.add(actionMeta.clone());
 
       log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
+      // The failures in the result an action returns are those of its own children
+      prevResult.setFailures(new ArrayList<>());
+      final long errorsBefore = prevResult.getNrErrors();
       try {
         newResult = cloneAction.execute(prevResult, nr);
+      } catch (Throwable e) {
+        reportActionFailure(actionMeta, cloneAction, null, e);
+        throw e;
       } finally {
         releaseJoin(actionMeta);
       }
@@ -887,6 +1026,9 @@ public abstract class Workflow extends Variables
 
       Thread.currentThread().setContextClassLoader(cl);
       addErrors((int) newResult.getNrErrors());
+      if (actionFailed(errorsBefore, newResult, cloneAction)) {
+        reportActionFailure(actionMeta, cloneAction, newResult, null);
+      }
 
       // Also capture the logging text after the execution...
       //

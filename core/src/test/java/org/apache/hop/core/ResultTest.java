@@ -19,13 +19,16 @@ package org.apache.hop.core;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -173,5 +176,32 @@ class ResultTest {
     Result result = new Result();
     result.setRows(new ArrayList<>(List.of(rows)));
     return result;
+  }
+
+  @Test
+  void failuresAreAddedAndCopiedButNotWritten() throws Exception {
+    ExecutionFailure childFailure = new ExecutionFailure();
+    Result child = new Result();
+    child.getFailures().add(childFailure);
+
+    Result parent = new Result();
+    parent.add(child);
+    assertEquals(List.of(childFailure), parent.getFailures());
+
+    // A clone has its own list
+    Result clone = parent.clone();
+    clone.getFailures().clear();
+    assertEquals(1, parent.getFailures().size());
+    Result lightClone = parent.lightClone();
+    lightClone.getFailures().clear();
+    assertEquals(1, parent.getFailures().size());
+
+    // Not in the XML form
+    Result read = new Result(XmlHandler.loadXmlString(parent.getXml(), Result.XML_TAG));
+    assertTrue(read.getFailures().isEmpty());
+
+    // Not in the JSON form either
+    String json = new ObjectMapper().writeValueAsString(parent);
+    assertFalse(json.contains("failures"), json);
   }
 }
