@@ -161,6 +161,25 @@ class PropertyGraphGeneratorTest {
                 model(), null, List.of(new EdgeTableMapping("KNOWS", null, null, "a, b", null))));
   }
 
+  /** A table used by two nodes, or by a node and a relationship, is refused. */
+  @Test
+  void testValidateTables() throws Exception {
+    new PropertyGraphGenerator(model(), null, null).validateTables();
+
+    PropertyGraphGenerator twoNodes =
+        new PropertyGraphGenerator(
+            model(), List.of(new NodeTableMapping("Company", "Person", null)), null);
+    HopException e = assertThrows(HopException.class, twoNodes::validateTables);
+    assertTrue(e.getMessage().contains("node 'Person' and node 'Company'"), e.getMessage());
+
+    PropertyGraphGenerator nodeAndEdge =
+        new PropertyGraphGenerator(
+            model(), null, List.of(new EdgeTableMapping("WORKS_AT", "Company", null, null, null)));
+    e = assertThrows(HopException.class, nodeAndEdge::validateTables);
+    assertTrue(
+        e.getMessage().contains("node 'Company' and relationship 'WORKS_AT'"), e.getMessage());
+  }
+
   /** Names which the database quoting can't handle safely are refused before generating SQL. */
   @Test
   void testValidateIdentifiers() throws Exception {

@@ -216,7 +216,7 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
             database, getPlannedStatements(database, loadGraphModel(metadataProvider)));
       }
     } catch (Exception e) {
-      result.setNrErrors(1);
+      result.increaseErrors(1L);
       logError("Error creating property graph '" + resolve(graphName) + "'", e);
       return result;
     }
@@ -229,8 +229,7 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
    * so a failing CREATE PROPERTY GRAPH doesn't leave them behind. Each statement commits on its
    * own, so a rollback can't undo them.
    */
-  private void executeStatements(Database database, List<PlannedStatement> statements)
-      throws HopException {
+  void executeStatements(Database database, List<PlannedStatement> statements) throws HopException {
     List<String> createdTables = new ArrayList<>();
     for (PlannedStatement statement : statements) {
       if (isDetailed()) {
@@ -343,6 +342,7 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
         StringUtils.isEmpty(schema) ? resolve(databaseMeta.getPreferredSchemaName()) : schema,
         databaseMeta.getStartQuote(),
         databaseMeta.getEndQuote());
+    generator.validateTables();
     List<PlannedStatement> statements = new ArrayList<>();
     if (creatingTables) {
       for (PropertyGraphGenerator.NodeTable table : generator.getNodeTables()) {

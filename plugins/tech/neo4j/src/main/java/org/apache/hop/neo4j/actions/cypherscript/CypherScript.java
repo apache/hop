@@ -92,8 +92,7 @@ public class CypherScript extends ActionBase implements IAction {
       }
     } catch (Exception e) {
       logError("Error executing cypher statements", e);
-      result.setNrErrors(1);
-      result.setResult(false);
+      fail(result);
       nrExecuted = 0;
     }
 
@@ -134,8 +133,7 @@ public class CypherScript extends ActionBase implements IAction {
         return executeInTransaction(connection, statements);
       } catch (Exception e) {
         logError("Error executing cypher statements, the transaction is rolled back", e);
-        result.setNrErrors(1);
-        result.setResult(false);
+        fail(result);
         return 0;
       }
     }
@@ -143,6 +141,17 @@ public class CypherScript extends ActionBase implements IAction {
     // transactions at all: run each statement on its own.
     //
     return executeAutoCommit(connection, statements, result);
+  }
+
+  /**
+   * Fail the action with one more error than the previous actions had. A failure is counted once,
+   * also when closing the connection fails after a failed statement.
+   */
+  private static void fail(Result result) {
+    if (result.getResult()) {
+      result.setResult(false);
+      result.increaseErrors(1L);
+    }
   }
 
   /** Split the script into statements: a semicolon at the start of a separate line. */
@@ -264,8 +273,7 @@ public class CypherScript extends ActionBase implements IAction {
     } catch (Exception e) {
       logError(
           "Error executing cypher statements, the statements before the error stay committed", e);
-      result.setNrErrors(1);
-      result.setResult(false);
+      fail(result);
     }
     return executed;
   }
@@ -283,8 +291,7 @@ public class CypherScript extends ActionBase implements IAction {
       }
     } catch (Exception e) {
       logError("Error executing cypher statements...", e);
-      result.setNrErrors(1);
-      result.setResult(false);
+      fail(result);
     }
     return executed;
   }
