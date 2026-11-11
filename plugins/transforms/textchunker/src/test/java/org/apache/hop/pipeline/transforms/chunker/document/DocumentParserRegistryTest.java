@@ -143,4 +143,51 @@ class DocumentParserRegistryTest {
     String text = "Intro\n\n## Install\n\n```\n# a\n# b\n```\n";
     assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
   }
+
+  @Test
+  void hashLinesInAsciiDocCommentAndPassthroughBlocksAreNotMarkdownHeadings() {
+    assertEquals(
+        ContentType.ASCIIDOC,
+        DocumentParserRegistry.detect("== Setup\n\nText.\n\n////\n# one\n# two\n////\n"));
+    assertEquals(
+        ContentType.ASCIIDOC,
+        DocumentParserRegistry.detect("== Setup\n\nText.\n\n++++\n# one\n# two\n++++\n"));
+  }
+
+  @Test
+  void asciiDocTitlesInAMarkdownTildeFenceDoNotCount() {
+    String text = "## Example\n\n~~~\n== Section A\n\n== Section B\n~~~\n";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void onATieTheFirstHeadingDecides() {
+    assertEquals(
+        ContentType.MARKDOWN,
+        DocumentParserRegistry.detect("# Guide\n\nBody.\n\n== Note: tie-break\n\nMore."));
+    assertEquals(
+        ContentType.ASCIIDOC,
+        DocumentParserRegistry.detect("== Download\n\nBody.\n\n# not a heading\n\nMore."));
+  }
+
+  @Test
+  void aDocumentTitleAfterANestedCommentDelimiterIsFound() {
+    // Inside a ////// comment a //// line is text, it does not close the comment.
+    String text = "//////\n////\n# commented\n//////\n= Title\n\n# one\n\n# two\n";
+    assertEquals(ContentType.ASCIIDOC, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void markdownTwoLineTitlesDoNotMakeItAsciiDoc() {
+    String text = "Guide\n=====\n\nIntro.\n\nInstall\n-------\n\nSteps.\n\n## Detail\n";
+    assertEquals(ContentType.MARKDOWN, DocumentParserRegistry.detect(text));
+  }
+
+  @Test
+  void detectsHopXmlWithADoctypeInternalSubset() {
+    String xml =
+        "<?xml version=\"1.0\"?>\n<!DOCTYPE pipeline [\n  <!ENTITY name \"x>y\">\n"
+            + "  <!-- it's ] here -->\n]>\n<pipeline><info/></pipeline>";
+    assertEquals(ContentType.PIPELINE, DocumentParserRegistry.detect(xml));
+  }
 }

@@ -128,4 +128,40 @@ class HeadingParsersTest {
         sections(
             new MarkdownDocumentParser(), "# Guide\r\n\r\nIntro.\r\n\r\n## Next ##\r\n\r\nMore."));
   }
+
+  @Test
+  void asciiDocTwoLineTitleUnderlineIsNotABlockDelimiter() {
+    assertEquals(
+        List.of("Introduction: Text.", "Introduction > Install: Steps."),
+        sections(
+            new AsciiDocDocumentParser(),
+            "Introduction\n============\n\nText.\n\n== Install\n\nSteps."));
+    assertEquals(
+        List.of("Setup: Text.", "Setup > Install: Steps."),
+        sections(new AsciiDocDocumentParser(), "Setup\n-----\n\nText.\n\n=== Install\n\nSteps."));
+  }
+
+  @Test
+  void asciiDocDelimiterAfterABlankLineOrOfAnotherLengthOpensABlock() {
+    // After a blank line, or not within one character of the line above, ---- opens a listing.
+    assertEquals(
+        List.of("Title: Text\n\n----\n== code\n----", "Title > Next: More."),
+        sections(
+            new AsciiDocDocumentParser(),
+            "= Title\n\nText\n\n----\n== code\n----\n\n== Next\n\nMore."));
+    assertEquals(
+        List.of("Title: A longer paragraph line\n----\n== code\n----", "Title > Next: More."),
+        sections(
+            new AsciiDocDocumentParser(),
+            "= Title\n\nA longer paragraph line\n----\n== code\n----\n\n== Next\n\nMore."));
+  }
+
+  @Test
+  void markdownClosingSequenceOnlyKeepsTheText() {
+    assertEquals(
+        List.of("Guide: Intro.", "Guide > #: Text.", "Guide > # > ###: More."),
+        sections(
+            new MarkdownDocumentParser(),
+            "# Guide\n\nIntro.\n\n## #\n\nText.\n\n### ###\n\nMore."));
+  }
 }

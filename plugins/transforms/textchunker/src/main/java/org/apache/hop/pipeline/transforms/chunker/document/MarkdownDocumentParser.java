@@ -49,13 +49,20 @@ public final class MarkdownDocumentParser implements DocumentParser {
     if (text == null || text.isEmpty()) {
       return DocumentNode.root("");
     }
-    return HeadingParserSupport.parse(text, findHeadings(text));
+    return HeadingParserSupport.parse(text, scan(text).headings());
   }
 
-  /** The headings of a Markdown text, skipping fenced code blocks. */
-  static List<Heading> findHeadings(String text) {
+  /**
+   * The headings of a Markdown text and the {@code [start, end)} offsets of its fenced code blocks.
+   * An unclosed fence runs to the end of the text.
+   */
+  record Scan(List<Heading> headings, List<int[]> fencedBlocks) {}
+
+  static Scan scan(String text) {
     List<Heading> headings = new ArrayList<>();
+    List<int[]> fencedBlocks = new ArrayList<>();
     String openFence = null;
+    int fenceStart = -1;
     for (Line line : HeadingParserSupport.lines(text)) {
       Matcher fence = FENCE.matcher(line.text());
       if (openFence != null) {
@@ -65,11 +72,13 @@ public final class MarkdownDocumentParser implements DocumentParser {
             && fence.group(1).length() >= openFence.length()
             && fence.group(2).isBlank()) {
           openFence = null;
+          fencedBlocks.add(new int[] {fenceStart, line.end()});
         }
         continue;
       }
       if (fence.matches() && !(fence.group(1).charAt(0) == '`' && fence.group(2).contains("`"))) {
         openFence = fence.group(1);
+        fenceStart = line.start();
         continue;
       }
       Heading heading = heading(line);
@@ -77,7 +86,10 @@ public final class MarkdownDocumentParser implements DocumentParser {
         headings.add(heading);
       }
     }
-    return headings;
+    if (openFence != null) {
+      fencedBlocks.add(new int[] {fenceStart, text.length()});
+    }
+    return new Scan(headings, fencedBlocks);
   }
 
   private static Heading heading(Line line) {
@@ -85,7 +97,10 @@ public final class MarkdownDocumentParser implements DocumentParser {
     if (!matcher.matches()) {
       return null;
     }
-    String title = CLOSING_SEQUENCE.matcher(matcher.group(2).strip()).replaceFirst("");
-    return new Heading(matcher.group(1).length(), title.strip(), line.start(), line.end());
+    String text = matcher.group(2).strip();
+    String title = CLOSING_SEQUENCE.matcher(text).replaceFirst("").strip();
+    // "## #" would otherwise get an empty title, so the breadcrumb ends in "Guide > ".
+    return new Heading(
+        matcher.group(1).length(), title.isEmpty() ? text : title, line.start(), line.end());
   }
 }
