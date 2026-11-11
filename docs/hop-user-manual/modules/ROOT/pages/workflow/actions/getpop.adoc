@@ -81,7 +81,7 @@ a|Select the e-mails to retrieve:
 |Delete emails after retrieval|check to delete the mails on the pop server after retrieval.
 2+|IMAP settings
 |IMAP folder|the folder on the IMAP server to retrieve messages from
-|Include subfolders|check to select messages for subfolders from the selected IMAP folder
+|Include subfolders|check to select messages for subfolders from the selected IMAP folder. Folders are handled in alphabetical order. When messages are moved, the folder they are moved into is skipped, so a moved message isn't read, saved or moved a second time.
 |Retrieve a|choose one of
 
 * Get all messages
@@ -153,5 +153,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 When the action is false, these metrics keep the values of the previous action.
+
+NOTE: Up to Hop 2.20, a message moved on its own (with *Move message to folder* after retrieval, or with the *Move messages to folder* action and *Retrieve the first...emails*) also counted in *Lines deleted*. From 2.21 it only counts in *Lines updated*, like a message moved together with the others. A workflow that checks *Lines deleted* after a move needs to check *Lines updated* instead.
 
 NOTE: *Retrieve the first...emails* also applies to the *Delete messages* and *Move messages to folder* actions: only that number of messages is deleted or moved.

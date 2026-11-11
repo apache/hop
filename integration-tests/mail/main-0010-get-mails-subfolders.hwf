@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0010-get-mails-subfolders</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Get mails over a folder and its subfolder: unique #IdFile#, move and delete counters (#9208)</description>
+  <description>Get mails over a folder and its subfolders: unique #IdFile#, move and delete counters, move target below the source folder (#9208)</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -618,14 +618,498 @@ updated == 0 &amp;&amp; deleted == 4;</script>
       <attributes_hac/>
     </action>
     <action>
+      <name>prepare mailbox for move (move target below INBOX, inline)</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash
+# Fresh mailbox for folders@example.com: INBOX with 3 messages, INBOX.a with 1 and an empty
+# INBOX.z. INBOX.z is the move target: it sorts after INBOX.a, so it is reached as a subfolder
+# after messages were moved into it.
+WEBADMIN="http://${MAIL_SMTP_SERVER}:8000"
+MAILUSER="folders@example.com"
+OUT="${PROJECT_HOME}/output/0010-move-inline"
+
+curl -s -XPUT "$WEBADMIN/domains/example.com"
+curl -s -XPUT "$WEBADMIN/users/$MAILUSER" -d '{"password":"password"}' -H "Content-Type: application/json"
+curl -sf -XDELETE "$WEBADMIN/users/$MAILUSER/mailboxes" || exit 1
+for mailbox in INBOX INBOX.a INBOX.z; do
+  curl -sf -XPUT "$WEBADMIN/users/$MAILUSER/mailboxes/$mailbox" || exit 1
+done
+
+rm -rf "$OUT"
+mkdir -p "$OUT"
+
+for n in 1 2 3; do
+  printf 'From: sender@example.com\r\nTo: %s\r\nSubject: Message %s\r\n\r\nBody of message %s\r\n' "$MAILUSER" "$n" "$n" \
+    | curl -sS --url "smtp://${MAIL_SMTP_SERVER}:25" --mail-from sender@example.com --mail-rcpt "$MAILUSER" -T - || exit 1
+done
+# Put message 4 straight into INBOX.a with an IMAP APPEND (curl needs a file of known size)
+printf 'From: sender@example.com\r\nTo: %s\r\nSubject: Message 4\r\n\r\nBody of message 4\r\n' "$MAILUSER" &gt; "$OUT/../0010-message-4.eml"
+curl -sSk --url "imaps://${MAIL_SMTP_SERVER}:993/INBOX.a" --user "$MAILUSER:password" -T "$OUT/../0010-message-4.eml" || exit 1
+rm -f "$OUT/../0010-message-4.eml"
+
+# Delivery is asynchronous: wait until all 3 messages are in INBOX
+for attempt in $(seq 1 60); do
+  count=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/INBOX/messageCount")
+  sub=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/INBOX.a/messageCount")
+  if [ "$count" = 3 ] &amp;&amp; [ "$sub" = 1 ]; then
+    echo "INBOX of $MAILUSER holds 3 messages, INBOX.a holds 1"
+    exit 0
+  fi
+  sleep 1
+done
+echo "Expected 3 messages in INBOX and 1 in INBOX.a of $MAILUSER, found $count and $sub"
+exit 1
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>get and move to INBOX.z incl. subfolders (inline)</name>
+      <description/>
+      <type>GET_POP</type>
+      <attributes/>
+      <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+      <servername>${MAIL_SMTP_SERVER}</servername>
+      <sslport>993</sslport>
+      <username>folders@example.com</username>
+      <usessl>Y</usessl>
+      <attachmentfolder/>
+      <attachmentwildcard/>
+      <bodysearch/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>msg_#IdFile#.mail</filenamepattern>
+      <firstmails/>
+      <imapfirstmails>0</imapfirstmails>
+      <imapfolder>INBOX</imapfolder>
+      <includesubfolders>Y</includesubfolders>
+      <movetoimapfolder>INBOX.z</movetoimapfolder>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output/0010-move-inline</outputdirectory>
+      <protocol>IMAP</protocol>
+      <proxyusername/>
+      <receivedDate1/>
+      <receivedDate2/>
+      <recipientsearch/>
+      <retrievemails>0</retrievemails>
+      <actiontype>get</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>move</aftergetimap>
+      <saveattachment>N</saveattachment>
+      <savemessage>Y</savemessage>
+      <sendersearch/>
+      <subjectsearch/>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
+      <useproxy>N</useproxy>
+      <usexoauth2>N</usexoauth2>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check get and move counters (inline)</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var written = previous_result.getNrLinesWritten();
+var updated = previous_result.getNrLinesUpdated();
+var deleted = previous_result.getNrLinesDeleted();
+log.logBasic("Get and move incl. subfolders (inline): lines written = " + written + ", lines updated = " + updated + ", lines deleted = " + deleted);
+written == 4 &amp;&amp; updated == 4 &amp;&amp; deleted == 0;</script>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check saved files and folders after move (inline)</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash
+# Every message saved once, and all 4 now in INBOX.z: none read or copied again from INBOX.z.
+WEBADMIN="http://${MAIL_SMTP_SERVER}:8000"
+MAILUSER="folders@example.com"
+OUT="${PROJECT_HOME}/output/0010-move-inline"
+errors=0
+files=$(ls "$OUT")
+nfiles=$(ls "$OUT" | wc -l)
+echo "Saved message files: " $files
+if [ "$nfiles" != 4 ]; then
+  echo "Expected 4 message files, found $nfiles"
+  errors=$((errors + 1))
+fi
+for n in 1 2 3 4; do
+  found=$(grep -l "^Subject: Message $n" "$OUT"/*.mail 2&gt;/dev/null | wc -l)
+  if [ "$found" != 1 ]; then
+    echo "Message $n was found in $found files, expected 1"
+    errors=$((errors + 1))
+  fi
+done
+for expected in INBOX:0 INBOX.a:0 INBOX.z:4; do
+  mailbox=${expected%%:*}
+  count=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/$mailbox/messageCount")
+  echo "$mailbox holds $count messages"
+  if [ "$count" != "${expected##*:}" ]; then
+    echo "Expected ${expected##*:} messages in $mailbox"
+    errors=$((errors + 1))
+  fi
+done
+exit $errors
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <parallel>N</parallel>
+      <xloc>912</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>move all to INBOX.z incl. subfolders (inline)</name>
+      <description/>
+      <type>GET_POP</type>
+      <attributes/>
+      <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
+      <servername>${MAIL_SMTP_SERVER}</servername>
+      <sslport>993</sslport>
+      <username>folders@example.com</username>
+      <usessl>Y</usessl>
+      <attachmentfolder/>
+      <attachmentwildcard/>
+      <bodysearch/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>msg_#IdFile#.mail</filenamepattern>
+      <firstmails/>
+      <imapfirstmails>0</imapfirstmails>
+      <imapfolder>INBOX</imapfolder>
+      <includesubfolders>Y</includesubfolders>
+      <movetoimapfolder>INBOX.z</movetoimapfolder>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output/0010-move-inline</outputdirectory>
+      <protocol>IMAP</protocol>
+      <proxyusername/>
+      <receivedDate1/>
+      <receivedDate2/>
+      <recipientsearch/>
+      <retrievemails>0</retrievemails>
+      <actiontype>move</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>nothing</aftergetimap>
+      <saveattachment>N</saveattachment>
+      <savemessage>Y</savemessage>
+      <sendersearch/>
+      <subjectsearch/>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
+      <useproxy>N</useproxy>
+      <usexoauth2>N</usexoauth2>
+      <parallel>N</parallel>
+      <xloc>1136</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check move all counters (inline)</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var written = previous_result.getNrLinesWritten();
+var updated = previous_result.getNrLinesUpdated();
+var deleted = previous_result.getNrLinesDeleted();
+log.logBasic("Move all incl. subfolders, all messages already in INBOX.z (inline): lines written = " + written + ", lines updated = " + updated + ", lines deleted = " + deleted);
+updated == 0 &amp;&amp; deleted == 0;</script>
+      <parallel>N</parallel>
+      <xloc>1360</xloc>
+      <yloc>544</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>prepare mailbox for move (move target below INBOX, connection)</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash
+# Fresh mailbox for folders@example.com: INBOX with 3 messages, INBOX.a with 1 and an empty
+# INBOX.z. INBOX.z is the move target: it sorts after INBOX.a, so it is reached as a subfolder
+# after messages were moved into it.
+WEBADMIN="http://${MAIL_SMTP_SERVER}:8000"
+MAILUSER="folders@example.com"
+OUT="${PROJECT_HOME}/output/0010-move-connection"
+
+curl -s -XPUT "$WEBADMIN/domains/example.com"
+curl -s -XPUT "$WEBADMIN/users/$MAILUSER" -d '{"password":"password"}' -H "Content-Type: application/json"
+curl -sf -XDELETE "$WEBADMIN/users/$MAILUSER/mailboxes" || exit 1
+for mailbox in INBOX INBOX.a INBOX.z; do
+  curl -sf -XPUT "$WEBADMIN/users/$MAILUSER/mailboxes/$mailbox" || exit 1
+done
+
+rm -rf "$OUT"
+mkdir -p "$OUT"
+
+for n in 1 2 3; do
+  printf 'From: sender@example.com\r\nTo: %s\r\nSubject: Message %s\r\n\r\nBody of message %s\r\n' "$MAILUSER" "$n" "$n" \
+    | curl -sS --url "smtp://${MAIL_SMTP_SERVER}:25" --mail-from sender@example.com --mail-rcpt "$MAILUSER" -T - || exit 1
+done
+# Put message 4 straight into INBOX.a with an IMAP APPEND (curl needs a file of known size)
+printf 'From: sender@example.com\r\nTo: %s\r\nSubject: Message 4\r\n\r\nBody of message 4\r\n' "$MAILUSER" &gt; "$OUT/../0010-message-4.eml"
+curl -sSk --url "imaps://${MAIL_SMTP_SERVER}:993/INBOX.a" --user "$MAILUSER:password" -T "$OUT/../0010-message-4.eml" || exit 1
+rm -f "$OUT/../0010-message-4.eml"
+
+# Delivery is asynchronous: wait until all 3 messages are in INBOX
+for attempt in $(seq 1 60); do
+  count=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/INBOX/messageCount")
+  sub=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/INBOX.a/messageCount")
+  if [ "$count" = 3 ] &amp;&amp; [ "$sub" = 1 ]; then
+    echo "INBOX of $MAILUSER holds 3 messages, INBOX.a holds 1"
+    exit 0
+  fi
+  sleep 1
+done
+echo "Expected 3 messages in INBOX and 1 in INBOX.a of $MAILUSER, found $count and $sub"
+exit 1
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>get and move to INBOX.z incl. subfolders (connection)</name>
+      <description/>
+      <type>GET_POP</type>
+      <attributes/>
+      <connectionName>james-imap-folders</connectionName>
+      <password/>
+      <servername/>
+      <sslport/>
+      <username/>
+      <usessl>N</usessl>
+      <attachmentfolder/>
+      <attachmentwildcard/>
+      <bodysearch/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>msg_#IdFile#.mail</filenamepattern>
+      <firstmails/>
+      <imapfirstmails>0</imapfirstmails>
+      <imapfolder>INBOX</imapfolder>
+      <includesubfolders>Y</includesubfolders>
+      <movetoimapfolder>INBOX.z</movetoimapfolder>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output/0010-move-connection</outputdirectory>
+      <protocol>IMAP</protocol>
+      <proxyusername/>
+      <receivedDate1/>
+      <receivedDate2/>
+      <recipientsearch/>
+      <retrievemails>0</retrievemails>
+      <actiontype>get</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>move</aftergetimap>
+      <saveattachment>N</saveattachment>
+      <savemessage>Y</savemessage>
+      <sendersearch/>
+      <subjectsearch/>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
+      <useproxy>N</useproxy>
+      <usexoauth2>N</usexoauth2>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check get and move counters (connection)</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var written = previous_result.getNrLinesWritten();
+var updated = previous_result.getNrLinesUpdated();
+var deleted = previous_result.getNrLinesDeleted();
+log.logBasic("Get and move incl. subfolders (connection): lines written = " + written + ", lines updated = " + updated + ", lines deleted = " + deleted);
+written == 4 &amp;&amp; updated == 4 &amp;&amp; deleted == 0;</script>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check saved files and folders after move (connection)</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <arg_from_previous>N</arg_from_previous>
+      <arguments>
+</arguments>
+      <exec_per_row>N</exec_per_row>
+      <insertScript>Y</insertScript>
+      <loglevel>Basic</loglevel>
+      <script>#!/bin/bash
+# Every message saved once, and all 4 now in INBOX.z: none read or copied again from INBOX.z.
+WEBADMIN="http://${MAIL_SMTP_SERVER}:8000"
+MAILUSER="folders@example.com"
+OUT="${PROJECT_HOME}/output/0010-move-connection"
+errors=0
+files=$(ls "$OUT")
+nfiles=$(ls "$OUT" | wc -l)
+echo "Saved message files: " $files
+if [ "$nfiles" != 4 ]; then
+  echo "Expected 4 message files, found $nfiles"
+  errors=$((errors + 1))
+fi
+for n in 1 2 3 4; do
+  found=$(grep -l "^Subject: Message $n" "$OUT"/*.mail 2&gt;/dev/null | wc -l)
+  if [ "$found" != 1 ]; then
+    echo "Message $n was found in $found files, expected 1"
+    errors=$((errors + 1))
+  fi
+done
+for expected in INBOX:0 INBOX.a:0 INBOX.z:4; do
+  mailbox=${expected%%:*}
+  count=$(curl -s "$WEBADMIN/users/$MAILUSER/mailboxes/$mailbox/messageCount")
+  echo "$mailbox holds $count messages"
+  if [ "$count" != "${expected##*:}" ]; then
+    echo "Expected ${expected##*:} messages in $mailbox"
+    errors=$((errors + 1))
+  fi
+done
+exit $errors
+</script>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <parallel>N</parallel>
+      <xloc>912</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>move all to INBOX.z incl. subfolders (connection)</name>
+      <description/>
+      <type>GET_POP</type>
+      <attributes/>
+      <connectionName>james-imap-folders</connectionName>
+      <password/>
+      <servername/>
+      <sslport/>
+      <username/>
+      <usessl>N</usessl>
+      <attachmentfolder/>
+      <attachmentwildcard/>
+      <bodysearch/>
+      <createlocalfolder>Y</createlocalfolder>
+      <createmovetofolder>N</createmovetofolder>
+      <delete>N</delete>
+      <filenamepattern>msg_#IdFile#.mail</filenamepattern>
+      <firstmails/>
+      <imapfirstmails>0</imapfirstmails>
+      <imapfolder>INBOX</imapfolder>
+      <includesubfolders>Y</includesubfolders>
+      <movetoimapfolder>INBOX.z</movetoimapfolder>
+      <nottermbodysearch>N</nottermbodysearch>
+      <nottermreceipientsearh>N</nottermreceipientsearh>
+      <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
+      <nottermsendersearch>N</nottermsendersearch>
+      <nottermsubjectsearch>N</nottermsubjectsearch>
+      <outputdirectory>${PROJECT_HOME}/output/0010-move-connection</outputdirectory>
+      <protocol>IMAP</protocol>
+      <proxyusername/>
+      <receivedDate1/>
+      <receivedDate2/>
+      <recipientsearch/>
+      <retrievemails>0</retrievemails>
+      <actiontype>move</actiontype>
+      <valueimaplist>imaplistall</valueimaplist>
+      <conditionreceiveddate>ignore</conditionreceiveddate>
+      <aftergetimap>nothing</aftergetimap>
+      <saveattachment>N</saveattachment>
+      <savemessage>Y</savemessage>
+      <sendersearch/>
+      <subjectsearch/>
+      <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
+      <useproxy>N</useproxy>
+      <usexoauth2>N</usexoauth2>
+      <parallel>N</parallel>
+      <xloc>1136</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check move all counters (connection)</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var written = previous_result.getNrLinesWritten();
+var updated = previous_result.getNrLinesUpdated();
+var deleted = previous_result.getNrLinesDeleted();
+log.logBasic("Move all incl. subfolders, all messages already in INBOX.z (connection): lines written = " + written + ", lines updated = " + updated + ", lines deleted = " + deleted);
+updated == 0 &amp;&amp; deleted == 0;</script>
+      <parallel>N</parallel>
+      <xloc>1360</xloc>
+      <yloc>704</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>abort</name>
       <description/>
       <type>ABORT</type>
       <attributes/>
       <always_log_rows>N</always_log_rows>
-      <message>Get mails over INBOX and INBOX.sub did not give the expected result</message>
+      <message>Get mails over INBOX and its subfolders did not give the expected result</message>
       <parallel>N</parallel>
-      <xloc>1584</xloc>
+      <xloc>1808</xloc>
       <yloc>384</yloc>
       <attributes_hac/>
     </action>
@@ -636,8 +1120,8 @@ updated == 0 &amp;&amp; deleted == 4;</script>
       <attributes/>
 
       <parallel>N</parallel>
-      <xloc>1904</xloc>
-      <yloc>224</yloc>
+      <xloc>1584</xloc>
+      <yloc>704</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -840,6 +1324,174 @@ updated == 0 &amp;&amp; deleted == 4;</script>
     </hop>
     <hop>
       <from>check delete counters (connection)</from>
+      <to>prepare mailbox for move (move target below INBOX, inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>prepare mailbox for move (move target below INBOX, inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>prepare mailbox for move (move target below INBOX, inline)</from>
+      <to>get and move to INBOX.z incl. subfolders (inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>get and move to INBOX.z incl. subfolders (inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>get and move to INBOX.z incl. subfolders (inline)</from>
+      <to>check get and move counters (inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check get and move counters (inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check get and move counters (inline)</from>
+      <to>check saved files and folders after move (inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check saved files and folders after move (inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check saved files and folders after move (inline)</from>
+      <to>move all to INBOX.z incl. subfolders (inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move all to INBOX.z incl. subfolders (inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move all to INBOX.z incl. subfolders (inline)</from>
+      <to>check move all counters (inline)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check move all counters (inline)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check move all counters (inline)</from>
+      <to>prepare mailbox for move (move target below INBOX, connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>prepare mailbox for move (move target below INBOX, connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>prepare mailbox for move (move target below INBOX, connection)</from>
+      <to>get and move to INBOX.z incl. subfolders (connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>get and move to INBOX.z incl. subfolders (connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>get and move to INBOX.z incl. subfolders (connection)</from>
+      <to>check get and move counters (connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check get and move counters (connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check get and move counters (connection)</from>
+      <to>check saved files and folders after move (connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check saved files and folders after move (connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check saved files and folders after move (connection)</from>
+      <to>move all to INBOX.z incl. subfolders (connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move all to INBOX.z incl. subfolders (connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>move all to INBOX.z incl. subfolders (connection)</from>
+      <to>check move all counters (connection)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check move all counters (connection)</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check move all counters (connection)</from>
       <to>success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

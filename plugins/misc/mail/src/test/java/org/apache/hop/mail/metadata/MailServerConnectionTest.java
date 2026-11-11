@@ -19,16 +19,20 @@ package org.apache.hop.mail.metadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import java.util.Properties;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.mail.common.MailConst;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -222,6 +226,21 @@ class MailServerConnectionTest {
     verify(folder).copyMessages(new Message[] {message}, destination);
     verify(message).setFlag(Flags.Flag.DELETED, true);
     assertEquals(1, connection.getMovedMessagesCounter());
+    assertEquals(0, connection.getDeletedMessagesCounter());
+  }
+
+  /** A message that is copied but whose original can't be flagged is not counted as moved. */
+  @Test
+  void moveMessageNotCountedWhenFlagFails() throws Exception {
+    MailServerConnection connection = new MailServerConnection(new Variables());
+    Message message = mock(Message.class);
+    doThrow(new MessagingException("read-only")).when(message).setFlag(Flags.Flag.DELETED, true);
+    FieldUtils.writeField(connection, "folder", mock(Folder.class), true);
+    FieldUtils.writeField(connection, "destinationIMAPFolder", mock(Folder.class), true);
+    FieldUtils.writeField(connection, "message", message, true);
+
+    assertThrows(HopException.class, connection::moveMessage);
+    assertEquals(0, connection.getMovedMessagesCounter());
     assertEquals(0, connection.getDeletedMessagesCounter());
   }
 

@@ -18,6 +18,7 @@
 package org.apache.hop.mail.workflow.actions.getpop;
 
 import jakarta.mail.Flags.Flag;
+import jakarta.mail.Folder;
 import jakarta.mail.Session;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -222,12 +223,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private MailServerConnection connection;
   private MailConnection mailConn;
 
-  /**
-   * Number of messages saved so far in this run, over all folders. Replaces #IdFile# so a message
-   * of a subfolder does not overwrite one of an earlier folder.
-   */
-  private int savedMessageIndex;
-
   private Pattern attachementPattern;
 
   public ActionGetPOP(String n) {
@@ -330,7 +325,6 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     connection = null;
     Session session = null;
     mailConn = null;
-    savedMessageIndex = 0;
     Date beginDate = null;
     Date endDate = null;
 
@@ -667,33 +661,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           df);
 
       if (isIncludeSubFolders()) {
-        // Fetch also sub folders?
-        if (isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "ActionGetPOP.FetchingSubFolders"));
-        }
-        String[] subfolders = null;
-        if (connection != null) {
-          subfolders = connection.returnAllFolders();
-        } else {
-          subfolders = mailConn.returnAllFolders();
-        }
-        if (subfolders.length == 0) {
-          if (isDebug()) {
-            logDebug(BaseMessages.getString(PKG, "ActionGetPOP.NoSubFolders"));
-          }
-        } else {
-          for (String subfolder : subfolders) {
-            fetchOneFolder(
-                usePOP3,
-                subfolder,
-                realOutputFolder,
-                targetAttachmentFolder,
-                realMoveToIMAPFolder,
-                realFilenamePattern,
-                nbrmailtoretrieve,
-                df);
-          }
-        }
+        fetchSubfolders(
+            usePOP3,
+            realOutputFolder,
+            targetAttachmentFolder,
+            realMoveToIMAPFolder,
+            realFilenamePattern,
+            nbrmailtoretrieve,
+            df);
       }
 
       result.setResult(true);
@@ -753,6 +728,57 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     }
 
     return result;
+  }
+
+  /**
+   * Fetch the subfolders of the current folder. The folder that messages are moved into is skipped:
+   * its messages would otherwise be read, saved and moved a second time.
+   */
+  void fetchSubfolders(
+      boolean usePOP3,
+      String realOutputFolder,
+      String targetAttachmentFolder,
+      String realMoveToIMAPFolder,
+      String realFilenamePattern,
+      int nbrmailtoretrieve,
+      SimpleDateFormat df)
+      throws HopException {
+    if (isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "ActionGetPOP.FetchingSubFolders"));
+    }
+    String[] subfolders;
+    Folder moveTarget;
+    if (connection != null) {
+      subfolders = connection.returnAllFolders();
+      moveTarget = connection.getDestinationIMAPFolder();
+    } else {
+      subfolders = mailConn.returnAllFolders();
+      moveTarget = mailConn.getDestinationIMAPFolder();
+    }
+    if (subfolders.length == 0) {
+      if (isDebug()) {
+        logDebug(BaseMessages.getString(PKG, "ActionGetPOP.NoSubFolders"));
+      }
+      return;
+    }
+    for (String subfolder : subfolders) {
+      if (moveTarget != null && subfolder.equals(moveTarget.getFullName())) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "ActionGetPOP.SkippingMoveTargetFolder", subfolder));
+        }
+        continue;
+      }
+      fetchOneFolder(
+          usePOP3,
+          subfolder,
+          realOutputFolder,
+          targetAttachmentFolder,
+          realMoveToIMAPFolder,
+          realFilenamePattern,
+          nbrmailtoretrieve,
+          df);
+    }
   }
 
   void fetchOneFolder(
@@ -911,7 +937,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   if (isSaveMessage()) {
                     // get local message filename
                     String localfilenameMessage =
-                        replaceTokens(realFilenamePattern, savedMessageIndex++);
+                        replaceTokens(realFilenamePattern, connection.getSavedMessagesCounter());
 
                     if (isDebug()) {
                       logDebug(
@@ -1081,7 +1107,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                   if (isSaveMessage()) {
                     // get local message filename
                     String localfilenameMessage =
-                        replaceTokens(realFilenamePattern, savedMessageIndex++);
+                        replaceTokens(realFilenamePattern, mailConn.getSavedMessagesCounter());
 
                     if (isDebug()) {
                       logDebug(
