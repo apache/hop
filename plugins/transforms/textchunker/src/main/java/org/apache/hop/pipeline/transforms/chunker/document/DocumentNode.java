@@ -28,12 +28,31 @@ public final class DocumentNode {
   private final String title;
   private final String body;
   private final int startPosition;
+  private final int bodyStartPosition;
   private final List<DocumentNode> children;
 
+  /**
+   * A node whose body starts at {@code startPosition}: a document root, or a body that is not a
+   * slice of the source text, such as a summary built by a Hop pipeline or metadata parser.
+   */
   public DocumentNode(String title, String body, int startPosition, List<DocumentNode> children) {
+    this(title, body, startPosition, startPosition, children);
+  }
+
+  /**
+   * @param startPosition where the section starts in the source text, its heading included
+   * @param bodyStartPosition where {@code body} starts in the source text
+   */
+  public DocumentNode(
+      String title,
+      String body,
+      int startPosition,
+      int bodyStartPosition,
+      List<DocumentNode> children) {
     this.title = title != null ? title : "";
     this.body = body != null ? body : "";
     this.startPosition = Math.max(0, startPosition);
+    this.bodyStartPosition = Math.max(this.startPosition, bodyStartPosition);
     this.children = children != null ? List.copyOf(children) : List.of();
   }
 
@@ -57,6 +76,10 @@ public final class DocumentNode {
     return startPosition;
   }
 
+  public int getBodyStartPosition() {
+    return bodyStartPosition;
+  }
+
   public List<DocumentNode> getChildren() {
     return children;
   }
@@ -76,7 +99,16 @@ public final class DocumentNode {
     }
 
     if (!body.isBlank()) {
-      sections.add(new DocumentSection(List.copyOf(currentPath), body.strip(), startPosition));
+      int leadingWhitespace = 0;
+      while (Character.isWhitespace(body.charAt(leadingWhitespace))) {
+        leadingWhitespace++;
+      }
+      sections.add(
+          new DocumentSection(
+              List.copyOf(currentPath),
+              body.strip(),
+              startPosition,
+              bodyStartPosition + leadingWhitespace));
     }
 
     for (DocumentNode child : children) {
@@ -89,11 +121,22 @@ public final class DocumentNode {
     private final List<String> path;
     private final String body;
     private final int startPosition;
+    private final int bodyStartPosition;
 
     public DocumentSection(List<String> path, String body, int startPosition) {
+      this(path, body, startPosition, startPosition);
+    }
+
+    /**
+     * @param startPosition where the section starts in the source text, its heading included
+     * @param bodyStartPosition where {@code body} starts in the source text
+     */
+    public DocumentSection(
+        List<String> path, String body, int startPosition, int bodyStartPosition) {
       this.path = path != null ? List.copyOf(path) : List.of();
       this.body = body != null ? body : "";
       this.startPosition = startPosition;
+      this.bodyStartPosition = bodyStartPosition;
     }
 
     public List<String> getPath() {
@@ -106,6 +149,10 @@ public final class DocumentNode {
 
     public int getStartPosition() {
       return startPosition;
+    }
+
+    public int getBodyStartPosition() {
+      return bodyStartPosition;
     }
 
     public String breadcrumb() {
