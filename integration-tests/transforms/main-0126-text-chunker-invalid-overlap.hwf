@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0126-text-chunker-invalid-overlap</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Text chunker: a chunk overlap that is not a number stops the transform instead of running with overlap 0 (#9285)</description>
+  <description>Text chunker: a chunk overlap that is not a number or negative stops the transform instead of running with overlap 0 (#9285)</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -55,23 +55,111 @@ limitations under the License.
       <clear_rows>N</clear_rows>
       <clear_files>N</clear_files>
       <create_parent_folder>N</create_parent_folder>
-      <set_logfile>N</set_logfile>
+      <set_logfile>Y</set_logfile>
+      <logfile>${java.io.tmpdir}/0126-text-chunker-overlap-abc</logfile>
+      <logext>log</logext>
       <set_append_logfile>N</set_append_logfile>
       <add_date>N</add_date>
       <add_time>N</add_time>
       <loglevel>Basic</loglevel>
       <wait_until_finished>Y</wait_until_finished>
       <parameters>
+        <parameter>
+          <name>CHUNK_OVERLAP</name>
+          <stream_name/>
+          <value>abc</value>
+        </parameter>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <run_configuration>local</run_configuration>
-      <name>0126-text-chunker-invalid-overlap.hpl</name>
+      <name>Overlap abc</name>
       <description>Expected to fail</description>
       <type>PIPELINE</type>
       <attributes/>
       <xloc>320</xloc>
       <yloc>80</yloc>
       <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>abc message?</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+grep -F "Chunk overlap &apos;abc&apos; is not a whole number" "${java.io.tmpdir}/0126-text-chunker-overlap-abc.log"</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <filename>${PROJECT_HOME}/0126-text-chunker-invalid-overlap.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <set_logfile>Y</set_logfile>
+      <logfile>${java.io.tmpdir}/0126-text-chunker-overlap-negative</logfile>
+      <logext>log</logext>
+      <set_append_logfile>N</set_append_logfile>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <parameters>
+        <parameter>
+          <name>CHUNK_OVERLAP</name>
+          <stream_name/>
+          <value>-1</value>
+        </parameter>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <run_configuration>local</run_configuration>
+      <name>Overlap -1</name>
+      <description>Expected to fail</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <xloc>544</xloc>
+      <yloc>80</yloc>
+      <parallel>N</parallel>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>-1 message?</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+grep -F "Chunk overlap &apos;-1&apos; cannot be negative" "${java.io.tmpdir}/0126-text-chunker-overlap-negative.log"</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>224</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -83,6 +171,42 @@ limitations under the License.
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
       <xloc>320</xloc>
+      <yloc>368</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>No message for 'abc' - Abort</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>The Text chunker did not log why an overlap of 'abc' is invalid</message>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>96</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Overlap -1 did not fail - Abort</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>A chunk overlap of -1 did not stop the Text chunker</message>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>368</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>No message for -1 - Abort</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>The Text chunker did not log why an overlap of -1 is invalid</message>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>768</xloc>
       <yloc>224</yloc>
       <attributes_hac/>
     </action>
@@ -92,7 +216,7 @@ limitations under the License.
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>544</xloc>
+      <xloc>768</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
@@ -100,23 +224,65 @@ limitations under the License.
   <hops>
     <hop>
       <from>START</from>
-      <to>0126-text-chunker-invalid-overlap.hpl</to>
+      <to>Overlap abc</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0126-text-chunker-invalid-overlap.hpl</from>
+      <from>Overlap abc</from>
       <to>Overlap 'abc' did not fail - Abort</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0126-text-chunker-invalid-overlap.hpl</from>
-      <to>Success</to>
+      <from>Overlap abc</from>
+      <to>abc message?</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>abc message?</from>
+      <to>No message for 'abc' - Abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>abc message?</from>
+      <to>Overlap -1</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Overlap -1</from>
+      <to>Overlap -1 did not fail - Abort</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Overlap -1</from>
+      <to>-1 message?</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>-1 message?</from>
+      <to>No message for -1 - Abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>-1 message?</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>

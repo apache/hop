@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -326,8 +327,9 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
   }
 
   /**
-   * Adds an output field. When the input already has a field with that name the transform writes
-   * its values into that field, so the field takes the transform's type if the types differ.
+   * Adds an output field. When the input already has a field with that name (Hop matches field
+   * names without regard to case) the transform writes its values into that field, so the field
+   * takes the transform's metadata (type, storage, format, length) and keeps its existing name.
    */
   private static void addField(IRowMeta row, IValueMeta field, String origin)
       throws HopPluginException {
@@ -339,7 +341,8 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     int index = row.indexOfValue(fieldName);
     if (index < 0) {
       row.addValueMeta(field);
-    } else if (row.getValueMeta(index).getType() != field.getType()) {
+    } else {
+      field.setName(row.getValueMeta(index).getName());
       row.setValueMeta(index, field);
     }
   }
@@ -352,7 +355,7 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
    * @return the number, or {@code null} when the value is not a whole number
    */
   static Integer parseNumber(String value, int emptyValue) {
-    if (Utils.isEmpty(value) || value.isBlank()) {
+    if (value == null || value.isBlank()) {
       return emptyValue;
     }
     try {
@@ -360,6 +363,46 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     } catch (NumberFormatException e) {
       return null;
     }
+  }
+
+  /**
+   * The resolved chunk size and overlap, and the errors that stop the transform. Both {@link
+   * #check} and {@link TextChunker#init()} use this, so the pipeline checks and the run apply the
+   * same rules.
+   *
+   * @param size the chunk size, or -1 when it is not a whole number
+   * @param overlap the chunk overlap, or -1 when it is not a whole number
+   * @param errors the error messages, empty when both values are valid
+   */
+  record ChunkSettings(int size, int overlap, List<String> errors) {
+    boolean isValid() {
+      return errors.isEmpty();
+    }
+  }
+
+  /**
+   * Validates a resolved chunk size and overlap. The size must be a whole number greater than 0,
+   * the overlap a whole number of 0 or more. An empty overlap means no overlap.
+   */
+  static ChunkSettings validateChunkSettings(String sizeText, String overlapText) {
+    List<String> errors = new ArrayList<>();
+    Integer size = parseNumber(sizeText, 0);
+    Integer overlap = parseNumber(overlapText, 0);
+    if (size == null) {
+      errors.add(
+          BaseMessages.getString(PKG, "TextChunker.Validation.ChunkSizeNotANumber", sizeText));
+    } else if (size <= 0) {
+      errors.add(BaseMessages.getString(PKG, "TextChunker.Validation.ChunkSizePositive"));
+    }
+    if (overlap == null) {
+      errors.add(
+          BaseMessages.getString(PKG, "TextChunker.Validation.OverlapNotANumber", overlapText));
+    } else if (overlap < 0) {
+      errors.add(
+          BaseMessages.getString(PKG, "TextChunker.Validation.OverlapNonNegative", overlapText));
+    }
+    return new ChunkSettings(
+        size == null ? -1 : size, overlap == null ? -1 : overlap, List.copyOf(errors));
   }
 
   /**
@@ -436,24 +479,14 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
 
     checkOutputFieldTypes(remarks, transformMeta, prev);
 
-    String sizeText = variables.resolve(chunkSize);
-    String overlapText = variables.resolve(chunkOverlap);
-    Integer size = parseNumber(sizeText, 0);
-    Integer overlap = parseNumber(overlapText, 0);
-    int resolvedSize = size == null ? -1 : size;
-    int resolvedOverlap = overlap == null ? -1 : overlap;
-
-    if (size == null) {
-      error(remarks, transformMeta, "TextChunker.Validation.ChunkSizeNotANumber", sizeText);
-    } else if (resolvedSize <= 0) {
-      error(remarks, transformMeta, "TextChunker.Validation.ChunkSizePositive");
+    ChunkSettings settings =
+        validateChunkSettings(variables.resolve(chunkSize), variables.resolve(chunkOverlap));
+    for (String message : settings.errors()) {
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, transformMeta));
     }
-
-    if (overlap == null) {
-      error(remarks, transformMeta, "TextChunker.Validation.OverlapNotANumber", overlapText);
-    } else if (resolvedOverlap < 0) {
-      error(remarks, transformMeta, "TextChunker.Validation.OverlapNonNegative");
-    } else if (resolvedSize > 0 && resolvedOverlap >= resolvedSize) {
+    int resolvedSize = settings.size();
+    int resolvedOverlap = settings.overlap();
+    if (resolvedSize > 0 && resolvedOverlap >= resolvedSize) {
       warning(remarks, transformMeta, "TextChunker.Validation.OverlapWarning");
     }
 
@@ -476,9 +509,10 @@ public class TextChunkerMeta extends BaseTransformMeta<TextChunker, TextChunkerD
     try {
       getFields(output, transformMeta.getName(), null, null, null, null);
     } catch (HopTransformException e) {
+      error(remarks, transformMeta, "TextChunker.Validation.OutputFieldsError", e.getMessage());
       return;
     }
-    for (String fieldName : getOutputFieldNames()) {
+    for (String fieldName : new LinkedHashSet<>(getOutputFieldNames())) {
       if (Utils.isEmpty(fieldName)) {
         continue;
       }

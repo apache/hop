@@ -93,8 +93,8 @@ Chunk overlap applies to the Character strategy. The Paragraph and Structure str
 
 The Structure strategy drops chunks that contain only whitespace. The chunk index and total chunk count cover only the chunks that are emitted. Text that yields no chunks produces a single row with an empty chunk and a total of 0, the same as empty text.
 
-Chunk size and chunk overlap must be whole numbers. A value that is not a number, for example `abc`, is reported in the pipeline checks and stops the transform when the pipeline starts.
+Chunk size must be a whole number greater than 0. Chunk overlap must be a whole number of 0 or more; leave it empty for no overlap. A value that is not a number, for example `abc`, or a negative overlap is reported in the pipeline checks and stops the transform when the pipeline starts.
 
-When the input already has a field with the same name as an output field, the transform writes its values into that field instead of adding a new one. If the types differ, for example a String `chunk_index` in the input, the field takes the transform's type and the pipeline checks report a warning. Rename the output field to keep the input field as it is.
+When the input already has a field with the same name as an output field (names are matched without regard to case), the transform writes its values into that field instead of adding a new one. The field keeps its name and position but takes the transform's type, storage and format. If the types differ, for example a String `chunk_index` in the input, the pipeline checks report a warning. Rename the output field to keep the input field as it is.
 
 Keep *Include metadata* enabled when the chunks are going into a vector store: the document ID and chunk index are what let a later search merge neighbouring chunks back into a passage, and re-index a single document without touching the rest.

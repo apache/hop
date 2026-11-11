@@ -66,30 +66,17 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
     if (!super.init()) {
       return false;
     }
-    String sizeText = resolve(meta.getChunkSize());
-    String overlapText = resolve(meta.getChunkOverlap());
-    Integer size = TextChunkerMeta.parseNumber(sizeText, 0);
-    Integer overlap = TextChunkerMeta.parseNumber(overlapText, 0);
-    if (size == null) {
-      logError(BaseMessages.getString(PKG, "TextChunker.Validation.ChunkSizeNotANumber", sizeText));
+    TextChunkerMeta.ChunkSettings settings =
+        TextChunkerMeta.validateChunkSettings(
+            resolve(meta.getChunkSize()), resolve(meta.getChunkOverlap()));
+    if (!settings.isValid()) {
+      for (String message : settings.errors()) {
+        logError(message);
+      }
       return false;
     }
-    if (overlap == null) {
-      logError(
-          BaseMessages.getString(PKG, "TextChunker.Validation.OverlapNotANumber", overlapText));
-      return false;
-    }
-    data.chunkSize = size;
-    data.chunkOverlap = overlap;
-    if (data.chunkSize <= 0) {
-      logError(
-          BaseMessages.getString(
-              PKG, "TextChunker.Validation.ChunkSizePositive", meta.getChunkSize()));
-      return false;
-    }
-    if (data.chunkOverlap < 0) {
-      data.chunkOverlap = 0;
-    }
+    data.chunkSize = settings.size();
+    data.chunkOverlap = settings.overlap();
     strategy = ChunkingStrategyFactory.createStrategy(meta.getChunkingStrategy());
     if (strategy instanceof ParagraphChunkingStrategy paragraphStrategy) {
       paragraphStrategy.setSeparator(

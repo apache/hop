@@ -25,12 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.chunker.chunking.ChunkingStrategyType;
@@ -149,20 +152,123 @@ class TextChunkerMetaTest {
     assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(2).getType());
   }
 
-  /** An existing field of the same type keeps its own metadata, for example its length. */
+  /**
+   * The transform writes plain String values, so an existing field of the same type must not keep
+   * its own storage type, mask or length. With lazy conversion the input field is a binary string;
+   * keeping that metadata would make later transforms read a String as byte[].
+   */
   @Test
-  void anExistingFieldOfTheSameTypeIsKept() throws Exception {
+  void anExistingFieldOfTheSameTypeTakesTheOutputMetadata() throws Exception {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("body"));
+    ValueMetaString lazy = new ValueMetaString("chunk_text", 5000, -1);
+    lazy.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    lazy.setStorageMetadata(new ValueMetaString("chunk_text"));
+    lazy.setConversionMask("#");
+    row.addValueMeta(lazy);
+    meta.getFields(row, "chunker", null, null, new Variables(), null);
+
+    IValueMeta chunkText = row.getValueMeta(1);
+    assertEquals("chunk_text", chunkText.getName());
+    assertEquals(IValueMeta.STORAGE_TYPE_NORMAL, chunkText.getStorageType());
+    assertEquals(-1, chunkText.getLength());
+    assertNull(chunkText.getConversionMask());
+  }
+
+  /**
+   * Hop matches field names without regard to case. An input field named Chunk_Index is reused, and
+   * keeps its name so later transforms that look it up by that name still find it.
+   */
+  @Test
+  void anExistingFieldKeepsItsName() throws Exception {
     TextChunkerMeta meta = new TextChunkerMeta();
     meta.setDefault();
     meta.setInputField("text");
 
     IRowMeta row = new RowMeta();
-    ValueMetaString text = new ValueMetaString("text", 5000, -1);
-    row.addValueMeta(text);
-    meta.setOutputChunkField("text");
+    row.addValueMeta(new ValueMetaString("text"));
+    row.addValueMeta(new ValueMetaString("Chunk_Index"));
     meta.getFields(row, "chunker", null, null, new Variables(), null);
 
-    assertEquals(5000, row.searchValueMeta("text").getLength());
+    assertEquals(6, row.size(), "the existing field is reused, not duplicated");
+    assertEquals("Chunk_Index", row.getValueMeta(1).getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(1).getType());
+  }
+
+  /** Two output fields with the same name give one warning, not two. */
+  @Test
+  void checkWarnsOnceForADuplicateOutputFieldName() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+    meta.setChunkIndexField("n");
+    meta.setChunkCountField("n");
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("body"));
+    prev.addValueMeta(new ValueMetaString("n"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+    assertEquals(
+        1,
+        remarks.stream()
+            .filter(
+                r -> r.getType() == ICheckResult.TYPE_RESULT_WARNING && r.getText().contains("'n'"))
+            .count());
+  }
+
+  /** When the output fields cannot be determined, the checks say so instead of staying silent. */
+  @Test
+  void checkReportsAnErrorWhenTheOutputFieldsCannotBeDetermined() {
+    TextChunkerMeta meta =
+        new TextChunkerMeta() {
+          @Override
+          public void getFields(
+              IRowMeta row,
+              String origin,
+              IRowMeta[] info,
+              TransformMeta nextTransform,
+              IVariables variables,
+              IHopMetadataProvider metadataProvider)
+              throws HopTransformException {
+            throw new HopTransformException("broken field");
+          }
+        };
+    meta.setDefault();
+    meta.setInputField("body");
+
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaString("body"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), prev, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("broken field")),
+        "a getFields failure must be reported");
+  }
+
+  /** The checks and the transform share one set of rules for the chunk size and overlap. */
+  @Test
+  void validatesChunkSettings() {
+    assertTrue(TextChunkerMeta.validateChunkSettings("100", "").isValid());
+    assertEquals(0, TextChunkerMeta.validateChunkSettings("100", "").overlap());
+    assertTrue(TextChunkerMeta.validateChunkSettings("100", "0").isValid());
+    assertFalse(TextChunkerMeta.validateChunkSettings("100", "-1").isValid());
+    assertFalse(TextChunkerMeta.validateChunkSettings("100", "abc").isValid());
+    assertFalse(TextChunkerMeta.validateChunkSettings("0", "0").isValid());
+    assertFalse(TextChunkerMeta.validateChunkSettings("", "0").isValid());
+    assertEquals(2, TextChunkerMeta.validateChunkSettings("abc", "-1").errors().size());
   }
 
   @Test
@@ -207,6 +313,25 @@ class TextChunkerMetaTest {
     assertFalse(
         remarks.stream().anyMatch(r -> r.getText().contains("negative")),
         "an overlap of 'abc' is not negative");
+  }
+
+  @Test
+  void checkReportsANegativeOverlap() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("body");
+    meta.setChunkOverlap("-5");
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(remarks, null, new TransformMeta(), null, null, null, null, new Variables(), null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("'-5' cannot be negative")),
+        "an overlap of -5 must be reported as negative");
   }
 
   @Test

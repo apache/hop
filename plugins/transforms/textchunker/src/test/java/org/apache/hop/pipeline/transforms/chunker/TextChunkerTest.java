@@ -265,6 +265,25 @@ class TextChunkerTest {
   }
 
   @Test
+  void initFailsWhenTheOverlapIsNegative() {
+    TextChunkerMeta meta = new TextChunkerMeta();
+    meta.setDefault();
+    meta.setInputField("text");
+    meta.setChunkOverlap("-5");
+
+    TextChunker transform =
+        new TextChunker(
+            helper.transformMeta,
+            meta,
+            new TextChunkerData(),
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+
+    assertFalse(transform.init(), "an overlap of -5 must fail init, not become 0");
+  }
+
+  @Test
   void initFailsWhenTheChunkSizeIsNotANumber() {
     TextChunkerMeta meta = new TextChunkerMeta();
     meta.setDefault();

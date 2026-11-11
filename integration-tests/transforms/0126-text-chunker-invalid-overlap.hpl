@@ -21,12 +21,17 @@ limitations under the License.
   <info>
     <name>0126-text-chunker-invalid-overlap</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Expected to fail: a chunk overlap that is not a number must stop the transform instead of running with overlap 0 (#9285).</description>
+    <description>Expected to fail: a chunk overlap that is not a number or negative must stop the transform instead of running with overlap 0 (#9285).</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
     <parameters>
+      <parameter>
+        <name>CHUNK_OVERLAP</name>
+        <default_value>abc</default_value>
+        <description>Invalid chunk overlap to test</description>
+      </parameter>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
@@ -90,7 +95,7 @@ limitations under the License.
     <outputChunkField>chunk_text</outputChunkField>
     <chunkingStrategy>CHARACTER</chunkingStrategy>
     <chunkSize>30</chunkSize>
-    <chunkOverlap>abc</chunkOverlap>
+    <chunkOverlap>${CHUNK_OVERLAP}</chunkOverlap>
     <includeMetadata>Y</includeMetadata>
     <chunkIndexField>chunk_index</chunkIndexField>
     <chunkStartPosField>chunk_start_position</chunkStartPosField>
