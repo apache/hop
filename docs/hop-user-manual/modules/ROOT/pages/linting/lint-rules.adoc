@@ -504,9 +504,13 @@ That can miss a dead file which happens to share a name with a live one, which i
 
 Put a `hop-lint.yml` in the project root. It holds overrides and project-local rules only, not a copy of the rule packs.
 
-A file is linted with the nearest `hop-lint.yml` in its own folder or a folder above it, up to the project root: the folder that holds `project-config.json`, or the project open in Hop Gui.
-A `hop-lint.yml` above the project root, in a home or workspace folder for example, is never used for the project's files.
-Paths in `exclude` and `suppress` are relative to the folder of the `hop-lint.yml` in use.
+A file is linted with the nearest `hop-lint.yml` in its own folder or a folder above it, up to the project root.
+That is the same in Hop Gui, `hop lint` and the Run Linter action, so a `hop-lint.yml` in a subfolder of the project open in Hop Gui applies to the files below it there too.
+The project root is the folder that holds `project-config.json` or `hop-project.config`, or the project's home folder (`PROJECT_HOME`) when a project is in use, for example the one open in Hop Gui or chosen with `-j`.
+The folder Hop was started from is not a project root.
+A `hop-lint.yml` above the project root, in a home or workspace folder for example, is not used for the project's files, and Hop logs once that it is ignored.
+To share one `hop-lint.yml` between several projects, at the root of a monorepo for example, pass it with `--config` or in the *Config file* field of the Run Linter action.
+Paths in `exclude` and `suppress` are relative to the folder of the project's `hop-lint.yml`, or of the shared one when it is passed that way.
 A file that is in no project uses the nearest `hop-lint.yml` above it.
 
 [source,yaml]

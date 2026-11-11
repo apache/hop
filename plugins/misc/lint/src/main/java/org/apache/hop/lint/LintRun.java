@@ -129,6 +129,7 @@ public class LintRun {
 
     HopLinter linter = new HopLinter();
     linter.setIncludeMetadata(includeMetadata);
+    linter.setProjectHome(variables == null ? null : variables.getVariable("PROJECT_HOME"));
     if (configFile != null) {
       if (!configFile.isFile()) {
         throw new IOException("Configuration file not found: " + configFile);

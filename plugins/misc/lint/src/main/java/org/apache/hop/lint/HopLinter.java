@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -81,6 +82,15 @@ public class HopLinter {
   private LinterConfig config;
   private EffectiveRuleSet effectiveRuleSet;
 
+  /** The configuration file given to {@link #loadConfig(String)}, or null. */
+  private File explicitConfigFile;
+
+  /** The home folder of the project in use, {@code PROJECT_HOME}, or null. */
+  private String projectHome;
+
+  /** The root of exclude and suppress paths per folder, as {@link #projectRootFor} found it. */
+  private final Map<Path, Optional<Path>> projectRoots = new ConcurrentHashMap<>();
+
   /** Whether a folder run lints metadata files too; null follows the Linter configuration. */
   private Boolean includeMetadata;
 
@@ -126,6 +136,8 @@ public class HopLinter {
    */
   public void loadConfig(String filePath) throws IOException {
     File configFile = new File(filePath);
+    explicitConfigFile =
+        configFile.exists() ? configFile.toPath().toAbsolutePath().normalize().toFile() : null;
     if (!configFile.exists()) {
       log.logBasic("Configuration file not found: " + filePath + ". Using rule packs only.");
       applyEffectiveRuleSet(RuleRegistry.getInstance().resolve(null));
@@ -147,6 +159,7 @@ public class HopLinter {
   private void applyEffectiveRuleSet(EffectiveRuleSet resolved) {
     this.effectiveRuleSet = resolved;
     this.config = resolved.getConfig();
+    projectRoots.clear();
     // Detailed, not basic: resolving happens on every lint of every file, and now on every
     // right-click that has to work out what the lint menu should offer.
     log.logDetailed(
@@ -482,6 +495,7 @@ public class HopLinter {
    * @param context A file or directory used to locate hop-lint.yml in parent folders
    */
   public void loadConfigurationForContext(File context) {
+    explicitConfigFile = null;
     try {
       if (isSwitchedOff()) {
         this.config = new LinterConfig();
@@ -507,7 +521,8 @@ public class HopLinter {
    * @throws LintConfigurationException when the project's {@code hop-lint.yml} cannot be read
    */
   public void loadConfigurationStrictly(File context) {
-    applyEffectiveRuleSet(RuleRegistry.getInstance().resolveForContext(context));
+    explicitConfigFile = null;
+    applyEffectiveRuleSet(RuleRegistry.getInstance().resolveForContext(context, projectHome));
   }
 
   /** Whether the linter is switched off in Hop Gui's configuration. */
@@ -871,13 +886,50 @@ public class HopLinter {
    * <p>Patterns are written against project-relative paths so a configuration is portable between a
    * developer's machine and CI. The root is the folder holding the project's hop-lint.yml, which is
    * what the user means by "the project".
+   *
+   * <p>Remembered per folder for the life of this linter, which is one run: finding it stats a file
+   * or two in every folder up to the project root, and a project lint asks for every file it lints,
+   * which on a network drive adds up.
    */
   private Path projectRootFor(String fileName) {
-    File configFile = RuleRegistry.getInstance().findProjectYaml(new File(fileName));
+    File file = new File(fileName);
+    Path path = file.toPath().toAbsolutePath().normalize();
+    Path directory = file.isDirectory() ? path : path.getParent();
+    if (directory == null) {
+      return null;
+    }
+    return projectRoots
+        .computeIfAbsent(directory, key -> Optional.ofNullable(findProjectRoot(file, key)))
+        .orElse(null);
+  }
+
+  private Path findProjectRoot(File file, Path directory) {
+    File configFile =
+        RuleRegistry.getInstance().findProjectYaml(file, projectHome, explicitConfigFile == null);
+    if (configFile == null && isHopLintYmlAbove(explicitConfigFile, directory)) {
+      // A hop-lint.yml above the project root, passed with --config or in the Run Linter action.
+      configFile = explicitConfigFile;
+    }
     if (configFile != null && configFile.getParentFile() != null) {
       return configFile.getParentFile().toPath().toAbsolutePath();
     }
     return null;
+  }
+
+  /** Whether this configuration file is the nearest hop-lint.yml in this folder or one above. */
+  private static boolean isHopLintYmlAbove(File configFile, Path start) {
+    if (configFile == null) {
+      return false;
+    }
+    for (File directory = start.toFile();
+        directory != null;
+        directory = directory.getParentFile()) {
+      File candidate = new File(directory, RuleRegistry.LINT_CONFIG_FILENAME);
+      if (candidate.isFile()) {
+        return candidate.equals(configFile);
+      }
+    }
+    return false;
   }
 
   private boolean shouldIncludeNativeChecks() {
@@ -894,6 +946,16 @@ public class HopLinter {
    */
   public void setIncludeMetadata(Boolean includeMetadata) {
     this.includeMetadata = includeMetadata;
+  }
+
+  /**
+   * @param projectHome the home folder of the project in use, {@code PROJECT_HOME}, or null. The
+   *     search for a hop-lint.yml stops there, which covers a project whose configuration file has
+   *     a name of its own. Set it before loading the configuration.
+   */
+  public void setProjectHome(String projectHome) {
+    this.projectHome = projectHome;
+    projectRoots.clear();
   }
 
   private boolean includeMetadataInProjectLint() {

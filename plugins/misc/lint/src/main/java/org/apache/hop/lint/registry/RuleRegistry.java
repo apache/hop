@@ -17,11 +17,15 @@
 package org.apache.hop.lint.registry;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
@@ -38,10 +42,14 @@ public class RuleRegistry {
 
   private static final RuleRegistry INSTANCE = new RuleRegistry();
 
-  private static final String LINT_CONFIG_FILENAME = "hop-lint.yml";
+  public static final String LINT_CONFIG_FILENAME = "hop-lint.yml";
 
-  /** The file that marks a Hop project's home folder. */
-  private static final String PROJECT_CONFIG_FILENAME = "project-config.json";
+  /**
+   * The files that mark a Hop project's home folder, the ones the projects plugin looks for. A
+   * project with a configuration file of another name is recognised by its home folder instead.
+   */
+  private static final List<String> PROJECT_CONFIG_FILENAMES =
+      List.of("project-config.json", "hop-project.config");
 
   private final RulePackDiscovery packDiscovery;
 
@@ -328,69 +336,140 @@ public class RuleRegistry {
   }
 
   public EffectiveRuleSet resolveForContext(File context) {
-    return resolve(findProjectYaml(context));
+    return resolveForContext(context, null);
   }
 
+  /**
+   * @param projectHome the home folder of the project in use, {@code PROJECT_HOME}, or null
+   * @see #findProjectYaml(File, String, boolean)
+   */
+  public EffectiveRuleSet resolveForContext(File context, String projectHome) {
+    return resolve(findProjectYaml(context, projectHome, true));
+  }
+
+  /** The rules of the project Hop Gui has open, or of the rule packs alone when none is open. */
   public EffectiveRuleSet resolveForCurrentProject() {
-    File projectYaml = null;
-    try {
-      String projectPath = LinterConfigPlugin.getInstance().getProjectPath();
-      if (!Utils.isEmpty(projectPath)) {
-        projectYaml = new File(projectPath, "hop-lint.yml");
-      }
-    } catch (Exception ignored) {
-      // CLI mode
-    }
-    return resolve(
-        projectYaml != null && projectYaml.exists() ? projectYaml : findProjectYaml(null));
+    return resolve(findProjectYaml(null));
+  }
+
+  /**
+   * Locate the project hop-lint.yml governing a file, or null. Used to root relative patterns.
+   *
+   * @see #findProjectYaml(File, String, boolean)
+   */
+  public File findProjectYaml(File context) {
+    return findProjectYaml(context, null, true);
   }
 
   /**
    * Locate the project hop-lint.yml governing a file, or null. Used to root relative patterns.
    *
    * <p>The nearest hop-lint.yml in the file's folder or above it is used, up to the project root:
-   * the folder holding {@code project-config.json}, or the project Hop Gui has open. A hop-lint.yml
-   * above the project, left in a home or workspace folder, changed the findings of every project
-   * below it and rooted their exclude and suppress paths outside the project, so a CI checkout
-   * linted differently from a developer's machine. A file in no project still uses the nearest one
-   * above it.
+   * the folder holding {@code project-config.json} or {@code hop-project.config}, the project's
+   * home folder, or the project Hop Gui has open. A hop-lint.yml above the project, left in a home
+   * or workspace folder, changed the findings of every project below it and rooted their exclude
+   * and suppress paths outside the project, so a CI checkout linted differently from a developer's
+   * machine. A file in no project still uses the nearest one above it.
+   *
+   * <p>The working directory is not a project root: hop-run, hop-server or a container started in a
+   * project's subfolder would otherwise stop the search there and miss the project's own file.
+   *
+   * @param context the file or folder being linted; null for the project Hop Gui has open
+   * @param projectHome the home folder of the project in use, {@code PROJECT_HOME}, or null
+   * @param warnAboutOneAbove whether to say once that a hop-lint.yml above the project root is not
+   *     used; off when the run has a configuration file of its own
    */
-  public File findProjectYaml(File context) {
-    File projectFolder = null;
+  public File findProjectYaml(File context, String projectHome, boolean warnAboutOneAbove) {
+    Set<Path> projectHomes = new LinkedHashSet<>();
+    addProjectHome(projectHomes, projectHome);
+    String guiProjectHome = null;
     try {
-      String projectPath = LinterConfigPlugin.getInstance().getProjectPath();
-      if (!Utils.isEmpty(projectPath)) {
-        projectFolder = new File(projectPath).getAbsoluteFile();
-        File projectConfig = new File(projectFolder, LINT_CONFIG_FILENAME);
-        if (projectConfig.exists()) {
-          return projectConfig;
-        }
-      }
-    } catch (Exception ignored) {
+      guiProjectHome = LinterConfigPlugin.getInstance().getProjectHome();
+    } catch (Exception | LinkageError ignored) {
       // Plugin may not be initialized in CLI mode.
     }
+    addProjectHome(projectHomes, guiProjectHome);
 
-    File directory =
-        context != null && context.isDirectory()
-            ? context
-            : (context != null ? context.getParentFile() : null);
+    Path directory;
+    if (context != null) {
+      // Absolute first: the parents of a relative path run out before the project root.
+      Path path = normalised(context);
+      directory = context.isDirectory() ? path : path.getParent();
+    } else {
+      directory = Utils.isEmpty(guiProjectHome) ? null : normalised(new File(guiProjectHome));
+    }
     while (directory != null) {
-      File configFile = new File(directory, LINT_CONFIG_FILENAME);
-      if (configFile.exists()) {
+      File configFile = directory.resolve(LINT_CONFIG_FILENAME).toFile();
+      if (configFile.isFile()) {
         return configFile;
       }
-      if (isProjectRoot(directory, projectFolder)) {
+      if (projectHomes.contains(directory) || hasProjectConfig(directory.toFile())) {
+        if (warnAboutOneAbove) {
+          warnAboutHopLintYmlAbove(directory.toFile());
+        }
         return null;
       }
-      directory = directory.getParentFile();
+      directory = directory.getParent();
     }
     return null;
   }
 
-  /** Whether this folder is a project's root, where the search for a hop-lint.yml stops. */
-  private static boolean isProjectRoot(File directory, File projectFolder) {
-    return new File(directory, PROJECT_CONFIG_FILENAME).isFile()
-        || directory.getAbsoluteFile().equals(projectFolder);
+  /**
+   * Add a project home folder as written and, when it differs, as it is on disk: a home reached
+   * through a symbolic link never equals the folder a file's path walks through otherwise.
+   */
+  private static void addProjectHome(Set<Path> projectHomes, String projectHome) {
+    if (Utils.isEmpty(projectHome)) {
+      return;
+    }
+    Path path = normalised(new File(projectHome));
+    projectHomes.add(path);
+    try {
+      projectHomes.add(path.toRealPath());
+    } catch (IOException | SecurityException e) {
+      // A home folder that does not exist marks no files.
+    }
+  }
+
+  private static Path normalised(File file) {
+    return file.toPath().toAbsolutePath().normalize();
+  }
+
+  /**
+   * Say once that a hop-lint.yml above the project root is not used, so that one shared above
+   * several projects, at the root of a monorepo for example, does not stop applying without a word.
+   * The hop-lint.yml of an enclosing project is that project's own and is not mentioned.
+   */
+  private static void warnAboutHopLintYmlAbove(File projectRoot) {
+    for (File directory = projectRoot.getAbsoluteFile().getParentFile();
+        directory != null;
+        directory = directory.getParentFile()) {
+      if (hasProjectConfig(directory)) {
+        return;
+      }
+      File configFile = new File(directory, LINT_CONFIG_FILENAME);
+      if (configFile.isFile()) {
+        String warning =
+            "Warning: "
+                + configFile.getAbsolutePath()
+                + " is above the project root "
+                + projectRoot.getAbsolutePath()
+                + " and is not used. Pass it with --config or in the Config file field of the"
+                + " Run Linter action, or copy it into the project.";
+        LintWarnings.logOnce(warning, warning);
+        return;
+      }
+    }
+  }
+
+  /** Whether this folder holds a project configuration file, which makes it a project's root. */
+  private static boolean hasProjectConfig(File directory) {
+    for (String filename : PROJECT_CONFIG_FILENAMES) {
+      if (new File(directory, filename).isFile()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private LinterConfig buildLinterConfig(Map<String, CustomLintRule> merged) {

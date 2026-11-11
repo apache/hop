@@ -551,7 +551,22 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
     this.configFilePath = configFilePath;
   }
 
+  /** The project folder; outside Hop Gui, the working directory. */
   public String getProjectPath() {
+    return projectFolder(true);
+  }
+
+  /**
+   * The folder of the configured hop-lint.yml or of the project Hop Gui has open, or null. Unlike
+   * {@link #getProjectPath()} this never falls back to the working directory, which is no project:
+   * hop-run or a container started in a project's subfolder has that subfolder as its working
+   * directory.
+   */
+  public String getProjectHome() {
+    return projectFolder(false);
+  }
+
+  private String projectFolder(boolean workingDirectoryOutsideGui) {
     if (configFilePath != null && !configFilePath.isEmpty()) {
       return new File(configFilePath).getParent();
     }
@@ -576,7 +591,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       log.logDetailed("No Hop GUI available to resolve the project path: " + e);
     }
 
-    return System.getProperty("user.dir");
+    return workingDirectoryOutsideGui ? System.getProperty("user.dir") : null;
   }
 
   /** The effective set of lint rules for the current project (YAML packs + project overrides). */
