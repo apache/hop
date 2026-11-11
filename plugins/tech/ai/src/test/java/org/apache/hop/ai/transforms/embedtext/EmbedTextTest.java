@@ -31,9 +31,13 @@ import static org.mockito.Mockito.when;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.exception.AuthenticationException;
+import dev.langchain4j.exception.InternalServerException;
+import dev.langchain4j.exception.LangChain4jException;
+import dev.langchain4j.exception.RateLimitException;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -58,6 +62,7 @@ class EmbedTextTest {
   private RuntimeException failure;
   private int failuresLeft;
   private int calls;
+  private boolean stopAfterFirstCall;
 
   @BeforeAll
   static void setUpClass() throws Exception {
@@ -75,6 +80,7 @@ class EmbedTextTest {
     failure = null;
     failuresLeft = 0;
     calls = 0;
+    stopAfterFirstCall = false;
   }
 
   @AfterEach
@@ -167,11 +173,15 @@ class EmbedTextTest {
   void usesTheDefaultBatchSizeWhenItIsEmptyAndTheValueWhenItIsSet() {
     EmbedTextData data = new EmbedTextData();
     assertTrue(initWithBatchSize("", data));
-    assertEquals(EmbedText.DEFAULT_BATCH_SIZE, data.batchSize);
+    assertEquals(EmbedTextMeta.DEFAULT_BATCH_SIZE, data.batchSize);
 
     data = new EmbedTextData();
     assertTrue(initWithBatchSize(" 8 ", data));
     assertEquals(8, data.batchSize);
+
+    data = new EmbedTextData();
+    assertTrue(initWithBatchSize("  ", data));
+    assertEquals(EmbedTextMeta.DEFAULT_BATCH_SIZE, data.batchSize);
   }
 
   @Test
@@ -201,7 +211,7 @@ class EmbedTextTest {
 
   @Test
   void retriesAFailedCallAndKeepsTheEmbeddings() throws Exception {
-    failWith(new RuntimeException("provider is busy"), EmbedText.MAX_RETRIES);
+    failWith(new RateLimitException("provider is busy"), EmbedText.MAX_RETRIES);
 
     run(Arrays.asList(new Object[] {"first"}, new Object[] {"second"}));
 
@@ -219,12 +229,95 @@ class EmbedTextTest {
   }
 
   @Test
+  void doesNotRetryAFailureThatWouldHappenAgain() {
+    // An answer that cannot be read is not going to read better on the next attempt.
+    failWith(new IllegalStateException("cannot map the response"), Integer.MAX_VALUE);
+
+    assertThrows(HopException.class, () -> run(List.<Object[]>of(new Object[] {"first"})));
+    assertEquals(1, calls);
+  }
+
+  @Test
+  void retriesOnlyFailuresThatMayPass() {
+    assertTrue(EmbedText.isRetriable(new RateLimitException("slow down")));
+    assertTrue(EmbedText.isRetriable(new InternalServerException("502")));
+    assertTrue(EmbedText.isRetriable(new LangChain4jException(new ConnectException())));
+    assertTrue(EmbedText.isRetriable(new RuntimeException(new SocketTimeoutException())));
+    assertFalse(EmbedText.isRetriable(new AuthenticationException("invalid api key")));
+    assertFalse(EmbedText.isRetriable(new IllegalStateException("cannot map the response")));
+    assertFalse(EmbedText.isRetriable(new RuntimeException("input must not be blank")));
+  }
+
+  @Test
+  void abandonsTheBatchWhenThePipelineIsStoppedWhileRetrying() throws Exception {
+    // Pressing Stop during an outage is not a failure of the rows that were waiting.
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    failWith(new LangChain4jException(new ConnectException()), Integer.MAX_VALUE);
+    stopAfterFirstCall = true;
+
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {"second"}));
+
+    assertEquals(1, calls, "no retry after the stop");
+    assertTrue(diverted.isEmpty(), "no error rows for a stopped run");
+    assertTrue(passed.isEmpty());
+  }
+
+  @Test
   void leavesCredentialsOutOfTheEndpointInMessages() {
     assertEquals(
         "https://host:8443/v1",
         EmbedText.endpointForMessages("https://user:secret@host:8443/v1?api_key=abc#x"));
     assertEquals("http://localhost:11434", EmbedText.endpointForMessages("http://localhost:11434"));
     assertEquals("", EmbedText.endpointForMessages(""));
+  }
+
+  @Test
+  void leavesCredentialsOutOfAnEndpointThatJavaNetUriCannotSplit() {
+    // An underscore makes the authority registry based, so URI finds no host and no user info.
+    assertEquals(
+        "http://ollama_host:11434",
+        EmbedText.endpointForMessages("http://user:secret@ollama_host:11434"));
+    // No scheme, so URI reads it as opaque and finds no query.
+    assertEquals("myhost:11434/v1", EmbedText.endpointForMessages("myhost:11434/v1?api_key=abc"));
+    assertEquals("ollama:11434", EmbedText.endpointForMessages("user:secret@ollama:11434"));
+  }
+
+  @Test
+  void masksSecretsInTheCauseMessage() {
+    String masked =
+        EmbedText.maskSecrets(
+            "Incorrect API key provided: sk-proj-abcdef123456. Called"
+                + " https://user:pw@host/v1/embeddings?api_key=abc123&x=1 with Bearer xyz789");
+
+    assertFalse(masked.contains("abcdef123456"), masked);
+    assertFalse(masked.contains("pw@"), masked);
+    assertFalse(masked.contains("abc123"), masked);
+    assertFalse(masked.contains("xyz789"), masked);
+    assertTrue(masked.contains("https://***@host/v1/embeddings?api_key=***&x=1"), masked);
+  }
+
+  @Test
+  void cutsALongCauseMessageShortAndKeepsItOnOneLine() {
+    String page = "<html>\n<body>\n" + "Bad gateway ".repeat(200) + "</body>\n</html>";
+
+    String masked = EmbedText.maskSecrets(page);
+
+    assertEquals(EmbedText.MAX_CAUSE_LENGTH + 3, masked.length());
+    assertFalse(masked.contains("\n"), masked);
+  }
+
+  @Test
+  void masksTheCauseInTheErrorRows() throws Exception {
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    failWith(
+        new AuthenticationException("Incorrect API key provided: sk-live-0123456789abcdef"),
+        Integer.MAX_VALUE);
+
+    run(List.<Object[]>of(new Object[] {"first"}));
+
+    String description = errorDescriptions.get(0);
+    assertFalse(description.contains("0123456789abcdef"), description);
+    assertTrue(description.contains("AuthenticationException"), description);
   }
 
   @Test
@@ -355,6 +448,10 @@ class EmbedTextTest {
             })
         .when(transform)
         .putError(any(), any(), anyLong(), any(), any(), any());
+
+    if (stopAfterFirstCall) {
+      doAnswer(invocation -> calls > 0).when(transform).isStopped();
+    }
 
     while (transform.processRow()) {
       // drain

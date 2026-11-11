@@ -55,10 +55,10 @@ Vector is the better choice when the Vector value type plugin is installed. When
 |Transform name|Name of the transform, unique within the pipeline.
 |AI provider|The AI provider serving the embedding model.
 |Model|Optional. Overrides the provider's EMBEDDING model for this transform only. Accepts variables.
-|Input field|Field holding the text to embed. A row whose text is empty or only whitespace is passed on with empty output fields rather than being dropped, and keeps its place in the stream.
+|Input field|Field holding the text to embed. A row whose text is empty or only whitespace, including no-break and zero-width spaces, is passed on with empty output fields rather than being dropped, and keeps its place in the stream.
 |Output field|Field the embedding is written to.
 |Output format|`STRING` for a JSON array, `VECTOR` for a Vector field.
-|Batch size|Rows buffered before the provider is called. Accepts variables. Rows with empty text are buffered so they keep their place in the stream, but are not sent, so a batch can send fewer texts than its size.
+|Batch size|Rows buffered before the provider is called, 16 when empty. Accepts variables; a value that is not a whole number, for example an unset variable, stops the transform when the pipeline starts. Rows with empty text are buffered so they keep their place in the stream, but are not sent, so a batch can send fewer texts than its size.
 |Include model metadata|Adds the model name and the vector width to each row.
 |Model field|Output field for the embedding model name.
 |Dimensions field|Output field for the number of dimensions in the vector.
@@ -71,5 +71,7 @@ Embedding calls are billed and rate limited per request, so **Batch size** is th
 Rows leave this transform in the order they arrived, including the ones with no text to embed, which wait for the batch around them rather than overtaking it.
 
 That also shapes what happens on failure. The provider answers per batch and cannot say which text it choked on, so when an error hop is attached every row that was sent is diverted rather than one row. Rows with empty text were never sent and are passed on normally. A batch size of 1 gives per-row precision at the cost of throughput.
+
+A call that fails for a reason that may pass, such as no connection, a timeout, a rate limit or a server error, is retried twice after a short pause. Anything else, for example a bad API key or an unknown model, fails at once. The error names the model, the AI provider, its endpoint and the underlying cause, with anything that looks like a key or password masked. Stopping the pipeline while it waits to retry drops the waiting batch without sending its rows to the error hop.
 
 **Include model metadata** is worth leaving on for anything that will be re-indexed later. Knowing which model produced a stored vector is what lets you re-embed only what a model change actually affects, and mixing vectors from two models in one index produces silently poor results.

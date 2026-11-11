@@ -117,6 +117,46 @@ class EmbedTextMetaTest {
     assertTrue(errorText(check(meta)).contains("Batch size"), errorText(check(meta)));
   }
 
+  /** check() reads the batch size the same way init() does: trimmed, empty means the default. */
+  @Test
+  void acceptsTheBatchSizesThatRun() {
+    for (String batchSize : new String[] {" 32", "32 ", "", "  "}) {
+      EmbedTextMeta meta = completeMeta();
+      meta.setBatchSize(batchSize);
+
+      assertTrue(
+          errorText(check(meta)).isEmpty(), "'" + batchSize + "': " + errorText(check(meta)));
+    }
+  }
+
+  @Test
+  void rejectsAFixedBatchSizeThatIsNotANumber() {
+    EmbedTextMeta meta = completeMeta();
+    meta.setBatchSize("ten");
+
+    assertTrue(
+        errorText(check(meta)).contains("'ten' is not a whole number"), errorText(check(meta)));
+  }
+
+  @Test
+  void saysAWholeNumberThatIsTooLargeIsTooLarge() {
+    EmbedTextMeta meta = completeMeta();
+    meta.setBatchSize("99999999999");
+
+    String errors = errorText(check(meta));
+    assertTrue(errors.contains("'99999999999' is too large"), errors);
+  }
+
+  @Test
+  void acceptsTheLowestIntAsANumberAndRejectsItAsTooSmall() {
+    // The old check used Integer.MIN_VALUE as its 'not a number' marker.
+    EmbedTextMeta meta = completeMeta();
+    meta.setBatchSize(String.valueOf(Integer.MIN_VALUE));
+
+    String errors = errorText(check(meta));
+    assertTrue(errors.contains("at least 1"), errors);
+  }
+
   @Test
   void reportsAMissingProviderAndInputField() {
     EmbedTextMeta meta = new EmbedTextMeta();
