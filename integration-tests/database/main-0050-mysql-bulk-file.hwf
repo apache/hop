@@ -128,7 +128,7 @@ WHERE LOAD_FILE('/var/lib/mysql-files/0050-high-priority.txt') = '1;Goku\n2;Vege
       <addfiletoresult>N</addfiletoresult>
       <connection>mysql</connection>
       <enclosed/>
-      <filename>/var/lib/mysql-files/0050-share-mode.txt</filename>
+      <filename>/var/lib/mysql-files/0050-normal-priority-o'brien.txt</filename>
       <highpriority>N</highpriority>
       <iffileexists>2</iffileexists>
       <limitlines>0</limitlines>
@@ -157,7 +157,7 @@ WHERE LOAD_FILE('/var/lib/mysql-files/0050-high-priority.txt') = '1;Goku\n2;Vege
       <is_custom_sql>Y</is_custom_sql>
       <is_usevars>N</is_usevars>
       <custom_sql>SELECT 1 FROM DUAL
-WHERE LOAD_FILE('/var/lib/mysql-files/0050-share-mode.txt') = '1;Goku\n2;Vegeta\n'</custom_sql>
+WHERE LOAD_FILE('/var/lib/mysql-files/0050-normal-priority-o''brien.txt') = '1;Goku\n2;Vegeta\n'</custom_sql>
       <add_rows_result>N</add_rows_result>
       <clear_result_rows>Y</clear_result_rows>
       <parallel>N</parallel>

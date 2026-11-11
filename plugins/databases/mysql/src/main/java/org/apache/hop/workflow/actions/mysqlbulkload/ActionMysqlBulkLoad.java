@@ -197,8 +197,16 @@ public class ActionMysqlBulkLoad extends ActionBase {
             logDetailed("File [" + realFilename + "] exists.");
           }
 
-          if (connection != null) {
-            DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+          DatabaseMeta databaseMeta =
+              Utils.isEmpty(connection)
+                  ? null
+                  : parentWorkflowMeta.findDatabase(connection, getVariables());
+          if (!Utils.isEmpty(connection) && databaseMeta == null) {
+            result.setNrErrors(1);
+            logError(
+                BaseMessages.getString(
+                    PKG, "ActionMysqlBulkLoad.Error.ConnectionNotFound", connection));
+          } else if (databaseMeta != null) {
             // User has specified a connection, We can continue ...
             try (Database db = new Database(this, this, databaseMeta)) {
               db.connect();
@@ -428,19 +436,14 @@ public class ActionMysqlBulkLoad extends ActionBase {
     return returnString;
   }
 
-  @SuppressWarnings("javabugs:S2259") // the reference is only built for a resolved connection
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     ResourceReference reference = null;
-    if (connection != null) {
-      DatabaseMeta databaseMeta = null;
-      try {
-        databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
-      } catch (Exception e) {
-        logError("Unable to load database :" + connection, e);
-      }
+    DatabaseMeta databaseMeta =
+        Utils.isEmpty(connection) ? null : workflowMeta.findDatabase(connection, variables);
+    if (databaseMeta != null) {
       reference = new ResourceReference(this);
       references.add(reference);
       reference

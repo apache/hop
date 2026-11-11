@@ -34,7 +34,7 @@ The `Bulk load from MySQL into file` action bulk loads data from a MySQL table i
 |Source schema|The schema of the table to export.
 |Source table|The table to export.
 |Target File name|The file to write, on the database server.
-|High Priority|Adds `HIGH_PRIORITY` to the query (checked by default). When unchecked, the query adds `LOCK IN SHARE MODE` instead: MySQL doesn't accept both in one query.
+|High Priority|Adds `HIGH_PRIORITY` to the query (checked by default). This only has an effect on storage engines that use table-level locking, such as MyISAM.
 |Type|OUTFILE (default) writes the rows with the separators below. DUMPFILE writes a single row without any formatting: more than one row makes the action fail.
 |Field separator|The field separator to use.
 |Fields enclosed by|The field enclosure to use.
