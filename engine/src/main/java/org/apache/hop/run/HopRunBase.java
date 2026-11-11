@@ -19,6 +19,7 @@
 package org.apache.hop.run;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.FileLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -49,6 +51,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.failure.ExecutionFailures;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
@@ -168,6 +171,19 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       defaultValue = "${env:HOP_RUN_SHUTDOWN_TIMEOUT:-5}")
   protected long shutdownTimeout = 5;
 
+  @CommandLine.Option(
+      names = {"-rj", "--result-json"},
+      description =
+          "The file where hop-run writes the outcome of the run as JSON when it ends: whether it"
+              + " succeeded, its counters and, when it failed, why. Experimental.")
+  protected String resultJsonFile;
+
+  /** The pipeline that ran, for the result file. */
+  protected IPipelineEngine<PipelineMeta> pipelineEngine;
+
+  /** The workflow that ran, for the result file. */
+  protected IWorkflowEngine<WorkflowMeta> workflowEngine;
+
   protected IVariables variables;
   protected String realRunConfigurationName;
   protected String realFilename;
@@ -175,6 +191,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
   protected ILogChannel log;
   protected MultiMetadataProvider metadataProvider;
   protected boolean finishedWithoutError;
+  protected Exception runError;
   protected HopRunShutdownHook shutdownHook;
 
   protected HopRunBase() {
@@ -262,9 +279,11 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.HopRunEnd.id, this);
     } catch (Exception e) {
+      runError = e;
       throw new ExecutionException(
           cmd, "There was an error during execution of file '" + filename + "'", e);
     } finally {
+      writeResultJson();
       if (fileLoggingEventListener != null) {
         HopLogStore.getAppender().removeLoggingEventListener(fileLoggingEventListener);
       }
@@ -280,6 +299,59 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
         }
       }
     }
+  }
+
+  /**
+   * Write the outcome of the run to the file of {@code --result-json}, if one was given. Never
+   * throws: a supervisor that finds no file knows nothing, and the exit code still tells.
+   */
+  protected void writeResultJson() {
+    if (StringUtils.isEmpty(resultJsonFile)) {
+      return;
+    }
+    String realResultFile = variables.resolve(resultJsonFile);
+    try (OutputStream outputStream = HopVfs.getOutputStream(realResultFile, false)) {
+      HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(outputStream, buildResult());
+    } catch (Exception e) {
+      if (log != null) {
+        log.logError("Unable to write the result of the run to " + realResultFile, e);
+      }
+    }
+  }
+
+  /** The outcome of the run, as {@code --result-json} writes it. */
+  protected HopRunResult buildResult() {
+    HopRunResult runResult = new HopRunResult();
+    runResult.setFilename(realFilename != null ? realFilename : filename);
+    runResult.setRunConfiguration(realRunConfigurationName);
+    runResult.setSuccess(finishedWithoutError && runError == null);
+    if (pipelineEngine != null) {
+      runResult.setType(HopRunResult.TYPE_PIPELINE);
+      runResult.setName(pipelineEngine.getPipelineMeta().getName());
+      runResult.setExecutionId(pipelineEngine.getLogChannelId());
+      runResult.setStartDate(pipelineEngine.getExecutionStartDate());
+      runResult.setEndDate(pipelineEngine.getExecutionEndDate());
+      runResult.setCountersFrom(pipelineEngine.getResult());
+      runResult.setFailure(pipelineEngine.getRunFailure());
+      runResult.setFailures(pipelineEngine.getFailures());
+    } else if (workflowEngine != null) {
+      runResult.setType(HopRunResult.TYPE_WORKFLOW);
+      runResult.setName(workflowEngine.getWorkflowMeta().getName());
+      runResult.setExecutionId(workflowEngine.getLogChannelId());
+      runResult.setStartDate(workflowEngine.getExecutionStartDate());
+      runResult.setEndDate(workflowEngine.getExecutionEndDate());
+      runResult.setCountersFrom(workflowEngine.getResult());
+      runResult.setFailure(workflowEngine.getRunFailure());
+      runResult.setFailures(workflowEngine.getFailures());
+    } else if (isPipeline()) {
+      runResult.setType(HopRunResult.TYPE_PIPELINE);
+    } else if (isWorkflow()) {
+      runResult.setType(HopRunResult.TYPE_WORKFLOW);
+    }
+    if (runError != null && runResult.getFailure() == null) {
+      runResult.setError(ExecutionFailures.causeOf(runError, variables));
+    }
+    return runResult;
   }
 
   protected void buildVariableSpace() {
@@ -349,6 +421,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       IPipelineEngine<PipelineMeta> pipeline =
           PipelineEngineFactory.createPipelineEngine(
               variables, pipelineRunConfigurationName, metadataProvider, pipelineMeta);
+      pipelineEngine = pipeline;
       pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
       // Do not call initializeFrom(null) here: the factory already initialized the engine from
       // hop-run's variables (project + environment). Re-initializing from null would drop those
@@ -468,6 +541,7 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
               variables, runConfigurationName, metadataProvider, workflowMeta, workflowLog);
+      workflowEngine = workflow;
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
 
       // Propagate the CLI --allow-unsupported flag into the variables map so the engine-side deep

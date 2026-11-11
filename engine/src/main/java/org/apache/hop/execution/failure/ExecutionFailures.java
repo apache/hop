@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.failure.ExecutionFailure;
@@ -40,6 +41,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.util.CredentialRedactor;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -77,7 +79,7 @@ public final class ExecutionFailures {
             transform.getCopy(),
             transform.getLogChannelId()));
     failure.setPhase(phase);
-    setCause(failure, throwable, transform.getLogChannelId(), false);
+    setCause(failure, throwable, transform.getLogChannelId(), false, transform);
     if (transform instanceof BaseTransform baseTransform) {
       failure.setInputLayout(FailureField.of(baseTransform.getInputRowMeta()));
     }
@@ -130,7 +132,7 @@ public final class ExecutionFailures {
       failure.setCausedBy(childFailure);
       failure.setCategory(childFailure.getCategory());
     } else {
-      setCause(failure, throwable, actionLogChannelId, true);
+      setCause(failure, throwable, actionLogChannelId, true, action);
     }
 
     if (result != null) {
@@ -165,7 +167,12 @@ public final class ExecutionFailures {
       failure.setCategory(causedBy.getCategory());
     } else {
       failure.setPhase(phase);
-      setCause(failure, throwable, run.getLogChannelId(), false);
+      setCause(
+          failure,
+          throwable,
+          run.getLogChannelId(),
+          false,
+          run instanceof IVariables variables ? variables : null);
     }
     return failure;
   }
@@ -289,22 +296,48 @@ public final class ExecutionFailures {
       ExecutionFailure failure,
       Throwable throwable,
       String logChannelId,
-      boolean includeChildChannels) {
+      boolean includeChildChannels,
+      IVariables variables) {
     if (throwable != null) {
-      failure.setCause(FailureClassifier.causeOf(throwable));
       failure.setCategory(FailureClassifier.classify(throwable));
+      failure.setCause(redact(FailureClassifier.causeOf(throwable), variables));
       return;
     }
     LogMessage logMessage = lastErrorLogged(logChannelId, includeChildChannels);
     if (logMessage != null) {
-      FailureCause cause =
-          FailureClassifier.causeFromLog(logMessage.getMessage(), logMessage.getStackTrace());
-      failure.setCause(cause);
       failure.setCategory(
           FailureClassifier.classifyText(logMessage.getMessage(), logMessage.getStackTrace()));
+      failure.setCause(
+          redact(
+              FailureClassifier.causeFromLog(logMessage.getMessage(), logMessage.getStackTrace()),
+              variables));
     } else {
       failure.setCategory(FailureCategory.UNKNOWN);
     }
+  }
+
+  /**
+   * The cause of an exception, with credentials and the secret values of these variables masked.
+   * For a failure outside a pipeline or workflow, like hop-run failing to load a file.
+   */
+  public static FailureCause causeOf(Throwable throwable, IVariables variables) {
+    return redact(FailureClassifier.causeOf(throwable), variables);
+  }
+
+  /**
+   * Mask credentials, encrypted passwords and the values of secret variables in the texts of a
+   * cause: they go to execution information locations, Hop Server clients and result files.
+   */
+  static FailureCause redact(FailureCause cause, IVariables variables) {
+    if (cause == null) {
+      return null;
+    }
+    Set<String> secrets = CredentialRedactor.secretValuesOf(variables);
+    cause.setMessage(CredentialRedactor.redact(cause.getMessage(), secrets));
+    cause.setRootCauseMessage(CredentialRedactor.redact(cause.getRootCauseMessage(), secrets));
+    cause.setStackTrace(CredentialRedactor.redact(cause.getStackTrace(), secrets));
+    cause.setRedacted(true);
+    return cause;
   }
 
   /** Was an error logged on this log channel itself? */

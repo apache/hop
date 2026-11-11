@@ -77,6 +77,10 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                           A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ",").
   -r, --runconfig=<runConfigurationName>
                           The name of the Run Configuration to use
+  -rj, --result-json=<resultJsonFile>
+                          The file where hop-run writes the outcome of the run as JSON when it
+                          ends: whether it succeeded, its counters and, when it failed, why.
+                          Experimental.
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
                           A comma separated list of KEY=VALUE pairs
   -swt, --shutdown-timeout=<shutdownTimeout>
@@ -154,6 +158,10 @@ To use a workflow of another project, see xref:projects/projects-environments.ad
 |The name of the Run Configuration to use.
 Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[documentation on run configurations] for more details.
 
+|```-rj```
+|```--result-json```
+|The file where Hop Run writes the outcome of the run as JSON when it ends. See <<_result_file>>. Experimental.
+
 |```-s```
 |```--system-properties```
 |A comma separated list of KEY=VALUE pairs
@@ -198,6 +206,47 @@ In all cases except `0`, check the error logs for more detailed information for 
 |9|None|There was an error parsing the provided parameter information. Hop Run shows the syntax summary and exists.
 |143|None|Hop Run received SIGTERM and stopped the run, see <<_stopping_hop_run>>. A process that receives SIGINT (Ctrl-C) or SIGHUP ends with 130 or 129.
 |===
+
+== Result file
+
+NOTE: Experimental in 2.21: the fields can still change.
+
+With `--result-json <file>`, Hop Run writes a JSON file when it ends, so a scheduler or a script can tell why a run failed without reading the log.
+The file is written for a run that succeeded, a run that failed, and when Hop Run could not start the run at all.
+Variables in the filename are resolved; any location Hop can write to works.
+
+[source,json]
+----
+{
+  "schemaVersion" : 1,
+  "type" : "PIPELINE",
+  "filename" : "/projects/sales/load-orders.hpl",
+  "name" : "load-orders",
+  "executionId" : "2c1f…",
+  "success" : false,
+  "counters" : { "errors" : 1, "read" : 0, "written" : 0, … },
+  "failure" : {
+    "phase" : "RUN",
+    "category" : "CONNECTIVITY",
+    "causedBy" : {
+      "component" : { "kind" : "TRANSFORM", "name" : "Read orders", "pluginId" : "TableInput", … },
+      "cause" : { "message" : "…", "rootCauseClass" : "java.net.ConnectException", "sqlState" : "08001", "redacted" : true, … },
+      …
+    },
+    …
+  },
+  "failures" : [ … ],
+  "error" : null
+}
+----
+
+`success`:: what decides the exit code.
+`failure`:: why the run failed, `null` when it did not. It points at the transform or action where the failure started through `causedBy`; a workflow's failure leads down through its actions to the pipeline and transform.
+`category`:: one of `CONNECTIVITY`, `AUTHENTICATION`, `SCHEMA_MISMATCH`, `DATA_CONVERSION`, `CONSTRAINT_VIOLATION`, `MISSING_INPUT`, `RESOURCE`, `CONFIGURATION`, `CHILD_FAILURE` or `UNKNOWN`, decided by fixed rules on the exception types and SQL states.
+`failures`:: the failures of all the transforms, or of the last 100 actions, that failed.
+`error`:: why Hop Run itself failed when there was no run to report on, for example when the file does not exist.
+
+Messages and stack traces in the file have credentials masked: passwords in URLs and connection strings, encrypted passwords, and the values of variables and parameters whose name says they are a password, token, key or secret.
 
 == Stopping Hop Run
 

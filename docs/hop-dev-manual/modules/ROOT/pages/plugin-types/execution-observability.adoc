@@ -104,6 +104,10 @@ A pipeline that fails to prepare or to initialize is registered at its location 
 Elastic and OpenSearch store `executionState.failure` without indexing it: new indexes get that mapping, and *Create index* adds it to an existing index.
 Neo4j stores it as a JSON string in the `failure` property of the `Execution` node.
 * *Hop Server:* the pipeline and workflow status fill `errorDescription` with one line, for example `Transform 'Read orders' (TableInput) failed [CONNECTIVITY]: Connection refused`, and the JSON form adds the `failure` object.
+* *Hop Run:* the file of `--result-json`, see the user manual.
+
+The message, the root cause message and the stack trace of a cause are redacted when the failure is built, before any extension point or listener sees it: `CredentialRedactor.redact(text, secrets)` masks credentials in URLs, `name=value` and JSON pairs, encrypted passwords, and the values of the variables whose name says they are a credential.
+`cause.redacted` is true when that happened.
 
 == Logging
 

@@ -49,4 +49,10 @@ public class FailureCause {
 
   /** True when this cause was read from the error log, not taken from an exception. */
   private boolean fromLog;
+
+  /**
+   * True when credentials and known secret values were masked in the message, the root cause
+   * message and the stack trace.
+   */
+  private boolean redacted;
 }

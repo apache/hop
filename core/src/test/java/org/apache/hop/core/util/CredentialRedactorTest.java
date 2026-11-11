@@ -23,12 +23,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import java.util.Set;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.variables.Variables;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class CredentialRedactorTest {
+
+  @BeforeAll
+  static void beforeAll() throws Exception {
+    HopClientEnvironment.init();
+  }
 
   @ParameterizedTest
   @ValueSource(
@@ -128,5 +139,55 @@ class CredentialRedactorTest {
         "http://" + MASK + "@host/", CredentialRedactor.redactValue("Referer", "http://u:p@host/"));
     assertEquals("", CredentialRedactor.redactValue("password", ""));
     assertNull(CredentialRedactor.redact(null));
+  }
+
+  @Test
+  void encryptedPasswordsAreMasked() {
+    String text = "Unable to connect with password Encrypted 2be98afc86aa7f2e4cb79ce10df90acde";
+    assertEquals("Unable to connect with password " + MASK, CredentialRedactor.redact(text, null));
+  }
+
+  @Test
+  void knownSecretsAreMaskedWhereverTheyAppear() {
+    String text = "Login failed for scott/tiger123 (tiger123456 is not it either)";
+    assertEquals(
+        "Login failed for scott/" + MASK + " (" + MASK + " is not it either)",
+        CredentialRedactor.redact(text, List.of("tiger123", "tiger123456")));
+  }
+
+  @Test
+  void shortKnownSecretsAreLeftAlone() {
+    assertEquals("a b c", CredentialRedactor.redact("a b c", List.of("b")));
+  }
+
+  @Test
+  void theBasicRulesStillApply() {
+    assertEquals(
+        "jdbc:postgresql://" + MASK + "@db/sales?password=" + MASK,
+        CredentialRedactor.redact(
+            "jdbc:postgresql://scott:tiger@db/sales?password=tiger", Set.of()));
+  }
+
+  @Test
+  void secretValuesOfVariables() {
+    Variables variables = new Variables();
+    variables.setVariable("DB_PASSWORD", "s3cr3t-value");
+    variables.setVariable("API_TOKEN", Encr.encryptPasswordIfNotUsingVariables("plain-token"));
+    variables.setVariable("SFTP_PASSWORD", "${OTHER_VARIABLE}");
+    variables.setVariable("USE_PASSWORD", "true");
+    variables.setVariable("SHORT_SECRET", "abc");
+    variables.setVariable("DB_HOST", "localhost");
+
+    Set<String> secrets = CredentialRedactor.secretValuesOf(variables);
+
+    assertTrue(secrets.contains("s3cr3t-value"));
+    // Encrypted, and its plain value as well
+    assertTrue(secrets.contains("plain-token"));
+    assertTrue(secrets.stream().anyMatch(v -> v.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX)));
+    assertFalse(secrets.contains("${OTHER_VARIABLE}"));
+    assertFalse(secrets.contains("true"));
+    assertFalse(secrets.contains("abc"));
+    assertFalse(secrets.contains("localhost"));
+    assertTrue(CredentialRedactor.secretValuesOf(null).isEmpty());
   }
 }

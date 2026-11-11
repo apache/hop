@@ -74,6 +74,7 @@ class ExecutionFailurePipelineTest {
   enum Mode {
     SUCCEED,
     RUN_THROWS,
+    RUN_THROWS_SECRET,
     RUN_SETS_ERRORS,
     INIT_THROWS,
     INIT_RETURNS_FALSE
@@ -118,6 +119,11 @@ class ExecutionFailurePipelineTest {
           throw new HopDatabaseException(
               "Error reading from the database",
               new SQLException("Connection refused", "08001", 0));
+        case RUN_THROWS_SECRET:
+          throw new HopDatabaseException(
+              "Login failed with password "
+                  + getVariable("DB_PASSWORD")
+                  + " on jdbc:postgresql://scott:tiger@db/sales");
         case RUN_SETS_ERRORS:
           logError("Unexpected value", new NumberFormatException("For input string: \"abc\""));
           setErrors(1);
@@ -141,7 +147,7 @@ class ExecutionFailurePipelineTest {
 
   private final List<ExecutionFailure> announced = new CopyOnWriteArrayList<>();
 
-  private LocalPipelineEngine pipelineWith(Mode mode) {
+  LocalPipelineEngine pipelineWith(Mode mode) {
     FailingMeta meta = new FailingMeta();
     meta.mode = mode;
     PipelineMeta pipelineMeta = new PipelineMeta();
@@ -152,7 +158,7 @@ class ExecutionFailurePipelineTest {
     return pipeline;
   }
 
-  private static void run(LocalPipelineEngine pipeline) throws HopException {
+  static void run(LocalPipelineEngine pipeline) throws HopException {
     pipeline.prepareExecution();
     pipeline.startThreads();
     pipeline.waitUntilFinished();
@@ -362,6 +368,21 @@ class ExecutionFailurePipelineTest {
       return location.getExecutionState(executionId);
     } finally {
       location.close();
+    }
+  }
+
+  @Test
+  void secretsAreMaskedInTheCause() throws Exception {
+    LocalPipelineEngine pipeline = pipelineWith(Mode.RUN_THROWS_SECRET);
+    pipeline.setVariable("DB_PASSWORD", "s3cr3t-value");
+    run(pipeline);
+
+    var cause = pipeline.getFailures().get(0).getCause();
+    assertTrue(cause.isRedacted());
+    for (String text : List.of(cause.getMessage(), cause.getStackTrace())) {
+      assertFalse(text.contains("s3cr3t-value"), text);
+      assertFalse(text.contains("tiger"), text);
+      assertTrue(text.contains("Login failed with password"), text);
     }
   }
 }

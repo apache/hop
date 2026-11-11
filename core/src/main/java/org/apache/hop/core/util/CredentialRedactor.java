@@ -19,11 +19,18 @@ package org.apache.hop.core.util;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.variables.IVariables;
 
 /**
  * Keeps credentials out of log lines, error messages and lineage events about HTTP requests.
@@ -57,6 +64,14 @@ public final class CredentialRedactor {
   /** The credentials of an {@code Authorization} header value quoted somewhere in a text. */
   private static final Pattern AUTH_SCHEME =
       Pattern.compile("(?i)\\b(Bearer|Basic)\\s+[A-Za-z0-9._~+/=\\-]{8,}");
+
+  /** A password as Hop encrypts it: {@code Encrypted 2be98afc86aa7f2e4cb79ce10df90acde}. */
+  private static final Pattern ENCRYPTED_PASSWORD =
+      Pattern.compile(
+          "\\b" + Pattern.quote(Encr.PASSWORD_ENCRYPTED_PREFIX.trim()) + "\\s+[0-9a-fA-F]{8,}");
+
+  /** Shorter values are not masked as known secrets: they would mask parts of ordinary words. */
+  private static final int MIN_KNOWN_SECRET_LENGTH = 4;
 
   /** Names, once normalized, that are credentials as they stand. */
   private static final Set<String> SENSITIVE_NAMES =
@@ -128,6 +143,76 @@ public final class CredentialRedactor {
     result = replacePairs(KEY_VALUE, result, m -> m.group(1), m -> m.group(1) + "=" + MASK);
     result = replacePairs(JSON_PAIR, result, m -> m.group(2), m -> m.group(1) + MASK + m.group(4));
     return AUTH_SCHEME.matcher(result).replaceAll("$1 " + Matcher.quoteReplacement(MASK));
+  }
+
+  /**
+   * A text as it may be shown or stored outside the process: {@link #redact(String)}, then every
+   * password the way Hop encrypts it, then every occurrence of one of the known secret values. Use
+   * it for messages and stack traces, which can quote a connection string or a value as it is.
+   *
+   * @param text the text
+   * @param knownSecrets values to mask wherever they appear, see {@link
+   *     #secretValuesOf(IVariables)}
+   */
+  public static String redact(String text, Collection<String> knownSecrets) {
+    String result = redact(text);
+    if (result == null || result.isEmpty()) {
+      return result;
+    }
+    result = ENCRYPTED_PASSWORD.matcher(result).replaceAll(Matcher.quoteReplacement(MASK));
+    if (knownSecrets != null && !knownSecrets.isEmpty()) {
+      // The longest first: a secret can contain a shorter one
+      List<String> secrets = new ArrayList<>(knownSecrets);
+      secrets.sort(Comparator.comparingInt(String::length).reversed());
+      for (String secret : secrets) {
+        if (secret != null && secret.length() >= MIN_KNOWN_SECRET_LENGTH) {
+          result = result.replace(secret, MASK);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The values of the variables and parameters whose name says they are credentials (see {@link
+   * #isSensitiveName(String)}): as they are set and, for an encrypted password, decrypted. Variable
+   * references, yes/no flags and values shorter than 4 characters are left out.
+   */
+  public static Set<String> secretValuesOf(IVariables variables) {
+    Set<String> secrets = new LinkedHashSet<>();
+    if (variables == null) {
+      return secrets;
+    }
+    String[] names = variables.getVariableNames();
+    if (names == null) {
+      return secrets;
+    }
+    for (String name : names) {
+      if (!isSensitiveName(name)) {
+        continue;
+      }
+      String value = variables.getVariable(name);
+      addSecret(secrets, value);
+      if (value != null && value.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX)) {
+        try {
+          addSecret(secrets, Encr.decryptPasswordOptionallyEncrypted(value));
+        } catch (Exception e) {
+          // Not decryptable here: the encrypted form is masked anyway
+        }
+      }
+    }
+    return secrets;
+  }
+
+  private static void addSecret(Set<String> secrets, String value) {
+    if (value == null || value.length() < MIN_KNOWN_SECRET_LENGTH || value.contains("${")) {
+      return;
+    }
+    String lower = value.toLowerCase(Locale.ROOT);
+    if (lower.equals("true") || lower.equals("false")) {
+      return;
+    }
+    secrets.add(value);
   }
 
   private static String replacePairs(
