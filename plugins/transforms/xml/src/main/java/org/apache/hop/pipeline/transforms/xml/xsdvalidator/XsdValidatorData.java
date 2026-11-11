@@ -42,7 +42,10 @@ public class XsdValidatorData extends BaseTransformData implements ITransformDat
   /** The schema without an XSD file, which uses the location hints in each document. */
   public Schema schemaFromDocuments;
 
-  /** One validator per compiled schema, configured once. */
+  /**
+   * One validator per compiled schema, configured once. Not for {@link #schemaFromDocuments}: a
+   * validator keeps the schemas loaded from earlier documents' location hints.
+   */
   public final Map<Schema, Validator> validators = new IdentityHashMap<>();
 
   /** Compiled schemas by XSD file name, the least recently used dropped beyond the limit. */

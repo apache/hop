@@ -169,6 +169,44 @@ class XsdValidatorSchemaCacheTest {
     assertEquals(run.messages().get(0), run.messages().get(2));
   }
 
+  /**
+   * Without an XSD file each document names its own schema. A row is validated against the schema
+   * in its own hint, never against one loaded for an earlier row.
+   */
+  @Test
+  void schemaFromDocumentHintsIsResolvedForEveryRow() throws Exception {
+    String intXsd = Path.of(write("int.xsd", XSD_ORDER)).toUri().toString();
+    String stringXsd =
+        Path.of(write("string.xsd", XSD_ORDER.replace("xs:int", "xs:string"))).toUri().toString();
+    XsdValidatorMeta meta = meta(true);
+    meta.setXsdSource(XsdValidatorMeta.NO_NEED);
+
+    Run run =
+        new Run(
+            meta,
+            xmlOnly(),
+            rows(
+                withHint(stringXsd, "x"),
+                withHint(intXsd, "x"),
+                withHint(stringXsd, "x"),
+                INVALID_ORDER,
+                withHint(intXsd, "1"),
+                withHint(stringXsd, "y"),
+                withHint(intXsd, "y")));
+    run.all();
+
+    assertEquals(List.of(true, false, true, false, true, true, false), run.results());
+  }
+
+  private static String withHint(String xsdUri, String id) {
+    return "<order xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+        + " xsi:noNamespaceSchemaLocation='"
+        + xsdUri
+        + "'><id>"
+        + id
+        + "</id></order>";
+  }
+
   @Test
   void externalEntitiesAreStillRefusedOnEveryRow() throws Exception {
     String xsd = write("order.xsd", XSD_ORDER);

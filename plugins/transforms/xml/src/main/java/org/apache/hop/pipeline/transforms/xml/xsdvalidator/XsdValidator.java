@@ -273,6 +273,10 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
   /**
    * The validator of this schema for this copy, configured once. A Validator is not thread-safe,
    * which is why it is kept per copy. reset() is not used: it would drop the features set here.
+   *
+   * <p>The schema without an XSD file is the exception: its validator keeps the schemas it loaded
+   * from the location hints of earlier documents and would validate later documents against them,
+   * whatever their own hints say. That schema gets a new validator for every row.
    */
   private Validator getValidator(Schema schema) throws SAXException {
     Validator xsdValidator = data.validators.get(schema);
@@ -296,7 +300,9 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
                 throw new IOException(message);
               });
     }
-    data.validators.put(schema, xsdValidator);
+    if (schema != data.schemaFromDocuments) {
+      data.validators.put(schema, xsdValidator);
+    }
     return xsdValidator;
   }
 
