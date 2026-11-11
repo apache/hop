@@ -62,17 +62,28 @@ public interface OpenLineageEmitter extends AutoCloseable {
     };
   }
 
-  /** Delivers one event. Must not throw on a delivery failure. */
+  /**
+   * Delivers one event. Must not throw on a delivery failure. An interrupt (the sink shutting down)
+   * should end any wait between retries and return {@link Result#RETRY}.
+   */
   Result emit(RunEvent event);
 
   /**
-   * Delivers several events, oldest first, and says what became of each. An emitter that can write
-   * them in one request overrides this; by default they are sent one by one.
+   * Delivers several events, oldest first, and says what became of each, in order. The caller stops
+   * at the first {@link Result#RETRY} and offers that event and the ones after it again later, so
+   * an emitter may leave the rest unattempted (or return fewer results). An emitter that can write
+   * several events in one request overrides this; by default they are sent one by one, and nothing
+   * more is tried after the first that could not be delivered: with the collector down, every
+   * further attempt would only wait out the same timeouts.
    */
   default List<Result> emitAll(List<RunEvent> events) {
     List<Result> results = new ArrayList<>(events.size());
     for (RunEvent event : events) {
-      results.add(emit(event));
+      Result result = emit(event);
+      results.add(result);
+      if (result == Result.RETRY) {
+        break;
+      }
     }
     return results;
   }

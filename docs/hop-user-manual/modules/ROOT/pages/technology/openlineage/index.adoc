@@ -54,6 +54,7 @@ The sink itself reads the following variables when it initializes:
 |`HOP_LINEAGE_OPENLINEAGE_URL` |_(required)_ |Collector URL, e.g. `\http://marquez-api:5000/api/v1/lineage`. Must be an absolute `http(s)` URL.
 |`HOP_LINEAGE_OPENLINEAGE_NAMESPACE` |`hop` |OpenLineage *job* namespace: the orchestrator instance that produces the events, not the environment. See <<Job namespace and environments>>.
 |`HOP_LINEAGE_OPENLINEAGE_PRODUCER` |_(plugin URL)_ |OpenLineage `producer` field.
+|`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING` |`N` |`Y` names file datasets by the OpenLineage naming spec (scheme → namespace, path → name, e.g. `s3://bucket` + `key`) so a file reconciles across engines/tools; `N` keeps the legacy job-namespace + filename identity. Switching re-keys existing file datasets. The legacy naming is deprecated; see xref:technology/openlineage/dataset-identity.adoc#_file_datasets[File datasets].
 |`HOP_LINEAGE_OPENLINEAGE_SQL_PARSE` |`Y` |Parse `SELECT`/`INSERT` statements (Table Input, Execute SQL) to recover their source/target tables and column lineage. Set to `N` to disable SQL parsing.
 |`HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS` |`N` |`Y` gives each transform its own job, holding the datasets it read plus everything its upstream transforms produced (forward propagation), so a multi-input pipeline reports its real dataset pairs instead of the input × output product. `N` files every dataset under the pipeline's job. See <<Job granularity>>.
 |`HOP_LINEAGE_OPENLINEAGE_PARENT_RUNS` |`Y` |Emit a `parent` facet naming the run that started this one (transform → pipeline, action → workflow, pipeline → action or parent pipeline). `N` leaves it out for a collector that builds the hierarchy itself; see <<Job hierarchy>>.
@@ -67,43 +68,51 @@ The sink itself reads the following variables when it initializes:
 
 |`HOP_LINEAGE_OPENLINEAGE_ENQUEUE_TIMEOUT_MS` |`5000` |Under `BLOCK`, how long (ms) to wait for buffer capacity before dropping the event.
 |`HOP_LINEAGE_OPENLINEAGE_SHUTDOWN_DRAIN_MS` |`30000` |Maximum time to drain the queue on shutdown.
-|`HOP_LINEAGE_OPENLINEAGE_METRICS_INTERVAL_MS` |`0` |If > 0, periodically log `sent/failed/dropped/queued` counts (plus `spooled`/`backlog` when a spool is configured); `0` = off.
+|`HOP_LINEAGE_OPENLINEAGE_METRICS_INTERVAL_MS` |`0` |If > 0, periodically log `sent/failed/rejected/dropped/queued/pending/spooled` counts; `0` = off.
 |`HOP_LINEAGE_OPENLINEAGE_TRUSTSTORE_PATH` |_(empty)_ |Trust/key store for HTTPS collectors with a custom CA/cert.
 |`HOP_LINEAGE_OPENLINEAGE_TRUSTSTORE_PASSWORD` |_(empty)_ |Store password (used with the trust store path).
 |`HOP_LINEAGE_OPENLINEAGE_KEYSTORE_TYPE` |`PKCS12` |Trust store type (e.g. `PKCS12`, `JKS`).
 |`HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR` |_(empty)_ |Folder that holds undelivered events. Empty = no spool (see <<Durability>>).
-|`HOP_LINEAGE_OPENLINEAGE_SPOOL_MAX_BYTES` |`67108864` |Ceiling on the spool's size on disk (64 MiB).
+|`HOP_LINEAGE_OPENLINEAGE_SPOOL_MAX_BYTES` |`67108864` |Ceiling on the spool's size on disk (64 MiB), per process.
 |===
 
 There is no proxy setting — route via the JVM `-Dhttps.proxyHost` properties if needed.
 
 === Durability
 
-By default the sink is fire-and-forget: an event whose retries are exhausted, or that is still
-queued when the process dies, is lost. Set `HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR` to a writable folder
-to change that into *at least once*:
+Events are sent in the order they were produced. When a delivery fails, the sink stops at that
+event, pauses (one second, doubling up to a minute) and tries again from there, so a collector that
+is down costs one attempt per pause rather than one per event, and a run's `COMPLETE` never
+overtakes its `START`. Meanwhile new events wait: in memory up to
+`HOP_LINEAGE_OPENLINEAGE_BUFFER_SIZE`, after which the overflow policy applies.
 
-* every event is written to its own file in the spool before it is posted;
-* the file is deleted when the collector answers 2xx;
-* whatever is still on disk when the sink starts is replayed, oldest first, before the run's own
-  events;
-* an event that could not be delivered is retried by the same process after a pause (one minute),
-  so a long-running Hop Server does not wait for a restart to catch up.
+By default that is all: an event still waiting when the process ends is lost. Set
+`HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR` to a writable folder to change that into *at least once*:
+
+* every event is written to its own file in the spool before it is posted. A thread of the sink's
+  own writes it, so the pipeline thread never waits on the disk, and the spool keeps filling while
+  the sink waits on a collector that does not answer;
+* the file is deleted when the collector answers 2xx, or refuses the event (a 4xx other than 401,
+  403, 404 and 407, which point at configuration and are kept); a refused event is logged and not
+  sent again;
+* when the collector is down at shutdown, the sink does not wait for it: the events stay on disk
+  and the next process that starts sends them, oldest first, before its own.
 
 A collector outage, a GMS restart, or a process that dies between "pipeline finished" and "HTTP
 200" therefore delays lineage instead of losing it. A process that dies after a successful POST but
-before the delete replays one event; OpenLineage events set aspects on entities rather than append
-records, so the replay writes the same state again.
+before the delete sends one event again; OpenLineage events set aspects on entities rather than
+append records, so the replay writes the same state again.
 
 The spool is bounded by `HOP_LINEAGE_OPENLINEAGE_SPOOL_MAX_BYTES`. At the cap, new events are still
 sent but no longer spooled (counted, and reported once as an error), and the oldest files are kept:
-those are the ones no later run will re-emit. Events that overflow the in-memory queue while a spool
-is configured also go to the spool, so `dropped` then only counts events that could not be written
-to disk either. When the sink is shut down while the collector is unreachable, the pending events
-stay in the spool and are sent by the next run that starts.
+those are the ones no later run will re-emit. `dropped` then counts only events that could not be
+written to disk and did not fit in memory either.
 
-Give each Hop process its own spool folder. The sink only touches the files it writes itself, but
-two processes replaying the same folder would both send its events.
+Several processes can share a spool folder, for example a Hop Server and the `hop-run` commands on
+the same machine. Each process writes to a folder of its own inside it and renews a heartbeat file
+there every 30 seconds. A process only sends the events of a folder whose owner is gone: one that
+shut down (it removes its heartbeat), or one whose heartbeat is three minutes old (it was killed).
+It moves those files into its own folder first, so no event is sent by two processes.
 
 == Event mapping
 
@@ -112,12 +121,12 @@ two processes replaying the same folder would both send its events.
 |Hop lineage event |OpenLineage output
 
 |`RUN_LIFECYCLE` |`RunEvent` — `START` / `COMPLETE` / `FAIL`. A `COMPLETE` or `FAIL` also carries the datasets observed for that run since its `START`.
-|`PIPELINE_GRAPH` |The run's hop graph, remembered for forward propagation (see <<Job granularity>>). No event of its own.
+|`PIPELINE_GRAPH` |The run's hop graph. With `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y` it is remembered for forward propagation (see <<Job granularity>>); otherwise it is skipped and the datasets stay on the pipeline job. No event of its own.
+|`WORKFLOW_GRAPH` |The workflow's hop graph. On their `COMPLETE` or `FAIL` event, an action's job names the actions that lead to it (`upstreamActions` in the `hop` job facet), and the workflow's job its first actions (`rootActions`) and the actions on its enabled hops (`actions`). No event of its own.
 |`FILE_IO` |Physical file datasets (`dataSource` facet, plus a `schema` facet when Hop provides the file's column schema), correlated to the parent pipeline run.
 |`RELATIONAL_IO` |Relational table datasets — see <<Database lineage>>. A written table carries a `schema` facet, a `columnLineage` facet when column mappings are derivable, and a `lifecycleStateChange` facet for truncate/overwrite writes. A table that is read declares only the columns the statement reads from it: the rows a query returns (aliases, expressions) are not the table's schema.
 |`TRANSFORM_SCHEMA` |Skipped (internal row shapes between transforms, not physical datasets).
 |`HTTP_IO` |Skipped.
-|`PIPELINE_GRAPH` |Skipped. Datasets stay on the pipeline job.
 |===
 
 OpenLineage has no event of its own for a dataset appearing on its own — a collector attaches a

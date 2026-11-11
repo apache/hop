@@ -44,9 +44,16 @@ import org.apache.hop.lineage.spi.ILineageSink;
     description = "Maps Hop lineage events to OpenLineage JSON and POSTs to a collector")
 public class OpenLineageLineageSink implements ILineageSink {
 
+  /**
+   * Keeps {@link #accept} and {@link #shutdown} apart. The hub gives its worker a few seconds to
+   * stop before it shuts the sinks down, so an {@code accept} can still be mapping a batch then;
+   * the mapper's state is not thread-safe, and shutdown takes the mapper and dispatcher away.
+   */
+  private final Object lock = new Object();
+
   private OpenLineageSinkConfig config;
   private OpenLineageEventMapper mapper;
-  private OpenLineageAsyncDispatcher dispatcher;
+  private volatile OpenLineageAsyncDispatcher dispatcher;
   private OpenLineageSpool spool;
   private ILogChannel log;
 
@@ -62,6 +69,15 @@ public class OpenLineageLineageSink implements ILineageSink {
     } catch (IllegalArgumentException e) {
       throw new HopException(e.getMessage(), e);
     }
+  }
+
+  /**
+   * How the names of this sink's folders in the spool start. A sink that shares the spool code
+   * gives its own prefix, so it does not replay another sink's events when both are configured with
+   * one folder.
+   */
+  protected String spoolPrefix() {
+    return "";
   }
 
   /** Adjusts the mapping before it is built, for a collector that needs a different shape. */
@@ -86,7 +102,9 @@ public class OpenLineageLineageSink implements ILineageSink {
         + ", jobs="
         + (config.isTransformJobs() ? "per transform (forward propagation)" : "per pipeline")
         + ", parent facets="
-        + (config.isParentRunsEnabled() ? "on" : "off");
+        + (config.isParentRunsEnabled() ? "on" : "off")
+        + ", file dataset naming="
+        + (config.isFileSpecNaming() ? "spec" : "legacy");
   }
 
   @Override
@@ -96,11 +114,14 @@ public class OpenLineageLineageSink implements ILineageSink {
     OpenLineageEventMapper.Builder mapperBuilder =
         OpenLineageEventMapper.builder(config.getNamespace(), config.getProducer())
             .sqlParser(RelationalSqlParser.create(config.isSqlParseEnabled(), log))
+            .fileSpecNaming(config.isFileSpecNaming())
             .transformJobs(config.isTransformJobs())
             .parentRuns(config.isParentRunsEnabled());
     configureMapper(mapperBuilder);
     this.mapper = mapperBuilder.build();
-    this.spool = OpenLineageSpool.open(config.getSpoolDirectory(), config.getSpoolMaxBytes(), log);
+    this.spool =
+        OpenLineageSpool.open(
+            config.getSpoolDirectory(), spoolPrefix(), config.getSpoolMaxBytes(), log);
     this.dispatcher =
         new OpenLineageAsyncDispatcher(
             config.getBufferSize(),
@@ -148,49 +169,65 @@ public class OpenLineageLineageSink implements ILineageSink {
     if (copy.isEmpty()) {
       return;
     }
-    List<RunEvent> runEvents = mapper.mapBatch(copy);
-    if (!runEvents.isEmpty()) {
-      dispatcher.enqueueAll(runEvents);
+    synchronized (lock) {
+      if (mapper == null || dispatcher == null) {
+        // Shut down while the hub still had this batch: nothing is left to send it.
+        log.logDetailed(
+            sinkName() + " sink is shut down; " + copy.size() + " lineage event(s) not sent");
+        return;
+      }
+      List<RunEvent> runEvents = mapper.mapBatch(copy);
+      if (!runEvents.isEmpty()) {
+        dispatcher.enqueueAll(runEvents);
+      }
     }
   }
 
   @Override
   public void shutdown() throws HopException {
-    if (dispatcher != null) {
-      // A dataset observation whose run never reported its end has no run event left to carry it.
-      // Send those as standalone events before the queue drains, so that nothing observed is
-      // dropped.
-      List<RunEvent> carriedNowhere = mapper != null ? mapper.flushObservations() : List.of();
-      if (!carriedNowhere.isEmpty()) {
+    OpenLineageAsyncDispatcher current = dispatcher;
+    if (current != null) {
+      // An accept still handing events over must not wait for buffer capacity while this waits
+      // for it.
+      current.stopWaiting();
+    }
+    synchronized (lock) {
+      if (dispatcher != null) {
+        // A dataset observation whose run never reported its end has no run event left to carry
+        // it. Send those as standalone events before the queue drains, so that nothing observed is
+        // dropped.
+        List<RunEvent> carriedNowhere = mapper != null ? mapper.flushObservations() : List.of();
+        if (!carriedNowhere.isEmpty()) {
+          log.logBasic(
+              sinkName()
+                  + " sink: "
+                  + carriedNowhere.size()
+                  + " dataset observation(s) had no run completion to carry them; sending them as"
+                  + " standalone events");
+          dispatcher.enqueueAll(carriedNowhere);
+        }
+        long drainMs = config != null ? config.getShutdownDrainMs() : 30_000;
+        try {
+          dispatcher.awaitDrain(drainMs);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        dispatcher.close();
         log.logBasic(
             sinkName()
-                + " sink: "
-                + carriedNowhere.size()
-                + " dataset observation(s) had no run completion to carry them; sending them as"
-                + " standalone events");
-        dispatcher.enqueueAll(carriedNowhere);
+                + " sink metrics: sent="
+                + dispatcher.getSentCount()
+                + ", failed="
+                + dispatcher.getFailedCount()
+                + ", rejected="
+                + dispatcher.getRejectedCount()
+                + ", dropped="
+                + dispatcher.getDroppedCount());
+        dispatcher = null;
       }
-      long drainMs = config != null ? config.getShutdownDrainMs() : 30_000;
-      try {
-        dispatcher.awaitDrain(drainMs);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-      dispatcher.close();
-      log.logBasic(
-          sinkName()
-              + " sink metrics: sent="
-              + dispatcher.getSentCount()
-              + ", failed="
-              + dispatcher.getFailedCount()
-              + ", rejected="
-              + dispatcher.getRejectedCount()
-              + ", dropped="
-              + dispatcher.getDroppedCount());
-      dispatcher = null;
+      mapper = null;
+      config = null;
+      spool = null;
     }
-    mapper = null;
-    config = null;
-    spool = null;
   }
 }

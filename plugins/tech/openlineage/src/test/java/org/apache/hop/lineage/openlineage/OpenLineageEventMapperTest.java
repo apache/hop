@@ -214,7 +214,8 @@ class OpenLineageEventMapperTest {
         "file:///data/customers.csv", input.get("facets").get("dataSource").get("uri").asText());
   }
 
-  // With spec naming enabled a file dataset uses the OpenLineage naming spec (scheme namespace +
+  // With spec naming (the mapper's default) a file dataset uses the OpenLineage naming spec (scheme
+  // namespace +
   // path) instead of the legacy job namespace + bare filename, so it reconciles across engines.
   @Test
   void fileIoSpecNamingUsesSchemeNamespaceAndPath() throws Exception {
@@ -246,6 +247,41 @@ class OpenLineageEventMapperTest {
     assertEquals(
         "OVERWRITE",
         output.get("facets").get("lifecycleStateChange").get("lifecycleStateChange").asText());
+  }
+
+  // Without spec naming a file dataset keeps the legacy identity of Hop 2.20: the job namespace and
+  // the file name, the full URI only in the dataSource facet.
+  @Test
+  void fileIoLegacyNamingUsesJobNamespaceAndFileName() throws Exception {
+    OpenLineageEventMapper legacyMapper =
+        OpenLineageEventMapper.builder(NAMESPACE, PRODUCER)
+            .objectMapper(objectMapper)
+            .fileSpecNaming(false)
+            .build();
+    LineageEvent event =
+        new LineageEvent(
+            "evt-file-legacy",
+            1L,
+            LineageEventKind.FILE_IO,
+            LineageContext.builder()
+                .subjectType(LineageSubjectType.TRANSFORM)
+                .pipelineName("export")
+                .logChannelId("pipe-log")
+                .build(),
+            new FileIoLineagePayload(
+                FileIoOperation.WRITE,
+                null,
+                "s3://bucket/warehouse/out.parquet",
+                2048L,
+                true,
+                null));
+
+    JsonNode output = mapCarriedByRunCompletion(legacyMapper, event).get("outputs").get(0);
+    assertEquals(NAMESPACE, output.get("namespace").asText());
+    assertEquals("out.parquet", output.get("name").asText());
+    assertEquals(
+        "s3://bucket/warehouse/out.parquet",
+        output.get("facets").get("dataSource").get("uri").asText());
   }
 
   // A move renames the source into the target: the target is RENAME and carries the source as its
@@ -787,6 +823,43 @@ class OpenLineageEventMapperTest {
     assertEquals(
         "id", output.get("facets").get("schema").get("fields").get(0).get("name").asText());
     assertFalse(completion.has("inputs"));
+  }
+
+  // A lookup per row, or a loop over the same file, observes one dataset many times. The run holds
+  // it once, so its completion stays small however many rows there were.
+  @Test
+  void aDatasetObservedManyTimesIsCarriedOnce() throws Exception {
+    LineageContext ctx =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.TRANSFORM)
+            .pipelineName("lookup-per-row")
+            .logChannelId("transform-log")
+            .transformName("Database lookup")
+            .putAttribute(OpenLineageEventMapper.ATTR_PIPELINE_LOG_CHANNEL_ID, PIPELINE_RUN_UUID)
+            .build();
+    LineageEvent lookup = null;
+    for (int i = 0; i < 1_000; i++) {
+      lookup =
+          new LineageEvent(
+              "evt-lookup-" + i,
+              1_700_002_000_000L + i,
+              LineageEventKind.RELATIONAL_IO,
+              ctx,
+              new RelationalIoLineagePayload(
+                  RelationalIoOperation.READ,
+                  "postgres://db:5432",
+                  List.of(new RelationalTable("analytics", "dim", "customer")),
+                  List.of(),
+                  null,
+                  null,
+                  true,
+                  null));
+      assertFalse(mapper.map(lookup).isPresent());
+    }
+
+    JsonNode completion = mapper.map(runCompletionOf(lookup)).orElseThrow();
+    assertEquals(1, completion.get("inputs").size());
+    assertEquals("analytics.dim.customer", completion.get("inputs").get(0).get("name").asText());
   }
 
   /**

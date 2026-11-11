@@ -139,9 +139,42 @@ class OpenLineageSinkTest {
         MAPPER.readTree(
             wireMock.findAll(postRequestedFor(urlEqualTo(ENDPOINT))).get(1).getBodyAsString());
     assertEquals("COMPLETE", lastBody.get("eventType").asText());
-    // Spec naming is the default since contract v4: platform file, absolute path as the name.
-    assertEquals("file", lastBody.get("inputs").get(0).get("namespace").asText());
-    assertEquals("/tmp/sample.csv", lastBody.get("inputs").get(0).get("name").asText());
+    // Legacy file naming is still the default, as in Hop 2.20: job namespace and file name.
+    assertEquals("hop-it", lastBody.get("inputs").get(0).get("namespace").asText());
+    assertEquals("sample.csv", lastBody.get("inputs").get(0).get("name").asText());
+  }
+
+  // Spec naming is an opt-in: an upgrade does not re-key the file datasets of an existing graph.
+  @Test
+  void fileSpecNamingIsAnOptIn() throws Exception {
+    Variables variables = variables("hop-it");
+    variables.setVariable(OpenLineageSinkConfig.VAR_FILE_SPEC_NAMING, "Y");
+    OpenLineageLineageSink sink = new OpenLineageLineageSink();
+    sink.init(variables, new LogChannel("OpenLineageSpecNaming"));
+
+    LineageContext ctx = pipelineCtx("spec-naming");
+    sink.accept(
+        List.of(
+            new LineageEvent(
+                "file",
+                System.currentTimeMillis(),
+                LineageEventKind.FILE_IO,
+                ctx,
+                new FileIoLineagePayload(
+                    FileIoOperation.READ, "file:///tmp/sample.csv", null, 100L, true, null)),
+            new LineageEvent(
+                "complete",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                ctx,
+                new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
+    sink.shutdown();
+
+    JsonNode body =
+        MAPPER.readTree(
+            wireMock.findAll(postRequestedFor(urlEqualTo(ENDPOINT))).get(0).getBodyAsString());
+    assertEquals("file", body.get("inputs").get(0).get("namespace").asText());
+    assertEquals("/tmp/sample.csv", body.get("inputs").get(0).get("name").asText());
   }
 
   // A sink for a collector with its own API (DataHub) extends this one: same mapping, queue and
@@ -318,8 +351,28 @@ class OpenLineageSinkTest {
     assertEquals(0, spooledFiles(spoolFolder), "a delivered event must leave the spool");
   }
 
+  // The hub gives its worker a few seconds to stop before it shuts the sinks down, so a batch can
+  // still reach accept() once shutdown() is done. It is not sent, and it must not fail.
+  @Test
+  void aBatchArrivingAfterShutdownIsIgnored() throws Exception {
+    OpenLineageLineageSink sink = new OpenLineageLineageSink();
+    sink.init(variables(null), new LogChannel("OpenLineageLate"));
+    sink.shutdown();
+
+    sink.accept(
+        List.of(
+            new LineageEvent(
+                "late",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                pipelineCtx("late"),
+                new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
+
+    wireMock.verify(0, postRequestedFor(urlEqualTo(ENDPOINT)));
+  }
+
   private static long spooledFiles(Path folder) throws IOException {
-    try (var files = Files.list(folder)) {
+    try (var files = Files.walk(folder)) {
       return files.filter(f -> f.getFileName().toString().endsWith(".json")).count();
     }
   }

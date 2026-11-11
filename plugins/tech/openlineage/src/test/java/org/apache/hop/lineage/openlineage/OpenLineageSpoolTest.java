@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
@@ -63,6 +64,16 @@ class OpenLineageSpoolTest {
     return spool;
   }
 
+  /** What a process started after {@code previous} shut down sends again, by job name. */
+  private List<String> replayAfter(OpenLineageSpool previous) {
+    previous.release();
+    return replay(spool());
+  }
+
+  private static List<String> replay(OpenLineageSpool spool) {
+    return spool.recover().stream().map(id -> spool.load(id).getJob().getName()).toList();
+  }
+
   private static RunEvent event(String jobName) {
     return OL.newRunEventBuilder()
         .eventType(RunEvent.EventType.COMPLETE)
@@ -72,23 +83,29 @@ class OpenLineageSpoolTest {
         .build();
   }
 
+  /** The spool files anywhere under the configured folder. */
+  private long filesOnDisk() throws IOException {
+    try (Stream<Path> files = Files.walk(folder)) {
+      return files
+          .filter(path -> path.getFileName().toString().endsWith(OpenLineageSpool.FILE_SUFFIX))
+          .count();
+    }
+  }
+
   @Test
-  void storesAnEventAndDeletesItOnRequest() {
+  void storesAnEventAndDeletesItOnRequest() throws IOException {
     OpenLineageSpool spool = spool();
     String id = spool.store(event("pipeline-a"));
 
     assertNotNull(id);
     assertEquals(1, spool.getStoredCount());
     assertTrue(spool.getStoredBytes() > 0);
-
-    List<OpenLineageSpool.SpooledEvent> stored = spool.loadAll();
-    assertEquals(1, stored.size());
-    assertEquals(id, stored.get(0).id());
+    assertEquals("pipeline-a", spool.load(id).getJob().getName());
 
     spool.delete(id);
     assertEquals(0, spool.getStoredCount());
     assertEquals(0, spool.getStoredBytes());
-    assertTrue(spool.loadAll().isEmpty());
+    assertEquals(0, filesOnDisk());
   }
 
   @Test
@@ -98,11 +115,57 @@ class OpenLineageSpoolTest {
       spool.store(event(name));
     }
 
-    // A second instance is what a restarted process sees.
-    List<OpenLineageSpool.SpooledEvent> replayed = spool().loadAll();
-    assertEquals(
-        List.of("first", "second", "third"),
-        replayed.stream().map(e -> e.event().getJob().getName()).toList());
+    assertEquals(List.of("first", "second", "third"), replayAfter(spool));
+  }
+
+  // A Hop Server and a hop-run configured with the same folder: neither may send what the other
+  // has stored and not delivered yet.
+  @Test
+  void aLiveProcessKeepsItsEvents() {
+    OpenLineageSpool server = spool();
+    server.store(event("server"));
+
+    OpenLineageSpool hopRun = spool();
+    assertTrue(hopRun.recover().isEmpty(), "the server is alive; its events are its own");
+    assertEquals(1, server.getStoredCount());
+  }
+
+  // A process that was killed leaves its heartbeat behind; once that is stale, the next process
+  // takes its events over.
+  @Test
+  void takesOverTheEventsOfAKilledProcess() throws Exception {
+    OpenLineageSpool killed = spool();
+    killed.store(event("left-behind"));
+    Thread.sleep(5);
+
+    OpenLineageSpool next = OpenLineageSpool.open(folder.toString(), "", 1L << 20, 1, LOG);
+    assertEquals(List.of("left-behind"), replay(next));
+    assertEquals(1, next.getStoredCount());
+    assertEquals(1, filesOnDisk(), "the file is moved, not copied");
+  }
+
+  // Taking over moves each file, so of two processes starting together only one sends it.
+  @Test
+  void aTakenOverEventIsSentByOneProcessOnly() {
+    OpenLineageSpool previous = spool();
+    previous.store(event("once"));
+    previous.release();
+
+    OpenLineageSpool first = spool();
+    OpenLineageSpool second = spool();
+    assertEquals(1, first.recover().size() + second.recover().size());
+  }
+
+  // A clean shutdown with nothing left to send leaves nothing behind.
+  @Test
+  void releasingAnEmptySpoolRemovesItsFolder() throws IOException {
+    OpenLineageSpool spool = spool();
+    spool.delete(spool.store(event("delivered")));
+    spool.release();
+
+    try (Stream<Path> children = Files.list(folder)) {
+      assertEquals(0, children.count());
+    }
   }
 
   @Test
@@ -152,9 +215,9 @@ class OpenLineageSpoolTest {
             .build();
 
     OpenLineageSpool spool = spool();
-    spool.store(original);
+    String id = spool.store(original);
 
-    RunEvent reloaded = spool.loadAll().get(0).event();
+    RunEvent reloaded = spool.load(id);
     assertEquals(
         OpenLineageClientUtils.toJson(original),
         OpenLineageClientUtils.toJson(reloaded),
@@ -171,16 +234,22 @@ class OpenLineageSpoolTest {
 
   @Test
   void discardsFilesThatCannotBeRead() throws IOException {
-    Files.writeString(
-        folder.resolve("0000000000001-00000000-" + UUID.randomUUID() + ".json"), "{not json");
-    OpenLineageSpool spool = spool();
+    OpenLineageSpool previous = spool();
+    String id = previous.store(event("broken"));
+    previous.release();
+    try (Stream<Path> files = Files.walk(folder)) {
+      Files.writeString(
+          files.filter(path -> path.getFileName().toString().equals(id)).findFirst().orElseThrow(),
+          "{not json");
+    }
 
-    assertTrue(spool.loadAll().isEmpty());
+    OpenLineageSpool spool = spool();
+    List<String> ids = spool.recover();
+    assertEquals(1, ids.size());
+    assertNull(spool.load(ids.get(0)));
     assertEquals(0, spool.getStoredCount());
     assertEquals(1, spool.getUnreadableFiles());
-    try (var files = Files.list(folder)) {
-      assertEquals(0, files.count(), "the unreadable file is removed so it cannot block replay");
-    }
+    assertEquals(0, filesOnDisk(), "the unreadable file is removed so it cannot block replay");
   }
 
   // A spool pointed at a folder that holds other files must leave them alone: not count them, not
@@ -192,22 +261,42 @@ class OpenLineageSpoolTest {
     Files.writeString(sub.resolve("0000000000001-00000000-" + UUID.randomUUID() + ".json"), "{}");
     OpenLineageSpool spool = spool();
 
+    assertTrue(spool.recover().isEmpty());
     assertEquals(0, spool.getStoredCount());
-    assertTrue(spool.loadAll().isEmpty());
     assertEquals(0, spool.getUnreadableFiles());
     assertTrue(Files.exists(folder.resolve("settings.json")));
-    try (var files = Files.list(sub)) {
+    try (Stream<Path> files = Files.list(sub)) {
       assertEquals(1, files.count());
     }
   }
 
-  // Two processes sharing a folder can both replay a file; the one that loses the race to delete
-  // it must still stop counting it, or the spool drifts towards "full".
+  // The OpenLineage and the DataHub sink map the same events differently. Configured with one
+  // folder, neither may replay, count or delete what the other one spooled.
   @Test
-  void stopsCountingAFileAnotherProcessDelivered() throws IOException {
+  void twoSinksSharingAFolderKeepTheirOwnFiles() {
+    OpenLineageSpool openLineage = spool();
+    OpenLineageSpool dataHub = OpenLineageSpool.open(folder.toString(), "datahub-", 1L << 20, LOG);
+    assertNotNull(dataHub);
+    openLineage.store(event("for-openlineage"));
+    dataHub.store(event("for-datahub"));
+    openLineage.release();
+    dataHub.release();
+
+    assertEquals(List.of("for-openlineage"), replay(spool()));
+    assertEquals(
+        List.of("for-datahub"),
+        replay(OpenLineageSpool.open(folder.toString(), "datahub-", 1L << 20, LOG)));
+  }
+
+  // Whatever removed a file, the spool must stop counting it, or it drifts towards "full".
+  @Test
+  void stopsCountingAFileThatIsGone() throws IOException {
     OpenLineageSpool spool = spool();
     String id = spool.store(event("shared"));
-    Files.delete(folder.resolve(id));
+    try (Stream<Path> files = Files.walk(folder)) {
+      Files.delete(
+          files.filter(path -> path.getFileName().toString().equals(id)).findFirst().orElseThrow());
+    }
 
     spool.delete(id);
 
@@ -217,13 +306,18 @@ class OpenLineageSpoolTest {
 
   @Test
   void ignoresPartialFiles() throws IOException {
-    Files.writeString(
-        folder.resolve("0000000000001-00000000-half" + OpenLineageSpool.TEMP_SUFFIX),
-        "{\"eventType\":",
-        StandardCharsets.UTF_8);
-    OpenLineageSpool spool = spool();
-    assertTrue(spool.loadAll().isEmpty());
-    assertEquals(0, spool.getStoredCount());
+    OpenLineageSpool previous = spool();
+    previous.store(event("whole"));
+    previous.release();
+    try (Stream<Path> folders = Files.list(folder)) {
+      Path abandoned = folders.findFirst().orElseThrow();
+      Files.writeString(
+          abandoned.resolve("0000000000001-00000000-half" + OpenLineageSpool.TEMP_SUFFIX),
+          "{\"eventType\":",
+          StandardCharsets.UTF_8);
+    }
+
+    assertEquals(List.of("whole"), replay(spool()));
   }
 
   @Test
@@ -235,9 +329,10 @@ class OpenLineageSpoolTest {
     // through both, so it must not hold on to FileObjects.
     HopVfs.reset();
 
-    assertEquals(1, spool.loadAll().size());
+    assertEquals("before-reset", spool.load(id).getJob().getName());
     assertNotNull(spool.store(event("after-reset")));
     spool.delete(id);
+    spool.heartbeat();
     assertEquals(1, spool.getStoredCount());
   }
 

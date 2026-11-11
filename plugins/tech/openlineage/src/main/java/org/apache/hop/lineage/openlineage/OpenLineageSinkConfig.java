@@ -49,11 +49,17 @@ public final class OpenLineageSinkConfig {
   public static final String VAR_TRANSFORM_JOBS = "HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS";
 
   /**
+   * {@code Y} names file datasets by the OpenLineage naming spec (scheme and authority as the
+   * namespace, path as the name). The default, {@code N}, keeps the job namespace and file name of
+   * Hop 2.20 and earlier, so an upgrade does not re-key existing file datasets. The legacy naming
+   * is deprecated: a later release makes spec naming the default.
+   */
+  public static final String VAR_FILE_SPEC_NAMING = "HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING";
+
+  /**
    * Whether runs carry an OpenLineage {@code parent} facet naming the run that started them
    * (transform → pipeline, action → workflow, pipeline → action). On by default. A collector that
-   * builds the job hierarchy itself from something else can turn it off; DataHub's OpenLineage
-   * ingest reads the facet but writes the parent edge with the child's job name, so the DataHub
-   * sink disables it and writes the tree itself.
+   * builds the job hierarchy itself from something else can turn it off.
    */
   public static final String VAR_PARENT_RUNS = "HOP_LINEAGE_OPENLINEAGE_PARENT_RUNS";
 
@@ -84,6 +90,9 @@ public final class OpenLineageSinkConfig {
   private static final long DEFAULT_METRICS_INTERVAL_MS = 0; // 0 = periodic metrics off
   private static final String DEFAULT_KEYSTORE_TYPE = "PKCS12";
   private static final boolean DEFAULT_SQL_PARSE = true;
+  // Off by default: spec naming changes existing file dataset identities (see the identity
+  // contract).
+  private static final boolean DEFAULT_FILE_SPEC_NAMING = false;
   /*
    * Off by default until measured: one job per transform with forward-propagated inputs is the
    * only mapping that produces the true dataset pairs for a multi-input pipeline (see
@@ -115,6 +124,7 @@ public final class OpenLineageSinkConfig {
   private final String trustStorePassword;
   private final String keyStoreType;
   private final boolean sqlParseEnabled;
+  private final boolean fileSpecNaming;
   private final boolean transformJobs;
   private final boolean parentRuns;
   private final String spoolDirectory;
@@ -138,6 +148,7 @@ public final class OpenLineageSinkConfig {
       String trustStorePassword,
       String keyStoreType,
       boolean sqlParseEnabled,
+      boolean fileSpecNaming,
       boolean transformJobs,
       boolean parentRuns,
       String spoolDirectory,
@@ -159,6 +170,7 @@ public final class OpenLineageSinkConfig {
     this.trustStorePassword = trustStorePassword;
     this.keyStoreType = keyStoreType;
     this.sqlParseEnabled = sqlParseEnabled;
+    this.fileSpecNaming = fileSpecNaming;
     this.transformJobs = transformJobs;
     this.parentRuns = parentRuns;
     this.spoolDirectory = spoolDirectory;
@@ -205,6 +217,8 @@ public final class OpenLineageSinkConfig {
     String trustStorePassword = variables.getVariable(VAR_TRUSTSTORE_PASSWORD, "");
     String keyStoreType = variables.getVariable(VAR_KEYSTORE_TYPE, DEFAULT_KEYSTORE_TYPE);
     boolean sqlParse = parseBoolean(variables.getVariable(VAR_SQL_PARSE, null), DEFAULT_SQL_PARSE);
+    boolean fileSpecNaming =
+        parseBoolean(variables.getVariable(VAR_FILE_SPEC_NAMING, null), DEFAULT_FILE_SPEC_NAMING);
     boolean transformJobs =
         parseBoolean(variables.getVariable(VAR_TRANSFORM_JOBS, null), DEFAULT_TRANSFORM_JOBS);
     boolean parentRuns =
@@ -231,6 +245,7 @@ public final class OpenLineageSinkConfig {
         StringUtils.isBlank(trustStorePassword) ? null : secret(trustStorePassword.trim()),
         StringUtils.defaultIfBlank(keyStoreType, DEFAULT_KEYSTORE_TYPE).trim(),
         sqlParse,
+        fileSpecNaming,
         transformJobs,
         parentRuns,
         StringUtils.isBlank(spoolDirectory) ? null : spoolDirectory.trim(),
@@ -410,6 +425,14 @@ public final class OpenLineageSinkConfig {
   /** Whether Table Input / Execute SQL statements are parsed to recover their relational tables. */
   public boolean isSqlParseEnabled() {
     return sqlParseEnabled;
+  }
+
+  /**
+   * Whether file datasets use OpenLineage spec naming (VFS scheme namespace + path) vs. legacy; see
+   * {@link #VAR_FILE_SPEC_NAMING}.
+   */
+  public boolean isFileSpecNaming() {
+    return fileSpecNaming;
   }
 
   /**

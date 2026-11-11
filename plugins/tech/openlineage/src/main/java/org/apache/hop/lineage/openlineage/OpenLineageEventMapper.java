@@ -151,6 +151,7 @@ public final class OpenLineageEventMapper {
   private final boolean parentRuns;
   private final boolean transformJobs;
   private final boolean propagateInputs;
+  private final boolean fileSpecNaming;
   private final String engineVersion;
   private final RelationalColumnLineageCorrelator columnLineageCorrelator =
       new RelationalColumnLineageCorrelator();
@@ -225,6 +226,7 @@ public final class OpenLineageEventMapper {
     this.parentRuns = builder.parentRuns;
     this.transformJobs = builder.transformJobs;
     this.propagateInputs = builder.propagateInputs;
+    this.fileSpecNaming = builder.fileSpecNaming;
     this.engineVersion = hopVersion();
   }
 
@@ -241,6 +243,7 @@ public final class OpenLineageEventMapper {
     private boolean transformJobs;
     private boolean propagateInputs = true;
     private boolean parentRuns = true;
+    private boolean fileSpecNaming = true;
 
     private Builder(String namespace, String producer) {
       this.namespace = namespace;
@@ -281,6 +284,16 @@ public final class OpenLineageEventMapper {
     /** Whether runs carry a {@code ParentRunFacet}. On by default. */
     public Builder parentRuns(boolean parentRuns) {
       this.parentRuns = parentRuns;
+      return this;
+    }
+
+    /**
+     * Whether file datasets follow the OpenLineage naming spec (on by default). Off keeps the job
+     * namespace + file name identity of Hop 2.20 and earlier, which the OpenLineage sink still uses
+     * unless {@code HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING} is {@code Y}.
+     */
+    public Builder fileSpecNaming(boolean fileSpecNaming) {
+      this.fileSpecNaming = fileSpecNaming;
       return this;
     }
 
@@ -1020,13 +1033,18 @@ public final class OpenLineageEventMapper {
     }
   }
 
-  /** Datasets observed for one run, held until that run reports its terminal event. */
+  /**
+   * Datasets observed for one run, held until that run reports its terminal event. Each dataset is
+   * kept once: a run that reads the same table per row, or writes the same file in a loop, holds
+   * one entry for it rather than one per observation. A later observation of a dataset replaces the
+   * earlier one in place, as a collector would when it upserts the event's datasets in order.
+   */
   private static final class PendingRun {
     private final String jobName;
     private final String runId;
     private final JobIdentity identity;
-    private final List<InputDataset> inputs = new ArrayList<>();
-    private final List<OutputDataset> outputs = new ArrayList<>();
+    private final Map<DatasetRef, InputDataset> inputs = new LinkedHashMap<>();
+    private final Map<DatasetRef, OutputDataset> outputs = new LinkedHashMap<>();
     private final Set<String> sqlTexts = new LinkedHashSet<>();
 
     PendingRun(String jobName, String runId, JobIdentity identity) {
@@ -1048,11 +1066,11 @@ public final class OpenLineageEventMapper {
     }
 
     List<InputDataset> getInputs() {
-      return inputs;
+      return new ArrayList<>(inputs.values());
     }
 
     List<OutputDataset> getOutputs() {
-      return outputs;
+      return new ArrayList<>(outputs.values());
     }
 
     /**
@@ -1064,8 +1082,12 @@ public final class OpenLineageEventMapper {
     }
 
     void add(List<InputDataset> newInputs, List<OutputDataset> newOutputs, String sqlText) {
-      inputs.addAll(newInputs);
-      outputs.addAll(newOutputs);
+      for (InputDataset input : newInputs) {
+        inputs.put(new DatasetRef(input.getNamespace(), input.getName()), input);
+      }
+      for (OutputDataset output : newOutputs) {
+        outputs.put(new DatasetRef(output.getNamespace(), output.getName()), output);
+      }
       if (!Utils.isEmpty(sqlText)) {
         sqlTexts.add(sqlText);
       }
@@ -1073,8 +1095,8 @@ public final class OpenLineageEventMapper {
 
     /** Takes over another run's observations (a transform's, folded into its pipeline). */
     void absorb(PendingRun other) {
-      inputs.addAll(other.inputs);
-      outputs.addAll(other.outputs);
+      inputs.putAll(other.inputs);
+      outputs.putAll(other.outputs);
       sqlTexts.addAll(other.sqlTexts);
     }
 
@@ -1202,13 +1224,13 @@ public final class OpenLineageEventMapper {
   }
 
   /**
-   * The OpenLineage {@code (namespace, name)} for a file/object-store URI, following the
-   * OpenLineage naming spec (VFS scheme → namespace, path → name via {@link LineageFileIdentity})
-   * so a file reconciles across transforms and engines. A URI that cannot be parsed falls back to
-   * the job namespace and the file name.
+   * The OpenLineage {@code (namespace, name)} for a file/object-store URI. With spec naming this
+   * follows the OpenLineage naming spec (VFS scheme → namespace, path → name via {@link
+   * LineageFileIdentity}) so a file reconciles across transforms and engines; otherwise, and for a
+   * URI that cannot be parsed, it is the legacy job namespace + file name.
    */
   private LineageFileIdentity.Identity fileDatasetId(String uri) {
-    LineageFileIdentity.Identity id = LineageFileIdentity.of(uri);
+    LineageFileIdentity.Identity id = fileSpecNaming ? LineageFileIdentity.of(uri) : null;
     return id != null ? id : new LineageFileIdentity.Identity(namespace, nameFromUri(uri));
   }
 

@@ -57,7 +57,23 @@ Aligning only the job namespace will *not* stitch datasets together.
 
 == File datasets
 
-File (`FILE_IO`) datasets follow the https://openlineage.io/docs/spec/naming[OpenLineage naming specification], derived by
+File (`FILE_IO`) datasets have two naming modes, selected by
+`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING` (default `N`). The DataHub sink always uses spec mode.
+
+=== Legacy mode (default, deprecated)
+
+* *namespace* = the Hop job namespace (`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`, default `hop`)
+* *name* = the last path segment of the file URI, with the full URI preserved in the `dataSource`
+  dataset facet
+
+This predates the contract and uses the job namespace as the dataset namespace. It does *not*
+follow the OpenLineage naming specification and will not reconcile a file across engines or tools.
+It remains the default only so that existing lineage graphs are not silently re-keyed. It is
+deprecated: a later release makes spec mode the default.
+
+=== Spec mode (`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING=Y`)
+
+Follows the https://openlineage.io/docs/spec/naming[OpenLineage naming specification], derived by
 the shared engine helper `LineageFileIdentity` so that the sink and the Beam/Spark engines agree on
 one identity for the same physical file.
 
@@ -76,7 +92,10 @@ one identity for the same physical file.
 URI user info (credentials) is dropped from the namespace, so no secret reaches the lineage graph.
 The exception is Azure, whose authority carries the container rather than a credential.
 
-A URI that cannot be parsed falls back to the Hop job namespace and the file name.
+A URI without a scheme, or one that cannot be parsed, falls back to the legacy identity.
+
+Switching a deployment from legacy to spec mode re-keys its file datasets. That is why it is a
+flag rather than a straight change.
 
 == Relational datasets — the join key for other tools
 
@@ -168,7 +187,9 @@ the Hop run". The run id this sink emits is:
 
 * *runId* = the Hop log channel id of the executing pipeline, workflow, transform or action
   (`LineageContext.getLogChannelId()`). File and relational I/O are correlated to the *parent
-  pipeline* run via the `pipelineLogChannelId` context attribute.
+  pipeline* run via the `pipelineLogChannelId` context attribute, or to the transform's own run
+  with `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y`. An action's I/O is correlated to the action's
+  run.
 
 OpenLineage types `runId` as a UUID. Hop log channel ids are already UUID strings, so the emitted
 value is that id verbatim. Only the synthetic fallback used when no log channel id is available —
@@ -182,9 +203,8 @@ OpenLineage `ParentRunFacet` `run.runId`, with `job.namespace` set to the Hop jo
 
 This is *contract v4*.
 
-* *v4* names every file dataset by the OpenLineage naming specification; the earlier
-  job-namespace + file-name identity is gone. An action run is identified by the log channel id of
-  the action that executed, not by its workflow's.
+* *v4* identifies an action run by the log channel id of the action that executed, not by its
+  workflow's. The legacy file naming is deprecated; it stays the default for this sink.
 * *v3* documents the relational identity as implemented by the engine's `RELATIONAL_IO` emitter:
   the namespace scheme is derived from the Hop database type rather than the JDBC sub-protocol,
   and the two known gaps above (Snowflake/BigQuery namespaces, identifier casing) are stated
