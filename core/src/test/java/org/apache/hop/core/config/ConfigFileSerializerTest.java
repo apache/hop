@@ -20,14 +20,19 @@ package org.apache.hop.core.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -163,6 +168,44 @@ class ConfigFileSerializerTest {
     if (failure.get() != null) {
       throw new AssertionError("the writer failed to save the configuration", failure.get());
     }
+  }
+
+  /**
+   * Several users sharing one configuration folder rely on group access to hop-config.json. Saving
+   * used to leave it rw------- for whoever saved last, locking everyone else out.
+   */
+  @Test
+  @DisplayName("saving keeps the permissions of the existing file")
+  void keepsThePermissionsOfTheExistingFile() throws Exception {
+    assumePosix();
+    Path file = folder.resolve("hop-config.json");
+    Files.writeString(file, "{}");
+    Set<PosixFilePermission> shared = PosixFilePermissions.fromString("rw-rw-r--");
+    Files.setPosixFilePermissions(file, shared);
+
+    serializer.writeToFile(file.toString(), Map.of("answer", "42"));
+    serializer.writeToFile(file.toString(), Map.of("answer", "43"));
+
+    assertEquals(shared, Files.getPosixFilePermissions(file));
+    assertEquals("43", serializer.readFromFile(file.toString()).get("answer"));
+  }
+
+  @Test
+  @DisplayName("a new file gets the permissions of a normally created file, not owner-only")
+  void createsANewFileLikeAnyOtherFile() throws Exception {
+    assumePosix();
+    Path reference = Files.createFile(folder.resolve("reference.json"));
+    Path file = folder.resolve("hop-config.json");
+
+    serializer.writeToFile(file.toString(), Map.of("answer", "42"));
+
+    assertEquals(Files.getPosixFilePermissions(reference), Files.getPosixFilePermissions(file));
+  }
+
+  private void assumePosix() {
+    assumeTrue(
+        Files.getFileAttributeView(folder, PosixFileAttributeView.class) != null,
+        "the file store has no POSIX permissions");
   }
 
   private List<String> filesInFolder() throws IOException {
