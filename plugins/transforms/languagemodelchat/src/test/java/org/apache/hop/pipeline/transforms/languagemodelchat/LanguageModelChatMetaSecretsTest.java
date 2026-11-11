@@ -22,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -99,16 +101,6 @@ class LanguageModelChatMetaSecretsTest {
     assertEquals("HF_ACCESS_TOKEN", back.getHuggingFaceAccessToken());
   }
 
-  /** The field default disagreed with setDefault() and shipped a stray brace, see issue #8336. */
-  @Test
-  void openAiApiKeyDefaultHasNoStrayBrace() {
-    LanguageModelChatMeta meta = new LanguageModelChatMeta();
-    assertEquals("${OPENAI_API_KEY}", meta.getOpenAiApiKey());
-
-    meta.setDefault();
-    assertEquals("${OPENAI_API_KEY}", meta.getOpenAiApiKey());
-  }
-
   /**
    * Every key field defaults to a variable: a plain value would be sent as the key, and is reported
    * as a hardcoded secret by lint rule SEC-002 in every pipeline that uses another provider, see
@@ -120,30 +112,44 @@ class LanguageModelChatMetaSecretsTest {
     LanguageModelChatMeta defaulted = new LanguageModelChatMeta();
     defaulted.setDefault();
 
-    int keyFields = 0;
+    Set<String> keyFields = new HashSet<>();
     for (Field field : LanguageModelChatMeta.class.getDeclaredFields()) {
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
-      if (property == null || !property.password()) {
+      if (property == null || !property.password() || field.getType() != String.class) {
         continue;
       }
-      keyFields++;
+      keyFields.add(field.getName());
       field.setAccessible(true);
       for (LanguageModelChatMeta meta : List.of(constructed, defaulted)) {
         String value = (String) field.get(meta);
+        // No default sends nothing and is not reported either.
         assertTrue(
-            value.matches("\\$\\{[A-Z_]+}"), field.getName() + " defaults to '" + value + "'");
+            value == null || value.matches("\\$\\{[A-Z_]+}"),
+            field.getName() + " defaults to '" + value + "'");
       }
     }
-    assertEquals(4, keyFields);
+    assertTrue(
+        keyFields.containsAll(
+            List.of("openAiApiKey", "huggingFaceAccessToken", "mistralApiKey", "anthropicApiKey")),
+        keyFields.toString());
   }
 
+  /**
+   * Each key field defaults to its provider's variable, also after setDefault(). The field default
+   * once disagreed with setDefault() and shipped a stray brace, see issue #8336.
+   */
   @Test
   void keyDefaultsNameTheProvidersVariable() {
-    LanguageModelChatMeta meta = new LanguageModelChatMeta();
-    assertEquals("${OPENAI_API_KEY}", meta.getOpenAiApiKey());
-    assertEquals("${HF_ACCESS_TOKEN}", meta.getHuggingFaceAccessToken());
-    assertEquals("${MISTRAL_API_KEY}", meta.getMistralApiKey());
-    assertEquals("${ANTHROPIC_API_KEY}", meta.getAnthropicApiKey());
+    LanguageModelChatMeta constructed = new LanguageModelChatMeta();
+    LanguageModelChatMeta defaulted = new LanguageModelChatMeta();
+    defaulted.setDefault();
+
+    for (LanguageModelChatMeta meta : List.of(constructed, defaulted)) {
+      assertEquals("${OPENAI_API_KEY}", meta.getOpenAiApiKey());
+      assertEquals("${HF_ACCESS_TOKEN}", meta.getHuggingFaceAccessToken());
+      assertEquals("${MISTRAL_API_KEY}", meta.getMistralApiKey());
+      assertEquals("${ANTHROPIC_API_KEY}", meta.getAnthropicApiKey());
+    }
   }
 
   /**

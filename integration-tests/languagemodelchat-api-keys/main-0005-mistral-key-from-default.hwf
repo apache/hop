@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0005-mistral-key-from-default</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Mistral with the API key field left at its default sends MISTRAL_API_KEY from the environment</description>
+  <description>Mistral with the API key field left at its default sends the Hop variable MISTRAL_API_KEY</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>

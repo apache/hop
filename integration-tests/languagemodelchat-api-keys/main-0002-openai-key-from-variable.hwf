@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0002-openai-key-from-variable</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>OpenAI with the API key field set to '${OPENAI_API_KEY}' sends the environment variable</description>
+  <description>OpenAI with the API key field set to '${OPENAI_API_KEY}' sends the Hop variable to any host</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>

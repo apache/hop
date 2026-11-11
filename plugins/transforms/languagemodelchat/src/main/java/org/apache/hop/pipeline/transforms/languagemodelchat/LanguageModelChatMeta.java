@@ -75,7 +75,8 @@ public class LanguageModelChatMeta
   /**
    * The environment variables the key fields default to. Pipelines written before the defaults
    * became variables hold these names as the key itself; see {@code
-   * LanguageModelFacade#resolveApiKey}.
+   * LanguageModelFacade#resolveApiKey}, which takes the variable name from the {@code DEFAULT_*}
+   * value below.
    */
   public static final String OPENAI_API_KEY_VARIABLE = "OPENAI_API_KEY";
 

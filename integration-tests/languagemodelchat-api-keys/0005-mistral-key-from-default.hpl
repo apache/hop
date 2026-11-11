@@ -21,11 +21,17 @@ limitations under the License.
   <info>
     <name>0005-mistral-key-from-default</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Mistral with the API key field left at its default sends MISTRAL_API_KEY from the environment</description>
+    <description>Mistral with the API key field left at its default sends the Hop variable MISTRAL_API_KEY</description>
     <extended_description>The stub endpoint answers with the API key it received, in square brackets, so the check compares the answer with the key the transform should have sent.</extended_description>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
-    <parameters/>
+    <parameters>
+      <parameter>
+        <name>MISTRAL_API_KEY</name>
+        <default_value>sk-it-hop-mistral</default_value>
+        <description>A Hop variable, which is sent whatever the endpoint is. The test container sets a different value in the environment, which the stub must not get.</description>
+      </parameter>
+    </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
@@ -87,7 +93,7 @@ limitations under the License.
     <data>
       <line>
         <item>Which API key did you receive?</item>
-        <item>[Bearer sk-it-mistral]</item>
+        <item>[Bearer sk-it-hop-mistral]</item>
       </line>
     </data>
     <attributes/>

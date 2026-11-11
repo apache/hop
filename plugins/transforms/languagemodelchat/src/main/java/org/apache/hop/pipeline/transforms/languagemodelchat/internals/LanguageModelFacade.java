@@ -26,10 +26,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.ANTHROPIC_API_KEY_VARIABLE;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.HUGGING_FACE_ACCESS_TOKEN_VARIABLE;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.MISTRAL_API_KEY_VARIABLE;
-import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.OPENAI_API_KEY_VARIABLE;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.DEFAULT_ANTHROPIC_API_KEY;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.DEFAULT_HUGGING_FACE_ACCESS_TOKEN;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.DEFAULT_MISTRAL_API_KEY;
+import static org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta.DEFAULT_OPENAI_API_KEY;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.Message.toChatMessages;
 
 import com.squareup.moshi.JsonAdapter;
@@ -45,16 +45,66 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.UnaryOperator;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
 import org.apache.hop.pipeline.transforms.languagemodelchat.internals.huggingface.HuggingFaceChatModel;
+import org.apache.hop.pipeline.transforms.languagemodelchat.internals.huggingface.HuggingFaceClient;
 
 public class LanguageModelFacade {
+
+  private static final Class<?> PKG = LanguageModelChatMeta.class;
+
+  /**
+   * The key field of each provider: the variable it defaults to, and the domains its own endpoints
+   * live on. The environment variable of that name is only sent to those domains.
+   */
+  enum ApiKeyProvider {
+    OPEN_AI(DEFAULT_OPENAI_API_KEY, "openai.com"),
+    MISTRAL(DEFAULT_MISTRAL_API_KEY, "mistral.ai"),
+    ANTHROPIC(DEFAULT_ANTHROPIC_API_KEY, "anthropic.com"),
+    HUGGING_FACE(DEFAULT_HUGGING_FACE_ACCESS_TOKEN, "huggingface.co", "huggingface.cloud");
+
+    private final String defaultKey;
+    private final String variableName;
+    private final List<String> domains;
+
+    ApiKeyProvider(String defaultKey, String... domains) {
+      this.defaultKey = defaultKey;
+      this.variableName = StringUtil.getVariableName(defaultKey);
+      this.domains = List.of(domains);
+    }
+
+    String variableName() {
+      return variableName;
+    }
+
+    /**
+     * Whether a request to this endpoint goes to the provider itself: over https to one of its
+     * domains, or to its default endpoint when no endpoint is set.
+     */
+    boolean ownsEndpoint(String endpoint) {
+      if (endpoint == null) {
+        return true;
+      }
+      String host = host(endpoint);
+      if (host == null || !endpoint.regionMatches(true, 0, "https://", 0, 8)) {
+        return false;
+      }
+      return domains.stream().anyMatch(d -> host.equals(d) || host.endsWith("." + d));
+    }
+  }
 
   private final LanguageModelChatMeta meta;
   private final JsonAdapter<List<Message>> inputJsonAdapter;
@@ -62,17 +112,29 @@ public class LanguageModelFacade {
   private final LanguageModel lm;
   private final IVariables variables;
   private final UnaryOperator<String> environment;
+  private final ILogChannel log;
   private ChatModel model;
 
   public LanguageModelFacade(IVariables variables, LanguageModelChatMeta meta) {
-    this(variables, meta, System::getenv);
+    this(variables, meta, LogChannel.GENERAL);
+  }
+
+  /**
+   * @param log where to report an API key that is not sent
+   */
+  public LanguageModelFacade(IVariables variables, LanguageModelChatMeta meta, ILogChannel log) {
+    this(variables, meta, System::getenv, log);
   }
 
   /** With the environment lookup handed in, so tests need not set real environment variables. */
   LanguageModelFacade(
-      IVariables variables, LanguageModelChatMeta meta, UnaryOperator<String> environment) {
+      IVariables variables,
+      LanguageModelChatMeta meta,
+      UnaryOperator<String> environment,
+      ILogChannel log) {
     this.variables = variables;
     this.environment = environment;
+    this.log = log;
     this.meta = (LanguageModelChatMeta) meta.clone();
     this.lm = new LanguageModel(meta);
     inputJsonAdapter =
@@ -108,38 +170,68 @@ public class LanguageModelFacade {
   /**
    * The API key to send, or null to send none.
    *
-   * <p>A key field defaults to the provider's own variable, such as {@code ${OPENAI_API_KEY}}. That
-   * variable is read from the Hop variables, and from the environment when no Hop variable defines
-   * it, since the operating system environment is only imported into Hop variables on request.
+   * <p>A key field defaults to the provider's own variable, such as {@code ${OPENAI_API_KEY}}.
    * Pipelines written before the default became a variable hold the bare name, which reads the same
-   * way. Any other variable that nothing defines sends no key, rather than its own text.
+   * way. The field is resolved against the Hop variables. When no Hop variable defines the
+   * provider's own variable, the operating system environment variable of that name is used, since
+   * the environment is only imported into Hop variables on request. That environment variable is
+   * only sent to the provider's own endpoint: a base URL that points elsewhere, such as an
+   * OpenAI-compatible server, gets no key rather than the provider's. Any other variable that
+   * nothing defines sends no key, rather than its own text.
    *
    * @param field the key field as stored in the transform
-   * @param variableName the provider's environment variable, such as {@code OPENAI_API_KEY}
+   * @param provider the provider whose variable the field defaults to
+   * @param endpoint the resolved base URL the request goes to, or null for the provider's default
    */
-  String resolveApiKey(String field, String variableName) {
+  String resolveApiKey(String field, ApiKeyProvider provider, String endpoint) {
     String value = trimToNull(field);
     if (value == null) {
       return null;
     }
-    String ownVariable = "${" + variableName + "}";
-    if (value.equals(variableName)) {
-      value = ownVariable;
+    if (value.equals(provider.variableName())) {
+      value = provider.defaultKey;
     }
     String resolved = trimToNull(variables.resolve(value));
-    if (resolved != null && !resolved.contains("${")) {
+    if (resolved != null && !StringUtil.containsVariableToken(resolved)) {
       return resolved;
     }
-    if (value.equals(ownVariable)) {
-      return trimToNull(environment.apply(variableName));
+    if (!value.equals(provider.defaultKey)) {
+      if (resolved != null) {
+        // Never log the value itself: it may be a key that happens to contain a delimiter.
+        log.logBasic(BaseMessages.getString(PKG, "LanguageModelFacade.ApiKey.Unresolved"));
+      }
+      return null;
     }
-    return null;
+    String fromEnvironment = trimToNull(environment.apply(provider.variableName()));
+    if (fromEnvironment == null) {
+      return null;
+    }
+    if (!provider.ownsEndpoint(endpoint)) {
+      String host = host(endpoint);
+      log.logBasic(
+          BaseMessages.getString(
+              PKG,
+              "LanguageModelFacade.ApiKey.EnvironmentKeyNotSent",
+              provider.variableName(),
+              host == null ? endpoint : host));
+      return null;
+    }
+    return fromEnvironment;
+  }
+
+  private static String host(String url) {
+    try {
+      String host = new URI(url).getHost();
+      return host == null ? null : host.toLowerCase(Locale.ROOT);
+    } catch (URISyntaxException e) {
+      return null;
+    }
   }
 
   private ChatModel createOpenAiModel() {
 
     String baseUrl = resolve(meta.getOpenAiBaseUrl());
-    String apiKey = resolveApiKey(meta.getOpenAiApiKey(), OPENAI_API_KEY_VARIABLE);
+    String apiKey = resolveApiKey(meta.getOpenAiApiKey(), ApiKeyProvider.OPEN_AI, baseUrl);
     String organizationId = resolve(meta.getOpenAiOrganizationId());
     String modelName = resolve(meta.getOpenAiModelName());
     String responseFormat = resolve(meta.getOpenAiResponseFormat());
@@ -181,8 +273,12 @@ public class LanguageModelFacade {
   private ChatModel createHuggingFaceModel() {
     String modelResource = resolve(meta.getHuggingFaceModelId());
 
+    // A model id goes to the Hugging Face router, a URL to that dedicated endpoint.
     String accessToken =
-        resolveApiKey(meta.getHuggingFaceAccessToken(), HUGGING_FACE_ACCESS_TOKEN_VARIABLE);
+        resolveApiKey(
+            meta.getHuggingFaceAccessToken(),
+            ApiKeyProvider.HUGGING_FACE,
+            HuggingFaceClient.isDedicatedEndpoint(modelResource) ? modelResource : null);
     Integer timeout = meta.getHuggingFaceTimeout();
     Double temperature = meta.getHuggingFaceTemperature();
     Integer maxNewTokens = meta.getHuggingFaceMaxNewTokens();
@@ -254,7 +350,7 @@ public class LanguageModelFacade {
   private ChatModel createAnthropicModel() {
 
     String baseUrl = resolve(meta.getAnthropicBaseUrl());
-    String apiKey = resolveApiKey(meta.getAnthropicApiKey(), ANTHROPIC_API_KEY_VARIABLE);
+    String apiKey = resolveApiKey(meta.getAnthropicApiKey(), ApiKeyProvider.ANTHROPIC, baseUrl);
     String version = resolve(meta.getAnthropicVersion());
     String modelName = resolve(meta.getAnthropicModelName());
     Double temperature = meta.getAnthropicTemperature();
@@ -286,7 +382,7 @@ public class LanguageModelFacade {
 
   private ChatModel createMistralModel() {
     String baseUrl = resolve(meta.getMistralBaseUrl());
-    String apiKey = resolveApiKey(meta.getMistralApiKey(), MISTRAL_API_KEY_VARIABLE);
+    String apiKey = resolveApiKey(meta.getMistralApiKey(), ApiKeyProvider.MISTRAL, baseUrl);
     String modelName = resolve(meta.getMistralModelName());
     Double temperature = meta.getMistralTemperature();
     Double topP = meta.getMistralTopP();

@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0006-anthropic-key-from-default</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Anthropic with the API key field left at its default sends ANTHROPIC_API_KEY from the environment</description>
+  <description>Anthropic with the API key field left at its default sends the Hop variable ANTHROPIC_API_KEY</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>

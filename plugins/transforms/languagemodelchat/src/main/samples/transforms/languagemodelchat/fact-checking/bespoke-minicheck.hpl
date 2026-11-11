@@ -26,18 +26,7 @@ limitations under the License.
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
-    <parameters>
-      <parameter>
-        <name>HF_TOKEN</name>
-        <default_value>hf_abc123</default_value>
-        <description/>
-      </parameter>
-      <parameter>
-        <name>OPENAI_API_KEY</name>
-        <default_value>sk-abc123</default_value>
-        <description/>
-      </parameter>
-    </parameters>
+    <parameters/>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
@@ -428,7 +417,7 @@ Claim: ${claim}</input_text>
     <openAiUseProxy>false</openAiUseProxy>
     <openAiLogRequests>false</openAiLogRequests>
     <openAiLogResponses>false</openAiLogResponses>
-    <huggingFaceAccessToken>${HF_TOKEN}</huggingFaceAccessToken>
+    <huggingFaceAccessToken>${HF_ACCESS_TOKEN}</huggingFaceAccessToken>
     <huggingFaceModelId>meta-llama/Llama-3.3-70B-Instruct</huggingFaceModelId>
     <huggingFaceTemperature>0.7</huggingFaceTemperature>
     <huggingFaceMaxNewTokens>50</huggingFaceMaxNewTokens>

@@ -25,8 +25,8 @@ services:
         condition: service_healthy
     links:
       - llmstub
-    # The keys the transform should pick up from the environment when a pipeline leaves the key
-    # field at its default. The stub echoes back whichever one it receives.
+    # Provider keys in the environment. The transform only sends these to the provider's own
+    # endpoint, so the stub, which echoes back whichever key it receives, must never see them.
     environment:
       - OPENAI_API_KEY=sk-it-openai
       - MISTRAL_API_KEY=sk-it-mistral

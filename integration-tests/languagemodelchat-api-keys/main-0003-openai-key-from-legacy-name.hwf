@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0003-openai-key-from-legacy-name</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>OpenAI with the bare name OPENAI_API_KEY that older pipelines stored sends the environment variable</description>
+  <description>OpenAI with the bare name OPENAI_API_KEY that older pipelines stored sends the Hop variable</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>

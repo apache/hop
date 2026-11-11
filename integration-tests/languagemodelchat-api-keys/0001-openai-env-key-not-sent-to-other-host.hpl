@@ -19,10 +19,10 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0001-openai-key-from-default</name>
+    <name>0001-openai-env-key-not-sent-to-other-host</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>OpenAI with the API key field left at its default sends OPENAI_API_KEY from the environment</description>
-    <extended_description>The key field is not in the file, as in every sample that uses another provider, so it loads with its default value. The stub endpoint answers with the API key it received, in square brackets, so the check compares the answer with the key the transform should have sent.</extended_description>
+    <description>OpenAI with the API key field left at its default does not send OPENAI_API_KEY from the environment to another host</description>
+    <extended_description>The key field is not in the file, as in every sample that uses another provider, so it loads with its default value. The environment variable is only sent to openai.com, and the stub is another host, so it must get no key. The stub endpoint answers with the API key it received, in square brackets, so the check compares the answer with the key the transform should have sent.</extended_description>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
     <parameters/>
@@ -87,7 +87,7 @@ limitations under the License.
     <data>
       <line>
         <item>Which API key did you receive?</item>
-        <item>[Bearer sk-it-openai]</item>
+        <item>[]</item>
       </line>
     </data>
     <attributes/>

@@ -26,13 +26,7 @@ limitations under the License.
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
-    <parameters>
-      <parameter>
-        <name>ANTHROPIC_API_KEY</name>
-        <default_value>sk-ant-api03-abc123</default_value>
-        <description/>
-      </parameter>
-    </parameters>
+    <parameters/>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
