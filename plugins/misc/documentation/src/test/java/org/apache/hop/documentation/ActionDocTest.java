@@ -56,6 +56,7 @@ class ActionDocTest {
     // The previous action was false, for example on an unconditional or a failure hop
     Result previous = new Result();
     previous.setResult(false);
+    previous.setNrErrors(1);
 
     Result result = newAction(target.toString()).execute(previous, 0);
 

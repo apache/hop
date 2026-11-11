@@ -147,6 +147,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
     // DocBuilder sets it back to false (and 1 error) when that fails.
     //
     prevResult.setResult(true);
+    prevResult.setNrErrors(0);
     docBuilder.buildDocumentation(prevResult);
     return prevResult;
   }

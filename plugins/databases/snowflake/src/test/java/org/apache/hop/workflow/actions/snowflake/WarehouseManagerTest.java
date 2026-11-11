@@ -61,6 +61,36 @@ class WarehouseManagerTest {
   }
 
   @Test
+  void warehouseNameMustBeOneIdentifier() {
+    WarehouseManager action = newAction(WarehouseManager.MANAGEMENT_ACTION_CREATE);
+    action.setConnection("snowflake");
+    assertTrue(action.validate());
+
+    // Quoted names can hold any character
+    action.setVariable("WAREHOUSE", "\"My \"\"Warehouse\"\"; 1\"");
+    assertTrue(action.validate());
+    action.setVariable("WAREHOUSE", "_WH$1");
+    assertTrue(action.validate());
+
+    // Empty after resolving
+    action.setVariable("WAREHOUSE", "");
+    assertFalse(action.validate());
+    action.setWarehouseName(null);
+    assertFalse(action.validate());
+
+    // Extra statements, spaces or an unbalanced quote are refused
+    action.setWarehouseName("${WAREHOUSE}");
+    action.setVariable("WAREHOUSE", "X WITH WAREHOUSE_SIZE='XSMALL'; DROP DATABASE prod; --");
+    assertFalse(action.validate());
+    action.setVariable("WAREHOUSE", "MY WH");
+    assertFalse(action.validate());
+    action.setVariable("WAREHOUSE", "\"a\"; DROP DATABASE prod; --\"");
+    assertFalse(action.validate());
+    action.setVariable("WAREHOUSE", "1WH");
+    assertFalse(action.validate());
+  }
+
+  @Test
   void failedValidationCountsOneError() throws Exception {
     // No connection: validate() fails
     WarehouseManager action = newAction(WarehouseManager.MANAGEMENT_ACTION_RESUME);

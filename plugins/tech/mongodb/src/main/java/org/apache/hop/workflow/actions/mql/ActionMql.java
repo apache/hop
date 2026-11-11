@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.mql;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -39,7 +40,12 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.bson.BsonType;
 import org.bson.Document;
+import org.bson.codecs.DecoderContext;
+import org.bson.codecs.DocumentCodec;
+import org.bson.json.JsonParseException;
+import org.bson.json.JsonReader;
 
 /** This defines a MongoDB QL action. */
 @Action(
@@ -68,6 +74,9 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "useVariableSubstitution")
   private boolean useVariableSubstitution = true;
+
+  @HopMetadataProperty(key = "failOnWriteErrors")
+  private boolean failOnWriteErrors = false;
 
   public ActionMql(String n) {
     super(n, "");
@@ -117,6 +126,14 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
   public void setUseVariableSubstitution(boolean subst) {
     useVariableSubstitution = subst;
+  }
+
+  public boolean isFailOnWriteErrors() {
+    return failOnWriteErrors;
+  }
+
+  public void setFailOnWriteErrors(boolean failOnWriteErrors) {
+    this.failOnWriteErrors = failOnWriteErrors;
   }
 
   @Override
@@ -169,7 +186,15 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
           db -> {
             for (int i = 0; i < commands.size(); i++) {
               Document reply = db.runCommand(commands.get(i));
-              checkReply(reply, i + 1, commands.size());
+              try {
+                checkReply(reply, i + 1, commands.size());
+              } catch (MongoDbException e) {
+                if (failOnWriteErrors) {
+                  throw e;
+                }
+                logBasic(
+                    BaseMessages.getString(PKG, "ActionMQL.WriteErrorsIgnored", e.getMessage()));
+              }
             }
             return null;
           });
@@ -194,26 +219,68 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
   }
 
   /**
-   * Parse the commands to run. A JSON array holds one command per element. Anything else is read as
-   * a list of comma-separated documents, so that text after the first document is either run or
-   * reported as invalid JSON, never silently ignored.
+   * Parse the commands to run: one JSON document, or a JSON array with one document per command.
+   * Semicolons and whitespace at the end are allowed. Any other text after the document or the
+   * array is an error: it is neither run nor silently ignored.
+   *
+   * <p>The text is parsed as it is, so a position in a JSON error matches the text in the dialog.
    *
    * @param mqlToExecute the JSON text
    * @return the commands, in the order they are to be run
-   * @throws HopException when there is no command
+   * @throws HopException when there is no command or the text is not valid
    */
   static List<Document> parseCommands(String mqlToExecute) throws HopException {
-    String trimmed = mqlToExecute == null ? "" : mqlToExecute.trim();
-    if (trimmed.isEmpty()) {
+    String text = mqlToExecute == null ? "" : mqlToExecute;
+    int end = text.length();
+    while (end > 0
+        && (Character.isWhitespace(text.charAt(end - 1)) || text.charAt(end - 1) == ';')) {
+      end--;
+    }
+    text = text.substring(0, end);
+    if (text.isBlank()) {
       throw new HopException(BaseMessages.getString(PKG, "ActionMQL.NoCommandFound"));
     }
-    String array = trimmed.startsWith("[") ? trimmed : "[" + trimmed + "]";
-    Document wrapper = Document.parse("{ \"array\": " + array + " }");
-    if (wrapper.size() != 1) {
-      // For example: [ {...} ], "x": 1
-      throw new HopException(BaseMessages.getString(PKG, "ActionMQL.TextAfterCommands"));
+
+    List<Document> commands = new ArrayList<>();
+    DocumentCodec codec = new DocumentCodec();
+    DecoderContext context = DecoderContext.builder().build();
+    try (JsonReader reader = new JsonReader(text)) {
+      BsonType type = reader.readBsonType();
+      if (type == BsonType.ARRAY) {
+        reader.readStartArray();
+        while ((type = reader.readBsonType()) != BsonType.END_OF_DOCUMENT) {
+          if (type != BsonType.DOCUMENT) {
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionMQL.NotADocument",
+                    Integer.toString(commands.size() + 1),
+                    type.name()));
+          }
+          commands.add(codec.decode(reader, context));
+        }
+        reader.readEndArray();
+      } else if (type == BsonType.DOCUMENT) {
+        commands.add(codec.decode(reader, context));
+      } else {
+        throw new HopException(
+            BaseMessages.getString(PKG, "ActionMQL.NotADocumentOrArray", type.name()));
+      }
+
+      // Nothing may follow the document or the array, for example: { ... }, { ... }
+      //
+      boolean textAfter;
+      try {
+        textAfter = reader.readBsonType() != BsonType.END_OF_DOCUMENT;
+      } catch (JsonParseException e) {
+        textAfter = true;
+      }
+      if (textAfter) {
+        throw new HopException(BaseMessages.getString(PKG, "ActionMQL.TextAfterCommands"));
+      }
+    } catch (JsonParseException e) {
+      throw new HopException(BaseMessages.getString(PKG, "ActionMQL.InvalidJson", e.getMessage()));
     }
-    List<Document> commands = wrapper.getList("array", Document.class);
     if (commands.isEmpty()) {
       throw new HopException(BaseMessages.getString(PKG, "ActionMQL.NoCommandFound"));
     }
@@ -222,7 +289,8 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
 
   /**
    * A command that MongoDB accepts can still fail to write documents. Those errors are in the reply
-   * (writeErrors, writeConcernError) while ok is 1, so runCommand() does not throw.
+   * (writeErrors, writeConcernError, or nErrors for bulkWrite) while ok is 1, so runCommand() does
+   * not throw.
    *
    * @param reply the reply of the command
    * @param commandNr the number of the command (1-based)
@@ -246,6 +314,20 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
               String.valueOf(first.get("code")),
               first.getString("errmsg")));
     }
+    // The bulkWrite command counts its errors in nErrors, the errors are in its cursor
+    //
+    if (reply.get("nErrors") instanceof Number nErrors && nErrors.longValue() > 0) {
+      Document first = firstBulkWriteError(reply);
+      throw new MongoDbException(
+          BaseMessages.getString(
+              PKG,
+              "ActionMQL.WriteErrors",
+              Integer.toString(commandNr),
+              Integer.toString(nrCommands),
+              nErrors.toString(),
+              first == null ? "?" : String.valueOf(first.get("code")),
+              first == null ? "" : first.getString("errmsg")));
+    }
     Document writeConcernError = reply.get("writeConcernError", Document.class);
     if (writeConcernError != null) {
       throw new MongoDbException(
@@ -257,6 +339,22 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
               String.valueOf(writeConcernError.get("code")),
               writeConcernError.getString("errmsg")));
     }
+  }
+
+  /** The first failed operation in the first batch of a bulkWrite reply, null if it isn't there. */
+  private static Document firstBulkWriteError(Document reply) {
+    if (!(reply.get("cursor") instanceof Document cursor)
+        || !(cursor.get("firstBatch") instanceof List<?> batch)) {
+      return null;
+    }
+    for (Object item : batch) {
+      if (item instanceof Document operation
+          && operation.get("ok") instanceof Number ok
+          && ok.doubleValue() != 1.0) {
+        return operation;
+      }
+    }
+    return null;
   }
 
   @Override
