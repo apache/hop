@@ -20,8 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
 import java.util.Properties;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.mail.common.MailConst;
@@ -198,5 +204,47 @@ class MailServerConnectionTest {
 
     assertEquals("true", props.getProperty("mail.smtp.starttls.enable"));
     assertEquals(MailConst.SSL_TLS_V12, props.getProperty("mail.smtp.ssl.protocols"));
+  }
+
+  /** A message moved on its own counts as moved, not also as deleted. */
+  @Test
+  void moveMessageCountsAsMovedNotDeleted() throws Exception {
+    MailServerConnection connection = new MailServerConnection(new Variables());
+    Folder folder = mock(Folder.class);
+    Folder destination = mock(Folder.class);
+    Message message = mock(Message.class);
+    FieldUtils.writeField(connection, "folder", folder, true);
+    FieldUtils.writeField(connection, "destinationIMAPFolder", destination, true);
+    FieldUtils.writeField(connection, "message", message, true);
+
+    connection.moveMessage();
+
+    verify(folder).copyMessages(new Message[] {message}, destination);
+    verify(message).setFlag(Flags.Flag.DELETED, true);
+    assertEquals(1, connection.getMovedMessagesCounter());
+    assertEquals(0, connection.getDeletedMessagesCounter());
+  }
+
+  /** Deleting or moving all messages of several folders adds up the counts of all folders. */
+  @Test
+  void bulkCountersAddUpOverFolders() throws Exception {
+    MailServerConnection connection = new MailServerConnection(new Variables());
+    FieldUtils.writeField(connection, "folder", mock(Folder.class), true);
+    FieldUtils.writeField(connection, "destinationIMAPFolder", mock(Folder.class), true);
+    Message[] firstFolder = {mock(Message.class), mock(Message.class)};
+    Message[] secondFolder = {mock(Message.class)};
+
+    for (Message[] messages : new Message[][] {firstFolder, secondFolder}) {
+      FieldUtils.writeField(connection, "messages", messages, true);
+      connection.deleteMessages(true);
+    }
+    assertEquals(3, connection.getDeletedMessagesCounter());
+
+    for (Message[] messages : new Message[][] {firstFolder, secondFolder}) {
+      FieldUtils.writeField(connection, "messages", messages, true);
+      connection.moveMessages();
+    }
+    assertEquals(3, connection.getMovedMessagesCounter());
+    assertEquals(3, connection.getDeletedMessagesCounter());
   }
 }
