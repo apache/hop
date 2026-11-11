@@ -233,16 +233,28 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
 
     updateEnvironmentDetails(environment, variables);
 
-    config.addEnvironment(environment);
-    ProjectsConfigSingleton.saveConfig();
+    try {
+      config.addEnvironment(environment);
+      ProjectsConfigSingleton.saveConfig();
+
+      enableProject(log, environment, variables, hasHopMetadataProvider, config);
+    } catch (Exception e) {
+      // Don't leave a registered environment behind: a retry would fail with "already exists".
+      //
+      try {
+        config.removeEnvironment(environmentName);
+        ProjectsConfigSingleton.saveConfig();
+      } catch (Exception rollbackException) {
+        e.addSuppressed(rollbackException);
+      }
+      throw e;
+    }
 
     log.logBasic(
         CONST_ENVIRONMENT
             + environmentName
             + "' was created in Hop configuration file "
             + HopConfig.getInstance().getConfigFilename());
-
-    enableProject(log, environment, variables, hasHopMetadataProvider, config);
     logEnvironmentDetails(log, environment);
   }
 
@@ -294,6 +306,16 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
     for (String environmentConfigFilename : environment.getConfigurationFiles()) {
       String realEnvConfFilename = variables.resolve(environmentConfigFilename);
+      // For example '${PROJECT_HOME}' when the project doesn't exist: creating the file would
+      // create a folder literally called '${PROJECT_HOME}'.
+      //
+      if (StringUtil.containsVariableToken(realEnvConfFilename)) {
+        log.logBasic(
+            "Warning: environment configuration file '"
+                + realEnvConfFilename
+                + "' was not created, it refers to a variable that isn't set");
+        continue;
+      }
       DescribedVariablesConfigFile variablesConfigFile =
           new DescribedVariablesConfigFile(realEnvConfFilename);
       // Create the config file if it doesn't exist

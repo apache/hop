@@ -98,8 +98,8 @@ public abstract class HopConfigBase implements Runnable, IHasHopMetadataProvider
   /**
    * @param parseResult the parsed command line, null if it isn't known
    * @param mixinSpec the specification of a config plugin mixed into the command
-   * @return true if any option of the mixin was given on the command line, or if that can't be
-   *     determined
+   * @return true if any option or positional parameter of the mixin was given on the command line,
+   *     or if that can't be determined
    */
   static boolean hasMatchedOption(
       CommandLine.ParseResult parseResult, CommandLine.Model.CommandSpec mixinSpec) {
@@ -108,6 +108,11 @@ public abstract class HopConfigBase implements Runnable, IHasHopMetadataProvider
     }
     for (CommandLine.Model.OptionSpec option : mixinSpec.options()) {
       if (parseResult.hasMatchedOption(option)) {
+        return true;
+      }
+    }
+    for (CommandLine.Model.PositionalParamSpec positional : mixinSpec.positionalParameters()) {
+      if (parseResult.hasMatchedPositional(positional)) {
         return true;
       }
     }

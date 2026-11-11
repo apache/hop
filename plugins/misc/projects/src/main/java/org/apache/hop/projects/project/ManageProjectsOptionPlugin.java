@@ -395,11 +395,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       configFileExisted = configFile.exists();
     }
 
-    config.addProjectConfig(projectConfig);
-    ProjectsConfigSingleton.saveConfig();
-
     Project project;
     try {
+      config.addProjectConfig(projectConfig);
+      ProjectsConfigSingleton.saveConfig();
+
       project = projectConfig.loadProject(variables);
       // Keep an existing parent from a pre-existing project-config.json (Docker
       // --project-keep-config-file). Only fall back to the standard parent when none is set.

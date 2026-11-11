@@ -170,4 +170,54 @@ class ManageEnvironmentsOptionPluginTest {
       HopConfig.setInMemoryMode(false);
     }
   }
+
+  @Test
+  void createThatFailsAfterRegisteringRollsTheEnvironmentBack() throws Exception {
+    // A regular file where the configuration file's folder should be: creating it fails.
+    //
+    Files.writeString(tempDir.resolve("blocker"), "not a folder");
+    String name = "issue-9007-rollback-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try {
+      ManageEnvironmentsOptionPlugin plugin = new ManageEnvironmentsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--environment-create",
+              "--environment=" + name,
+              "--environment-project=missing-project",
+              "--environment-config-files=" + tempDir.resolve("blocker").resolve("dev.json"));
+
+      assertThrows(
+          HopException.class, () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+      assertNull(ProjectsConfigSingleton.getConfig().findEnvironment(name));
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeEnvironment(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createDoesNotCreateAConfigFileWithAnUnresolvedVariable() throws Exception {
+    String name = "issue-9007-unresolved-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try {
+      ManageEnvironmentsOptionPlugin plugin = new ManageEnvironmentsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--environment-create",
+              "--environment=" + name,
+              "--environment-project=missing-project",
+              "--environment-config-files=" + tempDir + "/${ISSUE_9007_UNSET}/dev.json");
+
+      assertTrue(plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+
+      assertFalse(Files.exists(tempDir.resolve("${ISSUE_9007_UNSET}")));
+      assertEquals(
+          List.of(tempDir + "/${ISSUE_9007_UNSET}/dev.json"),
+          ProjectsConfigSingleton.getConfig().findEnvironment(name).getConfigurationFiles());
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeEnvironment(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
 }

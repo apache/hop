@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +35,7 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 import picocli.CommandLine;
 
 class ManageProjectsOptionPluginTest {
@@ -86,6 +89,28 @@ class ManageProjectsOptionPluginTest {
       assertTrue(exception.getCause().getMessage().contains("can not be the same"));
       assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig(name));
       assertFalse(Files.exists(tempDir.resolve("project-config.json")));
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeProjectConfig(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createThatCannotSaveTheHopConfigDoesNotKeepTheProject() {
+    String name = "issue-9007-save-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try (MockedStatic<ProjectsConfigSingleton> singleton =
+        mockStatic(ProjectsConfigSingleton.class, CALLS_REAL_METHODS)) {
+      singleton
+          .when(ProjectsConfigSingleton::saveConfig)
+          .thenThrow(new HopException("hop-config.json is not writable"));
+      ManageProjectsOptionPlugin plugin = new ManageProjectsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs("--project-create", "--project=" + name, "--project-home=" + tempDir);
+
+      assertThrows(
+          HopException.class, () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+      assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig(name));
     } finally {
       ProjectsConfigSingleton.getConfig().removeProjectConfig(name);
       HopConfig.setInMemoryMode(false);

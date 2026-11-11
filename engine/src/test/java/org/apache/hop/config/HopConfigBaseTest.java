@@ -84,6 +84,23 @@ class HopConfigBaseTest {
   }
 
   @Test
+  void pluginsWithAGivenPositionalParameterAreHandled() {
+    TestConfig config = new TestConfig();
+    CommandLine cmd = new CommandLine(config);
+    FirstOptions first = new FirstOptions();
+    PositionalOptions positional = new PositionalOptions();
+    cmd.addMixin("first", first);
+    cmd.addMixin("positional", positional);
+    config.setCmd(cmd);
+
+    cmd.parseArgs("value");
+    config.run();
+
+    assertEquals(0, first.calls);
+    assertEquals(1, positional.calls);
+  }
+
+  @Test
   void unknownParseResultKeepsHandlingEveryPlugin() {
     assertTrue(HopConfigBase.hasMatchedOption(null, null));
     CommandLine cmd = new CommandLine(new FirstOptions());
@@ -100,6 +117,20 @@ class HopConfigBaseTest {
   static class FirstOptions implements IConfigOptions {
     @CommandLine.Option(names = "--first")
     String first;
+
+    int calls;
+
+    @Override
+    public boolean handleOption(
+        ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables) {
+      calls++;
+      return true;
+    }
+  }
+
+  static class PositionalOptions implements IConfigOptions {
+    @CommandLine.Parameters(arity = "0..1")
+    String value;
 
     int calls;
 

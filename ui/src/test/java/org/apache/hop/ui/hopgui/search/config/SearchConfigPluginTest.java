@@ -35,6 +35,10 @@ import picocli.CommandLine;
 /** The search checkboxes are only changed by hop-conf when their option is given (#9007). */
 class SearchConfigPluginTest {
 
+  private Boolean originalSearchAsYouType;
+  private Boolean originalIncludeProjectTextFiles;
+  private String originalMaxResults;
+
   @BeforeAll
   static void beforeAll() {
     HopLogStore.init();
@@ -43,14 +47,18 @@ class SearchConfigPluginTest {
   @BeforeEach
   void inMemory() {
     HopConfig.setInMemoryMode(true);
+    SearchConfig config = SearchConfigSingleton.getConfig();
+    originalSearchAsYouType = config.getSearchAsYouType();
+    originalIncludeProjectTextFiles = config.getIncludeProjectTextFiles();
+    originalMaxResults = config.getMaxResults();
   }
 
   @AfterEach
   void restore() {
     SearchConfig config = SearchConfigSingleton.getConfig();
-    config.setSearchAsYouType(null);
-    config.setIncludeProjectTextFiles(null);
-    config.setMaxResults(null);
+    config.setSearchAsYouType(originalSearchAsYouType);
+    config.setIncludeProjectTextFiles(originalIncludeProjectTextFiles);
+    config.setMaxResults(originalMaxResults);
     HopConfig.setInMemoryMode(false);
   }
 
