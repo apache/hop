@@ -102,13 +102,16 @@ public final class ExecutionFailures {
    * @param action the copy of the action that ran
    * @param result its result, null when it threw
    * @param throwable what it threw, or null when it returned a result with errors
+   * @param upstream the failure of an earlier action that led to this one along a failure hop, or
+   *     null
    */
   public static ExecutionFailure forAction(
       ILoggingObject workflow,
       ActionMeta actionMeta,
       IAction action,
       Result result,
-      Throwable throwable) {
+      Throwable throwable,
+      ExecutionFailure upstream) {
     ExecutionFailure failure = new ExecutionFailure();
     failure.setRun(runOf(workflow));
     failure.setParents(parentsOf(workflow));
@@ -133,6 +136,11 @@ public final class ExecutionFailures {
       failure.setCategory(childFailure.getCategory());
     } else {
       setCause(failure, throwable, actionLogChannelId, true, action);
+      if (upstream != null) {
+        // An Abort on a failure hop, for one: it failed because the action before it did
+        failure.setCausedBy(upstream);
+        failure.setCategory(upstream.getCategory());
+      }
     }
 
     if (result != null) {

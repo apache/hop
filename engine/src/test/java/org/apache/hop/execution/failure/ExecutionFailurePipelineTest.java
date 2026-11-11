@@ -235,8 +235,10 @@ class ExecutionFailurePipelineTest {
 
     assertEquals(1, pipeline.getFailures().size());
     ExecutionFailure failure = pipeline.getFailures().get(0);
-    // Counted like an init() that returns false
-    assertEquals(1L, failure.getCounters().get("errors"));
+    // Reporting the failure leaves the error counts as they were: the transform has none, the
+    // pipeline counts one for its failed preparation
+    assertEquals(0L, failure.getCounters().get("errors"));
+    assertEquals(1, pipeline.getErrors());
     assertEquals(FailurePhase.INIT, failure.getPhase());
     assertEquals(FailureCategory.MISSING_INPUT, failure.getCategory());
     assertEquals(FileNotFoundException.class.getName(), failure.getCause().getRootCauseClass());
@@ -246,6 +248,11 @@ class ExecutionFailurePipelineTest {
     assertEquals(FailurePhase.INIT, runFailure.getPhase());
     assertSame(failure, runFailure.getCausedBy());
     assertEquals(List.of(failure, runFailure), announced);
+
+    ExecutionState transformState =
+        ExecutionStateBuilder.fromTransform(pipeline, pipeline.getComponents().get(0)).build();
+    assertTrue(transformState.isFailed());
+    assertSame(failure, transformState.getFailure());
   }
 
   @Test

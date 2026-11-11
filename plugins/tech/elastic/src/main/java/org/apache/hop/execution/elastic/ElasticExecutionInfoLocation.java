@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -105,6 +107,12 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
   protected String actualApiKey;
   protected String actualIndexName;
 
+  /**
+   * The indexes whose failure mapping was dealt with in this JVM, as url and index name. Checked
+   * before the first write to an index.
+   */
+  private static final Set<String> FAILURE_MAPPING_HANDLED = ConcurrentHashMap.newKeySet();
+
   public ElasticExecutionInfoLocation() {
     super();
   }
@@ -138,6 +146,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
 
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
+    ensureFailureMapping();
     try {
       cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
@@ -622,6 +631,48 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       throw e;
     } catch (Exception e) {
       throw new HopException("Error deleting executions from Elastic", e);
+    }
+  }
+
+  /**
+   * Before the first write to an index in this JVM: store executionState.failure without indexing
+   * it. An index created by an older Hop has no mapping for it, and mapping a failure as it comes
+   * adds a field for every value in it, up to a few hundred, against the field limit of the index.
+   * A write that would go over the limit is refused. Never throws: without the mapping, failures
+   * are mapped as they come, as any new field is.
+   */
+  void ensureFailureMapping() {
+    String key = actualUrl + " " + actualIndexName;
+    if (!FAILURE_MAPPING_HANDLED.add(key)) {
+      return;
+    }
+    try {
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(actualUrl).resolve(actualIndexName + "/_mapping"))
+              .header("Content-Type", "application/json")
+              .header("Accept", "application/json")
+              .header("Authorization", "ApiKey " + actualApiKey)
+              .PUT(HttpRequest.BodyPublishers.ofString(failureMappingBody()))
+              .build();
+      HttpResponse<String> response =
+          HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+      if (response.statusCode() == 404) {
+        // No index yet: the first write creates it, the next one adds the mapping
+        FAILURE_MAPPING_HANDLED.remove(key);
+      } else if (response.statusCode() != 200) {
+        LogChannel.GENERAL.logBasic(
+            "The failure mapping was not added to index "
+                + actualIndexName
+                + " (non-fatal): "
+                + response.body());
+      }
+    } catch (Exception e) {
+      LogChannel.GENERAL.logBasic(
+          "The failure mapping was not added to index "
+              + actualIndexName
+              + " (non-fatal): "
+              + e.getMessage());
     }
   }
 

@@ -116,11 +116,21 @@ public class Result implements Cloneable {
   /** Whether the workflow or pipeline was stopped. */
   private boolean stopped;
 
+  /** How many failures {@link #add(Result)} keeps: an action can run a child for every row. */
+  public static final int MAX_FAILURES = 100;
+
   /**
    * The failures of the pipelines and workflows that produced this result, so that an action can
    * tell why its child failed. Kept in memory only: not in the XML or JSON form of a result.
    */
   @JsonIgnore private List<ExecutionFailure> failures = new ArrayList<>();
+
+  /**
+   * The action failure this result passes on to the actions after it: the failure of the action
+   * that produced it, or a failure it received along a failure hop and did not recover from. An
+   * action that then fails points at it. Kept in memory only.
+   */
+  @JsonIgnore private ExecutionFailure actionFailure;
 
   /** The number of lines rejected. */
   private long nrLinesRejected;
@@ -362,7 +372,13 @@ public class Result implements Cloneable {
       if (failures == null) {
         failures = new ArrayList<>();
       }
-      failures.addAll(res.failures);
+      // The first ones: they are the ones that ended a loop over rows
+      for (ExecutionFailure failure : res.failures) {
+        if (failures.size() >= MAX_FAILURES) {
+          break;
+        }
+        failures.add(failure);
+      }
     }
   }
 

@@ -64,7 +64,8 @@ class ExecutionFailureWorkflowTest {
     ERRORS,
     CHILD_FAILED,
     FALSE_WITHOUT_ERRORS,
-    PASS_ERRORS_ON
+    PASS_ERRORS_ON,
+    ABORTS
   }
 
   /** The failure a child pipeline would have left in the result. */
@@ -82,6 +83,12 @@ class ExecutionFailureWorkflowTest {
     @Override
     public boolean isEvaluation() {
       return true;
+    }
+
+    /** Like Write to log and Abort: they see the errors of the action before them. */
+    @Override
+    public boolean resetErrorsBeforeExecution() {
+      return mode != Mode.PASS_ERRORS_ON && mode != Mode.ABORTS;
     }
 
     @Override
@@ -105,6 +112,12 @@ class ExecutionFailureWorkflowTest {
         case PASS_ERRORS_ON:
           // Like Write to log: a true result, the error count left as it was
           prevResult.setResult(true);
+          return prevResult;
+        case ABORTS:
+          // Like the Abort action: its message is logged as an error
+          logError("Aborting the workflow");
+          prevResult.setNrErrors(1);
+          prevResult.setResult(false);
           return prevResult;
         case FALSE_WITHOUT_ERRORS:
           prevResult.setResult(false);
@@ -152,6 +165,40 @@ class ExecutionFailureWorkflowTest {
       handler.setName("handle");
       handler.mode = handlerMode;
       addOnFailure(meta, failingMeta, new ActionMeta(handler));
+    }
+    LocalWorkflowEngine workflow = new LocalWorkflowEngine(meta);
+    workflow.addExecutionFailureListener(announced::add);
+    return workflow;
+  }
+
+  /**
+   * START, then the failing action in the first mode; on its failure the next one, and from there
+   * on unconditionally the ones after that.
+   */
+  private LocalWorkflowEngine chain(Mode first, Mode... next) {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("failure-test");
+    ActionMeta start = new ActionMeta(new ActionStart("START"));
+    meta.addAction(start);
+    FailingAction failing = new FailingAction();
+    failing.mode = first;
+    ActionMeta previous = new ActionMeta(failing);
+    meta.addAction(previous);
+    meta.addWorkflowHop(new WorkflowHopMeta(start, previous));
+    for (int i = 0; i < next.length; i++) {
+      FailingAction action = new FailingAction();
+      action.setName("next-" + (i + 1));
+      action.mode = next[i];
+      ActionMeta actionMeta = new ActionMeta(action);
+      if (i == 0) {
+        addOnFailure(meta, previous, actionMeta);
+      } else {
+        meta.addAction(actionMeta);
+        WorkflowHopMeta hop = new WorkflowHopMeta(previous, actionMeta);
+        hop.setUnconditional(true);
+        meta.addWorkflowHop(hop);
+      }
+      previous = actionMeta;
     }
     LocalWorkflowEngine workflow = new LocalWorkflowEngine(meta);
     workflow.addExecutionFailureListener(announced::add);
@@ -271,5 +318,50 @@ class ExecutionFailureWorkflowTest {
     assertNotNull(runFailure);
     assertNull(runFailure.getCausedBy());
     assertEquals(FailureCategory.UNKNOWN, runFailure.getCategory());
+  }
+
+  /** The usual error handling: on failure, Abort. The workflow failed because of the first. */
+  @Test
+  void abortOnAFailureHopPointsAtTheActionThatFailed() {
+    LocalWorkflowEngine workflow = chain(Mode.ERRORS, Mode.ABORTS);
+    Result result = workflow.startExecution();
+
+    assertFalse(result.isResult());
+    assertEquals(2, workflow.getFailures().size());
+    ExecutionFailure failing = workflow.getFailures().get(0);
+    ExecutionFailure abort = workflow.getFailures().get(1);
+    assertEquals("next-1", abort.getComponent().getName());
+    assertTrue(abort.getCause().getMessage().contains("Aborting the workflow"));
+    assertSame(failing, abort.getCausedBy());
+    assertEquals(FailureCategory.RESOURCE, abort.getCategory());
+
+    ExecutionFailure runFailure = workflow.getRunFailure();
+    assertSame(abort, runFailure.getCausedBy());
+    assertSame(failing, runFailure.getRootCause());
+    assertEquals(FailureCategory.RESOURCE, runFailure.getCategory());
+    assertTrue(ExecutionFailures.describe(runFailure).startsWith("Action 'failing'"));
+  }
+
+  /** Write to log between the failure and the Abort passes the failure on. */
+  @Test
+  void anActionThatPassesErrorsOnPassesTheFailureOn() {
+    LocalWorkflowEngine workflow = chain(Mode.ERRORS, Mode.PASS_ERRORS_ON, Mode.ABORTS);
+    workflow.startExecution();
+
+    assertEquals(2, workflow.getFailures().size());
+    assertEquals("next-2", workflow.getFailures().get(1).getComponent().getName());
+    assertEquals("failing", workflow.getRunFailure().getRootCause().getComponent().getName());
+  }
+
+  /** After an action that recovered, a later failure stands on its own. */
+  @Test
+  void aFailureAfterARecoveryIsNotCausedByTheEarlierOne() {
+    LocalWorkflowEngine workflow = chain(Mode.ERRORS, Mode.SUCCEED, Mode.ABORTS);
+    workflow.startExecution();
+
+    ExecutionFailure abort = workflow.getFailures().get(1);
+    assertEquals("next-2", abort.getComponent().getName());
+    assertNull(abort.getCausedBy());
+    assertSame(abort, workflow.getRunFailure().getRootCause());
   }
 }

@@ -89,8 +89,7 @@ public class TransformInitThread implements Runnable {
           BaseMessages.getString(
               PKG, "Pipeline.Log.ErrorInitializingTransform", combi.transform.getTransformName()));
       log.logError(Const.getStackTracker(e));
-      // Count it the same way as an init() that returns false
-      combi.transform.setErrors(1);
+      // The error count stays as it was: the pipeline counts this failure itself
       reportFailure(e);
     } finally {
       combi.transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_INIT_STOP);

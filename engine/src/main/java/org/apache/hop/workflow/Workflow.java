@@ -444,12 +444,19 @@ public abstract class Workflow extends Variables
   /**
    * Record and announce the failure of an action: the {@link HopExtensionPoint#ActionFailed}
    * extension point, then the execution failure listeners. Never throws.
+   *
+   * @return the failure, or null when it could not be built
    */
-  private void reportActionFailure(
-      ActionMeta actionMeta, IAction action, Result actionResult, Throwable throwable) {
+  private ExecutionFailure reportActionFailure(
+      ActionMeta actionMeta,
+      IAction action,
+      Result actionResult,
+      Throwable throwable,
+      ExecutionFailure upstreamFailure) {
     try {
       ExecutionFailure failure =
-          ExecutionFailures.forAction(this, actionMeta, action, actionResult, throwable);
+          ExecutionFailures.forAction(
+              this, actionMeta, action, actionResult, throwable, upstreamFailure);
       synchronized (failures) {
         failures.add(failure);
         while (failures.size() > MAX_ACTION_FAILURES) {
@@ -462,9 +469,11 @@ public abstract class Workflow extends Variables
           HopExtensionPoint.ActionFailed.id,
           failure,
           executionFailureListeners);
+      return failure;
     } catch (Throwable e) {
       // Reporting a failure must never get in the way of handling it
       log.logError("Unable to report the failure of action " + actionMeta.getName(), e);
+      return null;
     }
   }
 
@@ -991,11 +1000,16 @@ public abstract class Workflow extends Variables
       log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
       // The failures in the result an action returns are those of its own children
       prevResult.setFailures(new ArrayList<>());
+      // The failure that led here along a failure hop, if any. The start of a workflow inherits
+      // nothing: a parent action's failure is not the cause of what happens in this workflow.
+      final ExecutionFailure upstreamFailure =
+          previous == null ? null : prevResult.getActionFailure();
+      prevResult.setActionFailure(null);
       final long errorsBefore = prevResult.getNrErrors();
       try {
         newResult = cloneAction.execute(prevResult, nr);
       } catch (Throwable e) {
-        reportActionFailure(actionMeta, cloneAction, null, e);
+        reportActionFailure(actionMeta, cloneAction, null, e, upstreamFailure);
         throw e;
       } finally {
         releaseJoin(actionMeta);
@@ -1028,9 +1042,17 @@ public abstract class Workflow extends Variables
 
       Thread.currentThread().setContextClassLoader(cl);
       addErrors((int) newResult.getNrErrors());
+      ExecutionFailure actionFailure = null;
       if (actionFailed(errorsBefore, newResult, cloneAction)) {
-        reportActionFailure(actionMeta, cloneAction, newResult, null);
+        actionFailure =
+            reportActionFailure(actionMeta, cloneAction, newResult, null, upstreamFailure);
       }
+      // Pass the failure on along the failure path, until an action recovers from it: ends with a
+      // true result and no errors. Write to log, for one, passes it on.
+      if (actionFailure == null && (!newResult.isResult() || newResult.getNrErrors() > 0)) {
+        actionFailure = upstreamFailure;
+      }
+      newResult.setActionFailure(actionFailure);
 
       // Also capture the logging text after the execution...
       //

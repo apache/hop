@@ -204,4 +204,18 @@ class ResultTest {
     String json = new ObjectMapper().writeValueAsString(parent);
     assertFalse(json.contains("failures"), json);
   }
+
+  /** An action that runs a child for every row adds a result per row. */
+  @Test
+  void addKeepsTheFirstFailuresOnly() {
+    Result total = new Result();
+    ExecutionFailure first = new ExecutionFailure();
+    for (int i = 0; i < Result.MAX_FAILURES + 50; i++) {
+      Result child = new Result();
+      child.getFailures().add(i == 0 ? first : new ExecutionFailure());
+      total.add(child);
+    }
+    assertEquals(Result.MAX_FAILURES, total.getFailures().size());
+    assertSame(first, total.getFailures().get(0));
+  }
 }

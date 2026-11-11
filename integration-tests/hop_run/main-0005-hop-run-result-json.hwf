@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0005-hop-run-result-json</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>hop run --result-json writes why a pipeline failed, and that a passing one succeeded (issue #9417).</description>
+  <description>hop run --result-json writes why a pipeline and a workflow failed, and that a passing pipeline succeeded (issue #9417).</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -51,7 +51,7 @@ limitations under the License.
     </action>
     <action>
       <name>Check result file</name>
-      <description>Runs hop run with --result-json on 0004-abort.hpl and 0004-pass.hpl and checks the two files. The script logs why it failed.</description>
+      <description>Runs hop run with --result-json on 0004-abort.hpl, 0004-pass.hpl and 0005-abort-after-failure.hwf and checks the files. The script logs why it failed.</description>
       <type>SHELL</type>
       <attributes/>
       <filename>${PROJECT_HOME}/hop-run-result-json.sh</filename>

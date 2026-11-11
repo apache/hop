@@ -238,11 +238,13 @@ public final class ExecutionStateBuilder {
 
   public static ExecutionStateBuilder fromTransform(
       IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component) {
+    ExecutionFailure failure = componentFailure(pipeline, component);
     return of().withExecutionType(ExecutionType.Transform)
         .withId(component.getLogChannelId())
         .withStatusDescription(component.getStatusDescription())
-        .withFailed(component.getErrors() > 0)
-        .withFailure(componentFailure(pipeline, component))
+        // A transform whose init() threw failed without an error count of its own
+        .withFailed(component.getErrors() > 0 || failure != null)
+        .withFailure(failure)
         .withName(component.getName())
         .withCopyNr(Integer.toString(component.getCopyNr()))
         .withParentId(pipeline.getLogChannelId())
@@ -253,9 +255,6 @@ public final class ExecutionStateBuilder {
   /** The failure of one transform copy, matched on its log channel id. */
   private static ExecutionFailure componentFailure(
       IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component) {
-    if (component.getErrors() <= 0) {
-      return null;
-    }
     for (ExecutionFailure failure : pipeline.getFailures()) {
       if (failure.getComponent() != null
           && Objects.equals(failure.getComponent().getExecutionId(), component.getLogChannelId())) {

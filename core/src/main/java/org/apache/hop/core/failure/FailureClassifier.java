@@ -31,8 +31,9 @@ import org.apache.hop.core.Const;
 
 /**
  * Builds the {@link FailureCause} of a failure and decides its {@link FailureCategory} with fixed
- * rules on exception class names and SQL states. No rule looks at the text of a message, other than
- * to find exception class names in a logged stack trace.
+ * rules on exception class names and SQL states. The text of a message only counts in two places:
+ * exception class names are read from a logged stack trace, and "No space left on device" in an
+ * IOException means RESOURCE.
  *
  * <p>The rules are tried from the root cause outwards: the innermost exception that matches a rule
  * decides. A wrapping HopException rarely says more than the exception it wraps.

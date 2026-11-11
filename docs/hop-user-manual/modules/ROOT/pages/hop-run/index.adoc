@@ -241,12 +241,13 @@ Variables in the filename are resolved; any location Hop can write to works.
 ----
 
 `success`:: what decides the exit code.
-`failure`:: why the run failed, `null` when it did not. It points at the transform or action where the failure started through `causedBy`; a workflow's failure leads down through its actions to the pipeline and transform.
-`category`:: one of `CONNECTIVITY`, `AUTHENTICATION`, `SCHEMA_MISMATCH`, `DATA_CONVERSION`, `CONSTRAINT_VIOLATION`, `MISSING_INPUT`, `RESOURCE`, `CONFIGURATION`, `CHILD_FAILURE` or `UNKNOWN`, decided by fixed rules on the exception types and SQL states.
+`failure`:: why the run failed, `null` when it did not. It points at the transform or action where the failure started through `causedBy`; a workflow's failure leads down through its actions to the pipeline and transform. An Abort on the failure hop of an action points at that action. Only the local engines report failures: with a remote, Beam or Spark run configuration `failure` stays `null`, and `success` and `counters` tell how the run ended.
+`category`:: one of `CONNECTIVITY`, `AUTHENTICATION`, `SCHEMA_MISMATCH`, `DATA_CONVERSION`, `CONSTRAINT_VIOLATION`, `MISSING_INPUT`, `RESOURCE`, `CONFIGURATION` or `UNKNOWN`, decided by fixed rules on the exception types and SQL states. `CHILD_FAILURE` is reserved for children that run remotely.
 `failures`:: the failures of all the transforms, or of the last 100 actions, that failed.
 `error`:: why Hop Run itself failed when there was no run to report on, for example when the file does not exist.
 
-Messages and stack traces in the file have credentials masked: passwords in URLs and connection strings, encrypted passwords, and the values of variables and parameters whose name says they are a password, token, key or secret.
+Messages and stack traces in the file have credentials masked: passwords in URLs and connection strings, encrypted passwords, and the values of variables and parameters whose name contains password, pwd, token, secret or credential, or ends in API key, access key or private key (`DB_PASSWORD`, `MY_API_KEY`), when the value is at least 4 characters long.
+Other names are not masked: the value of `ENCRYPTION_KEY` shows as it is.
 
 == Stopping Hop Run
 

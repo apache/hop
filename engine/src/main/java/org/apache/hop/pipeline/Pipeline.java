@@ -1651,9 +1651,10 @@ public abstract class Pipeline
       // example - while a waiting caller (hop-run, for one) can leave the JVM the moment it is
       // released.
       //
+      // A transform whose init() threw has no errors of its own, but it did fail
       if (listenerException != null) {
         reportRunFailure(FailurePhase.FINISH, listenerException);
-      } else if (getErrors() > 0) {
+      } else if (getErrors() > 0 || hasTransformFailures()) {
         reportRunFailure(FailurePhase.RUN, null);
       }
 
@@ -2219,6 +2220,12 @@ public abstract class Pipeline
           log, this, HopExtensionPoint.PipelineFailed.id, failure, executionFailureListeners);
     } catch (Throwable e) {
       log.logError("Unable to report the failure of pipeline " + getName(), e);
+    }
+  }
+
+  private boolean hasTransformFailures() {
+    synchronized (failures) {
+      return !failures.isEmpty();
     }
   }
 
