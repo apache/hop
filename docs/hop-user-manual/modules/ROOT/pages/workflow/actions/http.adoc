@@ -133,6 +133,6 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |===
 
-The target file is only written when the server answers with a status below 400. A request that fails, for example with a 404, leaves an existing target file as it was and doesn't create a new one.
+The reply is first written to a part file next to the target (the target file name followed by a random id and `.part`). Only when all of it arrived does the part file replace the target, or get added to the end of it with *Append to specified target file*. A request that fails, for example with a 404, or a reply that breaks off halfway leaves an existing target file as it was and doesn't create a new one. Because the part file is created before the request is sent, a target folder that doesn't exist or can't be written to is reported before the server receives the request.
 
 NOTE: With *Run for every result row*, the rows are processed one after the other and the action stops at the first row that fails. One failed row makes the action false with 1 error, even when the rows before it succeeded; their target files are kept.

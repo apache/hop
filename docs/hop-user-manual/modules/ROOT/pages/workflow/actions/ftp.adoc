@@ -50,7 +50,7 @@ This workflow retrieves files from one directory exclusively.
 |Proxy password|Proxy server account password.
 2+|Advanced
 |Binary mode|Enable if files must be transferred in binary mode.
-|Timeout|The timeout in milliseconds, for example 30000 for 30 seconds. 0 (the default): no timeout.
+|Timeout (ms)|The connect and reply timeout in milliseconds, for example 30000 for 30 seconds. 0 (the default) keeps the defaults of the FTP library: 60 seconds to connect, no limit on waiting for a reply.
 |Use active FTP connection|Enable if you are connecting to the FTP server using Active mode; you must set your firewall to accept connections to the port that your FTP client will open.
 The default is Passive mode.
 |Control Encoding|Encoding matters when retrieving file names that contain special characters.

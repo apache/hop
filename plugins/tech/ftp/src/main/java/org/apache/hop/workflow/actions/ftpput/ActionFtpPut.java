@@ -207,6 +207,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   public Result execute(Result prevResult, int nr) throws HopException {
     prevResult.setResult(false);
     long filesPut = 0;
+    long filesSkipped = 0;
     long errors = 0;
 
     if (isDetailed()) {
@@ -236,7 +237,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
           }
             // A file left alone because the server already has one is not an error, but it never
             // reached the server: don't count it as put and don't remove the local copy.
-          case SKIPPED -> {}
+          case SKIPPED -> filesSkipped++;
           case FAILED -> errors++;
         }
       }
@@ -244,6 +245,13 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       if (isBasic()) {
         logBasic(
             BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", String.valueOf(filesPut)));
+        // Without this a run where every file was already there reads like a wildcard that
+        // matched nothing, with the files still sitting in the local folder.
+        if (filesSkipped > 0) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionFtpPut.Log.SkippedExistingCount", String.valueOf(filesSkipped)));
+        }
       }
     } catch (Exception e) {
       errors++;

@@ -38,6 +38,8 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.io.FileUtils;
@@ -52,6 +54,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 class ActionHttpExecutionTest {
   private static final String HTTP_HOST = "localhost";
@@ -66,6 +69,7 @@ class ActionHttpExecutionTest {
   private static HttpServer httpServer;
   private static HttpsServer httpsServer;
   private static Path httpsKeyStorePath;
+  private static final AtomicInteger countedRequests = new AtomicInteger();
 
   @BeforeAll
   static void setupBeforeClass() throws Exception {
@@ -216,30 +220,106 @@ class ActionHttpExecutionTest {
   }
 
   @Test
-  void testHttpErrorStatusLeavesAnExistingTargetFileAlone() throws Exception {
-    File target = File.createTempFile("downloadedNotFound", ".tmp");
-    target.deleteOnExit();
-    FileUtils.writeStringToFile(target, "previous content", UTF_8);
+  void testHttpErrorStatusLeavesAnExistingTargetFileAlone(@TempDir Path dir) throws Exception {
+    Path target = dir.resolve("notFound.txt");
+    Files.writeString(target, "previous content");
 
     ActionHttp http = new ActionHttp();
     http.setParentWorkflow(new LocalWorkflowEngine());
     http.setRunForEveryRow(false);
     http.setUrl(httpBaseUrl() + "/notFound");
-    http.setTargetFilename(target.getCanonicalPath());
+    http.setTargetFilename(target.toString());
 
     Result result = http.execute(new Result(), 0);
 
     assertFalse(result.getResult());
     assertEquals(1, result.getNrErrors());
-    assertEquals("previous content", FileUtils.readFileToString(target, UTF_8));
+    assertEquals("previous content", Files.readString(target));
+    assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
   }
 
   @Test
-  void testHttpForEveryRowFailsWhenALaterRowFails() throws Exception {
-    File first = File.createTempFile("downloadedFirstRow", ".tmp");
-    first.deleteOnExit();
-    Path second = Files.createTempDirectory("httpSecondRow").resolve("second.tmp");
-    second.toFile().deleteOnExit();
+  void testHttpReplyThatBreaksOffLeavesAnExistingTargetFileAlone(@TempDir Path dir)
+      throws Exception {
+    Path target = dir.resolve("truncated.txt");
+    Files.writeString(target, "previous content");
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(false);
+    http.setUrl(httpBaseUrl() + "/truncated");
+    http.setTargetFilename(target.toString());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    assertEquals("previous content", Files.readString(target));
+    assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
+  }
+
+  @Test
+  void testHttpAppendAddsTheReplyToTheTargetFile(@TempDir Path dir) throws Exception {
+    Path target = dir.resolve("append.txt");
+    Files.writeString(target, "previous content|");
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(false);
+    http.setAddFilenameToResult(false);
+    http.setFileAppended(true);
+    http.setUrl(httpBaseUrl() + "/downloadFile");
+    http.setTargetFilename(target.toString());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertTrue(result.getResult());
+    assertEquals(0, result.getNrErrors());
+    assertEquals("previous content|download only payload", Files.readString(target));
+    assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
+  }
+
+  @Test
+  void testHttpAppendReplyThatBreaksOffLeavesTheTargetFileAlone(@TempDir Path dir)
+      throws Exception {
+    Path target = dir.resolve("appendTruncated.txt");
+    Files.writeString(target, "previous content");
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(false);
+    http.setFileAppended(true);
+    http.setUrl(httpBaseUrl() + "/truncated");
+    http.setTargetFilename(target.toString());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals("previous content", Files.readString(target));
+    assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
+  }
+
+  @Test
+  void testHttpMissingTargetFolderFailsBeforeTheRequestIsSent(@TempDir Path dir) throws Exception {
+    int requestsBefore = countedRequests.get();
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(false);
+    http.setUrl(httpBaseUrl() + "/countRequests");
+    http.setTargetFilename(dir.resolve("missing").resolve("reply.txt").toString());
+
+    Result result = http.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    assertEquals(requestsBefore, countedRequests.get(), "the request must not have been sent");
+  }
+
+  @Test
+  void testHttpForEveryRowFailsWhenALaterRowFails(@TempDir Path dir) throws Exception {
+    Path first = dir.resolve("first.txt");
+    Path second = dir.resolve("second.txt");
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("URL"));
@@ -248,8 +328,7 @@ class ActionHttpExecutionTest {
     List<RowMetaAndData> rows = new ArrayList<>();
     rows.add(
         new RowMetaAndData(
-            rowMeta,
-            new Object[] {httpBaseUrl() + "/downloadFile", null, first.getCanonicalPath()}));
+            rowMeta, new Object[] {httpBaseUrl() + "/downloadFile", null, first.toString()}));
     rows.add(
         new RowMetaAndData(
             rowMeta, new Object[] {httpBaseUrl() + "/notFound", null, second.toString()}));
@@ -265,8 +344,29 @@ class ActionHttpExecutionTest {
 
     assertFalse(result.getResult(), "a failed row must fail the action");
     assertEquals(1, result.getNrErrors());
-    assertEquals("download only payload", FileUtils.readFileToString(first, UTF_8));
-    assertFalse(Files.exists(second), "a failed row must not create an empty target file");
+    assertEquals("download only payload", Files.readString(first));
+    assertEquals(List.of(first), filesIn(dir), "a failed row must not create a target file");
+  }
+
+  @Test
+  void testHttpForEveryRowWithoutRowsIsFalseWithoutErrors() {
+    Result previousResult = new Result();
+    previousResult.setRows(new ArrayList<>());
+
+    ActionHttp http = new ActionHttp();
+    http.setParentWorkflow(new LocalWorkflowEngine());
+    http.setRunForEveryRow(true);
+
+    Result result = http.execute(previousResult, 0);
+
+    assertFalse(result.getResult());
+    assertEquals(0, result.getNrErrors());
+  }
+
+  private static List<Path> filesIn(Path dir) throws IOException {
+    try (Stream<Path> files = Files.list(dir)) {
+      return files.sorted().toList();
+    }
   }
 
   private static void startHttpServer() throws IOException {
@@ -304,6 +404,26 @@ class ActionHttpExecutionTest {
         "/notFound",
         httpExchange -> {
           httpExchange.sendResponseHeaders(404, -1);
+          httpExchange.close();
+        });
+    httpServer.createContext(
+        "/truncated",
+        httpExchange -> {
+          // Promise 1000 bytes, send a few and hang up: the client sees the reply break off.
+          httpExchange.sendResponseHeaders(200, 1000);
+          try {
+            OutputStream os = httpExchange.getResponseBody();
+            os.write("partial".getBytes(UTF_8));
+            os.flush();
+          } finally {
+            httpExchange.close();
+          }
+        });
+    httpServer.createContext(
+        "/countRequests",
+        httpExchange -> {
+          countedRequests.incrementAndGet();
+          httpExchange.sendResponseHeaders(200, -1);
           httpExchange.close();
         });
     httpServer.start();
