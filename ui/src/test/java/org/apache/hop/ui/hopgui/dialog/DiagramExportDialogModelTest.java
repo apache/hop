@@ -24,10 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.diagram.BaseDiagramExporter;
 import org.apache.hop.core.diagram.DiagramExportFormat;
 import org.apache.hop.core.diagram.DiagramExportOptions;
+import org.apache.hop.core.diagram.DiagramExportResult;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.ExportContext;
 import org.apache.hop.core.diagram.IDiagramExporter;
+import org.apache.hop.core.diagram.IExportContext;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.diagram.exporter.PipelineMermaidDiagramExporter;
 import org.apache.hop.diagram.exporter.PipelineSvgDiagramExporter;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -35,6 +40,22 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DiagramExportDialogModelTest {
+
+  /** A plugin exporter without a DiagramExportFormat: the dialog lists it by its name. */
+  static class NoFormatPipelineExporter extends BaseDiagramExporter<PipelineMeta> {
+    NoFormatPipelineExporter() {
+      id = "test-no-format";
+      name = "Plain Text Diagram";
+      fileExtension = "txt";
+      supportedSubjectTypes = new Class<?>[] {PipelineMeta.class};
+    }
+
+    @Override
+    public DiagramExportResult export(
+        PipelineMeta subject, DiagramExportOptions options, IExportContext context) {
+      return DiagramExportResult.success(options.getTargetFilename(), "plain", "text/plain");
+    }
+  }
 
   @BeforeAll
   static void init() throws Exception {
@@ -114,5 +135,28 @@ class DiagramExportDialogModelTest {
     DiagramExportDialogModel model = new DiagramExportDialogModel();
     assertNotNull(model.getFormatNames(null, null));
     assertNotNull(model.toOptions());
+  }
+
+  @Test
+  void testExportWithExporterWithoutFormat() throws Exception {
+    NoFormatPipelineExporter noFormat = new NoFormatPipelineExporter();
+    DiagramExportService.getInstance().registerStaticExporter(noFormat);
+    try {
+      PipelineMeta pipelineMeta = new PipelineMeta();
+      DiagramExportDialogModel model = new DiagramExportDialogModel(pipelineMeta, null);
+      assertTrue(model.getFormatNames(null, null).contains("Plain Text Diagram"));
+
+      model.setFormat("Plain Text Diagram");
+      DiagramExportOptions options = model.toOptions();
+      assertEquals("test-no-format", options.getFormat());
+
+      IExportContext context =
+          new ExportContext(new Variables(), null, null, IExportContext.ExportEnvironment.TEST);
+      DiagramExportResult result =
+          DiagramExportService.getInstance().export(pipelineMeta, options, context);
+      assertEquals("plain", result.getContent());
+    } finally {
+      DiagramExportService.getInstance().unregisterStaticExporter(noFormat);
+    }
   }
 }

@@ -47,7 +47,7 @@ hop export --list-exporters
 |Option|Description
 |`-f`, `--file <file>`|The pipeline (`.hpl`) or workflow (`.hwf`) to export.
 |`-o`, `--output-file <file>`|The file to write, for `-f`. By default, the name of the exported file with the extension of the format (`.svg` or `.mmd`), in the same folder.
-|`--format <format>`|`svg` or `mermaid`, in upper or lower case. Without it, an `-o` file that ends in `.mmd` is written as Mermaid, and one that ends in `.svg` as SVG. Without `--format` and `-o`, the format is SVG. When no exporter in your installation writes the format, for example `pdf` or an `-o` file that ends in `.pdf`, `hop export` fails with the formats it does have and writes nothing.
+|`--format <format>`|`svg` or `mermaid`, in upper or lower case, or another format that an exporter in your installation writes (see `--list-exporters`). Without it, the extension of the `-o` file picks the exporter that writes that extension: `.mmd` is written as Mermaid, and `.svg` as SVG. Without `--format` and `-o`, or with an `-o` file without an extension, the format is SVG. When no exporter in your installation writes the format, for example `pdf` or an `-o` file that ends in `.pdf` or `.png`, `hop export` fails with the formats it does have and writes nothing.
 |`-s`, `--source-folder <folder>`|The folder to export every pipeline and workflow from.
 |`-t`, `--target-folder <folder>`|The folder to write the diagrams to, for `-s`. Required with `-s`. See <<_exporting_a_folder,Exporting a folder>>.
 |`-r`, `--recursive`|With `-s`, also export the subfolders.
@@ -97,9 +97,10 @@ Each diagram is written under `-t` with the same relative path, for example `pip
 
 * `-t` must be an existing folder. With `-r`, its subfolders must exist as well.
 * The export stops at the first file it can't export, for example a diagram whose folder is missing under `-t`, or a file that is not valid XML. The diagrams written before it stay.
+* A file that no exporter for the format supports is skipped and logged, for example a workflow when only pipelines have an exporter for that format. The other files are still exported.
 * A pipeline and a workflow with the same name in the same folder are written to the same file, so only the last one is kept.
 
-At the end, the command logs how many diagrams it exported.
+At the end, the command logs how many diagrams it exported and how many it skipped.
 
 == Exit codes
 

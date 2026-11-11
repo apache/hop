@@ -110,6 +110,10 @@ for SPEC in "1 hop" "2 hop-export.sh"; do
   expect_failure "$CODE" PDF $LAUNCHER -f "$DIR/fast-pipeline.hpl" -o "$DIR/x.pdf"
   test ! -e "$DIR/x.pdf" || fail "$LAUNCHER -o x.pdf wrote x.pdf"
 
+  # -o x.png without --format: an extension no exporter writes
+  expect_failure "$CODE" PNG $LAUNCHER -f "$DIR/fast-pipeline.hpl" -o "$DIR/x.png"
+  test ! -e "$DIR/x.png" || fail "$LAUNCHER -o x.png wrote x.png"
+
   # a typo
   expect_failure "$CODE" FOO $LAUNCHER -f "$DIR/fast-pipeline.hpl" --format foo -o "$DIR/y.foo"
   test ! -e "$DIR/y.foo" || fail "$LAUNCHER --format foo wrote y.foo"

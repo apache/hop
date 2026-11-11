@@ -20,6 +20,7 @@ package org.apache.hop.core.diagram;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,6 +57,22 @@ class DiagramExportServiceTest {
       String content = "graph LR\n  " + subject.name;
       writeToTarget(options.getTargetFilename(), content, context);
       return DiagramExportResult.success(options.getTargetFilename(), content, "text/vnd.mermaid");
+    }
+  }
+
+  /** An exporter without an annotation, a format or a file extension. */
+  static class NoFormatExporter extends BaseDiagramExporter<TestSubject> {
+    NoFormatExporter(String id, DiagramExportFormat format) {
+      this.id = id;
+      this.name = "No Format";
+      this.format = format;
+      this.supportedSubjectTypes = new Class<?>[] {TestSubject.class};
+    }
+
+    @Override
+    public DiagramExportResult export(
+        TestSubject subject, DiagramExportOptions options, IExportContext context) {
+      return DiagramExportResult.success(options.getTargetFilename(), "plain", "text/plain");
     }
   }
 
@@ -129,6 +146,32 @@ class DiagramExportServiceTest {
         service.export(subject, new DiagramExportOptions(null, null), context);
     assertTrue(result.isSuccess());
     assertEquals("text/vnd.mermaid", result.getMimeType());
+  }
+
+  /** The GUI sends the exporter id for an exporter without a format. */
+  @Test
+  void testExporterWithoutFormatIsFoundById() throws Exception {
+    NoFormatExporter noFormat = new NoFormatExporter("no-format", null);
+    NoFormatExporter nullFormatId =
+        new NoFormatExporter("null-format-id", new DiagramExportFormat(null, null, null, null));
+    service.registerStaticExporter(nullFormatId);
+    service.registerStaticExporter(noFormat);
+    try {
+      TestSubject subject = new TestSubject();
+      IExportContext context =
+          new ExportContext(new Variables(), null, null, IExportContext.ExportEnvironment.TEST);
+
+      DiagramExportResult result =
+          service.export(subject, new DiagramExportOptions(null, "no-format"), context);
+      assertEquals("plain", result.getContent());
+
+      // A format id that is null does not stop the lookup of the other exporters
+      assertEquals("test-exporter", service.findExporter(subject, "MERMAID").getId());
+      assertNull(service.findExporter(subject, "PDF"));
+    } finally {
+      service.unregisterStaticExporter(noFormat);
+      service.unregisterStaticExporter(nullFormatId);
+    }
   }
 
   @Test

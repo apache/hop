@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -215,9 +216,10 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
 
   private void doExportSingleFile() throws HopException {
     String resolvedFile = variables.resolve(filename);
-    String targetFmt = resolveTargetFormat(outputFilename, format);
-    checkFormatIsAvailable(targetFmt);
-    String targetFile = resolveOutputFilename(resolvedFile, outputFilename, targetFmt);
+    List<IDiagramExporter<?>> exporters = DiagramExportService.getInstance().getAllExporters();
+    String targetFmt = resolveTargetFormat(exporters, outputFilename, format);
+    IDiagramExporter<?> exporter = requireExporterForFormat(exporters, targetFmt);
+    String targetFile = resolveOutputFilename(resolvedFile, outputFilename, exporter, targetFmt);
 
     DiagramExportOptions options = new DiagramExportOptions(targetFile, targetFmt);
     options.setMagnification(magnification);
@@ -237,23 +239,24 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
   /**
    * Fails before anything is written when no installed exporter writes the given format, so that a
    * typo or a format without an exporter (PDF) is not silently written as another format.
+   *
+   * @return the first installed exporter for the format
    */
-  private void checkFormatIsAvailable(String targetFmt) throws HopException {
-    List<IDiagramExporter<?>> exporters = DiagramExportService.getInstance().getAllExporters();
-    for (IDiagramExporter<?> exporter : exporters) {
-      if ((exporter.getFormat() != null && exporter.getFormat().getId().equalsIgnoreCase(targetFmt))
-          || targetFmt.equalsIgnoreCase(exporter.getFileExtension())) {
-        return;
-      }
+  private IDiagramExporter<?> requireExporterForFormat(
+      List<IDiagramExporter<?>> exporters, String targetFmt) throws HopException {
+    IDiagramExporter<?> exporter = DiagramExportService.findExporterForFormat(exporters, targetFmt);
+    if (exporter == null) {
+      throw new HopException(
+          "No diagram exporter for format '"
+              + targetFmt
+              + "'. Available formats: "
+              + DiagramExportService.describeFormats(exporters)
+              + ". Use --list-exporters for the details.");
     }
-    throw new HopException(
-        "No diagram exporter for format '"
-            + targetFmt
-            + "'. Available formats: "
-            + DiagramExportService.describeFormats(exporters)
-            + ". Use --list-exporters for the details.");
+    return exporter;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void doBatchExport() throws HopException {
     if (StringUtils.isBlank(targetFolder)) {
       throw new HopException("Target folder (-t, --target-folder) is required for batch export");
@@ -271,28 +274,50 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
       List<FileObject> filesToExport = new ArrayList<>();
       collectFiles(sourceDir, filesToExport, recursive);
 
-      String targetFmt = resolveTargetFormat(null, format);
-      checkFormatIsAvailable(targetFmt);
+      DiagramExportService service = DiagramExportService.getInstance();
+      List<IDiagramExporter<?>> exporters = service.getAllExporters();
+      String targetFmt = resolveTargetFormat(exporters, null, format);
+      requireExporterForFormat(exporters, targetFmt);
       int count = 0;
+      int skipped = 0;
 
       for (FileObject file : filesToExport) {
         String relPath = sourceDir.getName().getRelativeName(file.getName());
+        IExportContext context =
+            new ExportContext(
+                variables, metadataProvider, log, IExportContext.ExportEnvironment.BATCH);
+        Object subject = service.loadSubject(file.getName().getURI(), context);
+
+        // A format that only some subjects have (pipelines but not workflows, say): skip the rest.
+        List<IDiagramExporter<?>> forSubject = new ArrayList<>();
+        for (IDiagramExporter<?> candidate : exporters) {
+          if (candidate.supportsSubject(subject)) {
+            forSubject.add(candidate);
+          }
+        }
+        IDiagramExporter exporter =
+            DiagramExportService.findExporterForFormat(forSubject, targetFmt);
+        if (exporter == null) {
+          skipped++;
+          log.logBasic(
+              "Skipped "
+                  + relPath
+                  + ": no diagram exporter for format '"
+                  + targetFmt
+                  + "' supports it");
+          continue;
+        }
+
         int lastDot = relPath.lastIndexOf('.');
         String baseName = lastDot != -1 ? relPath.substring(0, lastDot) : relPath;
-        String ext = targetFmt.equalsIgnoreCase("mermaid") ? "mmd" : targetFmt.toLowerCase();
-        String targetPath = resolvedTarget + "/" + baseName + "." + ext;
+        String targetPath =
+            resolvedTarget + "/" + baseName + "." + extensionOf(exporter, targetFmt);
 
         DiagramExportOptions options = new DiagramExportOptions(targetPath, targetFmt);
         options.setMagnification(magnification);
         options.setIncludeNotes(includeNotes);
 
-        IExportContext context =
-            new ExportContext(
-                variables, metadataProvider, log, IExportContext.ExportEnvironment.BATCH);
-
-        DiagramExportResult result =
-            DiagramExportService.getInstance()
-                .exportFile(file.getName().getURI(), options, context);
+        DiagramExportResult result = exporter.export(subject, options, context);
         if (result.isSuccess()) {
           count++;
           log.logBasic("Exported " + relPath + " -> " + targetPath);
@@ -301,7 +326,10 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
         }
       }
 
-      log.logBasic("Batch export finished. Total diagrams exported: " + count);
+      log.logBasic(
+          "Batch export finished. Total diagrams exported: "
+              + count
+              + (skipped > 0 ? ", skipped: " + skipped : ""));
     } catch (Exception e) {
       throw new HopException("Error during batch diagram export", e);
     }
@@ -331,34 +359,53 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
     }
   }
 
-  private String resolveTargetFormat(String outputFilePath, String explicitFormat) {
+  /**
+   * The format given with --format, or else the format of the installed exporter that writes the -o
+   * file's extension. An extension that no exporter writes, such as .png, is returned as it is, so
+   * that it is rejected rather than written as SVG. SVG without --format and without an extension.
+   */
+  private String resolveTargetFormat(
+      List<IDiagramExporter<?>> exporters, String outputFilePath, String explicitFormat) {
     if (StringUtils.isNotBlank(explicitFormat)) {
       return explicitFormat.trim().toUpperCase();
     }
-    if (StringUtils.isNotBlank(outputFilePath)) {
-      String lower = outputFilePath.toLowerCase();
-      if (lower.endsWith(".mmd")) {
-        return DiagramExportFormat.MERMAID.getId();
-      }
-      if (lower.endsWith(".svg")) {
-        return DiagramExportFormat.SVG.getId();
-      }
-      if (lower.endsWith(".pdf")) {
-        return DiagramExportFormat.PDF.getId();
+    String extension =
+        StringUtils.isBlank(outputFilePath)
+            ? ""
+            : FilenameUtils.getExtension(variables.resolve(outputFilePath));
+    if (StringUtils.isBlank(extension)) {
+      return DiagramExportFormat.SVG.getId();
+    }
+    for (IDiagramExporter<?> exporter : exporters) {
+      if (extension.equalsIgnoreCase(exporter.getFileExtension())) {
+        return exporter.getFormat() != null && StringUtils.isNotBlank(exporter.getFormat().getId())
+            ? exporter.getFormat().getId()
+            : exporter.getId();
       }
     }
-    return DiagramExportFormat.SVG.getId();
+    return extension.toUpperCase();
   }
 
   private String resolveOutputFilename(
-      String inputFilename, String explicitOutput, String targetFormat) {
+      String inputFilename,
+      String explicitOutput,
+      IDiagramExporter<?> exporter,
+      String targetFormat) {
     if (StringUtils.isNotBlank(explicitOutput)) {
       return variables.resolve(explicitOutput);
     }
     int lastDot = inputFilename.lastIndexOf('.');
     String base = lastDot != -1 ? inputFilename.substring(0, lastDot) : inputFilename;
-    String ext = targetFormat.equalsIgnoreCase("mermaid") ? "mmd" : targetFormat.toLowerCase();
-    return base + "." + ext;
+    return base + "." + extensionOf(exporter, targetFormat);
+  }
+
+  /**
+   * The exporter's file extension, for example mmd for Mermaid, or else the format in lowercase.
+   */
+  private static String extensionOf(IDiagramExporter<?> exporter, String targetFormat) {
+    return StringUtils.isNotBlank(exporter.getFileExtension())
+        ? exporter.getFileExtension()
+        : targetFormat.toLowerCase();
   }
 
   public static void main(String[] args) {

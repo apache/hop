@@ -100,13 +100,29 @@ public class DiagramExportService {
     if (formatId == null) {
       return null;
     }
-    for (IDiagramExporter<?> exporter : findExportersForSubject(subject)) {
-      if (exporter.getFormat() != null
-          && exporter.getFormat().getId().equalsIgnoreCase(formatId.trim())) {
-        return exporter;
-      }
-      if (exporter.getFileExtension() != null
-          && exporter.getFileExtension().equalsIgnoreCase(formatId.trim())) {
+    return findExporterForFormat(findExportersForSubject(subject), formatId);
+  }
+
+  /**
+   * Finds the first of the given exporters that writes a format, matched in upper or lower case on
+   * the format id ({@code MERMAID}), the file extension ({@code mmd}) or the exporter id ({@code
+   * pipeline-mermaid}). The exporter id is what the GUI sends for an exporter without a format.
+   *
+   * @param exporters the exporters to look in, for example those for one subject
+   * @param format the format id, file extension or exporter id
+   * @return the matching exporter, or {@code null} when none matches
+   */
+  public static IDiagramExporter<?> findExporterForFormat(
+      List<IDiagramExporter<?>> exporters, String format) {
+    if (exporters == null || StringUtils.isBlank(format)) {
+      return null;
+    }
+    String wanted = format.trim();
+    for (IDiagramExporter<?> exporter : exporters) {
+      if ((exporter.getFormat() != null
+              && StringUtils.equalsIgnoreCase(wanted, exporter.getFormat().getId()))
+          || StringUtils.equalsIgnoreCase(wanted, exporter.getFileExtension())
+          || StringUtils.equalsIgnoreCase(wanted, exporter.getId())) {
         return exporter;
       }
     }
@@ -150,7 +166,7 @@ public class DiagramExportService {
     IDiagramExporter exporter;
     if (StringUtils.isNotBlank(options.getFormat())) {
       // A format that was asked for must be honoured: never write another format under its name.
-      exporter = findExporter(subject, options.getFormat());
+      exporter = findExporterForFormat(available, options.getFormat());
       if (exporter == null) {
         throw new HopException(
             "No diagram exporter for format '"
@@ -191,6 +207,18 @@ public class DiagramExportService {
 
   public DiagramExportResult exportFile(
       String filename, DiagramExportOptions options, IExportContext context) throws HopException {
+    return export(loadSubject(filename, context), options, context);
+  }
+
+  /**
+   * Loads the subject (pipeline, workflow, ...) of a file with the subject loader for that file.
+   *
+   * @param filename the file to load
+   * @param context the context with the metadata provider and variables to load it with
+   * @return the subject, never {@code null}
+   * @throws HopException when no loader supports the file or the file can't be loaded
+   */
+  public Object loadSubject(String filename, IExportContext context) throws HopException {
     if (StringUtils.isBlank(filename)) {
       throw new HopException("No filename provided to export");
     }
@@ -206,6 +234,6 @@ public class DiagramExportService {
     if (subject == null) {
       throw new HopException("Failed to load diagram subject from file: " + filename);
     }
-    return export(subject, options, context);
+    return subject;
   }
 }

@@ -241,12 +241,15 @@ Built-in loaders: `PipelineDiagramSubjectLoader` (`.hpl`) and `WorkflowDiagramSu
 `DiagramExportService.findExportersForSubject(subject)` keeps every plugin (and any statically registered exporter) whose `supportsSubject` is true.
 The dialog lists unique format *names* from that list.
 
-`findExporter(subject, formatId)` matches, in order:
+`findExporter(subject, formatId)` returns the first of those exporters that matches, in upper or lower case, any of:
 
-. `exporter.getFormat().getId()` (for example `MERMAID`)
-. `exporter.getFileExtension()` (for example `mmd`)
+* `exporter.getFormat().getId()` (for example `MERMAID`)
+* `exporter.getFileExtension()` (for example `mmd`)
+* `exporter.getId()` (for example `pipeline-mermaid`)
 
+The static `findExporterForFormat(exporters, format)` does the same matching on any list of exporters.
 So `--format mermaid`, `--format MERMAID` and an output file ending in `.mmd` all select the same plugin.
+For an exporter without a `DiagramExportFormat`, the dialog lists the exporter's name and passes its id as the format.
 `export(...)` uses the first exporter that supports the subject only when the options have no format.
 When a format is given and nothing matches, it throws a `HopException` that lists the formats that do support the subject; it never writes another format instead.
 
