@@ -95,6 +95,7 @@ class DataHubSinkConfigTest {
     variables.setVariable("HOP_LINEAGE_DATAHUB_SPOOL_DIR", "/tmp/spool");
     variables.setVariable("HOP_LINEAGE_DATAHUB_MAX_RETRIES", "7");
     variables.setVariable("HOP_LINEAGE_DATAHUB_TRANSFORM_JOBS", "N");
+    variables.setVariable("HOP_LINEAGE_DATAHUB_FILE_SPEC_NAMING", "N");
 
     OpenLineageSinkConfig delivery =
         DataHubSinkConfig.fromVariables(variables).toOpenLineageConfig();
@@ -102,6 +103,8 @@ class DataHubSinkConfigTest {
     assertEquals(7, delivery.getMaxRetries());
     assertTrue(delivery.isTransformJobs());
     assertTrue(delivery.isParentRunsEnabled());
+    // DataHub names files by platform and path, whatever the OpenLineage sink's naming default.
+    assertTrue(delivery.isFileSpecNaming());
   }
 
   // A token can be stored the way database passwords are: encoded with hop-encrypt.

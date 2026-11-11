@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variable;
@@ -122,7 +123,8 @@ public final class DataHubSinkConfig {
 
   /**
    * The settings shared with the OpenLineage sink, passed through under the same suffix. The
-   * mapping options (transform jobs, parent runs) are not among them: DataHub needs them one way.
+   * mapping options (transform jobs, parent runs, file naming) are not among them: DataHub needs
+   * them one way.
    */
   private static final List<String> SHARED_SUFFIXES =
       List.of(
@@ -148,13 +150,16 @@ public final class DataHubSinkConfig {
    */
   static final String OPENLINEAGE_ENDPOINT_PATH = "/openapi/openlineage/api/v1/lineage";
 
-  private final String gmsUrl;
-  private final String token;
-  private final String env;
-  private final String platformInstance;
-  private final SchemaPolicy schemaPolicy;
-  private final boolean lifecycleEnabled;
-  private final String actor;
+  @Getter private final String gmsUrl;
+  @Getter private final String token;
+
+  /** The dataset fabric, upper case ({@code PROD}). */
+  @Getter private final String env;
+
+  @Getter private final String platformInstance;
+  @Getter private final SchemaPolicy schemaPolicy;
+  @Getter private final boolean lifecycleEnabled;
+  @Getter private final String actor;
   private final IVariables source;
 
   private DataHubSinkConfig(
@@ -259,7 +264,8 @@ public final class DataHubSinkConfig {
 
   /**
    * The OpenLineage settings the sink runs its mapping, queue and spool with: the shared settings
-   * passed through, and the mapping DataHub needs — one job per transform, with parent runs.
+   * passed through, and the mapping DataHub needs — one job per transform, with parent runs, and
+   * files named by the OpenLineage naming spec.
    */
   public OpenLineageSinkConfig toOpenLineageConfig() {
     Variables overlay = new Variables();
@@ -267,6 +273,8 @@ public final class DataHubSinkConfig {
     overlay.setVariable(OpenLineageSinkConfig.VAR_URL, gmsUrl);
     overlay.setVariable(OpenLineageSinkConfig.VAR_TRANSFORM_JOBS, "Y");
     overlay.setVariable(OpenLineageSinkConfig.VAR_PARENT_RUNS, "Y");
+    // DataHub names a file by its platform and path, which is what spec naming gives.
+    overlay.setVariable(OpenLineageSinkConfig.VAR_FILE_SPEC_NAMING, "Y");
     for (String suffix : SHARED_SUFFIXES) {
       String value = value(source, DATAHUB_PREFIX + suffix);
       if (value != null) {
@@ -276,37 +284,8 @@ public final class DataHubSinkConfig {
     return OpenLineageSinkConfig.fromVariables(overlay);
   }
 
-  public String getGmsUrl() {
-    return gmsUrl;
-  }
-
-  public String getToken() {
-    return token;
-  }
-
-  /** The dataset fabric, upper case ({@code PROD}). */
-  public String getEnv() {
-    return env;
-  }
-
   /** The cluster of Hop's DataFlows: the environment, lower case, as DataHub's own sources do. */
   public String getCluster() {
     return env.toLowerCase(Locale.ROOT);
-  }
-
-  public String getPlatformInstance() {
-    return platformInstance;
-  }
-
-  public SchemaPolicy getSchemaPolicy() {
-    return schemaPolicy;
-  }
-
-  public boolean isLifecycleEnabled() {
-    return lifecycleEnabled;
-  }
-
-  public String getActor() {
-    return actor;
   }
 }

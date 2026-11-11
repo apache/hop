@@ -17,6 +17,7 @@
 
 package org.apache.hop.lineage.datahub;
 
+import java.util.Locale;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -59,13 +60,22 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
   }
 
   /**
+   * Keeps this sink's spool folders apart from the OpenLineage sink's, should both use one folder.
+   */
+  @Override
+  protected String spoolPrefix() {
+    return "datahub-";
+  }
+
+  /**
    * One job per transform holding only its own datasets: DataHub links the jobs through the hop
    * graph, so the propagated inputs an OpenLineage collector needs would only draw a second, direct
-   * edge next to the path through the transforms.
+   * edge next to the path through the transforms. DataHub keeps a run's state, so a run that never
+   * reported its end is ended when the sink shuts down rather than shown as running for good.
    */
   @Override
   protected void configureMapper(OpenLineageEventMapper.Builder builder) {
-    builder.transformJobs(true).propagateInputs(false).parentRuns(true);
+    builder.transformJobs(true).propagateInputs(false).parentRuns(true).abortOpenRuns(true);
   }
 
   @Override
@@ -91,7 +101,7 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
             ? ""
             : ", platform instance=" + dataHubConfig.getPlatformInstance())
         + ", dataset schemas="
-        + dataHubConfig.getSchemaPolicy().name().toLowerCase(java.util.Locale.ROOT)
+        + dataHubConfig.getSchemaPolicy().name().toLowerCase(Locale.ROOT)
         + ", lifecycle="
         + (dataHubConfig.isLifecycleEnabled() ? "on" : "off");
   }

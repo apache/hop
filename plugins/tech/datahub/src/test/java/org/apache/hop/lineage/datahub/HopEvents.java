@@ -43,19 +43,48 @@ import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
  */
 final class HopEvents {
 
+  /** When the events of a run happen, unless shifted with {@link #later}. */
+  static final long STARTED_AT = 1_760_781_600_000L;
+
   private final String pipeline;
+  private final String run;
   private final String pipelineRun;
   private final List<String[]> parent = new ArrayList<>();
+  private String folder = "";
+  private long offsetMs;
 
   HopEvents(String pipeline) {
-    this.pipeline = pipeline;
-    this.pipelineRun = uuid("pipeline:" + pipeline);
+    this(pipeline, "");
   }
 
-  /** The pipeline was run by an action of a workflow. */
+  /** Another run of the same pipeline. */
+  HopEvents(String pipeline, String run) {
+    this.pipeline = pipeline;
+    this.run = run;
+    this.pipelineRun = uuid("pipeline:" + pipeline + run);
+  }
+
+  /** The pipeline was run by an action of a workflow, stored as {@code <workflow>.hwf}. */
   HopEvents startedBy(String workflow, String action) {
     parent.add(new String[] {workflow, action});
     return this;
+  }
+
+  /** The pipeline's file lies in this folder of the project. */
+  HopEvents in(String folder) {
+    this.folder = folder + "/";
+    return this;
+  }
+
+  /** Every event of this run happens this much later. */
+  HopEvents later(long offsetMs) {
+    this.offsetMs = offsetMs;
+    return this;
+  }
+
+  /** The pipeline's file, as the engine reports it inside a project. */
+  String filename() {
+    return "${PROJECT_HOME}/" + folder + pipeline + ".hpl";
   }
 
   static OpenLineageEventMapper mapper() {
@@ -74,7 +103,7 @@ final class HopEvents {
   }
 
   String transformRunId(String transform) {
-    return uuid("transform:" + pipeline + "/" + transform);
+    return uuid("transform:" + pipeline + run + "/" + transform);
   }
 
   LineageContext pipelineContext() {
@@ -83,7 +112,8 @@ final class HopEvents {
             .subjectType(LineageSubjectType.PIPELINE)
             .pipelineName(pipeline)
             .logChannelId(pipelineRun)
-            .hopFilename("/projects/demo/" + pipeline + ".hpl")
+            .hopFilename("/projects/demo/" + folder + pipeline + ".hpl")
+            .hopFilenamePortableKey(filename())
             .putAttribute(LineageRunLifecycleEmitter.ATTR_DESCRIPTION, "Pipeline " + pipeline);
     for (String[] workflowAction : parent) {
       ctx.putAttribute(
@@ -92,6 +122,9 @@ final class HopEvents {
       ctx.putAttribute(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID, uuid("action-run"));
       ctx.putAttribute(LineageRunLifecycleEmitter.ATTR_PARENT_WORKFLOW_NAME, workflowAction[0]);
       ctx.putAttribute(LineageRunLifecycleEmitter.ATTR_PARENT_ACTION_NAME, workflowAction[1]);
+      ctx.putAttribute(
+          LineageRunLifecycleEmitter.ATTR_PARENT_FILENAME,
+          "${PROJECT_HOME}/" + workflowAction[0] + ".hwf");
     }
     return ctx.build();
   }
@@ -102,7 +135,8 @@ final class HopEvents {
         .pipelineName(pipeline)
         .transformName(transform)
         .logChannelId(transformRunId(transform))
-        .hopFilename("/projects/demo/" + pipeline + ".hpl")
+        .hopFilename("/projects/demo/" + folder + pipeline + ".hpl")
+        .hopFilenamePortableKey(filename())
         .putAttribute("pipelineLogChannelId", pipelineRun)
         .putAttribute(LineageRunLifecycleEmitter.ATTR_DESCRIPTION, "Transform " + transform)
         .build();
@@ -124,7 +158,7 @@ final class HopEvents {
     }
     return new LineageEvent(
         UUID.randomUUID().toString(),
-        1_760_781_600_000L,
+        STARTED_AT + offsetMs,
         LineageEventKind.PIPELINE_GRAPH,
         pipelineContext(),
         new PipelineGraphLineagePayload(transitions));
@@ -160,16 +194,16 @@ final class HopEvents {
         columns.length == 0 ? null : new FileIoContentSchema("csv", List.of(columns), List.of());
     return new LineageEvent(
         UUID.randomUUID().toString(),
-        1_760_781_601_000L,
+        STARTED_AT + 1_000L + offsetMs,
         LineageEventKind.FILE_IO,
         transformContext(transform),
         new FileIoLineagePayload(operation, source, target, 10L, true, null, schema));
   }
 
-  private static LineageEvent lifecycle(LineageContext ctx, RunLifecyclePhase phase) {
+  private LineageEvent lifecycle(LineageContext ctx, RunLifecyclePhase phase) {
     return new LineageEvent(
         UUID.randomUUID().toString(),
-        phase == RunLifecyclePhase.STARTED ? 1_760_781_600_000L : 1_760_781_605_000L,
+        (phase == RunLifecyclePhase.STARTED ? STARTED_AT : STARTED_AT + 5_000L) + offsetMs,
         LineageEventKind.RUN_LIFECYCLE,
         ctx,
         new RunLifecycleLineagePayload(phase, null));

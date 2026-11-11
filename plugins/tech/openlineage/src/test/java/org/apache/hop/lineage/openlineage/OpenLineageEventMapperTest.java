@@ -1343,6 +1343,50 @@ class OpenLineageEventMapperTest {
   }
 
   /**
+   * A run that started and never ended is ended with an ABORT at shutdown when the sink asks for it
+   * (DataHub keeps run state); by default the flush only carries observations, as before.
+   */
+  @Test
+  void openRunsAreAbortedAtShutdownOnlyWhenAsked() {
+    LineageContext pipeline =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.PIPELINE)
+            .pipelineName("open")
+            .logChannelId(PIPELINE_RUN_UUID)
+            .build();
+    LineageEvent started =
+        new LineageEvent(
+            "evt-open-start",
+            1_700_004_000_000L,
+            LineageEventKind.RUN_LIFECYCLE,
+            pipeline,
+            new RunLifecycleLineagePayload(RunLifecyclePhase.STARTED, null));
+    LineageEvent ended =
+        new LineageEvent(
+            "evt-open-end",
+            1_700_004_001_000L,
+            LineageEventKind.RUN_LIFECYCLE,
+            pipeline,
+            new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null));
+
+    mapper.mapBatch(List.of(started));
+    assertTrue(mapper.flushObservations().isEmpty());
+
+    OpenLineageEventMapper aborting =
+        OpenLineageEventMapper.builder(NAMESPACE, PRODUCER).abortOpenRuns(true).build();
+    aborting.mapBatch(List.of(started));
+    List<RunEvent> flushed = aborting.flushObservations();
+    assertEquals(1, flushed.size());
+    assertEquals(RunEvent.EventType.ABORT, flushed.get(0).getEventType());
+    assertEquals(PIPELINE_RUN_UUID, flushed.get(0).getRun().getRunId().toString());
+    assertTrue(aborting.flushObservations().isEmpty(), "aborted once");
+
+    // A run that did end is not aborted.
+    aborting.mapBatch(List.of(started, ended));
+    assertTrue(aborting.flushObservations().isEmpty());
+  }
+
+  /**
    * Two statements in one run: no single statement may claim the job, so the datasets still travel
    * on the run's terminal event, without a SQL facet.
    */

@@ -37,6 +37,8 @@ final class DataHubUrns {
 
   static final String HOP_PLATFORM_URN = "urn:li:dataPlatform:" + HOP_PLATFORM;
 
+  private static final String PROJECT_HOME_PREFIX = "${PROJECT_HOME}/";
+
   private DataHubUrns() {}
 
   /** Percent-encodes what would otherwise end or split a tuple URN part. */
@@ -57,10 +59,34 @@ final class DataHubUrns {
   /**
    * A pipeline or workflow. With a platform instance the flow id is prefixed with it, the way
    * DataHub's own orchestrator integrations keep several installations apart.
+   *
+   * @param flowId see {@link #flowId}
    */
-  static String dataFlow(String platformInstance, String name, String cluster) {
-    String id = StringUtils.isBlank(platformInstance) ? name : platformInstance + "." + name;
+  static String dataFlow(String platformInstance, String flowId, String cluster) {
+    String id = StringUtils.isBlank(platformInstance) ? flowId : platformInstance + "." + flowId;
     return "urn:li:dataFlow:(" + HOP_PLATFORM + "," + encode(id) + "," + cluster + ")";
+  }
+
+  /**
+   * What identifies a pipeline or workflow: its file, relative to the project when it lies in one
+   * ({@code pipelines/load.hpl}), since two files may hold pipelines of the same name. Only without
+   * a file (a pipeline never saved, an event without the Hop facet) is it the name.
+   */
+  static String flowId(String filename, String name) {
+    if (StringUtils.isBlank(filename)) {
+      return name;
+    }
+    return StringUtils.removeStart(filename.trim().replace('\\', '/'), PROJECT_HOME_PREFIX);
+  }
+
+  /** The flow a task belongs to: {@code urn:li:dataJob:(<flow urn>,<task>)}. */
+  static String flowOfJob(String jobUrn) {
+    String prefix = "urn:li:dataJob:(";
+    // Flow ids are encoded, so the first ')' closes the flow URN.
+    int end = jobUrn.indexOf(')');
+    return jobUrn.startsWith(prefix) && end > prefix.length()
+        ? jobUrn.substring(prefix.length(), end + 1)
+        : null;
   }
 
   /** A transform of a pipeline, or an action of a workflow. */

@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.lineage.datahub.DataHubTranslator.Mcp;
+import org.apache.hop.lineage.openlineage.OpenLineageEmitter;
 import org.apache.hop.lineage.openlineage.OpenLineageSinkConfig;
 
 /**
@@ -94,21 +95,61 @@ class DataHubClient {
   }
 
   /**
+   * DataHub could not be read. Worth retrying only when it may answer on its own a little later: it
+   * is unreachable, overloaded or failing (no answer, 5xx, 408, 429). A refusal (a token without
+   * the privilege to read, a proxy, a query an older DataHub does not know) stays until someone
+   * changes something; retrying it would hold up every event behind it, since events are delivered
+   * in order.
+   */
+  static final class ReadException extends IOException {
+    private final boolean worthRetrying;
+
+    ReadException(String message, boolean worthRetrying) {
+      super(message);
+      this.worthRetrying = worthRetrying;
+    }
+
+    boolean worthRetrying() {
+      return worthRetrying;
+    }
+  }
+
+  /**
    * Runs a GraphQL query and returns its {@code data}.
    *
-   * @throws IOException when DataHub could not be reached or answered with an error
+   * @throws ReadException when DataHub could not be reached or answered with an error
    */
-  JsonNode graphql(String query, ObjectNode variables) throws IOException, InterruptedException {
+  JsonNode graphql(String query, ObjectNode variables) throws ReadException, InterruptedException {
     ObjectNode body = MAPPER.createObjectNode();
     body.put("query", query);
     body.set("variables", variables);
     Response response = post(graphqlUri, body);
     if (!response.ok()) {
-      throw new IOException("HTTP " + response.status() + " from " + graphqlUri);
+      throw new ReadException(
+          "HTTP "
+              + response.status()
+              + " from "
+              + graphqlUri
+              + ": "
+              + StringUtils.abbreviate(StringUtils.defaultString(response.body()), 300),
+          OpenLineageEmitter.isTransient(response.status()));
     }
-    JsonNode answer = MAPPER.readTree(response.body());
-    if (answer.has("errors") && !answer.path("errors").isEmpty()) {
-      throw new IOException("GraphQL error from " + graphqlUri + ": " + answer.get("errors"));
+    JsonNode answer;
+    try {
+      answer = MAPPER.readTree(response.body());
+    } catch (IOException e) {
+      throw new ReadException("Unreadable answer from " + graphqlUri + ": " + e.getMessage(), true);
+    }
+    JsonNode errors = answer.path("errors");
+    if (errors.isArray() && !errors.isEmpty()) {
+      // DataHub gives an error the HTTP status it stands for (403 for a token without the
+      // privilege, 500 for a failure of its own); a query it cannot run has none.
+      boolean worthRetrying = false;
+      for (JsonNode error : errors) {
+        int code = error.path("extensions").path("code").asInt(0);
+        worthRetrying |= code > 0 && OpenLineageEmitter.isTransient(code);
+      }
+      throw new ReadException("GraphQL error from " + graphqlUri + ": " + errors, worthRetrying);
     }
     return answer.path("data");
   }

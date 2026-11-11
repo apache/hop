@@ -80,6 +80,14 @@ public final class LineageRunLifecycleEmitter {
   public static final String ATTR_PARENT_PIPELINE_NAME = "parentPipelineName";
   public static final String ATTR_PARENT_TRANSFORM_NAME = "parentTransformName";
 
+  /**
+   * The file of the workflow or pipeline named by {@link #ATTR_PARENT_WORKFLOW_NAME} or {@link
+   * #ATTR_PARENT_PIPELINE_NAME}, in its portable form ({@code ${PROJECT_HOME}/...}) when it lies in
+   * the project. Names are not unique across files; a sink that identifies flows by file needs it
+   * to find the parent.
+   */
+  public static final String ATTR_PARENT_FILENAME = "parentFilename";
+
   /** The description the subject's metadata gives it (pipeline, workflow, transform, action). */
   public static final String ATTR_DESCRIPTION = "description";
 
@@ -137,6 +145,12 @@ public final class LineageRunLifecycleEmitter {
       return;
     }
     ctx.putAttribute(ATTR_PARENT_PIPELINE_NAME, parentPipelineName);
+    // The same file the parent's own events report (see emitPipeline).
+    String parentFilename = parentPipeline.getFilename();
+    fillParentFilename(
+        ctx,
+        Utils.isEmpty(parentFilename) ? parentMeta.getFilename() : parentFilename,
+        parentPipeline);
     if (parent instanceof ITransform transform && !Utils.isEmpty(transform.getTransformName())) {
       ctx.putAttribute(ATTR_PARENT_TRANSFORM_NAME, transform.getTransformName());
       ILogChannel transformLog = transform.getLogChannel();
@@ -211,7 +225,17 @@ public final class LineageRunLifecycleEmitter {
     if (parentJobName != null) {
       ctx.putAttribute(ATTR_PARENT_WORKFLOW_NAME, parentWorkflowName);
       ctx.putAttribute(ATTR_PARENT_ACTION_NAME, parentAction.getName());
+      fillParentFilename(ctx, parentMeta.getFilename(), parentWorkflow);
     }
+  }
+
+  private static void fillParentFilename(
+      LineageContext.Builder ctx, String filename, IVariables variables) {
+    if (Utils.isEmpty(filename)) {
+      return;
+    }
+    String portable = LineagePortableFilename.portableKey(filename, variables);
+    ctx.putAttribute(ATTR_PARENT_FILENAME, Utils.isEmpty(portable) ? filename : portable);
   }
 
   private static void fillFilenameFields(

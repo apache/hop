@@ -24,9 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.openlineage.client.OpenLineage;
 import io.openlineage.client.OpenLineage.RunEvent;
 import io.openlineage.client.OpenLineageClientUtils;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -45,13 +48,14 @@ import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** What a Hop run looks like in DataHub: flows, jobs, runs and the datasets in between. */
 class DataHubTranslatorTest {
 
-  private static final String FLOW = "urn:li:dataFlow:(hop,orders,prod)";
+  private static final String FLOW = "urn:li:dataFlow:(hop,orders.hpl,prod)";
   private static final String READ = "urn:li:dataJob:(" + FLOW + ",Read)";
   private static final String WRITE = "urn:li:dataJob:(" + FLOW + ",Write)";
   private static final String IN = "urn:li:dataset:(urn:li:dataPlatform:file,/data/in.csv,PROD)";
@@ -201,7 +205,7 @@ class DataHubTranslatorTest {
                 .startedBy("nightly", "Run orders")
                 .readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
 
-    String action = "urn:li:dataJob:(urn:li:dataFlow:(hop,nightly,prod),Run orders)";
+    String action = "urn:li:dataJob:(urn:li:dataFlow:(hop,nightly.hwf,prod),Run orders)";
     List<Mcp> links =
         proposals.stream()
             .filter(
@@ -220,7 +224,7 @@ class DataHubTranslatorTest {
             new HopEvents("load (eu, us)")
                 .readThenWrite("file:///data/a,b.csv", "file:///out/x.csv"));
 
-    String flow = "urn:li:dataFlow:(hop,load %28eu%2C us%29,prod)";
+    String flow = "urn:li:dataFlow:(hop,load %28eu%2C us%29.hpl,prod)";
     assertEquals(
         "load (eu, us)", one(proposals, flow, "dataFlowInfo").value().get("name").asText());
     assertNotNull(
@@ -247,6 +251,118 @@ class DataHubTranslatorTest {
     JsonNode id = schema.get("fields").get(0);
     assertEquals("id", id.get("fieldPath").asText());
     assertTrue(id.get("type").get("type").has("com.linkedin.schema.NumberType"));
+  }
+
+  // A pipeline of one transform has no hops, and so an empty graph. Its datasets stay with that
+  // transform: no job named after the pipeline appears next to it.
+  @Test
+  void aLoneTransformKeepsItsDatasets() {
+    HopEvents hop = new HopEvents("orders");
+    List<Mcp> proposals =
+        all(
+            HopEvents.mapper()
+                .mapBatch(
+                    List.of(
+                        hop.pipeline(RunLifecyclePhase.STARTED),
+                        hop.graph(),
+                        hop.transform("Write", RunLifecyclePhase.STARTED),
+                        hop.write("Write", "file:///out/x.csv", HopEvents.column("id", "Integer")),
+                        hop.transform("Write", RunLifecyclePhase.FINISHED),
+                        hop.pipeline(RunLifecyclePhase.FINISHED))));
+
+    JsonNode write = one(proposals, WRITE, "dataJobInputOutput").value();
+    assertEquals(List.of(OUT), destinations(write.get("outputDatasetEdges")));
+    assertTrue(find(proposals, "urn:li:dataJob:(" + FLOW + ",orders)", "dataJobInfo").isEmpty());
+  }
+
+  // A query reads some of a table's columns. Offered as the table's schema, that subset would
+  // replace the full one a Table Output or DataHub's own ingestion wrote. A file read describes the
+  // whole file, and a write what was written, so those are offered.
+  @Test
+  void aTableReadOffersNoSchemaButAFileReadAndATableWriteDo() {
+    RunEvent mapped =
+        new HopEvents("orders")
+            .readThenWrite("file:///data/in.csv", "file:///out/x.csv").stream()
+                .filter(
+                    e ->
+                        e.getEventType() == RunEvent.EventType.COMPLETE
+                            && e.getInputs() != null
+                            && !e.getInputs().isEmpty())
+                .findFirst()
+                .orElseThrow();
+    OpenLineage ol = new OpenLineage(URI.create("https://hop.apache.org/test"));
+    OpenLineage.DatasetFacets countryOnly =
+        ol.newDatasetFacetsBuilder()
+            .schema(
+                ol.newSchemaDatasetFacetBuilder()
+                    .fields(
+                        List.of(
+                            ol.newSchemaDatasetFacetFieldsBuilder()
+                                .name("country")
+                                .type("string")
+                                .build()))
+                    .build())
+            .build();
+    RunEvent event =
+        ol.newRunEventBuilder()
+            .eventType(mapped.getEventType())
+            .eventTime(mapped.getEventTime())
+            .run(mapped.getRun())
+            .job(mapped.getJob())
+            .inputs(
+                List.of(
+                    ol.newInputDatasetBuilder()
+                        .namespace("postgres://db:5432")
+                        .name("shop.public.customers")
+                        .facets(
+                            withSource(ol, countryOnly, "postgres://db:5432", "postgres://db:5432"))
+                        .build(),
+                    ol.newInputDatasetBuilder()
+                        .namespace("file")
+                        .name("/data/in.csv")
+                        .facets(withSource(ol, countryOnly, "in.csv", "file:///data/in.csv"))
+                        .build()))
+            .outputs(
+                List.of(
+                    ol.newOutputDatasetBuilder()
+                        .namespace("postgres://db:5432")
+                        .name("shop.public.report")
+                        .facets(
+                            withSource(ol, countryOnly, "postgres://db:5432", "postgres://db:5432"))
+                        .build()))
+            .build();
+
+    Set<String> offered = new HashSet<>();
+    translator.translate(event).schemas().forEach(s -> offered.add(s.datasetUrn()));
+    assertEquals(
+        Set.of(IN, "urn:li:dataset:(urn:li:dataPlatform:postgres,shop.public.report,PROD)"),
+        offered);
+  }
+
+  // A file read describes the whole file on any file system, not only on the ones DataHub has a
+  // source for: an SFTP read keeps its schema.
+  @Test
+  void anSftpReadOffersItsSchema() {
+    String sftp = "urn:li:dataset:(urn:li:dataPlatform:sftp,/in/orders.csv,PROD)";
+    Set<String> offered = new HashSet<>();
+    for (RunEvent event :
+        new HopEvents("orders")
+            .readThenWrite("sftp://files.example.com/in/orders.csv", "file:///out/x.csv")) {
+      translator.translate(event).schemas().forEach(s -> offered.add(s.datasetUrn()));
+    }
+    assertEquals(Set.of(sftp, OUT), offered);
+  }
+
+  /**
+   * The facets with the data source the mapper writes: the database for a table (its namespace),
+   * the file itself for a file.
+   */
+  private static OpenLineage.DatasetFacets withSource(
+      OpenLineage ol, OpenLineage.DatasetFacets facets, String name, String uri) {
+    return ol.newDatasetFacetsBuilder()
+        .schema(facets.getSchema())
+        .dataSource(ol.newDatasourceDatasetFacet(name, URI.create(uri)))
+        .build();
   }
 
   @Test
@@ -306,6 +422,47 @@ class DataHubTranslatorTest {
     }
   }
 
+  // Hop names are not unique: two files holding a pipeline of the same name are two flows, each
+  // with its own tasks, named by its path in the project.
+  @Test
+  void twoFilesWithPipelinesOfTheSameNameAreTwoFlows() {
+    List<Mcp> proposals =
+        all(new HopEvents("load").in("sales").readThenWrite("file:///a.csv", "file:///b.csv"));
+    proposals.addAll(
+        all(new HopEvents("load").in("finance").readThenWrite("file:///c.csv", "file:///d.csv")));
+
+    String sales = "urn:li:dataFlow:(hop,sales/load.hpl,prod)";
+    String finance = "urn:li:dataFlow:(hop,finance/load.hpl,prod)";
+    assertEquals("load", one(proposals, sales, "dataFlowInfo").value().get("name").asText());
+    assertEquals("load", one(proposals, finance, "dataFlowInfo").value().get("name").asText());
+    assertNotNull(one(proposals, "urn:li:dataJob:(" + sales + ",Write)", "dataJobInfo"));
+    assertNotNull(one(proposals, "urn:li:dataJob:(" + finance + ",Write)", "dataJobInfo"));
+  }
+
+  // The sink ends a run the engine never reported the end of: the run is over and did not succeed,
+  // and nothing is said about its task, whose datasets it never reported.
+  @Test
+  void anAbortedRunOnlyEndsTheRun() {
+    HopEvents hop = new HopEvents("orders");
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org/test")
+            .transformJobs(true)
+            .propagateInputs(false)
+            .abortOpenRuns(true)
+            .build();
+    mapper.mapBatch(List.of(hop.pipeline(RunLifecyclePhase.STARTED)));
+    List<RunEvent> flushed = mapper.flushObservations();
+    assertEquals(1, flushed.size());
+    assertEquals(RunEvent.EventType.ABORT, flushed.get(0).getEventType());
+
+    List<Mcp> proposals = translator.translate(flushed.get(0)).proposals();
+    assertEquals(
+        List.of("dataProcessInstanceRunEvent"), proposals.stream().map(Mcp::aspectName).toList());
+    JsonNode ended = proposals.get(0).value();
+    assertEquals("COMPLETE", ended.get("status").asText());
+    assertEquals("FAILURE", ended.get("result").get("type").asText());
+  }
+
   @Test
   void aPlatformInstanceKeepsInstallationsApart() {
     DataHubTranslator instance =
@@ -315,7 +472,7 @@ class DataHubTranslatorTest {
         new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv")) {
       proposals.addAll(instance.translate(event).proposals());
     }
-    String flow = "urn:li:dataFlow:(hop,emea.orders,prod)";
+    String flow = "urn:li:dataFlow:(hop,emea.orders.hpl,prod)";
     assertEquals(
         "urn:li:dataPlatformInstance:(urn:li:dataPlatform:hop,emea)",
         one(proposals, flow, "dataPlatformInstance").value().get("instance").asText());
@@ -458,7 +615,7 @@ class DataHubTranslatorTest {
     JsonNode io =
         one(
                 proposals,
-                "urn:li:dataJob:(urn:li:dataFlow:(hop,archive,prod),Copy)",
+                "urn:li:dataJob:(urn:li:dataFlow:(hop,archive.hpl,prod),Copy)",
                 "dataJobInputOutput")
             .value();
     assertTrue(destinations(io.get("inputDatasetEdges")).isEmpty(), "no all-to-all pairs");
@@ -478,7 +635,7 @@ class DataHubTranslatorTest {
     assertEquals(1, checks.size());
     assertEquals(FLOW, checks.get(0).flowUrn());
     assertEquals(Set.of(READ, WRITE), checks.get(0).currentJobUrns());
-    assertEquals("/projects/demo/orders.hpl", checks.get(0).filename());
+    assertEquals("${PROJECT_HOME}/orders.hpl", checks.get(0).filename());
 
     HopEvents failing = new HopEvents("orders");
     for (RunEvent event :

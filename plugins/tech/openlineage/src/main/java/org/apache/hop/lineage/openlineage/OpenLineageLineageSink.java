@@ -195,15 +195,15 @@ public class OpenLineageLineageSink implements ILineageSink {
       if (dispatcher != null) {
         // A dataset observation whose run never reported its end has no run event left to carry
         // it. Send those as standalone events before the queue drains, so that nothing observed is
-        // dropped.
+        // dropped; with abortOpenRuns, such runs are ended too.
         List<RunEvent> carriedNowhere = mapper != null ? mapper.flushObservations() : List.of();
         if (!carriedNowhere.isEmpty()) {
           log.logBasic(
               sinkName()
                   + " sink: "
                   + carriedNowhere.size()
-                  + " dataset observation(s) had no run completion to carry them; sending them as"
-                  + " standalone events");
+                  + " event(s) for runs that never reported their end (their dataset observations,"
+                  + " or the end of the run itself); sending them now");
           dispatcher.enqueueAll(carriedNowhere);
         }
         long drainMs = config != null ? config.getShutdownDrainMs() : 30_000;

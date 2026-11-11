@@ -152,6 +152,7 @@ public final class OpenLineageEventMapper {
   private final boolean transformJobs;
   private final boolean propagateInputs;
   private final boolean fileSpecNaming;
+  private final boolean abortOpenRuns;
   private final String engineVersion;
   private final RelationalColumnLineageCorrelator columnLineageCorrelator =
       new RelationalColumnLineageCorrelator();
@@ -200,6 +201,13 @@ public final class OpenLineageEventMapper {
       Collections.synchronizedSet(
           Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
 
+  /**
+   * With {@link Builder#abortOpenRuns}, the start of every run that has not reported its end yet,
+   * so the runs still open when the sink shuts down can be ended; see {@link #flushObservations}.
+   */
+  private final Map<String, LineageEvent> openRuns =
+      Collections.synchronizedMap(new BoundedMap<>(MAX_PENDING_RUNS, null));
+
   public OpenLineageEventMapper(String namespace, String producer) {
     this(builder(namespace, producer));
   }
@@ -227,6 +235,7 @@ public final class OpenLineageEventMapper {
     this.transformJobs = builder.transformJobs;
     this.propagateInputs = builder.propagateInputs;
     this.fileSpecNaming = builder.fileSpecNaming;
+    this.abortOpenRuns = builder.abortOpenRuns;
     this.engineVersion = hopVersion();
   }
 
@@ -244,6 +253,7 @@ public final class OpenLineageEventMapper {
     private boolean propagateInputs = true;
     private boolean parentRuns = true;
     private boolean fileSpecNaming = true;
+    private boolean abortOpenRuns;
 
     private Builder(String namespace, String producer) {
       this.namespace = namespace;
@@ -294,6 +304,17 @@ public final class OpenLineageEventMapper {
      */
     public Builder fileSpecNaming(boolean fileSpecNaming) {
       this.fileSpecNaming = fileSpecNaming;
+      return this;
+    }
+
+    /**
+     * Whether {@link #flushObservations} ends the runs that started and never reported their end
+     * with an {@code ABORT} event (off by default). A run whose end the engine never sent (an
+     * action that threw, an event the hub's full queue dropped) otherwise stays running in a
+     * collector that keeps run state, such as DataHub.
+     */
+    public Builder abortOpenRuns(boolean abortOpenRuns) {
+      this.abortOpenRuns = abortOpenRuns;
       return this;
     }
 
@@ -393,7 +414,14 @@ public final class OpenLineageEventMapper {
     }
     LineageContext ctx = event.getContext();
     if (!isTerminal(eventType)) {
+      if (abortOpenRuns && eventType == EventType.START) {
+        openRuns.put(runKey(resolveJobName(ctx), resolveRunId(ctx, event.getEventId())), event);
+      }
       return List.of(runEvent(event, eventType, List.of(), List.of(), null));
+    }
+    if (abortOpenRuns) {
+      // Ended, even when the event itself waits for its pipeline: it is sent with the pipeline's.
+      openRuns.remove(runKey(resolveJobName(ctx), resolveRunId(ctx, event.getEventId())));
     }
     if (isTransformOfAPipelineRun(ctx) && !endedPipelineRuns.contains(pipelineLogChannelId(ctx))) {
       // Its datasets are only complete once the pipeline ends; see pipelineRuns.
@@ -478,8 +506,20 @@ public final class OpenLineageEventMapper {
       List<OutputDataset> outputs,
       String sqlText,
       JobIdentity identity) {
+    return runEvent(
+        event, eventType, event.getTimestampMillis(), inputs, outputs, sqlText, identity);
+  }
+
+  private RunEvent runEvent(
+      LineageEvent event,
+      EventType eventType,
+      long timestampMillis,
+      List<InputDataset> inputs,
+      List<OutputDataset> outputs,
+      String sqlText,
+      JobIdentity identity) {
     LineageContext ctx = event.getContext();
-    ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    ZonedDateTime eventTime = toUtc(timestampMillis);
     return ol.newRunEventBuilder()
         .eventType(eventType)
         .eventTime(eventTime)
@@ -878,7 +918,8 @@ public final class OpenLineageEventMapper {
    * The observations still waiting for a run to end, as events, clearing them. The sink calls this
    * when it shuts down: a run that never reported its end - an execution that crashed, or one that
    * ran where the engine had no chance to say so - leaves nothing to carry its datasets, and
-   * dropping them would lose lineage.
+   * dropping them would lose lineage. With {@link Builder#abortOpenRuns} such a run is also ended,
+   * with an {@code ABORT} event after the rest.
    */
   public List<RunEvent> flushObservations() {
     List<RunEvent> events = new ArrayList<>();
@@ -899,6 +940,24 @@ public final class OpenLineageEventMapper {
       pendingRuns.clear();
     }
     events.addAll(drainEvicted());
+    // Last, after whatever the runs observed: the end of each run that started and never ended.
+    List<LineageEvent> starts;
+    synchronized (openRuns) {
+      starts = new ArrayList<>(openRuns.values());
+      openRuns.clear();
+    }
+    long now = System.currentTimeMillis();
+    for (LineageEvent start : starts) {
+      events.add(
+          runEvent(
+              start,
+              EventType.ABORT,
+              now,
+              List.of(),
+              List.of(),
+              null,
+              JobIdentity.of(start.getContext())));
+    }
     return events;
   }
 
@@ -946,7 +1005,8 @@ public final class OpenLineageEventMapper {
             LineageRunLifecycleEmitter.ATTR_PARENT_WORKFLOW_NAME,
             LineageRunLifecycleEmitter.ATTR_PARENT_ACTION_NAME,
             LineageRunLifecycleEmitter.ATTR_PARENT_PIPELINE_NAME,
-            LineageRunLifecycleEmitter.ATTR_PARENT_TRANSFORM_NAME);
+            LineageRunLifecycleEmitter.ATTR_PARENT_TRANSFORM_NAME,
+            LineageRunLifecycleEmitter.ATTR_PARENT_FILENAME);
 
     /** The subject the context describes. */
     static JobIdentity of(LineageContext ctx) {

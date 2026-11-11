@@ -27,3 +27,10 @@
 # plugin zip; users download it themselves. See the hop.pluginlib.exclude*
 # properties and the comment above them in plugins/transforms/stanfordnlp/pom.xml.
 hop-transform-stanfordnlp edu.stanford.nlp
+
+# The DataHub sink extends the OpenLineage sink. It loads that plugin's classes and the OpenLineage
+# client from the openlineage plugin folder (see plugins/tech/datahub/src/main/resources/
+# dependencies.xml) instead of bundling them a second time, so it is installed with
+# hop-tech-openlineage.
+hop-tech-datahub org.apache.hop.lineage.openlineage
+hop-tech-datahub io.openlineage

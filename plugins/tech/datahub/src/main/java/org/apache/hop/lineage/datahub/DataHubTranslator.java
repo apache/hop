@@ -104,16 +104,24 @@ final class DataHubTranslator {
 
   /**
    * The tasks a flow is made of now, after a successful run: the emitter retires the tasks DataHub
-   * still has for the same file that are not among them (a transform or action removed or renamed).
+   * still has for the same file that are not among them (a transform or action removed or renamed),
+   * unless they ran after {@code timeMs}, which makes this check the older one.
    */
-  record StaleCheck(String flowUrn, Set<String> currentJobUrns, String filename) {}
+  record StaleCheck(String flowUrn, Set<String> currentJobUrns, String filename, long timeMs) {}
 
-  /** What one event comes down to. */
+  /**
+   * What one event comes down to.
+   *
+   * @param jobUrn the task the event is about, or {@code null} for a pipeline's or workflow's own
+   * @param timeMs when the event happened
+   */
   record Translation(
       List<Mcp> proposals,
       List<SchemaCandidate> schemas,
       List<LifecycleChange> lifecycle,
-      List<StaleCheck> staleChecks) {}
+      List<StaleCheck> staleChecks,
+      String jobUrn,
+      long timeMs) {}
 
   private final String env;
   private final String cluster;
@@ -156,14 +164,14 @@ final class DataHubTranslator {
     List<SchemaCandidate> schemas = new ArrayList<>();
     List<LifecycleChange> lifecycle = new ArrayList<>();
     List<StaleCheck> staleChecks = new ArrayList<>();
+    long time = eventTime(event);
     if (subject == null) {
-      return new Translation(proposals, schemas, lifecycle, staleChecks);
+      return new Translation(proposals, schemas, lifecycle, staleChecks, null, time);
     }
-    String flowUrn = DataHubUrns.dataFlow(platformInstance, subject.flowName(), cluster);
+    String flowUrn = flowUrn(subject.flowFilename(), subject.flowName());
     String jobUrn =
         subject.jobName() == null ? null : DataHubUrns.dataJob(flowUrn, subject.jobName());
     EventType type = event.getEventType();
-    long time = eventTime(event);
 
     if (type == EventType.START) {
       proposals.addAll(flowAspects(flowUrn, subject, jobUrn == null ? description(event) : null));
@@ -171,7 +179,13 @@ final class DataHubTranslator {
         proposals.addAll(jobAspects(jobUrn, flowUrn, subject, description(event)));
       }
       proposals.addAll(runStarted(event, subject, jobUrn != null ? jobUrn : flowUrn, time));
-      return new Translation(proposals, schemas, lifecycle, staleChecks);
+      return new Translation(proposals, schemas, lifecycle, staleChecks, jobUrn, time);
+    }
+    if (type == EventType.ABORT) {
+      // A run the engine never reported the end of, ended by the sink when it shut down: there is
+      // nothing to say about its task or datasets, only that the run is over.
+      proposals.addAll(runEnded(event, List.of(), List.of(), time));
+      return new Translation(proposals, schemas, lifecycle, staleChecks, jobUrn, time);
     }
 
     List<String> inputs = datasetUrns(event.getInputs());
@@ -208,7 +222,7 @@ final class DataHubTranslator {
       if (ioJobUrn != null) {
         proposals.add(addDatasetEdges(ioJobUrn, jobInputs, jobOutputs));
       }
-      return new Translation(proposals, schemas, lifecycle, staleChecks);
+      return new Translation(proposals, schemas, lifecycle, staleChecks, jobUrn, time);
     }
 
     if (ioJobUrn != null) {
@@ -231,9 +245,14 @@ final class DataHubTranslator {
       for (String member : subject.members()) {
         current.add(DataHubUrns.dataJob(flowUrn, member));
       }
-      staleChecks.add(new StaleCheck(flowUrn, current, subject.flowFilename()));
+      staleChecks.add(new StaleCheck(flowUrn, current, subject.flowFilename(), time));
     }
-    return new Translation(proposals, schemas, lifecycle, staleChecks);
+    return new Translation(proposals, schemas, lifecycle, staleChecks, jobUrn, time);
+  }
+
+  /** The flow of a pipeline or workflow, by its file (see {@link DataHubUrns#flowId}). */
+  private String flowUrn(String filename, String name) {
+    return DataHubUrns.dataFlow(platformInstance, DataHubUrns.flowId(filename, name), cluster);
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -336,16 +355,16 @@ final class DataHubTranslator {
   }
 
   private String parentJobUrn(Subject subject) {
+    String filename = subject.facet(LineageRunLifecycleEmitter.ATTR_PARENT_FILENAME);
     String workflow = subject.facet(LineageRunLifecycleEmitter.ATTR_PARENT_WORKFLOW_NAME);
     String action = subject.facet(LineageRunLifecycleEmitter.ATTR_PARENT_ACTION_NAME);
     if (workflow != null && action != null) {
-      return DataHubUrns.dataJob(DataHubUrns.dataFlow(platformInstance, workflow, cluster), action);
+      return DataHubUrns.dataJob(flowUrn(filename, workflow), action);
     }
     String pipeline = subject.facet(LineageRunLifecycleEmitter.ATTR_PARENT_PIPELINE_NAME);
     String transform = subject.facet(LineageRunLifecycleEmitter.ATTR_PARENT_TRANSFORM_NAME);
     if (pipeline != null && transform != null) {
-      return DataHubUrns.dataJob(
-          DataHubUrns.dataFlow(platformInstance, pipeline, cluster), transform);
+      return DataHubUrns.dataJob(flowUrn(filename, pipeline), transform);
     }
     return null;
   }
@@ -489,7 +508,8 @@ final class DataHubTranslator {
     ended.put("status", "COMPLETE");
     ended.put("attempt", 1);
     ObjectNode result = ended.putObject("result");
-    result.put("type", event.getEventType() == EventType.FAIL ? "FAILURE" : "SUCCESS");
+    // Anything but a completion (a failure, a run the sink ended at shutdown) did not succeed.
+    result.put("type", event.getEventType() == EventType.COMPLETE ? "SUCCESS" : "FAILURE");
     result.put("nativeResultType", DataHubUrns.HOP_PLATFORM);
     proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceRunEvent", ended));
     if (!inputs.isEmpty()) {
@@ -567,29 +587,63 @@ final class DataHubTranslator {
     return new ArrayList<>(proposals.values());
   }
 
+  /**
+   * The schemas an event can offer: those of the datasets it wrote and of the files it read, on any
+   * file system. A table read declares only the columns its query reads; as {@code schemaMetadata}
+   * that subset would replace the table's full schema, so it is not offered.
+   */
   private List<SchemaCandidate> schemaCandidates(RunEvent event) {
     Map<String, SchemaCandidate> candidates = new LinkedHashMap<>();
-    for (OpenLineage.Dataset dataset : union(event.getInputs(), event.getOutputs())) {
-      String urn = datasetUrn(dataset);
-      if (urn == null
-          || dataset.getFacets() == null
-          || dataset.getFacets().getSchema() == null
-          || dataset.getFacets().getSchema().getFields() == null
-          || dataset.getFacets().getSchema().getFields().isEmpty()) {
-        continue;
+    if (event.getInputs() != null) {
+      for (OpenLineage.InputDataset input : event.getInputs()) {
+        addSchemaCandidate(candidates, input, true);
       }
-      String platformUrn = urn.substring("urn:li:dataset:(".length(), urn.indexOf(','));
-      candidates.put(
-          urn,
-          new SchemaCandidate(
-              urn,
-              Mcp.upsert(
-                  "dataset",
-                  urn,
-                  "schemaMetadata",
-                  schemaMetadata(platformUrn, dataset.getFacets().getSchema().getFields()))));
+    }
+    // After the inputs, so what a transform wrote wins over what it read of the same dataset.
+    if (event.getOutputs() != null) {
+      for (OpenLineage.OutputDataset output : event.getOutputs()) {
+        addSchemaCandidate(candidates, output, false);
+      }
     }
     return new ArrayList<>(candidates.values());
+  }
+
+  private void addSchemaCandidate(
+      Map<String, SchemaCandidate> candidates, OpenLineage.Dataset dataset, boolean read) {
+    String urn = datasetUrn(dataset);
+    if (urn == null
+        || dataset.getFacets() == null
+        || dataset.getFacets().getSchema() == null
+        || dataset.getFacets().getSchema().getFields() == null
+        || dataset.getFacets().getSchema().getFields().isEmpty()) {
+      return;
+    }
+    if (read && isTable(dataset)) {
+      return;
+    }
+    String platformUrn = urn.substring("urn:li:dataset:(".length(), urn.indexOf(','));
+    candidates.put(
+        urn,
+        new SchemaCandidate(
+            urn,
+            Mcp.upsert(
+                "dataset",
+                urn,
+                "schemaMetadata",
+                schemaMetadata(platformUrn, dataset.getFacets().getSchema().getFields()))));
+  }
+
+  /**
+   * Whether a dataset is a database table rather than a file. The mapper gives a table the database
+   * it lives in as its data source ({@code dataSource.name} is the dataset's namespace, such as
+   * {@code postgres://db:5432}) and a file the file itself, whatever its VFS scheme.
+   */
+  static boolean isTable(OpenLineage.Dataset dataset) {
+    OpenLineage.DatasourceDatasetFacet source =
+        dataset.getFacets() == null ? null : dataset.getFacets().getDataSource();
+    return source != null
+        && dataset.getNamespace() != null
+        && dataset.getNamespace().equals(source.getName());
   }
 
   /**

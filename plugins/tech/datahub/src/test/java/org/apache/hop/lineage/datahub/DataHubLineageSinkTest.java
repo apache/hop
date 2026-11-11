@@ -31,6 +31,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -116,13 +117,13 @@ class DataHubLineageSinkTest {
     sink.shutdown();
 
     Set<String> urns = entitiesWritten();
-    String flow = "urn:li:dataFlow:(hop,orders,prod)";
+    String flow = "urn:li:dataFlow:(hop,orders.hpl,prod)";
     assertTrue(urns.contains(flow));
     assertTrue(urns.contains("urn:li:dataJob:(" + flow + ",Read)"));
     assertTrue(urns.contains("urn:li:dataJob:(" + flow + ",Write)"));
     assertTrue(urns.contains("urn:li:dataProcessInstance:" + hop.pipelineRunId()));
     assertTrue(urns.contains("urn:li:dataset:(urn:li:dataPlatform:file,/out/x.csv,PROD)"));
-    try (var files = Files.list(spool)) {
+    try (var files = Files.walk(spool)) {
       assertEquals(0, files.filter(f -> f.toString().endsWith(".json")).count());
     }
   }
@@ -135,8 +136,14 @@ class DataHubLineageSinkTest {
     during.init(variablesWithShortDrain(), new LogChannel("DataHubSinkOutage"));
     during.accept(run(hop));
     during.shutdown();
-    try (var files = Files.list(spool)) {
-      assertTrue(files.anyMatch(f -> f.toString().endsWith(".json")), "the run waits on disk");
+    try (var files = Files.walk(spool)) {
+      // In a folder of its own, so an OpenLineage sink sharing the spool leaves them alone.
+      assertTrue(
+          files.anyMatch(
+              f ->
+                  f.getParent().getFileName().toString().startsWith("datahub-")
+                      && f.toString().endsWith(".json")),
+          "the run waits on disk");
     }
 
     gms.stubFor(post(urlEqualTo(INGEST)).willReturn(aResponse().withStatus(200).withBody("{}")));
@@ -145,9 +152,42 @@ class DataHubLineageSinkTest {
     after.shutdown();
 
     Set<String> urns = entitiesWritten();
-    assertTrue(urns.contains("urn:li:dataJob:(urn:li:dataFlow:(hop,orders,prod),Write)"));
-    try (var files = Files.list(spool)) {
+    assertTrue(urns.contains("urn:li:dataJob:(urn:li:dataFlow:(hop,orders.hpl,prod),Write)"));
+    try (var files = Files.walk(spool)) {
       assertEquals(0, files.filter(f -> f.toString().endsWith(".json")).count());
+    }
+  }
+
+  // A run whose end the engine never reported (an action that threw, an end the hub had to drop)
+  // is ended when the sink shuts down, rather than shown as running for good.
+  @Test
+  void aRunThatNeverEndedIsEndedAsFailedAtShutdown() throws Exception {
+    gms.stubFor(post(urlEqualTo(INGEST)).willReturn(aResponse().withStatus(200).withBody("{}")));
+    HopEvents hop = new HopEvents("orders");
+
+    DataHubLineageSink sink = new DataHubLineageSink();
+    sink.init(variables("http://localhost:" + gms.getPort()), new LogChannel("DataHubSinkOpen"));
+    sink.accept(
+        List.of(
+            hop.pipeline(RunLifecyclePhase.STARTED),
+            hop.transform("Read", RunLifecyclePhase.STARTED)));
+    sink.shutdown();
+
+    for (String run : List.of(hop.pipelineRunId(), hop.transformRunId("Read"))) {
+      List<JsonNode> ends = new ArrayList<>();
+      for (var request : gms.findAll(postRequestedFor(urlEqualTo(INGEST)))) {
+        for (JsonNode proposal : MAPPER.readTree(request.getBodyAsString()).get("proposals")) {
+          if (proposal.get("entityUrn").asText().equals("urn:li:dataProcessInstance:" + run)
+              && proposal.get("aspectName").asText().equals("dataProcessInstanceRunEvent")) {
+            JsonNode value = MAPPER.readTree(proposal.get("aspect").get("value").asText());
+            if (value.get("status").asText().equals("COMPLETE")) {
+              ends.add(value);
+            }
+          }
+        }
+      }
+      assertEquals(1, ends.size(), run);
+      assertEquals("FAILURE", ends.get(0).get("result").get("type").asText());
     }
   }
 

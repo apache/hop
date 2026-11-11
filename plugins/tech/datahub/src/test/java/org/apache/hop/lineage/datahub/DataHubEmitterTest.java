@@ -30,11 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.openlineage.client.OpenLineage.RunEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
@@ -72,6 +76,14 @@ class DataHubEmitterTest {
   }
 
   private DataHubEmitter emitter(SchemaPolicy policy, boolean lifecycle) throws Exception {
+    return emitter(policy, lifecycle, 0L);
+  }
+
+  /**
+   * @param replayedBeforeMs events older than this count as left behind by an earlier process
+   */
+  private DataHubEmitter emitter(SchemaPolicy policy, boolean lifecycle, long replayedBeforeMs)
+      throws Exception {
     Variables variables = new Variables();
     variables.setVariable(OpenLineageSinkConfig.VAR_URL, "http://localhost:" + gms.getPort());
     variables.setVariable(OpenLineageSinkConfig.VAR_RETRY_BACKOFF_MS, "1");
@@ -83,7 +95,8 @@ class DataHubEmitterTest {
         "urn:li:corpuser:datahub",
         2,
         1,
-        new LogChannel("DataHubEmitterTest"));
+        new LogChannel("DataHubEmitterTest"),
+        replayedBeforeMs);
   }
 
   /** The Write transform's COMPLETE: it wrote /out/x.csv, with a schema. */
@@ -165,23 +178,71 @@ class DataHubEmitterTest {
     assertTrue(sent(proposalsSent(), OUT, "schemaMetadata"));
   }
 
-  // DataHub cannot be read (a token without read rights, a GraphQL error): the lineage still goes
-  // through, the schema decision is skipped.
+  // DataHub cannot be read for now (down, a proxy in the way, a token without read rights): the
+  // lineage still goes through, and the event is kept so the schema decision is made later.
   @Test
-  void anUnreadableDataHubStillGetsTheLineage() throws Exception {
+  void anUnreadableDataHubGetsTheLineageAndTheEventIsKept() throws Exception {
     ingestAnswers(200);
     gms.stubFor(post(urlEqualTo(GRAPHQL)).willReturn(aResponse().withStatus(500)));
 
-    assertEquals(Result.SENT, emitter(SchemaPolicy.MISSING, false).emit(writeCompleted()));
+    assertEquals(Result.RETRY, emitter(SchemaPolicy.MISSING, false).emit(writeCompleted()));
 
     List<JsonNode> proposals = proposalsSent();
     assertFalse(sent(proposals, OUT, "schemaMetadata"));
     assertTrue(sent(proposals, OUT, "status"));
   }
 
-  // One invalid aspect fails the whole batch; sent one by one, it only costs that aspect.
+  // A query DataHub cannot run (a field an older version lacks) fails the same way every time:
+  // retrying would only keep the event forever, so the decision is skipped.
   @Test
-  void aRefusedBatchIsSentOneProposalAtATime() throws Exception {
+  void aQueryDataHubRefusesSkipsTheDecision() throws Exception {
+    ingestAnswers(200);
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(
+                        "{\"errors\":[{\"message\":\"Validation error\","
+                            + "\"extensions\":{\"classification\":\"ValidationError\"}}]}")));
+
+    assertEquals(Result.SENT, emitter(SchemaPolicy.MISSING, false).emit(writeCompleted()));
+    assertFalse(sent(proposalsSent(), OUT, "schemaMetadata"));
+  }
+
+  // A token without the privilege to read gets a 403, as HTTP status or inside the GraphQL answer.
+  // That lasts until someone grants it, and events go out in order: kept, the event would hold up
+  // all lineage behind it. It is written without the decisions that need the read.
+  @Test
+  void aReadDataHubForbidsSkipsTheDecisions() throws Exception {
+    ingestAnswers(200);
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(
+                        "{\"errors\":[{\"message\":\"Unauthorized\","
+                            + "\"extensions\":{\"code\":403,\"type\":\"UNAUTHORIZED\"}}]}")));
+
+    assertEquals(Result.SENT, emitter(SchemaPolicy.MISSING, false).emit(writeCompleted()));
+    List<JsonNode> proposals = proposalsSent();
+    assertFalse(sent(proposals, OUT, "schemaMetadata"));
+    assertTrue(sent(proposals, OUT, "status"));
+
+    gms.resetAll();
+    ingestAnswers(200);
+    gms.stubFor(post(urlEqualTo(GRAPHQL)).willReturn(aResponse().withStatus(403)));
+    List<RunEvent> run =
+        new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv");
+    List<Result> results = emitter(SchemaPolicy.MISSING, false).emitAll(run);
+    assertTrue(results.stream().allMatch(r -> r == Result.SENT), results.toString());
+  }
+
+  // One invalid aspect fails the whole batch; split until it is found, it only costs that aspect,
+  // in far fewer requests than one per proposal.
+  @Test
+  void aRefusedBatchIsSplitUntilTheBadProposalIsFound() throws Exception {
     gms.stubFor(
         post(urlEqualTo(INGEST))
             .withRequestBody(containing("schemaMetadata"))
@@ -202,6 +263,74 @@ class DataHubEmitterTest {
       }
     }
     assertTrue(sent(accepted, OUT, "status"), "the rest of the event is still written");
+    int requests = gms.findAll(postRequestedFor(urlEqualTo(INGEST))).size();
+    assertTrue(
+        requests <= 1 + 2 * (int) Math.ceil(Math.log(accepted.size() + 1.0) / Math.log(2)),
+        requests + " requests");
+  }
+
+  // Many bad proposals cost a bounded number of requests: what is not singled out by then is
+  // refused together, rather than holding up the queue with a request per proposal.
+  @Test
+  void isolatingRefusedProposalsHasABudget() throws Exception {
+    ingestAnswers(400);
+    datahubHas("[]");
+    List<RunEvent> events = new ArrayList<>();
+    for (int run = 0; run < 6; run++) {
+      events.addAll(
+          new HopEvents("orders" + run).readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
+    }
+
+    List<Result> results = emitter(SchemaPolicy.NEVER, false).emitAll(events);
+
+    assertTrue(results.stream().allMatch(r -> r == Result.REJECTED), results.toString());
+    DataHubTranslator translator =
+        new DataHubTranslator("PROD", "prod", null, "urn:li:corpuser:datahub", false);
+    int proposals =
+        1 + events.stream().mapToInt(e -> translator.translate(e).proposals().size()).sum();
+    int batches = (proposals + DataHubEmitter.MAX_BATCH - 1) / DataHubEmitter.MAX_BATCH;
+    int requests = gms.findAll(postRequestedFor(urlEqualTo(INGEST))).size();
+    assertTrue(requests <= batches * (1 + DataHubEmitter.MAX_ISOLATION_REQUESTS), requests + "");
+    assertTrue(requests < proposals, "not one request per proposal");
+  }
+
+  // Waiting between attempts doubles, up to a ceiling, however many retries are configured.
+  @Test
+  void theBackoffIsCapped() throws Exception {
+    DataHubEmitter emitter = emitter(SchemaPolicy.NEVER, false);
+    assertEquals(1, emitter.backoff(0));
+    assertEquals(8, emitter.backoff(3));
+    assertEquals(DataHubEmitter.MAX_BACKOFF_MS, emitter.backoff(16));
+    assertEquals(DataHubEmitter.MAX_BACKOFF_MS, emitter.backoff(Integer.MAX_VALUE));
+  }
+
+  // Of the events in one dispatcher batch, only those whose proposals did not get through are
+  // kept; the ones DataHub took are done, even though a later request failed.
+  @Test
+  void eachEventOfABatchGetsItsOwnOutcome() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    gms.stubFor(
+        post(urlEqualTo(INGEST))
+            .withRequestBody(containing("orders7.hpl"))
+            .willReturn(aResponse().withStatus(503)));
+    List<RunEvent> first = new ArrayList<>();
+    List<RunEvent> events = new ArrayList<>();
+    for (int run = 0; run < 8; run++) {
+      List<RunEvent> runEvents =
+          new HopEvents("orders" + run).readThenWrite("file:///data/in.csv", "file:///out/x.csv");
+      if (run == 0) {
+        first.addAll(runEvents);
+      }
+      events.addAll(runEvents);
+    }
+
+    List<Result> results = emitter(SchemaPolicy.NEVER, false).emitAll(events);
+
+    assertTrue(
+        results.subList(0, first.size()).stream().allMatch(r -> r == Result.SENT),
+        results.toString());
+    assertEquals(Result.RETRY, results.get(results.size() - 1));
   }
 
   // A wrong token is a configuration problem: the event is kept, not retried on the spot, and not
@@ -317,7 +446,7 @@ class DataHubEmitterTest {
     ingestAnswers(200);
     // WireMock answers with the stub added last that matches, so the flow query's stub goes last.
     datahubHas("[]");
-    String flow = "urn:li:dataFlow:(hop,orders,prod)";
+    String flow = "urn:li:dataFlow:(hop,orders.hpl,prod)";
     String old = "urn:li:dataJob:(" + flow + ",Old transform)";
     String elsewhere = "urn:li:dataJob:(" + flow + ",Other project)";
     String read = "urn:li:dataJob:(" + flow + ",Read)";
@@ -331,11 +460,11 @@ class DataHubEmitterTest {
                         "{\"data\":{\"entities\":[{\"urn\":\""
                             + flow
                             + "\",\"jobs\":{\"relationships\":["
-                            + job(read, "/projects/demo/orders.hpl")
+                            + job(read, "${PROJECT_HOME}/orders.hpl")
                             + ","
-                            + job(old, "/projects/demo/orders.hpl")
+                            + job(old, "${PROJECT_HOME}/orders.hpl")
                             + ","
-                            + job(elsewhere, "/projects/other/orders.hpl")
+                            + job(elsewhere, "${PROJECT_HOME}/other/orders.hpl")
                             + "]}}]}}")));
 
     emitter(SchemaPolicy.NEVER, false)
@@ -352,6 +481,197 @@ class DataHubEmitterTest {
     assertEquals(old, removed.get(0).get("entityUrn").asText());
   }
 
+  private static final String FLOW = "urn:li:dataFlow:(hop,orders.hpl,prod)";
+  private static final String READ = "urn:li:dataJob:(" + FLOW + ",Read)";
+  private static final String WRITE = "urn:li:dataJob:(" + FLOW + ",Write)";
+
+  private static void graphqlAnswers(String queryPart, ObjectNode data) {
+    ObjectNode body = MAPPER.createObjectNode();
+    body.set("data", data);
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .withRequestBody(containing(queryPart))
+            .willReturn(aResponse().withStatus(200).withBody(body.toString())));
+  }
+
+  /** DataHub's answer to the runs query: each task's newest run started at the given time. */
+  private static void newestRuns(Map<String, Long> startedAt) {
+    ObjectNode data = MAPPER.createObjectNode();
+    ArrayNode entities = data.putArray("entities");
+    startedAt.forEach(
+        (urn, time) -> {
+          ObjectNode job = entities.addObject().put("urn", urn);
+          job.putObject("runs")
+              .putArray("runs")
+              .addObject()
+              .putObject("properties")
+              .putObject("created")
+              .put("time", time);
+        });
+    graphqlAnswers("runs(start", data);
+  }
+
+  private static List<JsonNode> sentFor(List<JsonNode> proposals, String urn, String aspect) {
+    return proposals.stream()
+        .filter(
+            p ->
+                p.get("entityUrn").asText().equals(urn)
+                    && p.get("aspectName").asText().equals(aspect))
+        .toList();
+  }
+
+  private static JsonNode value(JsonNode proposal) throws Exception {
+    return MAPPER.readTree(proposal.get("aspect").get("value").asText());
+  }
+
+  // A run whose events wait in the spool while a newer run of the same pipeline goes through is
+  // written as a run, but what it says about the pipeline's tasks does not replace the newer
+  // version's.
+  @Test
+  void aLateEventDoesNotUndoANewerRun() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    DataHubEmitter emitter = emitter(SchemaPolicy.NEVER, false);
+    emitter.emitAll(
+        new HopEvents("orders", "v2")
+            .later(60_000)
+            .readThenWrite("file:///data/in.csv", "file:///out/v2.csv"));
+    gms.resetRequests();
+
+    HopEvents late = new HopEvents("orders", "v1");
+    List<Result> results =
+        emitter.emitAll(late.readThenWrite("file:///data/in.csv", "file:///out/v1.csv"));
+
+    assertTrue(results.stream().allMatch(r -> r == Result.SENT), results.toString());
+    List<JsonNode> proposals = proposalsSent();
+    assertTrue(sentFor(proposals, WRITE, "dataJobInputOutput").isEmpty(), "v2's outputs stay");
+    assertTrue(
+        sent(proposals, "urn:li:dataset:(urn:li:dataPlatform:file,/out/v1.csv,PROD)", "status"));
+    assertTrue(
+        sent(
+            proposals,
+            DataHubUrns.dataProcessInstance(UUID.fromString(late.pipelineRunId())),
+            "dataProcessInstanceRunEvent"),
+        "the late run itself is still recorded");
+  }
+
+  // The same, across processes: an event an earlier process left in the spool is older than the
+  // task's newest run in DataHub, so the task keeps what that newer run wrote.
+  @Test
+  void aReplayedEventOlderThanTheTasksLatestRunLeavesTheTaskAlone() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    newestRuns(Map.of(WRITE, HopEvents.STARTED_AT + 3_600_000L));
+
+    emitter(SchemaPolicy.NEVER, false, Long.MAX_VALUE)
+        .emitAll(new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
+
+    List<JsonNode> proposals = proposalsSent();
+    assertTrue(sentFor(proposals, WRITE, "dataJobInputOutput").isEmpty());
+    assertTrue(sentFor(proposals, WRITE, "dataJobInfo").isEmpty());
+    assertFalse(sentFor(proposals, READ, "dataJobInputOutput").isEmpty(), "Read has not run since");
+    assertTrue(sent(proposals, OUT, "status"), "the datasets are still written");
+  }
+
+  // A transform added in a newer version of the pipeline has run since the late run being
+  // checked: it is that run's pipeline that is out of date, not the transform.
+  @Test
+  void aLateRunDoesNotRetireTasksThatRanSince() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    String sort = "urn:li:dataJob:(" + FLOW + ",Sort rows)";
+    newestRuns(Map.of(sort, HopEvents.STARTED_AT + 60_000L));
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .withRequestBody(containing("IsPartOf"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(
+                        "{\"data\":{\"entities\":[{\"urn\":\""
+                            + FLOW
+                            + "\",\"jobs\":{\"relationships\":["
+                            + job(READ, "${PROJECT_HOME}/orders.hpl")
+                            + ","
+                            + job(sort, "${PROJECT_HOME}/orders.hpl")
+                            + "]}}]}}")));
+
+    emitter(SchemaPolicy.NEVER, false)
+        .emitAll(new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
+
+    assertTrue(sentFor(proposalsSent(), sort, "status").isEmpty());
+  }
+
+  // A pipeline that two workflows run hangs under both: writing its first transform's inputs and
+  // outputs for one keeps the other's link, which DataHub already has.
+  @Test
+  void aFirstTaskKeepsTheParentsOtherWorkflowsGaveIt() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    String weekly = "urn:li:dataJob:(urn:li:dataFlow:(hop,weekly.hwf,prod),Run orders)";
+    String nightly = "urn:li:dataJob:(urn:li:dataFlow:(hop,nightly.hwf,prod),Run orders)";
+    String formerUpstream = "urn:li:dataJob:(" + FLOW + ",Generate rows)";
+    ObjectNode stored = MAPPER.createObjectNode();
+    stored.putArray("inputDatajobEdges").addObject().put("destinationUrn", weekly);
+    ((ArrayNode) stored.get("inputDatajobEdges")).addObject().put("destinationUrn", formerUpstream);
+    ObjectNode data = MAPPER.createObjectNode();
+    data.putArray("entities")
+        .addObject()
+        .put("urn", READ)
+        .putArray("aspects")
+        .addObject()
+        .put("aspectName", "dataJobInputOutput")
+        .put("payload", stored.toString());
+    graphqlAnswers("aspectNames", data);
+
+    emitter(SchemaPolicy.NEVER, false)
+        .emitAll(
+            new HopEvents("orders")
+                .startedBy("nightly", "Run orders")
+                .readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
+
+    List<JsonNode> proposals = proposalsSent();
+    JsonNode io =
+        value(
+            sentFor(proposals, READ, "dataJobInputOutput").stream()
+                .filter(p -> p.get("changeType").asText().equals("UPSERT"))
+                .findFirst()
+                .orElseThrow());
+    List<String> parents = new ArrayList<>();
+    io.get("inputDatajobEdges").forEach(e -> parents.add(e.get("destinationUrn").asText()));
+    assertEquals(List.of(weekly), parents, "the other workflow's link stays, the old hop goes");
+    assertTrue(
+        sentFor(proposals, READ, "dataJobInputOutput").stream()
+            .anyMatch(
+                p ->
+                    p.get("changeType").asText().equals("PATCH")
+                        && p.get("aspect").get("value").asText().contains(nightly)),
+        "this run's parent is linked as well");
+  }
+
+  // Without knowing which parents DataHub has, the first task's inputs and outputs wait: written
+  // now, they could drop a workflow's link.
+  @Test
+  void aFirstTaskWaitsWhenItsParentsCannotBeRead() throws Exception {
+    ingestAnswers(200);
+    datahubHas("[]");
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .withRequestBody(containing("aspectNames"))
+            .willReturn(aResponse().withStatus(503)));
+    List<RunEvent> events =
+        new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv");
+
+    List<Result> results = emitter(SchemaPolicy.NEVER, false).emitAll(events);
+
+    List<JsonNode> proposals = proposalsSent();
+    assertTrue(
+        sentFor(proposals, READ, "dataJobInputOutput").stream()
+            .noneMatch(p -> p.get("changeType").asText().equals("UPSERT")));
+    assertTrue(results.contains(Result.RETRY));
+    assertTrue(sent(proposals, OUT, "status"), "the rest is written");
+  }
+
   private static String job(String urn, String filename) {
     return "{\"entity\":{\"urn\":\""
         + urn
@@ -364,7 +684,12 @@ class DataHubEmitterTest {
   // WireMock does not parse GraphQL; an unbalanced query only fails against a real DataHub.
   @Test
   void theGraphqlQueriesAreBalanced() {
-    for (String query : List.of(DataHubEmitter.DATASETS_QUERY, DataHubEmitter.FLOW_JOBS_QUERY)) {
+    for (String query :
+        List.of(
+            DataHubEmitter.DATASETS_QUERY,
+            DataHubEmitter.FLOW_JOBS_QUERY,
+            DataHubEmitter.JOB_RUNS_QUERY,
+            DataHubEmitter.JOB_IO_QUERY)) {
       int depth = 0;
       for (char c : query.toCharArray()) {
         depth += c == '{' || c == '(' || c == '[' ? 1 : c == '}' || c == ')' || c == ']' ? -1 : 0;

@@ -60,6 +60,20 @@ class DataHubUrnsTest {
         DataHubUrns.datasetForOpenLineage("sqlserver://db:1433", "sales.dbo.orders", "DEV"));
   }
 
+  // A pipeline is its file in the project; outside a project the file as it is, and without a
+  // file at all its name.
+  @Test
+  void aFlowIsItsFileInTheProject() {
+    assertEquals(
+        "pipelines/load.hpl", DataHubUrns.flowId("${PROJECT_HOME}/pipelines/load.hpl", "load"));
+    assertEquals("/opt/etl/load.hwf", DataHubUrns.flowId("/opt/etl/load.hwf", "load"));
+    assertEquals("load", DataHubUrns.flowId(null, "load"));
+    assertEquals(
+        "urn:li:dataFlow:(hop,pipelines/load.hpl,prod)",
+        DataHubUrns.flowOfJob(
+            "urn:li:dataJob:(urn:li:dataFlow:(hop,pipelines/load.hpl,prod),Read %28a%29)"));
+  }
+
   @Test
   void anIncompleteIdentityHasNoUrn() {
     assertNull(DataHubUrns.datasetForOpenLineage("", "x", "PROD"));
