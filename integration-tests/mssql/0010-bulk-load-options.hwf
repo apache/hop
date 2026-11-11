@@ -70,6 +70,18 @@ CREATE TABLE master.dbo.[bulk-load-options] (
       <attributes_hac/>
     </action>
     <action>
+      <name>not-mssql is a PostgreSQL connection</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var db = action.getParentWorkflowMeta().findDatabase("not-mssql", action);
+db != null &amp;&amp; String(db.getPluginId()) == "POSTGRESQL";</script>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>Not a SQL Server connection</name>
       <description/>
       <type>MSSQL_BULK_LOAD</type>
@@ -415,6 +427,13 @@ CREATE TABLE master.dbo.[bulk-load-options] (
     </hop>
     <hop>
       <from>Create table</from>
+      <to>not-mssql is a PostgreSQL connection</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>not-mssql is a PostgreSQL connection</from>
       <to>Not a SQL Server connection</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -50,6 +51,41 @@ class ActionMssqlBulkLoadCheckTest {
     action.check(remarks, null, new Variables(), null);
 
     assertTrue(errors(remarks).isEmpty(), () -> errors(remarks).toString());
+  }
+
+  @Test
+  void checkReportsEmptySpecificCodepage() throws Exception {
+    assertEquals(1, errors(checkSpecificCodePage("", new Variables())).size());
+  }
+
+  @Test
+  void checkReportsSpecificCodepageThatIsNotACodepage() throws Exception {
+    assertEquals(1, errors(checkSpecificCodePage("65001'", new Variables())).size());
+  }
+
+  @Test
+  void checkAcceptsSpecificCodepageNumberOrVariable() throws Exception {
+    Variables variables = new Variables();
+    variables.setVariable("CP", "1252");
+
+    assertTrue(errors(checkSpecificCodePage("65001", variables)).isEmpty());
+    assertTrue(errors(checkSpecificCodePage("${CP}", variables)).isEmpty());
+    // Only known at run time
+    assertTrue(errors(checkSpecificCodePage("${NOT_SET_YET}", variables)).isEmpty());
+  }
+
+  private List<ICheckResult> checkSpecificCodePage(String specificCodePage, Variables variables)
+      throws Exception {
+    Path dataFile = Files.writeString(tempDir.resolve("customers.csv"), "a\n");
+    ActionMssqlBulkLoad action = new ActionMssqlBulkLoad();
+    action.setFileName(dataFile.toAbsolutePath().toString());
+    action.setTableName("customers");
+    action.setCodePage("Specific");
+    action.setSpecificCodePage(specificCodePage);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    action.check(remarks, null, variables, null);
+    return remarks;
   }
 
   private static List<String> errors(List<ICheckResult> remarks) {

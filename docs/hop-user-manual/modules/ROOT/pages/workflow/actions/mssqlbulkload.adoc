@@ -52,7 +52,7 @@ Contrary to the transform bulk loaders, this action requires a pre-existing file
 |===
 |Option|Description
 |Codepage|ACP, OEM (default), RAW or Specific. See the NOTE under <<Result>>.
-|Specific codepage|Code page to use when Specific is selected.
+|Specific codepage|Code page to use when Specific is selected: a code page number such as 65001, or ACP, OEM or RAW.
 |Format file|Path to format file.
 |Browse|Browse the filesystem to choose a format file.
 |Fire triggers|
@@ -80,7 +80,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The file was loaded, with 0 errors.
-|False|The file doesn't exist, the table doesn't exist, *Source File name* is empty, the connection is unknown or can't be opened, the connection is not a Microsoft SQL Server connection, *Fields terminated by* is empty while *Data file type* is char or widechar, *Codepage* is Specific while *Specific codepage* is empty, *Error file* exists while *Add date time* is unchecked, or SQL Server refuses the load (for example a value that doesn't fit its column). The number of errors is 1.
+|False|The file doesn't exist, the table doesn't exist, *Source File name* is empty, the connection is unknown or can't be opened, the connection is not a Microsoft SQL Server connection, *Fields terminated by* is empty while *Data file type* is char or widechar, *Codepage* is Specific while *Specific codepage* is empty or not a code page number, ACP, OEM or RAW, *Error file* exists while *Add date time* is unchecked, or SQL Server refuses the load (for example a value that doesn't fit its column). The number of errors is 1.
 |Result files|The source file is added when *Add file to result filenames* is checked and the load succeeded. Otherwise passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
