@@ -19,13 +19,13 @@ package org.apache.hop.pipeline.transforms.gettablenames;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseObjectName;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -107,7 +107,10 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
 
     if (meta.isDynamicSchema()) {
       // Get value of dynamic schema ...
-      data.realSchemaName = data.inputRowMeta.getString(data.inputRow, data.indexOfSchemaField);
+      // An empty schema lists all schemas, as it does without a dynamic schema. JDBC reads "" as
+      // "objects without a schema".
+      String schemaName = data.inputRowMeta.getString(data.inputRow, data.indexOfSchemaField);
+      data.realSchemaName = Utils.isEmpty(schemaName) ? null : schemaName;
     }
 
     Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
@@ -195,7 +198,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
     if (meta.isIncludeView()) {
       try {
         List<SchemaObject> views =
-            sortedSchemaObjects(data.db.getViewMap(data.realSchemaName), false);
+            sortedSchemaObjects(data.db.getViewObjectNames(data.realSchemaName), false);
         String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.View");
         for (int i = 0; i < views.size() && !isStopped(); i++) {
           Object[] outputRowView = outputRow.clone();
@@ -208,7 +211,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
             outputRowView[outputIndex++] = objectType;
           }
           if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
-            outputRowView[outputIndex++] = data.db.isSystemTable(view.name());
+            outputRowView[outputIndex++] = data.db.isSystemTable(view.object().name());
           }
 
           if (!Utils.isEmpty(data.realSqlCreationFieldName)) {
@@ -231,10 +234,10 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
     if (meta.isIncludeTable()) {
       // Tables
 
-      // The schema of each table is needed for the lookups below: with an empty schema name the
-      // list holds the tables of every schema, not only those of the default schema.
+      // The catalog and schema of each table are needed for the lookups below: with an empty
+      // schema name the list holds the tables of every schema, not only those of the default one.
       List<SchemaObject> tables =
-          sortedSchemaObjects(data.db.getTableMap(data.realSchemaName), true);
+          sortedSchemaObjects(data.db.getTableObjectNames(data.realSchemaName, null), true);
 
       String objectType = BaseMessages.getString(PKG, "GetTableNamesDialog.ObjectType.Table");
 
@@ -250,7 +253,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
           outputRowTable[outputIndex++] = objectType;
         }
         if (!Utils.isEmpty(data.realIsSystemObjectFieldName)) {
-          outputRowTable[outputIndex++] = data.db.isSystemTable(table.name());
+          outputRowTable[outputIndex++] = data.db.isSystemTable(table.object().name());
         }
         if (!Utils.isEmpty(data.realSqlCreationFieldName)) {
           outputRowTable[outputIndex] = getCreateTableSql(table);
@@ -265,73 +268,69 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
   }
 
   private String getCreateTableSql(SchemaObject table) throws HopDatabaseException {
-    // Get primary key
+    DatabaseObjectName object = table.object();
+    String[] pkc =
+        data.db.getPrimaryKeyColumnNames(object.catalog(), object.schema(), object.name());
+
+    // A primary key on one field goes to the create table statement
     String pk = null;
-    String[] pkc = data.db.getPrimaryKeyColumnNames(table.schema(), table.name());
     if (pkc != null && pkc.length == 1) {
       pk = pkc[0];
     }
-    // return sql creation
-    // handle simple primary key (one field)
     String sql =
         data.db.getCreateTableStatement(
             table.outputName(),
-            data.db.getTableFieldsMeta(table.schema(), table.name()),
+            data.db.getTableFieldsMeta(object.schemaOrCatalog(), object.name()),
             null,
             false,
             pk,
             true);
 
-    if (pkc != null) {
-      // add composite primary key (several fields in primary key)
+    // Add the primary key clause for a composite key, and for a one-field key when the dialect did
+    // not write one (PostgreSQL writes BIGSERIAL, MySQL only marks numeric keys inline, ...)
+    if (pkc != null
+        && (pkc.length > 1
+            || (pkc.length == 1 && !sql.toUpperCase(Locale.ROOT).contains("PRIMARY KEY")))) {
       int indexOfLastClosedBracket = sql.lastIndexOf(")");
       if (indexOfLastClosedBracket > -1) {
         sql = sql.substring(0, indexOfLastClosedBracket);
-        sql += ", PRIMARY KEY (";
-        for (int k = 0; k < pkc.length; k++) {
-          if (k > 0) {
-            sql += ", ";
-          }
-          sql += pkc[k];
-        }
-        sql += ")" + Const.CR + ")" + Const.CR + ";";
+        sql += ", PRIMARY KEY (" + String.join(", ", pkc) + ")" + Const.CR + ")" + Const.CR + ";";
       }
     }
     return sql;
   }
 
   /**
-   * Keeps the schema and the unquoted name of each table or view together with the name that goes
-   * to the output, sorted on that output name like {@link Database#getTablenames(String, boolean)}.
+   * Keeps each table or view together with the name that goes to the output, sorted on that output
+   * name like {@link Database#getTablenames(String, boolean)}.
    *
    * @param quoteWithoutSchema quote the output name also when the schema is left out, as {@link
    *     Database#getTablenames(String, boolean)} does and {@link Database#getViews(String,
    *     boolean)} does not.
    */
   private List<SchemaObject> sortedSchemaObjects(
-      Map<String, Collection<String>> objectMap, boolean quoteWithoutSchema) {
+      List<DatabaseObjectName> objectNames, boolean quoteWithoutSchema) {
     DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
     List<SchemaObject> objects = new ArrayList<>();
-    for (Map.Entry<String, Collection<String>> entry : objectMap.entrySet()) {
-      String schema = entry.getKey();
-      for (String name : entry.getValue()) {
-        String outputName;
-        if (meta.isAddSchemaInOutput()) {
-          outputName = databaseMeta.getQuotedSchemaTableCombination(data.db, schema, name);
-        } else if (quoteWithoutSchema) {
-          outputName = databaseMeta.getQuotedSchemaTableCombination(data.db, null, name);
-        } else {
-          outputName = name;
-        }
-        objects.add(new SchemaObject(schema, name, outputName));
+    for (DatabaseObjectName object : objectNames) {
+      String outputName;
+      if (meta.isAddSchemaInOutput()) {
+        outputName =
+            databaseMeta.getQuotedSchemaTableCombination(
+                data.db, object.schemaOrCatalog(), object.name());
+      } else if (quoteWithoutSchema) {
+        outputName = databaseMeta.getQuotedSchemaTableCombination(data.db, null, object.name());
+      } else {
+        outputName = object.name();
       }
+      objects.add(new SchemaObject(object, outputName));
     }
     objects.sort(Comparator.comparing(SchemaObject::outputName, String.CASE_INSENSITIVE_ORDER));
     return objects;
   }
 
-  /** A table or view: its schema, its unquoted name and the name written to the output. */
-  private record SchemaObject(String schema, String name, String outputName) {}
+  /** A table or view and the name written to the output. */
+  private record SchemaObject(DatabaseObjectName object, String outputName) {}
 
   private void processIncludeSchema(Object[] outputRow)
       throws HopDatabaseException, HopTransformException, HopValueException {

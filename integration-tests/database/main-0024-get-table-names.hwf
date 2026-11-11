@@ -67,6 +67,10 @@ CREATE SCHEMA IF NOT EXISTS S_0024
 ;
 CREATE TABLE IF NOT EXISTS S_0024.T_0024_6(n varchar(100))
 ;
+CREATE TABLE IF NOT EXISTS T_0024_7(id int PRIMARY KEY, n varchar(100))
+;
+CREATE TABLE IF NOT EXISTS T_0024_8(a int, b int, n varchar(100), PRIMARY KEY (a, b))
+;
 </sql>
       <useVariableSubstitution>F</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>

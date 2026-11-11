@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -31,12 +32,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseObjectName;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -73,13 +73,11 @@ class GetTableNamesTest {
               return schema == null ? table : schema + "." + table;
             });
 
-    // A real Database, so getTablenames() and getViews() build their lists from the maps below
     db = spy(new Database(null, new Variables(), databaseMeta));
     doAnswer(invocation -> "a_system".equals(invocation.getArgument(0)))
         .when(db)
         .isSystemTable(anyString());
-    doReturn(new String[0]).when(db).getPrimaryKeyColumnNames(anyString());
-    doReturn(new String[0]).when(db).getPrimaryKeyColumnNames(any(), anyString());
+    doReturn(new String[0]).when(db).getPrimaryKeyColumnNames(any(), any(), anyString());
     doReturn(new RowMeta()).when(db).getTableFieldsMeta(any(), anyString());
     doAnswer(invocation -> "CREATE TABLE " + invocation.getArgument(0))
         .when(db)
@@ -87,10 +85,13 @@ class GetTableNamesTest {
             anyString(), any(IRowMeta.class), isNull(), anyBoolean(), any(), anyBoolean());
 
     // Tables in two schemas, an empty schema name lists both
-    Map<String, Collection<String>> tableMap = new LinkedHashMap<>();
-    tableMap.put("public", List.of("t_pub"));
-    tableMap.put("sales", List.of("a_system", "t_sales"));
-    doReturn(tableMap).when(db).getTableMap(isNull(), isNull());
+    doReturn(
+            List.of(
+                new DatabaseObjectName("hop", "public", "t_pub"),
+                new DatabaseObjectName("hop", "sales", "a_system"),
+                new DatabaseObjectName("hop", "sales", "t_sales")))
+        .when(db)
+        .getTableObjectNames(isNull(), isNull());
 
     data = new GetTableNamesData();
     data.db = db;
@@ -130,8 +131,8 @@ class GetTableNamesTest {
 
     verify(db).getTableFieldsMeta("public", "t_pub");
     verify(db).getTableFieldsMeta("sales", "t_sales");
-    verify(db).getPrimaryKeyColumnNames("public", "t_pub");
-    verify(db).getPrimaryKeyColumnNames("sales", "t_sales");
+    verify(db).getPrimaryKeyColumnNames("hop", "public", "t_pub");
+    verify(db).getPrimaryKeyColumnNames("hop", "sales", "t_sales");
 
     assertEquals(3, rows.size());
     assertRow(rows.get(0), "a_system", true, "CREATE TABLE a_system");
@@ -159,7 +160,7 @@ class GetTableNamesTest {
     transform.processIncludeTable(new Object[4]);
 
     verify(db, never()).getTableFieldsMeta(any(), anyString());
-    verify(db, never()).getPrimaryKeyColumnNames(any(), anyString());
+    verify(db, never()).getPrimaryKeyColumnNames(any(), any(), anyString());
     assertEquals(3, rows.size());
   }
 
@@ -168,10 +169,12 @@ class GetTableNamesTest {
     when(helper.iTransformMeta.isIncludeTable()).thenReturn(false);
     when(helper.iTransformMeta.isIncludeView()).thenReturn(true);
     when(helper.iTransformMeta.isAddSchemaInOutput()).thenReturn(true);
-    Map<String, Collection<String>> viewMap = new LinkedHashMap<>();
-    viewMap.put("public", List.of("v_pub"));
-    viewMap.put("sales", List.of("a_system"));
-    doReturn(viewMap).when(db).getViewMap(isNull());
+    doReturn(
+            List.of(
+                new DatabaseObjectName("hop", "public", "v_pub"),
+                new DatabaseObjectName("hop", "sales", "a_system")))
+        .when(db)
+        .getViewObjectNames(isNull());
 
     transform.processIncludeView(new Object[4]);
 
@@ -182,6 +185,99 @@ class GetTableNamesTest {
     assertEquals(false, rows.get(0)[1]);
     assertEquals("sales.a_system", rows.get(1)[0]);
     assertEquals(true, rows.get(1)[1]);
+  }
+
+  @Test
+  void passesTheCatalogToThePrimaryKeyLookupWhenTablesHaveNoSchema() throws Exception {
+    // MySQL and MariaDB list a database as a catalog, the same table can be in two of them
+    doReturn(
+            List.of(
+                new DatabaseObjectName("db1", null, "users"),
+                new DatabaseObjectName("db2", null, "users")))
+        .when(db)
+        .getTableObjectNames(isNull(), isNull());
+    when(helper.iTransformMeta.isAddSchemaInOutput()).thenReturn(true);
+    data.realSqlCreationFieldName = "sql";
+
+    transform.processIncludeTable(new Object[4]);
+
+    verify(db).getPrimaryKeyColumnNames("db1", null, "users");
+    verify(db).getPrimaryKeyColumnNames("db2", null, "users");
+    verify(db).getTableFieldsMeta("db1", "users");
+    verify(db).getTableFieldsMeta("db2", "users");
+    assertEquals(2, rows.size());
+    assertEquals("db1.users", rows.get(0)[0]);
+    assertEquals("db2.users", rows.get(1)[0]);
+  }
+
+  @Test
+  void addsAPrimaryKeyClauseOnceAndOnlyWhenThereIsAKey() throws Exception {
+    doReturn(
+            List.of(
+                new DatabaseObjectName("hop", "public", "t_none"),
+                new DatabaseObjectName("hop", "public", "t_one"),
+                new DatabaseObjectName("hop", "public", "t_one_text"),
+                new DatabaseObjectName("hop", "public", "t_two")))
+        .when(db)
+        .getTableObjectNames(isNull(), isNull());
+    doReturn(new String[0]).when(db).getPrimaryKeyColumnNames("hop", "public", "t_none");
+    doReturn(new String[] {"id"}).when(db).getPrimaryKeyColumnNames("hop", "public", "t_one");
+    doReturn(new String[] {"code"})
+        .when(db)
+        .getPrimaryKeyColumnNames("hop", "public", "t_one_text");
+    doReturn(new String[] {"a", "b"}).when(db).getPrimaryKeyColumnNames("hop", "public", "t_two");
+    // Like most dialects, the statement marks a numeric key ("id") itself but not a text key
+    doAnswer(
+            invocation -> {
+              String pk = invocation.getArgument(4);
+              return "CREATE TABLE "
+                  + invocation.getArgument(0)
+                  + "\n(\n  n VARCHAR(100)\n"
+                  + ("id".equals(pk) ? ", PRIMARY KEY (id)\n" : "")
+                  + ")\n;";
+            })
+        .when(db)
+        .getCreateTableStatement(
+            anyString(), any(IRowMeta.class), isNull(), anyBoolean(), any(), anyBoolean());
+    data.realSqlCreationFieldName = "sql";
+
+    transform.processIncludeTable(new Object[4]);
+
+    verify(db)
+        .getCreateTableStatement(
+            eq("t_none"), any(IRowMeta.class), isNull(), anyBoolean(), isNull(), anyBoolean());
+    verify(db)
+        .getCreateTableStatement(
+            eq("t_one"), any(IRowMeta.class), isNull(), anyBoolean(), eq("id"), anyBoolean());
+    verify(db)
+        .getCreateTableStatement(
+            eq("t_one_text"),
+            any(IRowMeta.class),
+            isNull(),
+            anyBoolean(),
+            eq("code"),
+            anyBoolean());
+    verify(db)
+        .getCreateTableStatement(
+            eq("t_two"), any(IRowMeta.class), isNull(), anyBoolean(), isNull(), anyBoolean());
+    assertEquals(4, rows.size());
+    assertEquals("CREATE TABLE t_none\n(\n  n VARCHAR(100)\n)\n;", rows.get(0)[2]);
+    assertEquals(
+        "CREATE TABLE t_one\n(\n  n VARCHAR(100)\n, PRIMARY KEY (id)\n)\n;", rows.get(1)[2]);
+    assertEquals(
+        "CREATE TABLE t_one_text\n(\n  n VARCHAR(100)\n, PRIMARY KEY (code)"
+            + Const.CR
+            + ")"
+            + Const.CR
+            + ";",
+        rows.get(2)[2]);
+    assertEquals(
+        "CREATE TABLE t_two\n(\n  n VARCHAR(100)\n, PRIMARY KEY (a, b)"
+            + Const.CR
+            + ")"
+            + Const.CR
+            + ";",
+        rows.get(3)[2]);
   }
 
   private static void assertRow(Object[] row, String name, boolean isSystem, String sql) {

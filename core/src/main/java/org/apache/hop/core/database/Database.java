@@ -4179,68 +4179,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public Map<String, Collection<String>> getTableMap(String schemanamein, Map<String, String> props)
       throws HopDatabaseException {
-    String schemaname = schemanamein;
-    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
-
-      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
-    }
     Map<String, Collection<String>> tableMap = new HashMap<>();
-    try (ResultSet alltables =
-        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getTableTypes())) {
-      while (alltables.next()) {
-        String cat = "";
-        try {
-          cat = alltables.getString(CONST_TABLE_CAT);
-        } catch (Exception e) {
-          // ignore
-          if (log.isDebug()) {
-            log.logDebug("Error getting tables for field TABLE_CAT (ignored): " + e);
-          }
-        }
-
-        String schema = "";
-        try {
-          schema = alltables.getString(CONST_TABLE_SCHEM);
-        } catch (Exception e) {
-          // ignore
-          if (log.isDebug()) {
-            log.logDebug("Error getting tables for field TABLE_SCHEM (ignored): " + e);
-          }
-        }
-
-        if (Utils.isEmpty(schema)) {
-          schema = cat;
-        }
-
-        String table = alltables.getString(TABLES_META_DATA_TABLE_NAME);
-
-        if (log.isRowLevel()) {
-          log.logRowlevel(
-              toString(),
-              "got table from meta-data: "
-                  + databaseMeta.getQuotedSchemaTableCombination(this, schema, table));
-        }
-
-        // Check for any extra properties that might require validation
-        if (!Utils.isEmpty(props)) {
-          for (Map.Entry<String, String> prop : props.entrySet()) {
-            String propName = prop.getKey();
-
-            String tableProperty = alltables.getString(propName);
-            if (tableProperty != null) {
-              String propValue = prop.getValue();
-
-              if (tableProperty.equals(propValue)) {
-                multimapPut(schema, table, tableMap);
-              }
-            }
-          }
-        } else {
-          multimapPut(schema, table, tableMap);
-        }
-      }
-    } catch (SQLException e) {
-      log.logError("Error getting tablenames from schema [" + schemaname + "]");
+    for (DatabaseObjectName table : getTableObjectNames(schemanamein, props)) {
+      multimapPut(table.schemaOrCatalog(), table.name(), tableMap);
     }
 
     if (log.isDetailed()) {
@@ -4248,6 +4189,86 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return tableMap;
+  }
+
+  /**
+   * List the tables with their catalog and schema kept apart, for lookups that need both, like
+   * {@link #getPrimaryKeyColumnNames(String, String, String)}.
+   *
+   * @param schemanamein The schema to list, null for all schemas (or the user's schema on databases
+   *     that list tables per user).
+   * @param props Extra table properties that have to match, may be null.
+   */
+  public List<DatabaseObjectName> getTableObjectNames(
+      String schemanamein, Map<String, String> props) throws HopDatabaseException {
+    String schemaname = schemanamein;
+    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
+
+      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
+    }
+    List<DatabaseObjectName> tables = new ArrayList<>();
+    try (ResultSet alltables =
+        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getTableTypes())) {
+      while (alltables.next()) {
+        DatabaseObjectName table = readObjectName(alltables, "table");
+
+        // Check for any extra properties that might require validation
+        if (Utils.isEmpty(props) || matchesTableProperties(alltables, props)) {
+          tables.add(table);
+        }
+      }
+    } catch (SQLException e) {
+      log.logError("Error getting tablenames from schema [" + schemaname + "]");
+    }
+    return tables;
+  }
+
+  private boolean matchesTableProperties(ResultSet alltables, Map<String, String> props)
+      throws SQLException {
+    for (Map.Entry<String, String> prop : props.entrySet()) {
+      String tableProperty = alltables.getString(prop.getKey());
+      if (tableProperty != null && tableProperty.equals(prop.getValue())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Read the catalog, schema and name of the current row of a {@code getTables()} result. */
+  private DatabaseObjectName readObjectName(ResultSet resultSet, String kind) throws SQLException {
+    String cat = "";
+    try {
+      cat = resultSet.getString(CONST_TABLE_CAT);
+    } catch (Exception e) {
+      // ignore
+      if (log.isDebug()) {
+        log.logDebug("Error getting " + kind + "s for field TABLE_CAT (ignored): " + e);
+      }
+    }
+
+    String schema = "";
+    try {
+      schema = resultSet.getString(CONST_TABLE_SCHEM);
+    } catch (Exception e) {
+      // ignore
+      if (log.isDebug()) {
+        log.logDebug("Error getting " + kind + "s for field TABLE_SCHEM (ignored): " + e);
+      }
+    }
+
+    DatabaseObjectName objectName =
+        new DatabaseObjectName(cat, schema, resultSet.getString(TABLES_META_DATA_TABLE_NAME));
+
+    if (log.isRowLevel()) {
+      log.logRowlevel(
+          toString(),
+          "got "
+              + kind
+              + " from meta-data: "
+              + databaseMeta.getQuotedSchemaTableCombination(
+                  this, objectName.schemaOrCatalog(), objectName.name()));
+    }
+    return objectName;
   }
 
   public String[] getViews() throws HopDatabaseException {
@@ -4281,55 +4302,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public Map<String, Collection<String>> getViewMap(String schemanamein)
       throws HopDatabaseException {
-    if (!databaseMeta.supportsViews()) {
-      return Collections.emptyMap();
-    }
-
-    String schemaname = schemanamein;
-    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
-      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
-    }
-
     Map<String, Collection<String>> viewMap = new HashMap<>();
-    try (ResultSet allviews =
-        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getViewTypes())) {
-      while (allviews.next()) {
-        String cat = "";
-        try {
-          cat = allviews.getString(CONST_TABLE_CAT);
-        } catch (Exception e) {
-          // ignore
-          if (log.isDebug()) {
-            log.logDebug("Error getting views for field TABLE_CAT (ignored): " + e);
-          }
-        }
-
-        String schema = "";
-        try {
-          schema = allviews.getString(CONST_TABLE_SCHEM);
-        } catch (Exception e) {
-          // ignore
-          if (log.isDebug()) {
-            log.logDebug("Error getting views for field TABLE_SCHEM (ignored): " + e);
-          }
-        }
-
-        if (Utils.isEmpty(schema)) {
-          schema = cat;
-        }
-
-        String table = allviews.getString(TABLES_META_DATA_TABLE_NAME);
-
-        if (log.isRowLevel()) {
-          log.logRowlevel(
-              toString(),
-              "got view from meta-data: "
-                  + databaseMeta.getQuotedSchemaTableCombination(this, schema, table));
-        }
-        multimapPut(schema, table, viewMap);
-      }
-    } catch (SQLException e) {
-      throw new HopDatabaseException("Error getting views from schema [" + schemaname + "]", e);
+    for (DatabaseObjectName view : getViewObjectNames(schemanamein)) {
+      multimapPut(view.schemaOrCatalog(), view.name(), viewMap);
     }
 
     if (log.isDetailed()) {
@@ -4337,6 +4312,35 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return viewMap;
+  }
+
+  /**
+   * List the views with their catalog and schema kept apart.
+   *
+   * @param schemanamein The schema to list, null for all schemas (or the user's schema on databases
+   *     that list tables per user).
+   */
+  public List<DatabaseObjectName> getViewObjectNames(String schemanamein)
+      throws HopDatabaseException {
+    if (!databaseMeta.supportsViews()) {
+      return Collections.emptyList();
+    }
+
+    String schemaname = schemanamein;
+    if (schemaname == null && databaseMeta.useSchemaNameForTableList()) {
+      schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
+    }
+
+    List<DatabaseObjectName> views = new ArrayList<>();
+    try (ResultSet allviews =
+        getDatabaseMetaData().getTables(null, schemaname, null, databaseMeta.getViewTypes())) {
+      while (allviews.next()) {
+        views.add(readObjectName(allviews, "view"));
+      }
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Error getting views from schema [" + schemaname + "]", e);
+    }
+    return views;
   }
 
   public String[] getSynonyms() throws HopDatabaseException {
@@ -5256,24 +5260,30 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @throws HopDatabaseException
    */
   public String[] getPrimaryKeyColumnNames(String tableName) throws HopDatabaseException {
-    return getPrimaryKeyColumnNames(null, tableName);
+    return getPrimaryKeyColumnNames(null, null, tableName);
   }
 
   /**
-   * Return the primary key column names of a table in a specific schema.
+   * Return the primary key column names of a table in a specific catalog and schema.
    *
-   * @param schemaName The unquoted schema name. Null or empty does not filter on schema.
+   * @param catalogName The catalog as listed by the database (TABLE_CAT, see {@link
+   *     #getTableObjectNames(String, Map)}). Null or empty does not filter on catalog.
+   * @param schemaName The unquoted schema name (TABLE_SCHEM). Null or empty does not filter on
+   *     schema.
    * @param tableName The unquoted table name.
    * @throws HopDatabaseException
    */
-  public String[] getPrimaryKeyColumnNames(String schemaName, String tableName)
+  public String[] getPrimaryKeyColumnNames(String catalogName, String schemaName, String tableName)
       throws HopDatabaseException {
     List<String> names = new ArrayList<>();
     ResultSet allkeys = null;
     try {
       allkeys =
           getDatabaseMetaData()
-              .getPrimaryKeys(null, Utils.isEmpty(schemaName) ? null : schemaName, tableName);
+              .getPrimaryKeys(
+                  Utils.isEmpty(catalogName) ? null : catalogName,
+                  Utils.isEmpty(schemaName) ? null : schemaName,
+                  tableName);
       while (allkeys.next()) {
         String keyname = allkeys.getString("PK_NAME");
         String colName = allkeys.getString("COLUMN_NAME");
