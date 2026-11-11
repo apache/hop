@@ -152,6 +152,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private Statement selStmt;
   private PreparedStatement pstmt;
+
+  /**
+   * The statement {@link #execStatement(String, IRowMeta, Object[])} or {@link
+   * #executeStatement(String, int)} is running, so that {@link #cancelQuery()} can stop DDL and DML
+   * from another thread as well as queries.
+   */
+  private volatile Statement runningStatement;
+
   @Getter private PreparedStatement prepStatementLookup;
   @Getter private PreparedStatement prepStatementUpdate;
   @Getter private PreparedStatement prepStatementInsert;
@@ -805,6 +813,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
     cancelStatement(pstmt);
     cancelStatement(selStmt);
+    cancelStatement(runningStatement);
   }
 
   /**
@@ -1558,18 +1567,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       boolean resultSet;
       int count;
       if (params != null) {
-        PreparedStatement prepStmt = connection.prepareStatement(databaseMeta.stripCR(sql));
-        setValues(params, data, prepStmt); // set the parameters!
-        applyStatementQueryTimeout(prepStmt);
-        resultSet = prepStmt.execute();
-        count = prepStmt.getUpdateCount();
-        prepStmt.close();
+        try (PreparedStatement prepStmt = connection.prepareStatement(databaseMeta.stripCR(sql))) {
+          setValues(params, data, prepStmt); // set the parameters!
+          applyStatementQueryTimeout(prepStmt);
+          runningStatement = prepStmt;
+          resultSet = prepStmt.execute();
+          count = prepStmt.getUpdateCount();
+        } finally {
+          runningStatement = null;
+        }
       } else {
         String sqlStripped = databaseMeta.stripCR(sql);
         try (Statement stmt = connection.createStatement()) {
           applyStatementQueryTimeout(stmt);
+          runningStatement = stmt;
           resultSet = stmt.execute(sqlStripped);
           count = stmt.getUpdateCount();
+        } finally {
+          runningStatement = null;
         }
       }
       if (!resultSet) {
@@ -1592,6 +1607,59 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     return result;
+  }
+
+  /**
+   * Execute one statement of any kind and read the rows it returns, if it returns any. Unlike
+   * {@link #execStatement(String)} this keeps the result set of statements that are not plain
+   * queries, such as {@code PRAGMA table_info(t)}, {@code INSERT ... RETURNING id} or {@code CALL
+   * proc()}. Only the first result is read, up to {@code limit} rows. {@link #cancelQuery()} stops
+   * the statement while it runs.
+   *
+   * @param rawsql the statement, comments allowed
+   * @param limit the maximum number of rows to read, {@literal <=0} for no limit
+   * @return the update count, the counts per verb and the rows, if any
+   * @throws HopDatabaseException in case anything goes wrong.
+   */
+  public ExecutedStatement executeStatement(String rawsql, int limit) throws HopDatabaseException {
+    String sql = databaseMeta.getIDatabase().createSqlScriptParser().removeComments(rawsql).trim();
+    Result result = new Result();
+    int count = -1;
+    IRowMeta resultRowMeta = null;
+    List<Object[]> rows = null;
+    try (Statement stmt = connection.createStatement()) {
+      applyStatementQueryTimeout(stmt);
+      // No setMaxRows here: some drivers (jTDS, for one) implement it with SET ROWCOUNT, which
+      // would also cap the rows an UPDATE or DELETE touches. The limit applies while reading.
+      runningStatement = stmt;
+      boolean hasResultSet = stmt.execute(databaseMeta.stripCR(sql));
+      if (hasResultSet) {
+        try (ResultSet rs = stmt.getResultSet()) {
+          resultRowMeta = getRowInfo(rs.getMetaData(), databaseMeta.isMySqlVariant(), false);
+          rows = new ArrayList<>();
+          while (limit <= 0 || rows.size() < limit) {
+            Object[] row = getRow(rs, null, resultRowMeta);
+            if (row == null) {
+              break;
+            }
+            rows.add(row);
+          }
+        }
+      } else {
+        count = stmt.getUpdateCount();
+        countAffectedRows(result, sql, count);
+      }
+      if (SqlQueryClassifier.isSchemaChange(sql)) {
+        DbCache.getInstance().clear(databaseMeta.getName());
+      }
+    } catch (SQLException ex) {
+      throw new HopDatabaseException("Couldn't execute SQL: " + sql + Const.CR, ex);
+    } catch (Exception e) {
+      throw new HopDatabaseException("Unexpected error executing SQL: " + Const.CR, e);
+    } finally {
+      runningStatement = null;
+    }
+    return new ExecutedStatement(result, count, resultRowMeta, rows);
   }
 
   /**

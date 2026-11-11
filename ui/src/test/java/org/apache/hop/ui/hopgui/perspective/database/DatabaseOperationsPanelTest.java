@@ -88,6 +88,24 @@ class DatabaseOperationsPanelTest {
   }
 
   @Test
+  void completeOfARunThatFinishedDespiteTheCancelIsDone() {
+    // The driver could not stop the statement: it ran to the end and was committed.
+    DatabaseOperation operation = new DatabaseOperation("Execute SQL on CRM", "CRM");
+    operation.cancel();
+    operation.markRanToEnd();
+    operation.complete();
+    assertEquals(DatabaseOperation.Status.DONE, operation.getStatus());
+  }
+
+  @Test
+  void failOfACancelledStatementIsCancelled() {
+    DatabaseOperation operation = new DatabaseOperation("Execute SQL on CRM", "CRM");
+    operation.cancel();
+    operation.fail("Statement was canceled");
+    assertEquals(DatabaseOperation.Status.CANCELLED, operation.getStatus());
+  }
+
+  @Test
   void failDetachesDatabase() {
     DatabaseOperation operation = new DatabaseOperation("Connect", "shop");
     operation.attachDatabase(mock(Database.class));

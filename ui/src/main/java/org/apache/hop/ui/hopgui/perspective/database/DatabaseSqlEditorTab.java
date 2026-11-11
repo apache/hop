@@ -34,6 +34,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.ExecutedStatement;
+import org.apache.hop.core.database.SqlQueryClassifier;
 import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -459,30 +461,43 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
             db.setQueryLimit(rowLimit);
             db.connect();
             int nr = 0;
+            // One row more than the limit tells a result that fills the limit exactly apart from
+            // one that was cut off.
+            int readLimit = rowLimit > 0 && rowLimit < Integer.MAX_VALUE ? rowLimit + 1 : rowLimit;
+            boolean stopped = false;
             for (SqlScriptStatement sql : statements) {
               if (operation.isCancelled()) {
                 messages
                     .append(BaseMessages.getString(PKG, "DatabasePerspective.SqlTab.Cancelled"))
                     .append(Const.CR);
+                stopped = true;
                 break;
               }
               nr++;
               if (sql.isQuery()) {
-                List<Object[]> rows = db.getRows(sql.getStatement(), rowLimit);
+                List<Object[]> rows = db.getRows(sql.getStatement(), readLimit);
                 if (rows == null) {
                   rows = List.of();
                 }
                 IRowMeta rowMeta = db.getReturnRowMeta();
-                queryResults.add(new DatabaseResultsPanel.QueryResult(nr, rowMeta, rows));
-                messages.append(queryResultMessage(nr, rows.size(), rowLimit)).append(Const.CR);
+                addQueryResult(nr, rowMeta, rows, rowLimit, queryResults, messages);
               } else {
-                db.execStatement(sql.getStatement());
-                messages
-                    .append(
-                        BaseMessages.getString(
-                            PKG, "DatabasePerspective.SqlTab.Executed", sql.getStatement().trim()))
-                    .append(Const.CR);
+                // Not every statement that returns rows starts with SELECT: PRAGMA, CALL,
+                // INSERT ... RETURNING, ... Show what comes back instead of discarding it.
+                ExecutedStatement executed = db.executeStatement(sql.getStatement(), readLimit);
+                if (executed.hasRows()) {
+                  addQueryResult(
+                      nr, executed.rowMeta(), executed.rows(), rowLimit, queryResults, messages);
+                } else {
+                  messages
+                      .append(executedMessage(sql.getStatement(), executed.updateCount()))
+                      .append(Const.CR);
+                }
               }
+            }
+            if (!stopped) {
+              // A driver that cannot interrupt a statement runs it to the end and commits it.
+              operation.markRanToEnd();
             }
           } catch (Exception e) {
             // A bad statement is a result, not a GUI failure. Rethrowing it makes runOperation log
@@ -580,8 +595,44 @@ public class DatabaseSqlEditorTab implements IHopFileTypeHandler {
     return false;
   }
 
-  static String queryResultMessage(int statementNr, int rowCount, int rowLimit) {
-    if (rowLimit > 0 && rowCount >= rowLimit) {
+  static void addQueryResult(
+      int statementNr,
+      IRowMeta rowMeta,
+      List<Object[]> rows,
+      int rowLimit,
+      List<DatabaseResultsPanel.QueryResult> queryResults,
+      StringBuilder messages) {
+    boolean capped = rowLimit > 0 && rows.size() > rowLimit;
+    List<Object[]> shown = capped ? rows.subList(0, rowLimit) : rows;
+    queryResults.add(new DatabaseResultsPanel.QueryResult(statementNr, rowMeta, shown));
+    messages
+        .append(queryResultMessage(statementNr, shown.size(), rowLimit, capped))
+        .append(Const.CR);
+  }
+
+  /**
+   * @param statement the statement as written
+   * @param updateCount the JDBC update count, negative when there is none
+   * @return {@code OK: <statement>}, with the number of rows affected for DML. The count of other
+   *     statements is not shown: some drivers repeat the count of the previous statement.
+   */
+  static String executedMessage(String statement, int updateCount) {
+    String text = statement.trim();
+    if (updateCount >= 0 && SqlQueryClassifier.isRowChange(statement)) {
+      return BaseMessages.getString(
+          PKG, "DatabasePerspective.SqlTab.ExecutedRows", text, Integer.toString(updateCount));
+    }
+    return BaseMessages.getString(PKG, "DatabasePerspective.SqlTab.Executed", text);
+  }
+
+  /**
+   * @param statementNr the number of the statement in the script
+   * @param rowCount the number of rows shown
+   * @param rowLimit the perspective's row limit
+   * @param capped {@code true} when the result had more rows than the limit
+   */
+  static String queryResultMessage(int statementNr, int rowCount, int rowLimit, boolean capped) {
+    if (capped) {
       return BaseMessages.getString(
           PKG,
           "DatabasePerspective.SqlTab.QueryRowsLimited",

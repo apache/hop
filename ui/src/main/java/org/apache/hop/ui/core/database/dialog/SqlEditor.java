@@ -26,6 +26,8 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.ExecutedStatement;
+import org.apache.hop.core.database.SqlQueryClassifier;
 import org.apache.hop.core.database.SqlScriptStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -368,7 +370,7 @@ public class SqlEditor {
         executeSelectStatement(db, statement, nrStats[0], message, monitor);
       } else {
         nrStats[0]++;
-        aborted = executeDdlStatement(db, statement, databaseMeta, message);
+        aborted = executeDdlStatement(db, statement, nrStats[0], databaseMeta, message);
       }
     }
 
@@ -450,14 +452,50 @@ public class SqlEditor {
                     dbe));
   }
 
+  private void showReturnedRows(int statNr, ExecutedStatement executed) {
+    if (executed.rows().isEmpty()) {
+      return;
+    }
+    shell
+        .getDisplay()
+        .syncExec(
+            () ->
+                new ShowRowsDialog(
+                        shell,
+                        variables,
+                        BaseMessages.getString(
+                            PKG, "SQLEditor.ResultRows.Title", Integer.toString(statNr)),
+                        BaseMessages.getString(PKG, "SQLEditor.ResultRows.Message"),
+                        executed.rowMeta(),
+                        executed.rows())
+                    .open());
+  }
+
   private boolean executeDdlStatement(
-      Database db, SqlScriptStatement sql, DatabaseMeta databaseMeta, StringBuilder message) {
+      Database db,
+      SqlScriptStatement sql,
+      int statNr,
+      DatabaseMeta databaseMeta,
+      StringBuilder message) {
     log.logDetailed("launch DDL statement: " + Const.CR + sql);
     int startLogLine = HopLogStore.getLastBufferLineNr();
     try {
       log.logDetailed("Executing SQL: " + Const.CR + sql);
-      db.execStatement(sql.getStatement());
-      message.append(BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecuted", sql));
+      // PRAGMA, CALL, INSERT ... RETURNING and the like return rows without being a SELECT.
+      ExecutedStatement executed = db.executeStatement(sql.getStatement(), 1000);
+      if (executed.hasRows()) {
+        showReturnedRows(statNr, executed);
+      }
+      if (executed.updateCount() >= 0 && SqlQueryClassifier.isRowChange(sql.getStatement())) {
+        message.append(
+            BaseMessages.getString(
+                PKG,
+                "SQLEditor.Log.SQLExecutedRows",
+                sql,
+                Integer.toString(executed.updateCount())));
+      } else {
+        message.append(BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecuted", sql));
+      }
       message.append(Const.CR);
       if (dbcache != null) {
         dbcache.clear(databaseMeta.getName());

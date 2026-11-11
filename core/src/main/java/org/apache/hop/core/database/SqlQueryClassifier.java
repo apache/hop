@@ -94,6 +94,10 @@ public final class SqlQueryClassifier {
           "MULTISET",
           "VOLATILE");
 
+  /** Verbs of statements that insert, update or delete rows. */
+  private static final Set<String> ROW_CHANGE_VERBS =
+      Set.of("INSERT", "UPDATE", "DELETE", "MERGE", "UPSERT", "REPLACE");
+
   /** Object types whose layout is reflected in cached row metadata. */
   private static final Set<String> SCHEMA_CHANGE_OBJECTS = Set.of("TABLE", "VIEW", "SYNONYM");
 
@@ -213,6 +217,20 @@ public final class SqlQueryClassifier {
       first = keywordAt(sql, indexAfterCteList(sql, i));
     }
     return first;
+  }
+
+  /**
+   * Whether the update count of a statement is a number of rows. Some drivers report a stale count
+   * for DDL (sqlite-jdbc repeats the count of the previous INSERT after a {@code CREATE TABLE}), so
+   * only these verbs are trusted.
+   *
+   * @param sql one statement, comments allowed
+   * @return {@code true} for {@code INSERT}, {@code UPDATE}, {@code DELETE}, {@code MERGE}, {@code
+   *     UPSERT} and {@code REPLACE}, also after a {@code WITH} clause
+   */
+  public static boolean isRowChange(String sql) {
+    String verb = statementVerb(sql);
+    return verb != null && ROW_CHANGE_VERBS.contains(verb);
   }
 
   /**
