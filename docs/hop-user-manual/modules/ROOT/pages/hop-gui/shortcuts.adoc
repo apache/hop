@@ -34,6 +34,9 @@ Widget-local shortcuts (they apply to the focused field, not the whole window) a
 |`CTRL-SPACE`|Name fields that do *not* accept variables (transform/action/metadata names)|Apply a xref:metadata-types/naming-scheme.adoc[Naming Scheme] of the matching type
 |`CTRL-SHIFT-N`|Any name field, field-name cell, table name, file/folder field, or F2 tree rename|List and apply a Naming Scheme. Replaces the current identifier (values that contain `${...}` are left unchanged)
 |`CTRL-ENTER` / `Cmd-Enter`|AI Assistant question field|Send the question (same as the Hop logo button)
+|`CTRL-Z` / `CMD-Z`|SQL, script and other multi-line editors with undo and redo, and the AI Assistant question field|Undo the last change in the editor, not in the pipeline or workflow
+|`CTRL-Y` or `CTRL-SHIFT-Z` / `CMD-Y` or `CMD-SHIFT-Z`|The same editors|Redo the change
+|`CTRL-F` / `CMD-F`|Table grids, such as previews and transform settings|xref:pipeline/run-preview-debug-pipeline.adoc#table-toolbar[Find a value] in the table
 |`TAB`|Multi-line text field|Indent the selected lines. A line that already starts with a tab, or a `HOP_TEXT_TAB_SIZE` of `0`, gains a tab. Otherwise the indent is `HOP_TEXT_TAB_SIZE` spaces (default 2). A caret with no selection indents the current line. Single-line fields still use Tab to move to the next field
 |`SHIFT-TAB`|Multi-line text field|Remove one indent from the selected lines: a leading tab, or up to `HOP_TEXT_TAB_SIZE` leading spaces
 |`ESC` then `TAB`|Hop Web multi-line text field|Move to the next field. Esc stays in the dialog and arms the next Tab so it leaves the field instead of indenting. `ESC` then `SHIFT-TAB` moves to the previous field
