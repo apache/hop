@@ -263,7 +263,7 @@ These settings control the *Arrange* action, which lays a pipeline or workflow o
 |===
 |Option|Description|Default
 
-|Show toolbar|Show a toolbar above table grids with cut/copy/paste, move row up/down, go to column and xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views]. Applies to preview dialogs, transform settings and similar grids.|yes
+|Show toolbar|Show a toolbar above table grids with cut/copy/paste, move row up/down, xref:pipeline/run-preview-debug-pipeline.adoc#table-toolbar[find and export] and xref:pipeline/run-preview-debug-pipeline.adoc#table-views[table views]. Applies to preview dialogs, transform settings and similar grids.|yes
 
 |Show text editor toolbar|Show a toolbar above multi-line text editors (SQL, scripts and similar fields) with cut/copy/paste, undo/redo and find/replace.|yes
 

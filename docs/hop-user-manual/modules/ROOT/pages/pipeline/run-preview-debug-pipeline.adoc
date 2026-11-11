@@ -199,6 +199,28 @@ The clear button on the hop toolbar removes the condition.
 
 image::hop-gui/pipeline/debug-pause-condition.jpg[Conditional pause dialog,60%,align="left"]
 
+[[table-toolbar]]
+== Finding and exporting table data
+
+The toolbar above preview windows and other table grids in Hop Gui can find a value or a column, and export the rows.
+
+The *Find* (search) icon opens a menu with two items:
+
+* *Find value*, also `Ctrl+F` (`Cmd+F` on macOS) in the table, searches the cells for text.
+** Tick *Case sensitive* to match upper and lower case exactly, or *Regular expression* to search with a pattern.
+** Only the checked columns are searched. All columns, hidden ones included, are checked when the dialog opens; *All* and *None* change that.
+** *Find first* starts at the top of the table. *Find next* starts at the selected cell, and after a match continues after it.
+** The search goes row by row, from left to right, and doesn't start over at the top: after the last match it shows *No more matches*.
+* *Find column* lists the columns. Pick one and the table scrolls to it. A hidden column is shown again.
+
+The two export icons write the rows of the table to a file:
+
+* *Export this data to a CSV file*: comma-separated, with every value in double quotes, in UTF-8.
+* *Export this data to a new Excel spreadsheet*: an `.xlsx` file with a bold header row.
+
+Both ask which columns to export, with all of them selected, and also write the `#` row number column first.
+In Hop Gui the file is written to the temporary folder and opened with the program that handles the file type. Hop Web asks where to save it.
+
 [[table-views]]
 == Table views
 
