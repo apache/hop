@@ -54,11 +54,66 @@ class SalesforceBulkValuesTest {
     calendar.set(2024, Calendar.MARCH, 2, 4, 5, 6);
     calendar.set(Calendar.MILLISECOND, 7);
     Date date = calendar.getTime();
-    assertEquals(
-        "2024-03-02T04:05:06.007Z",
-        SalesforceBulkValues.format(new ValueMetaDate("When"), date, false));
+    ValueMetaDate when = new ValueMetaDate("When");
+    when.setDateFormatTimeZone(TimeZone.getTimeZone("UTC"));
+    assertEquals("2024-03-02T04:05:06.007Z", SalesforceBulkValues.format(when, date, false));
     assertEquals(
         date, SalesforceBulkValues.parse(new ValueMetaDate("When"), "2024-03-02T04:05:06.007Z"));
+  }
+
+  @Test
+  void keepsLoadedCalendarDateIndependentOfJvmTimeZone() throws Exception {
+    TimeZone original = TimeZone.getDefault();
+    try {
+      for (String zoneId : new String[] {"Europe/Brussels", "America/New_York"}) {
+        TimeZone.setDefault(TimeZone.getTimeZone(zoneId));
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.clear();
+        calendar.set(2026, Calendar.MARCH, 15, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date date = calendar.getTime();
+        ValueMetaDate meta = new ValueMetaDate("Closed");
+        String formatted = SalesforceBulkValues.format(meta, date, false);
+        assertEquals("2026-03-15T00:00:00.000Z", formatted, zoneId);
+        assertEquals(date, SalesforceBulkValues.parse(meta, "2026-03-15"), zoneId);
+        assertEquals(
+            formatted,
+            SalesforceBulkValues.format(
+                meta, SalesforceBulkValues.parse(meta, "2026-03-15"), false),
+            zoneId);
+      }
+    } finally {
+      TimeZone.setDefault(original);
+    }
+  }
+
+  @Test
+  void parsesDateOnlyValuesInTheDefaultZone() throws Exception {
+    TimeZone original = TimeZone.getDefault();
+    try {
+      for (String zoneId : new String[] {"Europe/Brussels", "America/New_York"}) {
+        TimeZone.setDefault(TimeZone.getTimeZone(zoneId));
+        ValueMetaDate meta = new ValueMetaDate("Closed");
+        Date parsed = (Date) SalesforceBulkValues.parse(meta, "2026-03-15");
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        calendar.setTime(parsed);
+        assertEquals(2026, calendar.get(Calendar.YEAR), zoneId);
+        assertEquals(Calendar.MARCH, calendar.get(Calendar.MONTH), zoneId);
+        assertEquals(15, calendar.get(Calendar.DAY_OF_MONTH), zoneId);
+        assertEquals(0, calendar.get(Calendar.HOUR_OF_DAY), zoneId);
+        assertEquals(
+            "2026-03-15T00:00:00.000Z", SalesforceBulkValues.format(meta, parsed, false), zoneId);
+
+        Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        utc.clear();
+        utc.set(2026, Calendar.MARCH, 15, 12, 0, 0);
+        utc.set(Calendar.MILLISECOND, 0);
+        assertEquals(
+            utc.getTime(), SalesforceBulkValues.parse(meta, "2026-03-15T12:00:00.000Z"), zoneId);
+      }
+    } finally {
+      TimeZone.setDefault(original);
+    }
   }
 
   @Test

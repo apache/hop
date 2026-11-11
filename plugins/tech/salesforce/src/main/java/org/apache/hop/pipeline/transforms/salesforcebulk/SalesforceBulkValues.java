@@ -28,12 +28,14 @@ import org.apache.hop.core.row.IValueMeta;
 
 /** Converts Hop values to Bulk API CSV text and CSV text back to Hop values. */
 public final class SalesforceBulkValues {
+  private static final String DATE_ONLY_PATTERN = "yyyy-MM-dd";
+
   private static final String[] DATE_PATTERNS = {
     "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
     "yyyy-MM-dd'T'HH:mm:ss'Z'",
     "yyyy-MM-dd'T'HH:mm:ss.SSSX",
     "yyyy-MM-dd'T'HH:mm:ssX",
-    "yyyy-MM-dd"
+    DATE_ONLY_PATTERN
   };
 
   private SalesforceBulkValues() {}
@@ -50,7 +52,8 @@ public final class SalesforceBulkValues {
       case IValueMeta.TYPE_NUMBER ->
           BigDecimal.valueOf(valueMeta.getNumber(value)).stripTrailingZeros().toPlainString();
       case IValueMeta.TYPE_BIGNUMBER -> valueMeta.getBigNumber(value).toPlainString();
-      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> formatDate(valueMeta.getDate(value));
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP ->
+          formatDate(valueMeta.getDate(value), valueMeta.getDateFormatTimeZone());
       default -> valueMeta.getString(value);
     };
   }
@@ -73,16 +76,24 @@ public final class SalesforceBulkValues {
     }
   }
 
-  static String formatDate(Date date) {
+  /**
+   * Writes the wall-clock fields and a literal {@code Z}, the same way {@code
+   * SalesforceTransform#normalizeValue} copies those fields onto a UTC calendar. Formatting the
+   * instant in UTC moves the calendar day on a JVM whose zone is not UTC.
+   */
+  static String formatDate(Date date, TimeZone zone) {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    format.setTimeZone(zone == null ? TimeZone.getDefault() : zone);
     return format.format(date);
   }
 
   static Date parseDate(String text) {
     for (String pattern : DATE_PATTERNS) {
       SimpleDateFormat format = new SimpleDateFormat(pattern);
-      format.setTimeZone(TimeZone.getTimeZone("UTC"));
+      // A date without a time has no offset. Read it in the default zone so the calendar day is
+      // preserved. Timestamps carry a UTC designator and stay on UTC.
+      format.setTimeZone(
+          DATE_ONLY_PATTERN.equals(pattern) ? TimeZone.getDefault() : TimeZone.getTimeZone("UTC"));
       format.setLenient(false);
       ParsePosition position = new ParsePosition(0);
       Date parsed = format.parse(text, position);
