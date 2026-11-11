@@ -19,6 +19,7 @@ package org.apache.hop.databases.oracle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -34,6 +35,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.types.DatabaseTypeMapper;
@@ -55,6 +58,11 @@ import org.mockito.ArgumentCaptor;
 class OraclePreparedStatementBindingTest {
 
   private static final String LOG_FIELD = "LOG_FIELD";
+
+  /** Recursion depth that overflows {@link #SMALL_TRANSFORM_STACK} but not the describe stack. */
+  private static final int DEEP_PARSE = 50_000;
+
+  private static final long SMALL_TRANSFORM_STACK = 256L * 1024;
 
   private OracleDatabaseMeta oracleDatabaseMeta;
   private PreparedStatement preparedStatementMock;
@@ -232,6 +240,69 @@ class OraclePreparedStatementBindingTest {
 
     verify(preparedStatementMock, times(1)).getParameterMetaData();
     verify(preparedStatementMock, times(2)).setString(anyInt(), any());
+  }
+
+  /**
+   * The Oracle driver describes parameters by parsing the SQL recursively, and a wide enough
+   * statement overflows even a large stack. That is an Error, not an exception, but it must still
+   * leave the value written the way Hop always wrote it rather than kill the transform -- and not
+   * be retried for every row.
+   */
+  @Test
+  void testAStackOverflowWhileDescribingFallsBackToSetString() throws Exception {
+    when(preparedStatementMock.getParameterMetaData()).thenThrow(new StackOverflowError());
+    IValueMeta valueMeta = new ValueMetaString(LOG_FIELD, 20, 0);
+    write(valueMeta, "one");
+    write(valueMeta, "two");
+
+    verify(preparedStatementMock, times(1)).getParameterMetaData();
+    verify(preparedStatementMock, times(1)).setString(1, "one");
+    verify(preparedStatementMock, times(1)).setString(1, "two");
+  }
+
+  /**
+   * The driver's parse of a 1000-column INSERT is deeper than the stack of a transform thread on
+   * Linux (1 MB by default). The description is asked on a thread of its own with a large stack, so
+   * a transform thread with a small stack still gets the column types.
+   */
+  @Test
+  void testDescribingNeedsNoStackFromTheTransformThread() throws Exception {
+    List<String> describedOn = new ArrayList<>();
+    when(parameterMetaData.getParameterType(1))
+        .thenAnswer(
+            invocation -> {
+              describedOn.add(Thread.currentThread().getName());
+              // As deep as the driver's parser goes on a very wide statement.
+              return recurse(DEEP_PARSE) > 0 ? Types.NVARCHAR : Types.VARCHAR;
+            });
+    when(parameterMetaData.getParameterTypeName(1)).thenReturn("NVARCHAR2");
+
+    Throwable[] failure = {null};
+    Thread transform =
+        new Thread(
+            null,
+            () -> {
+              try {
+                write(new ValueMetaString(LOG_FIELD, 20, 0), "data");
+              } catch (Throwable t) {
+                failure[0] = t;
+              }
+            },
+            "Table output.0",
+            SMALL_TRANSFORM_STACK);
+    transform.start();
+    transform.join();
+
+    assertNull(failure[0], "Describing the statement must not overflow the transform thread");
+    verify(preparedStatementMock, times(1)).setNString(1, "data");
+    assertEquals(
+        List.of(OraclePreparedStatementBinding.DESCRIBE_THREAD_NAME),
+        describedOn,
+        "The parameters are described on the large-stack thread");
+  }
+
+  private static int recurse(int depth) {
+    return depth == 0 ? 1 : 1 + recurse(depth - 1);
   }
 
   /**
