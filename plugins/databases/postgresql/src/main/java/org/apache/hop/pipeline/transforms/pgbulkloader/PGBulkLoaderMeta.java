@@ -181,10 +181,11 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     CheckResult cr;
     String errorMessage = "";
 
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
 
-    if (connection != null) {
+    // A connection that is not in the metadata is reported here and by the referenced connection
+    // check. Opening a Database on a null DatabaseMeta throws and aborts the whole pipeline check.
+    if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
