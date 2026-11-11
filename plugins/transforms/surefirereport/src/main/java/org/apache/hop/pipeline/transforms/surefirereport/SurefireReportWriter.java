@@ -21,12 +21,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transforms.surefirereport.SurefireTestCase.Status;
 
 /** Writes Maven Surefire 3.0-compatible XML reports. */
@@ -43,9 +42,10 @@ public final class SurefireReportWriter {
 
   /**
    * Writes the report. The parent folder of {@code reportFile} must exist: creating it is up to the
-   * caller (the transform's "Create parent folder" option).
+   * caller (the transform's "Create parent folder" option). A missing folder fails with an {@link
+   * IOException} that names it.
    */
-  public static void write(Path reportFile, String suiteName, List<SurefireTestCase> cases)
+  public static void write(FileObject reportFile, String suiteName, List<SurefireTestCase> cases)
       throws IOException {
     int tests = cases.size();
     int failures = 0;
@@ -64,10 +64,12 @@ public final class SurefireReportWriter {
       }
     }
 
-    Path tmp = reportFile.resolveSibling(reportFile.getFileName().toString() + ".tmp");
+    // Write next to the report and move it in place, so a reader never sees a half-written file.
+    FileObject tmp =
+        reportFile.getParent().resolveFile(reportFile.getName().getBaseName() + ".tmp");
     try (BufferedWriter out =
         new BufferedWriter(
-            new OutputStreamWriter(Files.newOutputStream(tmp), StandardCharsets.UTF_8))) {
+            new OutputStreamWriter(HopVfs.getOutputStream(tmp, false), StandardCharsets.UTF_8))) {
       out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
       out.newLine();
       out.write("<testsuite xmlns:xsi=\"");
@@ -97,12 +99,7 @@ public final class SurefireReportWriter {
       out.newLine();
     }
 
-    try {
-      Files.move(
-          tmp, reportFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-    } catch (IOException atomicFailed) {
-      Files.move(tmp, reportFile, StandardCopyOption.REPLACE_EXISTING);
-    }
+    tmp.moveTo(reportFile);
   }
 
   private static void writeTestCase(BufferedWriter out, SurefireTestCase c) throws IOException {

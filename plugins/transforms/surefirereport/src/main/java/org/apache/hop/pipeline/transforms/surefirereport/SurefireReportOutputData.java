@@ -19,12 +19,16 @@ package org.apache.hop.pipeline.transforms.surefirereport;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SurefireReportOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
+
+  /** The resolved report file, set in init(). */
+  public FileObject reportFile;
 
   public int indexTestName = -1;
   public int indexDuration = -1;

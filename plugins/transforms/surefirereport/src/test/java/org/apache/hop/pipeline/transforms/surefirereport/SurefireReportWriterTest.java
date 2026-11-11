@@ -29,6 +29,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transforms.surefirereport.SurefireTestCase.Status;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,7 +44,7 @@ class SurefireReportWriterTest {
   @Test
   void writesEmptySuite() throws Exception {
     Path report = tempDir.resolve("surefile_empty.xml");
-    SurefireReportWriter.write(report, "empty", List.of());
+    SurefireReportWriter.write(vfs(report), "empty", List.of());
 
     String xml = Files.readString(report, StandardCharsets.UTF_8);
     assertTrue(xml.contains("name=\"empty\""));
@@ -56,8 +59,23 @@ class SurefireReportWriterTest {
   void doesNotCreateMissingParentFolder() {
     Path report = tempDir.resolve("missing/surefile.xml");
 
-    assertThrows(IOException.class, () -> SurefireReportWriter.write(report, "x", List.of()));
+    IOException e =
+        assertThrows(
+            IOException.class, () -> SurefireReportWriter.write(vfs(report), "x", List.of()));
+    assertTrue(e.getMessage().contains("missing"), "names the missing folder: " + e.getMessage());
     assertFalse(Files.exists(tempDir.resolve("missing")));
+  }
+
+  @Test
+  void replacesAnExistingReport() throws Exception {
+    Path report = tempDir.resolve("surefile_twice.xml");
+    SurefireReportWriter.write(vfs(report), "first", List.of());
+    SurefireReportWriter.write(vfs(report), "second", List.of());
+
+    String xml = Files.readString(report, StandardCharsets.UTF_8);
+    assertTrue(xml.contains("name=\"second\""));
+    assertFalse(xml.contains("name=\"first\""));
+    assertFalse(Files.exists(tempDir.resolve("surefile_twice.xml.tmp")), "no temporary file left");
   }
 
   @Test
@@ -72,7 +90,7 @@ class SurefireReportWriterTest {
     cases.add(new SurefireTestCase("skip-test", 0.0, Status.SKIP, null, null, "not now", null));
     cases.add(new SurefireTestCase("error-test", 3.0, Status.ERROR, null, null, "oops", "Error"));
 
-    SurefireReportWriter.write(report, "suite & name", cases);
+    SurefireReportWriter.write(vfs(report), "suite & name", cases);
 
     String xml = Files.readString(report, StandardCharsets.UTF_8);
     assertTrue(xml.contains("name=\"suite &amp; name\""));
@@ -107,7 +125,7 @@ class SurefireReportWriterTest {
             "boom \u001b[1mhighlighted\u001b[0m",
             "AssertionError"));
 
-    SurefireReportWriter.write(report, "dbt", cases);
+    SurefireReportWriter.write(vfs(report), "dbt", cases);
 
     String xml = Files.readString(report, StandardCharsets.UTF_8);
     assertFalse(xml.contains("\u001b"), "no escape character may reach the report");
@@ -150,5 +168,9 @@ class SurefireReportWriterTest {
         SurefireReportOutput.normalizeTestName("/files/transforms/main-0001-add-sequence.hwf"));
     assertEquals("simple", SurefireReportOutput.normalizeTestName("main_simple.hwf"));
     assertEquals("already-clean", SurefireReportOutput.normalizeTestName("already-clean"));
+  }
+
+  private static FileObject vfs(Path path) throws HopFileException {
+    return HopVfs.getFileObject(path.toString());
   }
 }

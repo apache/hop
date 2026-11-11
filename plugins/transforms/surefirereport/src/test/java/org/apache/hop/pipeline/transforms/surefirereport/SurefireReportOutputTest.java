@@ -17,21 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.surefirereport;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +44,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class SurefireReportOutputTest {
+
+  private static final Class<?> PKG = SurefireReportOutputMeta.class;
 
   @TempDir Path tempDir;
 
@@ -62,38 +69,94 @@ class SurefireReportOutputTest {
   }
 
   @Test
-  void missingFolderFailsWhenCreateParentFolderIsOff() {
+  void missingFolderFailsInInitWhenCreateParentFolderIsOff() throws Exception {
     Path report = tempDir.resolve("nofolder/a/b/r.xml");
+    SurefireReportOutput transform = createTransform(report.toString(), false);
 
-    HopException e = assertThrows(HopException.class, () -> runTransform(report, false));
+    assertFalse(transform.init(), "init() must fail before any test runs");
 
-    assertTrue(e.getMessage().contains("does not exist"), e.getMessage());
+    verify(helper.iLogChannel).logError(expectedMessage("ParentFolderDoesNotExist", report));
     assertFalse(Files.exists(tempDir.resolve("nofolder")), "no folder may be created");
   }
 
   @Test
-  void missingFolderIsCreatedWhenCreateParentFolderIsOn() throws Exception {
+  void missingFolderIsCreatedInInitWhenCreateParentFolderIsOn() throws Exception {
     Path report = tempDir.resolve("nofolder/a/b/r.xml");
+    SurefireReportOutput transform = createTransform(report.toString(), true);
 
-    runTransform(report, true);
+    assertTrue(transform.init());
+    assertTrue(Files.isDirectory(report.getParent()), "the folder is created in init()");
 
+    runToEnd(transform);
     assertTrue(Files.readString(report, StandardCharsets.UTF_8).contains("tests=\"1\""));
   }
 
   @Test
   void existingFolderIsWrittenWhenCreateParentFolderIsOff() throws Exception {
     Path report = tempDir.resolve("r.xml");
+    SurefireReportOutput transform = createTransform(report.toString(), false);
 
-    runTransform(report, false);
+    assertTrue(transform.init());
+    runToEnd(transform);
 
     assertTrue(Files.readString(report, StandardCharsets.UTF_8).contains("tests=\"1\""));
   }
 
-  /** Feeds one test-result row and the end of the stream, which writes the report. */
-  private void runTransform(Path report, boolean createParentFolder) throws HopException {
+  @Test
+  void fileUrlIsResolvedThroughVfs() throws Exception {
+    Path report = tempDir.resolve("r.xml");
+    SurefireReportOutput transform = createTransform(report.toUri().toString(), false);
+
+    assertTrue(transform.init());
+    runToEnd(transform);
+
+    assertTrue(Files.readString(report, StandardCharsets.UTF_8).contains("tests=\"1\""));
+  }
+
+  @Test
+  void parentThatIsAFileFails() throws Exception {
+    Files.writeString(tempDir.resolve("data"), "not a folder");
+    Path report = tempDir.resolve("data/r.xml");
+
+    for (boolean createParentFolder : new boolean[] {false, true}) {
+      HopException e =
+          assertThrows(
+              HopException.class,
+              () -> SurefireReportOutput.prepareParentFolder(vfs(report), createParentFolder));
+      assertEquals(expectedMessage("ParentFolderIsNotAFolder", report), e.getMessage().trim());
+    }
+  }
+
+  @Test
+  void folderRemovedDuringTheRunFailsWithAClearMessage() throws Exception {
+    Path folder = Files.createDirectory(tempDir.resolve("reports"));
+    Path report = folder.resolve("r.xml");
+    SurefireReportOutput transform = createTransform(report.toString(), false);
+    assertTrue(transform.init());
+
+    Files.delete(folder);
+
+    HopException e = assertThrows(HopException.class, () -> runToEnd(transform));
+    assertEquals(expectedMessage("ParentFolderDoesNotExist", report), e.getMessage().trim());
+  }
+
+  private static String expectedMessage(String key, Path report) throws Exception {
+    FileObject file = vfs(report);
+    return BaseMessages.getString(
+        PKG,
+        "SurefireReportOutput.Error." + key,
+        HopVfs.getFriendlyURI(file.getParent()),
+        HopVfs.getFriendlyURI(file));
+  }
+
+  private static FileObject vfs(Path path) throws HopException {
+    return HopVfs.getFileObject(path.toString());
+  }
+
+  private SurefireReportOutput createTransform(String filename, boolean createParentFolder) {
     SurefireReportOutputMeta meta = new SurefireReportOutputMeta();
     meta.setDefault();
-    meta.setFilename(report.toString());
+    meta.setFilename(filename);
     meta.setSuiteName("suite");
     meta.setCreateParentFolder(createParentFolder);
     meta.setTestNameField("testName");
@@ -104,16 +167,17 @@ class SurefireReportOutputTest {
     meta.setFailureMessageField("");
     meta.setFailureTypeField("");
 
-    SurefireReportOutput transform =
-        new SurefireReportOutput(
-            helper.transformMeta,
-            meta,
-            new SurefireReportOutputData(),
-            0,
-            helper.pipelineMeta,
-            helper.pipeline);
-    assertTrue(transform.init());
+    return new SurefireReportOutput(
+        helper.transformMeta,
+        meta,
+        new SurefireReportOutputData(),
+        0,
+        helper.pipelineMeta,
+        helper.pipeline);
+  }
 
+  /** Feeds one test-result row and the end of the stream, which writes the report. */
+  private void runToEnd(SurefireReportOutput transform) throws HopException {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("testName"));
     IRowSet rowSet = helper.getMockInputRowSet(new Object[] {"main-0001-test.hwf"});

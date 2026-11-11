@@ -37,7 +37,7 @@ The rows pass through unchanged, so the transform can sit in the middle of a pip
 |Transform name|Name of the transform.
 |Report filename|The XML file to write. Variables are allowed.
 |Test suite name|The name of the test suite in the report. Default: `tests`.
-|Create parent folder|Create the folder of the report file when it doesn't exist.
+|Create parent folder|Create the folder of the report file when it doesn't exist. When this is off and the folder doesn't exist, the transform fails at the start of the pipeline, before any rows are read.
 |Test name field|The field with the name of the test. Required. The value is shortened: everything up to the last `/` or `\`, a `main-` or `main_` prefix and a `.hwf` extension are removed, so `/project/tests/main-load-orders.hwf` becomes `load-orders`.
 |Duration field|The field with the duration of the test, in seconds.
 |Duration is in milliseconds|The duration field is in milliseconds, for example the `ExecutionTime` of a Workflow executor.
