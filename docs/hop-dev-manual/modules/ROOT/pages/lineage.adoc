@@ -105,7 +105,7 @@ Each observation is a **`LineageEvent`**:
 
 * **Event id** — Unique id (UUID by default).
 * **Timestamp** — Milliseconds since epoch.
-* **`LineageEventKind`** — One of `RUN_LIFECYCLE`, `TRANSFORM_SCHEMA`, `FILE_IO`, `RELATIONAL_IO`, `HTTP_IO`, `PIPELINE_GRAPH`. New kinds are only ever appended: a sink must skip a kind it does not handle rather than fail the batch.
+* **`LineageEventKind`** — One of `RUN_LIFECYCLE`, `TRANSFORM_SCHEMA`, `FILE_IO`, `RELATIONAL_IO`, `HTTP_IO`, `PIPELINE_GRAPH`, `WORKFLOW_GRAPH`. New kinds are only ever appended: a sink must skip a kind it does not handle rather than fail the batch.
 * **`LineageContext`** — Who/what produced the observation (see above).
 * **`LineagePayload`** — Optional typed payload; may be null if the kind and context are enough.
 
@@ -115,7 +115,7 @@ Payload types are plain Java types (strings, longs, enums) so sinks can serializ
 * **`RelationalIoLineagePayload`** — Relational/JDBC table access: operation (`READ`, `WRITE`, `DELETE`, `EXEC`), the resolved **dataset namespace**, the input/output **`RelationalTable`** list (catalog/schema/table), the raw SQL when the engine cannot resolve the tables itself, an optional column schema, the connection's default catalog and schema, optional per-column provenance (**`RelationalWriteColumn`**: target column, stream field, origin transform), and an optional **`RelationalLifecycle`** (`OVERWRITE`, `TRUNCATE`, `DROP`, `CREATE`).
 * **`HttpLineagePayload`** — `CLIENT` vs `SERVER`, method, URL, status, request/response bytes, duration, success, message.
 * **`RunLifecycleLineagePayload`** — `STARTED` / `FINISHED` plus optional detail text.
-* **`PipelineGraphLineagePayload`** — The pipeline's hop graph as a list of `from` → `to` transform-name transitions: enabled hops with both ends named, in pipeline order. Informational hops are included. A sink uses it to attribute datasets to the transform that touched them and to propagate them along the graph, instead of pairing all of a pipeline's inputs with all of its outputs.
+* **`PipelineGraphLineagePayload`** — The pipeline's hop graph as a list of `from` → `to` transform-name transitions: enabled hops with both ends named, in pipeline order. Informational hops are included. A sink uses it to attribute datasets to the transform that touched them and to propagate them along the graph, instead of pairing all of a pipeline's inputs with all of its outputs. A pipeline without hops gets an empty list. The same payload carries a workflow's hop graph (`WORKFLOW_GRAPH`), its transitions naming actions: every enabled hop, whatever its condition.
 * **`TransformSchemaLineagePayload`** — `INPUT` or `OUTPUT` plus a list of field names, Hop type names, length, and precision (boundary schema; emitted when a transform finishes). Fields usually come from runtime row metadata on the transform or row sets. If input was never observed (e.g. _Abort_ when `getRow()` immediately returns null), input is derived via `PipelineMeta#getPrevTransformFields`. If output was never written (e.g. _Detect empty stream_ with a non-empty stream), output is derived via `PipelineMeta#getTransformFields`. Graph-derived events set context attribute `transformSchemaSource` to `DESIGN_GRAPH`.
 
 Convenience factory: `LineageEvent.of(kind, context, payload)` assigns id and current time.
@@ -131,9 +131,9 @@ When enabled:
 . The worker builds **batches** up to `HOP_LINEAGE_BATCH_MAX`, waiting up to `HOP_LINEAGE_BATCH_LINGER_MS` for additional events before sending a partial batch.
 . Each batch is passed to **every** loaded sink via `ILineageSink.accept(List<LineageEvent>)`. If one sink throws, others still receive the same batch; failures are logged.
 
-**`flush()`** blocks until queued events (and coalesced flush markers) have been processed. **`flushQuietly()`** catches and logs errors.
+**`flush()`** blocks until queued events (and coalesced flush markers) have been processed. **`flushQuietly()`** catches and logs errors. **`flushIfBacklogged()`** flushes only once the queue is at least half full: a nested run calls it, so that a run per row does not drain the hub after every row, but still waits for the sinks before the queue overflows and events are dropped.
 
-**`shutdown()`** stops the worker and calls `shutdown()` on sinks. It is invoked from `HopEnvironment.shutdown()` and `HopEnvironment.reset()`.
+**`shutdown()`** stops the worker and calls `shutdown()` on sinks. It is invoked from `HopEnvironment.shutdown()` and `HopEnvironment.reset()`, and from a JVM exit hook that the hub registers when it starts its worker. That hook waits for a hop-run that is still stopping on a termination signal (`holdShutdownOnExit`), so the end of the run is delivered too.
 
 After `PluginRegistry.init()`, `HopEnvironment` calls `LineageHub.getInstance().environmentReady()` so sink lists can be rebuilt when the environment is re-initialized.
 
@@ -144,20 +144,20 @@ The queue is allocated lazily on the first `emit` from the resolved configuratio
 
 The `org.apache.hop.lineage.xp` package registers extension points that **emit** `RUN_LIFECYCLE` events (via `LineageRunLifecycleEmitter`) and **flush** the hub where needed:
 
-* **`PipelineStart`** — `LineageHubPipelineStartXp` — phase `STARTED`, followed by one `PIPELINE_GRAPH` event with the same context when the pipeline has enabled hops. `PipelineStart` fires after the transform threads have started, so the run's transform `STARTED` events, and early I/O such as a Table Input read, can arrive before the graph, possibly in an earlier batch. A sink that uses the graph collects a run's events by the pipeline's log channel id (transform events carry it in the `pipelineLogChannelId` attribute) and resolves them at `FINISHED` or `FAILED`.
+* **`PipelineStart`** — `LineageHubPipelineStartXp` — phase `STARTED`, followed by one `PIPELINE_GRAPH` event with the same context, with no transitions when the pipeline has no enabled hops. `PipelineStart` fires after the transform threads have started, so the run's transform `STARTED` events, and early I/O such as a Table Input read, can arrive before the graph, possibly in an earlier batch. A sink that uses the graph collects a run's events by the pipeline's log channel id (transform events carry it in the `pipelineLogChannelId` attribute) and resolves them at `FINISHED` or `FAILED`.
 * **`PipelineFinish`** — `LineageHubPipelineFinishXp` — phase `FINISHING` (transforms stopped, cleanup)
-* **`PipelineCompleted`** — `LineageHubPipelineCompletedXp` — phase `FINISHED` or `FAILED` (from pipeline error count), then `flushQuietly()`
-* **`WorkflowStart`** — `LineageHubWorkflowStartXp` — phase `STARTED`
-* **`WorkflowFinish`** — `LineageHubWorkflowFinishXp` — phase `FINISHED` or `FAILED` (from workflow/result errors), then `flushQuietly()`
+* **`PipelineCompleted`** — `LineageHubPipelineCompletedXp` — phase `FINISHED` or `FAILED` (from pipeline error count), then `flushQuietly()` for a top-level run and `flushIfBacklogged()` for a nested one
+* **`WorkflowStart`** — `LineageHubWorkflowStartXp` — phase `STARTED`, followed by one `WORKFLOW_GRAPH` event with the same context (empty when the workflow has no enabled hops)
+* **`WorkflowFinish`** — `LineageHubWorkflowFinishXp` — first action `FAILED` for every action run that started but never ended (its `execute()` threw), then the workflow's phase `FINISHED` or `FAILED` (from workflow/result errors), then `flushQuietly()` for a top-level run and `flushIfBacklogged()` for a nested one
 * **`HopServerShutdown`** — `LineageHubServerShutdownFlushXp` — flush only
 
 * **`TransformBeforeStart`** — `LineageHubTransformStartXp` — transform phase `STARTED` (local pipeline engine; transform log channel + pipeline correlation attributes)
 
 * **`TransformFinished`** — `LineageHubTransformFinishXp` — transform `FINISHED` or `FAILED` from transform error count, then `TRANSFORM_SCHEMA` events for observed input/output row shapes when non-empty
 
-* **Action start** — `LineageActionStartListener`, an `IActionListener` that `LineageHubWorkflowStartXp` adds to each workflow — action `STARTED` from `beforeExecution`, once the workflow has cloned the action, so the event carries the executing action's log channel id. `WorkflowBeforeActionExecution` fires before that clone exists.
+* **Action start** — `LineageActionStartListener`, an `IActionListener` that `LineageHubWorkflowStartXp` adds to each workflow — action `STARTED` from `beforeExecution`, once the workflow has cloned the action, so the event carries the executing action's log channel id. `WorkflowBeforeActionExecution` fires before that clone exists. An error while emitting is logged and does not fail the action.
 
-* **`WorkflowAfterActionExecution`** — `LineageHubWorkflowActionAfterXp` — action `FINISHED` or `FAILED` from the action `Result`, under the executed action's log channel id (`WorkflowExecutionExtension.actionLogChannelId`). An action the workflow skipped has no run of its own and emits nothing.
+* **`WorkflowAfterActionExecution`** — `LineageHubWorkflowActionAfterXp` — action `FINISHED` or `FAILED` from the action `Result`, under the executed action's log channel id (`WorkflowExecutionExtension.actionLogChannelId`). An action the workflow skipped has no run of its own and emits nothing. The workflow does not reach this extension point when the action's `execute()` throws; `WorkflowFinish` ends that run instead.
 
 Remote (`RemotePipelineEngine`) and Beam (`BeamPipelineEngine`) engines also call **`PipelineStart`** and **`PipelineFinish`** so they align with the local pipeline engine.
 

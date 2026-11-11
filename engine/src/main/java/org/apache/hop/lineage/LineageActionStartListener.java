@@ -17,8 +17,13 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -27,32 +32,91 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * Emits an action's {@code STARTED} lineage event once the workflow has cloned the action, so the
- * event carries the run id of the action that actually executes. Registered once per workflow run
+ * event carries the run id of the action that actually executes. One listener per workflow, added
  * by {@link #register(IWorkflowEngine)}.
+ *
+ * <p>The listener remembers the action runs it started. An action whose {@code execute()} throws
+ * never reaches the {@code WorkflowAfterActionExecution} extension point that emits its {@code
+ * FINISHED} or {@code FAILED}, so {@link #failUnfinishedActions(IWorkflowEngine)} closes those runs
+ * as {@code FAILED} when the workflow ends.
  */
 public final class LineageActionStartListener implements IActionListener<WorkflowMeta> {
 
-  private static final LineageActionStartListener INSTANCE = new LineageActionStartListener();
+  /** The action runs that started and have no terminal event yet, by run id. */
+  private final Map<String, IAction> unfinishedActions = new ConcurrentHashMap<>();
 
   private LineageActionStartListener() {}
 
   /** Adds the listener to a workflow, unless it is already there (a workflow can run again). */
   @SuppressWarnings("unchecked")
   public static void register(IWorkflowEngine<WorkflowMeta> workflow) {
-    if (workflow == null) {
+    if (workflow == null || workflow.getActionListeners() == null || find(workflow) != null) {
       return;
     }
-    List<IActionListener> listeners = workflow.getActionListeners();
-    if (listeners == null || listeners.contains(INSTANCE)) {
-      return;
-    }
-    workflow.addActionListener(INSTANCE);
+    workflow.addActionListener(new LineageActionStartListener());
   }
 
+  /** The action run ended with a {@code FINISHED} or {@code FAILED} event. */
+  public static void actionEnded(IWorkflowEngine<WorkflowMeta> workflow, String actionRunId) {
+    LineageActionStartListener listener = find(workflow);
+    if (listener != null && !Utils.isEmpty(actionRunId)) {
+      listener.unfinishedActions.remove(actionRunId);
+    }
+  }
+
+  /**
+   * Emits {@code FAILED} for every action run of this workflow that started but never ended: its
+   * {@code execute()} threw, so the workflow skipped the extension point that ends it. Without this
+   * a sink keeps those runs open forever.
+   */
+  public static void failUnfinishedActions(IWorkflowEngine<WorkflowMeta> workflow) {
+    LineageActionStartListener listener = find(workflow);
+    if (listener == null || listener.unfinishedActions.isEmpty()) {
+      return;
+    }
+    List<IAction> unfinished = new ArrayList<>(listener.unfinishedActions.values());
+    listener.unfinishedActions.clear();
+    for (IAction action : unfinished) {
+      LineageRunLifecycleEmitter.emitActionFailedWithoutResult(workflow, action);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static LineageActionStartListener find(IWorkflowEngine<WorkflowMeta> workflow) {
+    List<IActionListener> listeners = workflow != null ? workflow.getActionListeners() : null;
+    if (listeners != null) {
+      for (IActionListener listener : listeners) {
+        if (listener instanceof LineageActionStartListener lineageListener) {
+          return lineageListener;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Runs inside the workflow's action execution, before the action's own error handling: a lineage
+   * problem is logged and may never fail the action.
+   */
   @Override
   public void beforeExecution(
       IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionMeta, IAction action) {
-    LineageRunLifecycleEmitter.emitActionStarted(workflow, action);
+    try {
+      LineageRunLifecycleEmitter.emitActionStarted(workflow, action);
+      ILogChannel actionLog = action != null ? action.getLogChannel() : null;
+      String runId = actionLog != null ? actionLog.getLogChannelId() : null;
+      if (!Utils.isEmpty(runId)) {
+        unfinishedActions.put(runId, action);
+      }
+    } catch (RuntimeException e) {
+      ILogChannel log = workflow != null ? workflow.getLogChannel() : null;
+      if (log != null) {
+        log.logError(
+            "Unable to emit the lineage start event of action "
+                + (actionMeta != null ? actionMeta.getName() : null),
+            e);
+      }
+    }
   }
 
   @Override
@@ -61,7 +125,8 @@ public final class LineageActionStartListener implements IActionListener<Workflo
       ActionMeta actionMeta,
       IAction action,
       Result result) {
-    // FINISHED and FAILED come from the WorkflowAfterActionExecution extension point, which also
-    // sees an action that failed before it returned a result.
+    // FINISHED and FAILED come from the WorkflowAfterActionExecution extension point, which the
+    // workflow reaches whenever the action returned a result. An action that threw is closed by
+    // failUnfinishedActions() at the end of the workflow.
   }
 }

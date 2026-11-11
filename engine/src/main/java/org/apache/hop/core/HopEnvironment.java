@@ -238,24 +238,8 @@ public class HopEnvironment {
     }
   }
 
-  /**
-   * Alert all Lifecycle plugins that the Hop environment is being initialized.
-   *
-   * @throws HopException when a lifecycle listener throws an exception
-   */
-  private static void initLifecycleListeners() {
-    // Register a shutdown hook to invoke the listener's onExit() methods
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread() {
-              @Override
-              public void run() {
-                // waits for a hop-run that is still stopping, so that the end of the run is
-                // delivered too
-                LineageHub.getInstance().shutdownOnExit();
-              }
-            });
-  }
+  // The JVM exit hook that shuts the lineage hub down is registered by the hub itself, once it has
+  // a worker; see LineageHub#shutdownOnExit.
 
   // Shutdown the Hop environment programmatically
   public static void shutdown() {

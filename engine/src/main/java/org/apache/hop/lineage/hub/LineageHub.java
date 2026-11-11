@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -194,6 +195,23 @@ public final class LineageHub {
   }
 
   /**
+   * {@link #flushQuietly()}, but only once the queue is at least half full. A nested run (a
+   * Pipeline Executor running a pipeline per row, say) calls this when it ends: it does not wait
+   * for the sinks while they keep up, and waits for them before the queue fills up and events get
+   * dropped.
+   */
+  public void flushIfBacklogged() {
+    BlockingQueue<Object> q = queue;
+    if (q == null || !running.get()) {
+      return;
+    }
+    int size = q.size();
+    if (size > 0 && size >= q.remainingCapacity()) {
+      flushQuietly();
+    }
+  }
+
+  /**
    * Stop the worker thread and shut down sinks. Calls are serialized: a second call waits until the
    * first one has delivered the remaining events, instead of shutting the sinks down under it. An
    * event emitted in the meantime is queued once this call is done, for the next worker or the next
@@ -315,9 +333,25 @@ public final class LineageHub {
       thread.setDaemon(true);
       worker = thread;
       thread.start();
-      if (this == INSTANCE && exitHookRegistered.compareAndSet(false, true)) {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown, "Hop-LineageHub-Exit"));
+      if (this == INSTANCE) {
+        registerExitHook(Runtime.getRuntime()::addShutdownHook);
       }
+    }
+  }
+
+  /**
+   * Register the JVM exit hook, once. It goes through {@link #shutdownOnExit()}: the JVM starts
+   * every shutdown hook at once, and hop-run may still be stopping its run on a termination signal.
+   */
+  void registerExitHook(Consumer<Thread> addShutdownHook) {
+    if (!exitHookRegistered.compareAndSet(false, true)) {
+      return;
+    }
+    try {
+      addShutdownHook.accept(new Thread(this::shutdownOnExit, "Hop-LineageHub-Exit"));
+    } catch (IllegalStateException e) {
+      // The JVM is already exiting. Too late for a hook, but the event must still be queued.
+      log.logDebug("The JVM is exiting, no lineage exit hook registered");
     }
   }
 

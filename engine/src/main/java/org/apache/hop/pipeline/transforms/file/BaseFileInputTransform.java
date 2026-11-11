@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.file;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.IRowSet;
@@ -46,6 +46,9 @@ public abstract class BaseFileInputTransform<
     extends BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
 
   private static final Class<?> PKG = BaseFileInputTransform.class;
+
+  /** The file schema for lineage, built on the first file this transform opens. */
+  private IRowMeta lineageFileRowMeta;
 
   /** Create reader for specific file. */
   protected abstract IBaseFileInputReader createReader(Meta meta, Data data, FileObject file)
@@ -167,8 +170,11 @@ public abstract class BaseFileInputTransform<
 
   /** Best-effort {@link FileIoOperation#READ} lineage for the file being opened. */
   protected void emitLineageFileRead(FileObject file) {
-    if (file == null) {
+    if (file == null || !LineageFileIoEmitter.isEnabled()) {
       return;
+    }
+    if (lineageFileRowMeta == null) {
+      lineageFileRowMeta = fileRowMeta();
     }
     Long size = null;
     try {
@@ -188,29 +194,38 @@ public abstract class BaseFileInputTransform<
         true,
         null,
         LineageFileIoEmitter.toContentSchema(
-            fileRowMeta(), extension == null ? null : extension.toLowerCase(Locale.ROOT)));
+            lineageFileRowMeta, extension == null ? null : extension.toLowerCase(Locale.ROOT)));
   }
 
   /**
-   * The names of the fields this transform reads from the file itself, which make up the file's
-   * schema in its lineage; {@code null} when every output field comes from the file. Fields the
-   * transform adds (file name, row number, ...) or passes through from its input rows are not part
-   * of the file.
+   * The names of the fields this transform reads from the file itself, in the order it reads them,
+   * which make up the file's schema in its lineage; {@code null} when every output field comes from
+   * the file. In the output row these fields follow the ones passed through from the input rows,
+   * and precede the fields the transform adds (file name, row number, ...). Asked once, on the
+   * first file the transform opens with lineage on.
    */
-  protected Set<String> fileFieldNames() {
+  protected List<String> fileFieldNames() {
     return null;
   }
 
+  /**
+   * The file's own fields: types as read, from their position in the output row, and names as the
+   * file has them. The output row cannot be matched by name: a passed-through field can have the
+   * name of a file field (which the row then renames to {@code name_1}), and the file name can be
+   * prepended to every file field.
+   */
   private IRowMeta fileRowMeta() {
-    Set<String> names = fileFieldNames();
-    if (names == null || data.outputRowMeta == null) {
-      return data.outputRowMeta;
+    IRowMeta output = data.outputRowMeta;
+    List<String> names = fileFieldNames();
+    if (output == null || names == null) {
+      return output;
     }
+    int from = meta.getFileInput().isPassingThruFields() ? data.nrPassThruFields : 0;
     RowMeta fileRow = new RowMeta();
-    for (IValueMeta valueMeta : data.outputRowMeta.getValueMetaList()) {
-      if (names.contains(valueMeta.getName())) {
-        fileRow.addValueMeta(valueMeta);
-      }
+    for (int i = 0; i < names.size() && from + i < output.size(); i++) {
+      IValueMeta valueMeta = output.getValueMeta(from + i).clone();
+      valueMeta.setName(names.get(i));
+      fileRow.addValueMeta(valueMeta);
     }
     return fileRow;
   }

@@ -202,8 +202,8 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
               Duration.ofSeconds(Math.max(0L, shutdownTimeout)),
               () -> LineageHub.getInstance().shutdown());
       shutdownHookThread = new Thread(shutdownHook, "hop-run-stop-on-shutdown");
-      // The lineage shutdown hook of HopEnvironment waits for this run, so that its end is
-      // delivered as well.
+      // The exit hook of the lineage hub waits for this run, so that its end is delivered as
+      // well.
       LineageHub.getInstance().holdShutdownOnExit(shutdownHook.getRunOver());
       Runtime.getRuntime().addShutdownHook(shutdownHookThread);
 

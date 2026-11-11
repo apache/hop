@@ -31,7 +31,9 @@ import lombok.Getter;
  * (its own reads plus what its upstream transforms produced) and its own outputs.
  *
  * <p>Only enabled hops with two known ends are listed, in pipeline order. Informational hops are
- * included: data flows through them, even though they do no I/O of their own.
+ * included: data flows through them, even though they do no I/O of their own. A pipeline without
+ * such hops still gets the event, with no transitions, so a sink can tell it from an engine that
+ * sends no graph.
  *
  * <p>The graph is emitted with the pipeline's {@code STARTED} event, which fires after the
  * transform threads have started. A transform's own events, including early I/O, can therefore

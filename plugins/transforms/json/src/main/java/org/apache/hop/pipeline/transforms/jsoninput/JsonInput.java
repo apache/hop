@@ -25,9 +25,7 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -664,15 +662,5 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
   protected IBaseFileInputReader createReader(
       JsonInputMeta meta, JsonInputData data, FileObject file) throws Exception {
     throw new NotImplementedException();
-  }
-
-  /** The fields this transform reads from the file; added and passed-through fields are not. */
-  @Override
-  protected Set<String> fileFieldNames() {
-    Set<String> names = new HashSet<>();
-    for (JsonInputField field : meta.getInputFields()) {
-      names.add(field.getName());
-    }
-    return names;
   }
 }

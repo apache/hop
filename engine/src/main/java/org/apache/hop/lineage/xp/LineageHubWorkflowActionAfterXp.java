@@ -22,6 +22,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageActionStartListener;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.workflow.WorkflowExecutionExtension;
@@ -41,5 +42,6 @@ public class LineageHubWorkflowActionAfterXp
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitWorkflowAction(extension, phase, null);
+    LineageActionStartListener.actionEnded(extension.workflow, extension.actionLogChannelId);
   }
 }

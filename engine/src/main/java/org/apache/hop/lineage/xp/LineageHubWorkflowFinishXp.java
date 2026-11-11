@@ -22,6 +22,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageActionStartListener;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
@@ -32,20 +33,25 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     id = "LineageHubWorkflowFinishXp",
     extensionPointId = "WorkflowFinish",
     description =
-        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a workflow ends and flushes the lineage hub for a top-level run")
+        "Emits lineage RUN_LIFECYCLE FINISHED or FAILED when a workflow ends and flushes the lineage hub")
 public class LineageHubWorkflowFinishXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
+    // An action that threw never got its FINISHED or FAILED; close it before the workflow ends.
+    LineageActionStartListener.failUnfinishedActions(workflow);
     RunLifecyclePhase phase =
         LineageRunLifecycleEmitter.workflowFailed(workflow, workflow.getResult())
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitWorkflow(workflow, phase, null);
-    // Only a top-level run waits for delivery; a nested run's events are flushed by its parent.
+    // A top-level run waits for delivery. A nested run only waits once the queue fills up: that
+    // keeps a run per row from dropping events, without a full drain after every row.
     if (LineageRunLifecycleEmitter.isTopLevel(workflow)) {
       LineageHub.getInstance().flushQuietly();
+    } else {
+      LineageHub.getInstance().flushIfBacklogged();
     }
   }
 }

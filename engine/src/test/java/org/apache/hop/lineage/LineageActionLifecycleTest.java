@@ -17,9 +17,12 @@
 
 package org.apache.hop.lineage;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -155,5 +158,79 @@ class LineageActionLifecycleTest {
     }
 
     verify(hub, never()).emit(any());
+  }
+
+  private static IActionListener registeredListener(IWorkflowEngine<WorkflowMeta> wf) {
+    List<IActionListener> listeners = new ArrayList<>();
+    when(wf.getActionListeners()).thenReturn(listeners);
+    doAnswer(invocation -> listeners.add(invocation.getArgument(0)))
+        .when(wf)
+        .addActionListener(any());
+    LineageActionStartListener.register(wf);
+    return listeners.get(0);
+  }
+
+  // The listener runs inside the workflow's action execution: a lineage problem may not fail it.
+  @Test
+  void aFailingStartEmitDoesNotFailTheAction() {
+    LineageHub hub = mock(LineageHub.class);
+    doThrow(new IllegalStateException("sink exploded")).when(hub).emit(any());
+    IWorkflowEngine<WorkflowMeta> wf = workflow();
+    ILogChannel workflowLog = mock(ILogChannel.class);
+    when(wf.getLogChannel()).thenReturn(workflowLog);
+    ActionBase action = executingAction();
+    IActionListener listener = registeredListener(wf);
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      assertDoesNotThrow(() -> listener.beforeExecution(wf, new ActionMeta(action), action));
+    }
+
+    verify(workflowLog).logError(anyString(), any(Throwable.class));
+  }
+
+  // execute() threw: the workflow skips WorkflowAfterActionExecution, so the run is closed as
+  // FAILED when the workflow ends, under the run id its STARTED carried.
+  @Test
+  void anActionThatThrewIsClosedAsFailedWhenTheWorkflowEnds() {
+    LineageHub hub = mock(LineageHub.class);
+    IWorkflowEngine<WorkflowMeta> wf = workflow();
+    ActionBase action = executingAction();
+    IActionListener listener = registeredListener(wf);
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      listener.beforeExecution(wf, new ActionMeta(action), action);
+      LineageActionStartListener.failUnfinishedActions(wf);
+      // Closed once: a second end of the workflow has nothing left to close.
+      LineageActionStartListener.failUnfinishedActions(wf);
+    }
+
+    ArgumentCaptor<LineageEvent> events = ArgumentCaptor.forClass(LineageEvent.class);
+    verify(hub, times(2)).emit(events.capture());
+    LineageEvent failed = events.getAllValues().get(1);
+    assertEquals(
+        RunLifecyclePhase.FAILED, ((RunLifecycleLineagePayload) failed.getPayload()).getPhase());
+    assertEquals("action-run-id", failed.getContext().getLogChannelId());
+    assertEquals(
+        LineageRunLifecycleEmitter.FAILED,
+        failed.getContext().getAttributes().get(LineageRunLifecycleEmitter.OUTCOME));
+  }
+
+  @Test
+  void anActionThatEndedIsNotClosedAgain() {
+    LineageHub hub = mock(LineageHub.class);
+    IWorkflowEngine<WorkflowMeta> wf = workflow();
+    ActionBase action = executingAction();
+    IActionListener listener = registeredListener(wf);
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      listener.beforeExecution(wf, new ActionMeta(action), action);
+      LineageActionStartListener.actionEnded(wf, "action-run-id");
+      LineageActionStartListener.failUnfinishedActions(wf);
+    }
+
+    verify(hub, times(1)).emit(any());
   }
 }

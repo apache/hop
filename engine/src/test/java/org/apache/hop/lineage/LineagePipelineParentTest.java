@@ -134,7 +134,8 @@ class LineagePipelineParentTest {
         "action-run-id", built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
   }
 
-  // A Pipeline Executor or mapping runs its pipeline as its logging parent: the transform is named.
+  // A Pipeline Executor or mapping runs its pipeline as its logging parent. The parent is that
+  // transform's run, <pipeline>/<transform>: the same shape as a pipeline run by a workflow action.
   @Test
   void subPipelineRunByATransformNamesThatTransform() {
     @SuppressWarnings("unchecked")
@@ -142,6 +143,7 @@ class LineagePipelineParentTest {
     @SuppressWarnings("unchecked")
     IPipelineEngine<PipelineMeta> parentPipeline = mock(IPipelineEngine.class);
     BaseTransform<?, ?> executor = mock(BaseTransform.class);
+    ILogChannel executorLog = mock(ILogChannel.class);
     PipelineMeta parentMeta = new PipelineMeta();
     parentMeta.setName("orders-parent");
     when(pipeline.getParentPipeline()).thenReturn(parentPipeline);
@@ -149,14 +151,55 @@ class LineagePipelineParentTest {
     when(parentPipeline.getPipelineMeta()).thenReturn(parentMeta);
     when(parentPipeline.getLogChannelId()).thenReturn("parent-run-id");
     when(executor.getTransformName()).thenReturn("Run per order");
+    when(executor.getLogChannel()).thenReturn(executorLog);
+    when(executorLog.getLogChannelId()).thenReturn("executor-run-id");
 
     LineageContext.Builder ctx = context();
     LineageRunLifecycleEmitter.fillPipelineParentFields(ctx, pipeline);
     LineageContext built = ctx.build();
 
     assertEquals(
+        "orders-parent/Run per order",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));
+    assertEquals(
+        "executor-run-id",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
+    assertEquals(
+        "orders-parent",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_PIPELINE_NAME));
+    assertEquals(
         "Run per order",
         built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_TRANSFORM_NAME));
+  }
+
+  // A Workflow Executor is the logging parent of the workflow it runs: same shape.
+  @Test
+  void workflowRunByATransformNamesThatTransform() {
+    @SuppressWarnings("unchecked")
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> parentPipeline = mock(IPipelineEngine.class);
+    BaseTransform<?, ?> executor = mock(BaseTransform.class);
+    ILogChannel executorLog = mock(ILogChannel.class);
+    PipelineMeta parentMeta = new PipelineMeta();
+    parentMeta.setName("orders-parent");
+    when(workflow.getParentPipeline()).thenReturn(parentPipeline);
+    when(workflow.getParent()).thenReturn(executor);
+    when(parentPipeline.getPipelineMeta()).thenReturn(parentMeta);
+    when(executor.getTransformName()).thenReturn("Run workflow per order");
+    when(executor.getLogChannel()).thenReturn(executorLog);
+    when(executorLog.getLogChannelId()).thenReturn("executor-run-id");
+
+    LineageContext.Builder ctx = context();
+    LineageRunLifecycleEmitter.fillWorkflowParentFields(ctx, workflow);
+    LineageContext built = ctx.build();
+
+    assertEquals(
+        "orders-parent/Run workflow per order",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));
+    assertEquals(
+        "executor-run-id",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
   }
 
   // Only a top-level run flushes the lineage hub when it completes.
