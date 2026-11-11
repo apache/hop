@@ -33,12 +33,14 @@ import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.failure.ExecutionFailures;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
@@ -154,6 +156,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           // Also set the result object...
           //
           pipelineStatus.setResult(pipeline.getResult());
+          ExecutionFailure failure = pipeline.getRunFailure();
+          pipelineStatus.setFailure(failure);
+          pipelineStatus.setErrorDescription(ExecutionFailures.describe(failure));
 
           // Is the pipeline paused?
           //

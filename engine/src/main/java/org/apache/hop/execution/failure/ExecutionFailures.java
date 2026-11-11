@@ -201,6 +201,61 @@ public final class ExecutionFailures {
     }
   }
 
+  /**
+   * One line for a person: what failed, in which category, and the message of the root cause. For
+   * example {@code Transform 'Read orders' (TableInput) failed [CONNECTIVITY]: Connection refused}.
+   * Null for no failure.
+   */
+  public static String describe(ExecutionFailure failure) {
+    if (failure == null) {
+      return null;
+    }
+    ExecutionFailure root = failure.getRootCause();
+    StringBuilder description = new StringBuilder();
+    FailureComponent component = root.getComponent();
+    if (component != null) {
+      description
+          .append(FailureComponent.KIND_ACTION.equals(component.getKind()) ? "Action" : "Transform")
+          .append(" '")
+          .append(component.getName())
+          .append("'");
+      if (component.getPluginId() != null) {
+        description.append(" (").append(component.getPluginId()).append(")");
+      }
+    } else if (root.getRun() != null && root.getRun().getName() != null) {
+      description.append("'").append(root.getRun().getName()).append("'");
+    } else {
+      description.append("The run");
+    }
+    description.append(" failed [").append(root.getCategory()).append("]");
+    String message = messageOf(root.getCause());
+    if (message != null) {
+      description.append(": ").append(message);
+    }
+    return description.toString();
+  }
+
+  /** The most specific message of a cause: the root cause's, else its own first line. */
+  private static String messageOf(FailureCause cause) {
+    if (cause == null) {
+      return null;
+    }
+    String message = cause.getRootCauseMessage();
+    if (message == null || message.isBlank()) {
+      message = cause.getMessage();
+    }
+    if (message == null || message.isBlank()) {
+      return null;
+    }
+    // Hop exception messages start with a line break and repeat the nested messages
+    for (String line : message.split("\\R")) {
+      if (!line.isBlank()) {
+        return line.trim();
+      }
+    }
+    return null;
+  }
+
   /** The run as a failure knows it. */
   public static FailureRun runOf(ILoggingObject object) {
     if (object == null) {

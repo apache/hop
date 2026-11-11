@@ -37,6 +37,8 @@ import org.apache.hop.core.failure.FailureCategory;
 import org.apache.hop.core.failure.FailureComponent;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -197,6 +199,20 @@ class ExecutionFailureWorkflowTest {
     assertEquals(FailureCategory.AUTHENTICATION, runFailure.getCategory());
     assertEquals(List.of(actionFailure, runFailure), announced);
     assertEquals(List.of(runFailure), result.getFailures());
+  }
+
+  @Test
+  void stateOfAFailedWorkflowCarriesTheFailure() {
+    LocalWorkflowEngine workflow = workflowWith(Mode.THROWS, false);
+    workflow.startExecution();
+
+    ExecutionState state = ExecutionStateBuilder.fromExecutor(workflow, -1).build();
+    assertTrue(state.isFailed());
+    assertSame(workflow.getRunFailure(), state.getFailure());
+    assertEquals(
+        "Action 'failing' (ExecutionFailureTestAction) failed [AUTHENTICATION]:"
+            + " Password authentication failed",
+        ExecutionFailures.describe(state.getFailure()));
   }
 
   @Test

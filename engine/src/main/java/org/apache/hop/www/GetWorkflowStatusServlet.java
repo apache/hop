@@ -32,12 +32,14 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.execution.failure.ExecutionFailures;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.server.HttpUtil;
 import org.apache.hop.workflow.ActionResult;
@@ -171,6 +173,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           // Also set the result object...
           //
           workflowStatus.setResult(workflow.getResult()); // might be null
+          ExecutionFailure failure = workflow.getRunFailure();
+          workflowStatus.setFailure(failure);
+          workflowStatus.setErrorDescription(ExecutionFailures.describe(failure));
 
           OutputStream out = response.getOutputStream();
 

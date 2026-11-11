@@ -505,6 +505,7 @@ public abstract class Workflow extends Variables
   }
 
   /** The last action failures of the current execution (at most 100), oldest first. */
+  @Override
   public List<ExecutionFailure> getFailures() {
     synchronized (failures) {
       return new ArrayList<>(failures);
@@ -512,6 +513,7 @@ public abstract class Workflow extends Variables
   }
 
   /** The failure of the current execution as a whole, or null if it has not failed. */
+  @Override
   public ExecutionFailure getRunFailure() {
     return runFailure;
   }

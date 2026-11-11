@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.failure.ExecutionFailure;
 
 /**
  * Execution states are possible for pipelines and workflows but also for actions and transforms.
@@ -76,6 +77,9 @@ public class ExecutionState {
 
   /** Indicates whether the execution failed */
   private boolean failed;
+
+  /** Why the execution failed, as structured data. Null when it did not fail. Experimental. */
+  private ExecutionFailure failure;
 
   /** If the execution finished, what was the end date? */
   private Date executionEndDate;

@@ -40,6 +40,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.graph.GraphDatabaseMeta;
 import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.graph.IGraphDialect;
@@ -130,6 +131,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_UPDATE_TIME = "updateTime";
   public static final String EP_CHILD_IDS = "childIds";
   public static final String EP_FAILED = "failed";
+
+  /** The structured failure, as JSON: one property, so a failure adds no indexes or nodes. */
+  public static final String EP_FAILURE = "failure";
+
   public static final String EP_DETAILS = "details";
   public static final String EP_CONTAINER_ID = "containerId";
   public static final String EP_EXECUTION_END_DATE = "executionEndDate";
@@ -1098,6 +1103,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_UPDATE_TIME, state.getUpdateTime())
               .withValue(EP_CHILD_IDS, state.getChildIds())
               .withValue(EP_FAILED, state.isFailed())
+              .withValue(EP_FAILURE, failureToJson(state.getFailure()))
               .withValue(EP_DETAILS, state.getDetails())
               .withValue(EP_CONTAINER_ID, state.getContainerId())
               .withValue(EP_EXECUTION_END_DATE, state.getExecutionEndDate());
@@ -1177,6 +1183,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_UPDATE_TIME,
                 EP_CHILD_IDS,
                 EP_FAILED,
+                EP_FAILURE,
                 EP_DETAILS,
                 EP_CONTAINER_ID,
                 EP_EXECUTION_END_DATE);
@@ -1251,6 +1258,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         .withUpdateTime(getDate(record, EP_UPDATE_TIME))
         .withChildIds(getList(record, EP_CHILD_IDS))
         .withFailed(getBoolean(record, EP_FAILED))
+        .withFailure(failureFromJson(getString(record, EP_FAILURE)))
         .withDetails(getMap(record, EP_DETAILS))
         .withContainerId(getString(record, EP_CONTAINER_ID))
         .withExecutionEndDate(getDate(record, EP_EXECUTION_END_DATE))
@@ -2154,6 +2162,29 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throw new HopRuntimeException("Unable to parse date value '" + value + "'");
     }
     return date;
+  }
+
+  static String failureToJson(ExecutionFailure failure) {
+    if (failure == null) {
+      return null;
+    }
+    try {
+      return HopJson.newMapper().writeValueAsString(failure);
+    } catch (Exception e) {
+      // The state matters more than the details of its failure
+      return null;
+    }
+  }
+
+  static ExecutionFailure failureFromJson(String json) {
+    if (StringUtils.isEmpty(json)) {
+      return null;
+    }
+    try {
+      return HopJson.newMapper().readValue(json, ExecutionFailure.class);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   private String getString(Map<String, Object> record, String key) {

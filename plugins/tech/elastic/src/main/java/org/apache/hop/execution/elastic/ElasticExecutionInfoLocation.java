@@ -18,7 +18,9 @@
 
 package org.apache.hop.execution.elastic;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -332,9 +334,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
 
       // Convert this source object to CacheEntry
       //
-      String json = jSource.toJSONString();
-      ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
-      return objectMapper.readValue(json, CacheEntry.class);
+      return cacheEntryFromJson(jSource.toJSONString());
     } catch (Exception e) {
       throw new HopException(
           "Error loading execution information location from Elastic using executionId '"
@@ -480,6 +480,26 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
                   + " received from Elastic while adding the projectId mapping, response: "
                   + mappingResponse.body());
         }
+        // Fails when a document with a failure was stored before: then it stays as it is
+        HttpRequest failureMappingRequest =
+            HttpRequest.newBuilder()
+                .uri(mappingUri)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "ApiKey " + location.actualApiKey)
+                .PUT(HttpRequest.BodyPublishers.ofString(failureMappingBody()))
+                .build();
+        HttpResponse<String> failureMappingResponse =
+            client.send(failureMappingRequest, HttpResponse.BodyHandlers.ofString());
+        if (failureMappingResponse.statusCode() != 200) {
+          hopGui
+              .getLog()
+              .logBasic(
+                  "The failure mapping was not added to index "
+                      + location.actualIndexName
+                      + " (non-fatal): "
+                      + failureMappingResponse.body());
+        }
       } else if (createResponse.statusCode() != 200) {
         throw new HopException(
             "Status code "
@@ -605,6 +625,14 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
     }
   }
 
+  /** Documents written by a newer Hop can carry fields this version does not know. */
+  static CacheEntry cacheEntryFromJson(String json) throws IOException {
+    ObjectMapper objectMapper =
+        new ObjectMapper(HopJson.newFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return objectMapper.readValue(json, CacheEntry.class);
+  }
+
   static String listQueryClause(String activeProjectId) {
     if (StringUtils.isEmpty(activeProjectId)) {
       return "{ \"match_all\" : {} }";
@@ -639,6 +667,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
               "execution.executionStartDate": { "type": "date" },
               "executionState.updateTime": { "type": "date" },
               "executionState.executionEndDate": { "type": "date" },
+              "executionState.failure": { "type": "object", "enabled" : false },
               "childExecutions": { "type": "object", "enabled" : false },
               "childExecutionStates": { "type": "object", "enabled" : false },
               "childExecutionData": { "type": "object", "enabled" : false }
@@ -647,6 +676,17 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
             "index.mapping.total_fields.limit": 500
           }
         }
+        """;
+  }
+
+  /**
+   * Stored, not indexed: a chain of failures has many fields, and the index has a field limit. A
+   * search on a failure goes through executionState.failed.
+   */
+  static String failureMappingBody() {
+    return """
+        { "properties": { "executionState": { "properties": {
+            "failure": { "type": "object", "enabled": false } } } } }
         """;
   }
 

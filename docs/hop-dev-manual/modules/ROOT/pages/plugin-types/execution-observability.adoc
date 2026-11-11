@@ -97,6 +97,14 @@ Every failure in a chain carries the category of its root cause, so a rule like 
 
 The local engines also offer the failures without a plugin: `Pipeline.addExecutionFailureListener()` and `Workflow.addExecutionFailureListener()`, and `getFailures()` / `getRunFailure()` once the run is done.
 
+Where the failure ends up:
+
+* *Execution information:* `ExecutionState.failure`, on the state of the pipeline or workflow and on the state of a failed transform, at every execution information location.
+A pipeline that fails to prepare or to initialize is registered at its location as well, with that failure.
+Elastic and OpenSearch store `executionState.failure` without indexing it: new indexes get that mapping, and *Create index* adds it to an existing index.
+Neo4j stores it as a JSON string in the `failure` property of the `Execution` node.
+* *Hop Server:* the pipeline and workflow status fill `errorDescription` with one line, for example `Transform 'Read orders' (TableInput) failed [CONNECTIVITY]: Connection refused`, and the JSON form adds the `failure` object.
+
 == Logging
 
 A logging plugin participates in the lifecycle of the logging subsystem.

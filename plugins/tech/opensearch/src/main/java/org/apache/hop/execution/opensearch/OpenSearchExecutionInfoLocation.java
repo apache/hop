@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.opensearch;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
@@ -636,7 +637,10 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
     if (source == null) {
       return null;
     }
-    ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+    // Documents written by a newer Hop can carry fields this version does not know
+    ObjectMapper objectMapper =
+        new ObjectMapper(HopJson.newFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     CacheEntry entry = objectMapper.readValue(source.toJSONString(), CacheEntry.class);
     Object docId = hit.get("_id");
     if (docId != null) {
@@ -803,7 +807,8 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                   "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                   "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                   "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                  "statusDescription":  { "type": "text" }
+                  "statusDescription":  { "type": "text" },
+                  "failure":            { "type": "object", "enabled": false }
                 }
               },
               "childExecutions"     : { "type": "object", "enabled": false },
@@ -814,6 +819,17 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
             "index.mapping.total_fields.limit": 500
           }
         }
+        """;
+  }
+
+  /**
+   * Stored, not indexed: a chain of failures has many fields, and the index has a field limit. A
+   * search on a failure goes through executionState.failed.
+   */
+  static String failureMappingBody() {
+    return """
+        { "properties": { "executionState": { "type": "nested", "properties": {
+            "failure": { "type": "object", "enabled": false } } } } }
         """;
   }
 
@@ -879,6 +895,19 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                 location.ignoreSsl,
                 getHeaders());
         result = getResultFromPipeline(restCaller);
+        // Fails when a document with a failure was stored before: then it stays as it is
+        RestCaller failureMappingCaller =
+            new RestCaller(
+                new MemoryMetadataProvider(),
+                location.actualUrl + "/" + location.actualIndexName + "/_mapping",
+                location.actualUsername,
+                location.actualPassword,
+                "PUT",
+                failureMappingBody(),
+                location.ignoreSsl,
+                getHeaders());
+        String failureMappingResult = getResultFromPipeline(failureMappingCaller);
+        result += Const.CR + "Failure mapping (non-fatal): " + failureMappingResult;
       }
       if (restCaller.getResult() == null || restCaller.getResult().getNrErrors() > 0) {
         result += Const.CR + "Logging: " + restCaller.getLoggingText();

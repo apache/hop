@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.net.ConnectException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -40,9 +41,17 @@ import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.failure.FailureCategory;
 import org.apache.hop.core.failure.FailureComponent;
 import org.apache.hop.core.failure.FailurePhase;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionInfoLocation;
+import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.ExecutionStateBuilder;
+import org.apache.hop.execution.local.FileExecutionInfoLocation;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -55,6 +64,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Failures of transforms and pipelines, run on the local pipeline engine. */
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
@@ -262,5 +272,96 @@ class ExecutionFailurePipelineTest {
     run(second);
     assertNull(second.getRunFailure());
     assertTrue(second.getFailures().isEmpty());
+  }
+
+  @Test
+  void stateOfAFailedPipelineAndTransformCarriesTheFailure() throws Exception {
+    LocalPipelineEngine pipeline = pipelineWith(Mode.RUN_THROWS);
+    run(pipeline);
+
+    ExecutionState pipelineState = ExecutionStateBuilder.fromExecutor(pipeline, -1).build();
+    assertTrue(pipelineState.isFailed());
+    assertSame(pipeline.getRunFailure(), pipelineState.getFailure());
+
+    ExecutionState transformState =
+        ExecutionStateBuilder.fromTransform(pipeline, pipeline.getComponents().get(0)).build();
+    assertSame(pipeline.getFailures().get(0), transformState.getFailure());
+
+    // The JSON form holds the whole chain
+    String json = HopJson.newMapper().writeValueAsString(pipelineState);
+    ExecutionState read = HopJson.newMapper().readValue(json, ExecutionState.class);
+    assertEquals(FailureCategory.CONNECTIVITY, read.getFailure().getCategory());
+    assertEquals("08001", read.getFailure().getRootCause().getCause().getSqlState());
+  }
+
+  @Test
+  void stateOfASucceedingPipelineHasNoFailure() throws Exception {
+    LocalPipelineEngine pipeline = pipelineWith(Mode.SUCCEED);
+    run(pipeline);
+    assertNull(ExecutionStateBuilder.fromExecutor(pipeline, -1).build().getFailure());
+  }
+
+  @Test
+  void failedRunIsStoredAtTheLocation(@TempDir Path folder) throws Exception {
+    LocalPipelineEngine pipeline = pipelineWith(Mode.RUN_THROWS);
+    MemoryMetadataProvider metadataProvider = withLocation(pipeline, folder);
+    run(pipeline);
+
+    ExecutionState state = readState(folder, metadataProvider, pipeline.getLogChannelId());
+    assertTrue(state.isFailed());
+    assertEquals(FailureCategory.CONNECTIVITY, state.getFailure().getCategory());
+    assertEquals("Failing", state.getFailure().getRootCause().getComponent().getName());
+  }
+
+  /** A pipeline that fails to initialize used to leave nothing at its location. */
+  @Test
+  void initFailureIsStoredAtTheLocation(@TempDir Path folder) throws Exception {
+    LocalPipelineEngine pipeline = pipelineWith(Mode.INIT_THROWS);
+    MemoryMetadataProvider metadataProvider = withLocation(pipeline, folder);
+    assertThrows(HopException.class, pipeline::prepareExecution);
+
+    FileExecutionInfoLocation location = new FileExecutionInfoLocation(folder.toString());
+    location.initialize(new Variables(), metadataProvider);
+    try {
+      Execution execution = location.getExecution(pipeline.getLogChannelId());
+      assertNotNull(execution, "The failed pipeline should be registered");
+      ExecutionState state = location.getExecutionState(pipeline.getLogChannelId());
+      assertTrue(state.isFailed());
+      assertTrue(state.isFinished());
+      assertEquals(FailurePhase.INIT, state.getFailure().getPhase());
+      assertEquals(FailureCategory.MISSING_INPUT, state.getFailure().getCategory());
+    } finally {
+      location.close();
+    }
+  }
+
+  private static MemoryMetadataProvider withLocation(LocalPipelineEngine pipeline, Path folder)
+      throws HopException {
+    MemoryMetadataProvider metadataProvider = new MemoryMetadataProvider();
+    ExecutionInfoLocation location =
+        new ExecutionInfoLocation(
+            "files",
+            "",
+            "100000",
+            "100000",
+            "",
+            null,
+            new FileExecutionInfoLocation(folder.toString()));
+    metadataProvider.getSerializer(ExecutionInfoLocation.class).save(location);
+    pipeline.setMetadataProvider(metadataProvider);
+    pipeline.getPipelineRunConfiguration().setExecutionInfoLocationName("files");
+    return metadataProvider;
+  }
+
+  private static ExecutionState readState(
+      Path folder, MemoryMetadataProvider metadataProvider, String executionId)
+      throws HopException {
+    FileExecutionInfoLocation location = new FileExecutionInfoLocation(folder.toString());
+    location.initialize(new Variables(), metadataProvider);
+    try {
+      return location.getExecutionState(executionId);
+    } finally {
+      location.close();
+    }
   }
 }

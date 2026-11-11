@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.engine;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -67,6 +69,22 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
   Result startExecution();
 
   Result getResult();
+
+  /**
+   * The failure of the current or last execution as a whole, or null if it did not fail or this
+   * engine does not report failures. Experimental.
+   */
+  default ExecutionFailure getRunFailure() {
+    return null;
+  }
+
+  /**
+   * The failures of the components of the current or last execution, oldest first, or an empty list
+   * if there were none or this engine does not report failures. Experimental.
+   */
+  default List<ExecutionFailure> getFailures() {
+    return Collections.emptyList();
+  }
 
   void setResult(Result result);
 

@@ -2223,6 +2223,7 @@ public abstract class Pipeline
   }
 
   /** The transform failures of the current execution, in the order they happened. */
+  @Override
   public List<ExecutionFailure> getFailures() {
     synchronized (failures) {
       return new ArrayList<>(failures);
@@ -2230,6 +2231,7 @@ public abstract class Pipeline
   }
 
   /** The failure of the current execution as a whole, or null if it has not failed. */
+  @Override
   public ExecutionFailure getRunFailure() {
     return runFailure;
   }
