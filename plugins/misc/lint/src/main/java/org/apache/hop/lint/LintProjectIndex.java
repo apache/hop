@@ -23,10 +23,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -118,15 +120,27 @@ public final class LintProjectIndex {
   }
 
   private void addPipelineReferences(PipelineMeta meta, String from, IVariables variables) {
+    Variables pipelineVariables = new Variables();
+    pipelineVariables.copyFrom(variables);
+    for (String parameter : meta.listParameters()) {
+      try {
+        pipelineVariables.setVariable(
+            parameter, Const.NVL(meta.getParameterDefault(parameter), ""));
+      } catch (Exception e) {
+        log.logDetailed(
+            "Could not apply parameter '" + parameter + "' from " + from + ": " + e.getMessage());
+      }
+    }
+
     for (TransformMeta transformMeta : meta.getTransforms()) {
       if (transformMeta.getTransform() == null) {
         continue;
       }
       try {
         record(
-            transformMeta.getTransform().getResourceDependencies(variables, transformMeta),
+            transformMeta.getTransform().getResourceDependencies(pipelineVariables, transformMeta),
             from,
-            variables);
+            pipelineVariables);
       } catch (Exception e) {
         log.logDetailed(
             "Could not read references from transform '"
