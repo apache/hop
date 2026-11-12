@@ -147,30 +147,19 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
     // Make a link between the pipeline and the parent pipeline (in a sub-pipeline)
     //
-    IPipelineEngine<?> currentPipeline = pipeline;
-    while (currentPipeline != null) {
-        logBasic("Propagating variable [" + varname + "] to pipeline: " + currentPipeline.getObjectName());
-        currentPipeline.setVariable(varname, value);
-
-        IVariables parent = getParentEngine(currentPipeline);
-        if (parent instanceof IPipelineEngine) {
-            currentPipeline = (IPipelineEngine<?>) parent;
-        } else if (parent instanceof IWorkflowEngine) {
-            // If it's a workflow, we update it and stop as it might not be a pipeline anymore
-            parent.setVariable(varname, value);
-            break;
-        } else {
-            break;
-        }
+    IVariables currentVariables = getPipeline();
+    while (currentVariables != null) {
+        currentVariables.setVariable(varname, value);
+        currentVariables = currentVariables.getParentVariables();
     }
 
     // Now construct the list of parent engines starting from this top-level pipeline
     //
     java.util.List<IVariables> parents = new java.util.ArrayList<>();
-    IVariables parent = getParentEngine(pipeline);
+    IVariables parent = pipeline.getParentVariables();
     while (parent != null) {
       parents.add(parent);
-      parent = getParentEngine(parent);
+      parent = parent.getParentVariables();
     }
 
     switch (vars.get(i).getVariableType()) {
@@ -232,22 +221,5 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
           BaseMessages.getString(
               PKG, "SetVariable.Log.SetVariableToValue", vars.get(i).getVariableName(), value));
     }
-  }
-
-  private IVariables getParentEngine(IVariables engine) {
-    if (engine instanceof IPipelineEngine) {
-      IPipelineEngine<?> pe = (IPipelineEngine<?>) engine;
-      if (pe.getParentPipeline() != null) {
-        return pe.getParentPipeline();
-      }
-      return pe.getParentWorkflow();
-    } else if (engine instanceof IWorkflowEngine) {
-      IWorkflowEngine<?> we = (IWorkflowEngine<?>) engine;
-      if (we.getParentPipeline() != null) {
-        return we.getParentPipeline();
-      }
-      return we.getParentWorkflow();
-    }
-    return null;
   }
 }
