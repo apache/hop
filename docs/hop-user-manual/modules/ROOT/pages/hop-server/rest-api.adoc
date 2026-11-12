@@ -177,6 +177,9 @@ GET `+http://localhost:8081/hop/pipelineStatus/?name=<NAME>&id=<ID>+`
 result::
 an HTML response with the execution status, transform details and canvas preview for this pipeline
 
+When the pipeline failed, the xml and json output give the reason in one line in the error description (`error_desc` in xml, `errorDescription` in json), for example `Transform 'Read orders' (TableInput) failed [CONNECTIVITY]: Connection refused`.
+The json output also has a `failure` object with the details, the same one as in the xref:hop-run/index.adoc#_result_file[result file of hop-run].
+
 == Status
 
 name::
@@ -246,6 +249,8 @@ GET `+http://localhost:8081/hop/workflowStatus/?name=<NAME>&id=<ID>+`
 
 result::
 an HTML response with the execution status, action details and canvas preview for this workflow
+
+When the workflow failed, the xml and json output give the reason in one line in the error description (`error_desc` in xml, `errorDescription` in json), and the json output has a `failure` object with the details, as for <<_getpipelinestatus,getPipelineStatus>>.
 
 == pausePipeline
 

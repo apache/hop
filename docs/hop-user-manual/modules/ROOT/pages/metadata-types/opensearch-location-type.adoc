@@ -50,9 +50,16 @@ The request is a `PUT` of the index name with a mapping that:
 * treats `execution`, `executionState` and `summary` as nested objects
 * stores dates with `epoch_millis`, `yyyy-MM-dd HH:mm:ss.SSS` and `strict_date_optional_time`
 * disables indexing of `childExecutions`, `childExecutionStates` and `childExecutionData` (they are stored but not searched)
+* stores `executionState.failure`, why a run failed, without indexing it
 * raises `index.mapping.total_fields.limit` to `500`
 
 The dialog that opens afterwards shows the status code and response body so you can see whether the index was created or already existed.
+When the index already exists, the button still adds the `executionState.failure` mapping to it.
+
+The location also adds that mapping itself, before its first write to an index, so an index created by an older Hop version gets it too, without clicking the button again.
+Changing a mapping needs more rights than writing documents: a user that can only write documents is refused.
+It is also refused when the index already holds failures that were mapped field by field.
+Hop then logs the refusal once and writes anyway: the failure is mapped field by field, which can add a few hundred fields against the field limit of the index.
 
 == Compared to the Elastic location
 

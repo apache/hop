@@ -36,6 +36,13 @@ If the cluster is OpenSearch rather than Elasticsearch, use the xref:metadata-ty
 * *The Elastic API Key to use*: The API key of the Elastic server
 * *The index name to use*: The name of the index to store the execution information in.
 * *Button 'Create and configure Elastic index'*: This executes a number of commands to create and configure the specified index in such a way that Hop can store and retrieve information from Elastic.
+The mapping stores `executionState.failure`, why a run failed, without indexing it.
+When the index already exists, the button still adds that mapping to it.
+
+The location also adds the `executionState.failure` mapping itself, before its first write to an index, so an index created by an older Hop version gets it too, without clicking the button again.
+Changing a mapping needs more rights than writing documents: an API key that can only write documents is refused.
+It is also refused when the index already holds failures that were mapped field by field.
+Hop then logs the refusal once and writes anyway: the failure is mapped field by field, which can add a few hundred fields against the field limit of the index.
 
 == See also
 
