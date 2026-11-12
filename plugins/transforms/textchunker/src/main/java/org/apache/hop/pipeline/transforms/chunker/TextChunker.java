@@ -17,7 +17,6 @@
 package org.apache.hop.pipeline.transforms.chunker;
 
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -67,17 +66,17 @@ public class TextChunker extends BaseTransform<TextChunkerMeta, TextChunkerData>
     if (!super.init()) {
       return false;
     }
-    data.chunkSize = Const.toInt(resolve(meta.getChunkSize()), -1);
-    data.chunkOverlap = Const.toInt(resolve(meta.getChunkOverlap()), -1);
-    if (data.chunkSize <= 0) {
-      logError(
-          BaseMessages.getString(
-              PKG, "TextChunker.Validation.ChunkSizePositive", meta.getChunkSize()));
+    TextChunkerMeta.ChunkSettings settings =
+        TextChunkerMeta.validateChunkSettings(
+            resolve(meta.getChunkSize()), resolve(meta.getChunkOverlap()));
+    if (!settings.isValid()) {
+      for (String message : settings.errors()) {
+        logError(message);
+      }
       return false;
     }
-    if (data.chunkOverlap < 0) {
-      data.chunkOverlap = 0;
-    }
+    data.chunkSize = settings.size();
+    data.chunkOverlap = settings.overlap();
     strategy = ChunkingStrategyFactory.createStrategy(meta.getChunkingStrategy());
     if (strategy instanceof ParagraphChunkingStrategy paragraphStrategy) {
       paragraphStrategy.setSeparator(
