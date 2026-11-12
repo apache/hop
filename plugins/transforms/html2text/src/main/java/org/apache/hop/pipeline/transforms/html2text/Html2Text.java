@@ -22,11 +22,10 @@ import static java.util.concurrent.ForkJoinPool.commonPool;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
 import static org.apache.hop.core.util.Utils.isEmpty;
-import static org.jsoup.Jsoup.clean;
-import static org.jsoup.Jsoup.parseBodyFragment;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,8 +34,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Safelist;
 
 public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
   public static final int OVER_ALLOCATE_SIZE = 10;
@@ -46,6 +43,11 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
   private final int maxJobs = cores * 100;
   private final ExecutorService executor = commonPool();
   private final AtomicInteger jobs = new AtomicInteger(0);
+
+  /** The first failure of a parallel job when there is no error handling to send the row to. */
+  private final AtomicReference<Throwable> asyncFailure = new AtomicReference<>();
+
+  private static final String ERROR_CODE = "Html2Text001";
 
   private final Object lock = new Object();
 
@@ -66,11 +68,23 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
         try {
           lock.wait();
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new HopException("Waiting for jobs to finished interrupted", e);
         }
       }
     }
+    failOnAsyncFailure();
     setOutputDone();
+  }
+
+  /** A parallel job failed and there is no error handling: fail the transform. */
+  private void failOnAsyncFailure() throws HopException {
+    Throwable failure = asyncFailure.get();
+    if (failure != null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Html2Text.ErrorInTransformRunning") + failure.getMessage(),
+          failure);
+    }
   }
 
   @Override
@@ -98,41 +112,48 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
       }
       // cache the position of the field
       cacheIndexPositions();
+
+      // The parser, and the safelist and cleaner when cleaning, are made once
+      data.converter =
+          new HtmlConverter(meta.isCleanOnly(), meta.getSafelistType(), meta.isNormalisedText());
     } // End If first
 
-    String errorMessage = null;
+    // Stop reading when a parallel job failed
+    failOnAsyncFailure();
 
-    process(r);
+    if (isRowLevel()) {
+      logRowlevel(
+          BaseMessages.getString(
+              PKG,
+              "Html2Text.LineNumber",
+              getLinesRead() + " : " + getInputRowMeta().getString(r)));
+    }
 
     try {
-      if (isRowLevel()) {
-        logRowlevel(
-            BaseMessages.getString(
-                PKG,
-                "Html2Text.LineNumber",
-                getLinesRead() + " : " + getInputRowMeta().getString(r)));
-      }
+      process(r);
     } catch (Exception e) {
-      if (getTransformMeta().isDoingErrorHandling()) {
-        errorMessage = e.toString();
-      } else {
-        logError(BaseMessages.getString(PKG, "Html2Text.ErrorInTransformRunning") + e.getMessage());
-        setErrors(1);
-        stopAll();
-        setOutputDone(); // signal end to receiver(s)
-        return false;
+      if (!getTransformMeta().isDoingErrorHandling()) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "Html2Text.ErrorInTransformRunning") + e.getMessage(), e);
       }
-
-      // Add this row to the error output of this transform
-      putError(getInputRowMeta(), r, 1, errorMessage, meta.getHtmlField(), "Html2Text001");
+      putErrorRow(r, e);
     }
 
     return true;
   }
 
-  private void process(Object[] inputRow) throws HopTransformException {
-    String html = trim((String) inputRow[data.indexOfHtmlField]);
+  private void putErrorRow(Object[] row, Exception e) throws HopTransformException {
+    synchronized (this) {
+      // Add this row to the error output of this transform
+      putError(getInputRowMeta(), row, 1, e.toString(), meta.getHtmlField(), ERROR_CODE);
+    }
+  }
+
+  private void process(Object[] inputRow) throws HopException {
+    String html = trim(getInputRowMeta().getString(inputRow, data.indexOfHtmlField));
     if (isBlank(html)) {
+      // Nothing to convert: the row passes on with an empty text
+      processOutput("", inputRow);
       return;
     }
 
@@ -149,47 +170,43 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
         try {
           lock.wait();
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new HopTransformException("Error waiting for async processing lock release", e);
         }
       }
     }
 
+    jobs.incrementAndGet();
     executor.submit(
         () -> {
           try {
             processSync(html, inputRow);
+          } catch (Exception e) {
+            handleAsyncFailure(inputRow, e);
+          } finally {
+            // Always count the job down: finish() waits for zero
             jobs.decrementAndGet();
-
             synchronized (lock) {
               lock.notifyAll();
             }
-          } catch (Exception e) {
-            logError(e.getMessage(), e);
           }
         });
+  }
 
-    jobs.incrementAndGet();
+  private void handleAsyncFailure(Object[] inputRow, Exception e) {
+    if (getTransformMeta().isDoingErrorHandling()) {
+      try {
+        putErrorRow(inputRow, e);
+        return;
+      } catch (Exception errorRowFailure) {
+        e.addSuppressed(errorRowFailure);
+      }
+    }
+    asyncFailure.compareAndSet(null, e);
   }
 
   private void processSync(String html, Object[] inputRow) throws HopTransformException {
-
-    Document document = parseBodyFragment(html);
-
-    if (meta.isCleanOnly()) {
-      Safelist safelist;
-      switch (meta.getSafelistType()) {
-        case SIMPLE_TEXT -> safelist = Safelist.simpleText();
-        case BASIC_WITH_IMAGES -> safelist = Safelist.basicWithImages();
-        case NONE -> safelist = Safelist.none();
-        case RELAXED -> safelist = Safelist.relaxed();
-        default -> safelist = Safelist.basic();
-      }
-
-      processOutput(clean(document.html(), safelist), inputRow);
-    } else {
-      var text = meta.isNormalisedText() ? document.text() : document.wholeText();
-      processOutput(text, inputRow);
-    }
+    processOutput(data.converter.convert(html), inputRow);
   }
 
   private void cacheIndexPositions() throws HopException {
