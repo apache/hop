@@ -45,6 +45,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.datacatalog.plugin.DataCatalogPluginType;
 import org.apache.hop.datastream.plugin.DataStreamPluginType;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType;
@@ -119,6 +120,7 @@ public class HopEnvironment {
         ImportPluginType.getInstance(),
         ExecutionDataSamplerPluginType.getInstance(),
         ExecutionInfoLocationPluginType.getInstance(),
+        DataCatalogPluginType.getInstance(),
         LineageSinkPluginType.getInstance(),
         HopCommandPluginType.getInstance(),
         org.apache.hop.core.naming.NamingSchemeTypePluginType.getInstance(),

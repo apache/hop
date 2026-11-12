@@ -1,0 +1,109 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: A Data Catalog is a catalog such as DataHub that Hop reads dataset metadata from.
+
+= Data Catalog
+
+== Description
+
+A Data Catalog is a catalog, such as DataHub, that Hop reads dataset metadata from: whether a dataset exists, whether it is deprecated, when its data last changed and how the checks the catalog runs on it went.
+The catalog stays the owner of that metadata. Hop only reads it.
+
+The xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses a Data Catalog to check datasets before a workflow goes on.
+
+This metadata type is experimental: its options and what the catalog types can answer may still change.
+
+== Options
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+
+|Name
+|The name of the Data Catalog.
+
+|Description
+|A description of the Data Catalog.
+
+|Catalog type
+|The kind of catalog. The options below the *Test* button depend on it.
+A catalog type comes with a plugin, so the list only shows the types of the plugins that are installed.
+
+|Test
+|Connects to the catalog with the options on the screen and the current variables, and shows the answer: the version of the catalog and the user Hop reads as, or why it could not be used.
+|===
+
+== How datasets are found
+
+Hop names a dataset the same way the xref:technology/openlineage/index.adoc[OpenLineage] and xref:technology/datahub/index.adoc[DataHub] lineage plugins do, so a catalog finds the dataset that lineage wrote to it:
+
+* A table: the host and port of its relational connection, and `database.schema.table`.
+A table without a schema gets the preferred schema of the connection, and the database name of the connection is always added.
+* A file: its path or URL, after the variables in it are resolved.
+* A catalog id: the id the catalog itself uses, for example a DataHub URN.
+Use it for a dataset that Hop doesn't read or write itself.
+
+== DataHub
+
+The DataHub catalog type comes with the xref:technology/datahub/index.adoc[DataHub] plugin.
+It reads from DataHub's GraphQL API, with fields that DataHub has had since version 1.0.
+
+[options="header", cols="1,3,1"]
+|===
+|Option|Description|Default
+
+|DataHub GMS URL
+|The URL of DataHub's metadata service (GMS), for example `http://localhost:8080`.
+For DataHub Cloud this is `https://<account>.acryl.io/gms`.
+|
+
+|Access token
+|A personal access token, with the right to view the datasets and their assertions.
+Leave it empty when DataHub doesn't use token authentication.
+|
+
+|Environment
+|The environment (fabric) in the dataset URNs, for example `PROD` or `DEV`.
+Use the same one as the DataHub lineage sink (`HOP_LINEAGE_DATAHUB_ENV`), or a table won't be found under the URN lineage gave it.
+|`PROD`
+
+|Connect timeout (ms)
+|How long to wait for a connection to DataHub.
+|`5000`
+
+|Read timeout (ms)
+|How long to wait for DataHub to answer a question.
+|`30000`
+
+|Trust store, Trust store password, Trust store type
+|A trust store with the certificate of a DataHub whose certificate Java doesn't trust, its password and its type (`PKCS12` or `JKS`).
+|`PKCS12`
+|===
+
+Every option takes variables, for example `'${DATAHUB_URL}'` and `'${DATAHUB_TOKEN}'`.
+
+What DataHub answers:
+
+* *Exists*: whether DataHub has the dataset.
+* *Deprecated*: the deprecation set on the dataset in DataHub, with its note.
+* *Last change*: the newest operation DataHub has for the dataset.
+DataHub learns about operations from the sources that report them, such as the usage ingestion of some warehouses or dbt.
+The DataHub lineage sink of Hop doesn't report them yet, so a table that only Hop writes has none.
+* *Assertions*: the latest run of each assertion on the dataset, up to 100 assertions.
+The assertions themselves are defined and run in DataHub.
