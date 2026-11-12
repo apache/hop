@@ -17,7 +17,6 @@
 
 package org.apache.hop.testing.transforms.datasetinput;
 
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
@@ -70,10 +69,13 @@ public class DataSetInput extends BaseTransform<DataSetInputMeta, DataSetInputDa
       data.outputRowMeta.addRowMeta(data.dataSet.getSetRowMeta());
     }
 
-    List<Object[]> rows = data.dataSet.getAllRows(this, getLogChannel());
-    for (Object[] row : rows) {
-      putRow(data.outputRowMeta, row);
-    }
+    // Write every row as soon as it is read: the data set is never held in memory as a whole.
+    data.dataSet.readRows(
+        this,
+        row -> {
+          putRow(data.outputRowMeta, row);
+          return !isStopped();
+        });
     setOutputDone();
 
     return false;
