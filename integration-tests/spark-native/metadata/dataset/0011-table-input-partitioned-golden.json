@@ -1,0 +1,32 @@
+{
+  "base_filename": "0011-table-input-partitioned-golden.csv",
+  "name": "0011-table-input-partitioned-golden",
+  "description": "Exact expected rows of the native Spark partitioned Table Input read (1 copy, 4 JDBC partitions on H2)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "row_id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "partition_id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "payload",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

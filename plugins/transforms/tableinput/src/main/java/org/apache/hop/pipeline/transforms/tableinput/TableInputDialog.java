@@ -77,6 +77,8 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -91,6 +93,10 @@ public class TableInputDialog extends BaseTransformDialog {
   private CCombo wDataFrom;
 
   private TextVar wLimit;
+  private TextVar wPartitionColumn;
+  private TextVar wLowerBound;
+  private TextVar wUpperBound;
+  private TextVar wNumPartitions;
 
   private Label wlEachRow;
   private Button wEachRow;
@@ -454,7 +460,47 @@ public class TableInputDialog extends BaseTransformDialog {
     fdLimit.top = new FormAttachment(wlLimit, 0, SWT.CENTER);
     wLimit.setLayoutData(fdLimit);
 
+    Group partitionGroup = new Group(wOptionsComp, SWT.NONE);
+    partitionGroup.setText(BaseMessages.getString(PKG, "TableInputDialog.PartitionGroup"));
+    PropsUi.setLook(partitionGroup);
+    FormLayout partitionLayout = new FormLayout();
+    partitionLayout.marginWidth = margin;
+    partitionLayout.marginHeight = margin;
+    partitionGroup.setLayout(partitionLayout);
+    FormData partitionData = new FormData();
+    partitionData.left = new FormAttachment(0, 0);
+    partitionData.right = new FormAttachment(100, 0);
+    partitionData.top = new FormAttachment(wLimit, margin);
+    partitionGroup.setLayoutData(partitionData);
+    wPartitionColumn = addPartitionField(partitionGroup, null, "PartitionColumn");
+    wLowerBound = addPartitionField(partitionGroup, wPartitionColumn, "LowerBound");
+    wUpperBound = addPartitionField(partitionGroup, wLowerBound, "UpperBound");
+    wNumPartitions = addPartitionField(partitionGroup, wUpperBound, "NumPartitions");
+
     wOptionsTab.setControl(wOptionsComp);
+  }
+
+  private TextVar addPartitionField(Composite parent, Control previous, String key) {
+    Label label = new Label(parent, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, "TableInputDialog." + key));
+    label.setToolTipText(BaseMessages.getString(PKG, "TableInputDialog." + key + ".Tooltip"));
+    PropsUi.setLook(label);
+    FormData labelData = new FormData();
+    labelData.left = new FormAttachment(0, 0);
+    labelData.right = new FormAttachment(middle, -margin);
+    labelData.top =
+        previous == null ? new FormAttachment(0, margin) : new FormAttachment(previous, margin);
+    label.setLayoutData(labelData);
+    TextVar field = new TextVar(variables, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(field);
+    field.setToolTipText(label.getToolTipText());
+    field.addModifyListener(lsMod);
+    FormData fieldData = new FormData();
+    fieldData.left = new FormAttachment(middle, 0);
+    fieldData.right = new FormAttachment(100, 0);
+    fieldData.top = new FormAttachment(label, 0, SWT.CENTER);
+    field.setLayoutData(fieldData);
+    return field;
   }
 
   private void addFieldsTab(CTabFolder wTabFolder) {
@@ -646,6 +692,10 @@ public class TableInputDialog extends BaseTransformDialog {
     }
 
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
+    wPartitionColumn.setText(Const.NVL(input.getJdbcPartitionColumn(), ""));
+    wLowerBound.setText(Const.NVL(input.getJdbcLowerBound(), ""));
+    wUpperBound.setText(Const.NVL(input.getJdbcUpperBound(), ""));
+    wNumPartitions.setText(Const.NVL(input.getJdbcNumPartitions(), ""));
     wDataFrom.setText(Const.NVL(input.getLookup(), ""));
     wEachRow.setSelection(input.isExecuteEachInputRow());
     wVariables.setSelection(input.isVariableReplacementActive());
@@ -694,6 +744,10 @@ public class TableInputDialog extends BaseTransformDialog {
     meta.setSqlFromFile(wSqlFromFile.getText());
 
     meta.setRowLimit(wLimit.getText());
+    meta.setJdbcPartitionColumn(wPartitionColumn.getText());
+    meta.setJdbcLowerBound(wLowerBound.getText());
+    meta.setJdbcUpperBound(wUpperBound.getText());
+    meta.setJdbcNumPartitions(wNumPartitions.getText());
     meta.setExecuteEachInputRow(wEachRow.getSelection());
     meta.setVariableReplacementActive(wVariables.getSelection());
     meta.setUseNamedParameters(wUseNamedParameters.getSelection());

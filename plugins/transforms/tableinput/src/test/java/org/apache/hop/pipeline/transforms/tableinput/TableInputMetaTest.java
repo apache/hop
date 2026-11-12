@@ -231,6 +231,33 @@ class TableInputMetaTest {
   }
 
   @Test
+  void jdbcPartitionFieldsRoundTrip() throws Exception {
+    TableInputMeta meta = new TableInputMeta();
+    meta.setSql("SELECT ID, VAL FROM T");
+    meta.setJdbcPartitionColumn("id");
+    meta.setJdbcLowerBound("0");
+    meta.setJdbcUpperBound("1000");
+    meta.setJdbcNumPartitions("8");
+    meta.setJdbcPartitionColumn("id");
+
+    String xmlCopy =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(meta)
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    TableInputMeta metaCopy = new TableInputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xmlCopy, TransformMeta.XML_TAG),
+        TableInputMeta.class,
+        metaCopy,
+        new MemoryMetadataProvider());
+
+    Assertions.assertEquals("id", metaCopy.getJdbcPartitionColumn());
+    Assertions.assertEquals("0", metaCopy.getJdbcLowerBound());
+    Assertions.assertEquals("1000", metaCopy.getJdbcUpperBound());
+    Assertions.assertEquals("8", metaCopy.getJdbcNumPartitions());
+  }
+
+  @Test
   void getFieldsDoesNotKeepIncomingParameterFields() throws Exception {
     TableInputMeta meta = new TableInputMeta();
     meta.setSpecifyFields(true);

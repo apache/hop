@@ -137,6 +137,9 @@ class HopPipelineMetaToSparkConverterTest {
   void explicitHandlerSetMatchesRegistrations() {
     assertTrue(
         HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
+            SparkConst.TABLE_INPUT_PLUGIN_ID));
+    assertTrue(
+        HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
             SparkConst.MEMORY_GROUP_BY_PLUGIN_ID));
     assertTrue(
         HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(
