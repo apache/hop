@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -426,10 +428,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private int debugDiscardGeneration;
 
   /**
-   * The output-rows dialog is on screen. It runs its own event loop, which delivers any click made
-   * while it is up; that click must not move transforms or open a second copy of the dialog.
+   * Row buffers whose "Output of" window is currently on screen.
+   *
+   * <p>Opening a preview runs a nested event loop, so the canvas keeps handling clicks while the
+   * window is up. The user can still move a transform or open the rows of another transform; a
+   * second click on a window that is already open is refused.
+   *
+   * <p>An entry is removed when its own window is disposed, not when the opening call returns: with
+   * several windows the first call only returns once the newest window has closed, see {@link
+   * #showOutputDataDialog}.
+   *
+   * <p>Buffers are tracked by identity rather than with a single boolean flag, because windows for
+   * several transforms can be open at once. {@link RowBuffer#equals} compares row values.
    */
-  private boolean showingOutputRows;
+  private final Set<RowBuffer> openOutputRowsBuffers =
+      Collections.newSetFromMap(new IdentityHashMap<>());
 
   /**
    * Display filters used while placing a transform dragged from the context dialog (issue #3111).
@@ -814,10 +827,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDoubleClick(MouseEvent event) {
-    if (showingOutputRows) {
-      return;
-    }
-
     if (!PropsUi.getInstance().useDoubleClick()) {
       return;
     }
@@ -882,9 +891,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown(MouseEvent event) {
-    if (showingOutputRows) {
-      return;
-    }
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
       mouseHover(event);
@@ -1273,9 +1279,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent e) {
-    if (showingOutputRows) {
-      return;
-    }
     // A preview badge opens its rows only for the press that landed on it. Cleared before any
     // return below, including the ones that finish a drag.
     boolean previewPress = outputDataPressed && e.button == 1;
@@ -1796,76 +1799,127 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (rowBuffer == null) {
       return false;
     }
-    // Already inside this dialog's event loop: the click that got us here is not another preview.
-    if (showingOutputRows) {
+    // Already inside this buffer's dialog event loop: the click that got us here is not another
+    // preview of the same rows. A preview of another transform is a new request, and does open.
+    if (openOutputRowsBuffers.contains(rowBuffer)) {
       return true;
     }
+    // A running pipeline appends its sampled rows to this list from its own threads, under the
+    // list's lock. Copy the rows inside that lock and release it before the window opens.
+    final IRowMeta rowMeta;
+    final List<Object[]> rows;
     synchronized (rowBuffer.getBuffer()) {
-      if (!rowBuffer.isEmpty()) {
-        showingOutputRows = true;
-        try {
-          String title =
-              BaseMessages.getString(
-                  PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
-          String message =
-              BaseMessages.getString(
-                  PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
-          String prefix = "";
+      if (rowBuffer.isEmpty()) {
+        return true;
+      }
+      rowMeta = rowBuffer.getRowMeta();
+      rows = new ArrayList<>(rowBuffer.getBuffer());
+    }
 
-          if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
-            PipelineRunConfiguration pipelineRunConfiguration =
-                pipeline.getPipelineRunConfiguration();
-            if (pipelineRunConfiguration.getEngineRunConfiguration()
-                instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
-              String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
-              if (StringUtils.isNotEmpty(sampleTypeInGui)) {
-                try {
-                  SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
-                  switch (sampleType) {
-                    case None:
-                      break;
-                    case First:
-                      prefix =
-                          BaseMessages.getString(
-                              PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
-                      break;
-                    case Last:
-                      prefix =
-                          BaseMessages.getString(
-                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
-                      break;
-                    case Random:
-                      prefix +=
-                          BaseMessages.getString(
-                              PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
-                      break;
-                    default:
-                      break;
-                  }
-                } catch (Exception ex) {
-                  LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
-                }
+    openOutputRowsBuffers.add(rowBuffer);
+    // Every window runs its own event loop, so a window opened from within the first one's loop
+    // nests inside it: open() returns when the newest window closes, not when this one does.
+    // Releasing the buffer from this window's own dispose event keeps the mark tied to the window
+    // on screen. The flag makes the release happen once, so a late return cannot clear a window
+    // that was reopened in the meantime.
+    final AtomicBoolean released = new AtomicBoolean();
+    final Runnable release =
+        () -> {
+          if (released.compareAndSet(false, true)) {
+            openOutputRowsBuffers.remove(rowBuffer);
+          }
+        };
+    try {
+      String title =
+          BaseMessages.getString(PKG, "PipelineGraph.ViewOutput.OutputDialog.Header", titleName);
+      String message =
+          BaseMessages.getString(
+              PKG, "PipelineGraph.ViewOutput.OutputDialog.OutputRows.Text", messageName);
+      String prefix = "";
+
+      if (pipeline != null && pipeline.getPipelineRunConfiguration() != null) {
+        PipelineRunConfiguration pipelineRunConfiguration = pipeline.getPipelineRunConfiguration();
+        if (pipelineRunConfiguration.getEngineRunConfiguration()
+            instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
+          String sampleTypeInGui = localPipelineRunConfiguration.getSampleTypeInGui();
+          if (StringUtils.isNotEmpty(sampleTypeInGui)) {
+            try {
+              SampleType sampleType = SampleType.valueOf(sampleTypeInGui);
+              switch (sampleType) {
+                case None:
+                  break;
+                case First:
+                  prefix =
+                      BaseMessages.getString(
+                          PKG, "PipelineGraph.ViewOutput.OutputDialog.First.Text");
+                  break;
+                case Last:
+                  prefix =
+                      BaseMessages.getString(
+                          PKG, "PipelineGraph.ViewOutput.OutputDialog.Last.Text");
+                  break;
+                case Random:
+                  prefix +=
+                      BaseMessages.getString(
+                          PKG, "PipelineGraph.ViewOutput.OutputDialog.Random.Text");
+                  break;
+                default:
+                  break;
               }
+            } catch (Exception ex) {
+              LogChannel.UI.logError("Unknown sample type: " + sampleTypeInGui);
             }
           }
-
-          new ShowRowsDialog(
-                  hopGui.getActiveShell(),
-                  variables,
-                  title,
-                  prefix + message,
-                  rowBuffer.getRowMeta(),
-                  rowBuffer.getBuffer())
-              .open();
-        } catch (Exception ex) {
-          new ErrorDialog(
-              hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
-        } finally {
-          showingOutputRows = false;
         }
       }
+
+      watchOutputRowsShell(title, release);
+      new ShowRowsDialog(hopGui.getActiveShell(), variables, title, prefix + message, rowMeta, rows)
+          .open();
+    } catch (Exception ex) {
+      new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error showing output rows dialog", ex);
+    } finally {
+      release.run();
     }
     return true;
+  }
+
+  /**
+   * Calls {@code onDisposed} when the window {@link ShowRowsDialog} is about to open is disposed,
+   * and brings that window to the front.
+   *
+   * <p>The window creates its shell privately, and {@code open()} does not return until a nested
+   * event loop ends - which, with several windows stacked, is when the newest one closes. So the
+   * shell is found once it exists: the shell is built before its loop starts, and the runnable
+   * posted here is the first thing that loop dispatches. It is identified by its title among the
+   * shells that did not exist before.
+   *
+   * <p>A window opened while another one runs the event loop is not activated by the platform, and
+   * both size themselves from the same saved position, so without raising it here the new window
+   * appears behind the one that still has the focus.
+   *
+   * <p>This lookup relies on {@link ShowRowsDialog} setting the title as the shell text.
+   */
+  private void watchOutputRowsShell(String title, Runnable onDisposed) {
+    Shell parent = hopGui.getActiveShell();
+    Display display = parent == null ? null : parent.getDisplay();
+    if (display == null) {
+      return;
+    }
+    Set<Shell> shellsBefore = new HashSet<>(Arrays.asList(display.getShells()));
+    display.asyncExec(
+        () -> {
+          for (Shell candidate : display.getShells()) {
+            if (!shellsBefore.contains(candidate)
+                && !candidate.isDisposed()
+                && title.equals(candidate.getText())) {
+              candidate.addDisposeListener(e -> onDisposed.run());
+              candidate.setActive();
+              candidate.forceActive();
+              return;
+            }
+          }
+        });
   }
 
   /**
@@ -1998,9 +2052,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private void menuDetect(Event event) {
     // No SWT menu hangs off the canvas, and in Hop Web the browser's own menu is unwanted.
     event.doit = false;
-    if (showingOutputRows) {
-      return;
-    }
     if (!PropsUi.getInstance().useRightClickForContextDialog()) {
       return;
     }
@@ -2688,9 +2739,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseMove(MouseEvent event) {
-    if (showingOutputRows) {
-      return;
-    }
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     boolean doRedraw = false;
 
