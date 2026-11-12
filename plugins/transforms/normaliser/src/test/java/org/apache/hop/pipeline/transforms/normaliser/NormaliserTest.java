@@ -47,6 +47,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -312,6 +313,189 @@ class NormaliserTest {
     assertEquals(List.of("a", "1", "b", "2"), output.rows.stream().map(row -> row[1]).toList());
   }
 
+  /** The fields that are not normalised keep their order, wherever they stand in the input. */
+  @Test
+  void keptFieldsKeepTheirOrderAroundTheNormalisedOnes() throws Exception {
+    IRowMeta input = new RowMeta();
+    for (String name : new String[] {"id", "a", "name", "b", "city"}) {
+      input.addValueMeta(new ValueMetaString(name));
+    }
+
+    Output output =
+        normalise(
+            meta("type", field("a", "A", "value"), field("b", "B", "value")),
+            input,
+            "1",
+            "a",
+            "Ann",
+            "b",
+            "Paris");
+
+    assertArrayEquals(
+        new String[] {"id", "name", "city", "type", "value"}, output.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"1", "Ann", "Paris", "A", "a"}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"1", "Ann", "Paris", "B", "b"}, output.rows.get(1));
+  }
+
+  /** A field is found in the input whatever the case it is listed in. */
+  @Test
+  void fieldNamesMatchWhateverTheirCase() throws Exception {
+    IRowMeta input = new RowMeta();
+    for (String name : new String[] {"ID", "Field_A", "FIELD_B"}) {
+      input.addValueMeta(new ValueMetaString(name));
+    }
+
+    Output output =
+        normalise(
+            meta("type", field("field_a", "A", "value"), field("field_b", "B", "value")),
+            input,
+            "1",
+            "a",
+            "b");
+
+    assertArrayEquals(new String[] {"ID", "type", "value"}, output.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"1", "A", "a"}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"1", "B", "b"}, output.rows.get(1));
+  }
+
+  /** The rows the transform writes have the layout it declares to the transforms after it. */
+  @Test
+  void theRowsHaveTheLayoutTheTransformDeclares() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("id"));
+    input.addValueMeta(new ValueMetaInteger("i"));
+    input.addValueMeta(new ValueMetaString("kept"));
+    input.addValueMeta(new ValueMetaNumber("n"));
+    NormaliserMeta meta = meta("type", field("i", "I", "value"), field("n", "N", "value"));
+
+    Output output = normalise(meta, input, "1", 2L, "k", 3.0);
+
+    IRowMeta declared = input.clone();
+    meta.getFields(declared, "Row normaliser", null, null, new Variables(), null);
+    assertArrayEquals(declared.getFieldNames(), output.rowMeta.getFieldNames());
+    for (int i = 0; i < declared.size(); i++) {
+      assertEquals(
+          declared.getValueMeta(i).getType(),
+          output.rowMeta.getValueMeta(i).getType(),
+          declared.getValueMeta(i).getName());
+    }
+  }
+
+  /**
+   * Issue #9397: without listed fields every input field is normalised, under its own name, into
+   * the value field. Fields of different types make that a String holding the text of each value.
+   */
+  @Test
+  void withoutListedFieldsEveryInputFieldIsNormalised() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("name"));
+    input.addValueMeta(new ValueMetaInteger("age"));
+    input.addValueMeta(new ValueMetaString("city"));
+
+    NormaliserMeta meta = meta("column");
+    meta.setValueField("content");
+
+    Output output =
+        normaliseRows(
+            meta, input, new Object[] {"Ann", 31L, "Paris"}, new Object[] {"Bob", null, "Rome"});
+
+    assertArrayEquals(new String[] {"column", "content"}, output.rowMeta.getFieldNames());
+    assertEquals(IValueMeta.TYPE_STRING, output.rowMeta.getValueMeta(1).getType());
+    assertEquals(6, output.rows.size());
+    assertArrayEquals(new Object[] {"name", "Ann"}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"age", "31"}, output.rows.get(1));
+    assertArrayEquals(new Object[] {"city", "Paris"}, output.rows.get(2));
+    assertArrayEquals(new Object[] {"name", "Bob"}, output.rows.get(3));
+    assertArrayEquals(new Object[] {"age", null}, output.rows.get(4));
+    assertArrayEquals(new Object[] {"city", "Rome"}, output.rows.get(5));
+  }
+
+  /** Input fields of one type keep it, and their values go through untouched. */
+  @Test
+  void withoutListedFieldsFieldsOfOneTypeKeepThatType() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaInteger("q1"));
+    input.addValueMeta(new ValueMetaInteger("q2"));
+
+    Output output = normalise(meta("quarter"), input, 10L, 20L);
+
+    assertArrayEquals(new String[] {"quarter", "value"}, output.rowMeta.getFieldNames());
+    assertEquals(IValueMeta.TYPE_INTEGER, output.rowMeta.getValueMeta(1).getType());
+    assertArrayEquals(new Object[] {"q1", 10L}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"q2", 20L}, output.rows.get(1));
+  }
+
+  /**
+   * An input field with the name of a new field is normalised away before the new field is added,
+   * so the new field keeps its name instead of becoming value_1.
+   */
+  @Test
+  void aNewFieldKeepsItsNameWhenANormalisedFieldHadIt() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("type"));
+    input.addValueMeta(new ValueMetaString("value"));
+
+    Output all = normalise(meta("type"), input, "t", "v");
+
+    assertArrayEquals(new String[] {"type", "value"}, all.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"type", "t"}, all.rows.get(0));
+    assertArrayEquals(new Object[] {"value", "v"}, all.rows.get(1));
+
+    Output listed =
+        normalise(
+            meta("kind", field("type", "T", "value"), field("value", "V", "value")),
+            input,
+            "t",
+            "v");
+
+    assertArrayEquals(new String[] {"kind", "value"}, listed.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"T", "t"}, listed.rows.get(0));
+    assertArrayEquals(new Object[] {"V", "v"}, listed.rows.get(1));
+  }
+
+  /** Every input field normalised: the declared layout matches the rows too. */
+  @Test
+  void withoutListedFieldsTheRowsHaveTheLayoutTheTransformDeclares() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("s"));
+    input.addValueMeta(new ValueMetaNumber("n"));
+    NormaliserMeta meta = meta("type");
+
+    Output output = normalise(meta, input, "a", 1.5);
+
+    IRowMeta declared = input.clone();
+    meta.getFields(declared, "Row normaliser", null, null, new Variables(), null);
+    assertArrayEquals(declared.getFieldNames(), output.rowMeta.getFieldNames());
+    assertEquals(declared.getValueMeta(1).getType(), output.rowMeta.getValueMeta(1).getType());
+  }
+
+  /** Without input rows the transform writes nothing and finishes without an error. */
+  @Test
+  void noInputRowsWriteNothing() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("a"));
+    NormaliserMeta meta = meta("type", field("a", "A", "value"));
+    when(helper.transformMeta.getTransform()).thenReturn(meta);
+    Normaliser transform =
+        new Normaliser(
+            helper.transformMeta,
+            meta,
+            new NormaliserData(),
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+    transform.init();
+    transform.setInputRowMeta(input);
+    BlockingRowSet rowSet = new BlockingRowSet(10);
+    transform.setOutputRowSets(Collections.singletonList(rowSet));
+    Normaliser spied = spy(transform);
+    doReturn(null).when(spied).getRow();
+
+    assertFalse(spied.processRow());
+    assertNull(rowSet.getRowImmediate());
+    assertEquals(0, spied.getErrors());
+  }
+
   /** A field that is not in the input stops the transform with an error. */
   @Test
   void aFieldMissingFromTheInputStopsTheTransform() throws Exception {
@@ -349,6 +533,7 @@ class NormaliserTest {
 
   private static NormaliserMeta meta(String typeField, NormaliserField... fields) {
     NormaliserMeta meta = new NormaliserMeta();
+    meta.setDefault();
     meta.setTypeField(typeField);
     meta.setNormaliserFields(new ArrayList<>(List.of(fields)));
     return meta;

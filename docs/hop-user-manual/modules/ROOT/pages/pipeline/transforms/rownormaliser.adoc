@@ -31,6 +31,12 @@ For every row it reads, the transform writes one row per type. Each input field 
 
 A type can fill each new field from only one input field: listing two fields with the same type and the same new field is an error.
 
+== Normalising every input field
+
+When the **Fields table** is empty, the transform normalises every field it receives. Each input field is a type of its own, named after the field, and its value goes into the **Value field**. This works when the input fields are only known when the pipeline runs, for example in a pipeline that profiles any file or table it is given.
+
+Every input field is normalised this way, so no field is passed on unchanged: the output has only the type field and the value field. When the input fields have different data types the value field is a String, as described below.
+
 == Data types of the new fields
 
 A new field is filled from a different input field on every row, so its data type depends on all of them:
@@ -49,8 +55,9 @@ NOTE: Before Hop 2.20, a new field took the data type of the first input field f
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
 |Typefield|The name of the type field (**key** in the example below).
+|Value field|The name of the field that holds the values when the **Fields table** is empty and every input field is normalised. The default is **value**.
 |Fields table|
-A list of the fields you want to normalize; you must set the following properties for each selected field:
+A list of the fields you want to normalize. Leave it empty to normalise every input field into the **Value field**. You must set the following properties for each listed field:
 
 * Fieldname: Name of the fields to normalize, as you get them from the input transform.
 * Type: Give a string to classify the field (you can use the same field names, or input custom strings).
@@ -71,7 +78,7 @@ A list of the fields you want to normalize; you must set the following propertie
 |===
 
 === Normalized data (example 1)
-Set **Typefield** = "key" and use the **Get Fields** button to load all the fields for normalization, set also **New field** = "value" in all rows. The result is:
+Set **Typefield** = "key" and **Value field** = "value", and leave the **Fields table** empty. The result is the same as using the **Get Fields** button to list all the fields and setting **New field** = "value" in all rows, but it follows the fields of the input, whatever they are:
 
 [options="header"]
 |===

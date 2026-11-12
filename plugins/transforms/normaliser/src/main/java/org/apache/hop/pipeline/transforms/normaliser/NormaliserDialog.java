@@ -55,6 +55,8 @@ public class NormaliserDialog extends BaseTransformDialog {
 
   private Text wTypefield;
 
+  private Text wValuefield;
+
   private TableView wFields;
 
   private final NormaliserMeta input;
@@ -97,12 +99,32 @@ public class NormaliserDialog extends BaseTransformDialog {
     fdTypefield.right = new FormAttachment(100, 0);
     wTypefield.setLayoutData(fdTypefield);
 
+    // Value field line: used when no fields are listed
+    Label wlValuefield = new Label(shell, SWT.RIGHT);
+    wlValuefield.setText(BaseMessages.getString(PKG, "NormaliserDialog.ValueField.Label"));
+    wlValuefield.setToolTipText(BaseMessages.getString(PKG, "NormaliserDialog.ValueField.Tooltip"));
+    PropsUi.setLook(wlValuefield);
+    FormData fdlValuefield = new FormData();
+    fdlValuefield.left = new FormAttachment(0, 0);
+    fdlValuefield.right = new FormAttachment(middle, -margin);
+    fdlValuefield.top = new FormAttachment(wTypefield, margin);
+    wlValuefield.setLayoutData(fdlValuefield);
+    wValuefield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wValuefield.setToolTipText(BaseMessages.getString(PKG, "NormaliserDialog.ValueField.Tooltip"));
+    PropsUi.setLook(wValuefield);
+    wValuefield.addModifyListener(lsMod);
+    FormData fdValuefield = new FormData();
+    fdValuefield.left = new FormAttachment(middle, 0);
+    fdValuefield.top = new FormAttachment(wTypefield, margin);
+    fdValuefield.right = new FormAttachment(100, 0);
+    wValuefield.setLayoutData(fdValuefield);
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "NormaliserDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTypefield, margin);
+    fdlFields.top = new FormAttachment(wValuefield, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int fieldsCols = 3;
@@ -183,6 +205,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     if (input.getTypeField() != null) {
       wTypefield.setText(input.getTypeField());
     }
+    wValuefield.setText(input.getValueFieldName());
 
     for (int i = 0; i < input.getNormaliserFields().size(); i++) {
       TableItem item = wFields.table.getItem(i);
@@ -216,6 +239,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     input.setTypeField(wTypefield.getText());
+    input.setValueField(wValuefield.getText());
 
     int i;
 
