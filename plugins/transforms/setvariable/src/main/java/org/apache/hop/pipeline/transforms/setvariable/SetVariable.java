@@ -147,9 +147,21 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
     // Make a link between the pipeline and the parent pipeline (in a sub-pipeline)
     //
-    while (pipeline.getParentPipeline() != null) {
-      pipeline = pipeline.getParentPipeline();
-      pipeline.setVariable(varname, value);
+    IPipelineEngine<?> currentPipeline = pipeline;
+    while (currentPipeline != null) {
+        logBasic("Propagating variable [" + varname + "] to pipeline: " + currentPipeline.getObjectName());
+        currentPipeline.setVariable(varname, value);
+
+        IVariables parent = getParentEngine(currentPipeline);
+        if (parent instanceof IPipelineEngine) {
+            currentPipeline = (IPipelineEngine<?>) parent;
+        } else if (parent instanceof IWorkflowEngine) {
+            // If it's a workflow, we update it and stop as it might not be a pipeline anymore
+            parent.setVariable(varname, value);
+            break;
+        } else {
+            break;
+        }
     }
 
     // Now construct the list of parent engines starting from this top-level pipeline
