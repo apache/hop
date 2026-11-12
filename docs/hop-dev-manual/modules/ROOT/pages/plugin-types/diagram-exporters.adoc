@@ -47,7 +47,9 @@ A plugin can export any other object: the active editor's `IHopFileTypeHandler.g
 Format::
 The target representation.
 `DiagramExportFormat` knows `SVG`, `MERMAID`, `PDF`, `PLANTUML` and `DRAWIO`.
-`DiagramExportFormat.parse("PLANTUML")` (or `of(...)`) is enough for a format the enum does not list.
+An exporter can also use a format it has no constant for, such as `format = "BPMN"`: `DiagramExportFormat.parse(...)` creates it from the id.
+The file extension still comes from `fileExtension` in the annotation.
+To give the format its own name and MIME type, set `format` to `DiagramExportFormat.of(...)` in the exporter's constructor.
 
 Context::
 Where the export is running: GUI, CLI, batch, web or tests.
@@ -259,7 +261,7 @@ Production exporters should be `@DiagramExporter` classes so Jandex finds them.
 == `hop export`
 
 The command is a `@HopCommand(id = "export")` (`DiagramExportCommand` in `engine`).
-It also has wrapper scripts `hop-export` / `hop-export.bat` in the assembly.
+It also has wrapper scripts `hop-export.sh` / `hop-export.bat` in the assembly.
 
 [source,bash]
 ----
