@@ -103,7 +103,19 @@ Darwin)
   else
     CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/osx/x86_64/*"
   fi
-  HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
+  _HOP_GUI=false
+  for _hop_arg in "$@"; do
+    if [ "${_hop_arg}" = "gui" ]; then
+      _HOP_GUI=true
+      break
+    fi
+  done
+  if [ "${_HOP_GUI}" = "true" ]; then
+    HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
+  else
+    HOP_OPTIONS="${HOP_OPTIONS} -Djava.awt.headless=true"
+  fi
+  unset _HOP_GUI _hop_arg
   ;;
 esac
 
