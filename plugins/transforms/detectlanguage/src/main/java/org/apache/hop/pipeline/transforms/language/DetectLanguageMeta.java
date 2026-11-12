@@ -14,17 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.pipeline.transforms.language;
 
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 import static org.apache.hop.core.util.Utils.isEmpty;
 
+import com.github.pemistahl.lingua.api.Language;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
@@ -37,6 +48,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
+@GuiPlugin
 @Transform(
     id = "DetectLanguage",
     image = "detectlanguage.svg",
@@ -48,17 +62,87 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, DetectLanguageData> {
   private static final Class<?> PKG = DetectLanguageMeta.class;
 
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DetectLanguage.Dialog";
+  public static final String WIDGET_CORPUS_FIELD = "corpusField";
+  public static final String WIDGET_PARALLELISM = "parallelism";
+  public static final String WIDGET_LOW_ACCURACY = "lowAccuracy";
+  public static final String WIDGET_LANGUAGES = "languages";
+
+  private static final String GROUP_OPTIONS = "i18n::DetectLanguage.Group.Options";
+  private static final String GROUP_LANGUAGES = "i18n::DetectLanguage.Group.Languages";
+
+  @GuiWidgetElement(
+      id = WIDGET_CORPUS_FIELD,
+      order = "0100",
+      type = GuiElementType.COMBO,
+      label = "i18n::DetectLanguageDialog.CorpusFieldName.Label",
+      toolTip = "i18n::DetectLanguageDialog.CorpusFieldName.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS,
+      groupOrder = "0100")
   @HopMetadataProperty(
       key = "corpusField",
       injectionKey = "FIELD",
       injectionKeyDescription = "DetectLanguage.Injection.CorpusField")
   private String corpusField;
 
+  @GuiWidgetElement(
+      id = WIDGET_PARALLELISM,
+      order = "0200",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::DetectLanguageDialog.Parallelism.Label",
+      toolTip = "i18n::DetectLanguageDialog.Parallelism.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS,
+      groupOrder = "0100")
   @HopMetadataProperty(
       key = "parallelism",
       injectionKey = "PARALLISM",
       injectionKeyDescription = "DetectLanguage.Injection.Parallelism")
   private boolean parallelism = false;
+
+  /**
+   * Lingua's low accuracy mode: only the trigram models are used. Faster and much lighter on
+   * memory, less accurate on short text. Off for pipelines saved before the option existed.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_LOW_ACCURACY,
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::DetectLanguageDialog.LowAccuracy.Label",
+      toolTip = "i18n::DetectLanguageDialog.LowAccuracy.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OPTIONS,
+      groupOrder = "0100")
+  @HopMetadataProperty(
+      key = "lowAccuracy",
+      injectionKey = "LOW_ACCURACY",
+      injectionKeyDescription = "DetectLanguage.Injection.LowAccuracy")
+  private boolean lowAccuracy = false;
+
+  /**
+   * The languages the transform may answer. Empty means every spoken language Lingua knows, which
+   * is what the transform did before the option existed.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_LANGUAGES,
+      order = "0400",
+      type = GuiElementType.TABLE,
+      toolTip = "i18n::DetectLanguageDialog.Languages.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_LANGUAGES,
+      groupOrder = "0200",
+      tableRows = 8)
+  @HopMetadataProperty(
+      key = "language",
+      groupKey = "languages",
+      injectionGroupKey = "LANGUAGES",
+      injectionGroupDescription = "DetectLanguage.Injection.Languages")
+  private List<DetectLanguageChoice> languages = new ArrayList<>();
 
   public DetectLanguageMeta() {
     super();
@@ -67,6 +151,61 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
   @Override
   public void setDefault() {
     parallelism = false;
+    lowAccuracy = false;
+    languages = new ArrayList<>();
+  }
+
+  /** The names offered in the languages table: every language Lingua can detect. */
+  public List<String> languageNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    return Language.all().stream().map(Language::name).sorted().toList();
+  }
+
+  /**
+   * Resolves the configured languages.
+   *
+   * @return the languages to detect, without duplicates and in the configured order; empty when
+   *     none is configured, which means all spoken languages
+   * @throws HopException when a name is not a Lingua language or when exactly one language is
+   *     configured: detection needs at least two to choose from
+   */
+  public List<Language> resolveLanguages(IVariables variables) throws HopException {
+    List<Language> resolved = new ArrayList<>();
+    if (languages == null) {
+      return resolved;
+    }
+    for (DetectLanguageChoice choice : languages) {
+      String name = choice == null ? null : choice.getName();
+      if (variables != null) {
+        name = variables.resolve(name);
+      }
+      if (StringUtils.isBlank(name)) {
+        continue;
+      }
+      Language language = findLanguage(name.trim());
+      if (language == null) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "DetectLanguage.Error.UnknownLanguage", name.trim()));
+      }
+      if (!resolved.contains(language)) {
+        resolved.add(language);
+      }
+    }
+    if (resolved.size() == 1) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "DetectLanguage.Error.SingleLanguage", resolved.get(0).name()));
+    }
+    return resolved;
+  }
+
+  private static Language findLanguage(String name) {
+    String upper = name.toUpperCase(Locale.ROOT);
+    for (Language language : Language.all()) {
+      if (language.name().equals(upper)) {
+        return language;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -77,7 +216,6 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
-
     // name = getParentTransformMeta().getName()
     valueMetaString(r, name, "detected_language");
     valueMetaNumber(r, name, "detected_language_confidence");
@@ -107,7 +245,6 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-
     if (isEmpty(corpusField)) {
       cr =
           new CheckResult(
@@ -120,6 +257,21 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
               TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "DetectLanguageMeta.CheckResult.CorpusFieldOK"),
               transformMeta);
+    }
+    remarks.add(cr);
+
+    try {
+      List<Language> resolved = resolveLanguages(variables);
+      cr =
+          new CheckResult(
+              TYPE_RESULT_OK,
+              resolved.isEmpty()
+                  ? BaseMessages.getString(PKG, "DetectLanguageMeta.CheckResult.AllLanguages")
+                  : BaseMessages.getString(
+                      PKG, "DetectLanguageMeta.CheckResult.LanguagesOK", resolved.size()),
+              transformMeta);
+    } catch (HopException e) {
+      cr = new CheckResult(TYPE_RESULT_ERROR, e.getMessage().trim(), transformMeta);
     }
     remarks.add(cr);
 
@@ -144,21 +296,5 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  public String getCorpusField() {
-    return corpusField;
-  }
-
-  public void setCorpusField(String corpusField) {
-    this.corpusField = corpusField;
-  }
-
-  public boolean isParallelism() {
-    return parallelism;
-  }
-
-  public void setParallelism(boolean parallelism) {
-    this.parallelism = parallelism;
   }
 }

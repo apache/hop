@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.language;
 
+import com.github.pemistahl.lingua.api.LanguageDetector;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -29,6 +30,9 @@ public class DetectLanguageData extends BaseTransformData implements ITransformD
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;
   public int NrPrevFields;
+
+  /** Built in init() from the configured languages and accuracy mode. */
+  public LanguageDetector detector;
 
   public DetectLanguageData() {
     super();
