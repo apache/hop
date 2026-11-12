@@ -21,9 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -96,14 +101,65 @@ class LanguageModelChatMetaSecretsTest {
     assertEquals("HF_ACCESS_TOKEN", back.getHuggingFaceAccessToken());
   }
 
-  /** The field default disagreed with setDefault() and shipped a stray brace, see issue #8336. */
+  /**
+   * Every key field defaults to a variable: a plain value would be sent as the key, and is reported
+   * as a hardcoded secret by lint rule SEC-002 in every pipeline that uses another provider, see
+   * issue #9385.
+   */
   @Test
-  void openAiApiKeyDefaultHasNoStrayBrace() {
-    LanguageModelChatMeta meta = new LanguageModelChatMeta();
-    assertEquals("OPENAI_API_KEY", meta.getOpenAiApiKey());
+  void everyKeyFieldDefaultsToAVariable() throws Exception {
+    LanguageModelChatMeta constructed = new LanguageModelChatMeta();
+    LanguageModelChatMeta defaulted = new LanguageModelChatMeta();
+    defaulted.setDefault();
 
-    meta.setDefault();
-    assertEquals("OPENAI_API_KEY", meta.getOpenAiApiKey());
+    Set<String> keyFields = new HashSet<>();
+    for (Field field : LanguageModelChatMeta.class.getDeclaredFields()) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property == null || !property.password() || field.getType() != String.class) {
+        continue;
+      }
+      keyFields.add(field.getName());
+      field.setAccessible(true);
+      for (LanguageModelChatMeta meta : List.of(constructed, defaulted)) {
+        String value = (String) field.get(meta);
+        // No default sends nothing and is not reported either.
+        assertTrue(
+            value == null || value.matches("\\$\\{[A-Z_]+}"),
+            field.getName() + " defaults to '" + value + "'");
+      }
+    }
+    assertTrue(
+        keyFields.containsAll(
+            List.of("openAiApiKey", "huggingFaceAccessToken", "mistralApiKey", "anthropicApiKey")),
+        keyFields.toString());
+  }
+
+  /**
+   * Each key field defaults to its provider's variable, also after setDefault(). The field default
+   * once disagreed with setDefault() and shipped a stray brace, see issue #8336.
+   */
+  @Test
+  void keyDefaultsNameTheProvidersVariable() {
+    LanguageModelChatMeta constructed = new LanguageModelChatMeta();
+    LanguageModelChatMeta defaulted = new LanguageModelChatMeta();
+    defaulted.setDefault();
+
+    for (LanguageModelChatMeta meta : List.of(constructed, defaulted)) {
+      assertEquals("${OPENAI_API_KEY}", meta.getOpenAiApiKey());
+      assertEquals("${HF_ACCESS_TOKEN}", meta.getHuggingFaceAccessToken());
+      assertEquals("${MISTRAL_API_KEY}", meta.getMistralApiKey());
+      assertEquals("${ANTHROPIC_API_KEY}", meta.getAnthropicApiKey());
+    }
+  }
+
+  /**
+   * A default is written as it stands, not encrypted, so a pipeline keeps reading it as a variable.
+   */
+  @Test
+  void defaultKeysAreWrittenAsVariables() throws Exception {
+    String xml = new LanguageModelChatMeta().getXml();
+    assertTrue(xml.contains("<openAiApiKey>${OPENAI_API_KEY}</openAiApiKey>"), xml);
+    assertTrue(xml.contains("<anthropicApiKey>${ANTHROPIC_API_KEY}</anthropicApiKey>"), xml);
   }
 
   private LanguageModelChatMeta fromXml(String xml) throws Exception {

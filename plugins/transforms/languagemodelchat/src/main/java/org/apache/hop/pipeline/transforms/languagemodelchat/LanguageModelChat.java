@@ -123,7 +123,9 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       modelMeta = LanguageModelChatAiProviderSupport.resolve(meta, this, metadataProvider);
-      facadeMap.put(new LanguageModel(modelMeta), new LanguageModelFacade(variables, modelMeta));
+      facadeMap.put(
+          new LanguageModel(modelMeta),
+          new LanguageModelFacade(variables, modelMeta, getLogChannel()));
 
       int parallelism =
           meta.getParallelism() <= 0 ? getRuntime().availableProcessors() : meta.getParallelism();

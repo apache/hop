@@ -1,0 +1,9 @@
+{
+  "variables": [
+    {
+      "name": "LLM_STUB_URL",
+      "value": "http://llmstub",
+      "description": "Stub chat endpoint on the docker integration-test network, see docker/integration-tests/resource/languagemodelchat/llm-stub.conf"
+    }
+  ]
+}
