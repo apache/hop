@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -58,11 +62,15 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
@@ -896,5 +904,169 @@ class PipelineExecutorTest {
 
     assertFalse(result.isResult());
     verify(executor, times(1)).executePipelineAttempt(any(), anyLong());
+  }
+
+  // --- field values for parameters are taken when a child pipeline runs, not for every row ---
+
+  /** Runs rows through processRow() and returns the field values each child execution got. */
+  private List<List<String>> parameterValuesPerExecution(
+      PipelineExecutorData data, RowMeta rowMeta, Object[]... rows) throws HopException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    data.groupBuffer = new ArrayList<>();
+    PipelineExecutor executor = spy(newExecutor(meta, data));
+    // getRow() waits for the parent pipeline to be running
+    IPipelineEngine<PipelineMeta> parentPipeline = executor.getPipeline();
+    doReturn(true).when(parentPipeline).isRunning();
+
+    BlockingRowSet input = new BlockingRowSet(rows.length + 1);
+    input.setThreadNameFromToCopy("previous", 0, "pipeline_executor", 0);
+    input.setRowMeta(rowMeta);
+    for (Object[] row : rows) {
+      input.putRow(rowMeta, row);
+    }
+    input.setDone();
+    executor.addRowSetToInputRowSets(input);
+
+    List<List<String>> executions = new ArrayList<>();
+    doAnswer(
+            invocation -> {
+              List<String> values = invocation.getArgument(0);
+              executions.add(values == null ? null : new ArrayList<>(values));
+              Result result = new Result();
+              result.setResult(true);
+              return result;
+            })
+        .when(executor)
+        .executeWithRetries(any());
+
+    assertTimeoutPreemptively(
+        Duration.ofSeconds(30),
+        () -> {
+          for (int i = 0; i <= rows.length; i++) {
+            executor.processRow();
+          }
+        });
+    return executions;
+  }
+
+  private static RowMeta groupAndNameRowMeta() {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("grp"));
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    return rowMeta;
+  }
+
+  @Test
+  void groupingBySizeUsesTheRowThatCompletesTheGroup() throws HopException {
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupSize = 2;
+
+    List<List<String>> executions =
+        parameterValuesPerExecution(
+            data,
+            groupAndNameRowMeta(),
+            new Object[] {"1", "a"},
+            new Object[] {"1", "b"},
+            new Object[] {"2", "c"},
+            new Object[] {"2", "d"},
+            new Object[] {"3", "e"});
+
+    // two full groups and the rest at the end of the input
+    assertEquals(List.of(List.of("1", "b"), List.of("2", "d"), List.of("3", "e")), executions);
+  }
+
+  @Test
+  void groupingByFieldUsesTheLastRowOfTheGroup() throws HopException {
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupSize = -1;
+    data.groupField = "grp";
+
+    List<List<String>> executions =
+        parameterValuesPerExecution(
+            data,
+            groupAndNameRowMeta(),
+            new Object[] {"1", "a"},
+            new Object[] {"1", "b"},
+            new Object[] {"2", "c"},
+            new Object[] {"3", "d"},
+            new Object[] {"3", "e"});
+
+    assertEquals(List.of(List.of("1", "b"), List.of("2", "c"), List.of("3", "e")), executions);
+  }
+
+  @Test
+  void aGroupOfOneRowRunsTheChildForEveryRow() throws HopException {
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupSize = 1;
+
+    List<List<String>> executions =
+        parameterValuesPerExecution(
+            data, groupAndNameRowMeta(), new Object[] {"1", "a"}, new Object[] {"2", null});
+
+    assertEquals(List.of(List.of("1", "a"), Arrays.asList("2", null)), executions);
+  }
+
+  // --- the run configuration is read once per transform copy ---
+
+  /** Counts how often the run configurations are asked for. */
+  private static final class CountingMetadataProvider extends MemoryMetadataProvider {
+    final AtomicInteger runConfigurationReads = new AtomicInteger();
+
+    @Override
+    public <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer(Class<T> managedClass)
+        throws HopException {
+      if (PipelineRunConfiguration.class.equals(managedClass)) {
+        runConfigurationReads.incrementAndGet();
+      }
+      return super.getSerializer(managedClass);
+    }
+  }
+
+  @Test
+  void theRunConfigurationIsReadOnceAndEveryExecutionGetsItsOwnCopy() throws HopException {
+    CountingMetadataProvider provider = new CountingMetadataProvider();
+    LocalPipelineRunConfiguration localEngine = new LocalPipelineRunConfiguration();
+    localEngine.setEnginePluginId("Local");
+    provider
+        .getSerializer(PipelineRunConfiguration.class)
+        .save(
+            new PipelineRunConfiguration(
+                "local", "", null, new ArrayList<>(), localEngine, null, false));
+    provider.runConfigurationReads.set(0);
+
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRunConfigurationName("local");
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setExecutorPipelineMeta(new PipelineMeta());
+    PipelineExecutor executor = newExecutor(meta, data);
+    executor.setMetadataProvider(provider);
+
+    IPipelineEngine<PipelineMeta> first = executor.createInternalPipeline();
+    IPipelineEngine<PipelineMeta> second = executor.createInternalPipeline();
+    IPipelineEngine<PipelineMeta> third = executor.createInternalPipeline();
+
+    assertEquals(1, provider.runConfigurationReads.get());
+    assertEquals("local", third.getPipelineRunConfiguration().getName());
+    // the engine keeps its run configuration and applies variables to it: never a shared object
+    assertTrue(first.getPipelineRunConfiguration() != second.getPipelineRunConfiguration());
+    assertTrue(second.getPipelineRunConfiguration() != third.getPipelineRunConfiguration());
+    assertTrue(
+        first.getPipelineRunConfiguration().getEngineRunConfiguration()
+            != second.getPipelineRunConfiguration().getEngineRunConfiguration());
+  }
+
+  @Test
+  void aMissingRunConfigurationStillFailsWithItsName() {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setRunConfigurationName("nowhere");
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.setExecutorPipelineMeta(new PipelineMeta());
+    PipelineExecutor executor = newExecutor(meta, data);
+
+    HopException e = assertThrows(HopException.class, executor::createInternalPipeline);
+    assertTrue(e.getMessage().contains("nowhere"));
   }
 }

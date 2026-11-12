@@ -17,7 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.IRowSet;
@@ -25,6 +27,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -60,6 +63,9 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
   public String runtimeMappingFilename;
 
   public Object prevGroupFieldData;
+
+  /** The run configurations this copy loaded, by name: read once and kept for the run. */
+  public final Map<String, PipelineRunConfiguration> runConfigurations = new HashMap<>();
 
   private IRowSet executorTransformOutputRowSet;
   private IRowSet resultRowsRowSet;

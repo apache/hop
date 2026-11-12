@@ -45,6 +45,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -84,14 +85,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         return false;
       }
 
-      List<String> incomingFieldValues = new ArrayList<>();
-      if (getInputRowMeta() != null) {
-        for (int i = 0; i < getInputRowMeta().size(); i++) {
-          String fieldvalue = getInputRowMeta().getString(row, i);
-          incomingFieldValues.add(fieldvalue);
-        }
-      }
-
       if (first) {
 
         first = false;
@@ -112,7 +105,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
           if (pipelineExecutorData.prevFilename != null
               && pipelineExecutorData.groupSize > 0
               && !pipelineExecutorData.groupBuffer.isEmpty()) {
-            executePipeline(incomingFieldValues);
+            executePipeline(fieldValues(row));
           }
           if (isDetailed()) {
             logDetailed("Identified a new pipeline to execute: '" + filename + "'");
@@ -148,7 +141,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         } else if (pipelineExecutorData.groupTime > 0) { // grouping by execution time
           long now = System.currentTimeMillis();
           if (now - pipelineExecutorData.groupTimeStart >= pipelineExecutorData.groupTime) {
-            executePipeline(incomingFieldValues);
+            executePipeline(fieldValues(row));
           }
         }
       }
@@ -162,13 +155,28 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       // If group buffer size exceeds specified limit, then execute pipeline and flush group buffer.
       if (pipelineExecutorData.groupSize > 0
           && pipelineExecutorData.groupBuffer.size() >= pipelineExecutorData.groupSize) {
-        executePipeline(incomingFieldValues);
+        executePipeline(fieldValues(row));
       }
 
       return true;
     } catch (Exception e) {
       throw new HopException(BaseMessages.getString(PKG, "PipelineExecutor.UnexpectedError"), e);
     }
+  }
+
+  /**
+   * The values of a row as text, for the parameters that take their value from a field. Only asked
+   * for when a child pipeline is about to run, not for every row.
+   */
+  private List<String> fieldValues(Object[] row) throws HopValueException {
+    List<String> values = new ArrayList<>();
+    IRowMeta rowMeta = getInputRowMeta();
+    if (rowMeta != null) {
+      for (int i = 0; i < rowMeta.size(); i++) {
+        values.add(rowMeta.getString(row, i));
+      }
+    }
+    return values;
   }
 
   private void initOnFirstProcessingIteration() throws HopException {
@@ -431,7 +439,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     // HOP_DATA the same way when running under Native Spark mapPartitions.
     IPipelineEngine<PipelineMeta> executorPipeline =
         PipelineEngineFactory.createPipelineEngine(
-            this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta());
+            this,
+            runConfiguration(runConfigurationName),
+            metadataProvider,
+            getData().getExecutorPipelineMeta());
     executorPipeline.setParentPipeline(getPipeline());
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel(getLogLevel());
@@ -439,6 +450,22 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     executorPipeline.setPreview(getPipeline().isPreview());
 
     return executorPipeline;
+  }
+
+  /**
+   * The run configuration of the child pipeline. It is read from the metadata the first time this
+   * transform copy needs it and kept for the rest of the run: a change to the run configuration
+   * while the pipeline runs does not reach the executions that follow. Every execution gets its own
+   * copy, because the engine keeps it and applies variables to it.
+   */
+  private PipelineRunConfiguration runConfiguration(String name) throws HopException {
+    Map<String, PipelineRunConfiguration> loaded = getData().runConfigurations;
+    PipelineRunConfiguration runConfiguration = loaded.get(name);
+    if (runConfiguration == null) {
+      runConfiguration = PipelineEngineFactory.loadRunConfiguration(name, metadataProvider);
+      loaded.put(name, runConfiguration);
+    }
+    return new PipelineRunConfiguration(runConfiguration);
   }
 
   @VisibleForTesting
