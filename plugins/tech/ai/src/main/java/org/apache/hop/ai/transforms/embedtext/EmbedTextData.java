@@ -33,6 +33,16 @@ public class EmbedTextData extends BaseTransformData implements ITransformData {
   /** Model name actually in use, for the optional output field and for error messages. */
   public String modelName;
 
+  /** The AI provider and its resolved base URL, so a failed call can say which endpoint it was. */
+  public String providerName;
+
+  public String baseUrl;
+
+  /**
+   * Pause before the first retry of a failed call. Each following retry waits half as long again.
+   */
+  public long retryDelayMillis = 500L;
+
   /** Batch size resolved once in init, so a variable is not re-resolved per row. */
   public int batchSize;
 

@@ -17,12 +17,10 @@
 package org.apache.hop.ai.transforms.embedtext;
 
 import java.util.List;
-import java.util.function.IntPredicate;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.ai.metadata.AiProvider;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -70,6 +68,9 @@ public class EmbedTextMeta extends BaseTransformMeta<EmbedText, EmbedTextData> {
   private static final int TYPE_VECTOR = 1536;
 
   private static final Class<?> PKG = EmbedTextMeta.class;
+
+  /** Used when the batch size is left empty. */
+  static final int DEFAULT_BATCH_SIZE = 16;
 
   @GuiWidgetElement(
       order = "0100",
@@ -302,22 +303,54 @@ public class EmbedTextMeta extends BaseTransformMeta<EmbedText, EmbedTextData> {
       error(remarks, transformMeta, "EmbedText.Validation.OutputFieldRequired");
     }
     // Batch size accepts variables, which a design-time check cannot resolve. Only a value that is
-    // genuinely fixed can be judged here.
-    if (isResolvedNumberBad(variables, batchSize, size -> size < 1)) {
-      error(remarks, transformMeta, "EmbedText.Validation.BatchSizePositive");
+    // genuinely fixed can be judged here, read the same way as in EmbedText.init().
+    String resolvedBatchSize = variables.resolve(batchSize);
+    if (!StringUtil.containsVariableToken(resolvedBatchSize)) {
+      BatchSize size = parseBatchSize(resolvedBatchSize);
+      if (size.error() != null) {
+        remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, size.error(), transformMeta));
+      }
     }
     if (includeModelMetadata && Utils.isEmpty(modelField) && Utils.isEmpty(dimensionsField)) {
       warning(remarks, transformMeta, "EmbedText.Validation.NoMetadataFields");
     }
   }
 
-  private static boolean isResolvedNumberBad(
-      IVariables variables, String value, IntPredicate invalid) {
-    String resolved = variables.resolve(value);
-    if (StringUtil.containsVariableToken(resolved)) {
-      return false;
+  /**
+   * A resolved batch size as the transform runs it, or why it cannot run with it.
+   *
+   * @param value the batch size, meaningful only when there is no error
+   * @param error the reason the value cannot be used, or null
+   */
+  record BatchSize(int value, String error) {}
+
+  /**
+   * Reads a resolved batch size: trimmed, and {@link #DEFAULT_BATCH_SIZE} when empty. Shared by
+   * {@link #check} and {@link EmbedText#init()} so Verify and a run never disagree.
+   */
+  static BatchSize parseBatchSize(String resolved) {
+    if (resolved == null || resolved.isBlank()) {
+      return new BatchSize(DEFAULT_BATCH_SIZE, null);
     }
-    return invalid.test(Const.toInt(resolved, -1));
+    String text = resolved.trim();
+    int value;
+    try {
+      value = Integer.parseInt(text);
+    } catch (NumberFormatException e) {
+      String key =
+          text.matches("\\+?\\d+")
+              ? "EmbedText.Validation.BatchSizeTooLarge"
+              : text.matches("-\\d+")
+                  ? "EmbedText.Validation.BatchSizePositive"
+                  : "EmbedText.Validation.BatchSizeNotANumber";
+      return new BatchSize(
+          0, BaseMessages.getString(PKG, key, resolved, String.valueOf(Integer.MAX_VALUE)));
+    }
+    if (value < 1) {
+      return new BatchSize(
+          0, BaseMessages.getString(PKG, "EmbedText.Validation.BatchSizePositive"));
+    }
+    return new BatchSize(value, null);
   }
 
   private static void error(

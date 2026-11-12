@@ -30,8 +30,14 @@ import static org.mockito.Mockito.when;
 
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.exception.AuthenticationException;
+import dev.langchain4j.exception.InternalServerException;
+import dev.langchain4j.exception.LangChain4jException;
+import dev.langchain4j.exception.RateLimitException;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -52,7 +58,11 @@ class EmbedTextTest {
   private TransformMockHelper<EmbedTextMeta, EmbedTextData> helper;
   private List<Object[]> passed;
   private List<Object[]> diverted;
-  private boolean failTheProvider;
+  private List<String> errorDescriptions;
+  private RuntimeException failure;
+  private int failuresLeft;
+  private int calls;
+  private boolean stopAfterFirstCall;
 
   @BeforeAll
   static void setUpClass() throws Exception {
@@ -66,7 +76,11 @@ class EmbedTextTest {
     when(helper.pipeline.isRunning()).thenReturn(true);
     passed = new ArrayList<>();
     diverted = new ArrayList<>();
-    failTheProvider = false;
+    errorDescriptions = new ArrayList<>();
+    failure = null;
+    failuresLeft = 0;
+    calls = 0;
+    stopAfterFirstCall = false;
   }
 
   @AfterEach
@@ -128,10 +142,189 @@ class EmbedTextTest {
   }
 
   @Test
+  void findsNothingToEmbedInNoBreakAndZeroWidthSpaces() {
+    // isBlank() keeps all of these, so they used to be sent and came back as a meaningless vector.
+    assertTrue(EmbedText.hasNothingToEmbed("\u00A0\u00A0"), "no-break spaces");
+    assertTrue(EmbedText.hasNothingToEmbed("\u202F"), "narrow no-break space");
+    assertTrue(EmbedText.hasNothingToEmbed("\u2007"), "figure space");
+    assertTrue(EmbedText.hasNothingToEmbed("\u200B"), "zero-width space");
+    assertTrue(EmbedText.hasNothingToEmbed("\uFEFF \u2060"), "byte order mark and word joiner");
+    assertFalse(EmbedText.hasNothingToEmbed("\u200Bword\u00A0"));
+    assertFalse(EmbedText.hasNothingToEmbed("\u4E2D"), "a CJK character is text");
+  }
+
+  @Test
+  void doesNotSendTextOfOnlyUnicodeSpaces() throws Exception {
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {"\u00A0\u202F\u200B"}));
+
+    assertEquals(2, passed.size());
+    assertEquals("[1.0,2.0]", passed.get(0)[1]);
+    assertNull(passed.get(1)[1], "a row of Unicode spaces gets no embedding");
+  }
+
+  @Test
+  void refusesABatchSizeThatIsNotANumber() {
+    // An unset variable stays as ${...}; it used to run with 16 without a word.
+    assertFalse(initWithBatchSize("${EMBED_BATCH_NOT_SET}"));
+    assertFalse(initWithBatchSize("ten"));
+  }
+
+  @Test
+  void usesTheDefaultBatchSizeWhenItIsEmptyAndTheValueWhenItIsSet() {
+    EmbedTextData data = new EmbedTextData();
+    assertTrue(initWithBatchSize("", data));
+    assertEquals(EmbedTextMeta.DEFAULT_BATCH_SIZE, data.batchSize);
+
+    data = new EmbedTextData();
+    assertTrue(initWithBatchSize(" 8 ", data));
+    assertEquals(8, data.batchSize);
+
+    data = new EmbedTextData();
+    assertTrue(initWithBatchSize("  ", data));
+    assertEquals(EmbedTextMeta.DEFAULT_BATCH_SIZE, data.batchSize);
+  }
+
+  @Test
+  void namesTheProviderAndEndpointWhenTheProviderCannotBeReached() throws Exception {
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    failWith(new RuntimeException(new ConnectException()), Integer.MAX_VALUE);
+
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {"second"}));
+
+    assertEquals(2, diverted.size());
+    String description = errorDescriptions.get(0);
+    assertTrue(description.contains("test-model"), description);
+    assertTrue(description.contains("'local-ollama'"), description);
+    assertTrue(description.contains("http://localhost:11499"), description);
+    assertTrue(description.contains("ConnectException"), description);
+  }
+
+  @Test
+  void stopsWithTheProviderAndEndpointWhenThereIsNoErrorHop() {
+    failWith(new RuntimeException(new ConnectException()), Integer.MAX_VALUE);
+
+    HopException e =
+        assertThrows(HopException.class, () -> run(List.<Object[]>of(new Object[] {"first"})));
+    assertTrue(e.getMessage().contains("'local-ollama' at http://localhost:11499"), e.getMessage());
+    assertEquals(1 + EmbedText.MAX_RETRIES, calls, "the first attempt and every retry");
+  }
+
+  @Test
+  void retriesAFailedCallAndKeepsTheEmbeddings() throws Exception {
+    failWith(new RateLimitException("provider is busy"), EmbedText.MAX_RETRIES);
+
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {"second"}));
+
+    assertEquals(1 + EmbedText.MAX_RETRIES, calls);
+    assertEquals(2, passed.size());
+    assertEquals("[1.0,2.0]", passed.get(1)[1]);
+  }
+
+  @Test
+  void doesNotRetryARefusalThatWillNotChange() {
+    failWith(new AuthenticationException("invalid api key"), Integer.MAX_VALUE);
+
+    assertThrows(HopException.class, () -> run(List.<Object[]>of(new Object[] {"first"})));
+    assertEquals(1, calls);
+  }
+
+  @Test
+  void doesNotRetryAFailureThatWouldHappenAgain() {
+    // An answer that cannot be read is not going to read better on the next attempt.
+    failWith(new IllegalStateException("cannot map the response"), Integer.MAX_VALUE);
+
+    assertThrows(HopException.class, () -> run(List.<Object[]>of(new Object[] {"first"})));
+    assertEquals(1, calls);
+  }
+
+  @Test
+  void retriesOnlyFailuresThatMayPass() {
+    assertTrue(EmbedText.isRetriable(new RateLimitException("slow down")));
+    assertTrue(EmbedText.isRetriable(new InternalServerException("502")));
+    assertTrue(EmbedText.isRetriable(new LangChain4jException(new ConnectException())));
+    assertTrue(EmbedText.isRetriable(new RuntimeException(new SocketTimeoutException())));
+    assertFalse(EmbedText.isRetriable(new AuthenticationException("invalid api key")));
+    assertFalse(EmbedText.isRetriable(new IllegalStateException("cannot map the response")));
+    assertFalse(EmbedText.isRetriable(new RuntimeException("input must not be blank")));
+  }
+
+  @Test
+  void abandonsTheBatchWhenThePipelineIsStoppedWhileRetrying() throws Exception {
+    // Pressing Stop during an outage is not a failure of the rows that were waiting.
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    failWith(new LangChain4jException(new ConnectException()), Integer.MAX_VALUE);
+    stopAfterFirstCall = true;
+
+    run(Arrays.asList(new Object[] {"first"}, new Object[] {"second"}));
+
+    assertEquals(1, calls, "no retry after the stop");
+    assertTrue(diverted.isEmpty(), "no error rows for a stopped run");
+    assertTrue(passed.isEmpty());
+  }
+
+  @Test
+  void leavesCredentialsOutOfTheEndpointInMessages() {
+    assertEquals(
+        "https://host:8443/v1",
+        EmbedText.endpointForMessages("https://user:secret@host:8443/v1?api_key=abc#x"));
+    assertEquals("http://localhost:11434", EmbedText.endpointForMessages("http://localhost:11434"));
+    assertEquals("", EmbedText.endpointForMessages(""));
+  }
+
+  @Test
+  void leavesCredentialsOutOfAnEndpointThatJavaNetUriCannotSplit() {
+    // An underscore makes the authority registry based, so URI finds no host and no user info.
+    assertEquals(
+        "http://ollama_host:11434",
+        EmbedText.endpointForMessages("http://user:secret@ollama_host:11434"));
+    // No scheme, so URI reads it as opaque and finds no query.
+    assertEquals("myhost:11434/v1", EmbedText.endpointForMessages("myhost:11434/v1?api_key=abc"));
+    assertEquals("ollama:11434", EmbedText.endpointForMessages("user:secret@ollama:11434"));
+  }
+
+  @Test
+  void masksSecretsInTheCauseMessage() {
+    String masked =
+        EmbedText.maskSecrets(
+            "Incorrect API key provided: sk-proj-abcdef123456. Called"
+                + " https://user:pw@host/v1/embeddings?api_key=abc123&x=1 with Bearer xyz789");
+
+    assertFalse(masked.contains("abcdef123456"), masked);
+    assertFalse(masked.contains("pw@"), masked);
+    assertFalse(masked.contains("abc123"), masked);
+    assertFalse(masked.contains("xyz789"), masked);
+    assertTrue(masked.contains("https://***@host/v1/embeddings?api_key=***&x=1"), masked);
+  }
+
+  @Test
+  void cutsALongCauseMessageShortAndKeepsItOnOneLine() {
+    String page = "<html>\n<body>\n" + "Bad gateway ".repeat(200) + "</body>\n</html>";
+
+    String masked = EmbedText.maskSecrets(page);
+
+    assertEquals(EmbedText.MAX_CAUSE_LENGTH + 3, masked.length());
+    assertFalse(masked.contains("\n"), masked);
+  }
+
+  @Test
+  void masksTheCauseInTheErrorRows() throws Exception {
+    when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    failWith(
+        new AuthenticationException("Incorrect API key provided: sk-live-0123456789abcdef"),
+        Integer.MAX_VALUE);
+
+    run(List.<Object[]>of(new Object[] {"first"}));
+
+    String description = errorDescriptions.get(0);
+    assertFalse(description.contains("0123456789abcdef"), description);
+    assertTrue(description.contains("AuthenticationException"), description);
+  }
+
+  @Test
   void divertsOnlyTheRowsThatWereActuallySent() throws Exception {
     // A row with no text is not in the request, so a provider failure is not its failure.
     when(helper.transformMeta.isDoingErrorHandling()).thenReturn(true);
-    failTheProvider = true;
+    failWith(new RuntimeException("provider is down"), Integer.MAX_VALUE);
 
     run(Arrays.asList(new Object[] {"first"}, new Object[] {""}, new Object[] {"third"}));
 
@@ -163,6 +356,26 @@ class EmbedTextTest {
     assertTrue(e.getMessage().contains("output field"), e.getMessage());
   }
 
+  private void failWith(RuntimeException exception, int times) {
+    failure = exception;
+    failuresLeft = times;
+  }
+
+  private boolean initWithBatchSize(String batchSize) {
+    return initWithBatchSize(batchSize, new EmbedTextData());
+  }
+
+  private boolean initWithBatchSize(String batchSize, EmbedTextData data) {
+    EmbedTextMeta meta = new EmbedTextMeta();
+    meta.setDefault();
+    meta.setAiProvider("ollama");
+    meta.setInputField("chunk_text");
+    meta.setBatchSize(batchSize);
+    EmbedText transform =
+        new EmbedText(helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline);
+    return transform.init();
+  }
+
   private void run(List<Object[]> rows) throws Exception {
     EmbedTextMeta meta = new EmbedTextMeta();
     meta.setDefault();
@@ -180,14 +393,19 @@ class EmbedTextTest {
     data.inputFieldIndex = 0;
     data.batchSize = 16;
     data.modelName = "test-model";
+    data.providerName = "local-ollama";
+    data.baseUrl = "http://localhost:11499";
+    data.retryDelayMillis = 0L;
     data.outputFieldName = "embedding";
 
     EmbeddingModel model = mock(EmbeddingModel.class);
     when(model.embedAll(any()))
         .thenAnswer(
             invocation -> {
-              if (failTheProvider) {
-                throw new RuntimeException("provider is down");
+              calls++;
+              if (failuresLeft > 0) {
+                failuresLeft--;
+                throw failure;
               }
               List<TextSegment> segments = invocation.getArgument(0);
               // Like the providers, reject blank input for the whole request.
@@ -225,10 +443,15 @@ class EmbedTextTest {
     doAnswer(
             invocation -> {
               diverted.add(invocation.getArgument(1));
+              errorDescriptions.add(invocation.getArgument(3));
               return null;
             })
         .when(transform)
         .putError(any(), any(), anyLong(), any(), any(), any());
+
+    if (stopAfterFirstCall) {
+      doAnswer(invocation -> calls > 0).when(transform).isStopped();
+    }
 
     while (transform.processRow()) {
       // drain

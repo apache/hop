@@ -92,6 +92,21 @@ limitations under the License.
         <item>N</item>
       </line>
       <line>
+        <item>&#160;&#160;</item>
+        <item/>
+        <item>N</item>
+      </line>
+      <line>
+        <item>&#8239;</item>
+        <item/>
+        <item>N</item>
+      </line>
+      <line>
+        <item>&#8203;</item>
+        <item/>
+        <item>N</item>
+      </line>
+      <line>
         <item>Embeddings turn text into vectors for retrieval.</item>
         <item/>
         <item>Y</item>
@@ -354,7 +369,7 @@ limitations under the License.
         <value>
           <name>constant</name>
           <type>Integer</type>
-          <text>5</text>
+          <text>8</text>
           <length>-1</length>
           <precision>-1</precision>
           <isnull>N</isnull>
