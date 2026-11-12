@@ -23,18 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.github.pemistahl.lingua.api.LanguageDetector;
-import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.TreeMap;
@@ -48,12 +45,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.MockedStatic;
 
 @Timeout(10)
 class DetectLanguageAsyncTest {
@@ -72,15 +69,14 @@ class DetectLanguageAsyncTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     transformMeta = spy(new TransformMeta("test", meta));
     pipelineMeta.addTransform(transformMeta);
-    try (MockedStatic<LanguageDetectorBuilder> factory =
-        mockStatic(LanguageDetectorBuilder.class)) {
-      LanguageDetectorBuilder builder = mock(LanguageDetectorBuilder.class, RETURNS_SELF);
-      LanguageDetector detector = mock(LanguageDetector.class);
-      factory.when(LanguageDetectorBuilder::fromAllSpokenLanguages).thenReturn(builder);
-      when(builder.build()).thenReturn(detector);
-      when(detector.computeLanguageConfidenceValues(anyString())).thenReturn(new TreeMap<>());
-      transform = spy(new DetectLanguage(transformMeta, meta, data, 0, pipelineMeta, null));
-    }
+    LanguageDetector detector = mock(LanguageDetector.class);
+    when(detector.computeLanguageConfidenceValues(anyString())).thenReturn(new TreeMap<>());
+    data.detector = detector;
+    data.corpusField = "input";
+    transform = spy(new DetectLanguage(transformMeta, meta, data, 0, pipelineMeta, null));
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("input"));
+    transform.setInputRowMeta(inputRowMeta);
     transform.first = false;
     data.indexOfCorpusField = 0;
     data.indexOfDetectedLanguage = 1;

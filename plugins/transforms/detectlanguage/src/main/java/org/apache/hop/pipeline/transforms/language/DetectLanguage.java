@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.language;
 
 import static com.github.pemistahl.lingua.api.Language.UNKNOWN;
-import static com.github.pemistahl.lingua.api.LanguageDetectorBuilder.fromAllSpokenLanguages;
 import static java.lang.System.arraycopy;
 import static java.util.concurrent.ForkJoinPool.commonPool;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -27,7 +26,9 @@ import static org.apache.hop.core.util.Utils.isEmpty;
 
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
+import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
@@ -44,6 +45,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
   private static final Class<?> PKG = DetectLanguage.class;
   private static final String CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD =
       "DetectLanguage.Exception.CouldnotFindField";
+  private static final String ERROR_CODE = "DetectLanguage001";
 
   public DetectLanguage(
       TransformMeta transformMeta,
@@ -71,15 +73,52 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
 
   private final Object lock = new Object();
 
-  private final LanguageDetector detector =
-      fromAllSpokenLanguages().withPreloadedLanguageModels().build();
+  /** The outcome of one detection: the language name and its confidence, null when unknown. */
+  record Detection(String language, Double confidence) {}
 
-  private void awaitJobs() {
-    awaitJobs(DRAIN_TIMEOUT_MILLIS);
+  /**
+   * The Lingua builder for the configured options.
+   *
+   * @param languages the languages to choose from; empty means all spoken languages
+   * @param lowAccuracy use only the trigram models
+   */
+  static LanguageDetectorBuilder createBuilder(List<Language> languages, boolean lowAccuracy) {
+    LanguageDetectorBuilder builder =
+        languages.isEmpty()
+            ? LanguageDetectorBuilder.fromAllSpokenLanguages()
+            : LanguageDetectorBuilder.fromLanguages(languages.toArray(new Language[0]));
+    if (lowAccuracy) {
+      builder = builder.withLowAccuracyMode();
+    }
+    return builder.withPreloadedLanguageModels();
   }
 
-  private void awaitJobs(final long timeoutMillis) {
+  @Override
+  public boolean init() {
+    if (!super.init()) {
+      return false;
+    }
+    try {
+      data.detector = createBuilder(meta.resolveLanguages(this), meta.isLowAccuracy()).build();
+      return true;
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "DetectLanguage.Error.DetectorNotBuilt"), e);
+      return false;
+    }
+  }
+
+  /**
+   * Waits for accepted asynchronous work, at most {@link #DRAIN_TIMEOUT_MILLIS}.
+   *
+   * @return true when every job finished, false when some were abandoned
+   */
+  private boolean awaitJobs() {
+    return awaitJobs(DRAIN_TIMEOUT_MILLIS);
+  }
+
+  private boolean awaitJobs(final long timeoutMillis) {
     boolean interrupted = false;
+    boolean drained;
     final long deadline = System.currentTimeMillis() + timeoutMillis;
     synchronized (lock) {
       long remaining = timeoutMillis;
@@ -93,7 +132,8 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         }
         remaining = deadline - System.currentTimeMillis();
       }
-      if (jobs > 0) {
+      drained = jobs == 0;
+      if (!drained) {
         // A worker is stuck and no provider timeout applies. Do not block disposal forever: log and
         // abandon the remaining jobs.
         logBasic(
@@ -107,6 +147,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     if (interrupted) {
       Thread.currentThread().interrupt();
     }
+    return drained;
   }
 
   /**
@@ -150,8 +191,16 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
   @Override
   public void dispose() {
     // The common pool is shared. Drain our work, but never shut the pool down.
-    awaitJobs();
-    detector.unloadLanguageModels();
+    // After an error or a stop the transform ends without finish(), and parallel jobs can still be
+    // queued. They use the detector: unloading under them would make them fail on a missing
+    // detector, or load the models again with nothing left to unload them.
+    boolean drained = awaitJobs();
+    if (drained && data.detector != null) {
+      // Lingua keeps its models in static maps: release what this transform asked for. Another
+      // Detect language transform that is still running loads them again on demand.
+      data.detector.unloadLanguageModels();
+      data.detector = null;
+    }
     final boolean shouldLog;
     synchronized (lock) {
       // Only log a failure we have not already surfaced through the run loop, so it is not logged
@@ -189,7 +238,9 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (isEmpty(meta.getCorpusField())) {
+      // The field combo accepts variables
+      data.corpusField = resolve(meta.getCorpusField());
+      if (isEmpty(data.corpusField)) {
         throw new HopException(
             BaseMessages.getString(PKG, "DetectLanguage.Error.CorpusFieldMissing"));
       }
@@ -198,7 +249,6 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     } // End If first
 
     try {
-      process(r);
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
@@ -206,6 +256,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
                 "DetectLanguage.LineNumber",
                 getLinesRead() + " : " + getInputRowMeta().getString(r)));
       }
+      process(r);
     } catch (Exception e) {
       // An infrastructure/worker failure must not be attributed to the current input row.
       checkFailure();
@@ -216,8 +267,10 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
   }
 
   private void process(Object[] inputRow) throws HopException {
-    String corpus = trim((String) inputRow[data.indexOfCorpusField]);
+    String corpus = trim(getInputRowMeta().getString(inputRow, data.indexOfCorpusField));
     if (isBlank(corpus)) {
+      // Nothing to detect: the row passes with an unknown language and no confidence.
+      putDetection(inputRow, new Detection(UNKNOWN.name(), null));
       return;
     }
 
@@ -230,11 +283,13 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
 
   private void handleRowError(Object[] row, Exception e) throws HopException {
     if (!getTransformMeta().isDoingErrorHandling()) {
-      throw new HopException("Error processing row", e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "DetectLanguage.ErrorInTransformRunning") + e.getMessage(),
+          e);
     }
     // Error output has the same serialization requirement as normal output.
     synchronized (this) {
-      putError(getInputRowMeta(), row, 1, e.toString(), meta.getCorpusField(), "DetectLanguage001");
+      putError(getInputRowMeta(), row, 1, e.toString(), data.corpusField, ERROR_CODE);
     }
   }
 
@@ -257,11 +312,18 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
           () -> {
             try {
               try {
-                processSync(text, inputRow);
+                // Stopped: nobody wants the row anymore, and dispose() waits for the queue to
+                // drain.
+                if (!isStopped() || isSafeStopped()) {
+                  processSync(text, inputRow);
+                }
               } catch (Exception e) {
                 handleRowError(inputRow, e);
               }
             } catch (Throwable e) {
+              // Throwable, not Exception: nobody reads the pool's Future, so an Error caught
+              // nowhere else would make the row disappear without a trace. An Error says nothing
+              // about the row: it always stops the transform.
               synchronized (lock) {
                 if (failure == null) {
                   failure = e;
@@ -286,16 +348,14 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     }
   }
 
-  @SuppressWarnings(
-      "javabugs:S2259") // the probabilities come from the map's own keys and are never null
   private void cacheIndexPositions() throws HopException {
     if (data.indexOfCorpusField < 0) {
-      data.indexOfCorpusField = data.previousRowMeta.indexOfValue(meta.getCorpusField());
+      data.indexOfCorpusField = data.previousRowMeta.indexOfValue(data.corpusField);
       if (data.indexOfCorpusField < 0) {
         // The field is unreachable!
         throw new HopException(
             BaseMessages.getString(
-                PKG, CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD, meta.getCorpusField()));
+                PKG, CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD, data.corpusField));
       }
     }
     if (data.indexOfDetectedLanguage < 0) {
@@ -321,9 +381,13 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     }
   }
 
+  /**
+   * Detects the language of a text: the most likely language, unless the second one is as likely or
+   * closer than Lingua's minimum relative distance, in which case the language is unknown.
+   */
   @SuppressWarnings(
       "javabugs:S2259") // the probabilities come from the map's own keys and are never null
-  private void processSync(String corpus, Object[] inputRow) throws HopTransformException {
+  static Detection detect(LanguageDetector detector, String corpus) {
     SortedMap<Language, Double> confidenceValues = detector.computeLanguageConfidenceValues(corpus);
     Language detectedLanguage = UNKNOWN;
     Double confidence = null;
@@ -348,11 +412,18 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         }
       }
     }
+    return new Detection(detectedLanguage.name(), confidence);
+  }
 
+  private void processSync(String corpus, Object[] inputRow) throws HopTransformException {
+    putDetection(inputRow, detect(data.detector, corpus));
+  }
+
+  private void putDetection(Object[] inputRow, Detection detection) throws HopTransformException {
     Object[] outputRow = new Object[inputRow.length + 2 + OVER_ALLOCATE_SIZE];
     arraycopy(inputRow, 0, outputRow, 0, inputRow.length);
-    outputRow[data.indexOfDetectedLanguage] = detectedLanguage.name();
-    outputRow[data.indexOfDetectedLanguageConfidence] = confidence;
+    outputRow[data.indexOfDetectedLanguage] = detection.language();
+    outputRow[data.indexOfDetectedLanguageConfidence] = detection.confidence();
     putRow(data.outputRowMeta, outputRow);
   }
 
