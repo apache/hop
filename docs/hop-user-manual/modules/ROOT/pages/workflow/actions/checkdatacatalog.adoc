@@ -97,9 +97,9 @@ What this action passes on to the next action. See xref:workflow/action-results.
 [options="header", width="90%", cols="1,3"]
 |===
 |Result|Value
-|True|Every dataset passed the checks, with 0 errors. A success hop is followed.
-|False, 0 errors|At least one dataset failed a check. The log has a line for every dataset that failed, with the reason. A failure hop is followed.
-|False, 1 error|The action could not check: no data catalog is selected or it doesn't exist, the catalog can't be prepared (for example a DataHub catalog without a URL), there are no datasets, a dataset has no name, the connection of a table doesn't exist, a file name can't be read, or the maximum age is not a whole number above 0. A failure hop is followed.
+|True|Every dataset passed the checks, with 0 errors. A success hop is followed. With *Skip the check and log it*, a check the catalog could not answer doesn't count: the log says how many checks were skipped, also when every dataset passed.
+|False, 0 errors|At least one dataset failed a check, or the workflow was stopped while the action ran. The log has a line for every dataset that failed, with the reason. A failure hop is followed.
+|False, 1 error|The action could not check: no data catalog is selected or it doesn't exist, the catalog can't be prepared (for example a DataHub catalog without a URL), there are no datasets, a dataset has no name, the connection of a table doesn't exist or has no host (use a catalog id for such a table), a file name can't be read, or the maximum age is not a whole number above 0. A failure hop is followed.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===

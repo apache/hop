@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -168,6 +169,11 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
   @HopMetadataProperty(groupKey = "datasets", key = "dataset")
   private List<CatalogDataset> datasets;
 
+  /** The checks of the current dataset that were skipped because the catalog could not answer. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private int skippedChecks;
+
   public ActionCheckDataCatalog() {
     this("");
   }
@@ -198,11 +204,25 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
             BaseMessages.getString(PKG, "ActionCheckDataCatalog.Error.NoDatasets"));
       }
       int failed = 0;
+      int skipped = 0;
       try (IDataCatalog catalog = dataCatalog.connect(this, getMetadataProvider())) {
         for (CatalogDataset dataset : datasets) {
+          if (getParentWorkflow() != null && getParentWorkflow().isStopped()) {
+            logBasic(BaseMessages.getString(PKG, "ActionCheckDataCatalog.Log.Stopped"));
+            return result;
+          }
           DatasetRef ref = datasetRef(dataset);
           List<String> problems = check(catalog, ref, activeMaxAge);
-          if (problems.isEmpty()) {
+          skipped += skippedChecks;
+          if (problems.isEmpty() && skippedChecks > 0) {
+            // Nothing failed, but not everything was checked: say so next to the failures
+            logMinimal(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionCheckDataCatalog.Log.PassedSkipped",
+                    ref.describe(),
+                    Integer.toString(skippedChecks)));
+          } else if (problems.isEmpty()) {
             logBasic(
                 BaseMessages.getString(PKG, "ActionCheckDataCatalog.Log.Passed", ref.describe()));
           } else {
@@ -223,6 +243,11 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
               Integer.toString(datasets.size() - failed),
               Integer.toString(datasets.size()),
               dataCatalog.getName()));
+      if (skipped > 0) {
+        logMinimal(
+            BaseMessages.getString(
+                PKG, "ActionCheckDataCatalog.Log.SkippedSummary", Integer.toString(skipped)));
+      }
       result.setResult(failed == 0);
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionCheckDataCatalog.Error.Failed"), e);
@@ -279,26 +304,42 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
     }
     CatalogDatasetType type =
         dataset.getType() == null ? CatalogDatasetType.TABLE : dataset.getType();
-    return switch (type) {
-      case CATALOG_ID -> DatasetRef.ofCatalogId(name.trim());
-      case FILE -> DatasetRef.ofFile(name, this);
-      case TABLE -> {
-        String connectionName = resolve(dataset.getConnection());
-        DatabaseMeta databaseMeta =
-            DatabaseMeta.loadDatabase(getMetadataProvider(), connectionName);
-        if (databaseMeta == null) {
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG, "ActionCheckDataCatalog.Error.MissingConnection", connectionName, name));
-        }
-        yield DatasetRef.ofTable(databaseMeta, this, resolve(dataset.getSchema()), name.trim());
-      }
-    };
+    DatasetRef ref =
+        switch (type) {
+          case CATALOG_ID -> DatasetRef.ofCatalogId(name.trim());
+          case FILE -> DatasetRef.ofFile(name, this);
+          case TABLE -> {
+            String connectionName = resolve(dataset.getConnection());
+            DatabaseMeta databaseMeta =
+                DatabaseMeta.loadDatabase(getMetadataProvider(), connectionName);
+            if (databaseMeta == null) {
+              throw new HopException(
+                  BaseMessages.getString(
+                      PKG, "ActionCheckDataCatalog.Error.MissingConnection", connectionName, name));
+            }
+            yield DatasetRef.ofTable(databaseMeta, this, resolve(dataset.getSchema()), name.trim());
+          }
+        };
+    if (!ref.isComplete()) {
+      // A connection without a host (an embedded database, a manual URL) has no name to look for
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionCheckDataCatalog.Error.NoIdentity", name));
+    }
+    return ref;
   }
 
-  /** What is wrong with one dataset; empty when it passes every check. */
+  /** How many checks the last {@link #check} skipped because the catalog could not answer. */
+  int skippedChecks() {
+    return skippedChecks;
+  }
+
+  /**
+   * What is wrong with one dataset; empty when it passes every check. The checks it skipped because
+   * the catalog could not answer are counted in {@link #skippedChecks}.
+   */
   List<String> check(IDataCatalog catalog, DatasetRef ref, Duration activeMaxAge) {
     List<String> problems = new ArrayList<>();
+    skippedChecks = 0;
     CatalogAnswer<CatalogEntityId> resolved = catalog.resolve(ref);
     if (resolved instanceof CatalogAnswer.NotFound<CatalogEntityId>) {
       problems.add(BaseMessages.getString(PKG, "ActionCheckDataCatalog.Problem.NotFound"));
@@ -412,6 +453,7 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
             BaseMessages.getString(PKG, "ActionCheckDataCatalog.Check." + check),
             detail);
     if (unknownAnswer == CatalogUnknownAnswer.IGNORE) {
+      skippedChecks++;
       logBasic(message);
     } else {
       problems.add(message);

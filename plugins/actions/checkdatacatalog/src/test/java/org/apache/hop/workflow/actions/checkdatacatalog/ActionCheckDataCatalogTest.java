@@ -20,6 +20,8 @@ package org.apache.hop.workflow.actions.checkdatacatalog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,6 +33,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.datacatalog.CatalogAnswer;
@@ -46,6 +49,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -349,6 +353,56 @@ class ActionCheckDataCatalogTest {
 
     assertEquals(3, remarks.size());
     assertTrue(remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR));
+  }
+
+  @Test
+  void skippedChecksAreCounted() {
+    ActionCheckDataCatalog action = action();
+    action.setUnknownAnswer(CatalogUnknownAnswer.IGNORE);
+    DatasetRef ref = DatasetRef.ofCatalogId("urn:x");
+
+    FakeCatalog.lastUpdated = CatalogAnswer.notFound();
+    FakeCatalog.assertions = CatalogAnswer.unknown(Reason.TIMEOUT, "no answer");
+    assertEquals(List.of(), action.check(new FakeCatalog(), ref, Duration.ofHours(1)));
+    assertEquals(2, action.skippedChecks());
+
+    // Not knowing the dataset leaves nothing else to ask
+    FakeCatalog.resolved = CatalogAnswer.unknown(Reason.UNREACHABLE, "refused");
+    assertEquals(List.of(), action.check(new FakeCatalog(), ref, Duration.ofHours(1)));
+    assertEquals(1, action.skippedChecks());
+  }
+
+  @Test
+  void aTableOfAConnectionWithoutAHostIsAnError() throws Exception {
+    DatabaseMeta embedded = new DatabaseMeta();
+    embedded.setName("embedded");
+    embedded.setDBName("/tmp/local.db");
+    provider.getSerializer(DatabaseMeta.class).save(embedded);
+    ActionCheckDataCatalog action =
+        action("prod", new CatalogDataset(CatalogDatasetType.TABLE, "embedded", null, "orders"));
+    action.setUnknownAnswer(CatalogUnknownAnswer.IGNORE);
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(1, result.getNrErrors());
+    assertTrue(FakeCatalog.asked.isEmpty());
+  }
+
+  @Test
+  void aStoppedWorkflowStopsTheChecks() {
+    @SuppressWarnings("unchecked")
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    when(workflow.isStopped()).thenReturn(true);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+    ActionCheckDataCatalog action = action();
+    action.setParentWorkflow(workflow);
+
+    Result result = action.execute(new Result(), 0);
+
+    assertFalse(result.getResult());
+    assertEquals(0, result.getNrErrors());
+    assertTrue(FakeCatalog.asked.isEmpty());
   }
 
   @Test

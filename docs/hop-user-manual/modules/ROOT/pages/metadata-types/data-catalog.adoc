@@ -42,19 +42,21 @@ This metadata type is experimental: its options and what the catalog types can a
 |A description of the Data Catalog.
 
 |Catalog type
-|The kind of catalog. The options below the *Test* button depend on it.
+|The kind of catalog. The options below it depend on it.
 A catalog type comes with a plugin, so the list only shows the types of the plugins that are installed.
 
-|Test
+|Test (button at the bottom)
 |Connects to the catalog with the options on the screen and the current variables, and shows the answer: the version of the catalog and the user Hop reads as, or why it could not be used.
 |===
 
 == How datasets are found
 
-Hop names a dataset the same way the xref:technology/openlineage/index.adoc[OpenLineage] and xref:technology/datahub/index.adoc[DataHub] lineage plugins do, so a catalog finds the dataset that lineage wrote to it:
+Hop names a dataset the same way the xref:technology/datahub/index.adoc[DataHub] lineage plugin does, so a catalog finds the dataset that lineage wrote to it.
+The xref:technology/openlineage/index.adoc[OpenLineage] plugin names tables the same way, and files too when `HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING` is `Y`.
 
 * A table: the host and port of its relational connection, and `database.schema.table`.
 A table without a schema gets the preferred schema of the connection, and the database name of the connection is always added.
+A connection without a host, such as an embedded database or a connection with a manual URL, gives a table no name to look for: use its catalog id instead.
 * A file: its path or URL, after the variables in it are resolved.
 * A catalog id: the id the catalog itself uses, for example a DataHub URN.
 Use it for a dataset that Hop doesn't read or write itself.
