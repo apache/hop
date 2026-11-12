@@ -36,6 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
@@ -295,10 +296,13 @@ public class ActionHttp extends ActionBase {
       return result;
     }
 
+    int rowsSucceeded = 0;
     for (int i = 0; i < resultRows.size() && result.getNrErrors() == 0; i++) {
       RowMetaAndData row = resultRows.get(i);
 
       OutputStream outputFile = null;
+      FileObject targetFile = null;
+      FileObject partFile = null;
       InputStream input = null;
       long bytesReadThisRow = 0L;
       long bytesWrittenThisRow = 0L;
@@ -337,11 +341,21 @@ public class ActionHttp extends ActionBase {
           }
         }
 
-        // Create the output File...
-        outputFile = new CountingOutputStream(HopVfs.getOutputStream(realTargetFile, fileAppended));
-
         URI uri = toUri(urlToUse);
         HttpHost target = HttpClientManager.createHttpHost(uri);
+
+        // The reply goes to a part file next to the target, which only takes the target's place
+        // once all of it arrived: a request that fails, or a reply that breaks off halfway, leaves
+        // an existing target as it was. Creating the part file before the request is sent also
+        // reports a target folder that is missing or read-only before the server acted on it.
+        targetFile = HopVfs.getFileObject(realTargetFile);
+        if (fileAppended && targetFile.exists() && !targetFile.isWriteable()) {
+          throw new IOException(
+              BaseMessages.getString(
+                  PKG, "ActionHTTP.Error.TargetNotWriteable", HopVfs.getFriendlyURI(targetFile)));
+        }
+        partFile = HopVfs.getFileObject(realTargetFile + "." + UUID.randomUUID() + ".part");
+        outputFile = new CountingOutputStream(HopVfs.getOutputStream(partFile, false));
 
         ClassicHttpRequest request =
             Utils.isEmpty(realUploadFile) ? new HttpGet(uri) : new HttpPost(uri);
@@ -427,6 +441,11 @@ public class ActionHttp extends ActionBase {
               bytesWrittenThisRow += ((CountingOutputStream) outputFile).getCount();
               httpLineageResponseBytes = ((CountingInputStream) input).getCount();
 
+              outputFile.close();
+              outputFile = null;
+              commitPartFile(partFile, targetFile, fileAppended);
+              partFile = null;
+
               if (replyBuffer != null) {
                 storeReplyInVariable(resolvedReplyVariable, replyBuffer.toByteArray(), contentType);
               }
@@ -451,7 +470,7 @@ public class ActionHttp extends ActionBase {
                 result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
               }
 
-              result.setResult(true);
+              rowsSucceeded++;
 
               if (parentWorkflow != null) {
                 LineageHttpIoEmitter.emitWorkflowActionHttpIo(
@@ -515,13 +534,51 @@ public class ActionHttp extends ActionBase {
               BaseMessages.getString(PKG, "ActionHTTP.Error.CanNotCloseStream", e.getMessage()));
           result.setNrErrors(1);
         }
+        deletePartFile(partFile);
       }
 
       result.setBytesReadThisAction(result.getBytesReadThisAction() + bytesReadThisRow);
       result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + bytesWrittenThisRow);
     }
 
+    // Decided once, here: one failed row fails the action, also after rows that succeeded, and no
+    // rows at all (an empty list of result rows) is not a success either.
+    result.setResult(rowsSucceeded > 0 && result.getNrErrors() == 0);
     return result;
+  }
+
+  /**
+   * Puts a reply that arrived completely in the target's place, or at the end of the target with
+   * "Append to specified target file".
+   */
+  private static void commitPartFile(FileObject partFile, FileObject targetFile, boolean append)
+      throws IOException {
+    if (append && targetFile.exists()) {
+      try (InputStream in = HopVfs.getInputStream(partFile);
+          OutputStream out = HopVfs.getOutputStream(targetFile, true)) {
+        in.transferTo(out);
+      }
+      partFile.delete();
+    } else {
+      HopVfs.moveFile(partFile, targetFile);
+    }
+  }
+
+  /** Removes the part file of a reply that never made it to the target. */
+  private void deletePartFile(FileObject partFile) {
+    if (partFile == null) {
+      return;
+    }
+    try {
+      partFile.delete();
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "ActionHTTP.Error.CanNotDeletePartFile",
+              HopVfs.getFriendlyURI(partFile),
+              e.getMessage()));
+    }
   }
 
   /**

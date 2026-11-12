@@ -207,6 +207,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   public Result execute(Result prevResult, int nr) throws HopException {
     prevResult.setResult(false);
     long filesPut = 0;
+    long filesSkipped = 0;
     long errors = 0;
 
     if (isDetailed()) {
@@ -229,17 +230,28 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
         if (!shouldProcessFile(file, pattern)) {
           continue;
         }
-        if (uploadFile(ftpClient, realLocalDirectory, file)) {
-          filesPut++;
-          deleteLocalFileIfNeeded(childUri(realLocalDirectory, file));
-        } else {
-          errors++;
+        switch (uploadFile(ftpClient, realLocalDirectory, file)) {
+          case UPLOADED -> {
+            filesPut++;
+            deleteLocalFileIfNeeded(childUri(realLocalDirectory, file));
+          }
+            // A file left alone because the server already has one is not an error, but it never
+            // reached the server: don't count it as put and don't remove the local copy.
+          case SKIPPED -> filesSkipped++;
+          case FAILED -> errors++;
         }
       }
 
       if (isBasic()) {
         logBasic(
             BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", String.valueOf(filesPut)));
+        // Without this a run where every file was already there reads like a wildcard that
+        // matched nothing, with the files still sitting in the local folder.
+        if (filesSkipped > 0) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionFtpPut.Log.SkippedExistingCount", String.valueOf(filesSkipped)));
+        }
       }
     } catch (Exception e) {
       errors++;
@@ -384,9 +396,10 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
    * @param ftpClient the {@link FTPClient} instance
    * @param localDir the directory containing the file
    * @param file the file name
-   * @return true if the file was uploaded, or deliberately skipped because it was already there
+   * @return whether the file was uploaded, deliberately skipped because it was already there, or
+   *     failed
    */
-  private boolean uploadFile(FTPClient ftpClient, String localDir, String file) {
+  private UploadOutcome uploadFile(FTPClient ftpClient, String localDir, String file) {
     String localFilename = childUri(localDir, file);
     try {
       if (FtpClientFactory.fileExists(ftpClient, file)) {
@@ -396,7 +409,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
           if (isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "ActionFtpPut.Log.SkippedExisting", file));
           }
-          return true;
+          return UploadOutcome.SKIPPED;
         }
         ftpClient.deleteFile(file);
       }
@@ -409,14 +422,21 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
                   "ActionFtpPut.Log.UploadFailed",
                   localFilename,
                   Const.NVL(ftpClient.getReplyString(), "").trim()));
-          return false;
+          return UploadOutcome.FAILED;
         }
       }
-      return true;
+      return UploadOutcome.UPLOADED;
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionFtpPut.Log.UploadFailed", localFilename, ""), e);
-      return false;
+      return UploadOutcome.FAILED;
     }
+  }
+
+  /** What happened to a single file in {@link #uploadFile(FTPClient, String, String)}. */
+  enum UploadOutcome {
+    UPLOADED,
+    SKIPPED,
+    FAILED
   }
 
   /**
