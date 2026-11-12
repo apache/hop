@@ -39,8 +39,6 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -56,7 +54,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     classLoaderGroup = "teradata-db")
 @Getter
 @Setter
-public class TeraFastMeta extends BaseTransformMeta<ITransform, ITransformData> {
+public class TeraFastMeta extends BaseTransformMeta<TeraFast, TeraFastData> {
 
   private static final Class<?> PKG = TeraFastMeta.class;
 
