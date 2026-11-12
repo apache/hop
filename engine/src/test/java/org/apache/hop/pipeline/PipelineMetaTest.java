@@ -75,7 +75,6 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -301,21 +300,21 @@ class PipelineMetaTest {
   @Test
   void testLoadXml() throws HopException {
     String directory = "/home/admin";
-    Node workflowNode = Mockito.mock(Node.class);
+    Node workflowNode = mock(Node.class);
     NodeList nodeList =
         new NodeList() {
           final ArrayList<Node> nodes = new ArrayList<>();
 
           {
-            Node nodeInfo = Mockito.mock(Node.class);
-            Mockito.when(nodeInfo.getNodeName()).thenReturn(PipelineMeta.XML_TAG_INFO);
-            Mockito.when(nodeInfo.getChildNodes()).thenReturn(this);
+            Node nodeInfo = mock(Node.class);
+            when(nodeInfo.getNodeName()).thenReturn(PipelineMeta.XML_TAG_INFO);
+            when(nodeInfo.getChildNodes()).thenReturn(this);
 
-            Node nodeDirectory = Mockito.mock(Node.class);
-            Mockito.when(nodeDirectory.getNodeName()).thenReturn("directory");
-            Node child = Mockito.mock(Node.class);
-            Mockito.when(nodeDirectory.getFirstChild()).thenReturn(child);
-            Mockito.when(child.getNodeValue()).thenReturn(directory);
+            Node nodeDirectory = mock(Node.class);
+            when(nodeDirectory.getNodeName()).thenReturn("directory");
+            Node child = mock(Node.class);
+            when(nodeDirectory.getFirstChild()).thenReturn(child);
+            when(child.getNodeValue()).thenReturn(directory);
 
             nodes.add(nodeDirectory);
             nodes.add(nodeInfo);
@@ -333,12 +332,12 @@ class PipelineMetaTest {
         };
 
     assertNotNull(nodeList);
-    Mockito.when(workflowNode.getChildNodes()).thenReturn(nodeList);
+    when(workflowNode.getChildNodes()).thenReturn(nodeList);
 
     PipelineMeta meta = new PipelineMeta();
 
-    IVariables iVariables = Mockito.mock(IVariables.class);
-    Mockito.when(iVariables.getVariableNames()).thenReturn(new String[0]);
+    IVariables iVariables = mock(IVariables.class);
+    when(iVariables.getVariableNames()).thenReturn(new String[0]);
 
     meta.loadXml(workflowNode, null, metadataProvider, iVariables);
     meta.setInternalHopVariables(iVariables);

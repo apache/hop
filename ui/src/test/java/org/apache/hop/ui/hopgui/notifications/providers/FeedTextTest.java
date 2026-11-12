@@ -25,31 +25,31 @@ import org.junit.jupiter.api.Test;
 public class FeedTextTest {
 
   @Test
-  public void testTagsAreRemoved() {
+  void testTagsAreRemoved() {
     assertEquals("A release is out", FeedText.plainText("<p>A release is out</p>"));
   }
 
   @Test
-  public void testBlocksAreSeparatedRatherThanRunTogether() {
+  void testBlocksAreSeparatedRatherThanRunTogether() {
     assertEquals("One Two", FeedText.plainText("<p>One</p><p>Two</p>"));
     assertEquals("One Two", FeedText.plainText("One<br/>Two"));
     assertEquals("One Two", FeedText.plainText("<ul><li>One</li><li>Two</li></ul>"));
   }
 
   @Test
-  public void testAttributesDoNotLeakIntoTheText() {
+  void testAttributesDoNotLeakIntoTheText() {
     assertEquals(
         "Read the notes", FeedText.plainText("<a href=\"https://example.org\">Read the notes</a>"));
   }
 
   @Test
-  public void testScriptAndStyleContentIsDropped() {
+  void testScriptAndStyleContentIsDropped() {
     assertEquals("After", FeedText.plainText("<script>var x = 1;</script>After"));
     assertEquals("After", FeedText.plainText("<style>p { color: red; }</style>After"));
   }
 
   @Test
-  public void testEntitiesAreDecoded() {
+  void testEntitiesAreDecoded() {
     assertEquals("Ben & Jerry", FeedText.plainText("Ben &amp; Jerry"));
     assertEquals("a < b", FeedText.plainText("a &lt; b"));
     assertEquals("\"quoted\"", FeedText.plainText("&quot;quoted&quot;"));
@@ -58,54 +58,54 @@ public class FeedTextTest {
   }
 
   @Test
-  public void testNonBreakingSpacesBecomeOrdinaryOnes() {
+  void testNonBreakingSpacesBecomeOrdinaryOnes() {
     assertEquals("One Two", FeedText.plainText("One&nbsp;Two"));
   }
 
   @Test
-  public void testAnUnknownEntityIsLeftAlone() {
+  void testAnUnknownEntityIsLeftAlone() {
     // Guessing at it would be worse than showing what the feed actually wrote.
     assertEquals("&frobnicate; here", FeedText.plainText("&frobnicate; here"));
   }
 
   @Test
-  public void testDoubleEscapedHtmlIsAlsoStripped() {
+  void testDoubleEscapedHtmlIsAlsoStripped() {
     // A feed that escapes its HTML and then escapes it again is common enough to handle.
     assertEquals("A release is out", FeedText.plainText("&lt;p&gt;A release is out&lt;/p&gt;"));
   }
 
   @Test
-  public void testALoneAngleBracketIsNotMistakenForATag() {
+  void testALoneAngleBracketIsNotMistakenForATag() {
     assertEquals("a < b and c > d", FeedText.plainText("a < b and c > d"));
   }
 
   @Test
-  public void testWhitespaceIsCollapsed() {
+  void testWhitespaceIsCollapsed() {
     assertEquals("One Two", FeedText.plainText("One\n\n   \tTwo   "));
   }
 
   @Test
-  public void testNullAndEmptyAreLeftAsTheyAre() {
+  void testNullAndEmptyAreLeftAsTheyAre() {
     assertNull(FeedText.plainText(null));
     assertEquals("", FeedText.plainText(""));
   }
 
   @Test
-  public void testPlainTextIsUnchanged() {
+  void testPlainTextIsUnchanged() {
     assertEquals(
         "Apache Hop 2.19.0 is now available.",
         FeedText.plainText("Apache Hop 2.19.0 is now available."));
   }
 
   @Test
-  public void testANumericNonBreakingSpaceCollapsesLikeItsNamedTwin() {
+  void testANumericNonBreakingSpaceCollapsesLikeItsNamedTwin() {
     // Java's \s does not match U+00A0, so &#160; would otherwise survive where &nbsp; did not.
     assertEquals("One Two", FeedText.plainText("One&#160;Two"));
     assertEquals("One Two", FeedText.plainText("One&nbsp;&#160; Two"));
   }
 
   @Test
-  public void testAnEscapedLinkFromARealFeedReadsAsASentence() {
+  void testAnEscapedLinkFromARealFeedReadsAsASentence() {
     // What the XML parser hands over for an LWN entry: the entities are already decoded, so the
     // HTML the feed embedded is what arrives here.
     String body =

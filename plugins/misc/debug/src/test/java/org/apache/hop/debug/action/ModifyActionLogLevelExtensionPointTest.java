@@ -83,8 +83,7 @@ class ModifyActionLogLevelExtensionPointTest {
   }
 
   /** Run a "start -> dummy" workflow with a custom logging configuration on the dummy action. */
-  private List<String> runAndCollectLog(ActionDebugLevel debugLevel, LogLevel workflowLogLevel)
-      throws Exception {
+  private List<String> runAndCollectLog(ActionDebugLevel debugLevel, LogLevel workflowLogLevel) {
     WorkflowMeta workflowMeta = new WorkflowMeta();
     workflowMeta.setName("custom action logging");
 

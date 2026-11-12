@@ -46,7 +46,7 @@ class MetadataResourceTest {
 
   @BeforeEach
   @SuppressWarnings("unchecked")
-  void setUp() throws Exception {
+  void setUp() {
     metadataProvider = mock(MultiMetadataProvider.class);
     serializer = mock(IHopMetadataSerializer.class);
 

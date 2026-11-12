@@ -91,7 +91,7 @@ class SimpleMappingMetaTest {
   }
 
   @Test
-  void verifyReportsIncomingHopWhenNoInput() throws Exception {
+  void verifyReportsIncomingHopWhenNoInput() {
     SimpleMappingMeta mapping = new SimpleMappingMeta();
     mapping.setDefault();
     mapping.setNoInput(true);

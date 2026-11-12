@@ -37,7 +37,7 @@ class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputRowNumberTest");

@@ -30,10 +30,9 @@ class SequenceMetaTest {
   @Test
   void testSupport() {
 
-    IDatabase[] support =
-        new IDatabase[] {
-          new RedshiftDatabaseMeta(),
-        };
+    IDatabase[] support = {
+      new RedshiftDatabaseMeta(),
+    };
 
     for (IDatabase db : support) {
       assertSupports(db, true);

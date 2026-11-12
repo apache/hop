@@ -142,7 +142,7 @@ class HopRowCoderTest {
 
     // Create a row with an ID, a name and an avro record...
     //
-    Object[] row = new Object[] {123L, "Apache Hop", genericRecord};
+    Object[] row = {123L, "Apache Hop", genericRecord};
     HopRow hopRow = new HopRow(row);
 
     HopRowCoder hopRowCoder = new HopRowCoder();

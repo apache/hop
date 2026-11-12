@@ -176,7 +176,7 @@ class GitInputTest {
   }
 
   @Test
-  void commitFilesAreRejectedForARemoteSource() throws Exception {
+  void commitFilesAreRejectedForARemoteSource() {
     meta.setSource(GitInputSource.REMOTE.name());
     meta.setResourceType("COMMIT_FILES");
     meta.setConnectionName("github");

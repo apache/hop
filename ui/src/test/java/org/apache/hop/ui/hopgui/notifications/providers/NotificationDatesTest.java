@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationDatesTest {
 
   @Test
-  public void testUtcInstantIsNotShiftedByTheLocalOffset() {
+  void testUtcInstantIsNotShiftedByTheLocalOffset() {
     // The bug this guards against: a pattern quoting the 'Z' read a UTC instant as a local one, so
     // every release moved by the machine's offset and then fed that into the age filter.
     assertEquals(
@@ -36,28 +36,28 @@ public class NotificationDatesTest {
   }
 
   @Test
-  public void testOffsetIsHonoured() {
+  void testOffsetIsHonoured() {
     assertEquals(
         Date.from(Instant.parse("2026-02-01T09:00:00Z")),
         NotificationDates.parseIso("2026-02-01T10:00:00+01:00"));
   }
 
   @Test
-  public void testTimestampWithoutAnOffsetIsReadAsUtc() {
+  void testTimestampWithoutAnOffsetIsReadAsUtc() {
     assertEquals(
         Date.from(Instant.parse("2026-02-01T10:00:00Z")),
         NotificationDates.parseIso("2026-02-01T10:00:00"));
   }
 
   @Test
-  public void testFractionalSecondsAreAccepted() {
+  void testFractionalSecondsAreAccepted() {
     assertEquals(
         Date.from(Instant.parse("2026-02-01T10:00:00.500Z")),
         NotificationDates.parseIso("2026-02-01T10:00:00.500Z"));
   }
 
   @Test
-  public void testUnparseableValuesGiveNull() {
+  void testUnparseableValuesGiveNull() {
     assertNull(NotificationDates.parseIso(null));
     assertNull(NotificationDates.parseIso(""));
     assertNull(NotificationDates.parseIso("   "));
@@ -65,7 +65,7 @@ public class NotificationDatesTest {
   }
 
   @Test
-  public void testSurroundingWhitespaceIsIgnored() {
+  void testSurroundingWhitespaceIsIgnored() {
     assertEquals(
         Date.from(Instant.parse("2026-02-01T10:00:00Z")),
         NotificationDates.parseIso("  2026-02-01T10:00:00Z\n"));

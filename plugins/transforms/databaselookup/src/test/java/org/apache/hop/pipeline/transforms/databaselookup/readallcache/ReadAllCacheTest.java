@@ -77,7 +77,7 @@ class ReadAllCacheTest {
   }
 
   @Test
-  void storeRowInCache_ThrowsException() throws Exception {
+  void storeRowInCache_ThrowsException() {
     assertThrows(
         UnsupportedOperationException.class,
         () -> {

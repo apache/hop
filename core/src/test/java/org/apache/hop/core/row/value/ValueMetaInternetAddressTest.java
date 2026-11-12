@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -181,12 +181,7 @@ class ValueMetaInternetAddressTest {
     assertArrayEquals(vmString.getBinaryString("127.0.0.1"), vmInet.getBinaryString(0));
     assertEquals(inetAddress, vmInet.convertBinaryStringToNativeType(output));
 
-    try {
-      vmInet.getBinaryString(1);
-      fail();
-    } catch (ArrayIndexOutOfBoundsException e) {
-      // expected
-    }
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> vmInet.getBinaryString(1));
   }
 
   /**

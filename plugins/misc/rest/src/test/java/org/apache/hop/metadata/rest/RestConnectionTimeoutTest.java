@@ -96,7 +96,7 @@ class RestConnectionTimeoutTest {
   }
 
   @Test
-  void readTimeoutThroughConnectionIsHonoured() throws Exception {
+  void readTimeoutThroughConnectionIsHonoured() {
     RestConnection connection = new RestConnection(new Variables());
 
     // connectTimeout 2000 ms, readTimeout 300 ms — the server withholds the response for 1500 ms,

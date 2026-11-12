@@ -59,7 +59,7 @@ public class CoreRulePackReviewTest {
 
   /** Hop starts a transform that has no hops, so the rule must not say it never runs. */
   @Test
-  public void trans002DoesNotClaimTheTransformNeverRuns() {
+  void trans002DoesNotClaimTheTransformNeverRuns() {
     String description = coreRule("TRANS-002").getDescription();
 
     assertFalse(description.contains("never executes"), description);
@@ -103,7 +103,7 @@ public class CoreRulePackReviewTest {
   }
 
   @Test
-  public void sec002LooksInsideTheSettingsATransformStores() {
+  void sec002LooksInsideTheSettingsATransformStores() {
     List<String> messages = sec002Messages(new NestedSecretsMeta());
 
     assertEquals(2, messages.size(), "unexpected findings: " + messages);
@@ -119,14 +119,14 @@ public class CoreRulePackReviewTest {
   }
 
   @Test
-  public void aFieldMatchingTwoPatternsIsReportedOnce() {
+  void aFieldMatchingTwoPatternsIsReportedOnce() {
     assertEquals(1, sec002Messages(new AccessTokenMeta()).size());
   }
 
   // ------------------------------------------------------------------ variable syntaxes
 
   @Test
-  public void everyVariableSyntaxHopResolvesCountsAsAVariable() {
+  void everyVariableSyntaxHopResolvesCountsAsAVariable() {
     assertTrue(CustomRuleExecutor.isVariable("${DB_PASSWORD}"));
     assertTrue(CustomRuleExecutor.isVariable("%%DB_PASSWORD%%"));
     assertTrue(CustomRuleExecutor.isVariable("#{vault:secret/data/db:password}"));
@@ -144,7 +144,7 @@ public class CoreRulePackReviewTest {
   }
 
   @Test
-  public void sec002AcceptsWindowsStyleVariablesAndResolvers() {
+  void sec002AcceptsWindowsStyleVariablesAndResolvers() {
     assertEquals(List.of(), sec002Messages(new WindowsVariableMeta()));
   }
 
@@ -163,7 +163,7 @@ public class CoreRulePackReviewTest {
    * value. Where it does see an Encrypted one, that is reported as well, and the rule says so.
    */
   @Test
-  public void db001ReportsAnEncryptedPassword() {
+  void db001ReportsAnEncryptedPassword() {
     String encrypted = Encr.encryptPasswordIfNotUsingVariables("secret123");
     List<LintResult> results = db001(encrypted);
 
@@ -175,7 +175,7 @@ public class CoreRulePackReviewTest {
   }
 
   @Test
-  public void db001AcceptsAWindowsStyleVariable() {
+  void db001AcceptsAWindowsStyleVariable() {
     assertEquals(List.of(), db001("%%DB_PASSWORD%%"));
   }
 }

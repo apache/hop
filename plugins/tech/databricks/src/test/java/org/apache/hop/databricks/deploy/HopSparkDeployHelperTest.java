@@ -19,6 +19,7 @@ package org.apache.hop.databricks.deploy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,7 +61,7 @@ class HopSparkDeployHelperTest {
   }
 
   @Test
-  void fatJarRemoteNameUsesShaPrefix() throws Exception {
+  void fatJarRemoteNameUsesShaPrefix() {
     assertEquals(
         "hop-native-2f80e51734a5.jar",
         HopSparkDeployHelper.fatJarRemoteName(
@@ -302,6 +303,6 @@ class HopSparkDeployHelperTest {
 
     assertEquals("/Volumes/v/hop-spark-package-hello-a.zip", artA.projectPackageDbfs());
     assertEquals("/Volumes/v/hop-spark-package-hello-b.zip", artB.projectPackageDbfs());
-    assertTrue(!artA.projectPackageDbfs().equals(artB.projectPackageDbfs()));
+    assertNotEquals(artA.projectPackageDbfs(), artB.projectPackageDbfs());
   }
 }

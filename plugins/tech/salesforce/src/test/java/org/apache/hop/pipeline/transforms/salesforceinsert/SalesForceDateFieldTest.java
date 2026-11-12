@@ -131,7 +131,7 @@ class SalesForceDateFieldTest {
     minskTime.clear();
     minskTime.set(2013, Calendar.OCTOBER, 16);
 
-    Object[] args = new Object[] {minskTime.getTime()};
+    Object[] args = {minskTime.getTime()};
 
     Method m = SalesforceInsert.class.getDeclaredMethod("writeToSalesForce", Object[].class);
     m.setAccessible(true);

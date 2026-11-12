@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -58,7 +59,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 /** Unit test for {@link YamlInput} */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
@@ -72,7 +72,7 @@ class YamlInputTests {
     HopEnvironment.init();
 
     helper = new TransformMockHelper<>("Yaml_test", YamlInputMeta.class, YamlInputData.class);
-    Mockito.doReturn(helper.iLogChannel)
+    doReturn(helper.iLogChannel)
         .when(helper.logChannelFactory)
         .create(any(), any(ILoggingObject.class));
 
@@ -137,7 +137,7 @@ class YamlInputTests {
 
     // mock yaml reader
     YamlReader yamlReader = mock(YamlReader.class);
-    Object[] yamlRow = new Object[] {"alice", 18};
+    Object[] yamlRow = {"alice", 18};
 
     data.yaml = yamlReader;
     data.rowMeta = new RowMeta();

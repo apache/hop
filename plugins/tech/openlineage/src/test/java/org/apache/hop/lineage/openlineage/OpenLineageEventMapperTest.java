@@ -110,7 +110,7 @@ class OpenLineageEventMapperTest {
   }
 
   @Test
-  void runLifecycleStartedMapsToStartRunEvent() throws Exception {
+  void runLifecycleStartedMapsToStartRunEvent() {
     LineageContext ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)
@@ -135,7 +135,7 @@ class OpenLineageEventMapperTest {
   }
 
   @Test
-  void runLifecycleFinishedMapsToCompleteRunEvent() throws Exception {
+  void runLifecycleFinishedMapsToCompleteRunEvent() {
     LineageContext ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.WORKFLOW)
@@ -156,7 +156,7 @@ class OpenLineageEventMapperTest {
   }
 
   @Test
-  void runLifecycleFailedMapsToFailRunEvent() throws Exception {
+  void runLifecycleFailedMapsToFailRunEvent() {
     LineageEvent event =
         new LineageEvent(
             "evt-003",
@@ -645,7 +645,7 @@ class OpenLineageEventMapperTest {
   }
 
   @Test
-  void transformRunLifecycleCarriesParentFacetToPipelineRun() throws Exception {
+  void transformRunLifecycleCarriesParentFacetToPipelineRun() {
     LineageContext ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.TRANSFORM)
@@ -669,7 +669,7 @@ class OpenLineageEventMapperTest {
   }
 
   @Test
-  void pipelineRunLifecycleHasNoParentFacet() throws Exception {
+  void pipelineRunLifecycleHasNoParentFacet() {
     LineageContext ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)

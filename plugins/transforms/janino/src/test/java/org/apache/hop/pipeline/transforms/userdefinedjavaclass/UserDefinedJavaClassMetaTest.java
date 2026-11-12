@@ -24,7 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +53,6 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.codehaus.commons.compiler.CompileException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class UserDefinedJavaClassMetaTest {
 
@@ -69,17 +71,17 @@ class UserDefinedJavaClassMetaTest {
 
     UserDefinedJavaClassMeta userDefinedJavaClassMeta = new UserDefinedJavaClassMeta();
 
-    UserDefinedJavaClassDef userDefinedJavaClassDef = Mockito.mock(UserDefinedJavaClassDef.class);
-    Mockito.when(userDefinedJavaClassDef.isTransformClass()).thenReturn(false);
-    Mockito.when(userDefinedJavaClassDef.getSource()).thenReturn(wrongCode);
-    Mockito.when(userDefinedJavaClassDef.getClassName()).thenReturn("MainClass");
+    UserDefinedJavaClassDef userDefinedJavaClassDef = mock(UserDefinedJavaClassDef.class);
+    when(userDefinedJavaClassDef.isTransformClass()).thenReturn(false);
+    when(userDefinedJavaClassDef.getSource()).thenReturn(wrongCode);
+    when(userDefinedJavaClassDef.getClassName()).thenReturn("MainClass");
 
-    TransformMeta transformMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(transformMeta.getName()).thenReturn("User Defined Java Class");
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    when(transformMeta.getName()).thenReturn("User Defined Java Class");
     userDefinedJavaClassMeta.setParentTransformMeta(transformMeta);
 
-    UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = Mockito.spy(userDefinedJavaClassMeta);
-    Mockito.when(userDefinedJavaClassMetaSpy.getDefinitions())
+    UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = spy(userDefinedJavaClassMeta);
+    when(userDefinedJavaClassMetaSpy.getDefinitions())
         .thenReturn(Collections.singletonList(userDefinedJavaClassDef));
 
     try {
@@ -113,11 +115,11 @@ class UserDefinedJavaClassMetaTest {
         new UserDefinedJavaClassDef(
             UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, "MainClass", codeBlock1);
 
-    TransformMeta transformMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(transformMeta.getName()).thenReturn("User Defined Java Class");
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    when(transformMeta.getName()).thenReturn("User Defined Java Class");
     userDefinedJavaClassMeta1.setParentTransformMeta(transformMeta);
 
-    UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = Mockito.spy(userDefinedJavaClassMeta1);
+    UserDefinedJavaClassMeta userDefinedJavaClassMetaSpy = spy(userDefinedJavaClassMeta1);
 
     // Added classloader
     Class<?> clazz1 = userDefinedJavaClassMetaSpy.cookClass(userDefinedJavaClassDef1, null);
@@ -130,10 +132,10 @@ class UserDefinedJavaClassMetaTest {
         new UserDefinedJavaClassDef(
             UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, "AnotherClass", codeBlock2);
 
-    TransformMeta transformMeta2 = Mockito.mock(TransformMeta.class);
-    Mockito.when(transformMeta2.getName()).thenReturn("Another UDJC");
+    TransformMeta transformMeta2 = mock(TransformMeta.class);
+    when(transformMeta2.getName()).thenReturn("Another UDJC");
     userDefinedJavaClassMeta2.setParentTransformMeta(transformMeta2);
-    UserDefinedJavaClassMeta userDefinedJavaClassMeta2Spy = Mockito.spy(userDefinedJavaClassMeta2);
+    UserDefinedJavaClassMeta userDefinedJavaClassMeta2Spy = spy(userDefinedJavaClassMeta2);
 
     Class<?> clazz3 =
         userDefinedJavaClassMeta2Spy.cookClass(userDefinedJavaClassDef2, clazz2.getClassLoader());
@@ -174,8 +176,8 @@ class UserDefinedJavaClassMetaTest {
     defs.add(normalClassBDef);
     defs.add(normalClassADef);
 
-    TransformMeta transformMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(transformMeta.getName()).thenReturn("User Defined Java Class");
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    when(transformMeta.getName()).thenReturn("User Defined Java Class");
     userDefinedJavaClassMeta.setParentTransformMeta(transformMeta);
 
     // Test reording the reverse order test
@@ -606,10 +608,10 @@ class UserDefinedJavaClassMetaTest {
     targetDef.transformName = "OutputStep";
     meta.getTargetTransformDefinitions().add(targetDef);
 
-    TransformMeta lookupMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(lookupMeta.getName()).thenReturn("LookupStep");
-    TransformMeta outputMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(outputMeta.getName()).thenReturn("OutputStep");
+    TransformMeta lookupMeta = mock(TransformMeta.class);
+    when(lookupMeta.getName()).thenReturn("LookupStep");
+    TransformMeta outputMeta = mock(TransformMeta.class);
+    when(outputMeta.getName()).thenReturn("OutputStep");
 
     meta.searchInfoAndTargetTransforms(List.of(lookupMeta, outputMeta));
 
@@ -626,8 +628,8 @@ class UserDefinedJavaClassMetaTest {
     infoDef.setTransformName("NonExistent");
     meta.getInfoTransformDefinitions().add(infoDef);
 
-    TransformMeta otherMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(otherMeta.getName()).thenReturn("SomeOtherStep");
+    TransformMeta otherMeta = mock(TransformMeta.class);
+    when(otherMeta.getName()).thenReturn("SomeOtherStep");
 
     meta.searchInfoAndTargetTransforms(List.of(otherMeta));
 
@@ -639,19 +641,19 @@ class UserDefinedJavaClassMetaTest {
   @Test
   void getFields_withCookErrors_throwsHopTransformException() throws Exception {
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
-    UserDefinedJavaClassDef badDef = Mockito.mock(UserDefinedJavaClassDef.class);
-    Mockito.when(badDef.isTransformClass()).thenReturn(false);
-    Mockito.when(badDef.getSource()).thenReturn("THIS IS NOT JAVA !!!");
-    Mockito.when(badDef.getClassName()).thenReturn("Bad");
+    UserDefinedJavaClassDef badDef = mock(UserDefinedJavaClassDef.class);
+    when(badDef.isTransformClass()).thenReturn(false);
+    when(badDef.getSource()).thenReturn("THIS IS NOT JAVA !!!");
+    when(badDef.getClassName()).thenReturn("Bad");
     // getChecksum() throws HopTransformException – use doReturn to avoid the checked-exception
     // surfacing in the when() call itself
-    Mockito.doReturn("badchecksum-unique-" + System.nanoTime()).when(badDef).getChecksum();
+    doReturn("badchecksum-unique-" + System.nanoTime()).when(badDef).getChecksum();
 
-    UserDefinedJavaClassMeta spy = Mockito.spy(meta);
-    Mockito.when(spy.getDefinitions()).thenReturn(Collections.singletonList(badDef));
+    UserDefinedJavaClassMeta spy = spy(meta);
+    when(spy.getDefinitions()).thenReturn(Collections.singletonList(badDef));
 
-    TransformMeta transformMeta = Mockito.mock(TransformMeta.class);
-    Mockito.when(transformMeta.getName()).thenReturn("UDJC");
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    when(transformMeta.getName()).thenReturn("UDJC");
     spy.setParentTransformMeta(transformMeta);
 
     assertThrows(

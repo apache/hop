@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -166,7 +165,7 @@ class ActionDbtTest {
   }
 
   @Test
-  void checkReportsMissingProjectReference() throws HopException {
+  void checkReportsMissingProjectReference() {
     ActionDbt action = new ActionDbt("dbt");
     List<ICheckResult> remarks = new ArrayList<>();
 
@@ -177,7 +176,7 @@ class ActionDbtTest {
   }
 
   @Test
-  void checkReportsNonNumericThreadsAndTimeout() throws HopException {
+  void checkReportsNonNumericThreadsAndTimeout() {
     ActionDbt action = configuredAction();
     action.setThreads("many");
     action.setTimeout("soon");
@@ -190,7 +189,7 @@ class ActionDbtTest {
   }
 
   @Test
-  void checkAcceptsVariableDrivenThreads() throws HopException {
+  void checkAcceptsVariableDrivenThreads() {
     ActionDbt action = configuredAction();
     action.setThreads("${DBT_THREADS}");
     action.setTimeout("${DBT_TIMEOUT}");

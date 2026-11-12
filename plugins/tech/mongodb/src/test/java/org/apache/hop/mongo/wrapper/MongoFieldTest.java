@@ -20,8 +20,8 @@ package org.apache.hop.mongo.wrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -93,18 +93,16 @@ class MongoFieldTest {
     assertTrue((Boolean) field.getHopValue(true));
 
     initField("Binary");
-    byte[] data = new byte[] {'a', 'b', 'c'};
+    byte[] data = {'a', 'b', 'c'};
     assertEquals(data, field.getHopValue(data));
 
     initField("Date");
     assertEquals(date, field.getHopValue(date));
     assertEquals(date, field.getHopValue(date.getTime()));
-    try {
-      field.getHopValue("Not a date value");
-      fail("expected exception");
-    } catch (Exception e) {
-      assertTrue(e instanceof HopException);
-    }
+    Exception e =
+        assertThrows(
+            Exception.class, () -> field.getHopValue("Not a date value"), "expected exception");
+    assertTrue(e instanceof HopException);
 
     initField("Integer");
     assertEquals(123L, field.getHopValue(123));

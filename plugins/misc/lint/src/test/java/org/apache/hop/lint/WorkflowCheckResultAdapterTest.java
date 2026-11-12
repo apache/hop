@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class WorkflowCheckResultAdapterTest {
 
   @Test
-  public void workflowLevelLintHasNoActionSource() {
+  void workflowLevelLintHasNoActionSource() {
     WorkflowMeta workflowMeta = new WorkflowMeta();
     workflowMeta.setName("My Workflow");
     LintResult doc =
@@ -46,7 +46,7 @@ public class WorkflowCheckResultAdapterTest {
   }
 
   @Test
-  public void actionLintMapsToActionMetaSource() {
+  void actionLintMapsToActionMetaSource() {
     WorkflowMeta workflowMeta = new WorkflowMeta();
     // ActionMeta delegates setName() to its IAction, so it needs a real action behind it.
     ActionMeta actionMeta = new ActionMeta(new org.apache.hop.workflow.actions.start.ActionStart());

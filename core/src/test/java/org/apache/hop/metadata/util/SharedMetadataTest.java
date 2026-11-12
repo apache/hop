@@ -193,7 +193,7 @@ class SharedMetadataTest {
   }
 
   @Test
-  void blankSharedProviderLeavesTheProjectFolderAlone() throws Exception {
+  void blankSharedProviderLeavesTheProjectFolderAlone() {
     variables.setVariable(Const.HOP_METADATA_FOLDER, tempDir.resolve("project").toString());
     MultiMetadataProvider multi = HopMetadataUtil.getStandardHopMetadataProvider(variables);
     assertFalse(multi.getProviders().get(0) instanceof SharedMetadataProvider);

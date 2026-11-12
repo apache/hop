@@ -101,11 +101,10 @@ class SalesforceConnectionCrudTest {
     Map<String, Object> fields2 = new HashMap<>();
     fields2.put("Name", "Test Account 2");
 
-    SObject[] buffer =
-        new SObject[] {
-          SalesforceTestUtils.createMockSObject("Account", fields1),
-          SalesforceTestUtils.createMockSObject("Account", fields2)
-        };
+    SObject[] buffer = {
+      SalesforceTestUtils.createMockSObject("Account", fields1),
+      SalesforceTestUtils.createMockSObject("Account", fields2)
+    };
 
     SaveResult[] results = connection.insert(buffer);
 
@@ -147,7 +146,7 @@ class SalesforceConnectionCrudTest {
     Map<String, Object> fields = new HashMap<>();
     fields.put("Id", "001xx000003DHP0");
     fields.put("Name", "Updated Name");
-    SObject[] buffer = new SObject[] {SalesforceTestUtils.createMockSObject("Account", fields)};
+    SObject[] buffer = {SalesforceTestUtils.createMockSObject("Account", fields)};
 
     SaveResult[] results = connection.update(buffer);
 
@@ -168,7 +167,7 @@ class SalesforceConnectionCrudTest {
     Map<String, Object> fields = new HashMap<>();
     fields.put("ExternalId__c", "EXT123");
     fields.put("Name", "Test Account");
-    SObject[] buffer = new SObject[] {SalesforceTestUtils.createMockSObject("Account", fields)};
+    SObject[] buffer = {SalesforceTestUtils.createMockSObject("Account", fields)};
 
     UpsertResult[] results = connection.upsert("ExternalId__c", buffer);
 
@@ -187,7 +186,7 @@ class SalesforceConnectionCrudTest {
 
     when(mockBinding.delete(any(String[].class))).thenReturn(mockResults);
 
-    String[] ids = new String[] {"001xx000003DHP0", "001xx000003DHP1"};
+    String[] ids = {"001xx000003DHP0", "001xx000003DHP1"};
 
     DeleteResult[] results = connection.delete(ids);
 
@@ -209,7 +208,7 @@ class SalesforceConnectionCrudTest {
 
     Map<String, Object> fields = new HashMap<>();
     fields.put("Name", "Test");
-    SObject[] buffer = new SObject[] {SalesforceTestUtils.createMockSObject("Account", fields)};
+    SObject[] buffer = {SalesforceTestUtils.createMockSObject("Account", fields)};
 
     // This should NOT auto-refresh in unit tests since we can't mock the HTTP call
     // But we can verify the exception is thrown
@@ -223,7 +222,7 @@ class SalesforceConnectionCrudTest {
 
     Map<String, Object> fields = new HashMap<>();
     fields.put("Id", "001xx000003DHP0");
-    SObject[] buffer = new SObject[] {SalesforceTestUtils.createMockSObject("Account", fields)};
+    SObject[] buffer = {SalesforceTestUtils.createMockSObject("Account", fields)};
 
     HopException exception = assertThrows(HopException.class, () -> connection.update(buffer));
 
@@ -237,7 +236,7 @@ class SalesforceConnectionCrudTest {
 
     Map<String, Object> fields = new HashMap<>();
     fields.put("ExternalId__c", "EXT123");
-    SObject[] buffer = new SObject[] {SalesforceTestUtils.createMockSObject("Account", fields)};
+    SObject[] buffer = {SalesforceTestUtils.createMockSObject("Account", fields)};
 
     HopException exception =
         assertThrows(HopException.class, () -> connection.upsert("ExternalId__c", buffer));
@@ -250,7 +249,7 @@ class SalesforceConnectionCrudTest {
     when(mockBinding.delete(any(String[].class)))
         .thenThrow(new ConnectionException("Network error"));
 
-    String[] ids = new String[] {"001xx000003DHP0"};
+    String[] ids = {"001xx000003DHP0"};
 
     HopException exception = assertThrows(HopException.class, () -> connection.delete(ids));
 

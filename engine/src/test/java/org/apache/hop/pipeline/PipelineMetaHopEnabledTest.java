@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LoggingObject;
@@ -94,6 +93,6 @@ class PipelineMetaHopEnabledTest {
     secondRun.startThreads();
     secondRun.waitUntilFinished();
 
-    assertTrue(secondRun.getErrors() == 0, "the run after disabling a hop reported errors");
+    assertEquals(0, secondRun.getErrors(), "the run after disabling a hop reported errors");
   }
 }

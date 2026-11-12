@@ -168,7 +168,7 @@ class ModificationStampTest {
   }
 
   @Test
-  void aKnownCreatorSurvivesAModificationBySomeoneElse() throws Exception {
+  void aKnownCreatorSurvivesAModificationBySomeoneElse() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     authenticateAs(AUTHOR);
     pipelineMeta.stampCreated();

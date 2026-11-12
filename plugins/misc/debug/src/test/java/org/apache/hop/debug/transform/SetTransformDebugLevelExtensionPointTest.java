@@ -18,7 +18,6 @@
 package org.apache.hop.debug.transform;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,7 +137,7 @@ class SetTransformDebugLevelExtensionPointTest {
     rowProducer.finished();
     pipeline.waitUntilFinished();
 
-    assertTrue(pipeline.getErrors() == 0, "The pipeline reported errors");
+    assertEquals(0, pipeline.getErrors(), "The pipeline reported errors");
 
     return loggedRowNumbers(HopLogStore.getAppender().getBuffer(dummyLogChannelId, false));
   }

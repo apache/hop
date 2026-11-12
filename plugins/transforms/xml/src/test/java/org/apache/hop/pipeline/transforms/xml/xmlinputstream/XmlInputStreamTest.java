@@ -73,7 +73,7 @@ class XmlInputStreamTest {
   private int dataValue = 3;
 
   @BeforeEach
-  void setUp() throws HopException {
+  void setUp() {
     transformMockHelper =
         new TransformMockHelper<>(
             "XmlInputStreamTest", XmlInputStreamMeta.class, XmlInputStreamData.class);
@@ -492,7 +492,7 @@ class XmlInputStreamTest {
   }
 
   @Test
-  void testNotValidFilePathAndFileField() throws Exception {
+  void testNotValidFilePathAndFileField() {
     assertThrows(
         HopException.class,
         () -> {
@@ -501,7 +501,7 @@ class XmlInputStreamTest {
   }
 
   @Test
-  void testEmptyFileField() throws Exception {
+  void testEmptyFileField() {
     assertThrows(
         HopException.class,
         () -> {

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,7 +54,7 @@ class WatchFilesMetaTest {
     assertFalse(fresh.getStateDirectory().isBlank());
     WatchFilesMeta another = new WatchFilesMeta();
     another.setDefault();
-    assertFalse(id.equals(another.getWatchId()));
+    assertNotEquals(id, another.getWatchId());
     WatchFilesMeta loaded =
         XmlMetadataUtil.deSerializeFromXml(
             XmlHandler.getSubNode(

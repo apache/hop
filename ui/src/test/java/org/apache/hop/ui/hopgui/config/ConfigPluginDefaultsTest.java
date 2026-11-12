@@ -109,7 +109,7 @@ class ConfigPluginDefaultsTest {
    * covered above; this covers the write.
    */
   @Test
-  void theWelcomeDialogOptionIsStoredInverted() throws Exception {
+  void theWelcomeDialogOptionIsStoredInverted() {
     savedConfig = new HashMap<>(HopConfig.getInstance().getConfigMap());
     HopConfig hopConfig = HopConfig.getInstance();
     boolean savedInMemory = HopConfig.isInMemoryMode();

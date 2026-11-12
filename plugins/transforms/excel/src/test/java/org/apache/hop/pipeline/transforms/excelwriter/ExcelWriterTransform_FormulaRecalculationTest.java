@@ -43,7 +43,7 @@ class ExcelWriterTransform_FormulaRecalculationTest {
   private TransformMockHelper<ExcelWriterTransformMeta, ExcelWriterTransformData> mockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         TransformMockUtil.getTransformMockHelper(
             ExcelWriterTransformMeta.class,

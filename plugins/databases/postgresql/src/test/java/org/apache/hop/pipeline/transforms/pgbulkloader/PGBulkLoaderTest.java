@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -45,7 +45,6 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -108,7 +107,7 @@ class PGBulkLoaderTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
@@ -236,19 +235,19 @@ class PGBulkLoaderTest {
    */
   @Test
   void testNoDatabaseConnection() {
-    try {
-      doReturn(null).when(transformMockHelper.iTransformMeta).getConnection();
-      assertFalse(pgBulkLoader.init());
-      // Verify that the database connection being set to null throws a HopException with the
-      // following message.
-      pgBulkLoader.verifyDatabaseConnection();
-      // If the method does not throw a Hop Exception, then the DB was set and not null for this
-      // test. Fail it.
-      fail("Database Connection is not null, this fails the test.");
-    } catch (HopException aHopException) {
-      assertTrue(
-          aHopException.getMessage().contains("There is no connection defined in this transform."));
-    }
+    doReturn(null).when(transformMockHelper.iTransformMeta).getConnection();
+    assertFalse(pgBulkLoader.init());
+    // Verify that the database connection being set to null throws a HopException with the
+    // following message.
+    // If the method does not throw a Hop Exception, then the DB was set and not null for this
+    // test. Fail it.
+    HopException aHopException =
+        assertThrows(
+            HopException.class,
+            () -> pgBulkLoader.verifyDatabaseConnection(),
+            "Database Connection is not null, this fails the test.");
+    assertTrue(
+        aHopException.getMessage().contains("There is no connection defined in this transform."));
   }
 
   private PGBulkLoader disposableLoader(PGBulkLoaderData data, PGCopyOutputStream copyOut)
@@ -346,15 +345,14 @@ class PGBulkLoaderTest {
     loader.dispose();
   }
 
-  private static PGBulkLoaderMeta getPgBulkLoaderMock(String DbNameOverride)
-      throws HopXmlException {
+  private static PGBulkLoaderMeta getPgBulkLoaderMock(String DbNameOverride) {
     PGBulkLoaderMeta pgBulkLoaderMetaMock = mock(PGBulkLoaderMeta.class);
     when(pgBulkLoaderMetaMock.getDbNameOverride()).thenReturn(DbNameOverride);
 
     return pgBulkLoaderMetaMock;
   }
 
-  private static DatabaseMeta getDatabaseMetaSpy() throws HopXmlException {
+  private static DatabaseMeta getDatabaseMetaSpy() {
     return spy(
         new DatabaseMeta(
             CONNECTION_NAME,

@@ -46,15 +46,14 @@ class RowTest {
   @Test
   void testNormalStringConversion() throws Exception {
     SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-    Object[] rowData1 =
-        new Object[] {
-          "sampleString",
-          fmt.parse("2007/05/07 13:04:13.203"),
-          9123.00,
-          12345L,
-          new BigDecimal("123456789012345678.9349"),
-          Boolean.TRUE,
-        };
+    Object[] rowData1 = {
+      "sampleString",
+      fmt.parse("2007/05/07 13:04:13.203"),
+      9123.00,
+      12345L,
+      new BigDecimal("123456789012345678.9349"),
+      Boolean.TRUE,
+    };
     IRowMeta rowMeta1 = createTestRowMetaNormalStringConversion1();
 
     assertEquals("sampleString", rowMeta1.getString(rowData1, 0));
@@ -65,15 +64,14 @@ class RowTest {
     assertEquals("Y", rowMeta1.getString(rowData1, 5));
 
     fmt = new SimpleDateFormat("yyyyMMddHHmmss");
-    Object[] rowData2 =
-        new Object[] {
-          null,
-          fmt.parse("20070507130413"),
-          9123.9,
-          12345L,
-          new BigDecimal("123456789012345678.9349"),
-          Boolean.FALSE,
-        };
+    Object[] rowData2 = {
+      null,
+      fmt.parse("20070507130413"),
+      9123.9,
+      12345L,
+      new BigDecimal("123456789012345678.9349"),
+      Boolean.FALSE,
+    };
     IRowMeta rowMeta2 = createTestRowMetaNormalStringConversion2();
 
     assertNull(rowMeta2.getString(rowData2, 0));
@@ -86,43 +84,36 @@ class RowTest {
 
   @Test
   void testIndexedStringConversion() throws Exception {
-    String[] colors =
-        new String[] {
-          "Green", "Red", "Blue", "Yellow", null,
-        };
+    String[] colors = {
+      "Green", "Red", "Blue", "Yellow", null,
+    };
 
     // create some timezone friendly dates
     SimpleDateFormat fmt = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-    Date[] dates =
-        new Date[] {
-          fmt.parse("2007/05/07 13:04:13.203"),
-          null,
-          fmt.parse("2007/05/05 05:15:49.349"),
-          fmt.parse("2007/05/05 19:08:44.736"),
-        };
+    Date[] dates = {
+      fmt.parse("2007/05/07 13:04:13.203"),
+      null,
+      fmt.parse("2007/05/05 05:15:49.349"),
+      fmt.parse("2007/05/05 19:08:44.736"),
+    };
 
     IRowMeta rowMeta = createTestRowMetaIndexedStringConversion1(colors, dates);
 
-    Object[] rowData1 =
-        new Object[] {
-          0, 0,
-        };
-    Object[] rowData2 =
-        new Object[] {
-          1, 1,
-        };
-    Object[] rowData3 =
-        new Object[] {
-          2, 2,
-        };
-    Object[] rowData4 =
-        new Object[] {
-          3, 3,
-        };
-    Object[] rowData5 =
-        new Object[] {
-          4, 0,
-        };
+    Object[] rowData1 = {
+      0, 0,
+    };
+    Object[] rowData2 = {
+      1, 1,
+    };
+    Object[] rowData3 = {
+      2, 2,
+    };
+    Object[] rowData4 = {
+      3, 3,
+    };
+    Object[] rowData5 = {
+      4, 0,
+    };
 
     assertEquals("Green", rowMeta.getString(rowData1, 0));
     assertEquals("2007/05/07 13:04:13.203", rowMeta.getString(rowData1, 1));
@@ -156,7 +147,7 @@ class RowTest {
   private void makeTestExtractDataWithTimestampConversion(
       IRowMeta rowMeta, String str, Date date, Timestamp constTimestamp)
       throws HopFileException, IOException {
-    Object[] rowData = new Object[] {str, date};
+    Object[] rowData = {str, date};
     byte[] result = RowMeta.extractData(rowMeta, rowData);
     DataInputStream stream = new DataInputStream(new ByteArrayInputStream(result));
     String extractedString = (String) new ValueMetaString().readData(stream);

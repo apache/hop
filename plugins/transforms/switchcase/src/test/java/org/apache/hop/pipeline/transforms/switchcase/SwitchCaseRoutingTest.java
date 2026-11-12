@@ -90,7 +90,7 @@ class SwitchCaseRoutingTest {
     final Queue<Object[]> inputRows = new LinkedList<>();
     final List<IRowSet> routedTo = new ArrayList<>();
 
-    SwitchCaseForTest(SwitchCaseMeta realMeta) throws Exception {
+    SwitchCaseForTest(SwitchCaseMeta realMeta) {
       super(
           helper.transformMeta,
           realMeta,

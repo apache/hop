@@ -50,7 +50,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -183,16 +182,16 @@ class WorkflowMetaTest {
   @Test
   void testLoadXml() throws HopException {
     String directory = "/home/admin";
-    Node workflowNode = Mockito.mock(Node.class);
+    Node workflowNode = mock(Node.class);
     NodeList nodeList =
         new NodeList() {
-          final Node node = Mockito.mock(Node.class);
+          final Node node = mock(Node.class);
 
           {
-            Mockito.when(node.getNodeName()).thenReturn("directory");
-            Node child = Mockito.mock(Node.class);
-            Mockito.when(node.getFirstChild()).thenReturn(child);
-            Mockito.when(child.getNodeValue()).thenReturn(directory);
+            when(node.getNodeName()).thenReturn("directory");
+            Node child = mock(Node.class);
+            when(node.getFirstChild()).thenReturn(child);
+            when(child.getNodeValue()).thenReturn(directory);
           }
 
           @Override
@@ -206,11 +205,11 @@ class WorkflowMetaTest {
           }
         };
 
-    Mockito.when(workflowNode.getChildNodes()).thenReturn(nodeList);
+    when(workflowNode.getChildNodes()).thenReturn(nodeList);
 
     WorkflowMeta meta = new WorkflowMeta();
 
-    meta.loadXml(workflowNode, null, Mockito.mock(IHopMetadataProvider.class), new Variables());
+    meta.loadXml(workflowNode, null, mock(IHopMetadataProvider.class), new Variables());
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(meta);
     assertNotNull(workflow);
     workflow.setInternalHopVariables();

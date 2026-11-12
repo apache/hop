@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class LintSeverityThresholdTest {
 
   @Test
-  public void failOnErrorIgnoresWarningsAndInfo() {
+  void failOnErrorIgnoresWarningsAndInfo() {
     LintSeverity.FailOn threshold = LintSeverity.parseFailOn("ERROR");
 
     assertTrue(LintSeverity.meetsFailOnThreshold("ERROR", threshold));
@@ -39,7 +39,7 @@ public class LintSeverityThresholdTest {
   }
 
   @Test
-  public void failOnWarningAlsoCatchesErrors() {
+  void failOnWarningAlsoCatchesErrors() {
     LintSeverity.FailOn threshold = LintSeverity.parseFailOn("WARNING");
 
     assertTrue(LintSeverity.meetsFailOnThreshold("ERROR", threshold));
@@ -48,7 +48,7 @@ public class LintSeverityThresholdTest {
   }
 
   @Test
-  public void failOnNoneNeverFails() {
+  void failOnNoneNeverFails() {
     LintSeverity.FailOn threshold = LintSeverity.parseFailOn("NONE");
 
     assertFalse(LintSeverity.meetsFailOnThreshold("ERROR", threshold));
@@ -61,7 +61,7 @@ public class LintSeverityThresholdTest {
    * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
    */
   @Test
-  public void failOnInfoFailsOnEverything() {
+  void failOnInfoFailsOnEverything() {
     LintSeverity.FailOn threshold = LintSeverity.parseFailOn("info");
 
     assertEquals(LintSeverity.FailOn.INFO, threshold);
@@ -72,7 +72,7 @@ public class LintSeverityThresholdTest {
 
   /** A typo read as ERROR, so a project with warnings passed --fail-on WARNNG. */
   @Test
-  public void anUnknownThresholdIsRefused() {
+  void anUnknownThresholdIsRefused() {
     IllegalArgumentException e =
         assertThrows(IllegalArgumentException.class, () -> LintSeverity.parseFailOn("WARNNG"));
 
@@ -82,7 +82,7 @@ public class LintSeverityThresholdTest {
 
   /** An unrecognised severity must not be treated as harmless. */
   @Test
-  public void unknownSeveritiesDoNotSlipPastAnErrorThreshold() {
+  void unknownSeveritiesDoNotSlipPastAnErrorThreshold() {
     LintSeverity.FailOn threshold = LintSeverity.parseFailOn("WARNING");
 
     assertFalse(LintSeverity.meetsFailOnThreshold(null, threshold));

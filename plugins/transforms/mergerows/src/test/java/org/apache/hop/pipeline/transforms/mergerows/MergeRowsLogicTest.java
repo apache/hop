@@ -49,8 +49,8 @@ class MergeRowsLogicTest {
     Object[] refRow = mapping.mapRow(0, new Object[] {"1", "Alice"});
     Object[] cmpRow = mapping.mapRow(1, new Object[] {"1", "extra-value"});
 
-    int[] keyNrs = new int[] {aligned.indexOfValue("id")};
-    int[] valueNrs = new int[] {aligned.indexOfValue("name")};
+    int[] keyNrs = {aligned.indexOfValue("id")};
+    int[] valueNrs = {aligned.indexOfValue("name")};
 
     assertEquals(0, aligned.compare(refRow, cmpRow, keyNrs));
     assertEquals(MergeRows.VALUE_CHANGED, flagForRows(aligned, refRow, cmpRow, keyNrs, valueNrs));
@@ -68,8 +68,8 @@ class MergeRowsLogicTest {
     Object[] refRow = mapping.mapRow(0, new Object[] {"1", "Alice", "active"});
     Object[] cmpRow = mapping.mapRow(1, new Object[] {"1", "Alice"});
 
-    int[] keyNrs = new int[] {aligned.indexOfValue("id")};
-    int[] valueNrs = new int[] {aligned.indexOfValue("name")};
+    int[] keyNrs = {aligned.indexOfValue("id")};
+    int[] valueNrs = {aligned.indexOfValue("name")};
 
     assertEquals(MergeRows.VALUE_IDENTICAL, flagForRows(aligned, refRow, cmpRow, keyNrs, valueNrs));
   }
@@ -82,8 +82,8 @@ class MergeRowsLogicTest {
     MergeRowsAlignment.SchemaMapping mapping =
         MergeRowsAlignment.buildSchemaMapping(reference, compare);
     IRowMeta aligned = mapping.getOutputRowMeta();
-    int[] keyNrs = new int[] {aligned.indexOfValue("id")};
-    int[] valueNrs = new int[] {aligned.indexOfValue("name")};
+    int[] keyNrs = {aligned.indexOfValue("id")};
+    int[] valueNrs = {aligned.indexOfValue("name")};
 
     Object[] refOnly = mapping.mapRow(0, new Object[] {"1", "Alice"});
     Object[] cmpLater = mapping.mapRow(1, new Object[] {"2", "Bob"});

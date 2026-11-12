@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -234,6 +233,6 @@ class FtpConnectionOptionsTest {
     FileSystemOptions options = FtpConnectionOptions.build(variables, new FtpConnection(), base);
 
     assertEquals("UNIX", config.getEntryParser(options));
-    assertTrue(options != base, "the base options must not be modified in place");
+    assertNotSame(base, options, "the base options must not be modified in place");
   }
 }

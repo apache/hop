@@ -20,8 +20,8 @@ package org.apache.hop.core.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,12 +95,11 @@ class StringUtilTest {
     assertEquals("|recurseB|", StringUtil.substitute("|${recursive3}|", map, "${", "}"));
     assertEquals("|ZfinalB|", StringUtil.substitute("|${recursive5}|", map, "${", "}"));
 
-    try {
-      StringUtil.substitute("|${recursive_all}|", map, "${", "}", 0);
-      fail("recursive check is failing");
-    } catch (HopRuntimeException rex) {
-      // ignore
-    }
+    final Map<String, String> dollarMap = map;
+    assertThrows(
+        HopRuntimeException.class,
+        () -> StringUtil.substitute("|${recursive_all}|", dollarMap, "${", "}", 0),
+        "recursive check is failing");
 
     map = createVariables1("%%", "%%");
     assertEquals("||", StringUtil.substitute("|%%EMPTY%%|", map, "%%", "%%"));
@@ -111,12 +110,11 @@ class StringUtilTest {
     assertEquals("|recurseB|", StringUtil.substitute("|%%recursive3%%|", map, "%%", "%%"));
     assertEquals("|ZfinalB|", StringUtil.substitute("|%%recursive5%%|", map, "%%", "%%"));
 
-    try {
-      StringUtil.substitute("|%%recursive_all%%|", map, "%%", "%%");
-      fail("recursive check is failing");
-    } catch (HopRuntimeException rex) {
-      // ignore
-    }
+    final Map<String, String> percentMap = map;
+    assertThrows(
+        HopRuntimeException.class,
+        () -> StringUtil.substitute("|%%recursive_all%%|", percentMap, "%%", "%%"),
+        "recursive check is failing");
 
     map = createVariables1("${", "}");
     assertEquals("||", StringUtil.environmentSubstitute("|%%EMPTY%%|", map));
@@ -126,12 +124,11 @@ class StringUtilTest {
     assertEquals("|recurseB|", StringUtil.environmentSubstitute("|%%recursive3%%|", map));
     assertEquals("|ZfinalB|", StringUtil.environmentSubstitute("|%%recursive5%%|", map));
 
-    try {
-      StringUtil.environmentSubstitute("|%%recursive_all%%|", map);
-      fail("recursive check is failing");
-    } catch (HopRuntimeException rex) {
-      // ignore
-    }
+    final Map<String, String> environmentMap = map;
+    assertThrows(
+        HopRuntimeException.class,
+        () -> StringUtil.environmentSubstitute("|%%recursive_all%%|", environmentMap),
+        "recursive check is failing");
   }
 
   /** Test isEmpty() call. */

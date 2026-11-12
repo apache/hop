@@ -181,7 +181,7 @@ class S3FileObjectTest {
   }
 
   @Test
-  void testGetInputStream() throws Exception {
+  void testGetInputStream() {
     // A bucket is a folder: it has no content to read
     FileSystemException e =
         assertThrows(FileSystemException.class, () -> s3FileObjectBucketSpy.getInputStream());
@@ -260,7 +260,7 @@ class S3FileObjectTest {
   }
 
   @Test
-  void testDoGetInputStream() throws Exception {
+  void testDoGetInputStream() {
     assertThrows(
         FileSystemException.class, () -> s3FileObjectBucketSpy.getContent().getInputStream());
   }

@@ -167,7 +167,7 @@ class TableOutputTest {
   @Test
   void testProcessRow_truncatesOnFirstRow() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
-    Object[] row = new Object[] {};
+    Object[] row = {};
     doReturn(row).when(tableOutputSpy).getRow();
 
     try {
@@ -181,7 +181,7 @@ class TableOutputTest {
   @Test
   void testProcessRow_doesNotTruncateOnOtherRows() throws Exception {
     when(tableOutputMeta.isTruncateTable()).thenReturn(true);
-    Object[] row = new Object[] {};
+    Object[] row = {};
     doReturn(row).when(tableOutputSpy).getRow();
     tableOutputSpy.first = false;
     doReturn(null).when(tableOutputSpy).writeToTable(any(IRowMeta.class), any(row.getClass()));

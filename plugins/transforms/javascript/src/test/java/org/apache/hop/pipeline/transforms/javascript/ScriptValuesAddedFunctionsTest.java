@@ -35,7 +35,7 @@ class ScriptValuesAddedFunctionsTest {
 
   @Test
   void padWithAnEmptyFillerReturnsTheValue() {
-    Object[] args = new Object[] {"ab", "", 5.0};
+    Object[] args = {"ab", "", 5.0};
 
     assertTimeoutPreemptively(
         Duration.ofSeconds(5),
@@ -47,7 +47,7 @@ class ScriptValuesAddedFunctionsTest {
 
   @Test
   void padFillsUpToTheSize() {
-    Object[] args = new Object[] {"ab", "*", 4.0};
+    Object[] args = {"ab", "*", 4.0};
 
     assertEquals("**ab", ScriptValuesAddedFunctions.lpad(null, null, args, null));
     assertEquals("ab**", ScriptValuesAddedFunctions.rpad(null, null, args, null));

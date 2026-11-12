@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -237,7 +238,7 @@ class TableViewReadOnlyGridTest extends SwtBotTestBase {
                     String text = view.getActiveCellValueToCopy();
                     return new String[] {displayed, stored, nullValue, text};
                   });
-          assertFalse(multiLine.equals(copied[0]), "the cell shows a shortened value");
+          assertNotEquals(multiLine, copied[0], "the cell shows a shortened value");
           assertEquals(multiLine, copied[1], "the stored value is copied, not the display text");
           assertEquals("", copied[2], "a NULL is copied as nothing");
           assertEquals("<null>", copied[3], "text that only reads <null> is copied as it is");

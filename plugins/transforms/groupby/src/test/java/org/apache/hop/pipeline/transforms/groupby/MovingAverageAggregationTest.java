@@ -112,7 +112,7 @@ class MovingAverageAggregationTest {
 
   // Helper: feed a value through addMovingAverages and return the computed moving_avg value
   private Object feedValue(Double value) throws Exception {
-    Object[] row = new Object[] {value, null};
+    Object[] row = {value, null};
     groupBy.addMovingAverages(row);
     return row[1];
   }

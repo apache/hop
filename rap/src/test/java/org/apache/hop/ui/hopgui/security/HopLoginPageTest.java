@@ -41,7 +41,7 @@ class HopLoginPageTest {
   void escapeAndOpenRedirectBlocked() {
     assertTrue(HopLoginPage.escapeHtml("<x>").contains("&lt;"));
     assertTrue(HopLoginPage.sanitizeRedirect("https://evil.example/", "").endsWith("/ui"));
-    assertTrue(HopLoginPage.sanitizeRedirect("/ui-dark", "").equals("/ui-dark"));
+    assertEquals("/ui-dark", HopLoginPage.sanitizeRedirect("/ui-dark", ""));
     assertEquals("/ui", HopLoginPage.sanitizeRedirect("/\\evil.example", ""));
     assertEquals("/ui", HopLoginPage.sanitizeRedirect("\\\\evil.example", ""));
     assertEquals("/ui", HopLoginPage.sanitizeRedirect("/ui\r\nX-Header: y", ""));

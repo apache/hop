@@ -103,7 +103,7 @@ class ValueMetaAndDataTests {
 
   @Test
   void testByteArrayType() {
-    byte[] bytes = new byte[] {1, 2, 3};
+    byte[] bytes = {1, 2, 3};
     ValueMetaAndData vm = new ValueMetaAndData("f7", bytes);
 
     assertInstanceOf(ValueMetaBinary.class, vm.getValueMeta());

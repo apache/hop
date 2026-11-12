@@ -46,7 +46,7 @@ class HopOidcClientTest {
   }
 
   @Test
-  void extractsGroupsAndMapsRoles() throws Exception {
+  void extractsGroupsAndMapsRoles() {
     HopSecurityConfig config = new HopSecurityConfig();
     config.setOauthRoleClaim("groups");
     config.setOauthUsernameClaim("preferred_username");
@@ -71,7 +71,7 @@ class HopOidcClientTest {
   }
 
   @Test
-  void extractsKeycloakRealmRoles() throws Exception {
+  void extractsKeycloakRealmRoles() {
     HopSecurityConfig config = new HopSecurityConfig();
     config.setOauthRoleClaim("realm_access.roles");
 

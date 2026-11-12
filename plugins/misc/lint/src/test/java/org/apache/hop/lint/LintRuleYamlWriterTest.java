@@ -94,7 +94,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void changingOneRuleLeavesEveryOtherLineAlone() throws Exception {
+  void changingOneRuleLeavesEveryOtherLineAlone() throws Exception {
     Files.writeString(yaml(), PROJECT_FILE, StandardCharsets.UTF_8);
 
     LintPolicyYamlWriter.putRule(yaml(), "DOC-001", entry("enabled", true));
@@ -113,7 +113,7 @@ public class LintRuleYamlWriterTest {
    * second lost the rule from the file when the write was refused.
    */
   @Test
-  public void aNewIdReplacesTheOldEntryInOneWrite() throws Exception {
+  void aNewIdReplacesTheOldEntryInOneWrite() throws Exception {
     Files.writeString(yaml(), PROJECT_FILE, StandardCharsets.UTF_8);
 
     LintPolicyYamlWriter.putRule(
@@ -126,7 +126,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aRefusedNewIdLeavesTheFileAsItWas() throws Exception {
+  void aRefusedNewIdLeavesTheFileAsItWas() throws Exception {
     String inline = "rules: {CRM-001: {enabled: false}}\n";
     Files.writeString(yaml(), inline, StandardCharsets.UTF_8);
 
@@ -145,7 +145,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aRuleWithAnInlineCommentIsReplacedWhole() throws Exception {
+  void aRuleWithAnInlineCommentIsReplacedWhole() throws Exception {
     String after =
         LintPolicyYamlWriter.replaceRule(PROJECT_FILE, "SEC-002", entry("severity", "INFO"));
 
@@ -156,7 +156,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void theCommentAboveTheNextRuleStaysWithIt() throws Exception {
+  void theCommentAboveTheNextRuleStaysWithIt() throws Exception {
     String file =
         """
         rules:
@@ -180,7 +180,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aNewRuleIsAddedAtTheEndOfTheRules() throws Exception {
+  void aNewRuleIsAddedAtTheEndOfTheRules() throws Exception {
     String after =
         LintPolicyYamlWriter.replaceRule(PROJECT_FILE, "STRUCT-001", entry("conditionValue", "40"));
 
@@ -191,7 +191,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aComposedRuleIsWrittenAsBlockYaml() throws Exception {
+  void aComposedRuleIsWrittenAsBlockYaml() throws Exception {
     Map<String, Object> composed =
         entry(
             "type",
@@ -212,7 +212,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void theFileKeepsItsOwnIndentation() throws Exception {
+  void theFileKeepsItsOwnIndentation() throws Exception {
     String file =
         """
         rules:
@@ -226,7 +226,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aQuotedOrDifferentlyCasedKeyIsTheSameRule() throws Exception {
+  void aQuotedOrDifferentlyCasedKeyIsTheSameRule() throws Exception {
     String file = """
         rules:
           'doc-001':
@@ -239,7 +239,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void removingTheLastRuleRemovesTheRulesKey() throws Exception {
+  void removingTheLastRuleRemovesTheRulesKey() throws Exception {
     String file =
         """
         rules:
@@ -256,7 +256,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void aFileWithoutRulesGetsTheBlockAppended() throws Exception {
+  void aFileWithoutRulesGetsTheBlockAppended() throws Exception {
     String file = "exclude:\n  - \"templates/**\"\n";
 
     String after = LintPolicyYamlWriter.replaceRule(file, "DOC-001", entry("enabled", false));
@@ -265,7 +265,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void anEmptyInlineRulesMappingIsOpenedUp() throws Exception {
+  void anEmptyInlineRulesMappingIsOpenedUp() throws Exception {
     String after =
         LintPolicyYamlWriter.replaceRule("rules: {}\n", "DOC-001", entry("enabled", false));
 
@@ -273,7 +273,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void inlineRulesAreLeftToTheUser() {
+  void inlineRulesAreLeftToTheUser() {
     assertThrows(
         IOException.class,
         () ->
@@ -282,7 +282,7 @@ public class LintRuleYamlWriterTest {
   }
 
   @Test
-  public void removingARuleThatIsNotThereChangesNothing() throws Exception {
+  void removingARuleThatIsNotThereChangesNothing() throws Exception {
     Files.writeString(yaml(), PROJECT_FILE, StandardCharsets.UTF_8);
 
     assertFalse(LintPolicyYamlWriter.removeRule(yaml(), "NAMING-001"));

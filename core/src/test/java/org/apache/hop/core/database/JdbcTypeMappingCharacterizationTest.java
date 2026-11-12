@@ -121,7 +121,7 @@ class JdbcTypeMappingCharacterizationTest {
             + " every differing line; each one is a behaviour change for some database.");
   }
 
-  private String render() throws Exception {
+  private String render() {
     StringBuilder out = new StringBuilder();
     out.append("# Side-by-side characterization of Hop's three JDBC -> Hop type mappers.\n");
     out.append("# DB  = Database.getDataTypeFromKnownSqlType   (the live production path)\n");

@@ -28,8 +28,7 @@ class PartitionersTest {
 
   @Test
   void testGetNames() {
-    String[] expectedName =
-        new String[] {"Murmur3Partitioner", "RandomPartitioner", "ByteOrderedPartitioner"};
+    String[] expectedName = {"Murmur3Partitioner", "RandomPartitioner", "ByteOrderedPartitioner"};
     assertEquals(expectedName.length, Partitioners.values().length);
     for (int i = 0; i < expectedName.length; i++) {
       assertEquals(expectedName[i], Partitioners.values()[i].getName());
@@ -38,12 +37,11 @@ class PartitionersTest {
 
   @Test
   void testGetTypes() {
-    String[] expectedType =
-        new String[] {
-          "org.apache.cassandra.db.marshal.LongType",
-          "org.apache.cassandra.db.marshal.IntegerType",
-          "org.apache.cassandra.db.marshal.BytesType"
-        };
+    String[] expectedType = {
+      "org.apache.cassandra.db.marshal.LongType",
+      "org.apache.cassandra.db.marshal.IntegerType",
+      "org.apache.cassandra.db.marshal.BytesType"
+    };
     assertEquals(expectedType.length, Partitioners.values().length);
     for (int i = 0; i < expectedType.length; i++) {
       assertEquals(expectedType[i], Partitioners.values()[i].getType());

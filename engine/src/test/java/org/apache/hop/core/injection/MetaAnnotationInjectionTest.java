@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -165,48 +165,13 @@ class MetaAnnotationInjectionTest {
 
   @Test
   void testWrongDeclarations() {
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong1.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong2.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong3.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong4.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong5.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong6.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
-    try {
-      new BeanInjectionInfo<>(MetaBeanWrong7.class);
-      fail();
-    } catch (Exception ex) {
-      // ignore
-    }
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong1.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong2.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong3.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong4.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong5.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong6.class));
+    assertThrows(Exception.class, () -> new BeanInjectionInfo<>(MetaBeanWrong7.class));
   }
 
   @Test

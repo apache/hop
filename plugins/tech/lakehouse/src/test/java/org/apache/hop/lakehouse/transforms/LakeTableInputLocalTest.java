@@ -19,6 +19,7 @@ package org.apache.hop.lakehouse.transforms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,7 +145,7 @@ class LakeTableInputLocalTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     catalog.close();
   }
 
@@ -512,13 +513,13 @@ class LakeTableInputLocalTest {
     // A commit lands after the first copy resolved the snapshot, before the second one starts.
     append(1500, 1600);
     table.refresh();
-    assertTrue(table.currentSnapshot().snapshotId() != before);
+    assertNotEquals(before, table.currentSnapshot().snapshotId());
 
     assertEquals(before, second.sharedCurrentSnapshotId(table));
   }
 
   @Test
-  void readerFollowsTheIteratorContract() throws Exception {
+  void readerFollowsTheIteratorContract() {
     try (IcebergRowReader reader = new IcebergRowReader(table, List.of("id"), null, null, 0, 1)) {
       int rows = 0;
       for (int i = 0; i < 1500; i++) {

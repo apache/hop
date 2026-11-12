@@ -69,7 +69,7 @@ class TextFileOutputTest {
 
   private static final String EMPTY_FILE_NAME = "Empty File";
   private static final String EMPTY_STRING = "";
-  private static final Boolean[] BOOL_VALUE_LIST = new Boolean[] {false, true};
+  private static final Boolean[] BOOL_VALUE_LIST = {false, true};
   private static final String TEXT_FILE_OUTPUT_PREFIX = "textFileOutput";
   private static final String TEXT_FILE_OUTPUT_EXTENSION = ".txt";
   private static final String END_LINE = " endLine ";
@@ -159,8 +159,8 @@ class TextFileOutputTest {
           "floor");
   private List<TextFileField> textFileFields =
       new ArrayList<>(List.of(textFileField, textFileField2));
-  private Object[] row = new Object[] {"some data", "another data"};
-  private Object[] row2 = new Object[] {"some data2", "another data2"};
+  private Object[] row = {"some data", "another data"};
+  private Object[] row2 = {"some data2", "another data2"};
   private List<Object[]> emptyRows = new ArrayList<>();
   private List<Object[]> rows = new ArrayList<>();
   private List<String> contents = new ArrayList<>();
@@ -205,7 +205,7 @@ class TextFileOutputTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         new TransformMockHelper<>(
             "TEXT FILE OUTPUT TEST", TextFileOutputMeta.class, TextFileOutputData.class);
@@ -229,7 +229,7 @@ class TextFileOutputTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
@@ -539,7 +539,7 @@ class TextFileOutputTest {
   }
 
   @Test
-  void testEndedLineVar() throws Exception {
+  void testEndedLineVar() {
     TextFileOutputData data = new TextFileOutputData();
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     data.writer = baos;
@@ -630,7 +630,7 @@ class TextFileOutputTest {
     Mockito.when(transformMockHelper.iTransformMeta.isFileNameInField()).thenReturn(false);
     Mockito.when(mockFileSettings.isAddToResultFiles()).thenReturn(true);
 
-    Object[] rowData = new Object[] {"data text"};
+    Object[] rowData = {"data text"};
     textFileOutput =
         new TextFileOutputTestHandler(
             transformMockHelper.transformMeta,
@@ -707,7 +707,7 @@ class TextFileOutputTest {
     Mockito.when(mockFileSettings.isAddToResultFiles()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isFileNameInField()).thenReturn(true);
 
-    Object[] rowData = new Object[] {"data text"};
+    Object[] rowData = {"data text"};
     textFileOutput =
         new TextFileOutputTestHandler(
             transformMockHelper.transformMeta,

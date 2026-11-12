@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -78,7 +79,7 @@ class XmlJoinBlankEncodingTest {
     String xml = runXmlJoin("<encoding/>");
 
     assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><child>café</child></root>", xml);
-    assertTrue(XmlHandler.loadXmlString(xml) != null);
+    assertNotNull(XmlHandler.loadXmlString(xml));
   }
 
   @Test

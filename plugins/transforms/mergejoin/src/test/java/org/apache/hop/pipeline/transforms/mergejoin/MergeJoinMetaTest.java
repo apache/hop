@@ -178,7 +178,7 @@ class MergeJoinMetaTest {
   }
 
   @Test
-  void cloneTest() throws Exception {
+  void cloneTest() {
     MergeJoinMeta meta = new MergeJoinMeta();
     meta.setKeyFields1(Arrays.asList("kf1-1", "kf1-2"));
     meta.setKeyFields2(Arrays.asList("kf2-1", "kf2-2", "kf2-3"));

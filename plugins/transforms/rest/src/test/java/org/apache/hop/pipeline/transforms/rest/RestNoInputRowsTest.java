@@ -176,8 +176,7 @@ class RestNoInputRowsTest {
   private RecordingRest build(
       boolean withIncomingHop,
       boolean incomingHopEnabled,
-      java.util.function.Consumer<RestMeta> tweak)
-      throws HopException {
+      java.util.function.Consumer<RestMeta> tweak) {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("TestRest");
 

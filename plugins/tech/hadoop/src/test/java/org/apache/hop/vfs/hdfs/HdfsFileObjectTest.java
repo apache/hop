@@ -83,7 +83,7 @@ class HdfsFileObjectTest {
   }
 
   private static HdfsFileObject fileObject(
-      String first, String second, String path, ExecutorService executor) throws Exception {
+      String first, String second, String path, ExecutorService executor) {
     List<String> endpoints = second == null ? List.of(first) : List.of(first, second);
     HdfsWebHdfsClient client =
         new HdfsWebHdfsClient(

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -120,7 +121,7 @@ class MinioPipedOutputStreamTest {
     out.close(); // second close uploads the late bytes
 
     // first empty + second with content
-    verify(client, org.mockito.Mockito.times(2)).putObject(any(PutObjectArgs.class));
+    verify(client, times(2)).putObject(any(PutObjectArgs.class));
   }
 
   @Test

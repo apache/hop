@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.dialog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -88,8 +89,9 @@ class ShowRowsDialogCellSelectionTest extends SwtBotTestBase {
           assertNotNull(
               editor,
               "clicking a cell should drop a selectable text field holding the value in place");
-          assertTrue(
-              (onUi(editor::getStyle) & SWT.READ_ONLY) != 0,
+          assertNotEquals(
+              0,
+              onUi(editor::getStyle) & SWT.READ_ONLY,
               "the in-place cell editor must be read-only (a viewer, not an editor)");
           assertEquals(
               LONG_VALUE,

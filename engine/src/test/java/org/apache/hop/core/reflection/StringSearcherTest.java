@@ -72,7 +72,7 @@ public class StringSearcherTest {
   }
 
   @Test
-  public void testFindMetaDataScansObjectArray() {
+  void testFindMetaDataScansObjectArray() {
     ArrayHolder holder = new ArrayHolder();
     holder.fields = new Field[] {new Field("${VARIABLE_1}"), new Field("${VARIABLE_2}")};
 
@@ -89,7 +89,7 @@ public class StringSearcherTest {
    * no longer discovered, so Run Options no longer pre-populated them.
    */
   @Test
-  public void testFindMetaDataScansObjectList() {
+  void testFindMetaDataScansObjectList() {
     ListHolder holder = new ListHolder();
     holder.fields = new ArrayList<>();
     holder.fields.add(new Field("${VARIABLE_1}"));
@@ -103,7 +103,7 @@ public class StringSearcherTest {
   }
 
   @Test
-  public void testFindMetaDataScansStringList() {
+  void testFindMetaDataScansStringList() {
     StringListHolder holder = new StringListHolder();
     holder.values = new ArrayList<>();
     holder.values.add("${VARIABLE_1}");

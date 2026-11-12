@@ -20,9 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
@@ -40,8 +38,7 @@ public class ProviderRenameTests extends AbstractProviderTestCase {
     return scratchFolder;
   }
 
-  private String createTestFile(final FileObject file)
-      throws FileSystemException, IOException, UnsupportedEncodingException, Exception {
+  private String createTestFile(final FileObject file) throws Exception {
     // Create the source file
     final String content = "Here is some sample content for the file.  Blah Blah Blah.";
 
@@ -67,7 +64,7 @@ public class ProviderRenameTests extends AbstractProviderTestCase {
   }
 
   private void moveFile(final FileObject scratchFolder, final FileObject file, final String content)
-      throws FileSystemException, Exception {
+      throws Exception {
     final FileObject fileMove = scratchFolder.resolveFile("file1move.txt");
     assertFalse(fileMove.exists());
 

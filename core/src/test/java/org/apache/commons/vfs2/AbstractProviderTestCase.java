@@ -170,7 +170,7 @@ public abstract class AbstractProviderTestCase {
    * when capabilities are not met.
    */
   @BeforeEach
-  public void checkCapabilitiesJunit5() throws FileSystemException {
+  public void checkCapabilitiesJunit5() {
     if (readFolder == null) {
       return;
     }
@@ -188,7 +188,7 @@ public abstract class AbstractProviderTestCase {
 
   /** JUnit 5 lifecycle method to verify file system is properly closed after each test. */
   @AfterEach
-  public void checkFileSystemClosedJunit5() throws FileSystemException {
+  public void checkFileSystemClosedJunit5() {
     if (readFolder != null && ((AbstractFileSystem) readFolder.getFileSystem()).isOpen()) {
       throw new IllegalStateException(
           getClass().getName() + ": filesystem has open streams after test");

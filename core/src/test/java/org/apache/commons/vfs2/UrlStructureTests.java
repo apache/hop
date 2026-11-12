@@ -17,11 +17,10 @@
 package org.apache.commons.vfs2;
 
 import static org.apache.commons.vfs2.VfsTestUtils.assertSameMessage;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 
 /** URL Test cases for providers that supply structural info. */
@@ -47,10 +46,8 @@ public class UrlStructureTests extends AbstractProviderTestCase {
     assertTrue(folder.exists());
 
     // Try getting the content of a folder
-    try (InputStream inputStream = folder.getURL().openConnection().getInputStream()) {
-      fail();
-    } catch (final IOException e) {
-      assertSameMessage("vfs.provider/read-not-file.error", folder, e);
-    }
+    final IOException e =
+        assertThrows(IOException.class, () -> folder.getURL().openConnection().getInputStream());
+    assertSameMessage("vfs.provider/read-not-file.error", folder, e);
   }
 }

@@ -162,7 +162,7 @@ class JsonEOutputBehaviorTest {
   }
 
   @Test
-  void missingRuntimeGroupKeyIsAnActionableError() throws Exception {
+  void missingRuntimeGroupKeyIsAnActionableError() {
     JsonEOutputMeta meta = meta(JsonEOutputMeta.OperationType.OUTPUT_VALUE);
     meta.getKeyFields().add(new JsonEOutputKeyField("gone"));
     try (Harness h = new Harness(meta, rowMeta("payload"), new Object[] {"x"})) {

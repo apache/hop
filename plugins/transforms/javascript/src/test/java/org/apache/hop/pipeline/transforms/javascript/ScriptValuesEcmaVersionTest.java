@@ -66,7 +66,7 @@ class ScriptValuesEcmaVersionTest {
   }
 
   @Test
-  void es6AllowsLetAndConst() throws Exception {
+  void es6AllowsLetAndConst() {
     Context cx = ContextFactory.getGlobal().enterContext();
     try {
       ScriptValuesEcmaVersion.ES6.applyTo(cx);
@@ -79,7 +79,7 @@ class ScriptValuesEcmaVersionTest {
   }
 
   @Test
-  void legacyDefaultRejectsLet() throws Exception {
+  void legacyDefaultRejectsLet() {
     Context cx = ContextFactory.getGlobal().enterContext();
     try {
       ScriptValuesEcmaVersion.DEFAULT.applyTo(cx);

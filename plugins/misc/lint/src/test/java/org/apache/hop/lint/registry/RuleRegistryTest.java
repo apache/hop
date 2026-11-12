@@ -18,6 +18,7 @@ package org.apache.hop.lint.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,13 +40,13 @@ import org.junit.jupiter.api.Test;
 public class RuleRegistryTest {
 
   @Test
-  public void discoveryAlwaysIncludesHopCorePack() {
+  void discoveryAlwaysIncludesHopCorePack() {
     List<IHopLintRulePack> packs = new RulePackDiscovery().discoverAll();
     assertTrue(packs.stream().anyMatch(pack -> RulePackIds.HOP_CORE.equals(pack.getPackId())));
   }
 
   @Test
-  public void loadsHopCorePackByDefault() {
+  void loadsHopCorePackByDefault() {
     EffectiveRuleSet rules = RuleRegistry.getInstance().resolve(null);
     // Assert on membership, not an exact count: the core pack's contents are expected to be
     // tuned, and a count assertion turns every rule change into a test failure.
@@ -58,7 +59,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void projectYamlCanRetuneAThreshold() throws Exception {
+  void projectYamlCanRetuneAThreshold() throws Exception {
     // Retuning a threshold is the commonest override, and it used to be dropped on the floor: the
     // rule was enabled as asked while the pack's own ceiling quietly stayed in force.
     File projectYaml = File.createTempFile("hop-lint", ".yml");
@@ -80,7 +81,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void projectYamlCanDisablePackRule() throws Exception {
+  void projectYamlCanDisablePackRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  TRANS-002:\n    enabled: false\n");
     try {
@@ -97,7 +98,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void projectYamlCanAddLocalRule() throws Exception {
+  void projectYamlCanAddLocalRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(
         projectYaml.toPath(),
@@ -122,7 +123,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void exporterWritesOverridesOnly() throws Exception {
+  void exporterWritesOverridesOnly() {
     CustomLintRule doc001 =
         RuleRegistry.getInstance().resolve(null).getRules().stream()
             .filter(rule -> "TRANS-002".equals(rule.generateRuleId()))
@@ -143,7 +144,7 @@ public class RuleRegistryTest {
    * would carry a null target and read back as a rule that checks nothing.
    */
   @Test
-  public void aNativeRuleSurvivesTheRoundTripThroughTheProjectYaml() throws Exception {
+  void aNativeRuleSurvivesTheRoundTripThroughTheProjectYaml() throws Exception {
     CustomLintRule hopCheck =
         RuleRegistry.getInstance().resolve(null).getRules().stream()
             .filter(rule -> "HOP-CHECK".equals(rule.generateRuleId()))
@@ -175,7 +176,7 @@ public class RuleRegistryTest {
 
   /** A project can name a check of its own, and the narrowing has to come back with the rule. */
   @Test
-  public void aProjectCanDefineItsOwnNativeRule() throws Exception {
+  void aProjectCanDefineItsOwnNativeRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     try {
       Files.writeString(
@@ -207,7 +208,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void projectYamlCanDefineAComposedRule() throws Exception {
+  void projectYamlCanDefineAComposedRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(
         projectYaml.toPath(),
@@ -253,7 +254,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void exporterWritesAPackRuleInFullWhenItIsRedefined() throws Exception {
+  void exporterWritesAPackRuleInFullWhenItIsRedefined() {
     // Tuning a pack rule is an override. Changing what it looks at is a redefinition, and an
     // override block cannot carry that: written as one, the new target and field would be dropped
     // and the rule would go on checking what it always did.
@@ -273,7 +274,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void exporterStillWritesAnOverrideWhenOnlyAThresholdChanges() throws Exception {
+  void exporterStillWritesAnOverrideWhenOnlyAThresholdChanges() {
     CustomLintRule retuned =
         RuleRegistry.getInstance().resolve(null).getRules().stream()
             .filter(rule -> "STRUCT-001".equals(rule.generateRuleId()))
@@ -293,7 +294,7 @@ public class RuleRegistryTest {
    * for good and stopped following the pack, with no warning in the editor.
    */
   @Test
-  public void renamingAPackRuleIsAnOverride() throws Exception {
+  void renamingAPackRuleIsAnOverride() throws Exception {
     CustomLintRule renamed = packRule("DOC-001");
     String packName = renamed.getName();
     renamed.setName("Pipelines need a description");
@@ -325,7 +326,7 @@ public class RuleRegistryTest {
    * unchanged rule must not count as a change.
    */
   @Test
-  public void anUnchangedPackRuleSavedFromTheEditorNeedsNoEntry() {
+  void anUnchangedPackRuleSavedFromTheEditorNeedsNoEntry() {
     CustomLintRule unchanged = packRule("DOC-001");
     unchanged.setConditionValue(null);
 
@@ -335,13 +336,13 @@ public class RuleRegistryTest {
 
   /** Project rules replace a pack rule only under the very same id, as the registry stores them. */
   @Test
-  public void aPackRuleIsFoundByItsExactId() {
-    assertTrue(ProjectLintYamlExporter.packRule("TRANS-002") != null);
+  void aPackRuleIsFoundByItsExactId() {
+    assertNotNull(ProjectLintYamlExporter.packRule("TRANS-002"));
     assertEquals(null, ProjectLintYamlExporter.packRule("trans-002"));
   }
 
   @Test
-  public void changingWhatAPackRuleChecksRedefinesIt() {
+  void changingWhatAPackRuleChecksRedefinesIt() {
     CustomLintRule redefined = packRule("TRANS-002");
     redefined.setTargetField("hasDisabledHops");
 
@@ -355,7 +356,7 @@ public class RuleRegistryTest {
    * the rule a redefinition, written whole with every clause.
    */
   @Test
-  public void aChangedValueInALaterClauseRedefinesTheRule() throws Exception {
+  void aChangedValueInALaterClauseRedefinesTheRule() throws Exception {
     CustomLintRule edited = packRule("SQL-002");
     edited.getAdditionalClauses().get(0).setConditionValue("^\\s*0\\s*$");
 
@@ -378,7 +379,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void aChangedValueInTheFirstClauseStaysAnOverride() {
+  void aChangedValueInTheFirstClauseStaysAnOverride() {
     CustomLintRule edited = packRule("SQL-002");
     edited.setConditionValue("(?is).*\\bselect\\s+\\*\\s+from.*");
 
@@ -389,7 +390,7 @@ public class RuleRegistryTest {
 
   /** {@code conditionValue: ''} was written for every rule whose condition takes no value. */
   @Test
-  public void aRuleWithoutAValueIsWrittenWithoutConditionValue() {
+  void aRuleWithoutAValueIsWrittenWithoutConditionValue() {
     CustomLintRule rule =
         new CustomLintRule(
             "Named",
@@ -418,7 +419,7 @@ public class RuleRegistryTest {
    * — silently change what every later lint run sees.
    */
   @Test
-  public void resolutionsDoNotShareMutableRules() {
+  void resolutionsDoNotShareMutableRules() {
     CustomLintRule first =
         RuleRegistry.getInstance().resolve(null).getRules().stream()
             .filter(rule -> "TRANS-002".equals(rule.generateRuleId()))
@@ -445,7 +446,7 @@ public class RuleRegistryTest {
    * the rule list would look unchanged.
    */
   @Test
-  public void aPackCannotSilentlyReplaceAnotherPacksRule() {
+  void aPackCannotSilentlyReplaceAnotherPacksRule() {
     Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
@@ -459,7 +460,7 @@ public class RuleRegistryTest {
 
   /** Declaring the intent is what makes it allowed. */
   @Test
-  public void aDeclaredOverrideIsApplied() {
+  void aDeclaredOverrideIsApplied() {
     Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
@@ -474,7 +475,7 @@ public class RuleRegistryTest {
 
   /** A pack redefining its own rule is not a collision. */
   @Test
-  public void aPackMayRedefineItsOwnRule() {
+  void aPackMayRedefineItsOwnRule() {
     Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("acme", List.of(), ruleFrom("acme", "ACME-001", "WARNING")));
@@ -486,7 +487,7 @@ public class RuleRegistryTest {
 
   /** Rule ids are matched without regard to case, as they are hand-written in YAML. */
   @Test
-  public void overrideDeclarationIgnoresCase() {
+  void overrideDeclarationIgnoresCase() {
     Map<String, CustomLintRule> merged = new LinkedHashMap<>();
     RuleRegistry.mergePack(
         merged, packOf("hop-core", List.of(), ruleFrom("hop-core", "DB-001", "ERROR")));
@@ -542,7 +543,7 @@ public class RuleRegistryTest {
 
   /** A project overlay must not contaminate the cached pack rules either. */
   @Test
-  public void projectOverlayDoesNotLeakIntoLaterResolutions() throws Exception {
+  void projectOverlayDoesNotLeakIntoLaterResolutions() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  TRANS-002:\n    enabled: false\n");
     try {
@@ -571,7 +572,7 @@ public class RuleRegistryTest {
    * @see <a href="https://github.com/apache/hop/issues/8731">#8731</a>
    */
   @Test
-  public void anUnknownRuleIdIsReportedWithTheClosestId() throws Exception {
+  void anUnknownRuleIdIsReportedWithTheClosestId() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  SQL-02:\n    enabled: true\n");
     try {
@@ -593,7 +594,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void aRuleIdInAnotherCaseIsTheSameRule() throws Exception {
+  void aRuleIdInAnotherCaseIsTheSameRule() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  trans-002:\n    enabled: false\n");
     try {
@@ -616,7 +617,7 @@ public class RuleRegistryTest {
    * logged each time filled the log for as long as the project kept the id.
    */
   @Test
-  public void anUnknownRuleIdIsLoggedOnce() throws Exception {
+  void anUnknownRuleIdIsLoggedOnce() throws Exception {
     HopLogStore.init();
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  NO-SUCH-RULE:\n    enabled: true\n");
@@ -643,7 +644,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void anIdFarFromAnyRuleGetsNoSuggestion() throws Exception {
+  void anIdFarFromAnyRuleGetsNoSuggestion() {
     String warning =
         RuleRegistry.unknownRuleWarning(
             "COMPLETELY-DIFFERENT", List.of("SQL-002", "DB-001"), new File("hop-lint.yml"));
@@ -658,7 +659,7 @@ public class RuleRegistryTest {
    * @see <a href="https://github.com/apache/hop/issues/8826">#8826</a>
    */
   @Test
-  public void aBrokenPackIsRecordedWithItsOwnError() throws Exception {
+  void aBrokenPackIsRecordedWithItsOwnError() throws Exception {
     File yaml = File.createTempFile("broken-pack", ".yml");
     yaml.deleteOnExit();
     Files.writeString(yaml.toPath(), "rules:\n  - id: [unterminated\n");
@@ -683,7 +684,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void packsThatLoadLeaveNoErrors() {
+  void packsThatLoadLeaveNoErrors() {
     RulePackDiscovery discovery =
         new RulePackDiscovery() {
           @Override
@@ -702,7 +703,7 @@ public class RuleRegistryTest {
    * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
    */
   @Test
-  public void aRuleThatCannotReportIsNamedInAWarning() throws Exception {
+  void aRuleThatCannotReportIsNamedInAWarning() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(
         projectYaml.toPath(),
@@ -751,7 +752,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void theCorePackHasNoRuleThatCannotReport() {
+  void theCorePackHasNoRuleThatCannotReport() {
     assertTrue(
         RuleRegistry.getInstance().resolve(null).getWarnings().isEmpty(),
         RuleRegistry.getInstance().resolve(null).getWarnings().toString());
@@ -759,7 +760,7 @@ public class RuleRegistryTest {
 
   /** rules: written with dashes failed with "ArrayList cannot be cast to class java.util.Map". */
   @Test
-  public void rulesWrittenAsAListAreExplained() throws Exception {
+  void rulesWrittenAsAListAreExplained() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(projectYaml.toPath(), "rules:\n  - DB-001:\n      enabled: false\n");
     try {
@@ -779,7 +780,7 @@ public class RuleRegistryTest {
    * parsing a flow sequence in 'reader'", naming neither the pack nor the file.
    */
   @Test
-  public void aBrokenDiscoveredPackNamesItsFile() throws Exception {
+  void aBrokenDiscoveredPackNamesItsFile() throws Exception {
     Path root = Files.createTempDirectory("hop-lint-discovery");
     Path engineDir = root.resolve("plugins/misc/hop-lint");
     Path vendorDir = root.resolve("plugins/misc/acme-lint-rules");
@@ -812,7 +813,7 @@ public class RuleRegistryTest {
 
   /** A cause chain that loops back on itself must not hang the registry while it holds its lock. */
   @Test
-  public void aLoopingCauseChainEnds() {
+  void aLoopingCauseChainEnds() {
     Exception outer = new Exception("outer");
     Exception inner = new Exception("inner", outer);
     outer.initCause(inner);

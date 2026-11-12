@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.insertupdate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,11 +125,7 @@ class InsertUpdateMetaTest {
   @Test
   void testCommitCountMissedVar() {
     umi.setCommitSize("missed-var");
-    try {
-      umi.getCommitSizeVar(upd);
-      fail();
-    } catch (Exception ex) {
-    }
+    assertThrows(Exception.class, () -> umi.getCommitSizeVar(upd));
   }
 
   @BeforeEach

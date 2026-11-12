@@ -71,7 +71,7 @@ class SvgImageFacadeImplTest {
   private final Map<String, byte[]> registered = new HashMap<>();
 
   @BeforeEach
-  void mockRwt() throws Exception {
+  void mockRwt() {
     resourceManager = mock(ResourceManager.class);
     when(resourceManager.getLocation(anyString()))
         .thenAnswer(invocation -> "rwt-resources/" + invocation.getArgument(0));

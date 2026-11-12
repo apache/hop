@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -51,7 +53,6 @@ import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 /** Unit test for {@link Rest} */
 class RestProcessRowTest {
@@ -135,9 +136,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("field1"));
 
     // Mock callRest to return a row with result
-    Object[] inputRow = new Object[] {"value1"};
-    Object[] outputRow = new Object[] {"value1", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"value1"};
+    Object[] outputRow = {"value1", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     // Add row set with input data
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
@@ -186,9 +187,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("field1"));
 
     // Mock callRest to return a row with result
-    Object[] inputRow = new Object[] {"http://dynamic-url.com", "value1"};
-    Object[] outputRow = new Object[] {"http://dynamic-url.com", "value1", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"http://dynamic-url.com", "value1"};
+    Object[] outputRow = {"http://dynamic-url.com", "value1", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -232,9 +233,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("methodField"));
     inputRowMeta.addValueMeta(new ValueMetaString("field1"));
 
-    Object[] inputRow = new Object[] {"POST", "value1"};
-    Object[] outputRow = new Object[] {"POST", "value1", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"POST", "value1"};
+    Object[] outputRow = {"POST", "value1", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -284,9 +285,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("headerValueField"));
     inputRowMeta.addValueMeta(new ValueMetaString("authField"));
 
-    Object[] inputRow = new Object[] {"application/json", "Bearer token123"};
-    Object[] outputRow = new Object[] {"application/json", "Bearer token123", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"application/json", "Bearer token123"};
+    Object[] outputRow = {"application/json", "Bearer token123", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -336,9 +337,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("param1Field"));
     inputRowMeta.addValueMeta(new ValueMetaString("param2Field"));
 
-    Object[] inputRow = new Object[] {"test query", "10"};
-    Object[] outputRow = new Object[] {"test query", "10", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"test query", "10"};
+    Object[] outputRow = {"test query", "10", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -388,9 +389,9 @@ class RestProcessRowTest {
     inputRowMeta.addValueMeta(new ValueMetaString("matrixParam1Field"));
     inputRowMeta.addValueMeta(new ValueMetaString("matrixParam2Field"));
 
-    Object[] inputRow = new Object[] {"John Doe", "2023"};
-    Object[] outputRow = new Object[] {"John Doe", "2023", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"John Doe", "2023"};
+    Object[] outputRow = {"John Doe", "2023", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -435,9 +436,9 @@ class RestProcessRowTest {
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("bodyField"));
 
-    Object[] inputRow = new Object[] {"{\"name\":\"test\",\"value\":123}"};
-    Object[] outputRow = new Object[] {"{\"name\":\"test\",\"value\":123}", "response_body"};
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    Object[] inputRow = {"{\"name\":\"test\",\"value\":123}"};
+    Object[] outputRow = {"{\"name\":\"test\",\"value\":123}", "response_body"};
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -497,10 +498,10 @@ class RestProcessRowTest {
     outputRowMeta.addValueMeta(new ValueMetaString("responseTime"));
     outputRowMeta.addValueMeta(new ValueMetaString("headers"));
 
-    Object[] inputRow = new Object[] {"value1"};
-    Object[] outputRow = new Object[] {"value1", "response", 200L, 100L, "{}"};
+    Object[] inputRow = {"value1"};
+    Object[] outputRow = {"value1", "response", 200L, 100L, "{}"};
 
-    Mockito.doReturn(outputRow).when(rest).callRest(any());
+    doReturn(outputRow).when(rest).callRest(any());
 
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
@@ -546,12 +547,12 @@ class RestProcessRowTest {
 
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("field1"));
-    Object[] inputRow = new Object[] {"value1"};
+    Object[] inputRow = {"value1"};
     rest.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(inputRow));
     when(rest.getInputRowMeta()).thenReturn(inputRowMeta);
 
     HopException sslError = new HopException("SSLHandshakeException: PKIX path building failed");
-    Mockito.doThrow(sslError).when(rest).callRest(any());
+    doThrow(sslError).when(rest).callRest(any());
 
     boolean result = rest.processRow();
 

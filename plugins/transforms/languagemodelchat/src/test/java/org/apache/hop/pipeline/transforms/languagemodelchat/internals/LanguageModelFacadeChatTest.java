@@ -239,7 +239,7 @@ class LanguageModelFacadeChatTest {
     assertTrue(compactRequestBody().contains("\"wait_for_model\":true"), lastRequestBody.get());
   }
 
-  private ChatResponse chat(LanguageModelChatMeta meta, String message) throws Exception {
+  private ChatResponse chat(LanguageModelChatMeta meta, String message) {
     LanguageModelFacade facade = new LanguageModelFacade(variables, meta);
     return facade.chat(List.of(dev.langchain4j.data.message.UserMessage.userMessage(message)));
   }

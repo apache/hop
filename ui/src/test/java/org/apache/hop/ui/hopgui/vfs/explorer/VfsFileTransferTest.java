@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.vfs.explorer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -278,7 +279,7 @@ class VfsFileTransferTest {
     assertEquals(2, result.getFailures().size());
     assertEquals(VfsFileTransfer.Refusal.INTO_ITSELF, result.getFailures().get(0).getRefusal());
     assertEquals("missing.txt", result.getFailures().get(1).getName());
-    assertTrue(result.getFailures().get(1).getError() != null);
+    assertNotNull(result.getFailures().get(1).getError());
     // The moved file is gone from the source, and so is the one that was never there. The skipped
     // and refused entries stay on the clipboard, so the cut can be finished.
     assertEquals(

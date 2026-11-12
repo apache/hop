@@ -72,12 +72,11 @@ class ActionHttp_PDI208_Test {
     localFileForUpload.deleteOnExit();
     tempFileForDownload.deleteOnExit();
 
-    Object[] r =
-        new Object[] {
-          HTTP_SERVER_BASEURL + "/uploadFile",
-          localFileForUpload.getCanonicalPath(),
-          tempFileForDownload.getCanonicalPath()
-        };
+    Object[] r = {
+      HTTP_SERVER_BASEURL + "/uploadFile",
+      localFileForUpload.getCanonicalPath(),
+      tempFileForDownload.getCanonicalPath()
+    };
     RowMeta rowMetaDefault = new RowMeta();
     rowMetaDefault.addValueMeta(new ValueMetaString("URL"));
     rowMetaDefault.addValueMeta(new ValueMetaString("UPLOAD"));
@@ -102,12 +101,11 @@ class ActionHttp_PDI208_Test {
     localFileForUpload.deleteOnExit();
     tempFileForDownload.deleteOnExit();
 
-    Object[] r =
-        new Object[] {
-          HTTP_SERVER_BASEURL + "/uploadFile",
-          localFileForUpload.getCanonicalPath(),
-          tempFileForDownload.getCanonicalPath()
-        };
+    Object[] r = {
+      HTTP_SERVER_BASEURL + "/uploadFile",
+      localFileForUpload.getCanonicalPath(),
+      tempFileForDownload.getCanonicalPath()
+    };
     RowMeta rowMetaDefault = new RowMeta();
     rowMetaDefault.addValueMeta(new ValueMetaString("MyURL"));
     rowMetaDefault.addValueMeta(new ValueMetaString("MyUpload"));

@@ -178,14 +178,14 @@ class UniqueFieldTest {
   void testEqualsWithSameObject() {
     UniqueField field = new UniqueField("testField", true);
 
-    assertTrue(field.equals(field), "field should equal itself");
+    assertEquals(field, field, "field should equal itself");
   }
 
   @Test
   void testEqualsWithNull() {
     UniqueField field = new UniqueField("testField", true);
 
-    assertFalse(field.equals(null), "field should not equal null");
+    assertNotEquals(field, null, "field should not equal null");
   }
 
   @Test
@@ -193,7 +193,7 @@ class UniqueFieldTest {
     UniqueField field = new UniqueField("testField", true);
     String otherObject = "not a UniqueField";
 
-    assertFalse(field.equals(otherObject), "field should not equal object of different class");
+    assertNotEquals(field, otherObject, "field should not equal object of different class");
   }
 
   @Test
@@ -201,8 +201,8 @@ class UniqueFieldTest {
     UniqueField field1 = new UniqueField("testField", true);
     UniqueField field2 = new UniqueField("testField", true);
 
-    assertTrue(field1.equals(field2), "fields with same values should be equal");
-    assertTrue(field2.equals(field1), "equals should be symmetric");
+    assertEquals(field1, field2, "fields with same values should be equal");
+    assertEquals(field2, field1, "equals should be symmetric");
   }
 
   @Test
@@ -210,8 +210,8 @@ class UniqueFieldTest {
     UniqueField field1 = new UniqueField("testField1", true);
     UniqueField field2 = new UniqueField("testField2", true);
 
-    assertFalse(field1.equals(field2), "fields with different names should not be equal");
-    assertFalse(field2.equals(field1), "equals should be symmetric");
+    assertNotEquals(field1, field2, "fields with different names should not be equal");
+    assertNotEquals(field2, field1, "equals should be symmetric");
   }
 
   @Test
@@ -219,8 +219,8 @@ class UniqueFieldTest {
     UniqueField field1 = new UniqueField("testField", true);
     UniqueField field2 = new UniqueField("testField", false);
 
-    assertFalse(field1.equals(field2), "fields with different caseInsensitive should not be equal");
-    assertFalse(field2.equals(field1), "equals should be symmetric");
+    assertNotEquals(field1, field2, "fields with different caseInsensitive should not be equal");
+    assertNotEquals(field2, field1, "equals should be symmetric");
   }
 
   @Test
@@ -228,8 +228,7 @@ class UniqueFieldTest {
     UniqueField field1 = new UniqueField(null, true);
     UniqueField field2 = new UniqueField(null, true);
 
-    assertTrue(
-        field1.equals(field2), "fields with null names should be equal if other values match");
+    assertEquals(field1, field2, "fields with null names should be equal if other values match");
   }
 
   @Test
@@ -237,8 +236,8 @@ class UniqueFieldTest {
     UniqueField field1 = new UniqueField(null, true);
     UniqueField field2 = new UniqueField("testField", true);
 
-    assertFalse(field1.equals(field2), "fields with one null name should not be equal");
-    assertFalse(field2.equals(field1), "equals should be symmetric");
+    assertNotEquals(field1, field2, "fields with one null name should not be equal");
+    assertNotEquals(field2, field1, "equals should be symmetric");
   }
 
   @Test
@@ -355,12 +354,12 @@ class UniqueFieldTest {
     UniqueField field2 = new UniqueField("testField", true);
 
     // Initially equal
-    assertTrue(field1.equals(field2), "fields should be equal initially");
+    assertEquals(field1, field2, "fields should be equal initially");
 
     // Modify one field
     field1.setName("newName");
 
     // Should no longer be equal
-    assertFalse(field1.equals(field2), "fields should not be equal after modification");
+    assertNotEquals(field1, field2, "fields should not be equal after modification");
   }
 }

@@ -114,8 +114,8 @@ class GetXMLDataTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    Object[] r1 = new Object[] {getXML1()};
-    Object[] r2 = new Object[] {getXML2()};
+    Object[] r1 = {getXML1()};
+    Object[] r2 = {getXML2()};
 
     list.add(new RowMetaAndData(rm, r1));
     list.add(new RowMetaAndData(rm, r2));
@@ -149,9 +149,9 @@ class GetXMLDataTest {
 
     IRowMeta rm = createResultRowMetaInterface();
 
-    Object[] r1 = new Object[] {getXML1(), "AAAAA", "31-8200", "1", "TX_B", " 600"};
-    Object[] r2 = new Object[] {getXML1(), "BBBBB", "31-8201", "3", "TX_C", " 900"};
-    Object[] r3 = new Object[] {getXML2(), "CCCCC", "11-8201", "5", "TX_C", " 700"};
+    Object[] r1 = {getXML1(), "AAAAA", "31-8200", "1", "TX_B", " 600"};
+    Object[] r2 = {getXML1(), "BBBBB", "31-8201", "3", "TX_C", " 900"};
+    Object[] r3 = {getXML2(), "CCCCC", "11-8201", "5", "TX_C", " 700"};
 
     list.add(new RowMetaAndData(rm, r1));
     list.add(new RowMetaAndData(rm, r2));

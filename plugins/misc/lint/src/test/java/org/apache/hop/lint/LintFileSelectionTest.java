@@ -28,7 +28,7 @@ public class LintFileSelectionTest {
    * HopGui class-initialisation failure escape into the extension point that called it.
    */
   @Test
-  public void resolveLintFilePathWithoutHopGuiReturnsNull() {
+  void resolveLintFilePathWithoutHopGuiReturnsNull() {
     assertNull(LintFileSelection.resolveLintFilePath());
   }
 
@@ -42,7 +42,7 @@ public class LintFileSelectionTest {
    * is the assertion that fails in both places when the guard is missing.
    */
   @Test
-  public void resolvingTheSelectedFileNeverConstructsAGui() {
+  void resolvingTheSelectedFileNeverConstructsAGui() {
     assertNull(HopGui.peekInstance(), "precondition: no GUI in this test JVM");
 
     LintFileSelection.resolveLintFilePath();

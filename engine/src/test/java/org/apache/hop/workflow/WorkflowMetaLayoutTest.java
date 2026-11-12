@@ -49,7 +49,7 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testLayoutNoOverlapAndLeftToRight() {
+  void testLayoutNoOverlapAndLeftToRight() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");
@@ -92,7 +92,7 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testPositionsAlignToDefaultGrid() {
+  void testPositionsAlignToDefaultGrid() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");
@@ -114,7 +114,7 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testSubsetAnchoredLayoutStaysOnGrid() {
+  void testSubsetAnchoredLayoutStaysOnGrid() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");
@@ -138,7 +138,7 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testLargeGridStartsOneCellInsideCanvas() {
+  void testLargeGridStartsOneCellInsideCanvas() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");
@@ -156,24 +156,24 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testEmptyWorkflowDoesNotThrow() {
+  void testEmptyWorkflowDoesNotThrow() {
     WorkflowMetaLayout.layout(new WorkflowMeta());
   }
 
   @Test
-  public void testNullDoesNotThrow() {
+  void testNullDoesNotThrow() {
     WorkflowMetaLayout.layout(null);
   }
 
   @Test
-  public void testSingleActionDoesNotThrow() {
+  void testSingleActionDoesNotThrow() {
     WorkflowMeta meta = new WorkflowMeta();
     meta.addAction(action("only"));
     WorkflowMetaLayout.layout(meta);
   }
 
   @Test
-  public void testCyclicWorkflowDoesNotThrow() {
+  void testCyclicWorkflowDoesNotThrow() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");
@@ -195,7 +195,7 @@ public class WorkflowMetaLayoutTest {
   }
 
   @Test
-  public void testDisconnectedComponentsDoNotOverlap() {
+  void testDisconnectedComponentsDoNotOverlap() {
     WorkflowMeta meta = new WorkflowMeta();
     ActionMeta a = action("a");
     ActionMeta b = action("b");

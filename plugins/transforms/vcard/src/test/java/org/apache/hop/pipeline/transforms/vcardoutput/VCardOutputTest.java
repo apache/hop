@@ -76,7 +76,7 @@ class VCardOutputTest {
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("fn"));
-    Object[] row = new Object[] {"Hop Test"};
+    Object[] row = {"Hop Test"};
 
     IRowSet rowSet = mockHelper.getMockInputRowSet(row);
     when(rowSet.getRowMeta()).thenReturn(rowMeta);

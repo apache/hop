@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -119,12 +119,10 @@ class ValueMetaUuidTest {
   void testConvertInvalidThrows() {
     ValueMetaUuid dst = vm("id");
     IValueMeta src = new ValueMetaString("id");
-    try {
-      dst.convertData(src, "not-a-uuid");
-      fail("Expected HopValueException");
-    } catch (HopValueException e) {
-      // ok
-    }
+    assertThrows(
+        HopValueException.class,
+        () -> dst.convertData(src, "not-a-uuid"),
+        "Expected HopValueException");
   }
 
   @Test

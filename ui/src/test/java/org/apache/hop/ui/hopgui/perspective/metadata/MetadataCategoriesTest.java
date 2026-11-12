@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.perspective.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -81,6 +82,6 @@ class MetadataCategoriesTest {
     // A known id resolves to a real label, not the raw id or a blank string.
     String connectionsLabel = MetadataCategories.labelFor(HopMetadataCategory.CONNECTIONS);
     assertFalse(connectionsLabel == null || connectionsLabel.isEmpty());
-    assertFalse(HopMetadataCategory.CONNECTIONS.equals(connectionsLabel));
+    assertNotEquals(HopMetadataCategory.CONNECTIONS, connectionsLabel);
   }
 }

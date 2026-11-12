@@ -18,6 +18,7 @@
 package org.apache.hop.spark.pipeline.handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -319,7 +320,7 @@ class SparkFileIoHandlersTest {
     assertEquals("jwcdf-name", first.getString(1));
     assertEquals("13520", first.getString(2)); // zip, not firstname
     assertEquals("oem-city", first.getString(3));
-    assertTrue(first.get(4) != null, "birthdate should parse");
+    assertNotNull(first.get(4), "birthdate should parse");
     assertEquals("amrb-street", first.getString(5));
     assertEquals("145", first.getString(6));
     assertEquals("AK", first.getString(7));

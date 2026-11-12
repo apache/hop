@@ -22,8 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
@@ -80,7 +80,7 @@ class MongoDbOutputDataTest {
   }
 
   @Test
-  void testApplyIndexesOptions() throws HopException, MongoDbException {
+  void testApplyIndexesOptions() throws MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
     MongoCollectionWrapper collectionWrapper = mock(MongoCollectionWrapper.class);
@@ -166,7 +166,7 @@ class MongoDbOutputDataTest {
   }
 
   @Test
-  void testApplyIndexesSplits() throws HopException, MongoDbException {
+  void testApplyIndexesSplits() throws MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
     MongoCollectionWrapper collectionWrapper = mock(MongoCollectionWrapper.class);
@@ -230,20 +230,21 @@ class MongoDbOutputDataTest {
     when(rowMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
     String query = "{ foo : 'bar' }";
     when(valueMeta.getString(any(Object.class))).thenReturn(query);
-    Object[] row = new Object[] {"foo"};
+    Object[] row = {"foo"};
 
     when(valueMeta.isString()).thenReturn(false);
-    try {
-      MongoDbOutputData.getQueryObject(
-          Collections.singletonList(field1),
-          rowMeta,
-          row,
-          variables,
-          MongoDbOutputData.MongoTopLevel.RECORD);
-      fail("expected an exception, can't construct query from non-string.");
-    } catch (Exception e) {
-      assertThat(e, instanceOf(HopException.class));
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () ->
+                MongoDbOutputData.getQueryObject(
+                    Collections.singletonList(field1),
+                    rowMeta,
+                    row,
+                    variables,
+                    MongoDbOutputData.MongoTopLevel.RECORD),
+            "expected an exception, can't construct query from non-string.");
+    assertThat(e, instanceOf(HopException.class));
 
     when(valueMeta.isString()).thenReturn(true);
     Document result =

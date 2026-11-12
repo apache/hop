@@ -246,7 +246,7 @@ class ValueMetaAvroRecordTest {
     rowMeta.addValueMeta(new ValueMetaString("name"));
     rowMeta.addValueMeta(new ValueMetaAvroRecord("record"));
     rowMeta.addValueMeta(new ValueMetaInteger("n"));
-    Object[] row = new Object[] {"hop", genericRecord, 5L};
+    Object[] row = {"hop", genericRecord, 5L};
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     DataOutputStream outputStream = new DataOutputStream(byteArrayOutputStream);

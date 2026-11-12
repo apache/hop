@@ -62,7 +62,7 @@ class SalesforceTransformTest {
   }
 
   @BeforeEach
-  void setUp() throws HopException {
+  void setUp() {
     smh =
         new TransformMockHelper<>(
             "Salesforce", SalesforceTransformMeta.class, SalesforceTransformData.class);
@@ -149,8 +149,8 @@ class SalesforceTransformTest {
                 0,
                 smh.pipelineMeta,
                 smh.pipeline));
-    IValueMeta valueMeta = Mockito.mock(IValueMeta.class);
-    Mockito.when(valueMeta.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
+    IValueMeta valueMeta = mock(IValueMeta.class);
+    when(valueMeta.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
     Object value = transform.normalizeValue(valueMeta, 100L);
     assertTrue(value instanceof Integer);
   }
@@ -166,12 +166,12 @@ class SalesforceTransformTest {
                 0,
                 smh.pipelineMeta,
                 smh.pipeline));
-    IValueMeta valueMeta = Mockito.mock(IValueMeta.class);
+    IValueMeta valueMeta = mock(IValueMeta.class);
     DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
     Date date = dateFormat.parse("12-10-2017 15:10:25");
-    Mockito.when(valueMeta.isDate()).thenReturn(true);
-    Mockito.when(valueMeta.getDateFormatTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
-    Mockito.when(valueMeta.getDate(date)).thenReturn(date);
+    when(valueMeta.isDate()).thenReturn(true);
+    when(valueMeta.getDateFormatTimeZone()).thenReturn(TimeZone.getTimeZone("UTC"));
+    when(valueMeta.getDate(date)).thenReturn(date);
     Object value = transform.normalizeValue(valueMeta, date);
     assertTrue(value instanceof Calendar);
     DateFormat minutesDateFormat = new SimpleDateFormat("mm:ss");

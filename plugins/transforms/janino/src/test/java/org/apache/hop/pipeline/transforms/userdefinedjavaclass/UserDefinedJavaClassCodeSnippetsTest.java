@@ -78,7 +78,7 @@ class UserDefinedJavaClassCodeSnippetsTest {
   }
 
   @Test
-  void getSnippets_isUnmodifiable() throws Exception {
+  void getSnippets_isUnmodifiable() {
     assertThrows(
         UnsupportedOperationException.class,
         () -> UserDefinedJavaClassCodeSnippets.getSnippetsHelper().getSnippets().clear());

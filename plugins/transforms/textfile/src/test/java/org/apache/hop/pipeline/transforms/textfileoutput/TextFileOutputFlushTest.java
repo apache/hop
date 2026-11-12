@@ -74,7 +74,7 @@ class TextFileOutputFlushTest {
   }
 
   @Test
-  void flushIntervalDefaultsToAFewSeconds() throws Exception {
+  void flushIntervalDefaultsToAFewSeconds() {
     FlushProbe transform = newProbe();
     transform.setVariable(Const.HOP_FILE_OUTPUT_MAX_STREAM_LIFE, null);
     assertEquals(TextFileOutput.DEFAULT_FILE_FLUSH_INTERVAL_MS, transform.getFlushInterval());

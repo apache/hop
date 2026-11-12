@@ -18,6 +18,7 @@
 package org.apache.hop.www.async;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,20 +28,20 @@ import org.junit.jupiter.api.Test;
 public class DefaultsTest {
 
   @Test
-  public void testAsyncStatusGroup() {
+  void testAsyncStatusGroup() {
     assertNotNull(Defaults.ASYNC_STATUS_GROUP);
     assertEquals("ASYNC_STATUS_GROUP", Defaults.ASYNC_STATUS_GROUP);
   }
 
   @Test
-  public void testAsyncActionPipelineServiceName() {
+  void testAsyncActionPipelineServiceName() {
     assertNotNull(Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME);
     assertEquals(
         "enable-asynchronous-pipeline-service-name", Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME);
   }
 
   @Test
-  public void testConstantsAreNotBlank() {
+  void testConstantsAreNotBlank() {
     assertNotNull(Defaults.ASYNC_STATUS_GROUP);
     assertNotNull(Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME);
 
@@ -49,12 +50,12 @@ public class DefaultsTest {
   }
 
   @Test
-  public void testConstantsAreDifferent() {
-    assertTrue(!Defaults.ASYNC_STATUS_GROUP.equals(Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME));
+  void testConstantsAreDifferent() {
+    assertNotEquals(Defaults.ASYNC_STATUS_GROUP, Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME);
   }
 
   @Test
-  public void testConstantsFormat() {
+  void testConstantsFormat() {
     assertTrue(Defaults.ASYNC_STATUS_GROUP.contains("ASYNC"));
     assertTrue(Defaults.ASYNC_ACTION_PIPELINE_SERVICE_NAME.contains("async"));
 

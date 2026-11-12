@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -61,8 +61,7 @@ class TableOutputChangeDetectionTest {
 
     System.out.println("before snapshot already remapped: " + before.getXml().contains("REMAPPED"));
 
-    assertTrue(
-        !before.getXml().equals(after.getXml()),
-        "remapping a Table Output column must be detected");
+    assertNotEquals(
+        before.getXml(), after.getXml(), "remapping a Table Output column must be detected");
   }
 }

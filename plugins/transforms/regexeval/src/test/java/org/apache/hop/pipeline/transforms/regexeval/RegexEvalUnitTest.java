@@ -38,7 +38,7 @@ class RegexEvalUnitTest {
   private TransformMockHelper<RegexEvalMeta, RegexEvalData> transformMockHelper;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() {
     transformMockHelper =
         new TransformMockHelper<>("REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -63,7 +63,7 @@ class RegexEvalUnitTest {
             transformMockHelper.pipeline);
     when(transformMockHelper.iTransformMeta.isAllowingCaptureGroups()).thenReturn(true);
     List<RegexEvalMeta.RegexField> fields = new ArrayList<>();
-    String[] outFields = new String[] {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"};
+    String[] outFields = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"};
     for (String outField : outFields) {
       RegexEvalMeta.RegexField field = new RegexEvalMeta.RegexField();
       fields.add(field);
@@ -73,7 +73,7 @@ class RegexEvalUnitTest {
     when(transformMockHelper.iTransformMeta.getMatcher()).thenReturn("\\.+");
     transformMockHelper.iTransformData.pattern =
         Pattern.compile("(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)");
-    Object[] inputRow = new Object[] {};
+    Object[] inputRow = {};
     IRowSet inputRowSet = transformMockHelper.getMockInputRowSet(inputRow);
     IRowMeta mockInputRowMeta = mock(IRowMeta.class);
     IRowMeta mockOutputRoMeta = mock(IRowMeta.class);

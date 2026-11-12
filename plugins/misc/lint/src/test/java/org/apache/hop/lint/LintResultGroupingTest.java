@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class LintResultGroupingTest {
 
   @Test
-  public void categorizesPipelineWorkflowAndMetadataFiles() {
+  void categorizesPipelineWorkflowAndMetadataFiles() {
     assertEquals(LintFileCategory.PIPELINE, LintFileCategory.fromFileName("extract.hpl"));
     assertEquals(LintFileCategory.WORKFLOW, LintFileCategory.fromFileName("main.hwf"));
     assertEquals(LintFileCategory.METADATA, LintFileCategory.fromFileName("connection: BDW"));
@@ -37,7 +37,7 @@ public class LintResultGroupingTest {
   }
 
   @Test
-  public void groupsResultsByCategoryAndFile() {
+  void groupsResultsByCategoryAndFile() {
     List<LintResult> results =
         Arrays.asList(
             new LintResult("TRANS-001", "Rule 1", "ERROR", "msg1", "a.hpl"),

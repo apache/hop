@@ -19,8 +19,8 @@ package org.apache.hop.pipeline.transforms.delete;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -190,12 +190,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testCommitCountMissedVar() {
     meta.setCommitSize("missed-var");
-    try {
-      meta.getCommitSize(del);
-      fail();
-    } catch (Exception ex) {
-      // ignore ex
-    }
+    assertThrows(Exception.class, () -> meta.getCommitSize(del));
   }
 
   @Test

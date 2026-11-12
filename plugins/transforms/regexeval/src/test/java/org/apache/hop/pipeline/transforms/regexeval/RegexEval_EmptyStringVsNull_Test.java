@@ -121,8 +121,7 @@ class RegexEval_EmptyStringVsNull_Test {
     PipelineTestingUtil.assertResult(expected, actual);
   }
 
-  private RegexEval createAndInitTransform(RegexEvalMeta meta, RegexEvalData data)
-      throws Exception {
+  private RegexEval createAndInitTransform(RegexEvalMeta meta, RegexEvalData data) {
     when(helper.transformMeta.getTransform()).thenReturn(meta);
 
     RegexEval transform =

@@ -82,7 +82,7 @@ class HttpPostMetaTest {
 
     List<ICheckResult> remarks = new ArrayList<>();
     IRowMeta prev = new RowMeta();
-    String[] input = new String[] {"Generate rows"};
+    String[] input = {"Generate rows"};
 
     meta.check(
         remarks,

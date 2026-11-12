@@ -48,7 +48,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void flagsDisabledPipelineHop() {
+  void flagsDisabledPipelineHop() {
     TransformMeta from = new TransformMeta();
     from.setName("A");
     TransformMeta to = new TransformMeta();
@@ -66,7 +66,7 @@ public class CustomRuleExecutorTest {
 
   /** Tags are inert: they change nothing about the finding except that it carries them. */
   @Test
-  public void findingsCarryTheRuleTagsAndHelpUri() {
+  void findingsCarryTheRuleTagsAndHelpUri() {
     TransformMeta from = new TransformMeta();
     from.setName("A");
     TransformMeta to = new TransformMeta();
@@ -86,7 +86,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void enabledPipelineHopPasses() {
+  void enabledPipelineHopPasses() {
     TransformMeta from = new TransformMeta();
     from.setName("A");
     TransformMeta to = new TransformMeta();
@@ -101,7 +101,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void usesConfiguredBlockingTransformList() {
+  void usesConfiguredBlockingTransformList() {
     TransformMeta custom = new TransformMeta();
     custom.setName("My Blocker");
     custom.setTransformPluginId("MyCustomBlockingTransform");
@@ -117,7 +117,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void defaultBlockingListIgnoresUnlistedPlugin() {
+  void defaultBlockingListIgnoresUnlistedPlugin() {
     TransformMeta custom = new TransformMeta();
     custom.setName("My Blocker");
     custom.setTransformPluginId("MyCustomBlockingTransform");
@@ -136,7 +136,7 @@ public class CustomRuleExecutorTest {
    * on a description explicitly set to the empty string — that is, almost never.
    */
   @Test
-  public void notEmptyFlagsAnAbsentValue() {
+  void notEmptyFlagsAnAbsentValue() {
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.setName("test");
     assertNull(pipeline.getDescription(), "precondition: an unset description is null");
@@ -149,7 +149,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void notEmptyFlagsABlankValue() {
+  void notEmptyFlagsABlankValue() {
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.setName("test");
     pipeline.setDescription("");
@@ -160,7 +160,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void notEmptyAcceptsAPresentValue() {
+  void notEmptyAcceptsAPresentValue() {
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.setName("test");
     pipeline.setDescription("Loads the customer dimension.");
@@ -175,7 +175,7 @@ public class CustomRuleExecutorTest {
    * pipeline. That is what made checks like "Table Output must not truncate" unwritable.
    */
   @Test
-  public void appliesToRestrictsARuleToTheNamedTransformType() {
+  void appliesToRestrictsARuleToTheNamedTransformType() {
     TransformMeta tableOutput = new TransformMeta();
     tableOutput.setName("Write customers");
     tableOutput.setTransformPluginId("TableOutput");
@@ -196,7 +196,7 @@ public class CustomRuleExecutorTest {
   }
 
   @Test
-  public void appliesToMatchingIgnoresCase() {
+  void appliesToMatchingIgnoresCase() {
     TransformMeta tableOutput = new TransformMeta();
     tableOutput.setName("Write");
     tableOutput.setTransformPluginId("TableOutput");
@@ -214,7 +214,7 @@ public class CustomRuleExecutorTest {
    * a typo and a clean result looked identical.
    */
   @Test
-  public void scopedRuleReportsAFieldTheTransformDoesNotHave() {
+  void scopedRuleReportsAFieldTheTransformDoesNotHave() {
     TransformMeta tableOutput = new TransformMeta();
     tableOutput.setName("Write customers");
     tableOutput.setTransformPluginId("TableOutput");
@@ -235,7 +235,7 @@ public class CustomRuleExecutorTest {
    * same situation stays silent there.
    */
   @Test
-  public void unscopedRuleStaysQuietAboutAMissingField() {
+  void unscopedRuleStaysQuietAboutAMissingField() {
     TransformMeta dummy = new TransformMeta();
     dummy.setName("Placeholder");
     dummy.setTransformPluginId("Dummy");
@@ -247,7 +247,7 @@ public class CustomRuleExecutorTest {
 
   /** An empty appliesTo keeps the original behaviour, so existing rules are unaffected. */
   @Test
-  public void emptyAppliesToRunsAgainstEveryTransform() {
+  void emptyAppliesToRunsAgainstEveryTransform() {
     TransformMeta dummy = new TransformMeta();
     dummy.setName("Placeholder");
     dummy.setTransformPluginId("Dummy");
@@ -263,7 +263,7 @@ public class CustomRuleExecutorTest {
    * reported against the rule itself so the misconfiguration is visible.
    */
   @Test
-  public void unevaluatableConditionIsReportedRatherThanPassing() {
+  void unevaluatableConditionIsReportedRatherThanPassing() {
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.setName("test");
 

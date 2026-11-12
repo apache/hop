@@ -43,12 +43,11 @@ class RowDataUtilTest {
 
   @Test
   void testResizeArray() {
-    Object[] arr1 = new Object[] {"test", Boolean.TRUE, 100L, 101L, new String("test1")};
-    Object[] nullArr =
-        new Object[] {
-          null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-          null, null
-        };
+    Object[] arr1 = {"test", Boolean.TRUE, 100L, 101L, new String("test1")};
+    Object[] nullArr = {
+      null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+      null, null
+    };
 
     // ------- Normal cases
 
@@ -73,31 +72,31 @@ class RowDataUtilTest {
 
   @Test
   void testRemoveItem() {
-    Object[] arr = new Object[] {1L, 2L, 3L, 4L, 5L};
+    Object[] arr = {1L, 2L, 3L, 4L, 5L};
 
     // Remove the first item
-    Object[] comp1 = new Object[] {2L, 3L, 4L, 5L};
+    Object[] comp1 = {2L, 3L, 4L, 5L};
     Object[] newArr1 = RowDataUtil.removeItem(arr, 0);
     assertEquals(newArr1.length, comp1.length);
     assertEquals(newArr1.length, arr.length - 1);
     assertTrue(arrayCompare(newArr1, 0, comp1, 0, newArr1.length));
 
     // Remove the last item
-    Object[] comp2 = new Object[] {2L, 3L, 4L};
+    Object[] comp2 = {2L, 3L, 4L};
     Object[] newArr2 = RowDataUtil.removeItem(newArr1, newArr1.length - 1);
     assertEquals(newArr2.length, arr.length - 2);
     assertEquals(newArr2.length, comp2.length);
     assertTrue(arrayCompare(newArr2, 0, comp2, 0, newArr2.length));
 
     // Remove in the middle
-    Object[] comp3 = new Object[] {2L, 4L};
+    Object[] comp3 = {2L, 4L};
     Object[] newArr3 = RowDataUtil.removeItem(newArr2, 1);
     assertEquals(newArr3.length, arr.length - 3);
     assertEquals(newArr3.length, comp3.length);
     assertTrue(arrayCompare(newArr3, 0, comp3, 0, newArr3.length));
 
     // Remove until empty
-    Object[] comp4 = new Object[] {};
+    Object[] comp4 = {};
     Object[] newArr4 = RowDataUtil.removeItem(newArr3, 0);
     newArr4 = RowDataUtil.removeItem(newArr4, 0);
     assertEquals(newArr4.length, arr.length - 5);
@@ -107,7 +106,7 @@ class RowDataUtilTest {
 
   @Test
   void testAddRowData() {
-    Object[] arr = new Object[] {1L, 2L, 3L};
+    Object[] arr = {1L, 2L, 3L};
 
     // Do all different combinations of adding rows to
     // each other
@@ -130,8 +129,8 @@ class RowDataUtilTest {
 
   @Test
   void testAddValueData() {
-    Object[] arr1 = new Object[] {1L};
-    Object[] arr2 = new Object[] {1L, 2L};
+    Object[] arr1 = {1L};
+    Object[] arr2 = {1L, 2L};
 
     Object[] newArr1 = RowDataUtil.addValueData(new Object[] {}, 0, 1L);
     assertTrue(newArr1.length >= arr1.length);
@@ -144,8 +143,8 @@ class RowDataUtilTest {
 
   @Test
   void testRemoveItems() {
-    Object[] arr1 = new Object[] {1L, 2L, 3L, 4L, 5L};
-    Object[] comp1 = new Object[] {2L, 4L};
+    Object[] arr1 = {1L, 2L, 3L, 4L, 5L};
+    Object[] comp1 = {2L, 4L};
 
     Object[] newArr1 = RowDataUtil.removeItems(arr1, new int[] {});
     assertEquals(newArr1.length, arr1.length);

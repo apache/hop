@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +88,7 @@ class JavaFilterTest {
   // ------------------------------------------------------------------ helpers
 
   private JavaFilter buildSpy(JavaFilterMeta meta) {
-    return Mockito.spy(
+    return spy(
         new JavaFilter(
             helper.transformMeta,
             meta,
@@ -157,7 +160,7 @@ class JavaFilterTest {
     jf.processRow();
 
     // No row should reach the output
-    verify(output, Mockito.never()).putRow(any(IRowMeta.class), any(Object[].class));
+    verify(output, never()).putRow(any(IRowMeta.class), any(Object[].class));
   }
 
   // ------------------------------------------------------------------ input-field reference
@@ -181,7 +184,7 @@ class JavaFilterTest {
     jf.processRow(); // amount=-3 → false, dropped
     jf.processRow(); // null      → done
 
-    verify(output, Mockito.times(1)).putRow(any(IRowMeta.class), any(Object[].class));
+    verify(output, times(1)).putRow(any(IRowMeta.class), any(Object[].class));
   }
 
   // ------------------------------------------------------------------ non-boolean result throws
@@ -252,6 +255,6 @@ class JavaFilterTest {
     assertFalse(jf.processRow()); // null → done
 
     // Only 2 rows should pass (n=1 and n=0)
-    verify(output, Mockito.times(2)).putRow(any(IRowMeta.class), any(Object[].class));
+    verify(output, times(2)).putRow(any(IRowMeta.class), any(Object[].class));
   }
 }

@@ -18,6 +18,7 @@
 package org.apache.hop.core.row.value;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -25,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -35,7 +35,6 @@ import java.util.Locale;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
@@ -482,12 +481,11 @@ class ValueMetaFactoryTest {
     for (String valueMetaName : ValueMetaFactory.getValueMetaNames()) {
       int valueMetaID = ValueMetaFactory.getIdForValueMeta(valueMetaName);
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta(valueMetaID);
-      try {
-        Class<?> clazz = valueMeta.getNativeDataTypeClass();
-        assertNotNull(clazz);
-      } catch (HopValueException kve) {
-        fail(valueMetaName + " should implement getNativeDataTypeClass()");
-      }
+      Class<?> clazz =
+          assertDoesNotThrow(
+              valueMeta::getNativeDataTypeClass,
+              valueMetaName + " should implement getNativeDataTypeClass()");
+      assertNotNull(clazz);
     }
   }
 }

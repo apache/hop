@@ -389,10 +389,9 @@ class CreateMappingFromSelectionTest {
   }
 
   private static void assertHop(PipelineMeta pipelineMeta, String from, String to) {
-    assertTrue(
+    assertNotNull(
         pipelineMeta.findPipelineHop(
-                pipelineMeta.findTransform(from), pipelineMeta.findTransform(to), true)
-            != null,
+            pipelineMeta.findTransform(from), pipelineMeta.findTransform(to), true),
         "expected hop " + from + " -> " + to);
   }
 

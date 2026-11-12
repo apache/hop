@@ -19,8 +19,8 @@ package org.apache.hop.mongo.wrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
@@ -187,12 +187,12 @@ class MongoClientWrapperImplTest {
   @Test
   void testGetReplicaSetMembersBadInput() {
     setupMockedReplSet();
-    try {
-      mongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(null);
-      fail("expected exception");
-    } catch (Exception e) {
-      assertTrue(e instanceof MongoDbException);
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(null),
+            "expected exception");
+    assertTrue(e instanceof MongoDbException);
   }
 
   @Test
@@ -215,12 +215,12 @@ class MongoClientWrapperImplTest {
     Mockito.doThrow(runtimeException)
         .when(mockMongoClient)
         .getDatabase(MongoClientWrapperImpl.LOCAL_DB);
-    try {
-      mongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);
-      fail("expected exception.");
-    } catch (Exception e) {
-      assertTrue(e instanceof MongoDbException);
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets),
+            "expected exception.");
+    assertTrue(e instanceof MongoDbException);
   }
 
   @Test
@@ -272,36 +272,28 @@ class MongoClientWrapperImplTest {
     MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder();
 
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn("host1:1010:2020");
-    try {
-      mongoClientWrapper.getClient(settingsBuilder);
-      fail("expected exception:  malformed host ");
-    } catch (MongoDbException e) {
-      // Do nothing
-    }
+    assertThrows(
+        MongoDbException.class,
+        () -> mongoClientWrapper.getClient(settingsBuilder),
+        "expected exception:  malformed host ");
 
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn("");
-    try {
-      mongoClientWrapper.getClient(settingsBuilder);
-      fail("expected exception:  empty host string ");
-    } catch (MongoDbException e) {
-      // Do nothing
-    }
+    assertThrows(
+        MongoDbException.class,
+        () -> mongoClientWrapper.getClient(settingsBuilder),
+        "expected exception:  empty host string ");
 
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn("   ");
-    try {
-      mongoClientWrapper.getClient(settingsBuilder);
-      fail("expected exception:  empty host string ");
-    } catch (MongoDbException e) {
-      // Do nothing
-    }
+    assertThrows(
+        MongoDbException.class,
+        () -> mongoClientWrapper.getClient(settingsBuilder),
+        "expected exception:  empty host string ");
 
     Mockito.when(mongoProperties.get(MongoProp.HOST)).thenReturn("host1:badport");
-    try {
-      mongoClientWrapper.getClient(settingsBuilder);
-      fail("expected exception:  bad port ");
-    } catch (MongoDbException e) {
-      // Do nothing
-    }
+    assertThrows(
+        MongoDbException.class,
+        () -> mongoClientWrapper.getClient(settingsBuilder),
+        "expected exception:  bad port ");
   }
 
   @Test
@@ -343,19 +335,14 @@ class MongoClientWrapperImplTest {
   @Test
   void mongoExceptionsPropogate() {
     Mockito.doThrow(runtimeException).when(mockMongoClient).listDatabaseNames();
-    try {
-      mongoClientWrapper.getDatabaseNames();
-      fail("expected exception");
-    } catch (Exception mde) {
-      assertTrue(mde instanceof MongoDbException);
-    }
+    Exception mde =
+        assertThrows(
+            Exception.class, () -> mongoClientWrapper.getDatabaseNames(), "expected exception");
+    assertTrue(mde instanceof MongoDbException);
     Mockito.doThrow(runtimeException).when(mockMongoClient).getDatabase("foo");
-    try {
-      mongoClientWrapper.getDb("foo");
-      fail("expected exception");
-    } catch (Exception mde) {
-      assertTrue(mde instanceof MongoDbException);
-    }
+    Exception getDbException =
+        assertThrows(Exception.class, () -> mongoClientWrapper.getDb("foo"), "expected exception");
+    assertTrue(getDbException instanceof MongoDbException);
   }
 
   @Test
@@ -363,12 +350,12 @@ class MongoClientWrapperImplTest {
   void mongoGetCollNamesExceptionPropgates() {
     Mockito.when(mockMongoClient.getDatabase("foo")).thenReturn(mockDB);
     Mockito.doThrow(runtimeException).when(mockDB).listCollectionNames();
-    try {
-      mongoClientWrapper.getCollectionsNames("foo");
-      fail("expected exception");
-    } catch (Exception mde) {
-      assertTrue(mde instanceof MongoDbException);
-    }
+    Exception mde =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getCollectionsNames("foo"),
+            "expected exception");
+    assertTrue(mde instanceof MongoDbException);
   }
 
   @Test
@@ -427,29 +414,25 @@ class MongoClientWrapperImplTest {
   @Test
   void testGetIndexCollectionNotSpecified() throws MongoDbException {
     Mockito.when(mockMongoClient.getDatabase("fakeDb")).thenReturn(mockDB);
-    try {
-      mongoClientWrapper.getIndexInfo("fakeDb", "");
-      fail("expected exception");
-    } catch (Exception e) {
-      assertTrue(e instanceof MongoDbException);
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getIndexInfo("fakeDb", ""),
+            "expected exception");
+    assertTrue(e instanceof MongoDbException);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   void getIndexInfoErrorConditions() {
-    try {
-      mongoClientWrapper.getIndexInfo("fakeDb", "collection");
-      fail("expected exception since DB is null");
-    } catch (Exception e) {
-      // Do nothing
-    }
-    try {
-      mongoClientWrapper.getIndexInfo("fakeDb", "");
-      fail("expected exception since no collection specified.");
-    } catch (Exception e) {
-      // Do nothing
-    }
+    assertThrows(
+        Exception.class,
+        () -> mongoClientWrapper.getIndexInfo("fakeDb", "collection"),
+        "expected exception since DB is null");
+    assertThrows(
+        Exception.class,
+        () -> mongoClientWrapper.getIndexInfo("fakeDb", ""),
+        "expected exception since no collection specified.");
     Mockito.when(mockMongoClient.getDatabase("fakeDb")).thenReturn(mockDB);
     ListCollectionNamesIterable collNamesIterable = Mockito.mock(ListCollectionNamesIterable.class);
     MongoCursor<String> collNamesCursor = Mockito.mock(MongoCursor.class);
@@ -457,38 +440,38 @@ class MongoClientWrapperImplTest {
     Mockito.when(collNamesIterable.iterator()).thenReturn(collNamesCursor);
     Mockito.when(collNamesCursor.hasNext()).thenReturn(true, false);
     Mockito.when(collNamesCursor.next()).thenReturn("collection");
-    try {
-      mongoClientWrapper.getIndexInfo("fakeDb", "collection");
-      fail("expected exception since null collection");
-    } catch (Exception e) {
-      Mockito.verify(mockDB).getCollection("collection");
-      assertTrue(
-          e.getMessage()
-              .contains(
-                  BaseMessages.getString(
-                      PKG,
-                      "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection",
-                      "collection")));
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getIndexInfo("fakeDb", "collection"),
+            "expected exception since null collection");
+    Mockito.verify(mockDB).getCollection("collection");
+    assertTrue(
+        e.getMessage()
+            .contains(
+                BaseMessages.getString(
+                    PKG,
+                    "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection",
+                    "collection")));
   }
 
   @Test
   @SuppressWarnings("unchecked")
   void testGetIndexNoIndexThrows() {
     initFakeDbWithEmptyIndexes();
-    try {
-      mongoClientWrapper.getIndexInfo("fakeDb", "collection");
-      fail("expected exception since no index info");
-    } catch (Exception e) {
-      Mockito.verify(mockDB).getCollection("collection");
-      assertTrue(
-          e.getMessage()
-              .contains(
-                  BaseMessages.getString(
-                      PKG,
-                      "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection",
-                      "collection")));
-    }
+    Exception e =
+        assertThrows(
+            Exception.class,
+            () -> mongoClientWrapper.getIndexInfo("fakeDb", "collection"),
+            "expected exception since no index info");
+    Mockito.verify(mockDB).getCollection("collection");
+    assertTrue(
+        e.getMessage()
+            .contains(
+                BaseMessages.getString(
+                    PKG,
+                    "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection",
+                    "collection")));
   }
 
   @SuppressWarnings("unchecked")

@@ -209,7 +209,7 @@ class ScriptTest {
     rowMeta.addValueMeta(new ValueMetaInteger("id"));
     rowMeta.addValueMeta(new ValueMetaString("name"));
 
-    Object[] row = new Object[] {Integer.valueOf(99), "test"};
+    Object[] row = {Integer.valueOf(99), "test"};
 
     IRowSet outputSet = mock(IRowSet.class, Mockito.RETURNS_MOCKS);
     when(outputSet.putRow(any(IRowMeta.class), any(Object[].class))).thenReturn(true);
@@ -232,7 +232,7 @@ class ScriptTest {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("name"));
 
-    Object[] row = new Object[] {"hello"};
+    Object[] row = {"hello"};
 
     IRowSet outputSet = mock(IRowSet.class, Mockito.RETURNS_MOCKS);
     when(outputSet.putRow(any(IRowMeta.class), any(Object[].class))).thenReturn(true);
@@ -358,7 +358,7 @@ class ScriptTest {
   @Test
   void getValueFromScript_binaryType_returnsResult() throws HopValueException {
     meta.getFields().add(createField("bin", "Binary"));
-    byte[] bytes = new byte[] {1, 2, 3};
+    byte[] bytes = {1, 2, 3};
     assertEquals(bytes, script.getValueFromScript(bytes, 0));
   }
 
@@ -370,7 +370,7 @@ class ScriptTest {
   }
 
   @Test
-  void init_setsEngineWhenLanguageAvailable() throws Exception {
+  void init_setsEngineWhenLanguageAvailable() {
     ScriptData data = new ScriptData();
     meta.setLanguageName("Groovy");
     Script scriptWithData =
@@ -386,7 +386,7 @@ class ScriptTest {
   }
 
   @Test
-  void init_stillReturnsTrueWhenEngineLookupFails() throws Exception {
+  void init_stillReturnsTrueWhenEngineLookupFails() {
     ScriptData data = new ScriptData();
     meta.setLanguageName("NonExistentLanguageXYZ");
     Script scriptWithData =
@@ -402,7 +402,7 @@ class ScriptTest {
   }
 
   @Test
-  void init_copiesScriptsFromMeta() throws Exception {
+  void init_copiesScriptsFromMeta() {
     ScriptData data = new ScriptData();
     meta.setLanguageName("Groovy");
     meta.getScripts()
@@ -442,7 +442,7 @@ class ScriptTest {
 
     RowMeta inputMeta = new RowMeta();
     inputMeta.addValueMeta(new ValueMetaString("dummy"));
-    Object[] inputRow = new Object[] {"x"};
+    Object[] inputRow = {"x"};
 
     Script runScript =
         new Script(

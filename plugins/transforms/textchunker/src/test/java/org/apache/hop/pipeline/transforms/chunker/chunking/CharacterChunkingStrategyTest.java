@@ -32,24 +32,24 @@ public class CharacterChunkingStrategyTest {
   private CharacterChunkingStrategy strategy;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     strategy = new CharacterChunkingStrategy();
   }
 
   @Test
-  public void testNullText() {
+  void testNullText() {
     List<Chunk> chunks = strategy.chunk(null, 100, 20);
     assertTrue(chunks.isEmpty());
   }
 
   @Test
-  public void testEmptyText() {
+  void testEmptyText() {
     List<Chunk> chunks = strategy.chunk("", 100, 20);
     assertTrue(chunks.isEmpty());
   }
 
   @Test
-  public void testSingleChunk() {
+  void testSingleChunk() {
     String text = "This is a short text";
     List<Chunk> chunks = strategy.chunk(text, 100, 20);
     assertEquals(1, chunks.size());
@@ -60,7 +60,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testChunkingRespectsWordBoundaries() {
+  void testChunkingRespectsWordBoundaries() {
     String text = "This is a test string for chunking.";
     List<Chunk> chunks = strategy.chunk(text, 10, 2);
 
@@ -79,7 +79,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testChunkingWithOverlap() {
+  void testChunkingWithOverlap() {
     String text = "This is a test string for chunking with overlap.";
     List<Chunk> chunks = strategy.chunk(text, 15, 5);
 
@@ -95,7 +95,7 @@ public class CharacterChunkingStrategyTest {
 
   /** #9283: the overlap must start at a word, not in the middle of one. */
   @Test
-  public void testOverlapStartsAtAWordBoundary() {
+  void testOverlapStartsAtAWordBoundary() {
     List<Chunk> chunks = strategy.chunk(LOREM, 100, 20);
 
     assertTrue(chunks.size() > 3);
@@ -121,7 +121,7 @@ public class CharacterChunkingStrategyTest {
    * used to move forward by one character: 228 chunks for 419 characters.
    */
   @Test
-  public void testOverlapDoesNotProduceAChunkPerCharacter() {
+  void testOverlapDoesNotProduceAChunkPerCharacter() {
     String text = String.join(" ", Collections.nCopies(20, "supercalifragilistic"));
     List<Chunk> chunks = strategy.chunk(text, 25, 15);
 
@@ -135,7 +135,7 @@ public class CharacterChunkingStrategyTest {
 
   /** Every chunk has to add text the previous one did not hold. */
   @Test
-  public void testNoChunkIsContainedInThePreviousOne() {
+  void testNoChunkIsContainedInThePreviousOne() {
     String text = "aaaa bbbb cccc dddd eeee " + "x".repeat(30) + " ffff gggg";
     List<Chunk> chunks = strategy.chunk(text, 25, 10);
 
@@ -149,7 +149,7 @@ public class CharacterChunkingStrategyTest {
 
   /** #9283: a run of whitespace longer than the chunk size gave chunks of only spaces. */
   @Test
-  public void testWhitespaceOnlyChunksAreDropped() {
+  void testWhitespaceOnlyChunksAreDropped() {
     String text = "a" + " ".repeat(30) + "b";
     List<Chunk> chunks = strategy.chunk(text, 10, 0);
 
@@ -164,14 +164,14 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testWhitespaceOnlyTextYieldsNoChunks() {
+  void testWhitespaceOnlyTextYieldsNoChunks() {
     assertTrue(strategy.chunk(" \n\t ", 10, 2).isEmpty());
     assertTrue(strategy.chunk(" \n\t ", 10, -1).isEmpty());
   }
 
   /** #9283: the split was on char positions, so an emoji was cut into two lone surrogates. */
   @Test
-  public void testSurrogatePairIsNotCut() {
+  void testSurrogatePairIsNotCut() {
     String text = "\uD83D\uDE00\uD83D\uDE01\uD83D\uDE02";
     List<Chunk> chunks = strategy.chunk(text, 5, 0);
 
@@ -180,7 +180,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testSurrogatePairIsNotCutWhenItIsTheOnlyCharacter() {
+  void testSurrogatePairIsNotCutWhenItIsTheOnlyCharacter() {
     String text = "\uD83D\uDE00\uD83D\uDE01";
     List<Chunk> chunks = strategy.chunk(text, 1, 0);
 
@@ -188,7 +188,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testOverlapInsideALongWordDoesNotCutASurrogatePair() {
+  void testOverlapInsideALongWordDoesNotCutASurrogatePair() {
     String text = "\uD83D\uDE00".repeat(20);
     List<Chunk> chunks = strategy.chunk(text, 9, 3);
 
@@ -202,7 +202,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testVeryLongWord() {
+  void testVeryLongWord() {
     String text = "ThisIsAVeryLongWordThatShouldBeSplitBecauseItExceedsTheChunkSizeLimit";
     List<Chunk> chunks = strategy.chunk(text, 20, 5);
 
@@ -224,20 +224,20 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testZeroChunkSize() {
+  void testZeroChunkSize() {
     List<Chunk> chunks = strategy.chunk("test", 0, 0);
     assertTrue(chunks.isEmpty());
   }
 
   @Test
-  public void testNegativeOverlap() {
+  void testNegativeOverlap() {
     String text = "This is a test.";
     List<Chunk> chunks = strategy.chunk(text, 10, -5);
     assertEquals(1, chunks.size());
   }
 
   @Test
-  public void testOverlapLargerThanChunkSize() {
+  void testOverlapLargerThanChunkSize() {
     String text = "This is a test.";
     List<Chunk> chunks = strategy.chunk(text, 10, 15);
     // Should still work, but overlap will be capped
@@ -245,7 +245,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testMultipleSpaces() {
+  void testMultipleSpaces() {
     String text = "This  has   multiple    spaces   between   words.";
     List<Chunk> chunks = strategy.chunk(text, 10, 2);
 
@@ -257,7 +257,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testPunctuation() {
+  void testPunctuation() {
     String text = "Hello, world! How are you? I'm fine, thank you.";
     List<Chunk> chunks = strategy.chunk(text, 15, 3);
 
@@ -268,7 +268,7 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testNewlines() {
+  void testNewlines() {
     String text = "Line one\nLine two\nLine three";
     List<Chunk> chunks = strategy.chunk(text, 10, 2);
 
@@ -312,12 +312,12 @@ public class CharacterChunkingStrategyTest {
   }
 
   @Test
-  public void testStrategyType() {
+  void testStrategyType() {
     assertEquals(ChunkingStrategyType.CHARACTER, strategy.getType());
   }
 
   @Test
-  public void testExactChunkSize() {
+  void testExactChunkSize() {
     // Test that we can get exact chunk sizes when possible
     String text = "12345 67890 12345 67890";
     List<Chunk> chunks = strategy.chunk(text, 11, 0);

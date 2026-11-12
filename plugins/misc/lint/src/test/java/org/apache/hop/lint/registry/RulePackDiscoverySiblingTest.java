@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class RulePackDiscoverySiblingTest {
 
   @Test
-  public void discoversVendorYamlFromSiblingMiscPluginFolder() throws Exception {
+  void discoversVendorYamlFromSiblingMiscPluginFolder() throws Exception {
     Path root = Files.createTempDirectory("hop-lint-discovery");
     try {
       Path plugins = root.resolve("plugins/misc");

@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -267,12 +267,10 @@ class StaxPoiSheetTest {
     assertEquals(KCellType.NUMBER_FORMULA, row[5].getType());
     assertEquals(Double.valueOf("210"), row[5].getValue());
 
-    try {
-      row = sheet1.getRow(5);
-      fail("No out of bounds exception thrown when expected");
-    } catch (ArrayIndexOutOfBoundsException e) {
-      // OK!
-    }
+    assertThrows(
+        ArrayIndexOutOfBoundsException.class,
+        () -> sheet1.getRow(5),
+        "No out of bounds exception thrown when expected");
   }
 
   private StaxPoiSheet getSampleSheet() throws Exception {

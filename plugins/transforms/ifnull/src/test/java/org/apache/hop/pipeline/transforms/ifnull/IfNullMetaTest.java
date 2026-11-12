@@ -84,7 +84,7 @@ class IfNullMetaTest {
   }
 
   @Test
-  void testSetDefault() throws Exception {
+  void testSetDefault() {
     IfNullMeta meta = new IfNullMeta();
     meta.setDefault();
     assertTrue((meta.getValueTypes() != null) && (meta.getValueTypes().isEmpty()));

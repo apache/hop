@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.multimapping;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.logging.ILoggingObject;
@@ -97,7 +98,7 @@ class MultiMappingTest {
   void disposeFlagsErrorWhenChildHadErrors() {
     MultiMappingData data = new MultiMappingData();
     data.wasStarted = true;
-    LocalPipelineEngine child = org.mockito.Mockito.mock(LocalPipelineEngine.class);
+    LocalPipelineEngine child = mock(LocalPipelineEngine.class);
     when(child.isFinished()).thenReturn(true);
     when(child.getErrors()).thenReturn(1);
     data.mappingPipeline = child;

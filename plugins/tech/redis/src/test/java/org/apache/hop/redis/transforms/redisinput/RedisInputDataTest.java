@@ -38,7 +38,7 @@ class RedisInputDataTest {
 
     RowMeta rowMeta = new RowMeta();
     Mapping mapping = new Mapping();
-    Mapping[] mappings = new Mapping[] {mapping};
+    Mapping[] mappings = {mapping};
     data.setOutputRowMeta(rowMeta);
     data.setMappings(mappings);
     data.setFirstValueIndex(3);

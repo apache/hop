@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -60,7 +59,7 @@ class RowGeneratorUnitTest {
   }
 
   @Test
-  void testReadRowLimitAsPipelineVar() throws HopException {
+  void testReadRowLimitAsPipelineVar() {
     RowGenerator rowGenerator =
         new RowGenerator(
             transformMockHelper.transformMeta,

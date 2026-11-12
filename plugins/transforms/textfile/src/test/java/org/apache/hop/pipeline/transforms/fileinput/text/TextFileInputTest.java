@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -65,7 +68,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 
 class TextFileInputTest {
   @RegisterExtension
@@ -76,8 +78,7 @@ class TextFileInputTest {
     HopEnvironment.init();
   }
 
-  private static InputStreamReader getInputStreamReader(String data)
-      throws UnsupportedEncodingException {
+  private static InputStreamReader getInputStreamReader(String data) {
     return new InputStreamReader(new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)));
   }
 
@@ -420,7 +421,7 @@ class TextFileInputTest {
     meta.getContent().setNrWraps(1);
     meta.getErrorHandling().setErrorIgnored(true);
     TextFileInputData data = createDataObject(virtualFile, ";", "col1");
-    data.dataErrorLineHandler = Mockito.mock(IFileErrorHandler.class);
+    data.dataErrorLineHandler = mock(IFileErrorHandler.class);
 
     TextFileInput input =
         TransformMockUtil.getTransform(
@@ -433,7 +434,7 @@ class TextFileInputTest {
 
     List<Object[]> output = PipelineTestingUtil.execute(input, 4, false);
 
-    Mockito.verify(data.dataErrorLineHandler).handleLineError(4, AbstractFileErrorHandler.NO_PARTS);
+    verify(data.dataErrorLineHandler).handleLineError(4, AbstractFileErrorHandler.NO_PARTS);
     input.dispose(); // close file
     deleteVfsFile(virtualFile);
   }
@@ -451,10 +452,10 @@ class TextFileInputTest {
     meta.getErrorHandling().setSkipBadFiles(true);
 
     TextFileInputData data = createDataObject(virtualFile, ";", "col1");
-    data.dataErrorLineHandler = Mockito.mock(IFileErrorHandler.class);
+    data.dataErrorLineHandler = mock(IFileErrorHandler.class);
 
     TestTextFileInput textFileInput =
-        Mockito.spy(
+        spy(
             TransformMockUtil.getTransform(
                 TestTextFileInput.class,
                 meta,
@@ -463,7 +464,7 @@ class TextFileInputTest {
                 TextFileInputData.class,
                 "test"));
     TransformMeta transformMeta = textFileInput.getTransformMeta();
-    Mockito.doReturn(true).when(transformMeta).isDoingErrorHandling();
+    doReturn(true).when(transformMeta).isDoingErrorHandling();
 
     List<Object[]> output = PipelineTestingUtil.execute(textFileInput, 0, false);
 
@@ -487,7 +488,7 @@ class TextFileInputTest {
     TextFileInputData data = createDataObject(virtualFile, ",", "col1", "col2");
 
     TextFileInput input =
-        Mockito.spy(
+        spy(
             TransformMockUtil.getTransform(
                 TextFileInput.class,
                 meta,
@@ -496,15 +497,15 @@ class TextFileInputTest {
                 TextFileInputData.class,
                 "test"));
 
-    IRowSet rowset = Mockito.mock(IRowSet.class);
-    IRowMeta rwi = Mockito.mock(IRowMeta.class);
+    IRowSet rowset = mock(IRowSet.class);
+    IRowMeta rwi = mock(IRowMeta.class);
     Object[] obj1 = new Object[2];
     Object[] obj2 = new Object[2];
-    Mockito.doReturn(rowset).when(input).findInputRowSet(null);
-    Mockito.doReturn(null).when(input).getRowFrom(rowset);
-    Mockito.when(input.getRowFrom(rowset)).thenReturn(obj1, obj2, null);
-    Mockito.doReturn(rwi).when(rowset).getRowMeta();
-    Mockito.when(rwi.getString(obj2, 0)).thenReturn("filename1", "filename2");
+    doReturn(rowset).when(input).findInputRowSet(null);
+    doReturn(null).when(input).getRowFrom(rowset);
+    when(input.getRowFrom(rowset)).thenReturn(obj1, obj2, null);
+    doReturn(rwi).when(rowset).getRowMeta();
+    when(rwi.getString(obj2, 0)).thenReturn("filename1", "filename2");
     List<Object[]> output = PipelineTestingUtil.execute(input, 0, false);
 
     List<String> passThroughKeys = new ArrayList<>(data.passThruFields.keySet());
@@ -564,7 +565,7 @@ class TextFileInputTest {
     String virtualFile = createVirtualFile("read-error.txt", "a1;b1\n", "a2;b2\n", "a3;b3\n");
     FileObject real = HopVfs.getFileObject(virtualFile);
     byte[] cutOff = "a1;b1\na2;b2\na3;b".getBytes(java.nio.charset.StandardCharsets.UTF_8);
-    org.apache.commons.vfs2.FileContent content = org.mockito.Mockito.spy(real.getContent());
+    org.apache.commons.vfs2.FileContent content = spy(real.getContent());
     org.mockito.Mockito.doAnswer(
             call ->
                 new java.io.SequenceInputStream(

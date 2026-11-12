@@ -68,7 +68,7 @@ public class CoreRulePackFixesTest {
    * "Transform 1" counted, which Hop Gui never generates.
    */
   @Test
-  public void theNamesHopGuiGeneratesAreDefaultNames() {
+  void theNamesHopGuiGeneratesAreDefaultNames() {
     for (String name :
         List.of(
             "Dummy (do nothing)", "Dummy (do nothing) 2", "dummy (DO nothing) 12", "Transform 1")) {
@@ -84,7 +84,7 @@ public class CoreRulePackFixesTest {
   }
 
   @Test
-  public void naming004ReportsADefaultTransformName() {
+  void naming004ReportsADefaultTransformName() {
     TransformMeta dummy = new TransformMeta();
     dummy.setName("Dummy (do nothing) 2");
     dummy.setTransformPluginId("Dummy");
@@ -95,7 +95,7 @@ public class CoreRulePackFixesTest {
 
   /** Every workflow starts at Start, and there is no better name for it. */
   @Test
-  public void theStartActionNeverHasADefaultName() {
+  void theStartActionNeverHasADefaultName() {
     ActionMeta start = new ActionMeta(new ActionStart());
     start.setName("Start");
     CustomLintRule rule = coreRule("NAMING-004");
@@ -105,7 +105,7 @@ public class CoreRulePackFixesTest {
   }
 
   @Test
-  public void listFieldsShowsTheFieldsEveryTransformHas() {
+  void listFieldsShowsTheFieldsEveryTransformHas() {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     PrintStream systemOut = System.out;
     try {
@@ -142,7 +142,7 @@ public class CoreRulePackFixesTest {
 
   /** Both clauses were the wrong way round, so the rule could not fire on what it describes. */
   @Test
-  public void sql002ReportsOnlyAnUnboundedSelectStar() {
+  void sql002ReportsOnlyAnUnboundedSelectStar() {
     assertTrue(sql002Reports("SELECT * FROM customers", "0"), "SELECT *, no limit");
     assertTrue(sql002Reports("select *\nfrom customers", ""), "SELECT *, empty limit");
     assertTrue(sql002Reports("SELECT * FROM customers", null), "SELECT *, limit never set");
@@ -154,7 +154,7 @@ public class CoreRulePackFixesTest {
   }
 
   @Test
-  public void isEmptyRequiresTheFieldToBeUnset() {
+  void isEmptyRequiresTheFieldToBeUnset() {
     CustomLintRule rule = new CustomLintRule();
     rule.setEnabled(true);
     rule.setSeverity("WARNING");
@@ -175,7 +175,7 @@ public class CoreRulePackFixesTest {
    * exist, and never ran.
    */
   @Test
-  public void aComposedRuleNeedsNoTypeCustom() throws Exception {
+  void aComposedRuleNeedsNoTypeCustom() throws Exception {
     File projectYaml = File.createTempFile("hop-lint", ".yml");
     Files.writeString(
         projectYaml.toPath(),

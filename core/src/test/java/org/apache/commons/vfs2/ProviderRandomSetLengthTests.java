@@ -17,7 +17,7 @@
 package org.apache.commons.vfs2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import org.apache.commons.vfs2.util.RandomAccessMode;
@@ -70,12 +70,7 @@ public class ProviderRandomSetLengthTests extends AbstractProviderTestCase {
       ra.seek(0);
       assertEquals(TEST_DATA.charAt(0), ra.readByte(), fileString);
 
-      try {
-        ra.readByte();
-        fail("Expected " + Exception.class.getName());
-      } catch (final IOException e) {
-        // Expected
-      }
+      assertThrows(IOException.class, ra::readByte);
 
       // Grow to length 2
       ra.setLength(2);

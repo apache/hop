@@ -56,7 +56,7 @@ public class HardcodedSecretRuleTest {
   }
 
   @Test
-  public void reportsOnlyTheFieldsThatActuallyHoldASecret() {
+  void reportsOnlyTheFieldsThatActuallyHoldASecret() {
     List<String> reported = fieldsReportedFor(new FakeTransformMeta());
 
     assertTrue(reported.contains("password"), "a plain password is the point of the rule");
@@ -65,7 +65,7 @@ public class HardcodedSecretRuleTest {
   }
 
   @Test
-  public void aSecretTakenFromAVariableIsNotAFinding() {
+  void aSecretTakenFromAVariableIsNotAFinding() {
     assertTrue(
         !fieldsReportedFor(new FakeTransformMeta()).contains("proxyPassword"),
         "${PROXY_PASSWORD} is exactly what the rule asks people to do");
@@ -78,7 +78,7 @@ public class HardcodedSecretRuleTest {
    * @see <a href="https://github.com/apache/hop/issues/8420">#8420</a>
    */
   @Test
-  public void aStaticConstantIsNotAHardcodedSecret() {
+  void aStaticConstantIsNotAHardcodedSecret() {
     assertTrue(
         !fieldsReportedFor(new FakeTransformMeta()).contains("FIELD_PROPERTY_PASSWORD"),
         "a static constant cannot hold a value loaded from the file being linted");
@@ -86,7 +86,7 @@ public class HardcodedSecretRuleTest {
 
   /** The field names that put an error on every Token Replacement and Get Data From XML step. */
   @Test
-  public void aFieldNameThatMerelyMentionsASecretIsNotOne() {
+  void aFieldNameThatMerelyMentionsASecretIsNotOne() {
     List<String> reported = fieldsReportedFor(new FakeTransformMeta());
 
     for (String notASecret :

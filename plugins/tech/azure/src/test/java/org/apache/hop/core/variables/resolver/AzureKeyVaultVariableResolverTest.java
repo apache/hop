@@ -21,7 +21,6 @@ package org.apache.hop.core.variables.resolver;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -34,7 +33,6 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import java.lang.reflect.Field;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.IVariables;
@@ -290,21 +288,13 @@ class AzureKeyVaultVariableResolverTest {
     Thread thread1 =
         new Thread(
             () -> {
-              try {
-                resolver.resolve("secret1", variables);
-              } catch (HopException e) {
-                fail("Thread 1 failed: " + e.getMessage());
-              }
+              assertDoesNotThrow(() -> resolver.resolve("secret1", variables), "Thread 1 failed");
             });
 
     Thread thread2 =
         new Thread(
             () -> {
-              try {
-                resolver.resolve("secret2", variables);
-              } catch (HopException e) {
-                fail("Thread 2 failed: " + e.getMessage());
-              }
+              assertDoesNotThrow(() -> resolver.resolve("secret2", variables), "Thread 2 failed");
             });
 
     thread1.start();

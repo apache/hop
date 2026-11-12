@@ -29,34 +29,34 @@ import org.junit.jupiter.api.Test;
 public class NotificationSourceDialogTest {
 
   @Test
-  public void testFullUrl() {
+  void testFullUrl() {
     assertArrayEquals(
         new String[] {"apache", "hop"},
         NotificationSourceDialog.parseOwnerAndRepo("https://github.com/apache/hop"));
   }
 
   @Test
-  public void testUrlWithTrailingPath() {
+  void testUrlWithTrailingPath() {
     assertArrayEquals(
         new String[] {"apache", "hop"},
         NotificationSourceDialog.parseOwnerAndRepo("https://github.com/apache/hop/releases"));
   }
 
   @Test
-  public void testUrlWithQueryAndFragment() {
+  void testUrlWithQueryAndFragment() {
     assertArrayEquals(
         new String[] {"apache", "hop"},
         NotificationSourceDialog.parseOwnerAndRepo("https://github.com/apache/hop?tab=readme#top"));
   }
 
   @Test
-  public void testShorthand() {
+  void testShorthand() {
     assertArrayEquals(
         new String[] {"apache", "hop"}, NotificationSourceDialog.parseOwnerAndRepo("apache/hop"));
   }
 
   @Test
-  public void testTypingTheRepositoryIsFollowedCharacterByCharacter() {
+  void testTypingTheRepositoryIsFollowedCharacterByCharacter() {
     // The sync runs on every keystroke, so a half-typed repository still has to read cleanly.
     assertArrayEquals(
         new String[] {"apache", "h"},
@@ -67,7 +67,7 @@ public class NotificationSourceDialogTest {
   }
 
   @Test
-  public void testIncompleteInputLeavesTheFieldsAlone() {
+  void testIncompleteInputLeavesTheFieldsAlone() {
     // Returning null means "do not touch the owner and repository", not "clear them".
     assertNull(NotificationSourceDialog.parseOwnerAndRepo(null));
     assertNull(NotificationSourceDialog.parseOwnerAndRepo(""));

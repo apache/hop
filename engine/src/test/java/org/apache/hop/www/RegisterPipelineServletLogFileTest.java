@@ -64,7 +64,7 @@ class RegisterPipelineServletLogFileTest {
   }
 
   @Test
-  void registeringAPipelineWithALogFileWorks() throws Exception {
+  void registeringAPipelineWithALogFileWorks() {
     RegisterPipelineServlet servlet = createServlet();
 
     IPipelineEngine<PipelineMeta> pipeline =

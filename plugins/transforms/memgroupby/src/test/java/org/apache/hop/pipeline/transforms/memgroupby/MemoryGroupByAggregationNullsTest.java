@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +81,7 @@ class MemoryGroupByAggregationNullsTest {
     meta.getAggregates().add(new GAggregate("x", null, GroupType.Minimum, null));
     vmi = new ValueMetaInteger();
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
-    rmi = Mockito.mock(IRowMeta.class);
+    rmi = mock(IRowMeta.class);
     data.inputRowMeta = rmi;
     data.outputRowMeta = rmi;
     data.groupMeta = rmi;

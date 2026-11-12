@@ -56,14 +56,14 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void createsTheFileWhenThereIsNoneYet() throws Exception {
+  void createsTheFileWhenThereIsNoneYet() throws Exception {
     LintPolicyYamlWriter.addExclude(yaml(), "templates/**", "Metadata injection templates");
 
     assertEquals(List.of("templates/**"), policy().getExcludes());
   }
 
   @Test
-  public void addsToTheBlockThatIsAlreadyThere() throws Exception {
+  void addsToTheBlockThatIsAlreadyThere() throws Exception {
     Files.writeString(
         yaml(),
         """
@@ -89,7 +89,7 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void suppressionCarriesRulePathSourceAndReason() throws Exception {
+  void suppressionCarriesRulePathSourceAndReason() throws Exception {
     LintPolicyYamlWriter.addSuppression(
         yaml(), "HOP-CHECK", "templates/load.hpl", "Fonte Sql", "Injected at runtime");
 
@@ -103,7 +103,7 @@ public class LintPolicyYamlWriterTest {
 
   /** A reason with a quote in it must not end the YAML string early. */
   @Test
-  public void awkwardTextIsQuoted() throws Exception {
+  void awkwardTextIsQuoted() throws Exception {
     LintPolicyYamlWriter.addSuppression(
         yaml(), "HOP-CHECK", "*.hpl", null, "The \"template\" pipeline: fields\narrive later");
 
@@ -113,7 +113,7 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void bothBlocksCanGrowIndependently() throws Exception {
+  void bothBlocksCanGrowIndependently() throws Exception {
     LintPolicyYamlWriter.addExclude(yaml(), "generated/**", null);
     LintPolicyYamlWriter.addSuppression(yaml(), "DB-001", null, null, "Pinned until the migration");
     LintPolicyYamlWriter.addExclude(yaml(), "tests/**", null);
@@ -123,7 +123,7 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void removingASuppressionLeavesTheRestOfTheFileAlone() throws Exception {
+  void removingASuppressionLeavesTheRestOfTheFileAlone() throws Exception {
     Files.writeString(
         yaml(),
         """
@@ -158,7 +158,7 @@ public class LintPolicyYamlWriterTest {
 
   /** Everything the dialog wrote for one element comes back out, whatever rules it named. */
   @Test
-  public void removingTakesOutEveryRuleRecordedForTheElement() throws Exception {
+  void removingTakesOutEveryRuleRecordedForTheElement() throws Exception {
     LintPolicyYamlWriter.addSuppression(yaml(), "HOP-CHECK", "t.hpl", "Fonte Sql", "why");
     LintPolicyYamlWriter.addSuppression(yaml(), "TRANS-002", "t.hpl", "Fonte Sql", "why");
     LintPolicyYamlWriter.addSuppression(yaml(), "HOP-CHECK", "t.hpl", "Salva S3", "why");
@@ -172,7 +172,7 @@ public class LintPolicyYamlWriterTest {
 
   /** An empty suppress: key reads as an oversight, so the last entry takes it with it. */
   @Test
-  public void removingTheLastEntryDropsTheBlock() throws Exception {
+  void removingTheLastEntryDropsTheBlock() throws Exception {
     LintPolicyYamlWriter.addSuppression(yaml(), "HOP-CHECK", "t.hpl", "Fonte Sql", "why");
 
     LintPolicyYamlWriter.removeSuppressionsFor(yaml(), "t.hpl", "Fonte Sql");
@@ -182,7 +182,7 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void removingWhatIsNotThereChangesNothing() throws Exception {
+  void removingWhatIsNotThereChangesNothing() throws Exception {
     LintPolicyYamlWriter.addExclude(yaml(), "generated/**", null);
     String before = read();
 
@@ -192,7 +192,7 @@ public class LintPolicyYamlWriterTest {
 
   /** Excluding is a menu click, so putting the file back has to be one too. */
   @Test
-  public void anExclusionCanBeTakenBackOut() throws Exception {
+  void anExclusionCanBeTakenBackOut() throws Exception {
     Files.writeString(
         yaml(),
         """
@@ -219,7 +219,7 @@ public class LintPolicyYamlWriterTest {
   }
 
   @Test
-  public void removingTheLastExclusionDropsTheBlock() throws Exception {
+  void removingTheLastExclusionDropsTheBlock() throws Exception {
     LintPolicyYamlWriter.addExclude(yaml(), "templates/load.hpl", "dynamic");
 
     assertTrue(LintPolicyYamlWriter.removeExclude(yaml(), "templates/load.hpl"));
@@ -230,7 +230,7 @@ public class LintPolicyYamlWriterTest {
 
   /** A file covered by a broader pattern is left to the user: which entry to change is a choice. */
   @Test
-  public void anExclusionByPatternIsNotGuessedAt() throws Exception {
+  void anExclusionByPatternIsNotGuessedAt() throws Exception {
     LintPolicyYamlWriter.addExclude(yaml(), "templates/**", null);
 
     assertFalse(LintPolicyYamlWriter.removeExclude(yaml(), "templates/load.hpl"));
@@ -239,7 +239,7 @@ public class LintPolicyYamlWriterTest {
 
   /** The linter refuses a suppression without a rule or a reason; so does the writer. */
   @Test
-  public void incompleteSuppressionsAreRefused() {
+  void incompleteSuppressionsAreRefused() {
     assertThrows(
         IOException.class,
         () -> LintPolicyYamlWriter.addSuppression(yaml(), null, null, null, "reason"));

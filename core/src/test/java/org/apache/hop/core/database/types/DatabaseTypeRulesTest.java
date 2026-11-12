@@ -285,7 +285,7 @@ class DatabaseTypeRulesTest {
   }
 
   @Test
-  void aRuleCanSupplyABindingForTheColumnsItClaims() throws Exception {
+  void aRuleCanSupplyABindingForTheColumnsItClaims() {
     IValueBinding binding = mock(IValueBinding.class);
     IDatabase dialect =
         new PlainDialect() {

@@ -27,8 +27,7 @@ class CqlFunctionsTest {
 
   @Test
   void testGetFunctionsFromString() {
-    String[] fString =
-        new String[] {"TOKEN", "COUNT", "WRITETIME", "TTL", "DATEOF", "UNIXTIMESTAMPOF"};
+    String[] fString = {"TOKEN", "COUNT", "WRITETIME", "TTL", "DATEOF", "UNIXTIMESTAMPOF"};
     for (int i = 0; i < CqlFunctions.values().length; i++) {
       CqlFunctions actualF = CqlFunctions.getFromString(fString[i]);
       assertEquals(CqlFunctions.values()[i], actualF);
@@ -37,15 +36,14 @@ class CqlFunctionsTest {
 
   @Test
   void testGetFunctionsValidators() {
-    String[] expectedValidators =
-        new String[] {
-          "org.apache.cassandra.db.marshal.LongType",
-          "org.apache.cassandra.db.marshal.LongType",
-          "org.apache.cassandra.db.marshal.LongType",
-          "org.apache.cassandra.db.marshal.Int32Type",
-          "org.apache.cassandra.db.marshal.TimestampType",
-          "org.apache.cassandra.db.marshal.LongType"
-        };
+    String[] expectedValidators = {
+      "org.apache.cassandra.db.marshal.LongType",
+      "org.apache.cassandra.db.marshal.LongType",
+      "org.apache.cassandra.db.marshal.LongType",
+      "org.apache.cassandra.db.marshal.Int32Type",
+      "org.apache.cassandra.db.marshal.TimestampType",
+      "org.apache.cassandra.db.marshal.LongType"
+    };
     assertEquals(expectedValidators.length, CqlFunctions.values().length);
     for (int i = 0; i < expectedValidators.length; i++) {
       assertEquals(

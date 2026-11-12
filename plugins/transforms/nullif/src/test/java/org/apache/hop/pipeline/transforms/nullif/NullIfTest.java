@@ -122,7 +122,7 @@ class NullIfTest {
 
     IRowSet outputRowSet = transform.getOutputRowSets().get(0);
     Object[] actualRow = outputRowSet.getRow();
-    Object[] expectedRow = new Object[] {"value1", null, "value3"};
+    Object[] expectedRow = {"value1", null, "value3"};
 
     assertEquals(
         expectedRow.length,
@@ -219,7 +219,7 @@ class NullIfTest {
 
     IRowSet outputRowSet = transform.getOutputRowSets().get(0);
     Object[] actualRow = outputRowSet.getRow();
-    Object[] expectedRow = new Object[] {null, null, d3, d4};
+    Object[] expectedRow = {null, null, d3, d4};
 
     assertEquals(
         expectedRow.length,

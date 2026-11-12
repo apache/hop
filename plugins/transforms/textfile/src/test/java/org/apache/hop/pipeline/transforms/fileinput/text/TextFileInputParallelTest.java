@@ -23,6 +23,7 @@ import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHar
 import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHarness.runWithFilenames;
 import static org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputHarness.write;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.Charset;
@@ -341,7 +342,7 @@ class TextFileInputParallelTest {
 
     Result result = run(meta, 2);
 
-    assertTrue(result.startFailure() != null, "must not start with " + label);
+    assertNotNull(result.startFailure(), "must not start with " + label);
     assertTrue(result.log().contains(label), result.log());
   }
 

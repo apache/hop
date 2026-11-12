@@ -215,7 +215,7 @@ class LocationResourceTest {
   }
 
   @Test
-  void anUnknownLocationPropagatesAsNotFound() throws Exception {
+  void anUnknownLocationPropagatesAsNotFound() {
     HopException thrown =
         assertThrows(HopException.class, () -> resource.getExecutionIds("nosuch", false, 10));
 

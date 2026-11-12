@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.kafka.consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.row.IValueMeta;
@@ -31,7 +32,7 @@ class KafkaConsumerFieldTest {
 
   @BeforeEach
   void setUp() {
-    vmi = org.mockito.Mockito.mock(IValueMeta.class);
+    vmi = mock(IValueMeta.class);
   }
 
   @Test

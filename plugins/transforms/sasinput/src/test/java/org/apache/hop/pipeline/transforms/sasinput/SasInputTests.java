@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.epam.parso.SasFileProperties;
@@ -40,7 +41,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 
 /** Unit test for {@link SasInput} */
 @ExtendWith(RestoreHopEnvironmentExtension.class)
@@ -52,7 +52,7 @@ class SasInputTests {
   void setup() {
     TransformMockHelper<SasInputMeta, SasInputData> helper =
         new TransformMockHelper<>("sas_input_test", SasInputMeta.class, SasInputData.class);
-    Mockito.doReturn(helper.iLogChannel)
+    doReturn(helper.iLogChannel)
         .when(helper.logChannelFactory)
         .create(any(), any(ILoggingObject.class));
 

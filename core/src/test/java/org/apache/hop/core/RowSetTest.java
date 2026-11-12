@@ -62,11 +62,11 @@ class RowSetTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    Object[] r1 = new Object[] {1L};
-    Object[] r2 = new Object[] {2L};
-    Object[] r3 = new Object[] {3L};
-    Object[] r4 = new Object[] {4L};
-    Object[] r5 = new Object[] {5L};
+    Object[] r1 = {1L};
+    Object[] r2 = {2L};
+    Object[] r3 = {3L};
+    Object[] r4 = {4L};
+    Object[] r5 = {5L};
 
     assertEquals(0, set.size());
 

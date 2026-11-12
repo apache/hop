@@ -19,6 +19,7 @@ package org.apache.hop.replay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -247,7 +248,7 @@ class WorkflowReplayIntegrationTest {
     return actionMeta;
   }
 
-  private static LocalWorkflowEngine runLocal(WorkflowMeta meta) throws HopException {
+  private static LocalWorkflowEngine runLocal(WorkflowMeta meta) {
     LocalWorkflowEngine engine = new LocalWorkflowEngine(meta);
     engine.setLogLevel(LogLevel.ERROR);
     Result result = engine.startExecution();
@@ -256,7 +257,7 @@ class WorkflowReplayIntegrationTest {
   }
 
   private static ReplayWorkflowEngine runReplay(
-      WorkflowMeta meta, String sourceExecutionId, String startActionName) throws HopException {
+      WorkflowMeta meta, String sourceExecutionId, String startActionName) {
     ReplayWorkflowEngine engine = new ReplayWorkflowEngine(meta);
     engine.setLogLevel(LogLevel.ERROR);
     ReplayWorkflowRunConfiguration config = new ReplayWorkflowRunConfiguration();
@@ -270,7 +271,7 @@ class WorkflowReplayIntegrationTest {
   }
 
   private static void assertNotFailedToStart(Result result) {
-    assertTrue(result != null, "workflow returned no result");
+    assertNotNull(result, "workflow returned no result");
   }
 
   private static boolean restored(IWorkflowEngine<WorkflowMeta> workflow, String actionName) {

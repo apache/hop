@@ -112,7 +112,7 @@ public class LintCommandOptionsTest {
    * and {@code -o lint.json} wrote the report there.
    */
   @Test
-  public void relativePathsAreResolvedAgainstWhereHopLintWasRun() throws Exception {
+  void relativePathsAreResolvedAgainstWhereHopLintWasRun() throws Exception {
     System.setProperty("hop.origin.dir", project.toString());
 
     StringBuilder output = new StringBuilder();
@@ -125,7 +125,7 @@ public class LintCommandOptionsTest {
   }
 
   @Test
-  public void aRelativeFileTargetIsFound() throws Exception {
+  void aRelativeFileTargetIsFound() {
     System.setProperty("hop.origin.dir", project.toString());
 
     StringBuilder output = new StringBuilder();
@@ -136,7 +136,7 @@ public class LintCommandOptionsTest {
   }
 
   @Test
-  public void baselineFilesAreRelativeToo() throws Exception {
+  void baselineFilesAreRelativeToo() {
     System.setProperty("hop.origin.dir", project.toString());
 
     StringBuilder output = new StringBuilder();
@@ -149,7 +149,7 @@ public class LintCommandOptionsTest {
 
   /** A typo used to read as ERROR, and a project with warnings passed. */
   @Test
-  public void anUnknownFailOnIsRefused() {
+  void anUnknownFailOnIsRefused() {
     StringBuilder output = new StringBuilder();
 
     int status = hopLint(output, "--fail-on", "WARNNG", project.toString());
@@ -160,7 +160,7 @@ public class LintCommandOptionsTest {
 
   /** --fail-on INFO used to fail on errors only. SYSTEM-001 is lowered to INFO to have one. */
   @Test
-  public void failOnInfoFailsOnAnInfoFinding() throws Exception {
+  void failOnInfoFailsOnAnInfoFinding() throws Exception {
     Files.writeString(
         project.resolve("hop-lint.yml"), "rules:\n  SYSTEM-001:\n    severity: INFO\n");
 
@@ -172,7 +172,7 @@ public class LintCommandOptionsTest {
   // ------------------------------------------------------------------ system findings
 
   @Test
-  public void aSystemFindingTakesTheProjectsSeverity() throws Exception {
+  void aSystemFindingTakesTheProjectsSeverity() throws Exception {
     Files.writeString(
         project.resolve("hop-lint.yml"), "rules:\n  SYSTEM-001:\n    severity: WARNING\n");
 
@@ -188,7 +188,7 @@ public class LintCommandOptionsTest {
   }
 
   @Test
-  public void aSystemRuleCanBeSwitchedOff() throws Exception {
+  void aSystemRuleCanBeSwitchedOff() throws Exception {
     Files.writeString(
         project.resolve("hop-lint.yml"), "rules:\n  SYSTEM-001:\n    enabled: false\n");
 
@@ -198,7 +198,7 @@ public class LintCommandOptionsTest {
   }
 
   @Test
-  public void systemRulesAreListed() {
+  void systemRulesAreListed() {
     StringBuilder output = new StringBuilder();
 
     assertEquals(0, hopLint(output, "--list-rules"), output.toString());
@@ -214,7 +214,7 @@ public class LintCommandOptionsTest {
    * linting the staged copy blocks the commit.
    */
   @Test
-  public void thePreCommitCheckLintsTheStagedCopy() throws Exception {
+  void thePreCommitCheckLintsTheStagedCopy() throws Exception {
     Files.delete(project.resolve("broken.hpl"));
     Files.writeString(
         project.resolve("hop-lint.yml"),

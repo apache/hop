@@ -204,7 +204,7 @@ class RestBinaryBodyTest {
   }
 
   @Test
-  void testGetFieldsDeclaresBinaryResultAsBinary() throws Exception {
+  void testGetFieldsDeclaresBinaryResultAsBinary() {
     RestMeta meta = new RestMeta();
     meta.setResultField(new ResultField());
     meta.getResultField().setFieldName("result");

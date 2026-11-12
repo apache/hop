@@ -65,18 +65,18 @@ public class ProjectsConfigHelperTest {
   private MultiMetadataProvider previousMetadataProvider;
 
   @BeforeAll
-  public static void beforeAll() {
+  static void beforeAll() {
     HopLogStore.init();
   }
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     tempRoot = Files.createTempDirectory("hop-in-memory-test");
     previousMetadataProvider = HopMetadataInstance.getMetadataProvider();
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  void tearDown() throws Exception {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     for (String p : registeredProjects) {
       config.removeProjectConfig(p);
@@ -114,7 +114,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testInMemoryMode() throws Exception {
+  void testInMemoryMode() throws Exception {
     HopConfig.setInMemoryMode(true);
     assertTrue(HopConfig.isInMemoryMode());
 
@@ -125,7 +125,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testNormalizeProjectHome() {
+  void testNormalizeProjectHome() {
     IVariables variables = new Variables();
     variables.setVariable("MY_DIR", "/projects/test");
 
@@ -143,7 +143,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testAddProjectLocationsAndParentChildRelationship() throws Exception {
+  void testAddProjectLocationsAndParentChildRelationship() throws Exception {
     Path sharedDir = tempRoot.resolve("shared");
     Path edwDir = tempRoot.resolve("edw");
     Files.createDirectories(sharedDir);
@@ -203,7 +203,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testAddEnvironments() throws Exception {
+  void testAddEnvironments() throws Exception {
     Path edwDir = tempRoot.resolve("edw");
     Files.createDirectories(edwDir);
     Path confFile = tempRoot.resolve("edw-production.json");
@@ -215,7 +215,7 @@ public class ProjectsConfigHelperTest {
     registeredProjects.add("edw");
 
     IVariables variables = new Variables();
-    String[] envDefs = new String[] {"edw-prod=" + confFile.toAbsolutePath()};
+    String[] envDefs = {"edw-prod=" + confFile.toAbsolutePath()};
 
     ProjectsConfigHelper.addEnvironments(LogChannel.GENERAL, variables, envDefs, List.of("edw"));
     registeredEnvironments.add("edw-prod");
@@ -229,7 +229,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testProjectExportZipHandling() throws Exception {
+  void testProjectExportZipHandling() throws Exception {
     Path zipFile = tempRoot.resolve("export.zip");
 
     String projConfig =
@@ -285,7 +285,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testProjectsOptionPlugin() throws Exception {
+  void testProjectsOptionPlugin() throws Exception {
     Path projectDir = tempRoot.resolve("my-proj");
     Files.createDirectories(projectDir);
     Path confFile = tempRoot.resolve("my-conf.json");
@@ -337,7 +337,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testAlreadyEnabledAppliesVariablesToASecondInstance() throws Exception {
+  void testAlreadyEnabledAppliesVariablesToASecondInstance() throws Exception {
     Path projectDir = tempRoot.resolve("second-vars");
     Files.createDirectories(projectDir);
     Path confFile = tempRoot.resolve("second-env.json");
@@ -375,7 +375,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testServerMixinInheritsEnvironmentNameFromVariables() throws Exception {
+  void testServerMixinInheritsEnvironmentNameFromVariables() throws Exception {
     Path projectDir = tempRoot.resolve("inherit-env");
     Files.createDirectories(projectDir);
     Path confFile = tempRoot.resolve("inherit-env.json");
@@ -409,7 +409,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testDetermineActiveProjectFromSessionRegistration() throws Exception {
+  void testDetermineActiveProjectFromSessionRegistration() throws Exception {
     Path projectDir = tempRoot.resolve("session-proj");
     Files.createDirectories(projectDir);
     Files.writeString(
@@ -432,7 +432,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testRootThenRunMixinUsesProjectMetadataFolder() throws Exception {
+  void testRootThenRunMixinUsesProjectMetadataFolder() throws Exception {
     Path projectDir = tempRoot.resolve("ttt");
     Path metadataDir = projectDir.resolve("metadata").resolve("pipeline-run-configuration");
     Files.createDirectories(metadataDir);
@@ -483,7 +483,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testBareFolderDoesNotRegisterEverySubdirectory() throws Exception {
+  void testBareFolderDoesNotRegisterEverySubdirectory() throws Exception {
     Path projectDir = tempRoot.resolve("plain-proj");
     Files.createDirectories(projectDir.resolve(".git"));
     Files.createDirectories(projectDir.resolve("datasets"));
@@ -507,7 +507,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testDetectConfigFilenameReturnsNullWhenMissing() throws Exception {
+  void testDetectConfigFilenameReturnsNullWhenMissing() throws Exception {
     Path emptyDir = tempRoot.resolve("empty");
     Files.createDirectories(emptyDir);
     assertNull(
@@ -516,7 +516,7 @@ public class ProjectsConfigHelperTest {
   }
 
   @Test
-  public void testJsonExportHomeRequiresExportLayout() throws Exception {
+  void testJsonExportHomeRequiresExportLayout() throws Exception {
     Path projectDir = tempRoot.resolve("normal");
     Files.createDirectories(projectDir.resolve("metadata"));
     Files.writeString(

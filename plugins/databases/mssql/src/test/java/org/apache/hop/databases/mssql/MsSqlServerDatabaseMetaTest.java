@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
 import org.apache.hop.core.HopClientEnvironment;
@@ -51,7 +52,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 class MsSqlServerDatabaseMetaTest {
@@ -648,25 +648,25 @@ class MsSqlServerDatabaseMetaTest {
   }
 
   private int rowCnt = 0;
-  private String[] row1 = new String[] {"ROW1COL1", "ROW1COL2"};
-  private String[] row2 = new String[] {"ROW2COL1", "ROW2COL2"};
+  private String[] row1 = {"ROW1COL1", "ROW1COL2"};
+  private String[] row2 = {"ROW2COL1", "ROW2COL2"};
 
   @Test
   void testCheckIndexExists() throws Exception {
     String expectedSQL =
         "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "; // yes, variables at the end like in the dbmeta
-    Database db = Mockito.mock(Database.class);
-    IRowMeta rm = Mockito.mock(IRowMeta.class);
-    ResultSet rs = Mockito.mock(ResultSet.class);
-    DatabaseMeta dm = Mockito.mock(DatabaseMeta.class);
-    Mockito.when(dm.getQuotedSchemaTableCombination(any(IVariables.class), eq(""), eq("FOO")))
+    Database db = mock(Database.class);
+    IRowMeta rm = mock(IRowMeta.class);
+    ResultSet rs = mock(ResultSet.class);
+    DatabaseMeta dm = mock(DatabaseMeta.class);
+    when(dm.getQuotedSchemaTableCombination(any(IVariables.class), eq(""), eq("FOO")))
         .thenReturn("FOO");
-    Mockito.when(rs.next()).thenReturn(rowCnt < 2);
-    Mockito.when(db.openQuery(expectedSQL)).thenReturn(rs);
-    Mockito.when(db.getReturnRowMeta()).thenReturn(rm);
-    Mockito.when(rm.getString(row1, "column_name", "")).thenReturn("ROW1COL2");
-    Mockito.when(rm.getString(row2, "column_name", "")).thenReturn("ROW2COL2");
-    Mockito.when(db.getRow(rs))
+    when(rs.next()).thenReturn(rowCnt < 2);
+    when(db.openQuery(expectedSQL)).thenReturn(rs);
+    when(db.getReturnRowMeta()).thenReturn(rm);
+    when(rm.getString(row1, "column_name", "")).thenReturn("ROW1COL2");
+    when(rm.getString(row2, "column_name", "")).thenReturn("ROW2COL2");
+    when(db.getRow(rs))
         .thenAnswer(
             (Answer<Object[]>)
                 invocation -> {
@@ -679,7 +679,7 @@ class MsSqlServerDatabaseMetaTest {
                     return null;
                   }
                 });
-    Mockito.when(db.getDatabaseMeta()).thenReturn(dm);
+    when(db.getDatabaseMeta()).thenReturn(dm);
     assertTrue(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW1COL2", "ROW2COL2"}));
     assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"ROW2COL2", "NOTTHERE"}));
     assertFalse(nativeMeta.hasIndex(db, "", "FOO", new String[] {"NOTTHERE", "ROW1COL2"}));

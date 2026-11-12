@@ -38,9 +38,9 @@ class TreeMemoryTest {
     TreeMemory memory = TreeMemory.getInstance();
     assertNotNull(memory);
 
-    String[] rootPath = new String[] {"project"};
-    String[] subPath = new String[] {"project", "subfolder"};
-    String[] otherPath = new String[] {"project", "other"};
+    String[] rootPath = {"project"};
+    String[] subPath = {"project", "subfolder"};
+    String[] otherPath = {"project", "other"};
 
     assertFalse(memory.isExpanded(TREE_NAME, rootPath));
     assertFalse(memory.isExpanded(TREE_NAME, subPath));
@@ -62,8 +62,8 @@ class TreeMemoryTest {
   void testClearTree() {
     TreeMemory memory = TreeMemory.getInstance();
 
-    String[] path1 = new String[] {"root", "folder1"};
-    String[] path2 = new String[] {"root", "folder2"};
+    String[] path1 = {"root", "folder1"};
+    String[] path2 = {"root", "folder2"};
 
     memory.storeExpanded(TREE_NAME, path1, true);
     memory.storeExpanded(TREE_NAME, path2, true);

@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -77,7 +78,7 @@ class AddXmlBlankEncodingTest {
     String xml = runAddXml("<encoding/>");
 
     assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Row><name>café</name></Row>", xml);
-    assertTrue(XmlHandler.loadXmlString(xml) != null);
+    assertNotNull(XmlHandler.loadXmlString(xml));
   }
 
   @Test

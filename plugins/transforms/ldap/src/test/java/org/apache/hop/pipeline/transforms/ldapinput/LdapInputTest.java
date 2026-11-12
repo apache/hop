@@ -49,7 +49,7 @@ class LdapInputTest {
   }
 
   @Test
-  void testRowProcessing() throws Exception {
+  void testRowProcessing() {
 
     // Setup transform
     LdapInputMeta meta = mock(LdapInputMeta.class);
@@ -59,10 +59,9 @@ class LdapInputTest {
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
 
     // Mock fields
-    LdapInputField[] fields =
-        new LdapInputField[] {
-          new LdapInputField("dn"), new LdapInputField("cn"), new LdapInputField("role")
-        };
+    LdapInputField[] fields = {
+      new LdapInputField("dn"), new LdapInputField("cn"), new LdapInputField("role")
+    };
     int sortedField = 1;
     fields[sortedField].setSortedKey(true);
     meta.setInputFields(fields);

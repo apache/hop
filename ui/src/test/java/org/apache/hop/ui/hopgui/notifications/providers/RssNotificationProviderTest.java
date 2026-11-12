@@ -75,7 +75,7 @@ public class RssNotificationProviderTest {
       """;
 
   @Test
-  public void testAtomEntryUsesFeedId() throws Exception {
+  void testAtomEntryUsesFeedId() throws Exception {
     List<Notification> notifications = parseAtom(ATOM_WITH_IDS);
 
     assertEquals(1, notifications.size());
@@ -83,7 +83,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testRssItemUsesGuid() throws Exception {
+  void testRssItemUsesGuid() throws Exception {
     List<Notification> notifications = parseRss(RSS_WITH_GUID);
 
     assertEquals(1, notifications.size());
@@ -91,7 +91,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testIdIsStableAcrossPolls() throws Exception {
+  void testIdIsStableAcrossPolls() throws Exception {
     // The bug this guards against: an id built from System.currentTimeMillis() made the same
     // entry look new on every poll, so it piled up and could never stay marked as read.
     String first = parseAtom(ATOM_WITHOUT_IDS).get(0).getId();
@@ -103,14 +103,14 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testDifferentEntriesGetDifferentIds() throws Exception {
+  void testDifferentEntriesGetDifferentIds() throws Exception {
     String other = ATOM_WITHOUT_IDS.replace("Something happened", "Something else happened");
 
     assertNotEquals(parseAtom(ATOM_WITHOUT_IDS).get(0).getId(), parseAtom(other).get(0).getId());
   }
 
   @Test
-  public void testIdIsNotDerivedFromTheVersionInTheTitle() throws Exception {
+  void testIdIsNotDerivedFromTheVersionInTheTitle() throws Exception {
     // Two repositories releasing the same version number must not collide. The old code turned
     // any version-shaped token in the title into "apache-hop-release-<version>".
     List<Notification> notifications = parseAtom(ATOM_WITH_IDS);
@@ -119,7 +119,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testEntryIdIsLocalAndNotYetQualified() throws Exception {
+  void testEntryIdIsLocalAndNotYetQualified() throws Exception {
     // NotificationService prefixes the source; the provider must not do it a second time.
     Notification notification = parseRss(RSS_WITH_GUID).get(0);
 
@@ -128,7 +128,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testDescriptionInAPrettyPrintedCdataSectionIsRead() throws Exception {
+  void testDescriptionInAPrettyPrintedCdataSectionIsRead() throws Exception {
     // How most publishing tools write a description. Reading only the first child returned the
     // indentation in front of the CDATA section and dropped the content entirely.
     String rss =
@@ -156,7 +156,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testDescriptionSplitAcrossTextAndCdataIsReadWhole() throws Exception {
+  void testDescriptionSplitAcrossTextAndCdataIsReadWhole() throws Exception {
     String rss =
         RSS_WITH_GUID.replace(
             "<description>Body</description>",
@@ -168,7 +168,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testAByteOrderMarkDoesNotHideTheFeed() {
+  void testAByteOrderMarkDoesNotHideTheFeed() {
     // Feeds written by Windows tooling are commonly served with a BOM. trim() does not remove it,
     // so the sniff that decides whether the response looks like XML rejected feeds the parser
     // reads perfectly well, reporting them as "not an RSS or Atom feed".
@@ -183,7 +183,7 @@ public class RssNotificationProviderTest {
   }
 
   @Test
-  public void testContentWithoutAByteOrderMarkIsUntouched() {
+  void testContentWithoutAByteOrderMarkIsUntouched() {
     assertEquals("<rss>", RssNotificationProvider.stripByteOrderMark("<rss>"));
     assertEquals("", RssNotificationProvider.stripByteOrderMark(""));
   }

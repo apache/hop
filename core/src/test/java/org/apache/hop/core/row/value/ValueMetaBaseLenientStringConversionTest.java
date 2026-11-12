@@ -31,15 +31,14 @@ class ValueMetaBaseLenientStringConversionTest {
   void testStrToIntLenient() throws Exception {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "Y");
 
-    Object[] values =
-        new Object[] {
-          1L, "1",
-          1L, "1b",
-          1L, "1,5",
-          1L, "1.5",
-          10L, "10,000,000.25",
-          10L, "10.000.000,25"
-        };
+    Object[] values = {
+      1L, "1",
+      1L, "1b",
+      1L, "1,5",
+      1L, "1.5",
+      10L, "10,000,000.25",
+      10L, "10.000.000,25"
+    };
 
     ValueMetaInteger meta = new ValueMetaInteger();
     for (int i = 0; i < values.length; i += 2) {
@@ -53,7 +52,7 @@ class ValueMetaBaseLenientStringConversionTest {
   void testStrToIntStrict() {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
-    String[] values = new String[] {"1a", "1,1", "100,000,3", "100.000,3"};
+    String[] values = {"1a", "1,1", "100,000,3", "100.000,3"};
 
     ValueMetaInteger meta = new ValueMetaInteger();
     Long converted = null;
@@ -77,15 +76,14 @@ class ValueMetaBaseLenientStringConversionTest {
   void testStrToBigNumberLenient() throws Exception {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "Y");
 
-    Object[] values =
-        new Object[] {
-          1D, "1",
-          1D, "1b",
-          1D, "1,5",
-          1.5D, "1.5",
-          10D, "10,000,000.25",
-          10D, "10.000.000,25"
-        };
+    Object[] values = {
+      1D, "1",
+      1D, "1b",
+      1D, "1,5",
+      1.5D, "1.5",
+      10D, "10,000,000.25",
+      10D, "10.000.000,25"
+    };
 
     ValueMetaBigNumber meta = new ValueMetaBigNumber();
     for (int i = 0; i < values.length; i += 2) {
@@ -100,7 +98,7 @@ class ValueMetaBaseLenientStringConversionTest {
 
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
-    String[] values = new String[] {"1b", "1,5", "10,000,000.25"};
+    String[] values = {"1b", "1,5", "10,000,000.25"};
 
     ValueMetaBigNumber meta = new ValueMetaBigNumber();
     Throwable exc = null;

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 public class LintCheckResultAdapterTest {
 
   @Test
-  public void deduplicatorPrefersLintOverNativeForSameBucket() {
+  void deduplicatorPrefersLintOverNativeForSameBucket() {
     LintResult lint =
         new LintResult(
             "TRANS-002",
@@ -58,7 +58,7 @@ public class LintCheckResultAdapterTest {
   }
 
   @Test
-  public void severityFailOnThreshold() {
+  void severityFailOnThreshold() {
     assertTrue(LintSeverity.meetsFailOnThreshold("ERROR", LintSeverity.FailOn.ERROR));
     assertTrue(LintSeverity.meetsFailOnThreshold("ERROR", LintSeverity.FailOn.WARNING));
     assertTrue(LintSeverity.meetsFailOnThreshold("WARNING", LintSeverity.FailOn.WARNING));
@@ -66,7 +66,7 @@ public class LintCheckResultAdapterTest {
   }
 
   @Test
-  public void pipelineLevelLintHasNoTransformSource() {
+  void pipelineLevelLintHasNoTransformSource() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("My Pipeline");
     LintResult doc =
@@ -93,7 +93,7 @@ public class LintCheckResultAdapterTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aChecksOwnErrorCodeSurvivesTheBlanketRule() {
+  void aChecksOwnErrorCodeSurvivesTheBlanketRule() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
 
@@ -107,7 +107,7 @@ public class LintCheckResultAdapterTest {
   }
 
   @Test
-  public void aRemarkWithoutAnErrorCodeIsReportedUnderTheRuleThatClassifiedIt() {
+  void aRemarkWithoutAnErrorCodeIsReportedUnderTheRuleThatClassifiedIt() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
 
@@ -123,7 +123,7 @@ public class LintCheckResultAdapterTest {
 
   /** A rule a project wrote for one plugin or one check is more specific than a code. */
   @Test
-  public void aNarrowedRuleWinsOverTheErrorCode() {
+  void aNarrowedRuleWinsOverTheErrorCode() {
     CustomLintRule tableInput = nativeRule("HOP-CHECK-TABLEINPUT", "ERROR");
     tableInput.setAppliesTo(List.of("TableInput"));
     NativeCheckClassifier classifier =
@@ -150,7 +150,7 @@ public class LintCheckResultAdapterTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aNarrowedRuleKeepsTheBlanketRuleAsAName() {
+  void aNarrowedRuleKeepsTheBlanketRuleAsAName() {
     CustomLintRule tableInput = nativeRule("HOP-CHECK-TABLEINPUT", "ERROR");
     tableInput.setAppliesTo(List.of("TableInput"));
     NativeCheckClassifier classifier =
@@ -168,7 +168,7 @@ public class LintCheckResultAdapterTest {
 
   /** With no narrowed rule in force the blanket rule is the alias, and is not repeated. */
   @Test
-  public void theBlanketRuleIsNamedOnceWhenNoRuleNarrows() {
+  void theBlanketRuleIsNamedOnceWhenNoRuleNarrows() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING")));
 

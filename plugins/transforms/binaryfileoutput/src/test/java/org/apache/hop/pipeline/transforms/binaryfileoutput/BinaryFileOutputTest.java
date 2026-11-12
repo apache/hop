@@ -130,7 +130,7 @@ class BinaryFileOutputTest {
   @Test
   void writesRawBytesUnchanged(@TempDir Path tempDir) throws Exception {
     // Include non-UTF8 / control bytes that text writers often corrupt
-    byte[] payload = new byte[] {0x00, 0x01, (byte) 0x98, (byte) 0xFF, 0x0A, 0x0D, 0x1A};
+    byte[] payload = {0x00, 0x01, (byte) 0x98, (byte) 0xFF, 0x0A, 0x0D, 0x1A};
     Path target = tempDir.resolve("out.bin");
 
     BinaryFileOutputMeta meta = baseMeta();
@@ -164,7 +164,7 @@ class BinaryFileOutputTest {
 
   @Test
   void createsParentFolderWhenConfigured(@TempDir Path tempDir) throws Exception {
-    byte[] payload = new byte[] {0x01, 0x02, 0x03};
+    byte[] payload = {0x01, 0x02, 0x03};
     Path target = tempDir.resolve("nested/dir/out.bin");
 
     BinaryFileOutputMeta meta = baseMeta();
@@ -181,7 +181,7 @@ class BinaryFileOutputTest {
 
   @Test
   void failsWhenParentMissingAndCreateDisabled(@TempDir Path tempDir) throws Exception {
-    byte[] payload = new byte[] {0x01};
+    byte[] payload = {0x01};
     Path target = tempDir.resolve("missing/parent/out.bin");
 
     BinaryFileOutputMeta meta = baseMeta();
@@ -199,7 +199,7 @@ class BinaryFileOutputTest {
   void overwritesWhenEnabled(@TempDir Path tempDir) throws Exception {
     Path target = tempDir.resolve("out.bin");
     Files.write(target, new byte[] {0x11, 0x22});
-    byte[] payload = new byte[] {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC};
+    byte[] payload = {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC};
 
     BinaryFileOutputMeta meta = baseMeta();
     meta.setOverwriteFile(true);
@@ -215,9 +215,9 @@ class BinaryFileOutputTest {
   @Test
   void failsWhenExistsAndOverwriteDisabled(@TempDir Path tempDir) throws Exception {
     Path target = tempDir.resolve("out.bin");
-    byte[] original = new byte[] {0x11, 0x22};
+    byte[] original = {0x11, 0x22};
     Files.write(target, original);
-    byte[] payload = new byte[] {(byte) 0xAA};
+    byte[] payload = {(byte) 0xAA};
 
     BinaryFileOutputMeta meta = baseMeta();
     meta.setOverwriteFile(false);
@@ -271,8 +271,8 @@ class BinaryFileOutputTest {
   void writesEachRowToItsOwnFile(@TempDir Path tempDir) throws Exception {
     Path t1 = tempDir.resolve("a.bin");
     Path t2 = tempDir.resolve("b.bin");
-    byte[] p1 = new byte[] {0x01, 0x02};
-    byte[] p2 = new byte[] {(byte) 0xFE, (byte) 0xFD, (byte) 0xFC};
+    byte[] p1 = {0x01, 0x02};
+    byte[] p2 = {(byte) 0xFE, (byte) 0xFD, (byte) 0xFC};
 
     BinaryFileOutputMeta meta = baseMeta();
     BinaryFileOutput transform = createTransform(meta, new BinaryFileOutputData());
@@ -288,7 +288,7 @@ class BinaryFileOutputTest {
   @Test
   void addResultFilenames_registersTarget(@TempDir Path tempDir) throws Exception {
     Path target = tempDir.resolve("result.bin");
-    byte[] payload = new byte[] {0x0A};
+    byte[] payload = {0x0A};
 
     BinaryFileOutputMeta meta = baseMeta();
     meta.setAddResultFilenames(true);

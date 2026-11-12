@@ -86,7 +86,7 @@ class CombinationLookupMetaTest {
    * parent pipeline. getSqlStatements must use the PipelineMeta argument, not the parent chain.
    */
   @Test
-  void getSqlStatementsDoesNotNpeWhenParentPipelineIsNull() throws Exception {
+  void getSqlStatementsDoesNotNpeWhenParentPipelineIsNull() {
     CombinationLookupMeta info = dialogStyleMeta();
     TransformMeta transformMeta = new TransformMeta(TRANSFORM_NAME, info);
     assertNull(transformMeta.getParentPipelineMeta());
@@ -182,7 +182,7 @@ class CombinationLookupMetaTest {
   }
 
   @Test
-  void analyseImpactSkipsWorkWhenConnectionIsMissing() throws Exception {
+  void analyseImpactSkipsWorkWhenConnectionIsMissing() {
     CombinationLookupMeta info = dialogStyleMeta();
     TransformMeta transformMeta = new TransformMeta(TRANSFORM_NAME, info);
     PipelineMeta pipelineMeta = pipelineWithoutConnection();

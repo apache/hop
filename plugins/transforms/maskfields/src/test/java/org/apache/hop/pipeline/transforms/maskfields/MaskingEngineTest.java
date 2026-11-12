@@ -99,7 +99,7 @@ class MaskingEngineTest {
   }
 
   @Test
-  void aFailingFieldClearsItselfAndTheFieldsAfterIt() throws Exception {
+  void aFailingFieldClearsItselfAndTheFieldsAfterIt() {
     MaskingPattern first = synthetic("First name", MaskingStorage.NONE, "fn-", "", "1");
     MaskingPattern broken = synthetic("Broken", MaskingStorage.MEMORY, "x-", "", "1");
     IMaskingStore failing =

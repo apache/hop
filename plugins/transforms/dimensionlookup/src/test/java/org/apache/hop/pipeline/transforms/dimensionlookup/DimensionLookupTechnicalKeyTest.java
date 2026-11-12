@@ -102,7 +102,7 @@ class DimensionLookupTechnicalKeyTest {
   /** The field creation method against a binary key column, which is what 0012-4 exercises. */
   @Test
   void aBinaryKeyIsNotConverted() throws HopValueException {
-    byte[] key = new byte[] {1, 2, 3};
+    byte[] key = {1, 2, 3};
 
     assertSame(key, DimensionLookup.asType(new ValueMetaBinary("dimension_id"), key));
   }

@@ -19,6 +19,7 @@ package org.apache.hop.metadata.rest.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,7 +87,7 @@ class RestOAuth2TokenProviderTest {
   }
 
   @Test
-  void aTokenIsFetchedAndSentAsABearerHeader() throws Exception {
+  void aTokenIsFetchedAndSentAsABearerHeader() {
     RestClientSettings settings = clientCredentials();
 
     Map<String, String> headers = new LinkedHashMap<>();
@@ -151,7 +152,7 @@ class RestOAuth2TokenProviderTest {
     String body = requestBodies.get(0);
     assertTrue(body.contains("client_id=id"), body);
     assertTrue(body.contains("client_secret=secret"), body);
-    assertTrue(authorizationHeaders.get(0) == null, "no Authorization header in this mode");
+    assertNull(authorizationHeaders.get(0), "no Authorization header in this mode");
   }
 
   @Test
@@ -180,7 +181,7 @@ class RestOAuth2TokenProviderTest {
   }
 
   @Test
-  void manyAuthenticatorsShareOneToken() throws Exception {
+  void manyAuthenticatorsShareOneToken() {
     // Stands in for the copies of one transform: each builds its own settings and authenticator.
     for (int copy = 0; copy < 8; copy++) {
       Map<String, String> headers = new LinkedHashMap<>();

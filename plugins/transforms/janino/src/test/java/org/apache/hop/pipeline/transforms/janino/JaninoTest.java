@@ -18,12 +18,15 @@ package org.apache.hop.pipeline.transforms.janino;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +118,7 @@ class JaninoTest {
   // ------------------------------------------------------------------ helpers
 
   private Janino buildSpy(JaninoMeta meta) {
-    return Mockito.spy(
+    return spy(
         new Janino(
             helper.transformMeta, meta, new JaninoData(), 0, helper.pipelineMeta, helper.pipeline));
   }
@@ -259,7 +262,7 @@ class JaninoTest {
     ArgumentCaptor<Object[]> rowCaptor = ArgumentCaptor.forClass(Object[].class);
     verify(output).putRow(any(IRowMeta.class), rowCaptor.capture());
     // null result at index 1
-    assertFalse(rowCaptor.getValue().length == 0);
+    assertNotEquals(0, rowCaptor.getValue().length);
   }
 
   // ------------------------------------------------------------------ target version ≥ 8: static
@@ -375,7 +378,7 @@ class JaninoTest {
     assertFalse(janino.processRow()); // end
 
     ArgumentCaptor<Object[]> rowCaptor = ArgumentCaptor.forClass(Object[].class);
-    verify(output, Mockito.times(2)).putRow(any(IRowMeta.class), rowCaptor.capture());
+    verify(output, times(2)).putRow(any(IRowMeta.class), rowCaptor.capture());
 
     assertEquals(4L, rowCaptor.getAllValues().get(0)[1]); // 2*2
     assertEquals(9L, rowCaptor.getAllValues().get(1)[1]); // 3*3

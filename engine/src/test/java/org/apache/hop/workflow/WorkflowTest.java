@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
@@ -142,7 +141,7 @@ class WorkflowTest {
   }
 
   @BeforeAll
-  static void beforeClass() throws HopException, HopPluginException {
+  static void beforeClass() throws HopException {
     PluginRegistry.getInstance()
         .registerPluginClass(
             ActionBlockingForWorkflowStopTest.class.getName(),

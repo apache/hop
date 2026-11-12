@@ -18,7 +18,6 @@
 package org.apache.hop.spark.pipeline.handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.core.HopEnvironment;
@@ -138,6 +137,6 @@ class SparkInfoStreamTest {
     List<Object[]> rows = broadcast.value();
     assertEquals(2, rows.size());
     assertEquals("AK", rows.get(0)[0]);
-    assertTrue(((Number) rows.get(0)[1]).longValue() == 10L);
+    assertEquals(10L, ((Number) rows.get(0)[1]).longValue());
   }
 }

@@ -19,7 +19,7 @@ package org.apache.hop.core.compress.gzip;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,12 +72,12 @@ class GzipCompressionOutputStreamTest {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GzipCompressionOutputStream(out, provider) {};
     outStream.close();
-    try {
-      outStream.write("This will throw an Exception if the stream is already closed".getBytes());
-      fail();
-    } catch (IOException e) {
-      // Success, The Output Stream was already closed
-    }
+    // Success when the Output Stream was already closed
+    assertThrows(
+        IOException.class,
+        () ->
+            outStream.write(
+                "This will throw an Exception if the stream is already closed".getBytes()));
   }
 
   @Test

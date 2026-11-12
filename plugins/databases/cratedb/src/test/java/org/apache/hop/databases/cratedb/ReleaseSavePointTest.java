@@ -24,10 +24,9 @@ import org.junit.jupiter.api.Test;
 
 class ReleaseSavePointTest {
 
-  IDatabase[] support =
-      new IDatabase[] {
-        new CrateDBDatabaseMeta(),
-      };
+  IDatabase[] support = {
+    new CrateDBDatabaseMeta(),
+  };
 
   @Test
   void testReleaseSavePointBooleans() {

@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -60,12 +60,10 @@ class DbCacheEntryTest {
     DataInputStream dis = new DataInputStream(is);
     DbCacheEntry disEntry = new DbCacheEntry(dis);
     assertEquals(disEntry, entry);
-    try {
-      new DbCacheEntry(dis);
-      fail("Should throw HopEofException on EOFException");
-    } catch (HopEofException keofe) {
-      // Ignore
-    }
+    assertThrows(
+        HopEofException.class,
+        () -> new DbCacheEntry(dis),
+        "Should throw HopEofException on EOFException");
 
     baos.reset();
 

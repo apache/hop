@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class CustomLintRulePackTest {
 
   @Test
-  public void projectRulesAreEditable() {
+  void projectRulesAreEditable() {
     CustomLintRule rule = new CustomLintRule();
     rule.setPackId(RulePackIds.PROJECT);
     rule.setPackOwner(RulePackOwner.PROJECT);
@@ -34,7 +34,7 @@ public class CustomLintRulePackTest {
   }
 
   @Test
-  public void vendorRulesAreNotEditable() {
+  void vendorRulesAreNotEditable() {
     CustomLintRule rule = new CustomLintRule();
     rule.setPackId("vendor");
     rule.setPackOwner(RulePackOwner.VENDOR);
@@ -43,7 +43,7 @@ public class CustomLintRulePackTest {
   }
 
   @Test
-  public void apacheRulesAreNotEditable() {
+  void apacheRulesAreNotEditable() {
     CustomLintRule rule = new CustomLintRule();
     rule.setPackId(RulePackIds.HOP_CORE);
     rule.setPackOwner(RulePackOwner.APACHE);

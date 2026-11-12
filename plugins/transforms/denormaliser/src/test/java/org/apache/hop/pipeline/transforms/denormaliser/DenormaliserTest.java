@@ -92,7 +92,7 @@ class DenormaliserTest {
     rowMeta.addValueMeta(2, new ValueMetaString("stringDate2"));
 
     // init row data
-    Object[] rowData = new Object[] {1L, "2000-10-20", "2000/10/20"};
+    Object[] rowData = {1L, "2000-10-20", "2000/10/20"};
 
     // init transform
     Denormaliser denormaliser =

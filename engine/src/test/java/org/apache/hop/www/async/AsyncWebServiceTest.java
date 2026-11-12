@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class AsyncWebServiceTest {
 
   @Test
-  public void testDefaultConstructor() {
+  void testDefaultConstructor() {
     AsyncWebService webService = new AsyncWebService();
 
     assertTrue(webService.isEnabled());
@@ -37,7 +37,7 @@ public class AsyncWebServiceTest {
   }
 
   @Test
-  public void testParameterizedConstructor() {
+  void testParameterizedConstructor() {
     String name = "test-service";
     boolean enabled = false;
     String filename = "/path/to/workflow.hwf";
@@ -66,7 +66,7 @@ public class AsyncWebServiceTest {
   }
 
   @Test
-  public void testSettersAndGetters() {
+  void testSettersAndGetters() {
     AsyncWebService webService = new AsyncWebService();
 
     webService.setEnabled(false);
@@ -96,7 +96,7 @@ public class AsyncWebServiceTest {
   }
 
   @Test
-  public void testGetStatusVariablesList() {
+  void testGetStatusVariablesList() {
     AsyncWebService webService = new AsyncWebService();
     Variables variables = new Variables();
 
@@ -122,7 +122,7 @@ public class AsyncWebServiceTest {
   }
 
   @Test
-  public void testGetStatusVariablesListWithVariableResolution() {
+  void testGetStatusVariablesListWithVariableResolution() {
     AsyncWebService webService = new AsyncWebService();
     Variables variables = new Variables();
 

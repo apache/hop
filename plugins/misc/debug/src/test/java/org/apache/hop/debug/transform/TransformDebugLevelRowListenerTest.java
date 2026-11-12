@@ -97,12 +97,11 @@ class TransformDebugLevelRowListenerTest {
    * returned.
    */
   private List<LogLevel> levelsWhenLogging(
-      TransformDebugLevelRowListener listener, boolean readingRows, int nrRows)
-      throws HopException {
+      TransformDebugLevelRowListener listener, boolean readingRows, int nrRows) {
     IRowMeta rowMeta = rowMeta();
     List<LogLevel> levels = new ArrayList<>();
     for (int i = 1; i <= nrRows; i++) {
-      Object[] row = new Object[] {(long) i};
+      Object[] row = {(long) i};
       if (readingRows) {
         listener.rowReadEvent(rowMeta, row);
       }

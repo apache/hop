@@ -75,7 +75,7 @@ class SalesforceUpsertTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     smh =
         new TransformMockHelper<>(
             "SalesforceUpsert", SalesforceUpsertMeta.class, SalesforceUpsertData.class);

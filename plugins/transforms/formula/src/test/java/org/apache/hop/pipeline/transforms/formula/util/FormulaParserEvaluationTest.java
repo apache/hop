@@ -191,7 +191,7 @@ class FormulaParserEvaluationTest {
   void replaceMapRedirectsFormulaFieldToRealColumn() throws Exception {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("realAmount"));
-    Object[] row = new Object[] {42L};
+    Object[] row = {42L};
 
     HashMap<String, String> replaceMap = new HashMap<>();
     replaceMap.put("aliasAmount", "realAmount");

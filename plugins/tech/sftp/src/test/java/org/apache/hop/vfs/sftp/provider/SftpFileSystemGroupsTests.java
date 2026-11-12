@@ -35,13 +35,13 @@ public class SftpFileSystemGroupsTests {
   private Session session;
 
   @BeforeEach
-  public void setup() throws JSchException {
+  void setup() throws JSchException {
     session = new JSch().getSession("");
     fileSystem = new SftpFileSystem(null, session, options);
   }
 
   @Test
-  public void testShouldHandleEmptyGroupResult() {
+  void testShouldHandleEmptyGroupResult() {
     final StringBuilder builder = new StringBuilder("\n");
     final int[] groups = fileSystem.parseGroupIdOutput(builder);
 
@@ -49,7 +49,7 @@ public class SftpFileSystemGroupsTests {
   }
 
   @Test
-  public void testShouldHandleListOfGroupIds() {
+  void testShouldHandleListOfGroupIds() {
     final StringBuilder builder = new StringBuilder("1 22 333 4444\n");
     final int[] groups = fileSystem.parseGroupIdOutput(builder);
 
@@ -58,7 +58,7 @@ public class SftpFileSystemGroupsTests {
   }
 
   @Test
-  public void testShouldThrowOnUnexpectedOutput() {
+  void testShouldThrowOnUnexpectedOutput() {
     final StringBuilder builder = new StringBuilder("abc\n");
     assertThrows(NumberFormatException.class, () -> fileSystem.parseGroupIdOutput(builder));
   }

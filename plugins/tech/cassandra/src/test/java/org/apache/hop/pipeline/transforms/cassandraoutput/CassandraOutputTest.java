@@ -39,7 +39,7 @@ class CassandraOutputTest {
   CassandraOutputMeta meta;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     co = mock(CassandraOutput.class);
     meta = mock(CassandraOutputMeta.class);
     co.options = mock(Map.class);

@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -43,6 +43,6 @@ class PagingNextUrlTest {
   void jsonPathReturnsNullWhenNextUrlMissing() {
     String body = "{\"data\":[]}";
     Object raw = JsonPath.using(JSON_PATH_CONFIGURATION).parse(body).read("$.next");
-    assertTrue(raw == null);
+    assertNull(raw);
   }
 }

@@ -85,7 +85,7 @@ class MongoDbDeleteTest {
   }
 
   @Test
-  void testInitFailsWhenConnectionNotFound() throws HopException {
+  void testInitFailsWhenConnectionNotFound() {
     MongoDbDeleteMeta meta = new MongoDbDeleteMeta();
     meta.setConnectionName("non-existent-connection");
     meta.setCollection("test-collection");
@@ -117,7 +117,7 @@ class MongoDbDeleteTest {
   }
 
   @Test
-  void testInitFailsWhenCollectionIsEmpty() throws HopException {
+  void testInitFailsWhenCollectionIsEmpty() {
     MongoDbDeleteMeta meta = new MongoDbDeleteMeta();
     meta.setConnectionName("test-connection");
     meta.setCollection(""); // Empty collection

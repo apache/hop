@@ -166,8 +166,8 @@ class WorkflowActionShellLoadSaveTest {
   void testBuildLogCommandMasksHiddenArgs() throws Exception {
     ActionShell action = new ActionShell();
     FileObject fileObject = HopVfs.getFileObject("/tmp/script.sh");
-    String[] args = new String[] {"user", "mySecret123", "--flag"};
-    boolean[] hidden = new boolean[] {false, true, false};
+    String[] args = {"user", "mySecret123", "--flag"};
+    boolean[] hidden = {false, true, false};
     List<String> cmds = List.of("/tmp/script.sh", "user", "mySecret123", "--flag");
 
     String logCommand = action.buildLogCommand(cmds, fileObject, args, hidden);
