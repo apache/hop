@@ -22,6 +22,7 @@ import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notB
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -58,6 +59,8 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String REPLACE = "replace";
   public static final String FAIL_IF_EXISTS = "failIfExists";
   public static final String WAREHOUSE_NAME = "warehouseName";
+  private static final Pattern VALID_IDENTIFIER =
+      Pattern.compile("[A-Za-z_][A-Za-z0-9_$]*|\"(?:[^\"]|\"\")+\"");
   public static final String WAREHOUSE_SIZE = "warehouseSize";
   public static final String WAREHOUSE_TYPE = "warehouseType";
   public static final String MAX_CLUSTER_COUNT = "maxClusterCount";
@@ -267,6 +270,17 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     } else if (Utils.isEmpty(managementAction)) {
       logError(BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Validate.ManagementAction"));
       result = false;
+    } else if (Utils.isEmpty(resolve(warehouseName))) {
+      logError(
+          BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Validate.WarehouseNameEmpty"));
+      result = false;
+    } else if (!isValidIdentifier(resolve(warehouseName))) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "SnowflakeWarehouseManager.Validate.WarehouseNameInvalid",
+              resolve(warehouseName)));
+      result = false;
     } else if (managementAction.equals(MANAGEMENT_ACTIONS[MANAGEMENT_ACTION_CREATE])) {
       if (!Utils.isEmpty(resolve(maxClusterCount))
           && Const.toInt(resolve(maxClusterCount), -1) <= 0) {
@@ -300,11 +314,24 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
+  /**
+   * The warehouse name goes into the SQL as it is, so it must be one identifier: unquoted (a letter
+   * or underscore followed by letters, digits, underscores or dollar signs) or double-quoted (with
+   * a double quote in it written twice).
+   *
+   * @param name the resolved warehouse name
+   * @return true when the name is a valid Snowflake identifier
+   */
+  static boolean isValidIdentifier(String name) {
+    return name != null && VALID_IDENTIFIER.matcher(name).matches();
+  }
+
   public Result execute(Result previousResult, int nr) throws HopException {
 
     Result result = previousResult;
     result.setResult(validate());
     if (!result.isResult()) {
+      result.setNrErrors(1);
       return result;
     }
     DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
@@ -340,16 +367,18 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
       logDebug("Executing SQL " + sql);
       db.execStatements(sql);
       logBasic(successMessage);
+      result.setNrErrors(0);
 
     } catch (Exception ex) {
       logError("Error managing warehouse", ex);
       result.setResult(false);
+      result.setNrErrors(1);
     }
 
     return result;
   }
 
-  private String getDropSQL() {
+  String getDropSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append("DROP WAREHOUSE ");
     if (!failIfNotExists) {
@@ -359,7 +388,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getResumeSQL() {
+  String getResumeSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
@@ -369,7 +398,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getSuspendSQL() {
+  String getSuspendSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
@@ -379,7 +408,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getCreateSQL() {
+  String getCreateSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append("CREATE ");
     if (replace) {
@@ -389,7 +418,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     if (!failIfExists && !replace) {
       sql.append("IF NOT EXISTS ");
     }
-    sql.append(warehouseName).append(" WITH ");
+    sql.append(resolve(warehouseName)).append(" WITH ");
 
     if (!StringUtil.isEmpty(resolve(warehouseSize))) {
       sql.append("WAREHOUSE_SIZE = '").append(resolve(warehouseSize)).append("' ");
@@ -426,13 +455,13 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return sql.toString();
   }
 
-  private String getAlterSQL() {
+  String getAlterSQL() {
     StringBuilder sql = new StringBuilder();
     sql.append(CONST_ALTER_WAREHOUSE);
     if (!failIfNotExists) {
       sql.append(CONST_IF_EXISTS);
     }
-    sql.append(warehouseName).append(" SET ");
+    sql.append(resolve(warehouseName)).append(" SET ");
 
     if (!StringUtil.isEmpty(resolve(warehouseSize))) {
       sql.append("WAREHOUSE_SIZE = '").append(resolve(warehouseSize)).append("' ");

@@ -72,6 +72,8 @@ public class ActionMqlDialog extends ActionDialog {
 
   private Button wUseSubs;
 
+  private Button wFailOnWriteErrors;
+
   public ActionMqlDialog(
       Shell parent, ActionMql action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
@@ -255,13 +257,33 @@ public class ActionMqlDialog extends ActionDialog {
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
 
+    // Fail on write errors
+    Label wlFailOnWriteErrors = new Label(shell, SWT.RIGHT);
+    wlFailOnWriteErrors.setText(BaseMessages.getString(PKG, "ActionMQL.FailOnWriteErrors.Label"));
+    PropsUi.setLook(wlFailOnWriteErrors);
+    FormData fdlFailOnWriteErrors = new FormData();
+    fdlFailOnWriteErrors.left = new FormAttachment(0, 0);
+    fdlFailOnWriteErrors.right = new FormAttachment(middle, -margin);
+    fdlFailOnWriteErrors.top = new FormAttachment(wUseSubs, 2 * margin);
+    wlFailOnWriteErrors.setLayoutData(fdlFailOnWriteErrors);
+
+    wFailOnWriteErrors = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wFailOnWriteErrors);
+    wFailOnWriteErrors.setToolTipText(
+        BaseMessages.getString(PKG, "ActionMQL.FailOnWriteErrors.Tooltip"));
+    FormData fdFailOnWriteErrors = new FormData();
+    fdFailOnWriteErrors.left = new FormAttachment(middle, 0);
+    fdFailOnWriteErrors.top = new FormAttachment(wUseSubs, 2 * margin);
+    fdFailOnWriteErrors.right = new FormAttachment(100, 0);
+    wFailOnWriteErrors.setLayoutData(fdFailOnWriteErrors);
+
     // Script line
     wlMql = new Label(shell, SWT.NONE);
     wlMql.setText(BaseMessages.getString(PKG, "ActionMQL.Script.Label"));
     PropsUi.setLook(wlMql);
     FormData fdlMql = new FormData();
     fdlMql.left = new FormAttachment(0, 0);
-    fdlMql.top = new FormAttachment(wUseSubs, 2 * margin);
+    fdlMql.top = new FormAttachment(wFailOnWriteErrors, 2 * margin);
     wlMql.setLayoutData(fdlMql);
 
     wMql =
@@ -321,6 +343,7 @@ public class ActionMqlDialog extends ActionDialog {
     wCommandFile.setText(Const.nullToEmpty(action.getCommandFile()));
     updateFileOption();
     wUseSubs.setSelection(action.isUseVariableSubstitution());
+    wFailOnWriteErrors.setSelection(action.isFailOnWriteErrors());
   }
 
   private void cancel() {
@@ -345,6 +368,7 @@ public class ActionMqlDialog extends ActionDialog {
     action.setUseExternalFile(wUseExternalFile.getSelection());
     action.setCommandFile(wCommandFile.getText());
     action.setUseVariableSubstitution(wUseSubs.getSelection());
+    action.setFailOnWriteErrors(wFailOnWriteErrors.getSelection());
 
     action.setChanged();
 
