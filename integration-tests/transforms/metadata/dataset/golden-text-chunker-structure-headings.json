@@ -1,0 +1,47 @@
+{
+  "base_filename": "golden-text-chunker-structure-headings.csv",
+  "name": "golden-text-chunker-structure-headings",
+  "description": "Structure chunking of Markdown and AsciiDoc: delimited blocks and code fences are not headings, skipped levels keep their parent, closing hashes are dropped, Auto picks the right parser (#9282)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "case_id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "chunk_text",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "chunk_index",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "chunk_start_position",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "total_chunks",
+      "field_format": "0"
+    }
+  ]
+}

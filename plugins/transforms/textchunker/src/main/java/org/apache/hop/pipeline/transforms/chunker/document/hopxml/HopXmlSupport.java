@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.helpers.DefaultHandler;
 
 /** DOM helpers for Hop .hpl / .hwf XML. */
 public final class HopXmlSupport {
@@ -81,12 +82,98 @@ public final class HopXmlSupport {
 
   private HopXmlSupport() {}
 
+  /** True when the text is an XML document whose root element is a pipeline or a workflow. */
   public static boolean looksLikeHopXml(String text) {
-    if (text == null || text.isBlank()) {
-      return false;
+    String root = rootElementName(text);
+    return "pipeline".equals(root) || "workflow".equals(root);
+  }
+
+  /**
+   * The name of the first element of an XML document, after the XML declaration, comments and a
+   * document type declaration. Returns {@code null} when the text does not start like XML, for
+   * example Markdown that mentions {@code <pipeline>} in a sentence.
+   */
+  public static String rootElementName(String text) {
+    if (text == null) {
+      return null;
     }
-    String trimmed = text.stripLeading();
-    return trimmed.contains("<pipeline") || trimmed.contains("<workflow");
+    // Walk the prolog by index: a .hpl or .hwf can be large and is checked for every row.
+    int i = skipWhitespace(text, 0);
+    if (text.startsWith("\uFEFF", i)) {
+      i = skipWhitespace(text, i + 1);
+    }
+    while (text.startsWith("<", i)) {
+      int close;
+      if (text.startsWith("<?", i)) {
+        close = endOf(text, "?>", i);
+      } else if (text.startsWith("<!--", i)) {
+        close = endOf(text, "-->", i);
+      } else if (text.startsWith("<!", i)) {
+        close = endOfDeclaration(text, i);
+      } else {
+        int end = i + 1;
+        while (end < text.length() && isNameChar(text.charAt(end))) {
+          end++;
+        }
+        return end > i + 1 ? text.substring(i + 1, end) : null;
+      }
+      if (close < 0) {
+        return null;
+      }
+      i = skipWhitespace(text, close);
+    }
+    return null;
+  }
+
+  private static int skipWhitespace(String text, int from) {
+    int i = from;
+    while (i < text.length() && Character.isWhitespace(text.charAt(i))) {
+      i++;
+    }
+    return i;
+  }
+
+  /** The offset just after the terminator, or -1. */
+  private static int endOf(String text, String terminator, int from) {
+    int index = text.indexOf(terminator, from);
+    return index < 0 ? -1 : index + terminator.length();
+  }
+
+  /**
+   * The offset just after a {@code <!DOCTYPE ...>} declaration, or -1. A {@code >} inside quotes or
+   * inside the internal subset ({@code [ <!ENTITY ...> ]}) does not end it.
+   */
+  private static int endOfDeclaration(String text, int from) {
+    char quote = 0;
+    int depth = 0;
+    for (int i = from + 2; i < text.length(); i++) {
+      char c = text.charAt(i);
+      if (quote != 0) {
+        if (c == quote) {
+          quote = 0;
+        }
+      } else if (depth > 0 && text.startsWith("<!--", i)) {
+        // A comment in the internal subset can hold quotes and brackets.
+        int end = text.indexOf("-->", i + 4);
+        if (end < 0) {
+          return -1;
+        }
+        i = end + 2;
+      } else if (c == '"' || c == '\'') {
+        quote = c;
+      } else if (c == '[') {
+        depth++;
+      } else if (c == ']') {
+        depth--;
+      } else if (c == '>' && depth <= 0) {
+        return i + 1;
+      }
+    }
+    return -1;
+  }
+
+  private static boolean isNameChar(char c) {
+    return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':';
   }
 
   /**
@@ -144,6 +231,8 @@ public final class HopXmlSupport {
       factory.setExpandEntityReferences(false);
       factory.setNamespaceAware(false);
       DocumentBuilder builder = factory.newDocumentBuilder();
+      // Without an error handler the parser prints "[Fatal Error] ..." to stderr before throwing.
+      builder.setErrorHandler(new DefaultHandler());
       return builder.parse(new InputSource(new StringReader(xml)));
     } catch (Exception e) {
       return null;
