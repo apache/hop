@@ -940,7 +940,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     int loopIdx = 0;
     int totalEmitted = 0;
     RestExchangeResult firstExchange = null;
-    while (hasMore && loopIdx < maxLoops) {
+    // A stop only sets a flag, and putRow() quietly drops rows once it is set, so nothing else
+    // would end this loop before the last page or maxPagesLoops (#9273).
+    while (hasMore && loopIdx < maxLoops && !isStopped()) {
       String uriOv =
           usesLinkStylePaging(pagingType) ? (loopIdx == 0 ? null : state.linkNextUrl) : null;
 
@@ -994,6 +996,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     }
 
+    if (isStopped()) {
+      // Zero rows after a stop is the stop, not a broken split path or an error response.
+      return;
+    }
     enforcePagingSplitEmittedSomething(resolvedSplitPath, firstExchange, totalEmitted);
   }
 
@@ -1323,6 +1329,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
     int emitted = 0;
     for (String sliceBody : chunks) {
+      if (isStopped()) {
+        break;
+      }
       RestExchangeResult slice =
           new RestExchangeResult(
               sliceBody,
