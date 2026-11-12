@@ -19,12 +19,24 @@ package org.apache.hop.lint;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 
 class LintProjectIndexTest {
 
@@ -89,6 +101,38 @@ class LintProjectIndexTest {
     assertTrue(index.isPopulated());
     assertEquals(2, index.getIndexedFiles().size());
     assertFalse(index.isFileReferenced("/project/pipelines/a.hpl"));
+  }
+
+  @Test
+  void pipelineParameterDefaultsAreUsedWhenReadingReferences() throws Exception {
+    Variables variables = new Variables();
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    ITransformMeta transform = mock(ITransformMeta.class);
+    AtomicReference<String> resolvedMask = new AtomicReference<>();
+    when(transformMeta.getTransform()).thenReturn(transform);
+    when(transform.getResourceDependencies(any(IVariables.class), any(TransformMeta.class)))
+        .thenAnswer(
+            invocation -> {
+              IVariables pipelineVariables = invocation.getArgument(0);
+              String mask = pipelineVariables.resolve("person-info-${PRM_TYPE}.csv");
+              resolvedMask.set(mask);
+              Pattern.compile(mask);
+              return List.of();
+            });
+
+    try (MockedConstruction<PipelineMeta> ignored =
+        mockConstruction(
+            PipelineMeta.class,
+            (meta, context) -> {
+              when(meta.getTransforms()).thenReturn(List.of(transformMeta));
+              when(meta.listParameters()).thenReturn(new String[] {"PRM_TYPE"});
+              when(meta.getParameterDefault("PRM_TYPE")).thenReturn("1");
+            })) {
+      LintProjectIndex.build(List.of("/project/process-files-with-mdi.hpl"), null, variables);
+    }
+
+    assertEquals("person-info-1.csv", resolvedMask.get());
+    assertNull(variables.getVariable("PRM_TYPE"), "the lint run variables must not be changed");
   }
 
   @Test
