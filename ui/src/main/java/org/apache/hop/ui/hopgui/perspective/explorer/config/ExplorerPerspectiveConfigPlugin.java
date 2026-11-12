@@ -96,7 +96,7 @@ public class ExplorerPerspectiveConfigPlugin
   @CommandLine.Option(
       names = {"-exv", "--explorer-file-explorer-visible-by-default"},
       description = "Show the file explorer panel by default in the explorer perspective")
-  private Boolean fileExplorerVisibleByDefault = true;
+  private Boolean fileExplorerVisibleByDefault;
 
   @GuiWidgetElement(
       id = WIDGET_ID_OPEN_HELP_FILES,
@@ -126,7 +126,7 @@ public class ExplorerPerspectiveConfigPlugin
   @CommandLine.Option(
       names = {"-exafs", "--explorer-active-file-selection"},
       description = "Automatically select the active tab file in the file explorer tree")
-  private Boolean activeFileSelection = true;
+  private Boolean activeFileSelection;
 
   @GuiWidgetElement(
       id = WIDGET_ID_MAX_UNDO,

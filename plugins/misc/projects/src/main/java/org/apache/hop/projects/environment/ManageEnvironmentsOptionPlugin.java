@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.environment;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -212,7 +213,6 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
 
     enableProject(log, environment, variables, hasHopMetadataProvider, config);
-    validateConfigFiles(log, variables, environment);
   }
 
   private void createEnvironment(
@@ -233,34 +233,58 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
 
     updateEnvironmentDetails(environment, variables);
 
-    config.addEnvironment(environment);
-    ProjectsConfigSingleton.saveConfig();
+    try {
+      config.addEnvironment(environment);
+      ProjectsConfigSingleton.saveConfig();
+
+      enableProject(log, environment, variables, hasHopMetadataProvider, config);
+    } catch (Exception e) {
+      // Don't leave a registered environment behind: a retry would fail with "already exists".
+      //
+      try {
+        config.removeEnvironment(environmentName);
+        ProjectsConfigSingleton.saveConfig();
+      } catch (Exception rollbackException) {
+        e.addSuppressed(rollbackException);
+      }
+      throw e;
+    }
 
     log.logBasic(
         CONST_ENVIRONMENT
             + environmentName
             + "' was created in Hop configuration file "
             + HopConfig.getInstance().getConfigFilename());
-
-    enableProject(log, environment, variables, hasHopMetadataProvider, config);
-
-    validateConfigFiles(log, variables, environment);
     logEnvironmentDetails(log, environment);
   }
 
+  /**
+   * Create the environment's missing configuration files, then enable its project with them.
+   *
+   * <p>The project variables are applied before the files are created, since a configuration file
+   * path can refer to them (for example '${PROJECT_HOME}'). Enabling the project reads the files,
+   * so they have to exist by then.
+   */
   private void enableProject(
       ILogChannel log,
       LifecycleEnvironment environment,
       IVariables variables,
       IHasHopMetadataProvider hasHopMetadataProvider,
       ProjectsConfig config)
-      throws HopException {
+      throws Exception {
     ProjectConfig projectConfig = config.findProjectConfig(environment.getProjectName());
     if (projectConfig == null) {
       log.logBasic(
           "Warning: referenced project '" + environment.getProjectName() + "' doesn't exist");
+      validateConfigFiles(log, variables, environment);
     } else {
       Project project = projectConfig.loadProject(variables);
+      // Project variables only, so '${PROJECT_HOME}' in the configuration file paths resolves.
+      // enableProject() below applies them again, together with the configuration files.
+      //
+      project.modifyVariables(variables, projectConfig, new ArrayList<>(), environmentName);
+
+      validateConfigFiles(log, variables, environment);
 
       // Change variables, metadata, ... for the project
       //
@@ -282,6 +306,16 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
     for (String environmentConfigFilename : environment.getConfigurationFiles()) {
       String realEnvConfFilename = variables.resolve(environmentConfigFilename);
+      // For example '${PROJECT_HOME}' when the project doesn't exist: creating the file would
+      // create a folder literally called '${PROJECT_HOME}'.
+      //
+      if (StringUtil.containsVariableToken(realEnvConfFilename)) {
+        log.logBasic(
+            "Warning: environment configuration file '"
+                + realEnvConfFilename
+                + "' was not created, it refers to a variable that isn't set");
+        continue;
+      }
       DescribedVariablesConfigFile variablesConfigFile =
           new DescribedVariablesConfigFile(realEnvConfFilename);
       // Create the config file if it doesn't exist

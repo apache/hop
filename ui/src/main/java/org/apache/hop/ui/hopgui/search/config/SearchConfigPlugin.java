@@ -120,7 +120,7 @@ public class SearchConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       names = {"-sit", "--search-include-project-text-files"},
       description = "Include project text files (CSV, JSON, …) in Hop GUI content search",
       negatable = true)
-  private Boolean includeProjectTextFiles = true;
+  private Boolean includeProjectTextFiles;
 
   @GuiWidgetElement(
       id = WIDGET_ID_SEARCH_AS_YOU_TYPE,
@@ -132,7 +132,7 @@ public class SearchConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
       names = {"-sat", "--search-as-you-type"},
       description = "Run Hop GUI search while typing (debounced)",
       negatable = true)
-  private Boolean searchAsYouType = true;
+  private Boolean searchAsYouType;
 
   @GuiWidgetElement(
       id = WIDGET_ID_DEBOUNCE_MS,

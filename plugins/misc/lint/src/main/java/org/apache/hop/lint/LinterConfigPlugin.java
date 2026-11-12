@@ -420,11 +420,8 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   }
 
   /**
-   * Called by the configuration perspective when the user applies changes, and by {@code hop conf}
-   * for every registered config plugin whether or not it was given any options.
-   *
-   * <p>Because {@code hop conf} calls this unconditionally, doing anything when nothing was set
-   * would rewrite the linter settings on every unrelated {@code hop conf} command.
+   * Called by {@code hop conf} when at least one of the linter options was given. The fields hold
+   * the stored settings for the options that weren't, so those are saved unchanged.
    */
   @Override
   public boolean handleOption(

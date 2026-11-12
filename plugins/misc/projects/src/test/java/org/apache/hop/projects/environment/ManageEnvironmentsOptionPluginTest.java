@@ -18,19 +18,24 @@
 package org.apache.hop.projects.environment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.ProjectConfig;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -117,6 +122,99 @@ class ManageEnvironmentsOptionPluginTest {
               () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
       assertTrue(exception.getCause().getMessage().contains("regular expression"));
       assertNull(ProjectsConfigSingleton.getConfig().findEnvironment(name));
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeEnvironment(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createEnvironmentCreatesAMissingConfigFileBeforeReadingIt() throws Exception {
+    // #9007: the file was read, and an error logged, before it was created
+    //
+    Files.writeString(tempDir.resolve("project-config.json"), "{}");
+    String projectName = "issue-9007-project-" + System.nanoTime();
+    String name = "issue-9007-" + System.nanoTime();
+    List<String> errors = new ArrayList<>();
+    IHopLoggingEventListener listener =
+        event -> {
+          if (event.getLevel() == LogLevel.ERROR) {
+            errors.add(String.valueOf(event.getMessage()));
+          }
+        };
+    HopConfig.setInMemoryMode(true);
+    HopLogStore.getAppender().addLoggingEventListener(listener);
+    try {
+      ProjectsConfigSingleton.getConfig()
+          .addProjectConfig(
+              new ProjectConfig(projectName, tempDir.toString(), "project-config.json"));
+
+      ManageEnvironmentsOptionPlugin plugin = new ManageEnvironmentsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--environment-create",
+              "--environment=" + name,
+              "--environment-project=" + projectName,
+              "--environment-config-files=${PROJECT_HOME}/dev-config.json");
+
+      assertTrue(plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+
+      assertTrue(Files.exists(tempDir.resolve("dev-config.json")));
+      assertFalse(
+          errors.stream().anyMatch(message -> message.contains("does not exist")),
+          errors.toString());
+    } finally {
+      HopLogStore.getAppender().removeLoggingEventListener(listener);
+      ProjectsConfigSingleton.getConfig().removeEnvironment(name);
+      ProjectsConfigSingleton.getConfig().removeProjectConfig(projectName);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createThatFailsAfterRegisteringRollsTheEnvironmentBack() throws Exception {
+    // A regular file where the configuration file's folder should be: creating it fails.
+    //
+    Files.writeString(tempDir.resolve("blocker"), "not a folder");
+    String name = "issue-9007-rollback-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try {
+      ManageEnvironmentsOptionPlugin plugin = new ManageEnvironmentsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--environment-create",
+              "--environment=" + name,
+              "--environment-project=missing-project",
+              "--environment-config-files=" + tempDir.resolve("blocker").resolve("dev.json"));
+
+      assertThrows(
+          HopException.class, () -> plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+      assertNull(ProjectsConfigSingleton.getConfig().findEnvironment(name));
+    } finally {
+      ProjectsConfigSingleton.getConfig().removeEnvironment(name);
+      HopConfig.setInMemoryMode(false);
+    }
+  }
+
+  @Test
+  void createDoesNotCreateAConfigFileWithAnUnresolvedVariable() throws Exception {
+    String name = "issue-9007-unresolved-" + System.nanoTime();
+    HopConfig.setInMemoryMode(true);
+    try {
+      ManageEnvironmentsOptionPlugin plugin = new ManageEnvironmentsOptionPlugin();
+      new CommandLine(plugin)
+          .parseArgs(
+              "--environment-create",
+              "--environment=" + name,
+              "--environment-project=missing-project",
+              "--environment-config-files=" + tempDir + "/${ISSUE_9007_UNSET}/dev.json");
+
+      assertTrue(plugin.handleOption(LogChannel.GENERAL, null, new Variables()));
+
+      assertFalse(Files.exists(tempDir.resolve("${ISSUE_9007_UNSET}")));
+      assertEquals(
+          List.of(tempDir + "/${ISSUE_9007_UNSET}/dev.json"),
+          ProjectsConfigSingleton.getConfig().findEnvironment(name).getConfigurationFiles());
     } finally {
       ProjectsConfigSingleton.getConfig().removeEnvironment(name);
       HopConfig.setInMemoryMode(false);
