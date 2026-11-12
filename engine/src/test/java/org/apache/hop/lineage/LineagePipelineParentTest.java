@@ -55,6 +55,7 @@ class LineagePipelineParentTest {
     ILogChannel actionLog = mock(ILogChannel.class);
     WorkflowMeta workflowMeta = new WorkflowMeta();
     workflowMeta.setName("nightly-load");
+    workflowMeta.setFilename("${PROJECT_HOME}/flows/nightly-load.hwf");
     when(pipeline.getParent()).thenReturn(action);
     when(pipeline.getParentWorkflow()).thenReturn(workflow);
     when(workflow.getWorkflowMeta()).thenReturn(workflowMeta);
@@ -77,6 +78,10 @@ class LineagePipelineParentTest {
         built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_ACTION_NAME));
     assertEquals(
         "action-run-id", built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
+    // Names are not unique across files: the parent's file says which workflow it is.
+    assertEquals(
+        "${PROJECT_HOME}/flows/nightly-load.hwf",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_FILENAME));
   }
 
   @Test
@@ -87,6 +92,7 @@ class LineagePipelineParentTest {
     IPipelineEngine<PipelineMeta> parentPipeline = mock(IPipelineEngine.class);
     PipelineMeta parentMeta = new PipelineMeta();
     parentMeta.setName("orders-parent");
+    parentMeta.setFilename("/elsewhere/orders-parent.hpl");
     when(pipeline.getParentPipeline()).thenReturn(parentPipeline);
     when(parentPipeline.getPipelineMeta()).thenReturn(parentMeta);
     when(parentPipeline.getLogChannelId()).thenReturn("parent-run-id");
@@ -95,6 +101,10 @@ class LineagePipelineParentTest {
     LineageRunLifecycleEmitter.fillPipelineParentFields(ctx, pipeline);
     LineageContext built = ctx.build();
 
+    // Outside a project the file is all there is: it is passed on as it is.
+    assertEquals(
+        "/elsewhere/orders-parent.hpl",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_FILENAME));
     assertEquals(
         "orders-parent",
         built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));

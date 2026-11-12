@@ -504,6 +504,15 @@ public final class LineageHub {
           loaded.add(sink);
         } catch (HopPluginException e) {
           throw new HopException("Unable to load lineage sink plugin " + plugin.getName(), e);
+        } catch (LinkageError e) {
+          // A sink built on another plugin (DataHub on OpenLineage) installed without it.
+          throw new HopException(
+              "Unable to load lineage sink plugin "
+                  + plugin.getName()
+                  + ": a class it needs is missing ("
+                  + e.getMessage()
+                  + "). Check that the plugins it builds on are installed as well.",
+              e);
         }
       }
       sinks = List.copyOf(loaded);

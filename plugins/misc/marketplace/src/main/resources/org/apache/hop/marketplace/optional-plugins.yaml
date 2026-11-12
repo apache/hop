@@ -194,6 +194,14 @@ plugins:
     description: OpenLineage lineage sink — emit run, file and warehouse (column-level) lineage to Marquez or any OpenLineage endpoint.
     installPath: plugins/tech/openlineage
     modulePath: plugins/tech/openlineage
+  - artifactId: hop-tech-datahub
+    name: DataHub
+    category: Technology
+    description: >-
+      DataHub lineage sink — write pipelines, workflows, their runs and the files and tables they
+      read and write to DataHub. Install this plugin with the OpenLineage plugin.
+    installPath: plugins/tech/datahub
+    modulePath: plugins/tech/datahub
   - artifactId: hop-tech-salesforce
     name: SaleForce
     category: Technology

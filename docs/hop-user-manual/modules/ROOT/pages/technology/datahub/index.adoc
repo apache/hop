@@ -1,0 +1,206 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/datahub/
+:language: en_US
+:description: The DataHub technology plugin is a Hop lineage sink that writes pipelines, workflows, their runs and the datasets they read and write to DataHub.
+:page-marketplace: hop-tech-datahub
+
+= DataHub
+
+https://datahubproject.io/[DataHub] is a metadata platform for data discovery, governance and
+lineage. The DataHub technology plugin is a Hop **lineage sink**: it takes the in-engine
+xref:{page-component-version}@dev-manual::lineage.adoc[lineage events] of every pipeline and
+workflow run and writes them to DataHub, so DataHub shows which Hop pipelines read and write which
+files and tables, how a workflow runs its pipelines, and how every run went.
+
+The sink writes to DataHub's metadata API (GMS) directly. It needs nothing configured on the
+DataHub side and does not use DataHub's OpenLineage endpoint. It is tested with DataHub 1.0, 1.7 and
+1.8; DataHub Cloud serves the same API.
+
+The plugin builds on the xref:technology/openlineage/index.adoc[OpenLineage] plugin, which has to be
+installed as well: it shares that plugin's lineage mapping, asynchronous delivery and spool.
+
+== What you see in DataHub
+
+[cols="1,2",options="header"]
+|===
+|Hop |DataHub
+
+|Pipeline, workflow
+|A *pipeline* (DataFlow) on the *Apache Hop* platform, of type `Pipeline` or `Workflow`, with the
+name and description from its metadata. It is identified by its file: the path in the project
+(`pipelines/load.hpl`), or the full path outside a project. Two files that hold pipelines of the
+same name are two pipelines in DataHub.
+
+|Transform, action
+|A *task* (DataJob) of that pipeline, of type `Transform` or `Action`, with the datasets it read
+and wrote, and its description. A transform lists the transforms that feed it as upstream tasks, an
+action the actions a workflow hop leads from: the hops are the task graph.
+
+A transform or action that is removed from its pipeline or workflow, or renamed, is soft-deleted in
+DataHub after the next successful run; it comes back if it is added again. A run that reaches
+DataHub late, from the spool after a newer run of the same file, is recorded as a run but changes
+neither the tasks nor what they read and write.
+
+|A run of any of these
+|A *run* (DataProcessInstance) named `<name> <time>`, for example `nightly/Load orders
+2026-10-18T07:34Z`, with its start, its end, its outcome (success or failure) and the run that
+started it. A run whose end Hop never reported, such as an action that stopped with an error, is
+ended as failed when the sink shuts down.
+
+|A pipeline or workflow run by a workflow action, or a pipeline run by a transform of another
+pipeline (Pipeline Executor, mapping)
+|Its first transforms or actions list that action or transform as an upstream task, so lineage
+runs from the workflow into what it started; its run is a child of the run of that action or
+transform.
+
+|File, table
+|A *dataset*, named the way DataHub's own sources name it: a table on its database platform
+(`postgres`, `mssql`, …) with its qualified name, an object as `bucket/key` on `s3`, `gcs` or `abs`,
+a local file as its path on `file`.
+
+|Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
+|Column-level lineage, on the task and on the dataset.
+
+|A file copied or moved (Copy files, Move files)
+|The copy is linked to its own source as a `COPY` upstream, so copying several files does not pair
+every source with every copy. The run of the action still lists all of them.
+|===
+
+Lineage between datasets runs through the tasks: `orders.csv` → _Read orders_ → _Write copy_ →
+`orders-copy.csv`. A pipeline that reads two files and writes two files shows the two real paths,
+not every input paired with every output.
+
+== Enabling the sink
+
+The lineage hub is off by default. Enable it and select the DataHub sink with these variables, as
+environment variables or in the Hop configuration (_Tools_ > _Edit config variables_):
+
+[source,bash]
+----
+HOP_LINEAGE_ENABLED=Y
+HOP_LINEAGE_SINK_IDS=datahub
+HOP_LINEAGE_DATAHUB_URL=http://localhost:8080
+# with authentication enabled in DataHub (always the case on DataHub Cloud):
+HOP_LINEAGE_DATAHUB_TOKEN=<personal access token>
+----
+
+On DataHub Cloud the URL is the GMS endpoint, `https://<your-company>.acryl.io/gms`. The token
+needs the privilege to edit lineage and entities, and to read entities: the sink checks what
+DataHub already holds before it writes a schema (see <<Dataset schemas>>), a deprecation, a retired
+task or a task's upstream tasks. When DataHub cannot be reached for a read, the sink writes the
+lineage now and keeps the event to make those decisions later. A token that may not read gets the
+lineage without them, and the log says so once.
+
+To send lineage to an OpenLineage collector as well, list both sinks:
+`HOP_LINEAGE_SINK_IDS=datahub,openlineage`. Do not leave `HOP_LINEAGE_SINK_IDS` empty: that loads every
+installed sink, and the OpenLineage sink, installed with this plugin, then fails to start without
+its URL, which stops lineage delivery for every sink.
+
+== Configuration
+
+[cols="2,1,4",options="header"]
+|===
+|Variable |Default |Description
+
+|`HOP_LINEAGE_DATAHUB_URL` |_(required)_ |DataHub GMS URL.
+|`HOP_LINEAGE_DATAHUB_TOKEN` |_(empty)_ |DataHub personal access token, sent as a bearer token. It can be stored encrypted, as `hop-encrypt` writes it (`Encrypted …`).
+|`HOP_LINEAGE_DATAHUB_ENV` |`PROD` |DataHub environment of the datasets, pipelines and tasks. Use the value the other sources that describe the same datasets use, or their lineage does not join up.
+|`HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE` |_(empty)_ |Keeps the pipelines of several Hop installations, or of projects with the same folder layout, apart in one DataHub: their ids are prefixed with it (`emea.flows/nightly.hwf`).
+|`HOP_LINEAGE_DATAHUB_DATASET_SCHEMA` |`missing` |When a dataset's schema is written; see <<Dataset schemas>>. `missing`, `always` or `never`.
+|`HOP_LINEAGE_DATAHUB_LIFECYCLE` |`N` |`Y` deprecates datasets a run deletes or moves; see <<Deleted and moved datasets>>.
+|`HOP_LINEAGE_DATAHUB_ACTOR` |`urn:li:corpuser:datahub` |The DataHub user named as the creator of runs and deprecations.
+|`HOP_LINEAGE_DATAHUB_SPOOL_DIR` |_(empty)_ |Folder that keeps events until DataHub accepted them; see <<Durability>>.
+|`HOP_LINEAGE_DATAHUB_SPOOL_MAX_BYTES` |`67108864` |Size limit of the spool (64 MiB).
+|`HOP_LINEAGE_DATAHUB_SQL_PARSE` |`Y` |Parse the SQL of Table Input and Execute SQL to find the tables and columns it reads and writes.
+|`HOP_LINEAGE_DATAHUB_MAX_RETRIES`, `…_RETRY_BACKOFF_MS`, `…_CONNECT_TIMEOUT_MS`, `…_READ_TIMEOUT_MS`, `…_BUFFER_SIZE`, `…_OVERFLOW_POLICY`, `…_ENQUEUE_TIMEOUT_MS`, `…_SHUTDOWN_DRAIN_MS`, `…_METRICS_INTERVAL_MS` |as OpenLineage |Delivery settings, with the meaning and defaults of their xref:technology/openlineage/index.adoc[OpenLineage] counterparts.
+|`HOP_LINEAGE_DATAHUB_TRUSTSTORE_PATH`, `…_TRUSTSTORE_PASSWORD`, `…_KEYSTORE_TYPE` |_(empty)_, `PKCS12` |Trust store for a GMS with a certificate the JVM does not trust.
+|===
+
+== Durability
+
+Events are written to DataHub on a background thread, so a run never waits for DataHub. With
+`HOP_LINEAGE_DATAHUB_SPOOL_DIR` set, every event is stored in that folder before it is sent and
+removed once DataHub accepted it: a DataHub outage or restart delays lineage instead of losing it.
+The same process retries, in order, after a pause that doubles from one second to a minute; whatever
+is left when it ends is sent by the next process that starts the sink, before its own events.
+Processes can share a spool folder: each keeps its events in a folder of its own and only takes
+over those of a process that is gone (see
+xref:technology/openlineage/index.adoc#_durability[OpenLineage durability]).
+
+With a spool folder, a rejected token, a wrong URL or a proxy that refuses the request (HTTP 401,
+403, 404, 407) keeps the events for later, so they arrive once the configuration is fixed. Without
+one they are kept in memory, up to the buffer size, until the process ends. An event DataHub refuses
+as invalid is logged and dropped; when only one of its aspects is invalid, the rest of the event is
+still written. Events are written in batches, but each one is kept or done on its own: when a
+request fails halfway through a batch, the events DataHub accepted are not sent again.
+
+When a `hop-run` ends, the sink waits for DataHub to accept what is still queued, up to
+`HOP_LINEAGE_DATAHUB_SHUTDOWN_DRAIN_MS` (30 seconds by default). The log then reports
+`DataHub sink metrics: sent=…, failed=…, rejected=…, dropped=…`.
+
+[[dataset-schemas]]
+== Dataset schemas
+
+Hop knows the fields of the files it reads and writes and of the tables it writes, with their types.
+With the default `HOP_LINEAGE_DATAHUB_DATASET_SCHEMA=missing`, the sink writes that schema only
+when DataHub has none for the dataset yet, or the one it has was written by Hop: a table that
+DataHub's own database ingestion describes keeps that description. `always` writes Hop's schema
+regardless, `never` leaves schemas alone.
+
+A table a query reads gets no schema from Hop: the query reads only some of its columns, and the
+rows it returns, with their aliases and expressions, are not the table's schema either. The table's
+schema comes from a Hop transform that writes it, or from DataHub's own database ingestion.
+
+[[deleted-and-moved-datasets]]
+== Deleted and moved datasets
+
+With `HOP_LINEAGE_DATAHUB_LIFECYCLE=Y`, a file a run deletes (Process files, or Move files and
+Unzip when they remove a file) is marked *deprecated* in DataHub, with a note naming the task that deleted it. A file a run moves
+(Move files) deprecates the old dataset and names the new one as its replacement. When a later run
+writes the dataset again, the sink lifts its own deprecation; one a person wrote is never touched.
+
+This is off by default: in DataHub a deprecation can notify the owners of a dataset, and a staging
+file that every run writes and deletes would be deprecated after every run.
+
+== Verifying
+
+Run a pipeline and open DataHub: the pipeline is listed under the *Apache Hop* platform, its tasks
+on its *Tasks* tab and its runs on the *Runs* tab of each task. The *Lineage* tab of a dataset the
+pipeline wrote shows the tasks and datasets upstream of it.
+
+The sink logs one line when it starts:
+
+----
+DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset schemas=missing, lifecycle=off, spool=off
+----
+
+== Limitations
+
+* Column lineage through the stream (Table Input to Table Output) follows fields that keep their
+  name; map them to other column names in the Table Output field list. A field renamed on the way,
+  in Select values for example, has no column lineage.
+* The lineage settings are the same for the whole Hop process: one DataHub and one environment per
+  JVM. A project environment (`-e`) cannot select a different DataHub or `HOP_LINEAGE_DATAHUB_ENV`.
+* A pipeline or workflow file that is moved, renamed or deleted stays in DataHub under its old path;
+  the file in its new place is a new pipeline. Renaming the pipeline itself only changes its name.
+
+* A pipeline run on a remote Hop Server reports its run to the client's DataHub sink, but not its
+  transforms. Enable the DataHub sink on the Hop Server as well to get those; the server's run of
+  the pipeline then appears as a run of its own.
+* A pipeline run on Apache Beam or Spark reports its run, not its transforms or their datasets:
+  those run inside the Beam runner, where no lineage is observed yet.
