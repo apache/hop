@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -24,6 +26,33 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class StandardizePhoneNumberData extends BaseTransformData implements ITransformData {
 
   protected IRowMeta outputRowMeta;
+
+  /** The settings of each configured field, resolved on the first row. */
+  protected List<Field> fields;
+
+  /** One configured field: names resolved, positions in the row looked up. */
+  static final class Field {
+    String inputField;
+    int inputIndex;
+    int outputIndex;
+
+    /** Position of the country field in the input row, -1 when there is none. */
+    int countryIndex;
+
+    /** The region to use when the row has no country, or an unknown one. */
+    String defaultRegion;
+
+    String numberFormat;
+
+    /** The format for {@link #numberFormat}, set when the first number is formatted. */
+    PhoneNumberFormat format;
+
+    /** Position of the number type field in the output row, -1 when there is none. */
+    int numberTypeIndex;
+
+    /** Position of the validity field in the output row, -1 when there is none. */
+    int isValidIndex;
+  }
 
   public StandardizePhoneNumberData() {
     super();

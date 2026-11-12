@@ -57,6 +57,9 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
   private List<AvroOutputField> avroOutputFields;
   private int outputFieldIndex;
 
+  /** Where the values of a row go in the Avro record; made on the first row. */
+  private RecordLayout recordLayout;
+
   public AvroOutput(
       TransformMeta transformMeta,
       AvroOutputMeta meta,
@@ -67,8 +70,39 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private GenericRecord getRecord(Object[] r, String parentPath, Schema inputSchema)
-      throws HopException {
+  /**
+   * Where the values of a record go: worked out once from the Avro names of the output fields and
+   * the schema, so that a row only has to put its values in.
+   */
+  private static final class RecordLayout {
+    private final Schema recordSchema;
+    private final List<Entry> entries = new ArrayList<>();
+
+    private RecordLayout(Schema recordSchema) {
+      this.recordSchema = recordSchema;
+    }
+
+    /** A value of the row, or a nested record. */
+    private static final class Entry {
+      /** The name of the field in the record: used when the schema does not have the field. */
+      private String name;
+
+      /** The field in the schema, null when the schema does not have it. */
+      private Field avroField;
+
+      /** For a value: the position of the output field it comes from. */
+      private int fieldIndex;
+
+      /** For a nested record: its layout. Null for a value. */
+      private RecordLayout record;
+    }
+  }
+
+  /**
+   * Works out the layout of a record and of the records nested in it. Nested fields have a dot in
+   * their Avro name; the fields of one record follow each other in the list of output fields.
+   */
+  private RecordLayout createLayout(String parentPath, Schema inputSchema) {
     String parentName = "";
     if (parentPath != null) {
       parentName = parentPath;
@@ -89,7 +123,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       }
     }
 
-    GenericRecord result = new GenericData.Record(recordSchema);
+    RecordLayout layout = new RecordLayout(recordSchema);
     while (outputFieldIndex < avroOutputFields.size()) {
 
       AvroOutputField aof = avroOutputFields.get(outputFieldIndex);
@@ -102,31 +136,55 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         if (!parentName.isEmpty()) {
           avroName = avroName.substring(parentName.length() + 1);
         }
+        RecordLayout.Entry entry = new RecordLayout.Entry();
         if (avroName.contains(".")) {
           String currentAvroPath = avroName.substring(0, avroName.indexOf("."));
-          Schema childSchema = recordSchema.getField(currentAvroPath).schema();
+          Field childField = recordSchema.getField(currentAvroPath);
+          Schema childSchema = childField.schema();
           String childPath = parentName + "." + currentAvroPath;
           if (parentName.isEmpty()) {
             childPath = currentAvroPath;
           }
 
-          GenericRecord fieldRecord = getRecord(r, childPath, childSchema);
-          result.put(currentAvroPath, fieldRecord);
+          entry.name = currentAvroPath;
+          entry.avroField = childField;
+          entry.record = createLayout(childPath, childSchema);
         } else {
-          Field avroField = recordSchema.getField(avroName);
-          Object value =
-              getValue(
-                  r,
-                  meta.getOutputFields().get(outputFieldIndex),
-                  data.fieldNrs[outputFieldIndex],
-                  avroField);
-          if (value != null) {
-            result.put(avroName, value);
-          }
+          entry.name = avroName;
+          entry.avroField = recordSchema.getField(avroName);
+          entry.fieldIndex = outputFieldIndex;
           outputFieldIndex++;
         }
+        layout.entries.add(entry);
       } else {
         break;
+      }
+    }
+    return layout;
+  }
+
+  private GenericRecord getRecord(Object[] r, RecordLayout layout) throws HopException {
+    GenericRecord result = new GenericData.Record(layout.recordSchema);
+    for (RecordLayout.Entry entry : layout.entries) {
+      Object value;
+      if (entry.record != null) {
+        value = getRecord(r, entry.record);
+      } else {
+        value =
+            getValue(
+                r,
+                meta.getOutputFields().get(entry.fieldIndex),
+                data.fieldNrs[entry.fieldIndex],
+                entry.avroField);
+        if (value == null) {
+          continue;
+        }
+      }
+      if (entry.avroField != null) {
+        result.put(entry.avroField.pos(), value);
+      } else {
+        // not in the schema: Avro reports it by name, as it always did
+        result.put(entry.name, value);
       }
     }
     return result;
@@ -350,8 +408,12 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       return false;
     }
 
-    outputFieldIndex = 0;
-    GenericRecord row = getRecord(r, null, data.avroSchema);
+    if (recordLayout == null) {
+      // The Avro names and the schema do not change from row to row
+      outputFieldIndex = 0;
+      recordLayout = createLayout(null, data.avroSchema);
+    }
+    GenericRecord row = getRecord(r, recordLayout);
 
     try {
       if (AvroOutputMeta.OUTPUT_TYPES[AvroOutputMeta.OUTPUT_TYPE_BINARY_FILE].equals(

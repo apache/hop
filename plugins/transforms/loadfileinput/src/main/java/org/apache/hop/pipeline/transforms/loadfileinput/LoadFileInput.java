@@ -279,7 +279,8 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
   void getFileContent() throws HopException {
     try {
-      data.filecontent = getFileBinaryContent(data.file.toString(), variables);
+      // The file is resolved already: read it, do not look it up again by its name
+      data.filecontent = readContent(data.file);
       if (data.filecontent != null) {
         dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.filecontent.length;
       }
@@ -291,6 +292,16 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
       throw new HopException(o);
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  private static byte[] readContent(FileObject file) throws HopException {
+    try (InputStream inputStream = HopVfs.getInputStream(file)) {
+      return inputStream.readAllBytes();
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "LoadFileInput.Error.GettingFileContent", file.toString(), e.toString()));
     }
   }
 

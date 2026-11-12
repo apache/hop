@@ -21,6 +21,7 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
@@ -81,6 +82,11 @@ public class StandardizePhoneNumber
       // use meta.getFields() to change it, so it reflects the output row
       // structure
       meta.getFields(data.outputRowMeta, this.getTransformName(), null, null, this, null);
+
+      // The settings of every field do not change from row to row: work them out once
+      if (!prepareFields()) {
+        return false;
+      }
     }
 
     IRowMeta inputRowMeta = getInputRowMeta();
@@ -89,62 +95,35 @@ public class StandardizePhoneNumber
     // the output values
     Object[] outputRow = Arrays.copyOf(row, data.outputRowMeta.size());
 
-    for (StandardizePhoneField standardize : meta.getFields()) {
-      String inputField = resolve(standardize.getInputField());
-      String outputField = resolve(standardize.getOutputField());
-      String countryField = resolve(standardize.getCountryField());
-      String numberTypeField = resolve(standardize.getNumberTypeField());
-      String isValidNumberField = resolve(standardize.getIsValidNumberField());
-      String numberFormat = resolve(standardize.getNumberFormat());
+    for (StandardizePhoneNumberData.Field field : data.fields) {
+      String region = region(field, inputRowMeta, row);
 
-      String region = resolveRegion(standardize, countryField, inputRowMeta, row);
-
-      int inputIndex = inputRowMeta.indexOfValue(inputField);
-
-      // if input field not found
-      if (inputIndex < 0) {
-        this.logError(
-            BaseMessages.getString(
-                PKG, "StandardizePhoneNumber.Log.InputFieldNotFound", inputField));
-        this.setErrors(1);
-        return false;
-      }
-
-      int outputIndex = inputIndex;
-      if (!Utils.isEmpty(outputField)) {
-        int resolvedOutputIndex = data.outputRowMeta.indexOfValue(outputField);
-        if (resolvedOutputIndex >= 0) {
-          outputIndex = resolvedOutputIndex;
-        }
-      }
-
-      String originalValue = inputRowMeta.getString(row, inputIndex);
+      String originalValue = inputRowMeta.getString(row, field.inputIndex);
       if (!Utils.isEmpty(originalValue)) {
         PhoneNumber phoneNumber = null;
         try {
           // Replace unsupported character with blank
           String value = originalValue.replace(',', ' ');
 
-          PhoneNumberFormat format = getPhoneNumberFormat(numberFormat);
           phoneNumber = phoneNumberService.parse(value, region);
-          outputRow[outputIndex] = phoneNumberService.format(phoneNumber, format);
+          outputRow[field.outputIndex] = phoneNumberService.format(phoneNumber, format(field));
         } catch (NumberParseException e) {
-          outputRow[outputIndex] = originalValue;
+          outputRow[field.outputIndex] = originalValue;
           if (isRowLevel()) {
             logRowlevel(
                 BaseMessages.getString(
                     PKG,
                     "StandardizePhoneNumber.Log.ProcessPhoneNumberError",
-                    inputField,
+                    field.inputField,
                     originalValue));
           }
         }
 
-        setNumberType(outputRow, numberTypeField, phoneNumber);
-        setIsValid(outputRow, isValidNumberField, phoneNumber);
+        setNumberType(outputRow, field.numberTypeIndex, phoneNumber);
+        setIsValid(outputRow, field.isValidIndex, phoneNumber);
       } else {
-        setNumberType(outputRow, numberTypeField, null);
-        setIsValid(outputRow, isValidNumberField, null);
+        setNumberType(outputRow, field.numberTypeIndex, null);
+        setIsValid(outputRow, field.isValidIndex, null);
       }
     }
 
@@ -180,65 +159,119 @@ public class StandardizePhoneNumber
     return normalized.isEmpty() ? null : normalized;
   }
 
-  private String resolveRegion(
-      StandardizePhoneField standardize, String countryField, IRowMeta inputRowMeta, Object[] row)
+  /**
+   * Resolves the settings of every field: the names, where the fields are in the row, the default
+   * region and the number format. Called on the first row.
+   *
+   * @return false when an input field is not in the row: the error is logged
+   */
+  private boolean prepareFields() throws HopException {
+    IRowMeta inputRowMeta = getInputRowMeta();
+    data.fields = new ArrayList<>();
+    for (StandardizePhoneField standardize : meta.getFields()) {
+      StandardizePhoneNumberData.Field field = new StandardizePhoneNumberData.Field();
+      field.inputField = resolve(standardize.getInputField());
+      String outputField = resolve(standardize.getOutputField());
+      String countryField = resolve(standardize.getCountryField());
+      String numberTypeField = resolve(standardize.getNumberTypeField());
+      String isValidNumberField = resolve(standardize.getIsValidNumberField());
+      field.numberFormat = resolve(standardize.getNumberFormat());
+      field.defaultRegion = normalizeRegion(resolve(standardize.getDefaultCountry()));
+
+      field.countryIndex = -1;
+      if (!Utils.isEmpty(countryField)) {
+        field.countryIndex = inputRowMeta.indexOfValue(countryField);
+
+        // if country field not found
+        if (field.countryIndex < 0) {
+          String message =
+              BaseMessages.getString(
+                  PKG, "StandardizePhoneNumber.Log.CountryFieldNotFound", countryField);
+          logError(message);
+          this.setErrors(1);
+          throw new HopException(message);
+        }
+      }
+
+      field.inputIndex = inputRowMeta.indexOfValue(field.inputField);
+
+      // if input field not found
+      if (field.inputIndex < 0) {
+        this.logError(
+            BaseMessages.getString(
+                PKG, "StandardizePhoneNumber.Log.InputFieldNotFound", field.inputField));
+        this.setErrors(1);
+        return false;
+      }
+
+      field.outputIndex = field.inputIndex;
+      if (!Utils.isEmpty(outputField)) {
+        int resolvedOutputIndex = data.outputRowMeta.indexOfValue(outputField);
+        if (resolvedOutputIndex >= 0) {
+          field.outputIndex = resolvedOutputIndex;
+        }
+      }
+
+      field.numberTypeIndex =
+          Utils.isEmpty(numberTypeField) ? -1 : data.outputRowMeta.indexOfValue(numberTypeField);
+      field.isValidIndex =
+          Utils.isEmpty(isValidNumberField)
+              ? -1
+              : data.outputRowMeta.indexOfValue(isValidNumberField);
+
+      data.fields.add(field);
+    }
+    return true;
+  }
+
+  /**
+   * The region to parse a number with: the country of the row when it is known, else the default.
+   */
+  private String region(StandardizePhoneNumberData.Field field, IRowMeta inputRowMeta, Object[] row)
       throws HopException {
-    String region = normalizeRegion(resolve(standardize.getDefaultCountry()));
-    if (Utils.isEmpty(countryField)) {
-      return region;
+    if (field.countryIndex < 0) {
+      return field.defaultRegion;
     }
 
-    int index = inputRowMeta.indexOfValue(countryField);
-
-    // if country field not found
-    if (index < 0) {
-      String message =
-          BaseMessages.getString(
-              PKG, "StandardizePhoneNumber.Log.CountryFieldNotFound", countryField);
-      logError(message);
-      this.setErrors(1);
-      throw new HopException(message);
-    }
-
-    String country = inputRowMeta.getString(row, index);
+    String country = inputRowMeta.getString(row, field.countryIndex);
     String normalized = normalizeRegion(country);
     if (normalized == null) {
-      return region;
+      return field.defaultRegion;
     }
     if (supportedRegions.contains(normalized)) {
       return normalized;
     }
     logError(BaseMessages.getString(PKG, "StandardizePhoneNumber.Log.RegionNotSupported", country));
-    return region;
+    return field.defaultRegion;
   }
 
-  private void setNumberType(Object[] outputRow, String numberTypeField, PhoneNumber phoneNumber) {
-    if (Utils.isEmpty(numberTypeField)) {
-      return;
+  /** The number format of a field, looked up the first time a number has to be formatted. */
+  private PhoneNumberFormat format(StandardizePhoneNumberData.Field field) {
+    if (field.format == null) {
+      field.format = getPhoneNumberFormat(field.numberFormat);
     }
-    int i = data.outputRowMeta.indexOfValue(numberTypeField);
-    if (i < 0) {
+    return field.format;
+  }
+
+  private void setNumberType(Object[] outputRow, int index, PhoneNumber phoneNumber) {
+    if (index < 0) {
       return;
     }
     if (phoneNumber != null) {
-      outputRow[i] = phoneNumberService.getNumberType(phoneNumber).toString();
+      outputRow[index] = phoneNumberService.getNumberType(phoneNumber).toString();
     } else {
-      outputRow[i] = NUMBER_TYPE_ERROR;
+      outputRow[index] = NUMBER_TYPE_ERROR;
     }
   }
 
-  private void setIsValid(Object[] outputRow, String isValidNumberField, PhoneNumber phoneNumber) {
-    if (Utils.isEmpty(isValidNumberField)) {
-      return;
-    }
-    int i = data.outputRowMeta.indexOfValue(isValidNumberField);
-    if (i < 0) {
+  private void setIsValid(Object[] outputRow, int index, PhoneNumber phoneNumber) {
+    if (index < 0) {
       return;
     }
     if (phoneNumber != null) {
-      outputRow[i] = phoneNumberService.isValidNumber(phoneNumber);
+      outputRow[index] = phoneNumberService.isValidNumber(phoneNumber);
     } else {
-      outputRow[i] = false;
+      outputRow[index] = false;
     }
   }
 
