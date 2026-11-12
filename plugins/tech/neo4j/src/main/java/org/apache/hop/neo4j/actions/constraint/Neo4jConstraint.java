@@ -28,9 +28,8 @@ import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.neo4j.actions.GraphSchemaUpdates;
 import org.apache.hop.neo4j.actions.index.Neo4jIndex;
-import org.apache.hop.neo4j.shared.NamedGraphConnection;
-import org.apache.hop.neo4j.shared.NeoConnectionUtils;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
@@ -49,8 +48,6 @@ public class Neo4jConstraint extends ActionBase implements IAction {
       key = "connection",
       hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connectionName;
-
-  private NamedGraphConnection connection;
 
   @HopMetadataProperty(groupKey = "updates", key = "update")
   private List<ConstraintUpdate> constraintUpdates;
@@ -72,43 +69,18 @@ public class Neo4jConstraint extends ActionBase implements IAction {
   public Result execute(Result result, int nr) throws HopException {
     // Success unless something goes wrong, whatever the result of the previous action
     result.setResult(true);
-
-    connection =
-        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
-
-    if (connection == null) {
-      result.setResult(false);
-      result.increaseErrors(1L);
-      throw new HopException("Please specify a Neo4j connection to use");
-    }
-
-    // Loop over the constraint updates to see which need deleting...
-    //
-    for (ConstraintUpdate constraintUpdate : constraintUpdates) {
-      if (constraintUpdate.getUpdateType() == null) {
-        throw new HopException("Please make sure to always specify a constraint update type");
-      }
-      switch (constraintUpdate.getUpdateType()) {
-        case DROP:
-          dropConstraint(constraintUpdate);
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Create the constraints if needed
-    //
-    for (ConstraintUpdate constraintUpdate : constraintUpdates) {
-      switch (constraintUpdate.getUpdateType()) {
-        case CREATE:
-          createConstraint(constraintUpdate);
-          break;
-        default:
-          break;
-      }
-    }
-
+    GraphSchemaUpdates.execute(
+        this,
+        result,
+        connectionName,
+        "constraint",
+        constraintUpdates,
+        update ->
+            update.getUpdateType() == null
+                ? null
+                : GraphSchemaUpdates.Operation.valueOf(update.getUpdateType().name()),
+        (update, dialect) -> generateDropConstraintCypher(resolved(update), dialect),
+        (update, dialect) -> generateCreateConstraintCypher(resolved(update), dialect));
     return result;
   }
 
@@ -161,26 +133,6 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     copy.setObjectName(variables.resolve(constraintUpdate.getObjectName()));
     copy.setObjectProperties(variables.resolve(constraintUpdate.getObjectProperties()));
     return copy;
-  }
-
-  private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher =
-        generateDropConstraintCypher(resolved(constraintUpdate), connection.getDialect(this));
-
-    // Run this cypher statement...
-    //
-    NeoConnectionUtils.runSchemaStatement(
-        connection, getLogChannel(), this, cypher, "Dropping constraint");
-  }
-
-  private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
-    String cypher =
-        generateCreateConstraintCypher(resolved(constraintUpdate), connection.getDialect(this));
-
-    // Run this cypher statement...
-    //
-    NeoConnectionUtils.runSchemaStatement(
-        connection, getLogChannel(), this, cypher, "Creating constraint");
   }
 
   @Override

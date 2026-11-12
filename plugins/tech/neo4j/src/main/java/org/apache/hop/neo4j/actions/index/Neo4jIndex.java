@@ -31,8 +31,7 @@ import org.apache.hop.core.graph.IGraphDialect;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
-import org.apache.hop.neo4j.shared.NamedGraphConnection;
-import org.apache.hop.neo4j.shared.NeoConnectionUtils;
+import org.apache.hop.neo4j.actions.GraphSchemaUpdates;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
@@ -51,8 +50,6 @@ public class Neo4jIndex extends ActionBase implements IAction {
       key = "connection",
       hopMetadataPropertyType = HopMetadataPropertyType.GRAPH_CONNECTION)
   private String connectionName;
-
-  private NamedGraphConnection connection;
 
   @HopMetadataProperty(groupKey = "updates", key = "update")
   private List<IndexUpdate> indexUpdates;
@@ -74,43 +71,18 @@ public class Neo4jIndex extends ActionBase implements IAction {
   public Result execute(Result result, int nr) throws HopException {
     // Success unless something goes wrong, whatever the result of the previous action
     result.setResult(true);
-
-    connection =
-        NeoConnectionUtils.findGraphConnection(getMetadataProvider(), resolve(connectionName));
-
-    if (connection == null) {
-      result.setResult(false);
-      result.increaseErrors(1L);
-      throw new HopException("Please specify a Neo4j connection to use");
-    }
-
-    // Loop over the index updates to see which need deleting...
-    //
-    for (IndexUpdate indexUpdate : indexUpdates) {
-      if (indexUpdate.getType() == null) {
-        throw new HopException("Please make sure to always specify an index update type");
-      }
-      switch (indexUpdate.getType()) {
-        case DROP:
-          dropIndex(indexUpdate);
-          break;
-        default:
-          break;
-      }
-    }
-
-    // Create the indexes if needed
-    //
-    for (IndexUpdate indexUpdate : indexUpdates) {
-      switch (indexUpdate.getType()) {
-        case CREATE:
-          createIndex(indexUpdate);
-          break;
-        default:
-          break;
-      }
-    }
-
+    GraphSchemaUpdates.execute(
+        this,
+        result,
+        connectionName,
+        "index",
+        indexUpdates,
+        update ->
+            update.getType() == null
+                ? null
+                : GraphSchemaUpdates.Operation.valueOf(update.getType().name()),
+        (update, dialect) -> generateDropIndexCypher(resolved(update), dialect),
+        (update, dialect) -> generateCreateIndexCypher(resolved(update), dialect));
     return result;
   }
 
@@ -160,24 +132,6 @@ public class Neo4jIndex extends ActionBase implements IAction {
     copy.setVectorDimensions(variables.resolve(indexUpdate.getVectorDimensions()));
     copy.setVectorCapacity(variables.resolve(indexUpdate.getVectorCapacity()));
     return copy;
-  }
-
-  private void dropIndex(final IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateDropIndexCypher(resolved(indexUpdate), connection.getDialect(this));
-
-    // Run this cypher statement...
-    //
-    NeoConnectionUtils.runSchemaStatement(
-        connection, getLogChannel(), this, cypher, "Dropping index");
-  }
-
-  private void createIndex(IndexUpdate indexUpdate) throws HopException {
-    String cypher = generateCreateIndexCypher(resolved(indexUpdate), connection.getDialect(this));
-
-    // Run this cypher statement...
-    //
-    NeoConnectionUtils.runSchemaStatement(
-        connection, getLogChannel(), this, cypher, "Creating index");
   }
 
   static GraphIndexDefinition toIndexDefinition(IndexUpdate indexUpdate) {

@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
@@ -207,17 +208,15 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
   public Result execute(Result result, int nr) throws HopException {
     result.setResult(false);
     IHopMetadataProvider metadataProvider = getMetadataProvider();
-    DatabaseMeta databaseMeta = loadDatabaseMeta(metadataProvider);
-    try (Database database = new Database(this, this, databaseMeta)) {
-      database.connect();
-      for (String statement : getStatements(database, loadGraphModel(metadataProvider))) {
-        if (isDetailed()) {
-          logDetailed("Executing: " + statement);
-        }
-        database.execStatement(statement);
+    try {
+      DatabaseMeta databaseMeta = loadDatabaseMeta(metadataProvider);
+      try (Database database = new Database(this, this, databaseMeta)) {
+        database.connect();
+        executeStatements(
+            database, getPlannedStatements(database, loadGraphModel(metadataProvider)));
       }
-    } catch (HopException e) {
-      result.setNrErrors(1);
+    } catch (Exception e) {
+      result.increaseErrors(1L);
       logError("Error creating property graph '" + resolve(graphName) + "'", e);
       return result;
     }
@@ -225,8 +224,66 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
     return result;
   }
 
+  /**
+   * Run the statements one by one. When one fails, drop the tables this run created, newest first,
+   * so a failing CREATE PROPERTY GRAPH doesn't leave them behind. Each statement commits on its
+   * own, so a rollback can't undo them.
+   */
+  void executeStatements(Database database, List<PlannedStatement> statements) throws HopException {
+    List<String> createdTables = new ArrayList<>();
+    for (PlannedStatement statement : statements) {
+      if (isDetailed()) {
+        logDetailed("Executing: " + statement.sql());
+      }
+      try {
+        database.execStatement(statement.sql());
+      } catch (HopException e) {
+        String dropError = dropCreatedTables(database, createdTables);
+        if (dropError != null) {
+          throw new HopException(
+              "The property graph can't be created and the tables it created can't be dropped: "
+                  + dropError,
+              e);
+        }
+        throw e;
+      }
+      if (statement.createdTable() != null) {
+        createdTables.add(statement.createdTable());
+      }
+    }
+  }
+
+  /**
+   * Drop the tables in reverse order.
+   *
+   * @return null when all of them are dropped, or a message naming the tables that are left
+   */
+  private String dropCreatedTables(Database database, List<String> createdTables) {
+    List<String> left = new ArrayList<>();
+    String reason = null;
+    for (int i = createdTables.size() - 1; i >= 0; i--) {
+      String table = createdTables.get(i);
+      try {
+        database.execStatement("DROP TABLE " + table);
+        logBasic("Dropped table " + table + ", created by this action");
+      } catch (HopException e) {
+        left.add(0, table);
+        if (reason == null) {
+          reason = e.getMessage();
+        }
+      }
+    }
+    if (left.isEmpty()) {
+      return null;
+    }
+    return String.join(", ", left) + " stay in the database (" + Const.trim(reason) + ")";
+  }
+
   public DatabaseMeta loadDatabaseMeta(IHopMetadataProvider metadataProvider) throws HopException {
     String connectionName = resolve(connection);
+    if (StringUtils.isEmpty(connectionName)) {
+      throw new HopException("Please specify a relational database connection");
+    }
     DatabaseMeta databaseMeta =
         metadataProvider.getSerializer(DatabaseMeta.class).load(connectionName);
     if (databaseMeta == null) {
@@ -253,6 +310,24 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
    * @param model The graph model
    */
   public List<String> getStatements(Database database, GraphModel model) throws HopException {
+    List<String> statements = new ArrayList<>();
+    for (PlannedStatement statement : getPlannedStatements(database, model)) {
+      statements.add(statement.sql());
+    }
+    return statements;
+  }
+
+  /**
+   * A statement to execute.
+   *
+   * @param sql The statement
+   * @param createdTable The quoted name of the table a CREATE TABLE statement creates, otherwise
+   *     null
+   */
+  record PlannedStatement(String sql, String createdTable) {}
+
+  List<PlannedStatement> getPlannedStatements(Database database, GraphModel model)
+      throws HopException {
     if (StringUtils.isEmpty(resolve(graphName))) {
       throw new HopException("Please specify the name of the property graph");
     }
@@ -267,7 +342,8 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
         StringUtils.isEmpty(schema) ? resolve(databaseMeta.getPreferredSchemaName()) : schema,
         databaseMeta.getStartQuote(),
         databaseMeta.getEndQuote());
-    List<String> statements = new ArrayList<>();
+    generator.validateTables();
+    List<PlannedStatement> statements = new ArrayList<>();
     if (creatingTables) {
       for (PropertyGraphGenerator.NodeTable table : generator.getNodeTables()) {
         addCreateTable(database, schema, table.table(), table.columns(), table.keys(), statements);
@@ -277,8 +353,10 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
       }
     }
     statements.add(
-        generator.getCreatePropertyGraphStatement(
-            resolve(graphName), schema, replacingGraph, databaseMeta::quoteField));
+        new PlannedStatement(
+            generator.getCreatePropertyGraphStatement(
+                resolve(graphName), schema, replacingGraph, databaseMeta::quoteField),
+            null));
     return statements;
   }
 
@@ -288,7 +366,7 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
       String table,
       List<PropertyGraphGenerator.Column> columns,
       List<String> keys,
-      List<String> statements)
+      List<PlannedStatement> statements)
       throws HopException {
     if (database.checkTableExists(schema, table)) {
       return;
@@ -296,16 +374,20 @@ public class ActionCreatePropertyGraph extends ActionBase implements IAction {
     DatabaseMeta databaseMeta = database.getDatabaseMeta();
     String qualified = databaseMeta.getQuotedSchemaTableCombination(this, schema, table);
     statements.add(
-        database
-            .getCreateTableStatement(
-                qualified, PropertyGraphGenerator.getRowMeta(columns), null, false, null, false)
-            .trim());
+        new PlannedStatement(
+            database
+                .getCreateTableStatement(
+                    qualified, PropertyGraphGenerator.getRowMeta(columns), null, false, null, false)
+                .trim(),
+            qualified));
     List<String> quotedKeys = new ArrayList<>();
     for (String key : keys) {
       quotedKeys.add(databaseMeta.quoteField(key));
     }
     statements.add(
-        "ALTER TABLE " + qualified + " ADD PRIMARY KEY (" + String.join(", ", quotedKeys) + ")");
+        new PlannedStatement(
+            "ALTER TABLE " + qualified + " ADD PRIMARY KEY (" + String.join(", ", quotedKeys) + ")",
+            null));
   }
 
   private List<NodeTableMapping> resolveNodeTables() {

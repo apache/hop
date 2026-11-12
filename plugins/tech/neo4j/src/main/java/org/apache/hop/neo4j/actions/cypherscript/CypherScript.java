@@ -71,17 +71,6 @@ public class CypherScript extends ActionBase implements IAction {
     result.setResult(true);
     // Replace variables & parameters
     //
-    NamedGraphConnection graphConnection;
-    String realConnectionName = resolve(connectionName);
-    try {
-      graphConnection =
-          NeoConnectionUtils.getGraphConnection(getMetadataProvider(), realConnectionName);
-    } catch (Exception e) {
-      result.setResult(false);
-      result.increaseErrors(1L);
-      throw new HopException("Unable to find connection with name '" + realConnectionName + "'", e);
-    }
-
     String realScript;
     if (replacingVariables) {
       realScript = resolve(script);
@@ -92,37 +81,19 @@ public class CypherScript extends ActionBase implements IAction {
 
     int nrExecuted;
 
-    try (IGraphConnection connection = graphConnection.connect(getLogChannel(), this)) {
-      IGraphDialect dialect = connection.getGraphDialect();
-      if (dialect.isSupportingSchemaChangesInTransactions()
-          && connection.isSupportingTransactions()
-          && statements.stream().anyMatch(dialect::isRequiringAutoCommit)) {
-        // Statements like CALL { ... } IN TRANSACTIONS can't run in an explicit transaction
-        //
-        if (isBasic()) {
-          logBasic(
-              "Some statements run on their own in auto-commit transactions: the script doesn't"
-                  + " run in a single transaction");
-        }
-        nrExecuted = executeAroundAutoCommit(connection, dialect, statements, result);
-      } else if (dialect.isSupportingSchemaChangesInTransactions()
-          && connection.isSupportingTransactions()) {
-        try {
-          // The transaction is committed when the work returns, and rolled back when it throws: a
-          // failed script keeps none of its statements.
-          nrExecuted = executeInTransaction(connection, statements);
-        } catch (Exception e) {
-          logError("Error executing cypher statements, the transaction is rolled back", e);
-          result.setNrErrors(1);
-          result.setResult(false);
-          nrExecuted = 0;
-        }
-      } else {
-        // Index and constraint changes can't run in an explicit transaction here, or there are no
-        // transactions at all: run each statement on its own.
-        //
-        nrExecuted = executeAutoCommit(connection, statements, result);
+    // A connection which is empty, unknown, can't be reached or refuses the login fails the action
+    // like a failing statement does.
+    //
+    try {
+      NamedGraphConnection graphConnection =
+          NeoConnectionUtils.getGraphConnection(getMetadataProvider(), resolve(connectionName));
+      try (IGraphConnection connection = graphConnection.connect(getLogChannel(), this)) {
+        nrExecuted = execute(connection, statements, result);
       }
+    } catch (Exception e) {
+      logError("Error executing cypher statements", e);
+      fail(result);
+      nrExecuted = 0;
     }
 
     if (result.getResult()) {
@@ -136,6 +107,51 @@ public class CypherScript extends ActionBase implements IAction {
     }
 
     return result;
+  }
+
+  /** Run the statements on an open connection, the way the database supports. */
+  private int execute(IGraphConnection connection, List<String> statements, Result result)
+      throws HopException {
+    IGraphDialect dialect = connection.getGraphDialect();
+    if (dialect.isSupportingSchemaChangesInTransactions()
+        && connection.isSupportingTransactions()
+        && statements.stream().anyMatch(dialect::isRequiringAutoCommit)) {
+      // Statements like CALL { ... } IN TRANSACTIONS can't run in an explicit transaction
+      //
+      if (isBasic()) {
+        logBasic(
+            "Some statements run on their own in auto-commit transactions: the script doesn't"
+                + " run in a single transaction");
+      }
+      return executeAroundAutoCommit(connection, dialect, statements, result);
+    }
+    if (dialect.isSupportingSchemaChangesInTransactions()
+        && connection.isSupportingTransactions()) {
+      try {
+        // The transaction is committed when the work returns, and rolled back when it throws: a
+        // failed script keeps none of its statements.
+        return executeInTransaction(connection, statements);
+      } catch (Exception e) {
+        logError("Error executing cypher statements, the transaction is rolled back", e);
+        fail(result);
+        return 0;
+      }
+    }
+    // Index and constraint changes can't run in an explicit transaction here, or there are no
+    // transactions at all: run each statement on its own.
+    //
+    return executeAutoCommit(connection, statements, result);
+  }
+
+  /**
+   * Fail the action with one more error than the previous actions had. A failure is counted once,
+   * also when closing the connection fails after a failed statement.
+   */
+  private static void fail(Result result) {
+    if (result.getResult()) {
+      result.setResult(false);
+      result.increaseErrors(1L);
+    }
   }
 
   /** Split the script into statements: a semicolon at the start of a separate line. */
@@ -257,8 +273,7 @@ public class CypherScript extends ActionBase implements IAction {
     } catch (Exception e) {
       logError(
           "Error executing cypher statements, the statements before the error stay committed", e);
-      result.setNrErrors(1);
-      result.setResult(false);
+      fail(result);
     }
     return executed;
   }
@@ -276,8 +291,7 @@ public class CypherScript extends ActionBase implements IAction {
       }
     } catch (Exception e) {
       logError("Error executing cypher statements...", e);
-      result.setNrErrors(1);
-      result.setResult(false);
+      fail(result);
     }
     return executed;
   }

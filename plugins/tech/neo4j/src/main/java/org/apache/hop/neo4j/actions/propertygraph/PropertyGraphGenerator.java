@@ -18,6 +18,7 @@
 package org.apache.hop.neo4j.actions.propertygraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,6 +273,39 @@ public class PropertyGraphGenerator {
 
   public List<EdgeTable> getEdgeTables() {
     return edgeTables;
+  }
+
+  /**
+   * Refuse a table used by more than one node or relationship. Each table is a separate element of
+   * the property graph, named after the table, so the names would clash. Checked before any table
+   * is created, so a failing graph doesn't leave tables behind.
+   *
+   * @throws HopException naming the first table which is used twice
+   */
+  public void validateTables() throws HopException {
+    Map<String, String> users = new HashMap<>();
+    for (NodeTable nodeTable : nodeTables) {
+      checkTable(users, nodeTable.table(), "node '" + nodeTable.node().getName() + "'");
+    }
+    for (EdgeTable edgeTable : edgeTables) {
+      checkTable(
+          users, edgeTable.table(), "relationship '" + edgeTable.relationship().getName() + "'");
+    }
+  }
+
+  private static void checkTable(Map<String, String> users, String table, String user)
+      throws HopException {
+    String previous = users.putIfAbsent(table, user);
+    if (previous != null) {
+      throw new HopException(
+          "Table '"
+              + table
+              + "' is used by "
+              + previous
+              + " and "
+              + user
+              + ": every node and relationship needs a table of its own");
+    }
   }
 
   /**
