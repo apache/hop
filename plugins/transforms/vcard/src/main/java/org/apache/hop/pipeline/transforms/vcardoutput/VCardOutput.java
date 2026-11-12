@@ -17,10 +17,11 @@
 package org.apache.hop.pipeline.transforms.vcardoutput;
 
 import ezvcard.VCard;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -39,6 +40,8 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
 
   private static final Class<?> PKG = VCardOutput.class;
 
+  private static final int BUFFER_SIZE = 64 * 1024;
+
   public VCardOutput(
       TransformMeta transformMeta,
       VCardOutputMeta meta,
@@ -50,9 +53,49 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
   }
 
   @Override
+  public boolean init() {
+    if (!super.init()) {
+      return false;
+    }
+    try {
+      data.charset = outputCharset();
+      if (meta.writesToFile() && !meta.isFileNameInField()) {
+        // One name for the whole run: the date and time in it are those of the start
+        data.staticFileName = resolve(meta.getFileSettings().buildFilename(this, new Date()));
+        if (!meta.getFileSettings().isDoNotOpenNewFileInit()
+            && !Utils.isEmpty(data.staticFileName)) {
+          // The file has to exist even when no row arrives
+          openFile(data.staticFileName);
+        }
+      }
+      return true;
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "VCardOutput.Exception.WriteFailed", e.getMessage()), e);
+      return false;
+    }
+  }
+
+  @Override
+  public void dispose() {
+    try {
+      closeFile();
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "VCardOutput.Exception.WriteFailed", e.getMessage()), e);
+    }
+    super.dispose();
+  }
+
+  @Override
   public boolean processRow() throws HopException {
     Object[] row = getRow();
     if (row == null) {
+      // Complete the file before the next transforms are told that this one is done
+      try {
+        closeFile();
+      } catch (IOException e) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "VCardOutput.Exception.WriteFailed", e.getMessage()), e);
+      }
       setOutputDone();
       return false;
     }
@@ -68,6 +111,9 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
               BaseMessages.getString(
                   PKG, "VCardOutput.Exception.FileNameFieldNotFound", meta.getFileNameField()));
         }
+      }
+      if (meta.outputsValue()) {
+        data.outputFieldIndex = data.outputRowMeta.indexOfValue(meta.getOutputField());
       }
     }
 
@@ -97,9 +143,8 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
       } else {
         outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
       }
-      int outputIndex = data.outputRowMeta.indexOfValue(meta.getOutputField());
-      if (outputIndex >= 0) {
-        outputRow[outputIndex] = vcardText;
+      if (data.outputFieldIndex >= 0) {
+        outputRow[data.outputFieldIndex] = vcardText;
       }
       putRow(data.outputRowMeta, outputRow);
     } else if (meta.isPassInputFields() || meta.writesToFile()) {
@@ -113,37 +158,69 @@ public class VCardOutput extends BaseTransform<VCardOutputMeta, VCardOutputData>
 
   private void writeToFile(Object[] row, String vcardText) throws HopTransformException {
     try {
-      String filename = resolveFileName(row);
-      createParentFolder(filename);
-      try (OutputStream out = HopVfs.getOutputStream(filename, meta.getFileSettings().isAppend())) {
-        out.write(vcardText.getBytes(outputCharset()));
-      }
-      if (meta.isAddingToResult()) {
-        ResultFile resultFile =
-            new ResultFile(
-                ResultFile.FILE_TYPE_GENERAL,
-                HopVfs.getFileObject(filename, this),
-                getPipelineMeta().getName(),
-                getTransformName());
-        addResultFile(resultFile);
-      }
+      openFile(resolveFileName(row));
+      data.outputStream.write(vcardText.getBytes(data.charset));
     } catch (Exception e) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "VCardOutput.Exception.WriteFailed", e.getMessage()), e);
     }
   }
 
+  /**
+   * Makes the given file the open one. The file stays open from row to row; it is only closed when
+   * another file name comes along or when the transform ends.
+   *
+   * <p>The first time a run writes to a file it is created, or emptied unless "Append" is on. A
+   * file the run wrote to before is added to, so every card of the run ends up in it.
+   */
+  private void openFile(String filename) throws Exception {
+    if (filename.equals(data.currentFileName)) {
+      return;
+    }
+    closeFile();
+
+    boolean firstTime = data.writtenFiles.add(filename);
+    if (firstTime) {
+      createParentFolder(filename);
+    }
+    boolean append = meta.getFileSettings().isAppend() || !firstTime;
+    data.outputStream =
+        new BufferedOutputStream(HopVfs.getOutputStream(filename, append), BUFFER_SIZE);
+    data.currentFileName = filename;
+
+    if (firstTime && meta.isAddingToResult()) {
+      ResultFile resultFile =
+          new ResultFile(
+              ResultFile.FILE_TYPE_GENERAL,
+              HopVfs.getFileObject(filename, this),
+              getPipelineMeta().getName(),
+              getTransformName());
+      addResultFile(resultFile);
+    }
+  }
+
+  private void closeFile() throws IOException {
+    if (data.outputStream != null) {
+      try {
+        data.outputStream.close();
+      } finally {
+        data.outputStream = null;
+        data.currentFileName = null;
+      }
+    }
+  }
+
   private String resolveFileName(Object[] row) throws HopException {
     String filename;
     if (meta.isFileNameInField()) {
-      filename = getInputRowMeta().getString(row, data.fileNameFieldIndex);
+      filename = resolve(getInputRowMeta().getString(row, data.fileNameFieldIndex));
     } else {
-      filename = meta.getFileSettings().buildFilename(this, false);
+      filename = data.staticFileName;
     }
     if (Utils.isEmpty(filename)) {
       throw new HopException(BaseMessages.getString(PKG, "VCardOutput.Exception.FileNameMissing"));
     }
-    return resolve(filename);
+    return filename;
   }
 
   private Charset outputCharset() {
