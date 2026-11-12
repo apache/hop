@@ -19,18 +19,34 @@ package org.apache.hop.mail.workflow.actions.getpop;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 /** Unit test for {@link ActionGetPOP} */
 class ActionGetPOPTest {
@@ -137,5 +153,65 @@ class ActionGetPOPTest {
     assertEquals(MailConnectionMeta.CONDITION_DATE_BETWEEN, action.getConditionReceivedDate());
     assertEquals("Archive", action.getImapFolder());
     assertTrue(action.isIncludeSubFolders());
+  }
+
+  /** #IdFile# keeps counting over the folders, so a subfolder doesn't overwrite earlier files. */
+  @Test
+  void idFileCountsOverAllFolders() throws Exception {
+    ActionGetPOP action = newActionWithParentWorkflow();
+    MailConnection mailConn = mockMailConnectionCountingSaves();
+    FieldUtils.writeField(action, "mailConn", mailConn, true);
+
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    action.fetchOneFolder(false, "INBOX", "/out", null, null, "m_#IdFile#.mail", 0, df);
+    action.fetchOneFolder(false, "INBOX/sub", "/out", null, null, "m_#IdFile#.mail", 0, df);
+
+    InOrder inOrder = Mockito.inOrder(mailConn);
+    for (int i = 1; i <= 4; i++) {
+      inOrder.verify(mailConn).saveMessageContentToFile(eq("m_" + i + ".mail"), anyString());
+    }
+    verify(mailConn, Mockito.times(4)).saveMessageContentToFile(anyString(), anyString());
+  }
+
+  /** With Include subfolders, the folder that messages are moved into is not fetched again. */
+  @Test
+  void subfoldersSkipTheMoveTarget() throws Exception {
+    ActionGetPOP action = newActionWithParentWorkflow();
+    MailConnection mailConn = mockMailConnectionCountingSaves();
+    Folder moveTarget = mock(Folder.class);
+    when(moveTarget.getFullName()).thenReturn("INBOX.z");
+    when(mailConn.getDestinationIMAPFolder()).thenReturn(moveTarget);
+    when(mailConn.returnAllFolders()).thenReturn(new String[] {"INBOX.a", "INBOX.z", "INBOX.z.x"});
+    FieldUtils.writeField(action, "mailConn", mailConn, true);
+
+    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    action.fetchSubfolders(false, "/out", null, "INBOX.z", "m_#IdFile#.mail", 0, df);
+
+    verify(mailConn).openFolder("INBOX.a", true);
+    verify(mailConn).openFolder("INBOX.z.x", true);
+    verify(mailConn, never()).openFolder("INBOX.z", true);
+    verify(mailConn, Mockito.times(4)).saveMessageContentToFile(anyString(), anyString());
+  }
+
+  private static ActionGetPOP newActionWithParentWorkflow() {
+    ActionGetPOP action = new ActionGetPOP("mails");
+    action.setSaveAttachment(false);
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    when(workflow.getLogLevel()).thenReturn(LogLevel.BASIC);
+    action.setParentWorkflow(workflow);
+    return action;
+  }
+
+  /** A connection with 2 messages in every folder, that counts saved messages like the real one. */
+  private static MailConnection mockMailConnectionCountingSaves() throws Exception {
+    MailConnection mailConn = mock(MailConnection.class);
+    when(mailConn.getMessagesCount()).thenReturn(2);
+    when(mailConn.getMessage()).thenReturn(mock(Message.class));
+    AtomicInteger saved = new AtomicInteger();
+    when(mailConn.getSavedMessagesCounter()).thenAnswer(invocation -> saved.get());
+    doAnswer(invocation -> saved.incrementAndGet())
+        .when(mailConn)
+        .saveMessageContentToFile(anyString(), anyString());
+    return mailConn;
   }
 }

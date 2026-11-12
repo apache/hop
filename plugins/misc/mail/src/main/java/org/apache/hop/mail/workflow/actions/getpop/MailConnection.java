@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,6 +59,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mail.common.MailFolderOperations;
 import org.eclipse.angus.mail.imap.IMAPSSLStore;
 import org.eclipse.angus.mail.pop3.POP3SSLStore;
 
@@ -911,8 +911,7 @@ public class MailConnection {
    */
   public void deleteMessage() throws HopException {
     try {
-      this.message.setFlag(Flag.DELETED, true);
-      updateDeletedMessagesCounter();
+      this.nrDeletedMessages += MailFolderOperations.deleteMessage(this.message);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
@@ -959,11 +958,8 @@ public class MailConnection {
    */
   public void moveMessage() throws HopException {
     try {
-      // move all messages
-      this.folder.copyMessages(new Message[] {this.message}, this.destinationIMAPFolder);
-      updatedMovedMessagesCounter();
-      // Make sure to delete messages
-      deleteMessage();
+      this.nrMovedMessages +=
+          MailFolderOperations.moveMessage(this.folder, this.message, this.destinationIMAPFolder);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
@@ -1039,14 +1035,6 @@ public class MailConnection {
     return this.nrDeletedMessages;
   }
 
-  private void updateDeletedMessagesCounter() {
-    this.nrDeletedMessages++;
-  }
-
-  private void setDeletedMessagesCounter() {
-    this.nrDeletedMessages = getMessagesCount();
-  }
-
   /**
    * Returns count of moved messages.
    *
@@ -1056,16 +1044,6 @@ public class MailConnection {
     return this.nrMovedMessages;
   }
 
-  /** Update count of moved messages. */
-  private void updatedMovedMessagesCounter() {
-    this.nrMovedMessages++;
-  }
-
-  /** Set count of moved messages. */
-  private void setMovedMessagesCounter() {
-    this.nrMovedMessages = getMessagesCount();
-  }
-
   /**
    * Delete messages.
    *
@@ -1073,9 +1051,9 @@ public class MailConnection {
    */
   public void deleteMessages(boolean setCounter) throws HopException {
     try {
-      this.folder.setFlags(this.messages, new Flags(Flag.DELETED), true);
+      int deleted = MailFolderOperations.deleteMessages(this.folder, this.messages);
       if (setCounter) {
-        setDeletedMessagesCounter();
+        this.nrDeletedMessages += deleted;
       }
     } catch (Exception e) {
       throw new HopException(
@@ -1090,9 +1068,8 @@ public class MailConnection {
    */
   public void moveMessages() throws HopException {
     try {
-      this.folder.copyMessages(this.messages, this.destinationIMAPFolder);
-      deleteMessages(false);
-      setMovedMessagesCounter();
+      this.nrMovedMessages +=
+          MailFolderOperations.moveMessages(this.folder, this.messages, this.destinationIMAPFolder);
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
@@ -1130,35 +1107,18 @@ public class MailConnection {
     return retval;
   }
 
-  private HashSet<String> returnSubfolders(Folder folder) throws HopException {
-    HashSet<String> list = new HashSet<>();
-    try {
-      if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
-        Folder[] f = folder.list();
-        for (Folder value : f) {
-          // Search for sub folders
-          if ((value.getType() & Folder.HOLDS_FOLDERS) != 0) {
-            list.add(value.getFullName());
-            list.addAll(returnSubfolders(value));
-          }
-        }
-      }
-    } catch (MessagingException m) {
-      throw new HopException(m);
-    }
-    return list;
-  }
-
   /**
-   * Returns all subfolders of the specified folder
+   * Returns all subfolders of the specified folder, in the same order in every run
    *
    * @param folder parent folder
    * @return sub folders
    */
   public String[] returnAllFolders(Folder folder) throws HopException {
-    HashSet<String> list = new HashSet<>();
-    list = returnSubfolders(folder);
-    return list.toArray(new String[list.size()]);
+    try {
+      return MailFolderOperations.listSubfolders(folder).toArray(new String[0]);
+    } catch (MessagingException m) {
+      throw new HopException(m);
+    }
   }
 
   /**
