@@ -112,7 +112,7 @@ class BeamSnowflakeOutputMetaTest {
   }
 
   @Test
-  void rejectsAQueryAnUnboundedCollectionAndABadDispositionWithoutEchoingIt() throws Exception {
+  void rejectsAQueryAnUnboundedCollectionAndABadDispositionWithoutEchoingIt() {
     HopException query =
         assertThrows(
             HopException.class,

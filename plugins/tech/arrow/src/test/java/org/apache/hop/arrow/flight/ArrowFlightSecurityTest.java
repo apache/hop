@@ -40,7 +40,7 @@ class ArrowFlightSecurityTest {
   private final ILogChannel log = mock(ILogChannel.class);
 
   @Test
-  void noOptionsMeansNoTlsAndNoAuthentication() throws HopException {
+  void noOptionsMeansNoTlsAndNoAuthentication() {
     ArrowFlightSecurity security = new ArrowFlightSecurity();
 
     assertFalse(security.isTlsEnabled());

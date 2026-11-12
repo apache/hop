@@ -148,7 +148,7 @@ class ParquetOutputPartitionTest {
   }
 
   @Test
-  void partitioningOnEveryFieldIsRejected() throws Exception {
+  void partitioningOnEveryFieldIsRejected() {
     ParquetOutputMeta meta = partitionedMeta("id", "region", "year");
     ParquetOutput output = createTransform(meta, new ParquetOutputData());
     output.setInputRowMeta(salesRowMeta());
@@ -158,7 +158,7 @@ class ParquetOutputPartitionTest {
   }
 
   @Test
-  void unknownPartitionFieldIsRejected() throws Exception {
+  void unknownPartitionFieldIsRejected() {
     ParquetOutputMeta meta = partitionedMeta("nope");
     ParquetOutput output = createTransform(meta, new ParquetOutputData());
     output.setInputRowMeta(salesRowMeta());
@@ -168,7 +168,7 @@ class ParquetOutputPartitionTest {
   }
 
   @Test
-  void duplicatePartitionFieldIsRejected() throws Exception {
+  void duplicatePartitionFieldIsRejected() {
     ParquetOutputMeta meta = partitionedMeta("region", "region");
     ParquetOutput output = createTransform(meta, new ParquetOutputData());
     output.setInputRowMeta(salesRowMeta());

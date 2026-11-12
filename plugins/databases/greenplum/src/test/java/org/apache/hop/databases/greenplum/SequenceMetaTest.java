@@ -30,10 +30,9 @@ class SequenceMetaTest {
   @Test
   void testSupport() {
 
-    IDatabase[] support =
-        new IDatabase[] {
-          new GreenplumDatabaseMeta(),
-        };
+    IDatabase[] support = {
+      new GreenplumDatabaseMeta(),
+    };
 
     for (IDatabase db : support) {
       assertSupports(db, true);

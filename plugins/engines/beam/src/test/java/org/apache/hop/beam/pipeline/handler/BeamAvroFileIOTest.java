@@ -151,7 +151,7 @@ class BeamAvroFileIOTest {
   }
 
   @Test
-  void copyNumberInTheFilenameIsRefused() throws Exception {
+  void copyNumberInTheFilenameIsRefused() {
     AvroOutputMeta meta = fileMeta(tempDir.resolve("refused.avro"));
     meta.setTransformNrInFilename(true);
     HopException refused =

@@ -193,7 +193,7 @@ class CrateDBBulkLoaderTest {
 
   /** The mapping picks the fields out of the row in the configured order. */
   @Test
-  void mapsTheSelectedFieldsToTheirPositionOnTheStream() throws Exception {
+  void mapsTheSelectedFieldsToTheirPositionOnTheStream() {
     meta.setSpecifyFields(true);
     meta.setFields(
         List.of(
@@ -351,7 +351,7 @@ class CrateDBBulkLoaderTest {
    * about its columns, so the statement has to stay silent.
    */
   @Test
-  void namesNoColumnsForAnExistingFileWithoutAMapping() throws Exception {
+  void namesNoColumnsForAnExistingFileWithoutAMapping() {
     meta.setStreamToS3Csv(false);
     meta.setSpecifyFields(false);
     prepare(rowMeta("trigger"));

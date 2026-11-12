@@ -38,7 +38,6 @@ import jakarta.mail.search.ReceivedDateTerm;
 import jakarta.mail.search.RecipientStringTerm;
 import jakarta.mail.search.SearchTerm;
 import jakarta.mail.search.SubjectTerm;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -366,7 +365,7 @@ class MailServerConnectionFilterTest {
   }
 
   @Test
-  void getPasswordResolvesAndDecrypts() throws IOException {
+  void getPasswordResolvesAndDecrypts() {
     MailServerConnection c =
         new MailServerConnection(new org.apache.hop.core.variables.Variables());
     // A plain (non-encrypted) password just gets returned as-is after variable resolution.

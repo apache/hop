@@ -113,7 +113,7 @@ public class SftpPasswordAuthTest {
   }
 
   @AfterAll
-  static void tearDown() throws Exception {
+  static void tearDown() {
     if (manager != null) {
       try {
         manager.close();

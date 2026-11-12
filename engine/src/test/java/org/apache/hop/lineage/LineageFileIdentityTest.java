@@ -30,40 +30,40 @@ import org.junit.jupiter.api.Test;
 public class LineageFileIdentityTest {
 
   @Test
-  public void localFileUsesFileNamespaceAndAbsolutePath() {
+  void localFileUsesFileNamespaceAndAbsolutePath() {
     assertEquals(
         new Identity("file", "/data/customers.csv"),
         LineageFileIdentity.of("file:///data/customers.csv"));
   }
 
   @Test
-  public void s3BucketInNamespaceKeyWithoutLeadingSlash() {
+  void s3BucketInNamespaceKeyWithoutLeadingSlash() {
     assertEquals(
         new Identity("s3://my-bucket", "warehouse/orders/part-0.parquet"),
         LineageFileIdentity.of("s3://my-bucket/warehouse/orders/part-0.parquet"));
   }
 
   @Test
-  public void s3aAndS3nNormaliseToS3() {
+  void s3aAndS3nNormaliseToS3() {
     assertEquals(new Identity("s3://b", "k.csv"), LineageFileIdentity.of("s3a://b/k.csv"));
     assertEquals(new Identity("s3://b", "k.csv"), LineageFileIdentity.of("s3n://b/k.csv"));
   }
 
   @Test
-  public void gcsBucketInNamespace() {
+  void gcsBucketInNamespace() {
     assertEquals(
         new Identity("gs://bkt", "path/to/file"), LineageFileIdentity.of("gs://bkt/path/to/file"));
   }
 
   @Test
-  public void hdfsHostPortInNamespacePathKept() {
+  void hdfsHostPortInNamespacePathKept() {
     assertEquals(
         new Identity("hdfs://namenode:8020", "/warehouse/t/f"),
         LineageFileIdentity.of("hdfs://namenode:8020/warehouse/t/f"));
   }
 
   @Test
-  public void azureContainerAndAccountKeptInNamespace() {
+  void azureContainerAndAccountKeptInNamespace() {
     assertEquals(
         new Identity("abfss://fs@acct.dfs.core.windows.net", "/dir/file"),
         LineageFileIdentity.of("abfss://fs@acct.dfs.core.windows.net/dir/file"));
@@ -71,19 +71,19 @@ public class LineageFileIdentityTest {
 
   // Credentials in a URI must never leak into the lineage namespace.
   @Test
-  public void userInfoIsStrippedFromGenericSchemes() {
+  void userInfoIsStrippedFromGenericSchemes() {
     assertEquals(
         new Identity("sftp://host:22", "/upload/data.txt"),
         LineageFileIdentity.of("sftp://user:secret@host:22/upload/data.txt"));
   }
 
   @Test
-  public void schemeWithoutHostFallsBackToScheme() {
+  void schemeWithoutHostFallsBackToScheme() {
     assertEquals(new Identity("hdfs", "/p"), LineageFileIdentity.of("hdfs:/p"));
   }
 
   @Test
-  public void blankOrSchemelessOrUnparsableYieldsNull() {
+  void blankOrSchemelessOrUnparsableYieldsNull() {
     assertNull(LineageFileIdentity.of(null));
     assertNull(LineageFileIdentity.of("   "));
     assertNull(LineageFileIdentity.of("/just/a/path"));
@@ -93,7 +93,7 @@ public class LineageFileIdentityTest {
   // The invariant: identity is a pure function of the URI, so the same physical file emitted by
   // different transforms/engines reconciles onto one node.
   @Test
-  public void sameUriAlwaysYieldsSameIdentity() {
+  void sameUriAlwaysYieldsSameIdentity() {
     String uri = "s3://bucket/key/file.parquet";
     assertEquals(LineageFileIdentity.of(uri), LineageFileIdentity.of(uri));
   }

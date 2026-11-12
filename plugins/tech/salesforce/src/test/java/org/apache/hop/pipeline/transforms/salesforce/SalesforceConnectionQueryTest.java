@@ -278,6 +278,6 @@ class SalesforceConnectionQueryTest {
 
     // Should be nulled or marked as done
     assertTrue(qrAfter == null || ((QueryResult) qrAfter).isDone());
-    assertTrue(sObjectsAfter == null);
+    assertNull(sObjectsAfter);
   }
 }

@@ -69,11 +69,7 @@ class IfNullTest {
   }
 
   @AfterEach
-  void clean()
-      throws NoSuchFieldException,
-          SecurityException,
-          IllegalArgumentException,
-          IllegalAccessException {
+  void clean() throws SecurityException, IllegalArgumentException {
     smh.cleanUp();
   }
 
@@ -139,9 +135,8 @@ class IfNullTest {
             );
     transform.setInputRowMeta(inputRowMeta);
 
-    final Object[] inputRow = new Object[] {"value1", null, "", "    ", "value5"};
-    final Object[] expectedRow =
-        new Object[] {"value1", "replace-value", "replace-value", "    ", "value5"};
+    final Object[] inputRow = {"value1", null, "", "    ", "value5"};
+    final Object[] expectedRow = {"value1", "replace-value", "replace-value", "    ", "value5"};
 
     transform.addRowSetToInputRowSets(buildInputRowSet(inputRow));
     transform.addRowSetToOutputRowSets(new QueueRowSet());
@@ -178,8 +173,8 @@ class IfNullTest {
             );
     transform.setInputRowMeta(inputRowMeta);
 
-    final Object[] inputRow = new Object[] {"value1", null, "", "    ", "value5"};
-    final Object[] expectedRow = new Object[] {"value1", "replace-value", "", "    ", "value5"};
+    final Object[] inputRow = {"value1", null, "", "    ", "value5"};
+    final Object[] expectedRow = {"value1", "replace-value", "", "    ", "value5"};
 
     transform.addRowSetToInputRowSets(buildInputRowSet(inputRow));
     transform.addRowSetToOutputRowSets(new QueueRowSet());

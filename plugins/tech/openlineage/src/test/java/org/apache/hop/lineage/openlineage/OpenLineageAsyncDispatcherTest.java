@@ -168,7 +168,7 @@ class OpenLineageAsyncDispatcherTest {
   }
 
   @Test
-  void blockPolicyIsLosslessWhileTheCollectorKeepsUp() throws Exception {
+  void blockPolicyIsLosslessWhileTheCollectorKeepsUp() {
     BlockingEmitter emitter = new BlockingEmitter(false);
     OpenLineageAsyncDispatcher dispatcher =
         new OpenLineageAsyncDispatcher(2, OverflowPolicy.BLOCK, emitter, new LogChannel("block"));
@@ -218,7 +218,7 @@ class OpenLineageAsyncDispatcherTest {
 
   // Ensures the worker keeps draining and exits cleanly even with rapid enqueue.
   @Test
-  void closeDrainsRemainingEvents() throws Exception {
+  void closeDrainsRemainingEvents() {
     AtomicInteger count = new AtomicInteger();
     OpenLineageEmitter emitter =
         new OpenLineageEmitter() {

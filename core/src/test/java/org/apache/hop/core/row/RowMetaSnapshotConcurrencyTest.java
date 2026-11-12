@@ -44,7 +44,7 @@ class RowMetaSnapshotConcurrencyTest {
   }
 
   @Test
-  void snapshotTracksEveryMutation() throws Exception {
+  void snapshotTracksEveryMutation() {
     RowMeta rowMeta = new RowMeta();
     assertEquals(0, rowMeta.size());
 

@@ -78,7 +78,7 @@ class WorkflowAiProposalValidatorTest {
   }
 
   @Test
-  void validatesClipboardAndReplaceAction() throws Exception {
+  void validatesClipboardAndReplaceAction() {
     WorkflowMeta workflowMeta = new WorkflowMeta();
     ActionMeta existing = new ActionMeta(new ActionDummy("Check"));
     workflowMeta.addAction(existing);

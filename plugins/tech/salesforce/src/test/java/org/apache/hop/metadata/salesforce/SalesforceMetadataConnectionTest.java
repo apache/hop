@@ -19,6 +19,7 @@ package org.apache.hop.metadata.salesforce;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -377,9 +378,9 @@ class SalesforceMetadataConnectionTest {
     SalesforceConnection conn2 = new SalesforceConnection("Connection1");
     SalesforceConnection conn3 = new SalesforceConnection("Connection2");
 
-    assertTrue(conn1.equals(conn2));
-    assertFalse(conn1.equals(conn3));
-    assertTrue(conn1.equals(conn1)); // reflexive
+    assertEquals(conn1, conn2);
+    assertNotEquals(conn1, conn3);
+    assertEquals(conn1, conn1); // reflexive
   }
 
   @Test

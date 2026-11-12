@@ -53,16 +53,15 @@ class HopSparkRowConverterTest {
     rowMeta.addValueMeta(new ValueMetaBinary("bin"));
 
     Date now = new Date(1_700_000_000_000L);
-    Object[] hopRow =
-        new Object[] {
-          "hello",
-          42L,
-          3.5d,
-          true,
-          now,
-          new BigDecimal("123.45"),
-          "bytes".getBytes(StandardCharsets.UTF_8)
-        };
+    Object[] hopRow = {
+      "hello",
+      42L,
+      3.5d,
+      true,
+      now,
+      new BigDecimal("123.45"),
+      "bytes".getBytes(StandardCharsets.UTF_8)
+    };
 
     StructType schema = HopSparkRowConverter.toStructType(rowMeta);
     assertEquals(7, schema.fields().length);

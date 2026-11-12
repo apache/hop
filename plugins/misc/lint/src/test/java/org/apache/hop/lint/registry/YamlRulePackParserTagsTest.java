@@ -74,7 +74,7 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void tagsAreReadAsListsInTheOrderTheyWereWritten() throws Exception {
+  void tagsAreReadAsListsInTheOrderTheyWereWritten() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-001");
 
     assertEquals(
@@ -86,12 +86,12 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void nativeRulesCarryTagsToo() throws Exception {
+  void nativeRulesCarryTagsToo() throws Exception {
     assertEquals(Map.of("category", List.of("verify")), load(PACK).get("ACME-002").getTags());
   }
 
   @Test
-  public void aRuleWithoutTagsHasNone() throws Exception {
+  void aRuleWithoutTagsHasNone() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-003");
 
     assertTrue(rule.getTags().isEmpty());
@@ -99,7 +99,7 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void copyKeepsTagsAndHelpUriWithoutSharingThem() throws Exception {
+  void copyKeepsTagsAndHelpUriWithoutSharingThem() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-001");
     CustomLintRule copy = rule.copy();
 
@@ -111,7 +111,7 @@ public class YamlRulePackParserTagsTest {
 
   /** A rule saved from the rule manager keeps its tags and help link. */
   @Test
-  public void tagsSurviveARoundTripThroughTheProjectFile() throws Exception {
+  void tagsSurviveARoundTripThroughTheProjectFile() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-001");
     rule.setPackOwner(RulePackOwner.PROJECT);
 
@@ -129,7 +129,7 @@ public class YamlRulePackParserTagsTest {
    * and a key with no values removes the pack's tag.
    */
   @Test
-  public void aProjectOverrideReplacesTagsPerKey() throws Exception {
+  void aProjectOverrideReplacesTagsPerKey() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-001");
     Map<String, Object> override = new LinkedHashMap<>();
     Map<String, Object> tags = new LinkedHashMap<>();
@@ -152,7 +152,7 @@ public class YamlRulePackParserTagsTest {
 
   /** A bare helpUri: removes the pack's link, rather than becoming the text "null". */
   @Test
-  public void aBareHelpUriOverrideRemovesTheLink() throws Exception {
+  void aBareHelpUriOverrideRemovesTheLink() throws Exception {
     CustomLintRule rule = load(PACK).get("ACME-001");
     Map<String, Object> override = new LinkedHashMap<>();
     override.put("helpUri", null);
@@ -164,7 +164,7 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void aValueGivenTwiceIsKeptOnce() {
+  void aValueGivenTwiceIsKeptOnce() {
     assertEquals(
         Map.of("policy", List.of("SEC-POL-4", "SEC-POL-7")),
         YamlRulePackParser.tagsValue(
@@ -177,7 +177,7 @@ public class YamlRulePackParserTagsTest {
    * The rule manager writes only the keys the project changed, so the pack's other tags follow it.
    */
   @Test
-  public void theExporterWritesOnlyTheChangedTagKeys() {
+  void theExporterWritesOnlyTheChangedTagKeys() {
     Map<String, List<String>> pack = new LinkedHashMap<>();
     pack.put("category", List.of("secrets"));
     pack.put("owner", List.of("platform-team"));
@@ -196,7 +196,7 @@ public class YamlRulePackParserTagsTest {
 
   /** Tagging a core rule in the rule manager is an override, not a copy of the whole rule. */
   @Test
-  public void taggingAPackRuleIsWrittenAsAnOverride() {
+  void taggingAPackRuleIsWrittenAsAnOverride() {
     CustomLintRule rule =
         RuleRegistry.getInstance().resolve(null).getRules().stream()
             .filter(r -> "DB-001".equals(r.generateRuleId()))
@@ -211,7 +211,7 @@ public class YamlRulePackParserTagsTest {
 
   /** A nested mapping is not a tag. It is left out rather than failing the whole pack. */
   @Test
-  public void malformedTagsAreLeftOut() {
+  void malformedTagsAreLeftOut() {
     Map<String, Object> tags = new LinkedHashMap<>();
     tags.put("owner", "platform-team");
     tags.put("nested", Map.of("a", "b"));
@@ -226,7 +226,7 @@ public class YamlRulePackParserTagsTest {
 
   /** A typo such as tag: for tags: would otherwise drop every tag without anyone noticing. */
   @Test
-  public void anUnknownKeyIsReportedWithTheClosestKnownOne() {
+  void anUnknownKeyIsReportedWithTheClosestKnownOne() {
     Map<String, Object> ruleData = new LinkedHashMap<>();
     ruleData.put("type", "custom");
     ruleData.put("tag", Map.of("owner", "platform-team"));
@@ -246,7 +246,7 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void knownKeysProduceNoWarning() {
+  void knownKeysProduceNoWarning() {
     Map<String, Object> ruleData = new LinkedHashMap<>();
     for (String key : YamlRulePackParser.CUSTOM_RULE_KEYS) {
       ruleData.put(key, "x");
@@ -267,7 +267,7 @@ public class YamlRulePackParserTagsTest {
    * second project is a second warning, not a repeat of the first.
    */
   @Test
-  public void anUnknownOverrideKeyNamesTheProjectFile() {
+  void anUnknownOverrideKeyNamesTheProjectFile() {
     Map<String, Object> ruleData = Map.of("severty", "ERROR");
     File crm = new File("/projects/crm/hop-lint.yml");
     File sales = new File("/projects/sales/hop-lint.yml");
@@ -298,7 +298,7 @@ public class YamlRulePackParserTagsTest {
    * @see <a href="https://github.com/apache/hop/issues/8591">#8591</a>
    */
   @Test
-  public void anUnknownParameterIsReportedWithTheClosestKnownOne() {
+  void anUnknownParameterIsReportedWithTheClosestKnownOne() {
     Map<String, Object> parameters = new LinkedHashMap<>();
     parameters.put("checkPasswords", true);
     parameters.put("fieldPattern", List.of("password"));
@@ -318,7 +318,7 @@ public class YamlRulePackParserTagsTest {
   }
 
   @Test
-  public void noParametersProduceNoWarning() {
+  void noParametersProduceNoWarning() {
     assertTrue(
         YamlRulePackParser.unknownParameterWarnings("DB-001", "in pack 'acme'", null).isEmpty());
     assertTrue(
@@ -328,7 +328,7 @@ public class YamlRulePackParserTagsTest {
 
   /** Every key the core pack uses has to be a known key, or Hop warns about its own rules. */
   @Test
-  public void theCorePackUsesOnlyKnownKeys() throws Exception {
+  void theCorePackUsesOnlyKnownKeys() throws Exception {
     try (var in =
         YamlRulePackParser.class.getClassLoader().getResourceAsStream("hop-lint-core.yml")) {
       @SuppressWarnings("unchecked")

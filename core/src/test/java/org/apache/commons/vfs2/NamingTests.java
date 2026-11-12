@@ -18,6 +18,7 @@ package org.apache.commons.vfs2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -101,7 +102,7 @@ public class NamingTests extends AbstractProviderTestCase {
   /** Name resolution tests that are common for CHILD or DESCENDENT scope. */
   private void checkDescendentNames(final FileName name, final NameScope scope) throws Exception {
     // Make some assumptions about the name
-    assertFalse(name.getPath().equals("/"));
+    assertNotEquals("/", name.getPath());
     assertFalse(name.getPath().endsWith("/a"));
     assertFalse(name.getPath().endsWith("/a/b"));
 

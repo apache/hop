@@ -73,7 +73,7 @@ class ParquetWriteSupportTest {
   }
 
   @Test
-  void testWriteIntegerAndString() throws Exception {
+  void testWriteIntegerAndString() {
     Schema avroSchema =
         SchemaBuilder.record("ApacheHopParquetSchema")
             .fields()
@@ -104,7 +104,7 @@ class ParquetWriteSupportTest {
   }
 
   @Test
-  void testWriteDateAndTimestampAsEpochMillis() throws Exception {
+  void testWriteDateAndTimestampAsEpochMillis() {
     Schema avroSchema =
         SchemaBuilder.record("ApacheHopParquetSchema")
             .fields()

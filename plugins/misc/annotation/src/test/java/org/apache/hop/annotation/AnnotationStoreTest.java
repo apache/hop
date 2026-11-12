@@ -118,7 +118,7 @@ class AnnotationStoreTest {
   }
 
   @Test
-  void transformCloneKeepsTheAnnotationItHad() throws Exception {
+  void transformCloneKeepsTheAnnotationItHad() {
     TransformMeta original = new TransformMeta("Dummy", "read", new DummyMeta());
     AnnotationStore.write(original, annotation("Start", AnnotationPlacement.TOP));
 

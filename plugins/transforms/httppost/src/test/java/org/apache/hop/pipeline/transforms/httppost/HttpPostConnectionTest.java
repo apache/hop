@@ -155,7 +155,7 @@ class HttpPostConnectionTest {
   }
 
   @Test
-  void aMissingConnectionStopsTheTransform() throws Exception {
+  void aMissingConnectionStopsTheTransform() {
     HttpPostMeta meta = meta("v1/items");
     meta.setConnectionName("does-not-exist");
 

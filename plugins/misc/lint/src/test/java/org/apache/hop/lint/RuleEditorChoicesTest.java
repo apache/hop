@@ -42,7 +42,7 @@ public class RuleEditorChoicesTest {
 
   /** Every rule the core pack ships opens in the editor with its own field and condition. */
   @Test
-  public void everyCoreRuleFitsTheEditor() {
+  void everyCoreRuleFitsTheEditor() {
     List<String> problems = new ArrayList<>();
     for (CustomLintRule rule : new HopCoreRulePack().loadRules()) {
       if (rule.isReportOnly()) {
@@ -67,7 +67,7 @@ public class RuleEditorChoicesTest {
   }
 
   @Test
-  public void isAndHasFieldsAreFlags() {
+  void isAndHasFieldsAreFlags() {
     for (String field : List.of("isDummy", "isReferenced", "isOrphaned", "hasNotes")) {
       assertEquals(
           List.of(RuleCondition.MUST_BE_TRUE, RuleCondition.MUST_BE_FALSE),
@@ -83,7 +83,7 @@ public class RuleEditorChoicesTest {
 
   /** A Putki rule reads a Table Output's own truncateTable setting, and PUTKI-ENV-006 a port. */
   @Test
-  public void aFieldOrConditionTheEditorWouldNotSuggestIsKept() {
+  void aFieldOrConditionTheEditorWouldNotSuggestIsKept() {
     List<String> fields = RuleTargetFields.getFieldChoices(RuleTarget.TRANSFORM, "truncateTable");
     assertTrue(fields.contains("truncateTable"));
     assertTrue(fields.containsAll(RuleTargetFields.getFieldsForTarget(RuleTarget.TRANSFORM)));
@@ -97,14 +97,14 @@ public class RuleEditorChoicesTest {
   }
 
   @Test
-  public void anUnchangedPackRuleNeedsNoEntry() {
+  void anUnchangedPackRuleNeedsNoEntry() {
     CustomLintRule rule = coreRule("DOC-001");
 
     assertNull(ProjectLintYamlExporter.entryFor(rule));
   }
 
   @Test
-  public void aTunedPackRuleWritesOnlyWhatChanged() {
+  void aTunedPackRuleWritesOnlyWhatChanged() {
     CustomLintRule rule = coreRule("DOC-001");
     rule.setSeverity("INFO");
 
@@ -112,7 +112,7 @@ public class RuleEditorChoicesTest {
   }
 
   @Test
-  public void aProjectRuleWithoutParametersWritesNone() {
+  void aProjectRuleWithoutParametersWritesNone() {
     CustomLintRule rule = coreRule("DOC-001");
     rule.setId("CRM-001");
     rule.setPackOwner(org.apache.hop.lint.registry.RulePackOwner.PROJECT);

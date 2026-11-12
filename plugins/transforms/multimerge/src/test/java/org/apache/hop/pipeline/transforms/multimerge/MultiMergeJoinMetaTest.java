@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.multimerge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -52,14 +53,14 @@ class MultiMergeJoinMetaTest {
   }
 
   @Test
-  void testClone() throws Exception {
+  void testClone() {
     MultiMergeJoinMeta meta = new MultiMergeJoinMeta();
     meta.setKeyFields(Arrays.asList("key1", "key2"));
     meta.setInputTransforms(Arrays.asList("transform1", "transform2", "transform3"));
     // scalars should be cloned using super.clone() - makes sure they're calling super.clone()
     meta.setJoinType("INNER");
     MultiMergeJoinMeta aClone = (MultiMergeJoinMeta) meta.clone();
-    assertFalse(aClone == meta);
+    assertNotSame(meta, aClone);
     assertEquals(meta.getKeyFields(), aClone.getKeyFields());
     assertEquals(meta.getInputTransforms(), aClone.getInputTransforms());
     assertEquals(meta.getJoinType(), aClone.getJoinType());

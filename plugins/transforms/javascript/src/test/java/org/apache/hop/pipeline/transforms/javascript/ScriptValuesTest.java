@@ -67,7 +67,7 @@ class ScriptValuesTest {
   }
 
   private static ScriptValues newTransform(
-      ScriptValuesMeta meta, RowMeta inputRowMeta, ScriptValuesData data) throws Exception {
+      ScriptValuesMeta meta, RowMeta inputRowMeta, ScriptValuesData data) {
     TransformMockHelper<ScriptValuesMeta, ScriptValuesData> mockHelper =
         new TransformMockHelper<>("test", ScriptValuesMeta.class, ScriptValuesData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))

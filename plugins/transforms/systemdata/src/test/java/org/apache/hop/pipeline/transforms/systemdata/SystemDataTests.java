@@ -274,7 +274,7 @@ class SystemDataTests {
   }
 
   @Test
-  void processRow_ipAddressFailureThrowsHopException() throws Exception {
+  void processRow_ipAddressFailureThrowsHopException() {
     meta.setFields(List.of(field("ip", SystemDataType.IP_ADDRESS)));
     when(helper.pipelineMeta.findPreviousTransforms(any())).thenReturn(new ArrayList<>());
     SystemData transform = newTransform();

@@ -20,8 +20,8 @@ import static org.apache.commons.vfs2.VfsTestUtils.assertSameMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,12 +63,8 @@ public class UrlTests extends AbstractProviderTestCase {
     assertFalse(unknownFile.exists());
 
     final URLConnection connection = unknownFile.getURL().openConnection();
-    try {
-      connection.getInputStream();
-      fail();
-    } catch (final IOException e) {
-      assertSameMessage("vfs.provider/read-not-file.error", unknownFile, e);
-    }
+    final IOException e = assertThrows(IOException.class, connection::getInputStream);
+    assertSameMessage("vfs.provider/read-not-file.error", unknownFile, e);
     assertEquals(-1, connection.getContentLength());
   }
 
@@ -93,8 +89,7 @@ public class UrlTests extends AbstractProviderTestCase {
     testURLContent(getReadFolder());
   }
 
-  private void testURLContent(final FileObject readFolder)
-      throws FileSystemException, IOException, Exception {
+  private void testURLContent(final FileObject readFolder) throws Exception {
     // Test non-empty file
     FileObject file = readFolder.resolveFile("file1.txt");
     assertTrue(file.exists(), file.toString());

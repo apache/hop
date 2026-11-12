@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -230,8 +231,7 @@ public abstract class GraphCanvasTestBase extends SwtBotTestBase {
   /** Guards a test's own assumption that a spot really is empty canvas. */
   protected void assertEmptyCanvas(AreaLookup lookup, Point... points) {
     for (Point point : points) {
-      assertTrue(
-          onUi(() -> lookup.at(point.x, point.y)) == null, "expected empty canvas at " + point);
+      assertNull(onUi(() -> lookup.at(point.x, point.y)), "expected empty canvas at " + point);
     }
   }
 

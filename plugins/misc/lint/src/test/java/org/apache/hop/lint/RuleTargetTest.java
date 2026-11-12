@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class RuleTargetTest {
 
   @Test
-  public void testRuleTargetValues() {
+  void testRuleTargetValues() {
     RuleTarget[] values = RuleTarget.values();
 
     // Membership, not an exact count: targets get added as the engine reaches further into a
@@ -43,7 +43,7 @@ public class RuleTargetTest {
   }
 
   @Test
-  public void testRuleTargetValueOf() {
+  void testRuleTargetValueOf() {
     assertEquals(RuleTarget.PIPELINE, RuleTarget.valueOf("PIPELINE"));
     assertEquals(RuleTarget.WORKFLOW, RuleTarget.valueOf("WORKFLOW"));
     assertEquals(RuleTarget.DATABASE_CONNECTION, RuleTarget.valueOf("DATABASE_CONNECTION"));
@@ -53,7 +53,7 @@ public class RuleTargetTest {
   }
 
   @Test
-  public void testInvalidRuleTargetValueOf() {
+  void testInvalidRuleTargetValueOf() {
     assertThrows(IllegalArgumentException.class, () -> RuleTarget.valueOf("INVALID"));
   }
 
@@ -62,7 +62,7 @@ public class RuleTargetTest {
    * directly to combo boxes in the rule builder. YAML round-tripping uses {@code name()}.
    */
   @Test
-  public void testRuleTargetToString() {
+  void testRuleTargetToString() {
     assertEquals("Pipeline", RuleTarget.PIPELINE.toString());
     assertEquals("Workflow", RuleTarget.WORKFLOW.toString());
     assertEquals("Database Connection", RuleTarget.DATABASE_CONNECTION.toString());
@@ -73,14 +73,14 @@ public class RuleTargetTest {
 
   /** YAML stores {@code name()}, so that is the persistence contract. */
   @Test
-  public void testRuleTargetNameIsStableForYaml() {
+  void testRuleTargetNameIsStableForYaml() {
     assertEquals("PIPELINE", RuleTarget.PIPELINE.name());
     assertEquals("DATABASE_CONNECTION", RuleTarget.DATABASE_CONNECTION.name());
     assertEquals("HOP", RuleTarget.HOP.name());
   }
 
   @Test
-  public void testRuleTargetOrdinal() {
+  void testRuleTargetOrdinal() {
     assertEquals(0, RuleTarget.PIPELINE.ordinal());
     assertEquals(1, RuleTarget.WORKFLOW.ordinal());
     assertEquals(2, RuleTarget.DATABASE_CONNECTION.ordinal());
@@ -90,14 +90,14 @@ public class RuleTargetTest {
   }
 
   @Test
-  public void testRuleTargetEquality() {
+  void testRuleTargetEquality() {
     assertEquals(RuleTarget.PIPELINE, RuleTarget.PIPELINE);
     assertNotEquals(RuleTarget.PIPELINE, RuleTarget.WORKFLOW);
     assertNotEquals(RuleTarget.DATABASE_CONNECTION, RuleTarget.TRANSFORM);
   }
 
   @Test
-  public void testRuleTargetHashCode() {
+  void testRuleTargetHashCode() {
     assertEquals(RuleTarget.PIPELINE.hashCode(), RuleTarget.PIPELINE.hashCode());
     assertNotEquals(RuleTarget.PIPELINE.hashCode(), RuleTarget.WORKFLOW.hashCode());
   }

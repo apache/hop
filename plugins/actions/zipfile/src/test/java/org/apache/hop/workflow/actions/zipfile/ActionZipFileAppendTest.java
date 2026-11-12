@@ -223,7 +223,7 @@ class ActionZipFileAppendTest {
     assertEquals(List.of("archive.zip"), children(ramFolder + "/archive"));
   }
 
-  private static Result append(String sourceDirectory, String zipFilename) throws Exception {
+  private static Result append(String sourceDirectory, String zipFilename) {
     ActionZipFile action = new ActionZipFile();
     action.setParentWorkflow(new LocalWorkflowEngine(new WorkflowMeta()));
     action.setParentWorkflowMeta(mock(WorkflowMeta.class));

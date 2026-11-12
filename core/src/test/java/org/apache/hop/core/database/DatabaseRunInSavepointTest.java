@@ -221,7 +221,7 @@ class DatabaseRunInSavepointTest {
   }
 
   @Test
-  void aFailedRowReleasesTheLockOfASharedConnection() throws Exception {
+  void aFailedRowReleasesTheLockOfASharedConnection() {
     SharedConnectionLock lock = share();
     assertThrows(
         HopException.class,

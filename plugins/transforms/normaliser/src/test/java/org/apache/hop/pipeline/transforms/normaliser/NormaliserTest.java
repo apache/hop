@@ -257,7 +257,7 @@ class NormaliserTest {
 
   /** Two fields of one type filling the same normalised field cannot both fit on its row. */
   @Test
-  void twoFieldsFillingTheSameNormalisedFieldOfOneTypeAreRefused() throws Exception {
+  void twoFieldsFillingTheSameNormalisedFieldOfOneTypeAreRefused() {
     IRowMeta input = new RowMeta();
     for (String name : new String[] {"a1", "a2"}) {
       input.addValueMeta(new ValueMetaString(name));

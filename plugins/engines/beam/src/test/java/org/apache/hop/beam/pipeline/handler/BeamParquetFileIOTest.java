@@ -96,7 +96,7 @@ class BeamParquetFileIOTest {
   private static PipelineResult lastRead;
 
   private static final Date WHEN = new Date(1_700_000_000_000L);
-  private static final byte[] PAYLOAD = new byte[] {9, 8, 7};
+  private static final byte[] PAYLOAD = {9, 8, 7};
   private static final BigDecimal AMOUNT = new BigDecimal("-12.34");
 
   @TempDir Path tempDir;

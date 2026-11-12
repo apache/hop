@@ -17,8 +17,8 @@
 
 package org.apache.hop.mongo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,12 +52,8 @@ class AuthContextTest {
     Exception mock = mock(RuntimeException.class);
     doThrow(mock).when(privExcAction).run();
     AuthContext authContext = new AuthContext(null);
-    try {
-      authContext.doAs(privExcAction);
-      fail();
-    } catch (Exception e) {
-      assertTrue(e instanceof PrivilegedActionException);
-    }
+    Exception e = assertThrows(Exception.class, () -> authContext.doAs(privExcAction));
+    assertTrue(e instanceof PrivilegedActionException);
     verify(privExcAction).run();
   }
 }

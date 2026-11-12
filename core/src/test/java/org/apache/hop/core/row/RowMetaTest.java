@@ -503,8 +503,8 @@ class RowMetaTest {
     rowMeta.clear();
     // the hash covers the values the row metadata describes
     rowMeta.addValueMeta(new ValueMetaBinary("bin"));
-    byte[] byteArray = new byte[] {49, 50, 51};
-    Object[] objArray = new Object[] {byteArray};
+    byte[] byteArray = {49, 50, 51};
+    Object[] objArray = {byteArray};
     try {
       assertEquals(78512, rowMeta.hashCode(objArray));
     } catch (HopValueException e) {

@@ -104,7 +104,7 @@ class BaseGuiWidgetsStaticListenerTest {
   }
 
   @Test
-  void findsListenerMethodDeclaredOnASuperclass() throws Exception {
+  void findsListenerMethodDeclaredOnASuperclass() {
     Method method = BaseGuiWidgets.findDeclaredMethod(ConnectionSelectionLine.class, "edit");
     assertNotNull(method);
     assertEquals(SelectionLine.class, method.getDeclaringClass());

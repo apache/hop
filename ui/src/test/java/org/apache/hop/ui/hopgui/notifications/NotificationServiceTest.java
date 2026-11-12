@@ -50,14 +50,14 @@ public class NotificationServiceTest {
   private NotificationService service;
 
   @BeforeAll
-  public static void initHopLogStore() {
+  static void initHopLogStore() {
     if (!HopLogStore.isInitialized()) {
       HopLogStore.init();
     }
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     clearPersistedNotificationState();
     // The fetch cache is process-wide by design, so one test's poll would otherwise stand in for
     // the next one's.
@@ -69,7 +69,7 @@ public class NotificationServiceTest {
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     if (service != null) {
       service.stop();
     }
@@ -96,7 +96,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testRegisterAndUnregisterProvider() {
+  void testRegisterAndUnregisterProvider() {
     TestNotificationProvider provider = new TestNotificationProvider();
     service.registerProvider(provider);
 
@@ -108,13 +108,13 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testRegisterNullProviderIsIgnored() {
+  void testRegisterNullProviderIsIgnored() {
     service.registerProvider(null);
     assertEquals(0, service.getTotalCount());
   }
 
   @Test
-  public void testAddNotification() {
+  void testAddNotification() {
     Notification n =
         new Notification(
             "notif-1",
@@ -136,7 +136,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testAddNotification_duplicateIgnored() {
+  void testAddNotification_duplicateIgnored() {
     Notification n =
         new Notification(
             "notif-1",
@@ -156,7 +156,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testMarkAsRead() {
+  void testMarkAsRead() {
     Notification n =
         new Notification(
             "notif-1",
@@ -179,7 +179,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testGetNotifications_unreadOnly() {
+  void testGetNotifications_unreadOnly() {
     Notification n1 =
         new Notification(
             "notif-1",
@@ -213,7 +213,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testRemoveNotification() {
+  void testRemoveNotification() {
     Notification n =
         new Notification(
             "notif-1",
@@ -233,7 +233,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testFetchFromProviders() throws Exception {
+  void testFetchFromProviders() throws Exception {
     TestNotificationProvider provider = new TestNotificationProvider();
     service.registerProvider(provider);
 
@@ -243,7 +243,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testUnsafeLinkIsDropped() {
+  void testUnsafeLinkIsDropped() {
     Notification n = notificationWithLink("notif-unsafe", "file:///etc/passwd");
 
     service.addNotification(n);
@@ -253,7 +253,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testSafeLinkIsKept() {
+  void testSafeLinkIsKept() {
     Notification n = notificationWithLink("notif-safe", "https://hop.apache.org/download");
 
     service.addNotification(n);
@@ -263,7 +263,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testFailingProviderIsReportedAsProviderError() throws Exception {
+  void testFailingProviderIsReportedAsProviderError() throws Exception {
     service.registerProvider(new FailingProvider());
 
     service.fetchFromProviders();
@@ -278,7 +278,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testProviderErrorIsClearedOnSuccess() throws Exception {
+  void testProviderErrorIsClearedOnSuccess() throws Exception {
     FailingProvider provider = new FailingProvider();
     service.registerProvider(provider);
     service.fetchFromProviders();
@@ -291,7 +291,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testRetryNowDoesNotBlockAndNotifiesListeners() throws Exception {
+  void testRetryNowDoesNotBlockAndNotifiesListeners() throws Exception {
     CountDownLatch notified = new CountDownLatch(1);
     service.addNotificationListener(notified::countDown);
     service.registerProvider(new TestNotificationProvider());
@@ -302,7 +302,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testIdIsQualifiedWithTheSource() {
+  void testIdIsQualifiedWithTheSource() {
     Notification n = notificationFrom("2.19.0", "github-apache-hop");
 
     service.addNotification(n);
@@ -311,7 +311,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testSameIdFromDifferentSourcesAreDistinctNotifications() {
+  void testSameIdFromDifferentSourcesAreDistinctNotifications() {
     // Two repositories releasing the same version number. Before the id carried its source these
     // collapsed into one notification, and marking one read marked the other read too.
     service.addNotification(notificationFrom("2.19.0", "github-apache-hop"));
@@ -327,7 +327,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testQualifyingIsIdempotent() {
+  void testQualifyingIsIdempotent() {
     // A provider handing back the same instances on a later poll must not accumulate prefixes.
     Notification n = notificationFrom("2.19.0", "github-apache-hop");
 
@@ -339,7 +339,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testNotificationWithoutSourceKeepsItsOwnId() {
+  void testNotificationWithoutSourceKeepsItsOwnId() {
     Notification n = notificationFrom("orphan", null);
 
     service.addNotification(n);
@@ -348,7 +348,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testRetainedNotificationsAreCappedDroppingTheOldest() {
+  void testRetainedNotificationsAreCappedDroppingTheOldest() {
     // A busy feed would otherwise grow the list for as long as Hop is running, and every entry
     // becomes a stack of widgets when the panel opens.
     for (int i = 0; i < 520; i++) {
@@ -365,7 +365,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testReadStateSurvivesTheNotificationBeingDropped() {
+  void testReadStateSurvivesTheNotificationBeingDropped() {
     Notification n = notificationFrom("n-read", "sid");
     n.setTimestamp(new Date(1L));
     service.addNotification(n);
@@ -382,7 +382,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testUnregisteringASourceRemovesItsNotifications() {
+  void testUnregisteringASourceRemovesItsNotifications() {
     // Deleting a source used to leave its notifications in the panel for good: the provider went,
     // what it had contributed stayed.
     service.registerProvider(new TestNotificationProvider());
@@ -397,7 +397,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testUnregisteringKeepsReadStateSoAReturningSourceIsNotAllNew() {
+  void testUnregisteringKeepsReadStateSoAReturningSourceIsNotAllNew() {
     service.registerProvider(new TestNotificationProvider());
     service.addNotification(notificationFrom("seen", "test-provider"));
     service.markAsRead("test-provider:seen");
@@ -412,7 +412,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testUnregisteringAnUnknownProviderChangesNothing() {
+  void testUnregisteringAnUnknownProviderChangesNothing() {
     service.addNotification(notificationFrom("keep-me", "a-source"));
 
     service.unregisterProvider("never-registered");
@@ -421,7 +421,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testListenersSurviveTheServiceBeingStoppedAndStartedAgain() {
+  void testListenersSurviveTheServiceBeingStoppedAndStartedAgain() {
     // Switching notifications off in the settings stops the service; switching them back on
     // starts it again. The badge and the panel register once, when they are created, so a stop
     // that forgot them left them silently detached for the rest of the session.
@@ -518,7 +518,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testASourceWithItsOwnWindowIsFilteredByIt() {
+  void testASourceWithItsOwnWindowIsFilteredByIt() {
     // The source dialog stores a per-source window and labels it "0 = use global". Until this it
     // was stored and never read, so a source set to seven days still used the global thirty.
     service.applySourceWindows(
@@ -537,7 +537,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testZeroMeansTheGlobalWindow() {
+  void testZeroMeansTheGlobalWindow() {
     service.applySourceWindows(List.of(sourceWithWindow("sid", "0")));
 
     service.addNotification(agedNotification("inside", "sid", 5));
@@ -551,7 +551,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testASourceWindowWiderThanTheGlobalOneIsHonoured() {
+  void testASourceWindowWiderThanTheGlobalOneIsHonoured() {
     service.applySourceWindows(List.of(sourceWithWindow("sid", "90")));
 
     service.addNotification(agedNotification("old", "sid", 60));
@@ -560,7 +560,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void testAWindowThatIsNotANumberIsIgnoredRatherThanFatal() {
+  void testAWindowThatIsNotANumberIsIgnoredRatherThanFatal() {
     service.applySourceWindows(List.of(sourceWithWindow("sid", "soon")));
 
     service.addNotification(agedNotification("inside", "sid", 5));

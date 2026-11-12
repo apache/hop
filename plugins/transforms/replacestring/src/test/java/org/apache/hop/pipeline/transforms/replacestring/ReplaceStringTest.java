@@ -43,29 +43,28 @@ class ReplaceStringTest {
 
   private static final String INPUT_STRING = "This is String This Is String THIS IS STRING";
 
-  private Object[] row = new Object[] {"some data", "another data"};
+  private Object[] row = {"some data", "another data"};
 
-  private Object[] expectedRow =
-      new Object[] {
-        "some data",
-        "1nother d1t1",
-        "1no2her d121",
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      };
+  private Object[] expectedRow = {
+    "some data",
+    "1nother d1t1",
+    "1no2her d121",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  };
 
   private TransformMockHelper<ReplaceStringMeta, ReplaceStringData> transformMockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         new TransformMockHelper<>(
             "REPLACE STRING TEST", ReplaceStringMeta.class, ReplaceStringData.class);
@@ -78,7 +77,7 @@ class ReplaceStringTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     transformMockHelper.cleanUp();
   }
 
@@ -118,7 +117,7 @@ class ReplaceStringTest {
   }
 
   @Test
-  void testBuildPatternWithLiteralParsingAndWholeWord() throws Exception {
+  void testBuildPatternWithLiteralParsingAndWholeWord() {
     Pattern actualPattern = ReplaceString.buildPattern(true, true, true, LITERAL_STRING, false);
     Matcher matcher = actualPattern.matcher(INPUT_STRING);
     String actualString = matcher.replaceAll("are");
@@ -126,7 +125,7 @@ class ReplaceStringTest {
   }
 
   @Test
-  void testBuildPatternWithNonLiteralParsingAndWholeWord() throws Exception {
+  void testBuildPatternWithNonLiteralParsingAndWholeWord() {
     Pattern actualPattern = ReplaceString.buildPattern(false, true, true, LITERAL_STRING, false);
     Matcher matcher = actualPattern.matcher(INPUT_STRING);
     String actualString = matcher.replaceAll("are");

@@ -58,7 +58,7 @@ class MetadataReferenceFinderTest {
   private Path tempDir;
 
   @BeforeAll
-  static void setupEnvironment() throws Exception {
+  static void setupEnvironment() {
     provider = new MemoryMetadataProvider();
   }
 
@@ -222,22 +222,22 @@ class MetadataReferenceFinderTest {
   // ---------------------------------------------------------------------------
 
   @Test
-  void normalizeFilePath_nullReturnsNull() throws Exception {
+  void normalizeFilePath_nullReturnsNull() {
     assertNull(MetadataReferenceFinder.normalizeFilePath(null));
   }
 
   @Test
-  void normalizeFilePath_blankStringIsTrimmedToEmpty() throws Exception {
+  void normalizeFilePath_blankStringIsTrimmedToEmpty() {
     assertEquals("", MetadataReferenceFinder.normalizeFilePath("   "));
   }
 
   @Test
-  void normalizeFilePath_trimsLeadingAndTrailingWhitespace() throws Exception {
+  void normalizeFilePath_trimsLeadingAndTrailingWhitespace() {
     assertEquals("/some/path.hpl", MetadataReferenceFinder.normalizeFilePath("  /some/path.hpl  "));
   }
 
   @Test
-  void normalizeFilePath_trimsThenReplacesSeparators() throws Exception {
+  void normalizeFilePath_trimsThenReplacesSeparators() {
     // This test is only relevant on Windows
     assertEquals(
         "some/nested/path.hpl",

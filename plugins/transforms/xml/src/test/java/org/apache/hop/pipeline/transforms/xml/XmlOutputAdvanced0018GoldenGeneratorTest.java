@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -202,7 +201,7 @@ class XmlOutputAdvanced0018GoldenGeneratorTest {
   }
 
   /** Same rows as the Data Grid in {@code 0018-xml-output-advanced-chained.hpl}. */
-  private static List<RowMetaAndData> peopleAddressRows() throws HopException {
+  private static List<RowMetaAndData> peopleAddressRows() {
     IRowMeta rm = new RowMeta();
     rm.addValueMeta(new ValueMetaString("person_name"));
     rm.addValueMeta(new ValueMetaString("street"));

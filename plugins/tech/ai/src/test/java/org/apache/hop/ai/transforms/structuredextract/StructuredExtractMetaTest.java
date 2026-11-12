@@ -18,6 +18,7 @@ package org.apache.hop.ai.transforms.structuredextract;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
@@ -167,8 +168,8 @@ class StructuredExtractMetaTest {
           || "fields".equals(field.getName())) {
         continue;
       }
-      assertTrue(
-          field.getAnnotation(GuiWidgetElement.class) != null,
+      assertNotNull(
+          field.getAnnotation(GuiWidgetElement.class),
           "Property "
               + field.getName()
               + " is persisted but has no @GuiWidgetElement, so it is missing from the dialog");

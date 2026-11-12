@@ -55,7 +55,6 @@ import org.apache.hop.pipeline.transforms.output.MappingOutput;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class SimpleMappingTest {
 
@@ -111,10 +110,10 @@ class SimpleMappingTest {
     simpleMpData.rowDataInputMapper = rdInputMpMock;
     simpleMpData.mappingPipeline = (LocalPipelineEngine) transformMockHelper.pipeline;
 
-    Mockito.doReturn(mpOutputMock)
+    doReturn(mpOutputMock)
         .when(transformMockHelper.pipeline)
         .getTransform(MAPPING_OUTPUT_TRANSFORM_NAME, 0);
-    Mockito.doReturn(rProducerMock)
+    doReturn(rProducerMock)
         .when(transformMockHelper.pipeline)
         .addRowProducer(MAPPING_INPUT_TRANSFORM_NAME, 0);
 
@@ -144,7 +143,7 @@ class SimpleMappingTest {
   }
 
   @Test
-  void testTransformShouldProcessError_WhenMappingPipelineHasError() throws HopException {
+  void testTransformShouldProcessError_WhenMappingPipelineHasError() {
 
     // Set Up TransMock to return the error
     int errorCount = 1;
@@ -215,7 +214,7 @@ class SimpleMappingTest {
   }
 
   @Test
-  void testDispose() throws HopException {
+  void testDispose() {
 
     // Set Up TransMock to return the error
     when(transformMockHelper.pipeline.getErrors()).thenReturn(0);

@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -1011,8 +1010,8 @@ class ValueMetaBaseTest {
   @Test
   void testCompareBinary() throws HopValueException {
     IValueMeta dateMeta = new ValueMetaBinary("int");
-    byte[] value1 = new byte[] {0, 1, 0, 0, 0, 1};
-    byte[] value2 = new byte[] {0, 1, 0, 0, 0, 0};
+    byte[] value1 = {0, 1, 0, 0, 0, 1};
+    byte[] value2 = {0, 1, 0, 0, 0, 0};
     assertEquals(1, dateMeta.compare(value1, value2));
     assertEquals(-1, dateMeta.compare(value2, value1));
     assertEquals(0, dateMeta.compare(value1, value1));
@@ -1023,20 +1022,20 @@ class ValueMetaBaseTest {
     IValueMeta binaryMeta = new ValueMetaBinary("hash");
 
     // Unsigned byte comparison: 0xFF (255) > 0x00 (0)
-    byte[] highByte = new byte[] {(byte) 0xFF};
-    byte[] lowByte = new byte[] {0};
+    byte[] highByte = {(byte) 0xFF};
+    byte[] lowByte = {0};
     assertEquals(1, binaryMeta.compare(highByte, lowByte));
     assertEquals(-1, binaryMeta.compare(lowByte, highByte));
 
     // Compare common prefix before length (matches PostgreSQL bytea ORDER BY)
-    byte[] shorterHigher = new byte[] {2};
-    byte[] longerLower = new byte[] {1, 0};
+    byte[] shorterHigher = {2};
+    byte[] longerLower = {1, 0};
     assertEquals(1, binaryMeta.compare(shorterHigher, longerLower));
     assertEquals(-1, binaryMeta.compare(longerLower, shorterHigher));
 
     // Shorter value is smaller when it is a prefix of the longer value
-    byte[] prefix = new byte[] {1, 2, 3};
-    byte[] extended = new byte[] {1, 2, 3, 4};
+    byte[] prefix = {1, 2, 3};
+    byte[] extended = {1, 2, 3, 4};
     assertEquals(-1, binaryMeta.compare(prefix, extended));
     assertEquals(1, binaryMeta.compare(extended, prefix));
   }
@@ -1111,14 +1110,8 @@ class ValueMetaBaseTest {
   @Test
   void testGetNativeDataTypeClass() {
     IValueMeta base = new ValueMetaBase();
-    Class<?> clazz = null;
-    try {
-      clazz = base.getNativeDataTypeClass();
-      fail();
-    } catch (HopValueException expected) {
-      // ValueMetaBase should throw an exception, as all sub-classes should override
-      assertNull(clazz);
-    }
+    // ValueMetaBase should throw an exception, as all sub-classes should override
+    assertThrows(HopValueException.class, base::getNativeDataTypeClass);
   }
 
   @Test
@@ -1126,14 +1119,14 @@ class ValueMetaBaseTest {
     ValueMetaBase baseMeta = new ValueMetaString("CUSTOM_VALUEMETA_STRING");
     baseMeta.setConversionMetadata(new ValueMetaBase("CUSTOM", 999));
     Object customData = new Object();
-    try {
-      baseMeta.convertDataUsingConversionMetaData(customData);
-      fail("Should have thrown a Hop Value Exception with a proper message. Not a NPE stack trace");
-    } catch (HopValueException e) {
-      String expectedMessage =
-          "CUSTOM_VALUEMETA_STRING String : I can't convert the specified value to data type : 999";
-      assertEquals(expectedMessage, e.getMessage().trim());
-    }
+    HopValueException e =
+        assertThrows(
+            HopValueException.class,
+            () -> baseMeta.convertDataUsingConversionMetaData(customData),
+            "Should have thrown a Hop Value Exception with a proper message. Not a NPE stack trace");
+    String expectedMessage =
+        "CUSTOM_VALUEMETA_STRING String : I can't convert the specified value to data type : 999";
+    assertEquals(expectedMessage, e.getMessage().trim());
   }
 
   @Test
@@ -1394,7 +1387,7 @@ class ValueMetaBaseTest {
     valueMetaString.type = IValueMeta.TYPE_TIMESTAMP;
     assertEquals(-1322045776, valueMetaString.hashCode(timestampObj));
 
-    byte[] ipAddr = new byte[] {127, 0, 0, 1};
+    byte[] ipAddr = {127, 0, 0, 1};
     InetAddress addrObj = InetAddress.getByAddress(ipAddr);
     valueMetaString.type = IValueMeta.TYPE_INET;
     assertEquals(2130706433, valueMetaString.hashCode(addrObj));

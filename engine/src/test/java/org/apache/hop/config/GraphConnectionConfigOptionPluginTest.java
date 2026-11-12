@@ -20,6 +20,7 @@ package org.apache.hop.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -238,7 +239,7 @@ class GraphConnectionConfigOptionPluginTest {
         fake = type;
       }
     }
-    assertTrue(fake != null, output());
+    assertNotNull(fake, output());
     assertEquals("Fake conf", fake.get("name").asText());
     assertEquals("FAKE_CONF_DIALECT", fake.get("dialectId").asText());
     assertEquals("Cypher", fake.get("queryLanguage").asText());

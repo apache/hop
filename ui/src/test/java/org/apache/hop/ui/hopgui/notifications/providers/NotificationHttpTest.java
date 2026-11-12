@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationHttpTest {
 
   @Test
-  public void testHttpAndHttpsAreRequested() throws Exception {
+  void testHttpAndHttpsAreRequested() throws Exception {
     assertEquals(
         URI.create("https://hop.apache.org/feed.xml"),
         NotificationHttp.requestable("https://hop.apache.org/feed.xml"));
@@ -43,14 +43,14 @@ public class NotificationHttpTest {
   }
 
   @Test
-  public void testSurroundingWhitespaceIsIgnored() throws Exception {
+  void testSurroundingWhitespaceIsIgnored() throws Exception {
     assertEquals(
         URI.create("https://hop.apache.org/feed.xml"),
         NotificationHttp.requestable("  https://hop.apache.org/feed.xml  "));
   }
 
   @Test
-  public void testOtherSchemesAreRefused() {
+  void testOtherSchemesAreRefused() {
     // A stored source is whatever the user typed, and on Hop Web it is the server that reads it.
     for (String url :
         new String[] {
@@ -61,14 +61,14 @@ public class NotificationHttpTest {
   }
 
   @Test
-  public void testUrlWithoutAHostIsRefused() {
+  void testUrlWithoutAHostIsRefused() {
     assertThrows(HopException.class, () -> NotificationHttp.requestable("https:///feed.xml"));
     assertThrows(HopException.class, () -> NotificationHttp.requestable("not a url at all"));
     assertThrows(HopException.class, () -> NotificationHttp.requestable(null));
   }
 
   @Test
-  public void testAResponseWithinTheLimitIsReadWhole() throws Exception {
+  void testAResponseWithinTheLimitIsReadWhole() throws Exception {
     byte[] body = new byte[1024];
     try (InputStream stream =
         NotificationHttp.bounded(new ByteArrayInputStream(body), "https://example.org/feed.xml")) {
@@ -77,7 +77,7 @@ public class NotificationHttpTest {
   }
 
   @Test
-  public void testAResponseOverTheLimitFails() {
+  void testAResponseOverTheLimitFails() {
     // Neither provider knows how much it is about to read: the feed goes to a DOM parser and the
     // GitHub answer to Jackson, so an endless response would otherwise take the process with it.
     InputStream endless =
@@ -101,14 +101,14 @@ public class NotificationHttpTest {
   }
 
   @Test
-  public void testAVariableExpressionIsResolvedAtTheMomentOfUse() {
+  void testAVariableExpressionIsResolvedAtTheMomentOfUse() {
     // Storing the reference rather than the token keeps it out of hop-config.json.
     assertEquals("plain-token", NotificationHttp.resolve("plain-token"));
     assertEquals(null, NotificationHttp.resolve(null));
   }
 
   @Test
-  public void testATokenOnlySourceStillBuildsAClient() {
+  void testATokenOnlySourceStillBuildsAClient() {
     // HttpClient 5 will not build a credential without a user name, and a source may store only a
     // token. Before the user name was coerced this threw on the first poll.
     assertNotNull(
@@ -118,13 +118,13 @@ public class NotificationHttpTest {
   }
 
   @Test
-  public void testStringsThatAreNotUrlsAreRefusedRatherThanRequested() {
+  void testStringsThatAreNotUrlsAreRefusedRatherThanRequested() {
     assertThrows(HopException.class, () -> NotificationHttp.requestable(""));
     assertThrows(HopException.class, () -> NotificationHttp.requestable("   "));
   }
 
   @Test
-  public void testBoundedStreamCountsSingleByteReads() throws Exception {
+  void testBoundedStreamCountsSingleByteReads() throws Exception {
     byte[] body = "hello".getBytes(StandardCharsets.UTF_8);
     try (InputStream stream =
         NotificationHttp.bounded(new ByteArrayInputStream(body), "https://example.org/x")) {

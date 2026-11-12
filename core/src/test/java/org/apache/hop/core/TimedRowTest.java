@@ -31,7 +31,7 @@ class TimedRowTest {
   void testClass() {
     final long time = 1447691729119L;
     final Date date = new Date(time);
-    final Object[] data = new Object[] {"value1", "value2", null};
+    final Object[] data = {"value1", "value2", null};
     TimedRow row = new TimedRow(date, data);
     assertSame(data, row.getRow());
     assertSame(date, row.getLogDate());

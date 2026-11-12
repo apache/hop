@@ -141,8 +141,8 @@ class PipelineMetaModifierTest {
     assertEquals("source-db", connection(pipeline, "lookup"));
   }
 
-  private static PipelineMeta pipeline(MemoryMetadataProvider provider, TransformMeta... transforms)
-      throws HopException {
+  private static PipelineMeta pipeline(
+      MemoryMetadataProvider provider, TransformMeta... transforms) {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("lookup-test");
     pipelineMeta.setMetadataProvider(provider);

@@ -42,7 +42,7 @@ public class MarketplaceNotificationProviderTest {
   private MarketplaceConfig config;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     provider = new MarketplaceNotificationProvider();
     config = new MarketplaceConfig();
     MarketplaceRepository repository =
@@ -52,7 +52,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testNewerVersionIsReported() {
+  void testNewerVersionIsReported() {
     installed("2026.09");
 
     Notification notification =
@@ -72,7 +72,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testSameVersionIsNotReported() {
+  void testSameVersionIsNotReported() {
     installed("2026.10");
 
     assertNull(
@@ -81,7 +81,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testOlderCatalogVersionIsNotReported() {
+  void testOlderCatalogVersionIsNotReported() {
     // A repository that has fallen behind must not offer a downgrade as an update.
     installed("2026.10");
 
@@ -91,7 +91,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testPluginThatIsNotInstalledIsNotReported() {
+  void testPluginThatIsNotInstalledIsNotReported() {
     provider.setReceiptReaderForTesting((home, artifactId) -> null);
 
     assertNull(
@@ -100,7 +100,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testUnreadableReceiptIsSkippedRatherThanFailing() {
+  void testUnreadableReceiptIsSkippedRatherThanFailing() {
     provider.setReceiptReaderForTesting(
         (home, artifactId) -> {
           throw new IllegalStateException("receipt is corrupt");
@@ -112,7 +112,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testIdIdentifiesTheUpdateAndIsStable() {
+  void testIdIdentifiesTheUpdateAndIsStable() {
     installed("2026.09");
     OptionalPluginInfo available = available("putki-hubspot", "HubSpot", "2026.10");
 
@@ -124,7 +124,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testArtifactIdIsUsedWhenTheCatalogHasNoName() {
+  void testArtifactIdIsUsedWhenTheCatalogHasNoName() {
     installed("1.0");
 
     Notification notification =
@@ -134,7 +134,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testUnknownRepositoryLeavesTheNotificationWithoutALink() {
+  void testUnknownRepositoryLeavesTheNotificationWithoutALink() {
     installed("1.0");
     OptionalPluginInfo available = available("putki-hubspot", "HubSpot", "2.0");
     available.setSource("a-repository-that-is-not-configured");
@@ -145,7 +145,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testSnapshotIsNotAdvertisedAsAvailable() {
+  void testSnapshotIsNotAdvertisedAsAvailable() {
     // The Apache catalog carries no versions, so discovery fills in the running Hop version. On a
     // development build that is a snapshot, and no release repository has it to install.
     installed("2.19.0");
@@ -158,7 +158,7 @@ public class MarketplaceNotificationProviderTest {
   }
 
   @Test
-  public void testSnapshotIsStillReportedToSomeoneAlreadyRunningOne() {
+  void testSnapshotIsStillReportedToSomeoneAlreadyRunningOne() {
     // Someone on a snapshot has a snapshot repository configured; they are the exception.
     installed("2.19.0-SNAPSHOT");
 

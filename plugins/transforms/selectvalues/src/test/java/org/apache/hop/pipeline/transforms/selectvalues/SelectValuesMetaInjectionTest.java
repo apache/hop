@@ -45,7 +45,7 @@ class SelectValuesMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Sele
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     check(
         "SELECT_UNSPECIFIED",
         () -> meta.getSelectOption().isSelectingAndSortingUnspecifiedFields());

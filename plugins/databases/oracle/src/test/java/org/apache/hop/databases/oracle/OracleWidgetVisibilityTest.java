@@ -526,7 +526,7 @@ class OracleWidgetVisibilityTest extends SwtBotTestBase {
 
   @Test
   @DisplayName("a combo value applies even when the plugin class came from another classloader")
-  void enumSurvivesASecondClassloader() throws Exception {
+  void enumSurvivesASecondClassloader() {
     // The registry captures the field class when it scans plugins; the object being written to
     // comes from wherever DatabaseMeta.setDatabaseType() loaded the plugin. In a running Hop those
     // are two different Class objects with the same name, and an enum constant resolved against

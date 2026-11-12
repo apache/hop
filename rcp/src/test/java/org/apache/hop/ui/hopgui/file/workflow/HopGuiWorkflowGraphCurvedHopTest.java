@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
@@ -88,7 +89,7 @@ class HopGuiWorkflowGraphCurvedHopTest extends GraphCanvasTestBase {
           assertAll(
               "a ctrl-click on the curve should find the hop and disable it",
               () -> assertFalse(hop.isEnabled(), "the click should have disabled the hop"),
-              () -> assertTrue(popup == null, "no dialog may open, but got " + popup),
+              () -> assertNull(popup, "no dialog may open, but got " + popup),
               () -> assertTrue(swallowed.isEmpty(), "the canvas threw " + swallowed));
         });
   }

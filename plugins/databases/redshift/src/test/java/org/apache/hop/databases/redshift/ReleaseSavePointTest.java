@@ -25,10 +25,9 @@ import org.junit.jupiter.api.Test;
 
 class ReleaseSavePointTest {
 
-  IDatabase[] support =
-      new IDatabase[] {
-        new RedshiftDatabaseMeta(),
-      };
+  IDatabase[] support = {
+    new RedshiftDatabaseMeta(),
+  };
 
   @Test
   void testReleaseSavePointBooleans() {

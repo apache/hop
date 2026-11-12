@@ -38,7 +38,7 @@ import org.junit.jupiter.api.io.TempDir;
 public class HopMetadataFileLoaderTest {
 
   @Test
-  public void metadataKeyIsTheFolderUnderMetadata() {
+  void metadataKeyIsTheFolderUnderMetadata() {
     assertEquals("rdbms", HopMetadataFileLoader.metadataKeyOf("/p/metadata/rdbms/SALES.json"));
     assertEquals(
         "pipeline-run-configuration",
@@ -48,14 +48,14 @@ public class HopMetadataFileLoaderTest {
 
   /** Windows paths arrive with backslashes; matching only "/" made metadata rules no-op there. */
   @Test
-  public void metadataKeyHandlesWindowsSeparators() {
+  void metadataKeyHandlesWindowsSeparators() {
     assertEquals(
         "rdbms",
         HopMetadataFileLoader.metadataKeyOf("C:\\projects\\p\\metadata\\rdbms\\SALES.json"));
   }
 
   @Test
-  public void aFileWithNoTypeFolderHasNoKey() {
+  void aFileWithNoTypeFolderHasNoKey() {
     assertNull(HopMetadataFileLoader.metadataKeyOf("/p/metadata/loose.json"));
     assertNull(HopMetadataFileLoader.metadataKeyOf("/p/pipelines/a.hpl"));
     assertNull(HopMetadataFileLoader.metadataKeyOf(null));
@@ -63,14 +63,14 @@ public class HopMetadataFileLoaderTest {
 
   /** A nested project should resolve against the innermost metadata folder. */
   @Test
-  public void theLastMetadataFolderWins() {
+  void theLastMetadataFolderWins() {
     assertEquals(
         "rdbms",
         HopMetadataFileLoader.metadataKeyOf("/outer/metadata/sub/inner/metadata/rdbms/A.json"));
   }
 
   @Test
-  public void nameComesFromTheFileName(@TempDir Path dir) throws Exception {
+  void nameComesFromTheFileName(@TempDir Path dir) throws Exception {
     File file = dir.resolve("SALES_PRD.json").toFile();
     Files.writeString(file.toPath(), "{}", StandardCharsets.UTF_8);
 
@@ -84,7 +84,7 @@ public class HopMetadataFileLoaderTest {
    * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
    */
   @Test
-  public void aStagedCopyIsReadInsteadOfTheFile(@TempDir Path dir) throws Exception {
+  void aStagedCopyIsReadInsteadOfTheFile(@TempDir Path dir) throws Exception {
     File file =
         metadataFile(
             dir,
@@ -110,7 +110,7 @@ public class HopMetadataFileLoaderTest {
   }
 
   @Test
-  public void relationalConnectionsLoadWithoutAProvider(@TempDir Path dir) throws Exception {
+  void relationalConnectionsLoadWithoutAProvider(@TempDir Path dir) throws Exception {
     File file =
         metadataFile(
             dir,
@@ -137,7 +137,7 @@ public class HopMetadataFileLoaderTest {
    * connection passes every rule and the run calls the project clean.
    */
   @Test
-  public void anUnreadableConnectionIsAFailureNotASkip(@TempDir Path dir) throws Exception {
+  void anUnreadableConnectionIsAFailureNotASkip(@TempDir Path dir) throws Exception {
     File file = metadataFile(dir, "rdbms", "BROKEN.json", "{ \"rdbms\": { \"POSTGRESQL\": { ");
 
     HopMetadataFileLoader.MetadataLoad load = HopMetadataFileLoader.read(file, null);
@@ -152,7 +152,7 @@ public class HopMetadataFileLoaderTest {
    * what gives the document meaning, and its absence is not the project's fault.
    */
   @Test
-  public void otherTypesAreSkippedWithoutAProvider(@TempDir Path dir) throws Exception {
+  void otherTypesAreSkippedWithoutAProvider(@TempDir Path dir) throws Exception {
     File file = metadataFile(dir, "server", "prod.json", "{\"hostname\": \"h\"}");
 
     HopMetadataFileLoader.MetadataLoad load = HopMetadataFileLoader.read(file, null);
@@ -162,7 +162,7 @@ public class HopMetadataFileLoaderTest {
   }
 
   @Test
-  public void nonMetadataFilesAreSkipped(@TempDir Path dir) throws Exception {
+  void nonMetadataFilesAreSkipped(@TempDir Path dir) throws Exception {
     File file = dir.resolve("a.hpl").toFile();
     Files.writeString(file.toPath(), "<pipeline/>", StandardCharsets.UTF_8);
 

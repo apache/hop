@@ -51,7 +51,7 @@ class RegexEvalMetaTest {
   }
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() {
     mockInputRowMeta = mock(IRowMeta.class);
     mockVariableSpace = mock(IVariables.class);
   }

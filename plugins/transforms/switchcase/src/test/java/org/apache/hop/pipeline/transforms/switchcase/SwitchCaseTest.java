@@ -60,7 +60,7 @@ class SwitchCaseTest {
   private static final Boolean EMPTY_STRING_AND_NULL_ARE_DIFFERENT = false;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         new TransformMockHelper<>("Switch Case", SwitchCaseMeta.class, SwitchCaseData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -69,7 +69,7 @@ class SwitchCaseTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     mockHelper.cleanUp();
   }
 

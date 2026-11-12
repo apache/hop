@@ -42,7 +42,7 @@ class ParquetOutputStreamTest {
   void testWriteByteArray() throws Exception {
     ByteArrayOutputStream delegate = new ByteArrayOutputStream();
     ParquetOutputStream stream = new ParquetOutputStream(delegate);
-    byte[] data = new byte[] {1, 2, 3, 4, 5};
+    byte[] data = {1, 2, 3, 4, 5};
 
     stream.write(data);
     stream.flush();
@@ -55,7 +55,7 @@ class ParquetOutputStreamTest {
   void testWriteByteArrayRange() throws Exception {
     ByteArrayOutputStream delegate = new ByteArrayOutputStream();
     ParquetOutputStream stream = new ParquetOutputStream(delegate);
-    byte[] data = new byte[] {9, 1, 2, 3, 8};
+    byte[] data = {9, 1, 2, 3, 8};
 
     stream.write(data, 1, 3);
     stream.flush();

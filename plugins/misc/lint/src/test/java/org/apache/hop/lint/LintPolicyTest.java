@@ -48,7 +48,7 @@ public class LintPolicyTest {
   }
 
   @Test
-  public void globExcludesMatchProjectRelativePaths() {
+  void globExcludesMatchProjectRelativePaths() {
     LintPolicy policy = new LintPolicy(List.of("generated/**", "tests/**"), List.of());
 
     assertTrue(policy.isExcluded(ROOT.resolve("generated/a.hpl").toString(), ROOT));
@@ -58,7 +58,7 @@ public class LintPolicyTest {
 
   /** A bare folder name is what people write first; treating it as a no-op would be a trap. */
   @Test
-  public void bareFolderNameExcludesTheFolder() {
+  void bareFolderNameExcludesTheFolder() {
     LintPolicy policy = new LintPolicy(List.of("generated"), List.of());
 
     assertTrue(policy.isExcluded(ROOT.resolve("generated/a.hpl").toString(), ROOT));
@@ -66,7 +66,7 @@ public class LintPolicyTest {
   }
 
   @Test
-  public void suppressionNarrowsByPathAndSource() {
+  void suppressionNarrowsByPathAndSource() {
     LintPolicy policy =
         new LintPolicy(
             List.of(),
@@ -89,7 +89,7 @@ public class LintPolicyTest {
   }
 
   @Test
-  public void emptyPolicyChangesNothing() {
+  void emptyPolicyChangesNothing() {
     List<LintResult> results = List.of(finding("DB-001", "a.json", null));
 
     assertEquals(results, LintPolicy.empty().applySuppressions(results, ROOT));
@@ -102,7 +102,7 @@ public class LintPolicyTest {
    * the configuration is read, rather than quietly applied.
    */
   @Test
-  public void malformedSuppressionsAreRefused(@TempDir Path dir) throws Exception {
+  void malformedSuppressionsAreRefused(@TempDir Path dir) throws Exception {
     File yaml = dir.resolve("hop-lint.yml").toFile();
     Files.writeString(
         yaml.toPath(),
@@ -124,7 +124,7 @@ public class LintPolicyTest {
   }
 
   @Test
-  public void excludeAndSuppressAreReadFromProjectYaml(@TempDir Path dir) throws Exception {
+  void excludeAndSuppressAreReadFromProjectYaml(@TempDir Path dir) throws Exception {
     File yaml = dir.resolve("hop-lint.yml").toFile();
     Files.writeString(
         yaml.toPath(),
@@ -153,7 +153,7 @@ public class LintPolicyTest {
 
   /** A project file carrying only exclusions still has to yield a usable policy. */
   @Test
-  public void policyIsReadEvenWithoutARulesSection(@TempDir Path dir) throws Exception {
+  void policyIsReadEvenWithoutARulesSection(@TempDir Path dir) throws Exception {
     File yaml = dir.resolve("hop-lint.yml").toFile();
     Files.writeString(yaml.toPath(), "exclude:\n  - \"tests/**\"\n", StandardCharsets.UTF_8);
 
@@ -173,7 +173,7 @@ public class LintPolicyTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aSuppressionMayNameTheCheckOrTheRuleThatClassifiedIt() {
+  void aSuppressionMayNameTheCheckOrTheRuleThatClassifiedIt() {
     LintResult finding = missingConnection("a.hpl", "Table input");
 
     assertTrue(

@@ -18,6 +18,8 @@
 package org.apache.hop.ai.advisors.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -163,8 +165,8 @@ class PipelineAiProposalValidatorTest {
         assertFalse(validation.isBlocked(), validation.getReason());
       }
       PipelineAiProposalApplier.apply(pipelineMeta, batch);
-      assertTrue(pipelineMeta.findPipelineHop(filter, read) != null);
-      assertTrue(pipelineMeta.findPipelineHop(read, filter) == null);
+      assertNotNull(pipelineMeta.findPipelineHop(filter, read));
+      assertNull(pipelineMeta.findPipelineHop(read, filter));
     }
   }
 

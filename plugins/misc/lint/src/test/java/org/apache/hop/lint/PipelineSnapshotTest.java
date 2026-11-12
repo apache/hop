@@ -64,13 +64,13 @@ public class PipelineSnapshotTest {
    * external references". If that ever changes, the XML round-trip below can be simplified.
    */
   @Test
-  public void pipelineMetaCannotSimplyBeCloned() {
+  void pipelineMetaCannotSimplyBeCloned() {
     assertThrows(Exception.class, () -> pipelineWithContent().clone());
   }
 
   /** Mirrors what BackgroundLintService does: XML on the UI thread, parse on the worker. */
   @Test
-  public void xmlSnapshotCarriesTheContentRulesRead() throws Exception {
+  void xmlSnapshotCarriesTheContentRulesRead() throws Exception {
     PipelineMeta source = pipelineWithContent();
 
     String xml = source.getXml(variables);
@@ -86,7 +86,7 @@ public class PipelineSnapshotTest {
 
   /** Editing the original after the snapshot must not change what the worker sees. */
   @Test
-  public void snapshotIsIndependentOfLaterEdits() throws Exception {
+  void snapshotIsIndependentOfLaterEdits() throws Exception {
     PipelineMeta source = pipelineWithContent();
     String xml = source.getXml(variables);
 

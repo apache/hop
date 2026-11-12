@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 class BOMDetectorTest {
 
-  BufferedInputStream getFile(String filename) throws Exception {
+  BufferedInputStream getFile(String filename) {
     String inPrefix = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
     InputStream file = this.getClass().getResourceAsStream(inPrefix + filename);
     assertNotNull(file);

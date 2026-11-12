@@ -51,7 +51,7 @@ public class LintBaselineTest {
   }
 
   @Test
-  public void recordedFindingsAreHiddenAndNewOnesReported(@TempDir Path dir) throws IOException {
+  void recordedFindingsAreHiddenAndNewOnesReported(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     List<LintResult> existing =
         List.of(
@@ -76,7 +76,7 @@ public class LintBaselineTest {
    * a rotated password is not a new finding.
    */
   @Test
-  public void aChangedMessageIsNotANewFinding(@TempDir Path dir) throws IOException {
+  void aChangedMessageIsNotANewFinding(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(finding("DB-001", "a.json", "A")), ROOT);
 
@@ -96,7 +96,7 @@ public class LintBaselineTest {
 
   /** Counts are kept, so a second occurrence in an already-accepted file is still reported. */
   @Test
-  public void aSecondOccurrenceInTheSameFileIsReported(@TempDir Path dir) throws IOException {
+  void aSecondOccurrenceInTheSameFileIsReported(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(finding("BEST-003", "a.hpl", "Dummy 1")), ROOT);
 
@@ -111,7 +111,7 @@ public class LintBaselineTest {
 
   /** Fixed findings leave entries behind; reporting the count lets a team prune the file. */
   @Test
-  public void staleEntriesAreCounted(@TempDir Path dir) throws IOException {
+  void staleEntriesAreCounted(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(
         baselineFile,
@@ -126,7 +126,7 @@ public class LintBaselineTest {
 
   /** Absolute paths would make a baseline written on a laptop useless in CI. */
   @Test
-  public void baselineStoresProjectRelativePaths(@TempDir Path dir) throws IOException {
+  void baselineStoresProjectRelativePaths(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(finding("DB-001", "metadata/a.json", "A")), ROOT);
 
@@ -137,7 +137,7 @@ public class LintBaselineTest {
   }
 
   @Test
-  public void anUnknownFormatVersionIsRejected(@TempDir Path dir) throws IOException {
+  void anUnknownFormatVersionIsRejected(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     Files.writeString(baselineFile, "{\"version\": 99, \"findings\": {}}", StandardCharsets.UTF_8);
 
@@ -145,7 +145,7 @@ public class LintBaselineTest {
   }
 
   @Test
-  public void anEmptyBaselineHidesNothing(@TempDir Path dir) throws IOException {
+  void anEmptyBaselineHidesNothing(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(), ROOT);
 
@@ -161,8 +161,7 @@ public class LintBaselineTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aBaselineRecordedUnderTheClassifyingRuleStillApplies(@TempDir Path dir)
-      throws IOException {
+  void aBaselineRecordedUnderTheClassifyingRuleStillApplies(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(finding("HOP-CHECK", "a.hpl", "Table input")), ROOT);
     LintBaseline baseline = LintBaseline.read(baselineFile);
@@ -174,7 +173,7 @@ public class LintBaselineTest {
 
   /** New baselines record the check under its own code. */
   @Test
-  public void aNewBaselineRecordsTheChecksOwnCode(@TempDir Path dir) throws IOException {
+  void aNewBaselineRecordsTheChecksOwnCode(@TempDir Path dir) throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(missingConnection("a.hpl", "Table input")), ROOT);
 
@@ -194,7 +193,7 @@ public class LintBaselineTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aCodedFindingDoesNotTakeAnEntryACodelessRemarkMatchesExactly(@TempDir Path dir)
+  void aCodedFindingDoesNotTakeAnEntryACodelessRemarkMatchesExactly(@TempDir Path dir)
       throws IOException {
     Path baselineFile = dir.resolve("baseline.json");
     LintBaseline.write(baselineFile, List.of(finding("HOP-CHECK", "a.hpl", "Table input")), ROOT);

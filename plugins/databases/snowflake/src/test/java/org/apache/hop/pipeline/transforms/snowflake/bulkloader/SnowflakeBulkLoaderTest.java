@@ -176,7 +176,7 @@ class SnowflakeBulkLoaderTest {
   @Test
   void testProcessRowTruncatesOnFirstRow() throws Exception {
     when(meta.isTruncateTable()).thenReturn(true);
-    Object[] row = new Object[] {};
+    Object[] row = {};
     doReturn(row).when(bulkLoaderSpy).getRow();
 
     try {
@@ -191,7 +191,7 @@ class SnowflakeBulkLoaderTest {
   @Test
   void testProcessRowDoesNotTruncateOnSubsequentRows() throws Exception {
     when(meta.isTruncateTable()).thenReturn(true);
-    Object[] row = new Object[] {};
+    Object[] row = {};
     doReturn(row).when(bulkLoaderSpy).getRow();
     bulkLoaderSpy.first = false;
 

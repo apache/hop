@@ -44,7 +44,7 @@ import picocli.CommandLine;
 public class ConfigPluginMixinTest {
 
   @Test
-  public void testEveryConfigPluginCanBeMixedIntoTheCommandLine() throws Exception {
+  void testEveryConfigPluginCanBeMixedIntoTheCommandLine() throws Exception {
     List<Class<?>> offenders = new ArrayList<>();
     for (Class<?> candidate : classesInThisModule()) {
       if (candidate.getAnnotation(ConfigPlugin.class) == null) {

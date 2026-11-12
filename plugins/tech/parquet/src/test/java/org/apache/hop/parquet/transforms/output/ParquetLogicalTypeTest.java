@@ -291,25 +291,24 @@ class ParquetLogicalTypeTest {
       meta.getFields().add(typed("payload", "JSON"));
       meta.getFields().add(typed("id", "UUID"));
 
-      Object[] row =
-          new Object[] {
-            "h\u00e9llo",
-            true,
-            7L,
-            42L,
-            1.5D,
-            2.5D,
-            new byte[] {1, 2, 3},
-            birthday,
-            birthday,
-            precise,
-            birthday,
-            birthday,
-            precise,
-            new BigDecimal("1234.565"),
-            payload.toString(),
-            "00112233-4455-6677-8899-aabbccddeeff"
-          };
+      Object[] row = {
+        "h\u00e9llo",
+        true,
+        7L,
+        42L,
+        1.5D,
+        2.5D,
+        new byte[] {1, 2, 3},
+        birthday,
+        birthday,
+        precise,
+        birthday,
+        birthday,
+        precise,
+        new BigDecimal("1234.565"),
+        payload.toString(),
+        "00112233-4455-6677-8899-aabbccddeeff"
+      };
       Path file = write(meta, rowMeta, row, new Object[rowMeta.size()]);
 
       MessageType schema;
@@ -368,7 +367,7 @@ class ParquetLogicalTypeTest {
   }
 
   @Test
-  void unknownTypeAndMissingDecimalPrecisionFailBeforeAFileIsWritten() throws Exception {
+  void unknownTypeAndMissingDecimalPrecisionFailBeforeAFileIsWritten() {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaDate("birthday"));
     ParquetOutputMeta meta = new ParquetOutputMeta();

@@ -170,13 +170,13 @@ class DBProcMetaTest {
 
   @Test
   void buildOutputRowKeepsTheScalarPathAndCopiesResultRows() {
-    Object[] row = new Object[] {"in", null, null};
+    Object[] row = {"in", null, null};
     DBProcMeta.ProcArgument in = new DBProcMeta.ProcArgument();
     in.setDirection("IN");
     DBProcMeta.ProcArgument out = new DBProcMeta.ProcArgument();
     out.setDirection("out");
     List<DBProcMeta.ProcArgument> arguments = List.of(in, out);
-    int[] argnrs = new int[] {0, -1};
+    int[] argnrs = {0, -1};
 
     Object[] scalar =
         DBProc.buildOutputRow(row, 1, 3, new Object[] {7L, 42L}, argnrs, arguments, true, 0, false);
@@ -185,7 +185,7 @@ class DBProcMetaTest {
     assertEquals(7L, scalar[1]);
     assertEquals(42L, scalar[2]);
 
-    Object[] wide = new Object[] {"old"};
+    Object[] wide = {"old"};
     DBProcMeta.ProcArgument inout = new DBProcMeta.ProcArgument();
     inout.setDirection("INOUT");
     Object[] replaced =

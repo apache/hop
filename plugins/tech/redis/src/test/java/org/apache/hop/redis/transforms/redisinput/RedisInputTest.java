@@ -90,7 +90,7 @@ class RedisInputTest {
   void toJsonArrayElementKeepsTextAndBase64EncodesBinary() {
     assertEquals("hello", RedisInput.toJsonArrayElement("hello"));
     assertEquals("12", RedisInput.toJsonArrayElement("12".getBytes(StandardCharsets.UTF_8)));
-    byte[] binary = new byte[] {(byte) 0xFF, 0x00};
+    byte[] binary = {(byte) 0xFF, 0x00};
     assertEquals(Base64.getEncoder().encodeToString(binary), RedisInput.toJsonArrayElement(binary));
   }
 

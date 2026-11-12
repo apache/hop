@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
@@ -187,8 +186,7 @@ class UserDefinedJavaClassTestPipelineTest {
   }
 
   private TransformMeta addTransform(
-      org.apache.hop.pipeline.transform.ITransformMeta meta, String name)
-      throws HopTransformException {
+      org.apache.hop.pipeline.transform.ITransformMeta meta, String name) {
     String pluginId = PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
     TransformMeta transformMeta = new TransformMeta(pluginId, name, meta);
     sourcePipelineMeta.addTransform(transformMeta);

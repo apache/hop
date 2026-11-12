@@ -17,15 +17,14 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -142,18 +141,13 @@ class ActionSetVariablesTest {
     action.setReplaceVars(true);
     Result result = action.execute(new Result(), 0);
     assertTrue(result.isResult(), "Result should be true");
-    RandomAccessFile fos = null;
-    try {
-      File file = new File(propertiesFilename);
-      if (file.exists()) {
-        fos = new RandomAccessFile(file, "rw");
-      }
-    } catch (FileNotFoundException | SecurityException e) {
-      fail("the file with properties should be unallocated");
-    } finally {
-      if (fos != null) {
-        fos.close();
-      }
+    File file = new File(propertiesFilename);
+    if (file.exists()) {
+      RandomAccessFile fos =
+          assertDoesNotThrow(
+              () -> new RandomAccessFile(file, "rw"),
+              "the file with properties should be unallocated");
+      fos.close();
     }
   }
 

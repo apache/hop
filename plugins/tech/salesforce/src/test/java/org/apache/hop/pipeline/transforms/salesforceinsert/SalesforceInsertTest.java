@@ -72,7 +72,7 @@ class SalesforceInsertTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     smh =
         new TransformMockHelper<>(
             "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class);

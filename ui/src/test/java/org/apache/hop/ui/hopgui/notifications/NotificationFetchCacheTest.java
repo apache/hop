@@ -45,12 +45,12 @@ import org.junit.jupiter.api.Test;
 public class NotificationFetchCacheTest {
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     NotificationFetchCache.invalidate(null);
   }
 
   @Test
-  public void testASecondCallerGetsTheFirstCallersAnswer() throws Exception {
+  void testASecondCallerGetsTheFirstCallersAnswer() throws Exception {
     CountingProvider provider = new CountingProvider("shared-source");
 
     NotificationFetchCache.fetch(provider);
@@ -61,7 +61,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testEachCallerGetsItsOwnCopies() throws Exception {
+  void testEachCallerGetsItsOwnCopies() throws Exception {
     // Read state is set on the notification itself, so sharing the objects would mean one user
     // reading an item marked it read for every other session.
     CountingProvider provider = new CountingProvider("shared-source");
@@ -76,7 +76,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testADifferentSourceIsPolledSeparately() throws Exception {
+  void testADifferentSourceIsPolledSeparately() throws Exception {
     CountingProvider one = new CountingProvider("source-one");
     CountingProvider two = new CountingProvider("source-two");
 
@@ -88,7 +88,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testTheSameIdWithADifferentTargetIsPolledSeparately() throws Exception {
+  void testTheSameIdWithADifferentTargetIsPolledSeparately() throws Exception {
     // Hop Web: one session has just saved a new URL, another still holds the previous one.
     // They share a source id, but must not satisfy each other from the cache.
     CountingProvider current = new CountingProvider("shared-source");
@@ -104,7 +104,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testInvalidatingMakesTheNextCallerPollAgain() throws Exception {
+  void testInvalidatingMakesTheNextCallerPollAgain() throws Exception {
     // What the Retry button and a save of the settings both rely on.
     CountingProvider provider = new CountingProvider("shared-source");
 
@@ -116,7 +116,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testInvalidatingByIdDropsEveryTargetOfThatSource() throws Exception {
+  void testInvalidatingByIdDropsEveryTargetOfThatSource() throws Exception {
     CountingProvider provider = new CountingProvider("shared-source");
     provider.description = "RSS/Atom feed provider for: https://example.com/feed.xml";
 
@@ -128,7 +128,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testAFailureIsNotHeldOnTo() throws Exception {
+  void testAFailureIsNotHeldOnTo() throws Exception {
     // A source that has recovered must not go on looking broken to every session.
     FailingOnceProvider provider = new FailingOnceProvider();
 
@@ -139,7 +139,7 @@ public class NotificationFetchCacheTest {
   }
 
   @Test
-  public void testCallersArrivingTogetherWaitForOneFetch() throws Exception {
+  void testCallersArrivingTogetherWaitForOneFetch() throws Exception {
     // The case this exists for: sessions signing in at the same time after a restart.
     CountingProvider provider = new CountingProvider("shared-source");
     provider.entered = new CountDownLatch(1);

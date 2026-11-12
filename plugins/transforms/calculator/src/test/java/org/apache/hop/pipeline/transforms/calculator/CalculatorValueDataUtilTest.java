@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -1126,44 +1127,33 @@ class CalculatorValueDataUtilTest {
     // Test Hop date
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(YYYY_MM_DD);
 
-    try {
-      assertEquals(
-          simpleDateFormat.parse("2012-04-11"),
-          calculate("2012-04-11", "", IValueMeta.TYPE_DATE, CalculationType.NVL));
-      assertEquals(
-          simpleDateFormat.parse("2012-11-04"),
-          calculate("", "2012-11-04", IValueMeta.TYPE_DATE, CalculationType.NVL));
-      assertEquals(
-          simpleDateFormat.parse("1965-07-01"),
-          calculate("1965-07-01", "1967-04-11", IValueMeta.TYPE_DATE, CalculationType.NVL));
-      assertNull(calculate("", "", IValueMeta.TYPE_DATE, CalculationType.NVL));
-
-    } catch (ParseException pe) {
-      fail(pe.getMessage());
-    }
+    assertEquals(
+        assertDoesNotThrow(() -> simpleDateFormat.parse("2012-04-11")),
+        calculate("2012-04-11", "", IValueMeta.TYPE_DATE, CalculationType.NVL));
+    assertEquals(
+        assertDoesNotThrow(() -> simpleDateFormat.parse("2012-11-04")),
+        calculate("", "2012-11-04", IValueMeta.TYPE_DATE, CalculationType.NVL));
+    assertEquals(
+        assertDoesNotThrow(() -> simpleDateFormat.parse("1965-07-01")),
+        calculate("1965-07-01", "1967-04-11", IValueMeta.TYPE_DATE, CalculationType.NVL));
+    assertNull(calculate("", "", IValueMeta.TYPE_DATE, CalculationType.NVL));
 
     // binary
     IValueMeta stringValueMeta = new ValueMetaString("string");
-    try {
-      byte[] data = stringValueMeta.getBinary("101");
-      byte[] calculated =
-          (byte[]) calculate("101", "", IValueMeta.TYPE_BINARY, CalculationType.NVL);
-      assertArrayEquals(data, calculated);
+    byte[] data = assertDoesNotThrow(() -> stringValueMeta.getBinary("101"));
+    byte[] calculated = (byte[]) calculate("101", "", IValueMeta.TYPE_BINARY, CalculationType.NVL);
+    assertArrayEquals(data, calculated);
 
-      data = stringValueMeta.getBinary("011");
-      calculated = (byte[]) calculate("", "011", IValueMeta.TYPE_BINARY, CalculationType.NVL);
-      assertArrayEquals(data, calculated);
+    data = assertDoesNotThrow(() -> stringValueMeta.getBinary("011"));
+    calculated = (byte[]) calculate("", "011", IValueMeta.TYPE_BINARY, CalculationType.NVL);
+    assertArrayEquals(data, calculated);
 
-      data = stringValueMeta.getBinary("110");
-      calculated = (byte[]) calculate("110", "011", IValueMeta.TYPE_BINARY, CalculationType.NVL);
-      assertArrayEquals(data, calculated);
+    data = assertDoesNotThrow(() -> stringValueMeta.getBinary("110"));
+    calculated = (byte[]) calculate("110", "011", IValueMeta.TYPE_BINARY, CalculationType.NVL);
+    assertArrayEquals(data, calculated);
 
-      calculated = (byte[]) calculate("", "", IValueMeta.TYPE_BINARY, CalculationType.NVL);
-      assertNull(calculated);
-
-    } catch (HopValueException kve) {
-      fail(kve.getMessage());
-    }
+    calculated = (byte[]) calculate("", "", IValueMeta.TYPE_BINARY, CalculationType.NVL);
+    assertNull(calculated);
   }
 
   @Test

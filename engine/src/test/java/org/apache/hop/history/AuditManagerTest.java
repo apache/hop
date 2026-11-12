@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,6 @@ import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 class AuditManagerTest {
   @TempDir Path testFolder;
@@ -66,7 +66,7 @@ class AuditManagerTest {
 
   @Test
   void testRegisterEvent() throws HopException {
-    IAuditManager mockManager = Mockito.mock(IAuditManager.class);
+    IAuditManager mockManager = mock(IAuditManager.class);
     AuditManager.getInstance().setActiveAuditManager(mockManager);
     AuditManager.registerEvent("", "", "", "");
     verify(mockManager, times(1)).storeEvent(any());
@@ -75,7 +75,7 @@ class AuditManagerTest {
   @Test
   void testEvents() throws HopException {
     String group = "testEvents";
-    IAuditManager mockManager = Mockito.mock(IAuditManager.class);
+    IAuditManager mockManager = mock(IAuditManager.class);
     AuditManager.getInstance().setActiveAuditManager(mockManager);
 
     List<AuditEvent> events = new ArrayList<>();
@@ -90,7 +90,7 @@ class AuditManagerTest {
   @Test
   void testFindUniqueEvents() throws HopException {
     String group = "testFindUniqueEvents";
-    IAuditManager mockManager = Mockito.mock(IAuditManager.class);
+    IAuditManager mockManager = mock(IAuditManager.class);
     AuditManager.getInstance().setActiveAuditManager(mockManager);
 
     List<AuditEvent> events = new ArrayList<>();
@@ -131,7 +131,7 @@ class AuditManagerTest {
   @Test
   void testFindMaxEvents() throws HopException {
     String group = "testFindMaxEvents";
-    IAuditManager mockManager = Mockito.mock(IAuditManager.class);
+    IAuditManager mockManager = mock(IAuditManager.class);
     AuditManager.getInstance().setActiveAuditManager(mockManager);
 
     List<AuditEvent> events = new ArrayList<>();

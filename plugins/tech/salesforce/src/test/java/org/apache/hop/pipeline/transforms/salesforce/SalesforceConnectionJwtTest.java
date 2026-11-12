@@ -24,6 +24,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -536,7 +537,7 @@ class SalesforceConnectionJwtTest {
     String jwt2 = (String) method.invoke(conn);
 
     // JWTs should be different due to different exp timestamps
-    assertTrue(!jwt1.equals(jwt2), "JWTs with different timestamps should differ");
+    assertNotEquals(jwt1, jwt2, "JWTs with different timestamps should differ");
 
     // But they should have same algorithm and issuer
     String[] parts1 = jwt1.split("\\.");

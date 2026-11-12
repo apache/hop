@@ -36,7 +36,7 @@ class HopServerPluginPermissionsTest {
   }
 
   @AfterEach
-  void clearOverlay() throws Exception {
+  void clearOverlay() {
     HopServerEndpointPermissionMapper.unregister("/hop/sourceModelData");
   }
 

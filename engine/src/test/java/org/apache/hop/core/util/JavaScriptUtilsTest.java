@@ -116,7 +116,7 @@ class JavaScriptUtilsTest {
 
   @Test
   void jsToInteger_NaturalNumbers() {
-    Number[] naturalNumbers = new Number[] {(byte) 1, (short) 1, 1, (long) 1};
+    Number[] naturalNumbers = {(byte) 1, (short) 1, 1, (long) 1};
 
     for (Number number : naturalNumbers) {
       assertEquals(Long.valueOf(1), JavaScriptUtils.jsToInteger(number, number.getClass()));
@@ -267,7 +267,7 @@ class JavaScriptUtilsTest {
 
   @Test
   void jsToBigNumber_NaturalNumbers() {
-    Number[] naturalNumbers = new Number[] {(byte) 1, (short) 1, 1, (long) 1};
+    Number[] naturalNumbers = {(byte) 1, (short) 1, 1, (long) 1};
 
     for (Number number : naturalNumbers) {
       assertEquals(
@@ -319,7 +319,7 @@ class JavaScriptUtilsTest {
 
   @Test
   void convertFromJs_TypeBinary() throws Exception {
-    byte[] bytes = new byte[] {0, 1};
+    byte[] bytes = {0, 1};
     Object converted = JavaScriptUtils.convertFromJs(bytes, IValueMeta.TYPE_BINARY, "qwerty");
     assertInstanceOf(byte[].class, converted);
     assertArrayEquals(bytes, (byte[]) converted);

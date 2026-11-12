@@ -152,7 +152,7 @@ class SparkProjectPackageTest {
     assertTrue(new File(m2.projectHome(), "pipelines/v2.hpl").isFile());
     String fp2 = SparkProjectPackage.cachedFingerprintForTest(zip.getAbsolutePath());
     assertNotNull(fp2);
-    assertFalse(fp1.equals(fp2), "fingerprint must change when zip content changes");
+    assertNotEquals(fp1, fp2, "fingerprint must change when zip content changes");
   }
 
   @Test
@@ -330,7 +330,7 @@ class SparkProjectPackageTest {
   }
 
   @Test
-  void ensureLocalPackageFileStagesDbfsStyleUriViaCopy() throws Exception {
+  void ensureLocalPackageFileStagesDbfsStyleUriViaCopy() {
     // dbfs: is cluster-shared — must not return a Volume-style path to addFile.
     // We cannot open a real dbfs mount in unit tests; use stagePackageToLocalTemp on a real zip
     // and assert isClusterSharedPackagePath treats dbfs as shared.

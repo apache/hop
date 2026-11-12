@@ -63,7 +63,7 @@ class LogChannelTest {
     when(regInstance.getLogChannelFileWriterBuffer(channelId)).thenReturn(logChFileWriterBuffer);
     mockedLoggingRegistry.when(LoggingRegistry::getInstance).thenReturn(regInstance);
 
-    logLevel = Mockito.mock(LogLevel.class);
+    logLevel = mock(LogLevel.class);
 
     logMsgInterface = mock(ILogMessage.class);
     when(logMsgInterface.getLevel()).thenReturn(logLevel);
@@ -101,12 +101,12 @@ class LogChannelTest {
 
   @Test
   void testPrintMessageFiltered() {
-    LogLevel logLevelFil = Mockito.mock(LogLevel.class);
+    LogLevel logLevelFil = mock(LogLevel.class);
     when(logLevelFil.isError()).thenReturn(false);
 
     ILogMessage logMsgInterfaceFil = mock(ILogMessage.class);
-    Mockito.when(logMsgInterfaceFil.getLevel()).thenReturn(logLevelFil);
-    Mockito.when(logMsgInterfaceFil.toString()).thenReturn("a");
+    when(logMsgInterfaceFil.getLevel()).thenReturn(logLevelFil);
+    when(logMsgInterfaceFil.toString()).thenReturn("a");
     mockedUtils.when(() -> Utils.isEmpty(anyString())).thenReturn(false);
 
     when(logLevelFil.isVisible(any(LogLevel.class))).thenReturn(true);

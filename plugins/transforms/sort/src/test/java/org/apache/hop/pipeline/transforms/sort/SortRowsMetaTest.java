@@ -158,7 +158,7 @@ class SortRowsMetaTest {
   }
 
   @Test
-  void testPDI16559() throws Exception {
+  void testPDI16559() {
     SortRowsMeta sortRowsReal = new SortRowsMeta();
     SortRowsMeta sortRows = Mockito.spy(sortRowsReal);
     sortRows.setDirectory("/tmp");

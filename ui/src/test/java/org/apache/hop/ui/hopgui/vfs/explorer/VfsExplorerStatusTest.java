@@ -69,7 +69,7 @@ class VfsExplorerStatusTest {
   }
 
   @Test
-  void wrappedMissingClassIsNamedOnTheStatus() throws Exception {
+  void wrappedMissingClassIsNamedOnTheStatus() {
     FileSystemException failure =
         new FileSystemException("Could not list folder", new NoClassDefFoundError("org.acme.Lib"));
     VfsExplorerOperation operation = new VfsExplorerOperation("Listing", "smb://share");

@@ -16,15 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -108,20 +107,15 @@ class ConcatFieldsTest {
     cfTransform.init();
 
     // Verify field with trim type not specified is present
-    try {
-      // Use a simple collector instead of anonymous inner class
-      TestRowCollector collector = new TestRowCollector();
-      cfTransform.addRowListener(collector);
-      cfTransform.processRow();
+    // Use a simple collector instead of anonymous inner class
+    TestRowCollector collector = new TestRowCollector();
+    cfTransform.addRowListener(collector);
+    assertDoesNotThrow(() -> cfTransform.processRow());
 
-      // Verify the result
-      assertEquals(1, collector.getRowsWritten().size());
-      Object[] resultRow = collector.getRowsWritten().get(0);
-      assertEquals("A ;B;C", resultRow[3]);
-    } catch (HopException ke) {
-      ke.printStackTrace();
-      fail();
-    }
+    // Verify the result
+    assertEquals(1, collector.getRowsWritten().size());
+    Object[] resultRow = collector.getRowsWritten().get(0);
+    assertEquals("A ;B;C", resultRow[3]);
   }
 
   /** Simple test row collector to avoid anonymous inner class compilation issues */

@@ -16,10 +16,11 @@
  */
 package org.apache.hop.mail.workflow.actions.getpop;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
@@ -178,14 +179,14 @@ class WorkflowEntryGetPOPTest {
     entry.setOutputDirectory(attachmentsDir.getAbsolutePath());
     entry.setUseDifferentFolderForAttachment(false);
 
-    String outputFolderName = "";
-    String attachmentsFolderName = "";
-    try {
-      outputFolderName = entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT);
-      attachmentsFolderName = entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
-    } catch (Exception e) {
-      fail("Could not create folder " + e.getLocalizedMessage());
-    }
+    String outputFolderName =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT),
+            "Could not create folder");
+    String attachmentsFolderName =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS),
+            "Could not create folder");
 
     assertTrue(!Utils.isEmpty(outputFolderName), "Output Folder should be a local path");
     assertTrue(!Utils.isEmpty(attachmentsFolderName), "Attachment Folder should be a local path");
@@ -212,14 +213,14 @@ class WorkflowEntryGetPOPTest {
     entry.setUseDifferentFolderForAttachment(true);
     entry.setAttachmentFolder(attachmentsDir.getAbsolutePath());
 
-    String outputFolderName = "";
-    String attachmentsFolderName = "";
-    try {
-      outputFolderName = entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT);
-      attachmentsFolderName = entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
-    } catch (Exception e) {
-      fail("Could not create folder: " + e.getLocalizedMessage());
-    }
+    String outputFolderName =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT),
+            "Could not create folder");
+    String attachmentsFolderName =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS),
+            "Could not create folder");
 
     assertTrue(!Utils.isEmpty(outputFolderName), "Output Folder should be a local path");
     assertTrue(!Utils.isEmpty(attachmentsFolderName), "Attachment Folder should be a local path");
@@ -249,38 +250,30 @@ class WorkflowEntryGetPOPTest {
     entry.setUseDifferentFolderForAttachment(true);
     entry.setAttachmentFolder(attachmentsDir.getAbsolutePath());
 
-    try {
-      entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT);
-      fail("A HopException should have been thrown");
-    } catch (Exception e) {
-      if (e instanceof HopException) {
-        assertEquals(
-            BaseMessages.getString(
-                ActionGetPOP.class,
-                "ActionGetMailsFromPOP.Error.OutputFolderNotExist",
-                outputDir.getAbsolutePath(),
-                "Output Folder should not be created"),
-            Const.trim(e.getMessage()));
-      } else {
-        fail("Output Folder should not have been created: " + e.getLocalizedMessage());
-      }
-    }
-    try {
-      entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
-      fail("A HopException should have been thrown");
-    } catch (Exception e) {
-      if (e instanceof HopException) {
-        assertEquals(
-            BaseMessages.getString(
-                ActionGetPOP.class,
-                "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist",
-                attachmentsDir.getAbsolutePath()),
-            Const.trim(e.getMessage()),
-            "Output Folder should not be created");
-      } else {
-        fail("Attachments Folder should not have been created: " + e.getLocalizedMessage());
-      }
-    }
+    HopException outputException =
+        assertThrows(
+            HopException.class,
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT),
+            "A HopException should have been thrown");
+    assertEquals(
+        BaseMessages.getString(
+            ActionGetPOP.class,
+            "ActionGetMailsFromPOP.Error.OutputFolderNotExist",
+            outputDir.getAbsolutePath(),
+            "Output Folder should not be created"),
+        Const.trim(outputException.getMessage()));
+    HopException attachmentsException =
+        assertThrows(
+            HopException.class,
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS),
+            "A HopException should have been thrown");
+    assertEquals(
+        BaseMessages.getString(
+            ActionGetPOP.class,
+            "ActionGetMailsFromPOP.Error.AttachmentFolderNotExist",
+            attachmentsDir.getAbsolutePath()),
+        Const.trim(attachmentsException.getMessage()),
+        "Output Folder should not be created");
   }
 
   /**
@@ -324,33 +317,34 @@ class WorkflowEntryGetPOPTest {
         "Error in Direct substitute test for  attachment directory");
 
     // test environment substitute for output dir via createOutputDirectory method
-    try {
-      String outputRes = entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT);
-      assertEquals(
-          outputRes,
-          outputDir.toString(),
-          "Variables not working in createOutputDirectory: output directory");
-    } catch (Exception e) {
-      fail("Unexpected exception when calling createOutputDirectory for output directory");
-    }
+    String outputRes =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_OUTPUT),
+            "Unexpected exception when calling createOutputDirectory for output directory");
+    assertEquals(
+        outputRes,
+        outputDir.toString(),
+        "Variables not working in createOutputDirectory: output directory");
 
     // test environment substitute for attachment dir via createOutputDirectory method
-    try {
-      String attachOutputRes = entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
-      assertEquals(
-          attachOutputRes,
-          outputDir.toString(),
-          "Variables not working in createOutputDirectory: attachment with options false");
-      // set options that trigger alternate path for FOLDER_ATTACHMENTS option
-      entry.setSaveAttachment(true);
-      entry.setUseDifferentFolderForAttachment(true);
-      String attachRes = entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS);
-      assertEquals(
-          attachRes,
-          outputDir.toString(),
-          "Variables not working in createOutputDirectory: attachment with options true");
-    } catch (Exception e) {
-      fail("Unexpected exception when calling createOutputDirectory for attachment directory");
-    }
+    String attachOutputRes =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS),
+            "Unexpected exception when calling createOutputDirectory for attachment directory");
+    assertEquals(
+        attachOutputRes,
+        outputDir.toString(),
+        "Variables not working in createOutputDirectory: attachment with options false");
+    // set options that trigger alternate path for FOLDER_ATTACHMENTS option
+    entry.setSaveAttachment(true);
+    entry.setUseDifferentFolderForAttachment(true);
+    String attachRes =
+        assertDoesNotThrow(
+            () -> entry.createOutputDirectory(ActionGetPOP.FOLDER_ATTACHMENTS),
+            "Unexpected exception when calling createOutputDirectory for attachment directory");
+    assertEquals(
+        attachRes,
+        outputDir.toString(),
+        "Variables not working in createOutputDirectory: attachment with options true");
   }
 }

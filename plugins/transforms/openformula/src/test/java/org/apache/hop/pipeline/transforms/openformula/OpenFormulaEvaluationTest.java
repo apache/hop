@@ -44,7 +44,7 @@ class OpenFormulaEvaluationTest {
     rowMeta.addValueMeta(new ValueMetaInteger("one"));
     rowMeta.addValueMeta(new ValueMetaInteger("three"));
     rowMeta.addValueMeta(new ValueMetaInteger("ten"));
-    Object[] row = new Object[] {1L, 3L, 10L};
+    Object[] row = {1L, 3L, 10L};
     assertEquals(
         8.0d, ((Number) evaluate(rowMeta, row, "[one]+([ten]-[three])")).doubleValue(), 0.0001);
     assertEquals(

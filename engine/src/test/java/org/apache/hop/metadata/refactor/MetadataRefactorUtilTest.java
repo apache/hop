@@ -54,21 +54,21 @@ class MetadataRefactorUtilTest {
   }
 
   @Test
-  void testGetPropertyTypeForRdbmsConnection() throws Exception {
+  void testGetPropertyTypeForRdbmsConnection() {
     HopMetadataPropertyType type =
         MetadataRefactorUtil.getPropertyTypeForMetadataKey(provider, "rdbms");
     assertEquals(HopMetadataPropertyType.RDBMS_CONNECTION, type);
   }
 
   @Test
-  void testGetPropertyTypeForPipelineRunConfiguration() throws Exception {
+  void testGetPropertyTypeForPipelineRunConfiguration() {
     HopMetadataPropertyType type =
         MetadataRefactorUtil.getPropertyTypeForMetadataKey(provider, "pipeline-run-configuration");
     assertEquals(HopMetadataPropertyType.PIPELINE_RUN_CONFIG, type);
   }
 
   @Test
-  void testGetPropertyTypeForWorkflowRunConfiguration() throws Exception {
+  void testGetPropertyTypeForWorkflowRunConfiguration() {
     HopMetadataPropertyType type =
         MetadataRefactorUtil.getPropertyTypeForMetadataKey(provider, "workflow-run-configuration");
     assertEquals(HopMetadataPropertyType.WORKFLOW_RUN_CONFIG, type);
@@ -82,12 +82,12 @@ class MetadataRefactorUtilTest {
   }
 
   @Test
-  void testSupportsGlobalReplaceForRdbmsConnection() throws Exception {
+  void testSupportsGlobalReplaceForRdbmsConnection() {
     assertTrue(MetadataRefactorUtil.supportsGlobalReplace(provider, "rdbms"));
   }
 
   @Test
-  void testSupportsGlobalReplaceForPipelineRunConfiguration() throws Exception {
+  void testSupportsGlobalReplaceForPipelineRunConfiguration() {
     assertTrue(MetadataRefactorUtil.supportsGlobalReplace(provider, "pipeline-run-configuration"));
   }
 
@@ -97,7 +97,7 @@ class MetadataRefactorUtilTest {
   }
 
   @Test
-  void testGetPropertyTypeForHopServer() throws Exception {
+  void testGetPropertyTypeForHopServer() {
     HopMetadataPropertyType type =
         MetadataRefactorUtil.getPropertyTypeForMetadataKey(provider, "server");
     assertEquals(HopMetadataPropertyType.SERVER_DEFINITION, type);

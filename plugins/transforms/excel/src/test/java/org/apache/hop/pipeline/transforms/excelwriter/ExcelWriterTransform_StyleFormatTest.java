@@ -66,7 +66,7 @@ class ExcelWriterTransform_StyleFormatTest {
 
   @BeforeEach
   /** Get mock helper */
-  public void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         new TransformMockHelper<>(
             "Excel Writer Style Format Test",
@@ -84,7 +84,7 @@ class ExcelWriterTransform_StyleFormatTest {
 
   @AfterEach
   /** Clean-up objects */
-  public void tearDown() {
+  void tearDown() {
     ExcelWriterWorkbookDefinition workbookDefinition =
         new ExcelWriterWorkbookDefinition(null, null, null, null, 0, 0);
     data.currentWorkbookDefinition = workbookDefinition;
@@ -98,13 +98,13 @@ class ExcelWriterTransform_StyleFormatTest {
 
   @Test
   /** Test applying Format and Style from cell for XLS file format */
-  public void testStyleFormatHssf() throws Exception {
+  void testStyleFormatHssf() throws Exception {
     testStyleFormat("xls");
   }
 
   @Test
   /** Test applying Format and Style from cell for XLSX file format */
-  public void testStyleFormatXssf() throws Exception {
+  void testStyleFormatXssf() throws Exception {
     testStyleFormat("xlsx");
   }
 
@@ -261,9 +261,9 @@ class ExcelWriterTransform_StyleFormatTest {
     cell.setCellStyle(cellStyle);
   }
 
-  private void setupInputOutput() throws Exception {
+  private void setupInputOutput() {
     List<Object[]> rows = createRowData();
-    String[] outFields = new String[] {"col 1", "col 2", "col 3", "col 4"};
+    String[] outFields = {"col 1", "col 2", "col 3", "col 4"};
     inputRowSet = transformMockHelper.getMockInputRowSet(rows);
     inputRowMeta = createRowMeta();
     inputRowSet.setRowMeta(inputRowMeta);
@@ -301,7 +301,7 @@ class ExcelWriterTransform_StyleFormatTest {
    */
   private ArrayList<Object[]> createRowData() {
     ArrayList<Object[]> rows = new ArrayList<>();
-    Object[] row = new Object[] {123456L, 2.34e-4, new BigDecimal("123456789.987654321"), 504150.0};
+    Object[] row = {123456L, 2.34e-4, new BigDecimal("123456789.987654321"), 504150.0};
     rows.add(row);
     row = new Object[] {1001001L, 4.6789e10, new BigDecimal(123123e-2), 12312300.0};
     rows.add(row);

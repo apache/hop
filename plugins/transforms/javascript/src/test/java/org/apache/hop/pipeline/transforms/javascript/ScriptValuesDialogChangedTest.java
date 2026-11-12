@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.javascript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -165,8 +166,9 @@ class ScriptValuesDialogChangedTest extends SwtBotTestBase {
         () -> {
           for (Shell openShell : display.getShells()) {
             if (!openShell.isDisposed()) {
-              assertFalse(
-                  WARNING_TITLE.equals(openShell.getText()),
+              assertNotEquals(
+                  WARNING_TITLE,
+                  openShell.getText(),
                   "the unsaved-changes warning should not be left open");
             }
           }

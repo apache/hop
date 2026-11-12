@@ -233,7 +233,7 @@ class ValueMetaVectorTest {
   }
 
   @Test
-  void isRegisteredWithTheValueMetaFactory() throws Exception {
+  void isRegisteredWithTheValueMetaFactory() {
     assertEquals(ValueMetaVector.TYPE_VECTOR, ValueMetaFactory.getIdForValueMeta("Vector"));
   }
 

@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
@@ -121,8 +120,7 @@ class PipelineExecutorMetaTest {
   }
 
   @Test
-  void convertLegacyXmlReadsInheritAllVarsFromOldParametersNode()
-      throws HopException, HopXmlException {
+  void convertLegacyXmlReadsInheritAllVarsFromOldParametersNode() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setInheritingAllVariables(false);
 

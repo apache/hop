@@ -65,7 +65,7 @@ class VCardMapperTest {
     rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email_type"));
 
     VCard card = new VCard();
-    Object[] row = new Object[] {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
+    Object[] row = {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
 
     List<VCardFieldMapping> mappings =
         List.of(
@@ -92,7 +92,7 @@ class VCardMapperTest {
     rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email_type"));
 
     VCard card = new VCard();
-    Object[] row = new Object[] {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
+    Object[] row = {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
 
     List<VCardFieldMapping> mappings =
         List.of(

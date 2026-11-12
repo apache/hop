@@ -29,7 +29,7 @@ class FormulaPoiTest {
   private FormulaPoi formulaPoi;
 
   @BeforeEach
-  void setUp() throws IOException {
+  void setUp() {
     formulaPoi = new FormulaPoi(msg -> System.out.println(msg)); // Provide a simple logger
   }
 

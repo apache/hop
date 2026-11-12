@@ -44,7 +44,7 @@ class ContentEditorTm4eSupportTest {
   /**
    * Loads a vendored grammar the same way ContentEditorTm4eSupport does, without an SWT Display.
    */
-  private static IGrammar loadGrammar(String scopeName, String fileName) throws Exception {
+  private static IGrammar loadGrammar(String scopeName, String fileName) {
     Map<String, String> files = Map.of(scopeName, fileName);
     Registry registry =
         new Registry(

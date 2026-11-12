@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -333,7 +334,7 @@ class LineageFileIoEmitterTest {
   }
 
   @Test
-  void emitTransformFileIo_stringUris_postsFileIoEvent() throws Exception {
+  void emitTransformFileIo_stringUris_postsFileIoEvent() {
     LineageHub hub = mock(LineageHub.class);
     when(hub.isEnabled()).thenReturn(true);
 
@@ -389,7 +390,7 @@ class LineageFileIoEmitterTest {
           null, action, FileIoOperation.DELETE, "file:///a", null, null, false, "x");
     }
 
-    verify(hub, Mockito.never()).emit(Mockito.any());
+    verify(hub, never()).emit(Mockito.any());
   }
 
   @Test
@@ -405,7 +406,7 @@ class LineageFileIoEmitterTest {
           tr, FileIoOperation.COPY, source, source, 1L, true, null);
     }
 
-    verify(hub, Mockito.never()).emit(Mockito.any());
+    verify(hub, never()).emit(Mockito.any());
     Mockito.verifyNoInteractions(tr, source);
   }
 }

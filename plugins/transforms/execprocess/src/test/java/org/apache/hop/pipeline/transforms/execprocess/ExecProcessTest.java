@@ -133,7 +133,7 @@ class ExecProcessTest {
 
     String[] cmd = echoStdoutAndStderrCommand();
     ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
-    Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
+    Object[] row = {cmd[0], cmd[1], cmd[2]};
     RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
 
     ExecProcess transform = newTransform(meta, rowMeta, row);
@@ -155,7 +155,7 @@ class ExecProcessTest {
 
     String[] cmd = largeStdoutCommand();
     ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
-    Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
+    Object[] row = {cmd[0], cmd[1], cmd[2]};
     RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
 
     ExecProcess transform = newTransform(meta, rowMeta, row);
@@ -187,7 +187,7 @@ class ExecProcessTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("cmdline"));
 
-    Object[] row = new Object[] {singleTokenEchoCommand()};
+    Object[] row = {singleTokenEchoCommand()};
     ExecProcess transform = newTransform(meta, rowMeta, row);
 
     assertTrue(transform.processRow());
@@ -205,7 +205,7 @@ class ExecProcessTest {
 
     String[] cmd = failingCommand();
     ExecProcessMeta meta = metaForArgumentsMode("a1", "a2");
-    Object[] row = new Object[] {cmd[0], cmd[1], cmd[2]};
+    Object[] row = {cmd[0], cmd[1], cmd[2]};
     RowMeta rowMeta = inputRowMetaForArguments("a1", "a2");
     meta.setFailWhenNotSuccess(true);
 
@@ -314,7 +314,7 @@ class ExecProcessTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("cmdline"));
 
-    Object[] row = new Object[] {"/bin/echo \"hop single\" 'and more'"};
+    Object[] row = {"/bin/echo \"hop single\" 'and more'"};
     ExecProcess transform = newTransform(meta, rowMeta, row);
 
     assertTrue(transform.processRow());

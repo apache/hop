@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.Charset;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -52,7 +51,7 @@ class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   private static TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeAll
-  static void setUp() throws HopException {
+  static void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputDoubleLineEndTest");

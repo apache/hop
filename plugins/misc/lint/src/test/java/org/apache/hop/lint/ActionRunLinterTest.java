@@ -123,7 +123,7 @@ public class ActionRunLinterTest {
   // ------------------------------------------------------------------ the same as hop lint
 
   @Test
-  public void givesTheSameFindingsAndOutcomeAsHopLint() throws Exception {
+  void givesTheSameFindingsAndOutcomeAsHopLint() throws Exception {
     Path cliReport = dir.resolve("cli.json");
     int exitCode =
         hopLint(new StringBuilder(), "-f", "JSON", "-o", cliReport.toString(), project.toString());
@@ -151,7 +151,7 @@ public class ActionRunLinterTest {
    * in the report and the baseline of hop lint, so neither matched the action's.
    */
   @Test
-  public void aTargetWithDotDotGivesRelativePaths() throws Exception {
+  void aTargetWithDotDotGivesRelativePaths() throws Exception {
     String target = project.resolve("pipelines").resolve("..").toString();
     Path cliReport = dir.resolve("cli.json");
     hopLint(new StringBuilder(), "-f", "JSON", "-o", cliReport.toString(), target);
@@ -173,7 +173,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void passesWhereHopLintPasses() {
+  void passesWhereHopLintPasses() {
     int exitCode = hopLint(new StringBuilder(), "--fail-on", "NONE", project.toString());
 
     ActionRunLinter action = action(project);
@@ -185,7 +185,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void maxWarningsFailsAsInHopLint() {
+  void maxWarningsFailsAsInHopLint() {
     ActionRunLinter action = action(project);
     action.setFailOn(LintSeverity.FailOn.NONE);
 
@@ -205,7 +205,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void aBaselineHidesAcceptedFindingsAsInHopLint() throws Exception {
+  void aBaselineHidesAcceptedFindingsAsInHopLint() {
     Path baseline = dir.resolve("baseline.json");
     assertEquals(
         0,
@@ -221,7 +221,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void aMissingBaselineFailsTheAction() {
+  void aMissingBaselineFailsTheAction() {
     ActionRunLinter action = action(project);
     action.setBaselineFile(dir.resolve("missing.json").toString());
 
@@ -234,7 +234,7 @@ public class ActionRunLinterTest {
   // ------------------------------------------------------------------ results
 
   @Test
-  public void oneRowPerFindingAndTheCountsAsVariables() throws Exception {
+  void oneRowPerFindingAndTheCountsAsVariables() throws Exception {
     Path report = dir.resolve("report.sarif");
     ActionRunLinter action = action(project);
     action.setReportFile(report.toString());
@@ -262,7 +262,7 @@ public class ActionRunLinterTest {
 
   /** The minimum severity narrows the rows and the report, never the outcome or the counts. */
   @Test
-  public void theMinimumSeverityNarrowsTheRowsOnly() throws Exception {
+  void theMinimumSeverityNarrowsTheRowsOnly() throws Exception {
     ActionRunLinter action = action(project);
     action.setMinimumSeverity(LintSeverity.Level.ERROR);
 
@@ -274,7 +274,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void withoutAReportTheReportVariableIsEmpty() {
+  void withoutAReportTheReportVariableIsEmpty() {
     ActionRunLinter action = action(project);
 
     action.execute(new Result(), 0);
@@ -283,7 +283,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void metadataIsLeftOutWhenAskedTo() throws Exception {
+  void metadataIsLeftOutWhenAskedTo() throws Exception {
     Files.createDirectories(project.resolve("metadata/rdbms"));
     Files.writeString(project.resolve("metadata/rdbms/broken.json"), "{ not json");
     ActionRunLinter action = action(project);
@@ -303,7 +303,7 @@ public class ActionRunLinterTest {
 
   /** A report under folders that do not exist yet creates them. */
   @Test
-  public void theReportFolderIsCreated() throws Exception {
+  void theReportFolderIsCreated() {
     Path report = dir.resolve("output").resolve("lint").resolve("report.sarif");
     ActionRunLinter action = action(project);
     action.setFailOn(LintSeverity.FailOn.NONE);
@@ -329,7 +329,7 @@ public class ActionRunLinterTest {
    * After a run that fails with an error, the next action must not read an earlier run's counts.
    */
   @Test
-  public void anErrorClearsTheVariablesOfAnEarlierRun() throws Exception {
+  void anErrorClearsTheVariablesOfAnEarlierRun() {
     ActionRunLinter action = action(project);
     action.setReportFile(dir.resolve("report.sarif").toString());
     action.execute(new Result(), 0);
@@ -354,7 +354,7 @@ public class ActionRunLinterTest {
    * project full of errors.
    */
   @Test
-  public void anExplicitRunLintsWhenTheLinterIsSwitchedOff() throws Exception {
+  void anExplicitRunLintsWhenTheLinterIsSwitchedOff() throws Exception {
     LinterConfigPlugin config = LinterConfigPlugin.getInstance();
     config.setLinterEnabled(false);
     config.saveToHopConfig();
@@ -375,7 +375,7 @@ public class ActionRunLinterTest {
   // ------------------------------------------------------------------ the target
 
   @Test
-  public void anEmptyTargetLintsTheCurrentProject() {
+  void anEmptyTargetLintsTheCurrentProject() {
     ActionRunLinter action = action(project);
     action.setTarget("");
     action.setVariable("PROJECT_HOME", project.toString());
@@ -386,7 +386,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void anEmptyTargetOutsideAProjectFails() {
+  void anEmptyTargetOutsideAProjectFails() {
     ActionRunLinter action = action(project);
     action.setTarget("");
 
@@ -397,7 +397,7 @@ public class ActionRunLinterTest {
   }
 
   @Test
-  public void aTargetThatIsNotLocalFails() {
+  void aTargetThatIsNotLocalFails() {
     ActionRunLinter action = action(project);
     action.setTarget("ram:///project");
 
@@ -411,7 +411,7 @@ public class ActionRunLinterTest {
 
   /** hop lint --config on a folder was dropped: the run reloaded the project's own hop-lint.yml. */
   @Test
-  public void aConfigFileReplacesTheProjectsOnAFolder() throws Exception {
+  void aConfigFileReplacesTheProjectsOnAFolder() throws Exception {
     Path config = dir.resolve("other-lint.yml");
     Files.writeString(config, "rules:\n  STRUCT-004:\n    enabled: false\n");
     ActionRunLinter action = action(project);
@@ -433,7 +433,7 @@ public class ActionRunLinterTest {
    * the parser's message, in the action and in hop lint alike.
    */
   @Test
-  public void aBrokenProjectConfigurationFailsWithItsOwnMessage() throws Exception {
+  void aBrokenProjectConfigurationFailsWithItsOwnMessage() throws Exception {
     Path clean = dir.resolve("clean");
     Files.createDirectories(clean);
     writePipeline(clean.resolve("only.hpl"));

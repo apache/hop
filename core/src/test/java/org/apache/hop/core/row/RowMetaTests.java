@@ -48,7 +48,7 @@ class RowMetaTests {
     // String,3 bytes (UTF-8)
     String str = "abc";
     // byte[]
-    byte[] bytes = new byte[] {1, 2, 3, 4};
+    byte[] bytes = {1, 2, 3, 4};
     // BigDecimal
     BigDecimal bd = new BigDecimal("123.45");
     // Number
@@ -73,8 +73,7 @@ class RowMetaTests {
     // Unknown type
     Object unknown = new Object();
 
-    Object[] row =
-        new Object[] {null, str, bytes, bd, num, date, bool, uuid, jsonNode, rec, ip, unknown};
+    Object[] row = {null, str, bytes, bd, num, date, bool, uuid, jsonNode, rec, ip, unknown};
 
     Long result = RowMeta.getRowSizeEstimateFromRow(row);
     long expected = 0;
@@ -105,7 +104,7 @@ class RowMetaTests {
 
   @Test
   void testOnlyNullElements() {
-    Object[] row = new Object[] {null, null, null};
+    Object[] row = {null, null, null};
     Long result = RowMeta.getRowSizeEstimateFromRow(row);
     assertEquals(0L, result);
   }

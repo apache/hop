@@ -17,6 +17,7 @@
 
 package org.apache.hop.neo4j.execution;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -30,7 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -216,13 +216,10 @@ class NeoExecutionInfoLocationSlowSaveIT {
     // This is what the Stop button of Hop GUI calls, on the UI thread.
     //
     Future<?> stop = executor.submit(pipeline::stopAll);
-    try {
-      stop.get(EXPECTED_WITHIN.toMillis(), TimeUnit.MILLISECONDS);
-    } catch (TimeoutException e) {
-      fail(
-          "Stopping the pipeline did not return while a save to the execution information"
-              + " location was in progress");
-    }
+    assertDoesNotThrow(
+        () -> stop.get(EXPECTED_WITHIN.toMillis(), TimeUnit.MILLISECONDS),
+        "Stopping the pipeline did not return while a save to the execution information"
+            + " location was in progress");
     assertTrue(pipeline.isStopped());
   }
 

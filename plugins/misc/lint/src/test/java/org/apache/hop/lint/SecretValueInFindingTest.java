@@ -76,7 +76,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aHardcodedPasswordIsReportedWithoutItsValue() {
+  void aHardcodedPasswordIsReportedWithoutItsValue() {
     String message =
         onlyMessage(hardcodedDatabasePassword(), connection("localhost", "crm", "secret123"));
 
@@ -84,7 +84,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void anEncryptedPasswordIsReportedWithoutEitherForm() {
+  void anEncryptedPasswordIsReportedWithoutEitherForm() {
     String encrypted = Encr.encryptPasswordIfNotUsingVariables("secret123");
 
     String message =
@@ -95,7 +95,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aComposedRuleHidesThePasswordClause() {
+  void aComposedRuleHidesThePasswordClause() {
     CustomLintRule rule = new CustomLintRule();
     rule.setId("CUSTOM-001");
     rule.setEnabled(true);
@@ -114,7 +114,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aValueThatIsNoSecretIsStillShown() {
+  void aValueThatIsNoSecretIsStillShown() {
     CustomLintRule rule = new CustomLintRule();
     rule.setId("CUSTOM-002");
     rule.setEnabled(true);
@@ -174,7 +174,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aPasswordPropertyIsHiddenWhateverItIsNamed() {
+  void aPasswordPropertyIsHiddenWhateverItIsNamed() {
     String message =
         onlyMessage(
             metadataRule("accessKey", RuleCondition.MATCHES_PATTERN, "^\\$\\{.*\\}$"),
@@ -184,7 +184,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aPasswordPropertyNamedByItsKeyIsHidden() {
+  void aPasswordPropertyNamedByItsKeyIsHidden() {
     String message =
         onlyMessage(
             metadataRule("oauth_jwt_private_key", RuleCondition.MATCHES_PATTERN, "^\\$\\{.*\\}$"),
@@ -194,7 +194,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aSnakeCaseSecretKeyIsHidden() {
+  void aSnakeCaseSecretKeyIsHidden() {
     String message =
         onlyMessage(
             metadataRule("secret_key", RuleCondition.MATCHES_PATTERN, "^\\$\\{.*\\}$"),
@@ -204,7 +204,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aComposedRuleHidesAPasswordPropertyClause() {
+  void aComposedRuleHidesAPasswordPropertyClause() {
     CustomLintRule rule = metadataRule("endpoint", RuleCondition.NOT_EMPTY, null);
     rule.setCondition(RuleCondition.MATCHES_PATTERN);
     rule.setConditionValue("^\\$\\{.*\\}$");
@@ -218,7 +218,7 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aHardcodedValueThatIsNoSecretIsStillShown() {
+  void aHardcodedValueThatIsNoSecretIsStillShown() {
     String message =
         onlyMessage(
             metadataRule("endpoint", RuleCondition.NO_HARDCODED, null), new StorageConnection());
@@ -264,21 +264,21 @@ public class SecretValueInFindingTest {
   }
 
   @Test
-  public void aTransformPasswordPropertyIsHiddenByItsJavaName() {
+  void aTransformPasswordPropertyIsHiddenByItsJavaName() {
     String message = onlyMessage(rule(RuleTarget.TRANSFORM, "accessKey"), streamTransform());
 
     assertFalse(message.contains("AKIATRANSFORMKEY"), message);
   }
 
   @Test
-  public void aTransformPasswordPropertyIsHiddenByItsKey() {
+  void aTransformPasswordPropertyIsHiddenByItsKey() {
     String message = onlyMessage(rule(RuleTarget.TRANSFORM, "access_key"), streamTransform());
 
     assertFalse(message.contains("AKIATRANSFORMKEY"), message);
   }
 
   @Test
-  public void anActionPasswordPropertyIsHidden() {
+  void anActionPasswordPropertyIsHidden() {
     UploadAction action = new UploadAction();
     action.setPluginId("Upload");
     ActionMeta actionMeta = new ActionMeta(action);

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class LintResultTest {
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     LintResult result =
         new LintResult("TEST-001", "Test Rule", "ERROR", "Test message", "test.hpl");
 
@@ -37,7 +37,7 @@ public class LintResultTest {
   }
 
   @Test
-  public void testGetters() {
+  void testGetters() {
     LintResult result =
         new LintResult("DB-001", "Database Rule", "WARNING", "Warning message", "workflow.hwf");
 
@@ -49,7 +49,7 @@ public class LintResultTest {
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     LintResult result =
         new LintResult("TRANS-001", "Transform Rule", "ERROR", "Error message", "pipeline.hpl");
 
@@ -58,7 +58,7 @@ public class LintResultTest {
   }
 
   @Test
-  public void testToStringWithConnectionFile() {
+  void testToStringWithConnectionFile() {
     LintResult result =
         new LintResult("DB-001", "Database Rule", "WARNING", "Warning message", "connection: BDW");
 
@@ -67,7 +67,7 @@ public class LintResultTest {
   }
 
   @Test
-  public void testNullValues() {
+  void testNullValues() {
     LintResult result = new LintResult(null, null, null, null, null);
 
     assertNull(result.getRuleId());
@@ -78,7 +78,7 @@ public class LintResultTest {
   }
 
   @Test
-  public void testEmptyValues() {
+  void testEmptyValues() {
     LintResult result = new LintResult("", "", "", "", "");
 
     assertEquals("", result.getRuleId());

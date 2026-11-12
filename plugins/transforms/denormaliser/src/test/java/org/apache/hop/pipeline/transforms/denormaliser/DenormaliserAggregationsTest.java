@@ -39,7 +39,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class DenormaliserAggregationsTest {
 
@@ -51,7 +50,7 @@ class DenormaliserAggregationsTest {
   DenormaliserMeta meta = new DenormaliserMeta();
 
   @BeforeAll
-  static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() {
     mockHelper =
         new TransformMockHelper<>("Denormaliser", DenormaliserMeta.class, DenormaliserData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -65,8 +64,8 @@ class DenormaliserAggregationsTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
-    Mockito.when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
+  void setUp() {
+    when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
     transform =
         new Denormaliser(
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);

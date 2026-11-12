@@ -39,7 +39,7 @@ class HopMongoUtilLoggerTest {
   }
 
   @Test
-  void testLoggingDelegates() throws Exception {
+  void testLoggingDelegates() {
     logger.debug("log");
     verify(logChannelInterface).logDebug("log");
     logger.info("log");

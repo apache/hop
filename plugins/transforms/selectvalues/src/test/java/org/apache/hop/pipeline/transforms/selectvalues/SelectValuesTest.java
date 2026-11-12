@@ -58,7 +58,7 @@ class SelectValuesTest {
 
   private static final String SELECTED_FIELD = "field";
 
-  private final Object[] inputRow = new Object[] {"a string"};
+  private final Object[] inputRow = {"a string"};
 
   private SelectValues transform;
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
@@ -69,7 +69,7 @@ class SelectValuesTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     helper =
         TransformMockUtil.getTransformMockHelper(
             SelectValuesMeta.class, SelectValuesData.class, "SelectValuesTest");

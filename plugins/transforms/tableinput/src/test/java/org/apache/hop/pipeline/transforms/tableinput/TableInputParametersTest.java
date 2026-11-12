@@ -73,7 +73,7 @@ class TableInputParametersTest {
   void appendIgnoresNullRows() {
     IRowMeta meta = new RowMeta();
     meta.addValueMeta(new ValueMetaInteger("bar"));
-    Object[] original = new Object[] {9L};
+    Object[] original = {9L};
 
     Object[] result = TableInputParameters.append(meta, original, meta, null);
 

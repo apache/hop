@@ -38,7 +38,7 @@ class DefaultInjectionTypeConverterTest {
   }
 
   @Test
-  void stringConversions() throws HopValueException {
+  void stringConversions() {
     assertEquals("hi", c.string2string("hi"));
     assertEquals(42, c.string2intPrimitive("42"));
     assertNull(c.string2integer(null));
@@ -49,7 +49,7 @@ class DefaultInjectionTypeConverterTest {
   }
 
   @Test
-  void stringToBooleanVariants() throws HopValueException {
+  void stringToBooleanVariants() {
     assertTrue(c.string2booleanPrimitive("Y"));
     assertTrue(c.string2booleanPrimitive("yes"));
     assertTrue(c.string2booleanPrimitive("True"));

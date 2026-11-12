@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class DataSetDefaultsTest {
 
   @Test
-  void suggestsNameFolderAndFilenameFromPipelineAndTransform() throws Exception {
+  void suggestsNameFolderAndFilenameFromPipelineAndTransform() {
     Variables variables = new Variables();
     variables.setVariable(DataSet.VARIABLE_HOP_DATASETS_FOLDER, "${PROJECT_HOME}/datasets");
 

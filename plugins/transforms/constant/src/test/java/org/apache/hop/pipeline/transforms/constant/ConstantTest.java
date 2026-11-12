@@ -28,6 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -84,7 +86,7 @@ class ConstantTest {
 
     doReturn(rowMetaAndData).when(mockHelper.iTransformData).getConstants();
     constantSpy =
-        Mockito.spy(
+        spy(
             new Constant(
                 mockHelper.transformMeta,
                 mockHelper.iTransformMeta,
@@ -148,7 +150,7 @@ class ConstantTest {
     assertTrue(constantSpy.processRow());
 
     ArgumentCaptor<String> logged = ArgumentCaptor.forClass(String.class);
-    Mockito.verify(mockHelper.iLogChannel).logRowlevel(logged.capture());
+    verify(mockHelper.iLogChannel).logRowlevel(logged.capture());
     assertTrue(
         logged.getValue().contains("START") && logged.getValue().contains("ALL"),
         "the logged row should contain the added constant, but was: " + logged.getValue());
@@ -299,7 +301,7 @@ class ConstantTest {
   }
 
   @Test
-  void testBuildRowParsesDateWithFormat() throws Exception {
+  void testBuildRowParsesDateWithFormat() {
     ConstantField date = new ConstantField("date", "Date", "2026/08/06");
     date.setFieldFormat("yyyy/MM/dd");
     List<ICheckResult> remarks = new ArrayList<>();
@@ -540,7 +542,7 @@ class ConstantTest {
     meta.getFields().add(new ConstantField("kept", "String", "kept value"));
     ConstantData data = new ConstantData();
 
-    Constant transform = Mockito.spy(newConstant(meta, data));
+    Constant transform = spy(newConstant(meta, data));
     assertTrue(transform.init());
 
     RowMeta inputRowMeta = new RowMeta();

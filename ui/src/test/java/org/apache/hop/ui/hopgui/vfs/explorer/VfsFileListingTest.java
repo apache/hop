@@ -252,7 +252,7 @@ class VfsFileListingTest {
     assertSame(failure, thrown);
   }
 
-  private static FileObject namedChild(String baseName) throws Exception {
+  private static FileObject namedChild(String baseName) {
     FileObject child = mock(FileObject.class);
     FileName name = mock(FileName.class);
     when(child.getName()).thenReturn(name);

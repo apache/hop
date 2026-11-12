@@ -52,7 +52,7 @@ class PreparedWebServiceTest {
   private final ByteArrayOutputStream sink = new ByteArrayOutputStream();
   private RowAdapter listener;
 
-  private PreparedWebService prepare(String fieldName, String statusCodeField) throws Exception {
+  private PreparedWebService prepare(String fieldName, String statusCodeField) {
     @SuppressWarnings("unchecked")
     IPipelineEngine<PipelineMeta> pipeline = mock(IPipelineEngine.class);
     IEngineComponent component = mock(IEngineComponent.class);

@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -120,12 +120,7 @@ class ConstTest {
 
   @Test
   void testNrSpacesBefore() {
-    try {
-      Const.nrSpacesBefore(null);
-      fail("Expected NullPointerException");
-    } catch (NullPointerException ex) {
-      // Ignore
-    }
+    assertThrows(NullPointerException.class, () -> Const.nrSpacesBefore(null));
 
     assertEquals(0, Const.nrSpacesBefore(""));
     assertEquals(1, Const.nrSpacesBefore(" "));
@@ -138,12 +133,7 @@ class ConstTest {
 
   @Test
   void testNrSpacesAfter() {
-    try {
-      Const.nrSpacesAfter(null);
-      fail("Expected NullPointerException");
-    } catch (NullPointerException ex) {
-      // Ignore
-    }
+    assertThrows(NullPointerException.class, () -> Const.nrSpacesAfter(null));
 
     assertEquals(0, Const.nrSpacesAfter(""));
     assertEquals(1, Const.nrSpacesAfter(" "));
@@ -183,12 +173,7 @@ class ConstTest {
 
   @Test
   void testOnlySpaces() {
-    try {
-      Const.onlySpaces(null);
-      fail("Expected NullPointerException");
-    } catch (NullPointerException ex) {
-      // Ignore
-    }
+    assertThrows(NullPointerException.class, () -> Const.onlySpaces(null));
     assertEquals(true, Const.onlySpaces(""));
     assertEquals(true, Const.onlySpaces("  "));
     assertEquals(false, Const.onlySpaces("   test "));
@@ -610,10 +595,9 @@ class ConstTest {
   @Test
   void testSplitStringWithEscapeString() {
     String string = "aaa:123.4:c:ddd-dd:eeee\\\\:\\\\:eee:fff";
-    String[] chunks =
-        new String[] {
-          "aaa", "123.4", "c", "ddd-dd", "eeee::eee", "fff",
-        };
+    String[] chunks = {
+      "aaa", "123.4", "c", "ddd-dd", "eeee::eee", "fff",
+    };
     String[] parts = Const.splitString(string, ":", null, false, "\\\\");
     assertSplit(chunks, parts);
 

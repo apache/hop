@@ -52,7 +52,7 @@ class SelectValues_LocaleHandling_Test {
   private TransformMockHelper<SelectValuesMeta, SelectValuesData> helper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     current = Locale.getDefault();
     Locale.setDefault(Locale.UK);
 
@@ -75,7 +75,7 @@ class SelectValues_LocaleHandling_Test {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     transform = null;
 
     Locale.setDefault(current);

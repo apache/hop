@@ -166,8 +166,8 @@ class AbstractMetaTest {
     assertNull(meta.nextUndo());
     TransformMeta fromMeta = mock(TransformMeta.class);
     TransformMeta toMeta = mock(TransformMeta.class);
-    Object[] from = new Object[] {fromMeta};
-    Object[] to = new Object[] {toMeta};
+    Object[] from = {fromMeta};
+    Object[] to = {toMeta};
     int[] pos = new int[0];
     Point[] prev = new Point[0];
     Point[] curr = new Point[0];
@@ -187,8 +187,8 @@ class AbstractMetaTest {
     assertNotNull(meta.viewPreviousUndo());
     assertNotNull(meta.viewNextUndo());
     meta.addUndo(from, to, pos, prev, curr, AbstractMeta.TYPE_UNDO_DELETE, false);
-    Point[] prevPos = new Point[] {new Point(10, 20)};
-    Point[] currPos = new Point[] {new Point(30, 40)};
+    Point[] prevPos = {new Point(10, 20)};
+    Point[] currPos = {new Point(30, 40)};
     meta.addUndo(from, to, pos, prevPos, currPos, AbstractMeta.TYPE_UNDO_POSITION, false);
     assertNotNull(meta.previousUndo());
     assertNotNull(meta.nextUndo());
@@ -202,8 +202,8 @@ class AbstractMetaTest {
     meta.clearUndo();
     meta.setMaxUndo(10);
     TransformMeta transformMeta = mock(TransformMeta.class);
-    Object[] from = new Object[] {transformMeta};
-    int[] pos = new int[] {0};
+    Object[] from = {transformMeta};
+    int[] pos = {0};
 
     // Empty location arrays must not be recorded (and must not throw)
     meta.addUndo(

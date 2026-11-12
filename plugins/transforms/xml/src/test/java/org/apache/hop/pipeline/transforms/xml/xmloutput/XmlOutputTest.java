@@ -61,7 +61,7 @@ class XmlOutputTest {
   }
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() {
 
     TransformMockHelper<XmlOutputMeta, XmlOutputData> transformMockHelper =
         new TransformMockHelper<>("XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class);

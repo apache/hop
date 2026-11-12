@@ -19,6 +19,7 @@ package org.apache.hop.lakehouse.transforms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -477,7 +478,7 @@ class LakeTableOutputLocalTest {
                 tablePath,
                 Map.of()))
         .commitTransaction();
-    assertTrue(table().currentSnapshot() == null, "the table starts without a snapshot");
+    assertNull(table().currentSnapshot(), "the table starts without a snapshot");
     onFirstRow =
         () -> {
           Table other =

@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 class LintResultsPanelDisposeTest extends SwtBotTestBase {
 
   @Test
-  void closingTheWindowRemovesThePanelsListener() throws Exception {
+  void closingTheWindowRemovesThePanelsListener() {
     AtomicReference<LintResultsPanel> panel = new AtomicReference<>();
 
     withScene(
@@ -53,7 +53,7 @@ class LintResultsPanelDisposeTest extends SwtBotTestBase {
   }
 
   @Test
-  void anOpenPanelIsNotified() throws Exception {
+  void anOpenPanelIsNotified() {
     AtomicReference<Boolean> registered = new AtomicReference<>();
 
     withScene(

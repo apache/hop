@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationSourceConfigTest {
 
   @Test
-  public void testJsonRoundTrip_githubSource() throws Exception {
+  void testJsonRoundTrip_githubSource() throws Exception {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("github-apache-hop");
     source.setName("Apache Hop Releases");
@@ -60,7 +60,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testJsonRoundTrip_rssSource() throws Exception {
+  void testJsonRoundTrip_rssSource() throws Exception {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("rss-1");
     source.setName("My Feed");
@@ -78,7 +78,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testJsonRoundTrip_customPluginWithPluginId() throws Exception {
+  void testJsonRoundTrip_customPluginWithPluginId() throws Exception {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("my-plugin");
     source.setName("My Plugin Notifications");
@@ -96,7 +96,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testGetPluginId_fallbackToIdWhenPluginIdMissing() {
+  void testGetPluginId_fallbackToIdWhenPluginIdMissing() {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("my-plugin");
     source.setType(NotificationSourceConfig.SourceType.CUSTOM_PLUGIN);
@@ -107,7 +107,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testGetPluginId_returnsPluginIdWhenSet() {
+  void testGetPluginId_returnsPluginIdWhenSet() {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("source-abc123");
     source.setPluginId("my-plugin");
@@ -116,7 +116,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testGetPluginId_returnsNullWhenBothMissing() {
+  void testGetPluginId_returnsNullWhenBothMissing() {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setType(NotificationSourceConfig.SourceType.CUSTOM_PLUGIN);
     source.getProperties().clear();
@@ -126,7 +126,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testJsonRoundTrip_listOfSources() throws Exception {
+  void testJsonRoundTrip_listOfSources() throws Exception {
     NotificationSourceConfig github = new NotificationSourceConfig();
     github.setId("github-apache-hop");
     github.setName("Apache Hop");
@@ -153,7 +153,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testCredentialsRoundTripThroughJson() throws Exception {
+  void testCredentialsRoundTripThroughJson() throws Exception {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("private-feed");
     source.setName("Private feed");
@@ -173,7 +173,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testLiteralTokenIsNotWrittenToConfigInClearText() throws Exception {
+  void testLiteralTokenIsNotWrittenToConfigInClearText() throws Exception {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setId("private-feed");
     source.setType(NotificationSourceConfig.SourceType.RSS_FEED);
@@ -189,7 +189,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testMinimumVersionRoundTrips() {
+  void testMinimumVersionRoundTrips() {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
     source.setMinimumVersion("2.19.0");
@@ -198,7 +198,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testDefaultSourceIsFlooredAtTheRunningVersion() {
+  void testDefaultSourceIsFlooredAtTheRunningVersion() {
     // Without a floor the Apache Hop source reports its whole back catalogue, more than twenty
     // releases going back years, because Hop marks none of its "-rc" tags as pre-releases.
     NotificationSourceConfig source = NotificationSourceConfig.defaultHopReleasesSource();
@@ -210,7 +210,7 @@ public class NotificationSourceConfigTest {
   }
 
   @Test
-  public void testSourceWithoutAPasswordHasNoCredentials() {
+  void testSourceWithoutAPasswordHasNoCredentials() {
     NotificationSourceConfig source = new NotificationSourceConfig();
     source.setUsername("someone");
 

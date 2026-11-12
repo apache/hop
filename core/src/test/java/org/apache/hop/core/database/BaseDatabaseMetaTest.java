@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +43,6 @@ import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
@@ -289,10 +289,10 @@ class BaseDatabaseMetaTest {
 
   @Test
   void testCheckIndexExists() throws Exception {
-    Database db = Mockito.mock(Database.class);
-    ResultSet rs = Mockito.mock(ResultSet.class);
-    DatabaseMetaData dmd = Mockito.mock(DatabaseMetaData.class);
-    DatabaseMeta dm = Mockito.mock(DatabaseMeta.class);
+    Database db = mock(Database.class);
+    ResultSet rs = mock(ResultSet.class);
+    DatabaseMetaData dmd = mock(DatabaseMetaData.class);
+    DatabaseMeta dm = mock(DatabaseMeta.class);
     when(dm.getQuotedSchemaTableCombination(db, "", "FOO")).thenReturn("FOO");
     when(rs.next())
         .thenAnswer(
@@ -348,7 +348,7 @@ class BaseDatabaseMetaTest {
       return;
     }
 
-    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    ResultSetMetaData rm = mock(ResultSetMetaData.class);
     when(rm.getColumnTypeName(1)).thenReturn("UUID");
 
     IValueMeta pre = buildPreMeta();
@@ -370,7 +370,7 @@ class BaseDatabaseMetaTest {
 
   @Test
   void testCustomizeValueFromSqlTypeJson() throws Exception {
-    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    ResultSetMetaData rm = mock(ResultSetMetaData.class);
     when(rm.getColumnTypeName(1)).thenReturn("jsonb");
 
     IValueMeta out = nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1);
@@ -380,7 +380,7 @@ class BaseDatabaseMetaTest {
 
   @Test
   void testCustomizeValueFromSqlTypeLeavesOtherTypesAlone() throws Exception {
-    ResultSetMetaData rm = Mockito.mock(ResultSetMetaData.class);
+    ResultSetMetaData rm = mock(ResultSetMetaData.class);
     when(rm.getColumnTypeName(1)).thenReturn("varchar");
 
     assertNull(nativeMeta.customizeValueFromSqlType(buildPreMeta(), rm, 1));

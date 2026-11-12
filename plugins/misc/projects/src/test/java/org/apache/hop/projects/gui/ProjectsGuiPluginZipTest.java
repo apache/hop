@@ -24,28 +24,28 @@ import org.junit.jupiter.api.Test;
 public class ProjectsGuiPluginZipTest {
 
   @Test
-  public void testRelativeZipPathAsIsUsesProjectHomeAsRoot() {
+  void testRelativeZipPathAsIsUsesProjectHomeAsRoot() {
     String projectHome = "file:///home/user/my-project";
     String file = "file:///home/user/my-project/pipelines/demo.hpl";
     assertEquals("pipelines/demo.hpl", ProjectsGuiPlugin.relativeZipPath(file, projectHome));
   }
 
   @Test
-  public void testRelativeZipPathAsIsWithTrailingSlashOnHome() {
+  void testRelativeZipPathAsIsWithTrailingSlashOnHome() {
     String projectHome = "file:///home/user/my-project/";
     String file = "file:///home/user/my-project/project-config.json";
     assertEquals("project-config.json", ProjectsGuiPlugin.relativeZipPath(file, projectHome));
   }
 
   @Test
-  public void testRelativeZipPathNormalNestsUnderProjectName() {
+  void testRelativeZipPathNormalNestsUnderProjectName() {
     String parent = "file:///home/user";
     String file = "file:///home/user/my-project/pipelines/demo.hpl";
     assertEquals("my-project/pipelines/demo.hpl", ProjectsGuiPlugin.relativeZipPath(file, parent));
   }
 
   @Test
-  public void testRelativeZipPathAlreadyRelativeUnchanged() {
+  void testRelativeZipPathAlreadyRelativeUnchanged() {
     assertEquals(
         "my-project/hop-config.json",
         ProjectsGuiPlugin.relativeZipPath("my-project/hop-config.json", "file:///home/user"));

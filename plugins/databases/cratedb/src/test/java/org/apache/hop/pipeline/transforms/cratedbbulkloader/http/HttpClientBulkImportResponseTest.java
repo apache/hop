@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.net.http.HttpResponse;
 import org.apache.hop.core.exception.HopException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class HttpClientBulkImportResponseTest {
 
@@ -40,7 +40,7 @@ class HttpClientBulkImportResponseTest {
 
   @BeforeEach
   void setup() {
-    mockResponse = Mockito.mock(HttpResponse.class);
+    mockResponse = mock(HttpResponse.class);
     crateDBHttpResponse = new CrateDBHttpResponse();
     client = new BulkImportClient(MOCK_ENDPOINT, MOCK_USER, MOCK_PASSWORD);
   }

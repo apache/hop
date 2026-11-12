@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -124,8 +125,8 @@ class TableOutputLineageTest {
    * test in the same JVM has initialised the Hop environment.
    */
   private static MockedStatic<LineageHub> lineageEnabled(boolean enabled) {
-    LineageHub hub = org.mockito.Mockito.mock(LineageHub.class);
-    org.mockito.Mockito.when(hub.isEnabled()).thenReturn(enabled);
+    LineageHub hub = mock(LineageHub.class);
+    when(hub.isEnabled()).thenReturn(enabled);
     MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class);
     staticHub.when(LineageHub::getInstance).thenReturn(hub);
     return staticHub;

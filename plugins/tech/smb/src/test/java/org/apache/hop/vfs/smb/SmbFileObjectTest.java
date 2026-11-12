@@ -71,7 +71,7 @@ class SmbFileObjectTest {
 
       FileObject[] children = folder.getChildren();
       assertEquals(1, children.length);
-      assertTrue(children[0].getName().getBaseName().equals("daily.csv"));
+      assertEquals("daily.csv", children[0].getName().getBaseName());
 
       FileObject relative = folder.resolveFile("relative.csv");
       assertEquals("finance:///reports/relative.csv", relative.getName().getURI());

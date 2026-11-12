@@ -17,9 +17,10 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -44,29 +45,28 @@ class CsvInputAwareImportProgressDialogTest {
     // verify that when 'failOnParseError' is false, and row index is out of bounds, we get a null
     // value back and no
     // Exception
-    try {
-      assertNull(dlg.getStringFromRow(rowMeta, row, 2, false));
-    } catch (final HopException e) {
-      fail("Exception should not have been thrown");
-    }
+    assertNull(
+        assertDoesNotThrow(
+            () -> dlg.getStringFromRow(rowMeta, row, 2, false),
+            "Exception should not have been thrown"));
 
     // we should always get back a 'null', when the index is valid and the value is null
-    try {
-      assertNull(dlg.getStringFromRow(rowMeta, row, 1, false));
-      assertNull(dlg.getStringFromRow(rowMeta, row, 1, true));
-    } catch (final HopException e) {
-      fail("Exception should not have been thrown");
-    }
+    assertNull(
+        assertDoesNotThrow(
+            () -> dlg.getStringFromRow(rowMeta, row, 1, false),
+            "Exception should not have been thrown"));
+    assertNull(
+        assertDoesNotThrow(
+            () -> dlg.getStringFromRow(rowMeta, row, 1, true),
+            "Exception should not have been thrown"));
 
     // verify that when 'failOnParseError' is true, and row value is null or index is out of bounds,
     // we get a NPE
     // wrapped in a HopException
-    try {
-      assertNull(dlg.getStringFromRow(rowMeta, row, 2, true));
-      fail("Exception should not have been thrown");
-    } catch (final HopException e) {
-      // ignore
-    }
+    assertThrows(
+        HopException.class,
+        () -> dlg.getStringFromRow(rowMeta, row, 2, true),
+        "Exception should have been thrown");
 
     // when 'failOnParseError' is false, we do not want to throw an exception - we also need to
     // verify that the value we
@@ -74,30 +74,28 @@ class CsvInputAwareImportProgressDialogTest {
     // object itself, hence
     // we mock this method to return something other than what is in the row object
     Mockito.when(rowMeta.getString(row, 0)).thenReturn("foe");
-    try {
-      assertEquals("foe", dlg.getStringFromRow(rowMeta, row, 0, false));
-    } catch (final HopException e) {
-      fail("Exception should not have been thrown");
-    }
+    assertEquals(
+        "foe",
+        assertDoesNotThrow(
+            () -> dlg.getStringFromRow(rowMeta, row, 0, false),
+            "Exception should not have been thrown"));
 
     // when RowMetaInterfece.getString is mocked to throw an NPE and 'failOnParseError' is false, we
     // expect to get
     // back the value from the row object
     Mockito.when(rowMeta.getString(row, 0)).thenThrow(new NullPointerException("NPE"));
-    try {
-      assertEquals("foo", dlg.getStringFromRow(rowMeta, row, 0, false));
-    } catch (final HopException e) {
-      fail("Exception should not have been thrown");
-    }
+    assertEquals(
+        "foo",
+        assertDoesNotThrow(
+            () -> dlg.getStringFromRow(rowMeta, row, 0, false),
+            "Exception should not have been thrown"));
 
     // when 'failOnParseError' is true and RowMetaInterfece.getString throws an exception, we expect
     // to get back
     // a HopException
-    try {
-      dlg.getStringFromRow(rowMeta, row, 0, true);
-      fail("Exception should have been thrown");
-    } catch (final HopException e) {
-      // ignore
-    }
+    assertThrows(
+        HopException.class,
+        () -> dlg.getStringFromRow(rowMeta, row, 0, true),
+        "Exception should have been thrown");
   }
 }

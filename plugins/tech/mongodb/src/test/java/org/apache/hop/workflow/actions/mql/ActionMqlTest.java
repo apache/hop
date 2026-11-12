@@ -165,7 +165,7 @@ class ActionMqlTest {
   }
 
   @Test
-  void testExecuteWithMultipleCommands() throws Exception {
+  void testExecuteWithMultipleCommands() {
     ActionMql action = new ActionMql("test-multiple-commands");
     action.setMql("[ { \"cmd1\": 1 }, { \"cmd2\": 1 } ]");
     action.setUseExternalFile(false);

@@ -34,11 +34,11 @@ import org.junit.jupiter.api.Test;
 class IsNullIndexTest {
 
   static List<Object[]> createSampleData() {
-    Long[][] sample1 = new Long[][] {{null}, {null}, {1L}, {null}, {null}};
-    Long[][] sample2 = new Long[][] {{1L}, {null}, {null}, {1L}, {1L}};
-    Long[][] sample3 = new Long[][] {{null}, {1L}, {null}, {1L}, {null}};
-    Long[][] sample4 = new Long[][] {{null}, {null}, {null}, {null}, {null}};
-    Long[][] sample5 = new Long[][] {{1L}, {1L}, {1L}, {1L}, {1L}};
+    Long[][] sample1 = {{null}, {null}, {1L}, {null}, {null}};
+    Long[][] sample2 = {{1L}, {null}, {null}, {1L}, {1L}};
+    Long[][] sample3 = {{null}, {1L}, {null}, {1L}, {null}};
+    Long[][] sample4 = {{null}, {null}, {null}, {null}, {null}};
+    Long[][] sample5 = {{1L}, {1L}, {1L}, {1L}, {1L}};
     return Arrays.asList(
         new Object[] {sample1},
         new Object[] {sample2},

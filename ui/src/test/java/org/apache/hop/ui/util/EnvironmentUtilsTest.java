@@ -20,6 +20,7 @@ package org.apache.hop.ui.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
@@ -173,12 +174,12 @@ class EnvironmentUtilsTest {
 
     @Override
     protected Process ExecuteCommand(String command) throws IOException {
-      return Mockito.mock(Process.class);
+      return mock(Process.class);
     }
 
     @Override
     protected BufferedReader getBufferedReaderFromProcess(Process p) {
-      BufferedReader bufferedReader = Mockito.mock(BufferedReader.class);
+      BufferedReader bufferedReader = mock(BufferedReader.class);
       try {
         switch (option) {
           case UBUNTU_16:

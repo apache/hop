@@ -127,7 +127,7 @@ class BQSchemaAndRecordToHopFnTest {
   }
 
   @Test
-  void nestedRecordBecomesAJsonString() throws Exception {
+  void nestedRecordBecomesAJsonString() {
     HopRow hopRow =
         assertDoesNotThrow(
             () ->
@@ -215,7 +215,7 @@ class BQSchemaAndRecordToHopFnTest {
   }
 
   @Test
-  void aFieldMissingFromTheTableSchemaDoesNotFailTheRead() throws Exception {
+  void aFieldMissingFromTheTableSchemaDoesNotFailTheRead() {
     // Common for a fromQuery result: the table schema does not describe every selected field.
     // That used to throw "Unable to find field" and kill the whole read.
     //

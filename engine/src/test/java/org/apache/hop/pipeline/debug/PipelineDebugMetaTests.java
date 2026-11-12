@@ -121,7 +121,7 @@ class PipelineDebugMetaTests {
 
     // add row data
     for (int i = 0; i < 5; i++) {
-      Object[] row = new Object[] {i};
+      Object[] row = {i};
       transformDebugMeta.getRowBuffer().add(row);
     }
 

@@ -17,8 +17,8 @@
 
 package org.apache.hop.setup.gui;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,11 +41,9 @@ class MessagesFormatTest {
     }
     for (String key : properties.stringPropertyNames()) {
       String value = properties.getProperty(key);
-      try {
-        MessageFormat.format(value, "0", "1", "2", "3", "4");
-      } catch (IllegalArgumentException e) {
-        fail("MessageFormat failed for " + key + ": " + e.getMessage());
-      }
+      assertDoesNotThrow(
+          () -> MessageFormat.format(value, "0", "1", "2", "3", "4"),
+          () -> "MessageFormat failed for " + key);
     }
   }
 }

@@ -17,10 +17,9 @@
 package org.apache.hop.pipeline.transforms.janino;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.Test;
@@ -44,28 +43,28 @@ class JaninoMetaFunctionTest {
   void equals_sameFieldName_returnsTrue() {
     JaninoMetaFunction a = build("x");
     JaninoMetaFunction b = build("x");
-    assertTrue(a.equals(b));
+    assertEquals(a, b);
   }
 
   @Test
   void equals_differentFieldName_returnsFalse() {
-    assertFalse(build("a").equals(build("b")));
+    assertNotEquals(build("a"), build("b"));
   }
 
   @Test
   void equals_null_returnsFalse() {
-    assertFalse(build("x").equals(null));
+    assertNotEquals(build("x"), null);
   }
 
   @Test
   void equals_differentClass_returnsFalse() {
-    assertFalse(build("x").equals("x"));
+    assertNotEquals(build("x"), "x");
   }
 
   @Test
   void equals_reflexive() {
     JaninoMetaFunction f = build("y");
-    assertTrue(f.equals(f));
+    assertEquals(f, f);
   }
 
   // ------------------------------------------------------------------ hashCode
@@ -107,7 +106,7 @@ class JaninoMetaFunctionTest {
   @Test
   void defaultConstructor_fieldsAreNullOrZero() {
     JaninoMetaFunction f = new JaninoMetaFunction();
-    assertFalse(f.equals(null)); // doesn't throw
+    assertNotEquals(f, null); // doesn't throw
     assertEquals(0, f.getValueType());
     assertEquals(0, f.getValueLength());
     assertEquals(0, f.getValuePrecision());

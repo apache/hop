@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Test;
 public class PreCommitLintConfigTest {
 
   @Test
-  public void preCommitDisabledByDefault() {
+  void preCommitDisabledByDefault() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     assertFalse(config.isPreCommitLintEnabled());
   }
 
   @Test
-  public void shouldBlockErrorsAlwaysWhenWarningsEnabled() {
+  void shouldBlockErrorsAlwaysWhenWarningsEnabled() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     config.setPreCommitBlockWarnings(true);
     assertTrue(config.shouldBlockCommitForSeverity("ERROR"));
@@ -39,21 +39,21 @@ public class PreCommitLintConfigTest {
   }
 
   @Test
-  public void shouldBlockErrorsOnlyByDefault() {
+  void shouldBlockErrorsOnlyByDefault() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     assertTrue(config.shouldBlockCommitForSeverity("ERROR"));
     assertFalse(config.shouldBlockCommitForSeverity("WARNING"));
   }
 
   @Test
-  public void isLintableCommitFileIncludesPipelinesAndWorkflows() {
+  void isLintableCommitFileIncludesPipelinesAndWorkflows() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     assertTrue(PreCommitLintExtension.isLintableCommitFile("/project/pipeline.hpl", config));
     assertTrue(PreCommitLintExtension.isLintableCommitFile("/project/workflow.hwf", config));
   }
 
   @Test
-  public void isLintableCommitFileIncludesMetadataWhenEnabled() {
+  void isLintableCommitFileIncludesMetadataWhenEnabled() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     config.setPreCommitIncludeMetadata(true);
     assertTrue(
@@ -61,7 +61,7 @@ public class PreCommitLintConfigTest {
   }
 
   @Test
-  public void isLintableCommitFileExcludesMetadataWhenDisabled() {
+  void isLintableCommitFileExcludesMetadataWhenDisabled() {
     LinterConfigPlugin config = new LinterConfigPlugin();
     config.setPreCommitIncludeMetadata(false);
     assertFalse(

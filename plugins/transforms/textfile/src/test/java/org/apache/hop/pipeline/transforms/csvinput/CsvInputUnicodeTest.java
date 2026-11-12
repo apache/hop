@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -80,7 +79,7 @@ class CsvInputUnicodeTest extends CsvInputUnitTestBase {
   private static TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeAll
-  static void setUp() throws HopException {
+  static void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputUnicodeTest");

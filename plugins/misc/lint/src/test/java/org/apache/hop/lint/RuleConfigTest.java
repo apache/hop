@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class RuleConfigTest {
 
   @Test
-  public void testDefaultConstructor() {
+  void testDefaultConstructor() {
     RuleConfig config = new RuleConfig();
 
     assertFalse(config.isEnabled());
@@ -39,7 +39,7 @@ public class RuleConfigTest {
   }
 
   @Test
-  public void testSettersAndGetters() {
+  void testSettersAndGetters() {
     RuleConfig config = new RuleConfig();
 
     // Test enabled flag
@@ -64,7 +64,7 @@ public class RuleConfigTest {
   }
 
   @Test
-  public void testNullParameters() {
+  void testNullParameters() {
     RuleConfig config = new RuleConfig();
 
     config.setParameters(null);
@@ -72,7 +72,7 @@ public class RuleConfigTest {
   }
 
   @Test
-  public void testEmptyParameters() {
+  void testEmptyParameters() {
     RuleConfig config = new RuleConfig();
 
     Map<String, Object> emptyParams = new HashMap<>();
@@ -83,7 +83,7 @@ public class RuleConfigTest {
   }
 
   @Test
-  public void testComplexParameters() {
+  void testComplexParameters() {
     RuleConfig config = new RuleConfig();
 
     Map<String, Object> complexParams = new HashMap<>();

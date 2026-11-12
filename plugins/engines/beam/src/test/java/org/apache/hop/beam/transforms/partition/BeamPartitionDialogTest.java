@@ -58,7 +58,7 @@ class BeamPartitionDialogTest extends SwtBotTestBase {
   }
 
   @Test
-  void okPersistsPartitionOptionsThroughGroupedWidgets() throws Exception {
+  void okPersistsPartitionOptionsThroughGroupedWidgets() {
     BeamPartitionMeta meta = new BeamPartitionMeta();
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.addTransform(new TransformMeta("BeamPartition", "partition", meta));
@@ -104,7 +104,7 @@ class BeamPartitionDialogTest extends SwtBotTestBase {
   }
 
   @Test
-  void cancelDoesNotPersistEdits() throws Exception {
+  void cancelDoesNotPersistEdits() {
     BeamPartitionMeta meta = new BeamPartitionMeta();
     PipelineMeta pipeline = new PipelineMeta();
     pipeline.addTransform(new TransformMeta("BeamPartition", "partition", meta));

@@ -69,7 +69,7 @@ class OdsExcelWriterIntegrationTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         new TransformMockHelper<>(
             "ODS Excel Writer Integration",
@@ -154,9 +154,8 @@ class OdsExcelWriterIntegrationTest {
     data.realTemplateFileName = templateFile.getAbsolutePath();
 
     assertTrue(transform.init());
-    Object[] row1 =
-        new Object[] {"Alpha", 10L, "=A2+B2", "https://hop.apache.org", "first row comment"};
-    Object[] row2 = new Object[] {"Beta", 20L, "=A3+B3", "https://apache.org", "second row"};
+    Object[] row1 = {"Alpha", 10L, "=A2+B2", "https://hop.apache.org", "first row comment"};
+    Object[] row2 = {"Beta", 20L, "=A3+B3", "https://apache.org", "second row"};
 
     transform.prepareNextOutputFile(row1);
     transform.writeNextLine(data.currentWorkbookDefinition, row1);
@@ -214,7 +213,7 @@ class OdsExcelWriterIntegrationTest {
     }
   }
 
-  private String cellText(OdfTable table, int col, int row) throws Exception {
+  private String cellText(OdfTable table, int col, int row) {
     return table.getCellByPosition(col, row).getDisplayText();
   }
 }

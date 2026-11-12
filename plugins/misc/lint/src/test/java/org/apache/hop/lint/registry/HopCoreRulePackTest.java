@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class HopCoreRulePackTest {
 
   @Test
-  public void loadsCoreRulesFromClasspath() {
+  void loadsCoreRulesFromClasspath() {
     List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
 
     assertFalse(rules.isEmpty());
@@ -47,7 +47,7 @@ public class HopCoreRulePackTest {
    * came up with five errors in issue #8294.
    */
   @Test
-  public void shipsANativeRuleCoveringHopsOwnVerifyRemarks() {
+  void shipsANativeRuleCoveringHopsOwnVerifyRemarks() {
     List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
 
     CustomLintRule blanket =
@@ -72,7 +72,7 @@ public class HopCoreRulePackTest {
 
   /** Native rules are not evaluated against anything, so they must not reach the executor. */
   @Test
-  public void nativeRulesAreNotPolicyRules() {
+  void nativeRulesAreNotPolicyRules() {
     List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
 
     assertTrue(
@@ -89,7 +89,7 @@ public class HopCoreRulePackTest {
    * allOf/anyOf handling shows up here rather than in someone's project.
    */
   @Test
-  public void shipsAComposedRuleAsAWorkedExample() {
+  void shipsAComposedRuleAsAWorkedExample() {
     CustomLintRule composed =
         new HopCoreRulePack()
             .loadRules().stream()
@@ -108,7 +108,7 @@ public class HopCoreRulePackTest {
    * project. Adding one is a deliberate act, and this test is where that gets noticed.
    */
   @Test
-  public void onlyUniversallyDefensibleRulesAreEnabledByDefault() {
+  void onlyUniversallyDefensibleRulesAreEnabledByDefault() {
     List<String> enabled =
         new HopCoreRulePack()
             .loadRules().stream()
@@ -128,7 +128,7 @@ public class HopCoreRulePackTest {
    * style; enabling them by default would fail Hop's own sample projects.
    */
   @Test
-  public void houseStyleRulesShipDisabled() {
+  void houseStyleRulesShipDisabled() {
     List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
 
     assertTrue(
@@ -145,7 +145,7 @@ public class HopCoreRulePackTest {
 
   /** Secrets in the project are the one thing the platform treats as a hard error. */
   @Test
-  public void secretRulesAreErrors() {
+  void secretRulesAreErrors() {
     List<CustomLintRule> rules = new HopCoreRulePack().loadRules();
 
     assertTrue(

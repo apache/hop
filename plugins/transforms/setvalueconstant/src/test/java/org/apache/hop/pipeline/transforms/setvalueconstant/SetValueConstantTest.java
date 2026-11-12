@@ -90,7 +90,7 @@ class SetValueConstantTest {
     Method m = SetValueConstant.class.getDeclaredMethod("updateField", Object[].class);
     m.setAccessible(true);
 
-    Object[] row = new Object[] {null};
+    Object[] row = {null};
     m.invoke(transform, new Object[] {row});
 
     assertEquals("foo", valueMeta.getString(row[0]));

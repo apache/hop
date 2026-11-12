@@ -22,8 +22,8 @@ package org.apache.hop.databases.snowflake;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -49,7 +49,7 @@ class SnowflakeDatabaseMetaTest {
 
   @Test
   void testAccessType() {
-    int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
+    int[] aTypes = {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
@@ -83,14 +83,11 @@ class SnowflakeDatabaseMetaTest {
         "jdbc:snowflake://account.snowflakecomputing.com/?warehouse=wh&db=bar",
         nativeMeta.getURL("account", "", "bar"));
 
-    try {
-      assertEquals(
-          "jdbc:snowflake://account.snowflakecomputing.com:1500/?db=bar",
-          nativeMeta.getURL("", "1500", "bar"));
-      fail("Should have thrown IllegalArgumentException");
-    } catch (IllegalArgumentException dummy) {
-      // expected if host is null or empty
-    }
+    // expected if host is null or empty
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> nativeMeta.getURL("", "1500", "bar"),
+        "Should have thrown IllegalArgumentException");
   }
 
   @Test

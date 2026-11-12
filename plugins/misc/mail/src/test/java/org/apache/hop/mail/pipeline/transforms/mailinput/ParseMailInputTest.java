@@ -125,7 +125,7 @@ class ParseMailInputTest {
     Address[] adrRep = {addrRep1, addrRep2};
     Address[] adrRecip = {allRec1, allRec2};
 
-    message = Mockito.mock(Message.class);
+    message = mock(Message.class);
     when(message.getMessageNumber()).thenReturn(MSG_NUMB);
     when(message.getSubject()).thenReturn(SUBJ);
 

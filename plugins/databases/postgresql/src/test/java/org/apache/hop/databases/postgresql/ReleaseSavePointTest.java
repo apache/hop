@@ -24,10 +24,9 @@ import org.junit.jupiter.api.Test;
 
 class ReleaseSavePointTest {
 
-  IDatabase[] support =
-      new IDatabase[] {
-        new PostgreSqlDatabaseMeta(),
-      };
+  IDatabase[] support = {
+    new PostgreSqlDatabaseMeta(),
+  };
 
   @Test
   void testReleaseSavePointBooleans() {

@@ -83,7 +83,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 class DatabaseLookupUTest {
   @RegisterExtension
@@ -130,7 +129,7 @@ class DatabaseLookupUTest {
         .thenReturn(null);
     when(rowSet.getRowMeta()).thenReturn(inputRowMeta);
 
-    Mockito.doReturn(rowSet)
+    doReturn(rowSet)
         .when(mockHelper.pipeline)
         .findRowSet(nullable(String.class), anyInt(), nullable(String.class), anyInt());
 
@@ -187,7 +186,7 @@ class DatabaseLookupUTest {
 
     DatabaseLookup lookup =
         new DatabaseLookup(mocks.transformMeta, meta, data, 1, mocks.pipelineMeta, mocks.pipeline);
-    lookup = Mockito.spy(lookup);
+    lookup = spy(lookup);
 
     doReturn(db).when(lookup).getDatabase(dbMeta);
     for (IRowSet rowSet : lookup.getOutputRowSets()) {

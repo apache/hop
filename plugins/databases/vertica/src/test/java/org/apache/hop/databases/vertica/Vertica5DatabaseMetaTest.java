@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Date;
@@ -141,9 +143,9 @@ class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
     assertNull(rtn);
 
     // Verify that getDate, getTime, and getTimestamp were respectively called once
-    Mockito.verify(resultSet, Mockito.times(1)).getDate(Mockito.anyInt());
-    Mockito.verify(resultSet, Mockito.times(1)).getTime(Mockito.anyInt());
-    Mockito.verify(resultSet, Mockito.times(1)).getTimestamp(Mockito.anyInt());
+    verify(resultSet, times(1)).getDate(Mockito.anyInt());
+    verify(resultSet, times(1)).getTime(Mockito.anyInt());
+    verify(resultSet, times(1)).getTimestamp(Mockito.anyInt());
   }
 
   @Test

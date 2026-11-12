@@ -306,7 +306,7 @@ class BeamMqttGraphTest {
   }
 
   @Test
-  void handlersRejectUnexpectedIncomingTopology() throws Exception {
+  void handlersRejectUnexpectedIncomingTopology() {
     var p = Pipeline.create();
     var input = p.apply(Create.of(new HopRow(new Object[] {"value"})).withCoder(new HopRowCoder()));
     var map = new HashMap<String, PCollection<HopRow>>();

@@ -28,32 +28,32 @@ import org.junit.jupiter.api.Test;
 public class VersionCompareTest {
 
   @Test
-  public void testNumericSegmentsCompareNumerically() {
+  void testNumericSegmentsCompareNumerically() {
     assertTrue(VersionCompare.compare("2.20.0", "2.19.0") > 0);
     assertTrue(VersionCompare.compare("2.9.0", "2.10.0") < 0);
     assertEquals(0, VersionCompare.compare("2.19.0", "2.19.0"));
   }
 
   @Test
-  public void testMissingSegmentsCountAsZero() {
+  void testMissingSegmentsCountAsZero() {
     assertEquals(0, VersionCompare.compare("2.19", "2.19.0"));
     assertTrue(VersionCompare.compare("2.19.1", "2.19") > 0);
   }
 
   @Test
-  public void testSnapshotIsOlderThanItsRelease() {
+  void testSnapshotIsOlderThanItsRelease() {
     assertTrue(VersionCompare.compare("2.20.0-SNAPSHOT", "2.20.0") < 0);
     assertTrue(VersionCompare.compare("2.20.0-SNAPSHOT", "2.19.0") > 0);
   }
 
   @Test
-  public void testQualifierIsOlderThanTheBareVersion() {
+  void testQualifierIsOlderThanTheBareVersion() {
     assertTrue(VersionCompare.compare("2.19.0-rc1", "2.19.0") < 0);
     assertTrue(VersionCompare.compare("1.0-alpha", "1.0") < 0);
   }
 
   @Test
-  public void testHopReleaseCandidatesOrderAgainstTheRunningVersion() {
+  void testHopReleaseCandidatesOrderAgainstTheRunningVersion() {
     // Apache Hop tags every release "-rc1", so this is the comparison the notification floor
     // actually performs in the field.
     assertTrue(VersionCompare.compare("2.19.0-rc1", "2.20.0-SNAPSHOT") < 0);
@@ -64,7 +64,7 @@ public class VersionCompareTest {
   }
 
   @Test
-  public void testSnapshotDetection() {
+  void testSnapshotDetection() {
     assertTrue(VersionCompare.isSnapshot("2.20.0-SNAPSHOT"));
     assertTrue(VersionCompare.isSnapshot("2.20.0-snapshot"));
     assertFalse(VersionCompare.isSnapshot("2.20.0"));
@@ -72,13 +72,13 @@ public class VersionCompareTest {
   }
 
   @Test
-  public void testStripSnapshotQualifier() {
+  void testStripSnapshotQualifier() {
     assertEquals("2.20.0", VersionCompare.stripSnapshotQualifier("2.20.0-SNAPSHOT"));
     assertEquals("2.20.0", VersionCompare.stripSnapshotQualifier("2.20.0"));
   }
 
   @Test
-  public void testVersionTagsWrittenWithALeadingV() {
+  void testVersionTagsWrittenWithALeadingV() {
     // Tagging a release "v3.0.0" is GitHub's own recommendation. Treated as a qualifier the tag
     // sorted below every plain version, which silently emptied the notification floor of every
     // repository following that convention.
@@ -92,14 +92,14 @@ public class VersionCompareTest {
   }
 
   @Test
-  public void testAVersionNamedAfterAWordIsNotStripped() {
+  void testAVersionNamedAfterAWordIsNotStripped() {
     // Only a "v" in front of a digit is a version prefix. Anything else is part of the name.
     assertTrue(VersionCompare.compare("vault-1.0", "1.0") < 0);
     assertEquals(0, VersionCompare.compare("vault-1.0", "vault-1.0"));
   }
 
   @Test
-  public void testLatestAndNewestFirst() {
+  void testLatestAndNewestFirst() {
     assertEquals("2.20.0", VersionCompare.latest(List.of("2.19.0", "2.20.0", "2.9.0")));
     assertNull(VersionCompare.latest(List.of()));
     List<String> sorted =

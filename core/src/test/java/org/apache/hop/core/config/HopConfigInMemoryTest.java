@@ -82,7 +82,7 @@ class HopConfigInMemoryTest {
   }
 
   @Test
-  void testHopConfigInMemorySavesOptionOnlyInMemory() throws Exception {
+  void testHopConfigInMemorySavesOptionOnlyInMemory() {
     HopConfig.setInMemoryMode(true);
     assertTrue(HopConfig.isInMemoryMode());
 

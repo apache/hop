@@ -77,7 +77,7 @@ class BodyHttpServletTest {
   void doGetReturnsJsonWhenRequested() throws IOException {
     OkBodyServlet servlet = new OkBodyServlet();
     servlet.setJettyMode(true);
-    servlet.setLog(org.mockito.Mockito.mock(org.apache.hop.core.logging.ILogChannel.class));
+    servlet.setLog(mock(org.apache.hop.core.logging.ILogChannel.class));
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getContextPath()).thenReturn("/hop/okBody");
@@ -114,7 +114,7 @@ class BodyHttpServletTest {
   void doGetReturnsErrorJsonWhenGenerateBodyFails() throws IOException {
     FailingBodyServlet servlet = new FailingBodyServlet();
     servlet.setJettyMode(true);
-    servlet.setLog(org.mockito.Mockito.mock(org.apache.hop.core.logging.ILogChannel.class));
+    servlet.setLog(mock(org.apache.hop.core.logging.ILogChannel.class));
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     when(request.getContextPath()).thenReturn("/hop/failBody");

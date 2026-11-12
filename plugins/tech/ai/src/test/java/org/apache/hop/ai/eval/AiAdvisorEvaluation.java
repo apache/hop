@@ -16,7 +16,7 @@
  */
 package org.apache.hop.ai.eval;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -255,7 +255,7 @@ class AiAdvisorEvaluation {
         .writeValue(dir.resolve(name + ".json").toFile(), results);
     System.out.println("AI advisor evaluation report: " + file.toAbsolutePath());
 
-    assertTrue(passed == total, "Passed " + passed + " of " + total + ", see " + file);
+    assertEquals(total, passed, "Passed " + passed + " of " + total + ", see " + file);
   }
 
   /**

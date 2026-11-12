@@ -64,7 +64,7 @@ public class LintReportWriterTest {
   }
 
   @Test
-  public void sarifIsValidAndDeclaresEachRuleOnce() throws Exception {
+  void sarifIsValidAndDeclaresEachRuleOnce() throws Exception {
     String sarif =
         LintReportWriter.render(LintReportFormat.SARIF, sampleResults(), "1.2.3", PROJECT);
     JsonNode root = new ObjectMapper().readTree(sarif);
@@ -83,7 +83,7 @@ public class LintReportWriterTest {
 
   /** CI annotates a diff by path, so absolute build-machine paths have to be relativised. */
   @Test
-  public void sarifPathsAreRelativeToTheLintTarget() throws Exception {
+  void sarifPathsAreRelativeToTheLintTarget() throws Exception {
     String sarif =
         LintReportWriter.render(LintReportFormat.SARIF, sampleResults(), "1.0.0", PROJECT);
     JsonNode results = new ObjectMapper().readTree(sarif).get("runs").get(0).get("results");
@@ -107,7 +107,7 @@ public class LintReportWriterTest {
    * indistinguishable on a pull request. The transform or action name carries that information.
    */
   @Test
-  public void sarifMessageNamesTheTransform() throws Exception {
+  void sarifMessageNamesTheTransform() throws Exception {
     String sarif =
         LintReportWriter.render(LintReportFormat.SARIF, sampleResults(), "1.0.0", PROJECT);
     JsonNode results = new ObjectMapper().readTree(sarif).get("runs").get(0).get("results");
@@ -116,7 +116,7 @@ public class LintReportWriterTest {
   }
 
   @Test
-  public void jsonCarriesSummaryAndFindings() throws Exception {
+  void jsonCarriesSummaryAndFindings() throws Exception {
     String json = LintReportWriter.render(LintReportFormat.JSON, sampleResults(), "1.0.0", PROJECT);
     JsonNode root = new ObjectMapper().readTree(json);
 
@@ -129,7 +129,7 @@ public class LintReportWriterTest {
 
   /** An empty run still has to produce a parseable document, or the CI step breaks on success. */
   @Test
-  public void emptyRunStillProducesValidDocuments() throws Exception {
+  void emptyRunStillProducesValidDocuments() throws Exception {
     ObjectMapper mapper = new ObjectMapper();
 
     JsonNode sarif =
@@ -165,7 +165,7 @@ public class LintReportWriterTest {
 
   /** GitHub code scanning and Azure DevOps read a flat list of key:value strings. */
   @Test
-  public void sarifWritesTagsDescriptionAndHelpUriOnTheRule() throws Exception {
+  void sarifWritesTagsDescriptionAndHelpUriOnTheRule() throws Exception {
     String sarif =
         LintReportWriter.render(LintReportFormat.SARIF, taggedResults(), "1.0.0", PROJECT);
     JsonNode rules =
@@ -214,7 +214,7 @@ public class LintReportWriterTest {
    * first, so the order of the results cannot hide the tags.
    */
   @Test
-  public void sarifDescribesTheRuleFromAFindingThatCarriesItsDetails() throws Exception {
+  void sarifDescribesTheRuleFromAFindingThatCarriesItsDetails() throws Exception {
     LintResult tagged = taggedResults().get(0);
     LintResult bare =
         new LintResult(
@@ -242,7 +242,7 @@ public class LintReportWriterTest {
 
   /** The SARIF schema requires a rule's tags to be unique. */
   @Test
-  public void sarifTagsAreUnique() throws Exception {
+  void sarifTagsAreUnique() throws Exception {
     LintResult finding =
         sampleResults()
             .get(0)
@@ -256,7 +256,7 @@ public class LintReportWriterTest {
   }
 
   @Test
-  public void jsonWritesTheRuleTagsOnEachFinding() throws Exception {
+  void jsonWritesTheRuleTagsOnEachFinding() throws Exception {
     String json = LintReportWriter.render(LintReportFormat.JSON, taggedResults(), "1.0.0", PROJECT);
     JsonNode findings = new ObjectMapper().readTree(json).get("findings");
 
@@ -267,7 +267,7 @@ public class LintReportWriterTest {
   }
 
   @Test
-  public void formatParsingIsCaseInsensitiveAndRejectsUnknownValues() {
+  void formatParsingIsCaseInsensitiveAndRejectsUnknownValues() {
     assertEquals(LintReportFormat.SARIF, LintReportFormat.parse("SARIF"));
     assertEquals(LintReportFormat.JSON, LintReportFormat.parse(" json "));
     assertEquals(LintReportFormat.TEXT, LintReportFormat.parse(null));

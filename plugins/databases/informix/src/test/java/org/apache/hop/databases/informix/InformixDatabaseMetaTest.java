@@ -107,7 +107,7 @@ class InformixDatabaseMetaTest {
 
     // Simple hack to prevent duplication of code. Checking the case of supported boolean type
     // both supported and unsupported. Should return BOOLEAN if supported, or CHAR(1) if not.
-    String[] typeCk = new String[] {"CHAR(1)", "BOOLEAN", "CHAR(1)"};
+    String[] typeCk = {"CHAR(1)", "BOOLEAN", "CHAR(1)"};
     int i = (nativeMeta.isSupportsBooleanDataType() ? 1 : 0);
     assertEquals(
         typeCk[i],

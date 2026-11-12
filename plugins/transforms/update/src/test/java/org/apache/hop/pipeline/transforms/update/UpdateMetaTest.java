@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.update;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,11 +245,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
   @Test
   void testCommitCountMissedVar() {
     umi.setCommitSize("missed-var");
-    try {
-      umi.getCommitSize(upd);
-      fail();
-    } catch (Exception ex) {
-    }
+    assertThrows(Exception.class, () -> umi.getCommitSize(upd));
   }
 
   /**

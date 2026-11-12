@@ -26,8 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -59,7 +61,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 
 class LoadFileInputTest {
   @RegisterExtension
@@ -116,7 +117,7 @@ class LoadFileInputTest {
 
     loadFileInputMeta = spy(new LoadFileInputMeta());
     fileInputList = new FileInputList();
-    Mockito.doReturn(fileInputList).when(loadFileInputMeta).getFiles(any(IVariables.class));
+    doReturn(fileInputList).when(loadFileInputMeta).getFiles(any(IVariables.class));
     String transformId =
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, loadFileInputMeta);
     TransformMeta transformMeta =
@@ -365,10 +366,10 @@ class LoadFileInputTest {
     IRowMeta mockedRowMetaInterface = mock(IRowMeta.class);
     loadFileInput.getData().outputRowMeta = mockedRowMetaInterface;
     loadFileInput.getData().convertRowMeta = mockedRowMetaInterface;
-    Mockito.doReturn(new ValueMetaString()).when(mockedRowMetaInterface).getValueMeta(anyInt());
+    doReturn(new ValueMetaString()).when(mockedRowMetaInterface).getValueMeta(anyInt());
 
     // byte array
-    Mockito.doReturn(new ValueMetaBinary()).when(mockedRowMetaInterface).getValueMeta(anyInt());
+    doReturn(new ValueMetaBinary()).when(mockedRowMetaInterface).getValueMeta(anyInt());
     loadFileInputMeta.setEncoding(Const.UTF_8);
     fileInputList.addFile(getFile("hop.jpg"));
     loadFileInputField = new LoadFileInputField();
@@ -388,8 +389,7 @@ class LoadFileInputTest {
     Object[] readRow = new Object[size - 1];
     LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
-        .thenCallRealMethod();
+    when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow)).thenCallRealMethod();
 
     assertEquals(5, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }
@@ -401,8 +401,7 @@ class LoadFileInputTest {
     Object[] readRow = new Object[size + 1];
     LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
-        .thenCallRealMethod();
+    when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow)).thenCallRealMethod();
 
     assertEquals(6, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }
@@ -414,8 +413,7 @@ class LoadFileInputTest {
     Object[] readRow = new Object[size];
     LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
-        .thenCallRealMethod();
+    when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow)).thenCallRealMethod();
 
     assertEquals(5, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }

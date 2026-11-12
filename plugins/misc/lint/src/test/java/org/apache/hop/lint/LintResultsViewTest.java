@@ -64,14 +64,14 @@ public class LintResultsViewTest {
 
   /** Files came in no clear order, main.hwf between two .hpl files, with rules mixed per file. */
   @Test
-  public void resultsAreOrderedByFileThenRule() {
+  void resultsAreOrderedByFileThenRule() {
     assertEquals(
         List.of("a.hpl NAMING-004", "b.hpl DOC-001", "b.hpl STRUCT-003", "main.hwf DOC-002"),
         sorted(RESULTS, LintResultGrouping.SortKey.FILE, true));
   }
 
   @Test
-  public void resultsCanBeOrderedByRuleEitherWay() {
+  void resultsCanBeOrderedByRuleEitherWay() {
     List<String> byRule = sorted(RESULTS, LintResultGrouping.SortKey.RULE, true);
     assertEquals(
         List.of("b.hpl DOC-001", "main.hwf DOC-002", "a.hpl NAMING-004", "b.hpl STRUCT-003"),
@@ -81,7 +81,7 @@ public class LintResultsViewTest {
   }
 
   @Test
-  public void errorsComeFirst() {
+  void errorsComeFirst() {
     List<String> severities = new ArrayList<>(List.of("INFO", "CUSTOM", "WARNING", "ERROR"));
     severities.sort(LintResultGrouping.severityOrder());
     assertEquals(List.of("ERROR", "WARNING", "INFO", "CUSTOM"), severities);
@@ -92,7 +92,7 @@ public class LintResultsViewTest {
    * looked like any other.
    */
   @Test
-  public void anIgnoredTransformGetsADashedOutlineAndABadge() throws Exception {
+  void anIgnoredTransformGetsADashedOutlineAndABadge() throws Exception {
     IGc gc = mock(IGc.class);
     when(gc.getMagnification()).thenReturn(1f);
 
@@ -110,7 +110,7 @@ public class LintResultsViewTest {
    * when they were not.
    */
   @Test
-  public void blockingOnWarningsFollowsBlockingCommits() {
+  void blockingOnWarningsFollowsBlockingCommits() {
     Button preCommit = mock(Button.class);
     Button blockWarnings = mock(Button.class);
     GuiCompositeWidgets widgets = mock(GuiCompositeWidgets.class);

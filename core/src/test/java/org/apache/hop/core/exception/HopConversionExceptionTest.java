@@ -34,7 +34,7 @@ class HopConversionExceptionTest {
   void constructorStoresCausesFieldsAndRow() {
     List<Exception> causes = Collections.singletonList(new NumberFormatException("bad"));
     List<IValueMeta> fields = Collections.singletonList(new ValueMetaString("f1"));
-    Object[] row = new Object[] {null, "ok"};
+    Object[] row = {null, "ok"};
     HopConversionException ex =
         new HopConversionException("conversion failed", causes, fields, row);
     assertEquals("conversion failed", ex.getSuperMessage());

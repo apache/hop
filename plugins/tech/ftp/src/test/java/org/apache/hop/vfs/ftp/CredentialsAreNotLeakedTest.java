@@ -17,6 +17,7 @@
 
 package org.apache.hop.vfs.ftp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -208,7 +209,7 @@ class CredentialsAreNotLeakedTest {
 
     // The provider still has to be able to log in, so the name does hold the credentials - it just
     // never hands them out in a URI.
-    assertTrue(PASSWORD.equals(name.getPassword()), "the provider needs the password to connect");
+    assertEquals(PASSWORD, name.getPassword(), "the provider needs the password to connect");
   }
 
   @Test

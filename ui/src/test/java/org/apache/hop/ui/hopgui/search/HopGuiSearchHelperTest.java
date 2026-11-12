@@ -336,7 +336,7 @@ class HopGuiSearchHelperTest {
   }
 
   @Test
-  void searchingANonGuiLocationDoesNotMarkFilesAsOpen() throws Exception {
+  void searchingANonGuiLocationDoesNotMarkFilesAsOpen() {
     ISearchable openFile = pipeline("loader", "/p/loader.hpl");
     ISearchable otherFile = pipeline("other", "/other/other.hpl");
     HopGuiSearchLocation gui =

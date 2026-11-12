@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.exception.HopException;
@@ -28,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 class LdapConnectionTest {
 
@@ -40,8 +40,8 @@ class LdapConnectionTest {
 
   @BeforeEach
   void setUp() {
-    logChannelInterface = Mockito.mock(ILogChannel.class);
-    variables = Mockito.mock(IVariables.class);
+    logChannelInterface = mock(ILogChannel.class);
+    variables = mock(IVariables.class);
   }
 
   @Test

@@ -73,7 +73,7 @@ class GoogleStorageCredentialsTest {
   }
 
   @Test
-  void aKeyFileThatCannotBeReadFailsClearlyOnFirstUse() throws Exception {
+  void aKeyFileThatCannotBeReadFailsClearlyOnFirstUse() {
     GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
     config.setServiceAccountKeyFile(MISSING_KEY_FILE);
 

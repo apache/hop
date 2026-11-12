@@ -86,7 +86,7 @@ class LocalPipelineEngineExecutionIdTest {
   }
 
   @Test
-  void stopAllClosesTheLocationOnlyForASingleThreadedEngine() throws Exception {
+  void stopAllClosesTheLocationOnlyForASingleThreadedEngine() {
     CapturingLocation normalLocation = new CapturingLocation();
     LocalPipelineEngine normal = engineWith(normalLocation);
     normal.stopAll();

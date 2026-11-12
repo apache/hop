@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class GuiActionLambdaBuilderTest {
 
   @Test
-  void actionRunsOnTheRefresherWhenGetInstanceReturnsNull() throws Exception {
+  void actionRunsOnTheRefresherWhenGetInstanceReturnsNull() {
     ClickedGraph.active = null;
     ClickedGraph graph = new ClickedGraph();
     GuiAction action =
@@ -49,7 +49,7 @@ class GuiActionLambdaBuilderTest {
   }
 
   @Test
-  void actionUsesGetInstanceWhenTheRefresherIsADifferentClass() throws Exception {
+  void actionUsesGetInstanceWhenTheRefresherIsADifferentClass() {
     Plugin.instance.marked = false;
     OtherRefresher refresher = new OtherRefresher();
     GuiAction action =

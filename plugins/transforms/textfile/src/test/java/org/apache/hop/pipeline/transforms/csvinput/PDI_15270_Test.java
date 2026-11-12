@@ -45,7 +45,7 @@ class PDI_15270_Test extends CsvInputUnitTestBase {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
