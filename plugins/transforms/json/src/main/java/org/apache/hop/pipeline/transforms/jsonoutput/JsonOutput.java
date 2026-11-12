@@ -43,8 +43,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 /** Converts input rows to one or more Xml files. */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
@@ -64,47 +62,70 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   public void execute(Object[] row) throws HopException {
 
-    // Create a new object with specified fields
-    JSONObject jo = new JSONObject();
-
+    // The values of the row, in the order of the output fields
+    Object[] values = new Object[data.nrFields];
     for (int i = 0; i < data.nrFields; i++) {
-      JsonOutputField outputField = meta.getOutputFields().get(i);
-
-      IValueMeta v = data.inputRowMeta.getValueMeta(data.fieldIndexes[i]);
+      int index = data.fieldIndexes[i];
+      IValueMeta v = data.inputRowMeta.getValueMeta(index);
 
       switch (v.getType()) {
         case IValueMeta.TYPE_BOOLEAN:
-          jo.put(
-              outputField.getElementName(),
-              data.inputRowMeta.getBoolean(row, data.fieldIndexes[i]));
+          values[i] = data.inputRowMeta.getBoolean(row, index);
           break;
         case IValueMeta.TYPE_INTEGER:
-          jo.put(
-              outputField.getElementName(),
-              data.inputRowMeta.getInteger(row, data.fieldIndexes[i]));
+          values[i] = data.inputRowMeta.getInteger(row, index);
           break;
         case IValueMeta.TYPE_NUMBER:
-          jo.put(
-              outputField.getElementName(), data.inputRowMeta.getNumber(row, data.fieldIndexes[i]));
+          values[i] = data.inputRowMeta.getNumber(row, index);
           break;
         case IValueMeta.TYPE_BIGNUMBER:
-          jo.put(
-              outputField.getElementName(),
-              data.inputRowMeta.getBigNumber(row, data.fieldIndexes[i]));
+          values[i] = data.inputRowMeta.getBigNumber(row, index);
           break;
         default:
-          jo.put(
-              outputField.getElementName(), data.inputRowMeta.getString(row, data.fieldIndexes[i]));
+          values[i] = data.inputRowMeta.getString(row, index);
           break;
       }
     }
-    data.ja.add(jo);
+
+    // Add the row to the text of the block. A block that only goes to a file is written as the
+    // rows come in, so it never has to fit in memory as a whole.
+    boolean first = data.blockRows == 0;
+    if (first) {
+      startBlock();
+      if (data.streamsToFile() && !openNewFile()) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+      }
+    }
+    data.rowsText.appendRow(data.block, first, values);
+    data.blockRows++;
+    if (data.streamsToFile()) {
+      writeBlockText();
+    }
 
     data.nrRow++;
 
     if (data.nrRowsInBloc > 0 && data.nrRow % data.nrRowsInBloc == 0) {
       // We can now output an object
       outputRow(row);
+    }
+  }
+
+  private void startBlock() {
+    if (data.block == null) {
+      data.block = new StringBuilder();
+    }
+    data.block.setLength(0);
+    JsonRowsText.appendStart(data.block, data.realBlocName);
+  }
+
+  /** Writes the text collected so far to the open file. */
+  private void writeBlockText() throws HopTransformException {
+    try {
+      data.writer.write(data.block.toString());
+      data.block.setLength(0);
+    } catch (Exception e) {
+      throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
     }
   }
 
@@ -131,6 +152,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       //
       data.nrFields = meta.getOutputFields().size();
       data.fieldIndexes = new int[data.nrFields];
+      List<String> elementNames = new ArrayList<>();
       for (int i = 0; i < data.nrFields; i++) {
         data.fieldIndexes[i] =
             data.inputRowMeta.indexOfValue(meta.getOutputFields().get(i).getFieldName());
@@ -139,7 +161,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         }
         JsonOutputField field = meta.getOutputFields().get(i);
         field.setElementName(resolve(field.getElementName()));
+        elementNames.add(field.getElementName());
       }
+      data.rowsText = new JsonRowsText(elementNames);
     }
 
     data.rowsAreSafe = false;
@@ -163,35 +187,35 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   private void outputRow(Object[] rowData) throws HopTransformException {
     // We can now output an object
-    data.jg = new JSONObject();
-    data.jg.put(data.realBlocName, data.ja);
-    String value = data.jg.toJSONString();
+    boolean hasRows = data.blockRows > 0;
+    if (!hasRows) {
+      startBlock();
+    }
+    JsonRowsText.appendEnd(data.block);
 
     if (data.outputValue && data.outputRowMeta != null) {
-      Object[] outputRowData = RowDataUtil.addValueData(rowData, data.inputRowMetaSize, value);
+      Object[] outputRowData =
+          RowDataUtil.addValueData(rowData, data.inputRowMetaSize, data.block.toString());
       incrementLinesOutput();
       putRow(data.outputRowMeta, outputRowData);
     }
 
-    if (data.writeToFile && !data.ja.isEmpty()) {
+    if (data.writeToFile && hasRows) {
       // Open a file
       if (!openNewFile()) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
       }
-      // Write data to file
-      try {
-        data.writer.write(value);
-      } catch (Exception e) {
-        throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Writing"), e);
-      }
+      // Write data to file: the whole block, or what is left of it when the rows went out already
+      writeBlockText();
       // Close file
       closeFile();
     }
     // Data are safe
     data.rowsAreSafe = true;
     data.lastRow = null;
-    data.ja = new JSONArray();
+    data.block.setLength(0);
+    data.blockRows = 0;
   }
 
   @Override
@@ -236,20 +260,14 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   @Override
   public void dispose() {
-    if (data.ja != null) {
-      // Is there some left-over data to be written to disk?
-      //
-      if (!data.ja.isEmpty()) {
-        try {
-          outputRow(data.lastRow);
-        } catch (Exception e) {
-          logError("Error writing final rows to disk", e);
-        }
+    // Is there some left-over data to be written to disk?
+    //
+    if (data.blockRows > 0) {
+      try {
+        outputRow(data.lastRow);
+      } catch (Exception e) {
+        logError("Error writing final rows to disk", e);
       }
-      data.ja = null;
-    }
-    if (data.jg != null) {
-      data.jg = null;
     }
     closeFile();
     super.dispose();

@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.hop.core.HopEnvironment;
@@ -35,6 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.TransformRowsCollector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Ensures shipped sample pipelines load and reference JsonNormalizeInput. */
 class JsonNormalizeSamplePipelinesTest {
@@ -132,6 +134,50 @@ class JsonNormalizeSamplePipelinesTest {
     assertEquals(2, cVars.getRowsRead().size(), "variables branch should emit 2 rows");
     assertEquals(1, cLife.getRowsRead().size(), "lifecycle branch should emit 1 row");
     assertEquals(1, cProj.getRowsRead().size(), "project configuration branch should emit 1 row");
+  }
+
+  /** Runs the root array sample on a project folder, with "Do not fail if no file" off. */
+  private static Pipeline runRootArraySampleFailingWithoutFiles(Path projectHome) throws Exception {
+    Path hpl =
+        Paths.get("src/main/samples/transforms/json-normalize-root-array.hpl").toAbsolutePath();
+    Variables variables = new Variables();
+    variables.setVariable("PROJECT_HOME", projectHome.toString());
+    PipelineMeta meta = new PipelineMeta(hpl.toString(), new MemoryMetadataProvider(), variables);
+    JsonNormalizeInputMeta normalize =
+        (JsonNormalizeInputMeta) meta.findTransform("read normalized events").getTransform();
+    normalize.setDoNotFailIfNoFile(false);
+
+    Pipeline pipeline = new LocalPipelineEngine(meta, variables, null);
+    pipeline.prepareExecution();
+    pipeline.startThreads();
+    pipeline.waitUntilFinished();
+    return pipeline;
+  }
+
+  /**
+   * With "Do not fail if no file" off the transform used to read every row and then report that
+   * there are no files: it asked before the list of files was made.
+   */
+  @Test
+  void aFileThatIsThereIsNotReportedAsMissing(@TempDir Path projectHome) throws Exception {
+    Files.createDirectories(projectHome.resolve("data"));
+    Files.writeString(
+        projectHome.resolve("data/json-normalize-events.json"),
+        "[{\"id\":1,\"event\":\"login\",\"meta\":{\"ip\":\"10.0.0.1\",\"amount\":2.5}},"
+            + "{\"id\":2,\"event\":\"logout\",\"meta\":{\"ip\":\"10.0.0.2\",\"amount\":3}}]");
+
+    Pipeline pipeline = runRootArraySampleFailingWithoutFiles(projectHome);
+
+    assertEquals(0, pipeline.getResult().getNrErrors(), "Pipeline errors: " + pipeline.getResult());
+    assertEquals(
+        2, pipeline.findComponent("read normalized events", 0).getLinesWritten(), "rows written");
+  }
+
+  @Test
+  void aMissingFileIsStillAnError(@TempDir Path projectHome) throws Exception {
+    Pipeline pipeline = runRootArraySampleFailingWithoutFiles(projectHome);
+
+    assertTrue(pipeline.getResult().getNrErrors() > 0);
   }
 
   private static TransformRowsCollector attachCollector(Pipeline pipeline, String transformName)

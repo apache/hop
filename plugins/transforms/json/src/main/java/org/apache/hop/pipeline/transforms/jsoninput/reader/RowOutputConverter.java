@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 import net.minidev.json.JSONObject;
 import org.apache.hop.core.exception.HopException;
@@ -40,6 +42,10 @@ public class RowOutputConverter {
   private Object getValue(IValueMeta targetMeta, IValueMeta strConvertMeta, Object value)
       throws HopValueException {
     if (targetMeta.isNumeric()) {
+      Object number = directNumber(targetMeta, value);
+      if (number != null) {
+        return number;
+      }
       try {
         // attempt direct conversion
         return targetMeta.getNativeDataType(value);
@@ -59,6 +65,93 @@ public class RowOutputConverter {
     return targetMeta.convertDataFromString(
         strValue, strConvertMeta, null, null, targetMeta.getTrimType());
   }
+
+  /**
+   * A JSON number as the value of a numeric field.
+   *
+   * <p>A number in JSON is a number, written the one way JSON allows: digits, a dot, an exponent.
+   * It is not text in the format of the field, so the field's mask, decimal and grouping symbols
+   * are not used to read it: those say how the field is shown and how a JSON <em>string</em> is
+   * parsed. Reading the number through them would give 1995 for 199.5 wherever the comma is the
+   * decimal symbol.
+   *
+   * <p>The value is what parsing its text with a dot as decimal symbol gives: a decimal put into an
+   * Integer field loses its fraction.
+   *
+   * @return the value, or null when the value is not a JSON number or has to take the usual route
+   */
+  private static Object directNumber(IValueMeta targetMeta, Object value) {
+    int type = targetMeta.getType();
+    if (type != IValueMeta.TYPE_INTEGER
+        && type != IValueMeta.TYPE_NUMBER
+        && type != IValueMeta.TYPE_BIGNUMBER) {
+      return null;
+    }
+
+    // Whole numbers that fit a long
+    Long whole = null;
+    if (value instanceof JsonNode node) {
+      if (node.isIntegralNumber() && node.canConvertToLong()) {
+        whole = node.longValue();
+      }
+    } else if (value instanceof Integer
+        || value instanceof Long
+        || value instanceof Short
+        || value instanceof Byte) {
+      whole = ((Number) value).longValue();
+    }
+    if (whole != null) {
+      return switch (type) {
+        case IValueMeta.TYPE_INTEGER -> whole;
+        case IValueMeta.TYPE_NUMBER -> (double) whole;
+        default -> BigDecimal.valueOf(whole);
+      };
+    }
+
+    // A double into a Number field needs no detour
+    if (type == IValueMeta.TYPE_NUMBER) {
+      if (value instanceof Double number) {
+        return Double.isNaN(number) || Double.isInfinite(number) ? null : number;
+      }
+      if (value instanceof JsonNode node && node.isDouble()) {
+        return node.doubleValue();
+      }
+    }
+
+    // Every other number, by its exact decimal value
+    BigDecimal decimal;
+    if (value instanceof JsonNode node) {
+      if (!node.isNumber()) {
+        return null;
+      }
+      // a float or double node by its text: 0.1f is 0.1, not 0.100000001490116...
+      decimal = node.isFloatingPointNumber() ? new BigDecimal(node.asText()) : node.decimalValue();
+    } else if (value instanceof Double || value instanceof Float) {
+      double number = ((Number) value).doubleValue();
+      if (Double.isNaN(number) || Double.isInfinite(number)) {
+        return null;
+      }
+      decimal = new BigDecimal(value.toString());
+    } else if (value instanceof BigDecimal bigDecimal) {
+      decimal = bigDecimal;
+    } else if (value instanceof BigInteger bigInteger) {
+      decimal = new BigDecimal(bigInteger);
+    } else {
+      return null;
+    }
+    switch (type) {
+      case IValueMeta.TYPE_NUMBER:
+        return decimal.doubleValue();
+      case IValueMeta.TYPE_BIGNUMBER:
+        return decimal;
+      default:
+        // An Integer field: drop the fraction. A value outside the range of a long takes the
+        // usual route, which decides what happens to it.
+        return decimal.abs().compareTo(LONG_RANGE) < 0 ? (Object) decimal.longValue() : null;
+    }
+  }
+
+  private static final BigDecimal LONG_RANGE = BigDecimal.valueOf(Long.MAX_VALUE);
 
   // Package-private and static so RowOutputConverterTest can exercise it directly
   // without instantiating the surrounding transform.
