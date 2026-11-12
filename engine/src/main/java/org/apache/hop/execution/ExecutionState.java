@@ -19,6 +19,7 @@
 package org.apache.hop.execution;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.failure.ExecutionFailure;
 
 /**
  * Execution states are possible for pipelines and workflows but also for actions and transforms.
@@ -76,6 +78,15 @@ public class ExecutionState {
 
   /** Indicates whether the execution failed */
   private boolean failed;
+
+  /**
+   * Why the execution failed, as structured data. Null when it did not fail. Experimental.
+   *
+   * <p>Left out of the JSON when null: Hop 2.20 and earlier read Elastic and OpenSearch documents
+   * with a strict mapper that refuses a property it doesn't know.
+   */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private ExecutionFailure failure;
 
   /** If the execution finished, what was the end date? */
   private Date executionEndDate;

@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
@@ -115,6 +116,22 @@ public class Result implements Cloneable {
   /** Whether the workflow or pipeline was stopped. */
   private boolean stopped;
 
+  /** How many failures {@link #add(Result)} keeps: an action can run a child for every row. */
+  public static final int MAX_FAILURES = 100;
+
+  /**
+   * The failures of the pipelines and workflows that produced this result, so that an action can
+   * tell why its child failed. Kept in memory only: not in the XML or JSON form of a result.
+   */
+  @JsonIgnore private List<ExecutionFailure> failures = new ArrayList<>();
+
+  /**
+   * The action failure this result passes on to the actions after it: the failure of the action
+   * that produced it, or a failure it received along a failure hop and did not recover from. An
+   * action that then fails points at it. Kept in memory only.
+   */
+  @JsonIgnore private ExecutionFailure actionFailure;
+
   /** The number of lines rejected. */
   private long nrLinesRejected;
 
@@ -183,6 +200,7 @@ public class Result implements Cloneable {
     try {
       Result result = (Result) super.clone();
       result.setRows(null);
+      result.setFailures(failures == null ? new ArrayList<>() : new ArrayList<>(failures));
       if (resultFiles != null) {
         Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<>();
         Collection<ResultFile> files = resultFiles.values();
@@ -208,6 +226,7 @@ public class Result implements Cloneable {
   public Result clone() {
     try {
       Result result = (Result) super.clone();
+      result.setFailures(failures == null ? new ArrayList<>() : new ArrayList<>(failures));
 
       // Clone result rows and files as well...
       if (rows != null) {
@@ -348,6 +367,18 @@ public class Result implements Cloneable {
     // Copy rows as well (serial execution case)
     if (res.rows != null && !res.rows.isEmpty()) {
       rows.addAll(res.rows);
+    }
+    if (res.failures != null && !res.failures.isEmpty()) {
+      if (failures == null) {
+        failures = new ArrayList<>();
+      }
+      // The first ones: they are the ones that ended a loop over rows
+      for (ExecutionFailure failure : res.failures) {
+        if (failures.size() >= MAX_FAILURES) {
+          break;
+        }
+        failures.add(failure);
+      }
     }
   }
 

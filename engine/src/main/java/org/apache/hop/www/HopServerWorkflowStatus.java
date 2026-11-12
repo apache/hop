@@ -28,6 +28,7 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -47,6 +48,10 @@ public class HopServerWorkflowStatus {
   @Getter @Setter private String id;
   @Getter @Setter private String statusDescription;
   @Getter @Setter private String errorDescription;
+
+  /** Why the workflow failed, in the JSON form only. Experimental. */
+  @Getter @Setter private ExecutionFailure failure;
+
   @Getter @Setter private String loggingString;
   @Getter @Setter private int firstLoggingLineNr;
   @Getter @Setter private int lastLoggingLineNr;

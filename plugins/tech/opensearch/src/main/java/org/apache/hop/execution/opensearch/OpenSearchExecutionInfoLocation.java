@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.opensearch;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.json.HopJson;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionDeleter;
@@ -140,6 +143,12 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
   protected String actualPassword;
   protected String actualIndexName;
 
+  /**
+   * The indexes whose failure mapping was dealt with in this JVM, as url and index name. Checked
+   * before the first write to an index.
+   */
+  private static final Set<String> FAILURE_MAPPING_HANDLED = ConcurrentHashMap.newKeySet();
+
   public OpenSearchExecutionInfoLocation() {
     super();
   }
@@ -178,6 +187,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
 
   @Override
   protected void persistCacheEntry(CacheEntry cacheEntry) throws HopException {
+    ensureFailureMapping();
     try {
       cacheEntry.prepareForPersist();
       // Before writing to disk, we calculate some summaries for convenience of other tools.
@@ -636,7 +646,10 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
     if (source == null) {
       return null;
     }
-    ObjectMapper objectMapper = new ObjectMapper(HopJson.newFactory());
+    // Documents written by a newer Hop can carry fields this version does not know
+    ObjectMapper objectMapper =
+        new ObjectMapper(HopJson.newFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     CacheEntry entry = objectMapper.readValue(source.toJSONString(), CacheEntry.class);
     Object docId = hit.get("_id");
     if (docId != null) {
@@ -803,7 +816,8 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                   "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                   "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                   "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
-                  "statusDescription":  { "type": "text" }
+                  "statusDescription":  { "type": "text" },
+                  "failure":            { "type": "object", "enabled": false }
                 }
               },
               "childExecutions"     : { "type": "object", "enabled": false },
@@ -814,6 +828,78 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
             "index.mapping.total_fields.limit": 500
           }
         }
+        """;
+  }
+
+  /**
+   * Before the first write to an index in this JVM: store executionState.failure without indexing
+   * it. An index created by an older Hop has no mapping for it, and mapping a failure as it comes
+   * adds a field for every value in it, up to a few hundred, against the field limit of the index.
+   * A write that would go over the limit is refused. Create index makes executionState nested; an
+   * index created some other way has it as a plain object, so both are tried. Never throws: without
+   * the mapping, failures are mapped as they come, as any new field is.
+   */
+  void ensureFailureMapping() {
+    String key = actualUrl + " " + actualIndexName;
+    if (!FAILURE_MAPPING_HANDLED.add(key)) {
+      return;
+    }
+    try {
+      String mappingUrl = URI.create(actualUrl).resolve(actualIndexName + "/_mapping").toString();
+      String lastResponse = null;
+      for (String body : List.of(failureMappingBody(), objectFailureMappingBody())) {
+        RestCaller restCaller =
+            new RestCaller(
+                metadataProvider,
+                mappingUrl,
+                actualUsername,
+                actualPassword,
+                "PUT",
+                body,
+                ignoreSsl,
+                getHeaders());
+        String response = restCaller.execute();
+        Long statusCode = restCaller.getStatusCode();
+        if (statusCode != null && statusCode == 200L) {
+          return;
+        }
+        if (statusCode != null && statusCode == 404L) {
+          // No index yet: the first write creates it, the next one adds the mapping
+          FAILURE_MAPPING_HANDLED.remove(key);
+          return;
+        }
+        lastResponse = response;
+      }
+      LogChannel.GENERAL.logBasic(
+          "The failure mapping was not added to index "
+              + actualIndexName
+              + " (non-fatal): "
+              + lastResponse);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logBasic(
+          "The failure mapping was not added to index "
+              + actualIndexName
+              + " (non-fatal): "
+              + e.getMessage());
+    }
+  }
+
+  /**
+   * Stored, not indexed: a chain of failures has many fields, and the index has a field limit. A
+   * search on a failure goes through executionState.failed.
+   */
+  static String failureMappingBody() {
+    return """
+        { "properties": { "executionState": { "type": "nested", "properties": {
+            "failure": { "type": "object", "enabled": false } } } } }
+        """;
+  }
+
+  /** {@link #failureMappingBody()} for an index where executionState is a plain object. */
+  static String objectFailureMappingBody() {
+    return """
+        { "properties": { "executionState": { "properties": {
+            "failure": { "type": "object", "enabled": false } } } } }
         """;
   }
 
@@ -879,6 +965,19 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                 location.ignoreSsl,
                 getHeaders());
         result = getResultFromPipeline(restCaller);
+        // Fails when a document with a failure was stored before: then it stays as it is
+        RestCaller failureMappingCaller =
+            new RestCaller(
+                new MemoryMetadataProvider(),
+                location.actualUrl + "/" + location.actualIndexName + "/_mapping",
+                location.actualUsername,
+                location.actualPassword,
+                "PUT",
+                failureMappingBody(),
+                location.ignoreSsl,
+                getHeaders());
+        String failureMappingResult = getResultFromPipeline(failureMappingCaller);
+        result += Const.CR + "Failure mapping (non-fatal): " + failureMappingResult;
       }
       if (restCaller.getResult() == null || restCaller.getResult().getNrErrors() > 0) {
         result += Const.CR + "Logging: " + restCaller.getLoggingText();

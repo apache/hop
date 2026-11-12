@@ -61,6 +61,60 @@ The failure only shows up on the engine you were not testing on.
 Extension points run inline, on the thread that fired them.
 Anything slow belongs on a queue, not in `callExtensionPoint`.
 
+=== Failures
+
+NOTE: Experimental in 2.21: the shape of the failure object can still change.
+
+When a transform, action, pipeline or workflow fails, Hop announces it as an `ExecutionFailure` (`org.apache.hop.core.failure`): what failed, in which phase, why, and in which category.
+
+[cols="1,3"]
+|===
+|Extension point |Fired when
+
+|`TransformFailed`
+|A transform threw an exception in `init()` or `processRow()`, its `init()` returned false, or it finished with errors without throwing.
+Once per transform copy.
+
+|`PipelineFailed`
+|The pipeline failed as a whole: after its finished listeners, before `PipelineCompleted`.
+Also when it failed to initialize or to prepare.
+
+|`ActionFailed`
+|An action threw an exception, its error count went up, a child pipeline or workflow it ran failed, or it returned false after logging an error.
+An action on a failure hop that only passes on the errors it was given, like Write to log, did not fail.
+
+|`WorkflowFailed`
+|The workflow ended with a false result, the rule `hop-run` uses for its exit code.
+Not when someone stopped it and nothing went wrong.
+|===
+
+A transform or action failure names the component (name, plugin id, copy) and carries the cause: the exception class and message, the root cause, the first SQL state, and a stack trace cut off at 16,000 characters.
+When the transform or action only logged an error, the cause is that last error line, and `cause.fromLog` is true.
+A pipeline or workflow failure points at the failure that brought it down through `causedBy`, and so does an action whose child pipeline or workflow failed: `getRootCause()` follows the chain from a workflow down to the transform where it started.
+An action that fails on a failure path, like an Abort after the failure hop of a SQL action, points at the failure that led there too.
+That failure is passed on until an action recovers from it: one that ends with a true result and no errors.
+
+`category` comes from fixed rules on exception class names and SQL states (`FailureClassifier`), tried from the root cause outwards.
+The wording of a message only counts for "No space left on device", which is `RESOURCE`.
+`CHILD_FAILURE` is reserved for children that run remotely; nothing produces it yet.
+Every failure in a chain carries the category of its root cause, so a rule like "retry on `CONNECTIVITY`" can look at the top of the chain.
+
+Only the local pipeline and workflow engines report failures: with a remote, Beam or Spark run configuration there is none.
+The local engines also offer the failures without a plugin: `Pipeline.addExecutionFailureListener()` and `Workflow.addExecutionFailureListener()`, and `getFailures()` / `getRunFailure()` once the run is done.
+
+Where the failure ends up:
+
+* *Execution information:* `ExecutionState.failure`, on the state of the pipeline or workflow and on the state of a failed transform, at every execution information location.
+A pipeline that fails to prepare or to initialize is registered at its location as well, with that failure.
+Elastic and OpenSearch store `executionState.failure` without indexing it: new indexes get that mapping, *Create index* adds it to an existing index, and so does the location before its first write to an index.
+Adding a mapping needs more rights than writing documents: when it is refused, the failure is mapped field by field, which can add a few hundred fields against the field limit of the index.
+Neo4j stores it as a JSON string in the `failure` property of the `Execution` node.
+* *Hop Server:* the pipeline and workflow status fill `errorDescription` with one line, for example `Transform 'Read orders' (TableInput) failed [CONNECTIVITY]: Connection refused`, and the JSON form adds the `failure` object.
+* *Hop Run:* the file of `--result-json`, see the user manual.
+
+The message, the root cause message and the stack trace of a cause are redacted when the failure is built, before any extension point or listener sees it: `CredentialRedactor.redact(text, secrets)` masks credentials in URLs, `name=value` and JSON pairs, encrypted passwords, and the values of the variables whose name says they are a credential.
+`cause.redacted` is true when that happened.
+
 == Logging
 
 A logging plugin participates in the lifecycle of the logging subsystem.

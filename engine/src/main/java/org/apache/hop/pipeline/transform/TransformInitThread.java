@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transform;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
@@ -80,16 +81,26 @@ public class TransformInitThread implements Runnable {
         ok = true;
       } else {
         combi.transform.setErrors(1);
+        // The transform logged why, if it said anything at all
+        reportFailure(null);
       }
     } catch (Throwable e) {
       log.logError(
           BaseMessages.getString(
               PKG, "Pipeline.Log.ErrorInitializingTransform", combi.transform.getTransformName()));
       log.logError(Const.getStackTracker(e));
+      // The error count stays as it was: the pipeline counts this failure itself
+      reportFailure(e);
     } finally {
       combi.transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_INIT_STOP);
     }
 
     finished = true;
+  }
+
+  private void reportFailure(Throwable throwable) {
+    if (pipeline != null) {
+      pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, throwable);
+    }
   }
 }

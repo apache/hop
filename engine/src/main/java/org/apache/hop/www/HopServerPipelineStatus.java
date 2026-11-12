@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
@@ -43,6 +44,10 @@ public class HopServerPipelineStatus {
   private String pipelineName;
   private String statusDescription;
   private String errorDescription;
+
+  /** Why the pipeline failed, in the JSON form only. Experimental. */
+  private ExecutionFailure failure;
+
   private String loggingString;
   private int firstLoggingLineNr;
   private int lastLoggingLineNr;
@@ -241,6 +246,14 @@ public class HopServerPipelineStatus {
    */
   public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
+  }
+
+  public ExecutionFailure getFailure() {
+    return failure;
+  }
+
+  public void setFailure(ExecutionFailure failure) {
+    this.failure = failure;
   }
 
   /**

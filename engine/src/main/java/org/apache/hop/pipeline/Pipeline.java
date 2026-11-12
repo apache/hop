@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -67,6 +68,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.failure.ExecutionFailure;
+import org.apache.hop.core.failure.FailurePhase;
+import org.apache.hop.core.failure.IExecutionFailureListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
@@ -93,6 +97,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
+import org.apache.hop.execution.failure.ExecutionFailures;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -326,6 +331,15 @@ public abstract class Pipeline
 
   /** The number of errors that have occurred during execution of the pipeline. */
   private final AtomicInteger errors;
+
+  /** The transform failures of the current execution, in the order they happened. */
+  private final List<ExecutionFailure> failures = Collections.synchronizedList(new ArrayList<>());
+
+  /** The failure of the current execution as a whole, null while it has not failed. */
+  private volatile ExecutionFailure runFailure;
+
+  private final List<IExecutionFailureListener> executionFailureListeners =
+      Collections.synchronizedList(new ArrayList<>());
 
   /** Whether the pipeline is ready to start. */
   private boolean readyToStart;
@@ -661,6 +675,7 @@ public abstract class Pipeline
       // An inner failure handler already brought the pipeline to a terminal state.
       return;
     }
+    reportRunFailure(FailurePhase.PREPARE, e);
     // Stopping is the terminal state this pipeline can still reach through the normal path: it
     // releases whatever was already initialized and alerts the execution stopped listeners.
     stopAll();
@@ -668,6 +683,8 @@ public abstract class Pipeline
 
   private void prepareExecutionInternal() throws HopException {
     setPreparing(true);
+    failures.clear();
+    runFailure = null;
     executionStartDate = new Date();
     setRunning(false);
 
@@ -1573,6 +1590,10 @@ public abstract class Pipeline
     ITransformFinishedListener transformFinishedExtensionPoint =
         (pipeline, transformMeta, transform) -> {
           try {
+            if (transform.getErrors() > 0) {
+              // A transform can log an error and set its error count without throwing
+              reportTransformFailure(transform, FailurePhase.RUN, null);
+            }
             ExtensionPointHandler.callExtensionPoint(
                 log, this, HopExtensionPoint.TransformFinished.id, combi);
           } catch (Exception e) {
@@ -1630,6 +1651,13 @@ public abstract class Pipeline
       // example - while a waiting caller (hop-run, for one) can leave the JVM the moment it is
       // released.
       //
+      // A transform whose init() threw has no errors of its own, but it did fail
+      if (listenerException != null) {
+        reportRunFailure(FailurePhase.FINISH, listenerException);
+      } else if (getErrors() > 0 || hasTransformFailures()) {
+        reportRunFailure(FailurePhase.RUN, null);
+      }
+
       ExtensionPointHandler.callExtensionPoint(
           log, this, HopExtensionPoint.PipelineCompleted.id, this);
 
@@ -2138,6 +2166,93 @@ public abstract class Pipeline
   }
 
   /**
+   * Record and announce the failure of a transform, once per transform copy and execution: the
+   * {@link HopExtensionPoint#TransformFailed} extension point, then the execution failure
+   * listeners. Never throws.
+   *
+   * @param transform the transform that failed
+   * @param phase INIT or RUN
+   * @param throwable what it threw, or null when it only logged an error and set its error count
+   */
+  public void reportTransformFailure(
+      ITransform transform, FailurePhase phase, Throwable throwable) {
+    try {
+      ExecutionFailure failure;
+      synchronized (failures) {
+        String id = transform.getLogChannelId();
+        for (ExecutionFailure existing : failures) {
+          if (existing.getComponent() != null
+              && Objects.equals(existing.getComponent().getExecutionId(), id)) {
+            return;
+          }
+        }
+        failure = ExecutionFailures.forTransform(transform, phase, throwable);
+        failures.add(failure);
+      }
+      ExecutionFailures.announce(
+          transform.getLogChannel(),
+          this,
+          HopExtensionPoint.TransformFailed.id,
+          failure,
+          executionFailureListeners);
+    } catch (Throwable e) {
+      // Reporting a failure must never get in the way of handling it
+      log.logError("Unable to report the failure of transform " + transform.getTransformName(), e);
+    }
+  }
+
+  /**
+   * Record and announce the failure of this pipeline as a whole, once per execution: caused by the
+   * first transform that failed, or else by what was thrown.
+   */
+  private void reportRunFailure(FailurePhase phase, Throwable throwable) {
+    try {
+      ExecutionFailure failure;
+      synchronized (failures) {
+        if (runFailure != null) {
+          return;
+        }
+        ExecutionFailure first = failures.isEmpty() ? null : failures.get(0);
+        failure = ExecutionFailures.forRun(this, phase, first, throwable);
+        runFailure = failure;
+      }
+      ExecutionFailures.announce(
+          log, this, HopExtensionPoint.PipelineFailed.id, failure, executionFailureListeners);
+    } catch (Throwable e) {
+      log.logError("Unable to report the failure of pipeline " + getName(), e);
+    }
+  }
+
+  private boolean hasTransformFailures() {
+    synchronized (failures) {
+      return !failures.isEmpty();
+    }
+  }
+
+  /** The transform failures of the current execution, in the order they happened. */
+  @Override
+  public List<ExecutionFailure> getFailures() {
+    synchronized (failures) {
+      return new ArrayList<>(failures);
+    }
+  }
+
+  /** The failure of the current execution as a whole, or null if it has not failed. */
+  @Override
+  public ExecutionFailure getRunFailure() {
+    return runFailure;
+  }
+
+  /** Be told about every transform failure and the pipeline failure of this pipeline. */
+  public void addExecutionFailureListener(IExecutionFailureListener listener) {
+    executionFailureListeners.add(listener);
+  }
+
+  public void removeExecutionFailureListener(IExecutionFailureListener listener) {
+    executionFailureListeners.remove(listener);
+  }
+
+  /**
    * Gets the result of the pipeline. The Result object contains such measures as the number of
    * errors, number of lines read/written/input/output/updated/rejected, etc.
    *
@@ -2171,6 +2286,10 @@ public abstract class Pipeline
     }
 
     result.setRows(resultRows);
+    ExecutionFailure failure = runFailure;
+    if (failure != null) {
+      result.getFailures().add(failure);
+    }
     if (!Utils.isEmpty(resultFiles)) {
       result.setResultFiles(new HashMap<>());
       for (ResultFile resultFile : resultFiles) {

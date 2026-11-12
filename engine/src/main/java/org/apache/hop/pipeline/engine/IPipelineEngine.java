@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -394,6 +396,22 @@ public interface IPipelineEngine<T extends PipelineMeta>
    * @return The Result of the execution of the object
    */
   Result getResult();
+
+  /**
+   * The failure of the current or last execution as a whole, or null if it did not fail or this
+   * engine does not report failures. Experimental.
+   */
+  default ExecutionFailure getRunFailure() {
+    return null;
+  }
+
+  /**
+   * The failures of the components of the current or last execution, oldest first, or an empty list
+   * if there were none or this engine does not report failures. Experimental.
+   */
+  default List<ExecutionFailure> getFailures() {
+    return Collections.emptyList();
+  }
 
   void setMetadataProvider(IHopMetadataProvider metadataProvider);
 

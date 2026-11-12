@@ -31,6 +31,7 @@ public enum HopExtensionPoint {
       "A signal sent at regular intervals to indicate that the Pipeline is still active"),
   PipelineFinish("A Pipeline finishes"),
   PipelineCompleted("A pipeline has completed after all finished listeners were fired"),
+  PipelineFailed("A pipeline has failed, after its finished listeners (ExecutionFailure)"),
   PipelineMetaLoaded("Pipeline metadata was loaded"),
 
   PipelinePainterStart("Draw Pipeline or plugin metadata at the start (below the rest)"),
@@ -68,6 +69,8 @@ public enum HopExtensionPoint {
   WorkflowFinish("A workflow finishes"),
   WorkflowBeforeActionExecution("Before a action executes"),
   WorkflowAfterActionExecution("After a action executes"),
+  ActionFailed("An action has failed: it threw an exception or reported errors (ExecutionFailure)"),
+  WorkflowFailed("A workflow has failed: it ended with a false result (ExecutionFailure)"),
   WorkflowBeginProcessing("Start of a workflow at the end of the log table handling"),
 
   WorkflowPainterStart("Draw workflow or plugin metadata at the start (below the rest)"),
@@ -102,6 +105,7 @@ public enum HopExtensionPoint {
 
   TransformBeforeStart("Right before a transform is about to be started"),
   TransformFinished("After a transform has finished"),
+  TransformFailed("A transform has failed to initialize or to process rows (ExecutionFailure)"),
 
   BeforeCheckTransforms("Right before a set of transforms is about to be verified."),
   AfterCheckTransforms("After a set of transforms has been checked for warnings/errors."),

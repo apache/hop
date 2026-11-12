@@ -24,7 +24,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.failure.ExecutionFailure;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.pipeline.Pipeline;
@@ -56,6 +58,7 @@ public final class ExecutionStateBuilder {
   private List<ExecutionStateComponentMetrics> metrics;
   private List<String> childIds;
   private boolean failed;
+  private ExecutionFailure failure;
   private Map<String, String> details;
   private String containerId;
   private Date executionEndDate;
@@ -110,6 +113,7 @@ public final class ExecutionStateBuilder {
             .withLoggingText(getLoggingText(pipeline.getLogChannelId(), lastLogLineNr))
             .withLastLogLineNr(loggingCursor(lastLogLineNr, lastNrInLogStore))
             .withFailed(pipeline.getErrors() > 0)
+            .withFailure(pipeline.getRunFailure())
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
                 LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()))
@@ -234,15 +238,30 @@ public final class ExecutionStateBuilder {
 
   public static ExecutionStateBuilder fromTransform(
       IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component) {
+    ExecutionFailure failure = componentFailure(pipeline, component);
     return of().withExecutionType(ExecutionType.Transform)
         .withId(component.getLogChannelId())
         .withStatusDescription(component.getStatusDescription())
-        .withFailed(component.getErrors() > 0)
+        // A transform whose init() threw failed without an error count of its own
+        .withFailed(component.getErrors() > 0 || failure != null)
+        .withFailure(failure)
         .withName(component.getName())
         .withCopyNr(Integer.toString(component.getCopyNr()))
         .withParentId(pipeline.getLogChannelId())
         .withContainerId(pipeline.getContainerId())
         .withExecutionEndDate(component.getExecutionEndDate());
+  }
+
+  /** The failure of one transform copy, matched on its log channel id. */
+  private static ExecutionFailure componentFailure(
+      IPipelineEngine<PipelineMeta> pipeline, IEngineComponent component) {
+    for (ExecutionFailure failure : pipeline.getFailures()) {
+      if (failure.getComponent() != null
+          && Objects.equals(failure.getComponent().getExecutionId(), component.getLogChannelId())) {
+        return failure;
+      }
+    }
+    return null;
   }
 
   private static void addMetric(
@@ -271,6 +290,7 @@ public final class ExecutionStateBuilder {
         .withLoggingText(getLoggingText(workflow.getLogChannelId(), lastLogLineNr))
         .withLastLogLineNr(loggingCursor(lastLogLineNr, lastNrInLogStore))
         .withFailed(result != null && !result.isResult())
+        .withFailure(workflow.getRunFailure())
         .withStatusDescription(workflow.getStatusDescription())
         .withChildIds(
             LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()))
@@ -344,6 +364,11 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withFailure(ExecutionFailure failure) {
+    this.failure = failure;
+    return this;
+  }
+
   public ExecutionStateBuilder withDetails(Map<String, String> details) {
     this.details = details;
     return this;
@@ -373,6 +398,7 @@ public final class ExecutionStateBuilder {
     state.setStatusDescription(statusDescription);
     state.setChildIds(childIds);
     state.setFailed(failed);
+    state.setFailure(failure);
     state.setDetails(details);
     state.setContainerId(containerId);
     state.setExecutionEndDate(executionEndDate);

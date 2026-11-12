@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.engines.local;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -324,7 +325,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       getExtensionDataMap().put(Const.CONNECTION_GROUP, connectionGroup);
     }
 
-    super.prepareExecution();
+    try {
+      super.prepareExecution();
+    } catch (Throwable e) {
+      recordFailedPreparation();
+      throw e;
+    }
 
     // Log buffer-deadlock analysis now that Pipeline.prepareExecution created the log channel
     if (pipelineRunConfiguration.getEngineRunConfiguration()
@@ -364,6 +370,38 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       // Record the failure so the pipeline is reported as failed rather than as a clean finish.
       flagPreparationFailure(e);
       throw e;
+    }
+  }
+
+  /**
+   * A pipeline that fails to prepare or to initialize its transforms never gets to the point where
+   * it registers at its execution information location. Register it now, with its final state and
+   * the failure, so the failed run can be found there too. Never throws.
+   */
+  private void recordFailedPreparation() {
+    if (executionInfoLocation != null) {
+      // Already registered: the failure came later than that
+      return;
+    }
+    try {
+      lookupExecutionInformationLocation();
+      if (executionInfoLocation == null) {
+        return;
+      }
+      registerPipelineExecutionInformation();
+      if (getExecutionEndDate() == null) {
+        // It's over: without an end date the state would look like a run that went quiet
+        setExecutionEndDate(new Date());
+      }
+      synchronized (executionInfoLock) {
+        saveFinalExecutionInfoAndClose();
+      }
+    } catch (Throwable e) {
+      log.logError(
+          "Unable to register the failed pipeline at the execution information location"
+              + " (non-fatal)",
+          e);
+      executionInfoLocation = null;
     }
   }
 
