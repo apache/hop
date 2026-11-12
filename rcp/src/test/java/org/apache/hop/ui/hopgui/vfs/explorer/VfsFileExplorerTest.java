@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -35,13 +36,14 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Drives a real VFS File Explorer through the paths that change files: a paste onto an existing
- * file, and deleting the folder that is being shown.
+ * file, deleting the folder that is being shown, and deleting a link to a folder.
  */
 @Tag("uitest")
 class VfsFileExplorerTest extends SwtBotTestBase {
@@ -119,6 +121,43 @@ class VfsFileExplorerTest extends SwtBotTestBase {
         });
 
     assertFalse(Files.exists(shown));
+  }
+
+  @Test
+  void deletingALinkToAFolderKeepsTheFilesItPointsTo() throws Exception {
+    Path real = Files.createDirectory(folder.resolve("real"));
+    Path keep = Files.writeString(real.resolve("keep.txt"), "keep");
+    Path view = Files.createDirectory(folder.resolve("view"));
+    Path link;
+    try {
+      link = Files.createSymbolicLink(view.resolve("link"), real);
+    } catch (UnsupportedOperationException | IOException e) {
+      Assumptions.abort("symbolic links are not available: " + e.getMessage());
+      return;
+    }
+
+    AtomicReference<VfsFileExplorer> explorer = new AtomicReference<>();
+    withScene(
+        shell -> explorer.set(createExplorer(shell, view)),
+        bot -> {
+          VfsFileExplorerLocation location = onUi(() -> explorer.get().activeLocation());
+          waitForRows(location, 1);
+          onUi(
+              () -> {
+                location.fileTable().setSelection(0);
+                return null;
+              });
+
+          display.asyncExec(location::deleteSelectedFiles);
+          SWTBotShell confirm =
+              bot.shell(
+                  BaseMessages.getString(VfsFileExplorer.PKG, "VfsFileExplorer.Delete.Title"));
+          confirm.bot().button(BaseMessages.getString("System.Button.Yes")).click();
+          waitUntilIdle(explorer.get());
+        });
+
+    assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+    assertEquals("keep", read(keep));
   }
 
   private static VfsFileExplorer createExplorer(
