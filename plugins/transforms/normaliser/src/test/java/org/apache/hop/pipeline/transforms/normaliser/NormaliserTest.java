@@ -469,6 +469,77 @@ class NormaliserTest {
     assertEquals(declared.getValueMeta(1).getType(), output.rowMeta.getValueMeta(1).getType());
   }
 
+  /**
+   * Issue #9398, the Qlik Sense crosstable: the key fields stay on every row, in input order, and
+   * every other input field becomes a row of its own.
+   */
+  @Test
+  void keyFieldsAreKeptOnEveryRowAndTheOtherFieldsAreNormalised() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("Region"));
+    input.addValueMeta(new ValueMetaInteger("Jan"));
+    input.addValueMeta(new ValueMetaInteger("Year"));
+    input.addValueMeta(new ValueMetaInteger("Feb"));
+
+    NormaliserMeta meta = meta("Month");
+    meta.setValueField("Sales");
+    meta.setKeyFields(
+        new ArrayList<>(List.of(new NormaliserKeyField("Year"), new NormaliserKeyField("region"))));
+
+    Output output = normalise(meta, input, "North", 10L, 2026L, 20L);
+
+    assertArrayEquals(
+        new String[] {"Region", "Year", "Month", "Sales"}, output.rowMeta.getFieldNames());
+    assertEquals(IValueMeta.TYPE_INTEGER, output.rowMeta.getValueMeta(3).getType());
+    assertEquals(2, output.rows.size());
+    assertArrayEquals(new Object[] {"North", 2026L, "Jan", 10L}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"North", 2026L, "Feb", 20L}, output.rows.get(1));
+  }
+
+  /** Key fields only count when no fields are listed: listed fields work as they always did. */
+  @Test
+  void keyFieldsAreIgnoredWhenFieldsAreListed() throws Exception {
+    IRowMeta input = new RowMeta();
+    for (String name : new String[] {"id", "a", "b"}) {
+      input.addValueMeta(new ValueMetaString(name));
+    }
+
+    NormaliserMeta meta = meta("type", field("a", "A", "value"));
+    meta.setKeyFields(new ArrayList<>(List.of(new NormaliserKeyField("b"))));
+
+    Output output = normalise(meta, input, "1", "a", "b");
+
+    assertArrayEquals(new String[] {"id", "b", "type", "value"}, output.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"1", "b", "A", "a"}, output.rows.get(0));
+  }
+
+  /** A key field that is not in the input stops the transform with an error. */
+  @Test
+  void aKeyFieldMissingFromTheInputStopsTheTransform() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("text"));
+
+    NormaliserMeta meta = meta("type");
+    meta.setKeyFields(new ArrayList<>(List.of(new NormaliserKeyField("missing"))));
+    when(helper.transformMeta.getTransform()).thenReturn(meta);
+    Normaliser transform =
+        new Normaliser(
+            helper.transformMeta,
+            meta,
+            new NormaliserData(),
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+    transform.init();
+    transform.setInputRowMeta(input);
+    transform.setOutputRowSets(Collections.singletonList(new BlockingRowSet(10)));
+    Normaliser spied = spy(transform);
+    doReturn(new Object[] {"a"}).when(spied).getRow();
+
+    assertFalse(spied.processRow());
+    assertEquals(1, spied.getErrors());
+  }
+
   /** Without input rows the transform writes nothing and finishes without an error. */
   @Test
   void noInputRowsWriteNothing() throws Exception {

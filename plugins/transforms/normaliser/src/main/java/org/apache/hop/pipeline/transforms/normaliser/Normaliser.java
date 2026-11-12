@@ -111,7 +111,20 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
     data.outputRowMeta = data.inputRowMeta.clone();
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-    List<NormaliserField> fields = meta.getFieldsToNormalise(data.inputRowMeta);
+    List<NormaliserField> fields = meta.getFieldsToNormalise(data.inputRowMeta, this);
+
+    // The key fields are kept when every other field is normalised, so they have to be there.
+    //
+    if (meta.isNormalisingAllFields()) {
+      for (String key : meta.getKeyFieldNames(this)) {
+        if (data.inputRowMeta.indexOfValue(key) < 0) {
+          logError(BaseMessages.getString(PKG, "Normaliser.Log.CouldNotFindKeyFieldInRow", key));
+          setErrors(1);
+          stopAll();
+          return false;
+        }
+      }
+    }
 
     String duplicate = NormaliserMeta.getDuplicateMapping(fields);
     if (duplicate != null) {

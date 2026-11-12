@@ -33,9 +33,13 @@ A type can fill each new field from only one input field: listing two fields wit
 
 == Normalising every input field
 
-When the **Fields table** is empty, the transform normalises every field it receives. Each input field is a type of its own, named after the field, and its value goes into the **Value field**. This works when the input fields are only known when the pipeline runs, for example in a pipeline that profiles any file or table it is given.
+When the **Fields table** is empty, the transform normalises every field it receives, except the **Key fields**. Each input field is a type of its own, named after the field, and its value goes into the **Value field**. This works when the input fields are only known when the pipeline runs, for example in a pipeline that profiles any file or table it is given.
 
-Every input field is normalised this way, so no field is passed on unchanged: the output has only the type field and the value field. When the input fields have different data types the value field is a String, as described below.
+The key fields are passed on unchanged on every row, in the order they have in the input. Without key fields the output has only the type field and the value field. When the normalised fields have different data types the value field is a String, as described below.
+
+This is what the `Crosstable` prefix does in a Qlik Sense load script, with the key fields as its qualifier fields.
+
+The key fields are only used when the **Fields table** is empty. With listed fields, every field that is not listed is passed on unchanged anyway; **Verify** warns when key fields are set but not used.
 
 == Data types of the new fields
 
@@ -56,6 +60,7 @@ NOTE: Before Hop 2.20, a new field took the data type of the first input field f
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
 |Typefield|The name of the type field (**key** in the example below).
 |Value field|The name of the field that holds the values when the **Fields table** is empty and every input field is normalised. The default is **value**.
+|Key fields|The fields that are passed on unchanged on every row when the **Fields table** is empty. Every other input field is normalised. The names can contain variables.
 |Fields table|
 A list of the fields you want to normalize. Leave it empty to normalise every input field into the **Value field**. You must set the following properties for each listed field:
 
@@ -142,3 +147,28 @@ The result has one row per product, each value in the new field it names:
 |2003-01-01|Product1|100|5
 |2003-01-01|Product2|250|10
 |===
+
+=== Normalized data (example 4)
+Months as columns, kept per region and year. With this input:
+
+[options="header"]
+|===
+|Region|Year|Jan|Feb|Mar
+|North|2026|10|20|30
+|South|2026|15|25|35
+|===
+
+set **Typefield** = "Month", **Value field** = "Sales", **Key fields** = "Region" and "Year", and leave the **Fields table** empty. The result is:
+
+[options="header"]
+|===
+|Region|Year|Month|Sales
+|North|2026|Jan|10
+|North|2026|Feb|20
+|North|2026|Mar|30
+|South|2026|Jan|15
+|South|2026|Feb|25
+|South|2026|Mar|35
+|===
+
+A column added to the input, `Apr` for example, is normalised as well without changing the transform.
