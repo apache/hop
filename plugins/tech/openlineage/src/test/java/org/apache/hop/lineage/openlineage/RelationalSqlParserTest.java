@@ -113,4 +113,42 @@ class RelationalSqlParserTest {
         LineageRelationalIdentity.datasetName(idEdge.inputs().get(0).table()));
     assertEquals("id", idEdge.inputs().get(0).field());
   }
+
+  @Test
+  void namesInsertSelectOutputsAfterTheTargetColumnList() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse(
+                "INSERT INTO analytics.marts.daily_orders (order_id, customer) "
+                    + "SELECT o.id, o.cust FROM analytics.staging.orders o",
+                "postgres");
+
+    assertTrue(
+        tables.columnLineage().stream()
+            .anyMatch(
+                e -> "order_id".equals(e.outputField()) && "id".equals(e.inputs().get(0).field())),
+        "order_id should derive from id: " + tables.columnLineage());
+    assertTrue(
+        tables.columnLineage().stream()
+            .anyMatch(
+                e ->
+                    "customer".equals(e.outputField()) && "cust".equals(e.inputs().get(0).field())),
+        "customer should derive from cust: " + tables.columnLineage());
+  }
+
+  @Test
+  void namesInsertSelectExpressionOutputsAfterTheTargetColumnList() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse(
+                "INSERT INTO analytics.marts.daily_orders (total, id) "
+                    + "SELECT SUM(amount), id FROM analytics.staging.orders",
+                "postgres");
+
+    assertTrue(
+        tables.columnLineage().stream()
+            .anyMatch(
+                e -> "total".equals(e.outputField()) && "amount".equals(e.inputs().get(0).field())),
+        "total should derive from amount: " + tables.columnLineage());
+  }
 }

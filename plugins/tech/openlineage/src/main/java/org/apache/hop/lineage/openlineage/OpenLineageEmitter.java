@@ -18,15 +18,75 @@
 package org.apache.hop.lineage.openlineage;
 
 import io.openlineage.client.OpenLineage.RunEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Sends a single OpenLineage {@link RunEvent} to a collector. Abstracted from {@link
- * OpenLineageHttpClient} so the async dispatcher can be tested without real HTTP.
+ * Delivers a single OpenLineage {@link RunEvent}. {@link OpenLineageHttpClient} posts it to an
+ * OpenLineage collector; a sink that writes to a collector with its own API (DataHub) translates
+ * the event instead. The {@link OpenLineageAsyncDispatcher} calls it from its worker thread.
  */
-interface OpenLineageEmitter extends AutoCloseable {
+public interface OpenLineageEmitter extends AutoCloseable {
 
-  /** Emits one event; returns {@code true} on success. Must not throw on delivery failure. */
-  boolean emit(RunEvent event);
+  /** What became of an event. */
+  enum Result {
+    /** The collector accepted it. */
+    SENT,
+    /**
+     * It could not be delivered now — the collector is unreachable or overloaded, or the
+     * credentials or URL are wrong — and is worth sending again later.
+     */
+    RETRY,
+    /** The collector understood the event and refused it: sending it again cannot succeed. */
+    REJECTED
+  }
+
+  /** Whether an HTTP status is worth retrying straight away (5xx, 408, 429, or no response). */
+  static boolean isTransient(int status) {
+    return status < 400 || status >= 500 || status == 408 || status == 429;
+  }
+
+  /**
+   * What a failed request means for the event once immediate retries are spent. 401, 403, 404 and
+   * 407 point at configuration that someone will fix (a token, the URL, a proxy), so the event is
+   * kept rather than discarded with every other event sent until then; any other 4xx is a refusal
+   * of the event itself.
+   */
+  static Result failureOf(int status) {
+    if (isTransient(status)) {
+      return Result.RETRY;
+    }
+    return switch (status) {
+      case 401, 403, 404, 407 -> Result.RETRY;
+      default -> Result.REJECTED;
+    };
+  }
+
+  /**
+   * Delivers one event. Must not throw on a delivery failure. An interrupt (the sink shutting down)
+   * should end any wait between retries and return {@link Result#RETRY}.
+   */
+  Result emit(RunEvent event);
+
+  /**
+   * Delivers several events, oldest first, and says what became of each, in order. The caller stops
+   * at the first {@link Result#RETRY} and offers that event and the ones after it again later, so
+   * an emitter may leave the rest unattempted (or return fewer results). An emitter that can write
+   * several events in one request overrides this; by default they are sent one by one, and nothing
+   * more is tried after the first that could not be delivered: with the collector down, every
+   * further attempt would only wait out the same timeouts.
+   */
+  default List<Result> emitAll(List<RunEvent> events) {
+    List<Result> results = new ArrayList<>(events.size());
+    for (RunEvent event : events) {
+      Result result = emit(event);
+      results.add(result);
+      if (result == Result.RETRY) {
+        break;
+      }
+    }
+    return results;
+  }
 
   @Override
   void close();

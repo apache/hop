@@ -20,6 +20,7 @@ package org.apache.hop.lineage.openlineage;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.openlineage.OpenLineageAsyncDispatcher.OverflowPolicy;
 
@@ -45,9 +46,27 @@ public final class OpenLineageSinkConfig {
       "HOP_LINEAGE_OPENLINEAGE_TRUSTSTORE_PASSWORD";
   public static final String VAR_KEYSTORE_TYPE = "HOP_LINEAGE_OPENLINEAGE_KEYSTORE_TYPE";
   public static final String VAR_SQL_PARSE = "HOP_LINEAGE_OPENLINEAGE_SQL_PARSE";
+  public static final String VAR_TRANSFORM_JOBS = "HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS";
+
+  /**
+   * {@code Y} names file datasets by the OpenLineage naming spec (scheme and authority as the
+   * namespace, path as the name). The default, {@code N}, keeps the job namespace and file name of
+   * Hop 2.20 and earlier, so an upgrade does not re-key existing file datasets. The legacy naming
+   * is deprecated: a later release makes spec naming the default.
+   */
   public static final String VAR_FILE_SPEC_NAMING = "HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING";
 
-  private static final String DEFAULT_NAMESPACE = "hop";
+  /**
+   * Whether runs carry an OpenLineage {@code parent} facet naming the run that started them
+   * (transform → pipeline, action → workflow, pipeline → action). On by default. A collector that
+   * builds the job hierarchy itself from something else can turn it off.
+   */
+  public static final String VAR_PARENT_RUNS = "HOP_LINEAGE_OPENLINEAGE_PARENT_RUNS";
+
+  public static final String VAR_SPOOL_DIR = "HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR";
+  public static final String VAR_SPOOL_MAX_BYTES = "HOP_LINEAGE_OPENLINEAGE_SPOOL_MAX_BYTES";
+
+  public static final String DEFAULT_NAMESPACE = "hop";
   private static final String DEFAULT_PRODUCER =
       "https://github.com/apache/hop/tree/main/plugins/tech/openlineage";
   private static final int DEFAULT_CONNECT_TIMEOUT_MS = 5_000;
@@ -74,6 +93,19 @@ public final class OpenLineageSinkConfig {
   // Off by default: spec naming changes existing file dataset identities (see the identity
   // contract).
   private static final boolean DEFAULT_FILE_SPEC_NAMING = false;
+  /*
+   * Off by default until measured: one job per transform with forward-propagated inputs is the
+   * only mapping that produces the true dataset pairs for a multi-input pipeline (see
+   * OpenLineageEventMapper), but it also moves the datasets from the pipeline job to its
+   * transforms in Marquez, which is the reason the mapping was pipeline-granular to begin with.
+   */
+  private static final boolean DEFAULT_TRANSFORM_JOBS = false;
+  // Parent facets are the OpenLineage way to attach a run to the run that started it; only a
+  // collector that models the hierarchy itself should turn them off.
+  private static final boolean DEFAULT_PARENT_RUNS = true;
+  // Off by default: a plugin should not pick a disk location for a deployment. Turned on, events
+  // survive a collector outage or a restart; see OpenLineageSpool.
+  private static final long DEFAULT_SPOOL_MAX_BYTES = 64L * 1024 * 1024;
 
   private final String collectorUrl;
   private final String namespace;
@@ -93,6 +125,10 @@ public final class OpenLineageSinkConfig {
   private final String keyStoreType;
   private final boolean sqlParseEnabled;
   private final boolean fileSpecNaming;
+  private final boolean transformJobs;
+  private final boolean parentRuns;
+  private final String spoolDirectory;
+  private final long spoolMaxBytes;
 
   private OpenLineageSinkConfig(
       String collectorUrl,
@@ -112,7 +148,11 @@ public final class OpenLineageSinkConfig {
       String trustStorePassword,
       String keyStoreType,
       boolean sqlParseEnabled,
-      boolean fileSpecNaming) {
+      boolean fileSpecNaming,
+      boolean transformJobs,
+      boolean parentRuns,
+      String spoolDirectory,
+      long spoolMaxBytes) {
     this.collectorUrl = collectorUrl;
     this.namespace = namespace;
     this.producer = producer;
@@ -131,6 +171,10 @@ public final class OpenLineageSinkConfig {
     this.keyStoreType = keyStoreType;
     this.sqlParseEnabled = sqlParseEnabled;
     this.fileSpecNaming = fileSpecNaming;
+    this.transformJobs = transformJobs;
+    this.parentRuns = parentRuns;
+    this.spoolDirectory = spoolDirectory;
+    this.spoolMaxBytes = spoolMaxBytes;
   }
 
   public static OpenLineageSinkConfig fromVariables(IVariables variables) {
@@ -175,11 +219,19 @@ public final class OpenLineageSinkConfig {
     boolean sqlParse = parseBoolean(variables.getVariable(VAR_SQL_PARSE, null), DEFAULT_SQL_PARSE);
     boolean fileSpecNaming =
         parseBoolean(variables.getVariable(VAR_FILE_SPEC_NAMING, null), DEFAULT_FILE_SPEC_NAMING);
+    boolean transformJobs =
+        parseBoolean(variables.getVariable(VAR_TRANSFORM_JOBS, null), DEFAULT_TRANSFORM_JOBS);
+    boolean parentRuns =
+        parseBoolean(variables.getVariable(VAR_PARENT_RUNS, null), DEFAULT_PARENT_RUNS);
+    String spoolDirectory = variables.getVariable(VAR_SPOOL_DIR, "");
+    long spoolMaxBytes =
+        parsePositiveLong(
+            variables.getVariable(VAR_SPOOL_MAX_BYTES, null), DEFAULT_SPOOL_MAX_BYTES);
     return new OpenLineageSinkConfig(
         url,
         StringUtils.defaultIfBlank(namespace, DEFAULT_NAMESPACE).trim(),
         StringUtils.defaultIfBlank(producer, DEFAULT_PRODUCER).trim(),
-        StringUtils.isBlank(apiKey) ? null : apiKey.trim(),
+        StringUtils.isBlank(apiKey) ? null : secret(apiKey.trim()),
         connectTimeout,
         readTimeout,
         bufferSize,
@@ -190,10 +242,25 @@ public final class OpenLineageSinkConfig {
         shutdownDrain,
         metricsInterval,
         StringUtils.isBlank(trustStorePath) ? null : trustStorePath.trim(),
-        StringUtils.isBlank(trustStorePassword) ? null : trustStorePassword.trim(),
+        StringUtils.isBlank(trustStorePassword) ? null : secret(trustStorePassword.trim()),
         StringUtils.defaultIfBlank(keyStoreType, DEFAULT_KEYSTORE_TYPE).trim(),
         sqlParse,
-        fileSpecNaming);
+        fileSpecNaming,
+        transformJobs,
+        parentRuns,
+        StringUtils.isBlank(spoolDirectory) ? null : spoolDirectory.trim(),
+        spoolMaxBytes);
+  }
+
+  /**
+   * A secret as configured: in plain text, or encoded with Hop's password encoder ({@code Encrypted
+   * ...}, as {@code hop-encrypt} writes it), the way database passwords are configured.
+   */
+  public static String secret(String value) {
+    if (value == null || !value.startsWith(Encr.PASSWORD_ENCRYPTED_PREFIX)) {
+      return value;
+    }
+    return Encr.decryptPasswordOptionallyEncrypted(value);
   }
 
   private static boolean parseBoolean(String raw, boolean defaultValue) {
@@ -360,8 +427,41 @@ public final class OpenLineageSinkConfig {
     return sqlParseEnabled;
   }
 
-  /** Whether file datasets use OpenLineage spec naming (VFS scheme namespace + path) vs. legacy. */
+  /**
+   * Whether file datasets use OpenLineage spec naming (VFS scheme namespace + path) vs. legacy; see
+   * {@link #VAR_FILE_SPEC_NAMING}.
+   */
   public boolean isFileSpecNaming() {
     return fileSpecNaming;
+  }
+
+  /**
+   * Whether each transform gets its own job with the datasets it actually consumed (forward
+   * propagation) instead of every dataset being filed under the pipeline's job. See {@link
+   * OpenLineageEventMapper}.
+   */
+  public boolean isTransformJobs() {
+    return transformJobs;
+  }
+
+  /**
+   * Whether a run carries a {@code parent} facet naming the run that started it; see {@link
+   * #VAR_PARENT_RUNS}.
+   */
+  public boolean isParentRunsEnabled() {
+    return parentRuns;
+  }
+
+  /**
+   * Folder that holds undelivered events, or {@code null} to send without a spool. See {@link
+   * OpenLineageSpool}.
+   */
+  public String getSpoolDirectory() {
+    return spoolDirectory;
+  }
+
+  /** Upper bound on the spool's size on disk; older events are kept when it is reached. */
+  public long getSpoolMaxBytes() {
+    return spoolMaxBytes;
   }
 }

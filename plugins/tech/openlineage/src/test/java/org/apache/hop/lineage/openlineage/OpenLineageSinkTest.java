@@ -30,9 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lineage.context.LineageContext;
@@ -47,6 +52,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Integration tests that drive the sink through its public {@link
@@ -94,7 +100,7 @@ class OpenLineageSinkTest {
   }
 
   @Test
-  void deliversStartFileCompleteEvents() throws Exception {
+  void deliversStartAndCompletionWithDatasetsAsync() throws Exception {
     OpenLineageLineageSink sink = new OpenLineageLineageSink();
     sink.init(variables("hop-it"), new LogChannel("OpenLineageIT"));
 
@@ -122,12 +128,101 @@ class OpenLineageSinkTest {
                 new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
     sink.shutdown();
 
-    wireMock.verify(3, postRequestedFor(urlEqualTo(ENDPOINT)));
+    // START, and COMPLETE carrying the file the run read: the observation is no event of its own.
+    wireMock.verify(2, postRequestedFor(urlEqualTo(ENDPOINT)));
     JsonNode firstBody =
         MAPPER.readTree(
             wireMock.findAll(postRequestedFor(urlEqualTo(ENDPOINT))).get(0).getBodyAsString());
     assertEquals("START", firstBody.get("eventType").asText());
     assertEquals("integration-pipeline", firstBody.get("job").get("name").asText());
+    JsonNode lastBody =
+        MAPPER.readTree(
+            wireMock.findAll(postRequestedFor(urlEqualTo(ENDPOINT))).get(1).getBodyAsString());
+    assertEquals("COMPLETE", lastBody.get("eventType").asText());
+    // Legacy file naming is still the default, as in Hop 2.20: job namespace and file name.
+    assertEquals("hop-it", lastBody.get("inputs").get(0).get("namespace").asText());
+    assertEquals("sample.csv", lastBody.get("inputs").get(0).get("name").asText());
+  }
+
+  // Spec naming is an opt-in: an upgrade does not re-key the file datasets of an existing graph.
+  @Test
+  void fileSpecNamingIsAnOptIn() throws Exception {
+    Variables variables = variables("hop-it");
+    variables.setVariable(OpenLineageSinkConfig.VAR_FILE_SPEC_NAMING, "Y");
+    OpenLineageLineageSink sink = new OpenLineageLineageSink();
+    sink.init(variables, new LogChannel("OpenLineageSpecNaming"));
+
+    LineageContext ctx = pipelineCtx("spec-naming");
+    sink.accept(
+        List.of(
+            new LineageEvent(
+                "file",
+                System.currentTimeMillis(),
+                LineageEventKind.FILE_IO,
+                ctx,
+                new FileIoLineagePayload(
+                    FileIoOperation.READ, "file:///tmp/sample.csv", null, 100L, true, null)),
+            new LineageEvent(
+                "complete",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                ctx,
+                new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
+    sink.shutdown();
+
+    JsonNode body =
+        MAPPER.readTree(
+            wireMock.findAll(postRequestedFor(urlEqualTo(ENDPOINT))).get(0).getBodyAsString());
+    assertEquals("file", body.get("inputs").get(0).get("namespace").asText());
+    assertEquals("/tmp/sample.csv", body.get("inputs").get(0).get("name").asText());
+  }
+
+  // A sink for a collector with its own API (DataHub) extends this one: same mapping, queue and
+  // spool, its own emitter.
+  @Test
+  void aSubclassDeliversEveryMappedEventThroughItsOwnEmitter() throws Exception {
+    List<io.openlineage.client.OpenLineage.RunEvent> seen = new CopyOnWriteArrayList<>();
+    OpenLineageLineageSink sink =
+        new OpenLineageLineageSink() {
+          @Override
+          protected OpenLineageEmitter createEmitter(
+              OpenLineageSinkConfig config, ILogChannel log) {
+            return new OpenLineageEmitter() {
+              @Override
+              public Result emit(io.openlineage.client.OpenLineage.RunEvent event) {
+                seen.add(event);
+                return Result.SENT;
+              }
+
+              @Override
+              public void close() {}
+            };
+          }
+        };
+    sink.init(variables("hop-subclass"), new LogChannel("OpenLineageSubclass"));
+
+    LineageContext ctx = pipelineCtx("observed-pipeline");
+    sink.accept(
+        List.of(
+            new LineageEvent(
+                "start",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                ctx,
+                new RunLifecycleLineagePayload(RunLifecyclePhase.STARTED, null)),
+            new LineageEvent(
+                "complete",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                ctx,
+                new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
+    sink.shutdown();
+
+    assertEquals(2, seen.size());
+    assertEquals("observed-pipeline", seen.get(0).getJob().getName());
+    assertEquals(
+        io.openlineage.client.OpenLineage.RunEvent.EventType.COMPLETE, seen.get(1).getEventType());
+    wireMock.verify(0, postRequestedFor(urlEqualTo(ENDPOINT)));
   }
 
   @Test
@@ -212,5 +307,73 @@ class OpenLineageSinkTest {
 
     // One 503 + one 201 = the event was redelivered after the transient failure.
     wireMock.verify(2, postRequestedFor(urlEqualTo(ENDPOINT)));
+  }
+
+  /**
+   * The property a lineage integration is assumed to have: a collector that is down delays lineage
+   * instead of losing it. The event is written to the spool before it is posted, survives the
+   * failed attempt, and is replayed by the sink that starts afterwards.
+   */
+  @Test
+  void undeliveredEventsStaySpooledAndAreReplayedByTheNextStart(@TempDir Path spoolFolder)
+      throws Exception {
+    wireMock.resetAll();
+    wireMock.stubFor(post(urlEqualTo(ENDPOINT)).willReturn(aResponse().withStatus(503)));
+
+    Variables variables = variables(null);
+    variables.setVariable(OpenLineageSinkConfig.VAR_SPOOL_DIR, spoolFolder.toString());
+    variables.setVariable(OpenLineageSinkConfig.VAR_MAX_RETRIES, "0");
+    variables.setVariable(OpenLineageSinkConfig.VAR_RETRY_BACKOFF_MS, "1");
+
+    OpenLineageLineageSink down = new OpenLineageLineageSink();
+    down.init(variables, new LogChannel("OpenLineageSpoolDown"));
+    down.accept(
+        List.of(
+            new LineageEvent(
+                "start",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                pipelineCtx("spool-established"),
+                new RunLifecycleLineagePayload(RunLifecyclePhase.STARTED, null))));
+    down.shutdown();
+
+    assertEquals(1, spooledFiles(spoolFolder), "the undelivered event must stay on disk");
+
+    wireMock.resetAll();
+    wireMock.stubFor(
+        post(urlEqualTo(ENDPOINT)).willReturn(aResponse().withStatus(201).withBody("{}")));
+
+    OpenLineageLineageSink up = new OpenLineageLineageSink();
+    up.init(variables, new LogChannel("OpenLineageSpoolUp"));
+    up.shutdown();
+
+    wireMock.verify(1, postRequestedFor(urlEqualTo(ENDPOINT)));
+    assertEquals(0, spooledFiles(spoolFolder), "a delivered event must leave the spool");
+  }
+
+  // The hub gives its worker a few seconds to stop before it shuts the sinks down, so a batch can
+  // still reach accept() once shutdown() is done. It is not sent, and it must not fail.
+  @Test
+  void aBatchArrivingAfterShutdownIsIgnored() throws Exception {
+    OpenLineageLineageSink sink = new OpenLineageLineageSink();
+    sink.init(variables(null), new LogChannel("OpenLineageLate"));
+    sink.shutdown();
+
+    sink.accept(
+        List.of(
+            new LineageEvent(
+                "late",
+                System.currentTimeMillis(),
+                LineageEventKind.RUN_LIFECYCLE,
+                pipelineCtx("late"),
+                new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null))));
+
+    wireMock.verify(0, postRequestedFor(urlEqualTo(ENDPOINT)));
+  }
+
+  private static long spooledFiles(Path folder) throws IOException {
+    try (var files = Files.walk(folder)) {
+      return files.filter(f -> f.getFileName().toString().endsWith(".json")).count();
+    }
   }
 }
