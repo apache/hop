@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkfile;
 
-import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -163,9 +162,18 @@ public class ActionMysqlBulkFile extends ActionBase {
     if (fileName != null) {
       // User has specified a file, We can continue ...
       String realFilename = getRealFilename();
-      File file = new File(realFilename);
+      boolean fileExists;
+      try {
+        // An empty name would resolve to the working folder, which always exists
+        fileExists =
+            !Utils.isEmpty(realFilename) && HopVfs.fileExists(realFilename, getVariables());
+      } catch (HopFileException e) {
+        result.setNrErrors(1);
+        logError(BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_ERROR_LABEL), e);
+        return result;
+      }
 
-      if (file.exists() && ifFileExists == 2) {
+      if (fileExists && ifFileExists == 2) {
         // the file exists and user want to Fail
         result.setResult(false);
         result.setNrErrors(1);
@@ -174,7 +182,7 @@ public class ActionMysqlBulkFile extends ActionBase {
                 + realFilename
                 + BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL));
 
-      } else if (file.exists() && ifFileExists == 1) {
+      } else if (fileExists && ifFileExists == 1) {
         // the file exists and user want to do nothing
         result.setResult(true);
         if (isDetailed()) {
@@ -186,7 +194,7 @@ public class ActionMysqlBulkFile extends ActionBase {
 
       } else {
 
-        if (file.exists() && ifFileExists == 0) {
+        if (fileExists && ifFileExists == 0) {
           // File exists and user want to renamme it with unique name
 
           // Format Date
@@ -221,8 +229,15 @@ public class ActionMysqlBulkFile extends ActionBase {
                   + BaseMessages.getString(PKG, CONST_ACTION_MYSQL_BULK_FILE_FILE_EXISTS_2_LABEL));
         }
 
-        if (connection != null) {
+        if (!Utils.isEmpty(connection)) {
           DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+          if (databaseMeta == null) {
+            result.setNrErrors(1);
+            logError(
+                BaseMessages.getString(
+                    PKG, "ActionMysqlBulkFile.Error.ConnectionNotFound", connection));
+            return result;
+          }
 
           // User has specified a connection, We can continue ...
           try (Database db = new Database(this, this, databaseMeta)) {
@@ -301,7 +316,7 @@ public class ActionMysqlBulkFile extends ActionBase {
                       + " "
                       + outDumpText
                       + " '"
-                      + realFilename
+                      + Const.replace(realFilename, "'", "''")
                       + "' "
                       + fieldSeparator
                       + " "
@@ -311,8 +326,7 @@ public class ActionMysqlBulkFile extends ActionBase {
                       + " FROM "
                       + realTablename
                       + " "
-                      + limitNbrLignes
-                      + " LOCK IN SHARE MODE";
+                      + limitNbrLignes;
 
               try {
                 if (isDetailed()) {
@@ -432,8 +446,9 @@ public class ActionMysqlBulkFile extends ActionBase {
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (connection != null) {
-      DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+    DatabaseMeta databaseMeta =
+        Utils.isEmpty(connection) ? null : workflowMeta.findDatabase(connection, variables);
+    if (databaseMeta != null) {
       ResourceReference reference = new ResourceReference(this);
       reference
           .getEntries()

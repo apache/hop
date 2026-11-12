@@ -34,7 +34,7 @@ The `Bulk load from MySQL into file` action bulk loads data from a MySQL table i
 |Source schema|The schema of the table to export.
 |Source table|The table to export.
 |Target File name|The file to write, on the database server.
-|High Priority|Adds `HIGH_PRIORITY` to the query. Checked by default: see the NOTE under <<Result>>.
+|High Priority|Adds `HIGH_PRIORITY` to the query (checked by default). This only has an effect on storage engines that use table-level locking, such as MyISAM.
 |Type|OUTFILE (default) writes the rows with the separators below. DUMPFILE writes a single row without any formatting: more than one row makes the action fail.
 |Field separator|The field separator to use.
 |Fields enclosed by|The field enclosure to use.
@@ -58,14 +58,10 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 |Result|Value
 |True|The file was written, with 0 errors. Also true when the file already exists and *If file exists* is *Do Nothing*: then nothing is exported, and the action doesn't connect to the database.
-|False|The file exists and *If file exists* is *Fail*, the table doesn't exist, *Target File name* is empty, the connection can't be opened, or MySQL refuses the query (for example a path outside the folder allowed by the server's `secure_file_priv` setting, or *DUMPFILE* on more than one row). The number of errors is 1.
+|False|The file exists and *If file exists* is *Fail*, the table doesn't exist, *Target File name* is empty, the connection doesn't exist or can't be opened, or MySQL refuses the query (for example a path outside the folder allowed by the server's `secure_file_priv` setting, or *DUMPFILE* on more than one row). The number of errors is 1.
 |Result files|The target file is added when *Add file to result filenames* is checked and the file was written. Otherwise passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
-
-NOTE: *High Priority* is checked by default, and on MySQL 8.4 it makes the action fail with "Table ... appears in multiple locking clauses": the action always adds `LOCK IN SHARE MODE` to the query, and MySQL doesn't accept both. Uncheck *High Priority* to export.
-
-NOTE: A *Connection* that doesn't exist in the project is not a false result: the workflow stops with an error and no hop from the action is followed.
 
 NOTE: When the table doesn't exist, the reason is only logged at the Detailed log level: at the Basic level, the log shows a false action without an error message.
 
