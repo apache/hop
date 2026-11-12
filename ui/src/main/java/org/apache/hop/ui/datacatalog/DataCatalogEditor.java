@@ -176,25 +176,13 @@ public class DataCatalogEditor extends MetadataEditor<DataCatalog> {
     fdPluginType.right = new FormAttachment(100, 0);
     wPluginType.setLayoutData(fdPluginType);
 
-    // The test is the same question for every catalog type
-    //
-    Button wTest = new Button(wMainComp, SWT.PUSH);
-    PropsUi.setLook(wTest);
-    wTest.setText(BaseMessages.getString(PKG, "DataCatalogEditor.Test.Label"));
-    wTest.setToolTipText(BaseMessages.getString(PKG, "DataCatalogEditor.Test.Tooltip"));
-    FormData fdTest = new FormData();
-    fdTest.top = new FormAttachment(wPluginType, margin);
-    fdTest.left = new FormAttachment(middle, margin);
-    wTest.setLayoutData(fdTest);
-    wTest.addListener(SWT.Selection, e -> test());
-
     wPluginSpecificComp = new Composite(wMainComp, SWT.BACKGROUND);
     PropsUi.setLook(wPluginSpecificComp);
     wPluginSpecificComp.setLayout(new FormLayout());
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment(0, 0);
     fdPluginSpecificComp.right = new FormAttachment(100, 0);
-    fdPluginSpecificComp.top = new FormAttachment(wTest, margin);
+    fdPluginSpecificComp.top = new FormAttachment(wPluginType, margin);
     fdPluginSpecificComp.bottom = new FormAttachment(100, 0);
     wPluginSpecificComp.setLayoutData(fdPluginSpecificComp);
 
@@ -230,6 +218,16 @@ public class DataCatalogEditor extends MetadataEditor<DataCatalog> {
     wDescription.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, modifyListener);
     wPluginType.addListener(SWT.Modify, e -> changePluginType());
+  }
+
+  /** The test is the same question for every catalog type, so the editor has the button. */
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    Button wTest = new Button(parent, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "System.Button.Test"));
+    wTest.setToolTipText(BaseMessages.getString(PKG, "DataCatalogEditor.Test.Tooltip"));
+    wTest.addListener(SWT.Selection, e -> test());
+    return new Button[] {wTest};
   }
 
   private void addGuiCompositeWidgets() {
