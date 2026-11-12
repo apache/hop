@@ -81,20 +81,53 @@ public class DataSetCsvUtil {
     }
   }
 
+  /** Receives the rows of a data set one at a time, in file order. */
+  @FunctionalInterface
+  public interface IRowHandler {
+    /**
+     * @param row the next row, in the layout of {@link DataSet#getSetRowMeta()}
+     * @return true to go on reading, false to stop
+     */
+    boolean handleRow(Object[] row) throws HopException;
+  }
+
   public static final List<Object[]> getAllRows(IVariables variables, DataSet dataSet)
+      throws HopException {
+    List<Object[]> rows = new ArrayList<>();
+    readRows(variables, dataSet, rows::add);
+    return rows;
+  }
+
+  /**
+   * Reads the rows of a data set and hands each one to the handler as soon as it is parsed, so a
+   * large data set never has to fit in memory. A data set without a file has no rows yet: the
+   * handler is not called.
+   *
+   * @param handler receives each row; return false to stop reading
+   */
+  public static final void readRows(IVariables variables, DataSet dataSet, IRowHandler handler)
       throws HopException {
     IRowMeta setRowMeta = dataSet.getSetRowMeta();
     setValueFormats(setRowMeta);
     String dataSetFilename = dataSet.getActualDataSetFilename(variables);
-    List<Object[]> rows = new ArrayList<>();
-    final ValueMetaString constantValueMeta = new ValueMetaString("constant");
+
+    // One String meta per field, prepared once: it carries the field's mask and symbols for the
+    // conversion. The field metadata keeps its number and date formats from row to row.
+    int nrFields = setRowMeta.size();
+    IValueMeta[] valueMetas = new IValueMeta[nrFields];
+    IValueMeta[] stringMetas = new IValueMeta[nrFields];
+    for (int i = 0; i < nrFields; i++) {
+      valueMetas[i] = setRowMeta.getValueMeta(i);
+      stringMetas[i] = new ValueMetaString("constant");
+      stringMetas[i].setConversionMetadata(valueMetas[i]);
+    }
 
     try {
       FileObject file = HopVfs.getFileObject(dataSetFilename);
       if (!file.exists()) {
         // This is fine.  We haven't put rows in yet.
         //
-        return rows;
+        return;
       }
 
       try (Reader reader =
@@ -102,20 +135,18 @@ public class DataSetCsvUtil {
           CSVParser csvParser = new CSVParser(reader, getCsvFormat(setRowMeta)); ) {
         for (CSVRecord csvRecord : csvParser) {
           if (csvRecord.getRecordNumber() > 1) {
-            Object[] row = RowDataUtil.allocateRowData(setRowMeta.size());
-            for (int i = 0; i < setRowMeta.size(); i++) {
-              IValueMeta valueMeta = setRowMeta.getValueMeta(i).clone();
-              constantValueMeta.setConversionMetadata(valueMeta);
+            Object[] row = RowDataUtil.allocateRowData(nrFields);
+            for (int i = 0; i < nrFields; i++) {
               if (i < csvRecord.size()) {
-                String value = csvRecord.get(i);
-                row[i] = csvValueToField(valueMeta, constantValueMeta, value);
+                row[i] = csvValueToField(valueMetas[i], stringMetas[i], csvRecord.get(i));
               }
             }
-            rows.add(row);
+            if (!handler.handleRow(row)) {
+              return;
+            }
           }
         }
       }
-      return rows;
     } catch (Exception e) {
       throw new HopException(
           "Unable to get all rows for CSV data set '" + dataSet.getName() + "'", e);
