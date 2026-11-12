@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.surefirereport;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -211,33 +211,20 @@ public class SurefireReportOutput
   }
 
   private void writeReport() throws HopException {
-    String filename = resolve(meta.getFilename());
-    if (Utils.isEmpty(filename)) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "SurefireReportOutput.Error.FilenameMissing"));
-    }
-
     String suiteName = resolve(meta.getSuiteName());
     if (Utils.isEmpty(suiteName)) {
       suiteName = "tests";
     }
 
-    Path reportPath = Paths.get(filename);
-    if (meta.isCreateParentFolder() && reportPath.getParent() != null) {
-      try {
-        java.nio.file.Files.createDirectories(reportPath.getParent());
-      } catch (Exception e) {
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, "SurefireReportOutput.Error.WriteFailed", filename, e.getMessage()),
-            e);
-      }
-    }
+    // Checked in init() already; check again in case the folder went away during the run.
+    FileObject reportFile = data.reportFile;
+    String filename = HopVfs.getFriendlyURI(reportFile);
+    prepareParentFolder(reportFile, meta.isCreateParentFolder());
 
     int failedOrErrored;
     try {
       synchronized (data.lock) {
-        SurefireReportWriter.write(reportPath, suiteName, data.testCases);
+        SurefireReportWriter.write(reportFile, suiteName, data.testCases);
         failedOrErrored = 0;
         for (SurefireTestCase testCase : data.testCases) {
           if (testCase.getStatus() == Status.FAIL || testCase.getStatus() == Status.ERROR) {
@@ -269,15 +256,62 @@ public class SurefireReportOutput
     }
   }
 
+  /**
+   * Makes sure the folder of the report file exists, creating it when {@code createParentFolder} is
+   * on. Fails when it is missing and may not be created, or when it is not a folder.
+   */
+  static void prepareParentFolder(FileObject reportFile, boolean createParentFolder)
+      throws HopException {
+    String filename = HopVfs.getFriendlyURI(reportFile);
+    try {
+      FileObject parentFolder = reportFile.getParent();
+      if (parentFolder == null) {
+        return;
+      }
+      parentFolder.refresh();
+      if (parentFolder.isFolder()) {
+        return;
+      }
+      String folder = HopVfs.getFriendlyURI(parentFolder);
+      if (parentFolder.exists()) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "SurefireReportOutput.Error.ParentFolderIsNotAFolder", folder, filename));
+      }
+      if (!createParentFolder) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "SurefireReportOutput.Error.ParentFolderDoesNotExist", folder, filename));
+      }
+      parentFolder.createFolder();
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "SurefireReportOutput.Error.WriteFailed", filename, e.getMessage()),
+          e);
+    }
+  }
+
   @Override
   public boolean init() {
     if (super.init()) {
-      if (Utils.isEmpty(meta.getFilename())) {
+      if (Utils.isEmpty(meta.getTestNameField())) {
+        logError(BaseMessages.getString(PKG, "SurefireReportOutput.Error.TestNameFieldMissing"));
+        return false;
+      }
+      String filename = resolve(meta.getFilename());
+      if (Utils.isEmpty(filename)) {
         logError(BaseMessages.getString(PKG, "SurefireReportOutput.Error.FilenameMissing"));
         return false;
       }
-      if (Utils.isEmpty(meta.getTestNameField())) {
-        logError(BaseMessages.getString(PKG, "SurefireReportOutput.Error.TestNameFieldMissing"));
+      // Check the folder now, so a long run does not lose its results at the very end.
+      try {
+        data.reportFile = HopVfs.getFileObject(filename, this);
+        prepareParentFolder(data.reportFile, meta.isCreateParentFolder());
+      } catch (HopException e) {
+        logError(e.getMessage().trim());
         return false;
       }
       return true;
