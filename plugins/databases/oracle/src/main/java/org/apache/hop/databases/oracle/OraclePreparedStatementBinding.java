@@ -67,6 +67,15 @@ final class OraclePreparedStatementBinding implements IValueBinding {
   private static final Map<PreparedStatement, int[]> COLUMN_TYPES =
       Collections.synchronizedMap(new WeakHashMap<>());
 
+  /**
+   * Stack of the thread that describes a statement's parameters. Reserved, not committed: a parse
+   * that needs little stack touches little. A 1000-column INSERT, the most Oracle allows in a
+   * table, needs well under this.
+   */
+  static final long DESCRIBE_STACK_SIZE = 64L * 1024 * 1024;
+
+  static final String DESCRIBE_THREAD_NAME = "Oracle bind parameter describe";
+
   private OraclePreparedStatementBinding() {}
 
   /**
@@ -135,8 +144,34 @@ final class OraclePreparedStatementBinding implements IValueBinding {
    * answer -- a driver too old to describe binds, a statement its parser does not understand, a
    * parameter it has no type for -- is recorded as unknown, so the question is asked once per
    * statement whatever the outcome.
+   *
+   * <p>The question is asked on a thread of its own with a large stack. The Oracle driver answers
+   * it by parsing the SQL with a recursive parser whose depth grows with the number of columns: an
+   * INSERT of a few hundred columns overflows the 1 MB stack a transform thread gets by default on
+   * Linux. The calling thread waits for the answer, so the statement and its connection are never
+   * used by two threads at once.
    */
-  private static int[] describeColumns(PreparedStatement preparedStatement) {
+  static int[] describeColumns(PreparedStatement preparedStatement) {
+    int[][] types = {new int[0]};
+    Thread describer =
+        new Thread(
+            null,
+            () -> types[0] = describeColumnsOnThisThread(preparedStatement),
+            DESCRIBE_THREAD_NAME,
+            DESCRIBE_STACK_SIZE);
+    describer.setDaemon(true);
+    describer.start();
+    try {
+      describer.join();
+    } catch (InterruptedException e) {
+      // The transform is being stopped: the values go in the way Hop always wrote them.
+      Thread.currentThread().interrupt();
+      return new int[0];
+    }
+    return types[0];
+  }
+
+  private static int[] describeColumnsOnThisThread(PreparedStatement preparedStatement) {
     try {
       ParameterMetaData metaData = preparedStatement.getParameterMetaData();
       int[] types = new int[metaData.getParameterCount()];
@@ -144,7 +179,9 @@ final class OraclePreparedStatementBinding implements IValueBinding {
         types[i] = columnType(metaData, i + 1);
       }
       return types;
-    } catch (SQLException | RuntimeException e) {
+    } catch (SQLException | RuntimeException | StackOverflowError e) {
+      // A statement too wide even for the large stack is written the way Hop always wrote it. The
+      // parser's state lives in this call only, so nothing is left behind by unwinding it.
       return new int[0];
     }
   }
