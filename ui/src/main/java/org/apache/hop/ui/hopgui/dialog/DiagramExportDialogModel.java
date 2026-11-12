@@ -168,8 +168,13 @@ public class DiagramExportDialogModel {
     DiagramExportOptions options = new DiagramExportOptions();
     options.setTargetFilename(filename);
     IDiagramExporter<?> exporter = getSelectedExporter();
-    if (exporter != null && exporter.getFormat() != null) {
+    if (exporter != null
+        && exporter.getFormat() != null
+        && StringUtils.isNotBlank(exporter.getFormat().getId())) {
       options.setFormat(exporter.getFormat().getId());
+    } else if (exporter != null) {
+      // No format: the export service also matches the exporter id, not the label shown here.
+      options.setFormat(exporter.getId());
     } else {
       options.setFormat(format);
     }
