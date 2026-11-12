@@ -623,4 +623,14 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
       }
     }
   }
+
+  /** The reader fills one output field per input field, right after the passed-through ones. */
+  @Override
+  protected List<String> fileFieldNames() {
+    List<String> names = new ArrayList<>();
+    for (TextFileInputField field : meta.getInputFields()) {
+      names.add(field.getName());
+    }
+    return names;
+  }
 }

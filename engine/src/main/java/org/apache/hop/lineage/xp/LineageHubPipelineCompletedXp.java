@@ -44,6 +44,12 @@ public class LineageHubPipelineCompletedXp
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitPipeline(pipeline, phase, null);
-    LineageHub.getInstance().flushQuietly();
+    // A top-level run waits for delivery. A nested run only waits once the queue fills up: that
+    // keeps a run per row from dropping events, without a full drain after every row.
+    if (LineageRunLifecycleEmitter.isTopLevel(pipeline)) {
+      LineageHub.getInstance().flushQuietly();
+    } else {
+      LineageHub.getInstance().flushIfBacklogged();
+    }
   }
 }

@@ -17,10 +17,12 @@
 
 package org.apache.hop.lineage.hub;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -160,8 +162,8 @@ class LineageHubConcurrentShutdownTest {
   }
 
   /**
-   * The JVM runs the shutdown hook of HopEnvironment at the same time as the one of hop-run. While
-   * hop-run holds the hub, that hook may not shut it down: the run still has to emit its end.
+   * The JVM runs the exit hook of the hub at the same time as the one of hop-run. While hop-run
+   * holds the hub, that hook may not shut it down: the run still has to emit its end.
    */
   @Test
   void shutdownOnExitWaitsForTheRunThatHoldsIt() throws Exception {
@@ -204,6 +206,47 @@ class LineageHubConcurrentShutdownTest {
     hub.shutdownOnExit(); // the class timeout fails the test if this waits
 
     assertEquals(1, sinkShutdowns.get());
+  }
+
+  /** The exit hook the hub registers is the one that waits for hop-run, and it is added once. */
+  @Test
+  void theRegisteredExitHookWaitsForTheRunThatHoldsIt() throws Exception {
+    AtomicInteger sinkShutdowns = new AtomicInteger();
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(
+            configuration(), List.of(sink(new AtomicInteger(), sinkShutdowns)));
+    hub.emit(event());
+    CountDownLatch runOver = new CountDownLatch(1);
+    hub.holdShutdownOnExit(runOver);
+    List<Thread> hooks = new ArrayList<>();
+    hub.registerExitHook(hooks::add);
+    hub.registerExitHook(hooks::add);
+    assertEquals(1, hooks.size(), "The exit hook should be registered once");
+
+    Thread exitHook = hooks.get(0);
+    exitHook.start();
+    Thread.sleep(300);
+    assertTrue(exitHook.isAlive(), "The exit hook shut the hub down while a run held it");
+    assertEquals(0, sinkShutdowns.get());
+
+    runOver.countDown();
+    exitHook.join(10_000);
+    assertFalse(exitHook.isAlive());
+    assertEquals(1, sinkShutdowns.get());
+  }
+
+  /** The first event can come in while the JVM is already exiting: it may not fail the emit. */
+  @Test
+  void aJvmThatIsAlreadyExitingDoesNotFailTheRegistration() {
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(
+            configuration(), List.of(sink(new AtomicInteger(), new AtomicInteger())));
+    assertDoesNotThrow(
+        () ->
+            hub.registerExitHook(
+                hook -> {
+                  throw new IllegalStateException("Shutdown in progress");
+                }));
   }
 
   private static LineageConfiguration configuration() {

@@ -36,6 +36,11 @@ import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.dummy.ActionDummy;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -160,14 +165,19 @@ class LineagePipelineGraphTest {
   }
 
   @Test
-  void pipelineWithoutHopsEmitsNoGraph() {
+  void pipelineWithoutHopsEmitsAnEmptyGraph() {
+    // An empty graph, not none: a sink that gets no graph assumes an engine that sends none and
+    // files the run's datasets under the pipeline instead of under its only transform.
     PipelineMeta meta = new PipelineMeta();
     meta.getTransforms().add(transform("Alone"));
 
     List<LineageEvent> events = emitPipeline(meta, RunLifecyclePhase.STARTED);
 
-    assertEquals(1, events.size());
+    assertEquals(2, events.size());
     assertEquals(LineageEventKind.RUN_LIFECYCLE, events.get(0).getKind());
+    assertEquals(LineageEventKind.PIPELINE_GRAPH, events.get(1).getKind());
+    assertTrue(
+        ((PipelineGraphLineagePayload) events.get(1).getPayload()).getTransitions().isEmpty());
   }
 
   private static PipelineMeta chain() {
@@ -195,5 +205,61 @@ class LineagePipelineGraphTest {
     ArgumentCaptor<LineageEvent> captor = ArgumentCaptor.forClass(LineageEvent.class);
     verify(hub, atLeastOnce()).emit(captor.capture());
     return captor.getAllValues();
+  }
+
+  // Like a pipeline's: a workflow without hops still tells the sinks so, with an empty graph.
+  @Test
+  void workflowWithoutHopsEmitsAnEmptyGraph() {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.addAction(new ActionMeta(new ActionDummy("Alone")));
+
+    List<LineageEvent> events = emitWorkflow(meta, RunLifecyclePhase.STARTED);
+
+    assertEquals(2, events.size());
+    assertEquals(LineageEventKind.RUN_LIFECYCLE, events.get(0).getKind());
+    assertEquals(LineageEventKind.WORKFLOW_GRAPH, events.get(1).getKind());
+    assertTrue(
+        ((PipelineGraphLineagePayload) events.get(1).getPayload()).getTransitions().isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<LineageEvent> emitWorkflow(WorkflowMeta meta, RunLifecyclePhase phase) {
+    LineageHub hub = mock(LineageHub.class);
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    when(workflow.getWorkflowMeta()).thenReturn(meta);
+    when(workflow.getLogChannelId()).thenReturn("workflow-log");
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      LineageRunLifecycleEmitter.emitWorkflow(workflow, phase, null);
+    }
+
+    ArgumentCaptor<LineageEvent> captor = ArgumentCaptor.forClass(LineageEvent.class);
+    verify(hub, atLeastOnce()).emit(captor.capture());
+    return captor.getAllValues();
+  }
+
+  // A workflow's hops say which action follows which, whatever their condition; disabled hops are
+  // not part of what ran.
+  @Test
+  void workflowHopsAreReportedBetweenActions() {
+    WorkflowMeta meta = new WorkflowMeta();
+    ActionMeta load = new ActionMeta(new ActionDummy("Load"));
+    ActionMeta report = new ActionMeta(new ActionDummy("Report"));
+    ActionMeta alert = new ActionMeta(new ActionDummy("Alert"));
+    meta.addAction(load);
+    meta.addAction(report);
+    meta.addAction(alert);
+    meta.addWorkflowHop(new WorkflowHopMeta(load, report));
+    WorkflowHopMeta onFailure = new WorkflowHopMeta(load, alert);
+    onFailure.setEvaluation(false);
+    meta.addWorkflowHop(onFailure);
+    WorkflowHopMeta disabled = new WorkflowHopMeta(report, alert);
+    disabled.setEnabled(false);
+    meta.addWorkflowHop(disabled);
+
+    assertEquals(
+        List.of(new Transition("Load", "Report"), new Transition("Load", "Alert")),
+        LineageRunLifecycleEmitter.workflowTransitions(meta));
   }
 }
