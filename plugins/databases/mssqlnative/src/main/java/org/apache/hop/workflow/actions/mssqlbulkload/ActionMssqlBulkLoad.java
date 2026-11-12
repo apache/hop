@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
+import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -245,15 +246,20 @@ public class ActionMssqlBulkLoad extends ActionBase {
           if (connection != null) {
 
             DatabaseMeta dbMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+            if (dbMeta == null) {
+              return fail(
+                  result,
+                  BaseMessages.getString(
+                      PKG, "ActionMssqlBulkLoad.Error.ConnectionNotFound", resolve(connection)));
+            }
 
             // User has specified a connection, We can continue ...
             String pluginId = dbMeta.getPluginId();
             if (!("MSSQL".equals(pluginId) || "MSSQLNATIVE".equals(pluginId))) {
-
-              logError(
+              return fail(
+                  result,
                   BaseMessages.getString(
                       PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", dbMeta.getDatabaseName()));
-              return result;
             }
             try (Database db = new Database(this, this, dbMeta)) {
               db.connect();
@@ -274,10 +280,10 @@ public class ActionMssqlBulkLoad extends ActionBase {
                 String fieldTerminator = getRealFieldTerminator();
                 if (Utils.isEmpty(fieldTerminator)
                     && (dataFileType.equals("char") || dataFileType.equals("widechar"))) {
-                  logError(
+                  return fail(
+                      result,
                       BaseMessages.getString(
                           PKG, "ActionMssqlBulkLoad.Error.FieldTerminatorMissing"));
-                  return result;
                 } else {
                   if (dataFileType.equals("char") || dataFileType.equals("widechar")) {
                     useFieldSeparator = true;
@@ -285,18 +291,24 @@ public class ActionMssqlBulkLoad extends ActionBase {
                   }
                 }
                 // Check Specific Code page
-                if (codePage.equals("Specific")) {
-                  String realCodePage = resolve(codePage);
-                  if (specificCodePage.length() < 0) {
-                    logError(
+                if (MssqlBulkLoadCodePage.lookup(codePage) == MssqlBulkLoadCodePage.SPECIFIC) {
+                  String realCodePage = resolve(specificCodePage);
+                  if (Utils.isEmpty(realCodePage)) {
+                    return fail(
+                        result,
                         BaseMessages.getString(
                             PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageMissing"));
-                    return result;
-
-                  } else {
-                    useCodepage = "CODEPAGE = '" + realCodePage + "'";
                   }
-                } else {
+                  if (!MssqlBulkLoadCodePage.isValidCodePage(realCodePage)) {
+                    return fail(
+                        result,
+                        BaseMessages.getString(
+                            PKG,
+                            "ActionMssqlBulkLoad.Error.SpecificCodePageInvalid",
+                            realCodePage));
+                  }
+                  useCodepage = "CODEPAGE = '" + realCodePage.trim() + "'";
+                } else if (!Utils.isEmpty(codePage)) {
                   useCodepage = "CODEPAGE = '" + codePage + "'";
                 }
 
@@ -308,9 +320,9 @@ public class ActionMssqlBulkLoad extends ActionBase {
                     // The error file is created when the command is executed. An error occurs if
                     // the file already
                     // exists.
-                    logError(
+                    return fail(
+                        result,
                         BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.ErrorFileExists"));
-                    return result;
                   }
                   if (addDatetime) {
                     // Add date time to filename...
@@ -338,7 +350,10 @@ public class ActionMssqlBulkLoad extends ActionBase {
 
                 // End file at
                 if (endFile > 0) {
-                  takeFirstNbrLines = "LASTROW=" + endFile;
+                  if (!takeFirstNbrLines.isEmpty()) {
+                    takeFirstNbrLines += ",";
+                  }
+                  takeFirstNbrLines += "LASTROW=" + endFile;
                 }
 
                 // Truncate table?
@@ -479,6 +494,17 @@ public class ActionMssqlBulkLoad extends ActionBase {
     return result;
   }
 
+  /**
+   * Log the reason the load stops and count it as one error, so the action is never false with 0
+   * errors.
+   */
+  private Result fail(Result result, String message) {
+    result.setResult(false);
+    result.setNrErrors(1);
+    logError(message);
+    return result;
+  }
+
   public String getRealLineterminated() {
     return resolve(getLineTerminated());
   }
@@ -535,5 +561,26 @@ public class ActionMssqlBulkLoad extends ActionBase {
             "tableName",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+
+    if (MssqlBulkLoadCodePage.lookup(codePage) == MssqlBulkLoadCodePage.SPECIFIC) {
+      String realCodePage =
+          variables == null ? specificCodePage : variables.resolve(specificCodePage);
+      if (Utils.isEmpty(realCodePage)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageMissing"),
+                this));
+      } else if (!realCodePage.contains("${")
+          && !MssqlBulkLoadCodePage.isValidCodePage(realCodePage)) {
+        // A variable that is only set at run time is checked when the action runs.
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "ActionMssqlBulkLoad.Error.SpecificCodePageInvalid", realCodePage),
+                this));
+      }
+    }
   }
 }
