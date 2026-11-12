@@ -52,7 +52,7 @@ On by default.
 |Config file
 |`--config`
 |A `hop-lint.yml` to use instead of the project's.
-Leave it empty to use the `hop-lint.yml` in or above the folder.
+Leave it empty to use the `hop-lint.yml` in or above the folder, up to the project root.
 
 |Minimum severity
 |`--severity`

@@ -585,7 +585,8 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     EffectiveRuleSet ruleSet =
         configFile != null
             ? RuleRegistry.getInstance().resolve(new File(configFile))
-            : RuleRegistry.getInstance().resolveForContext(new File(context));
+            : RuleRegistry.getInstance()
+                .resolveForContext(new File(context), variables().getVariable("PROJECT_HOME"));
 
     List<CustomLintRule> rules = new ArrayList<>(ruleSet.getRules());
     rules.sort(Comparator.comparing(CustomLintRule::generateRuleId));
@@ -632,6 +633,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     // project's hop-lint.yml or an installed pack could not be read.
     LintRun.checkRulePacks();
     HopLinter linter = new HopLinter();
+    linter.setProjectHome(variables().getVariable("PROJECT_HOME"));
     linter.loadConfigurationStrictly(firstFile);
 
     // The lint target for path-relative purposes is the project the staged files live in.
