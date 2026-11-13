@@ -19,7 +19,10 @@ package org.apache.hop.reflection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -28,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.reflection.pipeline.meta.PipelineLog;
@@ -35,6 +39,7 @@ import org.apache.hop.reflection.workflow.meta.WorkflowLog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class RunMetadataTest {
 
@@ -125,5 +130,47 @@ class RunMetadataTest {
     // a new run reads again
     IPipelineEngine<PipelineMeta> nextRun = pipeline(null, null);
     assertEquals(2, RunMetadata.loadAll(nextRun, provider, PipelineLog.class).size());
+  }
+
+  /**
+   * An engine can run more than once, a pipeline that Hop Server starts again for one. What a run
+   * read goes when its top-level pipeline or workflow finishes, so the next run reads again.
+   */
+  @Test
+  @SuppressWarnings("unchecked")
+  void anEngineThatRunsAgainReadsAgain() throws Exception {
+    CountingMetadataProvider provider = new CountingMetadataProvider();
+    provider.getSerializer(PipelineLog.class).save(new PipelineLog("first"));
+    provider.getSerializer(WorkflowLog.class).save(new WorkflowLog("first"));
+
+    IPipelineEngine<PipelineMeta> pipeline = pipeline(null, null);
+    assertEquals(1, RunMetadata.loadAll(pipeline, provider, PipelineLog.class).size());
+    ArgumentCaptor<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> pipelineFinished =
+        ArgumentCaptor.forClass(IExecutionFinishedListener.class);
+    verify(pipeline).addExecutionFinishedListener(pipelineFinished.capture());
+
+    IWorkflowEngine<WorkflowMeta> workflow = workflow(null, null);
+    assertEquals(1, RunMetadata.loadAll(workflow, provider, WorkflowLog.class).size());
+    ArgumentCaptor<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinished =
+        ArgumentCaptor.forClass(IExecutionFinishedListener.class);
+    verify(workflow).addExecutionFinishedListener(workflowFinished.capture());
+
+    provider.getSerializer(PipelineLog.class).save(new PipelineLog("second"));
+    provider.getSerializer(WorkflowLog.class).save(new WorkflowLog("second"));
+
+    // the children of the runs that are going on share what was read, and add no listeners
+    assertEquals(
+        1, RunMetadata.loadAll(pipeline(pipeline, null), provider, PipelineLog.class).size());
+    assertEquals(
+        1, RunMetadata.loadAll(workflow(workflow, null), provider, WorkflowLog.class).size());
+    verify(pipeline, times(1)).addExecutionFinishedListener(any());
+    verify(workflow, times(1)).addExecutionFinishedListener(any());
+
+    pipelineFinished.getValue().finished(pipeline);
+    workflowFinished.getValue().finished(workflow);
+
+    // started again: the same engines read again
+    assertEquals(2, RunMetadata.loadAll(pipeline, provider, PipelineLog.class).size());
+    assertEquals(2, RunMetadata.loadAll(workflow, provider, WorkflowLog.class).size());
   }
 }

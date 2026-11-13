@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -105,7 +106,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
           if (pipelineExecutorData.prevFilename != null
               && pipelineExecutorData.groupSize > 0
               && !pipelineExecutorData.groupBuffer.isEmpty()) {
-            executePipeline(fieldValues(row));
+            executePipeline(fieldValues(getInputRowMeta(), row));
           }
           if (isDetailed()) {
             logDetailed("Identified a new pipeline to execute: '" + filename + "'");
@@ -141,7 +142,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         } else if (pipelineExecutorData.groupTime > 0) { // grouping by execution time
           long now = System.currentTimeMillis();
           if (now - pipelineExecutorData.groupTimeStart >= pipelineExecutorData.groupTime) {
-            executePipeline(fieldValues(row));
+            executePipeline(fieldValues(getInputRowMeta(), row));
           }
         }
       }
@@ -155,7 +156,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       // If group buffer size exceeds specified limit, then execute pipeline and flush group buffer.
       if (pipelineExecutorData.groupSize > 0
           && pipelineExecutorData.groupBuffer.size() >= pipelineExecutorData.groupSize) {
-        executePipeline(fieldValues(row));
+        executePipeline(fieldValues(getInputRowMeta(), row));
       }
 
       return true;
@@ -165,18 +166,43 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   /**
-   * The values of a row as text, for the parameters that take their value from a field. Only asked
-   * for when a child pipeline is about to run, not for every row.
+   * The values of a row as text, for the parameters that take their value from a field, see {@link
+   * #passParametersToPipeline(List)}. Only asked for when a child pipeline is about to run, and
+   * only the fields a parameter takes its value from are converted: with a group size of one a
+   * child pipeline runs for every row.
+   *
+   * @return one value per field of the row, null for a field that no parameter uses
    */
-  private List<String> fieldValues(Object[] row) throws HopValueException {
+  private List<String> fieldValues(IRowMeta rowMeta, Object[] row) throws HopValueException {
     List<String> values = new ArrayList<>();
-    IRowMeta rowMeta = getInputRowMeta();
     if (rowMeta != null) {
+      Set<String> parameterFields = parameterFields();
       for (int i = 0; i < rowMeta.size(); i++) {
-        values.add(rowMeta.getString(row, i));
+        values.add(
+            parameterFields.contains(rowMeta.getValueMeta(i).getName())
+                ? rowMeta.getString(row, i)
+                : null);
       }
     }
     return values;
+  }
+
+  /** The names of the fields that parameters take their value from, as they are matched. */
+  private Set<String> parameterFields() {
+    PipelineExecutorData pipelineExecutorData = getData();
+    if (pipelineExecutorData.parameterFields == null) {
+      Set<String> fields = new HashSet<>();
+      List<PipelineExecutorParameters> parameters = meta.getParameters();
+      if (parameters != null) {
+        for (PipelineExecutorParameters parameter : parameters) {
+          if (parameter != null && parameter.getField() != null) {
+            fields.add(parameter.getField());
+          }
+        }
+      }
+      pipelineExecutorData.parameterFields = fields;
+    }
+    return pipelineExecutorData.parameterFields;
   }
 
   private void initOnFirstProcessingIteration() throws HopException {
@@ -769,6 +795,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     return getData().getExecutorPipeline();
   }
 
+  /**
+   * @return the values of the last row in the group, as text, for the parameters that take their
+   *     value from a field: null for a field that no parameter uses. Null when there is no row.
+   */
   protected List<String> getLastIncomingFieldValues() throws HopException {
     PipelineExecutorData pipelineExecutorData = getData();
     if (pipelineExecutorData == null
@@ -785,14 +815,10 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       return null;
     }
 
-    List<String> lastIncomingFieldValues = new ArrayList<>(rowMeta.size());
-    for (int i = 0; i < rowMeta.size(); i++) {
-      try {
-        lastIncomingFieldValues.add(rowMeta.getString(rowData, i));
-      } catch (HopValueException e) {
-        throw new HopException("Error converting buffered row values", e);
-      }
+    try {
+      return fieldValues(rowMeta, rowData);
+    } catch (HopValueException e) {
+      throw new HopException("Error converting buffered row values", e);
     }
-    return lastIncomingFieldValues;
   }
 }

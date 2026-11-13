@@ -37,10 +37,16 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
  * are read once per run and type: the run is the top-level pipeline or workflow, and everything it
  * starts shares what was read. A change to this metadata while the run is going on takes effect
  * with the next run.
+ *
+ * <p>What a run read is dropped when its top-level pipeline or workflow finishes: an engine can run
+ * more than once, a pipeline that Hop Server starts again for one, and every run reads again.
  */
 public final class RunMetadata {
 
-  /** Per top-level pipeline or workflow; an entry goes away with the engine it belongs to. */
+  /**
+   * Per top-level pipeline or workflow, until it finishes. The weak keys are a backstop for an
+   * engine that never does.
+   */
   private static final Map<Object, Map<Class<?>, List<?>>> RUNS =
       Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -55,7 +61,7 @@ public final class RunMetadata {
   @SuppressWarnings("unchecked")
   public static <T extends IHopMetadata> List<T> loadAll(
       Object engine, IHopMetadataProvider metadataProvider, Class<T> type) throws HopException {
-    Map<Class<?>, List<?>> run = RUNS.computeIfAbsent(root(engine), r -> new ConcurrentHashMap<>());
+    Map<Class<?>, List<?>> run = run(root(engine));
     List<?> objects = run.get(type);
     if (objects == null) {
       // Two children starting at the same moment may both read: harmless, the first one stays
@@ -64,6 +70,33 @@ public final class RunMetadata {
       objects = earlier == null ? loaded : earlier;
     }
     return (List<T>) objects;
+  }
+
+  /** What the run of this top-level pipeline or workflow read so far. */
+  private static Map<Class<?>, List<?>> run(Object root) {
+    Map<Class<?>, List<?>> run;
+    synchronized (RUNS) {
+      run = RUNS.get(root);
+      if (run != null) {
+        return run;
+      }
+      run = new ConcurrentHashMap<>();
+      RUNS.put(root, run);
+    }
+    forgetWhenFinished(root, run);
+    return run;
+  }
+
+  /**
+   * Drops what the run read when it finishes. Only this run's entry goes: the listener stays on an
+   * engine that runs again, and must not drop what the next run read.
+   */
+  private static void forgetWhenFinished(Object root, Map<Class<?>, List<?>> run) {
+    if (root instanceof IPipelineEngine<?> pipeline) {
+      pipeline.addExecutionFinishedListener(finished -> RUNS.remove(root, run));
+    } else if (root instanceof IWorkflowEngine<?> workflow) {
+      workflow.addExecutionFinishedListener(finished -> RUNS.remove(root, run));
+    }
   }
 
   /** The top-level pipeline or workflow that the engine runs in. */

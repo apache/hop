@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.IRowSet;
@@ -66,6 +67,9 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
 
   /** The run configurations this copy loaded, by name: read once and kept for the run. */
   public final Map<String, PipelineRunConfiguration> runConfigurations = new HashMap<>();
+
+  /** The names of the fields that parameters take their value from, worked out once. */
+  public Set<String> parameterFields;
 
   private IRowSet executorTransformOutputRowSet;
   private IRowSet resultRowsRowSet;

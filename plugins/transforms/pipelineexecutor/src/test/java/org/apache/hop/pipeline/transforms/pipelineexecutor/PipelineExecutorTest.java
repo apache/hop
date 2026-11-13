@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
@@ -56,6 +57,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -103,6 +105,19 @@ class PipelineExecutorTest {
     return executor;
   }
 
+  /** Parameters P_field that take their value from these fields. */
+  private static List<PipelineExecutorParameters> parametersFrom(String... fields) {
+    List<PipelineExecutorParameters> parameters = new ArrayList<>();
+    for (String field : fields) {
+      PipelineExecutorParameters parameter = new PipelineExecutorParameters();
+      parameter.setVariable("P_" + field);
+      parameter.setField(field);
+      parameter.setInput("");
+      parameters.add(parameter);
+    }
+    return parameters;
+  }
+
   @Test
   void getLastIncomingFieldValuesReturnsNullWhenBufferEmpty() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
@@ -118,6 +133,7 @@ class PipelineExecutorTest {
   void getLastIncomingFieldValuesPreservesNullsFromLastBufferedRow() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
+    meta.setParameters(parametersFrom("a", "b"));
     PipelineExecutorData data = new PipelineExecutorData();
     data.groupBuffer = new ArrayList<>();
     RowMeta rowMeta = new RowMeta();
@@ -137,6 +153,7 @@ class PipelineExecutorTest {
   void getLastIncomingFieldValuesUsesRowMetaStringConversion() throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
+    meta.setParameters(parametersFrom("s1", "d1", "b1"));
     PipelineExecutorData data = new PipelineExecutorData();
     data.groupBuffer = new ArrayList<>();
     RowMeta rowMeta = new RowMeta();
@@ -913,6 +930,14 @@ class PipelineExecutorTest {
       PipelineExecutorData data, RowMeta rowMeta, Object[]... rows) throws HopException {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
+    meta.setParameters(parametersFrom("grp", "name"));
+    return parameterValuesPerExecution(meta, data, rowMeta, rows);
+  }
+
+  /** Runs rows through processRow() and returns the field values each child execution got. */
+  private List<List<String>> parameterValuesPerExecution(
+      PipelineExecutorMeta meta, PipelineExecutorData data, RowMeta rowMeta, Object[]... rows)
+      throws HopException {
     data.groupBuffer = new ArrayList<>();
     PipelineExecutor executor = spy(newExecutor(meta, data));
     // getRow() waits for the parent pipeline to be running
@@ -1007,6 +1032,41 @@ class PipelineExecutorTest {
     assertEquals(List.of(List.of("1", "a"), Arrays.asList("2", null)), executions);
   }
 
+  /** A field that no parameter takes its value from is never converted to text. */
+  @Test
+  void onlyTheFieldsOfParametersAreConverted() throws HopException {
+    AtomicInteger conversions = new AtomicInteger();
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("grp"));
+    rowMeta.addValueMeta(
+        new ValueMetaString("payload") {
+          @Override
+          public String getString(Object object) throws HopValueException {
+            conversions.incrementAndGet();
+            return super.getString(object);
+          }
+        });
+
+    // a child pipeline for every row
+    PipelineExecutorData data = new PipelineExecutorData();
+    data.groupSize = 1;
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+    meta.setParameters(parametersFrom("grp"));
+    List<List<String>> executions =
+        parameterValuesPerExecution(
+            meta, data, rowMeta, new Object[] {"1", "a"}, new Object[] {"2", "b"});
+
+    assertEquals(List.of(Arrays.asList("1", null), Arrays.asList("2", null)), executions);
+    assertEquals(0, conversions.get());
+
+    // the last row of a group, as grouping by field and the end of the input use it
+    data.groupBuffer.add(new RowMetaAndData(rowMeta, new Object[] {"3", "c"}));
+    PipelineExecutor executor = newExecutor(meta, data);
+    assertEquals(Arrays.asList("3", null), executor.getLastIncomingFieldValues());
+    assertEquals(0, conversions.get());
+  }
+
   // --- the run configuration is read once per transform copy ---
 
   /** Counts how often the run configurations are asked for. */
@@ -1050,11 +1110,11 @@ class PipelineExecutorTest {
     assertEquals(1, provider.runConfigurationReads.get());
     assertEquals("local", third.getPipelineRunConfiguration().getName());
     // the engine keeps its run configuration and applies variables to it: never a shared object
-    assertTrue(first.getPipelineRunConfiguration() != second.getPipelineRunConfiguration());
-    assertTrue(second.getPipelineRunConfiguration() != third.getPipelineRunConfiguration());
-    assertTrue(
-        first.getPipelineRunConfiguration().getEngineRunConfiguration()
-            != second.getPipelineRunConfiguration().getEngineRunConfiguration());
+    assertNotSame(first.getPipelineRunConfiguration(), second.getPipelineRunConfiguration());
+    assertNotSame(second.getPipelineRunConfiguration(), third.getPipelineRunConfiguration());
+    assertNotSame(
+        first.getPipelineRunConfiguration().getEngineRunConfiguration(),
+        second.getPipelineRunConfiguration().getEngineRunConfiguration());
   }
 
   @Test

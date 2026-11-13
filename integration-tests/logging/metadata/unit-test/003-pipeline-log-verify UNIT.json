@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "pipelineName",
+          "data_set_field": "pipelineName"
+        },
+        {
+          "transform_field": "loggingPhase",
+          "data_set_field": "loggingPhase"
+        }
+      ],
+      "field_order": [
+        "pipelineName",
+        "loggingPhase"
+      ],
+      "data_set_name": "golden-pipeline-executor-children-log",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "003-pipeline-log-verify UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./003-pipeline-log-verify.hpl"
+}
