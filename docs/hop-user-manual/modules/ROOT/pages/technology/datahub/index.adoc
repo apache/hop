@@ -59,7 +59,8 @@ neither the tasks nor what they read and write.
 |A run of any of these
 |A *run* (DataProcessInstance) named `<name> <time>`, for example `nightly/Load orders
 2026-10-18T07:34Z`, with its start, its end, its outcome (success or failure) and the run that
-started it. A run whose end Hop never reported, such as an action that stopped with an error, is
+started it. A transform's run lists its row counts (`linesInput`, `linesOutput`, `linesUpdated`,
+`linesRejected`, ...) in its properties, a pipeline's run the totals of its transforms. A run whose end Hop never reported, such as an action that stopped with an error, is
 ended as failed when the sink shuts down.
 
 |A pipeline or workflow run by a workflow action, or a pipeline run by a transform of another
@@ -75,6 +76,17 @@ a local file as its path on `file`.
 
 |Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
 |Column-level lineage, on the task and on the dataset.
+
+|A file or table a run wrote
+|An *operation* on the dataset when the run succeeds: `INSERT`, `UPDATE` or `DELETE`, or `CREATE`,
+`DROP` or `ALTER` for a dataset created, deleted, moved or renamed, with the number of rows when Hop
+knows them (see xref:technology/openlineage/index.adoc#_row_counts[Row counts]). A pipeline reports
+one operation per dataset when it completes, with the rows of all the transforms and copies that
+wrote it; an action reports the files it wrote when it completes. DataHub shows when a dataset last
+changed from its operations, and the freshness check of a
+xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action reads them, so a dataset that
+only Hop writes has a freshness too. A failed run reports no operation: a half-written table doesn't
+look up to date.
 
 |A file copied or moved (Copy files, Move files)
 |The copy is linked to its own source as a `COPY` upstream, so copying several files does not pair

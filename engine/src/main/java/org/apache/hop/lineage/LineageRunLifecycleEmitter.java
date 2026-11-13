@@ -363,6 +363,7 @@ public final class LineageRunLifecycleEmitter {
     ctx.putAttribute("errors", String.valueOf(pipeline.getErrors()));
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
+      LineageRowCounts.putPipelineTotals(ctx, pipeline);
     }
     LineageContext context = ctx.build();
     LineageHub.getInstance()
@@ -513,6 +514,7 @@ public final class LineageRunLifecycleEmitter {
     ctx.putAttribute("transformErrors", String.valueOf(transform.getErrors()));
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
+      LineageRowCounts.putTransformCounts(ctx, transform);
     }
     LineageHub.getInstance()
         .emit(

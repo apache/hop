@@ -143,6 +143,37 @@ job facet with the subject type and the pipeline, workflow, transform or action 
 A job name such as `nightly/Load orders` cannot be split back reliably, so a collector that models
 pipelines and transforms separately reads those names from the facet.
 
+=== Row counts
+
+A transform's `COMPLETE` or `FAIL` event carries the row counters of that transform copy in a
+`hopRowCounts` run facet: `linesRead` and `linesWritten` (rows from and to other transforms),
+`linesInput` and `linesOutput` (rows read from and written to files and tables), `linesUpdated` and
+`linesRejected`. These are the transform's own counters, the numbers it logs as `I=`, `O=`, `R=`,
+`W=` and `U=`; Text File Output counts its header and footer lines as output too, so a file with a
+header shows one line more than it has rows. A pipeline's event carries the sum over all its
+transforms and copies of the counters that add up: `linesInput`, `linesOutput`, `linesUpdated` and
+`linesRejected`. That sum is not the pipeline result Hop logs, which takes the highest value of each
+counter, and a Metadata Injection transform counts the rows of the pipeline it runs too. Only the
+local pipeline engine sends counters; Beam, Spark and remote runs don't have final ones when their
+run ends.
+
+A dataset gets the standard `inputStatistics` or `outputStatistics` facet with its `rowCount` when
+the count is known to be its own: the transforms that read (or wrote) it read (or wrote) nothing
+else. The rows written are the rows output plus the rows updated. A transform that writes several
+files or tables, such as Text File Output with a file per copy or Table Output with the table in a
+field, gives them no row count rather than a wrong one. On a pipeline's event a dataset's count is
+the sum over its transforms and their copies; with transform jobs on, each copy's event counts the
+rows of that copy. Rows a transform deleted from a table (Delete, an Execute SQL with a single
+`DELETE` statement) are not rows written; a table emptied and reloaded in one run counts the rows
+loaded. An Execute SQL script of several statements gives no count, as its counters add all of them
+up, and neither does a transform that counts 0 while it does handle rows (not every transform counts
+what it reads or writes).
+
+A pipeline's `COMPLETE` or `FAIL` event also lists every dataset the run wrote, once, in a
+`hopWrites` run facet: its `namespace` and `name`, its `operationType` (`INSERT`, `UPDATE`,
+`DELETE`, `CREATE`, `DROP` or `ALTER`) and, when known, its `rows`. The DataHub sink turns these
+into operations.
+
 The run id is the executing subject's log-channel id. By default file I/O is correlated to
 the parent pipeline run, so inputs and outputs appear on the pipeline job in Marquez. Every run also
 names the run that started it: a transform's `ParentRunFacet` points at its pipeline, an action's at

@@ -39,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -49,6 +50,7 @@ import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.LineageFileIdentity;
 import org.apache.hop.lineage.LineageRelationalIdentity;
+import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
@@ -111,6 +113,19 @@ public final class OpenLineageEventMapper {
 
   /** Key of the job facet that says what a job is in Hop terms (pipeline, transform, ...). */
   public static final String HOP_JOB_FACET = "hop";
+
+  /**
+   * The run facet with the row counters of a run: of a transform copy, or the totals of a pipeline
+   * (see {@link LineageRowCounts}).
+   */
+  public static final String HOP_ROW_COUNTS_RUN_FACET = "hopRowCounts";
+
+  /**
+   * The run facet of a pipeline's terminal event with every dataset the pipeline run wrote, once:
+   * {@code writes}, each with its {@code namespace}, {@code name}, {@code operationType} (as
+   * DataHub names it) and, when known, {@code rows}.
+   */
+  public static final String HOP_WRITES_RUN_FACET = "hopWrites";
 
   /** {@value #HOP_JOB_FACET} facet: the transforms that feed a transform, from the hop graph. */
   public static final String UPSTREAM_TRANSFORMS = "upstreamTransforms";
@@ -194,6 +209,13 @@ public final class OpenLineageEventMapper {
    * event can name the actions that lead to it. Dropped when the workflow ends.
    */
   private final Map<String, List<Transition>> workflowGraphs =
+      Collections.synchronizedMap(new BoundedMap<>(MAX_PENDING_RUNS, null));
+
+  /**
+   * What each running pipeline run's transforms read, wrote and counted, for the statistics facets
+   * of its datasets. Dropped when the pipeline ends.
+   */
+  private final Map<String, RowStatistics> rowStatistics =
       Collections.synchronizedMap(new BoundedMap<>(MAX_PENDING_RUNS, null));
 
   /** Pipeline runs that ended, so a late transform event is not held for a pipeline gone by. */
@@ -419,6 +441,11 @@ public final class OpenLineageEventMapper {
       }
       return List.of(runEvent(event, eventType, List.of(), List.of(), null));
     }
+    String pipelineOfTransform = transformOfPipeline(ctx);
+    if (pipelineOfTransform != null && !endedPipelineRuns.contains(pipelineOfTransform)) {
+      rowStatistics(pipelineOfTransform)
+          .counters(ctx.getTransformName(), ctx.getCopyNr(), ctx.getAttributes());
+    }
     if (abortOpenRuns) {
       // Ended, even when the event itself waits for its pipeline: it is sent with the pipeline's.
       openRuns.remove(runKey(resolveJobName(ctx), resolveRunId(ctx, event.getEventId())));
@@ -455,14 +482,16 @@ public final class OpenLineageEventMapper {
                 .with(ACTIONS, nodes(graph, List.of()));
       }
     }
+    RowStatistics statistics = null;
     if (ctx != null && ctx.getSubjectType() == LineageSubjectType.PIPELINE) {
+      statistics = rowStatistics.remove(runId);
       endedPipelineRuns.add(runId);
       PipelineRunState state = pipelineRuns.remove(runId);
       if (state != null) {
         if (run == null) {
           run = new PendingRun(resolveJobName(ctx), runId, identity);
         }
-        events.addAll(finishPipelineRun(state, run));
+        events.addAll(finishPipelineRun(state, run, statistics));
         if (state.graph != null) {
           identity =
               identity
@@ -471,16 +500,28 @@ public final class OpenLineageEventMapper {
         }
       }
     }
-    events.add(
-        run == null
-            ? runEvent(event, eventType, List.of(), List.of(), null, identity)
-            : runEvent(
-                event,
-                eventType,
-                run.getInputs(),
-                run.getOutputs(),
-                run.getSoleSqlText(),
-                identity));
+    if (run == null) {
+      events.add(runEvent(event, eventType, List.of(), List.of(), null, identity));
+    } else if (statistics == null) {
+      events.add(
+          runEvent(
+              event, eventType, run.getInputs(), run.getOutputs(), run.getSoleSqlText(), identity));
+    } else {
+      RowStatistics counted = statistics;
+      events.add(
+          runEvent(
+              event,
+              eventType,
+              RowStatistics.withInputRowCounts(
+                  ol, run.getInputs(), in -> counted.rowsRead(in.getNamespace(), in.getName())),
+              RowStatistics.withRowCounts(
+                  ol,
+                  run.getOutputs(),
+                  out -> counted.rowsWritten(out.getNamespace(), out.getName())),
+              run.getSoleSqlText(),
+              identity,
+              writesFacet(counted)));
+    }
     return events;
   }
 
@@ -513,12 +554,46 @@ public final class OpenLineageEventMapper {
   private RunEvent runEvent(
       LineageEvent event,
       EventType eventType,
+      List<InputDataset> inputs,
+      List<OutputDataset> outputs,
+      String sqlText,
+      JobIdentity identity,
+      OpenLineage.RunFacet writes) {
+    Map<String, OpenLineage.RunFacet> facets = new LinkedHashMap<>();
+    if (writes != null) {
+      facets.put(HOP_WRITES_RUN_FACET, writes);
+    }
+    return runEvent(
+        event, eventType, event.getTimestampMillis(), inputs, outputs, sqlText, identity, facets);
+  }
+
+  private RunEvent runEvent(
+      LineageEvent event,
+      EventType eventType,
       long timestampMillis,
       List<InputDataset> inputs,
       List<OutputDataset> outputs,
       String sqlText,
       JobIdentity identity) {
+    return runEvent(
+        event, eventType, timestampMillis, inputs, outputs, sqlText, identity, Map.of());
+  }
+
+  private RunEvent runEvent(
+      LineageEvent event,
+      EventType eventType,
+      long timestampMillis,
+      List<InputDataset> inputs,
+      List<OutputDataset> outputs,
+      String sqlText,
+      JobIdentity identity,
+      Map<String, OpenLineage.RunFacet> extraRunFacets) {
     LineageContext ctx = event.getContext();
+    Map<String, OpenLineage.RunFacet> runFacets = new LinkedHashMap<>(extraRunFacets);
+    OpenLineage.RunFacet rowCounts = rowCountsFacet(ctx);
+    if (rowCounts != null) {
+      runFacets.put(HOP_ROW_COUNTS_RUN_FACET, rowCounts);
+    }
     ZonedDateTime eventTime = toUtc(timestampMillis);
     return ol.newRunEventBuilder()
         .eventType(eventType)
@@ -527,7 +602,8 @@ public final class OpenLineageEventMapper {
             runNode(
                 resolveRunId(ctx, event.getEventId()),
                 eventTime,
-                parentRuns ? parentFacet(ctx) : null))
+                parentRuns ? parentFacet(ctx) : null,
+                runFacets))
         .job(job(resolveJobName(ctx), identity, sqlText))
         .inputs(inputs.isEmpty() ? null : inputs)
         .outputs(outputs.isEmpty() ? null : outputs)
@@ -644,6 +720,10 @@ public final class OpenLineageEventMapper {
       return Optional.empty();
     }
     LineageContext ctx = event.getContext();
+    String pipelineOfTransform = transformOfPipeline(ctx);
+    if (pipelineOfTransform != null && !endedPipelineRuns.contains(pipelineOfTransform)) {
+      rowStatistics(pipelineOfTransform).io(ctx.getTransformName(), inputs, outputs);
+    }
     boolean perTransform = isTransformOfAPipelineRun(ctx);
     if (perTransform && !endedPipelineRuns.contains(pipelineLogChannelId(ctx))) {
       // Copies of a transform share one job, so they share one record of what it touched.
@@ -689,6 +769,69 @@ public final class OpenLineageEventMapper {
         && !Utils.isEmpty(pipelineLogChannelId(ctx));
   }
 
+  /** Whether a relational write deletes rows: a Delete transform, or a DELETE statement. */
+  private static boolean isDelete(RelationalIoLineagePayload relational) {
+    if (relational.getOperation() == RelationalIoOperation.DELETE) {
+      return true;
+    }
+    String sql = relational.getSqlText();
+    return sql != null && sql.stripLeading().regionMatches(true, 0, "DELETE", 0, "DELETE".length());
+  }
+
+  /**
+   * The number of statements in a script: its semicolons outside quotes, plus a last statement
+   * without one.
+   */
+  static int statementCount(String sql) {
+    if (Utils.isEmpty(sql)) {
+      return 0;
+    }
+    int statements = 0;
+    boolean pending = false;
+    char quote = 0;
+    for (int i = 0; i < sql.length(); i++) {
+      char c = sql.charAt(i);
+      if (quote != 0) {
+        if (c == quote) {
+          quote = 0;
+        }
+      } else if (c == '\'' || c == '"') {
+        quote = c;
+        pending = true;
+      } else if (c == ';') {
+        if (pending) {
+          statements++;
+        }
+        pending = false;
+      } else if (!Character.isWhitespace(c)) {
+        pending = true;
+      }
+    }
+    return pending ? statements + 1 : statements;
+  }
+
+  /** Whether a dataset is the one and only dataset of a list. */
+  private static boolean isOnly(List<InputDataset> datasets, InputDataset dataset) {
+    return datasets.size() == 1
+        && Objects.equals(datasets.get(0).getNamespace(), dataset.getNamespace())
+        && Objects.equals(datasets.get(0).getName(), dataset.getName());
+  }
+
+  /** The pipeline run a transform event belongs to, or null for any other event. */
+  private static String transformOfPipeline(LineageContext ctx) {
+    if (ctx == null
+        || ctx.getSubjectType() != LineageSubjectType.TRANSFORM
+        || Utils.isEmpty(ctx.getTransformName())) {
+      return null;
+    }
+    String pipeline = pipelineLogChannelId(ctx);
+    return Utils.isEmpty(pipeline) ? null : pipeline;
+  }
+
+  private RowStatistics rowStatistics(String pipelineRunId) {
+    return rowStatistics.computeIfAbsent(pipelineRunId, id -> new RowStatistics());
+  }
+
   private PipelineRunState pipelineRun(LineageContext transformCtx) {
     return pipelineRun(
         pipelineLogChannelId(transformCtx),
@@ -712,7 +855,8 @@ public final class OpenLineageEventMapper {
    * @param pipelineRun the pipeline run's own observations; receives the datasets without a graph
    * @return the transform events, to be sent before the pipeline's own terminal event
    */
-  private List<RunEvent> finishPipelineRun(PipelineRunState state, PendingRun pipelineRun) {
+  private List<RunEvent> finishPipelineRun(
+      PipelineRunState state, PendingRun pipelineRun, RowStatistics statistics) {
     List<RunEvent> events = new ArrayList<>();
     boolean propagate = state.graph != null;
     Set<String> finished = new LinkedHashSet<>();
@@ -724,12 +868,29 @@ public final class OpenLineageEventMapper {
       PendingRun own = state.transformIo.get(transform);
       if (propagate) {
         List<InputDataset> ownInputs = own == null ? List.of() : own.getInputs();
+        List<OutputDataset> ownOutputs = own == null ? List.of() : own.getOutputs();
+        // A copy's counts belong to a dataset when its transform touched only that one
+        boolean counted = statistics == null || statistics.isCounted(transform);
+        Long rowsRead =
+            counted && ownInputs.size() == 1 ? RowStatistics.rowsRead(ctx.getAttributes()) : null;
+        Long rowsWritten =
+            ownOutputs.size() == 1
+                    && (statistics == null
+                        || statistics.countsWritesTo(
+                            transform,
+                            ownOutputs.get(0).getNamespace(),
+                            ownOutputs.get(0).getName()))
+                ? RowStatistics.rowsWritten(ctx.getAttributes())
+                : null;
+        List<InputDataset> inputs =
+            propagateInputs ? withUpstreamInputs(ownInputs, transform, state) : ownInputs;
         events.add(
             runEvent(
                 terminal,
                 eventTypeOf(terminal),
-                propagateInputs ? withUpstreamInputs(ownInputs, transform, state) : ownInputs,
-                own == null ? List.of() : own.getOutputs(),
+                RowStatistics.withInputRowCounts(
+                    ol, inputs, in -> isOnly(ownInputs, in) ? rowsRead : null),
+                RowStatistics.withRowCounts(ol, ownOutputs, out -> rowsWritten),
                 own == null ? null : own.getSoleSqlText(),
                 JobIdentity.of(ctx)
                     .with(UPSTREAM_TRANSFORMS, previousTransforms(state, transform))));
@@ -907,7 +1068,8 @@ public final class OpenLineageEventMapper {
   /** Everything a pipeline run that never reported its end collected, as events. */
   private List<RunEvent> abandon(PipelineRunState state) {
     PendingRun pipelineRun = new PendingRun(state.jobName, state.runId, state.identity);
-    List<RunEvent> events = finishPipelineRun(state, pipelineRun);
+    List<RunEvent> events =
+        finishPipelineRun(state, pipelineRun, rowStatistics.remove(state.runId));
     if (pipelineRun.hasDatasets()) {
       events.add(standaloneEvent(pipelineRun, pipelineRun.getInputs(), System.currentTimeMillis()));
     }
@@ -1460,6 +1622,16 @@ public final class OpenLineageEventMapper {
       // Read events carry only SQL until a sink parses it into tables — nothing to observe yet.
       return Optional.empty();
     }
+    String pipelineOfTransform = transformOfPipeline(ctx);
+    if (pipelineOfTransform != null && !endedPipelineRuns.contains(pipelineOfTransform)) {
+      RowStatistics statistics = rowStatistics(pipelineOfTransform);
+      if (statementCount(relational.getSqlText()) > 1) {
+        // A script's counters add up all its statements
+        statistics.uncounted(transformName);
+      } else if (!outputs.isEmpty() && isDelete(relational)) {
+        statistics.deleted(transformName, outputs);
+      }
+    }
     return observe(event, inputs, outputs, relational.getSqlText());
   }
 
@@ -1619,7 +1791,52 @@ public final class OpenLineageEventMapper {
     return qualified;
   }
 
+  /** The row counters of a run's terminal event, or null when it has none. */
+  private OpenLineage.RunFacet rowCountsFacet(LineageContext ctx) {
+    if (ctx == null) {
+      return null;
+    }
+    OpenLineage.DefaultRunFacet facet = new OpenLineage.DefaultRunFacet(producer);
+    for (String counter : LineageRowCounts.COUNTERS) {
+      Long value = LineageRowCounts.get(ctx.getAttributes(), counter);
+      if (value != null) {
+        facet.getAdditionalProperties().put(counter, value);
+      }
+    }
+    return facet.getAdditionalProperties().isEmpty() ? null : facet;
+  }
+
+  /** Every dataset a pipeline run wrote, or null when it wrote none. */
+  private OpenLineage.RunFacet writesFacet(RowStatistics statistics) {
+    List<RowStatistics.Write> writes = statistics.writes();
+    if (writes.isEmpty()) {
+      return null;
+    }
+    List<Map<String, Object>> list = new ArrayList<>();
+    for (RowStatistics.Write write : writes) {
+      Map<String, Object> entry = new LinkedHashMap<>();
+      entry.put("namespace", write.namespace());
+      entry.put("name", write.name());
+      entry.put("operationType", write.operationType());
+      if (write.rows() != null) {
+        entry.put("rows", write.rows());
+      }
+      list.add(entry);
+    }
+    OpenLineage.DefaultRunFacet facet = new OpenLineage.DefaultRunFacet(producer);
+    facet.getAdditionalProperties().put("writes", list);
+    return facet;
+  }
+
   private OpenLineage.Run runNode(String runId, ZonedDateTime eventTime, ParentRunFacet parent) {
+    return runNode(runId, eventTime, parent, Map.of());
+  }
+
+  private OpenLineage.Run runNode(
+      String runId,
+      ZonedDateTime eventTime,
+      ParentRunFacet parent,
+      Map<String, OpenLineage.RunFacet> extraFacets) {
     OpenLineage.RunFacetsBuilder facets =
         ol.newRunFacetsBuilder()
             .nominalTime(ol.newNominalTimeRunFacet(eventTime, null))
@@ -1632,6 +1849,7 @@ public final class OpenLineageEventMapper {
     if (parent != null) {
       facets.parent(parent);
     }
+    extraFacets.forEach(facets::put);
     return ol.newRunBuilder().runId(toRunUuid(runId)).facets(facets.build()).build();
   }
 

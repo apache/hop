@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
@@ -207,6 +208,49 @@ final class HopEvents {
         LineageEventKind.RUN_LIFECYCLE,
         ctx,
         new RunLifecycleLineagePayload(phase, null));
+  }
+
+  /** A transform's end with its row counters, as the engine reports it. */
+  LineageEvent transform(
+      String transform, RunLifecyclePhase phase, long rowsInput, long rowsOutput) {
+    return transform(transform, null, phase, rowsInput, rowsOutput);
+  }
+
+  /** The end of one copy of a transform with its row counters. */
+  LineageEvent transform(
+      String transform, String copy, RunLifecyclePhase phase, long rowsInput, long rowsOutput) {
+    LineageContext ctx = transformContext(transform);
+    LineageContext.Builder counted =
+        LineageContext.builder()
+            .subjectType(ctx.getSubjectType())
+            .pipelineName(ctx.getPipelineName())
+            .transformName(ctx.getTransformName())
+            .copyNr(copy)
+            .logChannelId(copy == null ? ctx.getLogChannelId() : uuid(ctx.getLogChannelId() + copy))
+            .hopFilename(ctx.getHopFilename())
+            .hopFilenamePortableKey(ctx.getHopFilenamePortableKey());
+    ctx.getAttributes().forEach(counted::putAttribute);
+    counted
+        .putAttribute(LineageRowCounts.LINES_INPUT, Long.toString(rowsInput))
+        .putAttribute(LineageRowCounts.LINES_OUTPUT, Long.toString(rowsOutput))
+        .putAttribute(LineageRowCounts.LINES_UPDATED, "0");
+    return lifecycle(counted.build(), phase);
+  }
+
+  /** A read → write run that read and wrote these numbers of rows, ending in {@code phase}. */
+  List<RunEvent> readThenWrite(String in, String out, long rows, RunLifecyclePhase phase) {
+    return mapper()
+        .mapBatch(
+            List.of(
+                pipeline(RunLifecyclePhase.STARTED),
+                graph("Read>Write"),
+                transform("Read", RunLifecyclePhase.STARTED),
+                transform("Write", RunLifecyclePhase.STARTED),
+                read("Read", in),
+                write("Write", out),
+                transform("Read", phase, rows, 0),
+                transform("Write", phase, 0, rows),
+                pipeline(phase)));
   }
 
   /** A read → write pipeline run, start to finish, mapped as the sink maps it. */
