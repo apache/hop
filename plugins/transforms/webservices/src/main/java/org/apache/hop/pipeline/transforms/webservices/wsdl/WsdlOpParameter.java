@@ -28,7 +28,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   @Serial private static final long serialVersionUID = 1L;
 
   public static class ParameterMode {
-    private String mode;
+    private final String mode;
     public static final ParameterMode IN = new ParameterMode("IN");
     public static final ParameterMode OUT = new ParameterMode("OUT");
     public static final ParameterMode INOUT = new ParameterMode("INOUT");

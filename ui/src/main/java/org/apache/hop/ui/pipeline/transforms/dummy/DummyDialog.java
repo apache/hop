@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 public class DummyDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DummyMeta.class;
 
-  private DummyMeta input;
+  private final DummyMeta input;
 
   public DummyDialog(
       Shell parent, IVariables variables, DummyMeta transformMeta, PipelineMeta pipelineMeta) {

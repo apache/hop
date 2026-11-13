@@ -23,8 +23,8 @@ import java.util.Iterator;
 
 public class SearchEnabledFolderIterator implements Iterator<Message> {
 
-  private Iterator<Message> iterator;
-  private SearchTerm searchTerm;
+  private final Iterator<Message> iterator;
+  private final SearchTerm searchTerm;
 
   private Message next;
 

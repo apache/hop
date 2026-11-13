@@ -39,6 +39,8 @@ import org.apache.hop.core.exception.HopException;
  * <p>Unrecognised header values are rejected rather than allowed: a client that cannot send the
  * header correctly can always send nothing at all.
  */
+@SuppressWarnings(
+    "java:S1192") // policy codes and Sec-Fetch-Site header values are separate vocabularies
 public enum CrossSitePolicy {
   /**
    * Reject {@code cross-site} requests only. A request from another host under the same registrable

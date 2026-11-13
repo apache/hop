@@ -41,6 +41,8 @@ import org.apache.hop.core.vfs.HopVfs;
  * ancestors. Document-fragment nodes are emitted as {@code <xs:any/>} placeholders.
  */
 final class AdvancedXmlOutputXsdWriter {
+  private static final String CONST_MIN_OCCURS = "minOccurs";
+  private static final String CONST_STRING = "string";
 
   private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
   private static final String XSD_PREFIX = "xs";
@@ -98,7 +100,7 @@ final class AdvancedXmlOutputXsdWriter {
     w.writeAttribute("name", Utils.isEmpty(node.getName()) ? "_" : node.getName());
 
     if (!isRoot && (node.isLoop() || node.isGroupBy())) {
-      w.writeAttribute("minOccurs", "0");
+      w.writeAttribute(CONST_MIN_OCCURS, "0");
       w.writeAttribute("maxOccurs", "unbounded");
     }
 
@@ -129,10 +131,10 @@ final class AdvancedXmlOutputXsdWriter {
         w.writeStartElement(XSD_PREFIX, "any", XSD_NS);
         w.writeAttribute("processContents", "skip");
         if (c.isLoop() || c.isGroupBy()) {
-          w.writeAttribute("minOccurs", "0");
+          w.writeAttribute(CONST_MIN_OCCURS, "0");
           w.writeAttribute("maxOccurs", "unbounded");
         } else {
-          w.writeAttribute("minOccurs", "0");
+          w.writeAttribute(CONST_MIN_OCCURS, "0");
         }
         w.writeEndElement();
       }
@@ -171,11 +173,11 @@ final class AdvancedXmlOutputXsdWriter {
   static String xsdSimpleTypeFor(XmlNode node, IRowMeta rowMeta) {
     String field = node.getMappedField();
     if (Utils.isEmpty(field) || rowMeta == null) {
-      return "string";
+      return CONST_STRING;
     }
     int idx = rowMeta.indexOfValue(field);
     if (idx < 0) {
-      return "string";
+      return CONST_STRING;
     }
     IValueMeta vm = rowMeta.getValueMeta(idx);
     return switch (vm.getType()) {
@@ -184,7 +186,7 @@ final class AdvancedXmlOutputXsdWriter {
       case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> "dateTime";
       case IValueMeta.TYPE_BOOLEAN -> "boolean";
       case IValueMeta.TYPE_BINARY -> "base64Binary";
-      default -> "string";
+      default -> CONST_STRING;
     };
   }
 }

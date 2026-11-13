@@ -285,6 +285,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         IWebCanvasGraph,
         ISnapshotUndoSupport,
         IGraphPaletteHost {
+  private static final String CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING =
+      "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title";
+  private static final String CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING_MESSAGE =
+      "PipelineLog.Dialog.DoNoPreviewWhileRunning.Message";
+  private static final String CONST_RESIZE_DIRECTION = "resizeDirection";
 
   private static final Class<?> PKG = HopGui.class;
 
@@ -484,7 +489,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private final SashForm paletteSash;
 
-  private GraphPaletteTree paletteTree;
+  private final GraphPaletteTree paletteTree;
 
   private final SashForm sashForm;
 
@@ -1205,7 +1210,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           if (EnvironmentUtils.getInstance().isWeb()) {
             if (resize != null) {
               canvas.setData("mode", "resize");
-              canvas.setData("resizeDirection", resize.name());
+              canvas.setData(CONST_RESIZE_DIRECTION, resize.name());
             } else {
               canvas.setData("mode", "drag");
               dragSelection = true;
@@ -1301,7 +1306,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (startHopTransform == null && endHopTransform == null) {
       canvas.setData("mode", "null");
       canvas.setData(START_HOP_NODE, null);
-      canvas.setData("resizeDirection", null);
+      canvas.setData(CONST_RESIZE_DIRECTION, null);
     }
 
     // Don't call mouseMove after a resize - it would trigger unwanted drag logic
@@ -1743,7 +1748,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     avoidContextDialog = false;
     canvas.setData("mode", "null");
     canvas.setData(START_HOP_NODE, null);
-    canvas.setData("resizeDirection", null);
+    canvas.setData(CONST_RESIZE_DIRECTION, null);
     resetPositionUndoMark();
   }
 
@@ -6814,8 +6819,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     debugPrepareFailure = null;
     if (isRunning() && !isDebugSession()) {
       modalMessageDialog(
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title"),
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Message"),
+          BaseMessages.getString(PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING),
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING_MESSAGE),
           SWT.OK | SWT.ICON_WARNING);
       return false;
     }
@@ -6826,8 +6832,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     outputHopRowsMap = new HashMap<>();
     if (isRunning()) {
       modalMessageDialog(
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title"),
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Message"),
+          BaseMessages.getString(PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING),
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING_MESSAGE),
           SWT.OK | SWT.ICON_WARNING);
       return false;
     }
@@ -7034,8 +7041,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     } else {
       modalMessageDialog(
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Title"),
-          BaseMessages.getString(PKG, "PipelineLog.Dialog.DoNoPreviewWhileRunning.Message"),
+          BaseMessages.getString(PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING),
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_LOG_DIALOG_DO_NO_PREVIEW_WHILE_RUNNING_MESSAGE),
           SWT.OK | SWT.ICON_WARNING);
     }
     checkErrorVisuals();

@@ -45,6 +45,9 @@ import org.apache.hop.core.vfs.HopVfs;
  * user is created.
  */
 public final class HopUserStore {
+  private static final String CONST_ADMIN = "admin";
+  private static final String CONST_OPERATOR = "operator";
+  private static final String CONST_VIEWER = "viewer";
 
   public static final String USERS_FILENAME = "users.json";
 
@@ -207,10 +210,10 @@ public final class HopUserStore {
     }
     safeLogBasic(
         "Hop BASIC auth: seeding demo users (admin/developer/operator/viewer — passwords match usernames)");
-    upsertUser("admin", "admin", List.of(HopRole.ADMIN.getId()));
+    upsertUser(CONST_ADMIN, CONST_ADMIN, List.of(HopRole.ADMIN.getId()));
     upsertUser("developer", "developer", List.of(HopRole.USER.getId()));
-    upsertUser("operator", "operator", List.of(HopRole.OPERATOR.getId()));
-    upsertUser("viewer", "viewer", List.of(HopRole.READ_ONLY.getId()));
+    upsertUser(CONST_OPERATOR, CONST_OPERATOR, List.of(HopRole.OPERATOR.getId()));
+    upsertUser(CONST_VIEWER, CONST_VIEWER, List.of(HopRole.READ_ONLY.getId()));
     return true;
   }
 
@@ -240,8 +243,8 @@ public final class HopUserStore {
             null);
         return false;
       }
-      user = "admin";
-      pass = "admin";
+      user = CONST_ADMIN;
+      pass = CONST_ADMIN;
       safeLogBasic(
           "Hop BASIC auth: bootstrapping default admin user (change the password for any shared deployment)");
     } else {
@@ -301,10 +304,10 @@ public final class HopUserStore {
           expanded.add("hop-readonly");
           expanded.add("readonly");
           expanded.add("read-only");
-          expanded.add("viewer");
+          expanded.add(CONST_VIEWER);
         }
         if (hopRole == HopRole.ADMIN) {
-          expanded.add("admin");
+          expanded.add(CONST_ADMIN);
           expanded.add("hop-admin");
         }
         if (hopRole == HopRole.USER) {
@@ -313,7 +316,7 @@ public final class HopUserStore {
           expanded.add("apachehop");
         }
         if (hopRole == HopRole.OPERATOR) {
-          expanded.add("operator");
+          expanded.add(CONST_OPERATOR);
           expanded.add("hop-operator");
         }
       }

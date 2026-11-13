@@ -64,11 +64,9 @@ public class JsonNormalizeInputMeta
     extends BaseFileInputMeta<JsonNormalizeInput, JsonNormalizeInputData, BaseFileInput> {
   private static final Class<?> PKG = JsonNormalizeInputMeta.class;
 
-  protected static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  protected static final String[] RequiredFilesDesc = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   @HopMetadataProperty(
       key = "include",

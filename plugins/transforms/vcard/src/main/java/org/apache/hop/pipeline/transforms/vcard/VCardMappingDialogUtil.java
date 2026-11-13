@@ -30,23 +30,22 @@ public final class VCardMappingDialogUtil {
   private VCardMappingDialogUtil() {}
 
   public static ColumnInfo[] createOutputMappingColumns() {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.VCardProperty"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              VCardPropertyType.getDescriptions(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.StreamField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.ParameterTypes"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.VCardProperty"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          VCardPropertyType.getDescriptions(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.StreamField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.ParameterTypes"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     columns[2].setToolTip(
         BaseMessages.getString(
             PKG,
@@ -57,23 +56,22 @@ public final class VCardMappingDialogUtil {
   }
 
   public static ColumnInfo[] createMappingColumns() {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.HopField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.Property"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              VCardPropertyType.getDescriptions(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardMappingDialog.Column.ParameterTypes"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.HopField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.Property"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          VCardPropertyType.getDescriptions(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardMappingDialog.Column.ParameterTypes"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     columns[2].setToolTip(
         BaseMessages.getString(
             PKG,

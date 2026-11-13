@@ -72,6 +72,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  * for Spark File / Lake paths.
  */
 public final class SparkProjectPackage {
+  private static final String CONST_PROJECT_HOME = "PROJECT_HOME";
+  private static final String CONST_FILE = "file:";
 
   /**
    * Bumped when worker package distribution behavior changes. Printed by MainSpark so Databricks
@@ -139,7 +141,7 @@ public final class SparkProjectPackage {
                 + " (sparkFile="
                 + sparkFile
                 + "). PROJECT_HOME was "
-                + variables.getVariable("PROJECT_HOME")
+                + variables.getVariable(CONST_PROJECT_HOME)
                 + ". On Databricks Deploy & run, keep the package on a UC Volume (/Volumes/…) and"
                 + " ensure the fat jar stages a SparkFiles copy for executors that cannot open"
                 + " Volumes via java.io.File / Hop VFS.");
@@ -182,7 +184,7 @@ public final class SparkProjectPackage {
       variables.setVariable(VAR_PACKAGE_SPARK_FILE, sparkFile);
     }
 
-    String home = variables.getVariable("PROJECT_HOME");
+    String home = variables.getVariable(CONST_PROJECT_HOME);
     if (StringUtils.isEmpty(home) || !new File(home).isDirectory()) {
       throw new HopException(
           "Spark project package materialize did not produce a PROJECT_HOME directory on this"
@@ -204,12 +206,12 @@ public final class SparkProjectPackage {
     if (variables == null) {
       return;
     }
-    String projectHome = variables.getVariable("PROJECT_HOME");
+    String projectHome = variables.getVariable(CONST_PROJECT_HOME);
     if (StringUtils.isEmpty(projectHome)) {
       return;
     }
     if (!new File(projectHome).isDirectory()) {
-      variables.setVariable("PROJECT_HOME", null);
+      variables.setVariable(CONST_PROJECT_HOME, null);
     }
   }
 
@@ -294,7 +296,7 @@ public final class SparkProjectPackage {
     if (StringUtils.isNotEmpty(resolvedUri) && !ordered.contains(resolvedUri)) {
       if (resolveLocalPackageFile(resolvedUri) != null) {
         ordered.add(resolvedUri);
-      } else if (resolvedUri.contains("://") && !resolvedUri.startsWith("file:")) {
+      } else if (resolvedUri.contains("://") && !resolvedUri.startsWith(CONST_FILE)) {
         ordered.add(resolvedUri);
       }
     }
@@ -327,7 +329,7 @@ public final class SparkProjectPackage {
     }
     // Object store / remote VFS (not local file:)
     int scheme = p.indexOf("://");
-    return scheme > 0 && !p.startsWith("file:");
+    return scheme > 0 && !p.startsWith(CONST_FILE);
   }
 
   /**
@@ -460,7 +462,7 @@ public final class SparkProjectPackage {
       return asFile.getAbsolutePath();
     }
     // file:/ URI without Hop VFS
-    if (uri.startsWith("file:")) {
+    if (uri.startsWith(CONST_FILE)) {
       try {
         File f = new File(java.net.URI.create(uri));
         if (f.isFile()) {
@@ -528,7 +530,7 @@ public final class SparkProjectPackage {
     if (StringUtils.isNotEmpty(packageUri)) {
       variables.setVariable(VAR_PACKAGE_URI, packageUri);
     }
-    variables.setVariable("PROJECT_HOME", m.projectHome());
+    variables.setVariable(CONST_PROJECT_HOME, m.projectHome());
   }
 
   /**
@@ -829,7 +831,7 @@ public final class SparkProjectPackage {
     if (rawPath == null) {
       return null;
     }
-    if (!rawPath.contains("PROJECT_HOME") && !rawPath.contains("${PROJECT_HOME}")) {
+    if (!rawPath.contains(CONST_PROJECT_HOME) && !rawPath.contains("${PROJECT_HOME}")) {
       return null;
     }
     return "Spark File/Lake path references PROJECT_HOME ('"
@@ -921,7 +923,7 @@ public final class SparkProjectPackage {
       return null;
     }
     try {
-      if (uri.startsWith("file:")) {
+      if (uri.startsWith(CONST_FILE)) {
         Path p = Path.of(java.net.URI.create(uri));
         File f = p.toFile();
         return f.isFile() ? f : null;

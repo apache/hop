@@ -23,9 +23,9 @@ import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.Param
 
 public class WsdlOperationContainer implements WsdlParamContainer {
 
-  private ParameterMode mode;
+  private final ParameterMode mode;
 
-  private WsdlOperation operation;
+  private final WsdlOperation operation;
 
   public WsdlOperationContainer(WsdlOperation operation, ParameterMode mode) {
     this.mode = mode;

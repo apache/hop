@@ -82,8 +82,8 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
   // if the logging level is at least basic level.
   //
   private final class StreamLogger extends Thread {
-    private InputStream input;
-    private String type;
+    private final InputStream input;
+    private final String type;
 
     StreamLogger(InputStream is, String type) {
       this.input = is;

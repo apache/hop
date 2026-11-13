@@ -43,7 +43,7 @@ public class AzureListenerEventProcessor implements IEventProcessor {
 
   private long passedRowsCount;
 
-  private AtomicBoolean wait = new AtomicBoolean(false);
+  private final AtomicBoolean wait = new AtomicBoolean(false);
 
   private PartitionContext lastContext;
   private EventData lastData;

@@ -80,6 +80,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class WebServiceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class;
+  private static final String CONST_ERROR = "Error";
 
   private WebServiceMeta meta;
   private CTabFolder wTabFolder;
@@ -354,18 +355,17 @@ public class WebServiceDialog extends BaseTransformDialog {
             new String[] {},
             false);
     fieldColumns.add(fieldColumn);
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          fieldColumn,
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WebServiceDialog.WsNameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WebServiceDialog.TypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      fieldColumn,
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WebServiceDialog.WsNameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WebServiceDialog.TypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     fieldInTableView =
         new TableView(
             variables, vCompositeTabField, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
@@ -405,12 +405,12 @@ public class WebServiceDialog extends BaseTransformDialog {
                 }
               }
             } catch (Exception e) {
-              new ErrorDialog(shell, "Error", "Error getting Web Service fields", e);
+              new ErrorDialog(shell, CONST_ERROR, "Error getting Web Service fields", e);
             }
           }
         });
 
-    Button[] buttons = new Button[] {vButton};
+    Button[] buttons = {vButton};
     BaseTransformDialog.positionBottomButtons(
         vCompositeTabField, buttons, PropsUi.getMargin(), null);
 
@@ -450,7 +450,7 @@ public class WebServiceDialog extends BaseTransformDialog {
           }
         }
       } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error getting Web Service fields", e);
+        new ErrorDialog(shell, CONST_ERROR, "Error getting Web Service fields", e);
       }
     }
     if (oldTableView != null) {
@@ -502,21 +502,20 @@ public class WebServiceDialog extends BaseTransformDialog {
       tabItemFieldOut = new CTabItem(wTabFolder, SWT.NONE);
       tabItemFieldOut.setFont(GuiResource.getInstance().getFontDefault());
     }
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WebServiceDialog.NameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WebServiceDialog.WsNameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WebServiceDialog.TypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WebServiceDialog.NameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WebServiceDialog.WsNameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WebServiceDialog.TypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     fieldOutTableView =
         new TableView(
             variables,
@@ -556,11 +555,11 @@ public class WebServiceDialog extends BaseTransformDialog {
                 }
               }
             } catch (Exception e) {
-              new ErrorDialog(shell, "Error", "Error getting web service fields", e);
+              new ErrorDialog(shell, CONST_ERROR, "Error getting web service fields", e);
             }
           }
         });
-    Button[] buttons = new Button[] {vButton};
+    Button[] buttons = {vButton};
     BaseTransformDialog.positionBottomButtons(
         vCompositeTabFieldOut, buttons, PropsUi.getMargin(), null);
 
@@ -604,7 +603,7 @@ public class WebServiceDialog extends BaseTransformDialog {
           }
         }
       } catch (Exception e) {
-        new ErrorDialog(shell, "Error", "Error getting web service fields", e);
+        new ErrorDialog(shell, CONST_ERROR, "Error getting web service fields", e);
       }
     }
     fieldOutTableView.removeEmptyRows();

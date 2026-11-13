@@ -36,7 +36,7 @@ public class MetadataFileTypeHandler<T extends IHopMetadata> implements IHopFile
 
   private static final IHopFileType fileType = new MetadataFileType();
 
-  private T metadata;
+  private final T metadata;
 
   public MetadataFileTypeHandler(T metadata) {
     this.metadata = metadata;

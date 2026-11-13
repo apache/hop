@@ -70,11 +70,9 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "JsonInput.JsonPathOptions";
 
-  protected static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  protected static final String[] RequiredFilesDesc = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   // TextFileInputMeta.Content.includeFilename
   /** Flag indicating that we should include the filename in the output */

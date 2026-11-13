@@ -71,7 +71,7 @@ public abstract class ConfigurationDialog extends Dialog {
   protected Control wRunConfigurationControl;
 
   private TableView wParams;
-  private Shell parent;
+  private final Shell parent;
   private Button wOk;
   protected FormData fdDetails;
 

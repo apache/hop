@@ -93,7 +93,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
       logDebug("Execute pipeline requested");
     }
 
-    String[] knownOptions = new String[] {PIPELINE, LEVEL, RUN_CONFIG};
+    String[] knownOptions = {PIPELINE, LEVEL, RUN_CONFIG};
 
     String pipelineOption = request.getParameter(PIPELINE);
     String levelOption = request.getParameter(LEVEL);

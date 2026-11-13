@@ -42,7 +42,7 @@ public class StreamSchemaDialog extends BaseTransformDialog {
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
-  private StreamSchemaMeta meta;
+  private final StreamSchemaMeta meta;
 
   private String[] previousTransforms; // transforms sending data in to this transform
 
@@ -95,14 +95,13 @@ public class StreamSchemaDialog extends BaseTransformDialog {
 
     previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StreamSchemaTransformDialog.TransformName.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              previousTransforms,
-              false)
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StreamSchemaTransformDialog.TransformName.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          previousTransforms,
+          false)
+    };
 
     wTransforms =
         new TableView(

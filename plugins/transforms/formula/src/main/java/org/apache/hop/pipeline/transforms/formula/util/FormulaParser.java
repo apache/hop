@@ -40,13 +40,13 @@ import org.apache.poi.ss.util.CellReference;
 public class FormulaParser {
   private static final Class<?> PKG = Formula.class; // for i18n purposes
 
-  private FormulaMetaFunction formulaMetaFunction;
-  private IRowMeta rowMeta;
+  private final FormulaMetaFunction formulaMetaFunction;
+  private final IRowMeta rowMeta;
   private String formula;
   private List<String> formulaFieldList;
-  private Object[] dataRow;
-  private FormulaPoi.Evaluator evaluator;
-  private HashMap<String, String> replaceMap;
+  private final Object[] dataRow;
+  private final FormulaPoi.Evaluator evaluator;
+  private final HashMap<String, String> replaceMap;
 
   public FormulaParser(
       FormulaMetaFunction formulaMetaFunction,

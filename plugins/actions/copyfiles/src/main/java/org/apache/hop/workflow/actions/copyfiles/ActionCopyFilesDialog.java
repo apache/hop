@@ -52,8 +52,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionCopyFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCopyFiles.class;
 
-  protected static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionCopyFiles.Filetype.All")};
+  protected static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionCopyFiles.Filetype.All")
+  };
 
   protected Button wPrevious;
   protected Button wCopyEmptyFolders;
@@ -232,21 +233,20 @@ public class ActionCopyFilesDialog extends ActionDialog {
             : (action.getFileRows().isEmpty() ? 0 : action.getFileRows().size());
     final int fieldsRows = rows;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCopyFiles.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCopyFiles.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCopyFiles.Fields.DestinationFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false)
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setNamingSchemeType(NamingSchemeTypes.FOLDER);

@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
 public class AvroFileInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroFileInputMeta.class;
 
-  private AvroFileInputMeta input;
+  private final AvroFileInputMeta input;
 
   private Combo wFilenameField;
   private Text wOutputField;

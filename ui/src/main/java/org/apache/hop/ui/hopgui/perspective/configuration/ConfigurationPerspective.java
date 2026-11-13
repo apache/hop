@@ -79,6 +79,7 @@ import org.eclipse.swt.widgets.TreeItem;
     name = "i18n::ConfigurationPerspective.Name",
     description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective {
+  private static final String CONST_NOTIFICATIONS = "Notifications";
 
   private static final Class<?> PKG = ConfigurationPerspective.class;
   public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
@@ -101,12 +102,12 @@ public class ConfigurationPerspective implements IHopPerspective {
   private Tree categoryTree;
 
   /** Category name -> the panel control (reparented from CTabItem). */
-  private Map<String, Control> categoryTabs = new HashMap<>();
+  private final Map<String, Control> categoryTabs = new HashMap<>();
 
   private String currentCategoryName;
   private boolean tabsBuilt;
-  private List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
-  private List<Control> highlightedControls = new ArrayList<>();
+  private final List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
+  private final List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
   private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
@@ -935,10 +936,10 @@ public class ConfigurationPerspective implements IHopPerspective {
       return;
     }
     buildSettingTabs();
-    Control notificationsPanel = categoryTabs.get("Notifications");
+    Control notificationsPanel = categoryTabs.get(CONST_NOTIFICATIONS);
     if (notificationsPanel != null && !notificationsPanel.isDisposed()) {
-      showCategory("Notifications", true);
-      syncTreeSelectionToTab("Notifications");
+      showCategory(CONST_NOTIFICATIONS, true);
+      syncTreeSelectionToTab(CONST_NOTIFICATIONS);
     }
   }
 

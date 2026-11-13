@@ -47,19 +47,19 @@ public class DorisStreamLoad {
   private static final ObjectMapper OBJECT_MAPPER = HopJson.newMapper();
 
   /** doris stream load http url */
-  private String loadUrl;
+  private final String loadUrl;
 
   /** doris stream load http basic auth user */
-  private String loginUser;
+  private final String loginUser;
 
   /** doris stream load http basic auth password */
-  private String loginPassword;
+  private final String loginPassword;
 
   /** doris stream load http request headers */
-  private Map<String, String> httpHeaders;
+  private final Map<String, String> httpHeaders;
 
   /** stream load format */
-  private String format;
+  private final String format;
 
   /** stream load data line delimiter */
   private final byte[] lineDelimiter;

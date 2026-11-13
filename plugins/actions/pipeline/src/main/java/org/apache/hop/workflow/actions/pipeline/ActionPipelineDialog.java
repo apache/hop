@@ -65,12 +65,11 @@ public class ActionPipelineDialog extends ActionBaseDialog {
   private Label wlWaitTimeout;
   private TextVar wWaitTimeout;
 
-  private static final String[] FILE_FILTERLOGNAMES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionPipeline.Fileformat.TXT"),
-        BaseMessages.getString(PKG, "ActionPipeline.Fileformat.LOG"),
-        BaseMessages.getString(PKG, "ActionPipeline.Fileformat.All")
-      };
+  private static final String[] FILE_FILTERLOGNAMES = {
+    BaseMessages.getString(PKG, "ActionPipeline.Fileformat.TXT"),
+    BaseMessages.getString(PKG, "ActionPipeline.Fileformat.LOG"),
+    BaseMessages.getString(PKG, "ActionPipeline.Fileformat.All")
+  };
 
   public ActionPipelineDialog(
       Shell parent, ActionPipeline action, WorkflowMeta workflowMeta, IVariables variables) {

@@ -47,7 +47,7 @@ public class EnterStringDialog extends Dialog {
 
   private final IVariables variables;
 
-  private boolean allowVariables;
+  private final boolean allowVariables;
 
   private Button wOk;
 
@@ -55,11 +55,11 @@ public class EnterStringDialog extends Dialog {
 
   private String string;
 
-  private String shellText;
+  private final String shellText;
 
-  private String lineText;
+  private final String lineText;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private boolean mandatory;
 

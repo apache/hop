@@ -34,6 +34,13 @@ import org.apache.hop.openformula.typing.TypedValue;
 import org.apache.hop.openformula.util.NumberUtil;
 
 public final class MathFunctions {
+  private static final String CONST_NUMBER = "number";
+  private static final String CONST_NUMBER_2 = "Number";
+  private static final String CONST_NUMBERS = "Numbers";
+  private static final String CONST_VALUE = "value";
+  private static final String CONST_VALUES = "Values";
+  private static final String CONST_POSITIVE_NUMBER = "Positive number";
+
   private MathFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -46,8 +53,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
-            List.of("Number")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBER_2)));
     registry.registerFunction(
         new AcosFunction(),
         new FunctionDescription(
@@ -57,7 +64,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Cosine between -1 and 1")));
     registry.registerFunction(
         new AcoshFunction(),
@@ -68,7 +75,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Number >= 1")));
     registry.registerFunction(
         new AsinFunction(),
@@ -79,7 +86,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Sine between -1 and 1")));
     registry.registerFunction(
         new AtanFunction(),
@@ -90,8 +97,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
-            List.of("Number")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBER_2)));
     registry.registerFunction(
         new Atan2Function(),
         new FunctionDescription(
@@ -112,8 +119,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("number"),
-            List.of("Numbers")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBERS)));
     registry.registerFunction(
         new AverageAFunction(),
         new FunctionDescription(
@@ -123,8 +130,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES)));
     registry.registerFunction(
         new CosFunction(),
         new FunctionDescription(
@@ -134,7 +141,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Angle in radians")));
     registry.registerFunction(
         new EvenFunction(),
@@ -145,7 +152,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Number to round")));
     registry.registerFunction(
         new ExpFunction(),
@@ -156,7 +163,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Exponent")));
     registry.registerFunction(
         new LnFunction(),
@@ -167,8 +174,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
-            List.of("Positive number")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_POSITIVE_NUMBER)));
     registry.registerFunction(
         new LogFunction(),
         new FunctionDescription(
@@ -178,8 +185,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number", "base"),
-            List.of("Number", "Base (defaults to 10)")));
+            List.of(CONST_NUMBER, "base"),
+            List.of(CONST_NUMBER_2, "Base (defaults to 10)")));
     registry.registerFunction(
         new Log10Function(),
         new FunctionDescription(
@@ -189,8 +196,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
-            List.of("Positive number")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_POSITIVE_NUMBER)));
     registry.registerFunction(
         new MaxFunction(),
         new FunctionDescription(
@@ -200,8 +207,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("number"),
-            List.of("Numbers")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBERS)));
     registry.registerFunction(
         new MaxAFunction(),
         new FunctionDescription(
@@ -211,8 +218,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES)));
     registry.registerFunction(
         new MinFunction(),
         new FunctionDescription(
@@ -222,8 +229,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("number"),
-            List.of("Numbers")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBERS)));
     registry.registerFunction(
         new MinAFunction(),
         new FunctionDescription(
@@ -233,8 +240,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES)));
     registry.registerFunction(
         new ModFunction(),
         new FunctionDescription(
@@ -244,7 +251,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             2,
             false,
-            List.of("number", "divisor"),
+            List.of(CONST_NUMBER, "divisor"),
             List.of("Dividend", "Divisor")));
     registry.registerFunction(
         new NFunction(),
@@ -255,7 +262,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("value"),
+            List.of(CONST_VALUE),
             List.of("Value to convert")));
     registry.registerFunction(
         new OddFunction(),
@@ -266,7 +273,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Number to round")));
     registry.registerFunction(
         new PiFunction(),
@@ -299,7 +306,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Angle in radians")));
     registry.registerFunction(
         new SqrtFunction(),
@@ -310,8 +317,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             false,
-            List.of("number"),
-            List.of("Positive number")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_POSITIVE_NUMBER)));
     registry.registerFunction(
         new SumFunction(),
         new FunctionDescription(
@@ -321,7 +328,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("number"),
+            List.of(CONST_NUMBER),
             List.of("Numbers to sum")));
     registry.registerFunction(
         new SumAFunction(),
@@ -332,7 +339,7 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
+            List.of(CONST_VALUE),
             List.of("Values to sum")));
     registry.registerFunction(
         new VarFunction(),
@@ -343,8 +350,8 @@ public final class MathFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("number"),
-            List.of("Numbers")));
+            List.of(CONST_NUMBER),
+            List.of(CONST_NUMBERS)));
   }
 
   public static class AbsFunction implements Function {

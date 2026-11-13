@@ -75,13 +75,13 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   public static final String TOOLBAR_ITEM_NEW = "10020-metadata-new";
   public static final String TOOLBAR_ITEM_META = "10030-metadata-perspective";
 
-  private Composite parentComposite;
+  private final Composite parentComposite;
   private IHopMetadataProvider metadataProvider;
-  private IVariables variables;
-  private MetadataManager<T> manager;
+  private final IVariables variables;
+  private final MetadataManager<T> manager;
 
-  private Class<T> managedClass;
-  private PropsUi props;
+  private final Class<T> managedClass;
+  private final PropsUi props;
   private final Label wLabel;
   private ComboVar wCombo = null;
   private final Control wToolBar;

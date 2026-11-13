@@ -42,16 +42,16 @@ public class DatabaseImpact {
     BaseMessages.getString(PKG, "DatabaseImpact.TypeDesc.Label.Update")
   };
 
-  private String pipelineName;
-  private String transformName;
-  private String dbname;
-  private String table;
-  private String field;
-  private String valuename;
-  private String valueorigin;
-  private String sql;
-  private String remark;
-  private int type;
+  private final String pipelineName;
+  private final String transformName;
+  private final String dbname;
+  private final String table;
+  private final String field;
+  private final String valuename;
+  private final String valueorigin;
+  private final String sql;
+  private final String remark;
+  private final int type;
 
   public DatabaseImpact(
       int type,

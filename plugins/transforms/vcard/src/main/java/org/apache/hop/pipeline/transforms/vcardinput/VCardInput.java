@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transforms.vcard.VCardFieldMapping;
 import org.apache.hop.pipeline.transforms.vcard.VCardMapper;
 
 public class VCardInput extends BaseTransform<VCardInputMeta, VCardInputData> {
+  private static final String CONST_V_CARD_INPUT_LOG_EMPTY_FILE = "VCardInput.Log.EmptyFile";
 
   private static final Class<?> PKG = VCardInput.class;
 
@@ -170,10 +171,12 @@ public class VCardInput extends BaseTransform<VCardInputMeta, VCardInputData> {
       long size = data.file.getContent().getSize();
       if (size == 0) {
         if (meta.isIgnoringEmptyFile()) {
-          logBasic(BaseMessages.getString(PKG, "VCardInput.Log.EmptyFile", data.currentFilename));
+          logBasic(
+              BaseMessages.getString(PKG, CONST_V_CARD_INPUT_LOG_EMPTY_FILE, data.currentFilename));
           return false;
         }
-        logError(BaseMessages.getString(PKG, "VCardInput.Log.EmptyFile", data.currentFilename));
+        logError(
+            BaseMessages.getString(PKG, CONST_V_CARD_INPUT_LOG_EMPTY_FILE, data.currentFilename));
         setErrors(getErrors() + 1);
         return false;
       }
@@ -212,9 +215,11 @@ public class VCardInput extends BaseTransform<VCardInputMeta, VCardInputData> {
       long size = file.getContent().getSize();
       if (size == 0) {
         if (meta.isIgnoringEmptyFile()) {
-          logBasic(BaseMessages.getString(PKG, "VCardInput.Log.EmptyFile", data.currentFilename));
+          logBasic(
+              BaseMessages.getString(PKG, CONST_V_CARD_INPUT_LOG_EMPTY_FILE, data.currentFilename));
         } else {
-          logError(BaseMessages.getString(PKG, "VCardInput.Log.EmptyFile", data.currentFilename));
+          logError(
+              BaseMessages.getString(PKG, CONST_V_CARD_INPUT_LOG_EMPTY_FILE, data.currentFilename));
           setErrors(getErrors() + 1);
         }
         return;

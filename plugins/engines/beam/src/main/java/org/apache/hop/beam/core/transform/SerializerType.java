@@ -58,8 +58,8 @@ public enum SerializerType {
 
   private final String value;
   private final int valueMetaInterfaceType;
-  private String kafkaSerializerClass;
-  private String kafkaDeserializerClass;
+  private final String kafkaSerializerClass;
+  private final String kafkaDeserializerClass;
 
   SerializerType(
       String value,

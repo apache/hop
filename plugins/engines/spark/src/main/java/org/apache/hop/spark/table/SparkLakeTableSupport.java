@@ -54,6 +54,7 @@ import org.apache.spark.sql.SparkSession;
  * </ul>
  */
 public final class SparkLakeTableSupport {
+  private static final String CONST_SELECT_FROM = "SELECT * FROM ";
 
   private SparkLakeTableSupport() {}
 
@@ -895,7 +896,7 @@ public final class SparkLakeTableSupport {
       throws HopException {
     String tt = normalizeTimeTravelType(timeTravelType);
     if (LakeTableInputMeta.TIME_TRAVEL_NONE.equals(tt)) {
-      return "SELECT * FROM " + sqlIdentifier;
+      return CONST_SELECT_FROM + sqlIdentifier;
     }
     if (LakeTableInputMeta.TIME_TRAVEL_VERSION.equals(tt)) {
       if (StringUtils.isEmpty(version)) {
@@ -905,15 +906,15 @@ public final class SparkLakeTableSupport {
       String snap = version.trim();
       if (!snap.matches("-?\\d+")) {
         // Allow quoted non-numeric only if user provided quotes; otherwise quote string
-        return "SELECT * FROM " + sqlIdentifier + " VERSION AS OF " + snap;
+        return CONST_SELECT_FROM + sqlIdentifier + " VERSION AS OF " + snap;
       }
-      return "SELECT * FROM " + sqlIdentifier + " VERSION AS OF " + snap;
+      return CONST_SELECT_FROM + sqlIdentifier + " VERSION AS OF " + snap;
     }
     if (StringUtils.isEmpty(timestamp)) {
       throw new HopException("Iceberg TIMESTAMP time travel requires a timestamp value");
     }
     String ts = timestamp.trim().replace("'", "''");
-    return "SELECT * FROM " + sqlIdentifier + " TIMESTAMP AS OF TIMESTAMP '" + ts + "'";
+    return CONST_SELECT_FROM + sqlIdentifier + " TIMESTAMP AS OF TIMESTAMP '" + ts + "'";
   }
 
   private static void writeIcebergPath(

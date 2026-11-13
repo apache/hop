@@ -56,6 +56,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * contains the row data.
  */
 public final class DebugSessionStore {
+  private static final String CONST_ROWS_DAT = "/rows.dat";
+  private static final String CONST_SESSION_JSON = "session.json";
 
   public static final int FORMAT_VERSION = 1;
 
@@ -265,14 +267,14 @@ public final class DebugSessionStore {
           hopFolder.createFolder();
           writeRowMeta(child(directory, name + "/rowmeta.bin"), rowMeta);
           if (rowSet != null && rowSet.getRowMeta() != null) {
-            writeRows(child(directory, name + "/rows.dat"), rowMeta, rowSet);
+            writeRows(child(directory, name + CONST_ROWS_DAT), rowMeta, rowSet);
           } else {
-            writeRows(child(directory, name + "/rows.dat"), rowMeta, hop.getRows());
+            writeRows(child(directory, name + CONST_ROWS_DAT), rowMeta, hop.getRows());
           }
         }
         index++;
       }
-      try (OutputStream out = HopVfs.getOutputStream(child(directory, "session.json"), false)) {
+      try (OutputStream out = HopVfs.getOutputStream(child(directory, CONST_SESSION_JSON), false)) {
         HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(out, document);
       }
     } catch (HopException e) {
@@ -285,7 +287,7 @@ public final class DebugSessionStore {
   public static DebugSession load(String directory) throws HopException {
     try {
       FileDocument document;
-      try (InputStream in = HopVfs.getInputStream(child(directory, "session.json"))) {
+      try (InputStream in = HopVfs.getInputStream(child(directory, CONST_SESSION_JSON))) {
         document = HopJson.newMapper().readValue(in, FileDocument.class);
       }
       if (document.formatVersion != FORMAT_VERSION) {
@@ -306,7 +308,7 @@ public final class DebugSessionStore {
         }
         IRowMeta rowMeta = readRowMeta(metaPath);
         hop.setRowMeta(rowMeta);
-        hop.getRows().addAll(readRows(child(directory, fileHop.folder + "/rows.dat"), rowMeta));
+        hop.getRows().addAll(readRows(child(directory, fileHop.folder + CONST_ROWS_DAT), rowMeta));
       }
       return session;
     } catch (HopException e) {
@@ -326,7 +328,7 @@ public final class DebugSessionStore {
         return names;
       }
       for (FileObject child : parent.getChildren()) {
-        if (child.getType() == FileType.FOLDER && child.resolveFile("session.json").exists()) {
+        if (child.getType() == FileType.FOLDER && child.resolveFile(CONST_SESSION_JSON).exists()) {
           names.add(child.getName().getBaseName());
         }
       }

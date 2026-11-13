@@ -27,8 +27,8 @@ import org.apache.hop.core.logging.LogLevel;
 
 public class StreamConsumer extends Thread {
 
-  private ILogChannel log;
-  private InputStream inputStream;
+  private final ILogChannel log;
+  private final InputStream inputStream;
   private final LogLevel logLevel;
 
   public StreamConsumer(ILogChannel log, InputStream inputStream, LogLevel logLevel) {

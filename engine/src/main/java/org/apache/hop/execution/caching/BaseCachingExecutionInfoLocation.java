@@ -57,6 +57,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @Getter
 @Setter
 public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfoLocation {
+  private static final String CONST_ALL_TRANSFORMS = "all-transforms";
+
   @GuiWidgetElement(
       id = "persistenceDelay",
       order = "900",
@@ -1125,7 +1127,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
       // Local engine: all transform samples under a single "all-transforms" owner
       if (executionId == null) {
-        ExecutionData allTransforms = cacheEntry.getExecutionData("all-transforms");
+        ExecutionData allTransforms = cacheEntry.getExecutionData(CONST_ALL_TRANSFORMS);
         if (allTransforms != null) {
           return allTransforms;
         }
@@ -1137,7 +1139,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       ExecutionData data = cacheEntry.getExecutionData(executionId);
       if (data == null) {
         // Retry for the exception for transforms: "all-transforms" stored together.
-        data = cacheEntry.getExecutionData("all-transforms");
+        data = cacheEntry.getExecutionData(CONST_ALL_TRANSFORMS);
       }
       return data;
     } catch (Exception e) {
@@ -1159,7 +1161,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     ExecutionDataBuilder builder =
         ExecutionDataBuilder.of()
             .withParentId(parentExecutionId)
-            .withOwnerId("all-transforms")
+            .withOwnerId(CONST_ALL_TRANSFORMS)
             .withExecutionType(ExecutionType.Transform)
             .withFinished(true)
             .withCollectionDate(new Date());

@@ -54,10 +54,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class JaninoDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JaninoMeta.class;
 
-  private static final String[] JAVA_TARGET_VERSION_ITEMS =
-      new String[] {
-        "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
-      };
+  private static final String[] JAVA_TARGET_VERSION_ITEMS = {
+    "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
+  };
 
   private TableView wFields;
 

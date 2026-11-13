@@ -1999,7 +1999,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     //
     IRowMeta paramsMeta = new RowMeta();
     paramsMeta.addValueMeta(data.tkFieldType);
-    Object[] paramsData = new Object[] {data.notFoundTk};
+    Object[] paramsData = {data.notFoundTk};
 
     DLFields f = meta.getFields();
 

@@ -110,36 +110,32 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
     // The columns
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.UpdateType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              UpdateType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ObjectType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphConstraintType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintName"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectName"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectProperties"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.UpdateType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          UpdateType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ObjectType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphConstraintType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ConstraintName"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectName"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "Neo4jConstraintDialog.ConstraintUpdates.Column.ObjectProperties"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+    };
     columns[3].setUsingVariables(true);
     columns[4].setUsingVariables(true);
     columns[5].setUsingVariables(true);

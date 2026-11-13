@@ -76,8 +76,8 @@ public class NotePadDialog extends Dialog {
   private Label wlMarkdownHint;
 
   private Shell shell;
-  private String title;
-  private PropsUi props;
+  private final String title;
+  private final PropsUi props;
 
   private CTabFolder wNoteFolder;
 
@@ -99,7 +99,7 @@ public class NotePadDialog extends Dialog {
 
   private Label wBorderColor;
 
-  private GuiResource guiresource = GuiResource.getInstance();
+  private final GuiResource guiresource = GuiResource.getInstance();
 
   public RGB colorRgbBlack = guiresource.getColorBlack().getRGB();
   public RGB colorRgbYellow = guiresource.getColorYellow().getRGB();
@@ -111,10 +111,10 @@ public class NotePadDialog extends Dialog {
 
   private Font font;
 
-  private IVariables variables;
+  private final IVariables variables;
 
   /** Host pipeline/workflow filename for resolving relative Markdown image paths in preview. */
-  private String baseFilename;
+  private final String baseFilename;
 
   /** Dialog to allow someone to show or enter a text in variable width font */
   public NotePadDialog(IVariables variables, Shell parent, String title, NotePadMeta nMeta) {

@@ -76,18 +76,17 @@ public class SortedSchemaMergeDialog extends BaseTransformDialog {
     fdlSortKeys.top = new FormAttachment(wSpacer, margin);
     wlSortKeys.setLayoutData(fdlSortKeys);
 
-    ColumnInfo[] sortKeyColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SortedSchemaMergeDialog.SortKeys.Column.Field"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SortedSchemaMergeDialog.SortKeys.Column.Ascending"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"Y", "N"},
-              true)
-        };
+    ColumnInfo[] sortKeyColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SortedSchemaMergeDialog.SortKeys.Column.Field"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SortedSchemaMergeDialog.SortKeys.Column.Ascending"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {"Y", "N"},
+          true)
+    };
 
     wSortKeys =
         new TableView(
@@ -122,14 +121,13 @@ public class SortedSchemaMergeDialog extends BaseTransformDialog {
     fdlInputs.top = new FormAttachment(wSortKeys, margin);
     wlInputs.setLayoutData(fdlInputs);
 
-    ColumnInfo[] inputColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SortedSchemaMergeDialog.Inputs.Column.Transform"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              previousTransforms,
-              false)
-        };
+    ColumnInfo[] inputColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SortedSchemaMergeDialog.Inputs.Column.Transform"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          previousTransforms,
+          false)
+    };
 
     wInputs =
         new TableView(

@@ -34,7 +34,7 @@ public class WorkflowConfiguration {
 
   private WorkflowMeta workflowMeta;
   private WorkflowExecutionConfiguration workflowExecutionConfiguration;
-  private SerializableMetadataProvider metadataProvider;
+  private final SerializableMetadataProvider metadataProvider;
 
   /**
    * @param workflowMeta

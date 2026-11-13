@@ -84,6 +84,9 @@ import org.apache.hop.ui.hopgui.HopGui;
 @Setter
 public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionInfoLocation
     implements IExecutionInfoLocation {
+  private static final String CONST_SELECT = "SELECT ";
+  private static final String CONST_FROM = " FROM ";
+  private static final String CONST_WHERE = " WHERE ";
 
   public static final Class<?> PKG = CachingDatabaseExecutionInfoLocation.class;
 
@@ -545,7 +548,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     String sql =
         "SELECT 1 FROM "
             + getQuotedSchemaTable()
-            + " WHERE "
+            + CONST_WHERE
             + databaseMeta.quoteField(COL_ID)
             + " = ?";
     IRowMeta paramMeta = new RowMeta();
@@ -652,8 +655,8 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
 
   /** prepareUpdate binds SET fields first, then the WHERE value. */
   private void executeUpdate(String[] setFields, Object[] data) throws HopException {
-    String[] codes = new String[] {COL_ID};
-    String[] conditions = new String[] {"="};
+    String[] codes = {COL_ID};
+    String[] conditions = {"="};
     if (!database.prepareUpdate(actualSchemaName, actualTableName, codes, conditions, setFields)) {
       throw new HopException("Unable to prepare update for table " + getQuotedSchemaTable());
     }
@@ -706,11 +709,11 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
         columns += ", " + databaseMeta.quoteField(COL_STATE_JSON);
       }
       String sql =
-          "SELECT "
+          CONST_SELECT
               + columns
-              + " FROM "
+              + CONST_FROM
               + getQuotedSchemaTable()
-              + " WHERE "
+              + CONST_WHERE
               + databaseMeta.quoteField(COL_ID)
               + " = ?";
       IRowMeta paramMeta = new RowMeta();
@@ -748,7 +751,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       String sql =
           "DELETE FROM "
               + getQuotedSchemaTable()
-              + " WHERE "
+              + CONST_WHERE
               + databaseMeta.quoteField(COL_ID)
               + " = ?";
       IRowMeta paramMeta = new RowMeta();
@@ -777,7 +780,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     final IExecutionSelector active = selector == null ? IExecutionSelector.ALL : selector;
     try {
       StringBuilder sql = new StringBuilder();
-      sql.append("SELECT ")
+      sql.append(CONST_SELECT)
           .append(databaseMeta.quoteField(COL_ID))
           .append(", ")
           .append(databaseMeta.quoteField(COL_NAME))
@@ -795,7 +798,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
           .append(databaseMeta.quoteField(COL_FAILED))
           .append(", ")
           .append(databaseMeta.quoteField(COL_STATUS_DESCRIPTION))
-          .append(" FROM ")
+          .append(CONST_FROM)
           .append(getQuotedSchemaTable());
 
       List<Object> params = new ArrayList<>();
@@ -803,7 +806,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       List<String> where = new ArrayList<>();
       appendSelectorFilters(active, where, paramMeta, params);
       if (!where.isEmpty()) {
-        sql.append(" WHERE ");
+        sql.append(CONST_WHERE);
         sql.append(String.join(" AND ", where));
       }
       sql.append(" ORDER BY ")
@@ -926,11 +929,11 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     final IExecutionSelector activeSelector = selector == null ? IExecutionSelector.ALL : selector;
     try {
       StringBuilder sql = new StringBuilder();
-      sql.append("SELECT ")
+      sql.append(CONST_SELECT)
           .append(databaseMeta.quoteField(COL_ID))
           .append(", ")
           .append(databaseMeta.quoteField(COL_EXECUTION_START_DATE))
-          .append(" FROM ")
+          .append(CONST_FROM)
           .append(getQuotedSchemaTable());
 
       List<Object> params = new ArrayList<>();
@@ -940,7 +943,7 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
       appendSelectorFilters(activeSelector, where, paramMeta, params);
 
       if (!where.isEmpty()) {
-        sql.append(" WHERE ");
+        sql.append(CONST_WHERE);
         sql.append(String.join(" AND ", where));
       }
 

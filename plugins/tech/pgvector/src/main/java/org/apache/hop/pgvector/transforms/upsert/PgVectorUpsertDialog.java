@@ -113,18 +113,17 @@ public class PgVectorUpsertDialog extends BaseTransformDialog {
   }
 
   private void addMappingsTable(Composite parent) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PgVectorUpsertDialog.Mappings.Column.Table"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PgVectorUpsertDialog.Mappings.Column.Stream"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {},
-              true)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PgVectorUpsertDialog.Mappings.Column.Table"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PgVectorUpsertDialog.Mappings.Column.Stream"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {},
+          true)
+    };
 
     int rows = input.getColumnMappings() != null ? input.getColumnMappings().size() : 0;
     wMappings =

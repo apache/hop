@@ -29,7 +29,7 @@ public class IntegerValidator implements IActionValidator {
 
   public static final IntegerValidator INSTANCE = new IntegerValidator();
 
-  private String VALIDATOR_NAME = "integer";
+  private final String VALIDATOR_NAME = "integer";
 
   @Override
   public boolean validate(

@@ -28,7 +28,7 @@ import javax.security.auth.login.LoginContext;
  * LoginContext}.
  */
 public class AuthContext {
-  private LoginContext login;
+  private final LoginContext login;
 
   /**
    * Create a context for the given login. If the login is null all operations will be done as the

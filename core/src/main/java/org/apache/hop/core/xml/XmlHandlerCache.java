@@ -43,7 +43,7 @@ public class XmlHandlerCache {
 
   Map<XMlHandlerCacheEntry, Integer> cache;
 
-  private AtomicInteger cacheHits;
+  private final AtomicInteger cacheHits;
 
   private XmlHandlerCache() {
     cache = Collections.synchronizedMap(new WeakHashMap<>());

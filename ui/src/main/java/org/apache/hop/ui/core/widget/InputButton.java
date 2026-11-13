@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 public class InputButton extends Composite {
-  private Button button;
+  private final Button button;
 
   public InputButton(Composite composite, int width) {
     super(composite, SWT.NONE);

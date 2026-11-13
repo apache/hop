@@ -28,6 +28,12 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 class GitLabResourceClient implements GitResourceClient {
+  private static final String CONST_PROJECTS = "/projects/";
+  private static final String CONST_PAGE = "&page=";
+  private static final String CONST_STATE = "state";
+  private static final String CONST_AUTHOR = "author";
+  private static final String CONST_USERNAME = "username";
+  private static final String CONST_CREATED_AT = "created_at";
 
   private static final String ACCEPT = "application/json";
   private static final String PROVIDER = "gitlab";
@@ -103,12 +109,12 @@ class GitLabResourceClient implements GitResourceClient {
     protected List<IssueRef> fetchIssuePage(int page) throws HopException {
       StringBuilder url =
           new StringBuilder(apiBaseUrl)
-              .append("/projects/")
+              .append(CONST_PROJECTS)
               .append(projectId)
               .append(parentPath())
               .append("?per_page=")
               .append(pageSize)
-              .append("&page=")
+              .append(CONST_PAGE)
               .append(page);
       if (!"all".equals(state)) {
         url.append("&state=").append(encode(state));
@@ -125,7 +131,7 @@ class GitLabResourceClient implements GitResourceClient {
                 GitApiHttp.getString(json, "id"),
                 GitApiHttp.getLong(json, "iid"),
                 GitApiHttp.getString(json, "title"),
-                GitApiHttp.getString(json, "state")));
+                GitApiHttp.getString(json, CONST_STATE)));
       }
       return issues;
     }
@@ -137,14 +143,14 @@ class GitLabResourceClient implements GitResourceClient {
           activityType == GitResourceType.ISSUE_EVENTS ? "only_activity" : "only_comments";
       String url =
           apiBaseUrl
-              + "/projects/"
+              + CONST_PROJECTS
               + projectId
               + parentPath()
               + "/"
               + issue.number()
               + "/notes?per_page="
               + pageSize
-              + "&page="
+              + CONST_PAGE
               + page
               + "&activity_filter="
               + filter;
@@ -173,7 +179,7 @@ class GitLabResourceClient implements GitResourceClient {
       IssueNestedPageLoader.IssueRef issue,
       JSONObject json,
       GitResourceType commentType) {
-    JSONObject author = (JSONObject) json.get("author");
+    JSONObject author = (JSONObject) json.get(CONST_AUTHOR);
     return GitIssueActivityMapper.comment(
         PROVIDER,
         commentType,
@@ -183,8 +189,8 @@ class GitLabResourceClient implements GitResourceClient {
         issue.title(),
         issue.state(),
         GitApiHttp.getString(json, "id"),
-        author != null ? GitApiHttp.getString(author, "username") : "",
-        GitApiHttp.getString(json, "created_at"),
+        author != null ? GitApiHttp.getString(author, CONST_USERNAME) : "",
+        GitApiHttp.getString(json, CONST_CREATED_AT),
         GitApiHttp.getString(json, "updated_at"),
         "",
         GitApiHttp.getString(json, "body"),
@@ -193,7 +199,7 @@ class GitLabResourceClient implements GitResourceClient {
 
   private GitResourceRecord mapGitLabEvent(
       String owner, String repository, IssueNestedPageLoader.IssueRef issue, JSONObject json) {
-    JSONObject author = (JSONObject) json.get("author");
+    JSONObject author = (JSONObject) json.get(CONST_AUTHOR);
     String type = GitApiHttp.getString(json, "type");
     if (type.isBlank()) {
       type = Boolean.TRUE.equals(json.get("system")) ? "system" : "note";
@@ -208,8 +214,8 @@ class GitLabResourceClient implements GitResourceClient {
         GitApiHttp.getString(json, "id"),
         type,
         GitApiHttp.getString(json, "body"),
-        author != null ? GitApiHttp.getString(author, "username") : "",
-        GitApiHttp.getString(json, "created_at"),
+        author != null ? GitApiHttp.getString(author, CONST_USERNAME) : "",
+        GitApiHttp.getString(json, CONST_CREATED_AT),
         "",
         json);
   }
@@ -291,9 +297,9 @@ class GitLabResourceClient implements GitResourceClient {
 
     String path =
         switch (resourceType) {
-          case COMMITS -> "/projects/" + projectId + "/repository/commits";
-          case ISSUES -> "/projects/" + projectId + "/issues";
-          case PULL_REQUESTS -> "/projects/" + projectId + "/merge_requests";
+          case COMMITS -> CONST_PROJECTS + projectId + "/repository/commits";
+          case ISSUES -> CONST_PROJECTS + projectId + "/issues";
+          case PULL_REQUESTS -> CONST_PROJECTS + projectId + "/merge_requests";
           case ISSUE_COMMENTS, PR_COMMENTS, ISSUE_EVENTS, COMMIT_FILES ->
               throw new IllegalStateException();
         };
@@ -303,7 +309,7 @@ class GitLabResourceClient implements GitResourceClient {
             .append(path)
             .append("?per_page=")
             .append(pageSize)
-            .append("&page=")
+            .append(CONST_PAGE)
             .append(page);
 
     if (resourceType != GitResourceType.COMMITS && !"all".equals(state)) {
@@ -343,14 +349,14 @@ class GitLabResourceClient implements GitResourceClient {
               .authorEmail(GitApiHttp.getString(json, "author_email"))
               .committer(GitApiHttp.getString(json, "committer_name"))
               .committerEmail(GitApiHttp.getString(json, "committer_email"))
-              .createdAt(GitApiHttp.getString(json, "created_at"))
+              .createdAt(GitApiHttp.getString(json, CONST_CREATED_AT))
               .isMerge(GitJsonLists.mergeFlag(json, "parent_ids"))
               .url(GitApiHttp.getString(json, "web_url"))
               .rawJson(rawJson)
               .build();
       case ISSUES, PULL_REQUESTS -> {
-        JSONObject author = (JSONObject) json.get("author");
-        String login = author != null ? GitApiHttp.getString(author, "username") : "";
+        JSONObject author = (JSONObject) json.get(CONST_AUTHOR);
+        String login = author != null ? GitApiHttp.getString(author, CONST_USERNAME) : "";
         yield GitResourceRecord.builder()
             .provider(PROVIDER)
             .entityType(entityType)
@@ -359,17 +365,17 @@ class GitLabResourceClient implements GitResourceClient {
             .id(GitApiHttp.getString(json, "id"))
             .number(GitApiHttp.getLong(json, "iid"))
             .title(GitApiHttp.getString(json, "title"))
-            .state(GitApiHttp.getString(json, "state"))
+            .state(GitApiHttp.getString(json, CONST_STATE))
             .body(GitApiHttp.getString(json, "description"))
             .author(login)
             .authorLogin(login)
             .labels(GitJsonLists.names(json, "labels", "name"))
-            .assignees(GitJsonLists.names(json, "assignees", "username"))
+            .assignees(GitJsonLists.names(json, "assignees", CONST_USERNAME))
             .sourceBranch(GitApiHttp.getString(json, "source_branch"))
             .targetBranch(GitApiHttp.getString(json, "target_branch"))
-            .merged("merged".equalsIgnoreCase(GitApiHttp.getString(json, "state")))
+            .merged("merged".equalsIgnoreCase(GitApiHttp.getString(json, CONST_STATE)))
             .mergedAt(GitApiHttp.getString(json, "merged_at"))
-            .createdAt(GitApiHttp.getString(json, "created_at"))
+            .createdAt(GitApiHttp.getString(json, CONST_CREATED_AT))
             .updatedAt(GitApiHttp.getString(json, "updated_at"))
             .closedAt(GitApiHttp.getString(json, "closed_at"))
             .url(GitApiHttp.getString(json, "web_url"))

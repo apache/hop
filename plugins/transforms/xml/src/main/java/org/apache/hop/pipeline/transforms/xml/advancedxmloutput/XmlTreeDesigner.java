@@ -68,6 +68,8 @@ import org.eclipse.swt.widgets.TreeItem;
  * when the user clicks OK.
  */
 public class XmlTreeDesigner extends Composite {
+  private static final String CONST_ADVANCED_XML_OUTPUT_DIALOG_TOOLBAR =
+      "AdvancedXMLOutputDialog.Toolbar.";
 
   private static final Class<?> PKG = AdvancedXmlOutputMeta.class;
 
@@ -259,9 +261,9 @@ public class XmlTreeDesigner extends Composite {
 
   private void addToolItem(ToolBar tb, String key, Listener selectionListener) {
     ToolItem ti = new ToolItem(tb, SWT.PUSH);
-    ti.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Toolbar." + key));
+    ti.setText(BaseMessages.getString(PKG, CONST_ADVANCED_XML_OUTPUT_DIALOG_TOOLBAR + key));
     ti.setToolTipText(
-        BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Toolbar." + key + ".Tooltip"));
+        BaseMessages.getString(PKG, CONST_ADVANCED_XML_OUTPUT_DIALOG_TOOLBAR + key + ".Tooltip"));
     ti.addListener(SWT.Selection, selectionListener);
   }
 
@@ -418,7 +420,7 @@ public class XmlTreeDesigner extends Composite {
   }
 
   private void setupFieldsDragSource() {
-    Transfer[] transfers = new Transfer[] {TextTransfer.getInstance()};
+    Transfer[] transfers = {TextTransfer.getInstance()};
     DragSource source = new DragSource(wInputFields, DND.DROP_COPY | DND.DROP_MOVE);
     source.setTransfer(transfers);
     source.addDragListener(
@@ -446,7 +448,7 @@ public class XmlTreeDesigner extends Composite {
   }
 
   private void setupTreeDropTarget() {
-    Transfer[] transfers = new Transfer[] {TextTransfer.getInstance()};
+    Transfer[] transfers = {TextTransfer.getInstance()};
     DropTarget target = new DropTarget(wTree, DND.DROP_COPY | DND.DROP_MOVE);
     target.setTransfer(transfers);
     target.addDropListener(
@@ -553,14 +555,14 @@ public class XmlTreeDesigner extends Composite {
 
   private void addMenu(Menu parent, String key, Runnable action, boolean enabled) {
     MenuItem mi = new MenuItem(parent, SWT.PUSH);
-    mi.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Toolbar." + key));
+    mi.setText(BaseMessages.getString(PKG, CONST_ADVANCED_XML_OUTPUT_DIALOG_TOOLBAR + key));
     mi.setEnabled(enabled);
     mi.addListener(SWT.Selection, ignore -> action.run());
   }
 
   private void addCheckMenu(Menu parent, String key, boolean selected, Runnable action) {
     MenuItem mi = new MenuItem(parent, SWT.CHECK);
-    mi.setText(BaseMessages.getString(PKG, "AdvancedXMLOutputDialog.Toolbar." + key));
+    mi.setText(BaseMessages.getString(PKG, CONST_ADVANCED_XML_OUTPUT_DIALOG_TOOLBAR + key));
     mi.setSelection(selected);
     mi.addListener(SWT.Selection, ignore -> action.run());
   }

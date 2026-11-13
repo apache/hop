@@ -65,13 +65,12 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionMailDialog extends ActionDialog {
   private static final Class<?> PKG = ActionMail.class;
 
-  private static final String[] IMAGES_FILE_TYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionMail.Filetype.Png"),
-        BaseMessages.getString(PKG, "ActionMail.Filetype.Jpeg"),
-        BaseMessages.getString(PKG, "ActionMail.Filetype.Gif"),
-        BaseMessages.getString(PKG, "ActionMail.Filetype.All")
-      };
+  private static final String[] IMAGES_FILE_TYPES = {
+    BaseMessages.getString(PKG, "ActionMail.Filetype.Png"),
+    BaseMessages.getString(PKG, "ActionMail.Filetype.Jpeg"),
+    BaseMessages.getString(PKG, "ActionMail.Filetype.Gif"),
+    BaseMessages.getString(PKG, "ActionMail.Filetype.All")
+  };
   public static final String CONST_NORMAL = "normal";
 
   private LabelTextVar wDestination;
@@ -1272,17 +1271,16 @@ public class ActionMailDialog extends ActionDialog {
             : (action.embeddedimages.isEmpty() ? 0 : action.embeddedimages.size());
     final int FieldsRows = rows;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionMail.Fields.Image.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionMail.Fields.ContentID.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionMail.Fields.Image.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionMail.Fields.ContentID.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionMail.Fields.Image.Tooltip"));

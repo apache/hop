@@ -36,6 +36,8 @@ import org.apache.hop.marketplace.resolve.SnapshotVersions;
  * maven.extension=zip} assets.
  */
 public final class NexusRepositoryBrowser {
+  private static final String CONST_REPOSITORY = "/repository/";
+  private static final String CONST_LAST_MODIFIED = "lastModified";
 
   private NexusRepositoryBrowser() {}
 
@@ -191,11 +193,11 @@ public final class NexusRepositoryBrowser {
     while (u.endsWith("/")) {
       u = u.substring(0, u.length() - 1);
     }
-    int idx = u.indexOf("/repository/");
+    int idx = u.indexOf(CONST_REPOSITORY);
     if (idx < 0) {
       return null;
     }
-    String rest = u.substring(idx + "/repository/".length());
+    String rest = u.substring(idx + CONST_REPOSITORY.length());
     int slash = rest.indexOf('/');
     return slash < 0 ? rest : rest.substring(0, slash);
   }
@@ -205,7 +207,7 @@ public final class NexusRepositoryBrowser {
       return null;
     }
     String u = repositoryUrl.trim();
-    int idx = u.indexOf("/repository/");
+    int idx = u.indexOf(CONST_REPOSITORY);
     if (idx < 0) {
       // already a host root?
       while (u.endsWith("/")) {
@@ -269,7 +271,7 @@ public final class NexusRepositoryBrowser {
         if (o instanceof Map<?, ?> asset) {
           String path = str(asset.get("path"));
           if (path != null && path.toLowerCase(Locale.ROOT).endsWith(".zip")) {
-            String lm = str(asset.get("lastModified"));
+            String lm = str(asset.get(CONST_LAST_MODIFIED));
             if (lm != null) {
               return lm;
             }
@@ -278,7 +280,7 @@ public final class NexusRepositoryBrowser {
       }
       Object first = list.get(0);
       if (first instanceof Map<?, ?> asset) {
-        String lm = str(asset.get("lastModified"));
+        String lm = str(asset.get(CONST_LAST_MODIFIED));
         if (lm != null) {
           return lm;
         }
@@ -288,7 +290,7 @@ public final class NexusRepositoryBrowser {
     if (assetsUpdated != null) {
       return assetsUpdated;
     }
-    return str(item.get("lastModified"));
+    return str(item.get(CONST_LAST_MODIFIED));
   }
 
   /** Prefer non-blank newer lastUpdated strings (ISO-8601 sorts lexicographically). */

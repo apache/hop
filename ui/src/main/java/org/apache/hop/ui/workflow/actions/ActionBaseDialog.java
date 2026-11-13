@@ -504,21 +504,20 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     final int parameterRows = getParameterCount();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.Parameter.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.ColumnName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.Value.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.Parameter.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.ColumnName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.Value.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[2].setUsingVariables(true);
 
     wParameters =

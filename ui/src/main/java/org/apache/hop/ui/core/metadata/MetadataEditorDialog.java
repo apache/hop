@@ -41,7 +41,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
   private static final Class<?> PKG = MetadataEditorDialog.class;
 
   private Shell shell;
-  private MetadataEditor<?> editor;
+  private final MetadataEditor<?> editor;
   private String result;
 
   public MetadataEditorDialog(Shell parent, MetadataEditor<?> editor) {

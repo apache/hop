@@ -40,6 +40,8 @@ import org.apache.hop.history.AuditState;
  * found again by its file name when it is opened.
  */
 public final class AiAdvisorSessionArchive {
+  private static final String CONST_LOCATION = "location";
+  private static final String CONST_TYPE_KEY = "typeKey";
 
   static final String AUDIT_TYPE = "ai-assistant";
   static final String AUDIT_NAME = "sessions";
@@ -131,7 +133,7 @@ public final class AiAdvisorSessionArchive {
     map.put("advisorPluginId", session.getAdvisorPluginId());
     map.put("scenarioId", session.getScenarioId());
     map.put("providerName", session.getProviderName());
-    map.put("location", session.getLocation());
+    map.put(CONST_LOCATION, session.getLocation());
     map.put("areaLabel", session.getAreaLabel());
     map.put("artifactName", session.getArtifactName());
     map.put("artifactKind", session.getArtifactKind());
@@ -142,7 +144,7 @@ public final class AiAdvisorSessionArchive {
     List<Map<String, String>> selections = new ArrayList<>();
     for (AiAdvisorMetadataSelection selection : session.getMetadataSelections()) {
       Map<String, String> entry = new LinkedHashMap<>();
-      entry.put("typeKey", selection.getTypeKey());
+      entry.put(CONST_TYPE_KEY, selection.getTypeKey());
       entry.put("name", selection.getName());
       selections.add(entry);
     }
@@ -175,7 +177,7 @@ public final class AiAdvisorSessionArchive {
     List<Map<String, Object>> backups = new ArrayList<>();
     for (AiMetadataBackup backup : turn.getMetadataBackups()) {
       Map<String, Object> entry = new LinkedHashMap<>();
-      entry.put("typeKey", backup.typeKey());
+      entry.put(CONST_TYPE_KEY, backup.typeKey());
       entry.put("name", backup.name());
       entry.put("previousJson", backup.previousJson());
       entry.put("savedJson", backup.savedJson());
@@ -203,8 +205,8 @@ public final class AiAdvisorSessionArchive {
     session.setAdvisorPluginId(text(map, "advisorPluginId"));
     session.setScenarioId(text(map, "scenarioId"));
     session.setProviderName(text(map, "providerName"));
-    if (!Utils.isEmpty(text(map, "location"))) {
-      session.setLocation(text(map, "location"));
+    if (!Utils.isEmpty(text(map, CONST_LOCATION))) {
+      session.setLocation(text(map, CONST_LOCATION));
     }
     session.setAreaLabel(text(map, "areaLabel"));
     session.setArtifactName(text(map, "artifactName"));
@@ -231,7 +233,8 @@ public final class AiAdvisorSessionArchive {
               .getMetadataSelections()
               .add(
                   new AiAdvisorMetadataSelection(
-                      String.valueOf(entry.get("typeKey")), String.valueOf(entry.get("name"))));
+                      String.valueOf(entry.get(CONST_TYPE_KEY)),
+                      String.valueOf(entry.get("name"))));
         }
       }
     }
@@ -282,7 +285,7 @@ public final class AiAdvisorSessionArchive {
     if (map.get("metadataBackups") instanceof List<?> backups) {
       for (Object item : backups) {
         if (item instanceof Map<?, ?> entry
-            && entry.get("typeKey") instanceof String typeKey
+            && entry.get(CONST_TYPE_KEY) instanceof String typeKey
             && entry.get("name") instanceof String name) {
           turn.getMetadataBackups()
               .add(

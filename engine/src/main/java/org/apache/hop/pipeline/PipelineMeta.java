@@ -2933,11 +2933,10 @@ public class PipelineMeta extends AbstractMeta
                         "PipelineMeta.Value.CheckingFieldName.FieldNameContainsSpaces.Description",
                         valueMeta.getName()));
               } else {
-                char[] list =
-                    new char[] {
-                      '.', ',', '-', '/', '+', '*', '\'', '\t', '"', '|', '@', '(', ')', '{', '}',
-                      '!', '^'
-                    };
+                char[] list = {
+                  '.', ',', '-', '/', '+', '*', '\'', '\t', '"', '|', '@', '(', ')', '{', '}', '!',
+                  '^'
+                };
                 for (char value : list) {
                   if (name.indexOf(value) >= 0) {
                     values.put(

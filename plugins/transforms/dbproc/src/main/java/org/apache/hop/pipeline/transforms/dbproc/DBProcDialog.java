@@ -62,6 +62,10 @@ import org.eclipse.swt.widgets.Text;
 
 public class DBProcDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DBProcMeta.class;
+  private static final String CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE =
+      "DBProcDialog.InvalidConnection.DialogTitle";
+  private static final String CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE =
+      "DBProcDialog.InvalidConnection.DialogMessage";
 
   private final DBProcMeta input;
   private GuiCompositeWidgets widgets;
@@ -205,30 +209,29 @@ public class DBProcDialog extends BaseTransformDialog {
     wGetResultFields.setLayoutData(fdGet);
 
     int nrRows = input.getResultFields() == null ? 0 : input.getResultFields().size();
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DBProcDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     wResultFields =
         new TableView(
             variables,
@@ -362,16 +365,16 @@ public class DBProcDialog extends BaseTransformDialog {
     String connectionName = widgetText(DBProcMeta.WIDGET_CONNECTION);
     if (Utils.isEmpty(connectionName)) {
       showMessage(
-          "DBProcDialog.InvalidConnection.DialogTitle",
-          "DBProcDialog.InvalidConnection.DialogMessage",
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE,
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE,
           SWT.OK | SWT.ICON_ERROR);
       return;
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta == null) {
       showMessage(
-          "DBProcDialog.InvalidConnection.DialogTitle",
-          "DBProcDialog.InvalidConnection.DialogMessage",
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE,
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE,
           SWT.OK | SWT.ICON_ERROR);
       return;
     }
@@ -408,16 +411,16 @@ public class DBProcDialog extends BaseTransformDialog {
     String connectionName = widgetText(DBProcMeta.WIDGET_CONNECTION);
     if (Utils.isEmpty(connectionName)) {
       showMessage(
-          "DBProcDialog.InvalidConnection.DialogTitle",
-          "DBProcDialog.InvalidConnection.DialogMessage",
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE,
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE,
           SWT.OK | SWT.ICON_ERROR);
       return;
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta == null) {
       showMessage(
-          "DBProcDialog.InvalidConnection.DialogTitle",
-          "DBProcDialog.InvalidConnection.DialogMessage",
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE,
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE,
           SWT.OK | SWT.ICON_ERROR);
       return;
     }
@@ -634,8 +637,8 @@ public class DBProcDialog extends BaseTransformDialog {
     input.setChanged();
     if (Utils.isEmpty(connectionName)) {
       showMessage(
-          "DBProcDialog.InvalidConnection.DialogTitle",
-          "DBProcDialog.InvalidConnection.DialogMessage",
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_TITLE,
+          CONST_DB_PROC_DIALOG_INVALID_CONNECTION_DIALOG_MESSAGE,
           SWT.OK | SWT.ICON_ERROR);
     }
     dispose();

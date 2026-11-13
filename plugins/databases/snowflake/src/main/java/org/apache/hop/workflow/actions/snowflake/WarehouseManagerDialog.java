@@ -58,31 +58,28 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
   private static final Class<?> PKG =
       WarehouseManager.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
 
-  private static final String[] MANAGEMENT_ACTION_DESCS =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Create"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Drop"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Resume"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Suspend"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Alter")
-      };
+  private static final String[] MANAGEMENT_ACTION_DESCS = {
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Create"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Drop"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Resume"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Suspend"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Action.Alter")
+  };
 
-  private static final String[] WAREHOUSE_SIZE_DESCS =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xsmall"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Small"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Medium"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Large"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xlarge"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xxlarge"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xxxlarge")
-      };
+  private static final String[] WAREHOUSE_SIZE_DESCS = {
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xsmall"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Small"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Medium"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Large"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xlarge"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xxlarge"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Size.Xxxlarge")
+  };
 
-  private static final String[] WAREHOUSE_TYPE_DESCS =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Type.Standard"),
-        BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Type.Enterprise")
-      };
+  private static final String[] WAREHOUSE_TYPE_DESCS = {
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Type.Standard"),
+    BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Dialog.Type.Enterprise")
+  };
 
   private WarehouseManager warehouseManager;
 

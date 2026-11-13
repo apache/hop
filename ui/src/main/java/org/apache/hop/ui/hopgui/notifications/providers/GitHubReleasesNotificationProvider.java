@@ -43,8 +43,8 @@ import org.apache.hop.core.util.VersionCompare;
 public class GitHubReleasesNotificationProvider implements INotificationProvider {
   private String repositoryOwner;
   private String repositoryName;
-  private String providerId;
-  private String providerName;
+  private final String providerId;
+  private final String providerName;
   private boolean enabled = true;
   private long pollInterval = 3600000; // 1 hour default
   private boolean includePreReleases = false; // Default: only stable releases

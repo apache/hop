@@ -25,7 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 
 public class DatabaseCache {
 
-  private Map<RowMetaAndData, List<Object[]>> cache;
+  private final Map<RowMetaAndData, List<Object[]>> cache;
 
   public DatabaseCache(int maxSize) {
     cache = new EvictableCacheMap(maxSize);

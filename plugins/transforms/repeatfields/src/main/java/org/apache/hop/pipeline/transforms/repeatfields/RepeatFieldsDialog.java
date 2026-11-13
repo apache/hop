@@ -47,6 +47,8 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class RepeatFieldsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RepeatFields.class;
+  private static final String CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE =
+      "System.Dialog.GetFieldsFailed.Message";
 
   public static final String STRING_SORT_WARNING_PARAMETER = "RepeatFieldsWarning";
 
@@ -199,7 +201,7 @@ public class RepeatFieldsDialog extends BaseTransformDialog {
               }
               setComboBoxes();
             } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              logError(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE));
             }
           }
         };
@@ -317,7 +319,7 @@ public class RepeatFieldsDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           ke);
     }
   }
@@ -333,7 +335,7 @@ public class RepeatFieldsDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           ke);
     }
   }

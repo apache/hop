@@ -48,6 +48,8 @@ import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
  * sidecar match the local file.
  */
 public final class HopSparkDeployHelper {
+  private static final String CONST_JSON = ".json";
+  private static final String CONST_PIPELINE = "pipeline";
 
   /**
    * Unversioned "latest" name (optional human convenience). Prefer {@link
@@ -220,7 +222,7 @@ public final class HopSparkDeployHelper {
 
     Path jarPath = resolveLocalFile(jar, "Fat jar");
 
-    Path pipelineLocal = materializeToTemp(pipeline, "hop-dbx-pipeline-", ".hpl", "pipeline");
+    Path pipelineLocal = materializeToTemp(pipeline, "hop-dbx-pipeline-", ".hpl", CONST_PIPELINE);
 
     // Per-pipeline remote names so concurrent deploys from the same project do not clobber
     // each other's package / pipeline / metadata / env files on the Volume.
@@ -296,7 +298,7 @@ public final class HopSparkDeployHelper {
       Path metadataLocal;
       try {
         String json = new SerializableMetadataProvider(metadataProvider).toJson();
-        metadataLocal = TempFileUtil.createTempFile("hop-dbx-metadata-", ".json");
+        metadataLocal = TempFileUtil.createTempFile("hop-dbx-metadata-", CONST_JSON);
         metadataLocal.toFile().deleteOnExit();
         Files.writeString(metadataLocal, json, StandardCharsets.UTF_8);
       } catch (Exception e) {
@@ -313,7 +315,7 @@ public final class HopSparkDeployHelper {
     String envLocalPath = resolve(variables, options.environmentConfigFile());
     if (StringUtils.isNotBlank(envLocalPath)) {
       Path envLocal =
-          materializeToTemp(envLocalPath, "hop-dbx-env-", ".json", "environment config");
+          materializeToTemp(envLocalPath, "hop-dbx-env-", CONST_JSON, "environment config");
       envDbfs = base + "/" + envConfigRemoteName(stem);
       if (log != null && log.isBasic()) {
         log.logBasic("Uploading environment config to " + envDbfs);
@@ -342,7 +344,7 @@ public final class HopSparkDeployHelper {
    */
   static String remoteArtifactStem(String pipelinePath) {
     if (StringUtils.isBlank(pipelinePath)) {
-      return "pipeline";
+      return CONST_PIPELINE;
     }
     String p = pipelinePath.trim().replace('\\', '/');
     int slash = p.lastIndexOf('/');
@@ -352,7 +354,7 @@ public final class HopSparkDeployHelper {
       base = base.substring(0, dot);
     }
     if (StringUtils.isBlank(base)) {
-      return "pipeline";
+      return CONST_PIPELINE;
     }
     StringBuilder sb = new StringBuilder(base.length());
     for (int i = 0; i < base.length(); i++) {
@@ -376,7 +378,7 @@ public final class HopSparkDeployHelper {
       stem = stem.substring(0, stem.length() - 1);
     }
     if (stem.isEmpty()) {
-      return "pipeline";
+      return CONST_PIPELINE;
     }
     if (stem.length() > MAX_STEM_LENGTH) {
       stem = stem.substring(0, MAX_STEM_LENGTH);
@@ -393,11 +395,11 @@ public final class HopSparkDeployHelper {
   }
 
   static String metadataRemoteName(String stem) {
-    return "metadata-" + stem + ".json";
+    return "metadata-" + stem + CONST_JSON;
   }
 
   static String envConfigRemoteName(String stem) {
-    return "env-config-" + stem + ".json";
+    return "env-config-" + stem + CONST_JSON;
   }
 
   /** Resolve project home: explicit field, else {@code PROJECT_HOME} variable. */

@@ -45,6 +45,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class WatchFilesDialog extends BaseTransformDialog {
+  private static final String CONST_INITIAL_SCAN = "initialScan";
+  private static final String CONST_STRATEGY = "strategy";
+  private static final String CONST_MAXIMUM_RUN_TIME_UNIT = "maximumRunTimeUnit";
+  private static final String CONST_REPLAY = "Replay";
+  private static final String CONST_RESET = "Reset";
+  private static final String CONST_RESTORE = "Restore";
+  private static final String CONST_MIGRATE = "Migrate";
+  private static final String CONST_BACKUP_RESULT = "BackupResult";
   private final WatchFilesMeta input;
   private GuiCompositeWidgets widgets;
   private Label patternHelp;
@@ -62,11 +70,11 @@ public class WatchFilesDialog extends BaseTransformDialog {
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
     changed = input.hasChanged();
     WatchFilesMeta form = (WatchFilesMeta) input.clone();
-    form.setInitialScan(WatchFilesMeta.optionLabel("initialScan", input.getInitialScan()));
-    form.setStrategy(WatchFilesMeta.optionLabel("strategy", input.getStrategy()));
+    form.setInitialScan(WatchFilesMeta.optionLabel(CONST_INITIAL_SCAN, input.getInitialScan()));
+    form.setStrategy(WatchFilesMeta.optionLabel(CONST_STRATEGY, input.getStrategy()));
     form.setPatternSyntax(WatchFilesMeta.optionLabel("patternSyntax", input.getPatternSyntax()));
     form.setMaximumRunTimeUnit(
-        WatchFilesMeta.optionLabel("maximumRunTimeUnit", input.getMaximumRunTimeUnit()));
+        WatchFilesMeta.optionLabel(CONST_MAXIMUM_RUN_TIME_UNIT, input.getMaximumRunTimeUnit()));
     widgets =
         GuiCompositeWidgets.addScrolledComposite(
             shell,
@@ -142,13 +150,13 @@ public class WatchFilesDialog extends BaseTransformDialog {
     // Preserve the persisted choice when its displayed label has not changed.
     options.setInitialScan(
         java.util.Objects.equals(
-                WatchFilesMeta.optionLabel("initialScan", previousInitialScan),
+                WatchFilesMeta.optionLabel(CONST_INITIAL_SCAN, previousInitialScan),
                 options.getInitialScan())
             ? previousInitialScan
-            : WatchFilesMeta.optionValue("initialScan", options.getInitialScan()));
+            : WatchFilesMeta.optionValue(CONST_INITIAL_SCAN, options.getInitialScan()));
     options.setMaximumRunTimeUnit(
-        WatchFilesMeta.optionValue("maximumRunTimeUnit", options.getMaximumRunTimeUnit()));
-    options.setStrategy(WatchFilesMeta.optionValue("strategy", options.getStrategy()));
+        WatchFilesMeta.optionValue(CONST_MAXIMUM_RUN_TIME_UNIT, options.getMaximumRunTimeUnit()));
+    options.setStrategy(WatchFilesMeta.optionValue(CONST_STRATEGY, options.getStrategy()));
     options.setPatternSyntax(
         WatchFilesMeta.optionValue("patternSyntax", options.getPatternSyntax()));
   }
@@ -158,7 +166,7 @@ public class WatchFilesDialog extends BaseTransformDialog {
     readOptions(options);
     Set<String> hidden = new HashSet<>();
     String duration = variables.resolve(options.getMaximumRunTime());
-    if (duration == null || duration.isBlank()) hidden.add("maximumRunTimeUnit");
+    if (duration == null || duration.isBlank()) hidden.add(CONST_MAXIMUM_RUN_TIME_UNIT);
     if (!options.isEditWatchId()) hidden.add("watchId");
     if (!options.isWaitUntilStable()) {
       hidden.addAll(Set.of("stabilityChecks", "stabilityInterval"));
@@ -169,7 +177,7 @@ public class WatchFilesDialog extends BaseTransformDialog {
       hidden.add("pollingInterval");
     }
     widgets.setWidgetsHidden(options, hidden);
-    setHelp("strategy", "Detection." + options.getStrategy());
+    setHelp(CONST_STRATEGY, "Detection." + options.getStrategy());
     setHelp("pollingInterval", "PollingHelp." + options.getStrategy());
     setHelp("reconciliationInterval", "ReconciliationHelp");
     setHelp("includeWildcard", "IncludeHelp." + options.getPatternSyntax());
@@ -238,7 +246,7 @@ public class WatchFilesDialog extends BaseTransformDialog {
     status.setVisible(false);
     actionButton(parent, "Inspect", status, 1);
     actionButton(parent, "Backup", status, 1);
-    actionButton(parent, "Replay", status, 2);
+    actionButton(parent, CONST_REPLAY, status, 2);
     Button advanced = new Button(parent, SWT.CHECK);
     advanced.setText(message("AdvancedRecovery"));
     advanced.setToolTipText(message("AdvancedRecoveryHelp"));
@@ -249,9 +257,9 @@ public class WatchFilesDialog extends BaseTransformDialog {
     recoveryArea.exclude = true;
     recovery.setLayoutData(recoveryArea);
     recovery.setVisible(false);
-    actionButton(recovery, "Reset", status, 1);
-    actionButton(recovery, "Restore", status, 1);
-    actionButton(recovery, "Migrate", status, 2);
+    actionButton(recovery, CONST_RESET, status, 1);
+    actionButton(recovery, CONST_RESTORE, status, 1);
+    actionButton(recovery, CONST_MIGRATE, status, 2);
     advanced.addListener(
         SWT.Selection,
         event -> {
@@ -290,7 +298,7 @@ public class WatchFilesDialog extends BaseTransformDialog {
     try {
       WatchFilesMeta options = (WatchFilesMeta) input.clone();
       readOptions(options);
-      if (action.equals("Replay")) {
+      if (action.equals(CONST_REPLAY)) {
         if (!options.isCreated()) throw new java.io.IOException(message("CreatedRequired"));
         if (!new WatchFilesReplayDialog(shell, variables, options).open()) return;
       }
@@ -309,19 +317,19 @@ public class WatchFilesDialog extends BaseTransformDialog {
               variables.resolve(options.getWatchId()),
               WatchFilesMeta.integer(variables, options.getMaximumEntries(), "Maximum entries"));
       Path selected = null;
-      if (action.equals("Restore")) {
+      if (action.equals(CONST_RESTORE)) {
         FileDialog chooser = new FileDialog(shell, SWT.OPEN);
-        chooser.setText(message("Restore"));
+        chooser.setText(message(CONST_RESTORE));
         chooser.setFilterPath(directory.toString());
         chooser.setFilterExtensions(new String[] {"*.json;*.bak", "*"});
         String filename = chooser.open();
         if (filename == null) return;
         selected = Path.of(filename);
       }
-      if (action.equals("Replay")
-          || action.equals("Reset")
-          || action.equals("Restore")
-          || action.equals("Migrate")) {
+      if (action.equals(CONST_REPLAY)
+          || action.equals(CONST_RESET)
+          || action.equals(CONST_RESTORE)
+          || action.equals(CONST_MIGRATE)) {
         if (!confirmStateAction(action)) return;
       }
       final Path restore = selected;
@@ -335,13 +343,14 @@ public class WatchFilesDialog extends BaseTransformDialog {
                   result.set(
                       switch (action) {
                         case "Inspect" -> manager.inspect();
-                        case "Backup" -> message("BackupResult") + manager.backup();
-                        case "Replay" ->
+                        case "Backup" -> message(CONST_BACKUP_RESULT) + manager.backup();
+                        case CONST_REPLAY ->
                             message("ReplayResult")
                                 + manager.replay(variables.resolve(options.getReplayFilter()));
-                        case "Reset" -> message("BackupResult") + manager.reset();
-                        case "Restore" -> message("BackupResult") + manager.restoreBackup(restore);
-                        case "Migrate" -> {
+                        case CONST_RESET -> message(CONST_BACKUP_RESULT) + manager.reset();
+                        case CONST_RESTORE ->
+                            message(CONST_BACKUP_RESULT) + manager.restoreBackup(restore);
+                        case CONST_MIGRATE -> {
                           manager.migrate();
                           yield manager.inspect();
                         }

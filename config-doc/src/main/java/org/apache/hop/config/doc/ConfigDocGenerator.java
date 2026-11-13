@@ -59,6 +59,7 @@ import org.jboss.jandex.IndexReader;
  * the plain configuration objects, never Hop itself.
  */
 public class ConfigDocGenerator {
+  private static final String CONST_DESCRIPTION = "description";
 
   static final DotName CONFIG_PLUGIN =
       DotName.createSimple("org.apache.hop.core.config.plugin.ConfigPlugin");
@@ -316,13 +317,13 @@ public class ConfigDocGenerator {
     // The configuration perspective labels the tree with the @GuiPlugin description, so that is
     // the name a reader is looking for on the page.
     AnnotationInstance gui = ci.declaredAnnotation(GUI_PLUGIN);
-    String name = gui == null ? "" : translate(str(gui, "description", ""), msgs);
+    String name = gui == null ? "" : translate(str(gui, CONST_DESCRIPTION, ""), msgs);
     if (name.isEmpty()) {
-      name = translate(str(ai, "description", ""), msgs);
+      name = translate(str(ai, CONST_DESCRIPTION, ""), msgs);
     }
     return new Plugin(
         str(ai, "id", ""),
-        translate(str(ai, "description", ""), msgs),
+        translate(str(ai, CONST_DESCRIPTION, ""), msgs),
         name,
         str(ai, "configKey", ""),
         options);

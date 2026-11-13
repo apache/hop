@@ -50,7 +50,7 @@ public class MissingActionDialog extends ActionDialog {
   private static final Class<?> PKG = MissingActionDialog.class;
 
   private List<MissingAction> missingActions;
-  private int mode;
+  private final int mode;
 
   /** A reference to the action interface */
   protected IAction action;

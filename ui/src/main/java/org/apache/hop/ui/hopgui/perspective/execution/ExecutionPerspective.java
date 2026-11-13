@@ -131,6 +131,7 @@ import org.w3c.dom.Node;
     name = "i18n::ExecutionPerspective.Name",
     description = "i18n::ExecutionPerspective.Description")
 public class ExecutionPerspective implements IHopPerspective, TabClosable {
+  private static final String CONST_JSON = ".json";
 
   public static final Class<?> PKG = ExecutionPerspective.class; // i18n
   private static final String EXECUTION_PERSPECTIVE_TREE = "Execution perspective tree";
@@ -1556,12 +1557,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     if (iLocation instanceof CachingFileExecutionInfoLocation cachingLocation) {
       // Match CacheEntry.calculateFilename: root + id + ".json"
       if (root.endsWith("/") || root.endsWith("\\")) {
-        return root + execution.getId() + ".json";
+        return root + execution.getId() + CONST_JSON;
       }
       if (root.contains("://") || root.startsWith("file:")) {
-        return root + "/" + execution.getId() + ".json";
+        return root + "/" + execution.getId() + CONST_JSON;
       }
-      return root + Const.FILE_SEPARATOR + execution.getId() + ".json";
+      return root + Const.FILE_SEPARATOR + execution.getId() + CONST_JSON;
     }
     return null;
   }

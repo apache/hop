@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 public class ColumnsResizer implements Listener {
-  private int[] weights;
+  private final int[] weights;
   private boolean resizing;
 
   public ColumnsResizer(int... weights) {
@@ -49,7 +49,7 @@ public class ColumnsResizer implements Listener {
 
   private Listener getColumnResizeListener(final int colIndex) {
     return new Listener() {
-      private int colIdx = colIndex;
+      private final int colIdx = colIndex;
 
       @Override
       public void handleEvent(Event event) {

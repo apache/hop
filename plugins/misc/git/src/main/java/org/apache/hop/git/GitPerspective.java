@@ -114,6 +114,14 @@ import org.eclipse.swt.widgets.TreeItem;
 @GuiPlugin(name = "i18n::GitPerspective.Name", description = "i18n::GitPerspective.Description")
 public class GitPerspective implements IHopPerspective {
   public static final Class<?> PKG = GitPerspective.class; // i18n
+  private static final String CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER =
+      "GitGuiPlugin.Dialog.PushError.Header";
+  private static final String CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE =
+      "GitGuiPlugin.Dialog.PushError.Message";
+  private static final String CONST_GIT_GUI_PLUGIN_DIALOG_REVERT_COMMIT_HEADER =
+      "GitGuiPlugin.Dialog.RevertCommit.Header";
+  private static final String CONST_GIT_GUI_PLUGIN_DIALOG_CHERRY_PICK_COMMIT_HEADER =
+      "GitGuiPlugin.Dialog.CherryPickCommit.Header";
 
   private static final String GIT_PERSPECTIVE_REF_TREE = "Git ref tree";
 
@@ -866,7 +874,8 @@ public class GitPerspective implements IHopPerspective {
       // Check if the git repository is clean
       if (!uigit.isClean()) {
         MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-        dialog.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertCommit.Header"));
+        dialog.setText(
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_REVERT_COMMIT_HEADER));
         dialog.setMessage(
             BaseMessages.getString(
                 PKG, "GitGuiPlugin.Dialog.RevertCommitRepositoryIsNotClean.Message"));
@@ -876,7 +885,7 @@ public class GitPerspective implements IHopPerspective {
 
       // Ask for confirmation before revert commit
       MessageBox dialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-      dialog.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertCommit.Header"));
+      dialog.setText(BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_REVERT_COMMIT_HEADER));
       dialog.setMessage(
           BaseMessages.getString(
               PKG,
@@ -895,7 +904,7 @@ public class GitPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertCommit.Header"),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_REVERT_COMMIT_HEADER),
             BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.RevertCommitError.Message"),
             e);
       }
@@ -1042,7 +1051,8 @@ public class GitPerspective implements IHopPerspective {
       // Check if the git repository is clean
       if (!uigit.isClean()) {
         MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
-        dialog.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"));
+        dialog.setText(
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_CHERRY_PICK_COMMIT_HEADER));
         dialog.setMessage(
             BaseMessages.getString(
                 PKG, "GitGuiPlugin.Dialog.CherryPickCommitRepositoryIsNotClean.Message"));
@@ -1058,7 +1068,7 @@ public class GitPerspective implements IHopPerspective {
           if (result.getStatus() == CherryPickResult.CherryPickStatus.CONFLICTING) {
             MessageBox dialog = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
             dialog.setText(
-                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"));
+                BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_CHERRY_PICK_COMMIT_HEADER));
             dialog.setMessage(
                 BaseMessages.getString(
                     PKG,
@@ -1072,7 +1082,7 @@ public class GitPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommit.Header"),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_CHERRY_PICK_COMMIT_HEADER),
             BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CherryPickCommitError.Message"),
             e);
       }
@@ -1403,8 +1413,8 @@ public class GitPerspective implements IHopPerspective {
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
-          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+          BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER),
+          BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE),
           e);
     }
   }
@@ -1436,8 +1446,8 @@ public class GitPerspective implements IHopPerspective {
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
-          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+          BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER),
+          BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE),
           e);
     }
   }
@@ -1603,8 +1613,8 @@ public class GitPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE),
             e);
       }
 
@@ -1661,8 +1671,8 @@ public class GitPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE),
             e);
       }
 
@@ -1724,8 +1734,8 @@ public class GitPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(
             getShell(),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Header"),
-            BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.PushError.Message"),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_HEADER),
+            BaseMessages.getString(PKG, CONST_GIT_GUI_PLUGIN_DIALOG_PUSH_ERROR_MESSAGE),
             e);
       }
     }

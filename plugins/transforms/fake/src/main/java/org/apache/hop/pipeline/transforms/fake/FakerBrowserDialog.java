@@ -61,6 +61,7 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class FakerBrowserDialog extends Dialog {
   private static final Class<?> PKG = FakerBrowserDialog.class;
+  private static final String CONST_FALSE = "false";
 
   /** Marker stored on the throwaway child that gives a collapsed category its expand arrow. */
   private static final Object PLACEHOLDER = new Object();
@@ -176,7 +177,7 @@ public class FakerBrowserDialog extends Dialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    Button[] buttons = new Button[] {wAdd, wOk, wCancel};
+    Button[] buttons = {wAdd, wOk, wCancel};
     // positionBottomButtons anchors the row to the bottom (100%); the shell's form margin provides
     // the gap to the window frame, exactly as in the standard transform dialogs.
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
@@ -578,8 +579,8 @@ public class FakerBrowserDialog extends Dialog {
     }
     if (parameterType == boolean.class || parameterType == Boolean.class) {
       Combo combo = new Combo(paramsContent, SWT.READ_ONLY | SWT.BORDER);
-      combo.setItems("true", "false");
-      combo.setText("false".equalsIgnoreCase(value) ? "false" : "true");
+      combo.setItems("true", CONST_FALSE);
+      combo.setText(CONST_FALSE.equalsIgnoreCase(value) ? CONST_FALSE : "true");
       combo.addModifyListener(e -> updatePreview());
       PropsUi.setLook(combo);
       return combo;

@@ -52,8 +52,8 @@ public class PipelineHopDialog extends Dialog {
 
   private PipelineHopMeta input;
   private Shell shell;
-  private PipelineMeta pipelineMeta;
-  private PropsUi props;
+  private final PipelineMeta pipelineMeta;
+  private final PropsUi props;
 
   private boolean changed;
 

@@ -53,7 +53,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
 
   private String dateString;
 
-  private BaseTransform baseTransform;
+  private final BaseTransform baseTransform;
 
   public AbstractFileErrorHandler(
       Date date,

@@ -59,7 +59,7 @@ public class StaxPoiSheet implements IKSheet {
   // hold the pointer to the current row so that access to the next row in the stream is quick and
   // easy
   private int currentRow;
-  private List<String> headerRow;
+  private final List<String> headerRow;
   private int numRows;
   private int numCols;
   private boolean maxColsNumberDefined = true;
@@ -68,9 +68,9 @@ public class StaxPoiSheet implements IKSheet {
   private IKCell[] currentRowCells;
 
   // full shared strings table
-  private SharedStrings sst;
+  private final SharedStrings sst;
   // custom styles
-  private StylesTable styles;
+  private final StylesTable styles;
 
   public StaxPoiSheet(XSSFReader reader, String sheetName, String sheetID)
       throws InvalidFormatException, IOException, XMLStreamException {

@@ -30,7 +30,7 @@ public class ConsoleLoggingEventListener implements IHopLoggingEventListener {
   private static final String ANSI_RESET = "\u001B[0m";
   private static final String ANSI_RED = "\u001B[31m";
 
-  private HopLogLayout layout;
+  private final HopLogLayout layout;
   private boolean useColors;
 
   public ConsoleLoggingEventListener() {

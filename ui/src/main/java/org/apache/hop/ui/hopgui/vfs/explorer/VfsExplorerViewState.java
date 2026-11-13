@@ -30,6 +30,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 /** Column visibility and sort for the file explorer. Separate from the file dialog's sort. */
 @Getter
 public final class VfsExplorerViewState {
+  private static final String CONST_SHOW_HIDDEN_FOLDERS = "showHiddenFolders";
+  private static final String CONST_SHOW_HIDDEN_FILES = "showHiddenFiles";
 
   public static final String STATE_TYPE = "vfs-explorer-state";
   public static final String STATE_NAME = "vfs-explorer-state";
@@ -94,8 +96,8 @@ public final class VfsExplorerViewState {
     Map<String, Object> values = new HashMap<>();
     values.put("sortColumn", sortColumn == null ? VfsFileColumn.NAME.name() : sortColumn.name());
     values.put("ascending", ascending);
-    values.put("showHiddenFolders", showHiddenFolders);
-    values.put("showHiddenFiles", showHiddenFiles);
+    values.put(CONST_SHOW_HIDDEN_FOLDERS, showHiddenFolders);
+    values.put(CONST_SHOW_HIDDEN_FILES, showHiddenFiles);
     values.put("columnsVersion", COLUMNS_VERSION);
     for (VfsFileColumn column : VfsFileColumn.values()) {
       if (column != VfsFileColumn.NAME) {
@@ -126,10 +128,10 @@ public final class VfsExplorerViewState {
     if (state == null || stored == null || stored.getStateMap() == null) {
       return;
     }
-    if (stored.getStateMap().containsKey("showHiddenFolders")
-        || stored.getStateMap().containsKey("showHiddenFiles")) {
-      state.showHiddenFolders = stored.extractBoolean("showHiddenFolders", false);
-      state.showHiddenFiles = stored.extractBoolean("showHiddenFiles", false);
+    if (stored.getStateMap().containsKey(CONST_SHOW_HIDDEN_FOLDERS)
+        || stored.getStateMap().containsKey(CONST_SHOW_HIDDEN_FILES)) {
+      state.showHiddenFolders = stored.extractBoolean(CONST_SHOW_HIDDEN_FOLDERS, false);
+      state.showHiddenFiles = stored.extractBoolean(CONST_SHOW_HIDDEN_FILES, false);
       return;
     }
     boolean legacy = stored.extractBoolean("showHidden", false);

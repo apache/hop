@@ -43,7 +43,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetServerStatusDialog.class;
   private final GetServerStatusMeta input;
 
-  private boolean getPreviousFields = false;
+  private final boolean getPreviousFields = false;
 
   private Combo wServerField;
   private Text wErrorMessage;

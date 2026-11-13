@@ -148,10 +148,10 @@ public class GuiResource {
   private Map<String, SwtUniversalImage> imagesActions = new Hashtable<>();
 
   /** Value type icons by plugin id, each loaded the first time it is asked for. */
-  private Map<String, Image> imagesValueMeta = new HashMap<>();
+  private final Map<String, Image> imagesValueMeta = new HashMap<>();
 
   /** Database icons by plugin id, each loaded the first time it is asked for. */
-  private Map<String, Image> imagesDatabase = new HashMap<>();
+  private final Map<String, Image> imagesDatabase = new HashMap<>();
 
   private SwtUniversalImage imageLogo;
   private SwtUniversalImage imageDatabase;

@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 /** File painter that adds lint status icons to files in the Explorer. */
 public class LintStatusFilePainter implements IExplorerFilePaintListener {
+  private static final String CONST_LINT_TOOLTIP = "lintTooltip";
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -242,7 +243,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
       treeItem.setImage(base);
     }
     treeItem.setData(APPLIED_STATUS_KEY, null);
-    treeItem.setData("lintTooltip", null);
+    treeItem.setData(CONST_LINT_TOOLTIP, null);
   }
 
   private void applyStatusStyle(
@@ -581,7 +582,7 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
 
   private void addLintTooltip(TreeItem treeItem, String fileName, String lintStatus) {
     try {
-      treeItem.setData("lintTooltip", fileName + " - " + lintStatus);
+      treeItem.setData(CONST_LINT_TOOLTIP, fileName + " - " + lintStatus);
       Tree tree = treeItem.getParent();
       if (tree.getData("lintTooltipListener") == null) {
         tree.setToolTipText("");
@@ -589,8 +590,8 @@ public class LintStatusFilePainter implements IExplorerFilePaintListener {
             SWT.MouseHover,
             event -> {
               TreeItem item = tree.getItem(new org.eclipse.swt.graphics.Point(event.x, event.y));
-              if (item != null && item.getData("lintTooltip") != null) {
-                tree.setToolTipText((String) item.getData("lintTooltip"));
+              if (item != null && item.getData(CONST_LINT_TOOLTIP) != null) {
+                tree.setToolTipText((String) item.getData(CONST_LINT_TOOLTIP));
               } else if (item != null) {
                 tree.setToolTipText(item.getText());
               }

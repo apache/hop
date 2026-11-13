@@ -39,8 +39,8 @@ public class SwingGUIResource {
 
   private static SwingGUIResource instance;
 
-  private Map<String, SwingUniversalImageSvg> transformImages;
-  private Map<String, SwingUniversalImageSvg> actionImages;
+  private final Map<String, SwingUniversalImageSvg> transformImages;
+  private final Map<String, SwingUniversalImageSvg> actionImages;
 
   private SwingGUIResource() {
     this.transformImages = loadTransformImages();

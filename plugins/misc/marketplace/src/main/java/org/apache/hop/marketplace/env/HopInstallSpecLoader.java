@@ -42,6 +42,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /** Loads and saves {@link HopInstallSpec} as YAML or JSON through HopVfs. */
 public final class HopInstallSpecLoader {
+  private static final String CONST_VERSION = "version";
 
   private HopInstallSpecLoader() {}
 
@@ -139,7 +140,7 @@ public final class HopInstallSpecLoader {
    */
   static Map<String, Object> toYamlMap(HopInstallSpec spec) {
     Map<String, Object> root = new LinkedHashMap<>();
-    root.put("version", StringUtils.defaultIfBlank(spec.getVersion(), "1.0"));
+    root.put(CONST_VERSION, StringUtils.defaultIfBlank(spec.getVersion(), "1.0"));
     if (StringUtils.isNotBlank(spec.getHopVersion())) {
       root.put("hopVersion", spec.getHopVersion());
     }
@@ -180,7 +181,7 @@ public final class HopInstallSpecLoader {
       }
       m.put("artifactId", ref.getArtifactId());
       if (StringUtils.isNotBlank(ref.getVersion())) {
-        m.put("version", ref.getVersion());
+        m.put(CONST_VERSION, ref.getVersion());
       }
       plugins.add(m);
     }
@@ -197,7 +198,7 @@ public final class HopInstallSpecLoader {
       Map<String, Object> m = new LinkedHashMap<>();
       m.put("groupId", ref.getGroupId());
       m.put("artifactId", ref.getArtifactId());
-      m.put("version", ref.getVersion());
+      m.put(CONST_VERSION, ref.getVersion());
       String target = StringUtils.defaultIfBlank(ref.getTarget(), "lib/jdbc");
       if (!"lib/jdbc".equals(target)) {
         m.put("target", target);

@@ -31,7 +31,7 @@ public class DriverSingleton {
 
   private static DriverSingleton singleton;
 
-  private Map<String, Driver> driverMap;
+  private final Map<String, Driver> driverMap;
 
   private DriverSingleton() {
     driverMap = new HashMap<>();

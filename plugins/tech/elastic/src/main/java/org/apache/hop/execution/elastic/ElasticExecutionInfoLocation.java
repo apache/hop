@@ -70,6 +70,15 @@ import org.json.simple.parser.JSONParser;
 public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocation
     implements IExecutionInfoLocation {
   public static final Class<?> PKG = ElasticExecutionInfoLocation.class;
+  private static final String CONST_THE_FAILURE_MAPPING_WAS_NOT_ADDED_TO_INDEX =
+      "The failure mapping was not added to index ";
+  private static final String CONST_NON_FATAL = " (non-fatal): ";
+  private static final String CONST_APPLICATION_JSON = "application/json";
+  private static final String CONST_CONTENT_TYPE = "Content-Type";
+  private static final String CONST_ACCEPT = "Accept";
+  private static final String CONST_API_KEY = "ApiKey ";
+  private static final String CONST_AUTHORIZATION = "Authorization";
+  private static final String CONST_SEARCH = "/_search";
 
   @GuiWidgetElement(
       id = "url",
@@ -167,9 +176,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .POST(HttpRequest.BodyPublishers.ofByteArray(body.getBytes(StandardCharsets.UTF_8)))
               .build();
 
@@ -213,7 +222,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       //
       HttpClient client = HttpClient.newHttpClient();
       URI uri = URI.create(actualUrl);
-      URI postUri = uri.resolve(actualIndexName + "/_search");
+      URI postUri = uri.resolve(actualIndexName + CONST_SEARCH);
 
       String body =
           """
@@ -231,9 +240,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .POST(HttpRequest.BodyPublishers.ofString(body))
               .build();
 
@@ -266,9 +275,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         HttpRequest deleteRequest =
             HttpRequest.newBuilder()
                 .uri(deleteUri)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", "ApiKey " + actualApiKey)
+                .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+                .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+                .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
                 .DELETE()
                 .build();
         HttpResponse<String> deleteResponse =
@@ -292,7 +301,7 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       //
       HttpClient client = HttpClient.newHttpClient();
       URI uri = URI.create(actualUrl);
-      URI postUri = uri.resolve(actualIndexName + "/_search");
+      URI postUri = uri.resolve(actualIndexName + CONST_SEARCH);
 
       String body =
           """
@@ -310,9 +319,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .POST(HttpRequest.BodyPublishers.ofString(body))
               .build();
 
@@ -362,16 +371,16 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
     try {
       HttpClient client = HttpClient.newHttpClient();
       URI uri = URI.create(actualUrl);
-      URI postUri = uri.resolve(actualIndexName + "/_search");
+      URI postUri = uri.resolve(actualIndexName + CONST_SEARCH);
 
       String body = listQuery(getActiveProjectId(), limit);
 
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .POST(HttpRequest.BodyPublishers.ofString(body))
               .build();
 
@@ -458,9 +467,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest createRequest =
           HttpRequest.newBuilder()
               .uri(createUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + location.actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + location.actualApiKey)
               .PUT(HttpRequest.BodyPublishers.ofString(createBody))
               .build();
 
@@ -475,9 +484,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         HttpRequest mappingRequest =
             HttpRequest.newBuilder()
                 .uri(mappingUri)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", "ApiKey " + location.actualApiKey)
+                .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+                .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+                .header(CONST_AUTHORIZATION, CONST_API_KEY + location.actualApiKey)
                 .PUT(HttpRequest.BodyPublishers.ofString(projectIdMappingBody()))
                 .build();
         HttpResponse<String> mappingResponse =
@@ -493,9 +502,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         HttpRequest failureMappingRequest =
             HttpRequest.newBuilder()
                 .uri(mappingUri)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .header("Authorization", "ApiKey " + location.actualApiKey)
+                .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+                .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+                .header(CONST_AUTHORIZATION, CONST_API_KEY + location.actualApiKey)
                 .PUT(HttpRequest.BodyPublishers.ofString(failureMappingBody()))
                 .build();
         HttpResponse<String> failureMappingResponse =
@@ -504,9 +513,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
           hopGui
               .getLog()
               .logBasic(
-                  "The failure mapping was not added to index "
+                  CONST_THE_FAILURE_MAPPING_WAS_NOT_ADDED_TO_INDEX
                       + location.actualIndexName
-                      + " (non-fatal): "
+                      + CONST_NON_FATAL
                       + failureMappingResponse.body());
         }
       } else if (createResponse.statusCode() != 200) {
@@ -607,9 +616,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .POST(HttpRequest.BodyPublishers.ofString(body))
               .build();
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -650,9 +659,9 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
       HttpRequest request =
           HttpRequest.newBuilder()
               .uri(URI.create(actualUrl).resolve(actualIndexName + "/_mapping"))
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", "ApiKey " + actualApiKey)
+              .header(CONST_CONTENT_TYPE, CONST_APPLICATION_JSON)
+              .header(CONST_ACCEPT, CONST_APPLICATION_JSON)
+              .header(CONST_AUTHORIZATION, CONST_API_KEY + actualApiKey)
               .PUT(HttpRequest.BodyPublishers.ofString(failureMappingBody()))
               .build();
       HttpResponse<String> response =
@@ -662,16 +671,16 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
         FAILURE_MAPPING_HANDLED.remove(key);
       } else if (response.statusCode() != 200) {
         LogChannel.GENERAL.logBasic(
-            "The failure mapping was not added to index "
+            CONST_THE_FAILURE_MAPPING_WAS_NOT_ADDED_TO_INDEX
                 + actualIndexName
-                + " (non-fatal): "
+                + CONST_NON_FATAL
                 + response.body());
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logBasic(
-          "The failure mapping was not added to index "
+          CONST_THE_FAILURE_MAPPING_WAS_NOT_ADDED_TO_INDEX
               + actualIndexName
-              + " (non-fatal): "
+              + CONST_NON_FATAL
               + e.getMessage());
     }
   }

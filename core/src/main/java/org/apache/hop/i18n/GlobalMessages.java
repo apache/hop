@@ -145,7 +145,7 @@ public class GlobalMessages extends AbstractMessageHandler {
    */
   protected String calculateString(
       String packageName, String key, Object[] parameters, Class<?> resourceClass) {
-    final String[] pkgNames = new String[] {packageName, SYSTEM_BUNDLE_PACKAGE};
+    final String[] pkgNames = {packageName, SYSTEM_BUNDLE_PACKAGE};
     return calculateString(pkgNames, key, parameters, resourceClass);
   }
 
@@ -195,7 +195,7 @@ public class GlobalMessages extends AbstractMessageHandler {
 
   @Override
   public String getString(String packageName, String key) {
-    Object[] parameters = new Object[] {};
+    Object[] parameters = {};
     return calculateString(packageName, key, parameters);
   }
 

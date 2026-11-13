@@ -61,6 +61,9 @@ import org.ietf.jgss.GSSException;
  */
 public class HdfsWebHdfsClient {
   private static final Class<?> PKG = HdfsTransport.class;
+  private static final String CONST_DELETE = "DELETE";
+  private static final String CONST_NO_HDFS_ENDPOINTS_CONFIGURED = "No HDFS endpoints configured";
+  private static final String CONST_LOCATION = "Location";
   private static final String DEFAULT_BASE_PATH = "/webhdfs/v1";
 
   private final CloseableHttpClient httpClient;
@@ -167,7 +170,10 @@ public class HdfsWebHdfsClient {
 
   public void delete(String path, boolean recursive) throws IOException {
     executeString(
-        "DELETE", path, Map.of("op", "DELETE", "recursive", Boolean.toString(recursive)), null);
+        CONST_DELETE,
+        path,
+        Map.of("op", CONST_DELETE, "recursive", Boolean.toString(recursive)),
+        null);
   }
 
   public void rename(String source, String destination) throws IOException {
@@ -224,7 +230,7 @@ public class HdfsWebHdfsClient {
         }
       }
     }
-    throw last == null ? new IOException("No HDFS endpoints configured") : last;
+    throw last == null ? new IOException(CONST_NO_HDFS_ENDPOINTS_CONFIGURED) : last;
   }
 
   /**
@@ -256,8 +262,8 @@ public class HdfsWebHdfsClient {
       return null;
     }
     JsonNode node = mapper.readTree(body);
-    if (node.hasNonNull("Location")) {
-      return node.get("Location").asText();
+    if (node.hasNonNull(CONST_LOCATION)) {
+      return node.get(CONST_LOCATION).asText();
     }
     return null;
   }
@@ -304,7 +310,7 @@ public class HdfsWebHdfsClient {
         if (redirected) {
           throw new IOException("WebHDFS OPEN redirected more than once for " + location);
         }
-        Header header = response.getFirstHeader("Location");
+        Header header = response.getFirstHeader(CONST_LOCATION);
         if (header == null || header.getValue() == null || header.getValue().isBlank()) {
           throw new IOException("WebHDFS OPEN redirect had no Location for " + location);
         }
@@ -381,7 +387,7 @@ public class HdfsWebHdfsClient {
 
   private String redirectLocation(int code, ClassicHttpResponse response) throws IOException {
     if (isRedirectCode(code)) {
-      Header header = response.getFirstHeader("Location");
+      Header header = response.getFirstHeader(CONST_LOCATION);
       return header == null ? null : header.getValue();
     }
     if (code != 200) {
@@ -450,7 +456,7 @@ public class HdfsWebHdfsClient {
         }
       }
     }
-    throw last == null ? new IOException("No HDFS endpoints configured") : last;
+    throw last == null ? new IOException(CONST_NO_HDFS_ENDPOINTS_CONFIGURED) : last;
   }
 
   private String firstWorkingUri(String path, Map<String, String> params) throws IOException {
@@ -462,7 +468,7 @@ public class HdfsWebHdfsClient {
         last = e;
       }
     }
-    throw last == null ? new IOException("No HDFS endpoints configured") : last;
+    throw last == null ? new IOException(CONST_NO_HDFS_ENDPOINTS_CONFIGURED) : last;
   }
 
   private String executeRequest(ClassicHttpRequest request) throws IOException {
@@ -484,7 +490,7 @@ public class HdfsWebHdfsClient {
         switch (method) {
           case "GET" -> new HttpGet(uri);
           case "PUT" -> new HttpPut(uri);
-          case "DELETE" -> new HttpDelete(uri);
+          case CONST_DELETE -> new HttpDelete(uri);
           default -> throw new IOException("Unsupported HTTP method " + method);
         };
     addSpnego(request, uri);

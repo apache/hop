@@ -412,50 +412,49 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     filterLayout.marginHeight = 3;
     wFieldsComp.setLayout(filterLayout);
 
-    final ColumnInfo[] colInf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.Incoming"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.Path"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.UseIncomingName"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "Y",
-              "N"),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT),
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Ignore")),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.JSON"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "Y",
-              "N"),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.UpdateMatchField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "Y",
-              "N"),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.ModifierUpdateOperation"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "N/A",
-              "$set",
-              "$inc",
-              "$push"),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.ModifierApplyPolicy"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "Insert&Update",
-              "Insert",
-              "Update")
-        };
+    final ColumnInfo[] colInf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.Incoming"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.Path"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.UseIncomingName"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "Y",
+          "N"),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT),
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues.Ignore")),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.JSON"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "Y",
+          "N"),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.UpdateMatchField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "Y",
+          "N"),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.ModifierUpdateOperation"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "N/A",
+          "$set",
+          "$inc",
+          "$push"),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.ModifierApplyPolicy"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "Insert&Update",
+          "Insert",
+          "Update")
+    };
 
     // get fields but
     Button wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
@@ -509,25 +508,24 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     indexesLayout.marginWidth = 3;
     indexesLayout.marginHeight = 3;
     wIndexesComp.setLayout(indexesLayout);
-    final ColumnInfo[] colInf2 =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.IndexFields"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.IndexOpp"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.Unique"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.Sparse"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false),
-        };
+    final ColumnInfo[] colInf2 = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.IndexFields"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.IndexOpp"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.Unique"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbOutputDialog.Indexes.Sparse"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false),
+    };
     colInf2[1].setComboValues(new String[] {"Create", "Drop"});
     colInf2[1].setReadOnly(true);
     colInf2[2].setComboValues(new String[] {"Y", "N"}); //

@@ -92,6 +92,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private static final Class<?> PKG = DatabaseMetaEditor.class;
+  private static final String CONST_DATABASE_DIALOG_URL_HIDDEN = "DatabaseDialog.Url.Hidden";
 
   private CTabFolder wTabFolder;
 
@@ -134,12 +135,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private Label wlSshTunnelPrivateKeyFile;
   private Label wlSshTunnelPassphrase;
 
-  private PropsUi props;
+  private final PropsUi props;
   private int middle;
   private int margin;
 
   private Map<Class<? extends IDatabase>, IDatabase> metaMap;
-  private List<String> excludedElementIds;
+  private final List<String> excludedElementIds;
 
   /**
    * @param hopGui The hop GUI
@@ -608,7 +609,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     }
   }
 
-  private AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
 
   private void changeConnectionType() {
 
@@ -916,17 +917,16 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     optionsLayout.marginHeight = PropsUi.getFormMargin() * 2;
     wOptionsComp.setLayout(optionsLayout);
 
-    ColumnInfo[] optionsColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DatabaseDialog.column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DatabaseDialog.column.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] optionsColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DatabaseDialog.column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DatabaseDialog.column.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     optionsColumns[0].setUsingVariables(true);
     optionsColumns[1].setUsingVariables(true);
 
@@ -1590,7 +1590,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       String url = databaseMeta.getURL(variables);
       if (url != null && !url.isEmpty()) {
         // Replace the full URL with a masked version
-        String maskedUrl = BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden");
+        String maskedUrl = BaseMessages.getString(PKG, CONST_DATABASE_DIALOG_URL_HIDDEN);
         message = message.replace(url, maskedUrl);
       }
 
@@ -1600,9 +1600,10 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
         String resolvedManualUrl = variables.resolve(manualUrl);
         message =
             message.replace(
-                resolvedManualUrl, BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden"));
+                resolvedManualUrl, BaseMessages.getString(PKG, CONST_DATABASE_DIALOG_URL_HIDDEN));
         message =
-            message.replace(manualUrl, BaseMessages.getString(PKG, "DatabaseDialog.Url.Hidden"));
+            message.replace(
+                manualUrl, BaseMessages.getString(PKG, CONST_DATABASE_DIALOG_URL_HIDDEN));
       }
 
     } catch (Exception e) {

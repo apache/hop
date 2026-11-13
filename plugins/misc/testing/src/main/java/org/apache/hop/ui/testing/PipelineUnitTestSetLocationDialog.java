@@ -217,19 +217,17 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
     // the field mapping grid in between on the left
     //
-    ColumnInfo[] fieldMappingColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.TransformField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.DatasetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] fieldMappingColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.TransformField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.DatasetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wFieldMappings =
         new TableView(
@@ -250,14 +248,12 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
     // the field mapping grid in between on the left
     //
-    ColumnInfo[] fieldOrderColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.DatasetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] fieldOrderColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineUnitTestSetLocationDialog.ColumnInfo.DatasetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wFieldOrder =
         new TableView(

@@ -160,6 +160,8 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           .rule(ColumnTypeRules.UNSIZED_INTEGER_AS_LONG)
           .build();
 
+  private static final String VECTOR_TYPE_NAME = "VECTOR";
+
   /**
    * pgvector's type. Sized when the dimension is known, because only a sized column can carry an
    * index; unsized otherwise, which pgvector accepts and which still holds vectors, unlike the text
@@ -168,8 +170,8 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   private static final List<IDatabaseTypeRule> VECTOR_RULES =
       DatabaseTypes.rules()
           .write(IValueMeta.TYPE_VECTOR)
-          .as(v -> v.getLength() > 0 ? "VECTOR(" + v.getLength() + ")" : "VECTOR")
-          .rule(ColumnTypeRules.vectorColumn("VECTOR"))
+          .as(v -> v.getLength() > 0 ? "VECTOR(" + v.getLength() + ")" : VECTOR_TYPE_NAME)
+          .rule(ColumnTypeRules.vectorColumn(VECTOR_TYPE_NAME))
           // The same binding UUID and INET use, and for the same reason. A vector's text form is
           // what pgvector's input function reads, but the driver sends a String as character
           // varying, and PostgreSQL will not coerce that into a vector: "column is of type vector
@@ -218,8 +220,6 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     }
     return true;
   }
-
-  private static final String VECTOR_TYPE_NAME = "VECTOR";
 
   /**
    * @return The extra option separator in database URL for this platform

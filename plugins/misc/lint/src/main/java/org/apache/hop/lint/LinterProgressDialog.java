@@ -31,7 +31,7 @@ public class LinterProgressDialog implements ProgressCallback {
 
   private static final Class<?> PKG = LinterProgressDialog.class; // for i18n purposes
 
-  private Shell shell;
+  private final Shell shell;
   private Shell dialog;
   private ProgressBar progressBar;
   private Label messageLabel;

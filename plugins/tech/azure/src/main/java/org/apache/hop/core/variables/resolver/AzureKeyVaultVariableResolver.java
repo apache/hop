@@ -45,6 +45,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
     description = "Resolves variables from Azure Key Vault secrets",
     documentationUrl = "/metadata-types/variable-resolver/azure-key-vault-variable-resolver.html")
 public class AzureKeyVaultVariableResolver implements IVariableResolver {
+  private static final String CONST_EMPTY = "EMPTY";
 
   private static final LogChannel log = new LogChannel("AzureKeyVaultVariableResolver");
 
@@ -120,16 +121,16 @@ public class AzureKeyVaultVariableResolver implements IVariableResolver {
 
       log.logDetailed(
           "Azure Key Vault URI: "
-              + (StringUtils.isEmpty(resolvedVaultUri) ? "EMPTY" : resolvedVaultUri));
+              + (StringUtils.isEmpty(resolvedVaultUri) ? CONST_EMPTY : resolvedVaultUri));
       log.logDetailed(
           "Azure Tenant ID: "
-              + (StringUtils.isEmpty(resolvedTenantId) ? "EMPTY" : resolvedTenantId));
+              + (StringUtils.isEmpty(resolvedTenantId) ? CONST_EMPTY : resolvedTenantId));
       log.logDetailed(
           "Azure Client ID: "
-              + (StringUtils.isEmpty(resolvedClientId) ? "EMPTY" : resolvedClientId));
+              + (StringUtils.isEmpty(resolvedClientId) ? CONST_EMPTY : resolvedClientId));
       log.logDetailed(
           "Azure Client Secret: "
-              + (StringUtils.isEmpty(resolvedClientSecret) ? "EMPTY" : "***SET***"));
+              + (StringUtils.isEmpty(resolvedClientSecret) ? CONST_EMPTY : "***SET***"));
 
       if (StringUtils.isEmpty(resolvedVaultUri)
           || StringUtils.isEmpty(resolvedTenantId)

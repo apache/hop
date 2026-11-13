@@ -24,7 +24,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 public class PoiSheet implements IKSheet {
-  private Sheet sheet;
+  private final Sheet sheet;
 
   public PoiSheet(Sheet sheet) {
     this.sheet = sheet;

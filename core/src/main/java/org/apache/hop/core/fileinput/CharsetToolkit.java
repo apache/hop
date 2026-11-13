@@ -49,7 +49,7 @@ import org.apache.commons.vfs2.FileObject;
  * BufferedReader br = new BufferedReader(isr);
  */
 public class CharsetToolkit {
-  private byte[] buffer;
+  private final byte[] buffer;
   private Charset defaultCharset;
   private boolean enforce8Bit = false;
 

@@ -28,7 +28,7 @@ import org.apache.poi.ss.usermodel.Row;
 
 public class PoiCell implements IKCell {
 
-  private Cell cell;
+  private final Cell cell;
 
   public PoiCell(Cell cell) {
     this.cell = cell;

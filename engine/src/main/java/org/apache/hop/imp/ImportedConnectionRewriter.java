@@ -45,6 +45,7 @@ import org.apache.hop.workflow.action.ActionMeta;
  * rewrite every {@link HopMetadataPropertyType#RDBMS_CONNECTION} field to match.
  */
 public final class ImportedConnectionRewriter {
+  private static final String CONST_TO = "' to '";
 
   private ImportedConnectionRewriter() {}
 
@@ -157,7 +158,7 @@ public final class ImportedConnectionRewriter {
             log.logError(
                 "Cannot rename connection '"
                     + oldName
-                    + "' to '"
+                    + CONST_TO
                     + newName
                     + "': that name already exists");
           }
@@ -172,7 +173,7 @@ public final class ImportedConnectionRewriter {
         serializer.save(databaseMeta);
         renamed++;
         if (log != null) {
-          log.logBasic("Renamed imported connection '" + oldName + "' to '" + newName + "'");
+          log.logBasic("Renamed imported connection '" + oldName + CONST_TO + newName + "'");
         }
       } catch (Exception e) {
         databaseMeta.setName(oldName);
@@ -185,7 +186,7 @@ public final class ImportedConnectionRewriter {
         }
         if (log != null) {
           log.logError(
-              "Error renaming imported connection '" + oldName + "' to '" + newName + "'", e);
+              "Error renaming imported connection '" + oldName + CONST_TO + newName + "'", e);
         }
       }
     }

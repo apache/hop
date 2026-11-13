@@ -46,6 +46,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * MarketplaceSecrets}).
  */
 public final class MarketplaceRepositoryDefinition {
+  private static final String CONST_DESCRIPTION = "description";
 
   public static final String KIND = "hop-marketplace-repository";
   public static final String SCHEMA_VERSION = "1.0";
@@ -70,7 +71,7 @@ public final class MarketplaceRepositoryDefinition {
       throw new HopException("Repository definition path or URL is required");
     }
     String s = uriOrPath.trim();
-    if (s.startsWith("http://") || s.startsWith("https://")) {
+    if (s.startsWith("http://") || s.startsWith(HTTPS_PREFIX)) {
       return loadFromHttp(s);
     }
     return load(Path.of(s));
@@ -261,7 +262,7 @@ public final class MarketplaceRepositoryDefinition {
     repo.setIncludeSnapshots(boolVal(map.get("includeSnapshots"), true));
     repo.setGroupIdFilter(stringVal(map.get("groupIdFilter")));
     repo.setHomepage(stringVal(map.get("homepage")));
-    repo.setDescription(stringVal(map.get("description")));
+    repo.setDescription(stringVal(map.get(CONST_DESCRIPTION)));
     repo.setPlugins(parsePlugins(map.get("plugins"), repo.getId()));
     return repo;
   }
@@ -281,7 +282,7 @@ public final class MarketplaceRepositoryDefinition {
       info.setVersion(stringVal(m.get("version")));
       info.setName(stringVal(m.get("name")));
       info.setCategory(stringVal(m.get("category")));
-      info.setDescription(stringVal(m.get("description")));
+      info.setDescription(stringVal(m.get(CONST_DESCRIPTION)));
       info.setInstallPath(stringVal(m.get("installPath")));
       info.setLastUpdated(stringVal(m.get("lastUpdated")));
       info.setMinHopVersion(stringVal(m.get("minHopVersion")));
@@ -380,7 +381,7 @@ public final class MarketplaceRepositoryDefinition {
       root.put("homepage", repo.getHomepage());
     }
     if (StringUtils.isNotBlank(repo.getDescription())) {
-      root.put("description", repo.getDescription());
+      root.put(CONST_DESCRIPTION, repo.getDescription());
     }
     if (repo.getPlugins() != null && !repo.getPlugins().isEmpty()) {
       List<Map<String, Object>> plugins = new ArrayList<>();
@@ -403,7 +404,7 @@ public final class MarketplaceRepositoryDefinition {
           m.put("category", p.getCategory());
         }
         if (StringUtils.isNotBlank(p.getDescription())) {
-          m.put("description", p.getDescription());
+          m.put(CONST_DESCRIPTION, p.getDescription());
         }
         if (StringUtils.isNotBlank(p.getLastUpdated())) {
           m.put("lastUpdated", p.getLastUpdated());

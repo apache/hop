@@ -71,12 +71,10 @@ import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData> {
   private static final Class<?> PKG = ExcelInputMeta.class;
 
-  public static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
+  public static final String[] RequiredFilesDesc = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
+  public static final String[] RequiredFilesCode = {"N", "Y"};
 
   @HopMetadataProperty(
       key = "file",

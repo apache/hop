@@ -59,10 +59,10 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
       "LanguageModelChat.Exception.CouldnotFindField";
   public static final String CONST_MODEL_TYPE = "model_type";
 
-  private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
+  private final Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
   private LanguageModelChatMeta modelMeta;
 
-  private int parallelism = 1;
+  private final int parallelism = 1;
   private ForkJoinPool executor;
   private final int cores = Runtime.getRuntime().availableProcessors();
   private final AtomicInteger jobs = new AtomicInteger(0);

@@ -28,9 +28,9 @@ import org.apache.hop.pipeline.transform.IRowListener;
  * the Rows the transform read or wrote.
  */
 public class RowTransformCollector implements IRowListener {
-  private List<RowMetaAndData> rowsRead;
-  private List<RowMetaAndData> rowsWritten;
-  private List<RowMetaAndData> rowsError;
+  private final List<RowMetaAndData> rowsRead;
+  private final List<RowMetaAndData> rowsWritten;
+  private final List<RowMetaAndData> rowsError;
 
   public RowTransformCollector() {
     rowsRead = new ArrayList<>();

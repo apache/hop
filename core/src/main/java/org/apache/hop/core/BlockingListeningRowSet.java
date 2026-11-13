@@ -30,9 +30,9 @@ import org.apache.hop.core.row.IRowMeta;
  * <p>This class also monitors the idle state of a IRowSet
  */
 public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
-  private BlockingQueue<Object[]> queArray;
+  private final BlockingQueue<Object[]> queArray;
 
-  private AtomicBoolean blocking;
+  private final AtomicBoolean blocking;
 
   /**
    * Create new non-blocking-queue with maxSize capacity.

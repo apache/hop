@@ -28,9 +28,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class OdfSheet implements IKSheet {
-  private OdfTable table;
-  private int nrOfRows;
-  private int roughNrOfCols;
+  private final OdfTable table;
+  private final int nrOfRows;
+  private final int roughNrOfCols;
 
   public OdfSheet(OdfTable table) {
     this.table = table;

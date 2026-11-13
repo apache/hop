@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 
 public class SwtScrollBar implements IScrollBar {
 
-  private ScrollBar scrollBar;
+  private final ScrollBar scrollBar;
 
   /**
    * @param scrollBar

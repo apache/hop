@@ -23,8 +23,8 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 public class HopGuiServerDelegate {
   private static final Class<?> PKG = HopGui.class;
 
-  private HopGui hopGui;
-  private IHopFileTypeHandler handler;
+  private final HopGui hopGui;
+  private final IHopFileTypeHandler handler;
 
   public HopGuiServerDelegate(HopGui hopGui, IHopFileTypeHandler handler) {
     this.hopGui = hopGui;

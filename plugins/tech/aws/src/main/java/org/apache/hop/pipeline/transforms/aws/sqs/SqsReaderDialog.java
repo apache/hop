@@ -57,7 +57,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
-  private SqsReaderMeta meta;
+  private final SqsReaderMeta meta;
 
   private ComboVar tAWSCredChain;
   private Label lblAWSKey;
@@ -266,7 +266,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
     tSQSQueue.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.SQSQueue.Tooltip"));
 
-    Control[] queueTabList = new Control[] {tAWSCredChain, tAWSKey, tAWSKeySecret, tAWSRegion};
+    Control[] queueTabList = {tAWSCredChain, tAWSKey, tAWSKeySecret, tAWSRegion};
     settingsComp.setTabList(queueTabList);
 
     settingsComp.pack();
@@ -363,7 +363,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
     tMaxMessages.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MaxMessages.Tooltip"));
 
-    Control[] readerSettingsTabList = new Control[] {tMessageDelete, tMaxMessages};
+    Control[] readerSettingsTabList = {tMessageDelete, tMaxMessages};
     grpOutputSettings.setTabList(readerSettingsTabList);
 
     // ------------------------------------------------------- //
@@ -492,8 +492,9 @@ public class SqsReaderDialog extends BaseTransformDialog {
     tSNSMessage.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.SNSMessage.Tooltip"));
 
-    Control[] readerOutputTabList =
-        new Control[] {tMessageID, tMessageBody, tReceiptHandle, tBodyMD5, tSNSMessage};
+    Control[] readerOutputTabList = {
+      tMessageID, tMessageBody, tReceiptHandle, tBodyMD5, tSNSMessage
+    };
     grpOutputField.setTabList(readerOutputTabList);
 
     readerOutputComp.pack();
@@ -597,26 +598,25 @@ public class SqsReaderDialog extends BaseTransformDialog {
     }
   }
 
-  private static final String[] AWS_REGION_IDS =
-      new String[] {
-        "us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-central-1",
-        "eu-north-1",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-south-1",
-        "ca-central-1",
-        "sa-east-1",
-        "af-south-1",
-        "me-south-1"
-      };
+  private static final String[] AWS_REGION_IDS = {
+    "us-east-1",
+    "us-east-2",
+    "us-west-1",
+    "us-west-2",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-central-1",
+    "eu-north-1",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "ap-northeast-1",
+    "ap-northeast-2",
+    "ap-south-1",
+    "ca-central-1",
+    "sa-east-1",
+    "af-south-1",
+    "me-south-1"
+  };
 
   /**
    * This helper method puts the transform configuration stored in the meta object and puts it into

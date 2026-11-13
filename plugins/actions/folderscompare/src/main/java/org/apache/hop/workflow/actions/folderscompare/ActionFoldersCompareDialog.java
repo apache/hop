@@ -48,8 +48,9 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionFoldersCompareDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFoldersCompare.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionFoldersCompare.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionFoldersCompare.Filetype.All")
+  };
 
   private TextVar wFilename1;
 

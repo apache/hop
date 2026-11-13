@@ -51,8 +51,8 @@ import org.apache.hop.ui.hopgui.search.HopGuiMetadataSearchable;
 //
 public class ProjectSearchablesIterator implements Iterator<ISearchable> {
 
-  private ProjectConfig projectConfig;
-  private List<ISearchable> searchables;
+  private final ProjectConfig projectConfig;
+  private final List<ISearchable> searchables;
   private Iterator<ISearchable> iterator;
 
   /**

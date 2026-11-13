@@ -31,8 +31,8 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 public class KafkaFactory {
-  private Function<Map<String, Object>, Consumer> consumerFunction;
-  private Function<Map<String, Object>, Producer<Object, Object>> producerFunction;
+  private final Function<Map<String, Object>, Consumer> consumerFunction;
+  private final Function<Map<String, Object>, Producer<Object, Object>> producerFunction;
 
   public static KafkaFactory defaultFactory() {
     return new KafkaFactory(KafkaConsumer::new, KafkaProducer::new);

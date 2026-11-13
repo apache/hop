@@ -55,12 +55,11 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionSqlDialog extends ActionDialog {
   private static final Class<?> PKG = ActionSql.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.Sql"),
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionSQL.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionSQL.Filetype.Sql"),
+    BaseMessages.getString(PKG, "ActionSQL.Filetype.Text"),
+    BaseMessages.getString(PKG, "ActionSQL.Filetype.All")
+  };
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

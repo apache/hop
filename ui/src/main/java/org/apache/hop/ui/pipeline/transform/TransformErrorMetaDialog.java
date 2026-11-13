@@ -48,8 +48,8 @@ public class TransformErrorMetaDialog extends Dialog {
   private static final Class<?> PKG = ITransform.class;
 
   private final IVariables variables;
-  private TransformErrorMeta transformErrorMeta;
-  private List<TransformMeta> targetTransforms;
+  private final TransformErrorMeta transformErrorMeta;
+  private final List<TransformMeta> targetTransforms;
 
   private Shell shell;
 
@@ -65,12 +65,12 @@ public class TransformErrorMetaDialog extends Dialog {
   private TextVar wMaxPct;
   private TextVar wMinPctRows;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private TransformErrorMeta originalTransformErrorMeta;
   private boolean ok;
 
-  private PipelineMeta pipelineMeta;
+  private final PipelineMeta pipelineMeta;
 
   public TransformErrorMetaDialog(
       Shell par,
@@ -115,7 +115,7 @@ public class TransformErrorMetaDialog extends Dialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(" &Cancel ");
 
-    Button[] buttons = new Button[] {wOk, wCancel};
+    Button[] buttons = {wOk, wCancel};
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
 
     // The rest stays above the buttons...

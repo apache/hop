@@ -82,8 +82,8 @@ public class BulkImportClient {
   }
 
   private static class BulkImportRequest {
-    private String stmt;
-    private List<Object[]> bulkArgs;
+    private final String stmt;
+    private final List<Object[]> bulkArgs;
 
     public BulkImportRequest(String table, List<String> columns, List<Object[]> bulkArgs) {
       final String argsPlaceholders =

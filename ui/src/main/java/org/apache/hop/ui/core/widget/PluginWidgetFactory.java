@@ -47,7 +47,7 @@ public class PluginWidgetFactory {
 
   private int middle = DEFAULT_MIDDLE;
 
-  private int rightOffset = DEFAULT_RIGHT_OFFSET;
+  private final int rightOffset = DEFAULT_RIGHT_OFFSET;
 
   /**
    * Constructor.

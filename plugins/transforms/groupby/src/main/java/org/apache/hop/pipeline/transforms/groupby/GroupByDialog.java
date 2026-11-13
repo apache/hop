@@ -94,7 +94,7 @@ public class GroupByDialog extends BaseTransformDialog {
 
   private ComboVar wIgnoreAggregateField;
 
-  private GroupByMeta input;
+  private final GroupByMeta input;
 
   private boolean backupAllRows;
 

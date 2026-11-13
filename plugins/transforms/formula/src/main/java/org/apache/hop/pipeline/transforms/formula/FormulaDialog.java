@@ -56,8 +56,8 @@ public class FormulaDialog extends BaseTransformDialog {
 
   private TableView wFields;
 
-  private FormulaMeta currentMeta;
-  private FormulaMeta originalMeta;
+  private final FormulaMeta currentMeta;
+  private final FormulaMeta originalMeta;
 
   private final List<String> inputFields = new ArrayList<>();
   private ColumnInfo[] colinf;

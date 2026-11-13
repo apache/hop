@@ -67,6 +67,13 @@ import org.apache.hop.lineage.openlineage.OpenLineageEmitter;
  * live event and one replayed from the spool.
  */
 class DataHubEmitter implements OpenLineageEmitter {
+  private static final String CONST_SCHEMA_METADATA = "schemaMetadata";
+  private static final String CONST_UPSERT = "UPSERT";
+  private static final String CONST_DATA_JOB = "dataJob";
+  private static final String CONST_ENTITIES = "entities";
+  private static final String CONST_INPUT_DATAJOB_EDGES = "inputDatajobEdges";
+  private static final String CONST_DESTINATION_URN = "destinationUrn";
+  private static final String CONST_DEPRECATED = "deprecated";
 
   /** Proposals per request; a large pipeline's terminal event can carry many datasets. */
   static final int MAX_BATCH = 200;
@@ -304,7 +311,7 @@ class DataHubEmitter implements OpenLineageEmitter {
       Owned owned = toSend.get(k);
       if (outcomes[k] == Result.SENT) {
         written.put(key(owned.mcp()), now);
-        if ("schemaMetadata".equals(owned.mcp().aspectName())) {
+        if (CONST_SCHEMA_METADATA.equals(owned.mcp().aspectName())) {
           remember(owned.mcp().entityUrn(), true);
         }
       }
@@ -332,7 +339,7 @@ class DataHubEmitter implements OpenLineageEmitter {
       if (owned.owner() >= 0
           && results[owned.owner()] == Result.SENT
           && describes(owned.mcp())
-          && "UPSERT".equals(owned.mcp().changeType())) {
+          && CONST_UPSERT.equals(owned.mcp().changeType())) {
         describedAt.merge(aspectKey(owned.mcp()), owned.timeMs(), Math::max);
       }
     }
@@ -344,12 +351,12 @@ class DataHubEmitter implements OpenLineageEmitter {
 
   /** Whether a proposal describes a pipeline, workflow or task (rather than a run or dataset). */
   private static boolean describes(Mcp mcp) {
-    return "dataFlow".equals(mcp.entityType()) || "dataJob".equals(mcp.entityType());
+    return "dataFlow".equals(mcp.entityType()) || CONST_DATA_JOB.equals(mcp.entityType());
   }
 
   /** Whether this process delivered the same aspect from a newer event. */
   private boolean newerDescribed(Mcp mcp, long timeMs) {
-    if (!"UPSERT".equals(mcp.changeType())) {
+    if (!CONST_UPSERT.equals(mcp.changeType())) {
       return false; // a patch only adds to what is there
     }
     Long newest = describedAt.get(aspectKey(mcp));
@@ -408,7 +415,7 @@ class DataHubEmitter implements OpenLineageEmitter {
       throws ReadException, InterruptedException {
     JsonNode data = read(JOB_RUNS_QUERY, jobUrns);
     Map<String, Long> newest = new HashMap<>();
-    for (JsonNode job : data.path("entities")) {
+    for (JsonNode job : data.path(CONST_ENTITIES)) {
       JsonNode created = job.path("runs").path("runs").path(0).path("properties").path("created");
       if (created.has("time")) {
         newest.put(job.path("urn").asText(), created.get("time").asLong());
@@ -453,7 +460,7 @@ class DataHubEmitter implements OpenLineageEmitter {
     try {
       Map<String, Ask<StaleCheck>> candidates = new LinkedHashMap<>();
       JsonNode data = read(FLOW_JOBS_QUERY, byFlow.keySet());
-      for (JsonNode flow : data.path("entities")) {
+      for (JsonNode flow : data.path(CONST_ENTITIES)) {
         Ask<StaleCheck> ask = byFlow.get(flow.path("urn").asText());
         if (ask == null) {
           continue;
@@ -486,7 +493,7 @@ class DataHubEmitter implements OpenLineageEmitter {
         }
         ObjectNode status = MAPPER.createObjectNode();
         status.put("removed", true);
-        Mcp retirement = Mcp.upsert("dataJob", candidate.getKey(), "status", status);
+        Mcp retirement = Mcp.upsert(CONST_DATA_JOB, candidate.getKey(), "status", status);
         retirements.get(candidate.getValue().owner()).add(retirement);
         all.add(retirement);
         log.logBasic(
@@ -528,10 +535,10 @@ class DataHubEmitter implements OpenLineageEmitter {
     Map<String, Integer> roots = new LinkedHashMap<>();
     for (int k = 0; k < toSend.size(); k++) {
       Mcp mcp = toSend.get(k).mcp();
-      if ("dataJob".equals(mcp.entityType())
+      if (CONST_DATA_JOB.equals(mcp.entityType())
           && JOB_IO.equals(mcp.aspectName())
-          && "UPSERT".equals(mcp.changeType())
-          && mcp.value().path("inputDatajobEdges").isEmpty()) {
+          && CONST_UPSERT.equals(mcp.changeType())
+          && mcp.value().path(CONST_INPUT_DATAJOB_EDGES).isEmpty()) {
         roots.put(mcp.entityUrn(), k);
       }
     }
@@ -541,16 +548,16 @@ class DataHubEmitter implements OpenLineageEmitter {
     Map<String, Set<String>> parents = new HashMap<>();
     try {
       JsonNode data = read(JOB_IO_QUERY, roots.keySet());
-      for (JsonNode job : data.path("entities")) {
+      for (JsonNode job : data.path(CONST_ENTITIES)) {
         for (JsonNode aspect : job.path("aspects")) {
           if (!JOB_IO.equals(aspect.path("aspectName").asText())) {
             continue;
           }
           JsonNode stored = MAPPER.readTree(aspect.path("payload").asText("{}"));
-          for (JsonNode edge : stored.path("inputDatajobEdges")) {
+          for (JsonNode edge : stored.path(CONST_INPUT_DATAJOB_EDGES)) {
             parents
                 .computeIfAbsent(job.path("urn").asText(), urn -> new LinkedHashSet<>())
-                .add(edge.path("destinationUrn").asText());
+                .add(edge.path(CONST_DESTINATION_URN).asText());
           }
         }
       }
@@ -587,7 +594,7 @@ class DataHubEmitter implements OpenLineageEmitter {
             && "PATCH".equals(earlier.changeType())) {
           for (JsonNode op : earlier.value()) {
             if (op.path("path").asText().startsWith("/inputDatajobEdges/")) {
-              keep.add(op.path("value").path("destinationUrn").asText());
+              keep.add(op.path("value").path(CONST_DESTINATION_URN).asText());
             }
           }
         }
@@ -600,13 +607,13 @@ class DataHubEmitter implements OpenLineageEmitter {
       }
       Owned owned = toSend.get(root.getValue());
       ObjectNode value = owned.mcp().value().deepCopy();
-      ArrayNode edges = array(value, "inputDatajobEdges");
+      ArrayNode edges = array(value, CONST_INPUT_DATAJOB_EDGES);
       ArrayNode jobs = array(value, "inputDatajobs");
       for (String parent : keep) {
-        edges.addObject().put("destinationUrn", parent);
+        edges.addObject().put(CONST_DESTINATION_URN, parent);
         jobs.add(parent);
       }
-      result.set(root.getValue(), owned.sending(Mcp.upsert("dataJob", jobUrn, JOB_IO, value)));
+      result.set(root.getValue(), owned.sending(Mcp.upsert(CONST_DATA_JOB, jobUrn, JOB_IO, value)));
     }
     return result;
   }
@@ -699,7 +706,7 @@ class DataHubEmitter implements OpenLineageEmitter {
             change.datasetUrn(),
             new DatasetState(
                 state != null && state.hasForeignSchema(),
-                deprecation.value().path("deprecated").asBoolean(),
+                deprecation.value().path(CONST_DEPRECATED).asBoolean(),
                 change.note()));
       }
     }
@@ -713,7 +720,7 @@ class DataHubEmitter implements OpenLineageEmitter {
       if (deprecated) {
         return null; // already retired, by Hop or by a person: keep the note that is there
       }
-      aspect.put("deprecated", true);
+      aspect.put(CONST_DEPRECATED, true);
       aspect.put("decommissionTime", change.timeMs());
       if (change.replacementUrn() != null) {
         aspect.put("replacement", change.replacementUrn());
@@ -726,7 +733,7 @@ class DataHubEmitter implements OpenLineageEmitter {
       if (!deprecated || !byHop) {
         return null; // not deprecated, or deprecated by a person: a write does not undo that
       }
-      aspect.put("deprecated", false);
+      aspect.put(CONST_DEPRECATED, false);
     }
     aspect.put("note", change.note());
     aspect.put("actor", actor);
@@ -742,16 +749,17 @@ class DataHubEmitter implements OpenLineageEmitter {
       throws ReadException, InterruptedException {
     JsonNode data = read(DATASETS_QUERY, urns);
     Map<String, DatasetState> states = new HashMap<>();
-    for (JsonNode entity : data.path("entities")) {
-      String schemaName = entity.path("schemaMetadata").path("name").asText(null);
+    for (JsonNode entity : data.path(CONST_ENTITIES)) {
+      String schemaName = entity.path(CONST_SCHEMA_METADATA).path("name").asText(null);
       boolean hasSchema =
-          !entity.path("schemaMetadata").isMissingNode() && !entity.path("schemaMetadata").isNull();
+          !entity.path(CONST_SCHEMA_METADATA).isMissingNode()
+              && !entity.path(CONST_SCHEMA_METADATA).isNull();
       JsonNode deprecation = entity.path("deprecation");
       states.put(
           entity.path("urn").asText(),
           new DatasetState(
               hasSchema && !DataHubTranslator.HOP_SCHEMA_NAME.equals(schemaName),
-              deprecation.path("deprecated").asBoolean(false),
+              deprecation.path(CONST_DEPRECATED).asBoolean(false),
               deprecation.path("note").asText(null)));
     }
     return states;

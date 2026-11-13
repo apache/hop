@@ -69,6 +69,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class JsonEOutputDialog extends BaseTransformDialog {
+  private static final String CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE =
+      "System.Dialog.GetFieldsFailed.Message";
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = JsonEOutputMeta.FORMAT_GUI_PARENT;
 
   private GuiCompositeWidgets keyWidgets;
@@ -92,7 +94,7 @@ public class JsonEOutputDialog extends BaseTransformDialog {
 
   private TableView wFields;
 
-  private JsonEOutputMeta input;
+  private final JsonEOutputMeta input;
 
   private boolean gotEncodings = false;
 
@@ -414,7 +416,7 @@ public class JsonEOutputDialog extends BaseTransformDialog {
               }
               setFieldListComboBoxes();
             } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              logError(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE));
             }
           }
         };
@@ -1178,7 +1180,7 @@ public class JsonEOutputDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           ke);
     }
   }
@@ -1284,7 +1286,7 @@ public class JsonEOutputDialog extends BaseTransformDialog {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Title"),
-          BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE),
           e);
     }
   }

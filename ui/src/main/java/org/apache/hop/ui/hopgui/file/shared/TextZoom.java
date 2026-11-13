@@ -31,10 +31,10 @@ public class TextZoom {
   public static final int STEP_DEFAULT = 1;
   public static final int MIN_HEIGHT = 4;
 
-  private Control widget;
-  private Font font;
-  private int step;
-  private int minHeight;
+  private final Control widget;
+  private final Font font;
+  private final int step;
+  private final int minHeight;
 
   public TextZoom(Text widget, Font font) {
     this.widget = (Control) widget;

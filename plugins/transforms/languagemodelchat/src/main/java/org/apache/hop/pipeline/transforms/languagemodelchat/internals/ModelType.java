@@ -27,8 +27,8 @@ public enum ModelType {
   MISTRAL("MISTRAL", i18n("LanguageModelChatDialog.ModelType.MISTRAL")),
   HUGGING_FACE("HUGGING_FACE", i18n("LanguageModelChatDialog.ModelType.HUGGING_FACE"));
 
-  private String code;
-  private String description;
+  private final String code;
+  private final String description;
 
   ModelType(String code, String description) {
     this.code = code;

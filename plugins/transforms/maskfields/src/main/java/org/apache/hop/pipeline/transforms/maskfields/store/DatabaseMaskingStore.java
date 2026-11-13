@@ -41,6 +41,8 @@ import org.apache.hop.core.variables.IVariables;
  * found again. A second table, the map name plus {@code _seq}, holds the next sequence number.
  */
 public class DatabaseMaskingStore implements IMaskingStore {
+  private static final String CONST_AND = " = ? AND ";
+  private static final String CONST_WHERE = " WHERE ";
 
   static final String COLUMN_PATTERN = "pattern_name";
   static final String COLUMN_SOURCE = "source_key";
@@ -222,7 +224,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
     ensureOpen();
     Long count =
         queryLong(
-            "SELECT COUNT(*) FROM " + mapTable + " WHERE " + quotedPattern + " = ?",
+            "SELECT COUNT(*) FROM " + mapTable + CONST_WHERE + quotedPattern + " = ?",
             oneString(),
             new Object[] {patternName});
     return count == null ? 0 : count.intValue();
@@ -299,9 +301,9 @@ public class DatabaseMaskingStore implements IMaskingStore {
             + quotedMasked
             + " FROM "
             + mapTable
-            + " WHERE "
+            + CONST_WHERE
             + quotedPattern
-            + " = ? AND "
+            + CONST_AND
             + quotedSource
             + " = ?",
         twoStrings(),
@@ -331,7 +333,7 @@ public class DatabaseMaskingStore implements IMaskingStore {
             + quotedSource
             + " = ? WHERE "
             + quotedPattern
-            + " = ? AND "
+            + CONST_AND
             + quotedSource
             + " = ?",
         rekeyParameters(),
@@ -340,13 +342,13 @@ public class DatabaseMaskingStore implements IMaskingStore {
 
   private void delete(String patternName, String sourceKey) throws HopException {
     exec(
-        "DELETE FROM " + mapTable + " WHERE " + quotedPattern + " = ? AND " + quotedSource + " = ?",
+        "DELETE FROM " + mapTable + CONST_WHERE + quotedPattern + CONST_AND + quotedSource + " = ?",
         twoStrings(),
         new Object[] {patternName, sourceKey});
   }
 
   private String selectNextSql() {
-    return "SELECT " + quotedNext + " FROM " + sequenceTable + " WHERE " + quotedPattern + " = ?";
+    return "SELECT " + quotedNext + " FROM " + sequenceTable + CONST_WHERE + quotedPattern + " = ?";
   }
 
   private void exec(String sql, IRowMeta params, Object[] data) throws HopException {

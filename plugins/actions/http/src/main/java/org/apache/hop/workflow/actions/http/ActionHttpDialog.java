@@ -66,8 +66,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionHttpDialog extends ActionDialog {
   private static final Class<?> PKG = ActionHttp.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionHTTP.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionHTTP.Filetype.All")
+  };
 
   private Label wlURL;
 
@@ -338,18 +339,17 @@ public class ActionHttpDialog extends ActionDialog {
             ? 1
             : (action.getHeaders().isEmpty() ? 0 : action.getHeaders().size());
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionHTTP.ColumnInfo.Name"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              HttpProtocol.getRequestHeaders(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionHTTP.ColumnInfo.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionHTTP.ColumnInfo.Name"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          HttpProtocol.getRequestHeaders(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionHTTP.ColumnInfo.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[0].setUsingVariables(true);
     colinf[1].setUsingVariables(true);
 

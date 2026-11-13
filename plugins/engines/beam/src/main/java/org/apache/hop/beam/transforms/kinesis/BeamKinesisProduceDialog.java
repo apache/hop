@@ -209,17 +209,16 @@ public class BeamKinesisProduceDialog extends BaseTransformDialog {
     wlConfigOptions.setLayoutData(fdlConfigOptions);
     lastControl = wlConfigOptions;
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamKinesisProduceDialog.ConfigOptions.Column.Property"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamKinesisProduceDialog.ConfigOptions.Column.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamKinesisProduceDialog.ConfigOptions.Column.Property"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamKinesisProduceDialog.ConfigOptions.Column.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
 

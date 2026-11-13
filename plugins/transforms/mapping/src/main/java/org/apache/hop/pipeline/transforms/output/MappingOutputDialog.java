@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 public class MappingOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MappingOutputMeta.class;
 
-  private MappingOutputMeta input;
+  private final MappingOutputMeta input;
 
   public MappingOutputDialog(
       Shell parent,

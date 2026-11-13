@@ -124,18 +124,17 @@ public class SparkSqlDialog extends BaseTransformDialog {
     wlViews.setLayoutData(fdlViews);
 
     String[] previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
-    ColumnInfo[] viewColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.Transform"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              previousTransforms == null ? new String[0] : previousTransforms,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.View"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] viewColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.Transform"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          previousTransforms == null ? new String[0] : previousTransforms,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.View"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     wViews =
         new TableView(
             variables,
@@ -162,25 +161,24 @@ public class SparkSqlDialog extends BaseTransformDialog {
     fdlFields.right = new FormAttachment(100, 0);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] fieldColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkSqlDialog.Column.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] fieldColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkSqlDialog.Column.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     wFields =
         new TableView(
             variables,

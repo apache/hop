@@ -160,6 +160,8 @@ import org.eclipse.swt.widgets.Widget;
     name = "i18n::MetadataPerspective.Name",
     description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective, TabClosable, IMetadataDropReceiver {
+  private static final String CONST_METADATA_PERSPECTIVE_DELETE_METADATA_TITLE =
+      "MetadataPerspective.DeleteMetadata.Title";
 
   public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
@@ -1661,7 +1663,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       try {
         handler.save();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error saving file before refactoring", e);
+        new ErrorDialog(getShell(), ERROR, "Error saving file before refactoring", e);
         return false;
       }
     }
@@ -1712,7 +1714,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       try {
         editor.save();
       } catch (Exception e) {
-        new ErrorDialog(getShell(), "Error", "Error saving metadata before refactoring", e);
+        new ErrorDialog(getShell(), ERROR, "Error saving metadata before refactoring", e);
         return false;
       }
     }
@@ -2022,7 +2024,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
                 objectName, totalRefCount, fileRefs.size(), metadataRefs.size(), detailLines);
       } else {
         MessageBox confirmBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-        confirmBox.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteMetadata.Title"));
+        confirmBox.setText(
+            BaseMessages.getString(PKG, CONST_METADATA_PERSPECTIVE_DELETE_METADATA_TITLE));
         confirmBox.setMessage(
             BaseMessages.getString(
                 PKG, "MetadataPerspective.DeleteMetadata.ConfirmNoRefs", objectName));
@@ -2064,7 +2067,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
 
     MessageBox confirmBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-    confirmBox.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteMetadata.Title"));
+    confirmBox.setText(
+        BaseMessages.getString(PKG, CONST_METADATA_PERSPECTIVE_DELETE_METADATA_TITLE));
     confirmBox.setMessage(
         BaseMessages.getString(
             PKG,
@@ -2222,7 +2226,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
       List<String> detailLines) {
     Shell shell =
         new Shell(hopGui.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
-    shell.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteMetadata.Title"));
+    shell.setText(BaseMessages.getString(PKG, CONST_METADATA_PERSPECTIVE_DELETE_METADATA_TITLE));
     shell.setImage(GuiResource.getInstance().getImageHop());
     PropsUi.setLook(shell);
     FormLayout layout = new FormLayout();

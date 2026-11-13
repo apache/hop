@@ -20,9 +20,9 @@ package org.apache.hop.core.plugins;
 import java.net.URL;
 
 public class PluginClassFile {
-  private URL jarFile;
-  private URL pluginFolder;
-  private String className;
+  private final URL jarFile;
+  private final URL pluginFolder;
+  private final String className;
 
   /**
    * @param className

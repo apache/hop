@@ -46,6 +46,9 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     extensionPointId = "WorkflowStart",
     description = "At the start of a workflow, handle any Workflow Log metadata objects")
 public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
+  private static final String CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT =
+      "Error handling Workflow Log metadata object '";
+
   @SuppressWarnings("javabugs:S2259") // a running workflow always has a metadata provider
   @Override
   public void callExtensionPoint(
@@ -100,14 +103,14 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       if (workflowLog.isFailParentOnLoggingFailure()) {
         workflow.stopExecution();
         throw new HopException(
-            "Error handling Workflow Log metadata object '"
+            CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT
                 + workflowLog.getName()
                 + "' at the start of workflow: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Workflow Log metadata object '"
+            CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT
                 + workflowLog.getName()
                 + "' at the start of workflow: "
                 + e.getMessage(),
@@ -155,7 +158,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
                   throw e;
                 } else {
                   log.logError(
-                      "Error handling Workflow Log metadata object '"
+                      CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT
                           + workflowLog.getName()
                           + "' at the end of workflow: "
                           + e.getMessage(),
@@ -203,14 +206,14 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       if (workflowLog.isFailParentOnLoggingFailure()) {
         workflow.stopExecution();
         throw new HopException(
-            "Error handling Workflow Log metadata object '"
+            CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT
                 + workflowLog.getName()
                 + "' at the start of workflow: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Workflow Log metadata object '"
+            CONST_ERROR_HANDLING_WORKFLOW_LOG_METADATA_OBJECT
                 + workflowLog.getName()
                 + "' at the start of workflow: "
                 + e.getMessage(),

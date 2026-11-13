@@ -42,6 +42,7 @@ import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open workflow. */
 public final class WorkflowAiProposalApplier {
+  private static final String CONST_ACTION_NAME = "actionName";
 
   private static final Class<?> PKG = WorkflowAiProposalApplier.class;
 
@@ -241,7 +242,7 @@ public final class WorkflowAiProposalApplier {
   private static void configureAction(
       WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    ActionMeta existing = requireAction(workflowMeta, proposal.parameter("actionName"));
+    ActionMeta existing = requireAction(workflowMeta, proposal.parameter(CONST_ACTION_NAME));
     if (existing.getAction() == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "WorkflowAiProposalApplier.NoMetadata", existing.getName()));
@@ -262,7 +263,7 @@ public final class WorkflowAiProposalApplier {
   private static void deleteAction(
       WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    String actionName = proposal.parameter("actionName");
+    String actionName = proposal.parameter(CONST_ACTION_NAME);
     ActionMeta action = requireAction(workflowMeta, actionName);
     List<WorkflowHopMeta> hopsToRemove = new ArrayList<>();
     for (int i = 0; i < workflowMeta.nrWorkflowHops(); i++) {
@@ -291,7 +292,7 @@ public final class WorkflowAiProposalApplier {
   private static void renameAction(
       WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    ActionMeta action = requireAction(workflowMeta, proposal.parameter("actionName"));
+    ActionMeta action = requireAction(workflowMeta, proposal.parameter(CONST_ACTION_NAME));
     ActionMeta before = (ActionMeta) action.clone();
     action.setName(proposal.parameter("newName"));
     if (hopGui != null) {
@@ -346,7 +347,7 @@ public final class WorkflowAiProposalApplier {
   private static void setActionLocation(
       WorkflowMeta workflowMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    ActionMeta action = requireAction(workflowMeta, proposal.parameter("actionName"));
+    ActionMeta action = requireAction(workflowMeta, proposal.parameter(CONST_ACTION_NAME));
     AiProposalParamSupport.Location location = AiProposalParamSupport.parseLocation(proposal);
     Point previous = new Point(action.getLocation().x, action.getLocation().y);
     action.setLocation(new Point(location.x(), location.y()));
@@ -370,7 +371,7 @@ public final class WorkflowAiProposalApplier {
       IHopMetadataProvider metadataProvider,
       IVariables variables)
       throws HopException {
-    ActionMeta existing = requireAction(workflowMeta, proposal.parameter("actionName"));
+    ActionMeta existing = requireAction(workflowMeta, proposal.parameter(CONST_ACTION_NAME));
     ActionMeta parsed =
         AiProposalXmlSupport.parseFirstAction(
             AiProposalXmlSupport.requireXml(proposal), metadataProvider, variables);

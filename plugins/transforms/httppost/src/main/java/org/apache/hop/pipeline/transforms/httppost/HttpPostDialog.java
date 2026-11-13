@@ -71,11 +71,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class HttpPostDialog extends BaseTransformDialog {
   private static final Class<?> PKG = HttpPostMeta.class;
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
   private static final String YES = BaseMessages.getString(PKG, "System.Combo.Yes");
   private static final String NO = BaseMessages.getString(PKG, "System.Combo.No");
 

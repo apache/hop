@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 public class AvroEncodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroEncodeMeta.class;
 
-  private AvroEncodeMeta input;
+  private final AvroEncodeMeta input;
 
   private TextVar wOutputField;
   private TextVar wSchemaName;
@@ -144,19 +144,18 @@ public class AvroEncodeDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] fieldsColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Column.SourceField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Column.TargetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] fieldsColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Column.SourceField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Column.TargetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
 
     wFields =
         new TableView(

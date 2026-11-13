@@ -55,10 +55,9 @@ public class VCardInputMeta extends BaseTransformMeta<VCardInput, VCardInputData
 
   private static final Class<?> PKG = VCardInputMeta.class;
 
-  public static final String[] REQUIRED_FILES_DESC =
-      new String[] {
-        BaseMessages.getString("System.Combo.No"), BaseMessages.getString("System.Combo.Yes")
-      };
+  public static final String[] REQUIRED_FILES_DESC = {
+    BaseMessages.getString("System.Combo.No"), BaseMessages.getString("System.Combo.Yes")
+  };
 
   @HopMetadataProperty(key = "include_filename")
   private boolean includeFilename;

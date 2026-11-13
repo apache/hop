@@ -33,11 +33,11 @@ import org.slf4j.LoggerFactory;
 
 public class HopToStringFn extends DoFn<HopRow, String> {
 
-  private String counterName;
-  private String outputLocation;
-  private String separator;
-  private String enclosure;
-  private String rowMetaJson;
+  private final String counterName;
+  private final String outputLocation;
+  private final String separator;
+  private final String enclosure;
+  private final String rowMetaJson;
 
   private transient IRowMeta rowMeta;
   private transient Counter readCounter;

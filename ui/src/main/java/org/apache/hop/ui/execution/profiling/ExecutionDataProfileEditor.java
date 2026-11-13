@@ -59,8 +59,8 @@ import org.eclipse.swt.widgets.ToolItem;
 public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProfile> {
   private static final Class<?> PKG = ExecutionDataProfileEditor.class;
 
-  private ExecutionDataProfile executionDataProfile;
-  private ExecutionDataProfile workingProfile;
+  private final ExecutionDataProfile executionDataProfile;
+  private final ExecutionDataProfile workingProfile;
 
   private TextVar wName;
   private Text wDescription;

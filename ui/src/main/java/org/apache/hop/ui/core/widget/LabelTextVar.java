@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Adds a line of text with a label and a variable to a composite (like a dialog shell) */
 public class LabelTextVar extends Composite {
-  private Label wLabel;
+  private final Label wLabel;
   private TextVar wText;
 
   public LabelTextVar(

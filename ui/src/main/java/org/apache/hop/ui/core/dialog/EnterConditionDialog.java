@@ -38,13 +38,13 @@ import org.eclipse.swt.widgets.Shell;
 public class EnterConditionDialog extends Dialog {
   private static final Class<?> PKG = EnterConditionDialog.class;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private Shell shell;
   private ConditionEditor wCond;
 
   private Condition condition;
-  private IRowMeta fields;
+  private final IRowMeta fields;
 
   public EnterConditionDialog(Shell parent, int style, IRowMeta fields, Condition condition) {
     super(parent, style);

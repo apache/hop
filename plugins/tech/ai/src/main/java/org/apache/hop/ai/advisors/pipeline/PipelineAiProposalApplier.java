@@ -43,6 +43,7 @@ import org.w3c.dom.Document;
 
 /** Previews and applies validated AI proposals to an open pipeline. */
 public final class PipelineAiProposalApplier {
+  private static final String CONST_TRANSFORM_NAME = "transformName";
 
   private static final Class<?> PKG = PipelineAiProposalApplier.class;
 
@@ -237,7 +238,7 @@ public final class PipelineAiProposalApplier {
   private static void deleteTransform(
       PipelineMeta pipelineMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     TransformMeta transform = pipelineMeta.findTransform(transformName);
     if (transform == null) {
       throw new HopException(
@@ -270,7 +271,8 @@ public final class PipelineAiProposalApplier {
   private static void renameTransform(
       PipelineMeta pipelineMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    TransformMeta transform = requireTransform(pipelineMeta, proposal.parameter("transformName"));
+    TransformMeta transform =
+        requireTransform(pipelineMeta, proposal.parameter(CONST_TRANSFORM_NAME));
     TransformMeta before = (TransformMeta) transform.clone();
     transform.setName(proposal.parameter("newName"));
     if (hopGui != null) {
@@ -324,7 +326,8 @@ public final class PipelineAiProposalApplier {
   private static void setTransformLocation(
       PipelineMeta pipelineMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    TransformMeta transform = requireTransform(pipelineMeta, proposal.parameter("transformName"));
+    TransformMeta transform =
+        requireTransform(pipelineMeta, proposal.parameter(CONST_TRANSFORM_NAME));
     AiProposalParamSupport.Location location = AiProposalParamSupport.parseLocation(proposal);
     Point previous = new Point(transform.getLocation().x, transform.getLocation().y);
     transform.setLocation(new Point(location.x(), location.y()));
@@ -343,7 +346,8 @@ public final class PipelineAiProposalApplier {
   private static void configureTransform(
       PipelineMeta pipelineMeta, AiProposal proposal, HopGui hopGui, boolean chainUndo)
       throws HopException {
-    TransformMeta existing = requireTransform(pipelineMeta, proposal.parameter("transformName"));
+    TransformMeta existing =
+        requireTransform(pipelineMeta, proposal.parameter(CONST_TRANSFORM_NAME));
     if (existing.getTransform() == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "PipelineAiProposalApplier.NoMetadata", existing.getName()));
@@ -369,7 +373,8 @@ public final class PipelineAiProposalApplier {
       boolean chainUndo,
       IHopMetadataProvider metadataProvider)
       throws HopException {
-    TransformMeta existing = requireTransform(pipelineMeta, proposal.parameter("transformName"));
+    TransformMeta existing =
+        requireTransform(pipelineMeta, proposal.parameter(CONST_TRANSFORM_NAME));
     TransformMeta parsed =
         AiProposalXmlSupport.parseFirstTransform(
             AiProposalXmlSupport.requireXml(proposal), metadataProvider);

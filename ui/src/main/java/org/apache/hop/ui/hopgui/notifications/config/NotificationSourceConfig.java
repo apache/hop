@@ -32,6 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotificationSourceConfig {
+  private static final String CONST_AUTH_PASSWORD = "auth.password";
 
   /** Used when Hop's own encoder has not been initialised, so a password is never stored bare. */
   private static final ITwoWayPasswordEncoder FALLBACK = new HopTwoWayPasswordEncoder();
@@ -220,7 +221,7 @@ public class NotificationSourceConfig {
    */
   @JsonIgnore
   public String getPassword() {
-    String stored = getProperty("auth.password");
+    String stored = getProperty(CONST_AUTH_PASSWORD);
     if (stored == null || stored.isEmpty()) {
       return stored;
     }
@@ -237,11 +238,11 @@ public class NotificationSourceConfig {
     // alone when it is a variable so the reference survives. Obfuscation is not encryption: a
     // variable pointing at a real secret store is still the better answer for a private source.
     if (password == null || password.isEmpty() || password.contains("${")) {
-      setProperty("auth.password", password);
+      setProperty(CONST_AUTH_PASSWORD, password);
       return;
     }
     setProperty(
-        "auth.password", Encr.PASSWORD_ENCRYPTED_PREFIX + encoder().encode(password, false));
+        CONST_AUTH_PASSWORD, Encr.PASSWORD_ENCRYPTED_PREFIX + encoder().encode(password, false));
   }
 
   /**

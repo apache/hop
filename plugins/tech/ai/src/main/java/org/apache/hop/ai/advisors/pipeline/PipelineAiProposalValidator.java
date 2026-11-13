@@ -46,6 +46,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Validates AI pipeline proposals against the open graph before the user applies them. */
 public final class PipelineAiProposalValidator {
+  private static final String CONST_FROM_TRANSFORM = "fromTransform";
+  private static final String CONST_TO_TRANSFORM = "toTransform";
+  private static final String CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_LOCATION_NOT_INTEGERS =
+      "PipelineAiProposalValidator.LocationNotIntegers";
+  private static final String CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED =
+      "PipelineAiProposalValidator.TransformNameRequired";
+  private static final String CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND =
+      "PipelineAiProposalValidator.TransformNotFound";
+  private static final String CONST_TRANSFORM_NAME = "transformName";
 
   private static final Class<?> PKG = PipelineAiProposalValidator.class;
 
@@ -70,7 +79,8 @@ public final class PipelineAiProposalValidator {
     for (AiProposal proposal : proposals) {
       if (AiProposalTypes.of(proposal) == AiProposalTypes.DELETE_PIPELINE_HOP) {
         reservedNames.add(
-            deletedHop(proposal.parameter("fromTransform"), proposal.parameter("toTransform")));
+            deletedHop(
+                proposal.parameter(CONST_FROM_TRANSFORM), proposal.parameter(CONST_TO_TRANSFORM)));
       }
     }
     HopGraph hops = HopGraph.of(pipelineMeta, reservedNames);
@@ -147,7 +157,8 @@ public final class PipelineAiProposalValidator {
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
       return blocked(
-          proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.LocationNotIntegers"));
+          proposal,
+          BaseMessages.getString(PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_LOCATION_NOT_INTEGERS));
     }
     reservedNames.add(name.trim());
     String xml = AiProposalXmlSupport.xmlParam(proposal);
@@ -162,11 +173,12 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateConfigureTransform(
       PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames) {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     if (Utils.isEmpty(transformName)) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.TransformNameRequired"));
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED));
     }
     // A transform added earlier in the same list exists by the time this one is applied.
     if (pipelineMeta.findTransform(transformName) == null
@@ -174,7 +186,7 @@ public final class PipelineAiProposalValidator {
       return blocked(
           proposal,
           BaseMessages.getString(
-              PKG, "PipelineAiProposalValidator.TransformNotFound", transformName));
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND, transformName));
     }
     if (!AiTransformConfigSupport.hasConfig(proposal)) {
       return blocked(
@@ -185,29 +197,31 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateDeleteTransform(
       PipelineMeta pipelineMeta, AiProposal proposal) {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     if (Utils.isEmpty(transformName)) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.TransformNameRequired"));
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED));
     }
     if (pipelineMeta.findTransform(transformName) == null) {
       return blocked(
           proposal,
           BaseMessages.getString(
-              PKG, "PipelineAiProposalValidator.TransformNotFound", transformName));
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND, transformName));
     }
     return ok(proposal);
   }
 
   private static AiProposalValidation validateRenameTransform(
       PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames) {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     String newName = proposal.parameter("newName");
     if (Utils.isEmpty(transformName)) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.TransformNameRequired"));
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED));
     }
     if (Utils.isEmpty(newName)) {
       return blocked(
@@ -217,7 +231,7 @@ public final class PipelineAiProposalValidator {
       return blocked(
           proposal,
           BaseMessages.getString(
-              PKG, "PipelineAiProposalValidator.TransformNotFound", transformName));
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND, transformName));
     }
     if (!transformName.trim().equals(newName.trim())
         && (pipelineMeta.findTransform(newName) != null
@@ -231,8 +245,8 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateAddPipelineHop(
       PipelineMeta pipelineMeta, AiProposal proposal, Set<String> reservedNames, HopGraph hops) {
-    String fromName = proposal.parameter("fromTransform");
-    String toName = proposal.parameter("toTransform");
+    String fromName = proposal.parameter(CONST_FROM_TRANSFORM);
+    String toName = proposal.parameter(CONST_TO_TRANSFORM);
     if (Utils.isEmpty(fromName) || Utils.isEmpty(toName)) {
       return blocked(
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopEndsRequired"));
@@ -285,8 +299,8 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateDeletePipelineHop(
       PipelineMeta pipelineMeta, AiProposal proposal) {
-    String fromName = proposal.parameter("fromTransform");
-    String toName = proposal.parameter("toTransform");
+    String fromName = proposal.parameter(CONST_FROM_TRANSFORM);
+    String toName = proposal.parameter(CONST_TO_TRANSFORM);
     if (Utils.isEmpty(fromName) || Utils.isEmpty(toName)) {
       return blocked(
           proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.HopEndsRequired"));
@@ -307,21 +321,23 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateSetTransformLocation(
       PipelineMeta pipelineMeta, AiProposal proposal) {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     if (Utils.isEmpty(transformName)) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.TransformNameRequired"));
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED));
     }
     if (pipelineMeta.findTransform(transformName) == null) {
       return blocked(
           proposal,
           BaseMessages.getString(
-              PKG, "PipelineAiProposalValidator.TransformNotFound", transformName));
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND, transformName));
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
       return blocked(
-          proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.LocationNotIntegers"));
+          proposal,
+          BaseMessages.getString(PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_LOCATION_NOT_INTEGERS));
     }
     return ok(proposal);
   }
@@ -342,18 +358,19 @@ public final class PipelineAiProposalValidator {
 
   private static AiProposalValidation validateReplaceTransform(
       PipelineMeta pipelineMeta, AiProposal proposal) {
-    String transformName = proposal.parameter("transformName");
+    String transformName = proposal.parameter(CONST_TRANSFORM_NAME);
     if (Utils.isEmpty(transformName)) {
       return blocked(
           proposal,
-          BaseMessages.getString(PKG, "PipelineAiProposalValidator.TransformNameRequired"));
+          BaseMessages.getString(
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NAME_REQUIRED));
     }
     TransformMeta existing = pipelineMeta.findTransform(transformName);
     if (existing == null) {
       return blocked(
           proposal,
           BaseMessages.getString(
-              PKG, "PipelineAiProposalValidator.TransformNotFound", transformName));
+              PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_TRANSFORM_NOT_FOUND, transformName));
     }
     String xml = AiProposalXmlSupport.xmlParam(proposal);
     String error = AiProposalXmlSupport.validatePipelineXml(xml);
@@ -394,7 +411,8 @@ public final class PipelineAiProposalValidator {
     }
     if (!AiProposalParamSupport.parseLocation(proposal).isValid()) {
       return blocked(
-          proposal, BaseMessages.getString(PKG, "PipelineAiProposalValidator.LocationNotIntegers"));
+          proposal,
+          BaseMessages.getString(PKG, CONST_PIPELINE_AI_PROPOSAL_VALIDATOR_LOCATION_NOT_INTEGERS));
     }
     return ok(proposal);
   }
@@ -462,7 +480,7 @@ public final class PipelineAiProposalValidator {
       if (validation.isBlocked()) {
         return validation;
       }
-      String name = proposal.parameter("transformName").trim();
+      String name = proposal.parameter(CONST_TRANSFORM_NAME).trim();
       if (AiProposalTypes.of(proposal) == AiProposalTypes.DELETE_TRANSFORM) {
         rename(name, null);
       } else {

@@ -46,8 +46,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Dummy class used for test(). */
 public class ScriptValuesDummy implements ITransform {
-  private IRowMeta inputRowMeta;
-  private IRowMeta outputRowMeta;
+  private final IRowMeta inputRowMeta;
+  private final IRowMeta outputRowMeta;
 
   public ScriptValuesDummy(IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
     this.inputRowMeta = inputRowMeta;

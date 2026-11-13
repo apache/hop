@@ -25,6 +25,7 @@ import org.apache.hop.lint.RuleConfig;
 
 /** Parsed project hop-lint.yml: local rule definitions plus per-rule overrides. */
 public final class ProjectYamlOverlay {
+  private static final String CONST_DESCRIPTION = "description";
 
   private final List<org.apache.hop.lint.CustomLintRule> projectRules;
   private final Map<String, ProjectRuleOverlay> overlays;
@@ -124,9 +125,9 @@ public final class ProjectYamlOverlay {
       // A name or description renames the pack rule in place; it stays the pack's rule.
       String name = ruleData.get("name") != null ? String.valueOf(ruleData.get("name")) : null;
       String description =
-          ruleData.containsKey("description")
-              ? (ruleData.get("description") != null
-                  ? String.valueOf(ruleData.get("description"))
+          ruleData.containsKey(CONST_DESCRIPTION)
+              ? (ruleData.get(CONST_DESCRIPTION) != null
+                  ? String.valueOf(ruleData.get(CONST_DESCRIPTION))
                   : "")
               : null;
       Map<String, List<String>> tags =

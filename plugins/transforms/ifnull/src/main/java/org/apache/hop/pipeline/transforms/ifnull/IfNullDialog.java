@@ -240,28 +240,27 @@ public class IfNullDialog extends BaseTransformDialog {
 
     int valueTypesRows = input.getValueTypes().size();
 
-    ColumnInfo[] colval =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "IfNullDialog.ValueType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              IValueMeta.typeCodes),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "IfNullDialog.Value.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "IfNullDialog.Value.ConversionMask"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              Const.getDateFormats()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "IfNullDialog.Value.SetEmptyString"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
-              })
-        };
+    ColumnInfo[] colval = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "IfNullDialog.ValueType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          IValueMeta.typeCodes),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "IfNullDialog.Value.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "IfNullDialog.Value.ConversionMask"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          Const.getDateFormats()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "IfNullDialog.Value.SetEmptyString"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
+          })
+    };
     colval[1].setUsingVariables(true);
 
     wValueTypes =

@@ -107,11 +107,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private static final String EDITOR_WIDGET = "ContentEditorWidget";
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
   public static final String CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_TITLE =
       "ScriptValuesDialogMod.TestFailed.DialogTitle";
   public static final String CONST_SCRIPT_VALUES_DIALOG_MOD_TEST_FAILED_DIALOG_MESSAGE =
@@ -363,33 +361,32 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     final int nrFields = input.getScriptFields().size();
 
-    ColumnInfo[] colInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Filename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.RenameTo"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Replace"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-        };
+    ColumnInfo[] colInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Filename"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.RenameTo"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptValuesDialogMod.ColumnInfo.Replace"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+    };
     colInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colInfos[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 

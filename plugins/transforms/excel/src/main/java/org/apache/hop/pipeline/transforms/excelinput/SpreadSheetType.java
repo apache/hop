@@ -22,7 +22,7 @@ public enum SpreadSheetType {
   SAX_POI("Excel XLSX (Streaming)"),
   ODS("Open Office ODS");
 
-  private String description;
+  private final String description;
 
   /**
    * @param description

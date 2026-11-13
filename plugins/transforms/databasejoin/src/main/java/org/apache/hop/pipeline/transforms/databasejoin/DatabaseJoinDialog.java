@@ -186,12 +186,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
         fullWidthLabel(
             parent, BaseMessages.getString(PKG, "DatabaseJoinDialog.ResolvedParameters.Label"));
 
-    ColumnInfo[] resolvedColumns =
-        new ColumnInfo[] {
-          textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedPlaceholder"),
-          textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedInputField"),
-          textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedType")
-        };
+    ColumnInfo[] resolvedColumns = {
+      textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedPlaceholder"),
+      textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedInputField"),
+      textColumn("DatabaseJoinDialog.ColumnInfo.ResolvedType")
+    };
     wResolvedParam =
         new TableView(
             variables,

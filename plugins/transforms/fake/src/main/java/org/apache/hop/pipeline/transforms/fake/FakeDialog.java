@@ -95,17 +95,16 @@ public class FakeDialog extends BaseTransformDialog {
     fdLocale.right = new FormAttachment(100, 0);
     wLocale.setLayoutData(fdLocale);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FakeDialog.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FakeDialog.Generator.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FakeDialog.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FakeDialog.Generator.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+    };
     columns[1].setToolTip(BaseMessages.getString(PKG, "FakeDialog.Generator.Tooltip"));
     // A TEXT_BUTTON column only renders its "..." button when the column uses variables.
     columns[1].setUsingVariables(true);

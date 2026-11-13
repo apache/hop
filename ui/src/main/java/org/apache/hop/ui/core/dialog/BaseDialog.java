@@ -81,6 +81,7 @@ import org.eclipse.swt.widgets.ToolBar;
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
   private static final Class<?> PKG = BaseDialog.class;
+  private static final String CONST_FILENAME = "filename";
 
   public static final String NO_DEFAULT_HANDLER = "NoDefaultHandler";
 
@@ -469,7 +470,7 @@ public abstract class BaseDialog extends Dialog {
               if (filterExtensions != null && filterExtensions.length > 0) {
                 String filterExtension = filterExtensions[0];
                 String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
-                vfsDialog.setSaveFilename("filename" + extension);
+                vfsDialog.setSaveFilename(CONST_FILENAME + extension);
               }
             }
 
@@ -492,7 +493,7 @@ public abstract class BaseDialog extends Dialog {
                 if (filterExtensions != null && filterExtensions.length > 0) {
                   String filterExtension = filterExtensions[0];
                   String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
-                  vfsDialog.setSaveFilename("filename" + extension);
+                  vfsDialog.setSaveFilename(CONST_FILENAME + extension);
                 }
               }
             } else {
@@ -501,7 +502,7 @@ public abstract class BaseDialog extends Dialog {
               if (filterExtensions != null && filterExtensions.length > 0) {
                 String filterExtension = filterExtensions[0];
                 String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
-                vfsDialog.setSaveFilename("filename" + extension);
+                vfsDialog.setSaveFilename(CONST_FILENAME + extension);
               }
             }
           } catch (Exception e) {
@@ -509,7 +510,7 @@ public abstract class BaseDialog extends Dialog {
             if (filterExtensions != null && filterExtensions.length > 0) {
               String filterExtension = filterExtensions[0];
               String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
-              vfsDialog.setSaveFilename("filename" + extension);
+              vfsDialog.setSaveFilename(CONST_FILENAME + extension);
             }
           }
         }

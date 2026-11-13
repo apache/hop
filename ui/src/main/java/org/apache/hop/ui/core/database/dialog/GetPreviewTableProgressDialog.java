@@ -46,10 +46,10 @@ public class GetPreviewTableProgressDialog {
   private static final Class<?> PKG = GetPreviewTableProgressDialog.class;
   private final IVariables variables;
 
-  private Shell shell;
-  private DatabaseMeta dbMeta;
-  private String tableName;
-  private int limit;
+  private final Shell shell;
+  private final DatabaseMeta dbMeta;
+  private final String tableName;
+  private final int limit;
 
   /** JDBC {@link java.sql.Statement#setQueryTimeout(int)} in seconds; 0 = driver default. */
   private final int queryTimeoutSeconds;

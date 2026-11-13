@@ -103,6 +103,7 @@ import org.xml.sax.InputSource;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class;
+  private static final String CONST_ACCEPT = "Accept";
   public static final String CONST_REST_EXCEPTION_ERROR_FINDING_FIELD =
       "Rest.Exception.ErrorFindingField";
   private String baseUrl = "";
@@ -363,7 +364,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           if ("Content-Type".equals(data.headerNames[i])) {
             contentType = value;
           }
-          if ("Accept".equalsIgnoreCase(data.headerNames[i])) {
+          if (CONST_ACCEPT.equalsIgnoreCase(data.headerNames[i])) {
             acceptHeaderProvided = true;
           }
           if (isDebug()) {
@@ -382,9 +383,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           && data.streamingFormat == RestStreamingFormat.SSE) {
         // An event-stream endpoint is entitled to answer something else, or nothing, when asked
         // for application/json. The user can still override this on the Headers tab.
-        headerMap.put("Accept", "text/event-stream");
+        headerMap.put(CONST_ACCEPT, "text/event-stream");
       } else if (!acceptHeaderProvided && data.mediaType != null) {
-        headerMap.put("Accept", data.mediaType.getMimeType());
+        headerMap.put(CONST_ACCEPT, data.mediaType.getMimeType());
       }
 
       /* The single place authentication is applied, for both the connection and the transform's

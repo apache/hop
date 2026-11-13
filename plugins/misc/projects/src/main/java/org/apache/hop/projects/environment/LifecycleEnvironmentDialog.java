@@ -86,6 +86,11 @@ import org.eclipse.swt.widgets.Text;
 
 public class LifecycleEnvironmentDialog extends Dialog {
   private static final Class<?> PKG = LifecycleEnvironmentDialog.class;
+  private static final String CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_JS =
+      "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json";
+  private static final String CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_AL =
+      "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All";
+  private static final String CONST_JSON = "*.json";
   public static final String CONST_ERROR = "Error";
 
   private static final int COL_FILENAME = 1;
@@ -118,11 +123,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private TextVar wAddExcludeWildcard;
   private Button wAddIncludeSubfolders;
 
-  private IVariables variables;
+  private final IVariables variables;
   private Button wbEdit;
   private Button wbImportVariables;
 
-  private String originalName;
+  private final String originalName;
 
   private boolean needingEnvironmentRefresh;
 
@@ -617,7 +622,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
             false);
     descriptionColumn.setToolTip(
         BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.DetailTable.ToolTip.Description"));
-    ColumnInfo[] columnInfo = new ColumnInfo[] {filenameColumn, descriptionColumn};
+    ColumnInfo[] columnInfo = {filenameColumn, descriptionColumn};
 
     wConfigFiles =
         new TableView(
@@ -835,10 +840,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
         shell,
         wAddFilename,
         variables,
-        new String[] {"*.json", "*"},
+        new String[] {CONST_JSON, "*"},
         new String[] {
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All")
+          BaseMessages.getString(
+              PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_JS),
+          BaseMessages.getString(
+              PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_AL)
         },
         true);
   }
@@ -886,12 +893,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
         BaseDialog.presentMultiFileDialog(
             shell,
             variables,
-            new String[] {"*.json", "*"},
+            new String[] {CONST_JSON, "*"},
             new String[] {
               BaseMessages.getString(
-                  PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json"),
+                  PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_JS),
               BaseMessages.getString(
-                  PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All")
+                  PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_AL)
             },
             true);
     if (configFiles == null || configFiles.length == 0) {
@@ -990,7 +997,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
               null,
               variables,
               fileObject,
-              new String[] {"*.json", "*"},
+              new String[] {CONST_JSON, "*"},
               new String[] {"Config JSON files", "All files"},
               true);
       if (configFile != null) {
@@ -1199,10 +1206,12 @@ public class LifecycleEnvironmentDialog extends Dialog {
         null,
         variables,
         startFile,
-        new String[] {"*.json", "*"},
+        new String[] {CONST_JSON, "*"},
         new String[] {
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.Json"),
-          BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.ImportVariables.FileFilter.All")
+          BaseMessages.getString(
+              PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_JS),
+          BaseMessages.getString(
+              PKG, CONST_LIFECYCLE_ENVIRONMENT_DIALOG_IMPORT_VARIABLES_FILE_FILTER_AL)
         },
         true);
   }

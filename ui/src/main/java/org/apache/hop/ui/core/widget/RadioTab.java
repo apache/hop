@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Group;
 public class RadioTab extends Composite {
   Group radioGroup;
   Composite contentArea;
-  private PropsUi props;
+  private final PropsUi props;
   private final FormData fdMaximize;
   private final FormLayout noMarginLayout;
 

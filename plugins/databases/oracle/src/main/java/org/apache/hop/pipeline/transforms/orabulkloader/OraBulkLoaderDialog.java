@@ -112,14 +112,14 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
   private Button wParallel;
   private TextVar wAltRecordTerm;
 
-  private OraBulkLoaderMeta input;
+  private final OraBulkLoaderMeta input;
 
   private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciReturn;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   // These should not be translated, they are required to exist on all
   // platforms according to the documentation of "Charset".
@@ -131,8 +131,9 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     "", "US7ASCII", "WE8ISO8859P1", "UTF8",
   };
 
-  private static final String[] ALL_FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "OraBulkLoaderDialog.Filetype.All")};
+  private static final String[] ALL_FILETYPES = {
+    BaseMessages.getString(PKG, "OraBulkLoaderDialog.Filetype.All")
+  };
 
   public OraBulkLoaderDialog(
       Shell parent,

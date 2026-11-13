@@ -31,10 +31,9 @@ import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvider {
 
   /** Authentication types. */
-  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {
-        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
-      };
+  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES = {
+    UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+  };
 
   private static final FileSystemOptions defaultOptions = new FileSystemOptions();
 

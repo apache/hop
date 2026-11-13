@@ -33,6 +33,8 @@ import org.yaml.snakeyaml.Yaml;
  * classpath (source of truth for Wave 1+ optional plugins and full-client-env generation).
  */
 public final class OptionalPluginCatalog {
+  private static final String CONST_TRANSFORMS = "Transforms";
+  private static final String CONST_TECHNOLOGY = "Technology";
 
   public static final String REGISTRY_RESOURCE =
       "/org/apache/hop/marketplace/optional-plugins.yaml";
@@ -155,63 +157,63 @@ public final class OptionalPluginCatalog {
         new OptionalPluginInfo(
             "hop-transform-script",
             "Script transform",
-            "Transforms",
+            CONST_TRANSFORMS,
             "Scripting transform with embedded language runtimes.",
             "plugins/transforms/script"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-tech-cassandra",
             "Cassandra",
-            "Technology",
+            CONST_TECHNOLOGY,
             "Apache Cassandra input/output and related tech.",
             "plugins/tech/cassandra"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-transform-tika",
             "Apache Tika",
-            "Transforms",
+            CONST_TRANSFORMS,
             "Extract text and metadata from documents via Apache Tika.",
             "plugins/transforms/tika"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-transform-drools",
             "Drools",
-            "Transforms",
+            CONST_TRANSFORMS,
             "Business rules with Drools.",
             "plugins/transforms/drools"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-tech-parquet",
             "Parquet",
-            "Technology",
+            CONST_TECHNOLOGY,
             "Parquet file format support.",
             "plugins/tech/parquet"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-transform-stanfordnlp",
             "Stanford NLP",
-            "Transforms",
+            CONST_TRANSFORMS,
             "Natural language processing with Stanford NLP.",
             "plugins/transforms/stanfordnlp"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-tech-arrow",
             "Apache Arrow",
-            "Technology",
+            CONST_TECHNOLOGY,
             "Apache Arrow integration.",
             "plugins/tech/arrow"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-tech-dropbox",
             "Dropbox",
-            "Technology",
+            CONST_TECHNOLOGY,
             "Dropbox VFS and related support.",
             "plugins/tech/dropbox"));
     wave1.add(
         new OptionalPluginInfo(
             "hop-transform-edi2xml",
             "EDI to XML",
-            "Transforms",
+            CONST_TRANSFORMS,
             "Convert EDI messages to XML.",
             "plugins/transforms/edi2xml"));
     return wave1;

@@ -206,13 +206,12 @@ public class ActionDeleteFoldersDialog extends ActionDialog {
 
     final int nrRows = action.getFileItems().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDeleteFolders.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setNamingSchemeType(NamingSchemeTypes.FOLDER);

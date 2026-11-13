@@ -48,7 +48,7 @@ public class EnterStringsDialog extends Dialog {
 
   private Shell shell;
   private RowMetaAndData strings;
-  private PropsUi props;
+  private final PropsUi props;
 
   private boolean readOnly;
   private String message;
@@ -108,19 +108,18 @@ public class EnterStringsDialog extends Dialog {
 
     int nrRows = strings.getRowMeta().size();
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "EnterStringsDialog.StringName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              readOnly),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "EnterStringsDialog.StringValue.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              readOnly)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "EnterStringsDialog.StringName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          readOnly),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "EnterStringsDialog.StringValue.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          readOnly)
+    };
 
     wFields =
         new TableView(

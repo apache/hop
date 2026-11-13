@@ -69,14 +69,12 @@ public class ActionDosToUnix extends ActionBase {
   private static final String CONST_SUCCESS_CONDITION_BROKEN =
       "ActionDosToUnix.Error.SuccessConditionbroken";
 
-  public static final String[] ConversionTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.Guess.Label"),
-        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.DosToUnix.Label"),
-        BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.UnixToDos.Label")
-      };
-  public static final String[] ConversionTypeCode =
-      new String[] {"guess", "dostounix", "unixtodos"};
+  public static final String[] ConversionTypeDesc = {
+    BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.Guess.Label"),
+    BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.DosToUnix.Label"),
+    BaseMessages.getString(PKG, "ActionDosToUnix.ConversionType.UnixToDos.Label")
+  };
+  public static final String[] ConversionTypeCode = {"guess", "dostounix", "unixtodos"};
 
   public static final int CONVERTION_TYPE_GUESS = 0;
   public static final int CONVERTION_TYPE_DOS_TO_UNIX = 1;

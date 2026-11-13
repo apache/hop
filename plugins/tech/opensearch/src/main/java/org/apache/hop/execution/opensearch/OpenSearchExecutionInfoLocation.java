@@ -75,6 +75,7 @@ import org.json.simple.parser.JSONParser;
 public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLocation
     implements IExecutionInfoLocation {
   public static final Class<?> PKG = OpenSearchExecutionInfoLocation.class;
+  private static final String CONST_MAPPING = "/_mapping";
   public static final String STRICT_DATE_OPTIONAL_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
   @GuiWidgetElement(
@@ -845,7 +846,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       return;
     }
     try {
-      String mappingUrl = URI.create(actualUrl).resolve(actualIndexName + "/_mapping").toString();
+      String mappingUrl = URI.create(actualUrl).resolve(actualIndexName + CONST_MAPPING).toString();
       String lastResponse = null;
       for (String body : List.of(failureMappingBody(), objectFailureMappingBody())) {
         RestCaller restCaller =
@@ -957,7 +958,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
         restCaller =
             new RestCaller(
                 new MemoryMetadataProvider(),
-                location.actualUrl + "/" + location.actualIndexName + "/_mapping",
+                location.actualUrl + "/" + location.actualIndexName + CONST_MAPPING,
                 location.actualUsername,
                 location.actualPassword,
                 "PUT",
@@ -969,7 +970,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
         RestCaller failureMappingCaller =
             new RestCaller(
                 new MemoryMetadataProvider(),
-                location.actualUrl + "/" + location.actualIndexName + "/_mapping",
+                location.actualUrl + "/" + location.actualIndexName + CONST_MAPPING,
                 location.actualUsername,
                 location.actualPassword,
                 "PUT",

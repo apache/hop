@@ -49,8 +49,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionAddResultFilenamesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionAddResultFilenamesDialog.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionAddResultFilenames.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionAddResultFilenames.Filetype.All")
+  };
 
   private Label wlFilename;
   private Button wbFilename;
@@ -319,17 +320,16 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionAddResultFilenames.Fields.Column"));

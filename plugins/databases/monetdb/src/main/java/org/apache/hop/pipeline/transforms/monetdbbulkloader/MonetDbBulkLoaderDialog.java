@@ -131,8 +131,9 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     "", "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"
   };
 
-  private static final String[] ALL_FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Filetype.All")};
+  private static final String[] ALL_FILETYPES = {
+    BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Filetype.All")
+  };
 
   public MonetDbBulkLoaderDialog(
       Shell parent,

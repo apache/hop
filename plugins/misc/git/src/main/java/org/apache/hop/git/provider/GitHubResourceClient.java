@@ -31,6 +31,12 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 class GitHubResourceClient implements GitResourceClient {
+  private static final String CONST_REPOS = "/repos/";
+  private static final String CONST_PAGE = "&page=";
+  private static final String CONST_HTML_URL = "html_url";
+  private static final String CONST_TITLE = "title";
+  private static final String CONST_LOGIN = "login";
+  private static final String CONST_CREATED_AT = "created_at";
 
   private static final String ACCEPT = "application/vnd.github+json";
   private static final String PROVIDER = "github";
@@ -268,13 +274,13 @@ class GitHubResourceClient implements GitResourceClient {
 
       StringBuilder url =
           new StringBuilder(apiBaseUrl)
-              .append("/repos/")
+              .append(CONST_REPOS)
               .append(encode(owner))
               .append("/")
               .append(encode(repository))
               .append("/issues/comments?per_page=")
               .append(pageSize)
-              .append("&page=")
+              .append(CONST_PAGE)
               .append(page);
       if (options.getSince() != null && !options.getSince().isBlank()) {
         url.append("&since=").append(encode(options.getSince()));
@@ -301,7 +307,7 @@ class GitHubResourceClient implements GitResourceClient {
         // One feed carries comments on issues and on pull requests. They are told apart by the
         // comment's own URL: a pull request comment lives under /pull/, an issue one under
         // /issues/. The parent issue_url says /issues/ for both, so it cannot be used here.
-        boolean onPullRequest = GitApiHttp.getString(json, "html_url").contains("/pull/");
+        boolean onPullRequest = GitApiHttp.getString(json, CONST_HTML_URL).contains("/pull/");
         if (onPullRequest != (commentType == GitResourceType.PR_COMMENTS)) {
           continue;
         }
@@ -354,13 +360,13 @@ class GitHubResourceClient implements GitResourceClient {
     protected List<IssueRef> fetchIssuePage(int page) throws HopException {
       String url =
           apiBaseUrl
-              + "/repos/"
+              + CONST_REPOS
               + encode(owner)
               + "/"
               + encode(repository)
               + "/issues?per_page="
               + pageSize
-              + "&page="
+              + CONST_PAGE
               + page
               + "&state="
               + encode(state);
@@ -380,7 +386,7 @@ class GitHubResourceClient implements GitResourceClient {
             new IssueRef(
                 GitApiHttp.getString(json, "node_id"),
                 GitApiHttp.getLong(json, "number"),
-                GitApiHttp.getString(json, "title"),
+                GitApiHttp.getString(json, CONST_TITLE),
                 GitApiHttp.getString(json, "state")));
       }
       return issues;
@@ -391,7 +397,7 @@ class GitHubResourceClient implements GitResourceClient {
         throws HopException {
       String url =
           apiBaseUrl
-              + "/repos/"
+              + CONST_REPOS
               + encode(owner)
               + "/"
               + encode(repository)
@@ -399,7 +405,7 @@ class GitHubResourceClient implements GitResourceClient {
               + issue.number()
               + "/events?per_page="
               + pageSize
-              + "&page="
+              + CONST_PAGE
               + page;
       JSONArray array = fetchArray(url, page);
       List<GitResourceRecord> records = new ArrayList<>(array.size());
@@ -523,14 +529,14 @@ class GitHubResourceClient implements GitResourceClient {
 
     String base =
         apiBaseUrl
-            + "/repos/"
+            + CONST_REPOS
             + encode(owner)
             + "/"
             + encode(repository)
             + pathSuffix(resourceType)
             + "?per_page="
             + pageSize
-            + "&page="
+            + CONST_PAGE
             + page;
 
     return switch (resourceType) {
@@ -573,10 +579,10 @@ class GitHubResourceClient implements GitResourceClient {
         "",
         "",
         GitApiHttp.getString(json, "id"),
-        user != null ? GitApiHttp.getString(user, "login") : "",
-        GitApiHttp.getString(json, "created_at"),
+        user != null ? GitApiHttp.getString(user, CONST_LOGIN) : "",
+        GitApiHttp.getString(json, CONST_CREATED_AT),
         GitApiHttp.getString(json, "updated_at"),
-        GitApiHttp.getString(json, "html_url"),
+        GitApiHttp.getString(json, CONST_HTML_URL),
         GitApiHttp.getString(json, "body"),
         json);
   }
@@ -595,8 +601,8 @@ class GitHubResourceClient implements GitResourceClient {
         GitApiHttp.getString(json, "id"),
         eventType,
         describeGitHubEvent(json, eventType),
-        actor != null ? GitApiHttp.getString(actor, "login") : "",
-        GitApiHttp.getString(json, "created_at"),
+        actor != null ? GitApiHttp.getString(actor, CONST_LOGIN) : "",
+        GitApiHttp.getString(json, CONST_CREATED_AT),
         "",
         json);
   }
@@ -609,11 +615,11 @@ class GitHubResourceClient implements GitResourceClient {
       }
       case "assigned", "unassigned" -> {
         JSONObject assignee = (JSONObject) json.get("assignee");
-        yield assignee != null ? GitApiHttp.getString(assignee, "login") : "";
+        yield assignee != null ? GitApiHttp.getString(assignee, CONST_LOGIN) : "";
       }
       case "milestoned", "demilestoned" -> {
         JSONObject milestone = (JSONObject) json.get("milestone");
-        yield milestone != null ? GitApiHttp.getString(milestone, "title") : "";
+        yield milestone != null ? GitApiHttp.getString(milestone, CONST_TITLE) : "";
       }
       case "closed", "reopened" -> GitApiHttp.getString(json, "state_reason");
       case "renamed" -> {
@@ -674,12 +680,13 @@ class GitHubResourceClient implements GitResourceClient {
             .body(commit != null ? GitApiHttp.getString(commit, "message") : "")
             .author(author != null ? GitApiHttp.getString(author, "name") : "")
             .authorEmail(author != null ? GitApiHttp.getString(author, "email") : "")
-            .authorLogin(authorAccount != null ? GitApiHttp.getString(authorAccount, "login") : "")
+            .authorLogin(
+                authorAccount != null ? GitApiHttp.getString(authorAccount, CONST_LOGIN) : "")
             .committer(committer != null ? GitApiHttp.getString(committer, "name") : "")
             .committerEmail(committer != null ? GitApiHttp.getString(committer, "email") : "")
             .createdAt(author != null ? GitApiHttp.getString(author, "date") : "")
             .isMerge(GitJsonLists.mergeFlag(json, "parents"))
-            .url(GitApiHttp.getString(json, "html_url"))
+            .url(GitApiHttp.getString(json, CONST_HTML_URL))
             .rawJson(rawJson)
             .build();
       }
@@ -689,7 +696,7 @@ class GitHubResourceClient implements GitResourceClient {
             resourceType == GitResourceType.PULL_REQUESTS ? (JSONObject) json.get("head") : null;
         JSONObject base =
             resourceType == GitResourceType.PULL_REQUESTS ? (JSONObject) json.get("base") : null;
-        String login = user != null ? GitApiHttp.getString(user, "login") : "";
+        String login = user != null ? GitApiHttp.getString(user, CONST_LOGIN) : "";
         yield GitResourceRecord.builder()
             .provider(PROVIDER)
             .entityType(entityType)
@@ -697,21 +704,21 @@ class GitHubResourceClient implements GitResourceClient {
             .repoName(repository)
             .id(GitApiHttp.getString(json, "node_id"))
             .number(GitApiHttp.getLong(json, "number"))
-            .title(GitApiHttp.getString(json, "title"))
+            .title(GitApiHttp.getString(json, CONST_TITLE))
             .state(GitApiHttp.getString(json, "state"))
             .body(GitApiHttp.getString(json, "body"))
             .author(login)
             .authorLogin(login)
             .labels(GitJsonLists.names(json, "labels", "name"))
-            .assignees(GitJsonLists.names(json, "assignees", "login"))
+            .assignees(GitJsonLists.names(json, "assignees", CONST_LOGIN))
             .sourceBranch(head != null ? GitApiHttp.getString(head, "ref") : "")
             .targetBranch(base != null ? GitApiHttp.getString(base, "ref") : "")
             .merged(mapGithubMerged(json))
             .mergedAt(GitApiHttp.getString(json, "merged_at"))
-            .createdAt(GitApiHttp.getString(json, "created_at"))
+            .createdAt(GitApiHttp.getString(json, CONST_CREATED_AT))
             .updatedAt(GitApiHttp.getString(json, "updated_at"))
             .closedAt(GitApiHttp.getString(json, "closed_at"))
-            .url(GitApiHttp.getString(json, "html_url"))
+            .url(GitApiHttp.getString(json, CONST_HTML_URL))
             .rawJson(rawJson)
             .build();
       }

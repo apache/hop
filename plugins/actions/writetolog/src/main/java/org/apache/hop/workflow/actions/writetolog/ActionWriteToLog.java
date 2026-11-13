@@ -67,11 +67,11 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
   private class LogWriterObject implements ILoggingObject {
 
-    private ILogChannel log;
-    private LogLevel logLevel;
-    private ILoggingObject parent;
-    private String subject;
-    private String containerObjectId;
+    private final ILogChannel log;
+    private final LogLevel logLevel;
+    private final ILoggingObject parent;
+    private final String subject;
+    private final String containerObjectId;
 
     public LogWriterObject(String subject, ILoggingObject parent, LogLevel logLevel) {
       this.subject = subject;

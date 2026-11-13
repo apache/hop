@@ -25,13 +25,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 
 public class StreamLogger implements Runnable {
-  private InputStream is;
+  private final InputStream is;
 
-  private String type;
+  private final String type;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
-  private Boolean errorStream;
+  private final Boolean errorStream;
 
   private String lastLine;
 

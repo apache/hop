@@ -48,22 +48,21 @@ import org.apache.hop.core.row.value.ValueMetaString;
  */
 public class StringEvaluator {
 
-  private Set<String> values;
-  private List<StringEvaluationResult> evaluationResults;
+  private final Set<String> values;
+  private final List<StringEvaluationResult> evaluationResults;
   private int maxLength;
   private int maxPrecision;
   private int count;
-  private boolean tryTrimming;
+  private final boolean tryTrimming;
 
-  private IValueMeta stringMeta;
+  private final IValueMeta stringMeta;
 
-  private String[] dateFormats;
-  private String[] numberFormats;
+  private final String[] dateFormats;
+  private final String[] numberFormats;
 
-  private static final String[] DEFAULT_NUMBER_FORMATS =
-      new String[] {
-        "#,###,###.#", "#.#", "#", "#.0", "#.00", "#.000", "#.0000", "#.00000", "#.000000", " #.0#"
-      };
+  private static final String[] DEFAULT_NUMBER_FORMATS = {
+    "#,###,###.#", "#.#", "#", "#.0", "#.00", "#.000", "#.0000", "#.00000", "#.000000", " #.0#"
+  };
 
   protected static final Pattern PRECISION_PATTERN = Pattern.compile("[^0-9#]");
 

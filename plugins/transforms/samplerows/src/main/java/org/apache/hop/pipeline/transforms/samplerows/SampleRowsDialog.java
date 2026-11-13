@@ -36,7 +36,7 @@ public class SampleRowsDialog extends BaseTransformDialog {
 
   private LabelTextVar wLinesRange;
   private LabelTextVar wLineNumberField;
-  private SampleRowsMeta input;
+  private final SampleRowsMeta input;
 
   public SampleRowsDialog(
       Shell parent, IVariables variables, SampleRowsMeta transformMeta, PipelineMeta pipelineMeta) {

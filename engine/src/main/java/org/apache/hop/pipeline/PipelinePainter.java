@@ -96,8 +96,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private Map<String, Object> stateMap;
   private boolean showingSelectedTransformMetrics = true;
 
-  public static final String[] magnificationDescriptions =
-      new String[] {"1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%"};
+  public static final String[] magnificationDescriptions = {
+    "1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%"
+  };
 
   public PipelinePainter(
       IGc gc,

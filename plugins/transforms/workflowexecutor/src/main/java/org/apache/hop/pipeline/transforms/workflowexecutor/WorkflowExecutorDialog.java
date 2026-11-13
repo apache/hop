@@ -83,7 +83,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
   public static final String CONST_WORKFLOW_EXECUTOR_DIALOG_ERROR_LOADING_SPECIFIED_JOB_MESSAGE =
       "WorkflowExecutorDialog.ErrorLoadingSpecifiedJob.Message";
 
-  private WorkflowExecutorMeta workflowExecutorMeta;
+  private final WorkflowExecutorMeta workflowExecutorMeta;
 
   private Label wlPath;
   private TextVar wPath;
@@ -145,7 +145,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
 
   private TableView wResultRowsFields;
 
-  private HopWorkflowFileType<WorkflowMeta> fileType =
+  private final HopWorkflowFileType<WorkflowMeta> fileType =
       HopGui.getExplorerPerspective().getWorkflowFileType();
 
   public WorkflowExecutorDialog(
@@ -873,20 +873,19 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     fdExecutionResultTarget.left = new FormAttachment(wlExecutionResultTarget, margin);
     wExecutionResultTarget.setLayoutData(fdExecutionResultTarget);
 
-    ColumnInfo[] executionResultColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "WorkflowExecutorMeta.ExecutionResults.FieldDescription.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WorkflowExecutorMeta.ExecutionResults.FieldName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false)
-        };
+    ColumnInfo[] executionResultColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "WorkflowExecutorMeta.ExecutionResults.FieldDescription.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowExecutorMeta.ExecutionResults.FieldName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false)
+    };
     executionResultColumns[1].setUsingVariables(true);
 
     TableView wExecutionResults =
@@ -1108,26 +1107,25 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
             ? workflowExecutorMeta.getResultRowsField().size()
             : 1);
 
-    ColumnInfo[] ciResultFields =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Field"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] ciResultFields = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Field"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowExecutorDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wResultRowsFields =
         new TableView(

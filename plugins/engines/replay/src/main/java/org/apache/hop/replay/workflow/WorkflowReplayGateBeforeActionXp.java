@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
     extensionPointId = "WorkflowBeforeActionExecution")
 public class WorkflowReplayGateBeforeActionXp
     implements IExtensionPoint<WorkflowExecutionExtension> {
+  private static final String CONST_REPLAY_WORKFLOW_ENGINE_ACTION =
+      "ReplayWorkflowEngine: action [";
 
   @Override
   public void callExtensionPoint(
@@ -111,7 +113,7 @@ public class WorkflowReplayGateBeforeActionXp
     replayEngine.markLiveExecution();
     extension.executeAction = true;
     log.logBasic(
-        "ReplayWorkflowEngine: action ["
+        CONST_REPLAY_WORKFLOW_ENGINE_ACTION
             + actionName
             + "] has no matching sealed gate. This path runs from here.");
   }
@@ -143,7 +145,7 @@ public class WorkflowReplayGateBeforeActionXp
     if (StringUtils.isEmpty(manifest.getConfigurationHash())
         || !manifest.getConfigurationHash().equals(expectedHash)) {
       log.logBasic(
-          "ReplayWorkflowEngine: action ["
+          CONST_REPLAY_WORKFLOW_ENGINE_ACTION
               + actionName
               + "] configuration, parameters or referenced variables changed since the sealed gate. Re-executing.");
       return false;
@@ -159,7 +161,7 @@ public class WorkflowReplayGateBeforeActionXp
     }
     replayEngine.recordRestoredAction(extension.actionMeta, restoredResult);
     log.logBasic(
-        "ReplayWorkflowEngine: action ["
+        CONST_REPLAY_WORKFLOW_ENGINE_ACTION
             + actionName
             + "] matches the sealed gate for execution "
             + executionId

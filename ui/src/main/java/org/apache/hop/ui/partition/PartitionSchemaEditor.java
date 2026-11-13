@@ -163,14 +163,13 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdlPartitions.top = new FormAttachment(wNumber, margin);
     wlPartitions.setLayoutData(fdlPartitions);
 
-    ColumnInfo[] partitionColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PartitionSchemaDialog.PartitionID.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] partitionColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PartitionSchemaDialog.PartitionID.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     wPartitions =
         new TableView(
             manager.getVariables(),

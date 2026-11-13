@@ -83,6 +83,8 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class TableInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TableInputMeta.class;
+  private static final String CONST_TABLE_INPUT_DIALOG_DIALOG_CAPTION_ERROR =
+      "TableInputDialog.DialogCaptionError";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -527,30 +529,29 @@ public class TableInputDialog extends BaseTransformDialog {
     wGetFields.setLayoutData(fdGetFields);
     wGetFields.addListener(SWT.Selection, e -> getOutputFields());
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TableInputDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
 
     int fieldRows =
         input.getFields() != null && !input.getFields().isEmpty() ? input.getFields().size() : 1;
@@ -612,7 +613,7 @@ public class TableInputDialog extends BaseTransformDialog {
       wSqlComposite.setEditable(false);
     } catch (HopFileException e) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-      mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
+      mb.setText(BaseMessages.getString(PKG, CONST_TABLE_INPUT_DIALOG_DIALOG_CAPTION_ERROR));
       mb.setMessage(
           BaseMessages.getString(PKG, "TableInputDialog.CouldNotLoadSqlFromFile", path)
               + Const.CR
@@ -729,7 +730,7 @@ public class TableInputDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
-      mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
+      mb.setText(BaseMessages.getString(PKG, CONST_TABLE_INPUT_DIALOG_DIALOG_CAPTION_ERROR));
       mb.open();
       return;
     }
@@ -754,7 +755,7 @@ public class TableInputDialog extends BaseTransformDialog {
       if (prev == null || prev.isEmpty()) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.NoIncomingFields"));
-        mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
+        mb.setText(BaseMessages.getString(PKG, CONST_TABLE_INPUT_DIALOG_DIALOG_CAPTION_ERROR));
         mb.open();
         return;
       }
@@ -772,7 +773,7 @@ public class TableInputDialog extends BaseTransformDialog {
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"),
+          BaseMessages.getString(PKG, CONST_TABLE_INPUT_DIALOG_DIALOG_CAPTION_ERROR),
           BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"),
           e);
     }

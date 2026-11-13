@@ -27,17 +27,17 @@ import org.apache.hop.core.vfs.HopVfs;
 public class FileLoggingEventListener implements IHopLoggingEventListener {
 
   private String filename;
-  private FileObject file;
+  private final FileObject file;
 
   public FileObject getFile() {
     return file;
   }
 
   private OutputStream outputStream;
-  private HopLogLayout layout;
+  private final HopLogLayout layout;
 
   private HopException exception;
-  private String logChannelId;
+  private final String logChannelId;
 
   /**
    * Log all log lines to the specified file

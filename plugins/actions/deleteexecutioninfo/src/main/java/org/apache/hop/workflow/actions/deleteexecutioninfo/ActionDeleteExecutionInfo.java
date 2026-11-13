@@ -61,6 +61,8 @@ import org.apache.hop.workflow.action.IAction;
 @Setter
 public class ActionDeleteExecutionInfo extends ActionBase implements IAction {
   private static final Class<?> PKG = ActionDeleteExecutionInfo.class;
+  private static final String CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE =
+      "ActionDeleteExecutionInfo.Error.Age";
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DeleteExecutionInfo.Dialog.Options";
   public static final String GROUP_OPTIONS = "i18n::ActionDeleteExecutionInfo.Group.Options";
@@ -185,11 +187,11 @@ public class ActionDeleteExecutionInfo extends ActionBase implements IAction {
       amount = Long.parseLong(resolved == null ? "" : resolved.trim());
     } catch (NumberFormatException e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "ActionDeleteExecutionInfo.Error.Age", resolved));
+          BaseMessages.getString(PKG, CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE, resolved));
     }
     if (amount <= 0) {
       throw new HopException(
-          BaseMessages.getString(PKG, "ActionDeleteExecutionInfo.Error.Age", resolved));
+          BaseMessages.getString(PKG, CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE, resolved));
     }
     ExecutionInfoAgeUnit activeUnit = unit == null ? ExecutionInfoAgeUnit.DAYS : unit;
     LocalDateTime now = LocalDateTime.now();
@@ -226,7 +228,7 @@ public class ActionDeleteExecutionInfo extends ActionBase implements IAction {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "ActionDeleteExecutionInfo.Error.Age", resolved),
+              BaseMessages.getString(PKG, CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE, resolved),
               this));
       return;
     }
@@ -238,14 +240,14 @@ public class ActionDeleteExecutionInfo extends ActionBase implements IAction {
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "ActionDeleteExecutionInfo.Error.Age", resolved),
+                BaseMessages.getString(PKG, CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE, resolved),
                 this));
       }
     } catch (NumberFormatException e) {
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "ActionDeleteExecutionInfo.Error.Age", resolved),
+              BaseMessages.getString(PKG, CONST_ACTION_DELETE_EXECUTION_INFO_ERROR_AGE, resolved),
               this));
     }
   }

@@ -77,7 +77,7 @@ public class HopGuiAuditDelegate {
    */
   private static final String TAB_KEY_DELIMITER = "\u0001";
 
-  private HopGui hopGui;
+  private final HopGui hopGui;
 
   public HopGuiAuditDelegate(HopGui hopGui) {
     this.hopGui = hopGui;

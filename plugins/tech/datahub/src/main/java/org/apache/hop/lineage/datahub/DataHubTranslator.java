@@ -61,6 +61,18 @@ import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
  * for {@link DataHubEmitter} to make.
  */
 final class DataHubTranslator {
+  private static final String CONST_STATUS = "status";
+  private static final String CONST_DATASET = "dataset";
+  private static final String CONST_DATA_JOB = "dataJob";
+  private static final String CONST_DATA_JOB_INPUT_OUTPUT = "dataJobInputOutput";
+  private static final String CONST_CUSTOM_PROPERTIES = "customProperties";
+  private static final String CONST_DATA_FLOW = "dataFlow";
+  private static final String CONST_VALUE = "value";
+  private static final String CONST_DESTINATION_URN = "destinationUrn";
+  private static final String CONST_DATA_PROCESS_INSTANCE = "dataProcessInstance";
+  private static final String CONST_WORKFLOW = "WORKFLOW";
+  private static final String CONST_PIPELINE = "Pipeline";
+  private static final String CONST_WORKFLOW_2 = "Workflow";
 
   static final String HOP_PLATFORM_LOGO = "https://hop.apache.org/img/hop-logo.svg";
 
@@ -206,7 +218,7 @@ final class DataHubTranslator {
       proposals.addAll(jobAspects(ioJobUrn, flowUrn, subject, null));
     }
     for (String dataset : distinct(inputs, outputs)) {
-      proposals.add(Mcp.upsert("dataset", dataset, "status", status()));
+      proposals.add(Mcp.upsert(CONST_DATASET, dataset, CONST_STATUS, status()));
     }
     proposals.addAll(localFileNames(event));
     schemas.addAll(schemaCandidates(event));
@@ -228,9 +240,9 @@ final class DataHubTranslator {
     if (ioJobUrn != null) {
       proposals.add(
           Mcp.upsert(
-              "dataJob",
+              CONST_DATA_JOB,
               ioJobUrn,
-              "dataJobInputOutput",
+              CONST_DATA_JOB_INPUT_OUTPUT,
               jobInputOutput(jobInputs, jobOutputs, upstreamJobs(subject, flowUrn), fieldEdges)));
     }
     proposals.addAll(runEnded(event, inputs, outputs, time));
@@ -272,16 +284,17 @@ final class DataHubTranslator {
       if (description != null) {
         info.put("description", description);
       }
-      ObjectNode properties = info.putObject("customProperties");
+      ObjectNode properties = info.putObject(CONST_CUSTOM_PROPERTIES);
       if (subject.flowFilename() != null) {
         properties.put(FILENAME_PROPERTY, subject.flowFilename());
       }
-      proposals.add(Mcp.upsert("dataFlow", flowUrn, "dataFlowInfo", info));
+      proposals.add(Mcp.upsert(CONST_DATA_FLOW, flowUrn, "dataFlowInfo", info));
     }
-    proposals.add(Mcp.upsert("dataFlow", flowUrn, "subTypes", subTypes(subject.flowType())));
-    proposals.add(Mcp.upsert("dataFlow", flowUrn, "status", status()));
+    proposals.add(Mcp.upsert(CONST_DATA_FLOW, flowUrn, "subTypes", subTypes(subject.flowType())));
+    proposals.add(Mcp.upsert(CONST_DATA_FLOW, flowUrn, CONST_STATUS, status()));
     if (!StringUtils.isBlank(platformInstance)) {
-      proposals.add(Mcp.upsert("dataFlow", flowUrn, "dataPlatformInstance", platformInstance()));
+      proposals.add(
+          Mcp.upsert(CONST_DATA_FLOW, flowUrn, "dataPlatformInstance", platformInstance()));
     }
     return proposals;
   }
@@ -295,16 +308,16 @@ final class DataHubTranslator {
     }
     info.putObject("type").put("string", subject.jobType().toUpperCase(Locale.ROOT));
     info.put("flowUrn", flowUrn);
-    ObjectNode properties = info.putObject("customProperties");
+    ObjectNode properties = info.putObject(CONST_CUSTOM_PROPERTIES);
     if (subject.flowFilename() != null) {
       // Which file the task belongs to: only that file's runs may retire it (see StaleCheck).
       properties.put(FILENAME_PROPERTY, subject.flowFilename());
     }
-    proposals.add(Mcp.upsert("dataJob", jobUrn, "dataJobInfo", info));
-    proposals.add(Mcp.upsert("dataJob", jobUrn, "subTypes", subTypes(subject.jobType())));
-    proposals.add(Mcp.upsert("dataJob", jobUrn, "status", status()));
+    proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataJobInfo", info));
+    proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "subTypes", subTypes(subject.jobType())));
+    proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, CONST_STATUS, status()));
     if (!StringUtils.isBlank(platformInstance)) {
-      proposals.add(Mcp.upsert("dataJob", jobUrn, "dataPlatformInstance", platformInstance()));
+      proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataPlatformInstance", platformInstance()));
     }
     return proposals;
   }
@@ -347,9 +360,13 @@ final class DataHubTranslator {
       ObjectNode add = patch.addObject();
       add.put("op", "add");
       add.put("path", "/inputDatajobEdges/" + escapeJsonPointer(parentJob));
-      add.putObject("value").put("destinationUrn", parentJob);
+      add.putObject(CONST_VALUE).put(CONST_DESTINATION_URN, parentJob);
       proposals.add(
-          Mcp.patch("dataJob", DataHubUrns.dataJob(flowUrn, root), "dataJobInputOutput", patch));
+          Mcp.patch(
+              CONST_DATA_JOB,
+              DataHubUrns.dataJob(flowUrn, root),
+              CONST_DATA_JOB_INPUT_OUTPUT,
+              patch));
     }
     return proposals;
   }
@@ -400,15 +417,15 @@ final class DataHubTranslator {
       ObjectNode add = patch.addObject();
       add.put("op", "add");
       add.put("path", "/inputDatasetEdges/" + escapeJsonPointer(input));
-      add.putObject("value").put("destinationUrn", input);
+      add.putObject(CONST_VALUE).put(CONST_DESTINATION_URN, input);
     }
     for (String output : outputs) {
       ObjectNode add = patch.addObject();
       add.put("op", "add");
       add.put("path", "/outputDatasetEdges/" + escapeJsonPointer(output));
-      add.putObject("value").put("destinationUrn", output);
+      add.putObject(CONST_VALUE).put(CONST_DESTINATION_URN, output);
     }
-    return Mcp.patch("dataJob", jobUrn, "dataJobInputOutput", patch);
+    return Mcp.patch(CONST_DATA_JOB, jobUrn, CONST_DATA_JOB_INPUT_OUTPUT, patch);
   }
 
   /** Copy and move targets with their source, from the mapper's copied-from facet. */
@@ -453,13 +470,13 @@ final class DataHubTranslator {
       ObjectNode add = patch.addObject();
       add.put("op", "add");
       add.put("path", "/upstreams/" + escapeJsonPointer(copy.getValue()));
-      ObjectNode upstream = add.putObject("value");
-      upstream.put("dataset", copy.getValue());
+      ObjectNode upstream = add.putObject(CONST_VALUE);
+      upstream.put(CONST_DATASET, copy.getValue());
       upstream.put("type", "COPY");
       ObjectNode stamp = upstream.putObject("auditStamp");
       stamp.put("time", time);
       stamp.put("actor", actor);
-      proposals.add(Mcp.patch("dataset", copy.getKey(), "upstreamLineage", patch));
+      proposals.add(Mcp.patch(CONST_DATASET, copy.getKey(), "upstreamLineage", patch));
     }
     return proposals;
   }
@@ -476,9 +493,12 @@ final class DataHubTranslator {
     ObjectNode created = properties.putObject("created");
     created.put("time", time);
     created.put("actor", actor);
-    properties.putObject("customProperties").put("hopRunId", event.getRun().getRunId().toString());
+    properties
+        .putObject(CONST_CUSTOM_PROPERTIES)
+        .put("hopRunId", event.getRun().getRunId().toString());
     proposals.add(
-        Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceProperties", properties));
+        Mcp.upsert(
+            CONST_DATA_PROCESS_INSTANCE, runUrn, "dataProcessInstanceProperties", properties));
 
     ObjectNode relationships = MAPPER.createObjectNode();
     relationships.put("parentTemplate", templateUrn);
@@ -489,14 +509,17 @@ final class DataHubTranslator {
     relationships.putArray("upstreamInstances");
     proposals.add(
         Mcp.upsert(
-            "dataProcessInstance", runUrn, "dataProcessInstanceRelationships", relationships));
+            CONST_DATA_PROCESS_INSTANCE,
+            runUrn,
+            "dataProcessInstanceRelationships",
+            relationships));
 
     ObjectNode started = MAPPER.createObjectNode();
     started.put("timestampMillis", time);
-    started.put("status", "STARTED");
+    started.put(CONST_STATUS, "STARTED");
     started.put("attempt", 1);
     proposals.add(
-        Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceRunEvent", started));
+        Mcp.upsert(CONST_DATA_PROCESS_INSTANCE, runUrn, "dataProcessInstanceRunEvent", started));
     return proposals;
   }
 
@@ -505,22 +528,25 @@ final class DataHubTranslator {
     List<Mcp> proposals = new ArrayList<>();
     ObjectNode ended = MAPPER.createObjectNode();
     ended.put("timestampMillis", time);
-    ended.put("status", "COMPLETE");
+    ended.put(CONST_STATUS, "COMPLETE");
     ended.put("attempt", 1);
     ObjectNode result = ended.putObject("result");
     // Anything but a completion (a failure, a run the sink ended at shutdown) did not succeed.
     result.put("type", event.getEventType() == EventType.COMPLETE ? "SUCCESS" : "FAILURE");
     result.put("nativeResultType", DataHubUrns.HOP_PLATFORM);
-    proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceRunEvent", ended));
+    proposals.add(
+        Mcp.upsert(CONST_DATA_PROCESS_INSTANCE, runUrn, "dataProcessInstanceRunEvent", ended));
     if (!inputs.isEmpty()) {
       ObjectNode in = MAPPER.createObjectNode();
       in.set("inputs", urnArray(inputs));
-      proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceInput", in));
+      proposals.add(
+          Mcp.upsert(CONST_DATA_PROCESS_INSTANCE, runUrn, "dataProcessInstanceInput", in));
     }
     if (!outputs.isEmpty()) {
       ObjectNode out = MAPPER.createObjectNode();
       out.set("outputs", urnArray(outputs));
-      proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceOutput", out));
+      proposals.add(
+          Mcp.upsert(CONST_DATA_PROCESS_INSTANCE, runUrn, "dataProcessInstanceOutput", out));
     }
     return proposals;
   }
@@ -581,8 +607,8 @@ final class DataHubTranslator {
       ObjectNode properties = MAPPER.createObjectNode();
       properties.put("name", path.substring(path.lastIndexOf('/') + 1));
       properties.put("qualifiedName", path);
-      properties.putObject("customProperties");
-      proposals.put(urn, Mcp.upsert("dataset", urn, "datasetProperties", properties));
+      properties.putObject(CONST_CUSTOM_PROPERTIES);
+      proposals.put(urn, Mcp.upsert(CONST_DATASET, urn, "datasetProperties", properties));
     }
     return new ArrayList<>(proposals.values());
   }
@@ -627,7 +653,7 @@ final class DataHubTranslator {
         new SchemaCandidate(
             urn,
             Mcp.upsert(
-                "dataset",
+                CONST_DATASET,
                 urn,
                 "schemaMetadata",
                 schemaMetadata(platformUrn, dataset.getFacets().getSchema().getFields()))));
@@ -767,11 +793,11 @@ final class DataHubTranslator {
               + escapeJsonPointer(edge.downstreamFieldUrn())
               + "/NONE/"
               + escapeJsonPointer(edge.upstreamFieldUrn()));
-      add.putObject("value").put("confidenceScore", COLUMN_LINEAGE_CONFIDENCE);
+      add.putObject(CONST_VALUE).put("confidenceScore", COLUMN_LINEAGE_CONFIDENCE);
     }
     List<Mcp> proposals = new ArrayList<>();
     for (Map.Entry<String, ArrayNode> patch : patches.entrySet()) {
-      proposals.add(Mcp.patch("dataset", patch.getKey(), "upstreamLineage", patch.getValue()));
+      proposals.add(Mcp.patch(CONST_DATASET, patch.getKey(), "upstreamLineage", patch.getValue()));
     }
     return proposals;
   }
@@ -869,7 +895,7 @@ final class DataHubTranslator {
   private static ArrayNode edges(List<String> urns) {
     ArrayNode edges = MAPPER.createArrayNode();
     for (String urn : urns) {
-      edges.addObject().put("destinationUrn", urn);
+      edges.addObject().put(CONST_DESTINATION_URN, urn);
     }
     return edges;
   }
@@ -924,23 +950,23 @@ final class DataHubTranslator {
       String subjectType = string(hop, "subjectType");
       String pipeline = string(hop, "pipelineName");
       String workflow = string(hop, "workflowName");
-      String filename = string(hop, "filename");
+      String filename = string(hop, FILENAME_PROPERTY);
       List<String> upstream =
           "ACTION".equals(subjectType)
               ? strings(hop, OpenLineageEventMapper.UPSTREAM_ACTIONS)
               : strings(hop, OpenLineageEventMapper.UPSTREAM_TRANSFORMS);
       List<String> roots =
-          "WORKFLOW".equals(subjectType)
+          CONST_WORKFLOW.equals(subjectType)
               ? strings(hop, OpenLineageEventMapper.ROOT_ACTIONS)
               : strings(hop, OpenLineageEventMapper.ROOT_TRANSFORMS);
       List<String> members =
-          "WORKFLOW".equals(subjectType)
+          CONST_WORKFLOW.equals(subjectType)
               ? strings(hop, OpenLineageEventMapper.ACTIONS)
               : strings(hop, OpenLineageEventMapper.TRANSFORMS);
       if ("TRANSFORM".equals(subjectType) && pipeline != null) {
         return new Subject(
             pipeline,
-            "Pipeline",
+            CONST_PIPELINE,
             filename,
             string(hop, "transformName"),
             "Transform",
@@ -952,7 +978,7 @@ final class DataHubTranslator {
       if ("ACTION".equals(subjectType) && workflow != null) {
         return new Subject(
             workflow,
-            "Workflow",
+            CONST_WORKFLOW_2,
             filename,
             string(hop, "actionName"),
             "Action",
@@ -961,13 +987,29 @@ final class DataHubTranslator {
             members,
             hop);
       }
-      if ("WORKFLOW".equals(subjectType) && workflow != null) {
+      if (CONST_WORKFLOW.equals(subjectType) && workflow != null) {
         return new Subject(
-            workflow, "Workflow", filename, null, "Workflow", upstream, roots, members, hop);
+            workflow,
+            CONST_WORKFLOW_2,
+            filename,
+            null,
+            CONST_WORKFLOW_2,
+            upstream,
+            roots,
+            members,
+            hop);
       }
       if ("PIPELINE".equals(subjectType) && pipeline != null) {
         return new Subject(
-            pipeline, "Pipeline", filename, null, "Pipeline", upstream, roots, members, hop);
+            pipeline,
+            CONST_PIPELINE,
+            filename,
+            null,
+            CONST_PIPELINE,
+            upstream,
+            roots,
+            members,
+            hop);
       }
       // An event without the Hop facet (written by an older sink and replayed from its spool): the
       // job name is all there is, so it becomes a flow of its own.
@@ -975,7 +1017,15 @@ final class DataHubTranslator {
       return StringUtils.isBlank(name)
           ? null
           : new Subject(
-              name, "Pipeline", null, null, "Pipeline", List.of(), List.of(), List.of(), hop);
+              name,
+              CONST_PIPELINE,
+              null,
+              null,
+              CONST_PIPELINE,
+              List.of(),
+              List.of(),
+              List.of(),
+              hop);
     }
 
     String facet(String key) {

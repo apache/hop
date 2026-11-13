@@ -830,14 +830,13 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
   private void buildTopicsTable(
       Composite parentWidget, Control controlAbove, Control controlBelow) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "KafkaConsumerInputDialog.NameField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[1],
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "KafkaConsumerInputDialog.NameField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[1],
+          false)
+    };
 
     columns[0].setUsingVariables(true);
 

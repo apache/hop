@@ -46,10 +46,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Read data from POP3/IMAP server and input data to the next transforms. */
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class;
+  private static final String CONST_MAIL_INPUT_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY =
+      "MailInput.Error.ReceivedDatesSearchTermEmpty";
   public static final String CONST_MAIL_INPUT_LOG_FINISHED_PROCESSING =
       "MailInput.Log.FinishedProcessing";
 
-  private MessageParser instance = new MessageParser();
+  private final MessageParser instance = new MessageParser();
 
   private MailServerConnection connection;
 
@@ -607,13 +609,15 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
             realBeginDate = resolve(meta.getReceivedDate1());
             if (Utils.isEmpty(realBeginDate)) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty"));
+                  BaseMessages.getString(
+                      PKG, CONST_MAIL_INPUT_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY));
             }
             beginDate = df.parse(realBeginDate);
             String realEndDate = resolve(meta.getReceivedDate2());
             if (Utils.isEmpty(realEndDate)) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty"));
+                  BaseMessages.getString(
+                      PKG, CONST_MAIL_INPUT_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY));
             }
             endDate = df.parse(realEndDate);
             break;
@@ -636,13 +640,15 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
             realBeginDate = resolve(meta.getReceivedDate1());
             if (Utils.isEmpty(realBeginDate)) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty"));
+                  BaseMessages.getString(
+                      PKG, CONST_MAIL_INPUT_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY));
             }
             beginDate = df.parse(realBeginDate);
             String realEndDate = resolve(meta.getReceivedDate2());
             if (Utils.isEmpty(realEndDate)) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty"));
+                  BaseMessages.getString(
+                      PKG, CONST_MAIL_INPUT_ERROR_RECEIVED_DATES_SEARCH_TERM_EMPTY));
             }
             endDate = df.parse(realEndDate);
             break;

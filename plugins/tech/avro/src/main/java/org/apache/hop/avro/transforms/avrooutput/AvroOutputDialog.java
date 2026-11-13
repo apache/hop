@@ -67,18 +67,15 @@ public class AvroOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
-  private static final String[] OUTPUT_TYPE_DESC =
-      new String[] {
-        BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.BinaryFile"),
-        BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.BinaryField"),
-        BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.JsonField")
-      };
+  private static final String[] OUTPUT_TYPE_DESC = {
+    BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.BinaryFile"),
+    BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.BinaryField"),
+    BaseMessages.getString(PKG, "AvroOutputDialog.OutputType.JsonField")
+  };
   public static final String CONST_SYSTEM_DIALOG_GET_FIELDS_FAILED_MESSAGE =
       "System.Dialog.GetFieldsFailed.Message";
 

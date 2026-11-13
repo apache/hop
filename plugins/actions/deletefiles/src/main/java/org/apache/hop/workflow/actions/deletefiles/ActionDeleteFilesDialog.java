@@ -53,8 +53,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionDeleteFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteFiles.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+  };
 
   private Button wIncludeSubfolders;
 
@@ -158,17 +159,16 @@ public class ActionDeleteFilesDialog extends ActionDialog {
 
     final int nrRows = action.getFileItems().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDeleteFiles.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setNamingSchemeType(NamingSchemeTypes.FILE);

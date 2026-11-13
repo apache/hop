@@ -82,13 +82,13 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private static final Class<?> PKG = SalesforceInsertMeta.class;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciReturn;
 
   private TableView wReturn;
 
-  private SalesforceInsertMeta input;
+  private final SalesforceInsertMeta input;
 
   private Group wConnectionGroup;
   private MetaSelectionLine<org.apache.hop.metadata.salesforce.SalesforceConnection>
@@ -103,7 +103,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   private TextVar wTimeOut;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private boolean gotModule = false;
   private boolean gotFields = false;

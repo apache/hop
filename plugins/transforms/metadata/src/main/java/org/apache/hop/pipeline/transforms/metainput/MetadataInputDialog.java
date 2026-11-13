@@ -225,13 +225,12 @@ public class MetadataInputDialog extends BaseTransformDialog {
 
     final int fieldsRows = input.getTypeKeyFilters().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MetadataInputDialog.KeyColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              HopMetadataUtil.getHopMetadataKeys(metadataProvider)),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MetadataInputDialog.KeyColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          HopMetadataUtil.getHopMetadataKeys(metadataProvider)),
+    };
 
     colinf[0].setToolTip(BaseMessages.getString(PKG, "MetadataInputDialog.KeyColumn.Tooltip"));
     colinf[0].setUsingVariables(true);

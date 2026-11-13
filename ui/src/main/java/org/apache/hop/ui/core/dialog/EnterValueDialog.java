@@ -64,13 +64,13 @@ public class EnterValueDialog extends Dialog {
 
   private Shell shell;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private ValueMetaAndData valueMetaAndData;
 
   private IValueMeta valueMeta;
 
-  private Object valueData;
+  private final Object valueData;
 
   private boolean modalDialog;
   private final IVariables variables;

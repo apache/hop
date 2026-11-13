@@ -67,9 +67,9 @@ public class PipelineDebugDialog extends Dialog {
   public static final int DEBUG_CONFIG = 2;
 
   private Display display;
-  private Shell parent;
+  private final Shell parent;
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
   private int retval;
 
   private Button wLaunch;
@@ -77,7 +77,7 @@ public class PipelineDebugDialog extends Dialog {
   private TableView wTransforms;
 
   private final IVariables variables;
-  private PipelineDebugMeta pipelineDebugMeta;
+  private final PipelineDebugMeta pipelineDebugMeta;
   private Composite wComposite;
   private LabelText wRowCount;
   private int margin;
@@ -85,7 +85,7 @@ public class PipelineDebugDialog extends Dialog {
   private Button wFirstRows;
   private Button wPauseBreakPoint;
   private Condition condition;
-  private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
+  private final Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
   private int previousIndex;
 
   public PipelineDebugDialog(

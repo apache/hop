@@ -44,6 +44,8 @@ import org.apache.hop.vfs.databricks.DatabricksListCache.ChildInfo;
 
 /** File object backed by the Databricks Files API (UC Volumes / Workspace). */
 public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSystem> {
+  private static final String CONST_WORKSPACE = "/Workspace";
+  private static final String CONST_VOLUMES = "/Volumes";
 
   private FileType type = FileType.IMAGINARY;
   private long size = -1L;
@@ -79,7 +81,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
       return;
     }
     if (!RestDatabricksFilesClient.isFilesApiPath(path)) {
-      if ("/Volumes".equals(path) || "/Workspace".equals(path)) {
+      if (CONST_VOLUMES.equals(path) || CONST_WORKSPACE.equals(path)) {
         type = FileType.FOLDER;
         size = -1L;
         lastModified = 0L;
@@ -190,7 +192,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     if ("/".equals(path)) {
       return new String[] {"Volumes/", "Workspace/"};
     }
-    if ("/Volumes".equals(path) || "/Workspace".equals(path)) {
+    if (CONST_VOLUMES.equals(path) || CONST_WORKSPACE.equals(path)) {
       return new String[0];
     }
     if (listedChildren == null) {
@@ -314,7 +316,7 @@ public class DatabricksFileObject extends AbstractFileObject<DatabricksFileSyste
     if (StringUtils.isBlank(path) || "/".equals(path)) {
       return true;
     }
-    if ("/Volumes".equals(path) || "/Workspace".equals(path)) {
+    if (CONST_VOLUMES.equals(path) || CONST_WORKSPACE.equals(path)) {
       return true;
     }
     // /Volumes/<catalog>/<schema>/<volume> — volume object must already exist

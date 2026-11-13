@@ -46,6 +46,7 @@ import org.apache.hop.execution.ExecutionState;
 @Setter
 @Getter
 public class CacheEntry {
+  private static final String CONST_JSON = ".json";
   // The log channel ID of the pipeline or workflow
   private String id;
 
@@ -224,18 +225,18 @@ public class CacheEntry {
    */
   public String calculateFilename(String rootFolder) {
     if (StringUtils.isEmpty(rootFolder)) {
-      return id + ".json";
+      return id + CONST_JSON;
     }
     // Avoid double separators when the configured folder ends with / or \
     String base = rootFolder;
     if (base.endsWith("/") || base.endsWith("\\")) {
-      return base + id + ".json";
+      return base + id + CONST_JSON;
     }
     // Prefer / for VFS URIs (file://…); Const.FILE_SEPARATOR is wrong on Windows for file:// roots
     if (base.contains("://") || base.startsWith("file:")) {
-      return base + "/" + id + ".json";
+      return base + "/" + id + CONST_JSON;
     }
-    return base + Const.FILE_SEPARATOR + id + ".json";
+    return base + Const.FILE_SEPARATOR + id + CONST_JSON;
   }
 
   /**

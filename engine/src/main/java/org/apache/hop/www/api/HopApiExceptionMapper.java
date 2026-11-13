@@ -39,6 +39,7 @@ import org.apache.hop.www.service.WebServiceException;
  */
 @Provider
 public class HopApiExceptionMapper implements ExceptionMapper<Throwable> {
+  private static final String CONST_ERROR = "error";
 
   private static final String GENERIC_MESSAGE = "Unable to serve the request.";
 
@@ -62,7 +63,8 @@ public class HopApiExceptionMapper implements ExceptionMapper<Throwable> {
       return Response.status(frameworkStatus)
           .entity(
               Map.of(
-                  "error", tidy(Const.NVL(webApplicationException.getMessage(), GENERIC_MESSAGE))))
+                  CONST_ERROR,
+                  tidy(Const.NVL(webApplicationException.getMessage(), GENERIC_MESSAGE))))
           .type(MediaType.APPLICATION_JSON)
           .build();
     }
@@ -76,7 +78,7 @@ public class HopApiExceptionMapper implements ExceptionMapper<Throwable> {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(
               Map.of(
-                  "error",
+                  CONST_ERROR,
                   "Could not parse the request body: "
                       + tidy(
                           Const.NVL(jsonProcessingException.getOriginalMessage(), "invalid JSON"))))
@@ -111,7 +113,7 @@ public class HopApiExceptionMapper implements ExceptionMapper<Throwable> {
     }
 
     return Response.status(status)
-        .entity(Map.of("error", tidy(message)))
+        .entity(Map.of(CONST_ERROR, tidy(message)))
         .type(MediaType.APPLICATION_JSON)
         .build();
   }

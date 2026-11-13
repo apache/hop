@@ -87,14 +87,13 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
       availableConnectionNames = new String[] {};
     }
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CheckConnectionsDialog.ConnectionName.Column.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              availableConnectionNames,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CheckConnectionsDialog.ConnectionName.Column.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          availableConnectionNames,
+          false),
+    };
     columns[0].setUsingVariables(true);
     wConnections =
         new TableView(

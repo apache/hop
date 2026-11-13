@@ -55,6 +55,9 @@ import org.eclipse.swt.widgets.Text;
 
 public class DatabaseValueValidationDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DatabaseValueValidationMeta.class;
+  private static final String CONST_CONNECTION_NAME = "connectionName";
+  private static final String CONST_SCHEMA_NAME = "schemaName";
+  private static final String CONST_TABLE_NAME = "tableName";
 
   private final DatabaseValueValidationMeta input;
   private GuiCompositeWidgets widgets;
@@ -110,9 +113,9 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
             input.setChanged();
-            if ("connectionName".equals(widgetId)
-                || "schemaName".equals(widgetId)
-                || "tableName".equals(widgetId)
+            if (CONST_CONNECTION_NAME.equals(widgetId)
+                || CONST_SCHEMA_NAME.equals(widgetId)
+                || CONST_TABLE_NAME.equals(widgetId)
                 || "browseTable".equals(widgetId)) {
               refreshCombos();
             }
@@ -135,8 +138,8 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
 
           @Override
           public void afterButtonPressed(Object sourceObject) {
-            writeWidgetText("schemaName", Const.NVL(input.getSchemaName(), ""));
-            writeWidgetText("tableName", Const.NVL(input.getTableName(), ""));
+            writeWidgetText(CONST_SCHEMA_NAME, Const.NVL(input.getSchemaName(), ""));
+            writeWidgetText(CONST_TABLE_NAME, Const.NVL(input.getTableName(), ""));
           }
         });
 
@@ -246,7 +249,7 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
    * and would wipe the selection.
    */
   private void browseTargetTable() {
-    String connectionName = variables.resolve(readWidgetText("connectionName"));
+    String connectionName = variables.resolve(readWidgetText(CONST_CONNECTION_NAME));
     if (Utils.isEmpty(connectionName)) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       box.setMessage(
@@ -273,14 +276,15 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
       DatabaseExplorerDialog explorer =
           new DatabaseExplorerDialog(
               shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases());
-      explorer.setSelectedSchemaAndTable(readWidgetText("schemaName"), readWidgetText("tableName"));
+      explorer.setSelectedSchemaAndTable(
+          readWidgetText(CONST_SCHEMA_NAME), readWidgetText(CONST_TABLE_NAME));
       if (explorer.open()) {
         String schema = Const.NVL(explorer.getSchemaName(), "");
         String table = Const.NVL(explorer.getTableName(), "");
         input.setSchemaName(schema);
         input.setTableName(table);
-        writeWidgetText("schemaName", schema);
-        writeWidgetText("tableName", table);
+        writeWidgetText(CONST_SCHEMA_NAME, schema);
+        writeWidgetText(CONST_TABLE_NAME, table);
         input.setChanged();
         refreshCombos();
       }
@@ -345,9 +349,9 @@ public class DatabaseValueValidationDialog extends BaseTransformDialog {
       // {@code setWidgetsContents} after Browse: connection setText fires Modify while schema
       // and table widgets are still empty and would wipe the explorer result.
       DatabaseValueValidationMeta snapshot = new DatabaseValueValidationMeta();
-      snapshot.setConnectionName(readWidgetText("connectionName"));
-      snapshot.setSchemaName(readWidgetText("schemaName"));
-      snapshot.setTableName(readWidgetText("tableName"));
+      snapshot.setConnectionName(readWidgetText(CONST_CONNECTION_NAME));
+      snapshot.setSchemaName(readWidgetText(CONST_SCHEMA_NAME));
+      snapshot.setTableName(readWidgetText(CONST_TABLE_NAME));
       IRowMeta tableFields = snapshot.loadTableFields(variables, metadataProvider);
       if (tableFields != null) {
         tableNames = tableFields.getFieldNames();

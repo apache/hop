@@ -108,14 +108,14 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
 
   private Button wDoMapping;
 
-  private VerticaBulkLoaderMeta input;
+  private final VerticaBulkLoaderMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciFields;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   /** Constructor. */
   public VerticaBulkLoaderDialog(
@@ -962,7 +962,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
       }

@@ -80,7 +80,7 @@ public class HopGuiPipelineLogDelegate {
 
   private final HopGuiPipelineGraph pipelineGraph;
 
-  private HopGui hopGui;
+  private final HopGui hopGui;
 
   @Getter private CTabItem pipelineLogTab;
 

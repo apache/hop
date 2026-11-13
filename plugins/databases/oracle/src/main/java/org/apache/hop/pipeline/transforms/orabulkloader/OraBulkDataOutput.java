@@ -44,7 +44,7 @@ import org.apache.hop.core.vfs.HopVfs;
  * is transparent to users of this class.
  */
 public class OraBulkDataOutput {
-  private OraBulkLoaderMeta meta;
+  private final OraBulkLoaderMeta meta;
   private Writer output = null;
   private StringBuilder outbuf = null;
   private boolean first = true;
@@ -52,7 +52,7 @@ public class OraBulkDataOutput {
   private String enclosure = null;
   private SimpleDateFormat sdfDate = null;
   private SimpleDateFormat sdfDateTime = null;
-  private String recTerm;
+  private final String recTerm;
 
   public OraBulkDataOutput(OraBulkLoaderMeta meta, String recTerm) {
     this.meta = meta;

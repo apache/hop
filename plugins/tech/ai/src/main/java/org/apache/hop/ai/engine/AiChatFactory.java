@@ -50,6 +50,7 @@ import org.apache.hop.pipeline.transforms.languagemodelchat.internals.OllamaThin
 
 /** Maps {@link AiProvider} metadata onto Language Model Chat and runs a completion. */
 public final class AiChatFactory {
+  private static final String CONST_AI_CHAT_FACTORY_REQUEST_FAILED = "AiChatFactory.RequestFailed";
 
   private static final String HEALTH_SYSTEM =
       "You are a health-check endpoint. Reply with exactly OK and nothing else.";
@@ -336,11 +337,11 @@ public final class AiChatFactory {
           durationMs);
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
+          BaseMessages.getString(PKG, CONST_AI_CHAT_FACTORY_REQUEST_FAILED, e.getMessage()), e);
     } catch (Error e) {
       // ServiceConfigurationError (langchain4j SPI) is an Error, not an Exception.
       throw new HopException(
-          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
+          BaseMessages.getString(PKG, CONST_AI_CHAT_FACTORY_REQUEST_FAILED, e.getMessage()), e);
     }
   }
 
@@ -399,7 +400,7 @@ public final class AiChatFactory {
           durationMs);
     } catch (Exception | Error e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "AiChatFactory.RequestFailed", e.getMessage()), e);
+          BaseMessages.getString(PKG, CONST_AI_CHAT_FACTORY_REQUEST_FAILED, e.getMessage()), e);
     }
   }
 

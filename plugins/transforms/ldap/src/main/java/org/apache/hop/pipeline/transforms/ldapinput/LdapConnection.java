@@ -89,7 +89,7 @@ public class LdapConnection {
 
   private NamingEnumeration<SearchResult> results;
 
-  private List<String> sortingAttributes;
+  private final List<String> sortingAttributes;
 
   private String[] sortingAttributesKeys;
 

@@ -84,7 +84,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private TableView wReturn;
 
-  private SalesforceUpdateMeta input;
+  private final SalesforceUpdateMeta input;
 
   private Group wConnectionGroup;
   private LabelTextVar wUserName;
@@ -100,7 +100,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
   private Button wRollbackAllChangesOnError;
 
   /** List of ColumnInfo that should have the field names of the selected salesforce module */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private boolean gotModule = false;
   private boolean gotFields = false;

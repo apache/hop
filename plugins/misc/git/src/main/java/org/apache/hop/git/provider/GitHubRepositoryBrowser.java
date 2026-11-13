@@ -26,6 +26,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 class GitHubRepositoryBrowser implements GitRepositoryBrowser {
+  private static final String CONST_PAGE = "&page=";
 
   private static final String PROVIDER = "GitHub";
   private static final String ACCEPT = "application/vnd.github+json";
@@ -101,7 +102,7 @@ class GitHubRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(organization.getSlug())
               + "/repos?per_page="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page
               + "&sort=updated&direction=desc&type=owner";
     } else {
@@ -111,7 +112,7 @@ class GitHubRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(organization.getSlug())
               + "/repos?per_page="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page
               + "&sort=updated&direction=desc";
     }
@@ -137,7 +138,7 @@ class GitHubRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(repository)
               + "/git/matching-refs/heads/?per_page="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page;
       GitApiHttp.ApiResponse response = githubGetPaged(url, auth);
       JSONArray array = GitApiHttp.parseArray(response.getBody(), PROVIDER);

@@ -39,7 +39,7 @@ import org.apache.hop.databases.cassandra.util.Selector;
 
 public class TableMetaData implements ITableMetaData {
 
-  private TableMetadata meta;
+  private final TableMetadata meta;
 
   private String name;
 

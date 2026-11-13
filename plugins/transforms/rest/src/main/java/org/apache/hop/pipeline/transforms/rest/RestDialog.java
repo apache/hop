@@ -786,8 +786,7 @@ public class RestDialog extends BaseTransformDialog {
     wlStatusCodes.setLayoutData(FormDataBuilder.builder().top(top, 30).left(0, 0).build());
 
     String colName = BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Status.Header");
-    ColumnInfo[] headers =
-        new ColumnInfo[] {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
+    ColumnInfo[] headers = {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
 
     wStatusCodes =
         new TableView(
@@ -819,8 +818,7 @@ public class RestDialog extends BaseTransformDialog {
         FormDataBuilder.builder().top(top, 30).left(50, PropsUi.getMargin() / 2).build());
 
     String colName = BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Method.Header");
-    ColumnInfo[] headers =
-        new ColumnInfo[] {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
+    ColumnInfo[] headers = {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
 
     wMethods =
         new TableView(

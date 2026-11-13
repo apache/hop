@@ -33,6 +33,8 @@ import org.apache.hop.openformula.typing.TypeRegistry;
 import org.apache.hop.openformula.typing.TypedValue;
 
 public final class DatabaseFunctions {
+  private static final String CONST_SOURCE_TEXT = "Source text";
+
   private DatabaseFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -46,7 +48,7 @@ public final class DatabaseFunctions {
             2,
             false,
             List.of("text", "prefix"),
-            List.of("Source text", "Prefix to check")));
+            List.of(CONST_SOURCE_TEXT, "Prefix to check")));
     registry.registerFunction(
         new ContainsFunction(),
         new FunctionDescription(
@@ -57,7 +59,7 @@ public final class DatabaseFunctions {
             2,
             false,
             List.of("text", "substring"),
-            List.of("Source text", "Substring to check")));
+            List.of(CONST_SOURCE_TEXT, "Substring to check")));
     registry.registerFunction(
         new EndsWithFunction(),
         new FunctionDescription(
@@ -68,7 +70,7 @@ public final class DatabaseFunctions {
             2,
             false,
             List.of("text", "suffix"),
-            List.of("Source text", "Suffix to check")));
+            List.of(CONST_SOURCE_TEXT, "Suffix to check")));
     registry.registerFunction(
         new EqualsFunction(),
         new FunctionDescription(

@@ -30,8 +30,8 @@ import java.lang.annotation.Annotation;
  * <p>Unless you're running within OSGI, you should never use this class.
  */
 public class BasePluginTypeExposer {
-  private BasePluginType pluginType;
-  private Object target;
+  private final BasePluginType pluginType;
+  private final Object target;
   private final String packageName;
 
   public BasePluginTypeExposer(BasePluginType pluginType, Object target) {
