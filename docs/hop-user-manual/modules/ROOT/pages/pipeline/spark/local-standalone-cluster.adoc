@@ -34,11 +34,11 @@ Do this after your first `+local[*]+` run (see xref:pipeline/spark/getting-start
 * Linux or macOS. Spark's start scripts are shell scripts; on Windows use WSL.
 * Java {java-version}, both for Hop and for the Spark processes. Spark 4.1 also runs on Java 17, but the Hop classes in the fat jar need {java-version}.
 * About 10 GB of free disk: 600 MB for Spark, 900 MB for the fat jar, and room for executor copies of that jar, about 3.5 GB per run (see <<disk-space>>).
-* A Hop client with the native Spark engine and the Apache Beam engine plugins (next section).
+* A Hop client with the native Spark engine and the Apache Beam engine plugins (next section). The Beam plugin is only there for the sample data.
 
 == 1. Install the engine plugins
 
-The native Spark engine is not part of the default Hop client download. Install it from the xref:hop-tools/hop-marketplace.adoc[marketplace], together with the Apache Beam engine: the fat jar builder you need in step 3 ships with the Beam plugin.
+The native Spark engine is not part of the default Hop client download. Install it from the xref:hop-tools/hop-marketplace.adoc[marketplace], together with the Apache Beam engine, whose sample data the example pipeline reads.
 
 From the Hop installation folder:
 
@@ -110,7 +110,7 @@ NOTE: Use `start-master.sh` and `start-worker.sh` as above, not `start-all.sh`: 
 
 == 3. Build the fat jar
 
-Executors do not have Hop installed. Hop sends them a *fat jar* with Hop and all its plugins when the pipeline starts. Build it with the `native-provided` mode, which leaves Spark out because the cluster already has it.
+Executors do not have Hop installed. Hop sends them a *fat jar* with Hop and all its plugins when the pipeline starts. Build it for the native Spark engine, which leaves Spark out because the cluster already has it.
 
 Run this from the Hop installation folder:
 
@@ -118,15 +118,13 @@ Run this from the Hop installation folder:
 ----
 ./hop-conf.sh \
   --generate-fat-jar=$HOME/spark/hop-native-provided.jar \
-  --spark-client-version=native-provided
+  --fat-jar-engine=spark
 ----
 
 This takes two to three minutes and produces a jar of roughly 900 MB.
 
 * Build the jar again after you install, remove, or upgrade plugins. The executors run the plugins in the jar, not the ones in your Hop installation.
-* Use the command line. *Tools* -> *Generate a Hop fat jar* in Hop GUI does not ask for the mode; it uses the `HOP_SPARK_CLIENT_VERSION` environment variable and, without it, builds a jar for the Beam Spark runner instead.
-
-If `hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`, the Beam engine plugin is missing (step 1).
+* *Tools* -> *Generate a Hop fat jar* in Hop GUI builds the same jar: pick *Native Spark engine* when it asks for the engine.
 
 == 4. Create the run configuration
 
@@ -293,9 +291,6 @@ Every executor copies the fat jar twice:
 [options="header",cols="2,3"]
 |===
 |Symptom |Cause and fix
-
-|`hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`
-|The fat jar builder ships with the Beam engine plugin. Install `hop-engines-beam` (step 1).
 
 |*Native Spark pipeline engine* is not in the *Engine type* list
 |Install `hop-engines-spark` and restart Hop.

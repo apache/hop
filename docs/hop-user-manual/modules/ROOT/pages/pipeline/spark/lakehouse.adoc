@@ -124,7 +124,7 @@ Prefer a **native-provided** fat jar (Hop + plugins + lakehouse connectors — *
 export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 
 ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-provided.jar \
-  --spark-client-version=native-provided
+  --fat-jar-engine=spark
 
 # Export project metadata (run config + any lakehouse catalog entries) to JSON, then:
 "${SPARK_HOME}/bin/spark-submit" \
