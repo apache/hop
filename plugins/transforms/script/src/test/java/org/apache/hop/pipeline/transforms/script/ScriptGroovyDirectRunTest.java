@@ -18,15 +18,19 @@
 package org.apache.hop.pipeline.transforms.script;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import groovy.lang.GroovySystem;
+import groovy.lang.MetaClassRegistryChangeEventListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -322,8 +326,113 @@ class ScriptGroovyDirectRunTest {
 
     Outcome outcome = run(meta, true);
 
-    assertTrue(!outcome.direct);
+    assertFalse(outcome.direct);
     assertEquals(List.of(8L, 6L, 4L), outcome.column(4));
+  }
+
+  /**
+   * A start-script function that fails inside reports its own error, not that the function is
+   * missing: the script sees the method that is really missing.
+   */
+  @Test
+  void aStartScriptFunctionThatFailsInsideShowsItsOwnError() throws Exception {
+    ScriptMeta meta =
+        meta(
+            "try { missing = bad(id) } catch (MissingMethodException e) { missing = e.method }",
+            field("missing", "String"));
+    meta.getScripts().add(start("def bad(x) { x.substring('wrong') }"));
+
+    Outcome outcome = bothWays(meta);
+
+    assertEquals(List.of("substring", "substring", "substring"), outcome.column(4));
+  }
+
+  @Test
+  void anExceptionFromAStartScriptFunctionCanBeCaught() throws Exception {
+    ScriptMeta meta =
+        meta(
+            "try { ratio = String.valueOf(divide(id)) } catch (ArithmeticException e) { ratio = 'caught' }",
+            field("ratio", "String"));
+    meta.getScripts().add(start("def divide(x) { 10.intdiv(x - 2) }"));
+
+    Outcome outcome = bothWays(meta);
+
+    assertEquals(List.of("-10", "caught", "10"), outcome.column(4));
+  }
+
+  @Test
+  void aStartScriptFunctionThatFailsStopsTheTransform() throws Exception {
+    ScriptMeta meta = meta("x = bad(id)", field("x", "String"));
+    meta.getScripts().add(start("def bad(x) { x.substring('wrong') }"));
+
+    Outcome outcome = bothWays(meta);
+
+    assertEquals(0, outcome.rows.size());
+    assertEquals(1, outcome.errors);
+  }
+
+  /**
+   * A method that is missing inside a function of the row script, called from a start-script
+   * function, is not taken for either function: the row script function runs once and the script
+   * sees the method that is missing.
+   */
+  @Test
+  void aMissingMethodInsideAFunctionOfTheRowScriptIsNotRetried() throws Exception {
+    ScriptMeta meta =
+        meta(
+            "def inner(x) { calls = calls + 1; x.nosuch() }\n"
+                + "try { missing = viaStart(id) } catch (MissingMethodException e) {"
+                + " missing = e.method + '/' + calls }",
+            field("missing", "String"));
+    meta.getScripts().add(start("calls = 0\ndef viaStart(x) { inner(x) }"));
+
+    Outcome outcome = bothWays(meta);
+
+    assertEquals(List.of("nosuch/1", "nosuch/2", "nosuch/3"), outcome.column(4));
+  }
+
+  /**
+   * A script that changes the metaclass of its own class keeps finding the start-script functions,
+   * and finds what it added.
+   */
+  @Test
+  void aScriptThatChangesItsClassMetaClassKeepsTheStartScriptFunctions() throws Exception {
+    ScriptMeta meta =
+        meta(
+            "if (id == 1) { this.class.metaClass.fmt = { -> 'f' } }\n"
+                + "label = twice(id) + '/' + (id > 1 ? fmt() : '-')",
+            field("label", "String"));
+    meta.getScripts().add(start("def twice(x) { x * 2 }"));
+
+    Outcome outcome = bothWays(meta);
+
+    assertEquals(List.of("2/-", "4/f", "6/f"), outcome.column(4));
+  }
+
+  /**
+   * The direct run does not register a metaclass for the script class: Groovy would relink the
+   * calls of every Groovy script running in the JVM each time a transform copy starts.
+   */
+  @Test
+  void theDirectRunLeavesGroovysMetaClassRegistryAlone() throws Exception {
+    ScriptMeta meta = meta("doubled = twice(qty)", field("doubled", "Integer"));
+    meta.getScripts().add(start("def twice(x) { x * 2 }"));
+    List<Class<?>> updated = new CopyOnWriteArrayList<>();
+    MetaClassRegistryChangeEventListener listener = event -> updated.add(event.getClassToUpdate());
+
+    GroovySystem.getMetaClassRegistry().addMetaClassRegistryChangeEventListener(listener);
+    Outcome outcome;
+    try {
+      outcome = run(meta, true);
+    } finally {
+      GroovySystem.getMetaClassRegistry().removeMetaClassRegistryChangeEventListener(listener);
+    }
+
+    assertTrue(outcome.direct);
+    assertEquals(List.of(8L, 6L, 4L), outcome.column(4));
+    assertTrue(
+        updated.stream().noneMatch(groovy.lang.Script.class::isAssignableFrom),
+        () -> "a metaclass was registered for " + updated);
   }
 
   // --- helpers ---
@@ -356,7 +465,7 @@ class ScriptGroovyDirectRunTest {
     Outcome engine = run(meta, false);
     Outcome direct = run(meta, true);
 
-    assertTrue(!engine.direct, "the engine run must not use the direct runner");
+    assertFalse(engine.direct, "the engine run must not use the direct runner");
     assertEquals(engine.rowTexts(), direct.rowTexts());
     assertEquals(engine.errors, direct.errors);
     assertEquals(engine.endResult, direct.endResult);

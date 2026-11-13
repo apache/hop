@@ -637,7 +637,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               {
                 throw new HopRuntimeException(
                     "JavaScript conversion not implemented for type "
-                        + field.getHopType()
+                        + hopType(field, i)
                         + " ("
                         + field.getType()
                         + ")");
@@ -654,9 +654,13 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     }
   }
 
+  /**
+   * The Hop type of output field i, as resolved on the first row. Without a first row, as when this
+   * class is called on its own, it is looked up.
+   */
   private int hopType(ScriptMeta.SField field, int i) {
     int[] fieldTypes = data.fieldTypes;
-    return fieldTypes != null && i < fieldTypes.length ? fieldTypes[i] : field.getHopType();
+    return fieldTypes != null ? fieldTypes[i] : field.getHopType();
   }
 
   /**

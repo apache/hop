@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.script;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.DelegatingMetaClass;
-import groovy.lang.GroovySystem;
+import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MetaClass;
 import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
@@ -28,11 +28,9 @@ import groovy.lang.Script;
 import groovy.lang.Tuple;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -45,9 +43,10 @@ import org.codehaus.groovy.util.ManagedConcurrentValueMap;
  * every row.
  *
  * <p>The engine's {@code CompiledScript.eval()} builds, for every call, a new script object, a
- * closure for each of its methods and a metaclass for that one object. The per-object metaclass
- * makes Groovy link every call in the script again, which is most of the cost of a short script.
- * Here the script class is compiled once and each row gets a new instance that is run directly.
+ * closure for each of its methods and a metaclass for that one object. The new metaclass makes
+ * Groovy link every call in the script again, which is most of the cost of a short script. Here the
+ * script class is compiled once and each row gets a new instance that is run directly, with the
+ * same metaclass object as the row before.
  *
  * <p>What a script can see and do is kept the same as with the engine:
  *
@@ -56,53 +55,91 @@ import org.codehaus.groovy.util.ManagedConcurrentValueMap;
  *   <li>variables are read from and written to the script context, with the engine's own rules for
  *       {@code out} and {@code context};
  *   <li>a method the script does not have is looked up among the functions of the scripts the
- *       engine evaluated before, such as the start script;
+ *       engine evaluated before, such as the start script, and then among the closures in the
+ *       context, as the engine does;
  *   <li>the functions of the row script are known to the engine, for the start and end scripts;
  *   <li>an exception leaves as a {@link ScriptException} around the original one.
  * </ul>
  */
 final class GroovyRowScript {
 
-  private final Class<?> scriptClass;
+  private final Class<? extends Script> scriptClass;
+  private final Constructor<? extends Script> constructor;
   private final Binding binding;
+  private final ManagedConcurrentValueMap<String, Closure<?>> globalClosures;
+  private final ScriptContext context;
+
+  /** The metaclass of the script objects, see {@link #newScript()}. */
+  private GlobalFunctionsMetaClass metaClass;
 
   /** The script object of the current row. */
   private Script lastScript;
 
-  /** The functions registered with the engine, see {@link #registerFunctions}. */
-  private final List<Closure<?>> functions = new ArrayList<>();
-
-  private GroovyRowScript(Class<?> scriptClass, Binding binding) {
+  private GroovyRowScript(
+      Class<? extends Script> scriptClass,
+      Constructor<? extends Script> constructor,
+      ScriptContext context,
+      ManagedConcurrentValueMap<String, Closure<?>> globalClosures) {
     this.scriptClass = scriptClass;
-    this.binding = binding;
+    this.constructor = constructor;
+    this.binding = new ContextBinding(context);
+    this.globalClosures = globalClosures;
+    this.context = context;
   }
 
   /**
-   * @return the row script, or null when this is not Groovy's JSR-223 engine or the source is a
-   *     class and not a script: the caller then keeps using the engine
+   * @return the row script, or null when this is not Groovy's JSR-223 engine, the source is a class
+   *     and not a script, or the engine's functions cannot be reached: the caller then keeps using
+   *     the engine
    */
   static GroovyRowScript create(ScriptEngine engine, String source, ScriptContext context) {
     if (!(engine instanceof GroovyScriptEngineImpl groovyEngine) || context == null) {
       return null;
     }
     // The engine's own class loader: classes that the start script defined are visible.
-    Class<?> scriptClass = groovyEngine.getClassLoader().parseClass(source);
-    if (!Script.class.isAssignableFrom(scriptClass)) {
+    Class<?> parsed = groovyEngine.getClassLoader().parseClass(source);
+    if (!Script.class.isAssignableFrom(parsed)) {
       return null;
     }
-    // One metaclass for the class, set before the first instance exists. Unlike a metaclass per
-    // object it leaves Groovy's call site caches alone.
-    MetaClass metaClass = GroovySystem.getMetaClassRegistry().getMetaClass(scriptClass);
-    GroovySystem.getMetaClassRegistry()
-        .setMetaClass(scriptClass, new GlobalFunctionsMetaClass(metaClass, groovyEngine));
-    GroovyRowScript rowScript = new GroovyRowScript(scriptClass, new ContextBinding(context));
-    return rowScript.registerFunctions(groovyEngine) ? rowScript : null;
+    Class<? extends Script> scriptClass = parsed.asSubclass(Script.class);
+    ManagedConcurrentValueMap<String, Closure<?>> globalClosures = globalClosures(groovyEngine);
+    if (globalClosures == null) {
+      return null;
+    }
+    Constructor<? extends Script> constructor;
+    try {
+      constructor = scriptClass.getConstructor(Binding.class);
+    } catch (NoSuchMethodException e) {
+      return null;
+    }
+    GroovyRowScript rowScript =
+        new GroovyRowScript(scriptClass, constructor, context, globalClosures);
+    rowScript.registerFunctions();
+    return rowScript;
+  }
+
+  /**
+   * The functions of every script the engine evaluated, by name. The engine keeps them in a private
+   * map, so this needs reflection.
+   *
+   * @return the map, or null when it cannot be reached
+   */
+  @SuppressWarnings("unchecked")
+  private static ManagedConcurrentValueMap<String, Closure<?>> globalClosures(
+      GroovyScriptEngineImpl engine) {
+    try {
+      Field field = GroovyScriptEngineImpl.class.getDeclaredField("globalClosures");
+      field.setAccessible(true);
+      return (ManagedConcurrentValueMap<String, Closure<?>>) field.get(engine);
+    } catch (ReflectiveOperationException | RuntimeException e) {
+      return null;
+    }
   }
 
   /** Runs the script for one row and returns its result. */
   Object run() throws ScriptException {
     try {
-      Script script = InvokerHelper.createScript(scriptClass, binding);
+      Script script = newScript();
       lastScript = script;
       return script.run();
     } catch (Exception e) {
@@ -111,29 +148,41 @@ final class GroovyRowScript {
   }
 
   /**
+   * A new script object for the row. Like the engine, its metaclass wraps the one the object got
+   * from its class. Unlike the engine, the wrapper is the same object from row to row as long as
+   * the class keeps its metaclass: Groovy's call sites check the metaclass of the object they call,
+   * and stay linked as long as it does not change.
+   *
+   * <p>The wrapper is set on the object, not registered for the class. Registering a metaclass
+   * makes Groovy relink the calls of every Groovy script in the JVM, and a script that changes the
+   * metaclass of its own class would remove it.
+   */
+  private Script newScript() {
+    Script script;
+    try {
+      script = constructor.newInstance(binding);
+    } catch (ReflectiveOperationException e) {
+      // As InvokerHelper.createScript, which the engine uses, reports it
+      throw new GroovyRuntimeException(
+          "Failed to create Script instance for class: " + scriptClass + ". Reason: " + e, e);
+    }
+    MetaClass classMetaClass = script.getMetaClass();
+    if (metaClass == null || metaClass.getAdaptee() != classMetaClass) {
+      metaClass = new GlobalFunctionsMetaClass(classMetaClass, globalClosures, context);
+    }
+    script.setMetaClass(metaClass);
+    return script;
+  }
+
+  /**
    * Tells the engine about the functions of the row script, as it does itself for every script it
    * runs: a function of the start script that calls one of the row script, and the end script, find
-   * them there. The engine keeps them in a private map, so this needs reflection.
-   *
-   * @return false when the engine's map cannot be reached: the caller must not run directly
+   * them there.
    */
-  @SuppressWarnings("unchecked")
-  private boolean registerFunctions(GroovyScriptEngineImpl engine) {
-    try {
-      Field field = GroovyScriptEngineImpl.class.getDeclaredField("globalClosures");
-      field.setAccessible(true);
-      ManagedConcurrentValueMap<String, Closure<?>> globalClosures =
-          (ManagedConcurrentValueMap<String, Closure<?>>) field.get(engine);
-      for (Method method : scriptClass.getMethods()) {
-        String name = method.getName();
-        Closure<?> function = new CurrentScriptFunction(name);
-        // the engine's map does not keep its values alive
-        functions.add(function);
-        globalClosures.put(name, function);
-      }
-      return true;
-    } catch (ReflectiveOperationException | RuntimeException e) {
-      return false;
+  private void registerFunctions() {
+    for (Method method : scriptClass.getMethods()) {
+      String name = method.getName();
+      globalClosures.put(name, new CurrentScriptFunction(name));
     }
   }
 
@@ -202,15 +251,21 @@ final class GroovyRowScript {
   }
 
   /**
-   * Passes a method the script does not have on to the engine, which knows the functions of every
-   * script it evaluated: the start script's, for one.
+   * Passes a method the script does not have on to the functions of the scripts the engine
+   * evaluated, the start script's for one, and then to the closures in the context. This is the
+   * engine's own lookup: what such a function throws reaches the script as it is.
    */
   private static final class GlobalFunctionsMetaClass extends DelegatingMetaClass {
-    private final Invocable engine;
+    private final ManagedConcurrentValueMap<String, Closure<?>> globalClosures;
+    private final ScriptContext context;
 
-    GlobalFunctionsMetaClass(MetaClass delegate, Invocable engine) {
+    GlobalFunctionsMetaClass(
+        MetaClass delegate,
+        ManagedConcurrentValueMap<String, Closure<?>> globalClosures,
+        ScriptContext context) {
       super(delegate);
-      this.engine = engine;
+      this.globalClosures = globalClosures;
+      this.context = context;
     }
 
     @Override
@@ -232,6 +287,9 @@ final class GroovyRowScript {
       try {
         return super.invokeMethod(object, name, args);
       } catch (MissingMethodException e) {
+        if (!isAboutThisCall(e, object, name)) {
+          throw e;
+        }
         return callGlobal(name, args);
       }
     }
@@ -241,30 +299,33 @@ final class GroovyRowScript {
       try {
         return super.invokeStaticMethod(object, name, args);
       } catch (MissingMethodException e) {
+        if (!isAboutThisCall(e, object, name)) {
+          throw e;
+        }
         return callGlobal(name, args);
       }
     }
 
-    private Object callGlobal(String name, Object[] args) {
-      try {
-        return engine.invokeFunction(name, args);
-      } catch (NoSuchMethodException e) {
-        // No script has such a function either: the error the engine gives for it
-        throw new MissingMethodException(name, engine.getClass(), args);
-      } catch (ScriptException e) {
-        // The engine wraps what the function threw. The script must see the original, so that
-        // its own try/catch works as it does when the engine runs it.
-        Throwable cause = e.getCause();
-        if (cause == null) {
-          throw new IllegalStateException(e);
-        }
-        throw GlobalFunctionsMetaClass.<RuntimeException>sneak(cause);
-      }
+    /**
+     * Whether the method that is missing is the one called here, the check Groovy's own call sites
+     * make. A method that is missing further down, inside the method that was found, must reach the
+     * script as it is: looking it up among the functions would run the method that was found again.
+     */
+    private static boolean isAboutThisCall(MissingMethodException e, Object object, String name) {
+      Class<?> type = object instanceof Class<?> c ? c : object.getClass();
+      return name.equals(e.getMethod()) && e.getType() == type;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends Throwable> T sneak(Throwable throwable) throws T {
-      throw (T) throwable;
+    private Object callGlobal(String name, Object[] args) {
+      Closure<?> closure = globalClosures.get(name);
+      if (closure != null) {
+        return closure.call(args);
+      }
+      Object value = context.getAttribute(name);
+      if (value instanceof Closure<?> variable) {
+        return variable.call(args);
+      }
+      throw new MissingMethodException(name, GroovyScriptEngineImpl.class, args);
     }
   }
 }
