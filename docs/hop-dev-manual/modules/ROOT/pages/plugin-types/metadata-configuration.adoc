@@ -105,6 +105,8 @@ A dataset is a `DatasetRef`.
 Build it with `DatasetRef.ofTable(...)` or `ofFile(...)`: those give a table or a file the OpenLineage namespace and name that lineage gives it, so `resolve()` finds the dataset lineage wrote.
 `ofCatalogId(...)` names a dataset by the catalog's own id.
 A transform or action that lets the user pick a dataset stores a `CatalogDataset` (type, connection, schema, name) and calls `toRef(variables, metadataProvider)`, which also reports a dataset that can't be named.
+`CatalogSchemas.read(...)` reads the fields of such a dataset and throws a `HopException` that says why when the catalog can't give them; `CatalogFieldTypes.toRowMeta(...)` turns them into Hop fields.
+A transform dialog with a field table gets the *Get fields from data catalog* button with `CatalogFieldsDialog.getFields(...)` from the `ui` module, shown when `CatalogFieldsDialog.isAvailable(metadataProvider)`.
 
 == Configuration options
 

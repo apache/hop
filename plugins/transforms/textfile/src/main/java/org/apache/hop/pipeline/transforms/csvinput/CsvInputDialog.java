@@ -39,6 +39,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -67,10 +69,12 @@ import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.datacatalog.CatalogFieldsDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog.ButtonBarBuilder;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
@@ -139,12 +143,13 @@ public class CsvInputDialog extends BaseTransformDialog
   public String open() {
     createShell(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
 
-    buildButtonBar()
-        .ok(e -> ok())
-        .get(e -> getFields())
-        .preview(e -> preview())
-        .cancel(e -> cancel())
-        .build();
+    ButtonBarBuilder buttonBar = buildButtonBar().ok(e -> ok()).get(e -> getFields());
+    if (CatalogFieldsDialog.isAvailable(metadataProvider)) {
+      buttonBar.custom(
+          BaseMessages.getString(PKG, "CsvInputDialog.GetFieldsFromCatalog.Button"),
+          e -> getFieldsFromCatalog());
+    }
+    buttonBar.preview(e -> preview()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
@@ -706,6 +711,25 @@ public class CsvInputDialog extends BaseTransformDialog
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  /** Fills the fields from the schema a data catalog has for the file. */
+  private void getFieldsFromCatalog() {
+    if (wIgnoreFields.getSelection()) {
+      return;
+    }
+    String filename = wFilename == null || wFilename.isDisposed() ? null : wFilename.getText();
+    CatalogFieldsDialog.getFields(
+        shell,
+        variables,
+        metadataProvider,
+        new CatalogDataset(CatalogDatasetType.FILE, null, null, filename),
+        wFields,
+        1,
+        2,
+        3,
+        4,
+        5);
   }
 
   private void fillFieldsLayoutFromSchema() {

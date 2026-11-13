@@ -50,6 +50,8 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -77,6 +79,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.datacatalog.CatalogFieldsDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
@@ -285,6 +288,9 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private Button wMinWidth;
 
+  /** Null when the project has no data catalog. */
+  private Button wGetFromCatalog;
+
   // Wizard info...
   private Vector<ITextFileInputField> fields;
 
@@ -353,6 +359,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFirstHeader.addListener(SWT.Selection, e -> first(true));
     wGet.addListener(SWT.Selection, e -> get());
     wMinWidth.addListener(SWT.Selection, e -> setMinimalWidth());
+    if (wGetFromCatalog != null) {
+      wGetFromCatalog.addListener(SWT.Selection, e -> getFieldsFromCatalog());
+    }
 
     // Add the file to the list of files...
     SelectionAdapter selA =
@@ -2207,7 +2216,16 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdFieldsComp.bottom = new FormAttachment(100, 0);
     wFieldsComp.setLayoutData(fdFieldsComp);
 
-    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
+    if (CatalogFieldsDialog.isAvailable(metadataProvider)) {
+      wGetFromCatalog = new Button(wFieldsComp, SWT.PUSH);
+      wGetFromCatalog.setText(
+          BaseMessages.getString(PKG, "TextFileInputDialog.GetFieldsFromCatalog.Button"));
+      wGetFromCatalog.setToolTipText(
+          BaseMessages.getString(PKG, "TextFileInputDialog.GetFieldsFromCatalog.Tooltip"));
+      setButtonPositions(new Button[] {wGet, wGetFromCatalog, wMinWidth}, margin, null);
+    } else {
+      setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
+    }
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
@@ -2392,6 +2410,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFields.setEnabled(!wIgnoreFields.getSelection());
     wGet.setEnabled(!wIgnoreFields.getSelection());
     wMinWidth.setEnabled(!wIgnoreFields.getSelection());
+    if (wGetFromCatalog != null) {
+      wGetFromCatalog.setEnabled(!wIgnoreFields.getSelection());
+    }
 
     setParallelFlags();
   }
@@ -3221,6 +3242,26 @@ public class TextFileInputDialog extends BaseTransformDialog
   }
 
   /** Sets the input width to minimal width... */
+  /** Fills the fields from the schema a data catalog has for the first file. */
+  private void getFieldsFromCatalog() {
+    String filename = null;
+    if (wFilenameList.getItemCount() > 0) {
+      String[] fileRecord = wFilenameList.getItem(0);
+      filename = fileRecord == null || fileRecord.length == 0 ? null : fileRecord[0];
+    }
+    CatalogFieldsDialog.getFields(
+        shell,
+        variables,
+        metadataProvider,
+        new CatalogDataset(CatalogDatasetType.FILE, null, null, filename),
+        wFields,
+        1,
+        2,
+        3,
+        5,
+        6);
+  }
+
   public void setMinimalWidth() {
     int nrNonEmptyFields = wFields.nrNonEmpty();
     for (int i = 0; i < nrNonEmptyFields; i++) {
