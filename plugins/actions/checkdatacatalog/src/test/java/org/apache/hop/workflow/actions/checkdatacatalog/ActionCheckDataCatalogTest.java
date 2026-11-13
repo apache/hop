@@ -366,10 +366,14 @@ class ActionCheckDataCatalogTest {
     assertEquals(List.of(), action.check(new FakeCatalog(), ref, Duration.ofHours(1)));
     assertEquals(2, action.skippedChecks());
 
-    // Not knowing the dataset leaves nothing else to ask
+    // Not knowing the dataset leaves nothing else to ask: all four checks are skipped
     FakeCatalog.resolved = CatalogAnswer.unknown(Reason.UNREACHABLE, "refused");
     assertEquals(List.of(), action.check(new FakeCatalog(), ref, Duration.ofHours(1)));
-    assertEquals(1, action.skippedChecks());
+    assertEquals(4, action.skippedChecks());
+
+    action.setCheckAssertions(false);
+    action.check(new FakeCatalog(), ref, null);
+    assertEquals(2, action.skippedChecks());
   }
 
   @Test

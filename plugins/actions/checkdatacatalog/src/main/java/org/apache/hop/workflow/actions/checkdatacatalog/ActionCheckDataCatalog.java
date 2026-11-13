@@ -347,6 +347,11 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
     }
     if (!(resolved instanceof CatalogAnswer.Known<CatalogEntityId> known)) {
       unknown(problems, "Exists", resolved);
+      if (unknownAnswer == CatalogUnknownAnswer.IGNORE) {
+        // Without the dataset there is nothing to ask about it: the other checks are skipped too
+        skippedChecks +=
+            (checkDeprecation ? 1 : 0) + (activeMaxAge != null ? 1 : 0) + (checkAssertions ? 1 : 0);
+      }
       return problems;
     }
     CatalogEntityId id = known.value();
