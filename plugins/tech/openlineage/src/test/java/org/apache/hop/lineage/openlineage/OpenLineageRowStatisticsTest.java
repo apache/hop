@@ -41,6 +41,7 @@ import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
 import org.apache.hop.lineage.model.RelationalIoLineagePayload;
 import org.apache.hop.lineage.model.RelationalIoOperation;
+import org.apache.hop.lineage.model.RelationalLifecycle;
 import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
@@ -235,6 +236,37 @@ class OpenLineageRowStatisticsTest {
     Map<String, Object> write = writes(pipeline).get(0);
     assertEquals("INSERT", write.get("operationType"));
     assertEquals(10_000L, ((Number) write.get("rows")).longValue());
+  }
+
+  @Test
+  void aTableTruncatedWithNothingWrittenWasEmptied() {
+    List<LineageEvent> observed = new ArrayList<>();
+    observed.add(
+        new LineageEvent(
+            UUID.randomUUID().toString(),
+            System.currentTimeMillis(),
+            LineageEventKind.RELATIONAL_IO,
+            transform("Load", "0").build(),
+            new RelationalIoLineagePayload(
+                RelationalIoOperation.WRITE,
+                "postgres://db:5432",
+                List.of(),
+                List.of(new RelationalTable("dwh", "public", "orders")),
+                null,
+                null,
+                null,
+                null,
+                List.of(),
+                RelationalLifecycle.OVERWRITE,
+                true,
+                null)));
+    observed.add(counted(transform("Load", "0"), 0, 0, 0, "load"));
+    observed.add(pipelineFinished());
+
+    Map<String, Object> write = writes(eventFor(mapper(false).mapBatch(observed), PIPELINE)).get(0);
+
+    assertEquals("DELETE", write.get("operationType"));
+    assertNull(write.get("rows"));
   }
 
   @Test

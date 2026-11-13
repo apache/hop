@@ -157,6 +157,10 @@ final class RowStatistics {
         String lifecycle = lifecycleOperation(output);
         if (lifecycle != null) {
           type = lifecycle;
+        } else if (isOverwrite(output) && rows != null && rows == 0) {
+          // Truncated and nothing written: the data is gone, how many rows is not known
+          type = "DELETE";
+          rows = null;
         } else if (inserted != null && inserted == 0 && rows != null && rows > 0) {
           type = "UPDATE";
         } else {
@@ -170,6 +174,16 @@ final class RowStatistics {
 
   private boolean deleted(String transform, String dataset) {
     return deletedBy.getOrDefault(transform, Set.of()).contains(dataset);
+  }
+
+  private static boolean isOverwrite(OutputDataset output) {
+    OpenLineage.LifecycleStateChangeDatasetFacet facet =
+        output.getFacets() == null ? null : output.getFacets().getLifecycleStateChange();
+    return facet != null
+        && (facet.getLifecycleStateChange()
+                == OpenLineage.LifecycleStateChangeDatasetFacet.LifecycleStateChange.OVERWRITE
+            || facet.getLifecycleStateChange()
+                == OpenLineage.LifecycleStateChangeDatasetFacet.LifecycleStateChange.TRUNCATE);
   }
 
   private static String lifecycleOperation(OutputDataset output) {

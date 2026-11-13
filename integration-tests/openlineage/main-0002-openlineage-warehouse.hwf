@@ -227,6 +227,29 @@ limitations under the License.
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>DataHub operations</name>
+      <description>Checks the operations the DataHub sink sent for orders_target (3 rows) and orders_daily (an Execute SQL script: no row count)</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0004-openlineage-warehouse-operations.sh</filename>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>N</insertScript>
+      <script/>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>976</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -274,6 +297,13 @@ limitations under the License.
     <hop>
       <from>validate orders_target</from>
       <to>validate orders_daily</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>validate orders_daily</from>
+      <to>DataHub operations</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

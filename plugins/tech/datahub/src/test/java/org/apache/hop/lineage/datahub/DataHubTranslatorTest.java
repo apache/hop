@@ -244,14 +244,17 @@ class DataHubTranslatorTest {
   }
 
   @Test
-  void aRunThatLoadedNothingDoesNotMakeADatasetLookUpToDate() {
+  void aFileRewrittenWithNothingWasEmptied() {
     List<Mcp> proposals =
         all(
             new HopEvents("orders")
                 .readThenWrite(
                     "file:///data/in.csv", "file:///out/x.csv", 0, RunLifecyclePhase.FINISHED));
 
-    assertTrue(find(proposals, OUT, "operation").isEmpty());
+    // A file is replaced when it is written: what it held is gone, how many rows is not known
+    JsonNode operation = one(proposals, OUT, "operation").value();
+    assertEquals("DELETE", operation.get("operationType").asText());
+    assertFalse(operation.has("numAffectedRows"));
   }
 
   @Test
