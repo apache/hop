@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -371,10 +372,13 @@ class HopGuiPipelineGraphClickContractTest extends GraphCanvasTestBase {
     idle.put("iconDragStartScreen", null);
     idle.put("iconDragCommitted", false);
     idle.put("outputDataPressed", false);
-    idle.put("showingOutputRows", false);
     idle.put("avoidContextDialog", false);
     idle.put("lastButton", 0);
     assertGraphState(graph, idle);
+    assertEquals(
+        Set.of(),
+        privateField(graph, "openOutputRowsBuffers"),
+        "a closed output-rows window must not stay marked as open");
   }
 
   // ------------------------------------------------------------------ scene
