@@ -136,6 +136,8 @@ public final class TransformPrepareOnce {
         prepare(transform, pipelineMeta, transformMeta, variables);
       } finally {
         pipeline.disposeInitializedTransforms();
+        // Prepared but never run, so never finished: let go of the VFS namespace it took
+        pipeline.cleanup();
       }
       prepared.add(transformMeta.getName());
     }

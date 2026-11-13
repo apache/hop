@@ -57,6 +57,28 @@ public interface ISparkPipelineEngineRunConfiguration
    */
   String getGenericTransformRunMode();
 
+  /**
+   * Partitions the rows of a source transform are spread over (round robin), so the transforms
+   * after it run in parallel; empty or 1 keeps the single partition of a source.
+   */
+  default String getSourcePartitions() {
+    return null;
+  }
+
+  /**
+   * @return whether neighbouring generic transforms run in one Hop mini-pipeline per partition
+   */
+  default boolean isFuseGenericTransforms() {
+    return true;
+  }
+
+  /**
+   * @return whether generic transforms get their rows in Spark's internal row format
+   */
+  default boolean isInternalRowConversion() {
+    return true;
+  }
+
   /** Where the driver runs; null means {@link SparkDeployMode#CLIENT}. */
   SparkDeployMode getDeployMode();
 

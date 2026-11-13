@@ -52,6 +52,7 @@ public class SettingsCheck extends BaseSparkConfigurationCheck {
     size(context, "driver memory", config.getDriverMemory(), errors);
     size(context, "executor memory", config.getExecutorMemory(), errors);
     positiveNumber(context, "executor cores", config.getExecutorCores(), errors);
+    positiveNumber(context, "source partitions", config.getSourcePartitions(), errors);
     sparkSettings(context, config.getSparkSettings(), errors, warnings);
     pathSchemes(config.getPathSchemes(), errors);
     if (!errors.isEmpty()) {

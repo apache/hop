@@ -82,6 +82,7 @@ class SparkConfigurationCheckerTest {
     SparkPipelineRunConfiguration config = cluster(SparkClusterType.LOCAL, "local[*]");
     config.setDriverMemory("2 gigs");
     config.setExecutorCores("0");
+    config.setSourcePartitions("four");
     config.setSparkSettings(
         new java.util.ArrayList<>(
             List.of(
@@ -90,6 +91,7 @@ class SparkConfigurationCheckerTest {
     assertEquals(ICheckResult.TYPE_RESULT_ERROR, settings.getType());
     assertTrue(settings.getText().contains("'2 gigs'"), settings.getText());
     assertTrue(settings.getText().contains("1 or more, not 0"), settings.getText());
+    assertTrue(settings.getText().contains("source partitions"), settings.getText());
     assertTrue(settings.getText().contains("row 2 has a value but no key"), settings.getText());
 
     config = cluster(SparkClusterType.LOCAL, "local[*]");

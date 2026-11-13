@@ -1796,20 +1796,28 @@ public abstract class Pipeline
 
   /**
    * This method performs any cleanup operations, typically called after the pipeline has finished.
+   * It also lets go of the VFS namespace of a pipeline that never went through its finish: one a
+   * {@link SingleThreadedPipelineExecutor} ran, such as the Hop transforms on a Spark partition, or
+   * one that was only prepared.
    */
   @Override
   public void cleanup() {
-    cleanupRowSets();
+    try {
+      cleanupRowSets();
 
-    // Close all open server sockets.
-    // We can only close these after all processing has been confirmed to be finished.
-    //
-    if (transforms == null) {
-      return;
-    }
+      // Close all open server sockets.
+      // We can only close these after all processing has been confirmed to be finished.
+      //
+      if (transforms == null) {
+        return;
+      }
 
-    for (TransformMetaDataCombi combi : transforms) {
-      combi.transform.cleanup();
+      for (TransformMetaDataCombi combi : transforms) {
+        combi.transform.cleanup();
+      }
+    } finally {
+      // After the transforms: closing the namespace invalidates the files they resolved through it
+      releaseVfsNamespace();
     }
   }
 

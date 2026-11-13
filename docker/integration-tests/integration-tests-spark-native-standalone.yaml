@@ -43,14 +43,16 @@ services:
     command:
       - bash
       - -c
-      - mkdir -p /data/files && cp /files/spark-native-standalone/files/* /data/files/ && /files/scripts/run-tests.sh ${PROJECT_NAME}
+      # The test container's user creates /data/output: the local engine writes there too, and
+      # the executors (root) write anywhere
+      - mkdir -p /data/files /data/output && cp /files/spark-native-standalone/files/* /data/files/ && /files/scripts/run-tests.sh ${PROJECT_NAME}
 
   spark:
     build:
       context: ../../docker/integration-tests/spark/.
       dockerfile: Dockerfile.master
       args:
-        SPARK_VERSION: ${SPARK_NATIVE_VERSION:-4.1.3}
+        SPARK_VERSION: ${SPARK_NATIVE_VERSION:-4.1.4}
         HADOOP_VERSION: ${HADOOP_VERSION:-3}
         BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
     hostname: spark
@@ -64,7 +66,7 @@ services:
       context: ../../docker/integration-tests/spark/.
       dockerfile: Dockerfile.worker
       args:
-        SPARK_VERSION: ${SPARK_NATIVE_VERSION:-4.1.3}
+        SPARK_VERSION: ${SPARK_NATIVE_VERSION:-4.1.4}
         HADOOP_VERSION: ${HADOOP_VERSION:-3}
         BASE_URL: ${SPARK_BASE_URL:-https://dlcdn.apache.org/spark}
     depends_on:
@@ -76,8 +78,10 @@ services:
       - SPARK_WORKER_MEMORY=2g
     volumes:
       - spark-data:/data
-    # The test container writes /data as another user than the workers
-    command: [ "bash", "-c", "chmod 777 /data && exec /bin/bash /worker.sh" ]
+    # The test container writes /data as another user than the workers. The volume outlives
+    # "compose down": clear the output of an earlier run, which the workers wrote as root and the
+    # test container's user can't delete.
+    command: [ "bash", "-c", "chmod 777 /data && rm -rf /data/output && exec /bin/bash /worker.sh" ]
     healthcheck:
       test: [ "CMD-SHELL", "[ \"$$(stat -c %a /data)\" = 777 ] && curl -fsS http://127.0.0.1:8081/ >/dev/null" ]
       interval: 5s

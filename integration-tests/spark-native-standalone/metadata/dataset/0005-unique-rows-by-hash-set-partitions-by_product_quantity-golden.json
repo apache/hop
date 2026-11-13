@@ -1,0 +1,40 @@
+{
+  "base_filename": "0005-unique-rows-by-hash-set-partitions-by_product_quantity-golden.csv",
+  "name": "0005-unique-rows-by-hash-set-partitions-by_product_quantity-golden",
+  "description": "What the local engine writes for by_product_quantity of 0005-unique-rows-by-hash-set-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "order_id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "customer",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "product",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "quantity",
+      "field_format": "0"
+    }
+  ],
+  "folder_name": ""
+}

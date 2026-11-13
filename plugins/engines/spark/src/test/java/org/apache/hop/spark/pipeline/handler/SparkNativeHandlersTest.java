@@ -286,6 +286,82 @@ class SparkNativeHandlersTest {
   }
 
   @Test
+  void sourceRowsAreSpreadOverPartitionsInTheirOrder() {
+    StructType schema =
+        new StructType(
+            new StructField[] {DataTypes.createStructField("n", DataTypes.LongType, false)});
+    List<Row> rows = new java.util.ArrayList<>();
+    for (long i = 0; i < 100; i++) {
+      rows.add(RowFactory.create(i));
+    }
+    Dataset<Row> source = spark.createDataFrame(rows, schema).repartition(1);
+    Dataset<Row> spread = SparkGenericTransformHandler.spreadInOrder(source, 4);
+    assertEquals(4, spread.rdd().getNumPartitions());
+    assertEquals(List.of("n"), Arrays.asList(spread.columns()));
+    List<Long> values = spread.collectAsList().stream().map(r -> r.getLong(0)).toList();
+    List<Long> expected = new java.util.ArrayList<>();
+    for (long i = 0; i < 100; i++) {
+      expected.add(i);
+    }
+    assertEquals(expected, values);
+  }
+
+  @Test
+  void uniqueRowsWithCountKeepsTheHopFieldOrder() throws Exception {
+    StructType schema =
+        new StructType(
+            new StructField[] {
+              DataTypes.createStructField("n", DataTypes.LongType, false),
+              DataTypes.createStructField("code", DataTypes.StringType, false)
+            });
+    Dataset<Row> input =
+        spark
+            .createDataFrame(
+                Arrays.asList(
+                    RowFactory.create(1L, "X"),
+                    RowFactory.create(1L, "X"),
+                    RowFactory.create(2L, "Y")),
+                schema)
+            .repartition(2);
+
+    UniqueRowsMeta meta = new UniqueRowsMeta();
+    meta.getCompareFields().add(new UniqueField("code", false));
+    meta.setCountRows(true);
+    meta.setCountField("cnt");
+
+    TransformMeta uniqueTm = new TransformMeta("unique", meta);
+    uniqueTm.setTransformPluginId(SparkConst.UNIQUE_ROWS_PLUGIN_ID);
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.addTransform(uniqueTm);
+
+    Map<String, Dataset<Row>> map = new HashMap<>();
+    IRowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaInteger("n"));
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+
+    new SparkUniqueRowsHandler()
+        .handleTransform(
+            LogChannel.GENERAL,
+            new Variables(),
+            "spark",
+            new SparkPipelineRunConfiguration(),
+            new MemoryMetadataProvider(),
+            "{}",
+            pipelineMeta,
+            uniqueTm,
+            map,
+            spark,
+            inputMeta,
+            List.of(),
+            input);
+
+    Dataset<Row> output = map.get("unique");
+    // The input fields in their order, then the count: the key does not move to the front
+    assertEquals(List.of("n", "code", "cnt"), Arrays.asList(output.columns()));
+    assertEquals(2, output.collectAsList().size());
+  }
+
+  @Test
   void sortRowsGlobalOrder() throws Exception {
     StructType schema =
         new StructType(

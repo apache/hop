@@ -50,9 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     documentationUrl = "/pipeline/transforms/groupby.html",
-    keywords = "i18n::GroupByMeta.keyword",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    keywords = "i18n::GroupByMeta.keyword")
 public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
 
   private static final Class<?> PKG = GroupByMeta.class;
@@ -228,8 +226,11 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
         } else if (aggregationType == Aggregation.TYPE_GROUP_COUNT_ALL
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
             || aggregationType == Aggregation.TYPE_GROUP_COUNT_ANY) {
-          length = IValueMeta.DEFAULT_INTEGER_LENGTH;
-          precision = 0;
+          // As the counts Group By writes: an Integer without a length. A length here made the
+          // next transform format a count other than the value it got (" 0000000039" in a text
+          // file) wherever it works with the declared layout (all rows, the native Spark engine)
+          length = -1;
+          precision = -1;
         } else if (aggregationType == Aggregation.TYPE_GROUP_SUM
             && valueType != IValueMeta.TYPE_INTEGER
             && valueType != IValueMeta.TYPE_NUMBER

@@ -334,6 +334,12 @@ use_spark_native_copy() {
     echo "Skipping ${name}: HOP_IT_ENGINE=spark-native leaves projects that pick their own engine alone"
     return 1
     ;;
+  partitioning)
+    # Its checks are the local engine's: which row lands on which copy of the partition schema.
+    # Spark keeps the rows of a key together but picks its own partitions.
+    echo "Skipping ${name}: HOP_IT_ENGINE=spark-native has its own partitions, not the schema's copies"
+    return 1
+    ;;
   esac
   if [ -f "${source}/metadata/pipeline-run-configuration/hop-local.json" ] \
     || [ ! -f "${source}/metadata/pipeline-run-configuration/local.json" ]; then

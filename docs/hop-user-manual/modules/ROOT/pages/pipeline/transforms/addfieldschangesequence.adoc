@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/fieldschangesequence.svg[Add value fields changing sequence Icon, role="image-doc-icon"] Add value fields changing sequence
 

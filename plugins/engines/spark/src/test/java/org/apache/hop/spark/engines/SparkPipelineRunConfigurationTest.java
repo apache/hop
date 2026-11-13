@@ -19,7 +19,14 @@ package org.apache.hop.spark.engines;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.spark.util.SparkConst;
 import org.junit.jupiter.api.Test;
 
@@ -47,5 +54,26 @@ class SparkPipelineRunConfigurationTest {
     assertEquals("s3=s3a\nminio=s3a", copy.getPathSchemeMap());
     assertEquals("DRIVER_ONLY", copy.getGenericTransformRunMode());
     assertEquals("DISTRIBUTED", new SparkPipelineRunConfiguration().getGenericTransformRunMode());
+  }
+
+  /** A run configuration saved before these options existed has them switched on. */
+  @Test
+  void optionsMissingFromTheJsonAreOn() throws Exception {
+    HopEnvironment.init();
+    JsonParser parser =
+        new JsonFactory()
+            .createParser(
+                "{\"name\":\"old\",\"engineRunConfiguration\":{\""
+                    + SparkConst.PLUGIN_ID
+                    + "\":{\"sparkMaster\":\"local[2]\"}}}");
+    parser.nextToken();
+    PipelineRunConfiguration runConfiguration =
+        new JsonMetadataParser<>(PipelineRunConfiguration.class, new MemoryMetadataProvider())
+            .loadJsonObject(PipelineRunConfiguration.class, parser);
+    SparkPipelineRunConfiguration configuration =
+        (SparkPipelineRunConfiguration) runConfiguration.getEngineRunConfiguration();
+
+    assertTrue(configuration.isFuseGenericTransforms());
+    assertTrue(configuration.isInternalRowConversion());
   }
 }

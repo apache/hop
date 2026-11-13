@@ -1,0 +1,42 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "local"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "product",
+          "data_set_field": "product"
+        },
+        {
+          "transform_field": "orders",
+          "data_set_field": "orders"
+        }
+      ],
+      "field_order": [
+        "customer",
+        "product"
+      ],
+      "data_set_name": "0010-unique-rows-count-partitions-counted-golden",
+      "transform_name": "verify counted"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0010-unique-rows-count-partitions local UNIT",
+  "description": "The rows of 0010-unique-rows-count-partitions on the local engine against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0010-unique-rows-count-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

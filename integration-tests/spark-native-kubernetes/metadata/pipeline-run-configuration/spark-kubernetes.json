@@ -7,7 +7,7 @@
       "staging_folder": "staging://hop-staging",
       "staging_cluster_url": "http://seaweedfs.default.svc.cluster.local:8888/buckets/hop-staging",
       "submit_url": "",
-      "sparkConfigs": "spark.sql.shuffle.partitions=4\nspark.kubernetes.container.image=hop-spark-kubernetes:4.1.3\nspark.kubernetes.container.image.pullPolicy=IfNotPresent\nspark.kubernetes.authenticate.driver.serviceAccountName=spark\nspark.executor.instances=2\nspark.kubernetes.driver.request.cores=0.5\nspark.kubernetes.executor.request.cores=0.5\nspark.kubernetes.driver.volumes.hostPath.data.mount.path=/data\nspark.kubernetes.driver.volumes.hostPath.data.options.path=/hop-data\nspark.kubernetes.executor.volumes.hostPath.data.mount.path=/data\nspark.kubernetes.executor.volumes.hostPath.data.options.path=/hop-data",
+      "sparkConfigs": "spark.sql.shuffle.partitions=4\nspark.kubernetes.container.image=hop-spark-kubernetes:4.1.4\nspark.kubernetes.container.image.pullPolicy=IfNotPresent\nspark.kubernetes.authenticate.driver.serviceAccountName=spark\nspark.executor.instances=2\nspark.kubernetes.driver.request.cores=0.5\nspark.kubernetes.executor.request.cores=0.5\nspark.kubernetes.driver.volumes.hostPath.data.mount.path=/data\nspark.kubernetes.driver.volumes.hostPath.data.options.path=/hop-data\nspark.kubernetes.executor.volumes.hostPath.data.mount.path=/data\nspark.kubernetes.executor.volumes.hostPath.data.options.path=/hop-data",
       "fatJar": "",
       "driverMemory": "1g",
       "executorMemory": "768m",

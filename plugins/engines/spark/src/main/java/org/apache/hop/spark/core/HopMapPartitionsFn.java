@@ -27,13 +27,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -69,6 +76,9 @@ import org.apache.spark.TaskContext;
 import org.apache.spark.api.java.function.MapPartitionsFunction;
 import org.apache.spark.broadcast.Broadcast;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.catalyst.InternalRow;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.StructType;
 
 /**
  * Executes a single Hop transform once per Spark partition via {@link
@@ -77,7 +87,7 @@ import org.apache.spark.sql.Row;
  */
 public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Serializable {
   private static final String CONST_PROJECT_HOME = "PROJECT_HOME";
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = 5L;
 
   /** Publish progress at least every this many input rows. */
   private static final int METRICS_ROW_INTERVAL = 1000;
@@ -109,6 +119,36 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
   private final String runConfigName;
   private final String parentLogChannelId;
   private final String dataSamplersJson;
+
+  /**
+   * Transforms that run after this one in the same mini-pipeline (a fused chain), in order. Empty:
+   * this transform runs on its own.
+   */
+  private List<FusedStage> fusedStages = new ArrayList<>();
+
+  /** One transform of a fused chain after the first, with the row layouts it reads and writes. */
+  public record FusedStage(
+      String name,
+      String pluginId,
+      String transformMetaXml,
+      String inputRowMetaJson,
+      String outputRowMetaJson)
+      implements Serializable {}
+
+  /**
+   * The Spark schema of the input rows when they come as Catalyst rows ({@link #callInternal}): the
+   * types the values have, which can differ from the Spark form of the input row layout.
+   */
+  private String inputSchemaJson;
+
+  public void setInputSchemaJson(String inputSchemaJson) {
+    this.inputSchemaJson = inputSchemaJson;
+  }
+
+  /** Run {@code stages} after this transform, in the same mini-pipeline. */
+  public void setFusedStages(List<FusedStage> stages) {
+    this.fusedStages = new ArrayList<>(stages);
+  }
 
   public HopMapPartitionsFn(
       List<SparkVariableValue> variableValues,
@@ -279,11 +319,114 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
   @Override
   public Iterator<Row> call(Iterator<Row> input) throws Exception {
+    return run(input, RowPartitionCodec::new);
+  }
+
+  /**
+   * As {@link #call}, on Catalyst rows: the partition of {@code Dataset.queryExecution().toRdd()}
+   * in, rows for {@code internalCreateDataFrame} out. Skips Spark's conversion to and from its
+   * external {@link Row}; the values are the same. Needs {@link #setInputSchemaJson}.
+   */
+  public Iterator<InternalRow> callInternal(Iterator<InternalRow> input) throws Exception {
+    StructType inputSchema =
+        StringUtils.isNotEmpty(inputSchemaJson)
+            ? (StructType) DataType.fromJson(inputSchemaJson)
+            : new StructType();
+    return run(input, (in, out) -> new InternalPartitionCodec(in, inputSchema, out));
+  }
+
+  /** How the rows of a partition become Hop rows, and Hop rows Spark rows. */
+  interface PartitionCodec<I, O> {
+    Object[] toHop(I row) throws HopException;
+
+    /** A row of file names for a transform that reads them from a hop. */
+    Object[] filenameRowToHop(I row) throws HopException;
+
+    O toSpark(Object[] hopRow) throws HopException;
+
+    O toTaggedSpark(String target, Object[] hopRow) throws HopException;
+  }
+
+  /** Builds the codec of a partition from the input and output row layouts. */
+  interface PartitionCodecFactory<I, O> {
+    PartitionCodec<I, O> create(IRowMeta inputRowMeta, IRowMeta outputRowMeta) throws HopException;
+  }
+
+  /** External Spark rows, through {@link HopSparkRowConverter.RowCodec}. */
+  static final class RowPartitionCodec implements PartitionCodec<Row, Row> {
+    private final IRowMeta inputRowMeta;
+    private final HopSparkRowConverter.RowCodec in;
+    private final HopSparkRowConverter.RowCodec out;
+
+    RowPartitionCodec(IRowMeta inputRowMeta, IRowMeta outputRowMeta) {
+      this.inputRowMeta = inputRowMeta;
+      this.in = HopSparkRowConverter.RowCodec.of(inputRowMeta);
+      this.out = HopSparkRowConverter.RowCodec.of(outputRowMeta);
+    }
+
+    @Override
+    public Object[] toHop(Row row) throws HopException {
+      return in.toHop(row);
+    }
+
+    @Override
+    public Object[] filenameRowToHop(Row row) throws HopException {
+      return HopSparkRowConverter.toHopRow(inputRowMeta, row);
+    }
+
+    @Override
+    public Row toSpark(Object[] hopRow) throws HopException {
+      return out.toSpark(hopRow);
+    }
+
+    @Override
+    public Row toTaggedSpark(String target, Object[] hopRow) throws HopException {
+      return out.toTaggedSpark(target, hopRow);
+    }
+  }
+
+  /** Catalyst rows, through {@link SparkInternalRows.Codec}. */
+  static final class InternalPartitionCodec implements PartitionCodec<InternalRow, InternalRow> {
+    private final SparkInternalRows.Codec in;
+    private final SparkInternalRows.Codec out;
+
+    InternalPartitionCodec(IRowMeta inputRowMeta, StructType inputSchema, IRowMeta outputRowMeta)
+        throws HopException {
+      this.in = SparkInternalRows.Codec.of(inputRowMeta, inputSchema);
+      this.out = SparkInternalRows.Codec.of(outputRowMeta);
+    }
+
+    @Override
+    public Object[] toHop(InternalRow row) throws HopException {
+      return in.toHop(row);
+    }
+
+    @Override
+    public Object[] filenameRowToHop(InternalRow row) throws HopException {
+      return in.toHop(row);
+    }
+
+    @Override
+    public InternalRow toSpark(Object[] hopRow) throws HopException {
+      return out.toInternal(hopRow);
+    }
+
+    @Override
+    public InternalRow toTaggedSpark(String target, Object[] hopRow) throws HopException {
+      return out.toTaggedInternal(target, hopRow);
+    }
+  }
+
+  private <I, O> Iterator<O> run(Iterator<I> input, PartitionCodecFactory<I, O> codecFactory)
+      throws Exception {
     int copyNr = partitionId();
     String host = localHost();
     long partitionStartMs = System.currentTimeMillis();
     ITransform mainTransform = null;
+    List<ITransform> chainForErrors = null;
     SparkTransformExecutionSampling sampling = null;
+    // A prepared mini-pipeline holds a VFS namespace for its own metadata until it is cleaned up
+    LocalPipelineEngine preparedPipeline = null;
     try {
       SparkHop.init();
 
@@ -303,14 +446,15 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       applyPartitionInternalVariables(variables, transformName, copyNr);
       // Nested Workflow/Pipeline Executor parent linkage for execution perspective drill-down.
       applySparkTransformOwnerId(variables, parentLogChannelId, transformName, copyNr);
+      // A partitioned transform: the Spark partition is its partition
+      SparkHopPartitioning.applyPartitionVariables(variables, copyNr);
 
       IRowMeta inputRowMeta =
           StringUtils.isNotEmpty(inputRowMetaJson)
               ? JsonRowMeta.fromJson(inputRowMetaJson)
               : new org.apache.hop.core.row.RowMeta();
       IRowMeta outputRowMeta = JsonRowMeta.fromJson(outputRowMetaJson);
-      final HopSparkRowConverter.RowCodec inputCodec =
-          HopSparkRowConverter.RowCodec.of(inputRowMeta);
+      final PartitionCodec<I, O> codec = codecFactory.create(inputRowMeta, outputRowMeta);
 
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(transformName);
@@ -398,6 +542,28 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       if (!inputTransform) {
         pipelineMeta.addPipelineHop(new PipelineHopMeta(mainInjectorTransformMeta, transformMeta));
       }
+      List<ITransformMeta> fusedTransformMetas = new ArrayList<>();
+      TransformMeta previousStageMeta = transformMeta;
+      for (FusedStage stage : fusedStages) {
+        ITransformMeta stageMeta =
+            registry.loadClass(TransformPluginType.class, stage.pluginId(), ITransformMeta.class);
+        if (stageMeta == null) {
+          throw new HopException(
+              "Unable to load transform plugin with ID "
+                  + stage.pluginId()
+                  + ", this plugin isn't in the plugin registry or classpath");
+        }
+        HopSparkUtil.loadTransformMetadataFromXml(
+            stage.name(), stageMeta, stage.transformMetaXml(), metadataProvider);
+        resolveNestedPipelineFilename(stageMeta, variables, stage.name());
+        TransformMeta stageTransformMeta = new TransformMeta(stage.name(), stageMeta);
+        stageTransformMeta.setTransformPluginId(stage.pluginId());
+        stageTransformMeta.setLocation(400 + 150 * (fusedTransformMetas.size() + 1), 200);
+        pipelineMeta.addTransform(stageTransformMeta);
+        pipelineMeta.addPipelineHop(new PipelineHopMeta(previousStageMeta, stageTransformMeta));
+        fusedTransformMetas.add(stageMeta);
+        previousStageMeta = stageTransformMeta;
+      }
       for (TransformMeta infoTransformMeta : infoTransformMetas) {
         pipelineMeta.addPipelineHop(new PipelineHopMeta(infoTransformMeta, transformMeta));
       }
@@ -407,10 +573,12 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
       // After injectors exist so Stream Lookup "from" can bind to the info injector by name
       iTransformMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+      for (ITransformMeta stageMeta : fusedTransformMetas) {
+        stageMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+      }
 
       LocalPipelineEngine pipeline =
-          new LocalPipelineEngine(
-              pipelineMeta, variables, new LoggingObject("apache-spark-transform"));
+          new LocalPipelineEngine(pipelineMeta, variables, miniPipelineParent(parentLogChannelId));
       pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipeline.setMetadataProvider(metadataProvider);
       // The driver did the once-per-run work (truncate, create table ...) before the job: this
@@ -437,6 +605,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                 + variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI),
             e);
       }
+      preparedPipeline = pipeline;
+
+      logAsPartition(pipeline, copyNr);
 
       RowProducer rowProducer = null;
       TransformMetaDataCombi mainInjectorCombi = null;
@@ -459,17 +630,49 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
       TransformMetaDataCombi transformCombi = findCombi(pipeline, transformName);
       mainTransform = transformCombi.transform;
-      publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
+      // Every transform of the mini-pipeline that reports metrics: this one, then a fused chain
+      List<ITransform> chain = new ArrayList<>();
+      chain.add(mainTransform);
+      for (FusedStage stage : fusedStages) {
+        chain.add(findCombi(pipeline, stage.name()).transform);
+      }
+      chainForErrors = chain;
+      publishMetrics(chain, copyNr, host, partitionStartMs, true, false);
 
       // Execution data sampling → driver accumulator + optional local registerData
       sampling =
           new SparkTransformExecutionSampling(
               transformName, parentLogChannelId, copyNr, sampleDataAccumulator);
+      List<SparkTransformExecutionSampling> stageSamplings = new ArrayList<>();
       try {
         sampling.lookup(variables, metadataProvider, runConfigName, dataSamplersJson);
         if (sampling.isActive()) {
           sampling.registerExecutingTransform(pipeline);
-          sampling.attach(variables, pipeline, mainTransform, inputRowMeta, outputRowMeta);
+          sampling.attach(
+              variables,
+              pipeline,
+              mainTransform,
+              inputRowMeta,
+              fusedStages.isEmpty()
+                  ? outputRowMeta
+                  : JsonRowMeta.fromJson(fusedStages.get(0).inputRowMetaJson()));
+          for (int s = 0; s < fusedStages.size(); s++) {
+            FusedStage stage = fusedStages.get(s);
+            SparkTransformExecutionSampling stageSampling =
+                new SparkTransformExecutionSampling(
+                    stage.name(), parentLogChannelId, copyNr, sampleDataAccumulator);
+            stageSampling.lookup(variables, metadataProvider, runConfigName, dataSamplersJson);
+            if (stageSampling.isActive()) {
+              stageSampling.registerExecutingTransform(pipeline);
+              stageSampling.attach(
+                  variables,
+                  pipeline,
+                  chain.get(s + 1),
+                  JsonRowMeta.fromJson(stage.inputRowMetaJson()),
+                  JsonRowMeta.fromJson(stage.outputRowMetaJson()));
+              stageSamplings.add(stageSampling);
+            }
+          }
         }
       } catch (Throwable sampleEx) {
         // Non-fatal: pipeline must still process data. Catch Throwable so LinkageError
@@ -498,6 +701,12 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               && infoTransforms.isEmpty()
               && mainTransform instanceof BaseTransform
               && !needsBatchComplete(transformPluginId);
+      if (!fusedStages.isEmpty() && !direct) {
+        throw new HopException(
+            "Transform '"
+                + transformName
+                + "' can not run in a fused chain: it needs more than one plain input and output");
+      }
       if (direct) {
         // output captured by SparkDirectRowHandler.putRow
       } else if (!multiTarget) {
@@ -506,7 +715,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               @Override
               public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
                   throws HopTransformException {
-                resultRows.add(row);
+                resultRows.add(HopSparkRowConverter.toNormalStorage(rowMeta, row));
               }
             });
       } else {
@@ -519,7 +728,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                 @Override
                 public void rowReadEvent(IRowMeta rowMeta, Object[] row)
                     throws HopTransformException {
-                  targetResultRows.add(row);
+                  targetResultRows.add(HopSparkRowConverter.toNormalStorage(rowMeta, row));
                 }
               });
         }
@@ -558,6 +767,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       MetricsThrottle throttle = new MetricsThrottle();
       final SparkTransformExecutionSampling samplingRef = sampling;
       final ITransform mainRef = mainTransform;
+      final ITransform lastRef = chain.get(chain.size() - 1);
       final RowProducer mainProducer = rowProducer;
       final TransformMetaDataCombi injectorCombi = mainInjectorCombi;
       final long[] rowsSeen = {0L};
@@ -566,12 +776,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       // iteration of a source) and queues what the transform produced. The partition output is
       // never materialised, so memory is bounded by the transform's own state, not by the
       // partition size, and the downstream Spark operator can start consuming immediately.
-      PartitionIterator rows;
+      PartitionIterator<O> rows;
       if (inputTransform) {
-        // Source transform: drive until finished with no external input
+        // Source transform (or one that only reads info streams): drive until finished with no
+        // external input
         rows =
-            new PartitionIterator(
-                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+            new PartitionIterator<O>(
+                codec, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
               private boolean more = true;
 
               @Override
@@ -580,7 +791,11 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                   return false;
                 }
                 clearCapture(resultRows, targetResultRowsList);
-                more = executor.oneIteration();
+                // One processRow() at a time, not the executor's oneIteration(): for a transform
+                // without input that reads until the source is exhausted, and the whole partition
+                // would be held in memory before Spark gets its first row
+                more = mainRef.processRow();
+                drainDownstream(pipeline, mainRef);
                 if (throttle.shouldPublish(resultRows.size())) {
                   publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
                   flushSamplesQuietly(samplingRef, false);
@@ -599,8 +814,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         // and further oneIteration() calls never advance the reader (infinite stall after
         // openNextFile/createReader — the log line users see just before hang).
         while (input.hasNext()) {
-          Row sparkRow = input.next();
-          Object[] hopRow = HopSparkRowConverter.toHopRow(inputRowMeta, sparkRow);
+          Object[] hopRow = codec.filenameRowToHop(input.next());
           rowProducer.putRow(inputRowMeta, hopRow, false);
           if (mainInjectorCombi != null) {
             mainInjectorCombi.transform.processRow();
@@ -617,8 +831,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           publishMetrics(mainTransform, copyNr, host, partitionStartMs, true, false);
         }
         rows =
-            new PartitionIterator(
-                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+            new PartitionIterator<O>(
+                codec, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
               private boolean more = true;
               private long contentRows = 0;
 
@@ -639,54 +853,83 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               }
             };
       } else if (direct) {
-        final SparkDirectRowHandler[] handlerRef = new SparkDirectRowHandler[1];
         rows =
-            new PartitionIterator(
-                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
-              private boolean inputDrained = false;
+            new PartitionIterator<O>(
+                codec, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+              private boolean more = true;
+              private boolean batchCompleted = false;
 
               @Override
               boolean step() throws HopException {
-                SparkDirectRowHandler handler = handlerRef[0];
-                if (input.hasNext()) {
-                  handler.offer(inputCodec.toHop(input.next()));
-                  mainRef.processRow();
-                  if (mainRef.getErrors() > 0) {
-                    return false;
-                  }
-                  rowsSeen[0]++;
-                  if (throttle.shouldPublish(1) || rowsSeen[0] % METRICS_ROW_INTERVAL == 0) {
-                    publishMetrics(mainRef, copyNr, host, partitionStartMs, true, false);
-                    flushSamplesQuietly(samplingRef, false);
-                  }
-                  return true;
-                }
-                if (inputDrained) {
+                if (chainErrors(chain)) {
                   return false;
                 }
-                // End of input: one call with an empty slot so getRow() returns null and
-                // buffering transforms emit what they hold.
-                inputDrained = true;
-                handler.offer(null);
-                mainRef.processRow();
+                if (!more) {
+                  // A transform that buffers (Table output, Update, Insert / update, Neo4j
+                  // output ...) writes its last batch, and the rows of it, in batchComplete(),
+                  // which the single-threaded executor calls after every iteration. Here it is
+                  // called once, at the end of the partition
+                  if (batchCompleted) {
+                    return false;
+                  }
+                  batchCompleted = true;
+                  completeLastBatch(lastRef);
+                  return !chainErrors(chain);
+                }
+                // The last transform pulls its rows through the handler: from the partition, or
+                // in a fused chain from the transform before it, which pulls from the one before
+                more = lastRef.processRow();
+                if (chainErrors(chain)) {
+                  return false;
+                }
+                if (throttle.shouldPublish(1) || rowsSeen[0] % METRICS_ROW_INTERVAL == 0) {
+                  publishMetrics(chain, copyNr, host, partitionStartMs, true, false);
+                  flushSamplesQuietly(samplingRef, false);
+                  stageSamplings.forEach(s -> flushSamplesQuietly(s, false));
+                }
                 return true;
               }
             };
-        SparkDirectRowHandler handler =
-            new SparkDirectRowHandler(
-                (BaseTransform) mainTransform, inputRowMeta, outputRowMeta, rows::emit);
-        ((BaseTransform) mainTransform).setRowHandler(handler);
-        handlerRef[0] = handler;
+        Supplier<Object[]> partitionInput =
+            () -> {
+              if (!input.hasNext()) {
+                return null;
+              }
+              rowsSeen[0]++;
+              try {
+                return codec.toHop(input.next());
+              } catch (HopException e) {
+                throw new HopRuntimeException(e);
+              }
+            };
+        if (fusedStages.isEmpty()) {
+          ((BaseTransform) mainTransform)
+              .setRowHandler(
+                  new SparkDirectRowHandler(
+                      (BaseTransform) mainTransform,
+                      inputRowMeta,
+                      outputRowMeta,
+                      partitionInput,
+                      rows::emitHop));
+        } else {
+          List<IRowMeta> handOffRowMetas = new ArrayList<>();
+          for (FusedStage stage : fusedStages) {
+            handOffRowMetas.add(JsonRowMeta.fromJson(stage.inputRowMetaJson()));
+          }
+          wireFusedChain(
+              chain, inputRowMeta, handOffRowMetas, outputRowMeta, partitionInput, rows::emitHop);
+        }
       } else {
         rows =
-            new PartitionIterator(
-                outputRowMeta, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
+            new PartitionIterator<O>(
+                codec, multiTarget, targetTransforms, resultRows, targetResultRowsList) {
               private boolean inputDrained = false;
+              private boolean more = true;
 
               @Override
               boolean step() throws HopException {
                 if (input.hasNext()) {
-                  Object[] hopRow = inputCodec.toHop(input.next());
+                  Object[] hopRow = codec.toHop(input.next());
                   clearCapture(resultRows, targetResultRowsList);
                   mainProducer.putRow(inputRowMeta, hopRow, false);
                   // Forward the main row onto the hop before Stream Lookup's info-first
@@ -704,7 +947,15 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                   return true;
                 }
                 if (inputDrained) {
-                  return false;
+                  // After the last input row a transform can still have work (a reader working
+                  // through the file a row named, a mapping, a blocking transform): iterate until
+                  // every transform of the mini-pipeline is done
+                  if (!more || pipeline.getErrors() != 0) {
+                    return false;
+                  }
+                  clearCapture(resultRows, targetResultRowsList);
+                  more = executor.oneIteration();
+                  return pipeline.getErrors() == 0;
                 }
                 // End of input: flag the injector done and give buffering transforms one last
                 // iteration to emit what they hold.
@@ -715,7 +966,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                     injectorCombi.transform.processRow();
                   }
                   clearCapture(resultRows, targetResultRowsList);
-                  executor.oneIteration();
+                  more = executor.oneIteration();
                 }
                 return true;
               }
@@ -729,21 +980,26 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
           () -> {
             try {
               if (pipeline.getErrors() > 0) {
-                publishMetrics(mainRef, copyNr, host, partitionStartMs, false, true);
+                publishMetrics(chain, copyNr, host, partitionStartMs, false, true);
                 throw new HopException(
                     "Errors detected while executing transform '"
                         + transformName
                         + "' on a Spark partition");
               }
               executor.dispose();
-              publishMetrics(mainRef, copyNr, host, partitionStartMs, false, true);
+              publishMetrics(chain, copyNr, host, partitionStartMs, false, true);
               if (samplingToClose != null) {
                 samplingToClose.close();
               }
+              stageSamplings.forEach(SparkTransformExecutionSampling::close);
             } catch (HopException e) {
               throw new HopRuntimeException(
                   "Error executing Hop transform '" + transformName + "' in Spark mapPartitions",
                   e);
+            } finally {
+              // A single-threaded run never goes through the pipeline's own finish: let go of the
+              // namespace here, or every partition leaves a file system manager behind.
+              pipeline.cleanup();
             }
           };
       rows.onFinish(finish);
@@ -757,13 +1013,21 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
         taskContext.addTaskCompletionListener(
             (org.apache.spark.util.TaskCompletionListener) ctx -> rows.finishQuietly());
       }
-      // Sampling is closed by finish(); the catch block below only handles setup failures
+      // Sampling and the pipeline are closed by finish(); the catch block below only handles setup
+      // failures
       sampling = null;
+      preparedPipeline = null;
       return rows;
     } catch (Exception e) {
       if (mainTransform != null) {
         try {
-          publishMetrics(mainTransform, copyNr, host, partitionStartMs, false, true);
+          publishMetrics(
+              chainForErrors != null ? chainForErrors : List.of(mainTransform),
+              copyNr,
+              host,
+              partitionStartMs,
+              false,
+              true);
         } catch (Exception ignored) {
           // best-effort metrics on failure
         }
@@ -773,6 +1037,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       if (sampling != null) {
         try {
           sampling.close();
+        } catch (Exception ignored) {
+          // best-effort
+        }
+      }
+      if (preparedPipeline != null) {
+        try {
+          preparedPipeline.cleanup();
         } catch (Exception ignored) {
           // best-effort
         }
@@ -796,6 +1067,18 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
   }
 
   private void publishMetrics(
+      List<ITransform> transforms,
+      int copyNr,
+      String host,
+      long startTimeMs,
+      boolean running,
+      boolean finished) {
+    for (ITransform transform : transforms) {
+      publishMetrics(transform, copyNr, host, startTimeMs, running, finished);
+    }
+  }
+
+  private void publishMetrics(
       ITransform transform,
       int copyNr,
       String host,
@@ -808,7 +1091,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     long endTimeMs = finished ? System.currentTimeMillis() : 0L;
     metricsAccumulator.add(
         new SparkTransformMetricSlice(
-            transformName,
+            StringUtils.isNotEmpty(transform.getTransformName())
+                ? transform.getTransformName()
+                : transformName,
             copyNr,
             host,
             transform.getLinesRead(),
@@ -831,6 +1116,49 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     metricsAccumulator.add(
         new SparkTransformMetricSlice(
             transformName, copyNr, host, 0, 0, 0, 0, 1, false, true, start, now));
+  }
+
+  /**
+   * The parent of a mini-pipeline: the Spark pipeline when it runs in this JVM (local master), so
+   * the lines its transforms log (Write to log ...) are part of the pipeline's log. The registry
+   * keeps no log level for it: the mini-pipeline gets the level it had, or Basic.
+   */
+  static ILoggingObject miniPipelineParent(String parentLogChannelId) {
+    ILoggingObject registered =
+        StringUtils.isEmpty(parentLogChannelId)
+            ? null
+            : LoggingRegistry.getInstance().getLoggingObject(parentLogChannelId);
+    if (registered == null) {
+      return new LoggingObject("apache-spark-transform");
+    }
+    SimpleLoggingObject parent =
+        new SimpleLoggingObject(
+            registered.getObjectName(), registered.getObjectType(), registered.getParent());
+    parent.setLogChannelId(parentLogChannelId);
+    parent.setContainerObjectId(registered.getContainerId());
+    parent.setLogLevel(
+        registered.getLogLevel() != null ? registered.getLogLevel() : LogLevel.BASIC);
+    return parent;
+  }
+
+  /**
+   * The transforms of a mini-pipeline log as copy {@code partition}, the copy number {@code
+   * Internal.Transform.CopyNr} gives them: {@code name.3} for Spark partition 3. A transform keeps
+   * copy number 0 itself, which the hops of the mini-pipeline are made with.
+   */
+  static void logAsPartition(LocalPipelineEngine pipeline, int partition) {
+    String copy = Integer.toString(partition);
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+      if (combi.transform == null || combi.transform.getLogChannel() == null) {
+        continue;
+      }
+      ILoggingObject registered =
+          LoggingRegistry.getInstance()
+              .getLoggingObject(combi.transform.getLogChannel().getLogChannelId());
+      if (registered instanceof LoggingObject loggingObject) {
+        loggingObject.setObjectCopy(copy);
+      }
+    }
   }
 
   private static int partitionId() {
@@ -869,6 +1197,25 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     return injectorTransformMeta;
   }
 
+  /**
+   * Lets the transforms after a source (the Dummy of every target stream) read the rows the source
+   * just wrote, so their row listeners capture them and the row sets stay empty.
+   */
+  static void drainDownstream(LocalPipelineEngine pipeline, ITransform source) throws HopException {
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
+      if (combi.transform == source) {
+        continue;
+      }
+      int rows = 0;
+      for (IRowSet rowSet : combi.transform.getInputRowSets()) {
+        rows += rowSet.size();
+      }
+      for (int i = 0; i < rows; i++) {
+        combi.transform.processRow();
+      }
+    }
+  }
+
   private static TransformMetaDataCombi findCombi(LocalPipelineEngine pipeline, String name) {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
       if (combi.transformName.equals(name)) {
@@ -894,6 +1241,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, partitionIdStr);
     variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_ID, instanceId);
     variables.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR, partitionIdStr);
+    variables.setVariable(SparkConst.VAR_PARTITION_NR, partitionIdStr);
   }
 
   /**
@@ -1034,22 +1382,33 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     if (pipeline == null) {
       return;
     }
-    String partitionIdStr = Integer.toString(partitionId);
-    String ownerId = pipeline.getVariable(SparkConst.VAR_TRANSFORM_OWNER_ID);
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
       if (combi.data != null) {
         combi.data.setBeamContext(true);
         combi.data.setBeamBundleNr(partitionId);
       }
+    }
+    applyPartitionTransformVariables(pipeline, primaryTransformName, partitionId);
+  }
+
+  /**
+   * The partition as {@code Internal.Transform.CopyNr} and bundle number of every transform of the
+   * mini-pipeline, with {@code Internal.Transform.ID} = transform name + partition. A transform
+   * sets its own copy number, 0, when it is created.
+   */
+  static void applyPartitionTransformVariables(
+      LocalPipelineEngine pipeline, String primaryTransformName, int partitionId) {
+    if (pipeline == null) {
+      return;
+    }
+    String partitionIdStr = Integer.toString(partitionId);
+    String ownerId = pipeline.getVariable(SparkConst.VAR_TRANSFORM_OWNER_ID);
+    for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
       if (combi.transform instanceof BaseTransform baseTransform) {
         String name =
             StringUtils.isNotEmpty(combi.transformName)
                 ? combi.transformName
                 : primaryTransformName;
-        // Prefer the Hop transform name for the main transform (filename templates)
-        if (primaryTransformName != null && primaryTransformName.equals(combi.transformName)) {
-          name = primaryTransformName;
-        }
         String instanceId = name + "-" + partitionIdStr;
         baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_NAME, name);
         baseTransform.setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_COPYNR, partitionIdStr);
@@ -1113,13 +1472,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
    * leaves whatever the transform emitted in the capture lists; those rows are converted and
    * queued, and handed to Spark one at a time.
    */
-  private abstract static class PartitionIterator implements Iterator<Row> {
-    private final HopSparkRowConverter.RowCodec outputCodec;
+  private abstract static class PartitionIterator<O> implements Iterator<O> {
+    private final PartitionCodec<?, O> codec;
     private final boolean multiTarget;
     private final List<String> targetTransforms;
     private final List<Object[]> resultRows;
     private final List<List<Object[]>> targetResultRowsList;
-    private final ArrayDeque<Row> pending = new ArrayDeque<>();
+    private final ArrayDeque<O> pending = new ArrayDeque<>();
     private Runnable finish;
     private boolean finished;
     private boolean exhausted;
@@ -1128,12 +1487,12 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private HopVfsNamespace vfsNamespace;
 
     PartitionIterator(
-        IRowMeta outputRowMeta,
+        PartitionCodec<?, O> codec,
         boolean multiTarget,
         List<String> targetTransforms,
         List<Object[]> resultRows,
         List<List<Object[]>> targetResultRowsList) {
-      this.outputCodec = HopSparkRowConverter.RowCodec.of(outputRowMeta);
+      this.codec = codec;
       this.multiTarget = multiTarget;
       this.targetTransforms = targetTransforms;
       this.resultRows = resultRows;
@@ -1143,9 +1502,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     /** Do one unit of work; return false when the transform has nothing left to produce. */
     abstract boolean step() throws HopException;
 
-    /** Queue an already converted output row (direct handler path). */
-    void emit(Row row) {
-      pending.add(row);
+    /** Queue a row the transform wrote, in normal storage (direct handler path). */
+    void emitHop(Object[] hopRow) {
+      try {
+        pending.add(codec.toSpark(hopRow));
+      } catch (HopException e) {
+        throw new HopRuntimeException("Error converting a Hop row for Spark", e);
+      }
     }
 
     void onFinish(Runnable finish) {
@@ -1186,7 +1549,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     }
 
     @Override
-    public Row next() {
+    public O next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
@@ -1196,13 +1559,13 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private void queueCaptured() throws HopException {
       if (!multiTarget) {
         for (Object[] hopRow : resultRows) {
-          pending.add(outputCodec.toSpark(hopRow));
+          pending.add(codec.toSpark(hopRow));
         }
         return;
       }
       for (int t = 0; t < targetResultRowsList.size(); t++) {
         for (Object[] hopRow : targetResultRowsList.get(t)) {
-          pending.add(outputCodec.toTaggedSpark(targetTransforms.get(t), hopRow));
+          pending.add(codec.toTaggedSpark(targetTransforms.get(t), hopRow));
         }
       }
     }
@@ -1258,7 +1621,131 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
    */
   private static final Set<String> BATCH_COMPLETE_PLUGIN_IDS = Set.of("SimpleMapping");
 
-  static boolean needsBatchComplete(String transformPluginId) {
+  /**
+   * Transforms that already write their last group or row when the input ends, and whose
+   * batchComplete() would write it again (it starts a new batch with what they still hold).
+   */
+  private static final Set<String> LAST_OUTPUT_AT_END_PLUGIN_IDS =
+      Set.of("GroupBy", "MemoryGroupBy", "Denormaliser", "Unique");
+
+  /**
+   * At the end of the partition, let a transform that buffers write its last batch: Table output,
+   * Update, Insert / update, the Neo4j outputs ... write it, and its rows, in batchComplete(),
+   * which the single-threaded executor calls after every iteration.
+   */
+  static void completeLastBatch(ITransform transform) throws HopException {
+    String pluginId =
+        transform.getTransformMeta() != null
+            ? transform.getTransformMeta().getTransformPluginId()
+            : null;
+    if (!LAST_OUTPUT_AT_END_PLUGIN_IDS.contains(pluginId)) {
+      transform.batchComplete();
+    }
+  }
+
+  /**
+   * Wire a fused chain: the first transform reads the partition, every next one pulls the rows of
+   * the one before it, and the last one writes into the Spark output. Rows go from one transform to
+   * the next in the layout of {@code handOffRowMetas} (one per link, the input of the next
+   * transform as the driver computed it), as they would through Spark.
+   */
+  static void wireFusedChain(
+      List<ITransform> chain,
+      IRowMeta inputRowMeta,
+      List<IRowMeta> handOffRowMetas,
+      IRowMeta outputRowMeta,
+      Supplier<Object[]> partitionInput,
+      Consumer<Object[]> sparkOutput)
+      throws HopException {
+    Supplier<Object[]> input = partitionInput;
+    IRowMeta stageInputRowMeta = inputRowMeta;
+    for (int i = 0; i < chain.size(); i++) {
+      if (!(chain.get(i) instanceof BaseTransform transform)) {
+        throw new HopException(
+            "Transform '" + chain.get(i).getTransformName() + "' can not run in a fused chain");
+      }
+      if (i == chain.size() - 1) {
+        transform.setRowHandler(
+            new SparkDirectRowHandler(
+                transform, stageInputRowMeta, outputRowMeta, input, sparkOutput));
+      } else {
+        // The layout this transform writes = what the driver computed as the next one's input
+        IRowMeta stageOutputRowMeta = handOffRowMetas.get(i);
+        ArrayDeque<Object[]> handOff = new ArrayDeque<>();
+        transform.setRowHandler(
+            SparkDirectRowHandler.toNextTransform(
+                transform, stageInputRowMeta, stageOutputRowMeta, input, handOff::add));
+        input = new UpstreamPull(transform, handOff);
+        stageInputRowMeta = stageOutputRowMeta;
+      }
+    }
+  }
+
+  /**
+   * The input of a transform in a fused chain: the rows the transform before it wrote, asking it
+   * for more until it has some or is done. Null only at the real end of the stream.
+   */
+  static final class UpstreamPull implements Supplier<Object[]> {
+    private final ITransform upstream;
+    private final ArrayDeque<Object[]> rows;
+    private boolean more = true;
+
+    UpstreamPull(ITransform upstream, ArrayDeque<Object[]> rows) {
+      this.upstream = upstream;
+      this.rows = rows;
+    }
+
+    @Override
+    public Object[] get() {
+      while (rows.isEmpty() && more) {
+        try {
+          more = upstream.processRow();
+          if (!more) {
+            // The last batch of a buffering transform, and its rows (see the direct step)
+            completeLastBatch(upstream);
+          }
+        } catch (HopException e) {
+          throw new HopRuntimeException(
+              "Error in transform '" + upstream.getTransformName() + "'", e);
+        }
+        if (upstream.getErrors() > 0) {
+          throw new HopRuntimeException(
+              "Errors detected while executing transform '" + upstream.getTransformName() + "'");
+        }
+      }
+      return rows.poll();
+    }
+  }
+
+  private static boolean chainErrors(List<ITransform> chain) {
+    for (ITransform transform : chain) {
+      if (transform.getErrors() > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Whether a transform reads file names from a previous hop (Text file input, Excel input, ...
+   * with "accept file names"). Does not change the metadata, unlike {@link
+   * #bindAcceptingFilenamesToMainInjector}.
+   */
+  public static boolean acceptsFilenamesFromHop(ITransformMeta meta) {
+    if (meta == null) {
+      return false;
+    }
+    if (meta instanceof BaseFileInputMeta<?, ?, ?> baseFile) {
+      return baseFile.isAcceptingFilenames();
+    }
+    try {
+      return Boolean.TRUE.equals(meta.getClass().getMethod("isAcceptingFilenames").invoke(meta));
+    } catch (ReflectiveOperationException e) {
+      return false;
+    }
+  }
+
+  public static boolean needsBatchComplete(String transformPluginId) {
     return BATCH_COMPLETE_PLUGIN_IDS.contains(transformPluginId);
   }
 }

@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=native, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/groupby.svg[Group By transform Icon, role="image-doc-icon"] Group By
 
@@ -39,18 +39,30 @@ You can use the xref:pipeline/transforms/memgroupby.adoc[Memory Group By] transf
 
 [WARNING]
 ====
-Group By needs its input sorted on the group fields, and the distributed pipeline engines do not give it that.
+Group By needs its input sorted on the group fields, and the Beam engines do not give it that (the native Spark engine does, see below).
 A distributed engine spreads the rows over many workers and re-shuffles them to maximize parallelism, so a sort upstream only ever orders the rows one worker happens to hold.
 The groups would be formed per worker and the aggregates would be silently wrong.
 
-* The native Spark engine refuses the transform and stops the pipeline with an error.
-* The Beam engines refuse a Group By with group fields.
+The Beam engines refuse a Group By with group fields.
 A Group By without group fields aggregates the whole stream: the Beam engines run it with all the rows at once, see xref:pipeline/beam/getting-started-with-beam.adoc#_whole_stream_transforms[Transforms that need the whole stream].
 
-Use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] instead.
-It needs no sorted input, and both engines map it onto their own shuffle (`GroupByKey` on Beam) so the grouping covers the whole data set.
+Use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] on Beam instead.
+It needs no sorted input, and the engines map it onto their own shuffle (`GroupByKey` on Beam) so the grouping covers the whole data set.
 See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] for the other transforms in this situation.
 ====
+
+== Native Spark
+
+The native Spark engine runs Group By on all partitions with the same results as the local engine.
+Spark brings the rows of every group together first: it shuffles them on the grouping fields and sorts each partition on those fields and, within a group, in the order the rows came in.
+Group By itself then aggregates every partition, so every aggregation type and option works as described on this page: cumulative and moving aggregates, the line number per group, all rows and the single result row for an empty input.
+
+Two differences with the local engine:
+
+* On input that is not sorted on the grouping fields, the local engine starts a new group every time the key changes; on Spark every key gives one group.
+* The rows of different groups come out in no particular order. Sort them after Group By if a later transform needs them in order.
+
+Without grouping fields, or with *Always give back a result row*, all rows go to one partition, as one result row is computed from all of them.
 
 == Options
 

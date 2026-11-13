@@ -23,7 +23,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 IMAGES="${HERE}/images"
-SPARK_VERSION="${SPARK_NATIVE_VERSION:-4.1.3}"
+SPARK_VERSION="${SPARK_NATIVE_VERSION:-4.1.4}"
 SEAWEEDFS_IMAGE="chrislusf/seaweedfs:4.48"
 
 mkdir -p "${IMAGES}"

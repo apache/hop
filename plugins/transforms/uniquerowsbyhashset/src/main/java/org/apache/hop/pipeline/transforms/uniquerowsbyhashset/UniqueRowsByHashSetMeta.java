@@ -40,9 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::UniqueRowsByHashSet.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::UniqueRowsByHashSetMeta.keyword",
-    documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/uniquerowsbyhashset.html")
 @Getter
 @Setter
 public class UniqueRowsByHashSetMeta

@@ -1,0 +1,32 @@
+{
+  "base_filename": "0006-add-sequence-partitions-numbered-golden.csv",
+  "name": "0006-add-sequence-partitions-numbered-golden",
+  "description": "What the local engine writes for numbered of 0006-add-sequence-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "order_id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "seq",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "wrapped",
+      "field_format": "0"
+    }
+  ],
+  "folder_name": ""
+}

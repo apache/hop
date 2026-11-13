@@ -24,8 +24,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.types.DataType;
@@ -42,6 +46,9 @@ import org.apache.spark.sql.types.StructType;
 public final class HopSparkRowConverter {
 
   private HopSparkRowConverter() {}
+
+  /** The text form of JSON, UUID and vector values on the Spark side. */
+  private static final IValueMeta TEXT = new ValueMetaString("text");
 
   public static StructType toStructType(IRowMeta rowMeta) throws HopException {
     if (rowMeta == null) {
@@ -67,13 +74,13 @@ public final class HopSparkRowConverter {
       case IValueMeta.TYPE_TIMESTAMP -> DataTypes.TimestampType;
       case IValueMeta.TYPE_BINARY -> DataTypes.BinaryType;
       case IValueMeta.TYPE_NONE, IValueMeta.TYPE_SERIALIZABLE -> DataTypes.StringType;
-      default ->
-          throw new HopException(
-              "Unsupported Hop type for Spark conversion: "
-                  + valueMeta.getTypeDesc()
-                  + " ("
-                  + valueMeta.getName()
-                  + ")");
+        // No Spark type of their own: they travel as their text, and become the Hop value again
+        // on the other side (see toHopValue)
+      case IValueMeta.TYPE_JSON, IValueMeta.TYPE_UUID, IValueMeta.TYPE_VECTOR ->
+          DataTypes.StringType;
+        // A value type of a plugin (Graph, Avro record ...) travels as the text getString gives,
+        // and its value meta reads it back (see toHopValue)
+      default -> DataTypes.StringType;
     };
   }
 
@@ -134,6 +141,39 @@ public final class HopSparkRowConverter {
       return RowFactory.create(sparkValues(hopRow, 0));
     }
 
+    /**
+     * The row as the next transform would get it after a trip through Spark ({@code
+     * toHop(toSpark(row))}), without building the Spark row: one slot per field, every value of the
+     * Java type its field declares. A value that already has that type is kept as it is. Used
+     * between the transforms of a fused chain, so they see the same rows as when every transform
+     * runs on its own.
+     */
+    public Object[] handOff(Object[] hopRow) throws HopException {
+      Object[] result = new Object[metas.length];
+      int available = hopRow == null ? 0 : Math.min(metas.length, hopRow.length);
+      for (int i = 0; i < available; i++) {
+        Object v = hopRow[i];
+        if (v == null) {
+          continue;
+        }
+        boolean keep =
+            plain[i]
+                && switch (types[i]) {
+                  case IValueMeta.TYPE_STRING -> v instanceof String;
+                  case IValueMeta.TYPE_INTEGER -> v instanceof Long;
+                  case IValueMeta.TYPE_NUMBER -> v instanceof Double;
+                  case IValueMeta.TYPE_BOOLEAN -> v instanceof Boolean;
+                  case IValueMeta.TYPE_BIGNUMBER -> v instanceof BigDecimal;
+                  case IValueMeta.TYPE_DATE -> v.getClass() == Date.class;
+                  case IValueMeta.TYPE_TIMESTAMP -> v.getClass() == Timestamp.class;
+                  case IValueMeta.TYPE_BINARY -> v instanceof byte[];
+                  default -> false;
+                };
+        result[i] = keep ? v : toHopValue(metas[i], toSparkValue(metas[i], v));
+      }
+      return result;
+    }
+
     public Row toTaggedSpark(String targetTag, Object[] hopRow) throws HopException {
       Object[] values = sparkValues(hopRow, 1);
       values[0] = targetTag != null ? targetTag : HopSparkUtil.MAIN_TARGET_TAG;
@@ -166,6 +206,37 @@ public final class HopSparkRowConverter {
       }
       return values;
     }
+  }
+
+  /**
+   * The row with every lazily converted value (binary string storage, such as CSV input with lazy
+   * conversion) in normal storage, using the row metadata the transform wrote it with. The row
+   * metadata a Spark stage carries says normal storage, so a raw byte array would reach a value
+   * converter that expects a Long, Double, ... A row that needs converting is copied: the original
+   * can still travel on in the transform's own pipeline, with its own row metadata.
+   */
+  public static Object[] toNormalStorage(IRowMeta rowMeta, Object[] row)
+      throws HopTransformException {
+    if (rowMeta == null || row == null) {
+      return row;
+    }
+    Object[] result = row;
+    int n = Math.min(rowMeta.size(), row.length);
+    for (int i = 0; i < n; i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      if (row[i] != null && valueMeta.getStorageType() != IValueMeta.STORAGE_TYPE_NORMAL) {
+        if (result == row) {
+          result = row.clone();
+        }
+        try {
+          result[i] = valueMeta.convertToNormalStorageType(row[i]);
+        } catch (HopValueException e) {
+          throw new HopTransformException(
+              "Unable to convert field '" + valueMeta.getName() + "' to normal storage", e);
+        }
+      }
+    }
+    return result;
   }
 
   public static Row toSparkRow(IRowMeta rowMeta, Object[] hopRow) throws HopException {
@@ -225,6 +296,50 @@ public final class HopSparkRowConverter {
       return null;
     }
     try {
+      return toSparkValueOfType(valueMeta, hopValue);
+    } catch (HopException | ClassCastException e) {
+      if (!causedByClassCast(e)) {
+        throw e;
+      }
+      // The transform wrote another Java type than its field says (YAML input, XML join, ...
+      // give a String for a Number field). The local engine passes the value on and the next
+      // transform copes; here it has to become the field's type: convert it from the type it has
+      IValueMeta actual = ValueMetaFactory.guessValueMetaInterface(hopValue);
+      if (actual == null) {
+        throw new HopException(
+            "Field '"
+                + valueMeta.getName()
+                + "' is "
+                + valueMeta.getTypeDesc()
+                + " but holds a "
+                + hopValue.getClass().getName(),
+            e);
+      }
+      // Text is parsed with the field's own format: Hop reads a String with the mask, decimal
+      // and grouping symbol of the String metadata
+      actual.setConversionMask(valueMeta.getConversionMask());
+      actual.setDecimalSymbol(valueMeta.getDecimalSymbol());
+      actual.setGroupingSymbol(valueMeta.getGroupingSymbol());
+      try {
+        return toSparkValueOfType(valueMeta, valueMeta.convertData(actual, hopValue));
+      } catch (Exception conversion) {
+        throw new HopException(
+            "Unable to convert the "
+                + actual.getTypeDesc()
+                + " value of field '"
+                + valueMeta.getName()
+                + "' to "
+                + valueMeta.getTypeDesc()
+                + ": "
+                + hopValue,
+            conversion);
+      }
+    }
+  }
+
+  private static Object toSparkValueOfType(IValueMeta valueMeta, Object hopValue)
+      throws HopException {
+    try {
       return switch (valueMeta.getType()) {
         case IValueMeta.TYPE_STRING, IValueMeta.TYPE_INET -> valueMeta.getString(hopValue);
         case IValueMeta.TYPE_INTEGER -> valueMeta.getInteger(hopValue);
@@ -232,6 +347,14 @@ public final class HopSparkRowConverter {
         case IValueMeta.TYPE_BIGNUMBER -> valueMeta.getBigNumber(hopValue);
         case IValueMeta.TYPE_BOOLEAN -> valueMeta.getBoolean(hopValue);
         case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> {
+          // A Timestamp keeps its fraction of a millisecond, Spark keeps the microseconds
+          if (hopValue instanceof Timestamp timestamp
+              && valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP
+              && valueMeta.isStorageNormal()) {
+            Timestamp copy = new Timestamp(timestamp.getTime());
+            copy.setNanos(timestamp.getNanos());
+            yield copy;
+          }
           Date date = valueMeta.getDate(hopValue);
           yield date == null ? null : new Timestamp(date.getTime());
         }
@@ -244,13 +367,28 @@ public final class HopSparkRowConverter {
     }
   }
 
+  private static boolean causedByClassCast(Throwable e) {
+    for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+      if (cause instanceof ClassCastException) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static Object toHopValue(IValueMeta valueMeta, Object sparkValue) throws HopException {
     if (sparkValue == null) {
       return null;
     }
     try {
       return switch (valueMeta.getType()) {
-        case IValueMeta.TYPE_STRING, IValueMeta.TYPE_INET -> sparkValue.toString();
+        case IValueMeta.TYPE_STRING -> sparkValue.toString();
+          // An internet address travels as its text, as JSON, UUID and vector values do
+        case IValueMeta.TYPE_INET,
+                IValueMeta.TYPE_JSON,
+                IValueMeta.TYPE_UUID,
+                IValueMeta.TYPE_VECTOR ->
+            valueMeta.convertData(TEXT, sparkValue.toString());
         case IValueMeta.TYPE_INTEGER -> {
           if (sparkValue instanceof Number number) {
             yield number.longValue();
@@ -278,7 +416,7 @@ public final class HopSparkRowConverter {
           }
           yield Boolean.parseBoolean(sparkValue.toString());
         }
-        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> {
+        case IValueMeta.TYPE_DATE -> {
           if (sparkValue instanceof Timestamp timestamp) {
             yield new Date(timestamp.getTime());
           }
@@ -287,6 +425,19 @@ public final class HopSparkRowConverter {
           }
           if (sparkValue instanceof java.time.Instant instant) {
             yield Date.from(instant);
+          }
+          yield sparkValue;
+        }
+          // Hop's Timestamp fields hold a java.sql.Timestamp: ValueMetaTimestamp casts to it
+        case IValueMeta.TYPE_TIMESTAMP -> {
+          if (sparkValue instanceof Timestamp timestamp) {
+            yield timestamp;
+          }
+          if (sparkValue instanceof Date date) {
+            yield new Timestamp(date.getTime());
+          }
+          if (sparkValue instanceof java.time.Instant instant) {
+            yield Timestamp.from(instant);
           }
           yield sparkValue;
         }
@@ -301,7 +452,9 @@ public final class HopSparkRowConverter {
           }
           yield sparkValue;
         }
-        default -> sparkValue.toString();
+        case IValueMeta.TYPE_NONE, IValueMeta.TYPE_SERIALIZABLE -> sparkValue.toString();
+          // A value type of a plugin: its value meta reads the text it was written as
+        default -> valueMeta.convertData(TEXT, sparkValue.toString());
       };
     } catch (Exception e) {
       throw new HopException(

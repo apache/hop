@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -202,5 +203,14 @@ class MemoryGroupByAggregationNullsTest {
 
     assertEquals(binaryData0, distinctObjs[1]);
     assertEquals(binaryData1, distinctObjs[0]);
+  }
+
+  /** On Beam or Spark a batch is a bundle of rows: the groups go on until the input ends. */
+  @Test
+  void batchCompleteInABundleKeepsTheGroups() throws HopException {
+    data.setBeamContext(true);
+    transform.batchComplete();
+    assertEquals(1, data.map.size());
+    assertFalse(data.newBatch);
   }
 }

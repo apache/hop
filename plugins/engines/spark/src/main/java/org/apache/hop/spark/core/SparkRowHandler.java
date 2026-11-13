@@ -48,23 +48,45 @@ public class SparkRowHandler implements IRowHandler {
    * Prefer live rowsets from the transform (not a snapshot at construction): hop wiring and {@code
    * addRowProducer} can still change after the handler is installed.
    */
-  private IRowSet firstInput() {
-    List<IRowSet> inputRowSets = transform.getInputRowSets();
-    return inputRowSets == null || inputRowSets.isEmpty() ? null : inputRowSets.get(0);
-  }
-
   private IRowSet firstOutput() {
     List<IRowSet> outputRowSets = transform.getOutputRowSets();
     return outputRowSets == null || outputRowSets.isEmpty() ? null : outputRowSets.get(0);
   }
 
+  /**
+   * The next row of the current input, without waiting. A finished input is dropped and reading
+   * goes on with the next one, as {@link BaseTransform} does: a transform that reads several inputs
+   * through {@code getRow()} (Stream schema merge, ...) gets all of them, and {@code
+   * getCurrentInputRowSetNr()} says which one the row came from. An input that is empty but not
+   * finished gives null: more rows can still arrive.
+   */
   @Override
   public Object[] getRow() throws HopException {
-    IRowSet inputRowSet = firstInput();
-    if (inputRowSet == null) {
+    List<IRowSet> inputRowSets = transform.getInputRowSets();
+    if (inputRowSets == null || inputRowSets.isEmpty()) {
       return null;
     }
-    Object[] row = inputRowSet.getRow();
+    int current =
+        Math.max(0, Math.min(transform.getCurrentInputRowSetNr(), inputRowSets.size() - 1));
+    boolean dropped = false;
+    Object[] row = null;
+    IRowSet inputRowSet = null;
+    while (!inputRowSets.isEmpty()) {
+      inputRowSet = inputRowSets.get(current);
+      row = inputRowSet.getRow();
+      if (row != null || !inputRowSet.isDone()) {
+        break;
+      }
+      inputRowSets.remove(current);
+      dropped = true;
+      if (current >= inputRowSets.size()) {
+        current = 0;
+      }
+    }
+    if (dropped) {
+      transform.setInputRowSets(inputRowSets);
+    }
+    transform.setCurrentInputRowSetNr(inputRowSets.isEmpty() ? 0 : current);
     if (row != null) {
       transform.incrementLinesRead();
       transform.setInputRowMeta(inputRowSet.getRowMeta());

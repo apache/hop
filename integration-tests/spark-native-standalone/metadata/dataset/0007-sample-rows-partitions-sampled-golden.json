@@ -1,0 +1,32 @@
+{
+  "base_filename": "0007-sample-rows-partitions-sampled-golden.csv",
+  "name": "0007-sample-rows-partitions-sampled-golden",
+  "description": "What the local engine writes for sampled of 0007-sample-rows-partitions",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "order_id",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "customer",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "line_nr",
+      "field_format": "0"
+    }
+  ],
+  "folder_name": ""
+}

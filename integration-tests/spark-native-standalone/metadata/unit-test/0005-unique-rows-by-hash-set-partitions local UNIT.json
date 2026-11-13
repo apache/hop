@@ -1,0 +1,63 @@
+{
+  "variableValues": [
+    {
+      "key": "IT_ENGINE",
+      "value": "local"
+    }
+  ],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        },
+        {
+          "transform_field": "product",
+          "data_set_field": "product"
+        },
+        {
+          "transform_field": "quantity",
+          "data_set_field": "quantity"
+        }
+      ],
+      "field_order": [
+        "product",
+        "quantity"
+      ],
+      "data_set_name": "0005-unique-rows-by-hash-set-partitions-by_product_quantity-golden",
+      "transform_name": "verify by_product_quantity"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "order_id",
+          "data_set_field": "order_id"
+        },
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        }
+      ],
+      "field_order": [
+        "customer"
+      ],
+      "data_set_name": "0005-unique-rows-by-hash-set-partitions-by_customer-golden",
+      "transform_name": "verify by_customer"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-unique-rows-by-hash-set-partitions local UNIT",
+  "description": "The rows of 0005-unique-rows-by-hash-set-partitions on the local engine against the local engine's golden rows",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0005-unique-rows-by-hash-set-partitions-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

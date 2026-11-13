@@ -18,13 +18,13 @@
 # Spark's own images run Java 17; the Hop classes in the fat jar need Java 21. The Kubernetes
 # entrypoint and decommission scripts come with the Spark distribution.
 #
-#   docker build -f Dockerfile.kubernetes --build-arg SPARK_VERSION=4.1.3 -t hop-spark-kubernetes:4.1.3 .
+#   docker build -f Dockerfile.kubernetes --build-arg SPARK_VERSION=4.1.4 -t hop-spark-kubernetes:4.1.4 .
 #
 # Run configuration: master k8s://https://<api server>, deploy mode Cluster, and in the Spark config
-#   spark.kubernetes.container.image=hop-spark-kubernetes:4.1.3
+#   spark.kubernetes.container.image=hop-spark-kubernetes:4.1.4
 FROM eclipse-temurin:21-jre-jammy
 
-ARG SPARK_VERSION=4.1.3
+ARG SPARK_VERSION=4.1.4
 ARG HADOOP_VERSION=3
 ARG BASE_URL=https://dlcdn.apache.org/spark
 ARG ARCHIVE_URL=https://archive.apache.org/dist/spark

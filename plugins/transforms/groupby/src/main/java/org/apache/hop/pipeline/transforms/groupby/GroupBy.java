@@ -1145,6 +1145,11 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
   @Override
   public void batchComplete() throws HopException {
+    if (data.isBeamContext()) {
+      // On Beam or Spark a batch is a bundle of rows, not a set of its own: the group goes on, and
+      // the last one is written when the input ends
+      return;
+    }
     handleLastOfGroup();
     data.newBatch = true;
   }
