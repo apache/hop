@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -87,6 +88,17 @@ public class CatalogFieldResolver {
       throw new HopException(
           BaseMessages.getString(PKG, "MaskFields.Error.MissingCatalog", catalogName));
     }
+    // A tag whose variable isn't set would match nothing and leave every field unmasked
+    List<MaskTagRule> rules = meta.activeTagRules();
+    List<String> labels = new ArrayList<>();
+    for (MaskTagRule rule : rules) {
+      String label = resolvedTag(variables, rule);
+      if (label == null) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "MaskFields.Error.UnresolvedTag", rule.getTag()));
+      }
+      labels.add(label);
+    }
     DatasetRef ref = meta.catalogDataset().toRef(variables, metadataProvider);
     try (IDataCatalog catalog = dataCatalog.connect(variables, metadataProvider)) {
       CatalogEntityId id = known(catalog.resolve(ref), ref, catalogName);
@@ -102,12 +114,11 @@ public class CatalogFieldResolver {
 
       Map<String, Match> matches = new LinkedHashMap<>();
       for (CatalogField field : fields) {
-        for (MaskTagRule rule : meta.activeTagRules()) {
-          String label = variables.resolve(rule.getTag());
-          if (field.isLabelledWith(label)) {
+        for (int i = 0; i < rules.size(); i++) {
+          if (field.isLabelledWith(labels.get(i))) {
             matches.putIfAbsent(
                 field.name().toLowerCase(Locale.ROOT),
-                new Match(field.name(), rule.getPatternName(), label));
+                new Match(field.name(), rules.get(i).getPatternName(), labels.get(i)));
             break;
           }
         }
@@ -122,6 +133,12 @@ public class CatalogFieldResolver {
               Integer.toString(fields.size())));
       return matches;
     }
+  }
+
+  /** The tag or term of a rule with its variables resolved, or null when one isn't set. */
+  static String resolvedTag(IVariables variables, MaskTagRule rule) {
+    String label = StringUtils.trimToNull(variables.resolve(rule.getTag()));
+    return label == null || label.contains("${") ? null : label;
   }
 
   /** The answer, or an exception saying why there is none. */

@@ -348,6 +348,16 @@ class MaskFieldsTest {
   }
 
   @Test
+  void aTagWhoseVariableIsNotSetStopsTheTransform() throws Exception {
+    MaskFieldsMeta meta = catalogMeta();
+    meta.getTagRules().add(new MaskTagRule("${PII_TAG}", "Hidden"));
+    MaskFields transform = createTransform(meta);
+    transform.setMetadataProvider(catalogProvider());
+
+    assertFalse(transform.init());
+  }
+
+  @Test
   void tagRulesWithoutACatalogStopTheTransform() throws Exception {
     MaskFieldsMeta meta = catalogMeta();
     meta.setCatalogName("");

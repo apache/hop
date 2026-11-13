@@ -281,6 +281,9 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
         error(remarks, transformMeta, "MaskFields.Check.TagRulesWithoutDataset");
       }
       for (MaskTagRule rule : activeTagRules()) {
+        if (CatalogFieldResolver.resolvedTag(variables, rule) == null) {
+          error(remarks, transformMeta, "MaskFields.Check.UnresolvedTag", rule.getTag());
+        }
         if (loadQuietly(metadataProvider, rule.getPatternName()) == null) {
           error(remarks, transformMeta, "MaskFields.Check.MissingPattern", rule.getPatternName());
         }

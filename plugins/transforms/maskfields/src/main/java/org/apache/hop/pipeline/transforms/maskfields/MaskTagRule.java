@@ -31,7 +31,11 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Setter
 public class MaskTagRule {
 
-  @HopMetadataProperty(key = "tag", injectionKeyDescription = "MaskFields.Injection.Tag")
+  // Injection keys of their own: "pattern" is the injection key of the Fields table
+  @HopMetadataProperty(
+      key = "tag",
+      injectionKey = "tag_rule_tag",
+      injectionKeyDescription = "MaskFields.Injection.Tag")
   @GuiTableColumn(
       id = "tag",
       order = "10",
@@ -41,7 +45,10 @@ public class MaskTagRule {
       width = 200)
   private String tag = "";
 
-  @HopMetadataProperty(key = "pattern", injectionKeyDescription = "MaskFields.Injection.TagPattern")
+  @HopMetadataProperty(
+      key = "pattern",
+      injectionKey = "tag_rule_pattern",
+      injectionKeyDescription = "MaskFields.Injection.TagPattern")
   @GuiTableColumn(
       id = "patternName",
       order = "20",

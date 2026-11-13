@@ -79,7 +79,7 @@ When the transform starts, it reads the fields of the dataset from the catalog. 
 
 A field that also has a row in the fields table keeps the pattern of that row.
 
-When the catalog can't be reached, refuses the token, doesn't have the dataset or has no fields for it, the transform doesn't start: it doesn't guess which fields to mask.
+When the catalog can't be reached, refuses the token, doesn't have the dataset or has no fields for it, or a tag or term holds a variable that is not set, the transform doesn't start: it doesn't guess which fields to mask.
 
 == What a pattern writes
 
