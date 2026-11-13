@@ -86,8 +86,10 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
     Path temporary =
         Files.createFile(folder.resolve(file.getFileName() + "." + UUID.randomUUID() + ".tmp"));
     try {
-      Files.write(temporary, content);
+      // Permissions before content: a 600 configuration must never sit readable under the umask,
+      // not even for the moment between the write and the move, or after a save that dies there.
       keepPermissions(file, temporary);
+      Files.write(temporary, content);
       try {
         Files.move(
             temporary, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
