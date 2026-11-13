@@ -21,6 +21,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
+import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.lifecycle.ExecutionState;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -77,18 +80,27 @@ public class SingleThreadedPipelineEngine extends Pipeline
 
   @Override
   public void startThreads() throws HopException {
+    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+      startSingleThreaded();
+    } catch (Throwable e) {
+      ExecutionLifecycle.finish(this, ExecutionState.FAILED, e);
+      throw e;
+    }
+  }
+
+  private void startSingleThreaded() throws HopException {
     super.startThreads();
 
     SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(this);
 
-    if (!executor.init()) {
-      throw new HopException(
-          "Error initializing single threaded pipeline execution. See the log for more details.");
-    }
-
-    // One iteration will execute each transform once.
-    //
     try {
+      if (!executor.init()) {
+        throw new HopException(
+            "Error initializing single threaded pipeline execution. See the log for more details.");
+      }
+
+      // One iteration will execute each transform once.
+      //
       executor.oneIteration();
     } finally {
       // All data should now be processed.

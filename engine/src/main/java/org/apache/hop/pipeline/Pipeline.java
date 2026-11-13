@@ -98,6 +98,10 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.execution.failure.ExecutionFailures;
+import org.apache.hop.execution.lifecycle.ExecutionKind;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
+import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.lifecycle.ExecutionState;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -622,22 +626,44 @@ public abstract class Pipeline
 
   @Override
   public void prepareExecution() throws HopException {
+    ExecutionLifecycle.begin(this, null, ExecutionKind.PIPELINE, getName(), -1);
+    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+      prepareExecutionWithNamespace();
+    } catch (Throwable e) {
+      ExecutionLifecycle.finish(this, ExecutionState.FAILED, e);
+      throw e;
+    }
+  }
+
+  private void prepareExecutionWithNamespace() throws HopException {
     // A pipeline carrying its own metadata - an export running on a Hop Server - resolves its
     // named VFS connections in its own namespace, not in the one the server was started with.
-    vfsNamespaceProvider = getMetadataProvider();
-    vfsNamespace =
-        HopVfsNamespaces.acquire(this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
-    HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
+    HopVfsNamespace previous = null;
+    boolean namespaceBound = false;
     boolean prepared = false;
     try {
+      vfsNamespaceProvider = getMetadataProvider();
+      vfsNamespace =
+          HopVfsNamespaces.acquire(
+              this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
+      previous = HopVfsNamespaces.bindThread(vfsNamespace);
+      namespaceBound = true;
       prepareExecutionInternal();
       prepared = true;
     } catch (Throwable e) {
       // Still on the bound namespace: bringing the pipeline down can touch its files.
-      flagPreparationFailure(e);
+      try {
+        flagPreparationFailure(e);
+      } catch (Throwable cleanupFailure) {
+        if (cleanupFailure != e) {
+          e.addSuppressed(cleanupFailure);
+        }
+      }
       throw e;
     } finally {
-      HopVfsNamespaces.restoreThread(previous);
+      if (namespaceBound) {
+        HopVfsNamespaces.restoreThread(previous);
+      }
       if (!prepared) {
         // Preparation failed, so nothing will ever finish this pipeline and let the namespace go.
         // On a server that would leak a file system manager for every export that fails to start.
@@ -1217,25 +1243,54 @@ public abstract class Pipeline
 
     // Initialize all the threads...
     //
-    for (int i = 0; i < transforms.size(); i++) {
-      final TransformMetaDataCombi sid = transforms.get(i);
+    try {
+      for (int i = 0; i < transforms.size(); i++) {
+        final TransformMetaDataCombi sid = transforms.get(i);
 
-      // Do the init code in the background!
-      // Init all transforms at once, but ALL transforms need to finish before we can
-      // continue properly!
-      //
-      initThreads[i] = new TransformInitThread(sid, this, log);
+        // Do the init code in the background!
+        // Init all transforms at once, but ALL transforms need to finish before we can
+        // continue properly!
+        //
+        initThreads[i] = new TransformInitThread(sid, this, log);
 
-      // Put it in a separate thread!
-      //
-      threads[i] = new Thread(initThreads[i]);
-      threads[i].setName(
-          "init of " + sid.transformName + "." + sid.copy + " (" + threads[i].getName() + ")");
+        // Put it in a separate thread!
+        //
+        threads[i] = new Thread(initThreads[i]);
+        threads[i].setName(
+            "init of " + sid.transformName + "." + sid.copy + " (" + threads[i].getName() + ")");
 
-      ExtensionPointHandler.callExtensionPoint(
-          log, this, HopExtensionPoint.TransformBeforeInitialize.id, initThreads[i]);
+        ExtensionPointHandler.callExtensionPoint(
+            log, this, HopExtensionPoint.TransformBeforeInitialize.id, initThreads[i]);
 
-      threads[i].start();
+        threads[i].start();
+      }
+    } catch (Throwable e) {
+      // An extension point or thread launch can fail after earlier copies have started init.
+      // Wait for those initializers before disposing the resources they may be acquiring.
+      boolean interrupted = false;
+      for (Thread thread : threads) {
+        if (thread != null) {
+          while (thread.isAlive()) {
+            try {
+              thread.join();
+            } catch (InterruptedException interruption) {
+              interrupted = true;
+            }
+          }
+        }
+      }
+      try {
+        disposeInitializedTransforms();
+      } catch (Throwable cleanupFailure) {
+        if (cleanupFailure != e) {
+          e.addSuppressed(cleanupFailure);
+        }
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
+        }
+      }
+      throw e;
     }
 
     for (int i = 0; i < threads.length; i++) {
@@ -1329,12 +1384,25 @@ public abstract class Pipeline
       // Dispose will overwrite the status, but we set it back right after this.
       //
       ComponentExecutionStatus status = combi.data.getStatus();
-      try {
+      Throwable disposalFailure = null;
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
         combi.transform.dispose();
-      } catch (Exception e) {
+      } catch (Throwable e) {
+        disposalFailure = e;
         // A transform which fails to clean up shouldn't keep the others from doing so.
         //
         log.logError("Error disposing transform " + combi.transformName, e);
+        combi.transform.setErrors(combi.transform.getErrors() + 1);
+        reportTransformFailure(combi.transform, FailurePhase.FINISH, e);
+      } finally {
+        ExecutionLifecycle.finish(
+            combi.transform,
+            disposalFailure != null
+                    || combi.transform.getErrors() > 0
+                    || status == ComponentExecutionStatus.STATUS_STOPPED
+                ? ExecutionState.FAILED
+                : ExecutionState.CANCELLED,
+            disposalFailure);
       }
       combi.data.setStatus(
           status == ComponentExecutionStatus.STATUS_STOPPED
@@ -1354,14 +1422,75 @@ public abstract class Pipeline
   @Override
   public void startThreads() throws HopException {
     HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
-    try {
-      startThreadsInternal();
+    final var launched = new ArrayList<TransformMetaDataCombi>();
+    Throwable startupFailure = null;
+    synchronized (this) {
+      startingTransforms = true;
+      completionPending = false;
+    }
+    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+      startThreadsInternal(launched);
+    } catch (Throwable e) {
+      startupFailure = e;
+      errors.incrementAndGet();
+      reportRunFailure(FailurePhase.RUN, e);
+      // Previously started workers retain their lifetime. Only copies never handed to a worker
+      // are disposed here; their stop announcements participate in the usual completion count.
+      try {
+        killAllNoWait();
+      } catch (Throwable stopFailure) {
+        e.addSuppressed(stopFailure);
+      }
+      for (final var combi : transforms) {
+        if (!launched.contains(combi)) {
+          try (ExecutionScope scope = ExecutionLifecycle.activate(combi.transform)) {
+            try {
+              combi.transform.dispose();
+            } finally {
+              ExecutionLifecycle.finish(combi.transform, ExecutionState.CANCELLED, e);
+              combi.transform.markStop();
+            }
+          } catch (Throwable disposalFailure) {
+            e.addSuppressed(disposalFailure);
+          }
+        }
+      }
+      if (launched.isEmpty()) {
+        synchronized (this) {
+          completionPending = true;
+        }
+      }
+      throw e;
     } finally {
-      HopVfsNamespaces.restoreThread(previous);
+      try {
+        final boolean complete;
+        synchronized (this) {
+          startingTransforms = false;
+          complete = completionPending;
+          completionPending = false;
+        }
+        if (complete) {
+          try {
+            fireExecutionFinishedListeners();
+          } catch (Throwable completionFailure) {
+            if (startupFailure == null) {
+              throw completionFailure;
+            }
+            startupFailure.addSuppressed(completionFailure);
+          }
+        }
+      } finally {
+        HopVfsNamespaces.restoreThread(previous);
+      }
     }
   }
 
-  private void startThreadsInternal() throws HopException {
+  // Protected by this monitor, as is the finished-copy counter. Fast workers cannot publish
+  // completion while PipelineStart is still executing and may yet fail.
+  private boolean startingTransforms;
+  private boolean completionPending;
+
+  private void startThreadsInternal(List<TransformMetaDataCombi> launched) throws HopException {
     // Now prepare to start all the threads...
     //
     nrOfFinishedTransforms = 0;
@@ -1537,6 +1666,7 @@ public abstract class Pipeline
           thread.setName(getName() + " - " + combi.transformName);
           registerTransformExtensionPoints(combi);
           thread.start();
+          launched.add(combi);
         }
         break;
 
@@ -1559,7 +1689,9 @@ public abstract class Pipeline
     // So we fire the execution finished listeners here.
     //
     if (transforms.isEmpty()) {
-      fireExecutionFinishedListeners();
+      synchronized (this) {
+        completionPending = true;
+      }
     }
 
     if (log.isDetailed()) {
@@ -1625,7 +1757,14 @@ public abstract class Pipeline
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
-    try {
+    synchronized (this) {
+      if (startingTransforms) {
+        completionPending = true;
+        return;
+      }
+    }
+    Throwable completionFailure = null;
+    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
       HopException listenerException = null;
       synchronized (executionFinishedListeners) {
         if (!executionFinishedListeners.isEmpty()) {
@@ -1664,11 +1803,12 @@ public abstract class Pipeline
       if (listenerException != null) {
         throw listenerException;
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       // Count the failure before the waiters are released: a released caller reads the result
       // straight away, hop-run its exit code for one.
       //
       errors.incrementAndGet();
+      completionFailure = e;
       throw e;
     } finally {
       // Now the status and everything else is set correctly. We've completed the pipeline.
@@ -1676,11 +1816,21 @@ public abstract class Pipeline
       // Always release the waiters, even when a listener or extension point failed: that must never
       // be able to deadlock a caller. The failure itself still propagates.
       //
-      pipelineCompleted();
-
-      // Only now: everything above can still touch files of this namespace, and closing it
-      // invalidates every file object resolved through it - the result files carry those.
-      releaseVfsNamespace();
+      try {
+        ExecutionLifecycle.finish(
+            this,
+            getErrors() > 0 || hasTransformFailures() || runFailure != null
+                ? ExecutionState.FAILED
+                : isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
+            completionFailure);
+      } finally {
+        try {
+          pipelineCompleted();
+        } finally {
+          // Everything above can still touch files of this namespace.
+          releaseVfsNamespace();
+        }
+      }
     }
   }
 
@@ -3679,7 +3829,8 @@ public abstract class Pipeline
       new EngineMetric(
           METRIC_NAME_DATA_VOLUME,
           "Data volume",
-          "Estimated bytes from rows on getRow (data between transforms, when HOP_METRIC_DATA_VOLUME is enabled)",
+          "Estimated bytes from rows on getRow (data between transforms, when"
+              + " HOP_METRIC_DATA_VOLUME is enabled)",
           "110",
           true);
   public static final IEngineMetric METRIC_DATA_VOLUME_IN =

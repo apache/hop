@@ -18,13 +18,22 @@
 package org.apache.hop.pipeline;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.execution.lifecycle.ExecutionKind;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
+import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.lifecycle.ExecutionState;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
@@ -43,6 +52,11 @@ public class SingleThreadedPipelineExecutor {
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final Map<ITransform, Throwable> executionFailures = new IdentityHashMap<>();
+
   private static final String CONST_SEPARATOR =
       "-------------------------------------------------------";
 
@@ -243,8 +257,8 @@ public class SingleThreadedPipelineExecutor {
           tLogString
               .append(
                   String.format(
-                      "exiting outer loop because no "
-                          + "change was detected going forward or backward. index:%s  min:%s  max:%s",
+                      "exiting outer loop because no change was detected going forward or backward."
+                          + " index:%s  min:%s  max:%s",
                       x, transformsMinSize, transformsSize))
               .append("\n");
         }
@@ -286,9 +300,21 @@ public class SingleThreadedPipelineExecutor {
     // Initialize all the transforms...
     //
     for (TransformMetaDataCombi combi : transforms) {
-      boolean ok = combi.transform.init();
-      if (!ok) {
-        return false;
+      ExecutionLifecycle.begin(
+          combi.transform, pipeline, ExecutionKind.TRANSFORM, combi.transformName, combi.copy);
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+        try {
+          boolean ok = combi.transform.init();
+          if (!ok) {
+            combi.transform.setErrors(combi.transform.getErrors() + 1);
+            pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, null);
+            return false;
+          }
+        } catch (Throwable t) {
+          executionFailures.put(combi.transform, t);
+          pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, t);
+          throw t;
+        }
       }
     }
     return true;
@@ -309,93 +335,100 @@ public class SingleThreadedPipelineExecutor {
 
           TransformMetaDataCombi combi = transforms.get(s);
           this.inProcessCombi = combi;
+          try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
 
-          // If this transform is waiting for data (text, db, and so on), we simply read all the
-          // data
-          // This means that it is impractical to use this pipeline type to load large files.
-          //
-          boolean transformDone = false;
-          // For every input row we call the processRow() method of the transform.
-          //
-          List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
-
-          // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform and
-          // so
-          // on.
-          //
-          for (IRowSet rowSet : infoRowSets) {
-            boolean once = true;
-            while (once || (rowSet.size() > 0 && !transformDone)) {
-              once = false;
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
-              }
-            }
-          }
-
-          // Do normal processing of input rows...
-          //
-          List<IRowSet> rowSets = combi.transform.getInputRowSets();
-
-          // If there are no input row sets, we read all rows until finish.
-          // This applies to transforms like "Table Input", "Text File Input" and so on.
-          // If they do have an input row set, to get filenames or other parameters,
-          // we need to handle this in the batchComplete() methods.
-          //
-          if (rowSets.isEmpty()) {
-            while (!transformDone && !pipeline.isStopped()) {
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
-              }
-            }
-          } else {
-            // Since we can't be sure that the transform actually reads from the row sets where we
-            // measure rows,
-            // we simply count the total nr of rows on input. The transforms will find the rows in
-            // either row set.
+            // If this transform is waiting for data (text, db, and so on), we simply read all the
+            // data
+            // This means that it is impractical to use this pipeline type to load large files.
             //
-            int nrRows = 0;
-            for (IRowSet rowSet : rowSets) {
-              nrRows += rowSet.size();
-            }
-
-            // Now do the number of processRows() calls.
+            boolean transformDone = false;
+            // For every input row we call the processRow() method of the transform.
             //
-            for (int i = 0; i < nrRows; i++) {
-              transformDone = !combi.transform.processRow();
-              if (combi.transform.getErrors() > 0) {
-                return false;
+            List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
+
+            // Loop over info-rowsets FIRST to make sure we support the "Stream Lookup" transform
+            // and
+            // so
+            // on.
+            //
+            for (IRowSet rowSet : infoRowSets) {
+              boolean once = true;
+              while (once || (rowSet.size() > 0 && !transformDone)) {
+                once = false;
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
               }
             }
-          }
 
-          // Signal the transform that a batch of rows has passed for this iteration (sort rows and
-          // all)
-          //
-          try {
-            combi.transform.batchComplete();
-          } catch (Exception e) {
-            combi.transform.setErrors(1);
-            throw e;
-          }
+            // Do normal processing of input rows...
+            //
+            List<IRowSet> rowSets = combi.transform.getInputRowSets();
 
-          if (transformDone) {
-            nrDone++;
-          }
+            // If there are no input row sets, we read all rows until finish.
+            // This applies to transforms like "Table Input", "Text File Input" and so on.
+            // If they do have an input row set, to get filenames or other parameters,
+            // we need to handle this in the batchComplete() methods.
+            //
+            if (rowSets.isEmpty()) {
+              while (!transformDone && !pipeline.isStopped()) {
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
+              }
+            } else {
+              // Since we can't be sure that the transform actually reads from the row sets where we
+              // measure rows,
+              // we simply count the total nr of rows on input. The transforms will find the rows in
+              // either row set.
+              //
+              int nrRows = 0;
+              for (IRowSet rowSet : rowSets) {
+                nrRows += rowSet.size();
+              }
 
-          done[s] = transformDone;
+              // Now do the number of processRows() calls.
+              //
+              for (int i = 0; i < nrRows; i++) {
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
+              }
+            }
+
+            // Signal the transform that a batch of rows has passed for this iteration (sort rows
+            // and
+            // all)
+            //
+            try {
+              combi.transform.batchComplete();
+            } catch (Exception e) {
+              combi.transform.setErrors(1);
+              throw e;
+            }
+
+            if (transformDone) {
+              nrDone++;
+            }
+
+            done[s] = transformDone;
+          }
         }
       }
     } catch (Exception e) {
+      executionFailures.put(inProcessCombi.transform, e);
+      pipeline.reportTransformFailure(inProcessCombi.transform, FailurePhase.RUN, e);
       if (handleExceptionsExternally) {
         log.logDebug(
             "An exception was raised during a transform's execution: "
                 + inProcessCombi.transformName);
         this.exceptionsRaisedCounter += 1;
-      } else
+      } else {
         throw new HopException("Error performing an iteration in a single threaded pipeline", e);
+      }
     }
     return nrDone < transforms.size() && !pipeline.isStopped();
   }
@@ -422,29 +455,73 @@ public class SingleThreadedPipelineExecutor {
 
   public void startBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.startBundle();
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+        combi.transform.startBundle();
+      }
     }
   }
 
   public void finishBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.finishBundle();
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+        combi.transform.finishBundle();
+      }
     }
   }
 
   public void dispose() {
-
-    // Call output done.
-    //
+    Throwable failure = null;
+    // Signal every copy before disposing any of them, as downstream cleanup can depend on it.
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      combi.transform.setOutputDone();
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+        combi.transform.setOutputDone();
+      } catch (Throwable t) {
+        executionFailures.put(combi.transform, t);
+        combi.transform.setErrors(combi.transform.getErrors() + 1);
+        pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
+        if (failure == null) {
+          failure = t;
+        } else if (failure != t) {
+          failure.addSuppressed(t);
+        }
+      }
     }
-
-    // Finalize all the transforms...
-    //
     for (TransformMetaDataCombi combi : transforms) {
-      combi.transform.dispose();
-      combi.transform.markStop();
+      Throwable copyFailure = executionFailures.remove(combi.transform);
+      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+        try {
+          combi.transform.dispose();
+        } catch (Throwable t) {
+          copyFailure = t;
+          combi.transform.setErrors(combi.transform.getErrors() + 1);
+          pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
+          throw t;
+        } finally {
+          try {
+            ExecutionLifecycle.finish(
+                combi.transform,
+                copyFailure != null || combi.transform.getErrors() > 0
+                    ? ExecutionState.FAILED
+                    : pipeline.isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
+                copyFailure);
+          } finally {
+            combi.transform.markStop();
+          }
+        }
+      } catch (Throwable t) {
+        // One copy's cleanup or finished listener must not strand the remaining copies.
+        if (failure == null) {
+          failure = t;
+        } else if (failure != t) {
+          failure.addSuppressed(t);
+        }
+      }
+    }
+    if (failure instanceof Error error) {
+      throw error;
+    }
+    if (failure instanceof RuntimeException runtimeException) {
+      throw runtimeException;
     }
   }
 

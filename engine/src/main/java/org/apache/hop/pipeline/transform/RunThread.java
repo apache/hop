@@ -26,6 +26,9 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
+import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.lifecycle.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.debug.DebugController;
@@ -53,6 +56,13 @@ public class RunThread implements Runnable {
   @SuppressWarnings("java:S4507")
   @Override
   public void run() {
+    try (ExecutionScope executionScope = ExecutionLifecycle.activate(transform)) {
+      runActivated();
+    }
+  }
+
+  private void runActivated() {
+    Throwable failure = null;
     try {
       transform.setRunning(true);
       transform.setExecutionStartDate(new Date());
@@ -87,6 +97,7 @@ public class RunThread implements Runnable {
         }
       }
     } catch (Throwable t) {
+      failure = t;
       try {
         // check for OOME
         if (t instanceof OutOfMemoryError) {
@@ -127,52 +138,77 @@ public class RunThread implements Runnable {
         transform.stopAll();
       }
     } finally {
-      transform.dispose();
-      transform.setExecutionEndDate(new Date());
-      // If the transform was stopped it never flagged the last row
-      if (transform.getLastRowWrittenDate() == null) {
-        transform.setLastRowWrittenDate(transform.getExecutionEndDate());
-      }
-      transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_STOP);
       try {
-        long li = transform.getLinesInput();
-        long lo = transform.getLinesOutput();
-        long lr = transform.getLinesRead();
-        long lw = transform.getLinesWritten();
-        long lu = transform.getLinesUpdated();
-        long lj = transform.getLinesRejected();
-        long e = transform.getErrors();
-        if (li > 0 || lo > 0 || lr > 0 || lw > 0 || lu > 0 || lj > 0 || e > 0) {
-          log.logBasic(
-              BaseMessages.getString(
-                  PKG,
-                  "BaseTransform.Log.SummaryInfo",
-                  String.valueOf(li),
-                  String.valueOf(lo),
-                  String.valueOf(lr),
-                  String.valueOf(lw),
-                  String.valueOf(lu),
-                  String.valueOf(e + lj)));
-        } else {
-          log.logDetailed(
-              BaseMessages.getString(
-                  PKG,
-                  "BaseTransform.Log.SummaryInfo",
-                  String.valueOf(li),
-                  String.valueOf(lo),
-                  String.valueOf(lr),
-                  String.valueOf(lw),
-                  String.valueOf(lu),
-                  String.valueOf(e + lj)));
-        }
+        transform.dispose();
       } catch (Throwable t) {
-        //
-        // it's likely an OOME, so we don't want to introduce overhead by using
-        // BaseMessages.getString(), see above
-        //
-        log.logError("UnexpectedError: " + Const.getStackTracker(t));
+        if (failure == null) {
+          failure = t;
+        } else if (failure != t) {
+          failure.addSuppressed(t);
+        }
+        transform.setErrors(transform.getErrors() + 1);
+        if (transform.getPipeline() instanceof Pipeline pipeline) {
+          pipeline.reportTransformFailure(transform, FailurePhase.FINISH, t);
+        }
+        throw t;
       } finally {
-        transform.markStop();
+        try {
+          transform.setExecutionEndDate(new Date());
+          // If the transform was stopped it never flagged the last row
+          if (transform.getLastRowWrittenDate() == null) {
+            transform.setLastRowWrittenDate(transform.getExecutionEndDate());
+          }
+          transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_EXECUTION_STOP);
+          try {
+            long li = transform.getLinesInput();
+            long lo = transform.getLinesOutput();
+            long lr = transform.getLinesRead();
+            long lw = transform.getLinesWritten();
+            long lu = transform.getLinesUpdated();
+            long lj = transform.getLinesRejected();
+            long e = transform.getErrors();
+            if (li > 0 || lo > 0 || lr > 0 || lw > 0 || lu > 0 || lj > 0 || e > 0) {
+              log.logBasic(
+                  BaseMessages.getString(
+                      PKG,
+                      "BaseTransform.Log.SummaryInfo",
+                      String.valueOf(li),
+                      String.valueOf(lo),
+                      String.valueOf(lr),
+                      String.valueOf(lw),
+                      String.valueOf(lu),
+                      String.valueOf(e + lj)));
+            } else {
+              log.logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "BaseTransform.Log.SummaryInfo",
+                      String.valueOf(li),
+                      String.valueOf(lo),
+                      String.valueOf(lr),
+                      String.valueOf(lw),
+                      String.valueOf(lu),
+                      String.valueOf(e + lj)));
+            }
+          } catch (Throwable t) {
+            //
+            // it's likely an OOME, so we don't want to introduce overhead by using
+            // BaseMessages.getString(), see above
+            //
+            log.logError("UnexpectedError: " + Const.getStackTracker(t));
+          }
+        } finally {
+          try {
+            ExecutionLifecycle.finish(
+                transform,
+                failure != null || transform.getErrors() > 0
+                    ? ExecutionState.FAILED
+                    : transform.isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
+                failure);
+          } finally {
+            transform.markStop();
+          }
+        }
       }
     }
   }
