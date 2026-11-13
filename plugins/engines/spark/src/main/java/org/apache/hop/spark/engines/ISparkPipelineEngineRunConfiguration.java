@@ -17,9 +17,11 @@
 
 package org.apache.hop.spark.engines;
 
+import org.apache.hop.core.fatjar.IHasStagingFolder;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 
-public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRunConfiguration {
+public interface ISparkPipelineEngineRunConfiguration
+    extends IPipelineEngineRunConfiguration, IHasStagingFolder {
 
   String getSparkMaster();
 
@@ -42,10 +44,6 @@ public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRun
 
   String getExecutorCores();
 
-  String getTempLocation();
-
-  String getPluginsToStage();
-
   /**
    * Optional multi-line path scheme map for Spark Dataset / Lake PATH I/O ({@code from=to} per
    * line, e.g. {@code s3=s3a}). Rewrites only the URI scheme before {@code load}/{@code save};
@@ -58,4 +56,34 @@ public interface ISparkPipelineEngineRunConfiguration extends IPipelineEngineRun
    * {@code DRIVER_ONLY}. Per-transform overrides can force either mode via transform attributes.
    */
   String getGenericTransformRunMode();
+
+  /** Where the driver runs; null means {@link SparkDeployMode#CLIENT}. */
+  SparkDeployMode getDeployMode();
+
+  /** Hop VFS folder that cluster mode uploads the fat jar and project package to. */
+  String getStagingFolder();
+
+  /** The staging folder as the cluster reads it; empty when the cluster uses the same URL. */
+  String getStagingClusterUrl();
+
+  /** Submission endpoint; empty to derive it from the master (standalone: port 6066). */
+  String getSubmitUrl();
+
+  /** Where the pipeline runs: the chosen cluster type, or the one the Spark master points to. */
+  SparkClusterType getEffectiveClusterType();
+
+  /** Databricks: the name of the Databricks connection. */
+  String getDatabricksConnection();
+
+  /** Databricks: an all-purpose cluster id, or {@code new_cluster}. */
+  String getDatabricksCompute();
+
+  /** Databricks {@code new_cluster}: the runtime of the job cluster. */
+  String getDatabricksRuntime();
+
+  /** Databricks {@code new_cluster}: the node type of the job cluster. */
+  String getDatabricksNodeType();
+
+  /** Databricks {@code new_cluster}: the number of workers of the job cluster. */
+  String getDatabricksWorkers();
 }

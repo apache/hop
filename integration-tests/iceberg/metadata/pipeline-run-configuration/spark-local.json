@@ -5,7 +5,6 @@
       "sparkAppName": "hop-it-iceberg",
       "sparkConfigs": "spark.ui.enabled=false\nspark.driver.host=localhost",
       "fatJar": "",
-      "tempLocation": "/tmp",
       "driverMemory": "",
       "executorMemory": "",
       "executorCores": "",

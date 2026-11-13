@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import java.util.List;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
@@ -68,6 +69,15 @@ public class CheckResultDialog extends Dialog {
 
   private String transformName;
 
+  /** The window title, null for the title of the pipeline checks. */
+  @Setter private String title;
+
+  /** The header of the column with the source of each remark, null for "transform name". */
+  @Setter private String sourceColumnLabel;
+
+  /** Whether the remarks come from transforms that "Edit origin transform" can open. */
+  @Setter private boolean editingOrigin = true;
+
   public CheckResultDialog(Shell parent, List<ICheckResult> rem) {
     super(parent, SWT.NONE);
     remarks = rem;
@@ -92,7 +102,7 @@ public class CheckResultDialog extends Dialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CheckResultDialog.Title"));
+    shell.setText(title != null ? title : BaseMessages.getString(PKG, "CheckResultDialog.Title"));
 
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
@@ -105,11 +115,16 @@ public class CheckResultDialog extends Dialog {
     Button wView = new Button(shell, SWT.PUSH);
     wView.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.ViewMessage"));
     wView.addListener(SWT.Selection, e -> view());
-    Button wEdit = new Button(shell, SWT.PUSH);
-    wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
-    wEdit.addListener(SWT.Selection, e -> edit());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wClose, wView, wEdit}, margin, null);
+    Button[] buttons;
+    if (editingOrigin) {
+      Button wEdit = new Button(shell, SWT.PUSH);
+      wEdit.setText(BaseMessages.getString(PKG, "CheckResultDialog.Button.EditOriginTransform"));
+      wEdit.addListener(SWT.Selection, e -> edit());
+      buttons = new Button[] {wClose, wView, wEdit};
+    } else {
+      buttons = new Button[] {wClose, wView};
+    }
+    BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
 
     wNoOK = new Button(shell, SWT.CHECK);
     wNoOK.setText(STRING_SHOW_SUCESSFUL);
@@ -136,7 +151,9 @@ public class CheckResultDialog extends Dialog {
     ColumnInfo[] columns = new ColumnInfo[nrColumns];
     columns[0] =
         new ColumnInfo(
-            BaseMessages.getString(PKG, "CheckResultDialog.TransformName.Label"),
+            sourceColumnLabel != null
+                ? sourceColumnLabel
+                : BaseMessages.getString(PKG, "CheckResultDialog.TransformName.Label"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);

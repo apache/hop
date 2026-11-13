@@ -144,7 +144,7 @@ When both Delta and Iceberg are used in one session, keep **Delta** on `spark_ca
 
 == spark-submit
 
-Export project metadata JSON that includes every lakehouse catalog entry referenced by the pipeline (and any used only via run configuration). Alternatively, pass equivalent `--conf spark.sql.catalog.…` flags on the submit command. Paths and warehouses must be reachable from the driver and executors.
+Export project metadata JSON that includes every lakehouse catalog entry referenced by the pipeline (and any used only via run configuration), or a project package (`hop-conf --export-spark-project`, passed to `MainSpark` as `--HopProjectPackage`), whose `metadata.json` carries the catalogs. Runs that Hop submits itself ship the project package, catalogs included. Alternatively, pass equivalent `--conf spark.sql.catalog.…` flags on the submit command. Paths and warehouses must be reachable from the driver and executors.
 
 == Related pages
 

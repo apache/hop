@@ -22,9 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fatjar.ContentStaging;
 import org.apache.hop.core.fatjar.FatJarCache;
 import org.apache.hop.core.fatjar.NativeSparkFatJar;
 import org.apache.hop.core.logging.ILogChannel;
@@ -36,14 +36,14 @@ import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
-import org.apache.hop.databricks.client.WorkspaceFileMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 
 /**
  * Uploads fat jar, pipeline, exported metadata, optional Spark project package, and optional env
- * config for a MainSpark job on Databricks. Fat jar upload is skipped when remote size and SHA-256
- * sidecar match the local file.
+ * config for a MainSpark job on Databricks. The fat jar goes through the shared {@link
+ * org.apache.hop.core.fatjar.ContentStaging}: it is named after its content and not uploaded again
+ * when the volume already holds it.
  */
 public final class HopSparkDeployHelper {
   private static final String CONST_JSON = ".json";
@@ -86,7 +86,6 @@ public final class HopSparkDeployHelper {
    */
   public static final String ENV_CONFIG_REMOTE_NAME = "env-config.json";
 
-  public static final String SHA256_SIDECAR_SUFFIX = ".sha256";
   private static final int MAX_STEM_LENGTH = 80;
 
   /**
@@ -245,7 +244,17 @@ public final class HopSparkDeployHelper {
               + " — if a prior run still logged old package-distribution behavior after overwriting"
               + " hop-native.jar, this new path forces Databricks to install a new library.");
     }
-    uploadFatJarIfNeeded(client, log, jarPath, jarDbfs);
+    // Shared with the native Spark engine's cluster mode: the name carries the content hash, so
+    // a jar already on the volume with the same size is not uploaded again.
+    ContentStaging staging =
+        new ContentStaging(
+            log != null ? log : LogChannel.GENERAL, new DatabricksVolumeStagingStore(client, base));
+    staging.stageFatJar(jarPath);
+    // The job uses the jar on its own schedule, without a Hop run to mark it as used: the cleanup
+    // of a native Spark run on the same volume must never remove it
+    staging.keep(
+        fatJarRemoteName(localJarSha),
+        "A Databricks job that Hop deployed (pipeline " + pipeline + ") uses this fat jar.");
 
     // --- Project package (optional) ---
     Path packageLocal = null;
@@ -533,79 +542,6 @@ public final class HopSparkDeployHelper {
       throw new HopException(label + " not found: " + pathOrVfs);
     }
     return p;
-  }
-
-  /**
-   * Upload fat jar only when remote is missing, size differs, or SHA-256 sidecar does not match.
-   * Sidecar path is {@code remoteJarPath + ".sha256"} (hex digest only, UTF-8).
-   */
-  static void uploadFatJarIfNeeded(
-      DatabricksJobsClient client, ILogChannel log, Path localJar, String remoteJarPath)
-      throws HopException {
-    long localSize;
-    try {
-      localSize = Files.size(localJar);
-    } catch (Exception e) {
-      throw new HopException("Unable to read local fat jar size: " + localJar, e);
-    }
-    String localSha = FatJarCache.sha256Of(localJar);
-    String sidecarPath = remoteJarPath + SHA256_SIDECAR_SUFFIX;
-
-    if (remoteJarMatches(client, remoteJarPath, sidecarPath, localSize, localSha)) {
-      if (log != null && log.isBasic()) {
-        log.logBasic(
-            "Skipping fat jar upload (remote matches local size="
-                + localSize
-                + " sha256="
-                + localSha
-                + "): "
-                + remoteJarPath
-                + " — if Databricks still runs old package-distribution behavior, restart the"
-                + " target cluster or delete the remote jar + .sha256 sidecar and re-deploy.");
-      }
-      return;
-    }
-
-    if (log != null && log.isBasic()) {
-      log.logBasic(
-          "Uploading fat jar to "
-              + remoteJarPath
-              + " (size="
-              + localSize
-              + " sha256="
-              + localSha
-              + ")");
-    }
-    client.uploadToDbfs(localJar, remoteJarPath);
-    client.uploadText(sidecarPath, localSha + "\n");
-    if (log != null && log.isBasic()) {
-      log.logBasic(
-          "Wrote fat jar checksum sidecar "
-              + sidecarPath
-              + " (sha256="
-              + localSha
-              + "). On long-lived clusters, restart the cluster if the next job still logs an old"
-              + " Spark project package distribution build id.");
-    }
-  }
-
-  static boolean remoteJarMatches(
-      DatabricksJobsClient client,
-      String remoteJarPath,
-      String sidecarPath,
-      long localSize,
-      String localSha)
-      throws HopException {
-    WorkspaceFileMetadata remote = client.getFileMetadata(remoteJarPath);
-    if (!remote.exists() || remote.sizeBytes() != localSize) {
-      return false;
-    }
-    Optional<String> remoteSidecar = client.downloadTextIfExists(sidecarPath);
-    if (remoteSidecar.isEmpty()) {
-      return false;
-    }
-    String remoteSha = normalizeSha256(remoteSidecar.get());
-    return localSha.equalsIgnoreCase(remoteSha);
   }
 
   /** SHA-256 hex of file contents (lowercase). */

@@ -2,7 +2,6 @@
   "engineRunConfiguration": {
     "SparkPipelineEngine": {
       "generic_transform_run_mode": "DISTRIBUTED",
-      "tempLocation": "/tmp",
       "sparkMaster": "",
       "driverMemory": "",
       "executorMemory": "",
@@ -10,8 +9,7 @@
       "executorCores": "",
       "sparkAppName": "hop-spark-demo",
       "fatJar": "",
-      "pathSchemeMap": "",
-      "pluginsToStage": ""
+      "pathSchemeMap": ""
     }
   },
   "defaultSelection": true,

@@ -20,6 +20,7 @@ package org.apache.hop.spark.engines.template;
 import java.util.Arrays;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.spark.engines.SparkClusterType;
 import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
 
 /**
@@ -70,15 +71,12 @@ public enum SparkRunConfigTemplate {
       ""),
   DATABRICKS(
       "Databricks",
-      "Cluster / submit oriented placeholders. Master empty for submit-style runs; set paths for your workspace.",
+      "Run on a Databricks cluster: choose the Databricks connection, the compute (a cluster id"
+          + " or new_cluster) and a volume folder for the staging folder on the Cluster tab.",
       "",
       "Apache Hop",
       "",
       """
-spark.ui.enabled=false
-spark.executor.cores=3
-spark.driver.cores=1
-spark.default.parallelism=12
 spark.sql.shuffle.partitions=12
       """,
       "",
@@ -164,13 +162,14 @@ spark.sql.shuffle.partitions=12
     return null;
   }
 
-  /**
-   * Apply this template's field values onto {@code config}. Does not change temp location or
-   * plugins to stage (keeps operator environment defaults).
-   */
+  /** Apply this template's field values onto {@code config}. */
   public void applyTo(SparkPipelineRunConfiguration config) {
     Objects.requireNonNull(config, "config");
     config.setSparkMaster(sparkMaster);
+    config.setClusterType(
+        this == DATABRICKS
+            ? SparkClusterType.DATABRICKS
+            : SparkClusterType.fromMaster(sparkMaster));
     config.setSparkAppName(sparkAppName);
     config.setFatJar(fatJar);
     config.setSparkConfigs(sparkConfigs);
@@ -205,10 +204,7 @@ spark.sql.shuffle.partitions=12
         || StringUtils.isNotEmpty(config.getExecutorCores())) {
       return true;
     }
-    if (StringUtils.isNotEmpty(config.getPathSchemeMap())) {
-      return true;
-    }
-    return StringUtils.isNotEmpty(config.getPluginsToStage());
+    return StringUtils.isNotEmpty(config.getPathSchemeMap());
   }
 
   private static String nz(String s) {

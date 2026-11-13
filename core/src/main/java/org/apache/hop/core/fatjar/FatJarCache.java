@@ -99,20 +99,61 @@ public final class FatJarCache {
       List<String> jarFilenames,
       IProgressMonitor progressMonitor)
       throws HopException {
+    return getOrCreate(
+        log,
+        variables,
+        flavor,
+        ".jar",
+        "fat jar",
+        jarFilenames,
+        target -> {
+          FatJarBuilder builder =
+              new FatJarBuilder(log, variables, target.toString(), jarFilenames);
+          builder.setProgressMonitor(progressMonitor);
+          builder.buildTargetJar();
+          if (progressMonitor != null) {
+            progressMonitor.subTask(BaseMessages.getString(PKG, "FatJarCache.Progress.Checksum"));
+          }
+        });
+  }
+
+  /** Writes a cached file from its input jars. */
+  @FunctionalInterface
+  public interface IWriter {
+    void write(Path target) throws HopException;
+  }
+
+  /**
+   * The cached file for exactly these input jars, written by {@code writer} when the cache does not
+   * hold it yet: {@code <flavor>-<fingerprint><extension>} with a {@code .sha256} sidecar.
+   *
+   * @param what what the file is, for the log ("fat jar", "Spark runtime archive")
+   */
+  public static Path getOrCreate(
+      ILogChannel log,
+      IVariables variables,
+      String flavor,
+      String extension,
+      String what,
+      List<String> jarFilenames,
+      IWriter writer)
+      throws HopException {
     Path folder = cacheFolder(variables);
     String fingerprint = fingerprint(flavor, jarFilenames);
-    Path jar = folder.resolve(flavor + "-" + fingerprint + ".jar");
+    Path jar = folder.resolve(flavor + "-" + fingerprint + extension);
 
     synchronized (BUILD_LOCK) {
       if (Files.isRegularFile(jar) && Files.isRegularFile(sidecar(jar))) {
         touch(jar);
-        log.logBasic("Using cached fat jar " + jar);
+        log.logBasic("Using cached " + what + " " + jar);
         return jar;
       }
 
       long start = System.currentTimeMillis();
       log.logBasic(
-          "Building fat jar "
+          "Building "
+              + what
+              + " "
               + jar
               + " from "
               + jarFilenames.size()
@@ -125,12 +166,7 @@ public final class FatJarCache {
       // Build next to the final name and move it in place, so a reader never sees half a jar.
       Path temp = folder.resolve(jar.getFileName() + ".tmp-" + UUID.randomUUID());
       try {
-        FatJarBuilder builder = new FatJarBuilder(log, variables, temp.toString(), jarFilenames);
-        builder.setProgressMonitor(progressMonitor);
-        builder.buildTargetJar();
-        if (progressMonitor != null) {
-          progressMonitor.subTask(BaseMessages.getString(PKG, "FatJarCache.Progress.Checksum"));
-        }
+        writer.write(temp);
         String sha = sha256Hex(temp);
         Path tempSidecar = folder.resolve(temp.getFileName() + SHA256_SIDECAR_SUFFIX);
         Files.writeString(tempSidecar, sha + "\n", StandardCharsets.UTF_8);
@@ -141,20 +177,22 @@ public final class FatJarCache {
             StandardCopyOption.REPLACE_EXISTING,
             StandardCopyOption.ATOMIC_MOVE);
       } catch (IOException e) {
-        throw new HopException("Unable to store fat jar " + jar, e);
+        throw new HopException("Unable to store " + what + " " + jar, e);
       } finally {
         deleteQuietly(temp);
         deleteQuietly(folder.resolve(temp.getFileName() + SHA256_SIDECAR_SUFFIX));
       }
       log.logBasic(
-          "Built fat jar "
+          "Built "
+              + what
+              + " "
               + jar
               + " in "
               + (System.currentTimeMillis() - start) / 1000
               + "s (sha256="
               + sha256Of(jar)
               + ")");
-      removeStale(log, folder, flavor, jar);
+      removeStale(log, folder, flavor, extension, jar);
       return jar;
     }
   }
@@ -245,17 +283,21 @@ public final class FatJarCache {
   }
 
   /** Remove jars of the same flavor that were not used for {@link #RETENTION}. */
-  private static void removeStale(ILogChannel log, Path folder, String flavor, Path keep) {
+  private static void removeStale(
+      ILogChannel log, Path folder, String flavor, String extension, Path keep) {
     Instant cutoff = Instant.now().minus(RETENTION);
-    try (DirectoryStream<Path> entries = Files.newDirectoryStream(folder, flavor + "-*.jar")) {
+    try (DirectoryStream<Path> entries =
+        Files.newDirectoryStream(folder, flavor + "-*" + extension)) {
+      String pattern =
+          "[0-9a-f]{" + FINGERPRINT_LENGTH + "}" + java.util.regex.Pattern.quote(extension);
       for (Path entry : entries) {
         String suffix = entry.getFileName().toString().substring(flavor.length() + 1);
         // hop-native-* also matches hop-native-provided-*: only touch this flavor's fingerprints
-        if (entry.equals(keep) || !suffix.matches("[0-9a-f]{" + FINGERPRINT_LENGTH + "}\\.jar")) {
+        if (entry.equals(keep) || !suffix.matches(pattern)) {
           continue;
         }
         if (Files.getLastModifiedTime(entry).toInstant().isBefore(cutoff)) {
-          log.logDetailed("Removing unused fat jar " + entry);
+          log.logDetailed("Removing unused cached file " + entry);
           deleteQuietly(entry);
           deleteQuietly(sidecar(entry));
         }

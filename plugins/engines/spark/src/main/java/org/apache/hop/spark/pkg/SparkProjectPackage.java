@@ -25,10 +25,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.Map;
@@ -43,11 +50,15 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fatjar.FatJarCache;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.spark.util.SparkHadoopConfiguration;
 
 /**
  * Native Spark <em>project package</em>: a zip of Hop definition files (pipelines, workflows, small
@@ -90,7 +101,30 @@ public final class SparkProjectPackage {
    */
   public static final String VAR_PACKAGE_SPARK_FILE = "HOP_SPARK_PROJECT_PACKAGE_SPARK_FILE";
 
+  /**
+   * {@code Y} when the engine exported the package itself for a client-mode run on a cluster. The
+   * package is then only a fallback: a JVM that sees the real {@code PROJECT_HOME} (the driver, an
+   * executor on the same machine or on a shared file system) keeps using it, so data paths under
+   * the project home stay where they are.
+   */
+  public static final String VAR_PACKAGE_FALLBACK = "HOP_SPARK_PROJECT_PACKAGE_FALLBACK";
+
+  /**
+   * The project home of the client that submitted a cluster-mode run. A driver on a host that sees
+   * this folder (one machine, a shared file system) uses it as {@code PROJECT_HOME}, as in client
+   * mode.
+   */
+  public static final String VAR_CLIENT_PROJECT_HOME = "HOP_SPARK_CLIENT_PROJECT_HOME";
+
   public static final String METADATA_ENTRY = "metadata.json";
+
+  /**
+   * Variables of the client for a driver submitted in cluster mode: a JSON object name → value,
+   * each value encoded with the two-way password encoder like the passwords in {@link
+   * #METADATA_ENTRY}.
+   */
+  public static final String VARIABLES_ENTRY = "variables.json";
+
   public static final String MARKER_ENTRY = "hop-spark-package.properties";
   public static final String DEFAULT_PROJECT_ROOT = "project";
   public static final String PROP_PROJECT_ROOT = "projectRoot";
@@ -125,6 +159,12 @@ public final class SparkProjectPackage {
   public static void ensureMaterializedOnWorker(IVariables variables) throws HopException {
     if (variables == null) {
       return;
+    }
+    if ("Y".equalsIgnoreCase(variables.getVariable(VAR_PACKAGE_FALLBACK))) {
+      String projectHome = variables.getVariable("PROJECT_HOME");
+      if (StringUtils.isNotEmpty(projectHome) && new File(projectHome).isDirectory()) {
+        return;
+      }
     }
     String preservedUri = variables.getVariable(VAR_PACKAGE_URI);
     String sparkFile = variables.getVariable(VAR_PACKAGE_SPARK_FILE);
@@ -262,13 +302,9 @@ public final class SparkProjectPackage {
 
     // 1) SparkFiles first — local on every executor after addFile(localCopy)
     if (StringUtils.isNotEmpty(basename)) {
-      try {
-        String downloaded = org.apache.spark.SparkFiles.get(basename.trim());
-        if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
-          ordered.add(downloaded);
-        }
-      } catch (Throwable t) {
-        // not distributed or not ready
+      String downloaded = findSparkFile(basename.trim());
+      if (downloaded != null) {
+        ordered.add(downloaded);
       }
     }
 
@@ -407,7 +443,7 @@ public final class SparkProjectPackage {
     boolean addFileOk = DISTRIBUTED.contains(distKey);
     if (DISTRIBUTED.add(distKey)) {
       try {
-        spark.sparkContext().addFile(localPath);
+        addFileToSession(spark, localPath);
         addFileOk = true;
       } catch (Exception e) {
         DISTRIBUTED.remove(distKey);
@@ -434,6 +470,59 @@ public final class SparkProjectPackage {
     // Only advertise SparkFiles basename when addFile succeeded (or was already registered).
     if (addFileOk) {
       variables.setVariable(VAR_PACKAGE_SPARK_FILE, basename);
+    }
+  }
+
+  /**
+   * The executor-local copy of a file added with {@code addFile}. Spark 4 stores the files of an
+   * isolated session in a {@code <session uuid>} folder under the SparkFiles root, where {@code
+   * SparkFiles.get} does not look. Package names carry their content hash, so a match in any
+   * session folder is the right file.
+   *
+   * @return the local path, or null when the file is not on this JVM
+   */
+  static String findSparkFile(String basename) {
+    try {
+      String downloaded = org.apache.spark.SparkFiles.get(basename);
+      if (StringUtils.isNotEmpty(downloaded) && resolveLocalPackageFile(downloaded) != null) {
+        return downloaded;
+      }
+      File[] sessionFolders =
+          new File(org.apache.spark.SparkFiles.getRootDirectory()).listFiles(File::isDirectory);
+      if (sessionFolders != null) {
+        for (File folder : sessionFolders) {
+          File candidate = new File(folder, basename);
+          if (candidate.isFile()) {
+            return candidate.getAbsolutePath();
+          }
+        }
+      }
+    } catch (Throwable t) {
+      // not distributed or not ready
+    }
+    return null;
+  }
+
+  /**
+   * {@code SparkContext.addFile} under the session's artifact state.
+   *
+   * <p>Spark 4 classic sessions isolate artifacts: a job started by a Dataset action only ships the
+   * files added under that session's state to the executors. A file added outside it lands in the
+   * global set and never reaches a task of a Dataset write, so executors on a cluster could not
+   * find the package. Files added under the session state are part of {@code allAddedFiles} too, so
+   * plain RDD jobs still get them.
+   */
+  static void addFileToSession(org.apache.spark.sql.SparkSession spark, String localPath) {
+    if (spark instanceof org.apache.spark.sql.classic.SparkSession classic) {
+      classic
+          .artifactManager()
+          .withResources(
+              () -> {
+                spark.sparkContext().addFile(localPath);
+                return scala.runtime.BoxedUnit.UNIT;
+              });
+    } else {
+      spark.sparkContext().addFile(localPath);
     }
   }
 
@@ -706,6 +795,47 @@ public final class SparkProjectPackage {
       IVariables variables,
       PackageExportFilter explicitFilter)
       throws HopException {
+    exportProject(projectHome, zipFilename, metadataProvider, variables, explicitFilter, null);
+  }
+
+  /**
+   * Export with variables for a driver that does not run in this process: they go into {@link
+   * #VARIABLES_ENTRY} and {@code MainSpark} applies them.
+   *
+   * @param packagedVariables variables to ship, or null for none
+   */
+  public static void exportProject(
+      String projectHome,
+      String zipFilename,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      PackageExportFilter explicitFilter,
+      Map<String, String> packagedVariables)
+      throws HopException {
+    exportProject(
+        projectHome,
+        zipFilename,
+        metadataProvider,
+        variables,
+        explicitFilter,
+        packagedVariables,
+        Map.of());
+  }
+
+  /**
+   * @param extraProjectFiles files to add to the project tree, by their path relative to the
+   *     project home, such as an unsaved pipeline that a cluster-mode run submits; they win over a
+   *     project file with the same path
+   */
+  public static void exportProject(
+      String projectHome,
+      String zipFilename,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      PackageExportFilter explicitFilter,
+      Map<String, String> packagedVariables,
+      Map<String, byte[]> extraProjectFiles)
+      throws HopException {
     if (StringUtils.isEmpty(projectHome)) {
       throw new HopException("Project home is required for Spark project package export");
     }
@@ -737,23 +867,50 @@ public final class SparkProjectPackage {
       try (OutputStream os = HopVfs.getOutputStream(zipFile, false);
           ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(os))) {
 
-        // Marker
-        Properties props = new Properties();
-        props.setProperty(PROP_PROJECT_ROOT, DEFAULT_PROJECT_ROOT);
-        props.setProperty("format", "hop-spark-project-package");
-        props.setProperty("formatVersion", "1");
-        zos.putNextEntry(new ZipEntry(MARKER_ENTRY));
-        props.store(zos, "Apache Hop Native Spark project package");
+        // Marker. Written by hand: Properties.store adds the current date, and the package must
+        // be the same bytes for the same project to keep its content-addressed name.
+        zos.putNextEntry(entry(MARKER_ENTRY));
+        zos.write(
+            ("# Apache Hop Native Spark project package\n"
+                    + PROP_PROJECT_ROOT
+                    + "="
+                    + DEFAULT_PROJECT_ROOT
+                    + "\nformat=hop-spark-project-package\nformatVersion=1\n")
+                .getBytes(StandardCharsets.ISO_8859_1));
         zos.closeEntry();
 
         // Metadata at zip root
         String metadataJson = new SerializableMetadataProvider(metadataProvider).toJson();
-        zos.putNextEntry(new ZipEntry(METADATA_ENTRY));
+        zos.putNextEntry(entry(METADATA_ENTRY));
         zos.write(metadataJson.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
 
+        if (packagedVariables != null) {
+          // Values can be passwords: encode them like the passwords in metadata.json next to it
+          Map<String, String> encoded = new java.util.TreeMap<>();
+          packagedVariables.forEach(
+              (name, value) ->
+                  encoded.put(name, value == null ? null : Encr.getEncoder().encode(value, true)));
+          zos.putNextEntry(entry(VARIABLES_ENTRY));
+          zos.write(
+              new com.fasterxml.jackson.databind.ObjectMapper()
+                  .writerWithDefaultPrettyPrinter()
+                  .writeValueAsBytes(encoded));
+          zos.closeEntry();
+        }
+
         // Project tree under project/
         Set<String> written = new HashSet<>();
+        if (extraProjectFiles != null) {
+          for (Map.Entry<String, byte[]> extra :
+              new java.util.TreeMap<>(extraProjectFiles).entrySet()) {
+            String entryName = DEFAULT_PROJECT_ROOT + "/" + extra.getKey().replace('\\', '/');
+            written.add(entryName);
+            zos.putNextEntry(entry(entryName));
+            zos.write(extra.getValue());
+            zos.closeEntry();
+          }
+        }
         home.findFiles(
             new FileSelector() {
               @Override
@@ -774,7 +931,7 @@ public final class SparkProjectPackage {
                 if (!written.add(entryName)) {
                   return false;
                 }
-                zos.putNextEntry(new ZipEntry(entryName));
+                zos.putNextEntry(entry(entryName));
                 try (InputStream in = HopVfs.getInputStream(fo)) {
                   in.transferTo(zos);
                 }
@@ -798,6 +955,210 @@ public final class SparkProjectPackage {
     } catch (Exception e) {
       throw new HopException(
           "Error exporting Spark project package from '" + realHome + "' to '" + realZip + "'", e);
+    }
+  }
+
+  /**
+   * The modification time of every package entry. A zip stamps entries with the time they were
+   * written; a fixed time makes the same project the same bytes, so a cluster run stages its
+   * package only when the project changed.
+   */
+  static final java.time.LocalDateTime ENTRY_TIME = java.time.LocalDateTime.of(2000, 1, 1, 0, 0);
+
+  private static ZipEntry entry(String name) {
+    ZipEntry entry = new ZipEntry(name);
+    entry.setTimeLocal(ENTRY_TIME);
+    return entry;
+  }
+
+  /**
+   * Export the project for executors that do not share this client's disk, named after the content
+   * hash ({@code hop-spark-package-<sha12>.zip} in the temporary folder). An unchanged project
+   * gives the same file name, so a reused Spark session does not register it with {@code addFile}
+   * twice.
+   *
+   * @return the local path of the package zip
+   */
+  public static String exportForCluster(
+      String projectHome,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      ILogChannel log)
+      throws HopException {
+    return exportForCluster(projectHome, metadataProvider, variables, log, null);
+  }
+
+  /**
+   * @param packagedVariables variables for a driver that runs elsewhere (cluster mode), or null
+   */
+  public static String exportForCluster(
+      String projectHome,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      ILogChannel log,
+      Map<String, String> packagedVariables)
+      throws HopException {
+    return exportForCluster(
+        projectHome, metadataProvider, variables, log, packagedVariables, Map.of());
+  }
+
+  /** Days an exported package is kept after the last run that exported it. */
+  static final Duration PACKAGE_RETENTION = Duration.ofDays(7);
+
+  /**
+   * @param extraProjectFiles files to add to the project tree, see {@link #exportProject(String,
+   *     String, IHopMetadataProvider, IVariables, PackageExportFilter, Map, Map)}
+   */
+  public static String exportForCluster(
+      String projectHome,
+      IHopMetadataProvider metadataProvider,
+      IVariables variables,
+      ILogChannel log,
+      Map<String, String> packagedVariables,
+      Map<String, byte[]> extraProjectFiles)
+      throws HopException {
+    Path folder =
+        packageFolder(System.getProperty("java.io.tmpdir"), System.getProperty("user.name"));
+    Path temp;
+    try {
+      createPrivateFolder(folder);
+      temp = Files.createTempFile(folder, "export-", ".zip");
+    } catch (IOException e) {
+      throw new HopException("Unable to create a Spark project package in " + folder, e);
+    }
+    try {
+      exportProject(
+          projectHome,
+          temp.toString(),
+          metadataProvider,
+          variables,
+          null,
+          packagedVariables,
+          extraProjectFiles);
+      String sha = FatJarCache.sha256Hex(temp);
+      Path target = folder.resolve("hop-spark-package-" + sha.substring(0, 12) + ".zip");
+      if (Files.isRegularFile(target)) {
+        // Used again: the pruning goes by the modification time
+        Files.setLastModifiedTime(target, FileTime.from(Instant.now()));
+      } else {
+        Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE);
+      }
+      prunePackages(folder, target, Instant.now());
+      if (log != null) {
+        log.logBasic(
+            "Exported project "
+                + variables.resolve(projectHome)
+                + " for the Spark executors: "
+                + target
+                + " ("
+                + Files.size(target) / 1024
+                + " kB). Exclude folders with spark-package.json in the project home.");
+      }
+      return target.toString();
+    } catch (IOException e) {
+      throw new HopException("Unable to store the Spark project package in " + folder, e);
+    } finally {
+      try {
+        Files.deleteIfExists(temp);
+      } catch (IOException e) {
+        // best effort
+      }
+    }
+  }
+
+  /**
+   * The folder exported packages go to: one per OS user in the temporary folder. On a shared host
+   * such as an edge node another user's folder is not writable, and a package holds the run's
+   * variables, passwords included: only its user reads it.
+   */
+  static Path packageFolder(String temporaryFolder, String userName) {
+    String user = StringUtils.defaultIfBlank(userName, "hop").replaceAll("[^A-Za-z0-9._-]", "_");
+    return Paths.get(temporaryFolder, "hop-spark-packages-" + user);
+  }
+
+  private static void createPrivateFolder(Path folder) throws IOException {
+    if (Files.isDirectory(folder)) {
+      return;
+    }
+    Files.createDirectories(folder);
+    try {
+      Files.setPosixFilePermissions(folder, PosixFilePermissions.fromString("rwx------"));
+    } catch (UnsupportedOperationException e) {
+      // Not a POSIX file system: the folder is in the user's own temporary folder there
+    }
+  }
+
+  /**
+   * Remove the packages no run exported for {@link #PACKAGE_RETENTION}, and temporary exports left
+   * by a run that did not finish. A package a session still serves is exported again by the next
+   * run that uses it.
+   */
+  static void prunePackages(Path folder, Path keep, Instant now) {
+    Instant cutoff = now.minus(PACKAGE_RETENTION);
+    try (DirectoryStream<Path> files =
+        Files.newDirectoryStream(folder, "{hop-spark-package-*.zip,export-*.zip}")) {
+      for (Path file : files) {
+        try {
+          if (!file.equals(keep) && Files.getLastModifiedTime(file).toInstant().isBefore(cutoff)) {
+            Files.deleteIfExists(file);
+          }
+        } catch (IOException e) {
+          // Another run removed it, or it is in use: try again next time
+        }
+      }
+    } catch (IOException e) {
+      // Pruning never fails a run
+    }
+  }
+
+  /**
+   * Whether a folder holds the project of a package: each project file of the package is in it,
+   * with the same content. A driver uses the client's project folder only then; a folder at that
+   * path on another host can be an old copy of the project, or another one. Files the package left
+   * out (excluded folders) don't count.
+   */
+  public static boolean holdsTheProjectOf(Materialized materialized, String folder) {
+    Path packaged = Paths.get(materialized.projectHome());
+    Path candidate = Paths.get(folder);
+    try (java.util.stream.Stream<Path> files = Files.walk(packaged)) {
+      for (Path file : (Iterable<Path>) files.filter(Files::isRegularFile)::iterator) {
+        Path other = candidate.resolve(packaged.relativize(file).toString());
+        if (!Files.isRegularFile(other)
+            || Files.size(other) != Files.size(file)
+            || Files.mismatch(file, other) != -1L) {
+          return false;
+        }
+      }
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * The variables a cluster-mode client put in the package, or an empty map.
+   *
+   * @param materialized the extracted package
+   */
+  public static Map<String, String> readPackagedVariables(Materialized materialized)
+      throws HopException {
+    File file = new File(materialized.extractRoot(), VARIABLES_ENTRY);
+    if (!file.isFile()) {
+      return Map.of();
+    }
+    try {
+      Map<String, String> encoded =
+          new com.fasterxml.jackson.databind.ObjectMapper()
+              .readValue(
+                  file,
+                  new com.fasterxml.jackson.core.type.TypeReference<Map<String, String>>() {});
+      Map<String, String> variables = new java.util.LinkedHashMap<>();
+      encoded.forEach(
+          (name, value) ->
+              variables.put(name, value == null ? null : Encr.getEncoder().decode(value, true)));
+      return variables;
+    } catch (IOException e) {
+      throw new HopException("Unable to read " + file, e);
     }
   }
 
@@ -880,6 +1241,50 @@ public final class SparkProjectPackage {
    * Open the package zip for reading. Local filesystem first (SparkFiles / prepare-dist paths),
    * then Hop VFS for remote URIs.
    */
+  /**
+   * Open a URL the way Spark itself would: through the Hadoop file systems of the cluster ({@code
+   * hdfs://}, {@code s3a://}, {@code http(s)://}, ...). A driver submitted in cluster mode reads
+   * its package from the staging location this way, where Hop VFS has no connection for it.
+   *
+   * @return the stream, or null when the URL has no scheme or Hadoop cannot open it
+   */
+  static InputStream openWithHadoopFileSystem(String uri) {
+    if (!uri.contains("://") || uri.startsWith("file:")) {
+      return null;
+    }
+    try {
+      org.apache.hadoop.fs.Path path = new org.apache.hadoop.fs.Path(uri);
+      org.apache.hadoop.fs.FileSystem fs = path.getFileSystem(sparkHadoopConfiguration());
+      return fs.open(path);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * The Hadoop configuration Spark gives this JVM: the spark.hadoop.* settings of the run, where
+   * the Spark settings table puts the s3a endpoint and keys, on top of the defaults. spark-submit
+   * hands a driver its settings as system properties, before there is a Spark session; an executor
+   * has them in its SparkEnv.
+   */
+  static org.apache.hadoop.conf.Configuration sparkHadoopConfiguration() {
+    Map<String, String> settings = new java.util.LinkedHashMap<>();
+    try {
+      for (scala.Tuple2<String, String> setting : new org.apache.spark.SparkConf(true).getAll()) {
+        settings.put(setting._1(), setting._2());
+      }
+      org.apache.spark.SparkEnv env = org.apache.spark.SparkEnv.get();
+      if (env != null) {
+        for (scala.Tuple2<String, String> setting : env.conf().getAll()) {
+          settings.put(setting._1(), setting._2());
+        }
+      }
+    } catch (Throwable e) {
+      // No Spark settings to add: Hadoop's defaults
+    }
+    return SparkHadoopConfiguration.hadoopConfiguration(settings);
+  }
+
   static InputStream openPackageStream(String packageUri) throws Exception {
     if (StringUtils.isEmpty(packageUri)) {
       throw new HopException("Spark project package URI is empty");
@@ -897,6 +1302,10 @@ public final class SparkProjectPackage {
         return HopVfs.getInputStream(zipFo);
       }
     } catch (Exception e) {
+      InputStream cluster = openWithHadoopFileSystem(uri);
+      if (cluster != null) {
+        return cluster;
+      }
       throw new HopException(
           "Spark project package not found: "
               + uri
@@ -905,6 +1314,10 @@ public final class SparkProjectPackage {
               + "HopVfs error: "
               + e.getMessage(),
           e);
+    }
+    InputStream cluster = openWithHadoopFileSystem(uri);
+    if (cluster != null) {
+      return cluster;
     }
     throw new HopException(
         "Spark project package not found: "

@@ -89,7 +89,7 @@ Pipelines have more options:
 |The same engine on a xref:hop-server/index.adoc[Hop Server], with xref:pipeline/pipeline-run-configurations/native-load-balancing-pipeline-engine.adoc[load balancing] across several servers when you need it.
 
 |xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark]
-|Executes the pipeline directly as a Spark job, without translating it through another framework. Runs locally, on a cluster through `spark-submit`, and on xref:pipeline/spark/databricks.adoc[Databricks]. This is also the path to xref:pipeline/spark/lakehouse.adoc[Delta Lake and Apache Iceberg] tables.
+|Executes the pipeline directly as a Spark job, without translating it through another framework. Runs locally, on a Spark standalone, YARN or Kubernetes cluster that Hop submits to itself, under your own `spark-submit`, and on xref:pipeline/spark/databricks.adoc[Databricks]. This is also the path to xref:pipeline/spark/lakehouse.adoc[Delta Lake and Apache Iceberg] tables.
 
 |xref:pipeline/beam/getting-started-with-beam.adoc[Apache Beam]
 |Mainly used to run pipelines on xref:pipeline/pipeline-run-configurations/beam-dataflow-pipeline-engine.adoc[Google Cloud Dataflow]. Beam run configurations for xref:pipeline/pipeline-run-configurations/beam-spark-pipeline-engine.adoc[Spark] and xref:pipeline/pipeline-run-configurations/beam-flink-pipeline-engine.adoc[Flink] are also available.

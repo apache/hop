@@ -1,0 +1,75 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Native Spark in cluster mode on Kubernetes: a single-node k3s cluster in one (privileged)
+# container. Hop submits MainSpark with Spark's Kubernetes client; the driver and executor pods run
+# the image of docker/integration-tests/spark/Dockerfile.kubernetes, which run-tests-docker.sh saves
+# to spark-kubernetes/images before this file starts (k3s imports it from there). SeaweedFS runs in
+# the cluster as the staging store: Hop uploads through its S3 NodePort, the pods download over its
+# filer. The test container and the pods share /data (HOP_DATA).
+#
+# Run with: integration-tests/scripts/run-tests-docker.sh PROJECT_NAME=spark-native-kubernetes INCLUDE_DISABLED=true
+services:
+  hop-spark-native-kubernetes-test:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      k3s:
+        condition: service_healthy
+    volumes:
+      - spark-data:/data
+      - k3s-output:/k3s-output:ro
+    command:
+      - bash
+      - -c
+      - >-
+        sed 's#https://127.0.0.1:6443#https://k3s:6443#' /k3s-output/kubeconfig.yaml > /tmp/kubeconfig &&
+        export KUBECONFIG=/tmp/kubeconfig &&
+        mkdir -p /data/files && cp /files/spark-native-kubernetes/files/* /data/files/ &&
+        /files/scripts/run-tests.sh ${PROJECT_NAME}
+
+  k3s:
+    image: rancher/k3s:v1.33.5-k3s1
+    hostname: k3s
+    privileged: true
+    tmpfs:
+      - /run
+      - /var/run
+    environment:
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=644
+    # The test container writes the shared data as another user than the pods
+    entrypoint:
+      - sh
+      - -c
+      - mkdir -p /hop-data && chmod 777 /hop-data && exec /bin/k3s server --disable=traefik --disable=metrics-server --tls-san=k3s
+    volumes:
+      - k3s-output:/output
+      - spark-data:/hop-data
+      - ./spark-kubernetes/images:/var/lib/rancher/k3s/agent/images:ro
+      - ./spark-kubernetes/hop-it.yaml:/var/lib/rancher/k3s/server/manifests/hop-it.yaml:ro
+    # Healthy once the node runs and the staging store has its bucket
+    healthcheck:
+      test: [ "CMD-SHELL", "[ \"$$(kubectl get deployment seaweedfs -o jsonpath='{.status.readyReplicas}' 2>/dev/null)\" = 1 ]" ]
+      interval: 5s
+      retries: 60
+      start_period: 20s
+
+volumes:
+  spark-data:
+  k3s-output:

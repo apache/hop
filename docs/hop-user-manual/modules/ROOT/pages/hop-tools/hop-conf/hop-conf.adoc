@@ -219,9 +219,22 @@ Run `hop-conf.sh -h` for the complete list of your installation.
 
 3+|*Fat jars*, for the native Spark engine or the Beam engines
 |`-fj`|`--generate-fat-jar=<fatJarFilename>`|Generate a fat jar with the given filename from your current Hop installation. Needs the engine plugin of the chosen engine.
-|`-fje`|`--fat-jar-engine=<engine>`|The engine the fat jar is for. `spark`: the native Spark engine, without the jars a Spark distribution of the engine's Spark version ships (the cluster provides them), the Beam engine, and the SWT jars of all but one platform (plugin classes reference SWT, so its classes stay); this is the jar Databricks *Deploy & run* builds and caches itself, so a current one is copied from the cache. `beam`: the Beam engines, with the Spark client pack of the Beam Spark runner, without the native Spark engine. A jar for one engine leaves out the other engine's plugin folder and every jar in `lib/core` that, according to the plugin manifests, only that engine installs; a jar the engine shares with another plugin stays. Default: `beam`.
+|`-fje`|`--fat-jar-engine=<engine>`|The engine the fat jar is for. `spark`: the native Spark engine, without the jars a Spark distribution of the engine's Spark version ships (the cluster provides them), the Beam engine, and the SWT jars of all but one platform (plugin classes reference SWT, so its classes stay); this is the jar Hop builds and caches itself when the fat jar of a native Spark run configuration or of Databricks *Deploy & run* is empty, so a current one is copied from the cache. `beam`: the Beam engines, with the Spark client pack of the Beam Spark runner, without the native Spark engine. A jar for one engine leaves out the other engine's plugin folder and every jar in `lib/core` that, according to the plugin manifests, only that engine installs; a jar the engine shares with another plugin stays. Default: `beam`.
 |`-fjsr`|`--include-spark-runtime`|With `--fat-jar-engine=spark`: also embed Spark 4 and Scala, for a JVM without Spark that starts the Spark session itself. Not for `spark-submit` or a cluster.
 |`-scv`|`--spark-client-version=<sparkClientVersion>`|With `--fat-jar-engine=beam`: the Spark client pack of the Beam Spark runner (folder `lib/spark-clients/<version>`). When omitted, `HOP_SPARK_CLIENT_VERSION` or the default pack in `lib/spark-client` is used. The former values `native-provided` and `native` still select `--fat-jar-engine=spark`, without and with `--include-spark-runtime`.
+
+3+|*Cluster staging folders*, where cluster runs upload fat jars and project packages
+|`-stl`|`--staging-list=<folder>`|List the files Hop staged in the folder with their size, last use and whether a cleanup removes them.
+|`-stc`|`--staging-cleanup=<folder>`|Remove the files Hop staged in the folder that no run used within the retention, with their sidecars. Other files are never touched. A named VFS connection resolves from the metadata in `HOP_METADATA_FOLDER`. See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#staging-cleanup[Cleaning up the staging folder].
+|`-str`|`--staging-retention-days=<days>`|Days a staged file is kept after its last use. Default: `HOP_STAGING_RETENTION_DAYS`, else 14.
+
+3+|*Spark project packages*, for the native Spark engine (needs the engine plugin)
+|`-esp`|`--export-spark-project=<zip>`|Export a project package for the native Spark engine: the project tree with a `metadata.json` at its root, without `datasets/`. The project home comes from `--export-spark-project-home`, or from `PROJECT_HOME` after `-j <project>`. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+||`--export-spark-project-home=<folder>`|The project home to package.
+||`--export-spark-project-exclude-dirs=<dir>[,...]`|More folder names to leave out, added to the defaults and `spark-package.json`.
+||`--export-spark-project-exclude-globs=<glob>[,...]`|Globs relative to the project home to leave out, for example `**/*.jar`.
+||`--export-spark-project-include=<path>[,...]`|Relative paths to include even under a folder that is left out.
+||`--export-spark-project-replace-default-excludes`|Leave out only what `spark-package.json` and `--export-spark-project-exclude-dirs` name, not the built-in folders (`work`, `datasets`, `target`, ...).
 
 3+|*Graph database connections*
 ||`--graph-connection-test=<name>`|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>.

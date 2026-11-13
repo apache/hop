@@ -18,11 +18,11 @@
 package org.apache.hop.databricks.deploy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import org.apache.hop.core.fatjar.StagingCleanup;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.databricks.client.DatabricksJobsClient;
 import org.apache.hop.databricks.client.WorkspaceFileMetadata;
@@ -69,79 +69,47 @@ class HopSparkDeployHelperTest {
   }
 
   @Test
-  void uploadFatJarSkippedWhenSizeAndSidecarMatch() throws Exception {
+  void aStagedFatJarIsNotUploadedAgain() throws Exception {
     Path jar = tempDir.resolve("fat.jar");
     Files.write(jar, "same-content-bytes".getBytes(StandardCharsets.UTF_8));
-    long size = Files.size(jar);
-    String sha = HopSparkDeployHelper.sha256Hex(jar);
+    String remote =
+        "/Volumes/c/s/v/"
+            + HopSparkDeployHelper.fatJarRemoteName(HopSparkDeployHelper.sha256Hex(jar));
 
     DatabricksJobsClient client = mock(DatabricksJobsClient.class);
-    when(client.getFileMetadata("/Volumes/c/s/v/hop-native.jar"))
-        .thenReturn(WorkspaceFileMetadata.ofFile(size));
-    when(client.downloadTextIfExists("/Volumes/c/s/v/hop-native.jar.sha256"))
-        .thenReturn(Optional.of(sha + "\n"));
+    when(client.getFileMetadata(remote)).thenReturn(WorkspaceFileMetadata.ofFile(Files.size(jar)));
 
-    HopSparkDeployHelper.uploadFatJarIfNeeded(
-        client, mock(ILogChannel.class), jar, "/Volumes/c/s/v/hop-native.jar");
+    String url =
+        new org.apache.hop.core.fatjar.ContentStaging(
+                mock(ILogChannel.class), new DatabricksVolumeStagingStore(client, "/Volumes/c/s/v"))
+            .stageFatJar(jar);
 
+    assertEquals(remote, url);
     verify(client, never()).uploadToDbfs(any(), anyString());
     verify(client, never()).uploadText(anyString(), anyString());
   }
 
   @Test
-  void uploadFatJarWhenSizeDiffers() throws Exception {
+  void aMissingOrDifferentFatJarIsUploaded() throws Exception {
     Path jar = tempDir.resolve("fat.jar");
     Files.write(jar, "local-bytes".getBytes(StandardCharsets.UTF_8));
-    String sha = HopSparkDeployHelper.sha256Hex(jar);
+    String remote =
+        "/Volumes/c/s/v/"
+            + HopSparkDeployHelper.fatJarRemoteName(HopSparkDeployHelper.sha256Hex(jar));
 
-    DatabricksJobsClient client = mock(DatabricksJobsClient.class);
-    when(client.getFileMetadata("/Volumes/c/s/v/hop-native.jar"))
-        .thenReturn(WorkspaceFileMetadata.ofFile(999L));
-
-    HopSparkDeployHelper.uploadFatJarIfNeeded(
-        client, mock(ILogChannel.class), jar, "/Volumes/c/s/v/hop-native.jar");
-
-    verify(client).uploadToDbfs(eq(jar), eq("/Volumes/c/s/v/hop-native.jar"));
-    verify(client).uploadText(eq("/Volumes/c/s/v/hop-native.jar.sha256"), eq(sha + "\n"));
-  }
-
-  @Test
-  void uploadFatJarWhenMissingSidecar() throws Exception {
-    Path jar = tempDir.resolve("fat.jar");
-    Files.write(jar, "local".getBytes(StandardCharsets.UTF_8));
-    long size = Files.size(jar);
-    String sha = HopSparkDeployHelper.sha256Hex(jar);
-
-    DatabricksJobsClient client = mock(DatabricksJobsClient.class);
-    when(client.getFileMetadata("/Volumes/c/s/v/hop-native.jar"))
-        .thenReturn(WorkspaceFileMetadata.ofFile(size));
-    when(client.downloadTextIfExists("/Volumes/c/s/v/hop-native.jar.sha256"))
-        .thenReturn(Optional.empty());
-
-    HopSparkDeployHelper.uploadFatJarIfNeeded(
-        client, mock(ILogChannel.class), jar, "/Volumes/c/s/v/hop-native.jar");
-
-    verify(client).uploadToDbfs(eq(jar), eq("/Volumes/c/s/v/hop-native.jar"));
-    verify(client).uploadText(eq("/Volumes/c/s/v/hop-native.jar.sha256"), eq(sha + "\n"));
-  }
-
-  @Test
-  void remoteJarMatchesFalseWhenHashDiffers() throws Exception {
-    DatabricksJobsClient client = mock(DatabricksJobsClient.class);
-    when(client.getFileMetadata("r.jar")).thenReturn(WorkspaceFileMetadata.ofFile(10L));
-    when(client.downloadTextIfExists("r.jar.sha256")).thenReturn(Optional.of("aa".repeat(32)));
-    assertFalse(
-        HopSparkDeployHelper.remoteJarMatches(
-            client, "r.jar", "r.jar.sha256", 10L, "bb".repeat(32)));
-  }
-
-  @Test
-  void remoteJarMatchesTrueWhenHashMatches() throws Exception {
-    String sha = "ab".repeat(32);
-    DatabricksJobsClient client = mock(DatabricksJobsClient.class);
-    when(client.getFileMetadata("r.jar")).thenReturn(WorkspaceFileMetadata.ofFile(10L));
-    when(client.downloadTextIfExists("r.jar.sha256")).thenReturn(Optional.of(sha + "  name"));
-    assertTrue(HopSparkDeployHelper.remoteJarMatches(client, "r.jar", "r.jar.sha256", 10L, sha));
+    for (WorkspaceFileMetadata onVolume :
+        new WorkspaceFileMetadata[] {
+          WorkspaceFileMetadata.missing(), WorkspaceFileMetadata.ofFile(999L)
+        }) {
+      DatabricksJobsClient client = mock(DatabricksJobsClient.class);
+      when(client.getFileMetadata(remote)).thenReturn(onVolume);
+      new org.apache.hop.core.fatjar.ContentStaging(
+              mock(ILogChannel.class), new DatabricksVolumeStagingStore(client, "/Volumes/c/s/v"))
+          .stageFatJar(jar);
+      verify(client).uploadToDbfs(eq(jar), eq(remote));
+      verify(client)
+          .uploadText(eq(remote + ".sha256"), eq(HopSparkDeployHelper.sha256Hex(jar) + "\n"));
+    }
   }
 
   @Test
@@ -224,6 +192,11 @@ class HopSparkDeployHelperTest {
     verify(client).uploadToDbfs(eq(env), eq("/Volumes/c/s/v/env-config-entry.json"));
     // relative pipeline under package — no separate pipeline.hpl upload of entry
     verify(client, never()).uploadToDbfs(eq(hpl), anyString());
+    // The job uses the jar on its own schedule: the staging cleanup must never remove it
+    verify(client)
+        .uploadText(
+            eq(expectedJar + StagingCleanup.KEEP_SUFFIX),
+            contains("A Databricks job that Hop deployed"));
   }
 
   @Test

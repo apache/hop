@@ -44,6 +44,21 @@ public class HopGuiFatJarPlugin {
 
   public static final String ID_MAIN_MENU_TOOLS_FAT_JAR = "40200-menu-tools-fat-jar";
 
+  public static final String ID_MAIN_MENU_TOOLS_STAGING_CLEANUP =
+      "40210-menu-tools-staging-cleanup";
+
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_STAGING_CLEANUP,
+      label = "i18n::HopGuiFatJarPlugin.Menu.StagingCleanup.Text",
+      parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID)
+  public void menuToolsStagingCleanup() {
+    HopGui hopGui = HopGui.getInstance();
+    new StagingCleanupDialog(
+            hopGui.getShell(), hopGui.getVariables(), hopGui.getMetadataProvider(), hopGui.getLog())
+        .open();
+  }
+
   @GuiMenuElement(
       root = HopGui.ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_FAT_JAR,

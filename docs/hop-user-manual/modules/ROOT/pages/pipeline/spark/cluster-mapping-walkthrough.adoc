@@ -68,7 +68,7 @@ Related design docs: xref:pipeline/spark/paths-and-filesystems.adoc[Paths and fi
 == Prerequisites
 
 * Docker with Compose v2
-* Hop client **2.19+** with the native Spark plugin (from a built assembly or install)
+* Hop client **2.21+** with the native Spark plugin (from a built assembly or install)
 * Enough disk to download Spark 4.1.x images (~1 GB first build)
 * From a git checkout of Hop (paths below assume **repository root**)
 
@@ -84,7 +84,7 @@ export HOP_HOME=/path/to/hop   # directory that contains hop-conf.sh
 
 By default this writes into **`/tmp/spark-demo-dist/`** (outside the git tree; override with `DIST_DIR`):
 
-* `hop-native-spark4-submit.jar` — fat jar with token **`native-provided`** (no embedded Spark)
+* `hop-native-spark4-submit.jar` — native Spark fat jar (`--fat-jar-engine=spark`, no embedded Spark)
 * `spark-demo.zip` — Native Spark project package
 * `cluster-env.json` — sets `HOP_DATA` for the cluster
 * `data/customers-sample.csv` — mapping demo CSV
@@ -111,7 +111,7 @@ Hop has two different project flags:
 
 Alternatively in the GUI:
 
-* *Tools* → *Generate a Hop fat jar* with native-provided packaging, and  
+* *Tools* → *Generate a Hop fat jar*, choosing *Native Spark engine*, and  
 * *Tools* → *Export project package for Native Spark…* after opening the sample project.
 
 == 2. Start the Spark 4.1 cluster

@@ -16,22 +16,22 @@ under the License.
 ////
 [[NativeSparkYarn]]
 :imagesdir: ../../../assets/images
-:description: Run native Spark pipelines on a Hadoop YARN cluster from Hop GUI, hop-run or Hop Server, with Hop as the Spark driver.
+:description: Run native Spark pipelines on a Hadoop YARN cluster from Hop GUI, hop-run or Hop Server, with Hop as the Spark driver or with the driver in YARN.
 :page-marketplace: hop-engines-spark
 
 :toc:
 
 = Run native Spark pipelines on YARN
 
-The native Spark engine can run a pipeline on a Hadoop YARN cluster while Hop itself is the Spark driver: you start the pipeline from Hop GUI, `hop-run` or Hop Server, and the executors run in YARN containers. Spark calls this *client deploy mode*.
+The native Spark engine can run a pipeline on a Hadoop YARN cluster while Hop itself is the Spark driver: you start the pipeline from Hop GUI, `hop-run` or Hop Server, and the executors run in YARN containers. Spark calls this *client deploy mode*. In *cluster deploy mode* Hop submits the driver to YARN as well and follows it; see <<cluster-mode>>.
 
-The alternative is `spark-submit --master yarn` on a machine with a Spark installation, with a fat jar and a project package; see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine].
+You can also start a pipeline yourself with `spark-submit --master yarn` on a machine with a Spark installation, with a fat jar and a project package; see xref:pipeline/spark/getting-started-with-native-spark.adoc[Getting started with the native Spark engine].
 
 Set up a xref:pipeline/spark/local-standalone-cluster.adoc[local standalone cluster] first if you have not run a pipeline on a cluster before: the fat jar, the run configuration and the troubleshooting there apply to YARN as well.
 
 == What you need
 
-* Hop 2.20 or later with the `hop-engines-spark` plugin (see xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster], steps 1 and 3), and a `native-provided` fat jar.
+* Hop 2.20 or later with the `hop-engines-spark` plugin (see xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster], steps 1 and 3). Hop builds the fat jar for the native Spark engine itself when *Fat jar file location* is empty.
 * The Hadoop client configuration of the cluster on the Hop machine: a folder with `core-site.xml`, `hdfs-site.xml` and `yarn-site.xml`. On a cluster edge node this is often `/etc/hadoop/conf`.
 * Network access from the Hop machine to the YARN ResourceManager and to HDFS (namenode and datanodes), and from the YARN nodes back to the Hop machine: the executors connect to the Spark driver, which is Hop.
 * Java {java-version} on the YARN nodes, for the Spark processes in the containers. If the nodes run an older Java by default, point the containers at a Java {java-version} installation (see below).
@@ -56,26 +56,26 @@ Create a *Pipeline run configuration* with *Engine type* *Native Spark pipeline 
 |Leave it empty to use the `HADOOP_CONF_DIR` or `YARN_CONF_DIR` environment variable of the Hop process. Hop reads these files itself: unlike `spark-submit`, a Hop JVM does not put that folder on its classpath.
 
 |Fat jar file location
-|The absolute path of a `native-provided` fat jar
-|The executors load Hop from it.
+|Empty, or the absolute path of a `native-provided` fat jar
+|The executors load Hop from it. When empty, Hop builds and caches the jar of this installation.
 
 |Executor memory / Executor cores
 |For example `1g` / `1`
 |Must fit in a YARN container (`yarn.scheduler.maximum-allocation-mb` and `-vcores`).
 
-|Spark config (key=value lines)
-|`spark.ui.enabled=false` +
-`spark.submit.deployMode=client` +
-`spark.driver.host=<address of the Hop machine>` +
-`spark.executorEnv.JAVA_HOME=<Java {java-version} on the nodes>` +
-`spark.yarn.appMasterEnv.JAVA_HOME=<Java {java-version} on the nodes>`
-|`spark.driver.host` must be an address of the Hop machine that the YARN nodes can reach. The two `JAVA_HOME` lines are only needed when the nodes' default Java is older than {java-version}.
+|Deploy mode
+|Client
+|Hop is the Spark driver.
+
+|Spark settings
+|Rows (key, value): `spark.ui.enabled` = `false`, `spark.driver.host` = `<address of the Hop machine>`, `spark.executorEnv.JAVA_HOME` = `<Java {java-version} on the nodes>`, `spark.yarn.appMasterEnv.JAVA_HOME` = `<Java {java-version} on the nodes>`
+|`spark.driver.host` must be an address of the Hop machine that the YARN nodes can reach. The two `JAVA_HOME` rows are only needed when the nodes' default Java is older than {java-version}. The *YARN client* template adds a `spark.submit.deployMode` = `client` row: remove it and use *Deploy mode*, or it overrides *Deploy mode* Cluster later.
 |===
 
 What Hop does with this on YARN:
 
-* It passes every property in the `*-site.xml` files to Spark as `spark.hadoop.<property>`. A `spark.hadoop.*` line in *Spark config* overrides the same property from the files.
-* It sets `spark.yarn.jars` to its own Spark runtime: the jars in `plugins/engines/spark/lib` plus the SLF4J and Jackson jars from `lib/core`, about 285 MB. Spark uploads them to the YARN staging folder on HDFS for every run, so the containers run exactly the Spark version Hop runs ({spark-version}). If you set `spark.yarn.jars` or `spark.yarn.archive` in *Spark config* yourself, they must point at Spark {spark-version} for Scala 2.13 and include those SLF4J and Jackson jars.
+* It passes every property in the `*-site.xml` files to Spark as `spark.hadoop.<property>`. A `spark.hadoop.*` row in *Spark settings* overrides the same property from the files.
+* It sets `spark.yarn.archive` to one zip of its own Spark runtime: the jars in `plugins/engines/spark/lib` plus the libraries Hop shares with Spark from `lib/core` (Netty, log4j, Jackson, ...), without Hop, Beam or Hadoop jars. Hop builds it once per installation, next to the fat jar in its cache. Spark uploads it to the YARN staging folder on HDFS for every run, so the containers run exactly the Spark version Hop runs ({spark-version}). If you set `spark.yarn.jars` or `spark.yarn.archive` in *Spark settings* yourself, they must point at Spark {spark-version} for Scala 2.13 and include those libraries.
 
 Use HDFS paths (`hdfs:///data/...`) or other storage all nodes can reach in Spark File transforms; see xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 
@@ -86,7 +86,7 @@ From Hop GUI or `hop-run`, run the pipeline with this run configuration. The log
 [source]
 ----
 Read <n> Hadoop configuration properties from file:///etc/hadoop/conf/core-site.xml, ...
-YARN containers get the engine's Spark runtime: <n> jars in spark.yarn.jars
+YARN containers get the engine's Spark runtime from /home/<you>/.hop/fat-jars/hop-spark-yarn-runtime-<fingerprint>.zip
 Created SparkSession version=4.1.4 master=yarn (owned)
 ...
 Spark pipeline finished, result row count=0
@@ -108,7 +108,7 @@ With export off, the samples project's Workflow Log fails every workflow you sen
 [[yarn-docker]]
 == Try it with a single-node YARN cluster in Docker
 
-The Hop source tree has a single-node HDFS and YARN cluster for Docker on Linux: `docker/integration-tests/integration-tests-spark-native-yarn.yaml`. Its Hadoop configuration in `docker/integration-tests/spark-yarn/conf` serves both the container and Hop on the Docker host.
+The Hop source tree has a single-node HDFS and YARN cluster for Docker on Linux (it also runs on Apple Silicon, emulated and slowly): `docker/integration-tests/integration-tests-spark-native-yarn.yaml`. Its Hadoop configuration in `docker/integration-tests/spark-yarn/conf` serves both the container and Hop on the Docker host.
 
 . Start it from the root of the Hop source tree:
 +
@@ -126,15 +126,14 @@ C=$(docker compose -f docker/integration-tests/integration-tests-spark-native-ya
 docker cp /path/to/hop/config/projects/samples/beam/input/customers-noheader-1k.txt $C:/tmp/
 docker exec $C hdfs dfs -put -f /tmp/customers-noheader-1k.txt /data/
 ----
-. Create the run configuration with *Hadoop configuration folder* `<hop source>/docker/integration-tests/spark-yarn/conf`, your fat jar, and these *Spark config* lines:
+. Create the run configuration with *Hadoop configuration folder* `<hop source>/docker/integration-tests/spark-yarn/conf`, an empty *Fat jar file location*, *Deploy mode* Client, and these *Spark settings* rows (key, value):
 +
 [source]
 ----
-spark.ui.enabled=false
-spark.submit.deployMode=client
-spark.driver.host=172.31.250.1
-spark.executorEnv.JAVA_HOME=/opt/java21
-spark.yarn.appMasterEnv.JAVA_HOME=/opt/java21
+spark.ui.enabled                    false
+spark.driver.host                   172.31.250.1
+spark.executorEnv.JAVA_HOME         /opt/java21
+spark.yarn.appMasterEnv.JAVA_HOME   /opt/java21
 ----
 +
 `172.31.250.1` is the Docker host on the cluster's network, and `/opt/java21` is the Java 21 runtime in the image.
@@ -147,6 +146,38 @@ docker exec $C bash -c 'hdfs dfs -cat /output/customers-per-state/part-*.csv'
 ----
 
 Stop the cluster with `docker compose -f docker/integration-tests/integration-tests-spark-native-yarn.yaml down`.
+
+[[cluster-mode]]
+== Cluster mode
+
+In client mode Hop is the Spark driver, and the YARN containers connect back to it. In xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#cluster-mode[cluster mode] the driver runs in the YARN application master instead: Hop only submits the run and follows it, and nothing on the cluster has to reach the Hop machine.
+
+Hop submits with Spark's own YARN client inside the Hop process (no Spark installation needed), follows the application through the ResourceManager, and kills it on *Stop*. It uploads three things to the staging folder, each named after its content so that it is uploaded once:
+
+* the fat jar of this installation;
+* the Spark runtime for the YARN containers, as one archive in `spark.yarn.archive`: the Spark 4 jars of the engine plugin plus the libraries Hop shares with Spark (Netty, log4j, Jackson, ...), without Hop, Beam or Hadoop jars. Without it YARN would upload a few hundred MB for every run;
+* the project package with the variables of the run.
+
+Change these options of the run configuration:
+
+[options="header",cols="1,2"]
+|===
+|Option |Value
+
+|Deploy mode
+|Cluster
+
+|Staging folder
+|A folder in HDFS through a VFS connection of the project, for example an HDFS connection `hdfs-staging` (WebHDFS) and the folder `hdfs-staging://hop-staging`
+
+|Staging folder URL for the cluster
+|The same folder as the cluster reads it, for example `hdfs://namenode:8020/hop-staging`
+
+|Spark settings
+|`spark.yarn.appMasterEnv.JAVA_HOME` and `spark.executorEnv.JAVA_HOME` when the NodeManagers run an older Java than {java-version}; the driver now runs in the application master too. No `spark.submit.deployMode` row: it would override *Deploy mode*.
+|===
+
+A failed run is not retried: Hop sets `spark.yarn.maxAppAttempts=1` unless the Spark settings say otherwise, so a pipeline never writes its output twice. On YARN a path without a scheme is a path in HDFS (the default file system of the cluster): write `file:///...` for a local path that every node has.
 
 == Troubleshooting
 
@@ -164,7 +195,7 @@ Stop the cluster with `docker compose -f docker/integration-tests/integration-te
 |Look at the logs of the application's first container in the YARN UI. `UnsupportedClassVersionError: org/apache/spark/deploy/yarn/ExecutorLauncher has been compiled by a more recent version of the Java Runtime` means the nodes run an older Java: set `spark.executorEnv.JAVA_HOME` and `spark.yarn.appMasterEnv.JAVA_HOME` to a Java {java-version} installation on the nodes.
 
 |`NoClassDefFoundError: org/slf4j/LoggerFactory` in the first container
-|`spark.yarn.jars` or `spark.yarn.archive` in *Spark config* leave out SLF4J or Jackson. Remove them to use Hop's default, or add those jars.
+|`spark.yarn.jars` or `spark.yarn.archive` in *Spark settings* leave out libraries the Spark runtime needs, such as SLF4J or Jackson. Remove those rows to use the archive Hop builds.
 
 |`Could not replicate "file:///tmp/export_...zip" as it does not exist` from a transform on Hop Server
 |The workflow was sent with *Export linked resources to server* on. Turn it off and enable the project on Hop Server.

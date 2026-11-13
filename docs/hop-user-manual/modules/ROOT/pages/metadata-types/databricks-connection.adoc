@@ -26,7 +26,11 @@ under the License.
 *Databricks Connection* stores workspace credentials for the **Databricks Jobs / workspace REST API**.
 It is **not** the same as the xref:database/databases/databricks.adoc[Databricks JDBC] relational connection (SQL warehouse).
 
-Use this metadata type when orchestrating jobs from Hop (for example the upcoming **Databricks job run** workflow action) or when testing Jobs API access from the connection editor.
+Hop uses it to:
+
+* run native Spark pipelines on a Databricks cluster: the native Spark run configuration with the cluster type *Databricks* names the connection, see xref:pipeline/spark/databricks.adoc[Native Spark on Databricks];
+* create, run and follow Databricks jobs with the xref:workflow/actions/databricks-job-run.adoc[Databricks job run] and xref:workflow/actions/databricks-job-wait.adoc[Databricks job wait] actions;
+* read and write volumes and workspace files through a xref:metadata-types/databricks-vfs-connection.adoc[Databricks VFS Connection].
 
 == Options
 
@@ -44,11 +48,41 @@ Use this metadata type when orchestrating jobs from Hop (for example the upcomin
 |Workspace URL host, e.g. `https://adb-1234567890123456.7.azuredatabricks.net`. The `https://` scheme is optional.
 
 |Personal access token
-|Databricks PAT (stored as a password field). Prefer Hop variables / secret backends for production. Tokens are never written to Hop logs by the Jobs client.
+|Databricks PAT (stored as a password field). Prefer a variable such as `+${DATABRICKS_TOKEN}+`, set in an environment configuration file of the project, outside the project folder: operating system environment variables are not Hop variables. Tokens are never written to Hop logs by the Jobs client.
 
 |API base path
 |Jobs API prefix. Default: `/api/2.1`.
 |===
+
+== Token and permissions
+
+Create the token under *Settings* → *Developer* → *Access tokens* in the workspace. Hop calls these REST APIs with it:
+
+[options="header",cols="1,2"]
+|===
+|API |Used for
+
+|Jobs (`/api/2.1/jobs/...`)
+|Submitting a run and following and cancelling it (native Spark, cluster type *Databricks*); creating, updating and running jobs (Databricks job run).
+
+|Files (`/api/2.0/fs/files`, `/api/2.0/fs/directories`)
+|Uploading the fat jar and the project package to a Unity Catalog volume, and the Databricks VFS.
+
+|Libraries (`/api/2.0/libraries/...`)
+|Native Spark on an all-purpose cluster: finding fat jars of earlier Hop runs that the cluster still has installed, and having them removed at the next restart. Without access a run still works, without this help.
+
+|Current user (`/api/2.0/preview/scim/v2/Me`)
+|*Test connection*.
+
+|DBFS (`/api/2.0/dbfs/...`)
+|Only for `dbfs:/` paths instead of volumes.
+|===
+
+With a scoped token, the scopes have to cover these APIs. The scopes are named `jobs`, `files`, `unity-catalog` (volumes), `libraries` and `scim`; `GET /api/2.0/token-scopes` lists all scope names of a workspace. The user of the token also needs:
+
+* on the volume Hop stages in: `USE CATALOG`, `USE SCHEMA`, `READ VOLUME` and `WRITE VOLUME`;
+* on an all-purpose cluster: the cluster assigned to them in Dedicated access mode, or *Can attach to* and *Can restart*; to have fat jars of earlier runs removed, also *Can manage*;
+* to create jobs and job runs: any workspace user may, unless an administrator limited it.
 
 == Test connection
 

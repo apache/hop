@@ -32,4 +32,17 @@ public interface IPipelineEngineRunConfiguration extends Cloneable, IVariables {
   void setEnginePluginName(String name);
 
   String getEnginePluginName();
+
+  /**
+   * The class that adjusts this run configuration's widgets in the run configuration editor, for
+   * example to hide the options that do not apply to the settings made so far. The class implements
+   * {@code IGuiPluginCompositeWidgetsListener} and has a public constructor taking this {@link
+   * IPipelineEngineRunConfiguration}. It is given as a name so that the engine can run without the
+   * GUI on the classpath.
+   *
+   * @return the class name, or null when the widgets need no adjusting
+   */
+  default String getGuiWidgetsListenerClassName() {
+    return null;
+  }
 }

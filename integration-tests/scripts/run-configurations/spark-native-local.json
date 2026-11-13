@@ -4,8 +4,7 @@
       "sparkMaster": "local[4]",
       "sparkAppName": "hop-it-spark-native",
       "sparkConfigs": "spark.ui.enabled=false\nspark.driver.host=localhost\nspark.sql.shuffle.partitions=4\nspark.default.parallelism=4",
-      "fatJar": "",
-      "tempLocation": "/tmp"
+      "fatJar": ""
     }
   },
   "configurationVariables": [],

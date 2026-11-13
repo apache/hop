@@ -1,0 +1,17 @@
+{
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "config" : {
+    "variables" : [ {
+      "name" : "HOP_LICENSE_HEADER_FILE",
+      "value" : "${PROJECT_HOME}/../asf-header.txt",
+      "description" : "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    }, {
+      "name" : "HOP_DATA",
+      "value" : "/data",
+      "description" : "Data shared by the test container and the Spark workers. The Spark executors and the driver on the cluster read and write it; the project folder only reaches them inside the project package."
+    } ]
+  }
+}

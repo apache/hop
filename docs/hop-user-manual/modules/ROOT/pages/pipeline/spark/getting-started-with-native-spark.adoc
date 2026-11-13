@@ -46,7 +46,7 @@ xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 Hands-on multi-node demo (Docker Compose + sample project `spark-demo` — Simple Mapping and Workflow Executor):
 xref:pipeline/spark/cluster-mapping-walkthrough.adoc[Cluster demo walk-through].
 
-To deploy **MainSpark** JAR jobs to a **Databricks** workspace (classic clusters, UC Volumes, Job Run Deploy & run):
+To run pipelines on a **Databricks** cluster, from Hop GUI, `hop-run` or Hop Server with the cluster type *Databricks*, or in the jobs of the Databricks job run action:
 xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
 
 == What is the native Spark pipeline engine?
@@ -115,7 +115,7 @@ If you need streaming, windowing, or Beam-only connectors, stay on the Beam engi
 . The output of a transform that several transforms read, such as the true and false targets of Filter Rows or the cases of Switch / Case, is cached: that transform runs once, not once per branch.
 
 Each transform's reference page says which of the two it gets: a double check on the *Native Spark* tag means the engine has its own implementation (xref:pipeline/transforms/sort.adoc[Sort rows], xref:pipeline/transforms/mergejoin.adoc[Merge join], xref:pipeline/transforms/memgroupby.adoc[Memory group by], xref:pipeline/transforms/uniquerows.adoc[Unique rows], the Spark file and lake table transforms and xref:pipeline/transforms/spark-sql.adoc[Spark SQL]); a single check means the Hop transform runs wrapped, one partition at a time. Wrapped transforms work, but anything that needs to see the whole dataset — grouping, deduplicating, sorting — must be done by a native transform or preceded by one.
-. Transform metrics are collected via Spark accumulators and shown in Hop like any other engine.
+. Transform metrics are collected via Spark accumulators and shown in Hop like any other engine when Hop is the Spark driver (client mode). Runs in cluster mode and on Databricks show the state of the run, not yet the metrics per transform.
 
 You still design pipelines *visually* in Hop. Spark’s role is the distributed execution engine and the Dataset runtime under the hood.
 
@@ -150,8 +150,8 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 * Apache Hop *2.19+* with the `hop-engines-spark` plugin. It is not part of the default client download: install it with `./hop marketplace install hop-engines-spark` (see xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]) and restart Hop.
 * *Java {java-version}*.
 * Familiarity with Hop pipelines, metadata, and run configurations.
-* For cluster submit:
-** A *Spark 4.1.x* distribution (`SPARK_HOME` pinned to that tree).
+* For `spark-submit`:
+** A *Spark 4.1.x* distribution (`SPARK_HOME` pinned to that tree). Runs that Hop submits itself, to a standalone, YARN or Kubernetes cluster or to Databricks, need no Spark installation.
 ** Network access to the master and workers.
 ** Paths for data and metadata that workers can reach (HDFS, object store, shared FS).
 * Optional but recommended: an *execution information location* and *execution data profile* for history, metrics, and row samples in the GUI.
@@ -162,7 +162,7 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 
 This is the fastest way to learn: Spark runs *inside* the Hop process using all local cores (`+local[*]+`), with no cluster and no fat jar.
 
-TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit*, *Databricks*, *YARN*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
+TIP: On the Native Spark engine options tab, **Load configuration template** can pre-fill common setups (*Local execution*, *Spark standalone server*, *spark-submit (cluster)*, *Databricks*, *YARN client*, …). See xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc[Native Spark pipeline engine].
 
 TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] entry and use **Load catalog template** (Hadoop local/object store, REST, Hive, Glue, Nessie, …). Each preset starts **Extra conf** with a commented `# docs:` link to vendor documentation.
 
@@ -175,24 +175,20 @@ TIP: For Iceberg **TABLE** mode, create a xref:metadata-types/spark-catalog.adoc
 |===
 |Option |Suggested first value
 
+|Cluster type
+|*Local: Spark in this Hop process*
+
 |Spark master
 |`+local[*]+` (or `local[4]` to cap cores)
 
 |Application name
 |`Apache Hop` (or your project name)
 
-|Fat jar file location
-|Leave *empty* for pure `+local[*]+`
-
-|Spark config
-|Optional; one `key=value` per line (advanced tuning)
-
-|Driver / executor memory & cores
-|Optional; leave empty for local defaults
-
-|Temp location
-|Optional; defaults to the JVM temp directory
+|Spark settings
+|Optional; a key and a value per row on the *Spark settings* tab (advanced tuning)
 |===
+
+For a local run the dialog doesn't show the fat jar, staging and executor options: they only apply to a cluster.
 
 . On the main run-configuration tab, optionally attach:
 ** *Execution information location* — where Hop stores run history
@@ -230,9 +226,11 @@ Same run configuration, no GUI:
 
 === Build a fat jar for cluster submit
 
+Runs that Hop starts on a cluster (Hop GUI, `hop-run`, Hop Server, client or cluster deploy mode) do not need this: with an empty *Fat jar file location* Hop builds and caches the `native-provided` fat jar of the installation. Build one yourself for `spark-submit`.
+
 On a real cluster you must *not* embed a second copy of Spark inside the application jar. The cluster already provides Spark 4.1. Embedding Spark leads to dual classpaths and failures on Java {java-version}.
 
-Generate the fat jar for the *native Spark engine*: Hop and its plugins go into the jar; *everything a Spark distribution ships (Spark, Scala, the Hadoop client and their libraries), and the Beam engine stay out*. The engine plugin knows what a Spark distribution of its version ships from its own dependency tree, `plugins/engines/spark/spark-dependencies.txt`. The Beam engine is its plugin folder and every jar in `lib/core` that, according to the plugin manifests, only the Beam engine installs: a jar Beam shares with another installed plugin stays. It is the same jar Databricks *Deploy & run* builds and caches, so when the cached one is current, generating it only copies that file.
+Generate the fat jar for the *native Spark engine*: Hop and its plugins go into the jar; *everything a Spark distribution ships (Spark, Scala, the Hadoop client and their libraries), and the Beam engine stay out*. The engine plugin knows what a Spark distribution of its version ships from its own dependency tree, `plugins/engines/spark/spark-dependencies.txt`. The Beam engine is its plugin folder and every jar in `lib/core` that, according to the plugin manifests, only the Beam engine installs: a jar Beam shares with another installed plugin stays. It is the same jar the engine and Databricks *Deploy & run* build and cache for themselves, so when the cached one is current, generating it only copies that file.
 
 ==== From Hop GUI
 
@@ -251,9 +249,11 @@ Generate the fat jar for the *native Spark engine*: Hop and its plugins go into 
 
 Add `--include-spark-runtime` only for a JVM without Spark that starts the Spark session itself: it embeds Spark 4 and Scala. Never use it for `spark-submit` or a cluster.
 
+The former `--spark-client-version=native-provided` and `--spark-client-version=native` still work: `native-provided` is `--fat-jar-engine=spark`, `native` adds `--include-spark-runtime`.
+
 === Export project metadata
 
-Cluster runs need your Hop metadata (run configurations, execution locations, connections, etc.) as a single JSON file.
+A `spark-submit` run needs your Hop metadata (run configurations, execution locations, connections, etc.) as a single JSON file, or a project package (`hop-conf --export-spark-project`). Runs that Hop submits itself stage the project package for you.
 
 * GUI: *Tools* → *Export metadata to JSON*
 * CLI:
@@ -274,7 +274,7 @@ Keep this export out of git if it is a point-in-time dump of secrets or large me
 . Build the *native-provided* fat jar and export metadata (previous sections).
 . Ensure the pipeline run configuration used on the cluster:
 ** Engine = *Native Spark pipeline engine* (not Beam Spark)
-** *Master* blank (so `spark-submit --master` wins) *or* set to `spark://host:7077`. For YARN, submit with `--master yarn` from a machine where `HADOOP_CONF_DIR` points at the cluster's configuration; `spark-submit` reads it from there.
+** *Cluster type* *spark-submit*: the master stays empty, so `spark-submit --master` wins. For YARN, submit with `--master yarn` from a machine where `HADOOP_CONF_DIR` points at the cluster's configuration; `spark-submit` reads it from there.
 ** *Fat jar* field empty (the submit jar already carries Hop)
 . Submit:
 
@@ -449,7 +449,7 @@ Connector JARs **ship with the `hop-engines-spark` plugin** under `plugins/engin
 
 === Classic Hop I/O and `${Internal.Transform.ID}`
 
-You can still use classic transforms such as *Text File Input*, *Text File Output*, *Get File Names*, or *Microsoft Excel Input* on the generic mapPartitions path (useful for POCs and small lookups). Those plugins are staged for the Spark engine via `plugins/engines/spark/dependencies.xml`.
+You can still use classic transforms such as *Text File Input*, *Text File Output*, *Get File Names*, or *Microsoft Excel Input* on the generic mapPartitions path (useful for POCs and small lookups). On `+local[*]+` they load from the plugin classpath of the Spark engine (`plugins/engines/spark/dependencies.xml`); on a cluster the fat jar carries every installed plugin.
 
 *Sources with no previous hop* (for example Get File Names, or Excel/Text Input reading a fixed file list) run on a *single* partition so the same small file is not listed or opened once per executor — the same idea as Beam’s single-thread pattern for non-Beam inputs.
 
@@ -492,7 +492,7 @@ image::pipeline/spark/spark-native-0008-text-file-input-spark-readback.png[Get F
 
 === Live metrics in the pipeline editor
 
-While a native Spark pipeline runs (and when it finishes), Hop shows transform-level metrics on the graph — lines read/written/input/output, errors, and running/finished state — similar to the local engine. Values are aggregated on the *driver* from Spark accumulators.
+While a native Spark pipeline runs with Hop as the Spark driver (local and client mode), and when it finishes, Hop shows transform-level metrics on the graph — lines read/written/input/output, errors, and running/finished state — similar to the local engine. Values are aggregated on the *driver* from Spark accumulators.
 
 image::pipeline/spark/native-spark-provides-runtime-transform-metrics-and-state.png[Runtime transform metrics and state on a native Spark pipeline,width=90%]
 
@@ -558,7 +558,7 @@ Most other transforms — Filter Rows, Switch/Case, Stream Lookup, Calculator, S
 
 . Each Spark partition starts a *single-threaded* Hop mini-pipeline for that transform.
 . Partition rows are injected; outputs are collected back into a Dataset.
-. Plugin JARs used by those transforms must be on the Spark classpath (`dependencies.xml` for the engine plugin, and the fat jar on the cluster).
+. Plugin JARs used by those transforms must be on the Spark classpath: the plugin classpath of the engine (`dependencies.xml`) locally, and the fat jar, which carries every installed plugin, on a cluster.
 
 === Info streams and target streams
 
@@ -614,7 +614,7 @@ Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*B
 |Ignored. Parallelism comes from *Spark partitions*, not the local-engine copy count or partition schema. See xref:pipeline/specify-copies.adoc#supported-engines[Specify copies] and xref:pipeline/partitioning.adoc#supported-engines[Partitioning].
 
 |Plugins in mapPartitions
-|Must be present on the Spark classpath (staged list + fat jar). Missing plugins fail at runtime on the executor.
+|Must be installed in the Hop that builds the fat jar: the fat jar carries every installed plugin. Missing plugins fail at runtime on the executor.
 
 |Beam-only transforms
 |Beam File I/O, Beam Kafka/Kinesis/BigQuery/… are for Beam engines, not native Spark.
@@ -691,9 +691,9 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * [ ] Run configuration engine = *Native Spark* (not Beam Spark)
 * [ ] First success on `+local[*]+` with Spark file input → transform → Spark file output
 * [ ] Execution information location attached if you need history and samples
-* [ ] Cluster: fat jar with `--fat-jar-engine=spark`
+* [ ] `spark-submit`: fat jar with `--fat-jar-engine=spark` (runs started by Hop build it themselves)
 * [ ] Cluster: `SPARK_HOME` pinned to Spark *4.1.x*
-* [ ] Cluster: metadata JSON exported; run configuration name matches submit args
+* [ ] `spark-submit`: metadata JSON or project package exported; run configuration name matches submit args
 * [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour
 * [ ] Classic writers use `${Internal.Transform.ID}` (or accept Spark file output for bulk writes)
 * [ ] Lakehouse (optional): confirm `plugins/engines/spark/lib/{delta,iceberg}` present; see xref:pipeline/spark/lakehouse.adoc[lakehouse guide]

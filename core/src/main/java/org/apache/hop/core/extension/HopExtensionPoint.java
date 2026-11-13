@@ -218,6 +218,14 @@ public enum HopExtensionPoint {
   HopImportCreateProject(
       "Register a project for an import target folder: {folder} or {folder, project name}"),
   ProjectHome("Calculates the home folder of a project: {project name, home folder}"),
+
+  /**
+   * The native Spark engine asks for the submitter and staging store of a cluster type that another
+   * plugin provides. Payload is {@code SparkClusterTarget}; the Databricks plugin answers for the
+   * Databricks cluster type, so the Spark engine plugin does not depend on it.
+   */
+  SparkClusterTarget(
+      "Provide the submitter and staging store of a native Spark cluster type (SparkClusterTarget)"),
   ;
 
   public String id;

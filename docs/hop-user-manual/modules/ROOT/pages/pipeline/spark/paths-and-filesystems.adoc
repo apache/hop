@@ -125,7 +125,7 @@ If `HADOOP_HOME` points at a directory that contains `bin/winutils.exe`, Hop kee
 |`$\{PROJECT_HOME\}/data.csv`
 |Resolved, then Hop VFS or local rules
 |Resolved, then Hadoop default FS / local path
-|On cluster submit, set `PROJECT_HOME` in the env config to a **Spark-visible** URI (for object storage prefer `s3a://…`)
+|On a cluster `PROJECT_HOME` is the project package (see <<spark-project-package>>): put data in `HOP_DATA` or an explicit Spark URI (`s3a://…`, `hdfs://…`)
 |===
 
 == MinIO and S3-compatible storage
@@ -135,22 +135,23 @@ Hop’s xref:metadata-types/minio-connection.adoc[Minio Connection] metadata reg
 On **Spark file input/output** and **Lake PATH**:
 
 . Put objects under a URI Spark’s S3A client can open, typically `s3a://bucket/prefix/…`.
-. Point S3A at your endpoint with run-configuration *Spark config* lines, for example:
-
-[source]
-----
-spark.hadoop.fs.s3a.endpoint=https://minio.example.com:9000
-spark.hadoop.fs.s3a.path.style.access=true
-spark.hadoop.fs.s3a.access.key=...
-spark.hadoop.fs.s3a.secret.key=...
-----
+. Point S3A at your endpoint with rows in the *Spark settings* table of the run configuration, for example:
++
+[options="header"]
+|===
+|Key |Value
+|`spark.hadoop.fs.s3a.endpoint` |`https://minio.example.com:9000`
+|`spark.hadoop.fs.s3a.path.style.access` |`true`
+|`spark.hadoop.fs.s3a.access.key` |`...`
+|`spark.hadoop.fs.s3a.secret.key` |`...`
+|===
 
 (Exact keys depend on your Hadoop/Spark version and security model; prefer IAM roles on cloud clusters over embedding keys when possible.)
 
 [[spark-project-package]]
 == Project package (nested pipelines / mappings)
 
-Native Spark ships only the *top-level* pipeline XML plus metadata JSON by default. Transforms such as *Simple Mapping* and *Pipeline Executor* load child `.hpl` files at runtime via Hop VFS using paths like `$\{PROJECT_HOME\}/mappings/child.hpl`. On a cluster those files must exist where every executor can open them.
+When Hop runs a pipeline on a cluster (client or cluster mode, or the cluster type *Databricks*), it exports and ships the project package itself. Export one by hand only for `spark-submit` and for Databricks *Deploy & run* with *Upload Spark project package*. Without a package only the *top-level* pipeline XML plus metadata JSON go to the cluster, and transforms such as *Simple Mapping* and *Pipeline Executor* load child `.hpl` files at runtime via Hop VFS using paths like `$\{PROJECT_HOME\}/mappings/child.hpl`. On a cluster those files must exist where every executor can open them.
 
 === Export a Spark project package
 
@@ -256,47 +257,47 @@ Variables:
 
 [IMPORTANT]
 ====
-With a project package, **`PROJECT_HOME` is the extracted definition tree**, not your object-store data root.
+With a project package, **`PROJECT_HOME` is the extracted definition tree**, not your object-store data root. A JVM that sees the client's project folder itself, on the same machine or on a shared file system, keeps using that folder.
 
 * Nested mappings: `$\{PROJECT_HOME\}/mappings/…` ✅
 * Spark file input data: use `HOP_DATA`, `OUTPUT_ROOT`, or explicit `s3a://…` / `hdfs://…` — **not** `$\{PROJECT_HOME\}/files/…` unless those files are small resources inside the package and you accept local extract paths.
 
-The path scheme map (`s3=s3a`) is independent: it rewrites Dataset schemes only.
+The path scheme map (`s3` to `s3a`) is independent: it rewrites Dataset schemes only.
 ====
 
 Limitations: Workflow Executor and dynamic Pipeline Executor filenames remain experimental. The package must be readable on the *driver* at submit time so `addFile` can stage it (local path or VFS URI Hop can open).
 
 === Path scheme map (run configuration)
 
-The Native Spark pipeline run configuration includes an optional **Path scheme map** field: multi-line `from=to` entries applied **only** to *Spark file input/output* and *Lake Table PATH* URIs after variable resolution (not to classic Hop VFS / mapPartitions paths).
+The Native Spark pipeline run configuration has an optional **Path scheme map** table on its *Spark settings* tab: a *From scheme* and a *To scheme* per row, applied **only** to *Spark file input/output* and *Lake Table PATH* URIs (Delta, Iceberg) after variable resolution, not to classic Hop VFS / mapPartitions paths.
 
-Example:
+Example, Hop VFS and named schemes to Spark/Hadoop schemes:
 
-[source]
-----
-# Hop VFS / named schemes -> Spark/Hadoop schemes
-s3=s3a
-minio=s3a
-azure=abfs
-----
+[options="header"]
+|===
+|From scheme |To scheme
+|`s3` |`s3a`
+|`minio` |`s3a`
+|`azure` |`abfs`
+|===
 
-* Tokens may be written as `s3` or `s3://` (normalized to bare scheme names).
-* Lines starting with `#` are comments.
+* Schemes may be written as `s3` or `s3://` (normalized to bare scheme names).
+* A run configuration saved with the older `from=to` text loads its lines as rows.
 * Mapping only rewrites the scheme; it does **not** inject credentials or endpoints — still set `spark.hadoop.fs.s3a.*` (or other FS config) for the *target* scheme.
 * Prefer putting the target URI in pipeline variables when you can; use the map when the same pipeline must keep Hop-style schemes in metadata.
 
 == Cluster environment variables
 
-When you `spark-submit` with an environment configuration file, remap project variables to **Spark URIs**, not Hop-only VFS schemes:
+When you `spark-submit` with an environment configuration file, give data variables **Spark URIs**, not Hop-only VFS schemes. Leave `PROJECT_HOME` to the project package:
 
 [source,json]
 ----
 {
   "variables": [
     {
-      "name": "PROJECT_HOME",
-      "value": "s3a://hop-project/",
-      "description": "Project root on object storage (Hadoop S3A URI for executors)"
+      "name": "HOP_DATA",
+      "value": "s3a://hop-project/data/",
+      "description": "Input data on object storage (Hadoop S3A URI for executors)"
     },
     {
       "name": "OUTPUT_ROOT",

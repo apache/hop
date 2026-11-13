@@ -199,6 +199,9 @@ A listener on `WorkflowFinish` should not assume it is called once per run.
 
 |`HopGuiPipelineFinished` (`HopGuiExtensionPoint`)
 |A pipeline that Hop GUI ran has finished.
+
+|`SparkClusterTarget`
+|The native Spark engine submits a run to a cluster type that another plugin provides, or *Test configuration* checks a run configuration of that type. The object is a `SparkClusterTarget` (`org.apache.hop.core.cluster`) with the code of the cluster type and the resolved settings of the run configuration (`connection`, `compute`, `runtime`, `nodeType`, `workers`, `stagingFolder`). The plugin of that cluster type sets the submitter (`ISparkClusterSubmitter`) and the staging store (`IStagingStore`); the others leave it alone. The Databricks plugin answers for `DATABRICKS`, so the Spark engine plugin does not depend on it.
 |===
 
 == Checks, database connections and metadata

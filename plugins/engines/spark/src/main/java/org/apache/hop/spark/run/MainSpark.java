@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -77,6 +78,8 @@ import org.apache.hop.spark.util.SparkConst;
 public class MainSpark {
 
   public static void main(String[] args) {
+    // This JVM is the submitted driver: run the pipeline here, don't submit it again
+    System.setProperty(SparkConst.MAIN_SPARK_DRIVER_PROPERTY, "true");
     try {
       runPipeline(args);
       // Success. Never call System.exit(0) when Databricks TrapExitSecurityManager is installed:
@@ -93,6 +96,8 @@ public class MainSpark {
       failAndExit(e);
     } catch (Exception e) {
       failAndExit(e);
+    } finally {
+      System.clearProperty(SparkConst.MAIN_SPARK_DRIVER_PROPERTY);
     }
   }
 
@@ -167,6 +172,38 @@ public class MainSpark {
       SparkProjectPackage.Materialized materialized = SparkProjectPackage.materialize(packageUri);
       SparkProjectPackage.applyToVariables(variables, materialized, packageUri);
       System.out.println(">>>>>> PROJECT_HOME=" + materialized.projectHome());
+      // A cluster-mode client ships its variables (project, environment, parameters). What this
+      // JVM already defines (system properties, the environment file, PROJECT_HOME) wins.
+      int applied = 0;
+      for (Map.Entry<String, String> packaged :
+          SparkProjectPackage.readPackagedVariables(materialized).entrySet()) {
+        if (variables.getVariable(packaged.getKey()) == null) {
+          variables.setVariable(packaged.getKey(), packaged.getValue());
+          applied++;
+        }
+      }
+      if (applied > 0) {
+        System.out.println(">>>>>> Applied " + applied + " variables of the submitting client");
+      }
+      // One machine or a shared file system: keep the client's project folder, as in client
+      // mode, so data under PROJECT_HOME stays where it is. Executors that do not see it use the
+      // package. A folder at that path that is not the packaged project (an old copy on this
+      // host) is left alone: sub-pipelines would come from it.
+      String clientHome = variables.getVariable(SparkProjectPackage.VAR_CLIENT_PROJECT_HOME);
+      if (StringUtils.isNotEmpty(clientHome) && new java.io.File(clientHome).isDirectory()) {
+        if (SparkProjectPackage.holdsTheProjectOf(materialized, clientHome)) {
+          variables.setVariable("PROJECT_HOME", clientHome);
+          variables.setVariable(SparkProjectPackage.VAR_PACKAGE_FALLBACK, "Y");
+          System.out.println(
+              ">>>>>> This host sees the project folder: PROJECT_HOME=" + clientHome);
+        } else {
+          System.out.println(
+              ">>>>>> "
+                  + clientHome
+                  + " on this host is not the project of the package: PROJECT_HOME stays the"
+                  + " package");
+        }
+      }
       System.out.println(
           ">>>>>> Note: PROJECT_HOME is the definition package root — use separate variables"
               + " (HOP_DATA / s3a://…) for Spark Dataset data paths.");
@@ -209,9 +246,12 @@ public class MainSpark {
         metadataProvider.getSerializer(PipelineRunConfiguration.class);
     if (!serializer.exists(runConfigName)) {
       throw new HopException(
-          "The specified pipeline run configuration '"
+          "The pipeline run configuration '"
               + runConfigName
-              + "' doesn't exist in the metadata export");
+              + "' is not in the metadata export, or the Hop code on this cluster can't load it:"
+              + " then an error 'Skipping the metadata object' above says why. On a Databricks"
+              + " all-purpose cluster the usual cause is the fat jar of an earlier Hop run that the"
+              + " cluster still has installed, with older code: restart the cluster.");
     }
 
     PipelineRunConfiguration pipelineRunConfiguration = serializer.load(runConfigName);
@@ -247,7 +287,7 @@ public class MainSpark {
           "ERROR: Unable to find native Spark pipeline engine plugin '"
               + SparkConst.PLUGIN_ID
               + "'. Is plugins/engines/spark included in the fat jar? "
-              + "Generate with: hop-conf.sh --generate-fat-jar=... --spark-client-version=native");
+              + "Generate with: hop-conf.sh --generate-fat-jar=... --fat-jar-engine=spark");
     }
 
     // Diagnose SPARK_HOME mismatches: if SPARK_HOME points at an older install
@@ -280,7 +320,9 @@ public class MainSpark {
    */
   static void finishSuccess() {
     if (shouldAvoidSystemExitOnSuccess()) {
-      System.out.println(">>>>>> Skipping System.exit(0) (Databricks / TrapExit security manager)");
+      System.out.println(
+          ">>>>>> Skipping System.exit(0) (YARN application master, Databricks or TrapExit"
+              + " security manager)");
       return;
     }
     try {
@@ -330,7 +372,21 @@ public class MainSpark {
 
   /** Prefer returning from main over System.exit(0) when exit is trapped or forbidden. */
   static boolean shouldAvoidSystemExitOnSuccess() {
-    return isDatabricksEnvironment();
+    return isDatabricksEnvironment() || isYarnApplicationMaster();
+  }
+
+  /**
+   * True in the YARN application master of a cluster-mode run. The master runs main() and reports
+   * the final status when it returns: System.exit before that makes YARN record "Shutdown hook
+   * called before final status was reported" as a failure and retry the application.
+   */
+  static boolean isYarnApplicationMaster() {
+    if ("yarn".equals(System.getProperty("spark.master"))
+        && "cluster".equals(System.getProperty("spark.submit.deployMode"))) {
+      return true;
+    }
+    return StringUtils.isNotEmpty(System.getenv("CONTAINER_ID"))
+        && StringUtils.isNotEmpty(System.getProperty("spark.yarn.app.id"));
   }
 
   static boolean hasTrapExitSecurityManager() {
