@@ -56,6 +56,8 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfsNamespace;
+import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionData;
@@ -195,6 +197,12 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private Timer executionInfoTimer;
   private volatile boolean executionInfoClosed;
 
+  /** The VFS namespace of this run, when its metadata is not the process metadata. */
+  private volatile HopVfsNamespace vfsNamespace;
+
+  /** The metadata the namespace was taken for, to let go of it by the same key. */
+  private IHopMetadataProvider vfsNamespaceProvider;
+
   /** Stable log channel IDs per transform name + copy for execution info / GUI. */
   private final Map<String, String> componentLogChannelIds = new ConcurrentHashMap<>();
 
@@ -232,6 +240,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   @SuppressWarnings("javabugs:S2259") // the run configuration is set before the engine is prepared
   @Override
   public void prepareExecution() throws HopException {
+    // Like the local engine: resolve the named VFS connections of this run's metadata (a project's
+    // MinIO, S3, ... connections) in a namespace of their own, not in the process wide manager.
+    vfsNamespaceProvider = metadataProvider;
+    vfsNamespace =
+        HopVfsNamespaces.acquire(this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
     try {
       executionStartDate = new Date();
       status = ComponentExecutionStatus.STATUS_INIT;
@@ -283,6 +296,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       setErrors(getErrors() + 1);
       setPaused(false);
       setPreparing(false);
+      releaseVfsNamespace();
       throw new HopException("Error preparing Spark pipeline", e);
     } finally {
       setPreparing(false);
@@ -291,11 +305,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   @Override
   public void startThreads() throws HopException {
+    HopVfsNamespace previousNamespace = null;
     ClassLoader pluginCl = getClass().getClassLoader();
     ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
     try {
       // Spark 4 resolves classic.SparkSession via the context classloader / plugin CL
       Thread.currentThread().setContextClassLoader(pluginCl);
+      previousNamespace = HopVfsNamespaces.bindThread(vfsNamespace);
 
       setRunning(true);
       setReadyToStart(false);
@@ -342,6 +358,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           new Thread(
               () -> {
                 ClassLoader prev = Thread.currentThread().getContextClassLoader();
+                HopVfsNamespaces.bindThread(vfsNamespace);
                 try {
                   Thread.currentThread().setContextClassLoader(pluginCl);
                   resultDataset = converter.createDataset(sparkSession);
@@ -395,6 +412,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   } catch (HopException ex) {
                     logChannel.logError("Error firing finished listeners", ex);
                   }
+                  releaseVfsNamespace();
                 }
               },
               "hop-spark-pipeline");
@@ -430,6 +448,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       throw new HopException("Unexpected error starting Spark pipeline", e);
     } finally {
       Thread.currentThread().setContextClassLoader(previousCl);
+      HopVfsNamespaces.restoreThread(previousNamespace);
     }
   }
 
@@ -1331,8 +1350,18 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
   }
 
+  /** Let go of the VFS namespace of this run, once and by the key it was taken with. */
+  private synchronized void releaseVfsNamespace() {
+    if (vfsNamespace != null) {
+      HopVfsNamespaces.release(vfsNamespaceProvider);
+      vfsNamespace = null;
+      vfsNamespaceProvider = null;
+    }
+  }
+
   @Override
   public void cleanup() {
+    releaseVfsNamespace();
     ExecutorUtil.cleanup(metricsRefreshTimer);
     ExecutorUtil.cleanup(executionInfoTimer);
     if (sparkSession != null && metricsListener != null) {
