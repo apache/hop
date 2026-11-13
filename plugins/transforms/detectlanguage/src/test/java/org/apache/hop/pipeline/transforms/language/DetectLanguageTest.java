@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.hop.pipeline.transforms.language;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,9 +31,11 @@ import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -63,6 +66,9 @@ class DetectLanguageTest {
 
   private TransformMockHelper<DetectLanguageMeta, DetectLanguageData> mockHelper;
 
+  /** Disposed after every test, also a failed one: the Lingua models live in static maps. */
+  private final List<TestDetectLanguage> transforms = new ArrayList<>();
+
   @BeforeEach
   void setUp() {
     mockHelper =
@@ -78,6 +84,9 @@ class DetectLanguageTest {
 
   @AfterEach
   void tearDown() {
+    for (TestDetectLanguage transform : transforms) {
+      transform.dispose();
+    }
     mockHelper.cleanUp();
   }
 
@@ -102,7 +111,7 @@ class DetectLanguageTest {
 
   @Test
   void rowsGetTheirLanguageAndBlankTextsPassAsUnknown() throws Exception {
-    DetectLanguage transform = createTransform(meta(false, false), false);
+    DetectLanguage transform = createTransform(meta(false, false));
     assertTrue(transform.init());
 
     BlockingRowSet output =
@@ -127,12 +136,24 @@ class DetectLanguageTest {
     assertNull(blank[3]);
 
     assertNull(output.getRowWait(100, TimeUnit.MILLISECONDS));
-    transform.dispose();
+  }
+
+  @Test
+  void theCorpusFieldCanComeFromAVariable() throws Exception {
+    DetectLanguageMeta meta = meta(false, false);
+    meta.setCorpusField("${TEXT_FIELD}");
+    DetectLanguage transform = createTransform(meta);
+    assertTrue(transform.init());
+    transform.setVariable("TEXT_FIELD", "comment");
+
+    BlockingRowSet output = run(transform, row(1L, GERMAN_TEXT));
+
+    assertEquals("GERMAN", output.getRowWait(1, TimeUnit.SECONDS)[2]);
   }
 
   @Test
   void lowAccuracyModeFillsBothFields() throws Exception {
-    DetectLanguage transform = createTransform(meta(false, true), false);
+    DetectLanguage transform = createTransform(meta(false, true));
     assertTrue(transform.init());
 
     BlockingRowSet output = run(transform, row(1L, GERMAN_TEXT));
@@ -140,12 +161,11 @@ class DetectLanguageTest {
     Object[] german = output.getRowWait(1, TimeUnit.SECONDS);
     assertEquals("GERMAN", german[2]);
     assertNotNull(german[3]);
-    transform.dispose();
   }
 
   @Test
   void parallelModeWritesEveryRow() throws Exception {
-    DetectLanguage transform = createTransform(meta(true, false), false);
+    DetectLanguage transform = createTransform(meta(true, false));
     assertTrue(transform.init());
 
     BlockingRowSet output =
@@ -158,13 +178,12 @@ class DetectLanguageTest {
       languageById.put(row[0], row[2]);
     }
     assertEquals(Map.of(1L, "ENGLISH", 2L, "FRENCH", 3L, "GERMAN"), languageById);
-    transform.dispose();
   }
 
   /** A failing parallel job used to leave the transform waiting forever at the end. */
   @Test
   void aFailingParallelJobStopsTheTransform() {
-    DetectLanguage transform = createTransform(meta(true, false), true);
+    DetectLanguage transform = createTransform(meta(true, false), DetectLanguageTest::noRoom);
     assertTrue(transform.init());
 
     HopException e =
@@ -172,7 +191,81 @@ class DetectLanguageTest {
             Duration.ofSeconds(30),
             () -> assertThrows(HopException.class, () -> run(transform, row(1L, ENGLISH_TEXT))));
     assertTrue(e.getMessage().contains("no room for this row"));
-    transform.dispose();
+  }
+
+  @Test
+  void aFailingParallelRowGoesToTheErrorHop() throws Exception {
+    when(mockHelper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    TestDetectLanguage transform = createTransform(meta(true, false), DetectLanguageTest::noRoom);
+    assertTrue(transform.init());
+
+    assertTimeoutPreemptively(
+        Duration.ofSeconds(30), () -> run(transform, row(1L, ENGLISH_TEXT), row(2L, FRENCH_TEXT)));
+
+    List<ErrorRow> errorRows = new ArrayList<>(transform.errorRows);
+    assertEquals(2, errorRows.size());
+    for (ErrorRow errorRow : errorRows) {
+      assertEquals("comment", errorRow.fieldNames());
+      assertEquals("DetectLanguage001", errorRow.errorCodes());
+    }
+  }
+
+  /** An Error says nothing about the row: it stops the transform, also with error handling on. */
+  @Test
+  void anErrorInAParallelJobStopsTheTransform() {
+    when(mockHelper.transformMeta.isDoingErrorHandling()).thenReturn(true);
+    TestDetectLanguage transform =
+        createTransform(
+            meta(true, false),
+            (rowMeta, row) -> {
+              throw new NoClassDefFoundError("simulated failure");
+            });
+    assertTrue(transform.init());
+
+    HopException e =
+        assertTimeoutPreemptively(
+            Duration.ofSeconds(30),
+            () -> assertThrows(HopException.class, () -> run(transform, row(1L, ENGLISH_TEXT))));
+    assertTrue(e.getMessage().contains("simulated failure"));
+    assertTrue(transform.errorRows.isEmpty());
+  }
+
+  /**
+   * After an error or a stop the transform is disposed without reaching the end of its input.
+   * Parallel jobs that still run use the detector, so dispose waits for them.
+   */
+  @Test
+  void disposeWaitsForTheParallelJobsStillRunning() throws Exception {
+    CountDownLatch writing = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    TestDetectLanguage transform =
+        createTransform(
+            meta(true, false),
+            (rowMeta, row) -> {
+              writing.countDown();
+              awaitQuietly(release);
+            });
+    assertTrue(transform.init());
+
+    connect(transform, row(1L, ENGLISH_TEXT), row(2L, FRENCH_TEXT), row(3L, GERMAN_TEXT));
+    for (int i = 0; i < 3; i++) {
+      assertTrue(transform.processRow());
+    }
+    assertTrue(writing.await(30, TimeUnit.SECONDS));
+
+    // What RunThread does when processRow fails or the pipeline is stopped
+    transform.stopAll();
+    Thread disposer = new Thread(transform::dispose, "dispose");
+    disposer.start();
+    disposer.join(300);
+    assertTrue(disposer.isAlive(), "dispose returned while a job was still running");
+    assertNotNull(transform.getData().detector);
+
+    release.countDown();
+    disposer.join(30_000);
+    assertFalse(disposer.isAlive());
+    assertNull(transform.getData().detector);
+    assertTrue(transform.errorRows.isEmpty());
   }
 
   @Test
@@ -180,7 +273,7 @@ class DetectLanguageTest {
     DetectLanguageMeta meta = meta(false, false);
     meta.getLanguages().add(new DetectLanguageChoice("KLINGON"));
 
-    assertFalse(createTransform(meta, false).init());
+    assertFalse(createTransform(meta).init());
   }
 
   private static DetectLanguageMeta meta(boolean parallelism, boolean lowAccuracy) {
@@ -199,8 +292,20 @@ class DetectLanguageTest {
     return new Object[] {id, comment};
   }
 
-  /** Feeds the rows through the transform until it reports the end of its input. */
-  private BlockingRowSet run(DetectLanguage transform, Object[]... rows) throws HopException {
+  private static void noRoom(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    throw new HopTransformException("no room for this row");
+  }
+
+  private static void awaitQuietly(CountDownLatch latch) {
+    try {
+      latch.await(30, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /** Connects an input holding the rows, and an output, to the transform. */
+  private static BlockingRowSet connect(DetectLanguage transform, Object[]... rows) {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("id"));
     rowMeta.addValueMeta(new ValueMetaString("comment"));
@@ -218,7 +323,13 @@ class DetectLanguageTest {
 
     transform.addRowSetToInputRowSets(input);
     transform.addRowSetToOutputRowSets(output);
+    return output;
+  }
 
+  /** Feeds the rows through the transform until it reports the end of its input. */
+  private static BlockingRowSet run(DetectLanguage transform, Object[]... rows)
+      throws HopException {
+    BlockingRowSet output = connect(transform, rows);
     List<Boolean> results = new ArrayList<>();
     boolean more = true;
     while (more) {
@@ -229,19 +340,62 @@ class DetectLanguageTest {
     return output;
   }
 
-  private DetectLanguage createTransform(DetectLanguageMeta meta, boolean failOnWrite) {
+  private TestDetectLanguage createTransform(DetectLanguageMeta meta) {
+    return createTransform(meta, null);
+  }
+
+  private TestDetectLanguage createTransform(DetectLanguageMeta meta, RowWrite write) {
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
-    DetectLanguageData data = new DetectLanguageData();
-    if (!failOnWrite) {
-      return new DetectLanguage(
-          mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+    TestDetectLanguage transform = new TestDetectLanguage(mockHelper, meta, write);
+    transforms.add(transform);
+    return transform;
+  }
+
+  /** What a test's transform does with an output row instead of writing it. */
+  @FunctionalInterface
+  private interface RowWrite {
+    void write(IRowMeta rowMeta, Object[] row) throws HopTransformException;
+  }
+
+  private record ErrorRow(Object id, String fieldNames, String errorCodes) {}
+
+  /** The transform, with the writes a test controls and the error rows it sends. */
+  private static class TestDetectLanguage extends DetectLanguage {
+    private final RowWrite write;
+    final List<ErrorRow> errorRows = Collections.synchronizedList(new ArrayList<>());
+
+    TestDetectLanguage(
+        TransformMockHelper<DetectLanguageMeta, DetectLanguageData> helper,
+        DetectLanguageMeta meta,
+        RowWrite write) {
+      super(
+          helper.transformMeta,
+          meta,
+          new DetectLanguageData(),
+          0,
+          helper.pipelineMeta,
+          helper.pipeline);
+      this.write = write;
     }
-    return new DetectLanguage(
-        mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline) {
-      @Override
-      public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
-        throw new HopTransformException("no room for this row");
+
+    @Override
+    public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+      if (write == null) {
+        super.putRow(rowMeta, row);
+      } else {
+        write.write(rowMeta, row);
       }
-    };
+    }
+
+    @Override
+    public void putError(
+        IRowMeta rowMeta,
+        Object[] row,
+        long nrErrors,
+        String errorDescriptions,
+        String fieldNames,
+        String errorCodes) {
+      errorRows.add(new ErrorRow(row[0], fieldNames, errorCodes));
+    }
   }
 }

@@ -31,6 +31,9 @@ public class DetectLanguageData extends BaseTransformData implements ITransformD
   public IRowMeta outputRowMeta;
   public int NrPrevFields;
 
+  /** The name of the corpus field, its variables resolved. */
+  public String corpusField;
+
   /** Built in init() from the configured languages and accuracy mode. */
   public LanguageDetector detector;
 

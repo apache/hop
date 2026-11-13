@@ -36,7 +36,6 @@ public class DetectLanguageDialog extends BaseTransformDialog {
 
   private final DetectLanguageMeta input;
   private GuiCompositeWidgets widgets;
-  private boolean loading;
 
   public DetectLanguageDialog(
       Shell parent,
@@ -53,7 +52,6 @@ public class DetectLanguageDialog extends BaseTransformDialog {
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     changed = input.hasChanged();
-    loading = true;
 
     widgets =
         GuiCompositeWidgets.addScrolledComposite(
@@ -68,14 +66,12 @@ public class DetectLanguageDialog extends BaseTransformDialog {
           @Override
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-            if (!loading) {
-              input.setChanged();
-            }
+            input.setChanged();
           }
         });
 
     setFieldComboValues();
-    loading = false;
+    // Filling the field combo is not a change
     input.setChanged(changed);
 
     focusTransformName();
@@ -92,27 +88,15 @@ public class DetectLanguageDialog extends BaseTransformDialog {
     try {
       IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
       String[] names = fields == null ? new String[0] : fields.getFieldNames();
-      // Setting items clears the widget's text, so put the saved selection back afterwards.
-      String selected = comboText(DetectLanguageMeta.WIDGET_CORPUS_FIELD);
       widgets.setComboValues(DetectLanguageMeta.WIDGET_CORPUS_FIELD, names);
-      if (!Utils.isEmpty(selected)) {
-        setComboText(DetectLanguageMeta.WIDGET_CORPUS_FIELD, selected);
+      // Setting items clears the widget's text, so put the configured field back afterwards.
+      if (!Utils.isEmpty(input.getCorpusField())) {
+        setComboText(DetectLanguageMeta.WIDGET_CORPUS_FIELD, input.getCorpusField());
       }
     } catch (Exception e) {
       LogChannel.UI.logError(
           BaseMessages.getString(PKG, "DetectLanguageDialog.FailedToGetFields.DialogMessage"), e);
     }
-  }
-
-  private String comboText(String widgetId) {
-    Control control = widgets.getWidgetsMap().get(widgetId);
-    if (control instanceof ComboVar comboVar && !comboVar.isDisposed()) {
-      return comboVar.getText();
-    }
-    if (control instanceof Combo combo && !combo.isDisposed()) {
-      return combo.getText();
-    }
-    return "";
   }
 
   private void setComboText(String widgetId, String text) {

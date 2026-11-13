@@ -105,26 +105,39 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
 
   @Override
   public void dispose() {
-    // Lingua keeps its models in static maps: release what this transform asked for. Another
-    // Detect language transform that is still running loads them again on demand.
-    if (data.detector != null) {
-      data.detector.unloadLanguageModels();
-      data.detector = null;
+    try {
+      // After an error or a stop the transform ends without finish(), and parallel jobs can still
+      // be queued. They use the detector: unloading under them would make them fail on a missing
+      // detector, or load the models again with nothing left to unload them.
+      awaitJobs();
+      if (data.detector != null) {
+        // Lingua keeps its models in static maps: release what this transform asked for. Another
+        // Detect language transform that is still running loads them again on demand.
+        data.detector.unloadLanguageModels();
+        data.detector = null;
+      }
+    } catch (InterruptedException e) {
+      // Jobs can still be using the models: leave them loaded rather than pull them away.
+      Thread.currentThread().interrupt();
     }
     super.dispose();
   }
 
-  private void finish() throws HopException {
-    // Wait until all jobs are finished.
+  /** Waits until every parallel job is done. */
+  private void awaitJobs() throws InterruptedException {
     synchronized (lock) {
       while (jobs.get() > 0) {
-        try {
-          lock.wait();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw new HopRuntimeException(e);
-        }
+        lock.wait();
       }
+    }
+  }
+
+  private void finish() throws HopException {
+    try {
+      awaitJobs();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new HopRuntimeException(e);
     }
     failOnAsyncFailure();
     setOutputDone();
@@ -157,7 +170,9 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (isEmpty(meta.getCorpusField())) {
+      // The field combo accepts variables
+      data.corpusField = resolve(meta.getCorpusField());
+      if (isEmpty(data.corpusField)) {
         throw new HopException(
             BaseMessages.getString(PKG, "DetectLanguage.Error.CorpusFieldMissing"));
       }
@@ -168,15 +183,14 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     // A parallel job failed and there is no error handling: stop instead of reading on.
     failOnAsyncFailure();
 
-    if (isRowLevel()) {
-      logRowlevel(
-          BaseMessages.getString(
-              PKG,
-              "DetectLanguage.LineNumber",
-              getLinesRead() + " : " + getInputRowMeta().getString(r)));
-    }
-
     try {
+      if (isRowLevel()) {
+        logRowlevel(
+            BaseMessages.getString(
+                PKG,
+                "DetectLanguage.LineNumber",
+                getLinesRead() + " : " + getInputRowMeta().getString(r)));
+      }
       process(r);
     } catch (Exception e) {
       if (!getTransformMeta().isDoingErrorHandling()) {
@@ -192,7 +206,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
 
   private void putErrorRow(Object[] row, Exception e) throws HopTransformException {
     synchronized (this) {
-      putError(getInputRowMeta(), row, 1, e.toString(), meta.getCorpusField(), ERROR_CODE);
+      putError(getInputRowMeta(), row, 1, e.toString(), data.corpusField, ERROR_CODE);
     }
   }
 
@@ -227,9 +241,14 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
     executor.submit(
         () -> {
           try {
-            processSync(corpus, inputRow);
-          } catch (Exception e) {
-            handleAsyncFailure(inputRow, e);
+            // Stopped: nobody wants the row anymore, and dispose() waits for the queue to drain.
+            if (!isStopped() || isSafeStopped()) {
+              processSync(corpus, inputRow);
+            }
+          } catch (Throwable t) {
+            // Throwable, not Exception: nobody reads the pool's Future, so an Error caught
+            // nowhere else would make the row disappear without a trace.
+            handleAsyncFailure(inputRow, t);
           } finally {
             // Always count the job down: finish() waits for zero.
             jobs.decrementAndGet();
@@ -240,26 +259,30 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         });
   }
 
-  private void handleAsyncFailure(Object[] inputRow, Exception e) {
-    if (getTransformMeta().isDoingErrorHandling()) {
+  /**
+   * A failed row goes to the error hop when there is one. An Error, such as running out of memory,
+   * says nothing about the row: it always stops the transform.
+   */
+  private void handleAsyncFailure(Object[] inputRow, Throwable failure) {
+    if (failure instanceof Exception e && getTransformMeta().isDoingErrorHandling()) {
       try {
         putErrorRow(inputRow, e);
         return;
       } catch (Exception errorRowFailure) {
-        e.addSuppressed(errorRowFailure);
+        failure.addSuppressed(errorRowFailure);
       }
     }
-    asyncFailure.compareAndSet(null, e);
+    asyncFailure.compareAndSet(null, failure);
   }
 
   private void cacheIndexPositions() throws HopException {
     if (data.indexOfCorpusField < 0) {
-      data.indexOfCorpusField = data.previousRowMeta.indexOfValue(meta.getCorpusField());
+      data.indexOfCorpusField = data.previousRowMeta.indexOfValue(data.corpusField);
       if (data.indexOfCorpusField < 0) {
         // The field is unreachable!
         throw new HopException(
             BaseMessages.getString(
-                PKG, "DetectLanguage.Exception.CouldnotFindField", meta.getCorpusField()));
+                PKG, "DetectLanguage.Exception.CouldnotFindField", data.corpusField));
       }
     }
     if (data.indexOfDetectedLanguage < 0) {

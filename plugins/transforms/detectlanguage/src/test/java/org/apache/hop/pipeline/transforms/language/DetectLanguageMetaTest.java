@@ -163,6 +163,46 @@ class DetectLanguageMetaTest {
                         && r.getText().contains("KLINGON")));
   }
 
+  /** A language from a variable that only gets a value when the pipeline runs is not an error. */
+  @Test
+  void checkLeavesLanguagesFromRuntimeVariablesToTheRun() {
+    DetectLanguageMeta meta = new DetectLanguageMeta();
+    meta.setCorpusField("comment");
+    meta.getLanguages().add(new DetectLanguageChoice("ENGLISH"));
+    meta.getLanguages().add(new DetectLanguageChoice("${SECOND_LANGUAGE}"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("Detect");
+    meta.check(
+        remarks,
+        null,
+        transformMeta,
+        null,
+        new String[] {"in"},
+        new String[0],
+        null,
+        new Variables(),
+        new MemoryMetadataProvider());
+
+    assertTrue(remarks.stream().noneMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR));
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("${SECOND_LANGUAGE}")));
+  }
+
+  @Test
+  void runningWithAnUnresolvedLanguageStillFails() {
+    DetectLanguageMeta meta = new DetectLanguageMeta();
+    meta.getLanguages().add(new DetectLanguageChoice("ENGLISH"));
+    meta.getLanguages().add(new DetectLanguageChoice("${SECOND_LANGUAGE}"));
+
+    assertThrows(HopException.class, () -> meta.resolveLanguages(new Variables()));
+  }
+
   private static DetectLanguageMeta load(String xml) throws Exception {
     Node node = XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), "transform");
     DetectLanguageMeta meta = new DetectLanguageMeta();

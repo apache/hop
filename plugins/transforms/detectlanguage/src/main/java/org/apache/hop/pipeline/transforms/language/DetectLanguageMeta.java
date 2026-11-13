@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.language;
 
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
+import static org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING;
 import static org.apache.hop.core.util.Utils.isEmpty;
 
 import com.github.pemistahl.lingua.api.Language;
@@ -40,6 +41,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -169,6 +171,17 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
    *     configured: detection needs at least two to choose from
    */
   public List<Language> resolveLanguages(IVariables variables) throws HopException {
+    return resolveLanguages(variables, null);
+  }
+
+  /**
+   * Resolves the configured languages, leaving out the names that still hold a variable.
+   *
+   * @param unresolved when not null, a name that still holds a variable after resolving is added
+   *     here instead of failing: Verify does not know the values a pipeline only gets when it runs
+   */
+  List<Language> resolveLanguages(IVariables variables, List<String> unresolved)
+      throws HopException {
     List<Language> resolved = new ArrayList<>();
     if (languages == null) {
       return resolved;
@@ -181,6 +194,10 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
       if (StringUtils.isBlank(name)) {
         continue;
       }
+      if (unresolved != null && StringUtil.containsVariableToken(name)) {
+        unresolved.add(name.trim());
+        continue;
+      }
       Language language = findLanguage(name.trim());
       if (language == null) {
         throw new HopException(
@@ -190,7 +207,8 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
         resolved.add(language);
       }
     }
-    if (resolved.size() == 1) {
+    // With names still to be resolved, the number of languages is not known yet
+    if (resolved.size() == 1 && (unresolved == null || unresolved.isEmpty())) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "DetectLanguage.Error.SingleLanguage", resolved.get(0).name()));
@@ -261,15 +279,27 @@ public class DetectLanguageMeta extends BaseTransformMeta<DetectLanguage, Detect
     remarks.add(cr);
 
     try {
-      List<Language> resolved = resolveLanguages(variables);
-      cr =
-          new CheckResult(
-              TYPE_RESULT_OK,
-              resolved.isEmpty()
-                  ? BaseMessages.getString(PKG, "DetectLanguageMeta.CheckResult.AllLanguages")
-                  : BaseMessages.getString(
-                      PKG, "DetectLanguageMeta.CheckResult.LanguagesOK", resolved.size()),
-              transformMeta);
+      List<String> unresolved = new ArrayList<>();
+      List<Language> resolved = resolveLanguages(variables, unresolved);
+      if (!unresolved.isEmpty()) {
+        cr =
+            new CheckResult(
+                TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    PKG,
+                    "DetectLanguageMeta.CheckResult.LanguagesResolvedAtRuntime",
+                    String.join(", ", unresolved)),
+                transformMeta);
+      } else {
+        cr =
+            new CheckResult(
+                TYPE_RESULT_OK,
+                resolved.isEmpty()
+                    ? BaseMessages.getString(PKG, "DetectLanguageMeta.CheckResult.AllLanguages")
+                    : BaseMessages.getString(
+                        PKG, "DetectLanguageMeta.CheckResult.LanguagesOK", resolved.size()),
+                transformMeta);
+      }
     } catch (HopException e) {
       cr = new CheckResult(TYPE_RESULT_ERROR, e.getMessage().trim(), transformMeta);
     }
