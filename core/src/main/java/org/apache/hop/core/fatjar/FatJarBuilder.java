@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.hop.beam.pipeline.fatjar;
+package org.apache.hop.core.fatjar;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,10 +42,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.jboss.jandex.IndexWriter;
 import org.jboss.jandex.Indexer;
 
@@ -53,6 +57,23 @@ public class FatJarBuilder {
 
   public static final String CONST_META_INF = "META-INF";
   private ILogChannel log;
+
+  /** A progress line in the log every this many percent of the jar files. */
+  static final int PROGRESS_STEP_PCT = 10;
+
+  private static final Class<?> PKG = FatJarBuilder.class;
+
+  /** The message of the exception a canceled build throws. */
+  public static final String CANCELED_MESSAGE = "The fat jar build was canceled";
+
+  /**
+   * Optional: gets one unit of work per jar file and the name of the jar being added, and stops the
+   * build when canceled. The builder never calls {@link IProgressMonitor#done()}: that is up to the
+   * caller, which may have more to do.
+   */
+  @SuppressWarnings("java:S2065") // disable sonar warning on transient
+  private transient IProgressMonitor progressMonitor;
+
   private IVariables variables;
   private String targetJarFile;
   private List<String> jarFiles;
@@ -97,13 +118,47 @@ public class FatJarBuilder {
     String realTargetJarFile = variables.resolve(targetJarFile);
 
     Indexer indexer = new Indexer();
+    boolean canceled = false;
+    if (progressMonitor != null) {
+      progressMonitor.beginTask(
+          BaseMessages.getString(PKG, "FatJarBuilder.Progress.AddingJars", jarFiles.size()),
+          jarFiles.size());
+    }
 
     try {
-      byte[] buffer = new byte[1024];
+      // Buffered on both ends: unbuffered 1 kB writes made a build on a slow (network, Docker
+      // bind mount) file system take ten times longer
+      byte[] buffer = new byte[64 * 1024];
       try (JarOutputStream zipOutputStream =
-          new JarOutputStream(new FileOutputStream(realTargetJarFile))) {
+          new JarOutputStream(
+              new BufferedOutputStream(new FileOutputStream(realTargetJarFile), 1024 * 1024))) {
 
+        int done = 0;
+        int nextReport = PROGRESS_STEP_PCT;
         for (String jarFile : jarFiles) {
+          if (progressMonitor != null) {
+            if (progressMonitor.isCanceled()) {
+              canceled = true;
+              break;
+            }
+            progressMonitor.subTask(new File(jarFile).getName());
+            progressMonitor.worked(1);
+          }
+          done++;
+          // A build takes a minute: say how far it is, so a log or a progress dialog that shows
+          // the last line doesn't look stuck
+          int percent = done * 100 / jarFiles.size();
+          if (percent >= nextReport) {
+            log.logBasic(
+                "Fat jar: "
+                    + done
+                    + " of "
+                    + jarFiles.size()
+                    + " jar files added ("
+                    + percent
+                    + "%)");
+            nextReport = (percent / PROGRESS_STEP_PCT + 1) * PROGRESS_STEP_PCT;
+          }
 
           // Let's do a duplicate jar file check on the base name of the file
           //
@@ -123,7 +178,9 @@ public class FatJarBuilder {
           }
           fileSet.add(jarFileBaseName);
 
-          try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(jarFile))) {
+          try (ZipInputStream zipInputStream =
+              new ZipInputStream(
+                  new BufferedInputStream(new FileInputStream(jarFile), 256 * 1024))) {
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry != null) {
 
@@ -248,31 +305,43 @@ public class FatJarBuilder {
           }
         }
 
-        // Add the META-INF/MANIFEST.MF file:
-        addInfoManifestMf(zipOutputStream);
-
-        // Add the META-INF/services files...
-        //
-        for (String entryName : fileContentMap.keySet()) {
-          String fileContent = fileContentMap.get(entryName);
-          zipOutputStream.putNextEntry(new ZipEntry(entryName));
-          zipOutputStream.write(fileContent.getBytes(StandardCharsets.UTF_8));
-          zipOutputStream.closeEntry();
+        if (canceled) {
+          log.logBasic("Fat jar build canceled after " + done + " of " + jarFiles.size() + " jars");
+        } else {
+          addIndexAndMetaInf(zipOutputStream, indexer);
         }
-
-        // Add META-INF/jandex.idx file
-        //
-        log.logBasic("Adding Jandex index");
-        zipOutputStream.putNextEntry(new ZipEntry(JarCache.ANNOTATION_INDEX_LOCATION));
-        IndexWriter indexWriter = new IndexWriter(zipOutputStream);
-        indexWriter.write(indexer.complete());
-        zipOutputStream.closeEntry();
       }
     } catch (Exception e) {
       throw new HopException("Unable to build far jar file '" + realTargetJarFile + "'", e);
     } finally {
       fileContentMap.clear();
     }
+    if (canceled) {
+      // Half a jar is of no use to anyone
+      new File(realTargetJarFile).delete();
+      throw new HopException(CANCELED_MESSAGE);
+    }
+  }
+
+  private void addIndexAndMetaInf(JarOutputStream zipOutputStream, Indexer indexer)
+      throws IOException {
+    if (progressMonitor != null) {
+      progressMonitor.subTask(BaseMessages.getString(PKG, "FatJarBuilder.Progress.Index"));
+    }
+    addInfoManifestMf(zipOutputStream);
+
+    // The merged META-INF/services files
+    for (Map.Entry<String, String> entry : fileContentMap.entrySet()) {
+      zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
+      zipOutputStream.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
+      zipOutputStream.closeEntry();
+    }
+
+    log.logBasic("Adding Jandex index");
+    zipOutputStream.putNextEntry(new ZipEntry(JarCache.ANNOTATION_INDEX_LOCATION));
+    IndexWriter indexWriter = new IndexWriter(zipOutputStream);
+    indexWriter.write(indexer.complete());
+    zipOutputStream.closeEntry();
   }
 
   private static void addInfoManifestMf(JarOutputStream zipOutputStream) throws IOException {
