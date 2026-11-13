@@ -41,7 +41,10 @@ NOTE: Before Hop 2.21, rows with empty HTML were dropped: they did not reach the
 |Clean HTML Only|Keep the HTML and remove the elements and attributes that the safelist does not allow, instead of turning the HTML into text.
 |Safelist|With *Clean HTML Only*: what the cleaned HTML may keep. *None* keeps only the text, *Simple text* adds bold, italic and underline, *Basic* adds links, lists, quotes and paragraphs, *Basic with images* adds images, and *Relaxed* adds headings, tables, divisions and other structural elements.
 |Normalize Text|For text: replace runs of white space, line breaks included, with a single space. Without it the text keeps its white space.
-|Use Parallelism|Convert the rows on several threads at the same time. The rows can come out in a different order than they came in.
 |===
 
-A row that cannot be converted stops the transform. When the transform has error handling, the row goes to the error hop instead, also with *Use Parallelism*.
+A row that cannot be converted stops the transform. When the transform has error handling, the row goes to the error hop instead.
+
+To convert rows on several threads, give the transform more copies: each copy converts the rows it gets on a thread of its own.
+
+NOTE: Before Hop 2.21, the transform had a *Use Parallelism* option that converted rows on a thread pool shared by the whole JVM. That option is gone: a transform that had it on converts its rows on one thread per copy now. Set the number of copies to use more threads.

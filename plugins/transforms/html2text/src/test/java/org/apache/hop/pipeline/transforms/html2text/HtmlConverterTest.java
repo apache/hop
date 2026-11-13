@@ -19,12 +19,7 @@ package org.apache.hop.pipeline.transforms.html2text;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
@@ -102,23 +97,15 @@ class HtmlConverterTest {
     }
   }
 
-  /** One converter serves all the worker threads of the parallel mode. */
+  /** One converter, so one parser, for row after row: nothing of a row stays for the next one. */
   @Test
-  void manyThreadsGetTheirOwnResults() throws Exception {
-    HtmlConverter converter = new HtmlConverter(false, SafelistType.BASIC, true);
-    ExecutorService pool = Executors.newFixedThreadPool(8);
-    try {
-      List<Future<String>> results = new ArrayList<>();
-      for (int i = 0; i < 4000; i++) {
-        String html = "<p>row <b>" + i + "</b></p>" + HTML.get(i % HTML.size());
-        results.add(pool.submit(() -> converter.convert(html)));
-      }
-      for (int i = 0; i < results.size(); i++) {
-        String html = "<p>row <b>" + i + "</b></p>" + HTML.get(i % HTML.size());
-        assertEquals(textBefore(html, true), results.get(i).get(1, TimeUnit.MINUTES));
-      }
-    } finally {
-      pool.shutdownNow();
+  void oneConverterGivesEveryRowItsOwnText() {
+    HtmlConverter text = new HtmlConverter(false, SafelistType.BASIC, true);
+    HtmlConverter clean = new HtmlConverter(true, SafelistType.BASIC, false);
+    for (int i = 0; i < 4000; i++) {
+      String html = "<p>row <b>" + i + "</b></p>" + HTML.get(i % HTML.size());
+      assertEquals(textBefore(html, true), text.convert(html), html);
+      assertEquals(cleanBefore(html, Safelist.basic()), clean.convert(html), html);
     }
   }
 }

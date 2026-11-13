@@ -30,12 +30,11 @@ import org.jsoup.safety.Safelist;
  * new safelist and a new cleaner for every call. Here they are made once and used for every row.
  * The outcome is the same.
  *
- * <p>Safe to use from several threads at once. A jsoup parser lets one thread in at a time, so each
- * thread gets its own: with one parser for all of them, parallel rows would wait for each other.
+ * <p>One converter per transform copy, used by the thread of that copy only.
  */
 final class HtmlConverter {
 
-  private final ThreadLocal<Parser> parsers = ThreadLocal.withInitial(Parser::htmlParser);
+  private final Parser parser = Parser.htmlParser();
 
   /** Null when the HTML is turned into text. */
   private final Cleaner cleaner;
@@ -78,10 +77,10 @@ final class HtmlConverter {
     return normalisedText ? document.text() : document.wholeText();
   }
 
-  /** What Jsoup.parseBodyFragment(html) does, with this thread's parser. */
+  /** What Jsoup.parseBodyFragment(html) does, with the parser of this converter. */
   private Document parseBodyFragment(String html) {
     Document document = Document.createShell("");
-    document.body().appendChildren(parsers.get().parseFragmentInput(html, document.body(), ""));
+    document.body().appendChildren(parser.parseFragmentInput(html, document.body(), ""));
     return document;
   }
 }

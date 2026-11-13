@@ -1,6 +1,6 @@
 {
-  "base_filename": "golden-0127-html2text-parallel.csv",
-  "name": "golden-0127-html2text-parallel",
+  "base_filename": "golden-0127-html2text-copies.csv",
+  "name": "golden-0127-html2text-copies",
   "description": "",
   "dataset_fields": [
     {

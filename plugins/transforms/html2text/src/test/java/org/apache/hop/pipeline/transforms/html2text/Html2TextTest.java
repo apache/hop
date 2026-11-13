@@ -21,17 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,7 +75,7 @@ class Html2TextTest {
 
   @Test
   void theTextOfTheHtmlGoesIntoTheOutputField() throws Exception {
-    Html2Text transform = createTransform(meta(false), false);
+    Html2Text transform = createTransform(meta(), false);
     assertTrue(transform.init());
 
     BlockingRowSet output =
@@ -96,7 +93,7 @@ class Html2TextTest {
   /** A row with a null or blank HTML field used to disappear from the stream. */
   @Test
   void aRowWithEmptyHtmlPassesOnWithAnEmptyText() throws Exception {
-    Html2Text transform = createTransform(meta(false), false);
+    Html2Text transform = createTransform(meta(), false);
     assertTrue(transform.init());
 
     BlockingRowSet output =
@@ -117,50 +114,54 @@ class Html2TextTest {
   }
 
   @Test
-  void parallelModeWritesEveryRow() throws Exception {
-    Html2Text transform = createTransform(meta(true), false);
-    assertTrue(transform.init());
-
-    Object[][] rows = new Object[200][];
-    for (int i = 0; i < rows.length; i++) {
-      rows[i] = row((long) i, i % 10 == 0 ? null : "<p>row <i>" + i + "</i></p>");
-    }
-    BlockingRowSet output = run(transform, rows);
-
-    Map<Object, Object> textById = new HashMap<>();
-    for (int i = 0; i < rows.length; i++) {
-      Object[] row = output.getRowWait(5, TimeUnit.SECONDS);
-      assertNotNull(row);
-      textById.put(row[0], row[2]);
-    }
-    assertEquals(rows.length, textById.size());
-    assertEquals("", textById.get(0L));
-    assertEquals("row 7", textById.get(7L));
-    assertEquals("row 199", textById.get(199L));
-    transform.dispose();
-  }
-
-  /** A failing parallel job used to leave the transform waiting forever at the end. */
-  @Test
-  void aFailingParallelJobStopsTheTransform() {
-    Html2Text transform = createTransform(meta(true), true);
-    assertTrue(transform.init());
-
-    HopException e =
-        assertTimeoutPreemptively(
-            Duration.ofSeconds(30),
-            () -> assertThrows(HopException.class, () -> run(transform, row(1L, "<p>x</p>"))));
-    assertTrue(e.getMessage().contains("no room for this row"));
-    transform.dispose();
-  }
-
-  @Test
-  void aFailingRowStopsTheTransformWithoutParallelismToo() {
-    Html2Text transform = createTransform(meta(false), true);
+  void aFailingRowStopsTheTransform() {
+    Html2Text transform = createTransform(meta(), true);
     assertTrue(transform.init());
 
     HopException e = assertThrows(HopException.class, () -> run(transform, row(1L, "<p>x</p>")));
     assertTrue(e.getMessage().contains("no room for this row"));
+    transform.dispose();
+  }
+
+  /**
+   * Like every transform, a copy writes each row on its own thread, before processRow() returns, in
+   * the order the rows came in. To convert on more threads, run more copies.
+   */
+  @Test
+  void eachRowIsWrittenOnTheTransformThreadBeforeProcessRowReturns() throws Exception {
+    List<Thread> writers = new ArrayList<>();
+    Html2TextMeta meta = meta();
+    when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
+    Html2Text transform =
+        new Html2Text(
+            mockHelper.transformMeta,
+            meta,
+            new Html2TextData(),
+            0,
+            mockHelper.pipelineMeta,
+            mockHelper.pipeline) {
+          @Override
+          public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+            writers.add(Thread.currentThread());
+            super.putRow(rowMeta, row);
+          }
+        };
+    assertTrue(transform.init());
+    Object[][] rows = new Object[100][];
+    for (int i = 0; i < rows.length; i++) {
+      rows[i] = row((long) i, i % 10 == 0 ? null : "<p>row <i>" + i + "</i></p>");
+    }
+    BlockingRowSet output = connect(transform, rows);
+
+    for (int i = 0; i < rows.length; i++) {
+      assertTrue(transform.processRow());
+      assertEquals(i + 1, writers.size());
+      assertSame(Thread.currentThread(), writers.get(i));
+      Object[] written = output.getRowImmediate();
+      assertNotNull(written, "row " + i + " was not written yet");
+      assertEquals((long) i, written[0]);
+    }
+    assertFalse(transform.processRow());
     transform.dispose();
   }
 
@@ -169,7 +170,7 @@ class Html2TextTest {
   void copiesRunningAtTheSameTimeDoNotMixTheirRows() throws Exception {
     int copies = 6;
     int rowsPerCopy = 300;
-    Html2TextMeta meta = meta(false);
+    Html2TextMeta meta = meta();
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
     ExecutorService pool = Executors.newFixedThreadPool(copies);
     try {
@@ -204,13 +205,12 @@ class Html2TextTest {
     }
   }
 
-  private static Html2TextMeta meta(boolean parallelism) {
+  private static Html2TextMeta meta() {
     Html2TextMeta meta = new Html2TextMeta();
     meta.setHtmlField("html");
     meta.setOutputField("text");
     meta.setCleanOnly(false);
     meta.setNormalisedText(true);
-    meta.setParallelism(parallelism);
     return meta;
   }
 
@@ -218,8 +218,8 @@ class Html2TextTest {
     return new Object[] {id, html};
   }
 
-  /** Feeds the rows through the transform until it reports the end of its input. */
-  private static BlockingRowSet run(Html2Text transform, Object[]... rows) throws HopException {
+  /** Gives the transform an input with the rows and an empty output, and returns the output. */
+  private static BlockingRowSet connect(Html2Text transform, Object[]... rows) {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("id"));
     rowMeta.addValueMeta(new ValueMetaString("html"));
@@ -237,7 +237,12 @@ class Html2TextTest {
 
     transform.addRowSetToInputRowSets(input);
     transform.addRowSetToOutputRowSets(output);
+    return output;
+  }
 
+  /** Feeds the rows through the transform until it reports the end of its input. */
+  private static BlockingRowSet run(Html2Text transform, Object[]... rows) throws HopException {
+    BlockingRowSet output = connect(transform, rows);
     int calls = 0;
     boolean more = true;
     while (more) {
