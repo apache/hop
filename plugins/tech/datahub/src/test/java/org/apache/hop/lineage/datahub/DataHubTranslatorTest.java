@@ -226,6 +226,35 @@ class DataHubTranslatorTest {
   }
 
   @Test
+  void aStoppedPipelineDoesNotMakeADatasetLookUpToDate() {
+    HopEvents run = new HopEvents("orders");
+    List<RunEvent> events =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    run.pipeline(RunLifecyclePhase.STARTED),
+                    run.graph("Read>Write"),
+                    run.read("Read", "file:///data/in.csv"),
+                    run.write("Write", "file:///out/x.csv"),
+                    run.transform("Read", RunLifecyclePhase.FINISHED, 5000, 0),
+                    run.transform("Write", RunLifecyclePhase.FINISHED, 0, 5000),
+                    run.pipelineStopped()));
+
+    assertTrue(find(all(events), OUT, "operation").isEmpty());
+  }
+
+  @Test
+  void aRunThatLoadedNothingDoesNotMakeADatasetLookUpToDate() {
+    List<Mcp> proposals =
+        all(
+            new HopEvents("orders")
+                .readThenWrite(
+                    "file:///data/in.csv", "file:///out/x.csv", 0, RunLifecyclePhase.FINISHED));
+
+    assertTrue(find(proposals, OUT, "operation").isEmpty());
+  }
+
+  @Test
   void aFailedRunDoesNotMakeADatasetLookUpToDate() {
     List<Mcp> proposals =
         all(

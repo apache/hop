@@ -520,7 +520,9 @@ public final class OpenLineageEventMapper {
                   out -> counted.rowsWritten(out.getNamespace(), out.getName())),
               run.getSoleSqlText(),
               identity,
-              writesFacet(counted)));
+              Boolean.parseBoolean(ctx.getAttributes().get(LineageRowCounts.STOPPED))
+                  ? null
+                  : writesFacet(counted)));
     }
     return events;
   }
@@ -1802,6 +1804,10 @@ public final class OpenLineageEventMapper {
       if (value != null) {
         facet.getAdditionalProperties().put(counter, value);
       }
+    }
+    if (!facet.getAdditionalProperties().isEmpty()
+        && Boolean.parseBoolean(ctx.getAttributes().get(LineageRowCounts.STOPPED))) {
+      facet.getAdditionalProperties().put(LineageRowCounts.STOPPED, true);
     }
     return facet.getAdditionalProperties().isEmpty() ? null : facet;
   }

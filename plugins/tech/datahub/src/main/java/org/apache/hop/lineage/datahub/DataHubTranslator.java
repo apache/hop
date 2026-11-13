@@ -616,17 +616,17 @@ final class DataHubTranslator {
     }
     List<Mcp> proposals = new ArrayList<>();
     Set<String> seen = new LinkedHashSet<>();
-    List<Map<String, Object>> writes =
-        "PIPELINE".equals(subjectType) ? pipelineWrites(event) : null;
-    if (writes != null) {
-      for (Map<String, Object> write : writes) {
+    if ("PIPELINE".equals(subjectType)) {
+      // Only what the pipeline says it wrote: none for a stopped pipeline, or an event without it
+      List<Map<String, Object>> writes = pipelineWrites(event);
+      for (Map<String, Object> write : writes == null ? List.<Map<String, Object>>of() : writes) {
         String urn =
             DataHubUrns.datasetForOpenLineage(
                 String.valueOf(write.get("namespace")), String.valueOf(write.get("name")), env);
-        if (urn != null && seen.add(urn)) {
-          Long rows = write.get("rows") instanceof Number number ? number.longValue() : null;
-          proposals.add(
-              operation(event, urn, String.valueOf(write.get("operationType")), rows, time));
+        Long rows = write.get("rows") instanceof Number number ? number.longValue() : null;
+        String type = String.valueOf(write.get("operationType"));
+        if (urn != null && !unchanged(type, rows) && seen.add(urn)) {
+          proposals.add(operation(event, urn, type, rows, time));
         }
       }
       return proposals;
@@ -641,6 +641,16 @@ final class DataHubTranslator {
       }
     }
     return proposals;
+  }
+
+  /**
+   * Whether a write left the data as it was: no rows inserted, updated or deleted. A run that
+   * loaded nothing doesn't make a table look up to date.
+   */
+  private static boolean unchanged(String type, Long rows) {
+    return rows != null
+        && rows == 0
+        && ("INSERT".equals(type) || "UPDATE".equals(type) || "DELETE".equals(type));
   }
 
   private Mcp operation(RunEvent event, String urn, String type, Long rows, long time) {

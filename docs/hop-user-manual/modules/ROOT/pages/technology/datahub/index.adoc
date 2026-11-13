@@ -85,8 +85,8 @@ one operation per dataset when it completes, with the rows of all the transforms
 wrote it; an action reports the files it wrote when it completes. DataHub shows when a dataset last
 changed from its operations, and the freshness check of a
 xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action reads them, so a dataset that
-only Hop writes has a freshness too. A failed run reports no operation: a half-written table doesn't
-look up to date.
+only Hop writes has a freshness too. A failed or stopped run reports no operation: a half-written table
+doesn't look up to date. Neither does a run that inserted, updated or deleted no rows.
 
 |A file copied or moved (Copy files, Move files)
 |The copy is linked to its own source as a `COPY` upstream, so copying several files does not pair

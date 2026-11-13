@@ -148,6 +148,41 @@ class OpenLineageRowStatisticsTest {
   }
 
   @Test
+  void aStoppedPipelineListsNoWrites() {
+    List<LineageEvent> observed = new ArrayList<>(oneReaderTwoWriters());
+    observed.set(
+        observed.size() - 1,
+        lifecycle(
+            LineageContext.builder()
+                .subjectType(LineageSubjectType.PIPELINE)
+                .pipelineName(PIPELINE)
+                .logChannelId(PIPELINE_RUN)
+                .putAttribute(LineageRowCounts.STOPPED, "true")
+                .putAttribute(LineageRowCounts.LINES_OUTPUT, "45")
+                .build(),
+            RunLifecyclePhase.FINISHED,
+            uuid("pipeline-stopped")));
+
+    RunEvent pipeline = eventFor(mapper(false).mapBatch(observed), PIPELINE);
+
+    assertNull(
+        pipeline
+            .getRun()
+            .getFacets()
+            .getAdditionalProperties()
+            .get(OpenLineageEventMapper.HOP_WRITES_RUN_FACET));
+    assertEquals(
+        true,
+        pipeline
+            .getRun()
+            .getFacets()
+            .getAdditionalProperties()
+            .get(OpenLineageEventMapper.HOP_ROW_COUNTS_RUN_FACET)
+            .getAdditionalProperties()
+            .get(LineageRowCounts.STOPPED));
+  }
+
+  @Test
   void deletedRowsAreNotRowsWritten() {
     List<LineageEvent> observed = new ArrayList<>();
     observed.add(

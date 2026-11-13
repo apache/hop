@@ -172,7 +172,12 @@ what it reads or writes).
 A pipeline's `COMPLETE` or `FAIL` event also lists every dataset the run wrote, once, in a
 `hopWrites` run facet: its `namespace` and `name`, its `operationType` (`INSERT`, `UPDATE`,
 `DELETE`, `CREATE`, `DROP` or `ALTER`) and, when known, its `rows`. The DataHub sink turns these
-into operations.
+into operations. A pipeline that was stopped (Stop, Abort, or a failing parent pipeline stopping
+it) says so with `stopped` in its `hopRowCounts` facet and lists no writes.
+
+Apache Beam and Spark run the transforms of a pipeline in small local pipelines on their workers.
+With lineage on in the JVM of those workers, as with the Beam DirectRunner or Spark in local mode,
+each of those reports a run of its own, with the counts and writes of its bundle or partition.
 
 The run id is the executing subject's log-channel id. By default file I/O is correlated to
 the parent pipeline run, so inputs and outputs appear on the pipeline job in Marquez. Every run also

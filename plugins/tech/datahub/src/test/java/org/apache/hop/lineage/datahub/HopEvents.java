@@ -210,6 +210,21 @@ final class HopEvents {
         new RunLifecycleLineagePayload(phase, null));
   }
 
+  /** The end of a pipeline that was stopped before it got to the end of its rows. */
+  LineageEvent pipelineStopped() {
+    LineageContext ctx = pipelineContext();
+    LineageContext.Builder stopped =
+        LineageContext.builder()
+            .subjectType(ctx.getSubjectType())
+            .pipelineName(ctx.getPipelineName())
+            .logChannelId(ctx.getLogChannelId())
+            .hopFilename(ctx.getHopFilename())
+            .hopFilenamePortableKey(ctx.getHopFilenamePortableKey());
+    ctx.getAttributes().forEach(stopped::putAttribute);
+    stopped.putAttribute(LineageRowCounts.STOPPED, "true");
+    return lifecycle(stopped.build(), RunLifecyclePhase.FINISHED);
+  }
+
   /** A transform's end with its row counters, as the engine reports it. */
   LineageEvent transform(
       String transform, RunLifecyclePhase phase, long rowsInput, long rowsOutput) {

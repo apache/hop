@@ -105,6 +105,23 @@ class LineageRowCountsTest {
   }
 
   @Test
+  void aStoppedPipelineSaysSo() {
+    Pipeline pipeline = mock(Pipeline.class);
+    when(pipeline.getLogChannelId()).thenReturn("pipeline-2");
+    List<IEngineComponent> components = List.of(transform(0, 10, 0, 10, 0, 0));
+    when(pipeline.getComponents()).thenReturn(components);
+    when(pipeline.isStopped()).thenReturn(true);
+
+    Map<String, String> attributes =
+        lifecycleAttributes(
+            () ->
+                LineageRunLifecycleEmitter.emitPipeline(
+                    pipeline, RunLifecyclePhase.FINISHED, null));
+
+    assertEquals("true", attributes.get(LineageRowCounts.STOPPED));
+  }
+
+  @Test
   void anotherEngineSendsNoTotals() {
     @SuppressWarnings("unchecked")
     IPipelineEngine<PipelineMeta> pipeline = mock(IPipelineEngine.class);

@@ -56,6 +56,12 @@ public final class LineageRowCounts {
   /** Rows a transform rejected, such as rows sent to its error handling. */
   public static final String LINES_REJECTED = "linesRejected";
 
+  /**
+   * {@code true} on the terminal event of a pipeline that was stopped (Stop, Abort, a failing
+   * parent) rather than run to its end: what it wrote is not a complete write.
+   */
+  public static final String STOPPED = "stopped";
+
   /** Every counter, in the order a sink shows them. */
   public static final List<String> COUNTERS =
       List.of(LINES_READ, LINES_WRITTEN, LINES_INPUT, LINES_OUTPUT, LINES_UPDATED, LINES_REJECTED);
@@ -80,6 +86,9 @@ public final class LineageRowCounts {
       LineageContext.Builder ctx, IPipelineEngine<PipelineMeta> pipeline) {
     if (!(pipeline instanceof Pipeline)) {
       return;
+    }
+    if (pipeline.isStopped()) {
+      ctx.putAttribute(STOPPED, "true");
     }
     long input = 0;
     long output = 0;
