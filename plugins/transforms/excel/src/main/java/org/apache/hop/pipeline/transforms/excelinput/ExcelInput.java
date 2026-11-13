@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -191,18 +192,14 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         if (sourceMeta != null
             && sourceMeta.getType() != targetMeta.getType()
             && row[rowColumn] != null) {
-          IValueMeta sourceMetaCopy = sourceMeta.clone();
-          sourceMetaCopy.setConversionMask(field.getFormat());
-          sourceMetaCopy.setGroupingSymbol(field.getGroupSymbol());
-          sourceMetaCopy.setDecimalSymbol(field.getDecimalSymbol());
-          sourceMetaCopy.setCurrencySymbol(field.getCurrencySymbol());
+          IValueMeta sourceMetaCopy = getSourceMeta(rowColumn, sourceMeta, field);
 
           switch (targetMeta.getType()) {
               // Use case: we find a numeric value: convert it using the supplied format to the
               // desired data type...
               //
             case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER:
-              if (field.getHopType() == IValueMeta.TYPE_DATE) {
+              if (getFieldType(rowColumn, field) == IValueMeta.TYPE_DATE) {
                 // number to string conversion (20070522.00 --> "20070522")
                 //
                 IValueMeta valueMetaNumber = new ValueMetaNumber("num");
@@ -316,6 +313,40 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     }
 
     return row;
+  }
+
+  /**
+   * The metadata to convert a cell of another type to the type of the field: the type of the cell
+   * with the format and the symbols of the field. It is the same for every row, so it is made once
+   * per field and cell type.
+   */
+  private IValueMeta getSourceMeta(int column, IValueMeta sourceMeta, ExcelInputField field) {
+    if (data.sourceMetas == null) {
+      data.sourceMetas = new IValueMeta[meta.getFields().size()][IValueMeta.TYPE_BOOLEAN + 1];
+    }
+    IValueMeta[] fieldMetas = data.sourceMetas[column];
+    IValueMeta fieldMeta = fieldMetas[sourceMeta.getType()];
+    if (fieldMeta == null) {
+      fieldMeta = sourceMeta.clone();
+      fieldMeta.setConversionMask(field.getFormat());
+      fieldMeta.setGroupingSymbol(field.getGroupSymbol());
+      fieldMeta.setDecimalSymbol(field.getDecimalSymbol());
+      fieldMeta.setCurrencySymbol(field.getCurrencySymbol());
+      fieldMetas[sourceMeta.getType()] = fieldMeta;
+    }
+    return fieldMeta;
+  }
+
+  /** The Hop type of a field is looked up by its name: once per field. */
+  private int getFieldType(int column, ExcelInputField field) {
+    if (data.fieldTypes == null) {
+      data.fieldTypes = new int[meta.getFields().size()];
+      Arrays.fill(data.fieldTypes, -1);
+    }
+    if (data.fieldTypes[column] < 0) {
+      data.fieldTypes[column] = field.getHopType();
+    }
+    return data.fieldTypes[column];
   }
 
   private void checkType(IKCell cell, IValueMeta v) throws HopException {

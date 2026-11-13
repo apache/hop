@@ -1,0 +1,144 @@
+{
+  "base_filename": "golden-excel-input-types.csv",
+  "name": "golden-excel-input-types",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "int",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "num",
+      "field_format": "0.00"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "numText",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date",
+      "field_format": "yyyy/MM/dd"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date2",
+      "field_format": "yyyy/MM/dd"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "dateTime",
+      "field_format": "yyyy/MM/dd HH:mm"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "dateText",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "numDate",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "text",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "textInt",
+      "field_format": "0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "bool",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "boolText",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 1,
+      "field_precision": -1,
+      "field_name": "fNum",
+      "field_format": "0.00"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "fText",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "fDate",
+      "field_format": "yyyy/MM/dd"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "fBool",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "mixed",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
