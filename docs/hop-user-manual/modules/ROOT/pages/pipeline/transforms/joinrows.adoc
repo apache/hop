@@ -47,6 +47,10 @@ To build a cartesian product on these engines, add the same constant field to bo
 See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam] and xref:pipeline/pipeline-run-configurations/native-spark-pipeline-engine.adoc#transforms-not-supported-on-native-spark[Transforms not supported on Native Spark].
 ====
 
+NOTE: Run this transform in a single copy.
+With several copies each copy only receives a part of every stream, so combinations would go missing.
+The Hop GUI does not offer the number of copies for this transform.
+
 NOTE: The transform gives the same result on the xref:pipeline/pipeline-run-configurations/single-threaded-pipeline-engine.adoc[single threaded engine] as on the Hop engine.
 That engine runs the previous transforms first, so all the rows of the other streams are there when Join Rows starts.
 

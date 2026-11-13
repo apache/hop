@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -87,6 +88,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       data.joinrow = new Object[rowSetsSize][];
       data.rs = new IRowSet[rowSetsSize];
       data.cache = new List[rowSetsSize];
+      data.cloneCachedRow = new boolean[rowSetsSize];
       data.position = new int[rowSetsSize];
       data.fileOutputStream = new OutputStream[rowSetsSize];
       data.dataOutputStream = new DataOutputStream[rowSetsSize];
@@ -237,8 +239,12 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
         rowData = data.cache[filenr].get(data.position[data.filenr]);
 
         // Don't forget to clone the data to protect it against data alteration downstream.
+        // Only a value that can be changed in place needs that: outputRow() copies the values
+        // into a new row, so the cached row itself never leaves this transform.
         //
-        rowData = data.fileRowMeta[filenr].cloneRow(rowData);
+        if (data.cloneCachedRow[filenr]) {
+          rowData = data.fileRowMeta[filenr].cloneRow(rowData);
+        }
 
         data.position[filenr]++;
 
@@ -315,10 +321,9 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       Object[] sum = new Object[data.outputRowMeta.size()];
       int sumIndex = 0;
       for (int f = 0; f <= data.filenr; f++) {
-        for (int c = 0; c < data.fileRowMeta[f].size(); c++) {
-          sum[sumIndex] = data.joinrow[f][c];
-          sumIndex++;
-        }
+        int size = data.fileRowMeta[f].size();
+        System.arraycopy(data.joinrow[f], 0, sum, sumIndex, size);
+        sumIndex += size;
       }
 
       if (meta.getCondition() != null && !meta.getCondition().isEmpty()) {
@@ -343,6 +348,19 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       data.filenr++;
     }
     return true;
+  }
+
+  /**
+   * @return true when the row has a field whose values can be changed in place, so that a copy of
+   *     the row needs a copy of those values as well
+   */
+  private static boolean requiresRealClone(IRowMeta rowMeta) {
+    for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
+      if (valueMeta.requiresRealClone()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean cacheInputRow() throws HopException {
@@ -391,6 +409,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
       if (data.fileRowMeta[data.filenr] == null) {
         // The first row is used as meta-data, clone it for safety
         data.fileRowMeta[data.filenr] = rowSet.getRowMeta().clone();
+        data.cloneCachedRow[data.filenr] = requiresRealClone(data.fileRowMeta[data.filenr]);
       }
 
       data.fileRowMeta[data.filenr].writeData(data.dataOutputStream[data.filenr], rowData);

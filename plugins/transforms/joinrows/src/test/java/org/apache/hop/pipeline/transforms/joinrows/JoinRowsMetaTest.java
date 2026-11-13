@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.joinrows;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
@@ -79,6 +80,12 @@ class JoinRowsMetaTest {
     // No change to the transform should be made
     assertNull(joinRowsMeta.getMainTransform());
     assertNull(joinRowsMeta.getMainTransformName());
+  }
+
+  /** Several copies each join a part of every stream only, so the GUI does not offer them. */
+  @Test
+  void doesNotSupportMultipleCopies() {
+    assertFalse(new JoinRowsMeta().supportsMultiCopyExecution());
   }
 
   @Test
