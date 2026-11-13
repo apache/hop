@@ -29,9 +29,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -72,18 +77,88 @@ DATE      PRODUCT    Sales   Number
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::NormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rownormaliser.html")
+@GuiPlugin
 @Getter
 @Setter
 public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData> {
   private static final Class<?> PKG = NormaliserMeta.class;
 
+  public static final String DEFAULT_VALUE_FIELD = "value";
+
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "NormaliserDialog";
+  public static final String WIDGET_TYPE_FIELD = "typeField";
+  public static final String WIDGET_VALUE_FIELD = "valueField";
+  public static final String WIDGET_KEY_FIELDS = "keyFields";
+  public static final String WIDGET_FIELDS = "normaliserFields";
+
+  private static final String GROUP_OUTPUT = "i18n::NormaliserMeta.Group.Output";
+  private static final String GROUP_KEYS = "i18n::NormaliserMeta.Group.KeyFields";
+  private static final String GROUP_FIELDS = "i18n::NormaliserMeta.Group.Fields";
+
   /** Name of the new type-field */
+  @GuiWidgetElement(
+      id = WIDGET_TYPE_FIELD,
+      order = "0100",
+      type = GuiElementType.TEXT,
+      label = "i18n::NormaliserDialog.TypeField.Label",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OUTPUT,
+      groupOrder = "0100")
   @HopMetadataProperty(
       key = "typefield",
       injectionKey = "TYPEFIELD",
       injectionKeyDescription = "NormaliserMeta.Injection.TYPEFIELD")
   private String typeField;
 
+  /** Name of the field that holds the values when every input field is normalised. */
+  @GuiWidgetElement(
+      id = WIDGET_VALUE_FIELD,
+      order = "0200",
+      type = GuiElementType.TEXT,
+      label = "i18n::NormaliserDialog.ValueField.Label",
+      toolTip = "i18n::NormaliserDialog.ValueField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_OUTPUT,
+      groupOrder = "0100")
+  @HopMetadataProperty(
+      key = "valuefield",
+      injectionKey = "VALUEFIELD",
+      injectionKeyDescription = "NormaliserMeta.Injection.VALUEFIELD")
+  private String valueField;
+
+  /**
+   * The fields kept as they are on every row when no fields are listed and every other input field
+   * is normalised.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_KEY_FIELDS,
+      order = "0300",
+      type = GuiElementType.TABLE,
+      toolTip = "i18n::NormaliserDialog.KeyFields.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_KEYS,
+      groupOrder = "0200",
+      tableRows = 3)
+  @HopMetadataProperty(
+      groupKey = "keys",
+      key = "key",
+      injectionGroupKey = "KEYS",
+      injectionGroupDescription = "NormaliserMeta.Injection.KEYS")
+  private List<NormaliserKeyField> keyFields;
+
+  @GuiWidgetElement(
+      id = WIDGET_FIELDS,
+      order = "0400",
+      type = GuiElementType.TABLE,
+      toolTip = "i18n::NormaliserDialog.Fields.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FIELDS,
+      groupOrder = "0300",
+      tableRows = 8)
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
@@ -94,12 +169,18 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
   public NormaliserMeta() {
     super();
     this.normaliserFields = new ArrayList<>();
+    this.keyFields = new ArrayList<>();
   }
 
-  public Set<String> getFieldNames() {
+  /**
+   * The lower case names of the fields to normalise.
+   *
+   * @param fields the fields to normalise, see {@link #getFieldsToNormalise(IRowMeta, IVariables)}
+   */
+  public static Set<String> getFieldNames(List<NormaliserField> fields) {
     Set<String> fieldNames = new HashSet<>();
 
-    for (NormaliserField field : normaliserFields) {
+    for (NormaliserField field : fields) {
       if (field.getName() != null) {
         fieldNames.add(field.getName().toLowerCase());
       }
@@ -110,13 +191,78 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
   @Override
   public void setDefault() {
     this.typeField = "typefield";
+    this.valueField = DEFAULT_VALUE_FIELD;
     this.normaliserFields = new ArrayList<>();
+    this.keyFields = new ArrayList<>();
   }
 
-  /** The names of the normalised fields, in output order: in the order they first appear. */
-  public List<String> getNormalisedFieldNames() {
+  /** True when no fields are listed: every input field is normalised then. */
+  public boolean isNormalisingAllFields() {
+    return normaliserFields == null || normaliserFields.isEmpty();
+  }
+
+  /** The name of the value field, or its default when none is set. */
+  public String getValueFieldName() {
+    return Utils.isEmpty(valueField) ? DEFAULT_VALUE_FIELD : valueField;
+  }
+
+  /**
+   * The names of the key fields, with variables resolved, in the order they are listed.
+   *
+   * @param variables to resolve the names with
+   */
+  public List<String> getKeyFieldNames(IVariables variables) {
     List<String> names = new ArrayList<>();
-    for (NormaliserField field : normaliserFields) {
+    if (keyFields != null) {
+      for (NormaliserKeyField keyField : keyFields) {
+        if (!Utils.isEmpty(keyField.getName())) {
+          names.add(variables.resolve(keyField.getName()));
+        }
+      }
+    }
+    return names;
+  }
+
+  /**
+   * The fields to normalise: the listed fields, or with an empty list every input field that is not
+   * a key field. An input field normalised that way gets its own name as type and puts its value in
+   * the value field.
+   *
+   * @param inputRowMeta the fields entering the transform
+   * @param variables to resolve the names of the key fields with
+   * @return the fields to normalise
+   */
+  public List<NormaliserField> getFieldsToNormalise(IRowMeta inputRowMeta, IVariables variables) {
+    if (!isNormalisingAllFields()) {
+      return normaliserFields;
+    }
+    Set<String> keys = new HashSet<>();
+    for (String key : getKeyFieldNames(variables)) {
+      keys.add(key.toLowerCase());
+    }
+    String norm = getValueFieldName();
+    List<NormaliserField> fields = new ArrayList<>(inputRowMeta.size());
+    for (IValueMeta valueMeta : inputRowMeta.getValueMetaList()) {
+      if (keys.contains(valueMeta.getName().toLowerCase())) {
+        continue;
+      }
+      NormaliserField field = new NormaliserField();
+      field.setName(valueMeta.getName());
+      field.setValue(valueMeta.getName());
+      field.setNorm(norm);
+      fields.add(field);
+    }
+    return fields;
+  }
+
+  /**
+   * The names of the normalised fields, in output order: in the order they first appear.
+   *
+   * @param fields the fields to normalise, see {@link #getFieldsToNormalise(IRowMeta, IVariables)}
+   */
+  public static List<String> getNormalisedFieldNames(List<NormaliserField> fields) {
+    List<String> names = new ArrayList<>();
+    for (NormaliserField field : fields) {
       if (!names.contains(field.getNorm())) {
         names.add(field.getNorm());
       }
@@ -134,14 +280,21 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
    * transform that serializes or renders it. See issue #3636.
    *
    * @param inputRowMeta the fields entering the transform
-   * @return one value metadata per name of {@link #getNormalisedFieldNames()}, in the same order
+   * @param variables to resolve the names of the key fields with
+   * @return one value metadata per name of {@link #getNormalisedFieldNames(List)}, in the same
+   *     order
    * @throws HopTransformException when the first input field of a normalised field is missing
    */
-  public List<IValueMeta> getNormalisedValueMetas(IRowMeta inputRowMeta)
+  public List<IValueMeta> getNormalisedValueMetas(IRowMeta inputRowMeta, IVariables variables)
       throws HopTransformException {
+    return getNormalisedValueMetas(inputRowMeta, getFieldsToNormalise(inputRowMeta, variables));
+  }
+
+  private static List<IValueMeta> getNormalisedValueMetas(
+      IRowMeta inputRowMeta, List<NormaliserField> fieldsToNormalise) throws HopTransformException {
     List<IValueMeta> valueMetas = new ArrayList<>();
-    for (String normName : getNormalisedFieldNames()) {
-      List<NormaliserField> fields = getFieldsOf(normName);
+    for (String normName : getNormalisedFieldNames(fieldsToNormalise)) {
+      List<NormaliserField> fields = getFieldsOf(fieldsToNormalise, normName);
       IValueMeta first = inputRowMeta.searchValueMeta(fields.get(0).getName());
       if (first == null) {
         throw new HopTransformException(
@@ -184,16 +337,28 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    List<NormaliserField> fields = getFieldsToNormalise(row, variables);
+
     int maxlen = 0;
-    for (NormaliserField field : normaliserFields) {
+    for (NormaliserField field : fields) {
       if (field.getValue().length() > maxlen) {
         maxlen = field.getValue().length();
       }
     }
 
-    // Take the normalised fields from the input before adding anything to it.
+    // Take the normalised fields from the input before changing it.
     //
-    List<IValueMeta> normalisedValueMetas = getNormalisedValueMetas(row);
+    List<IValueMeta> normalisedValueMetas = getNormalisedValueMetas(row, fields);
+
+    // Remove the fields that get normalised before adding the new ones: a new field may have the
+    // name of one of them, value for example, and would otherwise be renamed to value_1.
+    //
+    for (NormaliserField field : fields) {
+      int idx = row.indexOfValue(field.getName());
+      if (idx >= 0) {
+        row.removeValueMeta(idx);
+      }
+    }
 
     // Then add the type field!
     //
@@ -207,15 +372,6 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     for (IValueMeta v : normalisedValueMetas) {
       v.setOrigin(name);
       row.addValueMeta(v);
-    }
-
-    // Now remove all the normalized fields...
-    //
-    for (NormaliserField field : normaliserFields) {
-      int idx = row.indexOfValue(field.getName());
-      if (idx >= 0) {
-        row.removeValueMeta(idx);
-      }
     }
   }
 
@@ -244,11 +400,43 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
               transformMeta);
       remarks.add(cr);
 
+      List<NormaliserField> fields = getFieldsToNormalise(prev, variables);
+      List<String> keyNames = getKeyFieldNames(variables);
+      if (isNormalisingAllFields()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_OK,
+                BaseMessages.getString(
+                    PKG,
+                    "NormaliserMeta.CheckResult.AllInputFieldsNormalised",
+                    fields.size() + "",
+                    getValueFieldName()),
+                transformMeta));
+        List<String> missingKeys =
+            keyNames.stream().filter(key -> prev.searchValueMeta(key) == null).toList();
+        if (!missingKeys.isEmpty()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG,
+                      "NormaliserMeta.CheckResult.KeyFieldsNotFound",
+                      String.join(", ", missingKeys)),
+                  transformMeta));
+        }
+      } else if (!keyNames.isEmpty()) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(PKG, "NormaliserMeta.CheckResult.KeyFieldsIgnored"),
+                transformMeta));
+      }
+
       boolean first = true;
       errorMessage = "";
       boolean errorFound = false;
 
-      for (NormaliserField field : normaliserFields) {
+      for (NormaliserField field : fields) {
         IValueMeta valueMeta = prev.searchValueMeta(field.getName());
         if (valueMeta == null) {
           if (first) {
@@ -271,8 +459,8 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       }
       remarks.add(cr);
 
-      for (String normName : getNormalisedFieldNames()) {
-        if (hasMixedTypes(prev, normName)) {
+      for (String normName : getNormalisedFieldNames(fields)) {
+        if (hasMixedTypes(prev, fields, normName)) {
           remarks.add(
               new CheckResult(
                   ICheckResult.TYPE_RESULT_WARNING,
@@ -289,7 +477,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       remarks.add(cr);
     }
 
-    String duplicate = getDuplicateMapping();
+    String duplicate = getDuplicateMapping(normaliserFields);
     if (duplicate != null) {
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, duplicate, transformMeta));
     }
@@ -313,15 +501,14 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
   }
 
   /** The fields filling a normalised field, in the order they are listed. */
-  private List<NormaliserField> getFieldsOf(String normName) {
-    return normaliserFields.stream()
-        .filter(field -> Objects.equals(normName, field.getNorm()))
-        .toList();
+  private static List<NormaliserField> getFieldsOf(List<NormaliserField> fields, String normName) {
+    return fields.stream().filter(field -> Objects.equals(normName, field.getNorm())).toList();
   }
 
   /** True when the input fields filling this normalised field are not all of one type. */
-  private boolean hasMixedTypes(IRowMeta inputRowMeta, String normName) {
-    return getFieldsOf(normName).stream()
+  private static boolean hasMixedTypes(
+      IRowMeta inputRowMeta, List<NormaliserField> fields, String normName) {
+    return getFieldsOf(fields, normName).stream()
             .map(field -> inputRowMeta.searchValueMeta(field.getName()))
             .filter(Objects::nonNull)
             .map(IValueMeta::getType)
@@ -334,13 +521,14 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
    * Two input fields filling the same normalised field on the same row leave no room for one of
    * them.
    *
+   * @param fields the fields to normalise, see {@link #getFieldsToNormalise(IRowMeta, IVariables)}
    * @return a description of the first such pair, or null when there is none
    */
-  public String getDuplicateMapping() {
-    for (int i = 0; i < normaliserFields.size(); i++) {
-      NormaliserField one = normaliserFields.get(i);
-      for (int j = i + 1; j < normaliserFields.size(); j++) {
-        NormaliserField other = normaliserFields.get(j);
+  public static String getDuplicateMapping(List<NormaliserField> fields) {
+    for (int i = 0; i < fields.size(); i++) {
+      NormaliserField one = fields.get(i);
+      for (int j = i + 1; j < fields.size(); j++) {
+        NormaliserField other = fields.get(j);
         if (Objects.equals(one.getValue(), other.getValue())
             && Objects.equals(one.getNorm(), other.getNorm())) {
           return BaseMessages.getString(

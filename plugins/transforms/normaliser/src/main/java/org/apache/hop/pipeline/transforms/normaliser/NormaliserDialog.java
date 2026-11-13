@@ -18,49 +18,36 @@
 package org.apache.hop.pipeline.transforms.normaliser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.NamingSchemeTypes;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.BackgroundThreadFacade;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class NormaliserDialog extends BaseTransformDialog {
   private static final Class<?> PKG = NormaliserMeta.class;
 
-  private static final int NAME_INDEX = 1;
-
-  private static final int VALUE_INDEX = 2;
-
-  private static final int NORM_INDEX = 3;
-
-  private Text wTypefield;
-
-  private TableView wFields;
-
   private final NormaliserMeta input;
 
-  private ColumnInfo[] colinf;
+  private GuiCompositeWidgets widgets;
 
+  /** The names of the input fields, offered in the field name columns. */
   private final List<String> inputFields = new ArrayList<>();
 
   public NormaliserDialog(
@@ -75,131 +62,73 @@ public class NormaliserDialog extends BaseTransformDialog {
 
     buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    // Typefield line
-    Label wlTypefield = new Label(shell, SWT.RIGHT);
-    wlTypefield.setText(BaseMessages.getString(PKG, "NormaliserDialog.TypeField.Label"));
-    PropsUi.setLook(wlTypefield);
-    FormData fdlTypefield = new FormData();
-    fdlTypefield.left = new FormAttachment(0, 0);
-    fdlTypefield.right = new FormAttachment(middle, -margin);
-    fdlTypefield.top = new FormAttachment(wSpacer, margin);
-    wlTypefield.setLayoutData(fdlTypefield);
-    wTypefield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTypefield.setText("");
-    PropsUi.setLook(wTypefield);
-    wTypefield.addModifyListener(lsMod);
-    FormData fdTypefield = new FormData();
-    fdTypefield.left = new FormAttachment(middle, 0);
-    fdTypefield.top = new FormAttachment(wSpacer, margin);
-    fdTypefield.right = new FormAttachment(100, 0);
-    wTypefield.setLayoutData(fdTypefield);
-
-    Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "NormaliserDialog.Fields.Label"));
-    PropsUi.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTypefield, margin);
-    wlFields.setLayoutData(fdlFields);
-
-    final int fieldsCols = 3;
-    final int fieldsRows = input.getNormaliserFields().size();
-    colinf = new ColumnInfo[fieldsCols];
-    colinf[0] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "NormaliserDialog.ColumnInfo.Fieldname"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {""},
-            false);
-    colinf[1] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "NormaliserDialog.ColumnInfo.Type"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[2] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "NormaliserDialog.ColumnInfo.NewField"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[2].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
-
-    wFields =
-        new TableView(
-            variables,
-            shell,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            fieldsRows,
-            lsMod,
-            props);
-
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -margin);
-    wFields.setLayoutData(fdFields);
-
-    //
-    // Search the fields in the background
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell, variables, wSpacer, wOk, NormaliserMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, input);
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
+          @Override
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            input.setChanged();
+            if (NormaliserMeta.WIDGET_FIELDS.equals(widgetId)) {
+              enableKeyFields();
             }
           }
-        };
-    BackgroundThreadFacade.start(runnable);
+        });
 
-    getData();
+    for (TableView table :
+        List.of(table(NormaliserMeta.WIDGET_KEY_FIELDS), table(NormaliserMeta.WIDGET_FIELDS))) {
+      table.getColumns()[0].setComboValueSupplier(this::inputFieldNames);
+    }
+    enableKeyFields();
+    searchInputFields();
+
+    input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }
 
-  protected void setComboBoxes() {
-    // Something was changed in the row.
-    //
-    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    colinf[0].setComboValues(fieldNames);
+  private String[] inputFieldNames() {
+    synchronized (inputFields) {
+      return ConstUi.sortFieldNames(new ArrayList<>(inputFields));
+    }
   }
 
-  public void getData() {
-    if (input.getTypeField() != null) {
-      wTypefield.setText(input.getTypeField());
-    }
+  private TableView table(String widgetId) {
+    return (TableView) widgets.getWidgetsMap().get(widgetId);
+  }
 
-    for (int i = 0; i < input.getNormaliserFields().size(); i++) {
-      TableItem item = wFields.table.getItem(i);
-      NormaliserField field = input.getNormaliserFields().get(i);
-      if (field.getName() != null) {
-        item.setText(NAME_INDEX, field.getName());
-      }
-      if (field.getValue() != null) {
-        item.setText(VALUE_INDEX, field.getValue());
-      }
-      if (field.getNorm() != null) {
-        item.setText(NORM_INDEX, field.getNorm());
-      }
-    }
+  /** The key fields only count when no fields are listed to normalise. */
+  private void enableKeyFields() {
+    boolean noFieldsListed = table(NormaliserMeta.WIDGET_FIELDS).nrNonEmpty() == 0;
+    table(NormaliserMeta.WIDGET_KEY_FIELDS).setEnabled(noFieldsListed);
+  }
 
-    wFields.setRowNums();
-    wFields.optWidth(true);
+  private void searchInputFields() {
+    BackgroundThreadFacade.start(
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+              List<String> names = new ArrayList<>();
+              for (int i = 0; i < row.size(); i++) {
+                names.add(row.getValueMeta(i).getName());
+              }
+              synchronized (inputFields) {
+                inputFields.clear();
+                inputFields.addAll(names);
+              }
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            }
+          }
+        });
   }
 
   private void cancel() {
@@ -212,35 +141,40 @@ public class NormaliserDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
-    transformName = wTransformName.getText(); // return value
-
-    input.setTypeField(wTypefield.getText());
-
-    int i;
-
-    int nrFields = wFields.nrNonEmpty();
-    input.getNormaliserFields().clear();
-
-    for (i = 0; i < nrFields; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      NormaliserField field = new NormaliserField();
-      field.setName(item.getText(NAME_INDEX));
-      field.setValue(item.getText(VALUE_INDEX));
-      field.setNorm(item.getText(NORM_INDEX));
-      input.getNormaliserFields().add(field);
-    }
-
+    transformName = wTransformName.getText();
+    applyWidgets();
     dispose();
   }
 
+  private void applyWidgets() {
+    widgets.getWidgetsContents(input, NormaliserMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    input.getNormaliserFields().removeIf(field -> field == null || Utils.isEmpty(field.getName()));
+    input.getKeyFields().removeIf(field -> field == null || Utils.isEmpty(field.getName()));
+  }
+
+  /** Adds the input fields that are not listed yet, each under its own name as type. */
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-      if (r != null && !r.isEmpty()) {
-        BaseTransformDialog.getFieldsFromPrevious(
-            r, wFields, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
+      applyWidgets();
+      IRowMeta previous = pipelineMeta.getPrevTransformFields(variables, transformName);
+      if (previous == null || previous.isEmpty()) {
+        return;
       }
+      Set<String> present = new HashSet<>();
+      for (NormaliserField field : input.getNormaliserFields()) {
+        present.add(field.getName());
+      }
+      for (IValueMeta valueMeta : previous.getValueMetaList()) {
+        if (present.add(valueMeta.getName())) {
+          NormaliserField field = new NormaliserField();
+          field.setName(valueMeta.getName());
+          field.setValue(valueMeta.getName());
+          input.getNormaliserFields().add(field);
+        }
+      }
+      input.setChanged();
+      widgets.setWidgetsContents(input, shell, NormaliserMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+      enableKeyFields();
     } catch (HopException ke) {
       new ErrorDialog(
           shell,

@@ -60,9 +60,30 @@ class NormaliserMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/normaliser-transform.xml", NormaliserMeta.class);
 
-    // assertEquals(2, meta.getFields().size());
-    // assertEquals("fieldName", meta.getFields().get(0).getName());
-    // assertEquals("two", meta.getFields().get(0).getValue());
+    assertEquals("type", meta.getTypeField());
+    assertEquals("content", meta.getValueField());
+    assertEquals(1, meta.getKeyFields().size());
+    assertEquals("id", meta.getKeyFields().get(0).getName());
+    assertEquals(4, meta.getNormaliserFields().size());
+    NormaliserField last = meta.getNormaliserFields().get(3);
+    assertEquals("fieldD", last.getName());
+    assertEquals("D", last.getValue());
+    assertEquals("field", last.getNorm());
+  }
+
+  /** The type field is as long as the longest type it holds. */
+  @Test
+  void theTypeFieldIsAsLongAsTheLongestType() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i1"));
+    row.addValueMeta(new ValueMetaInteger("i2"));
+
+    meta(field("i1", "short", "value"), field("i2", "much longer", "value"))
+        .getFields(row, "normaliser", null, null, new Variables(), null);
+
+    IValueMeta type = row.searchValueMeta("typefield");
+    assertEquals(IValueMeta.TYPE_STRING, type.getType());
+    assertEquals("much longer".length(), type.getLength());
   }
 
   @Test
@@ -197,6 +218,116 @@ class NormaliserMetaTest {
     assertTrue(
         remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK),
         remarks.toString());
+  }
+
+  /** Issue #9397: no listed fields means every input field, into the value field. */
+  @Test
+  void withoutListedFieldsEveryInputFieldIsNormalisedIntoTheValueField() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i"));
+    row.addValueMeta(new ValueMetaString("a much longer name"));
+
+    NormaliserMeta meta = meta();
+    meta.setValueField("content");
+    meta.getFields(row, "normaliser", null, null, new Variables(), null);
+
+    assertArrayEquals(new String[] {"typefield", "content"}, row.getFieldNames());
+    assertEquals("a much longer name".length(), row.getValueMeta(0).getLength());
+    assertEquals(IValueMeta.TYPE_STRING, row.getValueMeta(1).getType());
+  }
+
+  /** A transform saved before the value field existed has none: it is called value then. */
+  @Test
+  void aMissingValueFieldIsCalledValue() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i"));
+
+    NormaliserMeta meta = meta();
+    meta.setValueField(null);
+    meta.getFields(row, "normaliser", null, null, new Variables(), null);
+
+    assertArrayEquals(new String[] {"typefield", "value"}, row.getFieldNames());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(1).getType());
+  }
+
+  @Test
+  void checkSaysEveryInputFieldIsNormalisedWhenNoneAreListed() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+    prev.addValueMeta(new ValueMetaInteger("i2"));
+
+    List<ICheckResult> remarks = check(meta(), prev);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_OK
+                        && r.getText().contains("2")
+                        && r.getText().contains("value")),
+        remarks.toString());
+    assertTrue(
+        remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK),
+        remarks.toString());
+  }
+
+  /** Issue #9398: key fields stay as they are, every other input field is normalised. */
+  @Test
+  void keyFieldsAreKeptWhenEveryOtherFieldIsNormalised() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("Region"));
+    row.addValueMeta(new ValueMetaInteger("Jan"));
+    row.addValueMeta(new ValueMetaInteger("Year"));
+    row.addValueMeta(new ValueMetaInteger("Feb"));
+
+    NormaliserMeta meta = meta();
+    meta.setTypeField("Month");
+    meta.setValueField("Sales");
+    meta.setKeyFields(new ArrayList<>(List.of(new NormaliserKeyField("year"), key("${KEY}"))));
+    Variables variables = new Variables();
+    variables.setVariable("KEY", "Region");
+    meta.getFields(row, "normaliser", null, null, variables, null);
+
+    assertArrayEquals(new String[] {"Region", "Year", "Month", "Sales"}, row.getFieldNames());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(1).getType());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(3).getType());
+  }
+
+  @Test
+  void checkReportsMissingKeyFields() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+
+    NormaliserMeta meta = meta();
+    meta.setKeyFields(new ArrayList<>(List.of(key("missing"))));
+    List<ICheckResult> remarks = check(meta, prev);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_ERROR
+                        && r.getText().contains("missing")),
+        remarks.toString());
+  }
+
+  @Test
+  void checkWarnsThatKeyFieldsAreIgnoredWhenFieldsAreListed() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+    prev.addValueMeta(new ValueMetaInteger("i2"));
+
+    NormaliserMeta meta = meta(field("i1", "A", "X"));
+    meta.setKeyFields(new ArrayList<>(List.of(key("i2"))));
+    List<ICheckResult> remarks = check(meta, prev);
+
+    assertTrue(
+        remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_WARNING),
+        remarks.toString());
+  }
+
+  private static NormaliserKeyField key(String name) {
+    return new NormaliserKeyField(name);
   }
 
   private static List<ICheckResult> check(NormaliserMeta meta, IRowMeta prev) {
