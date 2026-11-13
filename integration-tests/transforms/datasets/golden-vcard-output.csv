@@ -1,2 +1,4 @@
 fn,uid,email,email_type
 Hop Test,hop-test-001,test@example.com,"INTERNET,WORK"
+Second Card,hop-test-002,second@example.com,"INTERNET,WORK"
+Third Card,hop-test-003,third@example.com,"INTERNET,WORK"
