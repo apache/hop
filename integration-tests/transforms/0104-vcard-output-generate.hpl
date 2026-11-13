@@ -62,6 +62,18 @@ limitations under the License.
         <item>test@example.com</item>
         <item>INTERNET,WORK</item>
       </line>
+      <line>
+        <item>Second Card</item>
+        <item>hop-test-002</item>
+        <item>second@example.com</item>
+        <item>INTERNET,WORK</item>
+      </line>
+      <line>
+        <item>Third Card</item>
+        <item>hop-test-003</item>
+        <item>third@example.com</item>
+        <item>INTERNET,WORK</item>
+      </line>
     </data>
     <fields>
       <field>

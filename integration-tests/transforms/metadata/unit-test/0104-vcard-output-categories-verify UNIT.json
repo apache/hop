@@ -1,0 +1,36 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fn",
+          "data_set_field": "fn"
+        },
+        {
+          "transform_field": "uid",
+          "data_set_field": "uid"
+        },
+        {
+          "transform_field": "categories",
+          "data_set_field": "categories"
+        }
+      ],
+      "field_order": [
+        "uid"
+      ],
+      "data_set_name": "golden-vcard-output-categories",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0104-vcard-output-categories-verify UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0104-vcard-output-categories-verify.hpl"
+}

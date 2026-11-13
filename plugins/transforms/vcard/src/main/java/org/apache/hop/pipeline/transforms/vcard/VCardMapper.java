@@ -21,6 +21,7 @@ import ezvcard.VCard;
 import ezvcard.VCardVersion;
 import ezvcard.parameter.EmailType;
 import ezvcard.parameter.TelephoneType;
+import ezvcard.property.Categories;
 import ezvcard.property.Email;
 import ezvcard.property.FormattedName;
 import ezvcard.property.Nickname;
@@ -40,10 +41,13 @@ import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -53,6 +57,11 @@ import org.apache.hop.core.util.Utils;
 
 /** Converts between Hop rows and ez-vcard {@link VCard} objects. */
 public final class VCardMapper {
+
+  /** Parsed TYPE tokens per mapping text, see {@link #typeTokens(String)}. */
+  private static final Map<String, Set<String>> TYPE_TOKENS = new ConcurrentHashMap<>();
+
+  private static final int MAX_CACHED_TYPE_TOKENS = 1000;
 
   private VCardMapper() {}
 
@@ -86,7 +95,7 @@ public final class VCardMapper {
       case TITLE -> firstTitle(card);
       case NOTE -> firstNote(card);
       case URL -> firstUrl(card);
-      case CATEGORIES -> joinList(card.getCategories().getValues());
+      case CATEGORIES -> categories(card);
       case EMAIL -> emailValue(card, mapping.getParameterTypes());
       case EMAIL_TYPE -> emailTypeValue(card, mapping.getParameterTypes());
       case TEL -> telephoneValue(card, mapping.getParameterTypes());
@@ -168,7 +177,15 @@ public final class VCardMapper {
       case TITLE -> card.addTitle(new Title(value));
       case NOTE -> card.addNote(new Note(value));
       case URL -> card.addUrl(new Url(value));
-      case CATEGORIES -> card.getCategories().getValues().addAll(splitList(value));
+      case CATEGORIES -> {
+        // a card has no categories property until one is set
+        Categories categories = card.getCategories();
+        if (categories == null) {
+          categories = new Categories();
+          card.setCategories(categories);
+        }
+        categories.getValues().addAll(splitList(value));
+      }
       case EMAIL -> {
         Email email = new Email(value);
         String typeValue =
@@ -235,6 +252,11 @@ public final class VCardMapper {
       return null;
     }
     return org.getValues().get(0);
+  }
+
+  private static String categories(VCard card) {
+    Categories categories = card.getCategories();
+    return categories == null ? null : joinList(categories.getValues());
   }
 
   private static String firstNote(VCard card) {
@@ -394,10 +416,26 @@ public final class VCardMapper {
         .collect(Collectors.joining(", "));
   }
 
+  /**
+   * The upper-cased TYPE tokens of a mapping. The text comes from the transform's mappings and is
+   * asked for with every card, so each distinct text is parsed once and the set is kept.
+   */
   private static Set<String> typeTokens(String parameterTypes) {
-    return splitList(parameterTypes).stream()
-        .map(s -> s.toUpperCase(Locale.ROOT))
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+    if (Utils.isEmpty(parameterTypes)) {
+      return Set.of();
+    }
+    Set<String> tokens = TYPE_TOKENS.get(parameterTypes);
+    if (tokens == null) {
+      tokens =
+          Collections.unmodifiableSet(
+              splitList(parameterTypes).stream()
+                  .map(s -> s.toUpperCase(Locale.ROOT))
+                  .collect(Collectors.toCollection(LinkedHashSet::new)));
+      if (TYPE_TOKENS.size() < MAX_CACHED_TYPE_TOKENS) {
+        TYPE_TOKENS.put(parameterTypes, tokens);
+      }
+    }
+    return tokens;
   }
 
   private static List<String> splitList(String value) {
