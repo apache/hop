@@ -35,7 +35,7 @@ A type can fill each new field from only one input field: listing two fields wit
 
 When the **Fields table** is empty, the transform normalises every field it receives. Each input field is a type of its own, named after the field, and its value goes into the **Value field**. This works when the input fields are only known when the pipeline runs, for example in a pipeline that profiles any file or table it is given.
 
-Every input field is normalised this way, so no field is passed on unchanged: the output has only the type field and the value field. When the input fields have different data types the value field is a String, as described below.
+Every input field is normalised this way, so no field is passed on unchanged: the output has only the type field and the value field. When the input fields have different data types the value field is a String, as described below. The value field keeps a length or precision only when all input fields have the same one. While you design a pipeline whose input fields are not known yet, the transform shows the value field to the transforms after it as a String.
 
 == Data types of the new fields
 
@@ -55,7 +55,7 @@ NOTE: Before Hop 2.20, a new field took the data type of the first input field f
 |Option|Description
 |Transform name|Name of the transform, this name has to be unique in a single pipeline.
 |Typefield|The name of the type field (**key** in the example below).
-|Value field|The name of the field that holds the values when the **Fields table** is empty and every input field is normalised. The default is **value**.
+|Value field|The name of the field that holds the values when the **Fields table** is empty and every input field is normalised. The default is **value**. Give it a name other than the type field's: otherwise it is renamed in the output, to **value_1** for example.
 |Fields table|
 A list of the fields you want to normalize. Leave it empty to normalise every input field into the **Value field**. You must set the following properties for each listed field:
 
@@ -98,7 +98,7 @@ Set **Typefield** = "key" and **Value field** = "value", and leave the **Fields 
 |===
 
 === Normalized data (example 2)
-Similar to example 1, but remove the **RecordID** field from the **Fields table**. The result is:
+Set **Typefield** = "key", use the **Get Fields** button to list all the fields, remove the **RecordID** row from the **Fields table** and set **New field** = "value" in the other rows. **RecordID** is not listed, so it is passed on unchanged. The result is:
 
 [options="header"]
 |===

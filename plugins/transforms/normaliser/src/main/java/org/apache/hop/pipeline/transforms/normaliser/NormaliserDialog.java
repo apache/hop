@@ -55,6 +55,8 @@ public class NormaliserDialog extends BaseTransformDialog {
 
   private Text wTypefield;
 
+  private Label wlValuefield;
+
   private Text wValuefield;
 
   private TableView wFields;
@@ -100,7 +102,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     wTypefield.setLayoutData(fdTypefield);
 
     // Value field line: used when no fields are listed
-    Label wlValuefield = new Label(shell, SWT.RIGHT);
+    wlValuefield = new Label(shell, SWT.RIGHT);
     wlValuefield.setText(BaseMessages.getString(PKG, "NormaliserDialog.ValueField.Label"));
     wlValuefield.setToolTipText(BaseMessages.getString(PKG, "NormaliserDialog.ValueField.Tooltip"));
     PropsUi.setLook(wlValuefield);
@@ -148,6 +150,12 @@ public class NormaliserDialog extends BaseTransformDialog {
             false);
     colinf[2].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
+    // The value field is only used while no fields are listed
+    ModifyListener lsFieldsMod =
+        e -> {
+          input.setChanged();
+          enableValueField();
+        };
     wFields =
         new TableView(
             variables,
@@ -155,8 +163,9 @@ public class NormaliserDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             fieldsRows,
-            lsMod,
+            lsFieldsMod,
             props);
+    wFields.setContentListener(e -> enableValueField());
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -223,6 +232,14 @@ public class NormaliserDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
+    enableValueField();
+  }
+
+  /** The value field is only used when the fields table is empty. */
+  private void enableValueField() {
+    boolean noFieldsListed = wFields.nrNonEmpty() == 0;
+    wlValuefield.setEnabled(noFieldsListed);
+    wValuefield.setEnabled(noFieldsListed);
   }
 
   private void cancel() {
@@ -239,11 +256,14 @@ public class NormaliserDialog extends BaseTransformDialog {
     transformName = wTransformName.getText(); // return value
 
     input.setTypeField(wTypefield.getText());
-    input.setValueField(wValuefield.getText());
 
     int i;
 
     int nrFields = wFields.nrNonEmpty();
+    if (nrFields == 0) {
+      // Listed fields leave the value field unused: keep what it was
+      input.setValueField(wValuefield.getText());
+    }
     input.getNormaliserFields().clear();
 
     for (i = 0; i < nrFields; i++) {
@@ -264,6 +284,7 @@ public class NormaliserDialog extends BaseTransformDialog {
       if (r != null && !r.isEmpty()) {
         BaseTransformDialog.getFieldsFromPrevious(
             r, wFields, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
+        enableValueField();
       }
     } catch (HopException ke) {
       new ErrorDialog(

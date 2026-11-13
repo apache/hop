@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -127,6 +126,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
     // where each one goes: into the normalised field it names, whatever order they are listed in.
     //
     Map<String, List<Placement>> typeToPlacements = new LinkedHashMap<>();
+    boolean[] normalised = new boolean[data.inputRowMeta.size()];
     for (NormaliserField field : fields) {
       int dataFieldNr = data.inputRowMeta.indexOfValue(field.getName());
       if (dataFieldNr < 0) {
@@ -136,6 +136,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
         stopAll();
         return false;
       }
+      normalised[dataFieldNr] = true;
       int outputIndex = firstNormIndex + normNames.indexOf(field.getNorm());
       IValueMeta source = data.inputRowMeta.getValueMeta(dataFieldNr);
       IValueMeta target = data.outputRowMeta.getValueMeta(outputIndex);
@@ -152,15 +153,10 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
             .map(list -> list.toArray(new Placement[0]))
             .toArray(Placement[][]::new);
 
-    // The fields that are not normalised are copied as they are.
+    // The fields that are not normalised are copied as they are. Which ones those are follows from
+    // the lookup above, the one getFields() uses to take the normalised fields out of the layout.
     //
-    Set<String> normalised = NormaliserMeta.getFieldNames(fields);
-    data.copyFieldNrs =
-        IntStream.range(0, data.inputRowMeta.size())
-            .filter(
-                i ->
-                    !normalised.contains(data.inputRowMeta.getValueMeta(i).getName().toLowerCase()))
-            .toArray();
+    data.copyFieldNrs = IntStream.range(0, normalised.length).filter(i -> !normalised[i]).toArray();
     return true;
   }
 }

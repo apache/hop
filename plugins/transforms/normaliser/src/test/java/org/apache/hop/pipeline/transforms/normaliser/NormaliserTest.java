@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -426,31 +427,64 @@ class NormaliserTest {
   }
 
   /**
-   * An input field with the name of a new field is normalised away before the new field is added,
-   * so the new field keeps its name instead of becoming value_1.
+   * With every input field normalised, the input fields are removed before the new fields are
+   * added: the type and value fields keep their names when input fields had them.
    */
   @Test
-  void aNewFieldKeepsItsNameWhenANormalisedFieldHadIt() throws Exception {
+  void withoutListedFieldsTheNewFieldsKeepTheNamesOfInputFields() throws Exception {
     IRowMeta input = new RowMeta();
     input.addValueMeta(new ValueMetaString("type"));
     input.addValueMeta(new ValueMetaString("value"));
 
-    Output all = normalise(meta("type"), input, "t", "v");
+    Output output = normalise(meta("type"), input, "t", "v");
 
-    assertArrayEquals(new String[] {"type", "value"}, all.rowMeta.getFieldNames());
-    assertArrayEquals(new Object[] {"type", "t"}, all.rows.get(0));
-    assertArrayEquals(new Object[] {"value", "v"}, all.rows.get(1));
+    assertArrayEquals(new String[] {"type", "value"}, output.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"type", "t"}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"value", "v"}, output.rows.get(1));
+  }
 
-    Output listed =
+  /**
+   * A new field with the name of a listed field is called value_1, as it always was: the transforms
+   * after this one read it by that name.
+   */
+  @Test
+  void aNewFieldWithTheNameOfAListedFieldKeepsItsOldName() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("type"));
+    input.addValueMeta(new ValueMetaString("value"));
+
+    Output output =
         normalise(
             meta("kind", field("type", "T", "value"), field("value", "V", "value")),
             input,
             "t",
             "v");
 
-    assertArrayEquals(new String[] {"kind", "value"}, listed.rowMeta.getFieldNames());
-    assertArrayEquals(new Object[] {"T", "t"}, listed.rows.get(0));
-    assertArrayEquals(new Object[] {"V", "v"}, listed.rows.get(1));
+    assertArrayEquals(new String[] {"kind", "value_1"}, output.rowMeta.getFieldNames());
+    assertArrayEquals(new Object[] {"T", "t"}, output.rows.get(0));
+    assertArrayEquals(new Object[] {"V", "v"}, output.rows.get(1));
+  }
+
+  /**
+   * The fields that are copied are the ones the declared layout keeps, also where lower case
+   * depends on the language: in Turkish, TITLE in lower case has a dotless i, so it is not title.
+   */
+  @Test
+  void theCopiedFieldsAreTheOnesTheLayoutKeepsInATurkishLocale() throws Exception {
+    IRowMeta input = new RowMeta();
+    input.addValueMeta(new ValueMetaString("id"));
+    input.addValueMeta(new ValueMetaString("title"));
+
+    Locale locale = Locale.getDefault();
+    Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+    try {
+      Output output = normalise(meta("type", field("TITLE", "T", "value")), input, "1", "Dr");
+
+      assertArrayEquals(new String[] {"id", "type", "value"}, output.rowMeta.getFieldNames());
+      assertArrayEquals(new Object[] {"1", "T", "Dr"}, output.rows.get(0));
+    } finally {
+      Locale.setDefault(locale);
+    }
   }
 
   /** Every input field normalised: the declared layout matches the rows too. */

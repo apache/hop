@@ -18,10 +18,8 @@
 package org.apache.hop.pipeline.transforms.normaliser;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
@@ -106,27 +104,19 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     this.normaliserFields = new ArrayList<>();
   }
 
-  /**
-   * The lower case names of the fields to normalise.
-   *
-   * @param fields the fields to normalise, see {@link #getFieldsToNormalise(IRowMeta)}
-   */
-  public static Set<String> getFieldNames(List<NormaliserField> fields) {
-    Set<String> fieldNames = new HashSet<>();
-
-    for (NormaliserField field : fields) {
-      if (field.getName() != null) {
-        fieldNames.add(field.getName().toLowerCase());
-      }
-    }
-    return fieldNames;
-  }
-
   @Override
   public void setDefault() {
     this.typeField = "typefield";
     this.valueField = DEFAULT_VALUE_FIELD;
     this.normaliserFields = new ArrayList<>();
+  }
+
+  /**
+   * @param normaliserFields the fields to normalise; null, from metadata injection for example, is
+   *     an empty list: every input field is normalised then
+   */
+  public void setNormaliserFields(List<NormaliserField> normaliserFields) {
+    this.normaliserFields = normaliserFields == null ? new ArrayList<>() : normaliserFields;
   }
 
   /** True when no fields are listed: every input field is normalised then. */
@@ -196,9 +186,17 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     return getNormalisedValueMetas(inputRowMeta, getFieldsToNormalise(inputRowMeta));
   }
 
-  private static List<IValueMeta> getNormalisedValueMetas(
+  private List<IValueMeta> getNormalisedValueMetas(
       IRowMeta inputRowMeta, List<NormaliserField> fieldsToNormalise) throws HopTransformException {
+    boolean allFields = isNormalisingAllFields();
     List<IValueMeta> valueMetas = new ArrayList<>();
+    if (allFields && fieldsToNormalise.isEmpty()) {
+      // No input fields are known, while designing a pipeline whose input is only known when it
+      // runs for example. The value field is there all the same, and it can hold any value as text.
+      //
+      valueMetas.add(new ValueMetaString(getValueFieldName()));
+      return valueMetas;
+    }
     for (String normName : getNormalisedFieldNames(fieldsToNormalise)) {
       List<NormaliserField> fields = getFieldsOf(fieldsToNormalise, normName);
       IValueMeta first = inputRowMeta.searchValueMeta(fields.get(0).getName());
@@ -209,11 +207,15 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       }
       boolean sameType = true;
       boolean sameStorage = true;
+      boolean sameLength = true;
+      boolean samePrecision = true;
       for (NormaliserField field : fields) {
         IValueMeta source = inputRowMeta.searchValueMeta(field.getName());
         if (source != null) {
           sameType &= source.getType() == first.getType();
           sameStorage &= source.getStorageType() == first.getStorageType();
+          sameLength &= source.getLength() == first.getLength();
+          samePrecision &= source.getPrecision() == first.getPrecision();
         }
       }
 
@@ -225,6 +227,16 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
         if (!sameStorage) {
           v.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
           v.setStorageMetadata(null);
+        }
+        // With every input field normalised, which one comes first is up to the input. The value
+        // field keeps only a length or precision they all share: the first field's could be too
+        // short for the values of the others, in a database table or a fixed width file.
+        //
+        if (allFields && !sameLength) {
+          v.setLength(-1);
+        }
+        if (allFields && !samePrecision) {
+          v.setPrecision(-1);
         }
       }
       v.setName(normName);
@@ -243,6 +255,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    boolean allFields = isNormalisingAllFields();
     List<NormaliserField> fields = getFieldsToNormalise(row);
 
     int maxlen = 0;
@@ -256,21 +269,20 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     //
     List<IValueMeta> normalisedValueMetas = getNormalisedValueMetas(row, fields);
 
-    // Remove the fields that get normalised before adding the new ones: a new field may have the
-    // name of one of them, value for example, and would otherwise be renamed to value_1.
+    // With every input field normalised, remove them before adding the new fields: the value field
+    // may have the name of an input field, value for example, and keeps it.
     //
-    for (NormaliserField field : fields) {
-      int idx = row.indexOfValue(field.getName());
-      if (idx >= 0) {
-        row.removeValueMeta(idx);
-      }
+    if (allFields) {
+      removeFields(row, fields);
     }
 
     // Then add the type field!
     //
     IValueMeta typefieldValue = new ValueMetaString(typeField);
     typefieldValue.setOrigin(name);
-    typefieldValue.setLength(maxlen);
+    if (!fields.isEmpty()) {
+      typefieldValue.setLength(maxlen);
+    }
     row.addValueMeta(typefieldValue);
 
     // Add the new fields that need to be created.
@@ -278,6 +290,22 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     for (IValueMeta v : normalisedValueMetas) {
       v.setOrigin(name);
       row.addValueMeta(v);
+    }
+
+    // Listed fields are removed after the new fields are added, as they always were: a new field
+    // with the name of a listed field is called value_1 then, and pipelines rely on that name.
+    //
+    if (!allFields) {
+      removeFields(row, fields);
+    }
+  }
+
+  private static void removeFields(IRowMeta row, List<NormaliserField> fields) {
+    for (NormaliserField field : fields) {
+      int idx = row.indexOfValue(field.getName());
+      if (idx >= 0) {
+        row.removeValueMeta(idx);
+      }
     }
   }
 
@@ -369,6 +397,23 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, duplicate, transformMeta));
     }
 
+    // The type field comes first, so a new field with its name is renamed, to value_1 for example.
+    //
+    List<String> newFieldNames =
+        isNormalisingAllFields()
+            ? List.of(getValueFieldName())
+            : getNormalisedFieldNames(normaliserFields);
+    for (String newFieldName : newFieldNames) {
+      if (newFieldName != null && newFieldName.equalsIgnoreCase(typeField)) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_WARNING,
+                BaseMessages.getString(
+                    PKG, "NormaliserMeta.CheckResult.SameNameAsTypeField", newFieldName),
+                transformMeta));
+      }
+    }
+
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       cr =
@@ -412,6 +457,9 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
    * @return a description of the first such pair, or null when there is none
    */
   public static String getDuplicateMapping(List<NormaliserField> fields) {
+    if (fields == null) {
+      return null;
+    }
     for (int i = 0; i < fields.size(); i++) {
       NormaliserField one = fields.get(i);
       for (int j = i + 1; j < fields.size(); j++) {
