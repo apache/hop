@@ -613,7 +613,7 @@ Examples: sorted *Group By* (use *Memory Group By*), Beam-only I/O, barriers (*B
 |*Not supported.* There is no Hop transform that maps to Spark’s structured streaming / Kafka source-sink APIs. For Kafka-oriented Beam pipelines, use the Beam engines (e.g. Beam Kafka consumer/producer). Hop’s own Kafka transforms (if used) are not native-Spark Dataset I/O.
 
 |Spark SQL
-|*Not supported* as a first-class surface. You cannot submit arbitrary Spark SQL / `DataFrame` queries from Hop metadata; the engine only builds a Dataset graph from the Hop transform graph (plus native handlers for a fixed set of transforms).
+|*Supported* through the xref:pipeline/transforms/spark-sql.adoc[Spark SQL] transform: it runs a `spark.sql` statement over the incoming Datasets, each registered as a temporary view, and requires an explicit output field list. Arbitrary `DataFrame` API code cannot be submitted from Hop metadata.
 
 |MLlib / Spark ML
 |*Not supported.* There are no native handlers or transforms for training, pipelines, or model inference via Spark MLlib / `spark.ml`. Keep ML workloads in Spark jobs outside Hop, or call external services from ordinary Hop transforms where that fits.
