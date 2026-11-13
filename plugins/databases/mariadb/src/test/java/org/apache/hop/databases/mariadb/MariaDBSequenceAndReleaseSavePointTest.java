@@ -35,14 +35,48 @@ class MariaDBSequenceAndReleaseSavePointTest {
 
   // Set these parameters for the test
   IDatabase db = new MariaDBDatabaseMeta();
-  Boolean sequenceSupport = false;
+  Boolean sequenceSupport = true;
   Boolean savepointSupport = false;
 
   @Test
   void testSequenceSupport() {
     assertSupports(db, sequenceSupport);
-    assertEquals("", db.getSqlNextSequenceValue(sequenceName));
-    assertEquals("", db.getSqlCurrentSequenceValue(sequenceName));
+    assertEquals("SELECT NEXTVAL(sequence_name)", db.getSqlNextSequenceValue(sequenceName));
+    assertEquals("SELECT LASTVAL(sequence_name)", db.getSqlCurrentSequenceValue(sequenceName));
+    assertEquals(
+        "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"
+            + " WHERE TABLE_TYPE = 'SEQUENCE' AND TABLE_SCHEMA = DATABASE()",
+        db.getSqlListOfSequences());
+  }
+
+  @Test
+  void testSequenceExistsInCurrentDatabase() {
+    assertEquals(
+        "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"
+            + " WHERE TABLE_TYPE = 'SEQUENCE' AND TABLE_SCHEMA = DATABASE()"
+            + " AND TABLE_NAME = 'sequence_name'",
+        db.getSqlSequenceExists(sequenceName));
+  }
+
+  @Test
+  void testSequenceExistsInQuotedSchema() {
+    // Hop passes schema-qualified names quoted the MySQL way, e.g. `sales`.`order_seq`
+    assertEquals(
+        "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"
+            + " WHERE TABLE_TYPE = 'SEQUENCE' AND TABLE_SCHEMA = 'sales'"
+            + " AND TABLE_NAME = 'order_seq'",
+        db.getSqlSequenceExists("`sales`.`order_seq`"));
+    assertEquals(
+        "SELECT NEXTVAL(`sales`.`order_seq`)", db.getSqlNextSequenceValue("`sales`.`order_seq`"));
+  }
+
+  @Test
+  void testSequenceExistsEscapesQuotes() {
+    assertEquals(
+        "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"
+            + " WHERE TABLE_TYPE = 'SEQUENCE' AND TABLE_SCHEMA = DATABASE()"
+            + " AND TABLE_NAME = 'o''seq'",
+        db.getSqlSequenceExists("o'seq"));
   }
 
   @Test

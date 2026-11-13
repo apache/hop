@@ -52,6 +52,10 @@ public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
 
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 
+  private static final String SQL_SELECT_SEQUENCES =
+      "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"
+          + " WHERE TABLE_TYPE = 'SEQUENCE' AND ";
+
   private static final Set<String> SHORT_MESSAGE_EXCEPTIONS =
       Sets.newHashSet("org.mariadb.jdbc.internal.stream.MaxAllowedPacketException");
 
@@ -87,6 +91,67 @@ public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   public boolean isFullExceptionLog(Exception e) {
     Throwable cause = (e == null ? null : e.getCause());
     return !(cause != null && SHORT_MESSAGE_EXCEPTIONS.contains(cause.getClass().getName()));
+  }
+
+  /** MariaDB supports sequences natively since 10.3, unlike MySQL. */
+  @Override
+  public boolean isSupportsSequences() {
+    return true;
+  }
+
+  /** Sequences are listed from the current database, where MariaDB stores them as tables. */
+  @Override
+  public String getSqlListOfSequences() {
+    return SQL_SELECT_SEQUENCES + "TABLE_SCHEMA = DATABASE()";
+  }
+
+  /**
+   * Check if a sequence exists. The name may be qualified with a database (schema) name and quoted
+   * with backticks, as Hop passes it; without a database the current one is searched.
+   *
+   * @param sequenceName The sequence to check
+   * @return The SQL to get the name of the sequence back from the information schema
+   */
+  @Override
+  public String getSqlSequenceExists(String sequenceName) {
+    String name = sequenceName.replace(getStartQuote(), "").replace(getEndQuote(), "");
+    int dotPos = name.indexOf('.');
+    String schemaCondition = "TABLE_SCHEMA = DATABASE()";
+    if (dotPos != -1) {
+      schemaCondition = "TABLE_SCHEMA = '" + escapeLiteral(name.substring(0, dotPos)) + "'";
+      name = name.substring(dotPos + 1);
+    }
+    return SQL_SELECT_SEQUENCES
+        + schemaCondition
+        + " AND TABLE_NAME = '"
+        + escapeLiteral(name)
+        + "'";
+  }
+
+  /**
+   * Get the SQL to get the next value of a sequence.
+   *
+   * @param sequenceName The sequence name
+   * @return the SQL to get the next value of a sequence.
+   */
+  @Override
+  public String getSqlNextSequenceValue(String sequenceName) {
+    return "SELECT NEXTVAL(" + sequenceName + ")";
+  }
+
+  /**
+   * Get the SQL to get the current value of a sequence: the last value generated in this session.
+   *
+   * @param sequenceName The sequence name
+   * @return the SQL to get the current value of a sequence.
+   */
+  @Override
+  public String getSqlCurrentSequenceValue(String sequenceName) {
+    return "SELECT LASTVAL(" + sequenceName + ")";
+  }
+
+  private static String escapeLiteral(String value) {
+    return value.replace("'", "''");
   }
 
   /**
