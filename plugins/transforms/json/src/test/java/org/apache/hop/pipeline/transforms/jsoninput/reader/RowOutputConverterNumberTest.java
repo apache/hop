@@ -40,9 +40,16 @@ import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -58,6 +65,18 @@ class RowOutputConverterNumberTest {
   @BeforeAll
   static void initHop() throws HopException {
     HopEnvironment.init();
+    // A test that ran before in this JVM may have registered only some value types, and init()
+    // does not add the others then: register every type this test uses.
+    PluginRegistry registry = PluginRegistry.getInstance();
+    for (Class<?> valueMeta :
+        List.of(
+            ValueMetaString.class,
+            ValueMetaInteger.class,
+            ValueMetaNumber.class,
+            ValueMetaBigNumber.class)) {
+      registry.registerPluginClass(
+          valueMeta.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
+    }
   }
 
   private static IValueMeta field(int type, String mask, String decimalSymbol) throws HopException {
