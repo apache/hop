@@ -1,0 +1,26 @@
+{
+  "database_replacements": [],
+  "autoOpening": false,
+  "description": "Mask fields masks the fields the data catalog tags PII or terms Classification.Personal, and leaves the others",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        { "transform_field": "id", "data_set_field": "id" },
+        { "transform_field": "EMAIL", "data_set_field": "EMAIL" },
+        { "transform_field": "name", "data_set_field": "name" },
+        { "transform_field": "city", "data_set_field": "city" }
+      ],
+      "field_order": [ "id" ],
+      "data_set_name": "golden-0002-mask-by-tag",
+      "transform_name": "Result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0002-mask-by-tag UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0002-mask-by-tag.hpl"
+}

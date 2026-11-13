@@ -34,9 +34,12 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
@@ -172,6 +175,41 @@ class MaskFieldsMetaTest {
       assertFalse(json.toJSONString().contains("s3cret"));
       assertNull(MaskingRules.incompatibility(new ValueMetaString("name"), loaded));
     }
+  }
+
+  @Test
+  void theDataCatalogOptionsSurviveASaveAndLoad() throws Exception {
+    MaskFieldsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/mask-fields-catalog-transform.xml", MaskFieldsMeta.class);
+
+    assertEquals("prod-datahub", meta.getCatalogName());
+    assertEquals(CatalogDatasetType.TABLE, meta.getDatasetType());
+    assertEquals("warehouse", meta.getDatasetConnection());
+    assertEquals("crm", meta.getDatasetSchema());
+    assertEquals("customers", meta.getDatasetName());
+    assertEquals(2, meta.activeTagRules().size());
+    assertEquals("Classification.Personal", meta.getTagRules().get(1).getTag());
+    assertEquals("Hidden", meta.getTagRules().get(1).getPatternName());
+    assertEquals(1, meta.getFields().size());
+  }
+
+  @Test
+  void aTransformSavedBeforeTheCatalogOptionsHasNoTagRules() throws Exception {
+    Node node =
+        XmlHandler.getSubNode(
+            XmlHandler.loadXmlString(
+                "<transform><fields><field><name>name</name><pattern>First name</pattern>"
+                    + "</field></fields></transform>"),
+            "transform");
+
+    MaskFieldsMeta meta =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, MaskFieldsMeta.class, new MemoryMetadataProvider());
+
+    assertTrue(meta.activeTagRules().isEmpty());
+    assertNull(meta.getCatalogName());
+    assertEquals(1, meta.getFields().size());
   }
 
   private static MaskingPattern synthetic(String name, MaskingToken token) {

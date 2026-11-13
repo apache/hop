@@ -1,0 +1,14 @@
+{
+  "name": "masked-email",
+  "description": "Replaces an email with email- and a sequence",
+  "piiClassification": "Direct identifier",
+  "valueSource": "SYNTHETIC",
+  "token": "SEQUENCE",
+  "prefix": "email-",
+  "suffix": "",
+  "sequenceStart": "1",
+  "storage": "NONE",
+  "connection": "",
+  "schemaName": "",
+  "tableName": ""
+}

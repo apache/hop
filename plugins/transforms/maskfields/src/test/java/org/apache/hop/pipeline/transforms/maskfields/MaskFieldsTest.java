@@ -25,7 +25,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -33,7 +37,17 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.datacatalog.CatalogAnswer;
+import org.apache.hop.datacatalog.CatalogDatasetType;
+import org.apache.hop.datacatalog.CatalogEntityId;
+import org.apache.hop.datacatalog.DataCatalog;
+import org.apache.hop.datacatalog.DatasetRef;
+import org.apache.hop.datacatalog.IDataCatalog;
+import org.apache.hop.datacatalog.ISchemaCapability;
+import org.apache.hop.datacatalog.ISchemaCapability.CatalogField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -190,5 +204,156 @@ class MaskFieldsTest {
     rowSet.setThreadNameFromToCopy("Mask fields", 0, "next", 0);
     rowSet.setRowMeta(rowMeta);
     return rowSet;
+  }
+
+  /** A data catalog that answers with the schema each test sets. */
+  @Getter
+  @Setter
+  public static class SchemaCatalog implements IDataCatalog, ISchemaCapability {
+    static CatalogAnswer<CatalogEntityId> resolved;
+    static CatalogAnswer<List<CatalogField>> schema;
+
+    private String pluginId = "schema";
+    private String pluginName = "Schema catalog";
+
+    @Override
+    public SchemaCatalog clone() {
+      return new SchemaCatalog();
+    }
+
+    @Override
+    public void initialize(IVariables variables, IHopMetadataProvider metadataProvider) {
+      // Nothing to prepare
+    }
+
+    @Override
+    public CatalogAnswer<String> ping() {
+      return CatalogAnswer.known("schema");
+    }
+
+    @Override
+    public CatalogAnswer<CatalogEntityId> resolve(DatasetRef dataset) {
+      return resolved;
+    }
+
+    @Override
+    public CatalogAnswer<List<CatalogField>> schema(CatalogEntityId id) {
+      return schema;
+    }
+
+    @Override
+    public void close() {
+      // Nothing to release
+    }
+  }
+
+  private static CatalogField field(String name, Set<String> tags, Set<String> terms) {
+    return new CatalogField(name, null, "STRING", null, tags, terms);
+  }
+
+  /** Patterns, a catalog whose customers table tags email PII and terms name Personal. */
+  private MemoryMetadataProvider catalogProvider() throws Exception {
+    SchemaCatalog.resolved = CatalogAnswer.known(new CatalogEntityId("urn:customers"));
+    SchemaCatalog.schema =
+        CatalogAnswer.known(
+            List.of(
+                field("email", Set.of("PII", "urn:li:tag:PII"), Set.of()),
+                field("name", Set.of(), Set.of("Personal")),
+                field("city", Set.of(), Set.of())));
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    MaskingPattern email = new MaskingPattern();
+    email.setName("Masked email");
+    email.setValueSource(MaskingValueSource.SYNTHETIC);
+    email.setToken(MaskingToken.SEQUENCE);
+    email.setStorage(MaskingStorage.NONE);
+    email.setPrefix("email-");
+    email.setSequenceStart("1");
+    provider.getSerializer(MaskingPattern.class).save(email);
+    MaskingPattern hidden = new MaskingPattern();
+    hidden.setName("Hidden");
+    hidden.setValueSource(MaskingValueSource.SET_NULL);
+    provider.getSerializer(MaskingPattern.class).save(hidden);
+    provider
+        .getSerializer(DataCatalog.class)
+        .save(new DataCatalog("catalog", null, new SchemaCatalog()));
+    return provider;
+  }
+
+  private static MaskFieldsMeta catalogMeta() {
+    MaskFieldsMeta meta = new MaskFieldsMeta();
+    meta.setCatalogName("catalog");
+    meta.setDatasetType(CatalogDatasetType.CATALOG_ID);
+    meta.setDatasetName("urn:customers");
+    meta.getTagRules().add(new MaskTagRule("pii", "Masked email"));
+    meta.getTagRules().add(new MaskTagRule("Personal", "Hidden"));
+    return meta;
+  }
+
+  private Object[] maskOneRow(MaskFieldsMeta meta, MemoryMetadataProvider provider)
+      throws Exception {
+    MaskFields transform = createTransform(meta);
+    transform.setMetadataProvider(provider);
+    assertTrue(transform.init());
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("EMAIL"));
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    rowMeta.addValueMeta(new ValueMetaString("city"));
+    BlockingRowSet output = output(rowMeta);
+    transform.addRowSetToInputRowSets(
+        input("people", rowMeta, new Object[] {"ann@example.com", "Ann", "Gent"}));
+    transform.addRowSetToOutputRowSets(output);
+    assertTrue(transform.processRow());
+    Object[] row = output.getRowWait(1, TimeUnit.SECONDS);
+    transform.dispose();
+    return row;
+  }
+
+  @Test
+  void aFieldTheCatalogLabelsIsMaskedWithThePatternOfItsTagOrTerm() throws Exception {
+    Object[] row = maskOneRow(catalogMeta(), catalogProvider());
+
+    // EMAIL matches email whatever the case; city carries no tag and is left alone
+    assertArrayEquals(new Object[] {"email-1", null, "Gent"}, row);
+  }
+
+  @Test
+  void aFieldWithARowOfItsOwnKeepsThatPattern() throws Exception {
+    MaskFieldsMeta meta = catalogMeta();
+    meta.getFields().add(new MaskField("name", "Masked email"));
+
+    Object[] row = maskOneRow(meta, catalogProvider());
+
+    // name keeps its own pattern instead of the Hidden of its term; each field counts on its own
+    assertArrayEquals(new Object[] {"email-1", "email-1", "Gent"}, row);
+  }
+
+  @Test
+  void aCatalogThatCannotAnswerStopsTheTransform() throws Exception {
+    MemoryMetadataProvider provider = catalogProvider();
+    SchemaCatalog.schema = CatalogAnswer.unknown(CatalogAnswer.Reason.UNREACHABLE, "refused");
+    MaskFields transform = createTransform(catalogMeta());
+    transform.setMetadataProvider(provider);
+
+    assertFalse(transform.init());
+  }
+
+  @Test
+  void aDatasetTheCatalogDoesNotHaveStopsTheTransform() throws Exception {
+    MemoryMetadataProvider provider = catalogProvider();
+    SchemaCatalog.resolved = CatalogAnswer.notFound();
+    MaskFields transform = createTransform(catalogMeta());
+    transform.setMetadataProvider(provider);
+
+    assertFalse(transform.init());
+  }
+
+  @Test
+  void tagRulesWithoutACatalogStopTheTransform() throws Exception {
+    MaskFieldsMeta meta = catalogMeta();
+    meta.setCatalogName("");
+    MaskFields transform = createTransform(meta);
+    transform.setMetadataProvider(catalogProvider());
+
+    assertFalse(transform.init());
   }
 }

@@ -226,12 +226,14 @@ public class MaskFieldsDialog extends BaseTransformDialog {
   }
 
   private void installPatternComboSupplier() {
-    TableView table = fieldsTable();
-    if (table == null || table.getColumns().length <= 1) {
-      return;
+    for (String id : new String[] {MaskFieldsMeta.WIDGET_FIELDS, MaskFieldsMeta.WIDGET_TAG_RULES}) {
+      Control control = widgets.getWidgetsMap().get(id);
+      if (control instanceof TableView table && table.getColumns().length > 1) {
+        table.getColumns()[1].setComboValueSupplier(
+            () ->
+                input.patternNames(LogChannel.UI, hopGuiMetadataProvider()).toArray(new String[0]));
+      }
     }
-    table.getColumns()[1].setComboValueSupplier(
-        () -> input.patternNames(LogChannel.UI, hopGuiMetadataProvider()).toArray(new String[0]));
   }
 
   private TableView fieldsTable() {

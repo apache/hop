@@ -38,8 +38,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
+import org.apache.hop.datacatalog.DataCatalog;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -66,6 +70,8 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "MaskFields.Dialog";
   public static final String WIDGET_EDIT_RULE = "editRule";
   public static final String WIDGET_FIELDS = "fields";
+  public static final String WIDGET_TAG_RULES = "tagRules";
+  private static final String GROUP_CATALOG = "i18n::MaskFields.Group.Catalog";
 
   /** Column index of the masking rule in the fields table. 0 is the row number. */
   public static final int RULE_COLUMN = 2;
@@ -100,13 +106,127 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
       tableRows = 8)
   private List<MaskField> fields = new ArrayList<>();
 
+  /** The data catalog that says which fields carry a tag or term. Empty: no tag rules. */
+  @GuiWidgetElement(
+      id = "catalogName",
+      order = "1000",
+      type = GuiElementType.METADATA,
+      metadata = DataCatalog.class,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      label = "i18n::MaskFields.Catalog.Label",
+      toolTip = "i18n::MaskFields.Catalog.Tooltip")
+  @HopMetadataProperty(
+      key = "data_catalog",
+      hopMetadataPropertyType = HopMetadataPropertyType.DATA_CATALOG,
+      injectionKeyDescription = "MaskFields.Injection.Catalog")
+  private String catalogName;
+
+  @GuiWidgetElement(
+      id = "datasetType",
+      order = "1100",
+      type = GuiElementType.COMBO,
+      variables = false,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      label = "i18n::MaskFields.DatasetType.Label",
+      toolTip = "i18n::MaskFields.DatasetType.Tooltip")
+  @HopMetadataProperty(key = "dataset_type")
+  private CatalogDatasetType datasetType;
+
+  @GuiWidgetElement(
+      id = "datasetConnection",
+      order = "1200",
+      type = GuiElementType.METADATA,
+      metadata = DatabaseMeta.class,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      label = "i18n::MaskFields.DatasetConnection.Label",
+      toolTip = "i18n::MaskFields.DatasetConnection.Tooltip")
+  @HopMetadataProperty(
+      key = "dataset_connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+  private String datasetConnection;
+
+  @GuiWidgetElement(
+      id = "datasetSchema",
+      order = "1300",
+      type = GuiElementType.TEXT,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      label = "i18n::MaskFields.DatasetSchema.Label",
+      toolTip = "i18n::MaskFields.DatasetSchema.Tooltip")
+  @HopMetadataProperty(
+      key = "dataset_schema",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
+  private String datasetSchema;
+
+  @GuiWidgetElement(
+      id = "datasetName",
+      order = "1400",
+      type = GuiElementType.TEXT,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      label = "i18n::MaskFields.DatasetName.Label",
+      toolTip = "i18n::MaskFields.DatasetName.Tooltip")
+  @HopMetadataProperty(key = "dataset_name")
+  private String datasetName;
+
+  /** Masks every incoming field the catalog labels with one of these tags or terms. */
+  @HopMetadataProperty(key = "tag_rule", groupKey = "tag_rules")
+  @GuiWidgetElement(
+      id = WIDGET_TAG_RULES,
+      order = "1500",
+      type = GuiElementType.TABLE,
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_CATALOG,
+      groupOrder = "20",
+      toolTip = "i18n::MaskFields.TagRules.Tooltip",
+      tableRows = 4)
+  private List<MaskTagRule> tagRules = new ArrayList<>();
+
   public MaskFieldsMeta() {
     this.fields = new ArrayList<>();
+    this.tagRules = new ArrayList<>();
+    this.datasetType = CatalogDatasetType.TABLE;
   }
 
   @Override
   public void setDefault() {
     fields = new ArrayList<>();
+    tagRules = new ArrayList<>();
+    datasetType = CatalogDatasetType.TABLE;
+  }
+
+  /** The tag rules with a tag and a pattern. */
+  public List<MaskTagRule> activeTagRules() {
+    List<MaskTagRule> active = new ArrayList<>();
+    if (tagRules != null) {
+      for (MaskTagRule rule : tagRules) {
+        if (rule != null
+            && StringUtils.isNotBlank(rule.getTag())
+            && StringUtils.isNotBlank(rule.getPatternName())) {
+          active.add(rule);
+        }
+      }
+    }
+    return active;
+  }
+
+  /** The dataset to read the tags and terms of. */
+  public CatalogDataset catalogDataset() {
+    return new CatalogDataset(datasetType, datasetConnection, datasetSchema, datasetName);
   }
 
   /** Pattern names for the grid combo. */
@@ -152,6 +272,19 @@ public class MaskFieldsMeta extends BaseTransformMeta<MaskFields, MaskFieldsData
       IHopMetadataProvider metadataProvider) {
     if (input == null || input.length == 0) {
       error(remarks, transformMeta, "MaskFields.Check.NoInput");
+    }
+    if (!activeTagRules().isEmpty()) {
+      if (StringUtils.isBlank(catalogName)) {
+        error(remarks, transformMeta, "MaskFields.Check.TagRulesWithoutCatalog");
+      }
+      if (StringUtils.isBlank(datasetName)) {
+        error(remarks, transformMeta, "MaskFields.Check.TagRulesWithoutDataset");
+      }
+      for (MaskTagRule rule : activeTagRules()) {
+        if (loadQuietly(metadataProvider, rule.getPatternName()) == null) {
+          error(remarks, transformMeta, "MaskFields.Check.MissingPattern", rule.getPatternName());
+        }
+      }
     }
 
     Set<String> seen = new HashSet<>();

@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.hop.workflow.actions.checkdatacatalog;
+package org.apache.hop.datacatalog;
 
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
-/** How a dataset of {@link ActionCheckDataCatalog} is named. */
+/** How a {@link CatalogDataset} names its dataset. Experimental. */
 public enum CatalogDatasetType implements IEnumHasCodeAndDescription {
   /** A table of a relational connection. */
   TABLE,
@@ -36,7 +36,6 @@ public enum CatalogDatasetType implements IEnumHasCodeAndDescription {
 
   @Override
   public String getDescription() {
-    return BaseMessages.getString(
-        ActionCheckDataCatalog.class, "ActionCheckDataCatalog.DatasetType." + name());
+    return BaseMessages.getString(CatalogDatasetType.class, "CatalogDatasetType." + name());
   }
 }
