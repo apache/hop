@@ -99,7 +99,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
                 this.logError(
                     "Error in validating test data set '"
                         + testResult.getDataSetName()
-                        + " : "
+                        + "' : "
                         + testResult.getComment());
                 errorCount++;
               }
@@ -107,16 +107,18 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
             if (errorCount > 0) {
               this.logError(
                   "There were test result evaluation errors in pipeline unit test '"
-                      + test.getName());
+                      + test.getName()
+                      + "'");
               success.set(false);
             }
           },
           (test1, pipelineMeta, e) -> {
             if (test == null) {
-              this.logError("Unable to load unit test for '" + testName, e);
+              this.logError("Unable to load unit test for '" + testName.getTestName() + "'", e);
             } else {
               this.logError(
-                  "There was an exception executing pipeline unit test '" + test.getName(), e);
+                  "There was an exception executing pipeline unit test '" + test.getName() + "'",
+                  e);
             }
             success.set(false);
           });
@@ -160,7 +162,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     RunPipelineTestsField testName = testNames.get(index);
     PipelineUnitTest test = testSerializer.load(testName.getTestName());
     if (test == null) {
-      throw new HopException("Unit test '" + testName + "' could not be found");
+      throw new HopException("Unit test '" + testName.getTestName() + "' could not be found");
     }
 
     variables.setVariable(
