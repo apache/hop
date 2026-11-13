@@ -38,3 +38,8 @@ Note: This name has to be unique in a single pipeline.
 |Create table|Enable to create a new table in the Access database 
 |Commit size|Defines the commit size when outputting data 
 |===
+
+== Samples
+
+The samples project has `transforms/microsoft-access-output.hpl`, which writes two rows from a Data grid to a Microsoft Access file.
+Set the file name and the table name in the transform before you run it.

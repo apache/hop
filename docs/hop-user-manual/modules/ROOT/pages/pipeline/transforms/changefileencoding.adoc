@@ -39,3 +39,7 @@ The Change File Encoding transform changes a text file from one encoding to anot
 ** Target encoding: you can select the target encoding here
 ** Add target filename to the result filenames?
 : Check this if you want to add the target file(s) automatically to the files list of the result of the pipeline.
+
+== Samples
+
+The samples project has `transforms/change-file-encoding.hpl`, which converts `files/change-file-encoding.txt` from UTF-8 to ISO-8859-1 into `output/change-file-encoding.txt`.
