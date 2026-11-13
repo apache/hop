@@ -17,12 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,9 +33,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,16 +42,16 @@ import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -67,7 +60,6 @@ import org.apache.hop.ui.hopgui.file.shared.ExecutionGuiSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -78,17 +70,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 
 /**
- * Delegate for the pipeline execution metrics grid tab. Manages the table of transform metrics
- * (rows read/written, duration, etc.), toolbar actions (open transform, show/hide filters, copy),
- * sorting, and double-click / selection behaviour to open the transform configuration.
+ * Delegate for the pipeline execution metrics tab. Transforms that run in several copies are one
+ * collapsed row with the totals; expanding it shows each copy. A single copy stays one row. Toolbar
+ * actions (open transform, show/hide filters, copy), sorting, and double-click behaviour stay on
+ * this tab.
  */
 @GuiPlugin(description = "Pipeline Graph Grid Delegate")
 public class HopGuiPipelineGridDelegate {
@@ -105,14 +98,15 @@ public class HopGuiPipelineGridDelegate {
 
   public static final long UPDATE_TIME_VIEW = 1000L;
 
-  private static final int METRICS_TABLE_STYLE = SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI;
+  private static final int METRICS_TREE_STYLE =
+      SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL;
 
   private final HopGui hopGui;
   private final HopGuiPipelineGraph pipelineGraph;
 
   @Getter private CTabItem pipelineGridTab;
 
-  private TableView pipelineGridView;
+  private Tree pipelineMetricsTree;
 
   private Control toolbar;
   private GuiToolbarWidgets toolbarWidget;
@@ -127,8 +121,11 @@ public class HopGuiPipelineGridDelegate {
 
   private Timer refreshMetricsTimer;
 
-  /** Last sort column/direction from user (column header click); we re-apply on each refresh. */
-  private int gridSortColumn = 0;
+  /**
+   * Last sort column from a header click. {@code -1} keeps pipeline order. Only parent rows are
+   * sorted; copies under a parent stay in copy-number order.
+   */
+  private int gridSortColumn = -1;
 
   private boolean gridSortDescending = false;
 
@@ -192,7 +189,7 @@ public class HopGuiPipelineGridDelegate {
     }
   }
 
-  /** Add a grid with the execution metrics per transform in a table view */
+  /** Add a grid with the execution metrics per transform. */
   public void addPipelineGrid() {
 
     // First, see if we need to add the extra view...
@@ -201,18 +198,21 @@ public class HopGuiPipelineGridDelegate {
       pipelineGraph.addExtraView();
     } else {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
-        // Reusing existing grid for a new run: reset sort to default and clear metrics cache
-        gridSortColumn = 0;
+        // Reusing existing grid for a new run: reset sort to default and clear metrics cache.
+        // Collapse groups so the new run starts with the totals, not the previous expansion.
+        gridSortColumn = -1;
         gridSortDescending = false;
         lastEngineMetrics = null;
         packColumnsOnNextRefresh = true;
+        collapseMetricsTree();
         startRefreshMetricsTimer();
         return;
       }
     }
 
-    gridSortColumn = 0;
+    gridSortColumn = -1;
     gridSortDescending = false;
+    TreeMemory.getInstance().clearTree(metricsTreeMemoryName());
     lastEngineMetrics = null;
     transformNameSearchText = "";
 
@@ -314,12 +314,11 @@ public class HopGuiPipelineGridDelegate {
     columns[12].setAlignment(SWT.RIGHT);
     columns[13].setAlignment(SWT.RIGHT);
 
-    pipelineGridView = createMetricsTableView(columns, 1);
+    pipelineMetricsTree = createMetricsTree(columns);
     metricsColumnKeys = placeholderColumnKeys();
     attachColumnWidthListeners();
-    attachMetricsTableListeners(pipelineGridView);
-    applyNumberColumnComparator();
-    previousRefreshColumns = Arrays.asList(columns);
+    attachMetricsTreeListeners(pipelineMetricsTree);
+    previousRefreshColumns = List.of(columns);
 
     startRefreshMetricsTimer();
     pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
@@ -379,7 +378,7 @@ public class HopGuiPipelineGridDelegate {
     if (!showSelectedTransforms) {
       return;
     }
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
     hopGui.getDisplay().asyncExec(this::refreshView);
@@ -666,24 +665,20 @@ public class HopGuiPipelineGridDelegate {
       image = "ui/images/copy.svg",
       separator = true)
   public void copyMetricsToClipboard() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
-    Table table = pipelineGridView.table;
-    boolean hadSelection = table.getSelectionCount() > 0;
-    if (!hadSelection) {
-      table.selectAll();
+    String clip = PipelineMetricsTree.copyText(pipelineMetricsTree);
+    if (Utils.isEmpty(clip)) {
+      return;
     }
-    pipelineGridView.clipSelected();
-    if (!hadSelection) {
-      table.deselectAll();
-    }
+    GuiResource.getInstance().toClipboard(clip);
   }
 
   private void refreshView() {
     refreshViewLock.lock();
     try {
-      if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+      if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
         return;
       }
 
@@ -703,40 +698,37 @@ public class HopGuiPipelineGridDelegate {
       List<IEngineMetric> usedMetrics = getUsedMetrics(engineMetrics);
       List<ColumnInfo> columns = buildColumnList(usedMetrics);
       applySavedColumnWidthsToColumnInfos(columns, usedMetrics);
-      List<List<String>> componentStringsList =
-          buildComponentStringsList(engineMetrics, shownComponents, usedMetrics);
 
-      boolean recreated =
-          recreateTableIfColumnsChanged(columns, shownComponents.size(), usedMetrics);
+      boolean recreated = recreateTreeIfColumnsChanged(columns, usedMetrics);
       boolean packColumns = packColumnsOnNextRefresh;
       packColumnsOnNextRefresh = false;
 
-      sortComponentStringsByColumn(componentStringsList, gridSortColumn, gridSortDescending);
-
-      Table table = pipelineGridView.table;
-      int topIndex = table.getTopIndex();
-      int[] selection = table.getSelectionIndices();
-
-      int errorCol = indexOfMetric(usedMetrics, Pipeline.METRIC_ERROR);
-      fillTableRows(componentStringsList, errorCol);
+      List<PipelineMetricsNode> nodes =
+          PipelineMetricsGrouper.group(shownComponents, engineMetrics, usedMetrics);
+      PipelineMetricsGrouper.sortParents(nodes, gridSortColumn, gridSortDescending, usedMetrics);
+      PipelineMetricsTree.sync(
+          pipelineMetricsTree,
+          nodes,
+          usedMetrics,
+          PropsUi.getInstance().isMetricsPanelShowUnits(),
+          metricsTreeMemoryName());
 
       setSortIndicator();
 
-      // Ignore resize events from optWidth / restore so we don't treat them as user drags.
+      // Ignore resize events from packing / restore so we don't treat them as user drags.
       restoringColumnWidths = true;
       try {
         if (packColumns && !recreated) {
-          pipelineGridView.optWidth(true);
+          packTreeColumns(false);
           restoreColumnWidths(usedMetrics);
-        } else if (PropsUi.getInstance().isMetricsPanelDynamicColumnResize()) {
-          // Recreate already packed in the constructor; timer ticks only grow auto-sized columns.
-          pipelineGridView.optWidth(true, 0, true);
+        } else if (recreated || PropsUi.getInstance().isMetricsPanelDynamicColumnResize()) {
+          // A fresh tree has no measured widths yet. Later ticks only grow auto-sized columns.
+          packTreeColumns(true);
         }
       } finally {
         restoringColumnWidths = false;
       }
       previousRefreshColumns = columns;
-      restoreTableViewport(table, topIndex, selection);
       updateEditButtonState();
     } finally {
       refreshViewLock.unlock();
@@ -856,16 +848,9 @@ public class HopGuiPipelineGridDelegate {
               metric.isNumeric(),
               true);
       column.setToolTip(metric.getTooltip());
-      IValueMeta stringMeta = new ValueMetaString(metric.getCode());
-      ValueMetaInteger valueMeta = new ValueMetaInteger(metric.getCode(), 15, 0);
-      valueMeta.setConversionMask(METRICS_FORMAT);
-      stringMeta.setConversionMetadata(valueMeta);
-      column.setValueMeta(stringMeta);
       column.setAlignment(SWT.RIGHT);
       columns.add(column);
     }
-
-    IValueMeta stringMeta = new ValueMetaString("string");
 
     ColumnInfo durationColumn =
         new ColumnInfo(
@@ -873,20 +858,15 @@ public class HopGuiPipelineGridDelegate {
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    durationColumn.setValueMeta(stringMeta);
     durationColumn.setAlignment(SWT.RIGHT);
     columns.add(durationColumn);
 
-    ValueMetaInteger speedMeta = new ValueMetaInteger("speed", 15, 0);
-    speedMeta.setConversionMask(" ###,###,###,##0");
-    stringMeta.setConversionMetadata(speedMeta);
     ColumnInfo speedColumn =
         new ColumnInfo(
             BaseMessages.getString(PKG, "PipelineLog.Column.Speed"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false,
             true);
-    speedColumn.setValueMeta(stringMeta);
     speedColumn.setAlignment(SWT.RIGHT);
     columns.add(speedColumn);
 
@@ -901,130 +881,83 @@ public class HopGuiPipelineGridDelegate {
   }
 
   /**
-   * Applies saved column widths to ColumnInfo so that TableView.optWidth() will use them instead of
-   * auto-sizing. Table column 0 is the "#" column (no ColumnInfo); indices 1..n match our columns.
+   * Applies saved column widths to ColumnInfo so a rebuilt tree starts from the user's widths.
+   * Column 0 is the transform name.
    */
   private void applySavedColumnWidthsToColumnInfos(
       List<ColumnInfo> columns, List<IEngineMetric> usedMetrics) {
     List<String> keys = getColumnKeys(usedMetrics);
-    for (int i = 0; i < columns.size() && (i + 1) < keys.size(); i++) {
-      String key = keys.get(i + 1);
-      Integer w = metricsColumnWidths.get(key);
-      if (w != null && w > 0) {
-        columns.get(i).setWidth(w);
+    for (int i = 0; i < columns.size() && i < keys.size(); i++) {
+      Integer width = metricsColumnWidths.get(keys.get(i));
+      if (width != null && width > 0) {
+        columns.get(i).setWidth(width);
       }
     }
-  }
-
-  private List<List<String>> buildComponentStringsList(
-      EngineMetrics engineMetrics,
-      List<IEngineComponent> shownComponents,
-      List<IEngineMetric> usedMetrics) {
-    List<List<String>> componentStringsList = new ArrayList<>();
-    int rowNum = 1;
-    for (IEngineComponent component : shownComponents) {
-      List<String> componentStrings = new ArrayList<>();
-      componentStrings.add(Integer.toString(rowNum++));
-      componentStrings.add(Const.NVL(component.getName(), ""));
-      componentStrings.add(Integer.toString(component.getCopyNr()));
-
-      boolean showUnits = PropsUi.getInstance().isMetricsPanelShowUnits();
-      for (IEngineMetric metric : usedMetrics) {
-        Long value = engineMetrics.getComponentMetric(component, metric);
-        String cell;
-        if (Pipeline.METRIC_NAME_DATA_VOLUME.equals(metric.getCode())
-            || Pipeline.METRIC_NAME_DATA_VOLUME_IN.equals(metric.getCode())
-            || Pipeline.METRIC_NAME_DATA_VOLUME_OUT.equals(metric.getCode())) {
-          cell = value == null ? "" : PipelineMetricDisplayUtil.formatDataVolume(value);
-        } else {
-          String unit = showUnits ? PipelineMetricDisplayUtil.getUnitForMetricCell(metric) : null;
-          cell =
-              value == null
-                  ? ""
-                  : formatMetric(value) + (unit != null && !unit.isEmpty() ? " " + unit : "");
-        }
-        componentStrings.add(cell);
-      }
-      String durationStr = calculateDuration(component);
-      componentStrings.add(
-          durationStr.isEmpty() ? "" : showUnits ? durationStr + " (h:m:s)" : durationStr);
-      String speedStr = engineMetrics.getComponentSpeedMap().get(component);
-      componentStrings.add(
-          speedStr == null || speedStr.isEmpty()
-              ? ""
-              : showUnits && !speedStr.trim().equals("-")
-                  ? speedStr.trim() + " rows/s"
-                  : speedStr.trim());
-      componentStrings.add(Const.NVL(engineMetrics.getComponentStatusMap().get(component), ""));
-
-      componentStringsList.add(componentStrings);
-    }
-    return componentStringsList;
   }
 
   /**
-   * Rebuilds the metrics {@link TableView} when the column set changes. Returns true when a new
-   * table was created (constructor already packed columns).
+   * Rebuilds the metrics tree when the column set changes. Returns true when a new tree was
+   * created.
    */
-  private boolean recreateTableIfColumnsChanged(
-      List<ColumnInfo> columns, int rowCount, List<IEngineMetric> usedMetrics) {
+  private boolean recreateTreeIfColumnsChanged(
+      List<ColumnInfo> columns, List<IEngineMetric> usedMetrics) {
     if (!haveColumnsChanged(columns)) {
       return false;
     }
     saveColumnWidths();
-    pipelineGridView.dispose();
-    pipelineGridView = createMetricsTableView(columns.toArray(new ColumnInfo[0]), rowCount);
+    if (pipelineMetricsTree != null && !pipelineMetricsTree.isDisposed()) {
+      pipelineMetricsTree.dispose();
+    }
+    pipelineMetricsTree = createMetricsTree(columns.toArray(new ColumnInfo[0]));
     metricsColumnKeys = getColumnKeys(usedMetrics);
-    applyNumberColumnComparator();
     attachColumnWidthListeners();
-    attachMetricsTableListeners(pipelineGridView);
+    attachMetricsTreeListeners(pipelineMetricsTree);
     pipelineGridComposite.layout(true, true);
     restoreColumnWidths(usedMetrics);
     return true;
   }
 
-  private TableView createMetricsTableView(ColumnInfo[] columns, int rowCount) {
-    TableView view =
-        new TableView(
-            pipelineGraph.getVariables(),
-            pipelineGridComposite,
-            METRICS_TABLE_STYLE,
-            columns,
-            Math.max(rowCount, 1),
-            true,
-            null,
-            hopGui.getProps(),
-            true,
-            null,
-            false,
-            false); // no TableView toolbar; copy/filter are on our toolbar
-    view.setSortable(true);
+  private Tree createMetricsTree(ColumnInfo[] columns) {
+    Tree tree = new Tree(pipelineGridComposite, METRICS_TREE_STYLE);
+    tree.setHeaderVisible(true);
+    PropsUi.setLook(tree);
+    TreeMemory.addTreeListener(tree, metricsTreeMemoryName());
+    PipelineMetricsTree.installCopyCountTooltip(tree);
+    for (int i = 0; i < columns.length; i++) {
+      ColumnInfo column = columns[i];
+      TreeColumn treeColumn = new TreeColumn(tree, column.getAlignment());
+      treeColumn.setText(column.getName() == null ? "" : column.getName());
+      if (!Utils.isEmpty(column.getToolTip())) {
+        treeColumn.setToolTipText(column.getToolTip());
+      }
+      int width = column.getWidth();
+      if (width <= 0) {
+        width = i == 0 ? 220 : 90;
+      }
+      treeColumn.setWidth(width);
+    }
+    if (tree.getColumnCount() > PipelineMetricsGrouper.COLUMN_COPY) {
+      TreeColumn copyColumn = tree.getColumn(PipelineMetricsGrouper.COLUMN_COPY);
+      if (Utils.isEmpty(copyColumn.getToolTipText())) {
+        copyColumn.setToolTipText(
+            BaseMessages.getString(PKG, "PipelineLog.Tree.CopyCount.Tooltip"));
+      }
+    }
     FormData fdView = new FormData();
     fdView.left = new FormAttachment(0, 0);
     fdView.right = new FormAttachment(100, 0);
     fdView.top = new FormAttachment(toolbar, 0);
     fdView.bottom = new FormAttachment(100, 0);
-    view.setLayoutData(fdView);
-    return view;
-  }
-
-  private void applyNumberColumnComparator() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
-      return;
-    }
-    ColumnInfo numberColumn = pipelineGridView.getNumberColumn();
-    IValueMeta numberColumnValueMeta =
-        new ValueMetaString("#", HopGuiPipelineGridDelegate::subTransformCompare);
-    numberColumn.setValueMeta(numberColumnValueMeta);
+    tree.setLayoutData(fdView);
+    return tree;
   }
 
   /**
-   * Column keys used by the placeholder table created in {@link #addPipelineGrid()} before the
-   * first engine-metrics refresh rebuilds the real column set.
+   * Column keys used by the placeholder tree created in {@link #addPipelineGrid()} before the first
+   * engine-metrics refresh rebuilds the real column set.
    */
   private static List<String> placeholderColumnKeys() {
     List<String> keys = new ArrayList<>();
-    keys.add("#");
     keys.add("TransformName");
     keys.add("Copy");
     keys.add(Pipeline.METRIC_NAME_INPUT);
@@ -1042,29 +975,12 @@ public class HopGuiPipelineGridDelegate {
     return keys;
   }
 
-  private void restoreTableViewport(Table table, int topIndex, int[] selection) {
-    if (table == null || table.isDisposed()) {
-      return;
-    }
-    int itemCount = table.getItemCount();
-    if (selection != null && selection.length > 0) {
-      int[] valid = Arrays.stream(selection).filter(i -> i >= 0 && i < itemCount).toArray();
-      if (valid.length > 0) {
-        table.setSelection(valid);
-      }
-    }
-    if (topIndex >= 0 && topIndex < itemCount) {
-      table.setTopIndex(topIndex);
-    }
-  }
-
   /**
-   * Builds the list of column keys in table order (#, TransformName, Copy, metric codes, duration,
+   * Builds the list of column keys in tree order (TransformName, Copy, metric codes, duration,
    * speed, status).
    */
   private List<String> getColumnKeys(List<IEngineMetric> usedMetrics) {
     List<String> keys = new ArrayList<>();
-    keys.add("#");
     keys.add("TransformName");
     keys.add("Copy");
     for (IEngineMetric m : usedMetrics) {
@@ -1081,32 +997,28 @@ public class HopGuiPipelineGridDelegate {
    * stored so grow-only packing can still widen them as counts grow.
    */
   private void saveColumnWidths() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
     if (metricsColumnKeys == null || metricsColumnKeys.isEmpty() || metricsColumnWidths.isEmpty()) {
       return;
     }
-    Table table = pipelineGridView.table;
-    int n = Math.min(table.getColumnCount(), metricsColumnKeys.size());
+    int n = Math.min(pipelineMetricsTree.getColumnCount(), metricsColumnKeys.size());
     for (int i = 0; i < n; i++) {
       String key = metricsColumnKeys.get(i);
       if (!metricsColumnWidths.containsKey(key)) {
         continue;
       }
-      int w = table.getColumn(i).getWidth();
-      if (w > 0) {
-        metricsColumnWidths.put(key, w);
+      int width = pipelineMetricsTree.getColumn(i).getWidth();
+      if (width > 0) {
+        metricsColumnWidths.put(key, width);
       }
     }
   }
 
-  /**
-   * Restores user-resized column widths from the session map onto the table. Needed for the "#"
-   * column (no data {@link ColumnInfo}) and after a table recreate.
-   */
+  /** Restores user-resized column widths from the session map onto the tree. */
   private void restoreColumnWidths(List<IEngineMetric> usedMetrics) {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
     if (metricsColumnWidths.isEmpty()) {
@@ -1114,25 +1026,22 @@ public class HopGuiPipelineGridDelegate {
     }
     boolean nested = restoringColumnWidths;
     restoringColumnWidths = true;
-    Table table = pipelineGridView.table;
-    table.setRedraw(false);
+    pipelineMetricsTree.setRedraw(false);
     try {
       List<String> keys = getColumnKeys(usedMetrics);
-      int n = Math.min(table.getColumnCount(), keys.size());
+      int n = Math.min(pipelineMetricsTree.getColumnCount(), keys.size());
       for (int i = 0; i < n; i++) {
-        String key = keys.get(i);
-        Integer w = metricsColumnWidths.get(key);
-        if (w != null && w > 0) {
-          TableColumn tc = table.getColumn(i);
-          if (tc.getWidth() != w) {
-            tc.setWidth(w);
+        Integer width = metricsColumnWidths.get(keys.get(i));
+        if (width != null && width > 0) {
+          TreeColumn column = pipelineMetricsTree.getColumn(i);
+          if (column.getWidth() != width) {
+            column.setWidth(width);
           }
-          pipelineGridView.setPreferredColumnWidth(i, w);
         }
       }
     } finally {
-      if (!table.isDisposed()) {
-        table.setRedraw(true);
+      if (!pipelineMetricsTree.isDisposed()) {
+        pipelineMetricsTree.setRedraw(true);
       }
       if (!nested) {
         restoringColumnWidths = false;
@@ -1142,127 +1051,115 @@ public class HopGuiPipelineGridDelegate {
 
   /** Attach resize listeners so user column resizes are stored for the session. */
   private void attachColumnWidthListeners() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
     if (metricsColumnKeys == null || metricsColumnKeys.isEmpty()) {
       return;
     }
-    Table table = pipelineGridView.table;
-    for (int i = 0; i < table.getColumnCount() && i < metricsColumnKeys.size(); i++) {
+    for (int i = 0; i < pipelineMetricsTree.getColumnCount() && i < metricsColumnKeys.size(); i++) {
       final String key = metricsColumnKeys.get(i);
-      final int columnIndex = i;
-      TableColumn col = table.getColumn(i);
-      col.addListener(
+      TreeColumn column = pipelineMetricsTree.getColumn(i);
+      column.addListener(
           SWT.Resize,
-          e -> {
-            if (restoringColumnWidths) {
+          event -> {
+            if (restoringColumnWidths || column.isDisposed()) {
               return;
             }
-            if (!col.isDisposed()) {
-              int w = col.getWidth();
-              if (w > 0) {
-                metricsColumnWidths.put(key, w);
-                pipelineGridView.setPreferredColumnWidth(columnIndex, w);
-              }
+            int width = column.getWidth();
+            if (width > 0) {
+              metricsColumnWidths.put(key, width);
             }
           });
     }
   }
 
-  private void fillTableRows(List<List<String>> componentStringsList, int errorColumnIndex) {
-    Table table = pipelineGridView.table;
-    table.setRedraw(false);
+  /**
+   * Sizes columns to the header and the visible cells. {@code growOnly} skips columns the user has
+   * resized and never shrinks a column.
+   */
+  private void packTreeColumns(boolean growOnly) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
+      return;
+    }
+    int extra = columnWidthMargin();
+    pipelineMetricsTree.setRedraw(false);
     try {
-      while (table.getItemCount() > componentStringsList.size()) {
-        table.remove(table.getItemCount() - 1);
-      }
-      int errorsCol = 3 + errorColumnIndex; // row has #, name, copy, then metrics
-      Color errorBg = GuiResource.getInstance().getColorLightRed();
-      for (int row = 0; row < componentStringsList.size(); row++) {
-        List<String> componentStrings = componentStringsList.get(row);
-        TableItem item;
-        if (row < table.getItemCount()) {
-          item = table.getItem(row);
-        } else {
-          item = new TableItem(table, SWT.NONE);
+      for (int c = 0; c < pipelineMetricsTree.getColumnCount(); c++) {
+        String key =
+            metricsColumnKeys != null && c < metricsColumnKeys.size()
+                ? metricsColumnKeys.get(c)
+                : null;
+        if (growOnly && key != null && metricsColumnWidths.containsKey(key)) {
+          continue;
         }
-        applyRowTextsIfChanged(item, componentStrings);
-        if (errorColumnIndex >= 0 && errorsCol < componentStrings.size()) {
-          long err = parseFormattedLong(componentStrings.get(errorsCol));
-          boolean wantError = err > 0;
-          boolean hasError = errorBg.equals(item.getBackground());
-          if (wantError != hasError) {
-            item.setBackground(wantError ? errorBg : null);
-          }
+        TreeColumn column = pipelineMetricsTree.getColumn(c);
+        int max = TextSizeUtilFacade.textExtent(Const.NVL(column.getText(), "")).x + extra;
+        if (c == gridSortColumn) {
+          max += ConstUi.SMALL_ICON_SIZE;
+        }
+        if (c == 0) {
+          max += (int) (PropsUi.getNativeZoomFactor() * 24);
+        }
+        max = Math.max(max, widestVisibleCell(pipelineMetricsTree.getItems(), c, extra));
+        if (!growOnly || max > column.getWidth()) {
+          column.setWidth(Math.max(max, 20));
         }
       }
     } finally {
-      if (!table.isDisposed()) {
-        table.setRedraw(true);
+      if (!pipelineMetricsTree.isDisposed()) {
+        pipelineMetricsTree.setRedraw(true);
       }
     }
   }
 
-  /** Anti-flicker: only push cell text that actually changed. */
-  private static void applyRowTextsIfChanged(TableItem item, List<String> texts) {
-    for (int col = 0; col < texts.size(); col++) {
-      String next = Const.NVL(texts.get(col), "");
-      if (!next.equals(item.getText(col))) {
-        item.setText(col, next);
+  private static int columnWidthMargin() {
+    int extra;
+    if (Const.isWindows()) {
+      extra = (int) (PropsUi.getNativeZoomFactor() * 8);
+    } else {
+      extra = (int) (PropsUi.getNativeZoomFactor() * 5);
+    }
+    extra +=
+        Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
+    return extra;
+  }
+
+  private static int widestVisibleCell(TreeItem[] items, int column, int extra) {
+    int max = 0;
+    if (items == null) {
+      return max;
+    }
+    for (TreeItem item : items) {
+      if (item == null || item.isDisposed()) {
+        continue;
+      }
+      String text = item.getText(column);
+      if (!Utils.isEmpty(text)) {
+        max = Math.max(max, TextSizeUtilFacade.textExtent(text).x + extra);
+      }
+      if (item.getExpanded() && item.getItemCount() > 0) {
+        max = Math.max(max, widestVisibleCell(item.getItems(), column, extra));
       }
     }
+    return max;
   }
 
-  private static int indexOfMetric(List<IEngineMetric> usedMetrics, IEngineMetric metric) {
-    for (int i = 0; i < usedMetrics.size(); i++) {
-      if (usedMetrics.get(i).getHeader().equals(metric.getHeader())) {
-        return i;
-      }
+  /**
+   * Attaches sort, double-click, and selection listeners. Call after creating or recreating the
+   * tree.
+   */
+  private void attachMetricsTreeListeners(Tree tree) {
+    for (int i = 0; i < tree.getColumnCount(); i++) {
+      TreeColumn column = tree.getColumn(i);
+      column.addListener(SWT.Selection, event -> onSortColumnSelected(column));
     }
-    return -1;
-  }
-
-  /**
-   * Attaches all table listeners used by the metrics grid: sort capture, double-click to open
-   * transform, and edit toolbar button enable/disable. Call after creating or recreating the table.
-   */
-  private void attachMetricsTableListeners(TableView view) {
-    attachSortListener(view);
-    attachDoubleClickListener(view);
-    attachEditButtonStateListener(view);
-  }
-
-  /**
-   * Attach listener to column headers so we remember sort column/direction for the next refresh.
-   */
-  private void attachSortListener(TableView view) {
-    Table table = view.table;
-    for (int i = 0; i < table.getColumnCount(); i++) {
-      table.getColumn(i).addListener(SWT.Selection, e -> captureSortState());
-    }
-  }
-
-  /** On double-click, open the transform configuration for the selected row (by transform name). */
-  private void attachDoubleClickListener(TableView view) {
-    Table table = view.table;
-    table.addListener(SWT.DefaultSelection, e -> openTransformForSelectedRow());
-  }
-
-  /**
-   * Enable/disable the edit (open transform) toolbar button based on table row selection. TableView
-   * sets selection inside its MouseDown (editSelected -> setSelection); the Table often does not
-   * fire Selection until after mouse handling, so the first click does not run our Selection
-   * listener. We run updateEditButtonState on MouseDown via asyncExec so it runs after TableView
-   * has applied the selection.
-   */
-  private void attachEditButtonStateListener(TableView view) {
-    Table table = view.table;
-    table.addListener(SWT.Selection, e -> updateEditButtonState());
-    table.addListener(
+    tree.addListener(SWT.DefaultSelection, event -> openTransformForSelectedRow());
+    tree.addListener(SWT.Selection, event -> updateEditButtonState());
+    tree.addListener(
         SWT.MouseDown,
-        e -> {
-          if (table.isDisposed()) {
+        event -> {
+          if (tree.isDisposed()) {
             return;
           }
           hopGui.getDisplay().asyncExec(this::updateEditButtonState);
@@ -1270,134 +1167,102 @@ public class HopGuiPipelineGridDelegate {
     updateEditButtonState();
   }
 
+  private void onSortColumnSelected(TreeColumn column) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed() || column.isDisposed()) {
+      return;
+    }
+    int index = pipelineMetricsTree.indexOf(column);
+    if (index < 0) {
+      return;
+    }
+    if (gridSortColumn == index) {
+      gridSortDescending = !gridSortDescending;
+    } else {
+      gridSortColumn = index;
+      gridSortDescending = false;
+    }
+    refreshView();
+  }
+
   /**
-   * Enables or disables the open-transform toolbar button based on whether a table row is selected.
+   * Enables or disables the open-transform toolbar button based on whether a tree row is selected.
    */
   private void updateEditButtonState() {
     if (toolbarWidget == null || toolbar == null || toolbar.isDisposed()) {
       return;
     }
     boolean linesSelected =
-        pipelineGridView != null
-            && !pipelineGridView.isDisposed()
-            && pipelineGridView.table.getSelectionCount() > 0;
+        pipelineMetricsTree != null
+            && !pipelineMetricsTree.isDisposed()
+            && pipelineMetricsTree.getSelectionCount() > 0;
     toolbarWidget.enableToolbarItem(TOOLBAR_ICON_OPEN_TRANSFORM, linesSelected);
   }
 
   /**
-   * Opens the transform configuration dialog for the selected table row. Reads the transform name
-   * from column 1 (see {@link #buildComponentStringsList}); finds the {@link TransformMeta} and
-   * calls {@link HopGuiPipelineGraph#editTransform(PipelineMeta, TransformMeta)}.
+   * Opens the transform configuration for the selected row. The row data holds the transform name,
+   * including on a {@code copy N} child.
    */
   private void openTransformForSelectedRow() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
-    Table table = pipelineGridView.table;
-    TableItem[] selection = table.getSelection();
+    TreeItem[] selection = pipelineMetricsTree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
     }
-    // Column 0 = #, column 1 = transform name (matches buildComponentStringsList)
-    String transformName = selection[0].getText(1);
-    if (Utils.isEmpty(transformName)) {
+    if (!(selection[0].getData() instanceof PipelineMetricsTree.RowKey key)) {
+      return;
+    }
+    if (Utils.isEmpty(key.transformName)) {
       return;
     }
     PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
     if (pipelineMeta == null) {
       return;
     }
-    TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+    TransformMeta transformMeta = pipelineMeta.findTransform(key.transformName);
     if (transformMeta == null) {
       return;
     }
     pipelineGraph.editTransform(pipelineMeta, transformMeta);
   }
 
-  private void captureSortState() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+  /** Update the header to show which column is sorted and in which direction. */
+  private void setSortIndicator() {
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
-    hopGui
-        .getDisplay()
-        .asyncExec(
-            () -> {
-              if (pipelineGridView == null || pipelineGridView.isDisposed()) {
-                return;
-              }
-              Table table = pipelineGridView.table;
-              TableColumn sortCol = table.getSortColumn();
-              if (sortCol != null) {
-                gridSortColumn = table.indexOf(sortCol);
-                gridSortDescending = (table.getSortDirection() == SWT.DOWN);
-              }
-            });
+    if (gridSortColumn < 0 || gridSortColumn >= pipelineMetricsTree.getColumnCount()) {
+      pipelineMetricsTree.setSortColumn(null);
+      pipelineMetricsTree.setSortDirection(SWT.NONE);
+      return;
+    }
+    TreeColumn wanted = pipelineMetricsTree.getColumn(gridSortColumn);
+    int direction = gridSortDescending ? SWT.DOWN : SWT.UP;
+    if (pipelineMetricsTree.getSortColumn() != wanted) {
+      pipelineMetricsTree.setSortColumn(wanted);
+    }
+    if (pipelineMetricsTree.getSortDirection() != direction) {
+      pipelineMetricsTree.setSortDirection(direction);
+    }
+  }
+
+  private String metricsTreeMemoryName() {
+    return "HopGuiPipelineGrid:" + System.identityHashCode(pipelineGraph);
   }
 
   /**
-   * Sort the row data by the given column and direction before writing to the table. Column index 0
-   * = #, 1 = name, 2 = copy, 3+ = metrics, then duration, speed, status. Numeric columns (formatted
-   * with commas) are compared as numbers; others as strings.
+   * Forgets remembered expansion and collapses every group so the next run starts on the totals.
    */
-  private void sortComponentStringsByColumn(
-      List<List<String>> rows, int sortColumn, boolean descending) {
-    if (sortColumn < 0 || rows.isEmpty()) {
+  private void collapseMetricsTree() {
+    TreeMemory.getInstance().clearTree(metricsTreeMemoryName());
+    if (pipelineMetricsTree == null || pipelineMetricsTree.isDisposed()) {
       return;
     }
-    int col = sortColumn;
-    boolean desc = descending;
-    rows.sort(
-        (a, b) -> {
-          String sa = col < a.size() ? Const.NVL(a.get(col), "") : "";
-          String sb = col < b.size() ? Const.NVL(b.get(col), "") : "";
-          int c = compareCellValues(sa, sb);
-          return desc ? -c : c;
-        });
-  }
-
-  private int compareCellValues(String a, String b) {
-    String sa = a != null ? a : "";
-    String sb = b != null ? b : "";
-    try {
-      long na = parseFormattedLong(sa);
-      long nb = parseFormattedLong(sb);
-      return Long.compare(na, nb);
-    } catch (NumberFormatException e) {
-      // not both numeric, compare as strings
-    }
-    return sa.compareToIgnoreCase(sb);
-  }
-
-  private static long parseFormattedLong(String s) {
-    if (s == null || s.isEmpty()) {
-      return 0L;
-    }
-    String trimmed = s.trim();
-    if (trimmed.isEmpty()) {
-      return 0L;
-    }
-    // Strip trailing unit suffix so we can parse the number (e.g. "1,234 rows" or "1,234 r" ->
-    // 1234)
-    trimmed = trimmed.replaceAll("\\s+(rows|r|runs|flushes|rows/s)$", "");
-    return Long.parseLong(trimmed.replace(",", ""));
-  }
-
-  /** Update the table header to show which column is sorted and in which direction. */
-  private void setSortIndicator() {
-    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
-      return;
-    }
-    Table table = pipelineGridView.table;
-    if (gridSortColumn < 0 || gridSortColumn >= table.getColumnCount()) {
-      return;
-    }
-    TableColumn wanted = table.getColumn(gridSortColumn);
-    int direction = gridSortDescending ? SWT.DOWN : SWT.UP;
-    if (table.getSortColumn() != wanted) {
-      table.setSortColumn(wanted);
-    }
-    if (table.getSortDirection() != direction) {
-      table.setSortDirection(direction);
+    for (TreeItem item : pipelineMetricsTree.getItems()) {
+      if (!item.isDisposed() && item.getExpanded()) {
+        item.setExpanded(false);
+      }
     }
   }
 
@@ -1421,90 +1286,5 @@ public class HopGuiPipelineGridDelegate {
       }
     }
     return false;
-  }
-
-  private String calculateDuration(IEngineComponent component) {
-    String duration;
-    Date firstRowReadDate = component.getFirstRowReadDate();
-    if (firstRowReadDate != null) {
-      long durationMs;
-      if (component.getLastRowWrittenDate() == null) {
-        durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
-      } else {
-        durationMs = component.getLastRowWrittenDate().getTime() - firstRowReadDate.getTime();
-      }
-      duration = Utils.getDurationHMS(((double) durationMs) / 1000);
-    } else {
-      duration = "";
-    }
-    return duration;
-  }
-
-  private static final String METRICS_FORMAT = " ###,###,###,###";
-
-  private static NumberFormat metricFormat = new DecimalFormat(METRICS_FORMAT);
-
-  private String formatMetric(Long value) {
-    return metricFormat.format(value);
-  }
-
-  private void updateRowFromBaseTransform(ITransform baseTransform, TableItem row) {
-    // The row shows the numbers only; the log text would be the transform's whole log formatted
-    // once a second (issue #8435).
-    TransformStatus transformStatus = new TransformStatus(baseTransform, false);
-
-    String[] fields = transformStatus.getPipelineLogFields();
-
-    updateCellsIfChanged(fields, row);
-
-    if (baseTransform.getErrors() > 0) {
-      row.setBackground(GuiResource.getInstance().getColorLightRed());
-    } else {
-      row.setBackground(null);
-    }
-  }
-
-  /**
-   * Anti-flicker: if nothing has changed, don't change it on the screen!
-   *
-   * @param fields
-   * @param row
-   */
-  private void updateCellsIfChanged(String[] fields, TableItem row) {
-    for (int f = 1; f < fields.length; f++) {
-      if (!fields[f].equalsIgnoreCase(row.getText(f))) {
-        row.setText(f, fields[f]);
-      }
-    }
-  }
-
-  /**
-   * Sub Transform Compare
-   *
-   * <p>Note - nulls must be handled outside of this method
-   *
-   * @param o1 - First object to compare
-   * @param o2 - Second object to compare
-   * @return 0 if equal, integer greater than 0 if o1 > o2, integer less than 0 if o2 > o1
-   */
-  static int subTransformCompare(Object o1, Object o2) {
-    final String[] string1 = o1.toString().split("\\.");
-    final String[] string2 = o2.toString().split("\\.");
-
-    // Compare the base transform first
-    int cmp = Integer.compare(Integer.parseInt(string1[0]), Integer.parseInt(string2[0]));
-
-    // if the base transform numbers are equal, then we need to compare the sub transform numbers
-    if (cmp == 0) {
-      if (string1.length == 2 && string2.length == 2) {
-        // compare the sub transform numbers
-        cmp = Integer.compare(Integer.parseInt(string1[1]), Integer.parseInt(string2[1]));
-      } else if (string1.length < string2.length) {
-        cmp = -1;
-      } else if (string2.length < string1.length) {
-        cmp = 1;
-      }
-    }
-    return cmp;
   }
 }
