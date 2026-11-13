@@ -189,6 +189,18 @@ The sink logs one line when it starts:
 DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset schemas=missing, lifecycle=off, spool=off
 ----
 
+== Reading from DataHub
+
+The plugin also adds DataHub as a type of xref:metadata-types/data-catalog.adoc[Data Catalog], so
+workflows can read what DataHub knows about a dataset. The
+xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses it to check, before a
+workflow goes on, that datasets exist in DataHub, aren't deprecated, changed recently enough and
+passed their assertions.
+
+A Data Catalog has its own URL and token: it doesn't use the `HOP_LINEAGE_DATAHUB_*` variables. Give
+it the same environment as `HOP_LINEAGE_DATAHUB_ENV`, so a table resolves to the dataset the sink
+writes for it. Its token only needs the privilege to view the datasets and their assertions.
+
 == Limitations
 
 * Column lineage through the stream (Table Input to Table Output) follows fields that keep their

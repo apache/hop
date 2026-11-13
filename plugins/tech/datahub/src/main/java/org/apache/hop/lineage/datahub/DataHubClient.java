@@ -63,18 +63,39 @@ class DataHubClient {
   private final HttpClient http;
 
   DataHubClient(String gmsUrl, String token, OpenLineageSinkConfig http) throws HopException {
+    this(
+        gmsUrl,
+        token,
+        Duration.ofMillis(http.getConnectTimeoutMs()),
+        Duration.ofMillis(http.getReadTimeoutMs()),
+        http.getTrustStorePath(),
+        http.getTrustStorePassword(),
+        http.getKeyStoreType());
+  }
+
+  DataHubClient(
+      String gmsUrl,
+      String token,
+      Duration connectTimeout,
+      Duration readTimeout,
+      String trustStorePath,
+      String trustStorePassword,
+      String keyStoreType)
+      throws HopException {
     this.ingestUri = URI.create(gmsUrl + "/aspects?action=ingestProposalBatch");
     this.graphqlUri = URI.create(gmsUrl + "/api/graphql");
     this.token = token;
-    this.readTimeout = Duration.ofMillis(http.getReadTimeoutMs());
-    HttpClient.Builder builder =
-        HttpClient.newBuilder().connectTimeout(Duration.ofMillis(http.getConnectTimeoutMs()));
-    if (!StringUtils.isBlank(http.getTrustStorePath())) {
-      builder.sslContext(
-          sslContext(
-              http.getTrustStorePath(), http.getTrustStorePassword(), http.getKeyStoreType()));
+    this.readTimeout = readTimeout;
+    HttpClient.Builder builder = HttpClient.newBuilder().connectTimeout(connectTimeout);
+    if (!StringUtils.isBlank(trustStorePath)) {
+      builder.sslContext(sslContext(trustStorePath, trustStorePassword, keyStoreType));
     }
     this.http = builder.build();
+  }
+
+  /** Stops the HTTP client's threads, abandoning a request that is still running. */
+  void shutdown() {
+    http.shutdownNow();
   }
 
   /** Writes the proposals in one request. */
@@ -103,14 +124,28 @@ class DataHubClient {
    */
   static final class ReadException extends IOException {
     private final boolean worthRetrying;
+    private final int status;
 
     ReadException(String message, boolean worthRetrying) {
+      this(message, worthRetrying, 0);
+    }
+
+    ReadException(String message, boolean worthRetrying, int status) {
       super(message);
       this.worthRetrying = worthRetrying;
+      this.status = status;
     }
 
     boolean worthRetrying() {
       return worthRetrying;
+    }
+
+    /**
+     * The HTTP status DataHub answered with, or the one it gave a GraphQL error; {@code -1} when
+     * there was no answer at all and {@code 0} when there was no status.
+     */
+    int status() {
+      return status;
     }
   }
 
@@ -132,7 +167,8 @@ class DataHubClient {
               + graphqlUri
               + ": "
               + StringUtils.abbreviate(StringUtils.defaultString(response.body()), 300),
-          OpenLineageEmitter.isTransient(response.status()));
+          OpenLineageEmitter.isTransient(response.status()),
+          response.status());
     }
     JsonNode answer;
     try {
@@ -145,11 +181,16 @@ class DataHubClient {
       // DataHub gives an error the HTTP status it stands for (403 for a token without the
       // privilege, 500 for a failure of its own); a query it cannot run has none.
       boolean worthRetrying = false;
+      int status = 0;
       for (JsonNode error : errors) {
         int code = error.path("extensions").path("code").asInt(0);
         worthRetrying |= code > 0 && OpenLineageEmitter.isTransient(code);
+        if (status == 0) {
+          status = code;
+        }
       }
-      throw new ReadException("GraphQL error from " + graphqlUri + ": " + errors, worthRetrying);
+      throw new ReadException(
+          "GraphQL error from " + graphqlUri + ": " + errors, worthRetrying, status);
     }
     return answer.path("data");
   }

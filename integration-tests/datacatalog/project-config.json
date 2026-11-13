@@ -1,0 +1,17 @@
+{
+  "metadataBaseFolder" : "${PROJECT_HOME}/metadata",
+  "unitTestsBasePath" : "${PROJECT_HOME}",
+  "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "config" : {
+    "variables" : [ {
+      "name" : "HOP_LICENSE_HEADER_FILE",
+      "value" : "${PROJECT_HOME}/../asf-header.txt",
+      "description" : "This will automatically serialize the ASF license header into pipelines and workflows in the integration test projects"
+    }, {
+      "name" : "DATAHUB_STUB_PORT",
+      "value" : "18080",
+      "description" : "The port of the DataHub GraphQL stub that 0001-start-datahub-stub.sh starts in the test container"
+    } ]
+  }
+}

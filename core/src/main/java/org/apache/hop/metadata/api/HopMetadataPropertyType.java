@@ -31,6 +31,7 @@ public enum HopMetadataPropertyType {
   REDIS_CONNECTION,
   SPLUNK_CONNECTION,
   AI_PROVIDER,
+  DATA_CATALOG,
 
   // PIPELINE
   PIPELINE_FILE,
