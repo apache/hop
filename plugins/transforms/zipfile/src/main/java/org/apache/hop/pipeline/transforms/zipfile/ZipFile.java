@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -374,7 +373,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
 
           // Set the method
           out.setMethod(ZipOutputStream.DEFLATED);
-          out.setLevel(Deflater.BEST_COMPRESSION);
+          out.setLevel(meta.compressionLevelOrNotStored().getLevel());
 
           // Add ZIP entry to output stream.
           //
