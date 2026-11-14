@@ -259,6 +259,11 @@ public abstract class BeamPipelineEngine extends Variables
       // keep state updated regularly.  At the end of the pipeline, clean up shop
       //
       lookupExecutionInformationLocation();
+
+      // As the local engine: plugins (projects, execution logging, lineage ...) see the run
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelinePrepareExecution.id, this);
+
       registerPipelineExecutionInformation();
       startExecutionInfoTimer();
 
@@ -356,6 +361,10 @@ public abstract class BeamPipelineEngine extends Variables
 
       status = ComponentExecutionStatus.STATUS_RUNNING;
       statusDescription = Pipeline.STRING_RUNNING;
+
+      // As the local engine: before the pipeline runs, so plugins can attach their listeners
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineStartThreads.id, this);
 
       if (beamEngineRunConfiguration.isRunningAsynchronous()) {
         // Certain runners like Direct and DataFlow allow async execution
