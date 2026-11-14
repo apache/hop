@@ -33,7 +33,7 @@ public class ActionWorkflowRunner implements Runnable {
   private Result result;
   private ILogChannel log;
   private int entryNr;
-  private boolean finished;
+  private volatile boolean finished;
 
   /** */
   public ActionWorkflowRunner(
@@ -54,22 +54,32 @@ public class ActionWorkflowRunner implements Runnable {
       }
       result = workflow.startExecution();
     } finally {
-      // Remember the result
-      workflow.setResult(result);
       try {
-        ExtensionPointHandler.callExtensionPoint(
-            log, workflow, HopExtensionPoint.WorkflowFinish.id, workflow);
-
-        // catch more general exception to prevent thread hanging
-      } catch (Exception e) {
-        result.setNrErrors(1);
-        result.setResult(false);
-        log.logError(
-            BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
+        // The engine lifecycle has ended on return from startExecution(). Keep this legacy
+        // duplicate finish callback, but do not create a second execution for the runner postlude.
+        workflow.setResult(result);
+        try {
+          ExtensionPointHandler.callExtensionPoint(
+              log, workflow, HopExtensionPoint.WorkflowFinish.id, workflow);
+        } catch (Exception e) {
+          if (result == null) {
+            result = new Result();
+            workflow.setResult(result);
+          }
+          result.setNrErrors(1);
+          result.setResult(false);
+          log.logError(
+              BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
+        }
+      } finally {
+        try {
+          workflow.setFinished(true);
+        } finally {
+          // Publish completion even after an early return or a failing callback/setter.
+          finished = true;
+        }
       }
-      workflow.setFinished(true);
     }
-    finished = true;
   }
 
   /**

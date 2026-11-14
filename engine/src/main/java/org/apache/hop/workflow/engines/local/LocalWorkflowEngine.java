@@ -98,13 +98,18 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
   @Override
   public Result startExecution() {
+    return executeWithLifecycle(this::startLocalExecution);
+  }
+
+  private Result startLocalExecution() {
 
     if (!(workflowRunConfiguration.getEngineRunConfiguration()
         instanceof LocalWorkflowRunConfiguration)) {
       log.logError(
           "Error starting workflow",
           new HopException(
-              "A local workflow execution expects a local workflow configuration, not an instance of class "
+              "A local workflow execution expects a local workflow configuration, not an instance"
+                  + " of class "
                   + workflowRunConfiguration.getEngineRunConfiguration().getClass().getName()));
       result = new Result();
       result.setNrErrors(1L);

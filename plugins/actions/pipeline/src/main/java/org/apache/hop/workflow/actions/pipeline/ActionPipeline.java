@@ -45,6 +45,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionWait;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -520,6 +521,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline =
             PipelineEngineFactory.createPipelineEngine(
                 this, runConfiguration, getMetadataProvider(), pipelineMeta);
+        ExecutionLifecycle.associate(pipeline, this);
         // Logging parent stays this action so log lines nest under it. ExecutionBuilder stores the
         // workflow log channel id as the execution parent.
         pipeline.setParent(this);
