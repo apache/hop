@@ -93,6 +93,12 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   private Object[] previousRow = null;
 
   /**
+   * Run a Groovy row script directly instead of through the engine's eval, see {@link
+   * GroovyRowScript}. Tests switch it off to compare both ways.
+   */
+  boolean directGroovyRowScript = true;
+
+  /**
    * This is the base transform that forms that basis for all transforms. You can derive from this
    * class to implement your own transforms.
    *
@@ -201,6 +207,12 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
         }
       }
 
+      // The type of each output field, looked up once: the lookup searches the plugin registry.
+      data.fieldTypes = new int[meta.getFields().size()];
+      for (int i = 0; i < data.fieldTypes.length; i++) {
+        data.fieldTypes[i] = meta.getFields().get(i).getHopType();
+      }
+
       data.context = data.engine.getContext();
       if (data.context == null) {
         data.context = new SimpleScriptContext();
@@ -260,6 +272,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
         } else {
           data.compiledScript = null;
         }
+        data.groovyRowScript = createGroovyRowScript();
       } catch (Exception e) {
         throw new HopValueException(
             BaseMessages.getString(PKG, "Script.Log.CouldNotCompileScript"), e);
@@ -420,7 +433,28 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     }
   }
 
+  /**
+   * @return the direct runner for a Groovy row script, or null to evaluate through the engine
+   */
+  private GroovyRowScript createGroovyRowScript() {
+    if (!directGroovyRowScript || data.compiledScript == null) {
+      return null;
+    }
+    try {
+      return GroovyRowScript.create(data.engine, strTransformScript, data.context);
+    } catch (Exception | LinkageError e) {
+      // The engine compiled the script, so it can run it: fall back to that
+      if (isDetailed()) {
+        logDetailed("The Groovy script is run through the script engine: " + e);
+      }
+      return null;
+    }
+  }
+
   protected Object evalScript() throws ScriptException {
+    if (data.groovyRowScript != null) {
+      return data.groovyRowScript.run();
+    }
     if (data.compiledScript != null) {
       try {
         return data.compiledScript.eval(data.context);
@@ -449,7 +483,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       try {
         if (result != null) {
           String classType = result.getClass().getName();
-          switch (field.getHopType()) {
+          switch (hopType(field, i)) {
             case IValueMeta.TYPE_NUMBER:
               if (classType.equalsIgnoreCase(CONST_ORG_MOZILLA_JAVASCRIPT_UNDEFINED)) {
                 return null;
@@ -603,7 +637,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               {
                 throw new HopRuntimeException(
                     "JavaScript conversion not implemented for type "
-                        + field.getHopType()
+                        + hopType(field, i)
                         + " ("
                         + field.getType()
                         + ")");
@@ -618,6 +652,15 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     } else {
       throw new HopValueException("No name was specified for result value #" + (i + 1));
     }
+  }
+
+  /**
+   * The Hop type of output field i, as resolved on the first row. Without a first row, as when this
+   * class is called on its own, it is looked up.
+   */
+  private int hopType(ScriptMeta.SField field, int i) {
+    int[] fieldTypes = data.fieldTypes;
+    return fieldTypes != null ? fieldTypes[i] : field.getHopType();
   }
 
   /**
