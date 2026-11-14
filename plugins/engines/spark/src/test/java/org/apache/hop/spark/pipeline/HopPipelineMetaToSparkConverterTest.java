@@ -40,6 +40,8 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
 import org.apache.hop.pipeline.transforms.maskfields.MaskFieldsMeta;
+import org.apache.hop.pipeline.transforms.salesforcebulk.SalesforceBulkInputMeta;
+import org.apache.hop.pipeline.transforms.salesforcebulk.SalesforceBulkLoadMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.apache.hop.spark.engines.SparkPipelineEngine;
 import org.apache.hop.spark.util.SparkConst;
@@ -183,7 +185,11 @@ class HopPipelineMetaToSparkConverterTest {
             SparkConst.JOIN_ROWS_PLUGIN_ID,
             JoinRowsMeta.class,
             SparkConst.MASK_FIELDS_PLUGIN_ID,
-            MaskFieldsMeta.class);
+            MaskFieldsMeta.class,
+            SparkConst.SALESFORCE_BULK_LOAD_PLUGIN_ID,
+            SalesforceBulkLoadMeta.class,
+            SparkConst.SALESFORCE_BULK_INPUT_PLUGIN_ID,
+            SalesforceBulkInputMeta.class);
 
     assertEquals(
         HopPipelineMetaToSparkConverter.HARD_BANNED_PLUGIN_IDS.keySet(),

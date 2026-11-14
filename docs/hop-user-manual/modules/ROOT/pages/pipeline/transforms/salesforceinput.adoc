@@ -32,6 +32,7 @@ You can also use the following transforms for various ways to modify your Salesf
 * xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]: Updates records directly into your Salesforce database.
 * xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]: Updates existing records and inserts new records into your Salesforce database.
 * xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]: Deletes records directly from your Salesforce database.
+* xref:pipeline/transforms/salesforcebulkinput.adoc[Salesforce bulk input]: Experimental Bulk API 2.0 query for a large extract.
 
 == General
 

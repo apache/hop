@@ -53,6 +53,14 @@ public class BeamConst {
   /** Mask fields. Banned by plugin id so the Beam engine does not have to load the transform. */
   public static final String STRING_MASK_FIELDS_PLUGIN_ID = "MaskFields";
 
+  /**
+   * Salesforce bulk transforms. Banned by plugin id so the Beam engine does not load the Salesforce
+   * plugin.
+   */
+  public static final String STRING_SALESFORCE_BULK_LOAD_PLUGIN_ID = "SalesforceBulkLoad";
+
+  public static final String STRING_SALESFORCE_BULK_INPUT_PLUGIN_ID = "SalesforceBulkInput";
+
   public static final String STRING_HOP_BEAM = "Hop Beam";
 
   public static final String STRING_TRANSFORM_FLAG_BATCH = "Batch";
