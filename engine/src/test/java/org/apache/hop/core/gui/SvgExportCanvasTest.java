@@ -19,10 +19,9 @@ package org.apache.hop.core.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link PipelineSvgPainter , WorkflowSvgPainter} canvas. */
+/** Unit test for {@link SvgExportCanvas} canvas. */
 class SvgExportCanvasTest {
 
   @Test
