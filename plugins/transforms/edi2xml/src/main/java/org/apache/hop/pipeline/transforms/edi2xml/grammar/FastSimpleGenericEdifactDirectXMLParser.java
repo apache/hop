@@ -149,8 +149,33 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       txt = txt.replace("??", "?");
     }
 
-    // enocde XML entities
-    return StringEscapeUtils.escapeXml10(txt);
+    // encode XML entities: almost no EDIFACT value has a character that needs it
+    return needsEscaping(txt) ? StringEscapeUtils.escapeXml10(txt) : txt;
+  }
+
+  /**
+   * Whether a text has a character that {@link StringEscapeUtils#escapeXml10(String)} changes: one
+   * of the five XML characters, a control character, a surrogate or a character XML 1.0 does not
+   * allow. Escaping a text without any of them gives the text itself, so the call can be skipped.
+   *
+   * <p>The test is on the safe side: a character it flags is handed to escapeXml10, which decides.
+   */
+  public static boolean needsEscaping(String txt) {
+    for (int i = 0; i < txt.length(); i++) {
+      char c = txt.charAt(i);
+      if (c < 0x20) {
+        if (c != '\t' && c != '\n' && c != '\r') {
+          return true;
+        }
+      } else if (c < 0x7f) {
+        if (c == '&' || c == '<' || c == '>' || c == '"' || c == '\'') {
+          return true;
+        }
+      } else if (c < 0xa0 || (c >= 0xd800 && c <= 0xdfff) || c >= 0xfffe) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // assume about 8k for an edifact message
