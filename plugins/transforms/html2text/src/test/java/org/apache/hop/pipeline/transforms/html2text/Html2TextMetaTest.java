@@ -45,6 +45,6 @@ class Html2TextMetaTest {
     Assertions.assertEquals(Html2TextMeta.SafelistType.BASIC, meta.getSafelistType());
     Assertions.assertTrue(meta.isCleanOnly());
     Assertions.assertTrue(meta.isNormalisedText());
-    Assertions.assertTrue(meta.isParallelism());
+    // transform.xml still has the parallelism option that is gone: a transform saved with it loads
   }
 }

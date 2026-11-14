@@ -65,9 +65,6 @@ public class Html2TextMeta extends BaseTransformMeta<Html2Text, Html2TextData> {
   @HopMetadataProperty(key = "cleanOnly")
   private boolean cleanOnly;
 
-  @HopMetadataProperty(key = "parallelism")
-  private boolean parallelism;
-
   @HopMetadataProperty(key = "normalisedText")
   private boolean normalisedText;
 

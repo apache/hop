@@ -1,0 +1,49 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "text",
+          "data_set_field": "text"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-0127-html2text",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "text",
+          "data_set_field": "text"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-0127-html2text-copies",
+      "transform_name": "validate copies"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0127-html2text UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0127-html2text.hpl"
+}
