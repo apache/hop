@@ -46,6 +46,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link ValueMetaVector} */
 class ValueMetaVectorTest {
 
   @BeforeAll
@@ -88,6 +89,30 @@ class ValueMetaVectorTest {
   void testParseRejectsNonNumbers() {
     assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[0.1,abc]"));
     assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[0.1,,0.2]"));
+  }
+
+  @Test
+  void testParseRejectsJavaFloatLiterals() {
+    // Float.parseFloat accepts these, but they are not the canonical / JSON / pgvector form.
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[1f, 2d, 0x1p3]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[1F]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[2D]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[0x1p3]"));
+  }
+
+  @Test
+  void testParseRejectsNaNAndInfinity() {
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[NaN, Infinity]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[NaN]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[Infinity]"));
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[-Infinity]"));
+    // Overflow to Infinity must not slip through as a finite vector element.
+    assertThrows(HopValueException.class, () -> ValueMetaVector.parse("[1e309]"));
+  }
+
+  @Test
+  void testParseAcceptsLeadingDotAndPlusSign() throws Exception {
+    assertArrayEquals(new float[] {0.5f, 1.0f}, ValueMetaVector.parse("[.5,+1]"));
   }
 
   @Test

@@ -1,0 +1,23 @@
+{
+  "base_filename": "golden-vector-csv-round-trip.csv",
+  "name": "golden-vector-csv-round-trip",
+  "description": "Canonical text after a Vector is written with a comma separator and read back by CSV File Input (#9286).",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "embedding",
+      "field_format": ""
+    }
+  ]
+}
