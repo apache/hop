@@ -38,3 +38,7 @@ This needs to be a policy with the "Send" claim enabled.
 * Message field: the field containing the message to use as the events.
 Please note you can use a transform like JSON Output or "Java Script" to assemble the message.
 
+== Samples
+
+The samples project has `transforms/azure-event-hubs-writer.hpl`, which sends one event per row of a Data grid to an event hub.
+Fill in the Event Hubs connection settings and choose `id` or `name` as the Message field before you run it.

@@ -31,3 +31,7 @@ The Check If A File Is Locked transform tries to determine if a file is locked b
 * Filename field: the name of the input field that will contain the names of the files during execution.
 * Result fieldname: the name of the Boolean output field that will contain true or false depending on whether or not the file is locked or not.
 * Add filename to result: check this if you want to add the checked file-names to the list of files in the pipelines result.
+
+== Samples
+
+The samples project has `transforms/check-if-file-is-locked-basic.hpl`, which finds `customers-100.txt` in the project, checks whether it is locked and writes the result to the log.
