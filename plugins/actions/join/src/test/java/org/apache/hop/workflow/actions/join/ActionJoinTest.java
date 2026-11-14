@@ -23,13 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.ThreadUtils;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -37,7 +42,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.ActionResult;
@@ -353,6 +361,79 @@ class ActionJoinTest {
     assertNotNull(engine.getWorkflowTracker().findWorkflowTracker(slowMeta).getActionResult());
     assertNotNull(
         engine.getWorkflowTracker().findWorkflowTracker(slowMeta).getActionResult().getResult());
+  }
+
+  @Test
+  @Timeout(value = 10, unit = TimeUnit.SECONDS)
+  void joinMergesResultFilesAndRowsFromAllBranches() throws Exception {
+    Path tempDir = Files.createTempDirectory("hop-join-9173-");
+    Path fileA = Files.createFile(tempDir.resolve("a.txt"));
+    Path fileB = Files.createFile(tempDir.resolve("b.txt"));
+
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("join-merge-result-files-and-rows");
+
+    ActionMeta startMeta = new ActionMeta(new ActionStart("Start"));
+    startMeta.setLaunchingInParallel(true);
+    ActionMeta branchA =
+        new ActionMeta(new ResultContributorAction("Branch A", fileA.toString(), "A"));
+    ActionMeta branchB =
+        new ActionMeta(new ResultContributorAction("Branch B", fileB.toString(), "B", "B2"));
+    ActionMeta joinMeta = new ActionMeta(new ActionJoin("Join", ""));
+    ActionMeta afterMeta = new ActionMeta(new ActionDummy("After join"));
+
+    meta.addAction(startMeta);
+    meta.addAction(branchA);
+    meta.addAction(branchB);
+    meta.addAction(joinMeta);
+    meta.addAction(afterMeta);
+
+    meta.addWorkflowHop(new WorkflowHopMeta(startMeta, branchA));
+    meta.addWorkflowHop(new WorkflowHopMeta(startMeta, branchB));
+
+    WorkflowHopMeta aToJoin = new WorkflowHopMeta(branchA, joinMeta);
+    aToJoin.setUnconditional();
+    meta.addWorkflowHop(aToJoin);
+    WorkflowHopMeta bToJoin = new WorkflowHopMeta(branchB, joinMeta);
+    bToJoin.setUnconditional();
+    meta.addWorkflowHop(bToJoin);
+    meta.addWorkflowHop(new WorkflowHopMeta(joinMeta, afterMeta));
+
+    LocalWorkflowEngine engine = new LocalWorkflowEngine(meta);
+    engine.setLogLevel(LogLevel.MINIMAL);
+    AtomicReference<Result> joinResult = new AtomicReference<>();
+    engine.addActionListener(
+        new IActionListener<WorkflowMeta>() {
+          @Override
+          public void beforeExecution(
+              IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionMeta, IAction action) {
+            // Nothing to do
+          }
+
+          @Override
+          public void afterExecution(
+              IWorkflowEngine<WorkflowMeta> workflow,
+              ActionMeta actionMeta,
+              IAction action,
+              Result result) {
+            if ("Join".equals(actionMeta.getName())) {
+              joinResult.set(result.clone());
+            }
+          }
+        });
+
+    Result workflowResult = engine.startExecution();
+
+    assertTrue(workflowResult.isResult());
+    assertNotNull(joinResult.get());
+    assertEquals(2, joinResult.get().getResultFiles().size());
+    assertTrue(
+        joinResult.get().getResultFiles().keySet().stream()
+            .anyMatch(path -> path.endsWith("a.txt")));
+    assertTrue(
+        joinResult.get().getResultFiles().keySet().stream()
+            .anyMatch(path -> path.endsWith("b.txt")));
+    assertEquals(3, joinResult.get().getRows().size());
   }
 
   @Test
@@ -673,6 +754,48 @@ class ActionJoinTest {
       }
       result.setResult(true);
       result.setNrErrors(0);
+      return result;
+    }
+
+    @Override
+    public boolean isEvaluation() {
+      return true;
+    }
+  }
+
+  /** Adds one result file and the given row labels so Join merge behaviour can be asserted. */
+  static class ResultContributorAction extends ActionBase {
+    private final String filePath;
+    private final String[] rowLabels;
+
+    ResultContributorAction(String name, String filePath, String... rowLabels) {
+      super(name, "");
+      this.filePath = filePath;
+      this.rowLabels = rowLabels;
+    }
+
+    @Override
+    public Result execute(Result result, int nr) {
+      try {
+        ResultFile resultFile =
+            new ResultFile(
+                ResultFile.FILE_TYPE_GENERAL,
+                HopVfs.getFileObject(filePath),
+                "join-test",
+                getName());
+        result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+
+        RowMeta rowMeta = new RowMeta();
+        rowMeta.addValueMeta(new ValueMetaString("branch"));
+        for (String label : rowLabels) {
+          result.addRow(new RowMetaAndData(rowMeta, label));
+        }
+        result.setResult(true);
+        result.setNrErrors(0);
+      } catch (Exception e) {
+        result.setResult(false);
+        result.setNrErrors(1);
+      }
       return result;
     }
 

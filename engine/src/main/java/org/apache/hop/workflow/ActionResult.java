@@ -101,8 +101,9 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
       long bytesWritten) {
     this();
     if (result != null) {
-      // lightClone doesn't bother cloning all the rows.
-      this.result = result.lightClone();
+      // Full clone so later actions (for example Join merging parallel branches) can still read
+      // result rows. Log text is cleared separately to limit retained logging volume.
+      this.result = result.clone();
       this.result.setLogText(null);
     } else {
       this.result = null;
