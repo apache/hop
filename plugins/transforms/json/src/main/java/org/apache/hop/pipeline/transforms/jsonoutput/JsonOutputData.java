@@ -27,8 +27,6 @@ import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 @SuppressWarnings("java:S1104")
 public class JsonOutputData extends BaseTransformData implements ITransformData {
@@ -39,8 +37,19 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
   public int nrFields;
 
   public int[] fieldIndexes;
-  public JSONObject jg;
-  public JSONArray ja;
+
+  /** Writes the rows as JSON text, see {@link JsonRowsText}. Set on the first row. */
+  JsonRowsText rowsText;
+
+  /**
+   * The text of the block of rows that is being collected. When the block only goes to a file it
+   * holds the part that is not written yet.
+   */
+  public StringBuilder block = new StringBuilder();
+
+  /** The number of rows in the block so far. */
+  public int blockRows;
+
   public int nrRow;
   public boolean rowsAreSafe;
   public NumberFormat nf;
@@ -78,11 +87,19 @@ public class JsonOutputData extends BaseTransformData implements ITransformData 
   /** */
   public JsonOutputData() {
     super();
-    this.ja = new JSONArray();
     this.nrRow = 0;
     this.outputValue = false;
     this.writeToFile = false;
     this.writer = null;
     this.nrRowsInBloc = 0;
+  }
+
+  /**
+   * @return true when the JSON only goes to a file: the rows are then written as they come in. When
+   *     the JSON also goes to an output field, the text of the whole block is needed for that
+   *     field.
+   */
+  public boolean streamsToFile() {
+    return writeToFile && !outputValue;
   }
 }

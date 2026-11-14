@@ -64,7 +64,7 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <addresultfile>N</addresultfile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
-    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <readurl>N</readurl>
     <removeSourceField>N</removeSourceField>
     <recordPath>$.events[*]</recordPath>
