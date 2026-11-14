@@ -106,6 +106,6 @@ What DataHub answers:
 * *Deprecated*: the deprecation set on the dataset in DataHub, with its note.
 * *Last change*: the newest operation DataHub has for the dataset.
 DataHub learns about operations from the sources that report them, such as the usage ingestion of some warehouses or dbt.
-The DataHub lineage sink of Hop doesn't report them yet, so a table that only Hop writes has none.
+The xref:technology/datahub/index.adoc[DataHub lineage sink] reports one for each file and table a successful Hop run writes, so a dataset that only Hop writes has a last change too.
 * *Assertions*: the latest run of each assertion on the dataset, up to 100 assertions.
 The assertions themselves are defined and run in DataHub.

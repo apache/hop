@@ -321,6 +321,29 @@ limitations under the License.
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>DataHub operations</name>
+      <description>Checks the operations the DataHub sink sent for the four writer targets: an INSERT of the 3 source rows each, as the transforms counted them</description>
+      <type>SHELL</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0011-openlineage-writers-operations.sh</filename>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>N</insertScript>
+      <script/>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>1360</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -389,6 +412,13 @@ limitations under the License.
     <hop>
       <from>validate orders_dim</from>
       <to>validate orders_bulk</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>validate orders_bulk</from>
+      <to>DataHub operations</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

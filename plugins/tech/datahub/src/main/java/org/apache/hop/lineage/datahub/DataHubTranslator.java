@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -55,10 +56,12 @@ import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
  * its first transforms, which list that action as an upstream job, so the lineage graph runs from
  * the workflow into the pipeline.
  *
- * <p>Everything here is a pure function of the event: an event replayed from the spool by a later
- * process is translated exactly like a live one. What depends on the state of DataHub — whether a
- * dataset's schema may be written, whether a deprecation may be lifted — is returned as a decision
- * for {@link DataHubEmitter} to make.
+ * <p>Everything here is a pure function of the event, with one exception: the end of a run adds its
+ * row counts to the properties its start wrote, which this translator remembers. An end whose start
+ * was sent by an earlier process, replayed from the spool, ends without them; otherwise an event
+ * replayed from the spool is translated exactly like a live one. What depends on the state of
+ * DataHub — whether a dataset's schema may be written, whether a deprecation may be lifted — is
+ * returned as a decision for {@link DataHubEmitter} to make.
  */
 final class DataHubTranslator {
 
@@ -128,6 +131,34 @@ final class DataHubTranslator {
   private final String platformInstance;
   private final String actor;
   private final boolean lifecycleEnabled;
+
+  /** The most runs whose properties are remembered between their start and their end. */
+  static final int MAX_OPEN_RUNS = 1_024;
+
+  /**
+   * The properties each run started with, so its end can add its row counts without changing its
+   * name or start time: DataHub replaces the whole aspect.
+   */
+  private final Map<String, ObjectNode> openRunProperties = bounded(MAX_OPEN_RUNS);
+
+  /** The most ended runs whose properties are kept, for an end that is sent again. */
+  static final int MAX_ENDED_RUNS = 256;
+
+  /**
+   * The start properties of runs that ended, so an end that is sent again after a failed delivery
+   * still finds them, without ended runs crowding the open ones out.
+   */
+  private final Map<String, ObjectNode> endedRunProperties = bounded(MAX_ENDED_RUNS);
+
+  private static Map<String, ObjectNode> bounded(int maxEntries) {
+    return Collections.synchronizedMap(
+        new LinkedHashMap<>(16, 0.75f, false) {
+          @Override
+          protected boolean removeEldestEntry(Map.Entry<String, ObjectNode> eldest) {
+            return size() > maxEntries;
+          }
+        });
+  }
 
   DataHubTranslator(DataHubSinkConfig config) {
     this(
@@ -234,6 +265,9 @@ final class DataHubTranslator {
               jobInputOutput(jobInputs, jobOutputs, upstreamJobs(subject, flowUrn), fieldEdges)));
     }
     proposals.addAll(runEnded(event, inputs, outputs, time));
+    if (type == EventType.COMPLETE) {
+      proposals.addAll(operations(event, subject, time));
+    }
     proposals.addAll(linkToParentJob(subject, flowUrn));
     // Only a run that went through describes the flow completely; a failed one may have stopped
     // before some of its transforms reported.
@@ -479,6 +513,7 @@ final class DataHubTranslator {
     properties.putObject("customProperties").put("hopRunId", event.getRun().getRunId().toString());
     proposals.add(
         Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceProperties", properties));
+    openRunProperties.put(event.getRun().getRunId().toString(), properties.deepCopy());
 
     ObjectNode relationships = MAPPER.createObjectNode();
     relationships.put("parentTemplate", templateUrn);
@@ -512,6 +547,22 @@ final class DataHubTranslator {
     result.put("type", event.getEventType() == EventType.COMPLETE ? "SUCCESS" : "FAILURE");
     result.put("nativeResultType", DataHubUrns.HOP_PLATFORM);
     proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceRunEvent", ended));
+    String runId = event.getRun().getRunId().toString();
+    ObjectNode stored = openRunProperties.remove(runId);
+    if (stored != null) {
+      endedRunProperties.put(runId, stored);
+    } else {
+      // An end sent again after a failed delivery
+      stored = endedRunProperties.get(runId);
+    }
+    ObjectNode properties = stored == null ? null : stored.deepCopy();
+    Map<String, Object> rowCounts = rowCounts(event);
+    if (properties != null && !rowCounts.isEmpty()) {
+      ObjectNode custom = (ObjectNode) properties.get("customProperties");
+      rowCounts.forEach((counter, value) -> custom.put(counter, String.valueOf(value)));
+      proposals.add(
+          Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceProperties", properties));
+    }
     if (!inputs.isEmpty()) {
       ObjectNode in = MAPPER.createObjectNode();
       in.set("inputs", urnArray(inputs));
@@ -523,6 +574,149 @@ final class DataHubTranslator {
       proposals.add(Mcp.upsert("dataProcessInstance", runUrn, "dataProcessInstanceOutput", out));
     }
     return proposals;
+  }
+
+  /** The row counters of a run, from the mapper's run facet; empty when it has none. */
+  static Map<String, Object> rowCounts(RunEvent event) {
+    OpenLineage.RunFacets facets = event.getRun().getFacets();
+    if (facets == null || facets.getAdditionalProperties() == null) {
+      return Map.of();
+    }
+    OpenLineage.RunFacet facet =
+        facets.getAdditionalProperties().get(OpenLineageEventMapper.HOP_ROW_COUNTS_RUN_FACET);
+    if (facet == null || facet.getAdditionalProperties() == null) {
+      return Map.of();
+    }
+    Map<String, Object> counts = new LinkedHashMap<>();
+    facet
+        .getAdditionalProperties()
+        .forEach(
+            (counter, value) -> {
+              if (value instanceof Number) {
+                counts.put(counter, value);
+              }
+            });
+    return counts;
+  }
+
+  /**
+   * An {@code operation} on each dataset a completed run wrote. DataHub shows when a dataset last
+   * changed from these, and the freshness of a dataset that only Hop writes depends on them.
+   *
+   * <p>A pipeline reports its writes once, on its own completion, from the mapper's {@value
+   * OpenLineageEventMapper#HOP_WRITES_RUN_FACET} facet: one operation per dataset with the rows of
+   * all its transforms and copies. Its transforms report none of their own, so a transform that
+   * finished in a pipeline that failed afterwards doesn't make a half-written table look up to
+   * date. An action reports the files it wrote when it completes.
+   */
+  private List<Mcp> operations(RunEvent event, Subject subject, long time) {
+    Object subjectType = subject.facet() == null ? null : subject.facet().get("subjectType");
+    if ("TRANSFORM".equals(subjectType)) {
+      return List.of();
+    }
+    List<Mcp> proposals = new ArrayList<>();
+    Set<String> seen = new LinkedHashSet<>();
+    if ("PIPELINE".equals(subjectType)) {
+      // Only what the pipeline says it wrote: none for a stopped pipeline, or an event without it
+      List<Map<String, Object>> writes = pipelineWrites(event);
+      for (Map<String, Object> write : writes == null ? List.<Map<String, Object>>of() : writes) {
+        String urn =
+            DataHubUrns.datasetForOpenLineage(
+                String.valueOf(write.get("namespace")), String.valueOf(write.get("name")), env);
+        Long rows = write.get("rows") instanceof Number number ? number.longValue() : null;
+        String type = String.valueOf(write.get("operationType"));
+        if (urn != null && !unchanged(type, rows) && seen.add(urn)) {
+          proposals.add(operation(event, urn, type, rows, time));
+        }
+      }
+      return proposals;
+    }
+    if (event.getOutputs() == null) {
+      return proposals;
+    }
+    for (OpenLineage.OutputDataset output : event.getOutputs()) {
+      String urn = datasetUrn(output);
+      if (urn != null && seen.add(urn)) {
+        proposals.add(operation(event, urn, operationType(output), rowsWritten(output), time));
+      }
+    }
+    return proposals;
+  }
+
+  /**
+   * Whether a write left the data as it was: no rows inserted, updated or deleted. A run that
+   * loaded nothing doesn't make a table look up to date.
+   */
+  private static boolean unchanged(String type, Long rows) {
+    return rows != null
+        && rows == 0
+        && ("INSERT".equals(type) || "UPDATE".equals(type) || "DELETE".equals(type));
+  }
+
+  private Mcp operation(RunEvent event, String urn, String type, Long rows, long time) {
+    String runId = event.getRun().getRunId().toString();
+    ObjectNode operation = MAPPER.createObjectNode();
+    operation.put("timestampMillis", time);
+    operation.put("lastUpdatedTimestamp", time);
+    // Part of the document id, so two runs that end in the same millisecond keep one each
+    operation.put("messageId", runId);
+    operation.put("operationType", type);
+    operation.put("sourceType", "DATA_PROCESS");
+    if (actor != null) {
+      operation.put("actor", actor);
+    }
+    if (rows != null) {
+      operation.put("numAffectedRows", rows);
+    }
+    ObjectNode custom = operation.putObject("customProperties");
+    custom.put("hopRunId", runId);
+    custom.put("hopJob", event.getJob().getName());
+    return Mcp.upsert("dataset", urn, "operation", operation);
+  }
+
+  /** The datasets a pipeline run wrote, from the mapper's facet, or null when it has none. */
+  @SuppressWarnings("unchecked")
+  private static List<Map<String, Object>> pipelineWrites(RunEvent event) {
+    OpenLineage.RunFacets facets = event.getRun().getFacets();
+    if (facets == null || facets.getAdditionalProperties() == null) {
+      return null;
+    }
+    OpenLineage.RunFacet facet =
+        facets.getAdditionalProperties().get(OpenLineageEventMapper.HOP_WRITES_RUN_FACET);
+    if (facet == null
+        || facet.getAdditionalProperties() == null
+        || !(facet.getAdditionalProperties().get("writes") instanceof List<?> list)) {
+      return null;
+    }
+    List<Map<String, Object>> writes = new ArrayList<>();
+    for (Object item : list) {
+      if (item instanceof Map<?, ?> map) {
+        writes.add((Map<String, Object>) map);
+      }
+    }
+    return writes;
+  }
+
+  private static Long rowsWritten(OpenLineage.OutputDataset output) {
+    return output.getOutputFacets() == null
+            || output.getOutputFacets().getOutputStatistics() == null
+        ? null
+        : output.getOutputFacets().getOutputStatistics().getRowCount();
+  }
+
+  /** DataHub's operation type for what a run did to a dataset, from its lifecycle change. */
+  private static String operationType(OpenLineage.OutputDataset output) {
+    OpenLineage.LifecycleStateChangeDatasetFacet facet =
+        output.getFacets() == null ? null : output.getFacets().getLifecycleStateChange();
+    if (facet == null || facet.getLifecycleStateChange() == null) {
+      return "INSERT";
+    }
+    return switch (facet.getLifecycleStateChange()) {
+      case CREATE -> "CREATE";
+      case DROP -> "DROP";
+      case ALTER, RENAME -> "ALTER";
+      default -> "INSERT";
+    };
   }
 
   private static String parentRunUrn(RunEvent event) {
