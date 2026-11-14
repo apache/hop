@@ -279,8 +279,11 @@ The syntax of this configuration file is straightforward. Hostname and port are 
   -->
   <object_timeout_minutes>1440</object_timeout_minutes>
 
-  <!-- The folder to read metadata objects from so that web services and database connections for sequences can be found.
-       The default is that no metadata is configured: remotely executed pipelines and workflows will have their own metadata.
+  <!-- An extra folder to read metadata objects from, for example for web services.
+       It is added on top of the metadata the server already has (its project, or the default project):
+       on a name clash the object in this folder is used.
+       Pipelines and workflows that clients send also bring their own metadata, which wins over the server's.
+       See "Metadata and variables on Hop Server" in the user manual.
   -->
   <metadata_folder></metadata_folder>
 

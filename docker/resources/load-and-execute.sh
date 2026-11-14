@@ -324,8 +324,32 @@ register_hop_project() {
   local cfg="$3"
   local parent="${4:-}"
 
-  if $("${DEPLOYMENT_PATH}"/hop-conf.sh -pl | grep -q -E "^  ${name} :"); then
-    log "project ${name} already exists"
+  local projects existing_home existing_path requested_path
+  projects=$("${DEPLOYMENT_PATH}"/hop-conf.sh -pl)
+  if grep -q -E "^  ${name} :" <<<"${projects}"; then
+    existing_home=$(sed -n -E "s/^  ${name} : (.*)$/\1/p" <<<"${projects}" | head -n 1)
+    # A relative home is relative to the Hop installation folder. Compare real paths so the same
+    # folder written two ways (config/projects/samples, /opt/hop/config/projects/samples) matches.
+    # A home with a variable or a VFS scheme can't be compared here: no warning for it.
+    existing_path="${existing_home%/}"
+    requested_path="${home%/}"
+    if [[ "${existing_path}" != /* ]]; then
+      existing_path="${DEPLOYMENT_PATH}/${existing_path}"
+    fi
+    if [ -d "${existing_path}" ] && [ -d "${requested_path}" ]; then
+      existing_path=$(cd "${existing_path}" && pwd -P)
+      requested_path=$(cd "${requested_path}" && pwd -P)
+    fi
+    if [ -n "${home}" ] \
+      && [[ "${existing_home}" != *'$'* && "${existing_home}" != *://* ]] \
+      && [ "${existing_path}" != "${requested_path}" ]; then
+      # The image already knows this name (default, samples, ...): the folder is not used.
+      # Hop Server then runs that project, and its PROJECT_HOME is not the mounted folder.
+      log "Warning: project ${name} already exists with home ${existing_home}."
+      log "Warning: the folder ${home} is ignored. Give your project its own name in HOP_PROJECT_NAME (or HOP_PARENT_PROJECT_NAME)."
+    else
+      log "project ${name} already exists"
+    fi
     return 0
   fi
 

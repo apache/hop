@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline;
 
 import java.io.IOException;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -34,6 +36,14 @@ public class PipelineConfiguration {
   private PipelineMeta pipelineMeta;
   private PipelineExecutionConfiguration pipelineExecutionConfiguration;
   private final SerializableMetadataProvider metadataProvider;
+
+  /**
+   * True when the server unpacked this pipeline from an export archive (see {@link
+   * org.apache.hop.www.RegisterPackageServlet}). Only set on the server, never serialized. An
+   * exported run keeps the project variables of the client: the export rewrote its file references
+   * relative to the client's project. See issue #8597.
+   */
+  @Getter @Setter private boolean exported;
 
   /**
    * @param pipelineMeta

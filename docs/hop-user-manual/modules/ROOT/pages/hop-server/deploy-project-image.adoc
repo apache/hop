@@ -292,7 +292,9 @@ xref:hop-server/web-service.adoc[Web services] work because the project's `metad
 
 Clients (Hop Gui, hop-run, an Airflow worker with a Hop client) use a *Remote* run configuration that points at this server.
 Export resources is optional here: the server already has the project.
-Prefer executing a filename under `+${PROJECT_HOME}+` that exists in the image.
+Without export, the client sends the pipeline or workflow it runs, and the pipelines and workflows that one refers to through `+${PROJECT_HOME}+` are read from the image: the server uses its own `PROJECT_HOME`.
+To run a file that only exists in the image, call xref:hop-server/rest-api.adoc[`/hop/execPipeline` or `/hop/execWorkflow`] instead.
+See xref:hop-server/server-metadata-and-variables.adoc[Metadata and variables on Hop Server].
 
 For the short-lived alternative, see <<skip_hop_server_short_lived_containers>>.
 The xref:docker-container.adoc[Docker container] page lists every hop-run variable. The xref:how-to-guides/apache-hop-web-services-docker.adoc[web services in Docker] how-to is the long-lived case.

@@ -1,0 +1,19 @@
+{
+  "engineRunConfiguration": {
+    "Remote": {
+      "export_resources": false,
+      "resources_target_folder": "",
+      "resources_source_folder": "",
+      "run_config": "local",
+      "server_poll_interval": "",
+      "hop_server": "testserver-default-project",
+      "server_poll_delay": ""
+    }
+  },
+  "defaultSelection": false,
+  "configurationVariables": [],
+  "name": "remote-default-project-server",
+  "description": "Sends the pipeline as XML to hop-server-nocheck, which runs the default project because it was started without one (issue #8597)",
+  "dataProfile": "",
+  "executionInfoLocationName": ""
+}

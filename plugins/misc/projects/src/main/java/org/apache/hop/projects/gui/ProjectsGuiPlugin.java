@@ -78,6 +78,7 @@ import org.apache.hop.projects.project.ProjectDialog;
 import org.apache.hop.projects.search.AllProjectsSearchablesLocation;
 import org.apache.hop.projects.security.ProjectsAccessControl;
 import org.apache.hop.projects.security.ProjectsSecurityTab;
+import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -2036,6 +2037,7 @@ public class ProjectsGuiPlugin {
                         && !name.contains("HOP_PLATFORM_OS")
                         && !name.contains("HOP_PROJECT_NAME")
                         && !name.contains("HOP_PROJECT_ID")
+                        && !name.equals(Defaults.VARIABLE_HOP_PROJECT_IS_DEFAULT)
                         && !name.contains("HOP_SERVER_URL")) {
                       String value = variables.getVariable(name);
                       variablesMap.put(name, value);

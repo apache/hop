@@ -63,6 +63,7 @@ public class ProjectsConfigHelper {
 
   private static volatile String lastEnabledProjectName;
   private static volatile String lastEnabledEnvironmentName;
+  private static volatile boolean lastEnabledIsDefaultProject;
 
   /** Private constructor to prevent instantiation. */
   private ProjectsConfigHelper() {}
@@ -81,6 +82,7 @@ public class ProjectsConfigHelper {
     sessionRegisteredProjects.clear();
     lastEnabledProjectName = null;
     lastEnabledEnvironmentName = null;
+    lastEnabledIsDefaultProject = false;
   }
 
   /**
@@ -97,6 +99,18 @@ public class ProjectsConfigHelper {
   public static void markEnabled(String projectName, String environmentName) {
     lastEnabledProjectName = projectName;
     lastEnabledEnvironmentName = environmentName;
+  }
+
+  /**
+   * @return true when the project this process enabled last is the default project of the
+   *     configuration, enabled because no project or environment was chosen
+   */
+  public static boolean isLastEnabledDefaultProject() {
+    return lastEnabledIsDefaultProject;
+  }
+
+  public static void markEnabledDefaultProject(boolean defaultProject) {
+    lastEnabledIsDefaultProject = defaultProject;
   }
 
   private static void rememberRegisteredProject(String projectName) {
