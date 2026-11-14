@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.xml.xmljoin;
 import java.io.StringReader;
 import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMSource;
@@ -67,7 +68,11 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
   @Override
   public boolean processRow() throws HopException {
 
-    XPath xpath = XPathFactory.newInstance().newXPath();
+    // Created once per copy: creating an XPathFactory scans the classpath.
+    if (data.xpath == null) {
+      data.xpath = XPathFactory.newInstance().newXPath();
+    }
+    XPath xpath = data.xpath;
 
     // if first row we do some initializing and process the first row of the target XML Transform
     if (first) {
@@ -235,9 +240,8 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       String strJoinXML = (String) rJoinSource[data.iSourceXMLField];
 
       try {
-        DocumentBuilder builder =
-            XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
-        Document joinDocument = builder.parse(new InputSource(new StringReader(strJoinXML)));
+        Document joinDocument =
+            getSourceDocumentBuilder().parse(new InputSource(new StringReader(strJoinXML)));
 
         Node node = data.targetDom.importNode(joinDocument.getDocumentElement(), true);
 
@@ -259,6 +263,21 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
     }
 
     return true;
+  }
+
+  /**
+   * The parser for the source XML fragments, one per copy. Creating the secure factory scans the
+   * classpath for every security feature it sets, so it is not done per row. reset() returns the
+   * builder to the state the factory gave it, security features included.
+   */
+  private DocumentBuilder getSourceDocumentBuilder() throws ParserConfigurationException {
+    if (data.sourceDocumentBuilder == null) {
+      data.sourceDocumentBuilder =
+          XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
+    } else {
+      data.sourceDocumentBuilder.reset();
+    }
+    return data.sourceDocumentBuilder;
   }
 
   @Override
