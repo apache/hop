@@ -297,7 +297,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     }
     String copiesString = transformMeta.getCopiesString();
 
-    String[] keyWords = new String[] {"BEAM_SINGLE", "SINGLE_BEAM", "BEAM_OUTPUT", "OUTPUT"};
+    String[] keyWords = {"BEAM_SINGLE", "SINGLE_BEAM", "BEAM_OUTPUT", "OUTPUT"};
 
     for (String keyWord : keyWords) {
       if (copiesString.contains(keyWord)) {

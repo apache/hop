@@ -32,13 +32,13 @@ import software.amazon.awssdk.services.sns.model.SnsException;
 public class AwsSns {
 
   private SnsClient snsClient;
-  private SnsNotifyMeta meta;
-  private String awsKey;
-  private String awsRegion;
-  private String awsKeySecret;
-  private BaseTransform baseTransform;
-  private PipelineMeta pipelineMeta;
-  private String awsCredChain;
+  private final SnsNotifyMeta meta;
+  private final String awsKey;
+  private final String awsRegion;
+  private final String awsKeySecret;
+  private final BaseTransform baseTransform;
+  private final PipelineMeta pipelineMeta;
+  private final String awsCredChain;
 
   public AwsSns(
       SnsNotifyMeta transformMeta, PipelineMeta pipelineMeta, BaseTransform baseTransform) {

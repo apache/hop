@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 public class BaseMessageDialog extends BaseDialog {
   private static final Class<?> PKG = BaseMessageDialog.class;
 
-  private String message;
+  private final String message;
 
   public BaseMessageDialog(final Shell shell, final String title, final String message) {
     this(shell, title, message, BaseMessages.getString(PKG, "System.Button.OK"), -1);

@@ -215,24 +215,23 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdlFields.right = new FormAttachment(middle, -margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.NewName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.HopType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.NewName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBQInputDialog.Fields.Column.HopType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+    };
     wFields =
         new TableView(
             Variables.getADefaultVariableSpace(),

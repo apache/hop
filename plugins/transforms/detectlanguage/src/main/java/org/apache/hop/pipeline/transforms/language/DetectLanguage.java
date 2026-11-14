@@ -44,6 +44,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLanguageData> {
   private static final Class<?> PKG = DetectLanguage.class;
+  private static final String CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD =
+      "DetectLanguage.Exception.CouldnotFindField";
 
   public DetectLanguage(
       TransformMeta transformMeta,
@@ -190,7 +192,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         // The field is unreachable!
         throw new HopException(
             BaseMessages.getString(
-                PKG, "DetectLanguage.Exception.CouldnotFindField", meta.getCorpusField()));
+                PKG, CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD, meta.getCorpusField()));
       }
     }
     if (data.indexOfDetectedLanguage < 0) {
@@ -199,7 +201,7 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         // The field is unreachable!
         throw new HopException(
             BaseMessages.getString(
-                PKG, "DetectLanguage.Exception.CouldnotFindField", "detected_language"));
+                PKG, CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD, "detected_language"));
       }
     }
     if (data.indexOfDetectedLanguageConfidence < 0) {
@@ -209,7 +211,9 @@ public class DetectLanguage extends BaseTransform<DetectLanguageMeta, DetectLang
         // The field is unreachable!
         throw new HopException(
             BaseMessages.getString(
-                PKG, "DetectLanguage.Exception.CouldnotFindField", "detected_language_confidence"));
+                PKG,
+                CONST_DETECT_LANGUAGE_EXCEPTION_COULDNOT_FIND_FIELD,
+                "detected_language_confidence"));
       }
     }
   }

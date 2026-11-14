@@ -115,26 +115,25 @@ public class PgVectorSearchDialog extends BaseTransformDialog {
   }
 
   private void addFiltersTable(Composite parent) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.Table"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.Stream"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {},
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.SkipIfEmpty"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_COMBO_NO)
-              },
-              true)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.Table"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.Stream"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {},
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.SkipIfEmpty"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_COMBO_NO)
+          },
+          true)
+    };
     columns[2].setToolTip(
         BaseMessages.getString(PKG, "PgVectorSearchDialog.Filters.Column.SkipIfEmpty.Tooltip"));
 

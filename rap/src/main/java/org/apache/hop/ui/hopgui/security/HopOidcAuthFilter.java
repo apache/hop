@@ -54,6 +54,7 @@ import org.apache.hop.core.security.oidc.OidcTokenResponse;
  * </ul>
  */
 public class HopOidcAuthFilter implements Filter {
+  private static final String CONST_CACHE_CONTROL = "Cache-Control";
 
   private static final Logger LOG = Logger.getLogger(HopOidcAuthFilter.class.getName());
 
@@ -321,7 +322,7 @@ public class HopOidcAuthFilter implements Filter {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.setContentType("text/html; charset=UTF-8");
-    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.setHeader(CONST_CACHE_CONTROL, "no-store, no-cache, must-revalidate");
     response.getWriter().write(html);
   }
 
@@ -330,7 +331,7 @@ public class HopOidcAuthFilter implements Filter {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.setContentType("text/css; charset=UTF-8");
-    response.setHeader("Cache-Control", "public, max-age=3600");
+    response.setHeader(CONST_CACHE_CONTROL, "public, max-age=3600");
     response.getWriter().write(css);
   }
 
@@ -339,7 +340,7 @@ public class HopOidcAuthFilter implements Filter {
     response.setStatus(HttpServletResponse.SC_OK);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
     response.setContentType("image/svg+xml; charset=UTF-8");
-    response.setHeader("Cache-Control", "public, max-age=86400");
+    response.setHeader(CONST_CACHE_CONTROL, "public, max-age=86400");
     response.getOutputStream().write(svg);
   }
 

@@ -33,7 +33,7 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override
   public String[] getReservedWords() {
-    String[] newWords = new String[] {"ERRORS"};
+    String[] newWords = {"ERRORS"};
     String[] pgWords = super.getReservedWords();
     String[] gpWords = new String[pgWords.length + newWords.length];
 

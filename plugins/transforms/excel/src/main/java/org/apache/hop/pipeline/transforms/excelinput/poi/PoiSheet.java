@@ -26,7 +26,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 public class PoiSheet implements IKSheet {
-  private Sheet sheet;
+  private final Sheet sheet;
 
   /** Per cell style index: does its number format show a date? */
   private final Map<Short, Boolean> dateStyles = new HashMap<>();

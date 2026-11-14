@@ -55,11 +55,10 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionDosToUnixDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDosToUnix.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.Xml"),
-        BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.Xml"),
+    BaseMessages.getString(PKG, "ActionDosToUnix.Filetype.All")
+  };
 
   private Label wlSourceFileFolder;
   private Button wbSourceFileFolder;
@@ -330,22 +329,21 @@ public class ActionDosToUnixDialog extends ActionDialog {
     int rows = action.getFields() == null ? 1 : action.getFields().size();
     final int FieldsRows = rows;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDosToUnix.Fields.ConversionType.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionDosToUnix.ConversionTypeDesc,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDosToUnix.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDosToUnix.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDosToUnix.Fields.ConversionType.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ActionDosToUnix.ConversionTypeDesc,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(

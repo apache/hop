@@ -84,11 +84,9 @@ import org.eclipse.swt.widgets.TreeItem;
 public class ScriptDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ScriptDialog.class;
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   private CCombo wEngines;
 
@@ -129,7 +127,7 @@ public class ScriptDialog extends BaseTransformDialog {
   private String strActiveStartScript;
   private String strActiveEndScript;
 
-  private ScriptMeta input;
+  private final ScriptMeta input;
 
   private TreeItem itemInput;
 
@@ -314,34 +312,33 @@ public class ScriptDialog extends BaseTransformDialog {
     scriptResultColumn.setToolTip(
         BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.ReturnValue.Tooltip"));
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Filename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.RenameTo"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Replace"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-          scriptResultColumn,
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Filename"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.RenameTo"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Replace"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+      scriptResultColumn,
+    };
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Filename.Tooltip"));
     colinf[1].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.RenameTo.Tooltip"));
     colinf[2].setToolTip(BaseMessages.getString(PKG, "ScriptDialog.ColumnInfo.Type.Tooltip"));

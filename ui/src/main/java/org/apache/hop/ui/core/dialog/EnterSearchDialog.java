@@ -39,11 +39,11 @@ public class EnterSearchDialog {
   private static final Class<?> PKG = EnterSearchDialog.class;
 
   private static final PropsUi props = PropsUi.getInstance();
-  private Shell parentShell;
+  private final Shell parentShell;
   private Shell shell;
 
   private boolean retval;
-  private Display display;
+  private final Display display;
 
   private boolean searchingTransforms;
   private boolean searchingDatabases;

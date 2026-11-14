@@ -31,6 +31,8 @@ import org.eclipse.rap.json.JsonObject;
 import org.eclipse.swt.widgets.Canvas;
 
 public class CanvasFacadeImpl extends CanvasFacade {
+  private static final String CONST_WIDTH = "width";
+  private static final String CONST_HEIGHT = "height";
 
   public static final String CONST_SELECTED = "selected";
 
@@ -70,8 +72,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
       JsonObject jsonPanBoundaries = new JsonObject();
       jsonPanBoundaries.add("x", panBoundaries.x);
       jsonPanBoundaries.add("y", panBoundaries.y);
-      jsonPanBoundaries.add("width", panBoundaries.width);
-      jsonPanBoundaries.add("height", panBoundaries.height);
+      jsonPanBoundaries.add(CONST_WIDTH, panBoundaries.width);
+      jsonPanBoundaries.add(CONST_HEIGHT, panBoundaries.height);
       jsonProps.add("panBoundaries", jsonPanBoundaries);
     }
 
@@ -89,8 +91,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
                 JsonObject jsonNote = new JsonObject();
                 jsonNote.add("x", note.getLocation().x);
                 jsonNote.add("y", note.getLocation().y);
-                jsonNote.add("width", note.getWidth());
-                jsonNote.add("height", note.getHeight());
+                jsonNote.add(CONST_WIDTH, note.getWidth());
+                jsonNote.add(CONST_HEIGHT, note.getHeight());
                 jsonNote.add(CONST_SELECTED, note.isSelected());
                 jsonNote.add("note", note.getNote());
                 jsonNotes.add(jsonNote);
@@ -164,8 +166,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
     JsonObject jsonRect = new JsonObject();
     jsonRect.add("x", rect.x);
     jsonRect.add("y", rect.y);
-    jsonRect.add("width", rect.width);
-    jsonRect.add("height", rect.height);
+    jsonRect.add(CONST_WIDTH, rect.width);
+    jsonRect.add(CONST_HEIGHT, rect.height);
     parent.add(key, jsonRect);
   }
 }

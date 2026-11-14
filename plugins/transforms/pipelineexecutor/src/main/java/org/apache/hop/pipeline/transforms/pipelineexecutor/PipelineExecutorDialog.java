@@ -85,7 +85,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   private static final String CONST_FILENAME_MISSING_MESSAGE =
       "PipelineExecutorDialog.FilenameMissing.Message";
 
-  private PipelineExecutorMeta pipelineExecutorMeta;
+  private final PipelineExecutorMeta pipelineExecutorMeta;
 
   private Label wlPath;
   private TextVar wPath;
@@ -945,20 +945,19 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     fdExecutionResultTarget.left = new FormAttachment(middle, 0);
     wExecutionResultTarget.setLayoutData(fdExecutionResultTarget);
 
-    ColumnInfo[] executionResultColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineExecutorMeta.ExecutionResults.FieldDescription.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineExecutorMeta.ExecutionResults.FieldName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false)
-        };
+    ColumnInfo[] executionResultColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "PipelineExecutorMeta.ExecutionResults.FieldDescription.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineExecutorMeta.ExecutionResults.FieldName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false)
+    };
     executionResultColumns[1].setUsingVariables(true);
 
     TableView wExectionResults =
@@ -1179,26 +1178,25 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
             ? pipelineExecutorMeta.getResultRows().size()
             : 1);
 
-    ColumnInfo[] ciResultFields =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Field"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] ciResultFields = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Field"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineExecutorDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wOutputFields =
         new TableView(

@@ -42,6 +42,8 @@ import org.apache.hop.pipeline.transforms.cube.CubeFilename;
 import org.apache.hop.pipeline.transforms.cube.CubeStreams;
 
 public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
+  private static final String CONST_CUBE_INPUT_LOG_ERROR_READING_FROM_DATA_CUBE =
+      "CubeInput.Log.ErrorReadingFromDataCube";
 
   private static final Class<?> PKG = CubeInputMeta.class;
 
@@ -167,7 +169,8 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       throw e;
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "CubeInput.Log.ErrorReadingFromDataCube") + filename, e);
+          BaseMessages.getString(PKG, CONST_CUBE_INPUT_LOG_ERROR_READING_FROM_DATA_CUBE) + filename,
+          e);
     } finally {
       if (dataInput != null) {
         try {
@@ -219,7 +222,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
         logError(BaseMessages.getString(PKG, "CubeInput.Log.UnableToReadMetadata"), kfe);
         return false;
       } catch (Exception e) {
-        logError(BaseMessages.getString(PKG, "CubeInput.Log.ErrorReadingFromDataCube"), e);
+        logError(BaseMessages.getString(PKG, CONST_CUBE_INPUT_LOG_ERROR_READING_FROM_DATA_CUBE), e);
       }
     }
     return false;
@@ -242,7 +245,8 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       throw e;
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "CubeInput.Log.ErrorReadingFromDataCube") + filename, e);
+          BaseMessages.getString(PKG, CONST_CUBE_INPUT_LOG_ERROR_READING_FROM_DATA_CUBE) + filename,
+          e);
     }
   }
 

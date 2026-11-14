@@ -26,7 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 
 public class ByteArrayHashMap extends AbstractHashedMap {
-  private IRowMeta keyMeta;
+  private final IRowMeta keyMeta;
 
   /**
    * Constructs an empty <i>ByteArrayHashMap</i> with the specified initial capacity and load

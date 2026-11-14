@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 @SuppressWarnings("java:S1104")
 public class MemoryGroupByData extends BaseTransformData implements ITransformData {
   public class HashEntry {
-    private Object[] groupData;
+    private final Object[] groupData;
 
     public HashEntry(Object[] groupData) {
       this.groupData = groupData;

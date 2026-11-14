@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.Text;
 public class LabelText extends Composite {
   private static final PropsUi props = PropsUi.getInstance();
 
-  private Label wLabel;
-  private Text wText;
+  private final Label wLabel;
+  private final Text wText;
 
   public LabelText(Composite composite, String labelText, String toolTipText) {
     this(

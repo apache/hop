@@ -48,7 +48,7 @@ import org.apache.hop.history.IAuditManager;
  */
 public class LocalAuditManager implements IAuditManager {
 
-  private String rootFolder;
+  private final String rootFolder;
 
   public LocalAuditManager() {
     this.rootFolder = Const.HOP_AUDIT_FOLDER;

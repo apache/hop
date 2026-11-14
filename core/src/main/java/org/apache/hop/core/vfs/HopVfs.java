@@ -67,6 +67,9 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 
 public class HopVfs {
   private static final Class<?> PKG = HopVfs.class;
+  private static final String CONST_THE_VFS_NAMESPACE_OF = "The VFS namespace of ";
+  private static final String CONST_FILE = "file://";
+  private static final String CONST_FILE_2 = "file:";
 
   public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
@@ -228,7 +231,7 @@ public class HopVfs {
         // and a failure to say something must not be read as a failure to rebuild.
         if (HopLogStore.isInitialized()) {
           LogChannel.GENERAL.logError(
-              "The VFS namespace of "
+              CONST_THE_VFS_NAMESPACE_OF
                   + namespace.getDescription()
                   + " was closed while still in use and could not be built again. Files resolved"
                   + " through it keep failing: the process wide manager holds the named connections"
@@ -239,7 +242,7 @@ public class HopVfs {
       }
       if (HopLogStore.isInitialized()) {
         LogChannel.GENERAL.logBasic(
-            "The VFS namespace of "
+            CONST_THE_VFS_NAMESPACE_OF
                 + namespace.getDescription()
                 + " was closed while still in use. Its named connections were read again.");
       }
@@ -250,7 +253,7 @@ public class HopVfs {
     // to, so never let saying this out loud be the thing that fails.
     if (HopLogStore.isInitialized()) {
       LogChannel.GENERAL.logDebug(
-          "The VFS namespace of "
+          CONST_THE_VFS_NAMESPACE_OF
               + namespace.getDescription()
               + " is closed. Resolving with the process wide file system manager instead.");
     }
@@ -467,12 +470,12 @@ public class HopVfs {
     }
     String prefix = "";
     String remaining = path;
-    if (remaining.startsWith("file://")) {
-      prefix = "file://";
-      remaining = remaining.substring("file://".length());
-    } else if (remaining.startsWith("file:")) {
-      prefix = "file:";
-      remaining = remaining.substring("file:".length());
+    if (remaining.startsWith(CONST_FILE)) {
+      prefix = CONST_FILE;
+      remaining = remaining.substring(CONST_FILE.length());
+    } else if (remaining.startsWith(CONST_FILE_2)) {
+      prefix = CONST_FILE_2;
+      remaining = remaining.substring(CONST_FILE_2.length());
     }
 
     if (remaining.equals("~") || remaining.startsWith("~/") || remaining.startsWith("~\\")) {
@@ -494,7 +497,7 @@ public class HopVfs {
           remaining = userHome + remaining.substring(1);
         }
         if (!prefix.isEmpty()) {
-          if (prefix.equals("file://") && !remaining.startsWith("/")) {
+          if (prefix.equals(CONST_FILE) && !remaining.startsWith("/")) {
             return prefix + "/" + remaining;
           }
           return prefix + remaining;
@@ -987,7 +990,7 @@ public class HopVfs {
   public static String getFilename(FileObject fileObject) {
     FileName fileName = fileObject.getName();
     String root = fileName.getRootURI();
-    if (!root.startsWith("file:")) {
+    if (!root.startsWith(CONST_FILE_2)) {
       return fileName.getURI(); // nothing we can do about non-normal files.
     }
     if (root.startsWith("file:////")) {
@@ -1064,7 +1067,7 @@ public class HopVfs {
           baseUrl = directory;
         } else {
           File directoryFile = new File(directory);
-          baseUrl = "file://" + directoryFile.getAbsolutePath();
+          baseUrl = CONST_FILE + directoryFile.getAbsolutePath();
         }
 
         // Build temporary file name using UUID to ensure uniqueness. Old mechanism would fail using
@@ -1169,10 +1172,10 @@ public class HopVfs {
       return false;
     }
     String stripped = filename;
-    if (stripped.startsWith("file://")) {
-      stripped = stripped.substring("file://".length());
-    } else if (stripped.startsWith("file:")) {
-      stripped = stripped.substring("file:".length());
+    if (stripped.startsWith(CONST_FILE)) {
+      stripped = stripped.substring(CONST_FILE.length());
+    } else if (stripped.startsWith(CONST_FILE_2)) {
+      stripped = stripped.substring(CONST_FILE_2.length());
     }
     // A path starting with tilde (home directory): ~, ~/, ~\
     if (stripped.equals("~") || stripped.startsWith("~/") || stripped.startsWith("~\\")) {
@@ -1305,7 +1308,7 @@ public class HopVfs {
     TMP(".tmp"),
     JAR(".jar");
 
-    private String ext;
+    private final String ext;
 
     Suffix(String ext) {
       this.ext = ext;

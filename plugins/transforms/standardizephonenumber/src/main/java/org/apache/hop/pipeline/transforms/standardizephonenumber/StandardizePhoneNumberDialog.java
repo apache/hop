@@ -94,51 +94,46 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
     lblFields.setLayoutData(new FormDataBuilder().top(wSpacer, margin).fullWidth().result());
     PropsUi.setLook(lblFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.InputField.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.OutputField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.CountryField.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.DefaultCountry.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              input.getSupportedCountries(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.NumberFormat.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              input.getSupportedFormats(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.NumberTypeField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "StandardizePhoneNumberDialog.ColumnInfo.IsValidNumberField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              new String[] {""},
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.ColumnInfo.InputField.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.ColumnInfo.OutputField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.ColumnInfo.CountryField.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "StandardizePhoneNumberDialog.ColumnInfo.DefaultCountry.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          input.getSupportedCountries(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.ColumnInfo.NumberFormat.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          input.getSupportedFormats(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "StandardizePhoneNumberDialog.ColumnInfo.NumberTypeField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "StandardizePhoneNumberDialog.ColumnInfo.IsValidNumberField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          new String[] {""},
+          false)
+    };
 
     columns[0].setToolTip(
         BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.ColumnInfo.InputField.Tooltip"));

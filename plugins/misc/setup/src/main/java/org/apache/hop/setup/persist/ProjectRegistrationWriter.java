@@ -41,6 +41,8 @@ import org.apache.hop.setup.UserPaths;
  * config folder.
  */
 public class ProjectRegistrationWriter {
+  private static final String CONST_PROJECTS_CONFIG = "projectsConfig";
+  private static final String CONST_PROJECT_CONFIGURATIONS = "projectConfigurations";
 
   static final String MINIMAL_PROJECT_CONFIG =
       """
@@ -174,9 +176,9 @@ public class ProjectRegistrationWriter {
         root = mapper.createObjectNode();
       }
       ObjectNode projects =
-          root.has("projectsConfig") && root.get("projectsConfig").isObject()
-              ? (ObjectNode) root.get("projectsConfig")
-              : root.putObject("projectsConfig");
+          root.has(CONST_PROJECTS_CONFIG) && root.get(CONST_PROJECTS_CONFIG).isObject()
+              ? (ObjectNode) root.get(CONST_PROJECTS_CONFIG)
+              : root.putObject(CONST_PROJECTS_CONFIG);
       projects.put("enabled", true);
       projects.put("projectMandatory", true);
       if (spec.isCreateDefaultProject() && StringUtils.isNotBlank(defaultHome)) {
@@ -190,9 +192,10 @@ public class ProjectRegistrationWriter {
       projects.put("defaultProjectConfigFile", HopSetupVariables.PROJECT_CONFIG_FILENAME);
 
       ArrayNode configs =
-          projects.has("projectConfigurations") && projects.get("projectConfigurations").isArray()
-              ? (ArrayNode) projects.get("projectConfigurations")
-              : projects.putArray("projectConfigurations");
+          projects.has(CONST_PROJECT_CONFIGURATIONS)
+                  && projects.get(CONST_PROJECT_CONFIGURATIONS).isArray()
+              ? (ArrayNode) projects.get(CONST_PROJECT_CONFIGURATIONS)
+              : projects.putArray(CONST_PROJECT_CONFIGURATIONS);
       if (spec.isCreateDefaultProject() && StringUtils.isNotBlank(defaultHome)) {
         upsertProject(
             configs,

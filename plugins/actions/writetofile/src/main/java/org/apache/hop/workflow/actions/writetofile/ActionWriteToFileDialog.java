@@ -51,8 +51,9 @@ import org.eclipse.swt.widgets.Text;
 public class ActionWriteToFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionWriteToFile.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionWriteToFile.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionWriteToFile.Filetype.All")
+  };
 
   private TextVar wFilename;
 

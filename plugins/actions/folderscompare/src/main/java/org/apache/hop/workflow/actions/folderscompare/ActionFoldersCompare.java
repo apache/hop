@@ -68,6 +68,7 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 @Setter
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class;
+  private static final String CONST_SPECIFY = "specify";
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_IS_A_FILE = "ActionFoldersCompare.Log.IsAFile";
   private static final String CONST_IS_A_FOLDER = "ActionFoldersCompare.Log.IsAFolder";
@@ -466,7 +467,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           // In the Base Folder...
           if ((info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
               || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
-              || (compareOnly.equals("specify") && matchesWildcard(shortFilename))
+              || (compareOnly.equals(CONST_SPECIFY) && matchesWildcard(shortFilename))
               || (compareOnly.equals("all"))) {
             returncode = true;
           }
@@ -476,7 +477,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           if ((includeSubFolders
                   && (info.getFile().getType() == FileType.FILE && compareOnly.equals("only_files"))
               || (info.getFile().getType() == FileType.FOLDER && compareOnly.equals("only_folders"))
-              || (compareOnly.equals("specify") && matchesWildcard(shortFilename))
+              || (compareOnly.equals(CONST_SPECIFY) && matchesWildcard(shortFilename))
               || (compareOnly.equals("all")))) {
             returncode = true;
           }
@@ -517,7 +518,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
    * @throws HopException if the wildcard is not a valid regular expression
    */
   private Pattern compileWildcard() throws HopException {
-    if (!"specify".equals(compareOnly)) {
+    if (!CONST_SPECIFY.equals(compareOnly)) {
       return null;
     }
     String realWildcard = getRealWildcard();

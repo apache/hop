@@ -66,11 +66,9 @@ import org.eclipse.swt.widgets.Text;
 public class GetFileNamesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetFileNamesMeta.class;
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   private Button wDoNotFailIfNoFile;
   private Label wlDoNotFailIfNoFile;
@@ -479,29 +477,28 @@ public class GetFileNamesDialog extends BaseTransformDialog {
           }
         });
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetFileNamesDialog.FileDirColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetFileNamesDialog.WildcardColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetFileNamesDialog.ExcludeWildcardColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetFileNamesDialog.Required.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubDirs.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO)
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetFileNamesDialog.FileDirColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetFileNamesDialog.WildcardColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetFileNamesDialog.ExcludeWildcardColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetFileNamesDialog.Required.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubDirs.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO)
+    };
 
     colinfo[0].setUsingVariables(true);
     colinfo[1].setUsingVariables(true);

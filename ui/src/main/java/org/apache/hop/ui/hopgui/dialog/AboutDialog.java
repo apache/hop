@@ -63,17 +63,16 @@ public class AboutDialog extends Dialog {
   private static final long MB = 1024L * 1024L;
 
   /** Full set of Java properties shown, sorted, in the collapsible "Advanced" section. */
-  private static final String[] JAVA_PROPERTIES =
-      new String[] {
-        "os.name",
-        "os.version",
-        "os.arch",
-        "java.version",
-        "java.vm.vendor",
-        "java.specification.version",
-        "java.class.path",
-        "file.encoding"
-      };
+  private static final String[] JAVA_PROPERTIES = {
+    "os.name",
+    "os.version",
+    "os.arch",
+    "java.version",
+    "java.vm.vendor",
+    "java.specification.version",
+    "java.class.path",
+    "file.encoding"
+  };
 
   private Shell shell;
   private ExpandBar expandBar;

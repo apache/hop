@@ -137,51 +137,50 @@ public class RedisInputDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(last, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.RedisKey"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.RedisKeyCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.DataStructure"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisDataStructure.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.HashField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.HashFieldCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.ValueField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.ValueCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.ListStart"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisInputDialog.Column.ListStop"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.RedisKey"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.RedisKeyCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.DataStructure"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisDataStructure.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.HashField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.HashFieldCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.ValueField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.ValueCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.ListStart"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisInputDialog.Column.ListStop"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     columns[5].setUsingVariables(true);
     columns[7].setUsingVariables(true);
     columns[8].setUsingVariables(true);

@@ -38,8 +38,8 @@ import org.eclipse.swt.widgets.Widget;
  */
 public class Clipboard extends Widget {
 
-  private RemoteObject remoteObject;
-  private List<ClipboardListener> listeners = new ArrayList<>();
+  private final RemoteObject remoteObject;
+  private final List<ClipboardListener> listeners = new ArrayList<>();
 
   public Clipboard(Composite parent) {
     super(parent, SWT.NONE);

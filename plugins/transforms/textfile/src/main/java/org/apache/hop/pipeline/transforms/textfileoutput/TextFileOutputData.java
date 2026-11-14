@@ -306,8 +306,8 @@ public class TextFileOutputData extends BaseTransformData implements ITransformD
 
   public class FileStreamsMap implements IFileStreamsCollection {
     private int numOpenFiles = 0;
-    private TreeMap<String, FileStreamsCollectionEntry> fileNameMap = new TreeMap<>();
-    private TreeMap<Long, FileStreamsCollectionEntry> indexMap = new TreeMap<>();
+    private final TreeMap<String, FileStreamsCollectionEntry> fileNameMap = new TreeMap<>();
+    private final TreeMap<Long, FileStreamsCollectionEntry> indexMap = new TreeMap<>();
 
     @Override
     public int size() {

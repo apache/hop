@@ -24,6 +24,38 @@ import java.util.Map;
 
 /** Defines available fields for each rule target type */
 public class RuleTargetFields {
+  private static final String CONST_TRANSFORM_COUNT = "transformCount";
+  private static final String CONST_HOP_COUNT = "hopCount";
+  private static final String CONST_FILENAME = "filename";
+  private static final String CONST_HAS_ORPHANED_TRANSFORMS = "hasOrphanedTransforms";
+  private static final String CONST_NOTE_COUNT = "noteCount";
+  private static final String CONST_HAS_NOTES = "hasNotes";
+  private static final String CONST_IS_REFERENCED = "isReferenced";
+  private static final String CONST_ACTION_COUNT = "actionCount";
+  private static final String CONST_HAS_ORPHANED_ACTIONS = "hasOrphanedActions";
+  private static final String CONST_DATABASE_TYPE = "databaseType";
+  private static final String CONST_USERNAME = "username";
+  private static final String CONST_PLUGIN_ID = "pluginId";
+  private static final String CONST_COPIES = "copies";
+  private static final String CONST_DISTRIBUTES = "distributes";
+  private static final String CONST_IS_ORPHANED = "isOrphaned";
+  private static final String CONST_ENABLED = "enabled";
+  private static final String CONST_UNCONDITIONAL = "unconditional";
+  private static final String CONST_EVALUATION = "evaluation";
+  private static final String CONST_ATTRIBUTES = "attributes";
+  private static final String CONST_ERROR_HANDLING = "errorHandling";
+  private static final String CONST_TARGET_TRANSFORMS = "targetTransforms";
+  private static final String CONST_TARGET_ACTIONS = "targetActions";
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_PARAMETERS = "parameters";
+  private static final String CONST_VARIABLES = "variables";
+  private static final String CONST_HAS_DISABLED_HOPS = "hasDisabledHops";
+  private static final String CONST_PASSWORD = "password";
+  private static final String CONST_HAS_DEFAULT_NAME = "hasDefaultName";
+  private static final String CONST_SECRET = "secret";
+  private static final String CONST_CREDENTIAL = "credential";
+  private static final String CONST_API_KEY = "apiKey";
+  private static final String CONST_TOKEN = "token";
 
   private static final Map<RuleTarget, List<String>> TARGET_FIELDS = new HashMap<>();
 
@@ -33,115 +65,115 @@ public class RuleTargetFields {
         RuleTarget.PIPELINE,
         Arrays.asList(
             "name",
-            "description",
-            "transformCount",
-            "hopCount",
-            "filename",
+            CONST_DESCRIPTION,
+            CONST_TRANSFORM_COUNT,
+            CONST_HOP_COUNT,
+            CONST_FILENAME,
             "created",
             "modified",
             "createdUser",
             "modifiedUser",
-            "parameters",
-            "variables",
+            CONST_PARAMETERS,
+            CONST_VARIABLES,
             "transforms",
             "hops",
-            "hasDisabledHops",
-            "hasOrphanedTransforms",
-            "noteCount",
-            "hasNotes",
-            "isReferenced"));
+            CONST_HAS_DISABLED_HOPS,
+            CONST_HAS_ORPHANED_TRANSFORMS,
+            CONST_NOTE_COUNT,
+            CONST_HAS_NOTES,
+            CONST_IS_REFERENCED));
 
     // Workflow fields
     TARGET_FIELDS.put(
         RuleTarget.WORKFLOW,
         Arrays.asList(
             "name",
-            "description",
-            "actionCount",
-            "hopCount",
-            "filename",
+            CONST_DESCRIPTION,
+            CONST_ACTION_COUNT,
+            CONST_HOP_COUNT,
+            CONST_FILENAME,
             "created",
             "modified",
             "createdUser",
             "modifiedUser",
-            "parameters",
-            "variables",
+            CONST_PARAMETERS,
+            CONST_VARIABLES,
             "actions",
             "hops",
-            "hasDisabledHops",
-            "hasOrphanedActions",
-            "noteCount",
-            "hasNotes",
-            "isReferenced"));
+            CONST_HAS_DISABLED_HOPS,
+            CONST_HAS_ORPHANED_ACTIONS,
+            CONST_NOTE_COUNT,
+            CONST_HAS_NOTES,
+            CONST_IS_REFERENCED));
 
     // Database Connection fields
     TARGET_FIELDS.put(
         RuleTarget.DATABASE_CONNECTION,
         Arrays.asList(
             "name",
-            "description",
-            "databaseType",
+            CONST_DESCRIPTION,
+            CONST_DATABASE_TYPE,
             "hostname",
             "port",
             "databaseName",
-            "username",
-            "password",
+            CONST_USERNAME,
+            CONST_PASSWORD,
             "servername",
             "dataTablespace",
             "indexTablespace",
-            "attributes"));
+            CONST_ATTRIBUTES));
 
     // Transform fields
     TARGET_FIELDS.put(
         RuleTarget.TRANSFORM,
         Arrays.asList(
             "name",
-            "description",
-            "pluginId",
-            "copies",
-            "distributes",
-            "errorHandling",
-            "targetTransforms",
+            CONST_DESCRIPTION,
+            CONST_PLUGIN_ID,
+            CONST_COPIES,
+            CONST_DISTRIBUTES,
+            CONST_ERROR_HANDLING,
+            CONST_TARGET_TRANSFORMS,
             "isDummy",
-            "isOrphaned",
+            CONST_IS_ORPHANED,
             "isBlockingTransform",
-            "hasDefaultName",
-            "password",
-            "secret",
-            "credential",
-            "apiKey",
-            "token"));
+            CONST_HAS_DEFAULT_NAME,
+            CONST_PASSWORD,
+            CONST_SECRET,
+            CONST_CREDENTIAL,
+            CONST_API_KEY,
+            CONST_TOKEN));
 
     // Action fields
     TARGET_FIELDS.put(
         RuleTarget.ACTION,
         Arrays.asList(
             "name",
-            "description",
-            "pluginId",
-            "errorHandling",
-            "targetActions",
+            CONST_DESCRIPTION,
+            CONST_PLUGIN_ID,
+            CONST_ERROR_HANDLING,
+            CONST_TARGET_ACTIONS,
             "isStart",
-            "isOrphaned",
-            "hasDefaultName",
-            "password",
-            "secret",
-            "credential",
-            "apiKey",
-            "token"));
+            CONST_IS_ORPHANED,
+            CONST_HAS_DEFAULT_NAME,
+            CONST_PASSWORD,
+            CONST_SECRET,
+            CONST_CREDENTIAL,
+            CONST_API_KEY,
+            CONST_TOKEN));
 
     // Hop fields (pipeline hops use from/toTransform, workflow hops use from/toAction)
     TARGET_FIELDS.put(
         RuleTarget.HOP,
         Arrays.asList(
             "name",
-            "enabled",
+            CONST_ENABLED,
             "fromTransform",
             "toTransform",
             "fromAction",
             "toAction",
-            "unconditional",
-            "evaluation"));
+            CONST_UNCONDITIONAL,
+            CONST_EVALUATION));
   }
 
   /** Get available fields for a target type */
@@ -153,41 +185,41 @@ public class RuleTargetFields {
   public static String getFieldDescription(RuleTarget target, String field) {
     // This could be expanded to provide detailed descriptions
     switch (field) {
-      case "transformCount":
+      case CONST_TRANSFORM_COUNT:
         return "Number of transforms in the pipeline";
-      case "actionCount":
+      case CONST_ACTION_COUNT:
         return "Number of actions in the workflow";
-      case "hasDisabledHops":
+      case CONST_HAS_DISABLED_HOPS:
         return "Whether the pipeline/workflow contains disabled hops";
-      case "hasOrphanedTransforms":
+      case CONST_HAS_ORPHANED_TRANSFORMS:
         return "Whether the pipeline contains transforms with no connections";
-      case "hasOrphanedActions":
+      case CONST_HAS_ORPHANED_ACTIONS:
         return "Whether the workflow contains actions with no connections";
-      case "hasDefaultName":
+      case CONST_HAS_DEFAULT_NAME:
         return "Whether the item uses a default generated name";
-      case "password":
+      case CONST_PASSWORD:
         return "Password field (checks all password-related fields in transforms/actions)";
-      case "secret":
+      case CONST_SECRET:
         return "Secret field (checks all secret-related fields in transforms/actions)";
-      case "credential":
+      case CONST_CREDENTIAL:
         return "Credential field (checks all credential-related fields in transforms/actions)";
-      case "username":
+      case CONST_USERNAME:
         return "Database connection username";
-      case "databaseType":
+      case CONST_DATABASE_TYPE:
         return "Database type, the plugin id such as POSTGRESQL";
-      case "attributes":
+      case CONST_ATTRIBUTES:
         return "Connection attributes, extra options included";
-      case "errorHandling":
+      case CONST_ERROR_HANDLING:
         return "Whether errors go to an error hop (transform) or a failure hop (action)";
-      case "targetTransforms":
+      case CONST_TARGET_TRANSFORMS:
         return "Names of the transforms this transform sends rows to";
-      case "targetActions":
+      case CONST_TARGET_ACTIONS:
         return "Names of the actions this action leads to";
-      case "apiKey":
+      case CONST_API_KEY:
         return "API key field";
-      case "token":
+      case CONST_TOKEN:
         return "Token field";
-      case "description":
+      case CONST_DESCRIPTION:
         return "Description field";
       case "name":
         return "Name field";
@@ -213,43 +245,48 @@ public class RuleTargetFields {
 
   static {
     for (String field :
-        List.of("transformCount", "actionCount", "hopCount", "noteCount", "copies")) {
+        List.of(
+            CONST_TRANSFORM_COUNT,
+            CONST_ACTION_COUNT,
+            CONST_HOP_COUNT,
+            CONST_NOTE_COUNT,
+            CONST_COPIES)) {
       VALUE_KINDS.put(field, ValueKind.COUNT);
     }
     for (String field :
         List.of(
-            "hasDisabledHops",
-            "hasOrphanedTransforms",
-            "hasOrphanedActions",
-            "hasNotes",
-            "isReferenced",
-            "distributes",
-            "errorHandling",
+            CONST_HAS_DISABLED_HOPS,
+            CONST_HAS_ORPHANED_TRANSFORMS,
+            CONST_HAS_ORPHANED_ACTIONS,
+            CONST_HAS_NOTES,
+            CONST_IS_REFERENCED,
+            CONST_DISTRIBUTES,
+            CONST_ERROR_HANDLING,
             "isDummy",
-            "isOrphaned",
+            CONST_IS_ORPHANED,
             "isBlockingTransform",
-            "hasDefaultName",
+            CONST_HAS_DEFAULT_NAME,
             "isStart",
-            "enabled",
-            "unconditional",
-            "evaluation")) {
+            CONST_ENABLED,
+            CONST_UNCONDITIONAL,
+            CONST_EVALUATION)) {
       VALUE_KINDS.put(field, ValueKind.FLAG);
     }
-    for (String field : List.of("targetTransforms", "targetActions", "attributes")) {
+    for (String field : List.of(CONST_TARGET_TRANSFORMS, CONST_TARGET_ACTIONS, CONST_ATTRIBUTES)) {
       VALUE_KINDS.put(field, ValueKind.LIST);
     }
     for (String field :
         List.of(
             "name",
-            "description",
-            "filename",
-            "pluginId",
-            "databaseType",
+            CONST_DESCRIPTION,
+            CONST_FILENAME,
+            CONST_PLUGIN_ID,
+            CONST_DATABASE_TYPE,
             "hostname",
             "port",
             "databaseName",
-            "username",
-            "password",
+            CONST_USERNAME,
+            CONST_PASSWORD,
             "servername",
             "dataTablespace",
             "indexTablespace",
@@ -269,7 +306,8 @@ public class RuleTargetFields {
   public static ValueKind getValueKind(RuleTarget target, String field) {
     if (target == RuleTarget.TRANSFORM || target == RuleTarget.ACTION) {
       // Matched against every setting of the plugin by name, whatever its type.
-      if (List.of("password", "secret", "credential", "apiKey", "token").contains(field)) {
+      if (List.of(CONST_PASSWORD, CONST_SECRET, CONST_CREDENTIAL, CONST_API_KEY, CONST_TOKEN)
+          .contains(field)) {
         return null;
       }
     }
@@ -279,26 +317,26 @@ public class RuleTargetFields {
   /** Get compatible conditions for a field type */
   public static List<RuleCondition> getCompatibleConditions(String field) {
     // Determine field type and return compatible conditions
-    if (field.endsWith("Count") || field.equals("port") || field.equals("copies")) {
+    if (field.endsWith("Count") || field.equals("port") || field.equals(CONST_COPIES)) {
       // Numeric fields
       return Arrays.asList(
           RuleCondition.MAX_VALUE, RuleCondition.MIN_VALUE, RuleCondition.EXACT_VALUE);
     } else if (isFlagName(field)
-        || field.equals("enabled")
-        || field.equals("distributes")
-        || field.equals("errorHandling")
-        || field.equals("unconditional")
-        || field.equals("evaluation")) {
+        || field.equals(CONST_ENABLED)
+        || field.equals(CONST_DISTRIBUTES)
+        || field.equals(CONST_ERROR_HANDLING)
+        || field.equals(CONST_UNCONDITIONAL)
+        || field.equals(CONST_EVALUATION)) {
       // Boolean fields
       return Arrays.asList(RuleCondition.MUST_BE_TRUE, RuleCondition.MUST_BE_FALSE);
     } else if (field.equals("transforms")
         || field.equals("actions")
         || field.equals("hops")
-        || field.equals("parameters")
-        || field.equals("variables")
-        || field.equals("attributes")
-        || field.equals("targetTransforms")
-        || field.equals("targetActions")) {
+        || field.equals(CONST_PARAMETERS)
+        || field.equals(CONST_VARIABLES)
+        || field.equals(CONST_ATTRIBUTES)
+        || field.equals(CONST_TARGET_TRANSFORMS)
+        || field.equals(CONST_TARGET_ACTIONS)) {
       // Collection fields
       return Arrays.asList(
           RuleCondition.NOT_EMPTY_COLLECTION,

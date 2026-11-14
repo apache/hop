@@ -45,8 +45,8 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
 
   private String ruleString;
 
-  private List<Rules.Row> rowList = new ArrayList<>();
-  private List<Rules.Row> resultList = new ArrayList<>();
+  private final List<Rules.Row> rowList = new ArrayList<>();
+  private final List<Rules.Row> resultList = new ArrayList<>();
 
   private KieHelper kieHelper;
 

@@ -30,6 +30,9 @@ import org.apache.hop.openformula.typing.DataType;
 import org.apache.hop.openformula.typing.TypedValue;
 
 public final class LogicalFunctions {
+  private static final String CONST_LOGICAL = "logical";
+  private static final String CONST_CONDITIONS = "Conditions";
+
   private LogicalFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -42,8 +45,8 @@ public final class LogicalFunctions {
             DataType.LOGICAL,
             1,
             true,
-            List.of("logical"),
-            List.of("Conditions")));
+            List.of(CONST_LOGICAL),
+            List.of(CONST_CONDITIONS)));
     registry.registerFunction(
         new OrFunction(),
         new FunctionDescription(
@@ -53,8 +56,8 @@ public final class LogicalFunctions {
             DataType.LOGICAL,
             1,
             true,
-            List.of("logical"),
-            List.of("Conditions")));
+            List.of(CONST_LOGICAL),
+            List.of(CONST_CONDITIONS)));
     registry.registerFunction(
         new NotFunction(),
         new FunctionDescription(
@@ -64,7 +67,7 @@ public final class LogicalFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("logical"),
+            List.of(CONST_LOGICAL),
             List.of("Logical expression")));
     registry.registerFunction(
         new XorFunction(),
@@ -75,8 +78,8 @@ public final class LogicalFunctions {
             DataType.LOGICAL,
             1,
             true,
-            List.of("logical"),
-            List.of("Conditions")));
+            List.of(CONST_LOGICAL),
+            List.of(CONST_CONDITIONS)));
     registry.registerFunction(
         new TrueFunction(),
         new FunctionDescription(

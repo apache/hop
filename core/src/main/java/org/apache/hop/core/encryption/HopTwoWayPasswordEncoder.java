@@ -36,7 +36,7 @@ import org.apache.hop.core.util.StringUtil;
     description = "Hop Password Encoder")
 public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   private static final int RADIX = 16;
-  private String Seed;
+  private final String Seed;
 
   /**
    * The word that is put before a password to indicate an encrypted form. If this word is not

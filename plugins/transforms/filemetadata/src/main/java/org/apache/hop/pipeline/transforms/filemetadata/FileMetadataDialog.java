@@ -281,14 +281,12 @@ public class FileMetadataDialog extends BaseTransformDialog {
 
     int candidateCount = meta.getDelimiterCandidates().size();
 
-    ColumnInfo[] delimiterColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "FileMetadata.methods.DELIMITED_FIELDS.delimiter_candidates"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] delimiterColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.delimiter_candidates"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     delimiterColumns[0].setUsingVariables(true);
 
     wDelimiterCandidates =
@@ -309,14 +307,12 @@ public class FileMetadataDialog extends BaseTransformDialog {
 
     candidateCount = meta.getEnclosureCandidates().size();
 
-    ColumnInfo[] enclosureColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "FileMetadata.methods.DELIMITED_FIELDS.enclosure_candidates"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] enclosureColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileMetadata.methods.DELIMITED_FIELDS.enclosure_candidates"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
 
     enclosureColumns[0].setUsingVariables(true);
 

@@ -34,6 +34,8 @@ import java.util.Map;
  * tooling ingest; JSON is there for everything else.
  */
 public final class LintReportWriter {
+  private static final String CONST_ERROR = "ERROR";
+  private static final String CONST_WARNING = "WARNING";
 
   private static final String SARIF_VERSION = "2.1.0";
   private static final String SARIF_SCHEMA =
@@ -75,12 +77,12 @@ public final class LintReportWriter {
       out.append("Lint Results Summary:\n");
       out.append("===================\n");
       out.append("Total Issues: ").append(results.size()).append('\n');
-      out.append("Errors: ").append(countBySeverity(results, "ERROR")).append('\n');
-      out.append("Warnings: ").append(countBySeverity(results, "WARNING")).append('\n');
+      out.append("Errors: ").append(countBySeverity(results, CONST_ERROR)).append('\n');
+      out.append("Warnings: ").append(countBySeverity(results, CONST_WARNING)).append('\n');
       out.append("Info: ").append(countBySeverity(results, "INFO")).append("\n\n");
     }
 
-    for (String severity : new String[] {"ERROR", "WARNING", "INFO"}) {
+    for (String severity : new String[] {CONST_ERROR, CONST_WARNING, "INFO"}) {
       List<LintResult> group =
           results.stream().filter(r -> severity.equals(r.getSeverity())).toList();
       if (group.isEmpty()) {
@@ -104,8 +106,8 @@ public final class LintReportWriter {
 
     ObjectNode summary = root.putObject("summary");
     summary.put("total", results.size());
-    summary.put("errors", countBySeverity(results, "ERROR"));
-    summary.put("warnings", countBySeverity(results, "WARNING"));
+    summary.put("errors", countBySeverity(results, CONST_ERROR));
+    summary.put("warnings", countBySeverity(results, CONST_WARNING));
     summary.put("info", countBySeverity(results, "INFO"));
 
     ArrayNode findings = root.putArray("findings");
@@ -236,10 +238,10 @@ public final class LintReportWriter {
   }
 
   private static String sarifLevel(String severity) {
-    if ("ERROR".equalsIgnoreCase(severity)) {
+    if (CONST_ERROR.equalsIgnoreCase(severity)) {
       return "error";
     }
-    if ("WARNING".equalsIgnoreCase(severity)) {
+    if (CONST_WARNING.equalsIgnoreCase(severity)) {
       return "warning";
     }
     return "note";

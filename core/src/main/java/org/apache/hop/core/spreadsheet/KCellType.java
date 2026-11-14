@@ -28,7 +28,7 @@ public enum KCellType {
   NUMBER("Number"),
   NUMBER_FORMULA("Number formula");
 
-  private String description;
+  private final String description;
 
   private KCellType(String description) {
     this.description = description;

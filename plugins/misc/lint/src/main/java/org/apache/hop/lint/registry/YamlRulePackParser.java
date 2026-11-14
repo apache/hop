@@ -43,54 +43,66 @@ import org.yaml.snakeyaml.error.YAMLException;
 
 /** Parses YAML rule pack and project overlay files. */
 public final class YamlRulePackParser {
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_ENABLED = "enabled";
+  private static final String CONST_SEVERITY = "severity";
+  private static final String CONST_TARGET = "target";
+  private static final String CONST_TARGET_FIELD = "targetField";
+  private static final String CONST_CONDITION = "condition";
+  private static final String CONST_CONDITION_VALUE = "conditionValue";
+  private static final String CONST_APPLIES_TO = "appliesTo";
+  private static final String CONST_PARAMETERS = "parameters";
+  private static final String CONST_HELP_URI = "helpUri";
+  private static final String CONST_IGNORING_SUPPRESS_ENTRY = "Ignoring suppress entry ";
 
   /** The keys a rule the linter evaluates may carry. */
   static final Set<String> CUSTOM_RULE_KEYS =
       Set.of(
           "type",
           "name",
-          "description",
-          "enabled",
-          "severity",
-          "target",
-          "targetField",
-          "condition",
-          "conditionValue",
-          "appliesTo",
+          CONST_DESCRIPTION,
+          CONST_ENABLED,
+          CONST_SEVERITY,
+          CONST_TARGET,
+          CONST_TARGET_FIELD,
+          CONST_CONDITION,
+          CONST_CONDITION_VALUE,
+          CONST_APPLIES_TO,
           RuleCombinator.ALL_OF.getYamlKey(),
           RuleCombinator.ANY_OF.getYamlKey(),
-          "parameters",
+          CONST_PARAMETERS,
           "tags",
-          "helpUri");
+          CONST_HELP_URI);
 
   /** The keys a rule classifying Hop's own verify remarks may carry. */
   static final Set<String> NATIVE_RULE_KEYS =
       Set.of(
           "type",
           "name",
-          "description",
-          "enabled",
-          "severity",
-          "appliesTo",
+          CONST_DESCRIPTION,
+          CONST_ENABLED,
+          CONST_SEVERITY,
+          CONST_APPLIES_TO,
           "messageKey",
           "tags",
-          "helpUri");
+          CONST_HELP_URI);
 
   /** The keys a rule covering the linter's own findings about a run may carry. */
   static final Set<String> SYSTEM_RULE_KEYS =
-      Set.of("type", "name", "description", "enabled", "severity", "tags", "helpUri");
+      Set.of(
+          "type", "name", CONST_DESCRIPTION, CONST_ENABLED, CONST_SEVERITY, "tags", CONST_HELP_URI);
 
   /** The keys a project's hop-lint.yml may use to tune a rule from a pack. */
   static final Set<String> OVERRIDE_KEYS =
       Set.of(
-          "enabled",
-          "severity",
-          "conditionValue",
-          "parameters",
+          CONST_ENABLED,
+          CONST_SEVERITY,
+          CONST_CONDITION_VALUE,
+          CONST_PARAMETERS,
           "tags",
-          "helpUri",
+          CONST_HELP_URI,
           "name",
-          "description");
+          CONST_DESCRIPTION);
 
   private YamlRulePackParser() {}
 
@@ -131,8 +143,8 @@ public final class YamlRulePackParser {
                   + "': each entry must be a mapping of targetField, condition and conditionValue.");
           continue;
         }
-        String field = stringValue(map.get("targetField"), "");
-        String conditionName = stringValue(map.get("condition"), null);
+        String field = stringValue(map.get(CONST_TARGET_FIELD), "");
+        String conditionName = stringValue(map.get(CONST_CONDITION), null);
         if (Utils.isEmpty(field) || conditionName == null) {
           LogChannel.GENERAL.logError(
               "Ignoring a "
@@ -146,7 +158,7 @@ public final class YamlRulePackParser {
             new RuleClause(
                 field,
                 RuleCondition.valueOf(conditionName),
-                stringValue(map.get("conditionValue"), "")));
+                stringValue(map.get(CONST_CONDITION_VALUE), "")));
       }
       if (clauses.isEmpty()) {
         continue;
@@ -376,7 +388,7 @@ public final class YamlRulePackParser {
         projectRules.add(rule);
       } else {
         warnUnknownKeys(ruleId, location, ruleData, OVERRIDE_KEYS);
-        warnUnknownParameters(ruleId, location, ruleData.get("parameters"));
+        warnUnknownParameters(ruleId, location, ruleData.get(CONST_PARAMETERS));
         overlays.put(
             ruleId, ProjectYamlOverlay.ProjectRuleOverlay.fromMap(ruleId, ruleData, location));
       }
@@ -402,7 +414,11 @@ public final class YamlRulePackParser {
         index++;
         if (!(element instanceof Map)) {
           LogChannel.GENERAL.logError(
-              "Ignoring suppress entry " + index + " in " + projectYaml + ": expected a mapping.");
+              CONST_IGNORING_SUPPRESS_ENTRY
+                  + index
+                  + " in "
+                  + projectYaml
+                  + ": expected a mapping.");
           continue;
         }
         @SuppressWarnings("unchecked")
@@ -412,7 +428,7 @@ public final class YamlRulePackParser {
 
         if (Utils.isEmpty(ruleId)) {
           LogChannel.GENERAL.logError(
-              "Ignoring suppress entry "
+              CONST_IGNORING_SUPPRESS_ENTRY
                   + index
                   + " in "
                   + projectYaml
@@ -424,7 +440,7 @@ public final class YamlRulePackParser {
         String source = stringValue(entry.get("source"), null);
         if (LintPolicy.ALL_RULES.equals(ruleId) && Utils.isEmpty(path) && Utils.isEmpty(source)) {
           LogChannel.GENERAL.logError(
-              "Ignoring suppress entry "
+              CONST_IGNORING_SUPPRESS_ENTRY
                   + index
                   + " in "
                   + projectYaml
@@ -517,12 +533,12 @@ public final class YamlRulePackParser {
     if ("custom".equals(type)) {
       return true;
     }
-    if (!ruleData.containsKey("target")) {
+    if (!ruleData.containsKey(CONST_TARGET)) {
       return false;
     }
     // A composed rule has its conditions inside allOf or anyOf rather than at the top. Without
     // type: custom it was taken for an override of a rule that does not exist, and dropped.
-    if (ruleData.containsKey("condition")) {
+    if (ruleData.containsKey(CONST_CONDITION)) {
       return true;
     }
     for (RuleCombinator combinator : RuleCombinator.values()) {
@@ -565,10 +581,10 @@ public final class YamlRulePackParser {
     rule.setPackOwner(owner);
     rule.setType(CustomLintRule.TYPE_NATIVE);
     rule.setName(stringValue(ruleData.get("name"), ruleId));
-    rule.setDescription(stringValue(ruleData.get("description"), ""));
-    rule.setEnabled(booleanValue(ruleData.get("enabled"), true));
-    rule.setSeverity(stringValue(ruleData.get("severity"), "WARNING"));
-    rule.setAppliesTo(stringListValue(ruleData.get("appliesTo")));
+    rule.setDescription(stringValue(ruleData.get(CONST_DESCRIPTION), ""));
+    rule.setEnabled(booleanValue(ruleData.get(CONST_ENABLED), true));
+    rule.setSeverity(stringValue(ruleData.get(CONST_SEVERITY), "WARNING"));
+    rule.setAppliesTo(stringListValue(ruleData.get(CONST_APPLIES_TO)));
     rule.setMessageKey(stringValue(ruleData.get("messageKey"), ""));
     applyDocumentation(rule, ruleData, location);
     warnUnknownKeys(ruleId, location, ruleData, NATIVE_RULE_KEYS);
@@ -595,9 +611,9 @@ public final class YamlRulePackParser {
     rule.setPackOwner(owner);
     rule.setType(CustomLintRule.TYPE_SYSTEM);
     rule.setName(stringValue(ruleData.get("name"), ruleId));
-    rule.setDescription(stringValue(ruleData.get("description"), ""));
-    rule.setEnabled(booleanValue(ruleData.get("enabled"), true));
-    rule.setSeverity(stringValue(ruleData.get("severity"), "ERROR"));
+    rule.setDescription(stringValue(ruleData.get(CONST_DESCRIPTION), ""));
+    rule.setEnabled(booleanValue(ruleData.get(CONST_ENABLED), true));
+    rule.setSeverity(stringValue(ruleData.get(CONST_SEVERITY), "ERROR"));
     applyDocumentation(rule, ruleData, location);
     warnUnknownKeys(ruleId, location, ruleData, SYSTEM_RULE_KEYS);
     return rule;
@@ -624,32 +640,32 @@ public final class YamlRulePackParser {
 
     String name = stringValue(ruleData.get("name"), null);
     if (name == null || name.trim().isEmpty()) {
-      name = stringValue(ruleData.get("description"), ruleId);
+      name = stringValue(ruleData.get(CONST_DESCRIPTION), ruleId);
     }
     customRule.setName(name);
-    customRule.setDescription(stringValue(ruleData.get("description"), ""));
-    customRule.setEnabled(booleanValue(ruleData.get("enabled"), true));
-    customRule.setSeverity(stringValue(ruleData.get("severity"), "WARNING"));
+    customRule.setDescription(stringValue(ruleData.get(CONST_DESCRIPTION), ""));
+    customRule.setEnabled(booleanValue(ruleData.get(CONST_ENABLED), true));
+    customRule.setSeverity(stringValue(ruleData.get(CONST_SEVERITY), "WARNING"));
 
-    String targetStr = stringValue(ruleData.get("target"), null);
+    String targetStr = stringValue(ruleData.get(CONST_TARGET), null);
     if (targetStr != null) {
       customRule.setTarget(RuleTarget.valueOf(targetStr));
     }
 
-    String conditionStr = stringValue(ruleData.get("condition"), null);
+    String conditionStr = stringValue(ruleData.get(CONST_CONDITION), null);
     if (conditionStr != null) {
       customRule.setCondition(RuleCondition.valueOf(conditionStr));
     }
 
-    customRule.setTargetField(stringValue(ruleData.get("targetField"), ""));
-    customRule.setConditionValue(stringValue(ruleData.get("conditionValue"), ""));
-    customRule.setAppliesTo(stringListValue(ruleData.get("appliesTo")));
+    customRule.setTargetField(stringValue(ruleData.get(CONST_TARGET_FIELD), ""));
+    customRule.setConditionValue(stringValue(ruleData.get(CONST_CONDITION_VALUE), ""));
+    customRule.setAppliesTo(stringListValue(ruleData.get(CONST_APPLIES_TO)));
 
     applyClauses(customRule, ruleData, name);
 
     @SuppressWarnings("unchecked")
     Map<String, Object> parameters =
-        (Map<String, Object>) ruleData.getOrDefault("parameters", new HashMap<>());
+        (Map<String, Object>) ruleData.getOrDefault(CONST_PARAMETERS, new HashMap<>());
     if (parameters != null && !parameters.isEmpty()) {
       customRule.setAdditionalParameters(new HashMap<>(parameters));
     }
@@ -662,7 +678,7 @@ public final class YamlRulePackParser {
   /** Read the keys that describe a rule without changing what it checks: tags and helpUri. */
   private static void applyDocumentation(
       CustomLintRule rule, Map<String, Object> ruleData, String location) {
-    String helpUri = stringValue(ruleData.get("helpUri"), null);
+    String helpUri = stringValue(ruleData.get(CONST_HELP_URI), null);
     if (!Utils.isEmpty(helpUri)) {
       rule.setHelpUri(helpUri.trim());
     }

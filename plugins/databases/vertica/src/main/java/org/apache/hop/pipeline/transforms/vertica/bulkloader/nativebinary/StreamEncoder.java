@@ -50,14 +50,14 @@ public class StreamEncoder {
   private static final int MAXIMUM_BUFFER_SIZE = Integer.MAX_VALUE - 8;
 
   protected WritableByteChannel channel;
-  private PipedOutputStream pipedOutputStream;
+  private final PipedOutputStream pipedOutputStream;
 
-  private int columnCount;
+  private final int columnCount;
   private int rowMaxSize;
 
-  private ByteBuffer buffer;
+  private final ByteBuffer buffer;
 
-  private Charset charset;
+  private final Charset charset;
 
   private final List<ColumnSpec> columns;
   private final BitSet rowNulls;
@@ -211,10 +211,10 @@ public class StreamEncoder {
   }
 
   private class BitSet {
-    private byte[] bytes;
+    private final byte[] bytes;
     private boolean dirty = false;
-    private int numBits;
-    private int numBytes;
+    private final int numBits;
+    private final int numBytes;
 
     private BitSet(int numBits) {
       this.numBits = numBits;

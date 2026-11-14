@@ -48,6 +48,9 @@ import org.json.simple.parser.JSONParser;
  * dbfs:/} roots.
  */
 public final class RestDatabricksJobsClient implements DatabricksJobsClient {
+  private static final String CONST_JOB_ID = "job_id";
+  private static final String CONST_RUN_ID = "run_id";
+  private static final String CONST_HANDLE = "handle";
 
   private static final Duration TIMEOUT = Duration.ofSeconds(60);
   private static final Duration UPLOAD_TIMEOUT = Duration.ofMinutes(30);
@@ -138,7 +141,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   @Override
   public long runNow(long jobId, Map<String, String> notebookOrJarParams) throws HopException {
     JSONObject body = new JSONObject();
-    body.put("job_id", jobId);
+    body.put(CONST_JOB_ID, jobId);
     if (notebookOrJarParams != null && !notebookOrJarParams.isEmpty()) {
       // Jobs API: notebook_params / jar_params / python_params — use notebook_params as generic map
       JSONObject params = new JSONObject();
@@ -147,21 +150,21 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     }
     String response = postJson(apiBase + "/jobs/run-now", body.toJSONString());
     JSONObject json = parseObject(response);
-    return requireLong(json, "run_id");
+    return requireLong(json, CONST_RUN_ID);
   }
 
   @Override
   public long submitRun(String submitRunJsonBody) throws HopException {
     String response = postJson(apiBase + "/jobs/runs/submit", submitRunJsonBody);
     JSONObject json = parseObject(response);
-    return requireLong(json, "run_id");
+    return requireLong(json, CONST_RUN_ID);
   }
 
   @Override
   public long createJob(String createJobJsonBody) throws HopException {
     String response = postJson(apiBase + "/jobs/create", createJobJsonBody);
     JSONObject json = parseObject(response);
-    return requireLong(json, "job_id");
+    return requireLong(json, CONST_JOB_ID);
   }
 
   @Override
@@ -177,10 +180,10 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
                 + "/jobs/runs/get?run_id="
                 + URLEncoder.encode(Long.toString(runId), StandardCharsets.UTF_8));
     JSONObject json = parseObject(response);
-    long id = requireLong(json, "run_id");
+    long id = requireLong(json, CONST_RUN_ID);
     Long jobId = null;
-    if (json.get("job_id") != null) {
-      jobId = ((Number) json.get("job_id")).longValue();
+    if (json.get(CONST_JOB_ID) != null) {
+      jobId = ((Number) json.get(CONST_JOB_ID)).longValue();
     }
     String pageUrl = json.get("run_page_url") != null ? json.get("run_page_url").toString() : null;
     JSONObject state = (JSONObject) json.get("state");
@@ -204,7 +207,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   @Override
   public void cancelRun(long runId) throws HopException {
     JSONObject body = new JSONObject();
-    body.put("run_id", runId);
+    body.put(CONST_RUN_ID, runId);
     postJson(apiBase + "/jobs/runs/cancel", body.toJSONString());
   }
 
@@ -330,7 +333,7 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
       create.put("overwrite", true);
       String createResp = postJson("/api/2.0/dbfs/create", create.toJSONString(), UPLOAD_TIMEOUT);
       JSONObject createJson = parseObject(createResp);
-      long handle = requireLong(createJson, "handle");
+      long handle = requireLong(createJson, CONST_HANDLE);
 
       try (InputStream in = Files.newInputStream(localFile)) {
         byte[] buf = new byte[DBFS_BLOCK_BYTES];
@@ -341,14 +344,14 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
           }
           byte[] chunk = n == buf.length ? buf : java.util.Arrays.copyOf(buf, n);
           JSONObject add = new JSONObject();
-          add.put("handle", handle);
+          add.put(CONST_HANDLE, handle);
           add.put("data", Base64.getEncoder().encodeToString(chunk));
           postJson("/api/2.0/dbfs/add-block", add.toJSONString(), UPLOAD_TIMEOUT);
         }
       }
 
       JSONObject close = new JSONObject();
-      close.put("handle", handle);
+      close.put(CONST_HANDLE, handle);
       postJson("/api/2.0/dbfs/close", close.toJSONString(), UPLOAD_TIMEOUT);
     } catch (HopException e) {
       throw e;

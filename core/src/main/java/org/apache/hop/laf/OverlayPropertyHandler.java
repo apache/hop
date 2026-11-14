@@ -30,7 +30,7 @@ public class OverlayPropertyHandler implements IPropertyHandler {
 
   private static IPropertyHandler instance = null;
 
-  private LinkedList<OverlayProperties> propList = new LinkedList<>();
+  private final LinkedList<OverlayProperties> propList = new LinkedList<>();
 
   public OverlayPropertyHandler() {
     initProps();

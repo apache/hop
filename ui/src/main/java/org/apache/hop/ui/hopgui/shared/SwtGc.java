@@ -86,18 +86,18 @@ public class SwtGc implements IGc {
   protected Color hopTrue;
   protected Color deprecated;
 
-  private GC gc;
+  private final GC gc;
 
-  private int iconSize;
+  private final int iconSize;
 
-  private int miniIconSize;
+  private final int miniIconSize;
 
   private float currentMagnification = 1.0f;
 
-  private List<Color> colors;
-  private List<Font> fonts;
+  private final List<Color> colors;
+  private final List<Font> fonts;
 
-  private Point area;
+  private final Point area;
   private Transform transform;
 
   public SwtGc(GC gc, int width, int height, int iconSize) {

@@ -47,7 +47,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamOutput.class;
   private final BeamOutputMeta input;
 
-  private boolean getpreviousFields = false;
+  private final boolean getpreviousFields = false;
 
   private TextVar wOutputLocation;
   private MetaSelectionLine<FileDefinition> wFileDefinition;

@@ -54,6 +54,8 @@ import org.eclipse.swt.widgets.Shell;
 /** Create, edit, apply and persist named {@link TableView} column views and column filters. */
 public class TableViewColumnViewDialog extends Dialog {
   private static final Class<?> PKG = TableViewColumnViewDialog.class;
+  private static final String CONST_TABLE_VIEW_COLUMN_VIEW_DIALOG_TITLE =
+      "TableViewColumnViewDialog.Title";
 
   private final PropsUi props;
   private final TableView tableView;
@@ -96,7 +98,7 @@ public class TableViewColumnViewDialog extends Dialog {
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageView());
-    shell.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
+    shell.setText(BaseMessages.getString(PKG, CONST_TABLE_VIEW_COLUMN_VIEW_DIALOG_TITLE));
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -555,14 +557,14 @@ public class TableViewColumnViewDialog extends Dialog {
     List<String> shown = currentShownColumns();
     if (shown.isEmpty()) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_TABLE_VIEW_COLUMN_VIEW_DIALOG_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "TableViewColumnViewDialog.EmptyView.Message"));
       box.open();
       return;
     }
     if (!tableView.applyColumnView(shown, currentFilters)) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_TABLE_VIEW_COLUMN_VIEW_DIALOG_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "TableViewColumnViewDialog.NoMatch.Message"));
       box.open();
     }
@@ -801,7 +803,7 @@ public class TableViewColumnViewDialog extends Dialog {
     name = name.trim();
     if (name.isEmpty()) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-      box.setText(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_TABLE_VIEW_COLUMN_VIEW_DIALOG_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "TableViewColumnViewDialog.Name.Empty"));
       box.open();
       return null;

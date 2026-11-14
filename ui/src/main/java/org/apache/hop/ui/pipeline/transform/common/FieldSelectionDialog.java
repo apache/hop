@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 public class FieldSelectionDialog extends BaseDialog {
   private static final Class<?> PKG = FieldSelectionDialog.class;
 
-  private int numFields;
+  private final int numFields;
   protected boolean reloadAllFields;
 
   private static final int WIDTH = 360;

@@ -31,6 +31,9 @@ import org.apache.hop.core.util.Utils;
  * it is {@code INSERT}, {@code UPDATE}, {@code DELETE} or {@code MERGE}.
  */
 public final class SqlQueryClassifier {
+  private static final String CONST_REPLACE = "REPLACE";
+  private static final String CONST_MERGE = "MERGE";
+  private static final String CONST_ALTER = "ALTER";
 
   private static final Set<String> QUERY_STARTERS =
       Set.of("SELECT", "SHOW", "EXPLAIN", "DESCRIBE", "DESC", "VALUES", "TABLE");
@@ -40,7 +43,7 @@ public final class SqlQueryClassifier {
    * absent: it removes rows, not columns.
    */
   private static final Set<String> SCHEMA_CHANGE_VERBS =
-      Set.of("CREATE", "ALTER", "DROP", "RENAME");
+      Set.of("CREATE", CONST_ALTER, "DROP", "RENAME");
 
   /**
    * Keywords which are allowed between the verb and the object type, so that {@code CREATE OR
@@ -52,8 +55,8 @@ public final class SqlQueryClassifier {
   private static final Set<String> SCHEMA_CHANGE_MODIFIERS =
       Set.of(
           "OR",
-          "REPLACE",
-          "ALTER",
+          CONST_REPLACE,
+          CONST_ALTER,
           "TEMP",
           "TEMPORARY",
           "GLOBAL",
@@ -77,7 +80,7 @@ public final class SqlQueryClassifier {
           // CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW
           "ALGORITHM",
           "UNDEFINED",
-          "MERGE",
+          CONST_MERGE,
           "TEMPTABLE",
           "DEFINER",
           "SQL",
@@ -96,7 +99,7 @@ public final class SqlQueryClassifier {
 
   /** Verbs of statements that insert, update or delete rows. */
   private static final Set<String> ROW_CHANGE_VERBS =
-      Set.of("INSERT", "UPDATE", "DELETE", "MERGE", "UPSERT", "REPLACE");
+      Set.of("INSERT", "UPDATE", "DELETE", CONST_MERGE, "UPSERT", CONST_REPLACE);
 
   /** Object types whose layout is reflected in cached row metadata. */
   private static final Set<String> SCHEMA_CHANGE_OBJECTS = Set.of("TABLE", "VIEW", "SYNONYM");
@@ -117,10 +120,10 @@ public final class SqlQueryClassifier {
             "INSERT",
             "UPDATE",
             "DELETE",
-            "MERGE",
+            CONST_MERGE,
             "CREATE",
             "DROP",
-            "ALTER",
+            CONST_ALTER,
             "TRUNCATE",
             "GRANT",
             "REVOKE",
@@ -146,7 +149,7 @@ public final class SqlQueryClassifier {
             "UNLOAD",
             "REFRESH",
             "OPTIMIZE",
-            "REPLACE",
+            CONST_REPLACE,
             "UPSERT",
             "LOCK",
             "UNLOCK",

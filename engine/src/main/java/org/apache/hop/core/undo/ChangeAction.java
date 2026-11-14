@@ -85,7 +85,7 @@ public class ChangeAction {
     PositionTableRow(BaseMessages.getString(PKG, "TransAction.label.PositionTableRow")),
     ;
 
-    private String description;
+    private final String description;
 
     private ActionType(String description) {
       this.description = description;

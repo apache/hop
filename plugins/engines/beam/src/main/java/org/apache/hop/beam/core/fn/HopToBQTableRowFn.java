@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow> {
 
-  private String counterName;
-  private String rowMetaJson;
+  private final String counterName;
+  private final String rowMetaJson;
 
   private transient IRowMeta rowMeta;
   private transient Counter initCounter;

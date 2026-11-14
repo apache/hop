@@ -29,7 +29,7 @@ import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 
 public class AzureCustomFileNameParser extends HostFileNameParser {
-  private String prefix;
+  private final String prefix;
 
   public AzureCustomFileNameParser(String prefix) {
     super(443);

@@ -70,6 +70,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 @Getter
 @Setter
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
+  private static final String CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY =
+      "TableInput.Exception.SpecifyFieldsEmpty";
 
   private static final Class<?> PKG = TableInputMeta.class;
 
@@ -368,7 +370,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
             cr =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
-                    BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"),
+                    BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY),
                     transformMeta);
             remarks.add(cr);
           } else {
@@ -632,7 +634,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       throws HopTransformException {
     if (Utils.isEmpty(fields)) {
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+          BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY));
     }
     boolean added = false;
     try {
@@ -649,7 +651,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
     if (!added) {
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+          BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY));
     }
   }
 

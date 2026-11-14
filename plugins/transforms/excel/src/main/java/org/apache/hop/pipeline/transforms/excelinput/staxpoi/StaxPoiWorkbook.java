@@ -60,7 +60,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
   private static final String RELATION_NS_URI =
       "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   private XSSFReader reader;
 
@@ -70,7 +70,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
   private String[] sheetNames;
 
   // mapping of the sheet object with its ID/Name
-  private Map<String, StaxPoiSheet> openSheetsMap;
+  private final Map<String, StaxPoiSheet> openSheetsMap;
 
   private OPCPackage opcpkg;
   private IVariables variables;

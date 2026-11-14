@@ -50,7 +50,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
   private TextVar wIdField;
   private TextVar wPropertySetField;
 
-  private SplitGraphMeta input;
+  private final SplitGraphMeta input;
 
   public SplitGraphDialog(
       Shell parent, IVariables variables, SplitGraphMeta inputMetadata, PipelineMeta pipelineMeta) {
@@ -94,7 +94,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
 
     Control lastControl = wSpacer;
 
-    String[] fieldnames = new String[] {};
+    String[] fieldnames = {};
     try {
       fieldnames = pipelineMeta.getPrevTransformFields(variables, transformMeta).getFieldNames();
     } catch (HopTransformException e) {

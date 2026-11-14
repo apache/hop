@@ -39,6 +39,8 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, StanfordSimpleNlpData> {
+  private static final String CONST_STANFORD_SIMPLE_NLP_EXCEPTION_COULDNOT_FIND_FIELD =
+      "StanfordSimpleNlp.Exception.CouldnotFindField";
   public static final int OVER_ALLOCATE_SIZE = 10;
   private static final Class<?> PKG = StanfordSimpleNlp.class; // For Translator
   private final int cores = Runtime.getRuntime().availableProcessors();
@@ -192,7 +194,9 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
         // The field is unreachable !
         throw new HopException(
             BaseMessages.getString(
-                PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", meta.getCorpusField()));
+                PKG,
+                CONST_STANFORD_SIMPLE_NLP_EXCEPTION_COULDNOT_FIND_FIELD,
+                meta.getCorpusField()));
       }
     }
 
@@ -203,7 +207,8 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
         if (data.indexOfMap.getOrDefault(field, -1) < 0) {
           // The field is unreachable!
           throw new HopException(
-              BaseMessages.getString(PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
+              BaseMessages.getString(
+                  PKG, CONST_STANFORD_SIMPLE_NLP_EXCEPTION_COULDNOT_FIND_FIELD, field));
         }
       }
     }
@@ -217,7 +222,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
             // The field is unreachable!
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
+                    PKG, CONST_STANFORD_SIMPLE_NLP_EXCEPTION_COULDNOT_FIND_FIELD, field));
           }
         }
       }
@@ -230,7 +235,7 @@ public class StanfordSimpleNlp extends BaseTransform<StanfordSimpleNlpMeta, Stan
             // The field is unreachable!
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "StanfordSimpleNlp.Exception.CouldnotFindField", field));
+                    PKG, CONST_STANFORD_SIMPLE_NLP_EXCEPTION_COULDNOT_FIND_FIELD, field));
           }
         }
       }

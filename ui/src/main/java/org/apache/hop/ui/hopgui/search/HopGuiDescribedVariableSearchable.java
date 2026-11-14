@@ -27,8 +27,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 
 public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedVariable> {
-  private DescribedVariable describedVariable;
-  private String configFilename;
+  private final DescribedVariable describedVariable;
+  private final String configFilename;
 
   public HopGuiDescribedVariableSearchable(
       DescribedVariable describedVariable, String configFilename) {

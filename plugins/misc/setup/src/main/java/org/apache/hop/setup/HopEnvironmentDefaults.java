@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Platform-specific recommended folders and persistence targets. */
 public final class HopEnvironmentDefaults {
+  private static final String CONST_DEFAULT = "default";
 
   /** Launcher fallback when {@code HOP_CONFIG_FOLDER} is unset ({@code <install>/config}). */
   public static final String INSTALL_CONFIG_FOLDER = "./config";
@@ -94,12 +95,12 @@ public final class HopEnvironmentDefaults {
    */
   public static String recommendedDefaultProjectHome(OsFamily os, UserPaths paths) {
     if (os.isWindows()) {
-      return paths.getHome().resolve("Documents").resolve("Hop").resolve("default").toString();
+      return paths.getHome().resolve("Documents").resolve("Hop").resolve(CONST_DEFAULT).toString();
     }
     if (os.isOsx()) {
-      return paths.getHome().resolve("hop").resolve("default").toString();
+      return paths.getHome().resolve("hop").resolve(CONST_DEFAULT).toString();
     }
-    return paths.getHome().resolve("Documents").resolve("hop").resolve("default").toString();
+    return paths.getHome().resolve("Documents").resolve("hop").resolve(CONST_DEFAULT).toString();
   }
 
   public static String recommendedProjectsFolder(OsFamily os, UserPaths paths) {

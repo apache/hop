@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 public class ResetTypeDialog extends Dialog {
   private static final Class<?> PKG = GitGuiPlugin.class;
 
-  private AtomicReference<ResetType> resetType = new AtomicReference<>(ResetType.MIXED);
+  private final AtomicReference<ResetType> resetType = new AtomicReference<>(ResetType.MIXED);
 
   private Shell shell;
 

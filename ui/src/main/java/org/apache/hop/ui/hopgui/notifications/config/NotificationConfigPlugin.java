@@ -61,6 +61,9 @@ import org.eclipse.swt.widgets.TableItem;
  */
 @GuiPlugin(description = "Notifications") // Required for @GuiTab discovery
 public class NotificationConfigPlugin {
+  private static final String CONST_NOTIFICATION_CONFIG_PLUGIN_YES = "NotificationConfigPlugin.Yes";
+  private static final String CONST_NOTIFICATION_CONFIG_PLUGIN_ERROR_TITLE =
+      "NotificationConfigPlugin.Error.Title";
 
   private static final Class<?> PKG = NotificationConfigPlugin.class;
   private static final String CONFIG_KEY_ENABLE_NOTIFICATIONS = "notification.system.enabled";
@@ -209,7 +212,7 @@ public class NotificationConfigPlugin {
         NotificationSourceConfig.SourceType.CUSTOM_PLUGIN.getDisplayName(),
       };
 
-      String yesLabel = BaseMessages.getString(PKG, "NotificationConfigPlugin.Yes");
+      String yesLabel = BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_YES);
       String noLabel = BaseMessages.getString(PKG, "NotificationConfigPlugin.No");
       ColumnInfo[] columns = {
         new ColumnInfo(
@@ -407,7 +410,7 @@ public class NotificationConfigPlugin {
     if (sources == null) {
       loadSources();
     }
-    String yesLabel = BaseMessages.getString(PKG, "NotificationConfigPlugin.Yes");
+    String yesLabel = BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_YES);
     String noLabel = BaseMessages.getString(PKG, "NotificationConfigPlugin.No");
     wSourcesTable.table.removeAll();
     for (NotificationSourceConfig source : sources) {
@@ -514,7 +517,7 @@ public class NotificationConfigPlugin {
     } catch (Exception e) {
       new ErrorDialog(
           wSourcesTable.getShell(),
-          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_ERROR_TITLE),
           BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveSources"),
           e);
     }
@@ -530,7 +533,7 @@ public class NotificationConfigPlugin {
     } catch (Exception e) {
       new ErrorDialog(
           wSourcesTable.getShell(),
-          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_ERROR_TITLE),
           BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveEnabled"),
           e);
     }
@@ -569,7 +572,7 @@ public class NotificationConfigPlugin {
     } catch (Exception e) {
       new ErrorDialog(
           wSourcesTable.getShell(),
-          BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.Title"),
+          BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_ERROR_TITLE),
           BaseMessages.getString(PKG, "NotificationConfigPlugin.Error.SaveOptions"),
           e);
     }
@@ -656,7 +659,7 @@ public class NotificationConfigPlugin {
 
       String enabledStr = item.getText(3);
       source.setEnabled(
-          BaseMessages.getString(PKG, "NotificationConfigPlugin.Yes").equals(enabledStr));
+          BaseMessages.getString(PKG, CONST_NOTIFICATION_CONFIG_PLUGIN_YES).equals(enabledStr));
 
       // For Details column, if it's a GitHub URL, parse it
       String details = item.getText(4);

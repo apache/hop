@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 public class ExecuteTestsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecuteTestsDialog.class;
 
-  private ExecuteTestsMeta input;
+  private final ExecuteTestsMeta input;
 
   private Combo wTestNameInputField;
   private Combo wTypeToExecute;
@@ -75,7 +75,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    String[] inputFieldNames = new String[] {};
+    String[] inputFieldNames = {};
     hasPreviousTransforms = false;
     try {
       TransformMeta[] prevTransforms = pipelineMeta.getPrevTransforms(transformMeta);

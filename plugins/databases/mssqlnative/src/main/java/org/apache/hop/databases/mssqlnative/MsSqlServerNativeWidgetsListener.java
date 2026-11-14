@@ -60,13 +60,12 @@ public class MsSqlServerNativeWidgetsListener implements IGuiPluginCompositeWidg
 
   private void enableField(GuiCompositeWidgets compositeWidgets) {
     List<Control> controls = new ArrayList<>();
-    String[] ids =
-        new String[] {
-          BaseDatabaseMeta.ID_USERNAME_LABEL,
-          BaseDatabaseMeta.ID_USERNAME_WIDGET,
-          BaseDatabaseMeta.ID_PASSWORD_LABEL,
-          BaseDatabaseMeta.ID_PASSWORD_WIDGET,
-        };
+    String[] ids = {
+      BaseDatabaseMeta.ID_USERNAME_LABEL,
+      BaseDatabaseMeta.ID_USERNAME_WIDGET,
+      BaseDatabaseMeta.ID_PASSWORD_LABEL,
+      BaseDatabaseMeta.ID_PASSWORD_WIDGET,
+    };
     for (String id : ids) {
       Control control = compositeWidgets.getWidgetsMap().get(id);
       if (control != null) {

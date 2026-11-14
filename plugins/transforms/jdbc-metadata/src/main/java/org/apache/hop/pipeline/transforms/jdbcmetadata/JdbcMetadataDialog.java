@@ -57,10 +57,10 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class JdbcMetadataDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JdbcMetadataMeta.class; // for i18n purposes
-  private JdbcMetadataMeta input;
+  private final JdbcMetadataMeta input;
 
-  private int middle = props.getMiddlePct();
-  private int margin = PropsUi.getMargin();
+  private final int middle = props.getMiddlePct();
+  private final int margin = PropsUi.getMargin();
   private boolean dialogChanged;
   private ModifyListener lsMod;
   private Composite metadataComposite;
@@ -492,15 +492,13 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     outputFieldsTableViewLabelFormData.top = new FormAttachment(0, margin);
     outputFieldsTableViewLabel.setLayoutData(outputFieldsTableViewLabelFormData);
 
-    ColumnInfo[] columnInfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "JdbcMetadata.FieldName.Label"),
-              ColumnInfo.COLUMN_TYPE_NONE),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "JdbcMetadata.OutputFieldName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT)
-        };
+    ColumnInfo[] columnInfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "JdbcMetadata.FieldName.Label"), ColumnInfo.COLUMN_TYPE_NONE),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "JdbcMetadata.OutputFieldName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT)
+    };
     outputFieldsTableView =
         new TableView(
             variables,

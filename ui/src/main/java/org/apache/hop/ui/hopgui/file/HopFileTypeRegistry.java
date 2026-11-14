@@ -35,7 +35,7 @@ public class HopFileTypeRegistry {
 
   private static HopFileTypeRegistry hopFileTypeRegistry;
 
-  private List<IHopFileType> hopFileTypes;
+  private final List<IHopFileType> hopFileTypes;
   private boolean pluginsLoaded;
 
   private HopFileTypeRegistry() {

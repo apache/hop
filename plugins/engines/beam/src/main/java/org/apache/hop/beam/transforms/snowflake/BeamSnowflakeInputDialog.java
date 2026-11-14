@@ -97,20 +97,19 @@ public class BeamSnowflakeInputDialog extends BaseTransformDialog {
   }
 
   private void addFieldsTable(Composite parent) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamSnowflakeInput.Fields.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamSnowflakeInput.Fields.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                "String", "Integer", "Number", "BigNumber", "Boolean", "Date", "Timestamp", "Binary"
-              },
-              true)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamSnowflakeInput.Fields.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamSnowflakeInput.Fields.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            "String", "Integer", "Number", "BigNumber", "Boolean", "Date", "Timestamp", "Binary"
+          },
+          true)
+    };
     int rows = input.getFields() == null ? 0 : input.getFields().size();
     wFields =
         new TableView(

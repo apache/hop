@@ -244,8 +244,8 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
         "CONCAT_DISTINCT",
         BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.CONCAT_DISTINCT"));
 
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     private GroupType(String code, String description) {
       this.code = code;

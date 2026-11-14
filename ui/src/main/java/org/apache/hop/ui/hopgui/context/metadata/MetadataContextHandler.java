@@ -40,10 +40,10 @@ public class MetadataContextHandler implements IGuiContextHandler {
   public static final String CONTEXT_ID = "HopGuiMetadataContext";
   public static final String CONST_METADATA = "Metadata";
 
-  private HopGui hopGui;
-  private IHopMetadataProvider metadataProvider;
-  private Class<? extends IHopMetadata> metadataObjectClass;
-  private MetadataManager<? extends IHopMetadata> metadataManager;
+  private final HopGui hopGui;
+  private final IHopMetadataProvider metadataProvider;
+  private final Class<? extends IHopMetadata> metadataObjectClass;
+  private final MetadataManager<? extends IHopMetadata> metadataManager;
 
   public MetadataContextHandler(
       HopGui hopGui,

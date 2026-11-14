@@ -148,59 +148,58 @@ public class DenormaliserDialog extends BaseTransformDialog {
             ? input.getDenormaliserTargetFields().size()
             : 1);
 
-    final ColumnInfo[] ciTarget =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.TargetFieldname"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.ValueFieldname"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Keyvalue"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              4),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.NullIf"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Aggregation"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              DenormaliserTargetField.DenormaliseAggregation.getDescriptions(),
-              false),
-        };
+    final ColumnInfo[] ciTarget = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.TargetFieldname"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.ValueFieldname"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Keyvalue"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          4),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Decimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Group"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.NullIf"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DenormaliserDialog.ColumnInfo.Aggregation"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          DenormaliserTargetField.DenormaliseAggregation.getDescriptions(),
+          false),
+    };
 
     ciTarget[ciTarget.length - 1].setToolTip(
         BaseMessages.getString(PKG, "DenormaliserDialog.CiTarget.Title"));

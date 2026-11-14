@@ -41,6 +41,12 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
  * object and rewrites hop-config without those secrets.
  */
 public final class HopAiLegacyConfigMigrator {
+  private static final String CONST_OPENAI = "openai";
+  private static final String CONST_GOOGLE_GEMINI = "google-gemini";
+  private static final String CONST_ANTHROPIC = "anthropic";
+  private static final String CONST_OLLAMA = "ollama";
+  private static final String CONST_HUGGING_FACE = "hugging-face";
+  private static final String CONST_MISTRAL = "mistral";
 
   private static final AtomicBoolean migrated = new AtomicBoolean();
 
@@ -125,12 +131,12 @@ public final class HopAiLegacyConfigMigrator {
     }
     return switch (preset.trim().toUpperCase()) {
       case "GROK" -> "grok";
-      case "OPENAI" -> "openai";
-      case "GOOGLE_GEMINI", "GEMINI" -> "google-gemini";
-      case "ANTHROPIC" -> "anthropic";
-      case "OLLAMA" -> "ollama";
-      case "HUGGING_FACE", "HUGGINGFACE" -> "hugging-face";
-      case "MISTRAL" -> "mistral";
+      case "OPENAI" -> CONST_OPENAI;
+      case "GOOGLE_GEMINI", "GEMINI" -> CONST_GOOGLE_GEMINI;
+      case "ANTHROPIC" -> CONST_ANTHROPIC;
+      case "OLLAMA" -> CONST_OLLAMA;
+      case "HUGGING_FACE", "HUGGINGFACE" -> CONST_HUGGING_FACE;
+      case "MISTRAL" -> CONST_MISTRAL;
       default -> "openai-custom";
     };
   }
@@ -138,12 +144,12 @@ public final class HopAiLegacyConfigMigrator {
   static String displayName(String pluginId) {
     return switch (pluginId) {
       case "grok" -> "Grok (xAI)";
-      case "openai" -> "OpenAI";
-      case "google-gemini" -> "Google (Gemini)";
-      case "anthropic" -> "Anthropic";
-      case "ollama" -> "Ollama";
-      case "hugging-face" -> "Hugging Face";
-      case "mistral" -> "Mistral";
+      case CONST_OPENAI -> "OpenAI";
+      case CONST_GOOGLE_GEMINI -> "Google (Gemini)";
+      case CONST_ANTHROPIC -> "Anthropic";
+      case CONST_OLLAMA -> "Ollama";
+      case CONST_HUGGING_FACE -> "Hugging Face";
+      case CONST_MISTRAL -> "Mistral";
       default -> "Custom (OpenAI compatible)";
     };
   }
@@ -151,12 +157,12 @@ public final class HopAiLegacyConfigMigrator {
   static IAiProvider newBackend(String pluginId) {
     return switch (pluginId) {
       case "grok" -> new GrokProvider();
-      case "openai" -> new OpenAiProvider();
-      case "google-gemini" -> new GeminiProvider();
-      case "anthropic" -> new AnthropicProvider();
-      case "ollama" -> new OllamaProvider();
-      case "hugging-face" -> new HuggingFaceProvider();
-      case "mistral" -> new MistralProvider();
+      case CONST_OPENAI -> new OpenAiProvider();
+      case CONST_GOOGLE_GEMINI -> new GeminiProvider();
+      case CONST_ANTHROPIC -> new AnthropicProvider();
+      case CONST_OLLAMA -> new OllamaProvider();
+      case CONST_HUGGING_FACE -> new HuggingFaceProvider();
+      case CONST_MISTRAL -> new MistralProvider();
       default -> new CustomOpenAiProvider();
     };
   }

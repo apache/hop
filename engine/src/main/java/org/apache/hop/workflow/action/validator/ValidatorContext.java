@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class ValidatorContext {
 
-  private Map<String, Object> map = new HashMap<>();
+  private final Map<String, Object> map = new HashMap<>();
 
   public Map<String, Object> getMap() {
     return map;

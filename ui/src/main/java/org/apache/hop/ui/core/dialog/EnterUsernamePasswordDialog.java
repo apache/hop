@@ -44,7 +44,7 @@ public class EnterUsernamePasswordDialog extends Dialog {
 
   private Shell shell;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private boolean mandatory;
 

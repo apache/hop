@@ -44,6 +44,30 @@ import org.apache.hop.workflow.action.ActionMeta;
  * meaning are made; anything else is left for the validator to report.
  */
 public final class AiProposalNormalizer {
+  private static final String CONST_ADD_TRANSFORM = "ADD_TRANSFORM";
+  private static final String CONST_ADD_ACTION = "ADD_ACTION";
+  private static final String CONST_DELETE_TRANSFORM = "DELETE_TRANSFORM";
+  private static final String CONST_DELETE_ACTION = "DELETE_ACTION";
+  private static final String CONST_RENAME_TRANSFORM = "RENAME_TRANSFORM";
+  private static final String CONST_RENAME_ACTION = "RENAME_ACTION";
+  private static final String CONST_ADD_PIPELINE_HOP = "ADD_PIPELINE_HOP";
+  private static final String CONST_ADD_WORKFLOW_HOP = "ADD_WORKFLOW_HOP";
+  private static final String CONST_DELETE_PIPELINE_HOP = "DELETE_PIPELINE_HOP";
+  private static final String CONST_DELETE_WORKFLOW_HOP = "DELETE_WORKFLOW_HOP";
+  private static final String CONST_SET_ACTION_LOCATION = "SET_ACTION_LOCATION";
+  private static final String CONST_SET_TRANSFORM_LOCATION = "SET_TRANSFORM_LOCATION";
+  private static final String CONST_CONFIGURE_ACTION = "CONFIGURE_ACTION";
+  private static final String CONST_CONFIGURE_TRANSFORM = "CONFIGURE_TRANSFORM";
+  private static final String CONST_REPLACE_TRANSFORM = "REPLACE_TRANSFORM";
+  private static final String CONST_REPLACE_ACTION = "REPLACE_ACTION";
+  private static final String CONST_ACTION_PLUGIN_ID = "actionPluginId";
+  private static final String CONST_TRANSFORM_PLUGIN_ID = "transformPluginId";
+  private static final String CONST_TRANSFORM_NAME = "transformName";
+  private static final String CONST_ACTION_NAME = "actionName";
+  private static final String CONST_FROM_TRANSFORM = "fromTransform";
+  private static final String CONST_FROM_ACTION = "fromAction";
+  private static final String CONST_TO_TRANSFORM = "toTransform";
+  private static final String CONST_TO_ACTION = "toAction";
 
   private static final int STEP_X = 160;
   private static final int DEFAULT_X = 100;
@@ -67,41 +91,41 @@ public final class AiProposalNormalizer {
 
   public static void forPipeline(PipelineMeta pipelineMeta, List<AiProposal> proposals) {
     Map<String, String> types = new HashMap<>();
-    types.put("ADD_ACTION", "ADD_TRANSFORM");
-    types.put("DELETE_ACTION", "DELETE_TRANSFORM");
-    types.put("RENAME_ACTION", "RENAME_TRANSFORM");
-    types.put("ADD_WORKFLOW_HOP", "ADD_PIPELINE_HOP");
-    types.put("DELETE_WORKFLOW_HOP", "DELETE_PIPELINE_HOP");
-    types.put("SET_ACTION_LOCATION", "SET_TRANSFORM_LOCATION");
+    types.put(CONST_ADD_ACTION, CONST_ADD_TRANSFORM);
+    types.put(CONST_DELETE_ACTION, CONST_DELETE_TRANSFORM);
+    types.put(CONST_RENAME_ACTION, CONST_RENAME_TRANSFORM);
+    types.put(CONST_ADD_WORKFLOW_HOP, CONST_ADD_PIPELINE_HOP);
+    types.put(CONST_DELETE_WORKFLOW_HOP, CONST_DELETE_PIPELINE_HOP);
+    types.put(CONST_SET_ACTION_LOCATION, CONST_SET_TRANSFORM_LOCATION);
     types.put("ADD_WORKFLOW_NOTE", "ADD_PIPELINE_NOTE");
-    types.put("CONFIGURE_ACTION", "CONFIGURE_TRANSFORM");
+    types.put(CONST_CONFIGURE_ACTION, CONST_CONFIGURE_TRANSFORM);
     types.put("CLIPBOARD_ACTIONS", "CLIPBOARD_TRANSFORMS");
-    types.put("REPLACE_ACTION", "REPLACE_TRANSFORM");
-    types.put("ADD_HOP", "ADD_PIPELINE_HOP");
-    types.put("DELETE_HOP", "DELETE_PIPELINE_HOP");
+    types.put(CONST_REPLACE_ACTION, CONST_REPLACE_TRANSFORM);
+    types.put("ADD_HOP", CONST_ADD_PIPELINE_HOP);
+    types.put("DELETE_HOP", CONST_DELETE_PIPELINE_HOP);
     Map<String, String> keys = new HashMap<>();
-    keys.put("actionPluginId", "transformPluginId");
-    keys.put("actionName", "transformName");
-    keys.put("fromAction", "fromTransform");
-    keys.put("toAction", "toTransform");
-    commonKeys(keys, "transformPluginId", "fromTransform", "toTransform");
+    keys.put(CONST_ACTION_PLUGIN_ID, CONST_TRANSFORM_PLUGIN_ID);
+    keys.put(CONST_ACTION_NAME, CONST_TRANSFORM_NAME);
+    keys.put(CONST_FROM_ACTION, CONST_FROM_TRANSFORM);
+    keys.put(CONST_TO_ACTION, CONST_TO_TRANSFORM);
+    commonKeys(keys, CONST_TRANSFORM_PLUGIN_ID, CONST_FROM_TRANSFORM, CONST_TO_TRANSFORM);
     normalize(
         proposals,
         new Kind(
             types,
             keys,
-            "ADD_TRANSFORM",
-            "ADD_PIPELINE_HOP",
-            "transformPluginId",
-            "fromTransform",
-            "toTransform",
-            "transformName",
+            CONST_ADD_TRANSFORM,
+            CONST_ADD_PIPELINE_HOP,
+            CONST_TRANSFORM_PLUGIN_ID,
+            CONST_FROM_TRANSFORM,
+            CONST_TO_TRANSFORM,
+            CONST_TRANSFORM_NAME,
             Set.of(
-                "DELETE_TRANSFORM",
-                "RENAME_TRANSFORM",
-                "CONFIGURE_TRANSFORM",
-                "SET_TRANSFORM_LOCATION",
-                "REPLACE_TRANSFORM"),
+                CONST_DELETE_TRANSFORM,
+                CONST_RENAME_TRANSFORM,
+                CONST_CONFIGURE_TRANSFORM,
+                CONST_SET_TRANSFORM_LOCATION,
+                CONST_REPLACE_TRANSFORM),
             TransformPluginType.class,
             name -> {
               TransformMeta transform =
@@ -118,41 +142,41 @@ public final class AiProposalNormalizer {
 
   public static void forWorkflow(WorkflowMeta workflowMeta, List<AiProposal> proposals) {
     Map<String, String> types = new HashMap<>();
-    types.put("ADD_TRANSFORM", "ADD_ACTION");
-    types.put("DELETE_TRANSFORM", "DELETE_ACTION");
-    types.put("RENAME_TRANSFORM", "RENAME_ACTION");
-    types.put("ADD_PIPELINE_HOP", "ADD_WORKFLOW_HOP");
-    types.put("DELETE_PIPELINE_HOP", "DELETE_WORKFLOW_HOP");
-    types.put("SET_TRANSFORM_LOCATION", "SET_ACTION_LOCATION");
+    types.put(CONST_ADD_TRANSFORM, CONST_ADD_ACTION);
+    types.put(CONST_DELETE_TRANSFORM, CONST_DELETE_ACTION);
+    types.put(CONST_RENAME_TRANSFORM, CONST_RENAME_ACTION);
+    types.put(CONST_ADD_PIPELINE_HOP, CONST_ADD_WORKFLOW_HOP);
+    types.put(CONST_DELETE_PIPELINE_HOP, CONST_DELETE_WORKFLOW_HOP);
+    types.put(CONST_SET_TRANSFORM_LOCATION, CONST_SET_ACTION_LOCATION);
     types.put("ADD_PIPELINE_NOTE", "ADD_WORKFLOW_NOTE");
-    types.put("CONFIGURE_TRANSFORM", "CONFIGURE_ACTION");
+    types.put(CONST_CONFIGURE_TRANSFORM, CONST_CONFIGURE_ACTION);
     types.put("CLIPBOARD_TRANSFORMS", "CLIPBOARD_ACTIONS");
-    types.put("REPLACE_TRANSFORM", "REPLACE_ACTION");
-    types.put("ADD_HOP", "ADD_WORKFLOW_HOP");
-    types.put("DELETE_HOP", "DELETE_WORKFLOW_HOP");
+    types.put(CONST_REPLACE_TRANSFORM, CONST_REPLACE_ACTION);
+    types.put("ADD_HOP", CONST_ADD_WORKFLOW_HOP);
+    types.put("DELETE_HOP", CONST_DELETE_WORKFLOW_HOP);
     Map<String, String> keys = new HashMap<>();
-    keys.put("transformPluginId", "actionPluginId");
-    keys.put("transformName", "actionName");
-    keys.put("fromTransform", "fromAction");
-    keys.put("toTransform", "toAction");
-    commonKeys(keys, "actionPluginId", "fromAction", "toAction");
+    keys.put(CONST_TRANSFORM_PLUGIN_ID, CONST_ACTION_PLUGIN_ID);
+    keys.put(CONST_TRANSFORM_NAME, CONST_ACTION_NAME);
+    keys.put(CONST_FROM_TRANSFORM, CONST_FROM_ACTION);
+    keys.put(CONST_TO_TRANSFORM, CONST_TO_ACTION);
+    commonKeys(keys, CONST_ACTION_PLUGIN_ID, CONST_FROM_ACTION, CONST_TO_ACTION);
     normalize(
         proposals,
         new Kind(
             types,
             keys,
-            "ADD_ACTION",
-            "ADD_WORKFLOW_HOP",
-            "actionPluginId",
-            "fromAction",
-            "toAction",
-            "actionName",
+            CONST_ADD_ACTION,
+            CONST_ADD_WORKFLOW_HOP,
+            CONST_ACTION_PLUGIN_ID,
+            CONST_FROM_ACTION,
+            CONST_TO_ACTION,
+            CONST_ACTION_NAME,
             Set.of(
-                "DELETE_ACTION",
-                "RENAME_ACTION",
-                "CONFIGURE_ACTION",
-                "SET_ACTION_LOCATION",
-                "REPLACE_ACTION"),
+                CONST_DELETE_ACTION,
+                CONST_RENAME_ACTION,
+                CONST_CONFIGURE_ACTION,
+                CONST_SET_ACTION_LOCATION,
+                CONST_REPLACE_ACTION),
             ActionPluginType.class,
             name -> {
               ActionMeta action = workflowMeta == null ? null : workflowMeta.findAction(name);

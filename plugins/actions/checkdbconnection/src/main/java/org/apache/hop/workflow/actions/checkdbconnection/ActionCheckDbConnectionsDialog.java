@@ -107,23 +107,22 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
 
     final int fieldsRows = action.getConnections().size();
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              this.getWorkflowMeta().getDatabaseNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.WaitFor.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.WaitForTime.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionCheckDbConnections.WaitTimeUnit.getDescriptions(),
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          this.getWorkflowMeta().getDatabaseNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.WaitFor.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.WaitForTime.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ActionCheckDbConnections.WaitTimeUnit.getDescriptions(),
+          false),
+    };
 
     columns[0].setUsingVariables(true);
     columns[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Column"));

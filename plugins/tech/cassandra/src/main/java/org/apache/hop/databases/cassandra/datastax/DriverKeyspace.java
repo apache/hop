@@ -42,7 +42,7 @@ import org.apache.hop.databases.cassandra.util.CassandraUtils;
 public class DriverKeyspace implements Keyspace {
 
   protected DriverConnection conn;
-  private KeyspaceMetadata meta;
+  private final KeyspaceMetadata meta;
   private String name;
 
   public DriverKeyspace(DriverConnection conn, KeyspaceMetadata keyspace) {

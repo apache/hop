@@ -50,6 +50,17 @@ import org.apache.hop.workflow.action.ActionMeta;
 
 /** Executes custom lint rules against Hop objects */
 public class CustomRuleExecutor {
+  private static final String CONST_BOOLEAN = "boolean";
+  private static final String CONST_ERROR_HANDLING = "errorHandling";
+  private static final String CONST_STRING = "String";
+  private static final String CONST_PLUGIN_ID = "pluginId";
+  private static final String CONST_HAS_DEFAULT_NAME = "hasDefaultName";
+  private static final String CONST_IS_ORPHANED = "isOrphaned";
+  private static final String CONST_PASSWORD = "password";
+  private static final String CONST_SECRET = "secret";
+  private static final String CONST_CREDENTIAL = "credential";
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_ERROR_EXTRACTING_FIELD = "Error extracting field ";
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -140,9 +151,9 @@ public class CustomRuleExecutor {
       // For password field pattern matching, check multiple fields
       if (rule.getTarget() == RuleTarget.TRANSFORM || rule.getTarget() == RuleTarget.ACTION) {
         if (rule.getCondition() == RuleCondition.NO_HARDCODED
-            && (rule.getTargetField().equals("password")
-                || rule.getTargetField().equals("secret")
-                || rule.getTargetField().equals("credential"))) {
+            && (rule.getTargetField().equals(CONST_PASSWORD)
+                || rule.getTargetField().equals(CONST_SECRET)
+                || rule.getTargetField().equals(CONST_CREDENTIAL))) {
           // Check all password-related fields
           results.addAll(checkPasswordFields(rule, hopObject, fileName));
           return results;
@@ -372,7 +383,7 @@ public class CustomRuleExecutor {
         switch (fieldName) {
           case "name":
             return pipeline.getName();
-          case "description":
+          case CONST_DESCRIPTION:
             return pipeline.getDescription();
           case "transformCount":
             return pipeline.getTransforms().size();
@@ -399,7 +410,7 @@ public class CustomRuleExecutor {
         switch (fieldName) {
           case "name":
             return workflow.getName();
-          case "description":
+          case CONST_DESCRIPTION:
             return workflow.getDescription();
           case "actionCount":
             return workflow.getActions().size();
@@ -426,11 +437,11 @@ public class CustomRuleExecutor {
         switch (fieldName) {
           case "name":
             return dbMeta.getName();
-          case "description":
+          case CONST_DESCRIPTION:
             // DatabaseMeta has no dedicated description field; expose it via
             // a custom connection attribute if one was set.
             return dbMeta.getAttributes() != null
-                ? dbMeta.getAttributes().getOrDefault("description", "")
+                ? dbMeta.getAttributes().getOrDefault(CONST_DESCRIPTION, "")
                 : "";
           case "databaseType":
             return dbMeta.getPluginId();
@@ -442,7 +453,7 @@ public class CustomRuleExecutor {
             return dbMeta.getDatabaseName();
           case "username":
             return dbMeta.getUsername();
-          case "password":
+          case CONST_PASSWORD:
             return dbMeta.getPassword();
           case "servername":
             return dbMeta.getServername();
@@ -504,7 +515,7 @@ public class CustomRuleExecutor {
       }
     } catch (Exception e) {
       log.logError(
-          "Error extracting field "
+          CONST_ERROR_EXTRACTING_FIELD
               + fieldName
               + " from "
               + (hopObject != null ? hopObject.getClass().getSimpleName() : "null")
@@ -537,31 +548,50 @@ public class CustomRuleExecutor {
    */
   public static final Map<String, String> TRANSFORM_FIELDS =
       orderedFields(
-          "name", "String",
-          "description", "String",
-          "pluginId", "String",
-          "copies", "int",
-          "distributes", "boolean",
-          "errorHandling", "boolean",
-          "targetTransforms", "List",
-          "isDummy", "boolean",
-          "hasDefaultName", "boolean",
-          "isOrphaned", "boolean",
-          "isBlockingTransform", "boolean");
+          "name",
+          CONST_STRING,
+          CONST_DESCRIPTION,
+          CONST_STRING,
+          CONST_PLUGIN_ID,
+          CONST_STRING,
+          "copies",
+          "int",
+          "distributes",
+          CONST_BOOLEAN,
+          CONST_ERROR_HANDLING,
+          CONST_BOOLEAN,
+          "targetTransforms",
+          "List",
+          "isDummy",
+          CONST_BOOLEAN,
+          CONST_HAS_DEFAULT_NAME,
+          CONST_BOOLEAN,
+          CONST_IS_ORPHANED,
+          CONST_BOOLEAN,
+          "isBlockingTransform",
+          CONST_BOOLEAN);
 
   /**
    * As {@link #TRANSFORM_FIELDS}, for actions. Keep in step with {@link #extractFieldFromAction}.
    */
   public static final Map<String, String> ACTION_FIELDS =
       orderedFields(
-          "name", "String",
-          "description", "String",
-          "pluginId", "String",
-          "errorHandling", "boolean",
-          "targetActions", "List",
-          "isStart", "boolean",
-          "hasDefaultName", "boolean",
-          "isOrphaned", "boolean");
+          "name",
+          CONST_STRING,
+          CONST_DESCRIPTION,
+          CONST_STRING,
+          CONST_PLUGIN_ID,
+          CONST_STRING,
+          CONST_ERROR_HANDLING,
+          CONST_BOOLEAN,
+          "targetActions",
+          "List",
+          "isStart",
+          CONST_BOOLEAN,
+          CONST_HAS_DEFAULT_NAME,
+          CONST_BOOLEAN,
+          CONST_IS_ORPHANED,
+          CONST_BOOLEAN);
 
   private static Map<String, String> orderedFields(String... namesAndTypes) {
     Map<String, String> fields = new LinkedHashMap<>();
@@ -579,16 +609,16 @@ public class CustomRuleExecutor {
       switch (fieldName) {
         case "name":
           return transformMeta.getName();
-        case "description":
+        case CONST_DESCRIPTION:
           return transformMeta.getDescription();
-        case "pluginId":
+        case CONST_PLUGIN_ID:
           return transformMeta.getTransformPluginId();
         case "copies":
           return transformMeta.getCopies(
               org.apache.hop.core.variables.Variables.getADefaultVariableSpace());
         case "distributes":
           return transformMeta.isDistributes();
-        case "errorHandling":
+        case CONST_ERROR_HANDLING:
           return transformMeta.getTransform() != null && transformMeta.isDoingErrorHandling();
         case "targetTransforms":
           // Not PipelineMeta.findNextTransforms: a hop whose transform name matches nothing loads
@@ -607,12 +637,12 @@ public class CustomRuleExecutor {
           return targets;
         case "isDummy":
           return "Dummy".equalsIgnoreCase(transformMeta.getTransformPluginId());
-        case "hasDefaultName":
+        case CONST_HAS_DEFAULT_NAME:
           return hasDefaultGeneratedName(
               transformMeta.getName(),
               transformMeta.getTransformPluginId(),
               TransformPluginType.class);
-        case "isOrphaned":
+        case CONST_IS_ORPHANED:
           return SUBJECT.get() instanceof PipelineMeta pipeline
               ? isOrphaned(transformMeta, pipeline.getPipelineHops(), pipeline.getTransforms())
               : null;
@@ -627,7 +657,8 @@ public class CustomRuleExecutor {
           return FIELD_NOT_FOUND;
       }
     } catch (Exception e) {
-      log.logDetailed("Error extracting field " + fieldName + " from transform: " + e.getMessage());
+      log.logDetailed(
+          CONST_ERROR_EXTRACTING_FIELD + fieldName + " from transform: " + e.getMessage());
       return null;
     }
   }
@@ -639,11 +670,11 @@ public class CustomRuleExecutor {
       switch (fieldName) {
         case "name":
           return actionMeta.getName();
-        case "description":
+        case CONST_DESCRIPTION:
           return actionMeta.getDescription();
-        case "pluginId":
+        case CONST_PLUGIN_ID:
           return actionMeta.getAction().getPluginId();
-        case "errorHandling":
+        case CONST_ERROR_HANDLING:
           // An action handles its errors with a hop followed on failure.
           return SUBJECT.get() instanceof WorkflowMeta workflow
               ? outgoingHops(actionMeta, workflow).stream()
@@ -657,14 +688,14 @@ public class CustomRuleExecutor {
               : null;
         case "isStart":
           return actionMeta.isStart();
-        case "hasDefaultName":
+        case CONST_HAS_DEFAULT_NAME:
           // Every workflow starts at Start; there is no better name for it.
           return !actionMeta.isStart()
               && hasDefaultGeneratedName(
                   actionMeta.getName(),
                   actionMeta.getAction().getPluginId(),
                   ActionPluginType.class);
-        case "isOrphaned":
+        case CONST_IS_ORPHANED:
           return SUBJECT.get() instanceof WorkflowMeta workflow
               ? isOrphaned(actionMeta, workflow.getWorkflowHops(), workflow.getActions())
               : null;
@@ -677,7 +708,7 @@ public class CustomRuleExecutor {
           return FIELD_NOT_FOUND;
       }
     } catch (Exception e) {
-      log.logDetailed("Error extracting field " + fieldName + " from action: " + e.getMessage());
+      log.logDetailed(CONST_ERROR_EXTRACTING_FIELD + fieldName + " from action: " + e.getMessage());
       return null;
     }
   }
@@ -892,17 +923,17 @@ public class CustomRuleExecutor {
       // "password", "secret" and "credential" are aliases for a family of field names rather
       // than fields in their own right, so fall back to a pattern search for those.
       String lowerFieldName = fieldName.toLowerCase();
-      if (lowerFieldName.equals("password")
-          || lowerFieldName.equals("secret")
-          || lowerFieldName.equals("credential")) {
+      if (lowerFieldName.equals(CONST_PASSWORD)
+          || lowerFieldName.equals(CONST_SECRET)
+          || lowerFieldName.equals(CONST_CREDENTIAL)) {
         List<String> passwordPatterns =
             Arrays.asList(
-                "password",
+                CONST_PASSWORD,
                 "pwd",
                 "passwd",
-                "secret",
+                CONST_SECRET,
                 "secretkey",
-                "credential",
+                CONST_CREDENTIAL,
                 "credentials",
                 "apikey",
                 "token",
@@ -926,7 +957,8 @@ public class CustomRuleExecutor {
       }
 
     } catch (Exception e) {
-      log.logDetailed("Error extracting field " + fieldName + " via reflection: " + e.getMessage());
+      log.logDetailed(
+          CONST_ERROR_EXTRACTING_FIELD + fieldName + " via reflection: " + e.getMessage());
       return null;
     }
 
@@ -1276,12 +1308,12 @@ public class CustomRuleExecutor {
 
   private static final List<String> DEFAULT_SECRET_FIELD_PATTERNS =
       Arrays.asList(
-          "password",
+          CONST_PASSWORD,
           "pwd",
           "passwd",
-          "secret",
+          CONST_SECRET,
           "secretKey",
-          "credential",
+          CONST_CREDENTIAL,
           "credentials",
           "apiKey",
           "apikey",

@@ -88,16 +88,14 @@ public class TokenReplacementMeta
   public static final String CONST_FIELD = "field";
   public static final String[] INPUT_TYPES = {"text", CONST_FIELD, "file"};
   public static final String[] OUTPUT_TYPES = {CONST_FIELD, "file"};
-  public static final String[] formatMapperLineTerminator =
-      new String[] {"DOS", "UNIX", "CR", "None"};
+  public static final String[] formatMapperLineTerminator = {"DOS", "UNIX", "CR", "None"};
 
-  public static final String[] formatMapperLineTerminatorDescriptions =
-      new String[] {
-        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.DOS"),
-        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.UNIX"),
-        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.CR"),
-        BaseMessages.getString(PKG, "TokenReplacementDialog.Format.None")
-      };
+  public static final String[] formatMapperLineTerminatorDescriptions = {
+    BaseMessages.getString(PKG, "TokenReplacementDialog.Format.DOS"),
+    BaseMessages.getString(PKG, "TokenReplacementDialog.Format.UNIX"),
+    BaseMessages.getString(PKG, "TokenReplacementDialog.Format.CR"),
+    BaseMessages.getString(PKG, "TokenReplacementDialog.Format.None")
+  };
   public static final String CONST_FILE_ENCODING = "file.encoding";
 
   @HopMetadataProperty(

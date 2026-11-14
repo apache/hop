@@ -80,11 +80,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
   public static final String YES = "Y";
   public static final String NO = "N";
 
-  public static final String[] NO_YES =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  public static final String[] NO_YES = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   @HopMetadataProperty(key = "scale", storeWithCode = true)
   private Scale scale;

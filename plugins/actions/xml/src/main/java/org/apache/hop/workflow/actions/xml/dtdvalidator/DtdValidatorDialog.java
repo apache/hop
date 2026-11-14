@@ -41,17 +41,15 @@ import org.eclipse.swt.widgets.Shell;
 public class DtdValidatorDialog extends ActionDialog {
   private static final Class<?> PKG = DtdValidator.class;
 
-  private static final String[] FILETYPES_XML =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Xml"),
-        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
-      };
+  private static final String[] FILETYPES_XML = {
+    BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Xml"),
+    BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
+  };
 
-  private static final String[] FILETYPES_DTD =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Dtd"),
-        BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
-      };
+  private static final String[] FILETYPES_DTD = {
+    BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Dtd"),
+    BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
+  };
 
   private TextVar wxmlFilename;
 

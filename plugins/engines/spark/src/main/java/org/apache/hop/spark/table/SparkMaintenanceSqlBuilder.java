@@ -27,6 +27,7 @@ import org.apache.hop.lakehouse.transforms.LakeTableMaintenanceMeta;
  * not execute SQL.
  */
 public final class SparkMaintenanceSqlBuilder {
+  private static final String CONST_CALL = "CALL ";
 
   public static final String OP_OPTIMIZE = LakeTableMaintenanceMeta.OP_OPTIMIZE;
   public static final String OP_VACUUM = LakeTableMaintenanceMeta.OP_VACUUM;
@@ -132,7 +133,7 @@ public final class SparkMaintenanceSqlBuilder {
     }
     // Iceberg compact = rewrite_data_files
     requireCallArgs(procedureCatalog, tableRefForCall, "OPTIMIZE/rewrite_data_files");
-    return "CALL "
+    return CONST_CALL
         + procedureCatalog
         + ".system.rewrite_data_files(table => '"
         + escapeSqlLiteral(tableRefForCall)
@@ -184,7 +185,7 @@ public final class SparkMaintenanceSqlBuilder {
       // Validate positive; Iceberg CALL uses retain_last primarily in v1
       parsePositiveRetentionHours(retentionHours, "EXPIRE_SNAPSHOTS");
     }
-    return "CALL "
+    return CONST_CALL
         + procedureCatalog
         + ".system.expire_snapshots(table => '"
         + escapeSqlLiteral(tableRefForCall)
@@ -199,7 +200,7 @@ public final class SparkMaintenanceSqlBuilder {
       throw new HopException("REWRITE_MANIFESTS is Iceberg-only");
     }
     requireCallArgs(procedureCatalog, tableRefForCall, "REWRITE_MANIFESTS");
-    return "CALL "
+    return CONST_CALL
         + procedureCatalog
         + ".system.rewrite_manifests(table => '"
         + escapeSqlLiteral(tableRefForCall)

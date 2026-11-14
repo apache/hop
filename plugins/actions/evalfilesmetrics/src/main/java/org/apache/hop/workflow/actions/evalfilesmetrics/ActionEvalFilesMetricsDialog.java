@@ -53,8 +53,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionEvalFilesMetricsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Filetype.All")
+  };
 
   private Label wlSourceFileFolder;
   private Button wbSourceFileFolder;
@@ -638,21 +639,20 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.IncludeSubDirs.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionEvalFilesMetrics.NO_YES)
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Fields.IncludeSubDirs.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ActionEvalFilesMetrics.NO_YES)
+    };
 
     columnInfos[0].setUsingVariables(true);
     columnInfos[0].setToolTip(

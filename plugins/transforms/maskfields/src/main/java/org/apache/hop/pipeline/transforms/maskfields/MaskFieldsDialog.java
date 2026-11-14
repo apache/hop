@@ -49,6 +49,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 public class MaskFieldsDialog extends BaseTransformDialog {
+  private static final String CONST_MASK_FIELDS_EDIT_RULE_ERROR_TITLE =
+      "MaskFields.EditRule.Error.Title";
 
   private static final Class<?> PKG = MaskFieldsMeta.class;
 
@@ -151,7 +153,7 @@ public class MaskFieldsDialog extends BaseTransformDialog {
     MetadataPerspective perspective = HopGui.getMetadataPerspective();
     if (perspective == null) {
       MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      box.setText(BaseMessages.getString(PKG, "MaskFields.EditRule.Error.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_MASK_FIELDS_EDIT_RULE_ERROR_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "MaskFields.EditRule.NoPerspective.Message"));
       box.open();
       return;
@@ -184,7 +186,7 @@ public class MaskFieldsDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MaskFields.EditRule.Error.Title"),
+          BaseMessages.getString(PKG, CONST_MASK_FIELDS_EDIT_RULE_ERROR_TITLE),
           BaseMessages.getString(PKG, "MaskFields.EditRule.CreateError.Message"),
           e);
       return null;
@@ -200,7 +202,7 @@ public class MaskFieldsDialog extends BaseTransformDialog {
               .load(variables.resolve(ruleName));
       if (element == null) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        box.setText(BaseMessages.getString(PKG, "MaskFields.EditRule.Error.Title"));
+        box.setText(BaseMessages.getString(PKG, CONST_MASK_FIELDS_EDIT_RULE_ERROR_TITLE));
         box.setMessage(BaseMessages.getString(PKG, "MaskFields.Check.MissingPattern", ruleName));
         box.open();
         return null;
@@ -210,7 +212,7 @@ public class MaskFieldsDialog extends BaseTransformDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MaskFields.EditRule.Error.Title"),
+          BaseMessages.getString(PKG, CONST_MASK_FIELDS_EDIT_RULE_ERROR_TITLE),
           BaseMessages.getString(PKG, "MaskFields.EditRule.EditError.Message"),
           e);
       return null;

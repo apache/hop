@@ -59,6 +59,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnection> {
   private static final Class<?> PKG = SalesforceConnectionEditor.class;
+  private static final String CONST_O_AUTH_CONFIGURATION_ERROR = "OAuth Configuration Error";
+  private static final String CONST_ACTUAL_PRIVATE_KEY = "actualPrivateKey";
 
   private TextVar wName;
 
@@ -705,7 +707,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(clientId)) {
         MessageBox clientIdMb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         clientIdMb.setMessage("OAuth Client ID is required for authorization.");
-        clientIdMb.setText("OAuth Configuration Error");
+        clientIdMb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         clientIdMb.open();
         return;
       }
@@ -713,7 +715,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(redirectUri)) {
         MessageBox redirectUriMb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         redirectUriMb.setMessage("OAuth Redirect URI is required for authorization.");
-        redirectUriMb.setText("OAuth Configuration Error");
+        redirectUriMb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         redirectUriMb.open();
         return;
       }
@@ -721,7 +723,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(instanceUrl)) {
         MessageBox instanceUrlMb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         instanceUrlMb.setMessage("OAuth Instance URL is required for authorization.");
-        instanceUrlMb.setText("OAuth Configuration Error");
+        instanceUrlMb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         instanceUrlMb.open();
         return;
       }
@@ -953,7 +955,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(clientId)) {
         MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         mb.setMessage("OAuth Client ID is required for token exchange.");
-        mb.setText("OAuth Configuration Error");
+        mb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         mb.open();
         return;
       }
@@ -961,7 +963,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(clientSecret)) {
         MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         mb.setMessage("OAuth Client Secret is required for token exchange.");
-        mb.setText("OAuth Configuration Error");
+        mb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         mb.open();
         return;
       }
@@ -969,7 +971,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(redirectUri)) {
         MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         mb.setMessage("OAuth Redirect URI is required for token exchange.");
-        mb.setText("OAuth Configuration Error");
+        mb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         mb.open();
         return;
       }
@@ -977,7 +979,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (Utils.isEmpty(instanceUrl)) {
         MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         mb.setMessage("OAuth Instance URL is required for token exchange.");
-        mb.setText("OAuth Configuration Error");
+        mb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         mb.open();
         return;
       }
@@ -986,7 +988,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
         MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(
             "Authorization code is required. Please paste the code from the authorization URL.");
-        mb.setText("OAuth Configuration Error");
+        mb.setText(CONST_O_AUTH_CONFIGURATION_ERROR);
         mb.open();
         return;
       }
@@ -1204,10 +1206,10 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
               + "••••••••••••••••••••••••••••••••••••••••••••••••••";
       wOAuthJwtPrivateKey.setText(maskedPlaceholder);
       // Store actual key in widget data for later retrieval
-      wOAuthJwtPrivateKey.setData("actualPrivateKey", privateKey);
+      wOAuthJwtPrivateKey.setData(CONST_ACTUAL_PRIVATE_KEY, privateKey);
     } else {
       wOAuthJwtPrivateKey.setText("");
-      wOAuthJwtPrivateKey.setData("actualPrivateKey", null);
+      wOAuthJwtPrivateKey.setData(CONST_ACTUAL_PRIVATE_KEY, null);
     }
 
     wOAuthJwtTokenEndpoint.setText(
@@ -1274,7 +1276,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     // Check if the field contains only bullet characters (masked placeholder)
     if (displayedKey != null && displayedKey.matches("^•+$")) {
       // Use the actual key stored in widget data (unchanged)
-      String actualKey = (String) wOAuthJwtPrivateKey.getData("actualPrivateKey");
+      String actualKey = (String) wOAuthJwtPrivateKey.getData(CONST_ACTUAL_PRIVATE_KEY);
       connection.setOauthJwtPrivateKey(actualKey != null ? actualKey : "");
     } else {
       // New key was entered/loaded

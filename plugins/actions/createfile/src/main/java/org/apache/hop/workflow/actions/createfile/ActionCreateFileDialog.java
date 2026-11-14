@@ -40,8 +40,9 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionCreateFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCreateFile.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionCreateFile.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionCreateFile.Filetype.All")
+  };
 
   private TextVar wFilename;
 

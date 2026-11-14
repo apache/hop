@@ -93,7 +93,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       logDebug("Execute workflow requested");
     }
 
-    String[] knownOptions = new String[] {WORKFLOW, LEVEL, RUN_CONFIG};
+    String[] knownOptions = {WORKFLOW, LEVEL, RUN_CONFIG};
 
     String workflowOption = request.getParameter(WORKFLOW);
     String levelOption = request.getParameter(LEVEL);

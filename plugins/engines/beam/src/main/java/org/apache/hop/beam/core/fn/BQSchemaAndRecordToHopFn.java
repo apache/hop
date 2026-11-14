@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
 /** BigQuery Avro SchemaRecord to HopRow */
 public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndRecord, HopRow> {
 
-  private String transformName;
-  private String rowMetaJson;
+  private final String transformName;
+  private final String rowMetaJson;
 
   private transient Counter initCounter;
   private transient Counter inputCounter;
@@ -214,7 +214,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
     STRUCT(IValueMeta.TYPE_STRING),
     ;
 
-    private int hopType;
+    private final int hopType;
 
     private AvroType(int hopType) {
       this.hopType = hopType;

@@ -220,7 +220,7 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
     wResolverType.addListener(SWT.Modify, event -> changeResolverType());
   }
 
-  private AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
 
   private void changeResolverType() {
     if (busyChangingConnectionType.get()) {

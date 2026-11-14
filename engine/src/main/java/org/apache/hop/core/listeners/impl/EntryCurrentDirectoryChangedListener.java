@@ -34,7 +34,7 @@ public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryCh
     void setPath(String path);
   }
 
-  private IPathReference[] references;
+  private final IPathReference[] references;
 
   public EntryCurrentDirectoryChangedListener(IPathReference... refs) {
     references = refs;

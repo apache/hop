@@ -156,22 +156,21 @@ public class BeamProduceDialog extends BaseTransformDialog {
     wMessageField.setLayoutData(fdMessageField);
     lastControl = wMessageField;
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ConfigOption.Type.getTypeNames(),
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ConfigOption.Type.getTypeNames(),
+          false),
+    };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
 

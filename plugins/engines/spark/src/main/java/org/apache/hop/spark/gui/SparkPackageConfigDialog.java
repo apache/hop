@@ -49,7 +49,7 @@ public class SparkPackageConfigDialog extends Dialog {
 
   private final String projectHome;
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
   private Text wProjectHome;
   private StyledText wExcludeDirs;

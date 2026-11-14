@@ -50,8 +50,8 @@ import org.eclipse.swt.widgets.Shell;
 public class ModPartitionerDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PipelineDialog.class;
 
-  private TransformPartitioningMeta partitioningMeta;
-  private ModPartitioner partitioner;
+  private final TransformPartitioningMeta partitioningMeta;
+  private final ModPartitioner partitioner;
   private String fieldName;
 
   private CCombo wFieldname;

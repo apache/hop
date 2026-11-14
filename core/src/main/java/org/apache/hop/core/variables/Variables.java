@@ -44,7 +44,7 @@ import org.json.simple.parser.JSONParser;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
-  private Map<String, String> properties;
+  private final Map<String, String> properties;
 
   private IVariables parent;
 

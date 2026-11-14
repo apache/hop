@@ -37,9 +37,9 @@ import org.eclipse.swt.widgets.Shell;
 public class GetWorkflowSqlProgressDialog {
   private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class;
 
-  private Shell shell;
+  private final Shell shell;
   private final IVariables variables;
-  private WorkflowMeta workflowMeta;
+  private final WorkflowMeta workflowMeta;
   private List<SqlStatement> stats;
 
   /** Creates a new dialog that will handle the wait while getting the SQL for a workflow... */

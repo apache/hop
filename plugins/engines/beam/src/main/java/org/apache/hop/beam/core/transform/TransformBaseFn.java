@@ -296,7 +296,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
 
   protected class TransformProcessContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.ProcessContext context;
+    private final DoFn.ProcessContext context;
 
     public TransformProcessContext(DoFn.ProcessContext processContext) {
       this.context = processContext;
@@ -310,8 +310,8 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
 
   protected class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.FinishBundleContext context;
-    private BoundedWindow batchWindow;
+    private final DoFn.FinishBundleContext context;
+    private final BoundedWindow batchWindow;
 
     public TransformFinishBundleContext(
         DoFn.FinishBundleContext context, BoundedWindow batchWindow) {

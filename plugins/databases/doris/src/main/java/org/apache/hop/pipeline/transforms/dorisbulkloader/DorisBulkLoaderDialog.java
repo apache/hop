@@ -491,18 +491,17 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     final int nrHeaders = input.getHeaders().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Header"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Header"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ColumnInfo.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
 
     colinf[1].setUsingVariables(true);
     wHeaders =

@@ -45,7 +45,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
   private PipelineMeta pipelineMeta;
   private HopGuiPipelineGraph pipelineGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiPipelineContext> lambdaBuilder;
+  private final GuiActionLambdaBuilder<HopGuiPipelineContext> lambdaBuilder;
 
   public HopGuiPipelineContext(
       PipelineMeta pipelineMeta, HopGuiPipelineGraph pipelineGraph, Point click) {

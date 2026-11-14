@@ -39,6 +39,8 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
  * SWT so the logic can be unit tested.
  */
 public final class TableViewColumnViews {
+  private static final String CONST_VALUE = "value";
+
   /** Label shown in the UI for a null or empty value in a column filter. */
   public static final String NULL_VALUE_LABEL = "<null>";
 
@@ -225,13 +227,13 @@ public final class TableViewColumnViews {
   public static Comparator<String> valueComparator(int valueType, String conversionMask) {
     IValueMeta columnMeta =
         switch (valueType) {
-          case IValueMeta.TYPE_NUMBER -> new ValueMetaNumber("value");
-          case IValueMeta.TYPE_INTEGER -> new ValueMetaInteger("value");
-          case IValueMeta.TYPE_BIGNUMBER -> new ValueMetaBigNumber("value");
-          case IValueMeta.TYPE_DATE -> new ValueMetaDate("value");
-          case IValueMeta.TYPE_TIMESTAMP -> new ValueMetaTimestamp("value");
-          case IValueMeta.TYPE_BOOLEAN -> new ValueMetaBoolean("value");
-          default -> new ValueMetaString("value");
+          case IValueMeta.TYPE_NUMBER -> new ValueMetaNumber(CONST_VALUE);
+          case IValueMeta.TYPE_INTEGER -> new ValueMetaInteger(CONST_VALUE);
+          case IValueMeta.TYPE_BIGNUMBER -> new ValueMetaBigNumber(CONST_VALUE);
+          case IValueMeta.TYPE_DATE -> new ValueMetaDate(CONST_VALUE);
+          case IValueMeta.TYPE_TIMESTAMP -> new ValueMetaTimestamp(CONST_VALUE);
+          case IValueMeta.TYPE_BOOLEAN -> new ValueMetaBoolean(CONST_VALUE);
+          default -> new ValueMetaString(CONST_VALUE);
         };
     if (columnMeta.isNumeric()) {
       columnMeta.setDecimalSymbol(".");

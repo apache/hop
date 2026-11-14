@@ -39,6 +39,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Get random value. */
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> {
+  private static final String CONST_RANDOM_VALUE_LOG_ERROR_GETTING_RANDOM_HMACSHA1 =
+      "RandomValue.Log.ErrorGettingRandomHMACSHA1";
+  private static final String CONST_RANDOM_VALUE_LOG_HMAC_SHA1_ALGORITHM_EXCEPTION =
+      "RandomValue.Log.HmacSHA1AlgorithmException";
 
   private static final Class<?> PKG = RandomValueMeta.class;
 
@@ -90,7 +94,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+                    PKG, CONST_RANDOM_VALUE_LOG_ERROR_GETTING_RANDOM_HMACSHA1, e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -101,7 +105,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+                    PKG, CONST_RANDOM_VALUE_LOG_ERROR_GETTING_RANDOM_HMACSHA1, e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -112,7 +116,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+                    PKG, CONST_RANDOM_VALUE_LOG_ERROR_GETTING_RANDOM_HMACSHA1, e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -123,7 +127,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+                    PKG, CONST_RANDOM_VALUE_LOG_ERROR_GETTING_RANDOM_HMACSHA1, e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -303,7 +307,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       } catch (NoSuchAlgorithmException s) {
         logError(
             BaseMessages.getString(
-                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+                PKG, CONST_RANDOM_VALUE_LOG_HMAC_SHA1_ALGORITHM_EXCEPTION, s.getMessage()));
         return false;
       }
     }
@@ -313,7 +317,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       } catch (NoSuchAlgorithmException s) {
         logError(
             BaseMessages.getString(
-                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+                PKG, CONST_RANDOM_VALUE_LOG_HMAC_SHA1_ALGORITHM_EXCEPTION, s.getMessage()));
         return false;
       }
     }
@@ -323,7 +327,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       } catch (NoSuchAlgorithmException s) {
         logError(
             BaseMessages.getString(
-                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+                PKG, CONST_RANDOM_VALUE_LOG_HMAC_SHA1_ALGORITHM_EXCEPTION, s.getMessage()));
         return false;
       }
     }
@@ -333,7 +337,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       } catch (NoSuchAlgorithmException s) {
         logError(
             BaseMessages.getString(
-                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+                PKG, CONST_RANDOM_VALUE_LOG_HMAC_SHA1_ALGORITHM_EXCEPTION, s.getMessage()));
         return false;
       }
     }

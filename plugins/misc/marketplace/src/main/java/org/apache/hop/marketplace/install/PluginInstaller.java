@@ -48,6 +48,7 @@ import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
  * hot-reload.
  */
 public class PluginInstaller {
+  private static final String CONST_PLUGIN_INSTALLER = "PluginInstaller";
 
   public static final String STAGING_DIR = "plugins/.staging";
   public static final String RECEIPTS_DIR = "plugins/.marketplace";
@@ -59,15 +60,15 @@ public class PluginInstaller {
 
   public PluginInstaller(ILogChannel log, Path hopHome, MarketplaceConfig config) {
     this(
-        log != null ? log : new LogChannel("PluginInstaller"),
+        log != null ? log : new LogChannel(CONST_PLUGIN_INSTALLER),
         hopHome,
         config,
-        new MavenRepositoryClient(log != null ? log : new LogChannel("PluginInstaller")));
+        new MavenRepositoryClient(log != null ? log : new LogChannel(CONST_PLUGIN_INSTALLER)));
   }
 
   PluginInstaller(
       ILogChannel log, Path hopHome, MarketplaceConfig config, MavenRepositoryClient client) {
-    this.log = log != null ? log : new LogChannel("PluginInstaller");
+    this.log = log != null ? log : new LogChannel(CONST_PLUGIN_INSTALLER);
     this.hopHome = hopHome;
     this.config = config;
     this.client = client;

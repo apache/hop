@@ -61,6 +61,7 @@ import org.apache.hop.core.vfs.HopVfs;
  * oldest events are kept: they are the ones no later run will re-emit.
  */
 final class OpenLineageSpool {
+  private static final String CONST_IN = "' in ";
 
   static final String FILE_SUFFIX = ".json";
 
@@ -418,7 +419,7 @@ final class OpenLineageSpool {
       log.logError(
           "Discarding unreadable lineage spool file '"
               + id
-              + "' in "
+              + CONST_IN
               + location
               + ": "
               + e.getMessage());
@@ -443,7 +444,7 @@ final class OpenLineageSpool {
         log.logError(
             "Could not delete delivered lineage spool file '"
                 + id
-                + "' in "
+                + CONST_IN
                 + location
                 + "; it will be replayed");
       }
@@ -451,7 +452,7 @@ final class OpenLineageSpool {
       log.logError(
           "Could not delete delivered lineage spool file '"
               + id
-              + "' in "
+              + CONST_IN
               + location
               + "; it will be replayed: "
               + e.getMessage(),

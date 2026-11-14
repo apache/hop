@@ -100,7 +100,7 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
     try {
       localeCategoryClass = Class.forName("java.util.Locale$Category");
       final Class<?> localeClass = Class.forName("java.util.Locale");
-      final Class<?>[] paramTypes = new Class<?>[] {localeCategoryClass};
+      final Class<?>[] paramTypes = {localeCategoryClass};
       getDefaultLocaleMethod = localeClass.getMethod("getDefault", paramTypes);
       final java.lang.reflect.Field formatField = localeCategoryClass.getField("FORMAT");
       // we pass null because the FORMAT is an enumeration constant(the same applies

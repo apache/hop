@@ -27,7 +27,7 @@ import org.apache.hop.projects.project.ProjectConfig;
 
 public class ProjectsSearchablesLocation implements ISearchablesLocation {
 
-  private ProjectConfig projectConfig;
+  private final ProjectConfig projectConfig;
 
   public ProjectsSearchablesLocation(ProjectConfig projectConfig) {
     this.projectConfig = projectConfig;

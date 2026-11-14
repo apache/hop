@@ -46,6 +46,8 @@ import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
     extensionPointId = "PipelinePrepareExecution",
     description = "At the start of a pipeline, handle any Pipeline Log metadata objects")
 public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
+  private static final String CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT =
+      "Error handling Pipeline Log metadata object '";
 
   public static final String PIPELINE_LOGGING_FLAG = "PipelineLoggingActive";
 
@@ -111,14 +113,14 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       if (pipelineLog.isFailParentOnLoggingFailure()) {
         pipeline.stopAll();
         throw new HopException(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
@@ -173,7 +175,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                   throw e;
                 } else {
                   log.logError(
-                      "Error handling Pipeline Log metadata object '"
+                      CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                           + pipelineLog.getName()
                           + "' at the end of pipeline: "
                           + e.getMessage(),
@@ -245,14 +247,14 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       if (pipelineLog.isFailParentOnLoggingFailure()) {
         pipeline.stopAll();
         throw new HopException(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),

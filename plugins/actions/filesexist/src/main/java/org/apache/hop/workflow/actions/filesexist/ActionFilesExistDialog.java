@@ -51,14 +51,13 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionFilesExistDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFilesExist.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+  };
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   private ActionFilesExist action;
 
@@ -92,25 +91,24 @@ public class ActionFilesExistDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wSpacer, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionFilesExist.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionFilesExist.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionFilesExist.Fields.ExcludeWildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionFilesExist.Fields.IncludeSubfolders.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionFilesExist.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionFilesExist.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionFilesExist.Fields.ExcludeWildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionFilesExist.Fields.IncludeSubfolders.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+    };
 
     columns[0].setUsingVariables(true);
     columns[0].setNamingSchemeType(NamingSchemeTypes.FILE);

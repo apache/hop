@@ -46,7 +46,7 @@ public class DtdValidatorUtil {
   private String errormessage;
   private int errorscount;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   public DtdValidatorUtil(ILogChannel log) {
     this.log = log;

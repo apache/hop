@@ -60,23 +60,23 @@ public class XmlInputFieldsImportProgressDialog {
       "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes";
   public static final String CONST_YYYY_MM_DD = "yyyy/MM/dd";
 
-  private Shell shell;
+  private final Shell shell;
 
   private String filename;
-  private String encoding;
+  private final String encoding;
 
   private int nr;
 
-  private String loopXPath;
-  private HashSet<String> list;
+  private final String loopXPath;
+  private final HashSet<String> list;
 
-  private List<RowMetaAndData> fieldsList;
+  private final List<RowMetaAndData> fieldsList;
   private RowMetaAndData[] fields;
 
   private String xml;
   private String url;
 
-  private PdOption option;
+  private final PdOption option;
 
   /**
    * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML

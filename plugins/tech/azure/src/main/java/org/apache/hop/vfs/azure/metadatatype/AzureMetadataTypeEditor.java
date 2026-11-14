@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
+  private static final String CONST_SAS_TOKEN = "SAS Token";
 
   private static final Class<?> PKG = AzureMetadataTypeEditor.class;
 
@@ -164,7 +165,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wlAuthenticationType.setLayoutData(fdlAuthenticationType);
     wAuthenticationType = new ComboVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAuthenticationType);
-    wAuthenticationType.setItems(new String[] {"Key", "Managed Identity", "SAS Token"});
+    wAuthenticationType.setItems(new String[] {"Key", "Managed Identity", CONST_SAS_TOKEN});
     FormData fdAuthenticationType = new FormData();
     fdAuthenticationType.top = new FormAttachment(wlAuthenticationType, 0, SWT.CENTER);
     fdAuthenticationType.left = new FormAttachment(middle, 0);
@@ -265,7 +266,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
         e -> {
           String authType = wAuthenticationType.getText();
           boolean showKey = "Key".equals(authType);
-          boolean showSasToken = "SAS Token".equals(authType);
+          boolean showSasToken = CONST_SAS_TOKEN.equals(authType);
           wlStorageAccountKey.setVisible(showKey);
           wStorageAccountKey.setVisible(showKey);
           wlSasToken.setVisible(showSasToken);
@@ -303,7 +304,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     // Show/hide storage account key based on authentication type
     String authType = wAuthenticationType.getText();
     boolean showKey = "Key".equals(authType);
-    boolean showSasToken = "SAS Token".equals(authType);
+    boolean showSasToken = CONST_SAS_TOKEN.equals(authType);
     wlStorageAccountKey.setVisible(showKey);
     wStorageAccountKey.setVisible(showKey);
     wlSasToken.setVisible(showSasToken);

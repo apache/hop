@@ -35,6 +35,7 @@ import org.apache.hop.history.AuditStateMap;
  * project namespace.
  */
 public final class TableViewColumnViewManager {
+  private static final String CONST_IN_GROUP = " in group ";
   public static final String AUDIT_TYPE = "table-view";
   public static final String STATE_COLUMNS = "columns";
   public static final String STATE_FILTERS = "filters";
@@ -64,7 +65,10 @@ public final class TableViewColumnViewManager {
               view -> view.getName() == null ? "" : view.getName(), String.CASE_INSENSITIVE_ORDER));
     } catch (Exception e) {
       LogChannel.UI.logError(
-          "Unable to list table views from audit manager type " + AUDIT_TYPE + " in group " + group,
+          "Unable to list table views from audit manager type "
+              + AUDIT_TYPE
+              + CONST_IN_GROUP
+              + group,
           e);
     }
     return views;
@@ -83,7 +87,7 @@ public final class TableViewColumnViewManager {
               + name
               + "' from audit manager type "
               + AUDIT_TYPE
-              + " in group "
+              + CONST_IN_GROUP
               + group,
           e);
       return null;
@@ -134,7 +138,7 @@ public final class TableViewColumnViewManager {
               + name
               + "' from audit manager type "
               + AUDIT_TYPE
-              + " in group "
+              + CONST_IN_GROUP
               + group,
           e);
     }

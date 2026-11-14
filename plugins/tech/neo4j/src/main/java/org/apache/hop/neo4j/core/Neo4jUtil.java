@@ -23,8 +23,8 @@ import org.apache.hop.core.row.IValueMeta;
 
 public class Neo4jUtil {
 
-  private static final char[] delimitersLiteral = new char[] {' ', '\t', ',', ';', '_', '-'};
-  private static final String[] delimitersRegex = new String[] {"\\s", "\\t", ",", ";", "_", "-"};
+  private static final char[] delimitersLiteral = {' ', '\t', ',', ';', '_', '-'};
+  private static final String[] delimitersRegex = {"\\s", "\\t", ",", ";", "_", "-"};
 
   public static String standardizePropertyName(IValueMeta valueMeta) {
     String propertyName = valueMeta.getName();

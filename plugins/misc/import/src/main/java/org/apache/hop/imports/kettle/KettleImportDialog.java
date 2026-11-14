@@ -127,7 +127,7 @@ public class KettleImportDialog extends Dialog {
   @SuppressWarnings("rawtypes")
   private MetaSelectionLine wNamingScheme;
 
-  private MemoryMetadataProvider scratchMetadata;
+  private final MemoryMetadataProvider scratchMetadata;
   private IHopMetadataProvider dialogMetadataProvider;
   private String boundMetadataFolder;
   private Combo wImportProject;

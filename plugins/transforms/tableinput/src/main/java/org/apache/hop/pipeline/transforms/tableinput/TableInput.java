@@ -63,7 +63,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
    */
   private RowMetaAndData readAllParameterRows() throws HopException {
     IRowMeta parametersMeta = new RowMeta();
-    Object[] parametersData = new Object[] {};
+    Object[] parametersData = {};
 
     Object[] rowData = getRow();
     while (rowData != null) {

@@ -167,8 +167,8 @@ public class LongHashIndex {
   }
 
   private static final class LongHashIndexEntry {
-    private int hashCode;
-    private long key;
+    private final int hashCode;
+    private final long key;
     private long value;
     private LongHashIndexEntry nextEntry;
 

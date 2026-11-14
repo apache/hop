@@ -179,14 +179,13 @@ public class MergeJoinDialog extends BaseTransformDialog {
 
     int nrKeyRows1 = input.getKeyFields1().size();
 
-    ColumnInfo[] ciKeys1 =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeJoinDialog.ColumnInfo.KeyField1"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-        };
+    ColumnInfo[] ciKeys1 = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeJoinDialog.ColumnInfo.KeyField1"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+    };
 
     wKeys1 =
         new TableView(
@@ -215,14 +214,13 @@ public class MergeJoinDialog extends BaseTransformDialog {
 
     int nrKeyRows2 = input.getKeyFields2().size();
 
-    ColumnInfo[] ciKeys2 =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeJoinDialog.ColumnInfo.KeyField2"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-        };
+    ColumnInfo[] ciKeys2 = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeJoinDialog.ColumnInfo.KeyField2"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+    };
 
     wKeys2 =
         new TableView(

@@ -66,6 +66,7 @@ import org.eclipse.swt.widgets.Widget;
  * fonts, positions of windows, etc.
  */
 public class PropsUi extends Props {
+  private static final String CONST_SHELLS = "shells";
   private static final String OS = System.getProperty("os.name").toLowerCase();
 
   private double nativeZoomFactor;
@@ -429,7 +430,7 @@ public class PropsUi extends Props {
     AuditManager.storeState(
         LogChannel.UI,
         HopGui.DEFAULT_HOP_GUI_NAMESPACE,
-        "shells",
+        CONST_SHELLS,
         windowProperty.getName(),
         windowProperty.getStateProperties());
   }
@@ -440,7 +441,7 @@ public class PropsUi extends Props {
     }
     AuditState auditState =
         AuditManager.retrieveState(
-            LogChannel.UI, HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells", windowName);
+            LogChannel.UI, HopGui.DEFAULT_HOP_GUI_NAMESPACE, CONST_SHELLS, windowName);
     if (auditState == null) {
       return null;
     }
@@ -491,7 +492,7 @@ public class PropsUi extends Props {
    */
   public void clearPersistedDialogScreens() {
     try {
-      AuditManager.clearStates(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells");
+      AuditManager.clearStates(HopGui.DEFAULT_HOP_GUI_NAMESPACE, CONST_SHELLS);
     } catch (Exception e) {
       LogChannel.UI.logError("Error clearing persisted dialog positions", e);
     }
@@ -1640,10 +1641,9 @@ public class PropsUi extends Props {
     setProperty(MAX_EXECUTION_LOGGING_TEXT_SIZE, Integer.toString(maxExecutionLoggingTextSize));
   }
 
-  protected static final String[] globalZoomFactorLevels =
-      new String[] {
-        "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
-      };
+  protected static final String[] globalZoomFactorLevels = {
+    "200%", "175%", "150%", "140%", "130%", "120%", "110%", "100%", "90%", "80%", "70%"
+  };
 
   public static String[] getGlobalZoomFactorLevels() {
     return globalZoomFactorLevels;

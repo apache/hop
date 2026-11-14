@@ -30,7 +30,7 @@ import org.apache.poi.ss.usermodel.Row;
 
 public class PoiCell implements IKCell {
 
-  private Cell cell;
+  private final Cell cell;
 
   /** Per cell style index: does its number format show a date? Shared by the cells of a sheet. */
   private final Map<Short, Boolean> dateStyles;

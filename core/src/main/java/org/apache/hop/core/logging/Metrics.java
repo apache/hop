@@ -172,9 +172,9 @@ public class Metrics implements IMetrics {
   public static final Metrics METRIC_ACTION_STOP =
       new Metrics(MetricsSnapshotType.STOP, "METRIC_JOBENTRY_EXECUTION", "Execute a action");
 
-  private String code;
-  private String description;
-  private MetricsSnapshotType type;
+  private final String code;
+  private final String description;
+  private final MetricsSnapshotType type;
 
   public Metrics(MetricsSnapshotType type, String code, String description) {
     this.type = type;

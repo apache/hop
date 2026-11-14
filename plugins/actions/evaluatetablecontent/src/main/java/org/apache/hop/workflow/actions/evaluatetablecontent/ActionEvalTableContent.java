@@ -96,27 +96,24 @@ public class ActionEvalTableContent extends ActionBase {
 
   private static final String SELECT_COUNT = "SELECT count(*) FROM ";
 
-  public static final String[] successConditionsDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountEqual.Label"),
-        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountDifferent.Label"),
-        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerThan.Label"),
-        BaseMessages.getString(
-            PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerOrEqualThan.Label"),
-        BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterThan.Label"),
-        BaseMessages.getString(
-            PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterOrEqual.Label")
-      };
+  public static final String[] successConditionsDesc = {
+    BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountEqual.Label"),
+    BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountDifferent.Label"),
+    BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerThan.Label"),
+    BaseMessages.getString(
+        PKG, "ActionEvalTableContent.SuccessWhenRowCountSmallerOrEqualThan.Label"),
+    BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterThan.Label"),
+    BaseMessages.getString(PKG, "ActionEvalTableContent.SuccessWhenRowCountGreaterOrEqual.Label")
+  };
 
-  public static final String[] successConditionsCode =
-      new String[] {
-        "rows_count_equal",
-        "rows_count_different",
-        "rows_count_smaller",
-        "rows_count_smaller_equal",
-        "rows_count_greater",
-        "rows_count_greater_equal"
-      };
+  public static final String[] successConditionsCode = {
+    "rows_count_equal",
+    "rows_count_different",
+    "rows_count_smaller",
+    "rows_count_smaller_equal",
+    "rows_count_greater",
+    "rows_count_greater_equal"
+  };
 
   public static final int SUCCESS_CONDITION_ROWS_COUNT_EQUAL = 0;
   public static final int SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT = 1;

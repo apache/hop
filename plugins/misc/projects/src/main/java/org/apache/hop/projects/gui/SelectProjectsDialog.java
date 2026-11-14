@@ -159,39 +159,38 @@ public class SelectProjectsDialog extends Dialog {
     wFilter.setLayoutData(fdFilter);
     wFilter.addModifyListener(e -> refreshTable());
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Folder"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Tags"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.LastUsed"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.ReadOnly"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Group"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Folder"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.Tags"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.LastUsed"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectProjectsDialog.Table.Col.ReadOnly"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+    };
 
     wTable =
         new TableView(

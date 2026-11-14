@@ -38,8 +38,7 @@ public class CustomSocketFactory extends SSLSocketFactory {
 
   private static TrustManager[] trustManagers = null;
 
-  private static final TrustManager[] ALWAYS_TRUST_MANAGER =
-      new TrustManager[] {new TrustAlwaysManager()};
+  private static final TrustManager[] ALWAYS_TRUST_MANAGER = {new TrustAlwaysManager()};
 
   private SSLSocketFactory factory;
 

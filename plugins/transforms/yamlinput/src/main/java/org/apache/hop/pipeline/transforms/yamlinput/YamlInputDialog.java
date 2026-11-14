@@ -75,11 +75,9 @@ public class YamlInputDialog extends BaseTransformDialog {
   public static final String CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE =
       "YamlInputDialog.ErrorParsingData.DialogMessage";
 
-  protected static final String[] NO_YES_DEC =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  protected static final String[] NO_YES_DEC = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   private Label wlFilename;
   private Label wlYamlIsAFile;
@@ -689,51 +687,50 @@ public class YamlInputDialog extends BaseTransformDialog {
 
     final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colInf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.XPath.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Type.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Length.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Precision.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Currency.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Decimal.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Group.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.TrimType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YamlInputField.TRIM_TYPE_DESC,
-              true)
-        };
+    ColumnInfo[] colInf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.XPath.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Type.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Format.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          3),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Length.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Precision.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Currency.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Decimal.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.Group.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "YamlInputDialog.FieldsTable.TrimType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YamlInputField.TRIM_TYPE_DESC,
+          true)
+    };
 
     colInf[0].setUsingVariables(true);
     colInf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);

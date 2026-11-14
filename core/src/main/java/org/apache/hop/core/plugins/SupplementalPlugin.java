@@ -27,8 +27,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 /** This is a holder of Plugin Class mappings which supplement those of the stock Plugin. */
 public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
   Map<Class, Callable> factoryMap = new HashMap<>();
-  private Class<? extends IPluginType> pluginClass;
-  private String id;
+  private final Class<? extends IPluginType> pluginClass;
+  private final String id;
 
   public SupplementalPlugin(Class<? extends IPluginType> pluginClass, String id) {
     super(

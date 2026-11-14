@@ -81,13 +81,13 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
   private static final Class<?> PKG = SalesforceUpsertMeta.class;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciReturn;
 
   private TableView wReturn;
 
-  private SalesforceUpsertMeta input;
+  private final SalesforceUpsertMeta input;
 
   private Group wConnectionGroup;
   private LabelTextVar wUserName;
@@ -117,7 +117,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   private Button wRollbackAllChangesOnError;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private String[] moduleFields;
 

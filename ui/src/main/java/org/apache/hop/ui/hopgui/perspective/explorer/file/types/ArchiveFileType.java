@@ -41,9 +41,9 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
     image = "ui/images/zipfile.svg")
 public class ArchiveFileType implements IHopFileType {
 
-  private static final String[] EXTENSIONS = new String[] {"*.zip", "*.7z", "*.gz", "*.rar"};
-  private static final String[] FILTER_EXTENSIONS = new String[] {"*.zip;*.7z;*.gz;*.rar"};
-  private static final String[] FILTER_NAMES = new String[] {"Archive files"};
+  private static final String[] EXTENSIONS = {"*.zip", "*.7z", "*.gz", "*.rar"};
+  private static final String[] FILTER_EXTENSIONS = {"*.zip;*.7z;*.gz;*.rar"};
+  private static final String[] FILTER_NAMES = {"Archive files"};
 
   @Override
   public String getName() {

@@ -54,8 +54,8 @@ public class StyledTextVar extends TextComposite {
 
   private final StyledText wText;
   private final Menu wPopupMenu;
-  private List<UndoRedoStack> undoStack;
-  private List<UndoRedoStack> redoStack;
+  private final List<UndoRedoStack> undoStack;
+  private final List<UndoRedoStack> redoStack;
 
   private boolean fullSelection = false;
 

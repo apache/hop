@@ -191,50 +191,37 @@ public class RowGeneratorDialog extends BaseTransformDialog {
 
     final int nrFields = input.getFields().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, "System.Combo.No"))
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Name"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Format"), ColumnInfo.COLUMN_TYPE_FORMAT, 2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Length"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Decimal"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Group"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Value"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+          BaseMessages.getString(PKG, "System.Combo.No"))
+    };
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "System.Column.Name.Tooltip"));
     colinf[1].setToolTip(BaseMessages.getString(PKG, "System.Column.Type.Tooltip"));

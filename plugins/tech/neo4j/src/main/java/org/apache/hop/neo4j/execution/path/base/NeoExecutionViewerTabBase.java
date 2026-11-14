@@ -48,6 +48,9 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public abstract class NeoExecutionViewerTabBase {
   public static final Class<?> PKG = HopNeo4jPerspective.class;
+  private static final String CONST_AND = "AND   ";
+  private static final String CONST_RETURN_P = "RETURN p ";
+  private static final String CONST_LIMIT_10 = "LIMIT 10 ";
 
   protected final BaseExecutionViewer viewer;
   protected final PropsUi props;
@@ -154,12 +157,12 @@ public abstract class NeoExecutionViewerTabBase {
           + Const.CR
           + "WHERE top.parentId IS NULL "
           + Const.CR
-          + "AND   "
+          + CONST_AND
           + EXECUTION_INFORMATION_NODES_ONLY_IN_LIST
           + Const.CR
-          + "RETURN p "
+          + CONST_RETURN_P
           + Const.CR
-          + "LIMIT 10 "
+          + CONST_LIMIT_10
           + Const.CR;
     }
     if (!hasParent) {
@@ -171,14 +174,14 @@ public abstract class NeoExecutionViewerTabBase {
         + Const.CR
         + "WHERE NOT ()-[:EXECUTES]->(top) "
         + Const.CR
-        + "AND   "
+        + CONST_AND
         + EXECUTION_INFORMATION_NODES_ONLY
         + Const.CR
-        + "RETURN p "
+        + CONST_RETURN_P
         + Const.CR
         + "ORDER BY size(RELATIONSHIPS(p)) DESC "
         + Const.CR
-        + "LIMIT 10 "
+        + CONST_LIMIT_10
         + Const.CR;
   }
 
@@ -203,14 +206,14 @@ public abstract class NeoExecutionViewerTabBase {
         + Const.CR
         + "WHERE grandChildren = 0 "
         + Const.CR
-        + "AND   "
+        + CONST_AND
         + EXECUTION_INFORMATION_NODES_ONLY_IN_LIST
         + Const.CR
-        + "RETURN p "
+        + CONST_RETURN_P
         + Const.CR
         + "ORDER BY length(p) "
         + Const.CR
-        + "LIMIT 10 "
+        + CONST_LIMIT_10
         + Const.CR;
   }
 
@@ -229,14 +232,14 @@ public abstract class NeoExecutionViewerTabBase {
         + Const.CR
         + "AND   NOT (child)-[:EXECUTES]->() "
         + Const.CR
-        + "AND   "
+        + CONST_AND
         + EXECUTION_INFORMATION_NODES_ONLY
         + Const.CR
-        + "RETURN p "
+        + CONST_RETURN_P
         + Const.CR
         + "ORDER BY size(RELATIONSHIPS(p)) "
         + Const.CR
-        + "LIMIT 10 "
+        + CONST_LIMIT_10
         + Const.CR;
   }
 

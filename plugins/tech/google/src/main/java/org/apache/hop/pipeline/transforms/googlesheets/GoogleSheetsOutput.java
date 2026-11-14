@@ -56,6 +56,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GoogleSheetsOutput
     extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
+  private static final String CONST_WORKSHEET = "worksheet: ";
+  private static final String CONST_IN_SPREADSHEET = " in spreadsheet: ";
+  private static final String CONST_TRY_AGAIN_LATER_DETAILS = ". Try again later. Details: ";
+  private static final String CONST_GOOGLE_API_ERROR_HTTP = "Google API error (HTTP ";
 
   private String spreadsheetID;
   private NetHttpTransport httpTransport;
@@ -310,9 +314,9 @@ public class GoogleSheetsOutput
         // 429/503 under resource limits - never report these as "file does not exist"
         logResourceLimitOrApiError(
             e,
-            "worksheet: "
+            CONST_WORKSHEET
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet: "
+                + CONST_IN_SPREADSHEET
                 + resolve(meta.getSpreadsheetKey()));
         return false;
       } catch (Exception e) {
@@ -321,9 +325,9 @@ public class GoogleSheetsOutput
         if (httpEx != null) {
           logResourceLimitOrApiError(
               httpEx,
-              "worksheet: "
+              CONST_WORKSHEET
                   + resolve(meta.getWorksheetId())
-                  + " in spreadsheet: "
+                  + CONST_IN_SPREADSHEET
                   + resolve(meta.getSpreadsheetKey()));
         } else {
           logError(
@@ -376,7 +380,7 @@ public class GoogleSheetsOutput
       logError(
           "Google API temporarily unavailable (503) for "
               + context
-              + ". Try again later. Details: "
+              + CONST_TRY_AGAIN_LATER_DETAILS
               + e.getMessage(),
           e);
     } else if (statusCode == 404) {
@@ -388,7 +392,7 @@ public class GoogleSheetsOutput
           e);
     } else {
       logError(
-          "Google API error (HTTP "
+          CONST_GOOGLE_API_ERROR_HTTP
               + statusCode
               + ") for "
               + context
@@ -641,9 +645,9 @@ public class GoogleSheetsOutput
       }
     } catch (HttpResponseException e) {
       String context =
-          "worksheet: "
+          CONST_WORKSHEET
               + resolve(meta.getWorksheetId())
-              + " in spreadsheet: "
+              + CONST_IN_SPREADSHEET
               + resolve(meta.getSpreadsheetKey());
       int statusCode = e.getStatusCode();
       String msg;
@@ -657,13 +661,13 @@ public class GoogleSheetsOutput
         msg =
             "Google API temporarily unavailable (503) while writing to "
                 + context
-                + ". Try again later. Details: "
+                + CONST_TRY_AGAIN_LATER_DETAILS
                 + e.getMessage();
       } else if (statusCode == 403) {
         msg = "Access denied (403) while writing to " + context + ". Details: " + e.getMessage();
       } else {
         msg =
-            "Google API error (HTTP "
+            CONST_GOOGLE_API_ERROR_HTTP
                 + statusCode
                 + ") while writing to "
                 + context
@@ -675,9 +679,9 @@ public class GoogleSheetsOutput
       HttpResponseException httpEx = findHttpResponseException(e);
       if (httpEx != null) {
         String context =
-            "worksheet: "
+            CONST_WORKSHEET
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet: "
+                + CONST_IN_SPREADSHEET
                 + resolve(meta.getSpreadsheetKey());
         int statusCode = httpEx.getStatusCode();
         String msg;
@@ -691,11 +695,11 @@ public class GoogleSheetsOutput
           msg =
               "Google API temporarily unavailable (503) while writing to "
                   + context
-                  + ". Try again later. Details: "
+                  + CONST_TRY_AGAIN_LATER_DETAILS
                   + httpEx.getMessage();
         } else {
           msg =
-              "Google API error (HTTP "
+              CONST_GOOGLE_API_ERROR_HTTP
                   + statusCode
                   + ") while writing to "
                   + context

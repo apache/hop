@@ -30,6 +30,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 
 /** Groups lint results for canvas overlays and draws severity badges on pipeline/workflow icons. */
 public final class LintCanvasOverlayHelper {
+  private static final String CONST_ERROR = "ERROR";
+  private static final String CONST_WARNING = "WARNING";
 
   public static final String AREA_LINT_OVERLAY = "hop-lint-overlay";
 
@@ -86,9 +88,9 @@ public final class LintCanvasOverlayHelper {
           continue;
         }
         String severity = result.getSeverity();
-        if ("ERROR".equalsIgnoreCase(severity)) {
+        if (CONST_ERROR.equalsIgnoreCase(severity)) {
           errors++;
-        } else if ("WARNING".equalsIgnoreCase(severity)) {
+        } else if (CONST_WARNING.equalsIgnoreCase(severity)) {
           warnings++;
         } else {
           infos++;
@@ -223,19 +225,19 @@ public final class LintCanvasOverlayHelper {
       if (result == null || Utils.isEmpty(result.getSeverity())) {
         continue;
       }
-      if ("ERROR".equalsIgnoreCase(result.getSeverity())) {
+      if (CONST_ERROR.equalsIgnoreCase(result.getSeverity())) {
         hasError = true;
         break;
       }
-      if ("WARNING".equalsIgnoreCase(result.getSeverity())) {
+      if (CONST_WARNING.equalsIgnoreCase(result.getSeverity())) {
         hasWarning = true;
       }
     }
     if (hasError) {
-      return "ERROR";
+      return CONST_ERROR;
     }
     if (hasWarning) {
-      return "WARNING";
+      return CONST_WARNING;
     }
     return null;
   }
@@ -283,7 +285,7 @@ public final class LintCanvasOverlayHelper {
     int lineWidth = selected ? 3 : 1;
     gc.setLineWidth(lineWidth);
 
-    if ("ERROR".equalsIgnoreCase(severity)) {
+    if (CONST_ERROR.equalsIgnoreCase(severity)) {
       gc.setForeground(IGc.EColor.RED);
       gc.drawLine(x + iconSize, y + iconSize / 2 - 4, x + iconSize, y + iconSize / 2 + 4);
       gc.drawLine(x - 1, y + iconSize / 2 - 4, x - 1, y + iconSize / 2 + 4);
@@ -297,7 +299,7 @@ public final class LintCanvasOverlayHelper {
       } catch (Exception ignored) {
         // Icon drawing is best-effort on the canvas overlay
       }
-    } else if ("WARNING".equalsIgnoreCase(severity)) {
+    } else if (CONST_WARNING.equalsIgnoreCase(severity)) {
       gc.setForeground(IGc.EColor.YELLOW);
       gc.drawLine(x + iconSize, y + iconSize / 2 - 4, x + iconSize, y + iconSize / 2 + 4);
       gc.drawLine(x - 1, y + iconSize / 2 - 4, x - 1, y + iconSize / 2 + 4);

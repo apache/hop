@@ -46,6 +46,10 @@ import org.json.simple.parser.JSONParser;
  * {@code /api/2.0/fs/directories…}). Bearer PAT auth; does not log tokens.
  */
 public final class RestDatabricksFilesClient implements DatabricksFilesClient {
+  private static final String CONST_AUTHORIZATION = "Authorization";
+  private static final String CONST_BEARER = "Bearer ";
+  private static final String CONST_FILE_SIZE = "file_size";
+  private static final String CONST_LAST_MODIFIED = "last_modified";
 
   private static final Duration TIMEOUT = Duration.ofSeconds(60);
   private static final Duration UPLOAD_TIMEOUT = Duration.ofMinutes(30);
@@ -116,7 +120,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(UPLOAD_TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .header("Content-Type", "application/octet-stream")
               .PUT(HttpRequest.BodyPublishers.ofFile(localFile))
               .build();
@@ -171,7 +175,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .method("HEAD", HttpRequest.BodyPublishers.noBody())
               .build();
       HttpResponse<Void> response =
@@ -207,7 +211,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .header("Range", "bytes=0-0")
               .GET()
               .build();
@@ -263,7 +267,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .GET()
               .build();
       HttpResponse<byte[]> response =
@@ -303,7 +307,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(UPLOAD_TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .GET()
               .build();
       HttpResponse<InputStream> response =
@@ -351,7 +355,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
             HttpRequest.newBuilder()
                 .uri(URI.create(url.toString()))
                 .timeout(TIMEOUT)
-                .header("Authorization", "Bearer " + token)
+                .header(CONST_AUTHORIZATION, CONST_BEARER + token)
                 .GET()
                 .build();
         HttpResponse<String> response =
@@ -397,21 +401,21 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
             : (parentPath.endsWith("/") ? parentPath + name : parentPath + "/" + name);
     boolean isDir = Boolean.TRUE.equals(entry.get("is_directory"));
     long size = 0L;
-    if (entry.get("file_size") instanceof Number n) {
+    if (entry.get(CONST_FILE_SIZE) instanceof Number n) {
       size = n.longValue();
-    } else if (entry.get("file_size") != null) {
+    } else if (entry.get(CONST_FILE_SIZE) != null) {
       try {
-        size = Long.parseLong(entry.get("file_size").toString());
+        size = Long.parseLong(entry.get(CONST_FILE_SIZE).toString());
       } catch (NumberFormatException ignored) {
         size = 0L;
       }
     }
     long lastMod = 0L;
-    if (entry.get("last_modified") instanceof Number n) {
+    if (entry.get(CONST_LAST_MODIFIED) instanceof Number n) {
       lastMod = n.longValue();
-    } else if (entry.get("last_modified") != null) {
+    } else if (entry.get(CONST_LAST_MODIFIED) != null) {
       try {
-        lastMod = Long.parseLong(entry.get("last_modified").toString());
+        lastMod = Long.parseLong(entry.get(CONST_LAST_MODIFIED).toString());
       } catch (NumberFormatException ignored) {
         lastMod = 0L;
       }
@@ -439,7 +443,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .PUT(HttpRequest.BodyPublishers.noBody())
               .build();
       HttpResponse<String> response =
@@ -477,7 +481,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .DELETE()
               .build();
       HttpResponse<String> response =
@@ -534,7 +538,7 @@ public final class RestDatabricksFilesClient implements DatabricksFilesClient {
           HttpRequest.newBuilder()
               .uri(URI.create(url))
               .timeout(TIMEOUT)
-              .header("Authorization", "Bearer " + token)
+              .header(CONST_AUTHORIZATION, CONST_BEARER + token)
               .DELETE()
               .build();
       HttpResponse<String> response =

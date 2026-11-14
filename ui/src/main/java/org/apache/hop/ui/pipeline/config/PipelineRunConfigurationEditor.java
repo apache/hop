@@ -527,7 +527,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     GuiCompositeWidgets.updateScrolledMinSize(wPluginSpecificComp);
   }
 
-  private AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
 
   private void changeConnectionType() {
 

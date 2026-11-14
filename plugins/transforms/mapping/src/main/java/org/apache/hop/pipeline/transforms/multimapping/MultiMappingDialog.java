@@ -369,19 +369,18 @@ public class MultiMappingDialog extends BaseTransformDialog {
     wInheritAll.setLayoutData(fdInherit);
     wInheritAll.setSelection(parameters.isInheritingAllVariables());
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.Parameters.column.Variable"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.Parameters.column.ValueOrField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.Parameters.column.Variable"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.Parameters.column.ValueOrField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     colinfo[1].setUsingVariables(true);
     TableView wMappingParameters =
         new TableView(
@@ -527,19 +526,18 @@ public class MultiMappingDialog extends BaseTransformDialog {
     fdbEnter.right = new FormAttachment(100);
     wbEnterMapping.setLayoutData(fdbEnter);
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.InputTab.column.SourceField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.InputTab.column.TargetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.InputTab.column.SourceField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.InputTab.column.TargetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     TableView wFieldMappings =
         new TableView(
             variables,
@@ -712,19 +710,18 @@ public class MultiMappingDialog extends BaseTransformDialog {
     fdbGet.right = new FormAttachment(100);
     wbGetFields.setLayoutData(fdbGet);
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.OutputTab.column.SourceField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MultiMappingDialog.OutputTab.column.TargetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.OutputTab.column.SourceField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MultiMappingDialog.OutputTab.column.TargetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     TableView wFieldMappings =
         new TableView(
             variables,

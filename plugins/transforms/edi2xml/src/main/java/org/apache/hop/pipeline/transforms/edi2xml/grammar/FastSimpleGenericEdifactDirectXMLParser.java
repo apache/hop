@@ -43,24 +43,23 @@ import org.apache.commons.text.StringEscapeUtils;
 
 @SuppressWarnings("java:S1104")
 public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
-  public static final String[] tokenNames =
-      new String[] {
-        "<invalid>",
-        "<EOR>",
-        "<DOWN>",
-        "<UP>",
-        "COMPLEX_ELEMENT_ITEM_SEPARATOR",
-        "ELEMENT_SEPARATOR",
-        "RELEASE_CHARACTER",
-        "SEGMENT_TERMINATOR",
-        "TEXT_DATA",
-        "' '",
-        "'UNA:+,? \\''",
-        "'UNA:+.? \\''",
-        "'\\n'",
-        "'\\r'",
-        "'\\t'"
-      };
+  public static final String[] tokenNames = {
+    "<invalid>",
+    "<EOR>",
+    "<DOWN>",
+    "<UP>",
+    "COMPLEX_ELEMENT_ITEM_SEPARATOR",
+    "ELEMENT_SEPARATOR",
+    "RELEASE_CHARACTER",
+    "SEGMENT_TERMINATOR",
+    "TEXT_DATA",
+    "' '",
+    "'UNA:+,? \\''",
+    "'UNA:+.? \\''",
+    "'\\n'",
+    "'\\r'",
+    "'\\t'"
+  };
 
   public static final int EOF = -1;
   public static final int T_9 = 9;

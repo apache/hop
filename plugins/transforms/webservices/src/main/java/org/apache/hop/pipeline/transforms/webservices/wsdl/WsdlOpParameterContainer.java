@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
 import org.apache.hop.pipeline.transforms.webservices.WebServiceMeta;
 
 public class WsdlOpParameterContainer implements WsdlParamContainer {
-  private WsdlOpParameter parameter;
+  private final WsdlOpParameter parameter;
 
   public WsdlOpParameterContainer(WsdlOpParameter parameter) {
     this.parameter = parameter;

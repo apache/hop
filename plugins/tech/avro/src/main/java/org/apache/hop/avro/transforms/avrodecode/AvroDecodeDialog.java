@@ -65,7 +65,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroDecodeMeta.class;
   public static final String CONST_FILENAME = "filename";
 
-  private AvroDecodeMeta input;
+  private final AvroDecodeMeta input;
 
   private Combo wSourceField;
   private TableView wFields;
@@ -119,46 +119,45 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] fieldsColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.SourceField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.SourceType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                "String", "Int", "Long", "Float", "Double", "Boolean", "Bytes", "Null", "Record",
-                "Enum", "Array", "Map", "Union", "Fixed"
-              },
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetFormat"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              4),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetLength"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetPrecision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false)
-        };
+    ColumnInfo[] fieldsColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.SourceField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.SourceType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            "String", "Int", "Long", "Float", "Double", "Boolean", "Bytes", "Null", "Record",
+            "Enum", "Array", "Map", "Union", "Fixed"
+          },
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetFormat"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          4),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetLength"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Column.TargetPrecision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false)
+    };
     fieldsColumns[2].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =

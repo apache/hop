@@ -43,9 +43,9 @@ public final class WsdlTypes implements Serializable {
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;
   private final Types Types;
-  private HashSet<String> _elementFormQualifiedNamespaces;
-  private Map<String, String> _prefixMappings;
-  private WsdlComplexTypes NamedComplexTypes;
+  private final HashSet<String> _elementFormQualifiedNamespaces;
+  private final Map<String, String> _prefixMappings;
+  private final WsdlComplexTypes NamedComplexTypes;
 
   /**
    * Create a new for WsdlTypes instance for the specified WSDL definition.

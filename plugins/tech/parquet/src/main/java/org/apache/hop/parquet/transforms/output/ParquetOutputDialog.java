@@ -145,13 +145,12 @@ public class ParquetOutputDialog extends BaseTransformDialog {
         last == null ? new FormAttachment(0, 0) : new FormAttachment(last, margin);
     wlPartitionFields.setLayoutData(fdlPartitionFields);
 
-    ColumnInfo[] partitionColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.PartitionFieldsColumn.Field.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[0]),
-        };
+    ColumnInfo[] partitionColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.PartitionFieldsColumn.Field.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[0]),
+    };
     wPartitionFields =
         new TableView(
             variables,
@@ -185,33 +184,32 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(0, 0);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.SourceField.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[0]),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.TargetField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.ParquetType.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              parquetTypeComboValues(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Precision.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Scale.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.SourceField.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[0]),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.TargetField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.ParquetType.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          parquetTypeComboValues(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Precision.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.Scale.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columns[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     columns[2].setToolTip(
         BaseMessages.getString(PKG, "ParquetOutputDialog.FieldsColumn.ParquetType.Tooltip"));

@@ -65,7 +65,7 @@ public class SqlStatementsDialog extends Dialog {
 
   private String transformName;
 
-  private IVariables variables;
+  private final IVariables variables;
 
   public SqlStatementsDialog(
       Shell parent, IVariables variables, int style, List<SqlStatement> stats) {

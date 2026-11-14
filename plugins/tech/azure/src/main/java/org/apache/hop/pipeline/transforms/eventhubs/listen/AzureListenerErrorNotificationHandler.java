@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 //
 public class AzureListenerErrorNotificationHandler implements Consumer<ExceptionReceivedEventArgs> {
 
-  private AzureListener azureTransform;
+  private final AzureListener azureTransform;
 
   public AzureListenerErrorNotificationHandler(AzureListener azureTransform) {
     this.azureTransform = azureTransform;

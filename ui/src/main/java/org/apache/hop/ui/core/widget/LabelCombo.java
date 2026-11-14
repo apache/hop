@@ -32,8 +32,8 @@ import org.eclipse.swt.widgets.Label;
 public class LabelCombo extends Composite {
   private static final PropsUi props = PropsUi.getInstance();
 
-  private Label wLabel;
-  private CCombo wCombo;
+  private final Label wLabel;
+  private final CCombo wCombo;
 
   public LabelCombo(Composite composite, String labelText, String toolTipText) {
     this(composite, SWT.NONE, labelText, toolTipText);

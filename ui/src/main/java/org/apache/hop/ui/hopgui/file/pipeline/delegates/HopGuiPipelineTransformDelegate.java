@@ -75,9 +75,9 @@ public class HopGuiPipelineTransformDelegate {
   // TODO: move i18n package to HopGui
   private static final Class<?> PKG = HopGui.class;
 
-  private HopGui hopGui;
-  private HopGuiPipelineGraph pipelineGraph;
-  private Map<String, ITransformDialog> dialogs = new HashMap<>();
+  private final HopGui hopGui;
+  private final HopGuiPipelineGraph pipelineGraph;
+  private final Map<String, ITransformDialog> dialogs = new HashMap<>();
 
   public HopGuiPipelineTransformDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
@@ -126,24 +126,18 @@ public class HopGuiPipelineTransformDelegate {
                 Shell.class, IVariables.class, transformMeta.getClass(), PipelineMeta.class
               });
 
-      Object[] arguments =
-          new Object[] {
-            hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta
-          };
+      Object[] arguments = {
+        hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta
+      };
 
       return dialogConstructor.newInstance(arguments);
     } catch (Exception e) {
       // do nothing and try an other alternative
     }
 
-    Object[] arguments =
-        new Object[] {
-          hopGui.getShell(),
-          pipelineGraph.getVariables(),
-          transformMeta,
-          pipelineMeta,
-          transformName
-        };
+    Object[] arguments = {
+      hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta, transformName
+    };
 
     // TODO: To remove in future version, try old parameters version (before 2.10)
     try {
@@ -161,10 +155,9 @@ public class HopGuiPipelineTransformDelegate {
 
     // try the old way for compatibility
     try {
-      Class<?>[] sig =
-          new Class<?>[] {
-            Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class
-          };
+      Class<?>[] sig = {
+        Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class
+      };
       Method method = transformMeta.getClass().getDeclaredMethod("getDialog", sig);
       if (method != null) {
         hopGui
@@ -711,16 +704,14 @@ public class HopGuiPipelineTransformDelegate {
     String dialogClassName = partitioner.getDialogClassName();
 
     Class<?> dialogClass;
-    Class<?>[] paramClasses =
-        new Class<?>[] {
-          Shell.class,
-          IVariables.class,
-          TransformMeta.class,
-          TransformPartitioningMeta.class,
-          PipelineMeta.class
-        };
-    Object[] paramArgs =
-        new Object[] {shell, variables, transformMeta, partitioningMeta, pipelineMeta};
+    Class<?>[] paramClasses = {
+      Shell.class,
+      IVariables.class,
+      TransformMeta.class,
+      TransformPartitioningMeta.class,
+      PipelineMeta.class
+    };
+    Object[] paramArgs = {shell, variables, transformMeta, partitioningMeta, pipelineMeta};
     Constructor<?> dialogConstructor;
     try {
       dialogClass = partitioner.getClass().getClassLoader().loadClass(dialogClassName);

@@ -40,6 +40,8 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** In-memory lookup table for Bank Identification Numbers (BIN) loaded from an external CSV. */
 public class BinDatabase {
+  private static final String CONST_CREDIT_CARD_VALIDATOR_ERROR_BIN_DATABASE_READ =
+      "CreditCardValidator.Error.BinDatabaseRead";
 
   private static final Class<?> PKG = CreditCardValidatorMeta.class;
 
@@ -83,7 +85,7 @@ public class BinDatabase {
       load(in, binCsvColumn, resolvedFields, delimiter, enclosure, charset, headerPresent);
     } catch (IOException e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "CreditCardValidator.Error.BinDatabaseRead"), e);
+          BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_ERROR_BIN_DATABASE_READ), e);
     }
   }
 
@@ -179,10 +181,10 @@ public class BinDatabase {
       }
     } catch (IOException e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "CreditCardValidator.Error.BinDatabaseRead"), e);
+          BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_ERROR_BIN_DATABASE_READ), e);
     } catch (CsvValidationException e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "CreditCardValidator.Error.BinDatabaseRead"), e);
+          BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_ERROR_BIN_DATABASE_READ), e);
     }
   }
 

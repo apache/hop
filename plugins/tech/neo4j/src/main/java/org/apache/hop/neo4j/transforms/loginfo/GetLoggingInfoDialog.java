@@ -52,7 +52,7 @@ public class GetLoggingInfoDialog extends BaseTransformDialog {
 
   private TableView wFields;
 
-  private GetLoggingInfoMeta input;
+  private final GetLoggingInfoMeta input;
 
   private boolean isReceivingInput = false;
 

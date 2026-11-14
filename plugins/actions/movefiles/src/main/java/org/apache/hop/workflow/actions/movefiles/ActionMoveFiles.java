@@ -790,7 +790,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             updateSuccess();
             retVal = true;
           }
-          case "move_file" -> {
+          case MOVE_FILE -> {
             String shortDestinationFilename = shortFilename;
             // return destination short filename
             try {

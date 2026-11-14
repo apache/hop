@@ -44,10 +44,10 @@ import org.eclipse.swt.widgets.Text;
 public class TransformDebugLevelDialog extends Dialog {
   private static final Class<?> PKG = TransformDebugLevelDialog.class;
 
-  private TransformDebugLevel input;
-  private TransformDebugLevel debugLevel;
-  private IRowMeta inputRowMeta;
-  private IVariables variables;
+  private final TransformDebugLevel input;
+  private final TransformDebugLevel debugLevel;
+  private final IRowMeta inputRowMeta;
+  private final IVariables variables;
 
   private Shell shell;
 
@@ -57,7 +57,7 @@ public class TransformDebugLevelDialog extends Dialog {
   private Text wStartRow;
   private Text wEndRow;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private boolean ok;
 
@@ -153,7 +153,7 @@ public class TransformDebugLevelDialog extends Dialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
-    Button[] buttons = new Button[] {wOK, wCancel};
+    Button[] buttons = {wOK, wCancel};
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, null);
 
     // Condition

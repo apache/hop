@@ -26,6 +26,9 @@ import org.json.simple.parser.JSONParser;
 
 /** Builds Jobs API JSON for Hop Native Spark (MainSpark JAR task) on Databricks. */
 public final class DatabricksJobSpecFactory {
+  private static final String CONST_TASKS = "tasks";
+  private static final String CONST_ENVIRONMENT_KEY = "environment_key";
+  private static final String CONST_DBFS = "dbfs:";
 
   /** Driver entry on the native Spark fat jar (see engines/spark MainSpark). */
   public static final String MAIN_CLASS = "org.apache.hop.spark.run.MainSpark";
@@ -96,7 +99,7 @@ public final class DatabricksJobSpecFactory {
     applyEnvironments(root, clusterTarget, jarUri);
     JSONArray tasks = new JSONArray();
     tasks.add(buildJarTask(clusterTarget, jarUri, launch));
-    root.put("tasks", tasks);
+    root.put(CONST_TASKS, tasks);
     return root.toJSONString();
   }
 
@@ -178,7 +181,7 @@ public final class DatabricksJobSpecFactory {
     applyEnvironments(settings, clusterTarget, jarUri);
     JSONArray tasks = new JSONArray();
     tasks.add(buildJarTask(clusterTarget, jarUri, launch));
-    settings.put("tasks", tasks);
+    settings.put(CONST_TASKS, tasks);
     root.put("new_settings", settings);
     return root.toJSONString();
   }
@@ -249,7 +252,7 @@ public final class DatabricksJobSpecFactory {
     applyEnvironments(root, clusterTarget, jarUri);
     JSONArray tasks = new JSONArray();
     tasks.add(buildJarTask(clusterTarget, jarUri, launch));
-    root.put("tasks", tasks);
+    root.put(CONST_TASKS, tasks);
     return root.toJSONString();
   }
 
@@ -425,7 +428,7 @@ public final class DatabricksJobSpecFactory {
     }
     JSONArray environments = new JSONArray();
     JSONObject env = new JSONObject();
-    env.put("environment_key", require(clusterTarget.environmentKey(), "environment_key"));
+    env.put(CONST_ENVIRONMENT_KEY, require(clusterTarget.environmentKey(), CONST_ENVIRONMENT_KEY));
     JSONObject spec = new JSONObject();
     spec.put("client", require(clusterTarget.environmentClient(), "environment client"));
     // Serverless JAR tasks require java_dependencies on the environment (not task libraries[])
@@ -458,13 +461,15 @@ public final class DatabricksJobSpecFactory {
 
     switch (clusterTarget.mode()) {
       case SERVERLESS ->
-          task.put("environment_key", require(clusterTarget.environmentKey(), "environment_key"));
+          task.put(
+              CONST_ENVIRONMENT_KEY,
+              require(clusterTarget.environmentKey(), CONST_ENVIRONMENT_KEY));
       case NEW_CLUSTER -> {
         if (clusterTarget.newCluster() == null || clusterTarget.newCluster().isEmpty()) {
           throw new HopException(
               "new_cluster object is required when cluster field is '" + NEW_CLUSTER_TOKEN + "'");
         }
-        task.put("new_cluster", clusterTarget.newCluster());
+        task.put(NEW_CLUSTER_TOKEN, clusterTarget.newCluster());
       }
       case EXISTING_CLUSTER ->
           task.put(
@@ -482,7 +487,8 @@ public final class DatabricksJobSpecFactory {
       JSONArray libraries = new JSONArray();
       JSONObject lib = new JSONObject();
       lib.put(
-          "jar", jarUri.startsWith("/") || jarUri.startsWith("dbfs:") ? jarUri : toDbfsUri(jarUri));
+          "jar",
+          jarUri.startsWith("/") || jarUri.startsWith(CONST_DBFS) ? jarUri : toDbfsUri(jarUri));
       libraries.add(lib);
       task.put("libraries", libraries);
     }
@@ -531,7 +537,7 @@ public final class DatabricksJobSpecFactory {
     String p = require(path, "path");
     // Relative pipeline path inside a project package (e.g. pipelines/hello.hpl)
     if (!p.startsWith("/")
-        && !p.startsWith("dbfs:")
+        && !p.startsWith(CONST_DBFS)
         && !p.contains("://")
         && !p.matches("^[A-Za-z]:[\\\\/].*")) {
       return p;
@@ -568,15 +574,15 @@ public final class DatabricksJobSpecFactory {
    */
   public static String toDbfsUri(String path) throws HopException {
     String p = require(path, "workspace path");
-    if (p.startsWith("dbfs:")) {
-      String stripped = p.substring("dbfs:".length());
+    if (p.startsWith(CONST_DBFS)) {
+      String stripped = p.substring(CONST_DBFS.length());
       if (!stripped.startsWith("/")) {
         stripped = "/" + stripped;
       }
       if (isVolumeOrWorkspacePath(stripped)) {
         return stripped;
       }
-      return "dbfs:" + stripped;
+      return CONST_DBFS + stripped;
     }
     if (!p.startsWith("/")) {
       p = "/" + p;
@@ -584,7 +590,7 @@ public final class DatabricksJobSpecFactory {
     if (isVolumeOrWorkspacePath(p)) {
       return p;
     }
-    return "dbfs:" + p;
+    return CONST_DBFS + p;
   }
 
   static boolean isVolumeOrWorkspacePath(String absolutePath) {

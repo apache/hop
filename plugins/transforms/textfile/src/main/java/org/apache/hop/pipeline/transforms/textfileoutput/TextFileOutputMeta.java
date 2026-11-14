@@ -67,10 +67,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   protected static final int FILE_COMPRESSION_TYPE_ZIP = 1;
 
-  protected static final String[] fileCompressionTypeCodes = new String[] {"None", "Zip"};
+  protected static final String[] fileCompressionTypeCodes = {"None", "Zip"};
 
-  protected static final String[] formatMapperLineTerminator =
-      new String[] {"DOS", "UNIX", "CR", "None"};
+  protected static final String[] formatMapperLineTerminator = {"DOS", "UNIX", "CR", "None"};
 
   @Getter
   @Setter

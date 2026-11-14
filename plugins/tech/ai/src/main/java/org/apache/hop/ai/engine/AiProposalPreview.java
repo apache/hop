@@ -22,6 +22,8 @@ import org.apache.hop.core.util.Utils;
 
 /** Human-readable preview of one hop_proposals item. */
 public final class AiProposalPreview {
+  private static final String CONST_TRANSFORM_NAME = "transformName";
+  private static final String CONST_ACTION_NAME = "actionName";
 
   private AiProposalPreview() {}
 
@@ -76,10 +78,10 @@ public final class AiProposalPreview {
               + " ("
               + proposal.parameter("transformPluginId")
               + ")";
-      case DELETE_TRANSFORM -> "DELETE_TRANSFORM: " + proposal.parameter("transformName");
+      case DELETE_TRANSFORM -> "DELETE_TRANSFORM: " + proposal.parameter(CONST_TRANSFORM_NAME);
       case RENAME_TRANSFORM ->
           "RENAME_TRANSFORM: "
-              + proposal.parameter("transformName")
+              + proposal.parameter(CONST_TRANSFORM_NAME)
               + " -> "
               + proposal.parameter("newName");
       case ADD_PIPELINE_HOP ->
@@ -94,23 +96,24 @@ public final class AiProposalPreview {
               + proposal.parameter("toTransform");
       case SET_TRANSFORM_LOCATION ->
           "SET_TRANSFORM_LOCATION: "
-              + proposal.parameter("transformName")
+              + proposal.parameter(CONST_TRANSFORM_NAME)
               + " @ "
               + proposal.parameter("locationX")
               + ","
               + proposal.parameter("locationY");
       case ADD_PIPELINE_NOTE -> "ADD_PIPELINE_NOTE: " + truncate(proposal.parameter("text"), 120);
-      case CONFIGURE_TRANSFORM -> "CONFIGURE_TRANSFORM: " + proposal.parameter("transformName");
+      case CONFIGURE_TRANSFORM ->
+          "CONFIGURE_TRANSFORM: " + proposal.parameter(CONST_TRANSFORM_NAME);
       case ADD_ACTION ->
           "ADD_ACTION: "
               + proposal.parameter("name")
               + " ("
               + proposal.parameter("actionPluginId")
               + ")";
-      case DELETE_ACTION -> "DELETE_ACTION: " + proposal.parameter("actionName");
+      case DELETE_ACTION -> "DELETE_ACTION: " + proposal.parameter(CONST_ACTION_NAME);
       case RENAME_ACTION ->
           "RENAME_ACTION: "
-              + proposal.parameter("actionName")
+              + proposal.parameter(CONST_ACTION_NAME)
               + " -> "
               + proposal.parameter("newName");
       case ADD_WORKFLOW_HOP ->
@@ -125,17 +128,17 @@ public final class AiProposalPreview {
               + proposal.parameter("toAction");
       case SET_ACTION_LOCATION ->
           "SET_ACTION_LOCATION: "
-              + proposal.parameter("actionName")
+              + proposal.parameter(CONST_ACTION_NAME)
               + " @ "
               + proposal.parameter("locationX")
               + ","
               + proposal.parameter("locationY");
       case ADD_WORKFLOW_NOTE -> "ADD_WORKFLOW_NOTE: " + truncate(proposal.parameter("text"), 120);
-      case CONFIGURE_ACTION -> "CONFIGURE_ACTION: " + proposal.parameter("actionName");
+      case CONFIGURE_ACTION -> "CONFIGURE_ACTION: " + proposal.parameter(CONST_ACTION_NAME);
       case CLIPBOARD_TRANSFORMS -> "CLIPBOARD_TRANSFORMS: copied transform XML to clipboard";
-      case REPLACE_TRANSFORM -> "REPLACE_TRANSFORM: " + proposal.parameter("transformName");
+      case REPLACE_TRANSFORM -> "REPLACE_TRANSFORM: " + proposal.parameter(CONST_TRANSFORM_NAME);
       case CLIPBOARD_ACTIONS -> "CLIPBOARD_ACTIONS: copied action XML to clipboard";
-      case REPLACE_ACTION -> "REPLACE_ACTION: " + proposal.parameter("actionName");
+      case REPLACE_ACTION -> "REPLACE_ACTION: " + proposal.parameter(CONST_ACTION_NAME);
       case CLIPBOARD_METADATA ->
           "CLIPBOARD_METADATA: " + proposal.parameter("typeKey") + "/" + proposal.parameter("name");
       case SAVE_METADATA ->

@@ -52,16 +52,16 @@ public class ComboVar extends Composite {
 
   private IInsertText insertTextInterface;
 
-  private ControlSpaceKeyAdapter controlSpaceKeyAdapter;
+  private final ControlSpaceKeyAdapter controlSpaceKeyAdapter;
 
   private IVariables variables;
 
-  private CCombo wCombo;
-  private Label wlImage;
+  private final CCombo wCombo;
+  private final Label wlImage;
   private Label wNamingImage;
-  private FormData fdCombo;
+  private final FormData fdCombo;
 
-  private ModifyListener modifyListenerTooltipText;
+  private final ModifyListener modifyListenerTooltipText;
 
   private boolean variablesEnabled = true;
   private String namingSchemeType;

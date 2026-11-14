@@ -501,7 +501,7 @@ public class EngineComponent implements IEngineComponent {
     STATUS_HALTING(BaseMessages.getString(PKG, "BaseTransform.status.Halting"));
 
     /** The description. */
-    private String description;
+    private final String description;
 
     /**
      * Instantiates a new transform execution status.

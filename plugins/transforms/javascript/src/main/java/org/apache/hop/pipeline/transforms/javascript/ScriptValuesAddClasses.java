@@ -19,9 +19,9 @@ package org.apache.hop.pipeline.transforms.javascript;
 
 public class ScriptValuesAddClasses {
 
-  private Class<?> addClass;
-  private Object addObject;
-  private String strJSName;
+  private final Class<?> addClass;
+  private final Object addObject;
+  private final String strJSName;
 
   public ScriptValuesAddClasses(Class<?> addClass, Object addObject, String strJSName) {
     super();

@@ -38,6 +38,15 @@ import org.apache.hop.openformula.typing.StaticArrayCallback;
 import org.apache.hop.openformula.typing.TypedValue;
 
 public final class UserDefinedFunctions {
+  private static final String CONST_ARRAY = "array";
+  private static final String CONST_ARRAY_OR_SEQUENCE = "Array or sequence";
+  private static final String CONST_COUNT = "count";
+  private static final String CONST_COUNT_OF_ELEMENTS = "Count of elements";
+  private static final String CONST_ARRAY_2 = "Array";
+  private static final String CONST_QUOTE = "quote";
+  private static final String CONST_QUOTE_CHARACTER_DEFAULTS_TO =
+      "Quote character (defaults to \")";
+
   private UserDefinedFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -50,7 +59,7 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             1,
             true,
-            List.of("array"),
+            List.of(CONST_ARRAY),
             List.of("Arrays or values to concatenate")));
     registry.registerFunction(
         new ArrayContainsFunction(),
@@ -61,8 +70,8 @@ public final class UserDefinedFunctions {
             DataType.LOGICAL,
             2,
             false,
-            List.of("array", "value"),
-            List.of("Array or sequence", "Value to find")));
+            List.of(CONST_ARRAY, "value"),
+            List.of(CONST_ARRAY_OR_SEQUENCE, "Value to find")));
     registry.registerFunction(
         new ArrayLeftFunction(),
         new FunctionDescription(
@@ -72,8 +81,8 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             2,
             false,
-            List.of("array", "count"),
-            List.of("Array", "Count of elements")));
+            List.of(CONST_ARRAY, CONST_COUNT),
+            List.of(CONST_ARRAY_2, CONST_COUNT_OF_ELEMENTS)));
     registry.registerFunction(
         new ArrayMidFunction(),
         new FunctionDescription(
@@ -83,8 +92,8 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             3,
             false,
-            List.of("array", "start", "count"),
-            List.of("Array", "Start index (1-based)", "Count of elements")));
+            List.of(CONST_ARRAY, "start", CONST_COUNT),
+            List.of(CONST_ARRAY_2, "Start index (1-based)", CONST_COUNT_OF_ELEMENTS)));
     registry.registerFunction(
         new ArrayRightFunction(),
         new FunctionDescription(
@@ -94,8 +103,8 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             2,
             false,
-            List.of("array", "count"),
-            List.of("Array", "Count of elements")));
+            List.of(CONST_ARRAY, CONST_COUNT),
+            List.of(CONST_ARRAY_2, CONST_COUNT_OF_ELEMENTS)));
     registry.registerFunction(
         new CsvArrayFunction(),
         new FunctionDescription(
@@ -105,11 +114,11 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             1,
             false,
-            List.of("csv_text", "delimiter", "quote"),
+            List.of("csv_text", "delimiter", CONST_QUOTE),
             List.of(
                 "CSV text string",
                 "Delimiter (defaults to ,)",
-                "Quote character (defaults to \")")));
+                CONST_QUOTE_CHARACTER_DEFAULTS_TO)));
     registry.registerFunction(
         new CsvTextFunction(),
         new FunctionDescription(
@@ -119,11 +128,11 @@ public final class UserDefinedFunctions {
             DataType.TEXT,
             1,
             false,
-            List.of("array", "delimiter", "quote"),
+            List.of(CONST_ARRAY, "delimiter", CONST_QUOTE),
             List.of(
-                "Array or sequence",
+                CONST_ARRAY_OR_SEQUENCE,
                 "Delimiter (defaults to ,)",
-                "Quote character (defaults to \")")));
+                CONST_QUOTE_CHARACTER_DEFAULTS_TO)));
     registry.registerFunction(
         new NormalizeArrayFunction(),
         new FunctionDescription(
@@ -133,7 +142,7 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             1,
             false,
-            List.of("array"),
+            List.of(CONST_ARRAY),
             List.of("Array to normalize")));
     registry.registerFunction(
         new NullFunction(),
@@ -166,8 +175,8 @@ public final class UserDefinedFunctions {
             DataType.ARRAY,
             1,
             false,
-            List.of("sequence", "quote"),
-            List.of("Array or sequence", "Quote character (defaults to \")")));
+            List.of("sequence", CONST_QUOTE),
+            List.of(CONST_ARRAY_OR_SEQUENCE, CONST_QUOTE_CHARACTER_DEFAULTS_TO)));
   }
 
   private static void flatten(Object val, List<Object> target) throws EvaluationException {

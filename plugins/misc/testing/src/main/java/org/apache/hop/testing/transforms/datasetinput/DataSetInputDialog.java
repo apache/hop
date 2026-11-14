@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 public class DataSetInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DataSetInputDialog.class;
 
-  private DataSetInputMeta input;
+  private final DataSetInputMeta input;
 
   private MetaSelectionLine<DataSet> wDataSetName;
 

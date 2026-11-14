@@ -56,6 +56,10 @@ import org.apache.kafka.common.errors.WakeupException;
 /** Consume messages from a Kafka topic */
 public class KafkaConsumerInput
     extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
+  private static final String CONST_KAFKA_CONSUMER_MAX_CONSUME_DURATION_OF =
+      "Kafka consumer max consume duration of ";
+  private static final String CONST_MS_REACHED_STOPPING_GRACEFULLY =
+      "ms reached, stopping gracefully";
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class;
 
@@ -308,9 +312,9 @@ public class KafkaConsumerInput
       long now = System.currentTimeMillis();
       if (maxConsumeDurationReached(now, data.maxConsumeDurationMs, data.startTime)) {
         return stopGracefully(
-            "Kafka consumer max consume duration of "
+            CONST_KAFKA_CONSUMER_MAX_CONSUME_DURATION_OF
                 + data.maxConsumeDurationMs
-                + "ms reached, stopping gracefully");
+                + CONST_MS_REACHED_STOPPING_GRACEFULLY);
       }
       long pollMs =
           pollTimeoutMs(
@@ -329,9 +333,9 @@ public class KafkaConsumerInput
           if (maxConsumeDurationReached(
               System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
             return stopGracefully(
-                "Kafka consumer max consume duration of "
+                CONST_KAFKA_CONSUMER_MAX_CONSUME_DURATION_OF
                     + data.maxConsumeDurationMs
-                    + "ms reached, stopping gracefully");
+                    + CONST_MS_REACHED_STOPPING_GRACEFULLY);
           }
           // Optionally stop after max idle time.
           // Do not count idle until partitions are assigned — group join / rebalance can take
@@ -412,9 +416,9 @@ public class KafkaConsumerInput
         if (maxConsumeDurationReached(
             System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
           return stopGracefully(
-              "Kafka consumer max consume duration of "
+              CONST_KAFKA_CONSUMER_MAX_CONSUME_DURATION_OF
                   + data.maxConsumeDurationMs
-                  + "ms reached, stopping gracefully");
+                  + CONST_MS_REACHED_STOPPING_GRACEFULLY);
         }
       }
     } catch (WakeupException e) {
@@ -423,9 +427,9 @@ public class KafkaConsumerInput
           || maxConsumeDurationReached(
               System.currentTimeMillis(), data.maxConsumeDurationMs, data.startTime)) {
         return stopGracefully(
-            "Kafka consumer max consume duration of "
+            CONST_KAFKA_CONSUMER_MAX_CONSUME_DURATION_OF
                 + data.maxConsumeDurationMs
-                + "ms reached, stopping gracefully");
+                + CONST_MS_REACHED_STOPPING_GRACEFULLY);
       }
       if (data.executor != null) {
         data.executor.getPipeline().stopAll();

@@ -38,7 +38,7 @@ public class TreeMemory {
 
   private static final Map<Display, TreeMemory> BY_DISPLAY = new ConcurrentHashMap<>();
 
-  private Map<TreeMemoryEntry, Boolean> map;
+  private final Map<TreeMemoryEntry, Boolean> map;
 
   public static final TreeMemory getInstance() {
     Display display = SessionDisplay.current();
@@ -62,8 +62,8 @@ public class TreeMemory {
   }
 
   private class TreeMemoryEntry {
-    private String treeName;
-    private String[] path;
+    private final String treeName;
+    private final String[] path;
 
     TreeMemoryEntry(String treeName, String[] path) {
       this.path = path;

@@ -26,8 +26,8 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.StringUtil;
 
 public class LogMessage implements ILogMessage {
-  private String logChannelId;
-  private String message;
+  private final String logChannelId;
+  private final String message;
   private String subject;
   private Object[] arguments;
   private LogLevel level;

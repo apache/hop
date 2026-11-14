@@ -89,27 +89,25 @@ public class TextFileInputField implements ITextFileInputField {
 
   private String[] samples;
 
-  private static final String[] dateFormats =
-      new String[] {
-        "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd",
-            "yyyy-MM-dd",
-        "yyyyMMdd", "ddMMyyyy", "d-M-yyyy", "d/M/yyyy", "d-M-yy", "d/M/yy",
-      };
+  private static final String[] dateFormats = {
+    "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd",
+        "yyyy-MM-dd",
+    "yyyyMMdd", "ddMMyyyy", "d-M-yyyy", "d/M/yyyy", "d-M-yy", "d/M/yy",
+  };
 
   // These are DecimalFormat pattern strings, not locale-specific rendered values: the actual
   // decimal/grouping separators are substituted at format time from DecimalFormatSymbols, so
   // the patterns themselves are locale-invariant and safe to keep in a static initializer.
-  private static final String[] numberFormats =
-      new String[] {
-        "",
-        "#",
-        Const.getDefaultNumberFormat(),
-        "0.00",
-        "0000000000000",
-        "###,###,###.#######",
-        "###############.###############",
-        "#####.###############%",
-      };
+  private static final String[] numberFormats = {
+    "",
+    "#",
+    Const.getDefaultNumberFormat(),
+    "0.00",
+    "0000000000000",
+    "###,###,###.#######",
+    "###############.###############",
+    "#####.###############%",
+  };
 
   public TextFileInputField() {
     this(null, -9, -9);

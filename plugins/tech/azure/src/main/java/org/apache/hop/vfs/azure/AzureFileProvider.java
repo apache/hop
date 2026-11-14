@@ -69,10 +69,9 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
               Capability.APPEND_CONTENT,
               Capability.RANDOM_ACCESS_READ));
 
-  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {
-        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
-      };
+  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES = {
+    UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+  };
 
   public static final String AZURE_ENDPOINT_SUFFIX = "core.windows.net";
 

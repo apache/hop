@@ -27,6 +27,8 @@ import org.eclipse.swt.widgets.Shell;
  * supports when rendering notes.
  */
 public final class MarkdownNoteHelp {
+  private static final String CONST_UL = "<ul>\n";
+  private static final String CONST_UL_CLOSE = "</ul>\n";
 
   private static final Class<?> PKG = NotePadDialog.class;
 
@@ -82,7 +84,7 @@ public final class MarkdownNoteHelp {
             + "for colors, and write source using the fixed-width editor.</p>\n");
 
     html.append("<h2>Getting started</h2>\n");
-    html.append("<ul>\n");
+    html.append(CONST_UL);
     html.append(
         "<li>Create a note from the canvas context menu (empty area or note actions).</li>\n");
     html.append("<li>Check <strong>Render as Markdown</strong>.</li>\n");
@@ -94,14 +96,14 @@ public final class MarkdownNoteHelp {
     html.append(
         "<li><strong>Ctrl+click</strong> (Windows/Linux) or <strong>⌘+click</strong> (macOS) "
             + "a note on the canvas to edit it.</li>\n");
-    html.append("</ul>\n");
+    html.append(CONST_UL_CLOSE);
 
     html.append("<h2>Editing toolbar</h2>\n");
     html.append(
         "<p>When <strong>Render as Markdown</strong> is on, the note toolbar inserts syntax. "
             + "The same buttons are on the toolbar when you edit a <code>.md</code> file in the "
             + "file explorer. Bold and italic stay disabled until text is selected.</p>\n");
-    html.append("<ul>\n");
+    html.append(CONST_UL);
     html.append(
         "<li><strong>Link</strong>: choose a URL or a file, then insert "
             + "<code>[label](target)</code>. Selected text becomes the label.</li>\n");
@@ -117,7 +119,7 @@ public final class MarkdownNoteHelp {
     html.append("<li><strong>Code block</strong>: a fenced block of three backticks.</li>\n");
     html.append(
         "<li><strong>Header</strong>: Header 1–4 or regular text on the current line.</li>\n");
-    html.append("</ul>\n");
+    html.append(CONST_UL_CLOSE);
     html.append(
         "<p>Asterisks (<code>**bold**</code>, <code>*italic*</code>) still render. "
             + "The toolbar uses underscores. A picked file is stored relative to the pipeline, "
@@ -174,15 +176,15 @@ public final class MarkdownNoteHelp {
     html.append("</table>\n");
 
     html.append("<h2>What is not supported</h2>\n");
-    html.append("<ul>\n");
+    html.append(CONST_UL);
     html.append("<li>Raw HTML passthrough inside the note body</li>\n");
     html.append("<li>Remote images (<code>http://</code> / <code>https://</code>)</li>\n");
     html.append("<li>MultiMarkdown extras (citations, math, bibliographies)</li>\n");
     html.append("<li>Custom fonts/colors while Markdown is on (use note type instead)</li>\n");
-    html.append("</ul>\n");
+    html.append(CONST_UL_CLOSE);
 
     html.append("<h2>Tips</h2>\n");
-    html.append("<ul>\n");
+    html.append(CONST_UL);
     html.append(
         "<li>Resize a note by its edges; text reflows. Default new-note width is readable for "
             + "Markdown wrapping.</li>\n");
@@ -192,7 +194,7 @@ public final class MarkdownNoteHelp {
     html.append(
         "<li>Dark mode uses note-type palettes designed for contrast (same idea as model notes "
             + "elsewhere in Hop).</li>\n");
-    html.append("</ul>\n");
+    html.append(CONST_UL_CLOSE);
 
     html.append(
         "<p><em>Full documentation: Hop User Manual → Hop Gui → Notes on pipelines and "

@@ -65,6 +65,8 @@ import org.apache.hop.workflow.action.IAction;
 @Setter
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class;
+  private static final String CONST_ACTION_SQL_NO_SQL_FILE_SPECIFIED =
+      "ActionSQL.NoSQLFileSpecified";
 
   @HopMetadataProperty(
       key = "sql",
@@ -115,7 +117,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         if (sqlFromFile) {
           if (sqlFilename == null) {
             throw new HopDatabaseException(
-                BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"));
+                BaseMessages.getString(PKG, CONST_ACTION_SQL_NO_SQL_FILE_SPECIFIED));
           }
 
           try {
@@ -243,7 +245,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         remarks.add(
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"),
+                BaseMessages.getString(PKG, CONST_ACTION_SQL_NO_SQL_FILE_SPECIFIED),
                 this));
       }
       return;
@@ -279,7 +281,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     if (index != 0 || !sqlFromFile || Utils.isEmpty(sqlFilename)) {
-      throw new HopException(BaseMessages.getString(PKG, "ActionSQL.NoSQLFileSpecified"));
+      throw new HopException(BaseMessages.getString(PKG, CONST_ACTION_SQL_NO_SQL_FILE_SPECIFIED));
     }
     return () -> sqlFilename;
   }

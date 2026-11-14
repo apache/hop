@@ -38,7 +38,7 @@ import org.xml.sax.InputSource;
 public final class ControlWsdlLocator implements WSDLLocator {
   private final String _wsdlName;
   private final BeanContext _beanContext;
-  private List<InputStream> OpenStreams = new ArrayList<>();
+  private final List<InputStream> OpenStreams = new ArrayList<>();
 
   /**
    * Create a new wsdl locator for the wsdl file with the specified name.

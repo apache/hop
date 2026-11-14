@@ -52,10 +52,10 @@ public class EnterNumberDialog extends Dialog {
   protected Shell shell;
 
   protected int samples;
-  private String shellText;
-  private String lineText;
-  private String checkboxLabel;
-  private PropsUi props;
+  private final String shellText;
+  private final String lineText;
+  private final String checkboxLabel;
+  private final PropsUi props;
 
   private int width;
   EnterNumberDialogResult result = new EnterNumberDialogResult();

@@ -50,6 +50,8 @@ import org.jspecify.annotations.Nullable;
  * plugin-contributed actions (e.g. Markdown preview) appear in hop-web as well as desktop.
  */
 public class ContentEditorFacadeImpl extends ContentEditorFacade {
+  private static final String CONST_START = "start";
+  private static final String CONST_CONTENT = "content";
 
   private static final String MONACO_REMOTE_TYPE = "hop.MonacoEditor";
 
@@ -70,7 +72,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       RemoteObject remoteObject = connection.createRemoteObject(MONACO_REMOTE_TYPE);
       remoteObject.set("parent", WidgetUtil.getId(host));
       remoteObject.set("self", remoteObject.getId());
-      remoteObject.set("content", "");
+      remoteObject.set(CONST_CONTENT, "");
       remoteObject.set("language", languageId != null ? languageId : "plaintext");
       // Match Hop Web theme (/ui-dark → Monaco vs-dark), same idea as canvas themeId
       remoteObject.set("theme", PropsUi.getInstance().isDarkMode() ? "vs-dark" : "vs");
@@ -205,8 +207,8 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
                 return;
               }
               if ("selectionChanged".equals(event)) {
-                if (properties.get("start") != null) {
-                  selectionStart = properties.get("start").asInt();
+                if (properties.get(CONST_START) != null) {
+                  selectionStart = properties.get(CONST_START).asInt();
                 }
                 if (properties.get("end") != null) {
                   selectionEnd = properties.get("end").asInt();
@@ -259,10 +261,10 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
                     });
                 return;
               }
-              if (!"contentChanged".equals(event) || properties.get("content") == null) {
+              if (!"contentChanged".equals(event) || properties.get(CONST_CONTENT) == null) {
                 return;
               }
-              String newContent = properties.get("content").asString();
+              String newContent = properties.get(CONST_CONTENT).asString();
               cachedContent = newContent != null ? newContent : "";
               if (suppressModify) {
                 return;
@@ -332,7 +334,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       cachedContent = s;
       selectionStart = 0;
       selectionEnd = 0;
-      remoteObject.set("content", s);
+      remoteObject.set(CONST_CONTENT, s);
     }
 
     @Override
@@ -432,7 +434,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       selectionStart = Math.max(0, start);
       selectionEnd = Math.max(selectionStart, end);
       JsonObject obj = new JsonObject();
-      obj.add("start", selectionStart);
+      obj.add(CONST_START, selectionStart);
       obj.add("end", selectionEnd);
       remoteObject.call("setSelection", obj);
     }
@@ -458,7 +460,7 @@ public class ContentEditorFacadeImpl extends ContentEditorFacade {
       selectionEnd = caret;
       JsonObject obj = new JsonObject();
       obj.add("text", insertion);
-      obj.add("start", start);
+      obj.add(CONST_START, start);
       obj.add("end", end);
       remoteObject.call("insert", obj);
     }

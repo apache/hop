@@ -115,11 +115,10 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
   public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
-        BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
+    BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+  };
   public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
   public static final String CONST_SYSTEM_LABEL_EXTENSION = "System.Label.Extension";
@@ -291,7 +290,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   private ModifyListener lsMod;
 
-  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  public static final int[] dateLengths = {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
   private boolean gotEncodings = false;
 
@@ -852,29 +851,28 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdAccepting.bottom = new FormAttachment(wFirstHeader, -margin);
     gAccepting.setLayoutData(fdAccepting);
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.FileDirColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.WildcardColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.Files.ExcludeWildcard.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.RequiredColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.IncludeSubDirs.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO)
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.FileDirColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.WildcardColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.Files.ExcludeWildcard.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.RequiredColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.IncludeSubDirs.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO)
+    };
 
     colinfo[0].setUsingVariables(true);
     colinfo[1].setToolTip(BaseMessages.getString(PKG, "TextFileInputDialog.RegExpColumn.Column"));
@@ -1960,25 +1958,24 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     final int FilterRows = input.getFilters().size();
 
-    ColumnInfo[] colInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.FilterStringColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.FilterPositionColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.StopOnFilterColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.FilterPositiveColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO)
-        };
+    ColumnInfo[] colInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.FilterStringColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.FilterPositionColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.StopOnFilterColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.FilterPositiveColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO_COMBO)
+    };
 
     colInfos[2].setToolTip(
         BaseMessages.getString(PKG, "TextFileInputDialog.StopOnFilterColumn.Tooltip"));
@@ -2124,64 +2121,63 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.NameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.TypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.FormatColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.PositionColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.LengthColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.PrecisionColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.CurrencyColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.DecimalColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.GroupColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.NullIfColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.IfNullColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.TrimTypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
-              },
-              true)
-        };
+    ColumnInfo[] colInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.NameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.TypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.FormatColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.PositionColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.LengthColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.PrecisionColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.CurrencyColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.DecimalColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.GroupColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.NullIfColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.IfNullColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.TrimTypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.trimTypeDesc),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
+          },
+          true)
+    };
     colInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colInfos[12].setToolTip(

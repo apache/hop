@@ -26,6 +26,7 @@ import org.apache.hop.spark.engines.SparkPipelineRunConfiguration;
  * Named presets for {@link SparkPipelineRunConfiguration} fields. Pure data — no SWT. Apply via
  * {@link #applyTo(SparkPipelineRunConfiguration)}.
  */
+@SuppressWarnings("java:S1192") // preset table: each preset reads as one row of literal values
 public enum SparkRunConfigTemplate {
   LOCAL_EXECUTION(
       "Local execution",

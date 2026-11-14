@@ -55,11 +55,10 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionMysqlBulkLoadDialog extends ActionDialog {
   private static final Class<?> PKG = ActionMysqlBulkLoad.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.Text"),
+    BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.All")
+  };
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

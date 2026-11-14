@@ -40,7 +40,7 @@ public class NewSubPipelineDialog extends Dialog {
   private Button wShow;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
   boolean doNotShow = false;
 
   public NewSubPipelineDialog(Shell parent, int style) {

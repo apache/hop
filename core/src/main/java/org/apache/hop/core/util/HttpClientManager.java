@@ -366,22 +366,21 @@ public class HttpClientManager {
   @SuppressWarnings({"java:S4830", "java:S4423"})
   public static SSLContext getTrustAllSslContext()
       throws NoSuchAlgorithmException, KeyManagementException {
-    TrustManager[] trustAllCerts =
-        new TrustManager[] {
-          new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-              return null;
-            }
+    TrustManager[] trustAllCerts = {
+      new X509TrustManager() {
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+          return null;
+        }
 
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
-              // Do nothing
-            }
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+          // Do nothing
+        }
 
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
-              // Do nothing
-            }
-          }
-        };
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+          // Do nothing
+        }
+      }
+    };
 
     SSLContext sc = SSLContext.getInstance("SSL");
     sc.init(null, trustAllCerts, new java.security.SecureRandom());

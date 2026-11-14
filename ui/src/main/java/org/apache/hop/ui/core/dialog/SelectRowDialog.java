@@ -48,13 +48,13 @@ public class SelectRowDialog extends Dialog {
   private TableView wFields;
 
   private Shell shell;
-  private List<RowMetaAndData> buffer;
-  private PropsUi props;
+  private final List<RowMetaAndData> buffer;
+  private final PropsUi props;
   private String title;
 
   private RowMetaAndData selection;
 
-  private IVariables variables;
+  private final IVariables variables;
 
   /**
    * @param parent

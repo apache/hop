@@ -59,7 +59,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = Rules.class;
 
-  private RulesExecutorMeta input;
+  private final RulesExecutorMeta input;
 
   private Label wlRuleFilePath;
   private Button wbRulesInEditor;
@@ -295,18 +295,17 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
     int nrRows = (input.getRuleResultColumns() != null ? input.getRuleResultColumns().size() : 1);
 
-    ColumnInfo[] ciResultFields =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-        };
+    ColumnInfo[] ciResultFields = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+    };
 
     wResultColumnsFields =
         new TableView(

@@ -29,6 +29,7 @@ import org.json.simple.parser.ParseException;
 
 /** Gitea and Forgejo API client ({@code /api/v1}). */
 class GiteaResourceClient implements GitResourceClient {
+  private static final String CONST_LOGIN = "login";
 
   private static final String ACCEPT = "application/json";
   private static final String PROVIDER = "gitea";
@@ -204,7 +205,8 @@ class GiteaResourceClient implements GitResourceClient {
             .body(GitApiHttp.getString(commit, "message"))
             .author(author != null ? GitApiHttp.getString(author, "name") : "")
             .authorEmail(author != null ? GitApiHttp.getString(author, "email") : "")
-            .authorLogin(authorAccount != null ? GitApiHttp.getString(authorAccount, "login") : "")
+            .authorLogin(
+                authorAccount != null ? GitApiHttp.getString(authorAccount, CONST_LOGIN) : "")
             .committer(committer != null ? GitApiHttp.getString(committer, "name") : "")
             .committerEmail(committer != null ? GitApiHttp.getString(committer, "email") : "")
             .createdAt(author != null ? GitApiHttp.getString(author, "date") : "")
@@ -215,7 +217,7 @@ class GiteaResourceClient implements GitResourceClient {
       }
       case ISSUES, PULL_REQUESTS -> {
         JSONObject user = (JSONObject) json.get("user");
-        String login = user != null ? GitApiHttp.getString(user, "login") : "";
+        String login = user != null ? GitApiHttp.getString(user, CONST_LOGIN) : "";
         yield GitResourceRecord.builder()
             .provider(PROVIDER)
             .entityType(entityType)
@@ -229,7 +231,7 @@ class GiteaResourceClient implements GitResourceClient {
             .author(login)
             .authorLogin(login)
             .labels(GitJsonLists.names(json, "labels", "name"))
-            .assignees(GitJsonLists.names(json, "assignees", "login"))
+            .assignees(GitJsonLists.names(json, "assignees", CONST_LOGIN))
             .sourceBranch(nestedRef(json, "head"))
             .targetBranch(nestedRef(json, "base"))
             .merged(Boolean.TRUE.equals(json.get("merged")))

@@ -49,7 +49,7 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
 
   private Rules.Column[] columnList;
 
-  private Map<String, Rules.Column> resultMap = new HashMap<>();
+  private final Map<String, Rules.Column> resultMap = new HashMap<>();
 
   private String ruleString;
 

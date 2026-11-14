@@ -65,7 +65,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
-  private SnsNotifyMeta meta;
+  private final SnsNotifyMeta meta;
 
   // text field holding the name of the field to add to the row stream
 
@@ -255,7 +255,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSRegion.Tooltip"));
     populateAWSRegion(tAWSRegion);
 
-    Control[] queueTabList = new Control[] {tAWSKey, tAWSKeySecret, tAWSRegion};
+    Control[] queueTabList = {tAWSKey, tAWSKeySecret, tAWSRegion};
     settingsComp.setTabList(queueTabList);
 
     settingsComp.pack();
@@ -395,7 +395,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     fdTableNotifyProps.bottom = new FormAttachment(100, -margin);
     tTableNotifyProps.setLayoutData(fdTableNotifyProps);
 
-    Control[] notificationTabList = new Control[] {tnotifyPoint, tMessageID, tTableNotifyProps};
+    Control[] notificationTabList = {tnotifyPoint, tMessageID, tTableNotifyProps};
     notificationsComp.setTabList(notificationTabList);
 
     notificationsComp.pack();
@@ -509,26 +509,25 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     }
   }
 
-  private static final String[] AWS_REGION_IDS =
-      new String[] {
-        "us-east-1",
-        "us-east-2",
-        "us-west-1",
-        "us-west-2",
-        "eu-west-1",
-        "eu-west-2",
-        "eu-central-1",
-        "eu-north-1",
-        "ap-southeast-1",
-        "ap-southeast-2",
-        "ap-northeast-1",
-        "ap-northeast-2",
-        "ap-south-1",
-        "ca-central-1",
-        "sa-east-1",
-        "af-south-1",
-        "me-south-1"
-      };
+  private static final String[] AWS_REGION_IDS = {
+    "us-east-1",
+    "us-east-2",
+    "us-west-1",
+    "us-west-2",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-central-1",
+    "eu-north-1",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "ap-northeast-1",
+    "ap-northeast-2",
+    "ap-south-1",
+    "ca-central-1",
+    "sa-east-1",
+    "af-south-1",
+    "me-south-1"
+  };
 
   /**
    * This helper method puts the transform configuration stored in the meta object and puts it into

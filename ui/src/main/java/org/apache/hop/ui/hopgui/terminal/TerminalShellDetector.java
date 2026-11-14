@@ -21,6 +21,9 @@ import java.io.File;
 
 /** Utility class to detect the default shell for the current operating system. */
 public class TerminalShellDetector {
+  private static final String CONST_BIN_ZSH = "/bin/zsh";
+  private static final String CONST_BIN_BASH = "/bin/bash";
+  private static final String CONST_BIN_SH = "/bin/sh";
 
   /**
    * Detect the default shell for the current OS
@@ -67,15 +70,15 @@ public class TerminalShellDetector {
       return shell;
     }
 
-    if (new File("/bin/zsh").exists()) {
-      return "/bin/zsh";
+    if (new File(CONST_BIN_ZSH).exists()) {
+      return CONST_BIN_ZSH;
     }
 
-    if (new File("/bin/bash").exists()) {
-      return "/bin/bash";
+    if (new File(CONST_BIN_BASH).exists()) {
+      return CONST_BIN_BASH;
     }
 
-    return "/bin/sh";
+    return CONST_BIN_SH;
   }
 
   /** Detect shell on Linux/Unix */
@@ -86,7 +89,7 @@ public class TerminalShellDetector {
     }
 
     String[] commonShells = {
-      "/bin/bash", "/usr/bin/bash", "/bin/zsh", "/usr/bin/zsh", "/bin/sh", "/usr/bin/sh"
+      CONST_BIN_BASH, "/usr/bin/bash", CONST_BIN_ZSH, "/usr/bin/zsh", CONST_BIN_SH, "/usr/bin/sh"
     };
 
     for (String shellPath : commonShells) {
@@ -95,7 +98,7 @@ public class TerminalShellDetector {
       }
     }
 
-    return "/bin/sh";
+    return CONST_BIN_SH;
   }
 
   /**
@@ -172,13 +175,13 @@ public class TerminalShellDetector {
     java.util.List<String> shells = new java.util.ArrayList<>();
 
     String[] commonShells = {
-      "/bin/bash",
+      CONST_BIN_BASH,
       "/usr/bin/bash",
-      "/bin/zsh",
+      CONST_BIN_ZSH,
       "/usr/bin/zsh",
       "/bin/fish",
       "/usr/bin/fish",
-      "/bin/sh",
+      CONST_BIN_SH,
       "/usr/bin/sh",
       "/bin/dash",
       "/bin/ksh",

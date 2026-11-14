@@ -64,9 +64,9 @@ public class SftpClient {
   private static final String PREFERRED_AUTH_WITH_GSSAPI =
       PREFERRED_AUTH_DEFAULT + ",gssapi-with-mic";
 
-  private InetAddress serverIP;
-  private int serverPort;
-  private String userName;
+  private final InetAddress serverIP;
+  private final int serverPort;
+  private final String userName;
   private String password;
   private String prvkey = null; // Private key
   private String passphrase = null; // Empty passphrase for now

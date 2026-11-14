@@ -482,7 +482,7 @@ public class GlobalMessageUtil {
           }
         };
 
-    private boolean fallbackOnRoot;
+    private final boolean fallbackOnRoot;
 
     GlobalMessageControl(final boolean fallbackOnRoot) {
       this.fallbackOnRoot = fallbackOnRoot;

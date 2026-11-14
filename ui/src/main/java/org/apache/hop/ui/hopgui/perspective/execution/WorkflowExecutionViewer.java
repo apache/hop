@@ -258,11 +258,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     infoTab.setImage(GuiResource.getInstance().getImageInfo());
     infoTab.setText(BaseMessages.getString(PKG, "WorkflowExecutionViewer.InfoTab.Title"));
 
-    ColumnInfo[] infoCols =
-        new ColumnInfo[] {
-          new ColumnInfo("Item", ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-          new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, true),
-        };
+    ColumnInfo[] infoCols = {
+      new ColumnInfo("Item", ColumnInfo.COLUMN_TYPE_TEXT, false, true),
+      new ColumnInfo("Value", ColumnInfo.COLUMN_TYPE_TEXT, false, true),
+    };
 
     // Let's simply add a table view with all the details on it.
     //
@@ -382,7 +381,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     // An empty table view on the right.  This will be populated during a refresh.
     //
-    ColumnInfo[] dataColumns = new ColumnInfo[] {};
+    ColumnInfo[] dataColumns = {};
     dataView =
         new TableView(
             hopGui.getVariables(),

@@ -63,8 +63,8 @@ import org.eclipse.swt.widgets.Text;
 public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLocation> {
   private static final Class<?> PKG = ExecutionInfoLocationEditor.class;
 
-  private ExecutionInfoLocation executionInfoLocation;
-  private ExecutionInfoLocation workingLocation;
+  private final ExecutionInfoLocation executionInfoLocation;
+  private final ExecutionInfoLocation workingLocation;
 
   private TextVar wName;
   private Text wDescription;

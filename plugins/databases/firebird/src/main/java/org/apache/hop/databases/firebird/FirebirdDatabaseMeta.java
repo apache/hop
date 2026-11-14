@@ -217,7 +217,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
               retval += "DECIMAL(" + len + "," + p + ")";
             }
-            default -> retval += "DOUBLE";
+            default -> retval += CONST_DOUBLE;
           }
         }
         break;
