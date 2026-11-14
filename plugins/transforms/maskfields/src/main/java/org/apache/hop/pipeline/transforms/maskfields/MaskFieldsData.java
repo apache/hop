@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.maskfields;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -26,4 +28,12 @@ public class MaskFieldsData extends BaseTransformData implements ITransformData 
   public IRowMeta outputRowMeta;
   public MaskingEngine engine;
   public MaskingRuntime.Lease lease;
+
+  /** The patterns of this transform, by name. */
+  public Map<String, MaskingPattern> patterns = new LinkedHashMap<>();
+
+  /**
+   * The fields the data catalog labels with a tag or term of this transform, by lower-case name.
+   */
+  public Map<String, CatalogFieldResolver.Match> catalogFields = Map.of();
 }

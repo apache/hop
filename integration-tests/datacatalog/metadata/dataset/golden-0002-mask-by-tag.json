@@ -1,0 +1,12 @@
+{
+  "base_filename": "golden-0002-mask-by-tag.csv",
+  "name": "golden-0002-mask-by-tag",
+  "description": "The customers of 0002-mask-by-tag after Mask fields, masked by their tags and terms in the data catalog",
+  "dataset_fields": [
+    { "field_comment": "", "field_length": -1, "field_type": 5, "field_precision": -1, "field_format": "", "field_name": "id" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "EMAIL" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "name" },
+    { "field_comment": "", "field_length": -1, "field_type": 2, "field_precision": -1, "field_format": "", "field_name": "city" }
+  ],
+  "folder_name": ""
+}

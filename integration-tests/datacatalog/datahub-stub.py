@@ -31,6 +31,35 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 TOKEN = "Bearer it-token"
 HOUR_MS = 3600 * 1000
+CUSTOMERS = "urn:li:dataset:(urn:li:dataPlatform:hive,it.customers,PROD)"
+
+
+def tags(*names):
+    return {"tags": [{"tag": {"urn": "urn:li:tag:" + n, "name": n, "properties": None}} for n in names]}
+
+
+def terms(path):
+    """A term created in the DataHub UI: a generated id in its URN, its path in the parent nodes."""
+    *parents, name = path.split(".")
+    term = {"urn": "urn:li:glossaryTerm:4f1c", "name": "4f1c", "hierarchicalName": "4f1c",
+            "properties": {"name": name},
+            "parentNodes": {"nodes": [{"properties": {"name": p}} for p in reversed(parents)]}}
+    return {"terms": [{"term": term}]}
+
+
+# The customers table: email is tagged PII in the ingested schema, name has a glossary term added
+# in the DataHub UI (a v2 field path), id and city carry nothing.
+CUSTOMERS_SCHEMA = {
+    "schemaMetadata": {"fields": [
+        {"fieldPath": "id", "nativeDataType": "INTEGER", "type": "NUMBER", "nullable": False, "globalTags": None, "glossaryTerms": None},
+        {"fieldPath": "email", "nativeDataType": "VARCHAR(255)", "type": "STRING", "nullable": True, "globalTags": tags("PII"), "glossaryTerms": None},
+        {"fieldPath": "name", "nativeDataType": "VARCHAR(100)", "type": "STRING", "nullable": True, "globalTags": None, "glossaryTerms": None},
+        {"fieldPath": "city", "nativeDataType": "VARCHAR(100)", "type": "STRING", "nullable": True, "globalTags": None, "glossaryTerms": None},
+    ]},
+    "editableSchemaMetadata": {"editableSchemaFieldInfo": [
+        {"fieldPath": "[version=2.0].[type=string].name", "globalTags": None, "glossaryTerms": terms("Classification.Personal")},
+    ]},
+}
 TEN_MINUTES_MS = 10 * 60 * 1000
 
 
@@ -48,6 +77,7 @@ def dataset(urn):
         "urn:li:dataset:(urn:li:dataPlatform:hive,it.deprecated,PROD)": (True, TEN_MINUTES_MS, "SUCCESS"),
         "urn:li:dataset:(urn:li:dataPlatform:hive,it.stale,PROD)": (False, 72 * HOUR_MS, "SUCCESS"),
         "urn:li:dataset:(urn:li:dataPlatform:hive,it.failing,PROD)": (False, TEN_MINUTES_MS, "FAILURE"),
+        CUSTOMERS: healthy,
     }.get(urn)
 
 
@@ -66,6 +96,8 @@ def answer(query, urn):
         return {"dataset": {"deprecation": deprecation if deprecated else None}}
     if "hopDatasetOperations" in query:
         return {"dataset": {"operations": [{"lastUpdatedTimestamp": now - age}]}}
+    if "hopDatasetSchema" in query:
+        return {"dataset": CUSTOMERS_SCHEMA if urn == CUSTOMERS else {"schemaMetadata": None}}
     if "hopDatasetAssertions" in query:
         run = {"timestampMillis": now - HOUR_MS, "result": {"type": result}}
         assertion = {

@@ -28,15 +28,24 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.injection.bean.BeanInjectionInfo;
+import org.apache.hop.core.injection.bean.BeanInjector;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
@@ -172,6 +181,75 @@ class MaskFieldsMetaTest {
       assertFalse(json.toJSONString().contains("s3cret"));
       assertNull(MaskingRules.incompatibility(new ValueMetaString("name"), loaded));
     }
+  }
+
+  @Test
+  void theDataCatalogOptionsSurviveASaveAndLoad() throws Exception {
+    MaskFieldsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/mask-fields-catalog-transform.xml", MaskFieldsMeta.class);
+
+    assertEquals("prod-datahub", meta.getCatalogName());
+    assertEquals(CatalogDatasetType.TABLE, meta.getDatasetType());
+    assertEquals("warehouse", meta.getDatasetConnection());
+    assertEquals("crm", meta.getDatasetSchema());
+    assertEquals("customers", meta.getDatasetName());
+    assertEquals(2, meta.activeTagRules().size());
+    assertEquals("Classification.Personal", meta.getTagRules().get(1).getTag());
+    assertEquals("Hidden", meta.getTagRules().get(1).getPatternName());
+    assertEquals(1, meta.getFields().size());
+  }
+
+  @Test
+  void aTransformSavedBeforeTheCatalogOptionsHasNoTagRules() throws Exception {
+    Node node =
+        XmlHandler.getSubNode(
+            XmlHandler.loadXmlString(
+                "<transform><fields><field><name>name</name><pattern>First name</pattern>"
+                    + "</field></fields></transform>"),
+            "transform");
+
+    MaskFieldsMeta meta =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, MaskFieldsMeta.class, new MemoryMetadataProvider());
+
+    assertTrue(meta.activeTagRules().isEmpty());
+    assertNull(meta.getCatalogName());
+    assertEquals(1, meta.getFields().size());
+  }
+
+  @Test
+  void injectedFieldsKeepTheirPatternBesideTheTagRules() throws Exception {
+    HopLogStore.init();
+    BeanInjectionInfo<MaskFieldsMeta> info = new BeanInjectionInfo<>(MaskFieldsMeta.class);
+    BeanInjector<MaskFieldsMeta> injector = new BeanInjector<>(info, new MemoryMetadataProvider());
+    IRowMeta rowMeta =
+        new RowMetaBuilder()
+            .addString("field")
+            .addString("pattern")
+            .addString("tag")
+            .addString("tag pattern")
+            .build();
+    List<RowMetaAndData> rows =
+        List.of(new RowMetaAndData(rowMeta, "email", "Masked email", "pii", "Hidden"));
+
+    MaskFieldsMeta meta = new MaskFieldsMeta();
+    // The injection keys of Mask fields before the tag rules
+    injector.setProperty(meta, "name", rows, "field");
+    injector.setProperty(meta, "pattern", rows, "pattern");
+
+    assertEquals(1, meta.getFields().size());
+    assertEquals("email", meta.getFields().get(0).getFieldName());
+    assertEquals("Masked email", meta.getFields().get(0).getPatternName());
+    assertTrue(meta.getTagRules().isEmpty());
+
+    injector.setProperty(meta, "tag_rule_tag", rows, "tag");
+    injector.setProperty(meta, "tag_rule_pattern", rows, "tag pattern");
+
+    assertEquals("Masked email", meta.getFields().get(0).getPatternName());
+    assertEquals(1, meta.getTagRules().size());
+    assertEquals("pii", meta.getTagRules().get(0).getTag());
+    assertEquals("Hidden", meta.getTagRules().get(0).getPatternName());
   }
 
   private static MaskingPattern synthetic(String name, MaskingToken token) {
