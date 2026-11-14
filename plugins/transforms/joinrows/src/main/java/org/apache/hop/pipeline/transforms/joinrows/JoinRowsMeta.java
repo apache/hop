@@ -321,6 +321,15 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
     return true;
   }
 
+  /**
+   * A cartesian product needs every row of every input in one place. With several copies each copy
+   * only receives a part of every stream, so combinations would go missing.
+   */
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return false;
+  }
+
   @Override
   public boolean cleanAfterHopToRemove(TransformMeta fromTransform) {
     boolean hasChanged = false;
