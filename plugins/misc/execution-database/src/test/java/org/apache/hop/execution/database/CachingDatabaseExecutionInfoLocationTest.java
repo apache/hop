@@ -39,6 +39,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -425,6 +426,92 @@ class CachingDatabaseExecutionInfoLocationTest {
             || (exception.getCause() != null
                 && exception.getCause().getMessage() != null
                 && exception.getCause().getMessage().toLowerCase().contains("closed")));
+  }
+
+  @Test
+  void persistReplacesAnAbortedSessionAndRetriesOnce() throws Exception {
+    FailingSessionDatabase aborted = replaceSessionWithFailingOne("25P02");
+    String id = UUID.randomUUID().toString();
+
+    location.persistCacheEntry(
+        sampleEntry(id, "Aborted", ExecutionType.Workflow, false, "Running"));
+
+    assertEquals(1, aborted.calls);
+    assertNotSame(aborted, location.getDatabase());
+    assertFalse(location.getDatabase().getConnection().isClosed());
+    assertNotNull(location.loadCacheEntry(id));
+  }
+
+  @Test
+  void loadRetriesAMissingTableWhenTheNewSessionFindsIt() throws Exception {
+    String id = UUID.randomUUID().toString();
+    location.persistCacheEntry(sampleEntry(id, "Stale", ExecutionType.Pipeline, false, "Finished"));
+    FailingSessionDatabase stale = replaceSessionWithFailingOne("42P01");
+
+    CacheEntry loaded = location.loadCacheEntry(id);
+
+    assertNotNull(loaded);
+    assertEquals(1, stale.calls);
+    assertNotSame(stale, location.getDatabase());
+  }
+
+  @Test
+  void loadDoesNotRetryATableThatIsReallyMissing() throws Exception {
+    dropExecutionTable();
+    FailingSessionDatabase stale = replaceSessionWithFailingOne("42P01");
+
+    HopException exception =
+        assertThrows(
+            HopException.class, () -> location.loadCacheEntry(UUID.randomUUID().toString()));
+
+    // A retry on the new H2 session would fail with H2's own SQLState instead of 42P01.
+    assertTrue(CachingDatabaseExecutionInfoLocation.isMissingTableFailure(exception));
+    assertEquals(1, stale.calls);
+    assertNotSame(stale, location.getDatabase());
+    assertFalse(location.getDatabase().getConnection().isClosed());
+  }
+
+  @Test
+  void recognizesStaleSessionFailures() {
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException(
+                "ERROR: current transaction is aborted, commands ignored until end of transaction block",
+                "25P02")));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("ERROR: relation \"hop_executions\" does not exist", "42P01")));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("ERROR: schema \"hop\" does not exist", "3F000")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException(
+                "ERROR: column \"x\" of relation \"hop_executions\" does not exist", "42703")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("ERROR: relation \"hop_executions\" does not exist")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new SQLException("syntax error at or near \"FROM\"", "42601")));
+    SQLException nested = new SQLException("An error occurred executing SQL");
+    nested.initCause(new SQLException("ERROR: current transaction is aborted", "25P02"));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isStaleSessionFailure(
+            new HopException("wrapper", nested)));
+  }
+
+  @Test
+  void recognizesMissingTableFailures() {
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isMissingTableFailure(
+            new SQLException("ERROR: relation \"hop_executions\" does not exist", "42P01")));
+    assertTrue(
+        CachingDatabaseExecutionInfoLocation.isMissingTableFailure(
+            new SQLException("ERROR: schema \"hop\" does not exist", "3F000")));
+    assertFalse(
+        CachingDatabaseExecutionInfoLocation.isMissingTableFailure(
+            new SQLException("ERROR: current transaction is aborted", "25P02")));
   }
 
   @Test
@@ -896,6 +983,43 @@ class CachingDatabaseExecutionInfoLocationTest {
       assertTrue(wfChildren.stream().anyMatch(e -> e.getId().equals(actionId)));
     } finally {
       location.close();
+    }
+  }
+
+  /** Every query fails with the given SQLState, like a PostgreSQL session that has gone bad. */
+  private static final class FailingSessionDatabase extends Database {
+    private final String sqlState;
+    private int calls;
+
+    FailingSessionDatabase(Variables variables, DatabaseMeta databaseMeta, String sqlState) {
+      super(new LoggingObject("failing-session"), variables, databaseMeta);
+      this.sqlState = sqlState;
+    }
+
+    @Override
+    public RowMetaAndData getOneRow(String sql, IRowMeta param, Object[] data)
+        throws HopDatabaseException {
+      calls++;
+      throw new HopDatabaseException(
+          "Simulated failure", new SQLException("Simulated failure", sqlState));
+    }
+  }
+
+  private FailingSessionDatabase replaceSessionWithFailingOne(String sqlState) throws Exception {
+    FailingSessionDatabase failing = new FailingSessionDatabase(variables, databaseMeta, sqlState);
+    failing.connect();
+    location.getDatabase().disconnect();
+    location.setDatabase(failing);
+    return failing;
+  }
+
+  private void dropExecutionTable() throws Exception {
+    try (Database db = new Database(new LoggingObject("drop-table"), variables, databaseMeta)) {
+      db.connect();
+      db.execStatement(
+          "DROP TABLE "
+              + databaseMeta.getQuotedSchemaTableCombination(
+                  variables, null, CachingDatabaseExecutionInfoLocation.DEFAULT_TABLE_NAME));
     }
   }
 

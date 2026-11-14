@@ -114,6 +114,9 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
    */
   public static final String COL_STATE_JSON = "state_json";
 
+  private static final Set<String> MISSING_TABLE_SQL_STATES = Set.of("42P01", "3F000");
+  private static final Set<String> STALE_SESSION_SQL_STATES = Set.of("25P02", "42P01", "3F000");
+
   /**
    * Separates CREATE TABLE (new installs, includes {@code project_id} and {@code state_json}) from
    * the ALTER statements that add {@code project_id} to an older table. Run one block, not both.
@@ -411,6 +414,86 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
     return false;
   }
 
+  /**
+   * PostgreSQL SQLStates of a session to replace: {@code 25P02} is an aborted transaction, {@code
+   * 42P01} an undefined table and {@code 3F000} an invalid schema.
+   */
+  static boolean isStaleSessionFailure(Throwable error) {
+    return findSqlException(error, STALE_SESSION_SQL_STATES) != null;
+  }
+
+  /** The table or schema was not found. A new session only helps when it does see the table. */
+  static boolean isMissingTableFailure(Throwable error) {
+    return findSqlException(error, MISSING_TABLE_SQL_STATES) != null;
+  }
+
+  private static SQLException findSqlException(Throwable error, Set<String> sqlStates) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof SQLException sqlException
+          && sqlException.getSQLState() != null
+          && sqlStates.contains(sqlException.getSQLState())) {
+        return sqlException;
+      }
+      current = current.getCause();
+    }
+    return null;
+  }
+
+  /**
+   * Roll back and drop a stale session, then connect again. Returns true when the failed work
+   * should run once more on the new connection. A missing table is only retried when the new
+   * connection finds it, so a table that really is missing does not cause a retry on every flush.
+   */
+  private boolean replaceStaleSession(Exception error) {
+    SQLException cause = findSqlException(error, STALE_SESSION_SQL_STATES);
+    if (cause == null) {
+      return false;
+    }
+    synchronized (dbLock) {
+      if (databaseClosed) {
+        return false;
+      }
+      rollbackQuietly(database);
+      discardDatabase();
+      try {
+        connectDatabase();
+        if (isMissingTableFailure(error)
+            && !database.checkTableExists(actualSchemaName, actualTableName)) {
+          rollbackQuietly(database);
+          return false;
+        }
+      } catch (Exception reconnectError) {
+        error.addSuppressed(reconnectError);
+        return false;
+      }
+    }
+    LogChannel.GENERAL.logBasic(
+        "Execution information session failed on table "
+            + getQuotedSchemaTable()
+            + " with SQLState "
+            + cause.getSQLState()
+            + ": "
+            + cause.getMessage()
+            + ". Reconnected and retrying once.");
+    return true;
+  }
+
+  /** PostgreSQL rejects a commit once a statement in the transaction has failed. */
+  private static void rollbackQuietly(Database db) {
+    if (db == null) {
+      return;
+    }
+    try {
+      Connection connection = db.getConnection();
+      if (connection != null && !connection.isClosed() && !connection.getAutoCommit()) {
+        connection.rollback();
+      }
+    } catch (Exception e) {
+      // The session is unusable either way. Disconnecting drops it.
+    }
+  }
+
   @FunctionalInterface
   private interface DatabaseWork<T> {
     T run() throws Exception;
@@ -432,6 +515,9 @@ public class CachingDatabaseExecutionInfoLocation extends BaseCachingExecutionIn
         synchronized (dbLock) {
           discardDatabase();
         }
+        return callWithDatabase(work, false);
+      }
+      if (allowRetry && !databaseClosed && replaceStaleSession(e)) {
         return callWithDatabase(work, false);
       }
       if (e instanceof HopException hopException) {
