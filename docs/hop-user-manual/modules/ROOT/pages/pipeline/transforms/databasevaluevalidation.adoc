@@ -84,3 +84,8 @@ At the end of the stream the transform logs how many rows were checked, how many
 * Table metadata is loaded once at start. After that the transform does not talk to the database.
 * An empty mapping matches incoming field names to table columns by name (case-insensitive).
 * If there is no error hop, the first bad row fails the transform, but the message still lists every failing field on that row.
+
+== Samples
+
+The samples project has `transforms/databasevaluevalidation-basic.hpl`, a template: set the connection and the table in the transform and map the fields.
+Two Dummy transforms stand in for a Table output and for the reject output on the error hop.

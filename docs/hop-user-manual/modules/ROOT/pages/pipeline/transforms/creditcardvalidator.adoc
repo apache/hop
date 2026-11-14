@@ -70,3 +70,7 @@ NOTE: Only the BIN column is required in the CSV. The card type, issuer and coun
 NOTE: BIN values are limited to 8 digits. Rows whose BIN is empty, longer than 8 digits, or non-numeric are skipped, and the number of skipped rows is logged when the transform initializes.
 
 NOTE: When you uncheck *Header row present* while header-based column mappings (the *BIN CSV Column* or any extra output *CSV column*) are still configured, you are prompted to confirm. Confirming clears those mappings and switches to fixed-position mapping; cancelling keeps the header mode and its mappings.
+
+== Samples
+
+The samples project has `transforms/credit-card-validator.hpl`, which validates 20 Mastercard and Visa numbers and writes the 19 valid ones and the invalid one to the log.

@@ -54,3 +54,7 @@ TIP: Prefer this transform over xref:pipeline/transforms/textfileoutput.adoc[Tex
 * An empty binary value (`0` bytes) writes an empty file.
 * No character encoding is applied: bytes are written exactly as stored in the field.
 * Supports transform error handling so failed rows can be routed without stopping the pipeline.
+
+== Samples
+
+The samples project has `transforms/binary-file-output.hpl`, which loads `files/binary-file-output.bin` into a binary field and writes it to `output/binary-file-output.bin`.

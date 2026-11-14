@@ -86,3 +86,7 @@ The value is written once only because any change results in a new record being 
 |Get Fields button|Fills in all the available fields on the input stream, except for the keys you specified.
 |SQL button|Generates the SQL to build the dimension and allows you to execute this SQL.
 |===
+
+== Samples
+
+The samples project has `transforms/combination-lookup-update.hpl`, which looks up the technical key of the colors red, green and blue in the `colors` table of the `hop-samples` connection, and inserts the colors that are not there yet.

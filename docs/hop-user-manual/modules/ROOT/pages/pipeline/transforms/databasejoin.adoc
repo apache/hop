@@ -89,3 +89,7 @@ See Launching several copies of a transform.
 |Parameters table|Specify the fields containing parameters.
 The parameter type is required.
 |===
+
+== Samples
+
+The samples project has `transforms/databasejoin-basic.hpl`, which gets the `description` of ids 1 to 5 with a query on the `dblookup` table of the `hop-samples` connection.
