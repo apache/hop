@@ -30,11 +30,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.reflection.RunMetadata;
 import org.apache.hop.reflection.pipeline.xp.PipelineStartLoggingXp;
 import org.apache.hop.reflection.workflow.meta.WorkflowLog;
 import org.apache.hop.reflection.workflow.transform.WorkflowLogging;
@@ -52,10 +51,8 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
 
-    IHopMetadataProvider metadataProvider = workflow.getMetadataProvider();
-    IHopMetadataSerializer<WorkflowLog> serializer =
-        metadataProvider.getSerializer(WorkflowLog.class);
-    List<WorkflowLog> workflowLogs = serializer.loadAll();
+    List<WorkflowLog> workflowLogs =
+        RunMetadata.loadAll(workflow, workflow.getMetadataProvider(), WorkflowLog.class);
 
     for (WorkflowLog workflowLog : workflowLogs) {
       handleWorkflowLog(log, workflowLog, workflow, variables);
