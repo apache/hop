@@ -1,0 +1,108 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "int",
+          "data_set_field": "int"
+        },
+        {
+          "transform_field": "num",
+          "data_set_field": "num"
+        },
+        {
+          "transform_field": "numText",
+          "data_set_field": "numText"
+        },
+        {
+          "transform_field": "date",
+          "data_set_field": "date"
+        },
+        {
+          "transform_field": "date2",
+          "data_set_field": "date2"
+        },
+        {
+          "transform_field": "dateTime",
+          "data_set_field": "dateTime"
+        },
+        {
+          "transform_field": "dateText",
+          "data_set_field": "dateText"
+        },
+        {
+          "transform_field": "numDate",
+          "data_set_field": "numDate"
+        },
+        {
+          "transform_field": "text",
+          "data_set_field": "text"
+        },
+        {
+          "transform_field": "textInt",
+          "data_set_field": "textInt"
+        },
+        {
+          "transform_field": "bool",
+          "data_set_field": "bool"
+        },
+        {
+          "transform_field": "boolText",
+          "data_set_field": "boolText"
+        },
+        {
+          "transform_field": "fNum",
+          "data_set_field": "fNum"
+        },
+        {
+          "transform_field": "fText",
+          "data_set_field": "fText"
+        },
+        {
+          "transform_field": "fDate",
+          "data_set_field": "fDate"
+        },
+        {
+          "transform_field": "fBool",
+          "data_set_field": "fBool"
+        },
+        {
+          "transform_field": "mixed",
+          "data_set_field": "mixed"
+        }
+      ],
+      "field_order": [
+        "int",
+        "num",
+        "numText",
+        "date",
+        "date2",
+        "dateTime",
+        "dateText",
+        "numDate",
+        "text",
+        "textInt",
+        "bool",
+        "boolText",
+        "fNum",
+        "fText",
+        "fDate",
+        "fBool",
+        "mixed"
+      ],
+      "data_set_name": "golden-excel-input-types",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0053-excel-input-xls-types UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0053-excel-input-xls-types.hpl",
+  "test_type": "UNIT_TEST"
+}

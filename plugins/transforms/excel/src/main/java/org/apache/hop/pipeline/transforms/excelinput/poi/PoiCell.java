@@ -18,11 +18,13 @@
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
 import java.sql.Date;
+import java.util.Map;
 import java.util.TimeZone;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -30,19 +32,64 @@ public class PoiCell implements IKCell {
 
   private Cell cell;
 
+  /** Per cell style index: does its number format show a date? Shared by the cells of a sheet. */
+  private final Map<Short, Boolean> dateStyles;
+
+  private KCellType type;
+  private boolean typeKnown;
+
   public PoiCell(Cell cell) {
-    this.cell = cell;
+    this(cell, null);
   }
 
+  /**
+   * @param cell the cell to read
+   * @param dateStyles what is known about the cell styles of the workbook, filled in while reading
+   */
+  public PoiCell(Cell cell, Map<Short, Boolean> dateStyles) {
+    this.cell = cell;
+    this.dateStyles = dateStyles;
+  }
+
+  /** The type is asked for more than once per cell, so it is only worked out the first time. */
   @Override
   public KCellType getType() {
+    if (!typeKnown) {
+      type = findType();
+      typeKnown = true;
+    }
+    return type;
+  }
+
+  /**
+   * The same answer as {@link DateUtil#isCellDateFormatted(Cell)}: the value has to be a valid date
+   * and the number format of the cell style has to be a date format. Only the second part is the
+   * same for every cell with that style, so only that part is remembered.
+   */
+  private boolean isDateFormatted() {
+    if (dateStyles == null) {
+      return DateUtil.isCellDateFormatted(cell);
+    }
+    if (!DateUtil.isValidExcelDate(cell.getNumericCellValue())) {
+      return false;
+    }
+    CellStyle style = cell.getCellStyle();
+    if (style == null) {
+      return false;
+    }
+    return dateStyles.computeIfAbsent(
+        style.getIndex(),
+        index -> DateUtil.isADateFormat(style.getDataFormat(), style.getDataFormatString()));
+  }
+
+  private KCellType findType() {
 
     switch (cell.getCellType()) {
       case BOOLEAN:
         return KCellType.BOOLEAN;
 
       case NUMERIC:
-        if (DateUtil.isCellDateFormatted(cell)) {
+        if (isDateFormatted()) {
           return KCellType.DATE;
         }
         return KCellType.NUMBER;
@@ -62,7 +109,7 @@ public class PoiCell implements IKCell {
           case STRING:
             return KCellType.STRING_FORMULA;
           case NUMERIC:
-            if (DateUtil.isCellDateFormatted(cell)) {
+            if (isDateFormatted()) {
               return KCellType.DATE_FORMULA;
             } else {
               return KCellType.NUMBER_FORMULA;

@@ -63,6 +63,18 @@ limitations under the License.
         <test_name>
           <name>0053-excel-input-ods-basic UNIT</name>
         </test_name>
+        <test_name>
+          <name>0053-excel-input-xlsx-streaming-basic UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0053-excel-input-xls-types UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0053-excel-input-xlsx-types UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0053-excel-input-xlsx-streaming-types UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>304</xloc>

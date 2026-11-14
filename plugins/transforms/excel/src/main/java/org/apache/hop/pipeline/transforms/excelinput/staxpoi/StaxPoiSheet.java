@@ -21,7 +21,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -48,6 +50,9 @@ public class StaxPoiSheet implements IKSheet {
 
   // set to UTC for coherence with PoiSheet
   private static final TimeZone DATE_TZ = TimeZone.getTimeZone("UTC");
+
+  /** Per cell style of the sheet: does its number format show a date? */
+  private final Map<String, Boolean> dateStyles = new HashMap<>();
 
   private final String sheetName;
   private final String sheetId;
@@ -136,7 +141,7 @@ public class StaxPoiSheet implements IKSheet {
                     while (sheetReader.hasNext()) {
                       event = sheetReader.next();
                       if (event == XMLStreamConstants.CHARACTERS) {
-                        content = new XSSFRichTextString(sheetReader.getText()).toString();
+                        content = inlineText(sheetReader.getText());
                         break;
                       }
                       if (event == XMLStreamConstants.END_ELEMENT
@@ -255,7 +260,7 @@ public class StaxPoiSheet implements IKSheet {
           while (sheetReader.hasNext()) {
             event = sheetReader.next();
             if (event == XMLStreamConstants.CHARACTERS) {
-              content = new XSSFRichTextString(sheetReader.getText()).toString();
+              content = inlineText(sheetReader.getText());
               break;
             }
             if (event == XMLStreamConstants.END_ELEMENT
@@ -343,8 +348,24 @@ public class StaxPoiSheet implements IKSheet {
     };
   }
 
+  /**
+   * The text of an inline string. Only a text with an escaped character ("_x000D_") has to be
+   * decoded.
+   */
+  private static String inlineText(String text) {
+    return text.contains("_x") ? new XSSFRichTextString(text).toString() : text;
+  }
+
   @VisibleForTesting
   protected boolean isDateCell(String cellStyle) {
+    if (cellStyle == null) {
+      return false;
+    }
+    // the answer only depends on the style, and a sheet has few styles
+    return dateStyles.computeIfAbsent(cellStyle, this::hasDateFormat);
+  }
+
+  private boolean hasDateFormat(String cellStyle) {
     if (cellStyle != null) {
       int styleIdx = Integer.parseInt(cellStyle);
       CTXf cellXf = styles.getCellXfAt(styleIdx);

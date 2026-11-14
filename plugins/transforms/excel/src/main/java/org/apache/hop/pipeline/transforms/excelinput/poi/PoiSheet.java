@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.poi.ss.usermodel.Cell;
@@ -25,6 +27,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 
 public class PoiSheet implements IKSheet {
   private Sheet sheet;
+
+  /** Per cell style index: does its number format show a date? */
+  private final Map<Short, Boolean> dateStyles = new HashMap<>();
 
   public PoiSheet(Sheet sheet) {
     this.sheet = sheet;
@@ -54,7 +59,7 @@ public class PoiSheet implements IKSheet {
     for (int i = 0; i < cols; i++) {
       Cell cell = row.getCell(i);
       if (cell != null) {
-        xlsCells[i] = new PoiCell(cell);
+        xlsCells[i] = new PoiCell(cell, dateStyles);
       }
     }
     return xlsCells;
@@ -75,6 +80,6 @@ public class PoiSheet implements IKSheet {
     if (cell == null) {
       return null;
     }
-    return new PoiCell(cell);
+    return new PoiCell(cell, dateStyles);
   }
 }
