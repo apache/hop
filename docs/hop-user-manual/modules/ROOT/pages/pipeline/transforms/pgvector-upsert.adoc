@@ -78,6 +78,9 @@ To delete each document only once, the transform remembers the document IDs it h
 
 Schema changes run with autocommit on, before the first row is written. A table or index created here therefore survives a failure later in the load, and an index does not hold its locks for the length of it.
 
+The schema changes run once per run, before any row is written: on the native Spark and Beam engines on the driver, before the job starts, so the partitions or bundles don't create the same table at the same time.
+In a transactional pipeline they wait for the first row, so they stay inside the transaction.
+
 The *Embedding dimensions* option only applies when the table is created by this transform. Changing it afterwards does not alter an existing table.
 
 *Create table if missing* is the only option that issues `CREATE EXTENSION IF NOT EXISTS vector`, which needs elevated database privileges. Adding an index or a mapped column to a table that already holds a vector column does not, because that table was created with the extension in place.

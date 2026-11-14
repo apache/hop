@@ -3982,6 +3982,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // Do nothing
   }
 
+  /** True when the engine did the once-per-run preparation of this transform. */
+  private boolean preparedOnce;
+
+  @Override
+  public boolean isPreparedOnce() {
+    return preparedOnce;
+  }
+
+  @Override
+  public void setPreparedOnce(boolean preparedOnce) {
+    this.preparedOnce = preparedOnce;
+  }
+
   @Override
   public boolean processRow() throws HopException {
     return false;

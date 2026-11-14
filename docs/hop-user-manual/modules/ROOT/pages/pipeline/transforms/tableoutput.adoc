@@ -94,3 +94,12 @@ There is an option to exclude the field containing the tablename from being inse
 |Name of auto-generated key field|Specifies the name of the new field in the output rows that contains the auto-generated key
 |SQL|Generates the SQL to create the output table automatically
 |===
+
+== Several copies, partitions or bundles
+
+*Truncate table* and *Automatically update table structure* happen once per run, before any row is written: on the local engine on the first copy, on the native Spark and Beam engines on the driver, before the job starts.
+The copies, Spark partitions or Beam bundles then only insert, so they don't truncate each other's rows or change the table at the same time.
+The table structure follows the fields the previous transforms declare, as the *SQL* button does.
+
+*Truncate on first row* still truncates when the first row arrives, as only then is it known that rows arrive.
+In a transactional pipeline the truncate and table changes also wait for the first row, so they stay inside the transaction.
