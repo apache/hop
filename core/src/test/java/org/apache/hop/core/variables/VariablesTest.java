@@ -283,6 +283,60 @@ class VariablesTest {
     }
   }
 
+  /** Launcher-provided system properties must override defaults stored in hop-config.json. */
+  @Test
+  void systemPropertiesWinOverHopConfigDefaults() {
+    String name = Const.HOP_PASSWORD_ENCODER_PLUGIN;
+    List<DescribedVariable> configuredVariables = HopConfig.getInstance().getDescribedVariables();
+    DescribedVariable existing = HopConfig.getInstance().findDescribedVariable(name);
+    DescribedVariable storedDefault = new DescribedVariable(name, "Hop", "");
+    String systemValue = System.getProperty(name);
+
+    if (existing != null) {
+      configuredVariables.remove(existing);
+    }
+    configuredVariables.add(storedDefault);
+    System.setProperty(name, "AES2");
+    try {
+      Variables variables = new Variables();
+      variables.initializeFrom(null);
+
+      assertEquals("AES2", variables.getVariable(name));
+    } finally {
+      configuredVariables.remove(storedDefault);
+      if (existing != null) {
+        configuredVariables.add(existing);
+      }
+      if (systemValue == null) {
+        System.clearProperty(name);
+      } else {
+        System.setProperty(name, systemValue);
+      }
+    }
+  }
+
+  /** Explicit parent values keep their precedence over launcher-provided system properties. */
+  @Test
+  void parentVariablesWinOverSystemProperties() {
+    String name = Const.HOP_PASSWORD_ENCODER_PLUGIN;
+    String systemValue = System.getProperty(name);
+    Variables parent = new Variables();
+    parent.setVariable(name, "Hop");
+    System.setProperty(name, "AES2");
+    try {
+      Variables variables = new Variables();
+      variables.initializeFrom(parent);
+
+      assertEquals("Hop", variables.getVariable(name));
+    } finally {
+      if (systemValue == null) {
+        System.clearProperty(name);
+      } else {
+        System.setProperty(name, systemValue);
+      }
+    }
+  }
+
   /** Nothing set anywhere: off. */
   @Test
   void environmentImportIsOffWhenNothingIsSet() {
