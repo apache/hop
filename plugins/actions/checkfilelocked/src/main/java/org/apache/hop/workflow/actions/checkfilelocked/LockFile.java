@@ -43,38 +43,19 @@ public class LockFile {
 
     // In order to check is a file is locked
     // we will use a dummy renaming exercise
-    FileObject file = null;
-    FileObject dummyfile = null;
-
-    try {
-
-      file = HopVfs.getFileObject(filename, variables);
+    //
+    // The name is resolved once: resolving it again gives the same file object.
+    try (FileObject file = HopVfs.getFileObject(filename, variables)) {
       if (file.exists()) {
-        dummyfile = HopVfs.getFileObject(filename, variables);
         // move file to itself!
         // Not HopVfs.moveFile(): here the failing rename is the answer we came for, and its
         // fallback would copy this file onto itself and then delete it.
-        file.moveTo(dummyfile);
+        file.moveTo(file);
       }
     } catch (Exception e) {
       // We got an exception
       // The is locked by another process
       setLocked(true);
-    } finally {
-      if (file != null) {
-        try {
-          file.close();
-        } catch (Exception e) {
-          /* Ignore */
-        }
-      }
-      if (dummyfile != null) {
-        try {
-          file.close();
-        } catch (Exception e) {
-          /* Ignore */
-        }
-      }
     }
   }
 

@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "locked",
+          "data_set_field": "locked"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "transform_name": "verify",
+      "data_set_name": "golden-file-locked"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0127-file-locked UNIT",
+  "description": "Two files, a folder and a missing file that nobody holds are not locked",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0127-file-locked.hpl",
+  "test_type": "UNIT_TEST"
+}
