@@ -198,6 +198,23 @@ public abstract class BasePainter<H extends BaseHopMeta<?>, P extends IBaseMeta>
   }
 
   /**
+   * Size the note is painted at. Stored width and height are a lower bound; {@link #drawNote} uses
+   * the larger of that and the size the text needs.
+   */
+  public Point getNoteDrawnSize(NotePadMeta note) {
+    Point minimum = calculateMinimumSize(note);
+    int width = note.getWidth();
+    int height = note.getHeight();
+    if (minimum.x > width) {
+      width = minimum.x;
+    }
+    if (minimum.y > height) {
+      height = minimum.y;
+    }
+    return new Point(Math.max(width, 0), Math.max(height, 0));
+  }
+
+  /**
    * Base font size for Markdown notes on the canvas. Reads the actual point size of {@link
    * EFont#GRAPH} (transform/action name font) so body text matches graph labels exactly under the
    * same canvas magnification. Falls back to note-font / zoom when the GC cannot report size.
