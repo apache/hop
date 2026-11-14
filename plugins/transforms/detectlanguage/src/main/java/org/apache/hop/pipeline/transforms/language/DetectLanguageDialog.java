@@ -14,48 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.hop.pipeline.transforms.language;
 
-import static org.apache.hop.core.util.Utils.isEmpty;
-import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.eclipse.swt.SWT.BORDER;
-import static org.eclipse.swt.SWT.CHECK;
-import static org.eclipse.swt.SWT.CURSOR_WAIT;
-import static org.eclipse.swt.SWT.READ_ONLY;
-import static org.eclipse.swt.SWT.RIGHT;
-
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.ComboItems;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-public class DetectLanguageDialog extends BaseTransformDialog implements ITransformDialog {
+public class DetectLanguageDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DetectLanguageDialog.class;
-  private boolean gotPreviousFields = false;
-
-  private CCombo wCorpusFieldName;
-  private Button wParallelism;
 
   private final DetectLanguageMeta input;
+  private GuiCompositeWidgets widgets;
 
   public DetectLanguageDialog(
       Shell parent,
@@ -69,82 +49,66 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
   @Override
   public String open() {
     createShell(BaseMessages.getString(PKG, "DetectLanguageDialog.Shell.Title"));
-
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    Listener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    // CorpusFieldName field
-    Label wlCorpusFieldName = new Label(shell, RIGHT);
-    wlCorpusFieldName.setText(getString(PKG, "DetectLanguageDialog.CorpusFieldName.Label"));
-    PropsUi.setLook(wlCorpusFieldName);
-    FormData fdlCorpusFieldName = new FormData();
-    fdlCorpusFieldName.left = new FormAttachment(0, 0);
-    fdlCorpusFieldName.right = new FormAttachment(middle, -margin);
-    fdlCorpusFieldName.top = new FormAttachment(wSpacer, margin);
-    wlCorpusFieldName.setLayoutData(fdlCorpusFieldName);
-
-    wCorpusFieldName = new CCombo(shell, BORDER | READ_ONLY);
-    PropsUi.setLook(wCorpusFieldName);
-    wCorpusFieldName.addListener(SWT.Modify, lsMod);
-    FormData fdCorpusFieldName = new FormData();
-    fdCorpusFieldName.left = new FormAttachment(middle, 0);
-    fdCorpusFieldName.top = new FormAttachment(wSpacer, margin);
-    fdCorpusFieldName.right = new FormAttachment(100, 0);
-    wCorpusFieldName.setLayoutData(fdCorpusFieldName);
-    wCorpusFieldName.addFocusListener(
-        new FocusListener() {
+    widgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            shell,
+            variables,
+            wTransformName,
+            wOk,
+            DetectLanguageMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+            input);
+    widgets.setWidgetsListener(
+        new GuiCompositeWidgetsAdapter() {
           @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), CURSOR_WAIT);
-            shell.setCursor(busy);
-            get();
-            shell.setCursor(null);
-            busy.dispose();
+          public void widgetModified(
+              GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+            input.setChanged();
           }
         });
 
-    // parallelism
-    Label wlParallelism = new Label(shell, RIGHT);
-    wlParallelism.setText(getString(PKG, "DetectLanguageDialog.Parallelism.Label"));
-    PropsUi.setLook(wlParallelism);
-    FormData fdlParallelism = new FormData();
-    fdlParallelism.left = new FormAttachment(0, 0);
-    fdlParallelism.top = new FormAttachment(wCorpusFieldName, margin);
-    fdlParallelism.right = new FormAttachment(middle, -margin);
-    wlParallelism.setLayoutData(fdlParallelism);
-
-    wParallelism = new Button(shell, CHECK);
-    wParallelism.setSelection(input.isParallelism());
-    PropsUi.setLook(wParallelism);
-    wParallelism.setToolTipText(getString(PKG, "DetectLanguageDialog.Parallelism.Tooltip"));
-    FormData fdParallelism = new FormData();
-    fdParallelism.left = new FormAttachment(middle, 0);
-    fdParallelism.top = new FormAttachment(wCorpusFieldName, margin);
-    fdParallelism.right = new FormAttachment(100, 0);
-    wParallelism.setLayoutData(fdParallelism);
-    wParallelism.addListener(SWT.Selection, lsMod);
-
-    getData();
+    setFieldComboValues();
+    // Filling the field combo is not a change
     input.setChanged(changed);
+
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
     return transformName;
   }
 
-  /** Copy information from the meta-data input to the dialog fields. */
-  public void getData() {
-
-    if (input.getCorpusField() != null) {
-      wCorpusFieldName.setText(input.getCorpusField());
+  /**
+   * Stream field names cannot come from {@code comboValuesMethod}, which is handed only a log
+   * channel and a metadata provider, so the field combo is filled once the widgets exist. The
+   * configured field stays when the previous fields cannot be read.
+   */
+  private void setFieldComboValues() {
+    try {
+      IRowMeta fields = pipelineMeta.getPrevTransformFields(variables, transformName);
+      String[] names = fields == null ? new String[0] : fields.getFieldNames();
+      widgets.setComboValues(DetectLanguageMeta.WIDGET_CORPUS_FIELD, names);
+      // Setting items clears the widget's text, so put the configured field back afterwards.
+      if (!Utils.isEmpty(input.getCorpusField())) {
+        setComboText(DetectLanguageMeta.WIDGET_CORPUS_FIELD, input.getCorpusField());
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError(
+          BaseMessages.getString(PKG, "DetectLanguageDialog.FailedToGetFields.DialogMessage"), e);
     }
+  }
 
-    wParallelism.setSelection(input.isParallelism());
+  private void setComboText(String widgetId, String text) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    if (control == null || control.isDisposed()) {
+      return;
+    }
+    if (control instanceof ComboVar comboVar) {
+      comboVar.setText(text);
+    } else if (control instanceof Combo combo) {
+      combo.setText(text);
+    }
   }
 
   private void cancel() {
@@ -154,32 +118,12 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
   }
 
   private void ok() {
-    if (isEmpty(wTransformName.getText())) {
+    if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setCorpusField(wCorpusFieldName.getText());
-    input.setParallelism(wParallelism.getSelection());
-
-    transformName = wTransformName.getText(); // return value
-
+    widgets.getWidgetsContents(input, DetectLanguageMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
+    transformName = wTransformName.getText();
+    input.setChanged();
     dispose();
-  }
-
-  private void get() {
-    if (!gotPreviousFields) {
-      try {
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          ComboItems.setItemsKeepingText(wCorpusFieldName, r.getFieldNames());
-        }
-        gotPreviousFields = true;
-      } catch (HopException ke) {
-        new ErrorDialog(
-            shell,
-            getString(PKG, "DetectLanguageDialog.FailedToGetFields.DialogTitle"),
-            getString(PKG, "DetectLanguageDialog.FailedToGetFields.DialogMessage"),
-            ke);
-      }
-    }
   }
 }
