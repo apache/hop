@@ -29,7 +29,7 @@ class BlockingListeningRowSetTest {
   void testClass() {
     BlockingListeningRowSet rowSet = new BlockingListeningRowSet(1);
     assertEquals(0, rowSet.size());
-    final Object[] row = new Object[] {};
+    final Object[] row = {};
     final RowMeta meta = new RowMeta();
     rowSet.putRow(meta, row);
     assertSame(meta, rowSet.getRowMeta());

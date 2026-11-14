@@ -122,10 +122,10 @@ class UtilsTest {
 
   @Test
   void testNormalizeArraysMethods() {
-    String[] s1 = new String[] {"one"};
-    String[] s2 = new String[] {"one", "two"};
-    long[] l1 = new long[] {1};
-    long[] l2 = new long[] {1, 2};
+    String[] s1 = {"one"};
+    String[] s2 = {"one", "two"};
+    long[] l1 = {1};
+    long[] l2 = {1, 2};
 
     String[][] newS = Utils.normalizeArrays(3, s1, s2);
     assertEquals(2, newS.length);
@@ -159,13 +159,13 @@ class UtilsTest {
   }
 
   private void testNormalizeArraysMethods_1() {
-    short[] sh1 = new short[] {1};
-    short[] sh2 = new short[] {1, 2};
+    short[] sh1 = {1};
+    short[] sh2 = {1, 2};
 
-    boolean[] b1 = new boolean[] {true};
-    boolean[] b2 = new boolean[] {true, false};
-    int[] i1 = new int[] {1};
-    int[] i2 = new int[] {1, 2};
+    boolean[] b1 = {true};
+    boolean[] b2 = {true, false};
+    int[] i1 = {1};
+    int[] i2 = {1, 2};
 
     short[][] newSh = Utils.normalizeArrays(3, sh1, sh2);
     assertEquals(2, newSh.length);

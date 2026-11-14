@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class LintCanvasOverlayHelperTest {
 
   @Test
-  public void indexesResultsByTransformAndActionName() {
+  void indexesResultsByTransformAndActionName() {
     List<LintResult> results =
         Arrays.asList(
             new LintResult(
@@ -77,7 +77,7 @@ public class LintCanvasOverlayHelperTest {
   }
 
   @Test
-  public void picksWorstSeverityAcrossResults() {
+  void picksWorstSeverityAcrossResults() {
     List<LintResult> warningsOnly =
         Collections.singletonList(
             new LintResult(
@@ -107,7 +107,7 @@ public class LintCanvasOverlayHelperTest {
   }
 
   @Test
-  public void ignoresResultsWithoutMatchingSourceKind() {
+  void ignoresResultsWithoutMatchingSourceKind() {
     List<LintResult> results =
         Collections.singletonList(new LintResult("DOC-001", "Doc", "ERROR", "msg", "a.hpl"));
 

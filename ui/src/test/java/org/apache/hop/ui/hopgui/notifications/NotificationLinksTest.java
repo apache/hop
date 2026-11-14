@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationLinksTest {
 
   @Test
-  public void testHttpAndHttpsAreAccepted() {
+  void testHttpAndHttpsAreAccepted() {
     assertTrue(NotificationLinks.isSafe("https://hop.apache.org"));
     assertTrue(NotificationLinks.isSafe("http://hop.apache.org/download"));
     assertTrue(NotificationLinks.isSafe("https://github.com/apache/hop/releases/tag/2.19.0"));
@@ -33,13 +33,13 @@ public class NotificationLinksTest {
   }
 
   @Test
-  public void testSchemeIsCaseInsensitive() {
+  void testSchemeIsCaseInsensitive() {
     assertTrue(NotificationLinks.isSafe("HTTPS://hop.apache.org"));
     assertTrue(NotificationLinks.isSafe("HtTp://hop.apache.org"));
   }
 
   @Test
-  public void testOtherSchemesAreRejected() {
+  void testOtherSchemesAreRejected() {
     // These all reach Program.launch() on the desktop, which asks the operating system to open
     // them. A feed must not be able to get that far.
     assertFalse(NotificationLinks.isSafe("file:///etc/passwd"));
@@ -51,7 +51,7 @@ public class NotificationLinksTest {
   }
 
   @Test
-  public void testNonUrlsAreRejected() {
+  void testNonUrlsAreRejected() {
     assertFalse(NotificationLinks.isSafe(null));
     assertFalse(NotificationLinks.isSafe(""));
     assertFalse(NotificationLinks.isSafe("   "));
@@ -63,7 +63,7 @@ public class NotificationLinksTest {
   }
 
   @Test
-  public void testUrlWithoutHostIsRejected() {
+  void testUrlWithoutHostIsRejected() {
     assertFalse(NotificationLinks.isSafe("http://"));
     assertFalse(NotificationLinks.isSafe("https:///path/only"));
   }

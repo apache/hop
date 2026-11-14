@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class TransformFieldExtractionTest {
 
   @Test
-  public void flagsBlockingTransformPluginIds() throws Exception {
+  void flagsBlockingTransformPluginIds() {
     TransformMeta sortRows = new TransformMeta();
     sortRows.setName("Sort rows");
     sortRows.setTransformPluginId("SortRows");
@@ -55,7 +55,7 @@ public class TransformFieldExtractionTest {
   }
 
   @Test
-  public void flagsHighCopyCount() throws Exception {
+  void flagsHighCopyCount() {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName("Table Input");
     transformMeta.setTransformPluginId("TableInput");
@@ -82,7 +82,7 @@ public class TransformFieldExtractionTest {
    * author reads in the .hpl file; the Java field name is not API.
    */
   @Test
-  public void resolvesAFieldByItsSerialisedName() throws Exception {
+  void resolvesAFieldByItsSerialisedName() {
     AnnotatedMeta annotated = new AnnotatedMeta();
     annotated.internalFieldName = "SELECT * FROM sales";
 
@@ -118,7 +118,7 @@ public class TransformFieldExtractionTest {
    * rule needs to see them has to exist for pipelines and workflows alike.
    */
   @Test
-  public void flagsAPipelineWithNoNotesOnTheCanvas() throws Exception {
+  void flagsAPipelineWithNoNotesOnTheCanvas() {
     PipelineMeta bare = new PipelineMeta();
     bare.setName("undocumented");
 
@@ -138,7 +138,7 @@ public class TransformFieldExtractionTest {
   }
 
   @Test
-  public void countsNotesOnAWorkflow() throws Exception {
+  void countsNotesOnAWorkflow() {
     WorkflowMeta workflow = new WorkflowMeta();
     workflow.setName("undocumented");
     workflow.addNote(new NotePadMeta("step one", 10, 10, 100, 40));

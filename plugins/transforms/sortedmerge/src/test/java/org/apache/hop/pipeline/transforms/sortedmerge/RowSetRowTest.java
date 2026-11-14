@@ -32,7 +32,7 @@ class RowSetRowTest {
   void constructorStoresRowSetMetaAndData() {
     IRowSet rowSet = mock(IRowSet.class);
     IRowMeta rowMeta = mock(IRowMeta.class);
-    Object[] rowData = new Object[] {"a", 1};
+    Object[] rowData = {"a", 1};
 
     RowSetRow row = new RowSetRow(rowSet, rowMeta, rowData);
 
@@ -47,7 +47,7 @@ class RowSetRowTest {
 
     IRowSet rowSet = mock(IRowSet.class);
     IRowMeta rowMeta = mock(IRowMeta.class);
-    Object[] rowData = new Object[] {"new"};
+    Object[] rowData = {"new"};
     row.setRowSet(rowSet);
     row.setRowMeta(rowMeta);
     row.setRowData(rowData);

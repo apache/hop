@@ -46,7 +46,7 @@ class ConcatFieldHelperTests {
     rowMeta.addValueMeta(new ValueMetaString("f1"));
     rowMeta.addValueMeta(new ValueMetaString("f2"));
     // input row
-    Object[] inputRow = new Object[] {"hello", "world"};
+    Object[] inputRow = {"hello", "world"};
 
     // data
     ConcatFieldsData data = new ConcatFieldsData();
@@ -85,7 +85,7 @@ class ConcatFieldHelperTests {
     rowMeta.addValueMeta(new ValueMetaString("f1"));
     rowMeta.addValueMeta(new ValueMetaString("f2"));
 
-    Object[] inputRow = new Object[] {" hello ", null};
+    Object[] inputRow = {" hello ", null};
 
     ConcatFieldsData data = new ConcatFieldsData();
     data.inputFieldIndexes = List.of(0, 1);
@@ -125,7 +125,7 @@ class ConcatFieldHelperTests {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("f1"));
 
-    Object[] inputRow = new Object[] {"abc"};
+    Object[] inputRow = {"abc"};
 
     ConcatFieldsData data = new ConcatFieldsData();
     data.inputFieldIndexes = List.of(0);

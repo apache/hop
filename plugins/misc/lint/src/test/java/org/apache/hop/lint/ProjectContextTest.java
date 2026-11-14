@@ -89,7 +89,7 @@ public class ProjectContextTest {
 
   /** What Lint Project in Hop Gui does: run() with no index of its own. */
   @Test
-  public void aProjectLintReportsUnreferencedPipelines() {
+  void aProjectLintReportsUnreferencedPipelines() {
     List<LintResult> results =
         new HopLinter()
             .run(project.toString(), new MemoryMetadataProvider(), projectVariables(), null);
@@ -100,7 +100,7 @@ public class ProjectContextTest {
 
   /** A folder is indexed against the whole project, not only itself. */
   @Test
-  public void aFolderInAProjectIsIndexedAgainstTheProject() {
+  void aFolderInAProjectIsIndexedAgainstTheProject() {
     LintProjectIndex index =
         new HopLinter()
             .buildProjectIndex(
@@ -112,7 +112,7 @@ public class ProjectContextTest {
   }
 
   @Test
-  public void aFolderOutsideAProjectIsIndexedOnItsOwn() {
+  void aFolderOutsideAProjectIsIndexedOnItsOwn() {
     LintProjectIndex index =
         new HopLinter()
             .buildProjectIndex(
@@ -124,7 +124,7 @@ public class ProjectContextTest {
   }
 
   @Test
-  public void aSingleFileOutsideAProjectHasNoIndex() {
+  void aSingleFileOutsideAProjectHasNoIndex() {
     assertNull(
         new HopLinter()
             .buildProjectIndex(
@@ -192,7 +192,7 @@ public class ProjectContextTest {
   }
 
   @Test
-  public void theProjectsMetadataIsUsed() throws Exception {
+  void theProjectsMetadataIsUsed() throws Exception {
     String[] output = lint(project.toString(), "-v", project.resolve("pipelines").toString());
 
     assertTrue(output[0].contains("Using the metadata of project home"), output[0]);
@@ -212,7 +212,7 @@ public class ProjectContextTest {
    * replaced that project's own metadata and reported its connections as missing.
    */
   @Test
-  public void aDefaultProjectDoesNotApplyToAnotherProject() throws Exception {
+  void aDefaultProjectDoesNotApplyToAnotherProject() throws Exception {
     Path other = otherProject();
 
     String[] output = lint(project.toString(), "-v", other.toString());
@@ -224,7 +224,7 @@ public class ProjectContextTest {
   }
 
   @Test
-  public void theHookUsesTheMetadataOfTheProjectItCommitsTo() throws Exception {
+  void theHookUsesTheMetadataOfTheProjectItCommitsTo() throws Exception {
     Path other = otherProject();
     Path staged = dir.resolve("staged.txt");
     Files.writeString(staged, other.resolve("orders.hpl") + "\n");
@@ -239,7 +239,7 @@ public class ProjectContextTest {
 
   /** A project asked for with -j applies wherever the target is, with a warning. */
   @Test
-  public void aChosenProjectAppliesOutsideItsHomeWithAWarning() throws Exception {
+  void aChosenProjectAppliesOutsideItsHomeWithAWarning() throws Exception {
     Path other = otherProject();
 
     String[] output = lint(project.toString(), "-v", "-j", "default", other.toString());

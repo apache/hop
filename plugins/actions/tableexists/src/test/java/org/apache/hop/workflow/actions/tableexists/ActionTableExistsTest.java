@@ -86,7 +86,7 @@ class ActionTableExistsTest {
   }
 
   @Test
-  void existingTableReturnsTrueWithoutErrors() throws Exception {
+  void existingTableReturnsTrueWithoutErrors() {
     ActionTableExists action = new ActionTableExists("Table exists");
     action.setConnection("unit-test-db");
     action.setTableName("present_table");
@@ -114,7 +114,7 @@ class ActionTableExistsTest {
   }
 
   @Test
-  void missingTableReturnsFalseWithoutErrors() throws Exception {
+  void missingTableReturnsFalseWithoutErrors() {
     ActionTableExists action = new ActionTableExists("Table exists");
     action.setConnection("unit-test-db");
     action.setTableName("missing_table");

@@ -18,7 +18,6 @@
 package org.apache.hop.core.row;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,7 +63,7 @@ class RowHelpersContractTest {
   @Test
   void rowHashIgnoresPadding() throws Exception {
     IRowMeta rowMeta = rowMeta("a", "b");
-    Object[] exact = new Object[] {"x", "y"};
+    Object[] exact = {"x", "y"};
     Object[] padded = RowDataUtil.allocateRowData(rowMeta.size());
     padded[0] = "x";
     padded[1] = "y";
@@ -110,9 +109,9 @@ class RowHelpersContractTest {
   void rowMetaAndDataIsNotEqualToNullOrAnotherType() {
     RowMetaAndData row = new RowMetaAndData(rowMeta("a"), "x");
 
-    assertFalse(row.equals(null));
-    assertFalse(row.equals("x"));
-    assertTrue(row.equals(row));
+    assertNotEquals(row, null);
+    assertNotEquals(row, "x");
+    assertEquals(row, row);
   }
 
   @Test

@@ -206,7 +206,7 @@ class BeamSnowflakeInputMetaTest {
   }
 
   @Test
-  void checkReportsAnIncomingHopAndAValidSource() throws Exception {
+  void checkReportsAnIncomingHopAndAValidSource() {
     var meta = configured();
     meta.getFields().add(new SnowflakeField("id", "Integer"));
     var transform = new TransformMeta("BeamSnowflakeInput", "read", meta);

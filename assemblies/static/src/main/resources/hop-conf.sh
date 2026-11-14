@@ -98,7 +98,7 @@ Darwin)
   else
     CLASSPATH="lib/core/*:lib/spark-client/*:lib/swt/osx/x86_64/*"
   fi
-  HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
+  HOP_OPTIONS="${HOP_OPTIONS} -Djava.awt.headless=true"
   ;;
 esac
 

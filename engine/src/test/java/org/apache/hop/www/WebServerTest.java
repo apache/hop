@@ -16,8 +16,8 @@
  */
 package org.apache.hop.www;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -105,12 +105,12 @@ class WebServerTest {
   void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsInvalidValue()
       throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST");
-    try {
-      webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
-      webServerNg.start();
-    } catch (NumberFormatException nmbfExc) {
-      fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
-    }
+    assertDoesNotThrow(
+        () -> {
+          webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
+          webServerNg.start();
+        },
+        "Should not have thrown any NumberFormatException");
     assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());
@@ -121,12 +121,12 @@ class WebServerTest {
   @Test
   void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty() throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING);
-    try {
-      webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
-      webServerNg.start();
-    } catch (NumberFormatException nmbfExc) {
-      fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
-    }
+    assertDoesNotThrow(
+        () -> {
+          webServerNg = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, null);
+          webServerNg.start();
+        },
+        "Should not have thrown any NumberFormatException");
     assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServerNg).size());
     for (ServerConnector sc : getSocketConnectors(webServerNg)) {
       assertEquals(sc.getAcceptors(), sc.getAcceptors());

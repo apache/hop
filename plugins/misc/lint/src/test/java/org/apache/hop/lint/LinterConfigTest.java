@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class LinterConfigTest {
 
   @Test
-  public void testDefaultConstructor() {
+  void testDefaultConstructor() {
     LinterConfig config = new LinterConfig();
 
     assertNotNull(config.getRules());
@@ -40,7 +40,7 @@ public class LinterConfigTest {
   }
 
   @Test
-  public void testSettersAndGetters() {
+  void testSettersAndGetters() {
     LinterConfig config = new LinterConfig();
 
     // Test rules
@@ -68,7 +68,7 @@ public class LinterConfigTest {
   }
 
   @Test
-  public void testIsRuleEnabled() {
+  void testIsRuleEnabled() {
     LinterConfig config = new LinterConfig();
 
     // Test with no rules
@@ -93,7 +93,7 @@ public class LinterConfigTest {
   }
 
   @Test
-  public void testIsRuleEnabledWithNullRule() {
+  void testIsRuleEnabledWithNullRule() {
     LinterConfig config = new LinterConfig();
 
     Map<String, RuleConfig> rules = new HashMap<>();
@@ -104,7 +104,7 @@ public class LinterConfigTest {
   }
 
   @Test
-  public void testGetRuleParameters() {
+  void testGetRuleParameters() {
     LinterConfig config = new LinterConfig();
 
     Map<String, RuleConfig> rules = new HashMap<>();

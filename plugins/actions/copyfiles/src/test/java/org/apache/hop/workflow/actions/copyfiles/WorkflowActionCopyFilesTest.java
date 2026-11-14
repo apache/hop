@@ -96,8 +96,8 @@ class WorkflowActionCopyFilesTest {
 
   @Test
   void filesCopied() throws Exception {
-    String[] srcPath = new String[] {"path1", "path2", "path3"};
-    String[] destPath = new String[] {"dest1", "dest2", "dest3"};
+    String[] srcPath = {"path1", "path2", "path3"};
+    String[] destPath = {"dest1", "dest2", "dest3"};
 
     entry.setFileRows(rows(srcPath, destPath, new String[] {EMPTY, EMPTY, EMPTY}));
 

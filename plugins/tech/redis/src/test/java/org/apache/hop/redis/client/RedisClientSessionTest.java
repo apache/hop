@@ -53,7 +53,7 @@ class RedisClientSessionTest {
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
-  void closeWithPoolReturnsObjectAndClosesPool() throws Exception {
+  void closeWithPoolReturnsObjectAndClosesPool() {
     AbstractRedisClient client = mock(AbstractRedisClient.class);
     StatefulRedisConnection<byte[], byte[]> connection = mock(StatefulRedisConnection.class);
     IRedisCommands commands = mock(IRedisCommands.class);
@@ -71,7 +71,7 @@ class RedisClientSessionTest {
 
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
-  void closeStillShutsDownClientWhenReturnObjectFails() throws Exception {
+  void closeStillShutsDownClientWhenReturnObjectFails() {
     AbstractRedisClient client = mock(AbstractRedisClient.class);
     StatefulRedisConnection<byte[], byte[]> connection = mock(StatefulRedisConnection.class);
     IRedisCommands commands = mock(IRedisCommands.class);

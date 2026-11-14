@@ -192,7 +192,7 @@ class TableViewColumnViewsTest {
         TableViewColumnViews.valueComparator(IValueMeta.TYPE_NUMBER, null);
 
     assertTrue(comparator.compare("9", "10") < 0);
-    assertTrue(comparator.compare("10", "10.0") == 0);
+    assertEquals(0, comparator.compare("10", "10.0"));
     assertTrue(comparator.compare("-2", "2") < 0);
   }
 
@@ -275,7 +275,7 @@ class TableViewColumnViewsTest {
 
     assertTrue(comparator.compare("false", "true") < 0);
     assertTrue(comparator.compare("N", "Y") < 0);
-    assertTrue(comparator.compare("Y", "Y") == 0);
+    assertEquals(0, comparator.compare("Y", "Y"));
   }
 
   @Test

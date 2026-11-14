@@ -134,7 +134,7 @@ class RestStreamingTest {
   }
 
   @Test
-  void stoppingAnEndlessStreamActuallyEndsIt() throws Exception {
+  void stoppingAnEndlessStreamActuallyEndsIt() {
     // The reported bug: the read loop returned on stop, but the client then tried to drain what
     // was left of the entity so it could reuse the connection. On a feed that never ends, that
     // never returns and the transform sits in "Halting". The request has to be aborted.

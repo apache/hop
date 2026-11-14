@@ -17,12 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import com.sforce.soap.partner.Connector;
@@ -72,22 +73,14 @@ class SalesforceConnectionTest {
 
   @Test
   void testConstructor_emptyUrl() throws HopException {
-    try {
-      new SalesforceConnection(logInterface, null, username, password);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(
+        HopException.class, () -> new SalesforceConnection(logInterface, null, username, password));
   }
 
   @Test
   void testConstructor_emptyUserName() throws HopException {
-    try {
-      new SalesforceConnection(logInterface, url, null, password);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(
+        HopException.class, () -> new SalesforceConnection(logInterface, url, null, password));
   }
 
   @Test
@@ -95,12 +88,7 @@ class SalesforceConnectionTest {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar endDate = new GregorianCalendar(2000, 2, 10);
-    try {
-      connection.setCalendar(recordsFilter, null, endDate);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(HopException.class, () -> connection.setCalendar(recordsFilter, null, endDate));
   }
 
   @Test
@@ -108,12 +96,7 @@ class SalesforceConnectionTest {
     SalesforceConnection connection =
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 2, 10);
-    try {
-      connection.setCalendar(recordsFilter, startDate, null);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(HopException.class, () -> connection.setCalendar(recordsFilter, startDate, null));
   }
 
   @Test
@@ -122,12 +105,8 @@ class SalesforceConnectionTest {
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 3, 20);
     GregorianCalendar endDate = new GregorianCalendar(2000, 2, 10);
-    try {
-      connection.setCalendar(recordsFilter, startDate, endDate);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(
+        HopException.class, () -> connection.setCalendar(recordsFilter, startDate, endDate));
   }
 
   @Test
@@ -136,12 +115,8 @@ class SalesforceConnectionTest {
         new SalesforceConnection(logInterface, url, username, password);
     GregorianCalendar startDate = new GregorianCalendar(2000, 1, 1);
     GregorianCalendar endDate = new GregorianCalendar(2000, 2, 11);
-    try {
-      connection.setCalendar(recordsFilter, startDate, endDate);
-      fail();
-    } catch (HopException expected) {
-      // OK
-    }
+    assertThrows(
+        HopException.class, () -> connection.setCalendar(recordsFilter, startDate, endDate));
   }
 
   @Test
@@ -149,65 +124,41 @@ class SalesforceConnectionTest {
     SalesforceConnection conn;
 
     // Test all-invalid parameters
-    try {
-      conn = null;
-      conn = new SalesforceConnection(null, null, null, null);
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(HopException.class, () -> new SalesforceConnection(null, null, null, null));
 
     // Test null Log Interface
-    try {
-      conn = null;
-      conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", "mypwd");
-      assertFalse(conn.getUrl().isEmpty());
-      assertFalse(conn.getUsername().isEmpty());
-      assertFalse(conn.getPassword().isEmpty());
-    } catch (HopException e) {
-      fail();
-    }
+    conn =
+        assertDoesNotThrow(
+            () -> new SalesforceConnection(null, "http://localhost:1234", "anonymous", "mypwd"));
+    assertFalse(conn.getUrl().isEmpty());
+    assertFalse(conn.getUsername().isEmpty());
+    assertFalse(conn.getPassword().isEmpty());
 
     // Test valid Log Interface
-    try {
-      conn = null;
-      conn =
-          new SalesforceConnection(
-              new LogChannel(this), "http://localhost:1234", "anonymous", "mypwd");
-      assertFalse(conn.getUrl().isEmpty());
-      assertFalse(conn.getUsername().isEmpty());
-      assertFalse(conn.getPassword().isEmpty());
-    } catch (HopException e) {
-      fail();
-    }
+    conn =
+        assertDoesNotThrow(
+            () ->
+                new SalesforceConnection(
+                    new LogChannel(this), "http://localhost:1234", "anonymous", "mypwd"));
+    assertFalse(conn.getUrl().isEmpty());
+    assertFalse(conn.getUsername().isEmpty());
+    assertFalse(conn.getPassword().isEmpty());
 
     // Test missing target URL (should fail)
-    try {
-      conn = null;
-      conn = new SalesforceConnection(null, null, "anonymous", "mypwd");
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(
+        HopException.class, () -> new SalesforceConnection(null, null, "anonymous", "mypwd"));
 
     // Test missing username (should fail)
-    try {
-      conn = null;
-      conn = new SalesforceConnection(null, "http://localhost:1234", null, "mypwd");
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(
+        HopException.class,
+        () -> new SalesforceConnection(null, "http://localhost:1234", null, "mypwd"));
 
     // Test missing password (should fail)
-    try {
-      conn = null;
-      conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", null);
-      assertFalse(conn.getUrl().isEmpty());
-      assertEquals("anonymous", conn.getUsername());
-    } catch (HopException e) {
-      fail();
-    }
+    conn =
+        assertDoesNotThrow(
+            () -> new SalesforceConnection(null, "http://localhost:1234", "anonymous", null));
+    assertFalse(conn.getUrl().isEmpty());
+    assertEquals("anonymous", conn.getUsername());
   }
 
   @Test
@@ -215,48 +166,39 @@ class SalesforceConnectionTest {
     SalesforceConnection conn = mock(SalesforceConnection.class, Mockito.CALLS_REAL_METHODS);
 
     // Test valid data
-    try {
-      conn.setCalendar(
-          new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
-          new GregorianCalendar(2016, Calendar.JANUARY, 1),
-          new GregorianCalendar(2016, Calendar.JANUARY, 31));
-      // No errors detected
-    } catch (HopException e) {
-      fail();
-    }
+    assertDoesNotThrow(
+        () ->
+            conn.setCalendar(
+                new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
+                new GregorianCalendar(2016, Calendar.JANUARY, 1),
+                new GregorianCalendar(2016, Calendar.JANUARY, 31)));
 
     // Test reversed dates (should fail)
-    try {
-      conn.setCalendar(
-          new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
-          new GregorianCalendar(2016, Calendar.JANUARY, 31),
-          new GregorianCalendar(2016, Calendar.JANUARY, 1));
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(
+        HopException.class,
+        () ->
+            conn.setCalendar(
+                new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
+                new GregorianCalendar(2016, Calendar.JANUARY, 31),
+                new GregorianCalendar(2016, Calendar.JANUARY, 1)));
 
     // Test null start date (should fail)
-    try {
-      conn.setCalendar(
-          new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
-          null,
-          new GregorianCalendar(2016, Calendar.JANUARY, 31));
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(
+        HopException.class,
+        () ->
+            conn.setCalendar(
+                new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
+                null,
+                new GregorianCalendar(2016, Calendar.JANUARY, 31)));
 
     // Test null end date (should fail)
-    try {
-      conn.setCalendar(
-          new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
-          new GregorianCalendar(2016, Calendar.JANUARY, 1),
-          null);
-      fail();
-    } catch (HopException expected) {
-      // Ignore, expected result
-    }
+    assertThrows(
+        HopException.class,
+        () ->
+            conn.setCalendar(
+                new Random().nextInt(SalesforceConnectionUtils.recordsFilterDesc.length),
+                new GregorianCalendar(2016, Calendar.JANUARY, 1),
+                null));
   }
 
   @Test
@@ -278,35 +220,26 @@ class SalesforceConnectionTest {
     assertEquals("myName", me.getName().getLocalPart());
     assertEquals(123, me.getValue());
 
-    me = null;
-    try {
-      me = SalesforceConnection.createMessageElement("myName", 123, true);
-      fail();
-    } catch (Exception expected) {
-      // Ignore, name was expected to have a colon ':'
-    }
+    // Ignore, name was expected to have a colon ':'
+    assertThrows(
+        Exception.class, () -> SalesforceConnection.createMessageElement("myName", 123, true));
 
-    me = null;
-    try {
-      me = SalesforceConnection.createMessageElement("myType:Name", "123", true);
-      assertNotNull(me);
-      assertEquals("Name", me.getName().getLocalPart());
-      assertEquals("myType", me.getField("type"));
-      assertEquals("123", me.getField("Name"));
-    } catch (Exception expected) {
-      fail();
-    }
+    me =
+        assertDoesNotThrow(
+            () -> SalesforceConnection.createMessageElement("myType:Name", "123", true));
+    assertNotNull(me);
+    assertEquals("Name", me.getName().getLocalPart());
+    assertEquals("myType", me.getField("type"));
+    assertEquals("123", me.getField("Name"));
 
-    me = null;
-    try {
-      me = SalesforceConnection.createMessageElement("myType:Name/MyLookupField", 123, true);
-      assertNotNull(me);
-      assertEquals("MyLookupField", me.getName().getLocalPart());
-      // assertEquals( "myType", me.getField( "type" ) );
-      assertEquals(123, me.getField("Name"));
-    } catch (Exception expected) {
-      fail();
-    }
+    me =
+        assertDoesNotThrow(
+            () ->
+                SalesforceConnection.createMessageElement("myType:Name/MyLookupField", 123, true));
+    assertNotNull(me);
+    assertEquals("MyLookupField", me.getName().getLocalPart());
+    // assertEquals( "myType", me.getField( "type" ) );
+    assertEquals(123, me.getField("Name"));
   }
 
   @Test

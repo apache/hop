@@ -41,7 +41,7 @@ public class SelectValuesMetaCheckTest {
 
   /** The transform from the issue: rename a field, then set the metadata on the new name. */
   @Test
-  public void aFieldRenamedOnTheSelectTabIsFoundByTheMetadataTab() {
+  void aFieldRenamedOnTheSelectTabIsFoundByTheMetadataTab() {
     SelectValuesMeta meta = new SelectValuesMeta();
     meta.getSelectOption()
         .setSelectFields(new ArrayList<>(List.of(select("value", "valueToSqrt"))));
@@ -52,7 +52,7 @@ public class SelectValuesMetaCheckTest {
 
   /** The Remove tab runs after the rename too, so it sees the new name as well. */
   @Test
-  public void aFieldRenamedOnTheSelectTabIsFoundByTheRemoveTab() {
+  void aFieldRenamedOnTheSelectTabIsFoundByTheRemoveTab() {
     SelectValuesMeta meta = new SelectValuesMeta();
     meta.getSelectOption()
         .setSelectFields(new ArrayList<>(List.of(select("value", "valueToSqrt"), select("id"))));
@@ -65,7 +65,7 @@ public class SelectValuesMetaCheckTest {
 
   /** Naming the same field twice is how a value is copied under a second name. */
   @Test
-  public void selectingTheSameFieldTwiceUnderDifferentNamesIsNotAProblem() {
+  void selectingTheSameFieldTwiceUnderDifferentNamesIsNotAProblem() {
     SelectValuesMeta meta = new SelectValuesMeta();
     meta.getSelectOption()
         .setSelectFields(new ArrayList<>(List.of(select("value", "valueToSqrt"), select("value"))));
@@ -75,7 +75,7 @@ public class SelectValuesMetaCheckTest {
 
   /** What downstream transforms genuinely cannot deal with: two fields under one name. */
   @Test
-  public void twoFieldsLeavingUnderTheSameNameIsStillReported() {
+  void twoFieldsLeavingUnderTheSameNameIsStillReported() {
     SelectValuesMeta meta = new SelectValuesMeta();
     meta.getSelectOption()
         .setSelectFields(
@@ -89,7 +89,7 @@ public class SelectValuesMetaCheckTest {
 
   /** A field that really is absent is still reported, on every tab. */
   @Test
-  public void afieldThatIsNowhereIsStillReported() {
+  void afieldThatIsNowhereIsStillReported() {
     SelectValuesMeta meta = new SelectValuesMeta();
     meta.getSelectOption().setSelectFields(new ArrayList<>(List.of(select("value"))));
     meta.getSelectOption().setMeta(new ArrayList<>(List.of(metadataChange("noSuchField"))));

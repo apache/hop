@@ -17,6 +17,7 @@
 package org.apache.hop.vfs.hdfs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,7 +58,7 @@ class HdfsVfsPluginTest {
     assertTrue(annotation.type().startsWith("hdfs"));
     HdfsVfsPlugin plugin = new HdfsVfsPlugin();
     for (String scheme : plugin.getUrlSchemes()) {
-      assertTrue(!"hdfs".equals(scheme), "must not register hdfs:// as a Hop VFS scheme");
+      assertNotEquals("hdfs", scheme, "must not register hdfs:// as a Hop VFS scheme");
     }
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -93,7 +94,7 @@ class CalculatorUnitTest {
     inputRowMeta.addValueMeta(pathMeta);
 
     String filepath = "missingFile";
-    Object[] rows = new Object[] {filepath};
+    Object[] rows = {filepath};
     IRowSet inputRowSet = smh.getMockInputRowSet(rows);
     inputRowSet.setRowMeta(inputRowMeta);
 
@@ -136,18 +137,20 @@ class CalculatorUnitTest {
     ValueMetaInteger secondsMeta = new ValueMetaInteger("Seconds");
     inputRowMeta.addValueMeta(secondsMeta);
 
-    IRowSet inputRowSet = null;
-    try {
-      inputRowSet =
-          smh.getMockInputRowSet(
-              new Object[][] {
-                {new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:00"), 10L},
-                {new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-10-31 23:59:50"), 30L}
-              });
-    } catch (ParseException pe) {
-      pe.printStackTrace();
-      fail();
-    }
+    IRowSet inputRowSet =
+        assertDoesNotThrow(
+            () ->
+                smh.getMockInputRowSet(
+                    new Object[][] {
+                      {
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:00"),
+                        10L
+                      },
+                      {
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-10-31 23:59:50"),
+                        30L
+                      }
+                    }));
     inputRowSet.setRowMeta(inputRowMeta);
 
     CalculatorMeta meta = new CalculatorMeta();
@@ -177,26 +180,19 @@ class CalculatorUnitTest {
     calculator.init();
 
     // Verify output
-    try {
-      calculator.addRowListener(
-          new RowAdapter() {
-            @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                throws HopTransformException {
-              try {
-                customAssertEquals(
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:10"),
-                    row[2]);
-              } catch (ParseException pe) {
-                throw new HopTransformException(pe);
-              }
+    calculator.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+            try {
+              customAssertEquals(
+                  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2014-01-01 00:00:10"), row[2]);
+            } catch (ParseException pe) {
+              throw new HopTransformException(pe);
             }
-          });
-      calculator.processRow();
-    } catch (HopException ke) {
-      ke.printStackTrace();
-      fail();
-    }
+          }
+        });
+    assertDoesNotThrow(() -> calculator.processRow());
   }
 
   @Test
@@ -238,19 +234,14 @@ class CalculatorUnitTest {
     calculator.init();
 
     // Verify output
-    try {
-      calculator.addRowListener(
-          new RowAdapter() {
-            @Override
-            public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
-              customAssertEquals("123456", row[2]);
-            }
-          });
-      calculator.processRow();
-    } catch (HopException ke) {
-      ke.printStackTrace();
-      fail();
-    }
+    calculator.addRowListener(
+        new RowAdapter() {
+          @Override
+          public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+            customAssertEquals("123456", row[2]);
+          }
+        });
+    assertDoesNotThrow(() -> calculator.processRow());
   }
 
   @Test
@@ -753,8 +744,7 @@ class CalculatorUnitTest {
       final CalculationType calcFunction,
       final Number value,
       final Long precision,
-      final Long roundingMode)
-      throws HopException {
+      final Long roundingMode) {
     {
       final double resultValue = expectedResult.doubleValue();
       assertRoundGeneral(

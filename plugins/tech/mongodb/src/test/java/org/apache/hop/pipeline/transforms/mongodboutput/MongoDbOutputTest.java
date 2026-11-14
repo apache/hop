@@ -85,7 +85,7 @@ class MongoDbOutputTest {
   }
 
   @Test
-  void testInitFailsWhenConnectionNotFound() throws HopException {
+  void testInitFailsWhenConnectionNotFound() {
     MongoDbOutputMeta meta = new MongoDbOutputMeta();
     meta.setConnectionName("non-existent-connection");
     meta.setCollection("test-collection");
@@ -117,7 +117,7 @@ class MongoDbOutputTest {
   }
 
   @Test
-  void testInitFailsWhenCollectionIsEmpty() throws HopException {
+  void testInitFailsWhenCollectionIsEmpty() {
     MongoDbOutputMeta meta = new MongoDbOutputMeta();
     meta.setConnectionName("test-connection");
     meta.setCollection(""); // Empty collection

@@ -27,26 +27,26 @@ class HopRowTest {
 
   @Test
   void equalsTest() {
-    Object[] row1 = new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
-    Object[] row2 = new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
+    Object[] row1 = {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
+    Object[] row2 = {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
     HopRow hopRow1 = new HopRow(row1);
     HopRow hopRow2 = new HopRow(row2);
     assertEquals(hopRow1, hopRow2);
 
-    Object[] row3 = new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
-    Object[] row4 = new Object[] {"AAA", "CCC", 100L, 1.234, new Date(876876868)};
+    Object[] row3 = {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
+    Object[] row4 = {"AAA", "CCC", 100L, 1.234, new Date(876876868)};
     HopRow hopRow3 = new HopRow(row3);
     HopRow hopRow4 = new HopRow(row4);
     assertNotEquals(hopRow3, hopRow4);
 
-    Object[] row5 = new Object[] {"AAA", null, 100L, 1.234, new Date(876876868)};
-    Object[] row6 = new Object[] {"AAA", null, 100L, 1.234, new Date(876876868)};
+    Object[] row5 = {"AAA", null, 100L, 1.234, new Date(876876868)};
+    Object[] row6 = {"AAA", null, 100L, 1.234, new Date(876876868)};
     HopRow hopRow5 = new HopRow(row5);
     HopRow hopRow6 = new HopRow(row6);
     assertEquals(hopRow5, hopRow6);
 
-    Object[] row7 = new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
-    Object[] row8 = new Object[] {"AAA", null, 100L, 1.234, new Date(876876868)};
+    Object[] row7 = {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
+    Object[] row8 = {"AAA", null, 100L, 1.234, new Date(876876868)};
     HopRow hopRow7 = new HopRow(row7);
     HopRow hopRow8 = new HopRow(row8);
     assertNotEquals(hopRow7, hopRow8);
@@ -54,7 +54,7 @@ class HopRowTest {
 
   @Test
   void hashCodeTest() {
-    Object[] row1 = new Object[] {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
+    Object[] row1 = {"AAA", "BBB", 100L, 1.234, new Date(876876868)};
     HopRow hopRow1 = new HopRow(row1);
     assertEquals(-1023250643, hopRow1.hashCode());
   }

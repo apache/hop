@@ -20,6 +20,7 @@ package org.apache.hop.beam.transforms.mqtt;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -68,7 +69,7 @@ class BeamMqttDialogTest extends SwtBotTestBase {
           b.textWithLabel("Password").setText("secret");
           display.syncExec(
               () ->
-                  assertTrue((b.textWithLabel("Password").widget.getStyle() & SWT.PASSWORD) != 0));
+                  assertNotEquals(0, b.textWithLabel("Password").widget.getStyle() & SWT.PASSWORD));
           b.cTabItem("Payload").activate();
           var payloadTypes = b.ccomboBoxWithLabel("Payload type");
           display.syncExec(

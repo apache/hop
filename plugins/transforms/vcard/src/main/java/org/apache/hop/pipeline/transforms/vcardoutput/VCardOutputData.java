@@ -16,6 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.vcardoutput;
 
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -23,4 +27,21 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class VCardOutputData extends BaseTransformData implements ITransformData {
   public int fileNameFieldIndex;
   public IRowMeta outputRowMeta;
+
+  /** Position of the vCard text in the output row, -1 when it is not written to a field. */
+  public int outputFieldIndex = -1;
+
+  /** The character set of the files, resolved once. */
+  public Charset charset;
+
+  /** The file name when it does not come from a field, resolved once per run. */
+  public String staticFileName;
+
+  /** The file that is open now and its name. One file is open at a time. */
+  public OutputStream outputStream;
+
+  public String currentFileName;
+
+  /** Every file this run has written to: a file that comes back is added to, not emptied. */
+  public final Set<String> writtenFiles = new HashSet<>();
 }

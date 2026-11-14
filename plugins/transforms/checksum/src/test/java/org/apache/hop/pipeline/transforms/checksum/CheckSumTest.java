@@ -386,7 +386,7 @@ class CheckSumTest {
     inputRowMeta.addValueMeta(new ValueMetaInteger("id"));
     inputRowMeta.addValueMeta(new ValueMetaNumber("amount"));
     inputRowMeta.addValueMeta(new ValueMetaBinary("payload"));
-    Object[] input = new Object[] {"abc", 5L, 10.8d, new byte[] {1, 2, 3}};
+    Object[] input = {"abc", 5L, 10.8d, new byte[] {1, 2, 3}};
 
     CheckSumMeta checkSumMeta = new CheckSumMeta();
     checkSumMeta.setPrefix("CUST");
@@ -400,7 +400,7 @@ class CheckSumTest {
     assertEquals(1, results.getWritten().size());
     assertEquals((long) inputRowMeta.hashCode(input), results.getWritten().get(0)[4]);
 
-    Object[] nulls = new Object[] {null, null, null, null};
+    Object[] nulls = {null, null, null, null};
     results = executeHexTest(CheckSumMeta.CheckSumType.HASHCODE, nulls, inputRowMeta, checkSumMeta);
     assertEquals(1, results.getWritten().size());
     assertEquals((long) inputRowMeta.hashCode(nulls), results.getWritten().get(0)[4]);

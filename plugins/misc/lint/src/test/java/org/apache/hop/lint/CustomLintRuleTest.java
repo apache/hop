@@ -32,7 +32,7 @@ public class CustomLintRuleTest {
    * built in the rule-builder dialog can be stored before the user has filled anything in.
    */
   @Test
-  public void testDefaultConstructor() {
+  void testDefaultConstructor() {
     CustomLintRule rule = new CustomLintRule();
 
     assertNull(rule.getName());
@@ -49,7 +49,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testSettersAndGetters() {
+  void testSettersAndGetters() {
     CustomLintRule rule = new CustomLintRule();
 
     rule.setName("Test Rule");
@@ -76,7 +76,7 @@ public class CustomLintRuleTest {
    * The rule id is the YAML key ("DB-001", "STRUCT-001", ...) — that is what the registry merges on
    * and what a project hop-lint.yml overlay refers to. When an id is set, it wins.
    */
-  public void testGenerateRuleId() {
+  void testGenerateRuleId() {
     CustomLintRule rule = new CustomLintRule();
     rule.setId("DB-001");
     rule.setName("Pipeline Name Required");
@@ -89,7 +89,7 @@ public class CustomLintRuleTest {
 
   @Test
   /** A rule that was never given an explicit id still has the constructor-assigned UUID. */
-  public void testGenerateRuleIdWithNullValues() {
+  void testGenerateRuleIdWithNullValues() {
     CustomLintRule rule = new CustomLintRule();
 
     String ruleId = rule.generateRuleId();
@@ -98,7 +98,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testGenerateRuleIdConsistency() {
+  void testGenerateRuleIdConsistency() {
     CustomLintRule rule = new CustomLintRule();
     rule.setName("Test Rule");
     rule.setTarget(RuleTarget.DATABASE_CONNECTION);
@@ -112,7 +112,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testAdditionalParameters() {
+  void testAdditionalParameters() {
     CustomLintRule rule = new CustomLintRule();
 
     rule.getAdditionalParameters().put("param1", "value1");
@@ -126,7 +126,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     CustomLintRule rule = new CustomLintRule();
     rule.setName("Test Rule");
     rule.setDescription("Test Description");
@@ -152,7 +152,7 @@ public class CustomLintRuleTest {
    * rule (the higher-priority pack wins), while two differently-keyed rules stay distinct even if
    * they check exactly the same thing.
    */
-  public void testEqualsAndHashCode() {
+  void testEqualsAndHashCode() {
     CustomLintRule rule1 = new CustomLintRule();
     rule1.setId("DB-001");
     rule1.setName("Test Rule");
@@ -183,7 +183,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testEqualsWithNull() {
+  void testEqualsWithNull() {
     CustomLintRule rule = new CustomLintRule();
     rule.setName("Test Rule");
 
@@ -192,7 +192,7 @@ public class CustomLintRuleTest {
   }
 
   @Test
-  public void testEqualsWithDifferentClass() {
+  void testEqualsWithDifferentClass() {
     CustomLintRule rule = new CustomLintRule();
     rule.setName("Test Rule");
 

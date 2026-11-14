@@ -53,7 +53,7 @@ public class NativeCheckClassifierTest {
   private static final String VALIDATION_PACKAGE = "org.apache.hop.metadata.validation";
 
   @Test
-  public void remarksAreUntouchedWhenNoRuleSpeaksAboutThem() {
+  void remarksAreUntouchedWhenNoRuleSpeaksAboutThem() {
     NativeCheckClassifier classifier = new NativeCheckClassifier(List.of());
 
     assertTrue(classifier.isEmpty());
@@ -66,7 +66,7 @@ public class NativeCheckClassifierTest {
    * of them Hop's own design-time advice rather than anything the linter could stand behind.
    */
   @Test
-  public void theBlanketRuleCapsEveryRemarkAtItsSeverity() {
+  void theBlanketRuleCapsEveryRemarkAtItsSeverity() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING", true)));
 
@@ -83,7 +83,7 @@ public class NativeCheckClassifierTest {
    * incoming hops" was reported as a warning on every source transform in a project.
    */
   @Test
-  public void theBlanketRuleNeverRaisesARemark() {
+  void theBlanketRuleNeverRaisesARemark() {
     NativeCheckClassifier warnings =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING", true)));
     NativeCheckClassifier errors =
@@ -99,7 +99,7 @@ public class NativeCheckClassifierTest {
 
   /** A rule naming a plugin or a check is a decision about it, so it may raise as well as lower. */
   @Test
-  public void aNarrowedRuleSetsTheSeverity() {
+  void aNarrowedRuleSetsTheSeverity() {
     CustomLintRule raised = nativeRule("HOP-CHECK-SV", "ERROR", true);
     raised.setAppliesTo(List.of("SelectValues"));
     NativeCheckClassifier classifier = new NativeCheckClassifier(List.of(raised));
@@ -110,7 +110,7 @@ public class NativeCheckClassifierTest {
   }
 
   @Test
-  public void aProjectCanPutTheRemarksBackToTheSeverityTheTransformMeant() {
+  void aProjectCanPutTheRemarksBackToTheSeverityTheTransformMeant() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "ERROR", true)));
 
@@ -120,7 +120,7 @@ public class NativeCheckClassifierTest {
   }
 
   @Test
-  public void disablingTheBlanketRuleDropsEveryRemark() {
+  void disablingTheBlanketRuleDropsEveryRemark() {
     NativeCheckClassifier classifier =
         new NativeCheckClassifier(List.of(nativeRule("HOP-CHECK", "WARNING", false)));
 
@@ -128,7 +128,7 @@ public class NativeCheckClassifierTest {
   }
 
   @Test
-  public void aRuleNamingAPluginLeavesOtherPluginsAlone() {
+  void aRuleNamingAPluginLeavesOtherPluginsAlone() {
     CustomLintRule scoped = nativeRule("HOP-CHECK-SV", "INFO", true);
     scoped.setAppliesTo(List.of("SelectValues"));
     NativeCheckClassifier classifier =
@@ -151,7 +151,7 @@ public class NativeCheckClassifierTest {
    * warnings" and "this one check is wrong", and which one applies cannot depend on file order.
    */
   @Test
-  public void theRuleNamingTheCheckWinsOverTheBlanketOne() {
+  void theRuleNamingTheCheckWinsOverTheBlanketOne() {
     List<CustomLintRule> rules =
         List.of(
             selectValuesRule(
@@ -174,7 +174,7 @@ public class NativeCheckClassifierTest {
 
   /** Select Values' remaining checks are real, and stay visible as warnings. */
   @Test
-  public void theCorePackKeepsSelectValuesOtherChecksAsWarnings() {
+  void theCorePackKeepsSelectValuesOtherChecksAsWarnings() {
     NativeCheckClassifier classifier = new NativeCheckClassifier(new HopCoreRulePack().loadRules());
 
     ICheckResult noInput =
@@ -190,7 +190,7 @@ public class NativeCheckClassifierTest {
   }
 
   @Test
-  public void aMessageKeyThatCannotBeResolvedNarrowsToNothing() {
+  void aMessageKeyThatCannotBeResolvedNarrowsToNothing() {
     assertFalse(
         NativeCheckClassifier.printsMessage(
             "Meta-data fields that were not found in input stream:",
@@ -206,7 +206,7 @@ public class NativeCheckClassifierTest {
    * is what lets a rule name a check without naming the words it happens to use.
    */
   @Test
-  public void aMessageKeyIsResolvedAgainstThePluginsOwnBundle() {
+  void aMessageKeyIsResolvedAgainstThePluginsOwnBundle() {
     for (String key :
         List.of(
             "SelectValuesMeta.CheckResult.MetadataFieldsNotFound",
@@ -232,7 +232,7 @@ public class NativeCheckClassifierTest {
    * @see <a href="https://github.com/apache/hop/issues/8536">#8536</a>
    */
   @Test
-  public void aMessageKeyMatchesACheckThatFillsInValues() {
+  void aMessageKeyMatchesACheckThatFillsInValues() {
     String doesNotExist =
         BaseMessages.getString(
             VALIDATION_PACKAGE,
@@ -263,7 +263,7 @@ public class NativeCheckClassifierTest {
   }
 
   @Test
-  public void aRuleNamingACheckThatFillsInValuesWinsOverTheBlanketOne() {
+  void aRuleNamingACheckThatFillsInValuesWinsOverTheBlanketOne() {
     CustomLintRule missingConnection = nativeRule("HOP-CHECK-MISSING-CONNECTION", "ERROR", true);
     missingConnection.setMessageKey(
         VALIDATION_PACKAGE + ":ReferencedDatabaseConnectionChecker.DoesNotExist");
@@ -298,7 +298,7 @@ public class NativeCheckClassifierTest {
    * copied under a second name.
    */
   @Test
-  public void thePipelineFromTheIssueProducesNoErrors() {
+  void thePipelineFromTheIssueProducesNoErrors() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformMeta transformMeta = new TransformMeta("SelectValues", "valueToSqrt", null);
 
@@ -363,7 +363,7 @@ public class NativeCheckClassifierTest {
 
   /** The tags of the rule that classified a remark travel with the finding it becomes. */
   @Test
-  public void aNativeFindingCarriesTheTagsOfTheRuleThatClassifiedIt() {
+  void aNativeFindingCarriesTheTagsOfTheRuleThatClassifiedIt() {
     CustomLintRule rule = nativeRule("HOP-CHECK", "WARNING", true);
     rule.setTags(new LinkedHashMap<>(Map.of("category", List.of("verify"))));
     NativeCheckClassifier classifier = new NativeCheckClassifier(List.of(rule));
@@ -386,7 +386,7 @@ public class NativeCheckClassifierTest {
    * not that rule's description or help link: those describe the rule, not the code.
    */
   @Test
-  public void anErrorCodeFindingCarriesTheTagsButNotTheDescription() {
+  void anErrorCodeFindingCarriesTheTagsButNotTheDescription() {
     CustomLintRule rule = nativeRule("HOP-CHECK", "WARNING", true);
     rule.setDescription("Every remark Hop's own checks produce");
     rule.setHelpUri("https://example.com/HOP-CHECK");

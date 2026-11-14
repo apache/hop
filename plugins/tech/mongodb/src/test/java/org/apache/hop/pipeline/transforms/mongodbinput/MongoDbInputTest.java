@@ -147,8 +147,7 @@ class MongoDbInputTest {
     verify(data.cursor).close();
   }
 
-  private MongoDbInput createTransform(MongoDbInputMeta meta, MongoDbInputData data)
-      throws HopException, MongoDbException {
+  private MongoDbInput createTransform(MongoDbInputMeta meta, MongoDbInputData data) {
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
     MongoDbInput transform =
         new MongoDbInput(

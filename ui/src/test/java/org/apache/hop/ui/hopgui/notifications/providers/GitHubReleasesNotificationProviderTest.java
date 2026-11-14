@@ -29,7 +29,7 @@ public class GitHubReleasesNotificationProviderTest {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Test
-  public void testAFieldThatIsPresentButNullReadsAsAbsent() throws Exception {
+  void testAFieldThatIsPresentButNullReadsAsAbsent() throws Exception {
     // GitHub answers with an explicit null rather than leaving the field out: a release made from
     // a tag alone carries "name": null and "body": null. has() is true for those and
     // NullNode.asText() is the four characters "null", which titled the notification "null".
@@ -41,7 +41,7 @@ public class GitHubReleasesNotificationProviderTest {
   }
 
   @Test
-  public void testAMissingFieldReadsAsAbsent() throws Exception {
+  void testAMissingFieldReadsAsAbsent() throws Exception {
     JsonNode release = MAPPER.readTree("{\"tag_name\":\"2.19.0\"}");
 
     assertNull(GitHubReleasesNotificationProvider.text(release, "name"));
@@ -49,7 +49,7 @@ public class GitHubReleasesNotificationProviderTest {
   }
 
   @Test
-  public void testAValueIsReadAsItself() throws Exception {
+  void testAValueIsReadAsItself() throws Exception {
     JsonNode release =
         MAPPER.readTree("{\"name\":\"Apache Hop 2.19.0\",\"id\":42,\"draft\":false}");
 

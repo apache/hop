@@ -208,7 +208,7 @@ class BeamBQOutputTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaBinary("blob"));
 
-    byte[] bytes = new byte[] {0x01, 0x02, 0x03, 0x04};
+    byte[] bytes = {0x01, 0x02, 0x03, 0x04};
     String expected = Base64.getEncoder().encodeToString(bytes);
     Map<String, Object> content =
         BeamBQOutput.toInsertRow(rowMeta, new Object[] {bytes}).getContent();

@@ -79,7 +79,7 @@ class RedshiftBulkLoaderTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     helper =
         new TransformMockHelper<>(
             "Redshift bulk loader", RedshiftBulkLoaderMeta.class, RedshiftBulkLoaderData.class);
@@ -109,7 +109,7 @@ class RedshiftBulkLoaderTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     helper.cleanUp();
   }
 
@@ -118,7 +118,7 @@ class RedshiftBulkLoaderTest {
    * the statement builder called equals() straight on it.
    */
   @Test
-  void buildsTheCopyStatementWhenNoFileFormatWasEverPicked() throws Exception {
+  void buildsTheCopyStatementWhenNoFileFormatWasEverPicked() {
     meta.setStreamToS3Csv(false);
     meta.setUseCredentials(true);
     meta.setAwsAccessKeyId("key");
@@ -133,7 +133,7 @@ class RedshiftBulkLoaderTest {
 
   /** The same guard has to hold when the transform is asked for its configuration up front. */
   @Test
-  void refusesToStartWithoutAFileFormatForAnExistingFile() throws Exception {
+  void refusesToStartWithoutAFileFormatForAnExistingFile() {
     meta.setStreamToS3Csv(false);
 
     HopException e = assertThrows(HopException.class, () -> transform.verifyFileSettings());
@@ -142,7 +142,7 @@ class RedshiftBulkLoaderTest {
 
   /** And a COPY statement without a file to read from is never going to work either. */
   @Test
-  void refusesToStartWithoutAFileName() throws Exception {
+  void refusesToStartWithoutAFileName() {
     meta.setCopyFromFilename(null);
 
     assertThrows(HopException.class, () -> transform.verifyFileSettings());
@@ -387,7 +387,7 @@ class RedshiftBulkLoaderTest {
 
   /** Unless the user asked for that to be an error. */
   @Test
-  void failsOnAMissingStreamFieldWhenErrorColumnMismatchIsSet() throws Exception {
+  void failsOnAMissingStreamFieldWhenErrorColumnMismatchIsSet() {
     meta.setSpecifyFields(true);
     meta.setErrorColumnMismatch(true);
     meta.setFields(List.of(new RedshiftBulkLoaderField("order_note", "note")));
@@ -401,7 +401,7 @@ class RedshiftBulkLoaderTest {
 
   /** A column that does not exist in the table has to be caught before the file is written. */
   @Test
-  void refusesToStartWhenAColumnIsNotInTheTable() throws Exception {
+  void refusesToStartWhenAColumnIsNotInTheTable() {
     meta.setSpecifyFields(true);
     meta.setFields(List.of(new RedshiftBulkLoaderField("order_totl", "amount")));
     data.dbFields = new ArrayList<>();
@@ -412,7 +412,7 @@ class RedshiftBulkLoaderTest {
   }
 
   @Test
-  void acceptsAColumnThatDiffersOnlyInCase() throws Exception {
+  void acceptsAColumnThatDiffersOnlyInCase() {
     meta.setSpecifyFields(true);
     meta.setFields(List.of(new RedshiftBulkLoaderField("Order_Id", "id")));
     data.dbFields = new ArrayList<>();
@@ -423,7 +423,7 @@ class RedshiftBulkLoaderTest {
 
   /** Streaming an empty stream to S3 leaves nothing to load, so the COPY is skipped. */
   @Test
-  void skipsTheCopyWhenNothingWasStreamedToS3() throws Exception {
+  void skipsTheCopyWhenNothingWasStreamedToS3() {
     meta.setStreamToS3Csv(true);
     data.rowsReceived = false;
 
@@ -438,7 +438,7 @@ class RedshiftBulkLoaderTest {
    * empty, unless the user asked for the load to depend on the rows.
    */
   @Test
-  void loadsAnExistingFileEvenOnAnEmptyStream() throws Exception {
+  void loadsAnExistingFileEvenOnAnEmptyStream() {
     meta.setStreamToS3Csv(false);
     meta.setLoadFromExistingFileFormat(RedshiftBulkLoaderMeta.FILE_FORMAT_CSV);
     data.rowsReceived = false;
@@ -520,7 +520,7 @@ class RedshiftBulkLoaderTest {
 
   /** An access key on the connection is handed straight to the COPY statement. */
   @Test
-  void inheritsAnAccessKeyFromTheConnection() throws Exception {
+  void inheritsAnAccessKeyFromTheConnection() {
     RedshiftDatabaseMeta connection = new RedshiftDatabaseMeta();
     connection.setAuthenticationType(RedshiftAuthenticationType.IAM_CREDENTIALS);
     connection.setAwsAccessKeyId("AKIAFROMCONNECTION");
@@ -539,7 +539,7 @@ class RedshiftBulkLoaderTest {
 
   /** Temporary credentials need their session token to travel with them. */
   @Test
-  void inheritsASessionTokenWhenTheConnectionHasOne() throws Exception {
+  void inheritsASessionTokenWhenTheConnectionHasOne() {
     RedshiftDatabaseMeta connection = new RedshiftDatabaseMeta();
     connection.setAuthenticationType(RedshiftAuthenticationType.IAM_CREDENTIALS);
     connection.setAwsAccessKeyId("AKIAFROMCONNECTION");
@@ -555,7 +555,7 @@ class RedshiftBulkLoaderTest {
 
   /** Variables on the connection are resolved with the transform's own variables. */
   @Test
-  void resolvesVariablesInTheInheritedCredentials() throws Exception {
+  void resolvesVariablesInTheInheritedCredentials() {
     transform.setVariable("CONN_KEY", "AKIARESOLVED");
     RedshiftDatabaseMeta connection = new RedshiftDatabaseMeta();
     connection.setAuthenticationType(RedshiftAuthenticationType.IAM_CREDENTIALS);
@@ -571,7 +571,7 @@ class RedshiftBulkLoaderTest {
 
   /** A connection signing in with a database password has nothing to lend. */
   @Test
-  void refusesToInheritFromAPasswordOnlyConnection() throws Exception {
+  void refusesToInheritFromAPasswordOnlyConnection() {
     RedshiftDatabaseMeta connection = new RedshiftDatabaseMeta();
     connection.setAuthenticationType(RedshiftAuthenticationType.DATABASE);
     useConnection(connection);
@@ -582,7 +582,7 @@ class RedshiftBulkLoaderTest {
 
   /** Inherited credentials are secrets like any other, so they stay out of the log. */
   @Test
-  void masksInheritedCredentialsInTheLoggedStatement() throws Exception {
+  void masksInheritedCredentialsInTheLoggedStatement() {
     RedshiftDatabaseMeta connection = new RedshiftDatabaseMeta();
     connection.setAuthenticationType(RedshiftAuthenticationType.IAM_CREDENTIALS);
     connection.setAwsAccessKeyId("AKIAFROMCONNECTION");

@@ -260,7 +260,7 @@ class HopRunShutdownHookTest {
   }
 
   @Test
-  void hookGivesUpAfterTheTimeout() throws Exception {
+  void hookGivesUpAfterTheTimeout() {
     IPipelineEngine<PipelineMeta> pipeline = pipeline();
     HopRunShutdownHook hook = new HopRunShutdownHook(log, Duration.ofSeconds(1), afterStop);
     hook.track(pipeline);

@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.script;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -116,7 +117,7 @@ class ScriptMetaTest {
 
     ScriptMeta cloned = (ScriptMeta) meta.clone();
     assertNotNull(cloned);
-    assertFalse(cloned == meta);
+    assertNotSame(meta, cloned);
     assertEquals("Groovy", cloned.getLanguageName());
     assertEquals(1, cloned.getScripts().size());
     assertEquals("s1", cloned.getScripts().get(0).getScriptName());

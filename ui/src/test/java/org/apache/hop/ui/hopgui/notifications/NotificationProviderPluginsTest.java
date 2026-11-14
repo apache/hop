@@ -17,6 +17,7 @@
 package org.apache.hop.ui.hopgui.notifications;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationProviderPluginsTest {
 
   @Test
-  public void testColorIsStableForAnIdentifier() {
+  void testColorIsStableForAnIdentifier() {
     // A plugin keeps the same colour between runs without having to declare one.
     assertEquals(
         NotificationProviderPlugins.colorFor("marketplace-plugin-updates"),
@@ -36,21 +37,21 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testColorIsAHexCode() {
+  void testColorIsAHexCode() {
     assertTrue(
         NotificationProviderPlugins.colorFor("some-plugin").matches("#[0-9A-F]{6}"),
         NotificationProviderPlugins.colorFor("some-plugin"));
   }
 
   @Test
-  public void testDifferentPluginsGetDifferentColors() {
-    assertTrue(
-        !NotificationProviderPlugins.colorFor("plugin-a")
-            .equals(NotificationProviderPlugins.colorFor("plugin-b")));
+  void testDifferentPluginsGetDifferentColors() {
+    assertNotEquals(
+        NotificationProviderPlugins.colorFor("plugin-a"),
+        NotificationProviderPlugins.colorFor("plugin-b"));
   }
 
   @Test
-  public void testDiscoveredPluginIsAddedToTheConfiguredSources() {
+  void testDiscoveredPluginIsAddedToTheConfiguredSources() {
     List<NotificationSourceConfig> sources = new ArrayList<>();
     sources.add(source("github-apache-hop", null));
 
@@ -61,7 +62,7 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testAlreadyConfiguredPluginIsNotAddedTwice() {
+  void testAlreadyConfiguredPluginIsNotAddedTwice() {
     // The stored source is what the user changed about the plugin; it must win, not be duplicated.
     List<NotificationSourceConfig> sources = new ArrayList<>();
     NotificationSourceConfig stored = source("my-plugin", "my-plugin");
@@ -75,7 +76,7 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testPluginMatchedOnPluginIdRatherThanSourceId() {
+  void testPluginMatchedOnPluginIdRatherThanSourceId() {
     List<NotificationSourceConfig> sources = new ArrayList<>();
     sources.add(source("a-renamed-source", "my-plugin"));
 
@@ -110,7 +111,7 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testAnUntouchedDiscoveredSourceIsNotPersisted() {
+  void testAnUntouchedDiscoveredSourceIsNotPersisted() {
     // A provider contributed by a plugin is found again from the registry every run. Storing it as
     // it was found would outlive the plugin, leaving a configured source pointing at nothing.
     List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
@@ -126,7 +127,7 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testADiscoveredSourceTheUserChangedIsPersisted() {
+  void testADiscoveredSourceTheUserChangedIsPersisted() {
     List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
     NotificationSourceConfig edited = discovered("my-plugin");
     edited.setEnabled(false);
@@ -141,7 +142,7 @@ public class NotificationProviderPluginsTest {
   }
 
   @Test
-  public void testADiscoveredSourceGivenAPollIntervalIsPersisted() {
+  void testADiscoveredSourceGivenAPollIntervalIsPersisted() {
     List<NotificationSourceConfig> discovered = List.of(discovered("my-plugin"));
     NotificationSourceConfig retimed = discovered("my-plugin");
     retimed.setPollIntervalMinutes("15");

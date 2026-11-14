@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 public class LintTotalsOverlayHeadlessTest {
 
   @Test
-  public void overlayZoomFactorWithoutHopGuiReturnsNull() {
+  void overlayZoomFactorWithoutHopGuiReturnsNull() {
     assertNull(HopGui.peekInstance(), "precondition: no GUI in this test JVM");
 
     assertNull(LintCanvasOverlayHelper.overlayZoomFactor());
@@ -50,7 +50,7 @@ public class LintTotalsOverlayHeadlessTest {
   }
 
   @Test
-  public void pipelineTotalsOverlayIsSkippedWithoutUserInterface() throws Exception {
+  void pipelineTotalsOverlayIsSkippedWithoutUserInterface() throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename("test.hpl");
 
@@ -67,7 +67,7 @@ public class LintTotalsOverlayHeadlessTest {
   }
 
   @Test
-  public void workflowTotalsOverlayIsSkippedWithoutUserInterface() throws Exception {
+  void workflowTotalsOverlayIsSkippedWithoutUserInterface() throws Exception {
     WorkflowMeta workflowMeta = new WorkflowMeta();
     workflowMeta.setFilename("test.hwf");
 

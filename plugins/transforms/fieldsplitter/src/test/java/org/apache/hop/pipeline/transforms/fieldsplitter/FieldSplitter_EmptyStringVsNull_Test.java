@@ -114,8 +114,7 @@ class FieldSplitter_EmptyStringVsNull_Test {
     PipelineTestingUtil.assertResult(expected, actual);
   }
 
-  private FieldSplitter createAndInitTransform(FieldSplitterMeta meta, FieldSplitterData data)
-      throws Exception {
+  private FieldSplitter createAndInitTransform(FieldSplitterMeta meta, FieldSplitterData data) {
     when(helper.transformMeta.getTransform()).thenReturn(meta);
 
     FieldSplitter transform =

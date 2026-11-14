@@ -90,8 +90,7 @@ class WorkflowTrackerTest {
   @Test
   void findJobTracker_EntryNameFound() {
     WorkflowTracker workflowTracker = createTracker();
-    WorkflowTracker[] children =
-        new WorkflowTracker[] {createTracker("0"), createTracker("1"), createTracker("2")};
+    WorkflowTracker[] children = {createTracker("0"), createTracker("1"), createTracker("2")};
     for (WorkflowTracker child : children) {
       workflowTracker.addWorkflowTracker(child);
     }

@@ -323,7 +323,7 @@ public final class SftpTestServerHelper {
    *
    * @throws InterruptedException if interrupted while stopping
    */
-  public static synchronized void stopServer() throws InterruptedException {
+  public static synchronized void stopServer() {
     if (server != null) {
       IOUtils.closeQuietly(server);
       server = null;

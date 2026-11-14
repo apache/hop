@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 public class AsyncStatusTest {
 
   @Test
-  public void testDefaultConstructor() {
+  void testDefaultConstructor() {
     AsyncStatus status = new AsyncStatus();
 
     assertNotNull(status.getLogDate());
@@ -43,7 +43,7 @@ public class AsyncStatusTest {
   }
 
   @Test
-  public void testSettersAndGetters() {
+  void testSettersAndGetters() {
     AsyncStatus status = new AsyncStatus();
 
     String service = "test-service";
@@ -72,7 +72,7 @@ public class AsyncStatusTest {
   }
 
   @Test
-  public void testStatusVariables() {
+  void testStatusVariables() {
     AsyncStatus status = new AsyncStatus();
     Map<String, String> variables = new HashMap<>();
 
@@ -90,7 +90,7 @@ public class AsyncStatusTest {
   }
 
   @Test
-  public void testPipelineStatuses() {
+  void testPipelineStatuses() {
     AsyncStatus status = new AsyncStatus();
 
     HopServerPipelineStatus pipeline1 = new HopServerPipelineStatus();

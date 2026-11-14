@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.variables.Variables;
@@ -178,7 +179,7 @@ class TextIndentWidgetTest extends SwtBotTestBase {
     StyledText widget = text.getTextWidget();
     widget.setSelection(0);
     assertTrue(TextIndent.handleKey(key(widget, SWT.NONE)));
-    assertFalse(original.equals(text.getText()));
+    assertNotEquals(original, text.getText());
 
     text.undo();
     assertEquals(original, text.getText(), "The first undo must restore the loaded script");
@@ -205,7 +206,7 @@ class TextIndentWidgetTest extends SwtBotTestBase {
     widget.setFocus();
     widget.setSelection(0);
     assertTrue(TextIndent.handleKey(key(widget, SWT.NONE)));
-    assertFalse(original.equals(editor.getText()));
+    assertNotEquals(original, editor.getText());
 
     editor.undo();
     assertEquals(original, editor.getText(), "The first undo must restore the loaded file");

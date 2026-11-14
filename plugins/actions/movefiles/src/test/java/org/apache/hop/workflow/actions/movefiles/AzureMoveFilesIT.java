@@ -26,15 +26,12 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.AppendBlobClient;
-import com.microsoft.azure.storage.StorageException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.Properties;
 import org.apache.hop.core.HopClientEnvironment;
@@ -100,7 +97,7 @@ class AzureMoveFilesIT {
   }
 
   @BeforeEach
-  void setup() throws URISyntaxException, InvalidKeyException, StorageException, IOException {
+  void setup() {
     // Retrieve storage account from connection-string.
     final BlobContainerClient container = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
     deleteFiles(CONTAINER_NAME);

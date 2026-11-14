@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.List;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ class TableViewColumnViewManagerTest {
   @TempDir Path testFolder;
 
   @BeforeEach
-  void resetAuditManager() throws HopException {
+  void resetAuditManager() {
     AuditManager.getInstance()
         .setActiveAuditManager(new LocalAuditManager(testFolder.toAbsolutePath().toString()));
   }

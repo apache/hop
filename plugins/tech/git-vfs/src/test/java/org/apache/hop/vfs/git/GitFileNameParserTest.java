@@ -75,7 +75,7 @@ class GitFileNameParserTest {
 
   @Test
   @DisplayName("The scheme is the name of the connection and nothing else")
-  void theSchemeIsTheNameOfTheConnection() throws Exception {
+  void theSchemeIsTheNameOfTheConnection() {
     FileSystemException e =
         assertThrows(
             FileSystemException.class, () -> manager.resolveFile("other://workflows/daily.hwf"));

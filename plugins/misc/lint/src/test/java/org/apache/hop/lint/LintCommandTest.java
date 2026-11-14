@@ -54,7 +54,7 @@ public class LintCommandTest {
   }
 
   @Test
-  public void versionComesFromHop() {
+  void versionComesFromHop() {
     CommandLine commandLine = new CommandLine(new LintCommand());
 
     assertInstanceOf(
@@ -64,7 +64,7 @@ public class LintCommandTest {
   }
 
   @Test
-  public void severityIsAMinimum() {
+  void severityIsAMinimum() {
     LintCommand command = new LintCommand();
     command.setSeverityFilter(LintSeverity.Level.WARNING);
 
@@ -77,7 +77,7 @@ public class LintCommandTest {
   }
 
   @Test
-  public void quietLeavesOutTheSummary() {
+  void quietLeavesOutTheSummary() {
     List<LintResult> results = List.of(finding("A-1", "ERROR"));
 
     String quiet = LintReportWriter.renderText(results, false);
@@ -92,7 +92,7 @@ public class LintCommandTest {
    * of the document.
    */
   @Test
-  public void aJsonReportIsAloneOnStdout() throws Exception {
+  void aJsonReportIsAloneOnStdout() throws Exception {
     Files.createDirectories(dir.resolve("project"));
     ByteArrayOutputStream captured = new ByteArrayOutputStream();
     PrintStream capture = new PrintStream(captured, true, StandardCharsets.UTF_8);
@@ -185,7 +185,7 @@ public class LintCommandTest {
    * repository was skipped too: "metadata/rdbms/x.json" has no leading slash.
    */
   @Test
-  public void theHookPassesAbsolutePathsAndBlocksTheCommit() throws Exception {
+  void theHookPassesAbsolutePathsAndBlocksTheCommit() throws Exception {
     assumeTrue(canRunShell());
     Path repo =
         repositoryWithStagedFiles("load/customers.hpl", "metadata/rdbms/crm.json", "notes.txt");
@@ -216,7 +216,7 @@ public class LintCommandTest {
    * @see <a href="https://github.com/apache/hop/issues/9071">#9071</a>
    */
   @Test
-  public void theHookLintsTheStagedVersionNotTheOneOnDisk() throws Exception {
+  void theHookLintsTheStagedVersionNotTheOneOnDisk() throws Exception {
     assumeTrue(canRunShell());
     Path repo = repositoryWithStagedFiles("load/customers.hpl");
     Files.writeString(repo.resolve("load/customers.hpl"), "changed on disk only");
@@ -228,7 +228,7 @@ public class LintCommandTest {
 
   /** git mv lists a renamed file as R, which --diff-filter=ACM left out of the check. */
   @Test
-  public void theHookLintsARenamedFile() throws Exception {
+  void theHookLintsARenamedFile() throws Exception {
     assumeTrue(canRunShell());
     Path repo = repositoryWithStagedFiles("load/customers.hpl");
     Map<String, String> noHook = Map.of();
@@ -270,7 +270,7 @@ public class LintCommandTest {
    * linted on disk, as it was before the hook read staged versions.
    */
   @Test
-  public void aSymlinkIsLintedOnDisk() throws Exception {
+  void aSymlinkIsLintedOnDisk() throws Exception {
     assumeTrue(canRunShell());
     Path repo = repositoryWithStagedFiles("p/customers.hpl");
     Files.createSymbolicLink(repo.resolve("link.hpl"), Path.of("p/customers.hpl"));
@@ -288,7 +288,7 @@ public class LintCommandTest {
    * clean filter. The filter here is not configured, so the test does not depend on git-lfs.
    */
   @Test
-  public void aFilteredFileIsLintedOnDisk() throws Exception {
+  void aFilteredFileIsLintedOnDisk() throws Exception {
     assumeTrue(canRunShell());
     Path repo = repositoryWithStagedFiles("lfs/customers.hpl", "plain/orders.hpl");
     Files.writeString(repo.resolve(".gitattributes"), "lfs/*.hpl filter=example\n");
@@ -302,7 +302,7 @@ public class LintCommandTest {
   }
 
   @Test
-  public void theHookDoesNotStartHopWithoutHopFiles() throws Exception {
+  void theHookDoesNotStartHopWithoutHopFiles() throws Exception {
     assumeTrue(canRunShell());
     Path repo = repositoryWithStagedFiles("notes.txt");
 
@@ -313,7 +313,7 @@ public class LintCommandTest {
   }
 
   @Test
-  public void stagedPathsAreResolvedAgainstTheRepository() throws Exception {
+  void stagedPathsAreResolvedAgainstTheRepository() throws Exception {
     Path repo = dir.resolve("repo");
     Files.createDirectories(repo.resolve("metadata/rdbms"));
     Files.writeString(repo.resolve("customers.hpl"), "content");
@@ -334,7 +334,7 @@ public class LintCommandTest {
 
   /** A staged file can be gone from disk; its staged copy is what the commit holds. */
   @Test
-  public void aStagedCopyIsReadEvenWhenTheFileIsGone() throws Exception {
+  void aStagedCopyIsReadEvenWhenTheFileIsGone() throws Exception {
     Path repo = dir.resolve("repo");
     Files.createDirectories(repo);
     Path copy = dir.resolve("copy-1");

@@ -56,7 +56,7 @@ class HopXmlSupportTest {
   }
 
   @Test
-  void serializeConfigRedactsSecretBearingTags() throws Exception {
+  void serializeConfigRedactsSecretBearingTags() {
     String xml =
         """
         <transform>

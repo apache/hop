@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.hop.annotation.AnnotationGeometry.Bounds;
 import org.apache.hop.annotation.AnnotationGeometry.Segment;
 import org.apache.hop.core.NotePadType;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
@@ -186,7 +185,7 @@ class AnnotationPainterTest {
   }
 
   @Test
-  void painterExtensionReadsTheStoredAnnotation() throws HopException {
+  void painterExtensionReadsTheStoredAnnotation() {
     TransformMeta transform = new TransformMeta();
     Annotation annotation = new Annotation();
     annotation.setText("In");

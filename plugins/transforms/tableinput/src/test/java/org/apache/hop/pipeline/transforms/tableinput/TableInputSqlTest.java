@@ -119,7 +119,7 @@ class TableInputSqlTest {
     incoming.addValueMeta(new ValueMetaString("ignored"));
     incoming.addValueMeta(new ValueMetaInteger("fromDate"));
     incoming.addValueMeta(new ValueMetaString("key"));
-    Object[] row = new Object[] {"unused", 42L, "10"};
+    Object[] row = {"unused", 42L, "10"};
 
     TableInputSql.Bound bound =
         TableInputSql.prepare(
@@ -147,7 +147,7 @@ class TableInputSqlTest {
   void bindIgnoresUnusedIncomingFieldsForPositionalSql() throws Exception {
     IRowMeta incoming = new RowMeta();
     incoming.addValueMeta(new ValueMetaString("key"));
-    Object[] row = new Object[] {"10"};
+    Object[] row = {"10"};
 
     TableInputSql.Bound bound =
         TableInputSql.prepare("SELECT * FROM t WHERE id = ?", incoming, row);
@@ -161,7 +161,7 @@ class TableInputSqlTest {
   void prepareDisabledLeavesBracesLiteral() throws Exception {
     IRowMeta incoming = new RowMeta();
     incoming.addValueMeta(new ValueMetaString("key"));
-    Object[] row = new Object[] {"10"};
+    Object[] row = {"10"};
     String sql = "SELECT * FROM t WHERE json = '{key}' OR id = {key}";
 
     TableInputSql.Bound bound = TableInputSql.prepare(false, sql, incoming, row);
@@ -177,7 +177,7 @@ class TableInputSqlTest {
   void prepareDisabledStillBindsWhenPositionalPlaceholdersExist() throws Exception {
     IRowMeta incoming = new RowMeta();
     incoming.addValueMeta(new ValueMetaString("key"));
-    Object[] row = new Object[] {"10"};
+    Object[] row = {"10"};
 
     TableInputSql.Bound bound =
         TableInputSql.prepare(false, "SELECT * FROM t WHERE id = ?", incoming, row);

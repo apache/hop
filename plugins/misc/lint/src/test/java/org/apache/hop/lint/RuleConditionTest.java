@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class RuleConditionTest {
 
   @Test
-  public void testRuleConditionValues() {
+  void testRuleConditionValues() {
     RuleCondition[] values = RuleCondition.values();
 
     // The condition vocabulary grows over time; assert the core set is present rather than an
@@ -42,7 +42,7 @@ public class RuleConditionTest {
   }
 
   @Test
-  public void testRuleConditionValueOf() {
+  void testRuleConditionValueOf() {
     assertEquals(RuleCondition.MAX_VALUE, RuleCondition.valueOf("MAX_VALUE"));
     assertEquals(RuleCondition.NOT_EMPTY, RuleCondition.valueOf("NOT_EMPTY"));
     assertEquals(RuleCondition.NO_HARDCODED, RuleCondition.valueOf("NO_HARDCODED"));
@@ -52,7 +52,7 @@ public class RuleConditionTest {
   }
 
   @Test
-  public void testInvalidRuleConditionValueOf() {
+  void testInvalidRuleConditionValueOf() {
     assertThrows(IllegalArgumentException.class, () -> RuleCondition.valueOf("INVALID"));
   }
 
@@ -61,7 +61,7 @@ public class RuleConditionTest {
    * directly to combo boxes in the rule builder. YAML round-tripping uses {@code name()}.
    */
   @Test
-  public void testRuleConditionToString() {
+  void testRuleConditionToString() {
     assertEquals("Maximum Value", RuleCondition.MAX_VALUE.toString());
     assertEquals("Not Empty", RuleCondition.NOT_EMPTY.toString());
     assertEquals("No Hardcoded Values", RuleCondition.NO_HARDCODED.toString());
@@ -72,7 +72,7 @@ public class RuleConditionTest {
 
   /** YAML stores {@code name()}, so that — not the ordinal — is the persistence contract. */
   @Test
-  public void testRuleConditionNameIsStableForYaml() {
+  void testRuleConditionNameIsStableForYaml() {
     assertEquals("MAX_VALUE", RuleCondition.MAX_VALUE.name());
     assertEquals("NOT_EMPTY", RuleCondition.NOT_EMPTY.name());
     assertEquals("NO_HARDCODED", RuleCondition.NO_HARDCODED.name());
@@ -82,14 +82,14 @@ public class RuleConditionTest {
   }
 
   @Test
-  public void testRuleConditionEquality() {
+  void testRuleConditionEquality() {
     assertEquals(RuleCondition.MAX_VALUE, RuleCondition.MAX_VALUE);
     assertNotEquals(RuleCondition.MAX_VALUE, RuleCondition.NOT_EMPTY);
     assertNotEquals(RuleCondition.NO_HARDCODED, RuleCondition.MATCHES_PATTERN);
   }
 
   @Test
-  public void testRuleConditionHashCode() {
+  void testRuleConditionHashCode() {
     assertEquals(RuleCondition.MAX_VALUE.hashCode(), RuleCondition.MAX_VALUE.hashCode());
     assertNotEquals(RuleCondition.MAX_VALUE.hashCode(), RuleCondition.NOT_EMPTY.hashCode());
   }

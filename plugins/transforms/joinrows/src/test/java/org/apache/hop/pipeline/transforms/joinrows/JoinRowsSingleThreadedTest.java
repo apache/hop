@@ -74,7 +74,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void cartesianProductOfTwoInputs() throws Exception {
+  void cartesianProductOfTwoInputs() {
     List<Input> inputs = List.of(new Input("main", 3), new Input("other", 2));
     List<RowMetaAndData> rows =
         assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
@@ -84,7 +84,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void cartesianProductWhenInputRowSetsAreFinished() throws Exception {
+  void cartesianProductWhenInputRowSetsAreFinished() {
     List<Input> inputs = List.of(new Input("main", 3), new Input("other", 2));
     List<RowMetaAndData> rows =
         assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, true));
@@ -94,7 +94,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void cartesianProductSpillingToTemporaryFile() throws Exception {
+  void cartesianProductSpillingToTemporaryFile() {
     // A cache size below the number of rows makes the transform read the rows back from disk.
     List<Input> inputs = List.of(new Input("main", 4), new Input("other", 5));
     List<RowMetaAndData> rows =
@@ -105,7 +105,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void cartesianProductOfThreeInputsWithMainStreamLast() throws Exception {
+  void cartesianProductOfThreeInputsWithMainStreamLast() {
     // The main stream is the last hop into Join Rows: its row set has to move to the front while
     // the other streams keep their hop order, the order in which JoinRowsMeta.getFields() lists
     // their fields.
@@ -118,7 +118,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void cartesianProductOfThreeInputsWithMainStreamInTheMiddle() throws Exception {
+  void cartesianProductOfThreeInputsWithMainStreamInTheMiddle() {
     List<Input> inputs = List.of(new Input("a", 2), new Input("main", 3), new Input("b", 2));
     List<RowMetaAndData> rows =
         assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 1, false));
@@ -128,7 +128,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void noOutputWhenOneInputIsEmpty() throws Exception {
+  void noOutputWhenOneInputIsEmpty() {
     List<Input> inputs = List.of(new Input("main", 3), new Input("other", 0));
     List<RowMetaAndData> rows =
         assertTimeoutPreemptively(TIMEOUT, () -> runJoin(inputs, "main", 500, false));
@@ -137,7 +137,7 @@ class JoinRowsSingleThreadedTest {
   }
 
   @Test
-  void singleInputPassesRowsThrough() throws Exception {
+  void singleInputPassesRowsThrough() {
     // This is how the Beam engine used to feed the transform: all inputs flattened into one row
     // set, one row per iteration. The old batchComplete() hung on the row that was left behind.
     List<Input> inputs = List.of(new Input("main", 3));

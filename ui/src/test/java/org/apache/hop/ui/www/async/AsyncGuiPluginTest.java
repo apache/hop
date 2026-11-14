@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.www.async;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class AsyncGuiPluginTest {
 
   @Test
-  public void testGetInstance() {
+  void testGetInstance() {
     AsyncGuiPlugin instance1 = AsyncGuiPlugin.getInstance();
     AsyncGuiPlugin instance2 = AsyncGuiPlugin.getInstance();
 
@@ -36,13 +37,13 @@ public class AsyncGuiPluginTest {
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     AsyncGuiPlugin plugin = new AsyncGuiPlugin();
     assertNotNull(plugin);
   }
 
   @Test
-  public void testActionIds() {
+  void testActionIds() {
     assertNotNull(AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_ENABLE_ASYNC_LOGGING);
     assertNotNull(AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_DISABLE_ASYNC_LOGGING);
 
@@ -54,14 +55,14 @@ public class AsyncGuiPluginTest {
   }
 
   @Test
-  public void testActionIdUniqueness() {
-    assertTrue(
-        !AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_ENABLE_ASYNC_LOGGING.equals(
-            AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_DISABLE_ASYNC_LOGGING));
+  void testActionIdUniqueness() {
+    assertNotEquals(
+        AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_ENABLE_ASYNC_LOGGING,
+        AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_DISABLE_ASYNC_LOGGING);
   }
 
   @Test
-  public void testActionIdFormat() {
+  void testActionIdFormat() {
     String enableId = AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_ENABLE_ASYNC_LOGGING;
     String disableId = AsyncGuiPlugin.ACTION_ID_WORKFLOW_GRAPH_DISABLE_ASYNC_LOGGING;
 
@@ -73,7 +74,7 @@ public class AsyncGuiPluginTest {
   }
 
   @Test
-  public void testSingletonBehavior() {
+  void testSingletonBehavior() {
     AsyncGuiPlugin instance1 = AsyncGuiPlugin.getInstance();
     AsyncGuiPlugin instance2 = AsyncGuiPlugin.getInstance();
     AsyncGuiPlugin instance3 = AsyncGuiPlugin.getInstance();
@@ -84,7 +85,7 @@ public class AsyncGuiPluginTest {
   }
 
   @Test
-  public void testInstanceNotNull() {
+  void testInstanceNotNull() {
     AsyncGuiPlugin instance = AsyncGuiPlugin.getInstance();
     assertNotNull(instance);
     assertTrue(instance instanceof AsyncGuiPlugin);

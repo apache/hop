@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -221,6 +223,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       handleReadingFromSourceTransform(injectPipeline);
     }
 
+    // Told when the template is done, so that the wait below ends at that moment and not up to
+    // 50 ms later.
+    CountDownLatch templateFinished = new CountDownLatch(1);
+    injectPipeline.addExecutionFinishedListener(e -> templateFinished.countDown());
+    injectPipeline.addExecutionStoppedListener(e -> templateFinished.countDown());
+
     injectPipeline.startThreads();
 
     Future<HopTransformException> steamingFuture = handleStreamingToTargetTransform(rowProducer);
@@ -230,9 +238,11 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     while (!injectPipeline.isFinished() && !injectPipeline.isStopped() && !isStopped()) {
       copyResult(injectPipeline);
 
-      // Wait a little bit.
+      // Wait a little bit: until the template is done, or to bring the line counters up to date.
       try {
-        Thread.sleep(50);
+        if (templateFinished.await(50, TimeUnit.MILLISECONDS)) {
+          break;
+        }
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }

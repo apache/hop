@@ -125,7 +125,7 @@ class MaskingRuntimeTest {
 
   private static String apply(MaskingEngine engine, RowMeta rowMeta, String value)
       throws Exception {
-    Object[] row = new Object[] {value};
+    Object[] row = {value};
     engine.apply(rowMeta, row);
     return (String) row[0];
   }

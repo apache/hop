@@ -63,7 +63,7 @@ class LineageHubTest {
   }
 
   @Test
-  void flushDeliversBatchedEvents() throws Exception {
+  void flushDeliversBatchedEvents() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 2, 5000L, Set.of());
     List<Integer> sizes = new ArrayList<>();
     ILineageSink sink = batch -> sizes.add(batch.size());
@@ -77,7 +77,7 @@ class LineageHubTest {
   }
 
   @Test
-  void failingSinkDoesNotPreventOtherSink() throws Exception {
+  void failingSinkDoesNotPreventOtherSink() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 5000L, Set.of());
     List<List<LineageEvent>> good = new ArrayList<>();
     ILineageSink bad =
@@ -152,7 +152,7 @@ class LineageHubTest {
   }
 
   @Test
-  void sinkThatFailsToLoadDoesNotStallFlush() throws Exception {
+  void sinkThatFailsToLoadDoesNotStallFlush() {
     // The OpenLineage sink once died in init() with a NoClassDefFoundError. That is not a
     // HopException, so it killed the dispatcher thread while the hub still said it was running,
     // and every pipeline and workflow completion then waited out the full flush timeout.
@@ -190,7 +190,7 @@ class LineageHubTest {
   }
 
   @Test
-  void shutdownInvokesSinkShutdownAndIsIdempotent() throws Exception {
+  void shutdownInvokesSinkShutdownAndIsIdempotent() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
     AtomicInteger shutdownCount = new AtomicInteger();
     ILineageSink sink =
@@ -227,7 +227,7 @@ class LineageHubTest {
   }
 
   @Test
-  void multipleSinksEachReceiveAllEvents() throws Exception {
+  void multipleSinksEachReceiveAllEvents() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
     AtomicInteger a = new AtomicInteger();
     AtomicInteger b = new AtomicInteger();
@@ -411,7 +411,7 @@ class LineageHubTest {
   }
 
   @Test
-  void failingSinkShutdownDoesNotAffectOtherSinks() throws Exception {
+  void failingSinkShutdownDoesNotAffectOtherSinks() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
     AtomicInteger okShutdownCount = new AtomicInteger();
     ILineageSink bad =
@@ -512,7 +512,7 @@ class LineageHubTest {
   }
 
   @Test
-  void hubResumesAfterShutdown() throws Exception {
+  void hubResumesAfterShutdown() {
     LineageConfiguration cfg = LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
     AtomicInteger initCount = new AtomicInteger();
     AtomicInteger delivered = new AtomicInteger();

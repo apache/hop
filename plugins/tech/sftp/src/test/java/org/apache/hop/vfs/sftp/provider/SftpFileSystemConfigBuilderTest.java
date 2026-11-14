@@ -28,7 +28,7 @@ public class SftpFileSystemConfigBuilderTest {
   private static final Duration ONE_MINUTE = Duration.ofMinutes(1);
 
   @Test
-  public void testConnectTimeout() {
+  void testConnectTimeout() {
     final FileSystemOptions options = new FileSystemOptions();
     final SftpFileSystemConfigBuilder builder = SftpFileSystemConfigBuilder.getInstance();
     builder.setConnectTimeout(options, ONE_MINUTE);
@@ -41,7 +41,7 @@ public class SftpFileSystemConfigBuilderTest {
   }
 
   @Test
-  public void testSessionTimeout() {
+  void testSessionTimeout() {
     final FileSystemOptions options = new FileSystemOptions();
     final SftpFileSystemConfigBuilder builder = SftpFileSystemConfigBuilder.getInstance();
     builder.setSessionTimeout(options, ONE_MINUTE);

@@ -81,7 +81,7 @@ class RestClientFactoryTest {
   }
 
   @Test
-  void anUnderscoreHostIsAddressable() throws Exception {
+  void anUnderscoreHostIsAddressable() {
     // java.net.URI cannot parse "mtls_test" as a server authority, but HttpClient5 falls back to
     // its own lenient URIAuthority parser, so the host survives onto the wire. This is what Jersey
     // could not do.

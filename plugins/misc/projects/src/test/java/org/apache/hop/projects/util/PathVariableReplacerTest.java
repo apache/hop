@@ -79,7 +79,7 @@ class PathVariableReplacerTest {
   }
 
   @Test
-  void longestPrefixWinsOverProjectHome() throws Exception {
+  void longestPrefixWinsOverProjectHome() {
     Path nested = projectHome.resolve("data");
     variables.setVariable("DATA_FOLDER", nested.toString());
     String selected = nested.resolve("report.csv").toString();
@@ -155,7 +155,7 @@ class PathVariableReplacerTest {
   }
 
   @Test
-  void resolvesNestedVariableValuesBeforeMatching() throws Exception {
+  void resolvesNestedVariableValuesBeforeMatching() {
     Path dataDir = projectHome.resolve("data");
     variables.setVariable("DATA_FOLDER", "${PROJECT_HOME}/data");
     String selected = dataDir.resolve("report.csv").toString();

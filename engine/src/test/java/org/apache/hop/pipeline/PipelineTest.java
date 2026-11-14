@@ -59,7 +59,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 class PipelineTest {
@@ -81,7 +80,7 @@ class PipelineTest {
   void beforeTest() throws HopException {
     meta = new PipelineMeta();
     pipeline = new LocalPipelineEngine(meta);
-    pipeline.setLogChannel(Mockito.mock(ILogChannel.class));
+    pipeline.setLogChannel(mock(ILogChannel.class));
     pipeline.prepareExecution();
     pipeline.startThreads();
   }

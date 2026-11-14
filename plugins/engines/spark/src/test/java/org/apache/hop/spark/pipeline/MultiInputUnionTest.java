@@ -197,8 +197,7 @@ class MultiInputUnionTest {
    * return different layouts. Add Injector metas as previous with fixed fields.
    */
   private static PipelineMeta pipelineWithTwoStringFields(
-      String left, String right, String sink, String leftExtra, String rightExtra)
-      throws Exception {
+      String left, String right, String sink, String leftExtra, String rightExtra) {
     PipelineMeta pm = new PipelineMeta();
     // Sources with different second field names via Injector
     org.apache.hop.pipeline.transforms.injector.InjectorMeta injL =

@@ -50,7 +50,7 @@ class JoinRowsTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     meta = new JoinRowsMeta();
     data = new JoinRowsData();
 
@@ -83,7 +83,7 @@ class JoinRowsTest {
     verify(mockFile2, times(1)).delete();
   }
 
-  private JoinRows getJoinRows() throws Exception {
+  private JoinRows getJoinRows() {
     TransformMeta transformMeta = new TransformMeta("test", meta);
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.addTransform(transformMeta);

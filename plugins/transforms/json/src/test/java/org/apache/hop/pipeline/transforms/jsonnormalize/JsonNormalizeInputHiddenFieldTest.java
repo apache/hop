@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.jsonnormalize;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -153,7 +154,7 @@ class JsonNormalizeInputHiddenFieldTest {
 
       assertEquals(0, transform.getErrors(), err.toString());
       Object[] row = written.get();
-      assertTrue(row != null, "expected one output row");
+      assertNotNull(row, "expected one output row");
       IRowMeta outMeta = writtenMeta.get();
       int hiddenIdx = outMeta.indexOfValue("is_hidden");
       assertTrue(hiddenIdx >= 0);

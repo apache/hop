@@ -42,12 +42,12 @@ import org.junit.jupiter.api.Test;
 public class SftpRefreshCachedStateTest {
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     SftpTestServerHelper.startServer();
   }
 
   @AfterEach
-  public void tearDown() throws InterruptedException {
+  void tearDown() throws InterruptedException {
     SftpTestServerHelper.stopServer();
   }
 
@@ -61,7 +61,7 @@ public class SftpRefreshCachedStateTest {
    * refresh()} must clear the stale {@code attrs}.
    */
   @Test
-  public void testExistsReturnsFalseAfterFileDeletedWithStaleAttrs() throws Exception {
+  void testExistsReturnsFalseAfterFileDeletedWithStaleAttrs() throws Exception {
     final File testDir = VfsTestUtils.getTestDirectoryFile();
     final File tempFile = new File(testDir, "sftp-refresh-test-file.txt");
     tempFile.createNewFile();

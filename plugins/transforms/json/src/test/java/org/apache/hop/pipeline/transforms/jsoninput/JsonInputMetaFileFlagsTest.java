@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -84,8 +85,9 @@ class JsonInputMetaFileFlagsTest {
     file.setFileRequired(true);
     file.setIncludeSubFolders(false);
     assertTrue(file.getFileRequiredDesc().contains("Y") || file.getFileRequiredDesc().length() > 0);
-    assertFalse(
-        file.getIncludeSubFoldersDesc().equals(file.getFileRequiredDesc()),
+    assertNotEquals(
+        file.getIncludeSubFoldersDesc(),
+        file.getFileRequiredDesc(),
         "include subfolders description must not mirror file required");
     file.setIncludeSubFolders(true);
     assertEquals(file.getFileRequiredDesc(), file.getIncludeSubFoldersDesc());

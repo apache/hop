@@ -54,7 +54,7 @@ class HopWireWebDavFileObjectTest {
   }
 
   @Test
-  void plainFile_emptyResourceType() throws Exception {
+  void plainFile_emptyResourceType() {
     assertFalse(HopWireWebDavFileObject.resourceTypeIndicatesCollection(null));
     assertFalse(HopWireWebDavFileObject.resourceTypeIndicatesCollection(List.of()));
   }

@@ -88,12 +88,12 @@ class UniqueRowsDataTest {
     assertEquals(42L, data.counter);
 
     // Test setting and getting previous
-    Object[] previous = new Object[] {"test", "data"};
+    Object[] previous = {"test", "data"};
     data.previous = previous;
     assertEquals(previous, data.previous);
 
     // Test setting and getting fieldnrs
-    int[] fieldnrs = new int[] {0, 1, 2};
+    int[] fieldnrs = {0, 1, 2};
     data.fieldnrs = fieldnrs;
     assertEquals(fieldnrs, data.fieldnrs);
 
@@ -166,8 +166,8 @@ class UniqueRowsDataTest {
     assertFalse(data.sendDuplicateRows);
 
     // Test previous row modification
-    Object[] row1 = new Object[] {"value1", "value2"};
-    Object[] row2 = new Object[] {"value3", "value4"};
+    Object[] row1 = {"value1", "value2"};
+    Object[] row2 = {"value3", "value4"};
 
     data.previous = row1;
     assertEquals(row1, data.previous);
@@ -184,8 +184,8 @@ class UniqueRowsDataTest {
     UniqueRowsData data = new UniqueRowsData();
 
     // Test fieldnrs array
-    int[] fieldnrs1 = new int[] {0, 2, 4};
-    int[] fieldnrs2 = new int[] {1, 3, 5};
+    int[] fieldnrs1 = {0, 2, 4};
+    int[] fieldnrs2 = {1, 3, 5};
 
     data.fieldnrs = fieldnrs1;
     assertEquals(fieldnrs1, data.fieldnrs);

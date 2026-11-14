@@ -56,12 +56,12 @@ class FuzzyMatchTest {
   @InjectMocks private FuzzyMatchHandler fuzzyMatch;
   private TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData> mockHelper;
 
-  private final Object[] row = new Object[] {"Catrine"};
-  private final Object[] rowB = new Object[] {"Catrine".getBytes()};
-  private final Object[] row2 = new Object[] {"John"};
-  private final Object[] row2B = new Object[] {"John".getBytes()};
-  private final Object[] row3 = new Object[] {"Catriny"};
-  private final Object[] row3B = new Object[] {"Catriny".getBytes()};
+  private final Object[] row = {"Catrine"};
+  private final Object[] rowB = {"Catrine".getBytes()};
+  private final Object[] row2 = {"John"};
+  private final Object[] row2B = {"John".getBytes()};
+  private final Object[] row3 = {"Catriny"};
+  private final Object[] row3B = {"Catriny".getBytes()};
   private final List<Object[]> rows = new ArrayList<>();
   private final List<Object[]> binaryRows = new ArrayList<>();
   private final List<Object[]> lookupRows = new ArrayList<>();
@@ -104,7 +104,7 @@ class FuzzyMatchTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         new TransformMockHelper<>("Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -113,7 +113,7 @@ class FuzzyMatchTest {
   }
 
   @AfterEach
-  void tearDown() throws Exception {
+  void tearDown() {
     mockHelper.cleanUp();
   }
 

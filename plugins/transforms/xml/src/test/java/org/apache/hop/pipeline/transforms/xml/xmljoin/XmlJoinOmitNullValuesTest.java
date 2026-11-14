@@ -47,7 +47,7 @@ class XmlJoinOmitNullValuesTest {
   TransformMockHelper<XmlJoinMeta, XmlJoinData> tmh;
 
   @BeforeEach
-  void init() throws Exception {
+  void init() {
     tmh = new TransformMockHelper<>("XmlJoin", XmlJoinMeta.class, XmlJoinData.class);
     when(tmh.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(tmh.iLogChannel);

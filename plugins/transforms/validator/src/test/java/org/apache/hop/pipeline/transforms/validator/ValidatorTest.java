@@ -74,7 +74,7 @@ class ValidatorTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     helper = new TransformMockHelper<>("Validator", ValidatorMeta.class, ValidatorData.class);
     when(helper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(helper.iLogChannel);
@@ -430,7 +430,7 @@ class ValidatorTest {
     ValueMetaString valueMeta = new ValueMetaString("value");
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(valueMeta);
-    Object[] row = new Object[] {"secret"};
+    Object[] row = {"secret"};
 
     meta.setSuppressingLogFailedData(false);
     assertEquals("secret", validator.getValueForMessage(valueMeta, "secret"));

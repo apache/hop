@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class LintCheckTrackerTest {
 
   @Test
-  public void needsLintingWhenNeverChecked() throws IOException {
+  void needsLintingWhenNeverChecked() throws IOException {
     File temp = File.createTempFile("lint-tracker", ".hpl");
     temp.deleteOnExit();
     Files.writeString(temp.toPath(), "test");
@@ -37,7 +37,7 @@ public class LintCheckTrackerTest {
   }
 
   @Test
-  public void skipsWhenNotModifiedSinceCheck() throws IOException, InterruptedException {
+  void skipsWhenNotModifiedSinceCheck() throws IOException {
     File temp = File.createTempFile("lint-tracker", ".hpl");
     temp.deleteOnExit();
     Files.writeString(temp.toPath(), "test");
@@ -48,7 +48,7 @@ public class LintCheckTrackerTest {
   }
 
   @Test
-  public void needsLintingAfterFileChanges() throws IOException, InterruptedException {
+  void needsLintingAfterFileChanges() throws IOException, InterruptedException {
     File temp = File.createTempFile("lint-tracker", ".hpl");
     temp.deleteOnExit();
     Files.writeString(temp.toPath(), "test");
@@ -63,7 +63,7 @@ public class LintCheckTrackerTest {
   }
 
   @Test
-  public void invalidateForcesRecheck() throws IOException {
+  void invalidateForcesRecheck() throws IOException {
     File temp = File.createTempFile("lint-tracker", ".hpl");
     temp.deleteOnExit();
     Files.writeString(temp.toPath(), "test");
@@ -76,7 +76,7 @@ public class LintCheckTrackerTest {
   }
 
   @Test
-  public void clearForcesRecheckOfEveryFile() throws IOException {
+  void clearForcesRecheckOfEveryFile() throws IOException {
     File temp = File.createTempFile("lint-tracker", ".hpl");
     temp.deleteOnExit();
     Files.writeString(temp.toPath(), "test");

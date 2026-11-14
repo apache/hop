@@ -39,7 +39,7 @@ class MappingInputMetaTest {
   }
 
   @Test
-  void clonesCorrectly() throws Exception {
+  void clonesCorrectly() {
     MappingInputMeta meta = new MappingInputMeta();
     meta.getFields().add(new InputField("f1", "Integer", "1", "3"));
     meta.getFields().add(new InputField("f2", "String", "2", "4"));

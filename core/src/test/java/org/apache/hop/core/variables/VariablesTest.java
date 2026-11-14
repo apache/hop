@@ -134,7 +134,7 @@ class VariablesTest {
 
   @Test
   void testFieldSubstitution() throws HopValueException {
-    Object[] rowData = new Object[] {"DataOne", "DataTwo"};
+    Object[] rowData = {"DataOne", "DataTwo"};
     RowMeta rm = new RowMeta();
     rm.addValueMeta(new ValueMetaString("FieldOne"));
     rm.addValueMeta(new ValueMetaString("FieldTwo"));

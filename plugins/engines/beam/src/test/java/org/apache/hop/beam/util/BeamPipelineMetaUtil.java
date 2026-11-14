@@ -298,7 +298,7 @@ public class BeamPipelineMetaUtil {
 
     // Add 4 add constants transforms CA and FL, NY, Default
     //
-    String[] stateCodes = new String[] {"CA", "FL", "NY", "AR", "Default"};
+    String[] stateCodes = {"CA", "FL", "NY", "AR", "Default"};
     for (String stateCode : stateCodes) {
       ConstantMeta constant = new ConstantMeta();
       ConstantField cf = new ConstantField("Comment", "String", stateCode + " : some comment");

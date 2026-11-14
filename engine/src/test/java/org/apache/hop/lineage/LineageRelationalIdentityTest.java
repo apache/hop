@@ -32,14 +32,14 @@ public class LineageRelationalIdentityTest {
 
   // §3.1 — namespace scheme is mapped from the Hop database type, not the JDBC sub-protocol.
   @Test
-  public void postgresNamespaceUsesSpecSchemeNotJdbcSubprotocol() {
+  void postgresNamespaceUsesSpecSchemeNotJdbcSubprotocol() {
     assertEquals(
         "postgres://db:5432",
         LineageRelationalIdentity.buildNamespace("POSTGRESQL", "db", "5432", 5432));
   }
 
   @Test
-  public void mysqlAndMariaDbShareTheMysqlScheme() {
+  void mysqlAndMariaDbShareTheMysqlScheme() {
     assertEquals(
         "mysql://h:3306", LineageRelationalIdentity.buildNamespace("MYSQL", "h", "3306", 3306));
     assertEquals(
@@ -48,7 +48,7 @@ public class LineageRelationalIdentityTest {
 
   // §3.1 — host is lowercased so casing differences do not fork the namespace.
   @Test
-  public void hostIsLowercasedAndTrimmed() {
+  void hostIsLowercasedAndTrimmed() {
     assertEquals(
         "postgres://prod-db:5432",
         LineageRelationalIdentity.buildNamespace("POSTGRESQL", "  PROD-DB  ", " 5432 ", 5432));
@@ -56,7 +56,7 @@ public class LineageRelationalIdentityTest {
 
   // §3.1 — "any default port included explicitly when known": blank port falls back to the default.
   @Test
-  public void blankPortFallsBackToDefaultPort() {
+  void blankPortFallsBackToDefaultPort() {
     assertEquals(
         "postgres://db:5432",
         LineageRelationalIdentity.buildNamespace("POSTGRESQL", "db", "", 5432));
@@ -66,27 +66,27 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void blankPortWithNoDefaultOmitsPort() {
+  void blankPortWithNoDefaultOmitsPort() {
     assertEquals("generic://db", LineageRelationalIdentity.buildNamespace("GENERIC", "db", "", 0));
   }
 
   // §3.1 "Generic JDBC" row — unknown types fall back to the lowercased Hop type id as the scheme.
   @Test
-  public void unknownTypeFallsBackToLowercasedTypeId() {
+  void unknownTypeFallsBackToLowercasedTypeId() {
     assertEquals(
         "clickhouse://db:8123",
         LineageRelationalIdentity.buildNamespace("CLICKHOUSE", "db", "8123", 8123));
   }
 
   @Test
-  public void blankHostYieldsNoNamespace() {
+  void blankHostYieldsNoNamespace() {
     assertNull(LineageRelationalIdentity.buildNamespace("POSTGRESQL", "", "5432", 5432));
     assertNull(LineageRelationalIdentity.buildNamespace("POSTGRESQL", null, "5432", 5432));
   }
 
   // §3.2 — fully qualified name is database.schema.table when all segments are present.
   @Test
-  public void datasetNameJoinsAllThreeSegments() {
+  void datasetNameJoinsAllThreeSegments() {
     assertEquals(
         "analytics.staging.orders",
         LineageRelationalIdentity.datasetName(
@@ -95,7 +95,7 @@ public class LineageRelationalIdentityTest {
 
   // §3.2 — databases without a catalog level use schema.table.
   @Test
-  public void datasetNameOmitsBlankCatalog() {
+  void datasetNameOmitsBlankCatalog() {
     assertEquals(
         "staging.orders",
         LineageRelationalIdentity.datasetName(new RelationalTable(null, "staging", "orders")));
@@ -105,14 +105,14 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void datasetNameOmitsBlankSchema() {
+  void datasetNameOmitsBlankSchema() {
     assertEquals(
         "orders", LineageRelationalIdentity.datasetName(new RelationalTable(null, null, "orders")));
   }
 
   // §3.2 — casing is preserved verbatim (Snowflake UPPER vs Postgres lower resolve upstream).
   @Test
-  public void datasetNamePreservesSegmentCasing() {
+  void datasetNamePreservesSegmentCasing() {
     assertEquals(
         "ANALYTICS.STAGING.ORDERS",
         LineageRelationalIdentity.datasetName(
@@ -120,14 +120,14 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void datasetNameIsNullWhenTableBlank() {
+  void datasetNameIsNullWhenTableBlank() {
     assertNull(LineageRelationalIdentity.datasetName(null));
   }
 
   // §3.2 — a table recovered from SQL (schema.table, no catalog) is qualified with the connection
   // catalog so it matches a write of catalog.schema.table for the same table.
   @Test
-  public void withDefaultCatalogFillsBlankCatalogSoReadMatchesWrite() {
+  void withDefaultCatalogFillsBlankCatalogSoReadMatchesWrite() {
     RelationalTable parsedRead = new RelationalTable(null, "staging", "orders");
     String readName =
         LineageRelationalIdentity.datasetName(
@@ -140,7 +140,7 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void withDefaultCatalogLeavesExistingCatalogUntouched() {
+  void withDefaultCatalogLeavesExistingCatalogUntouched() {
     RelationalTable qualified =
         LineageRelationalIdentity.withDefaultCatalog(
             new RelationalTable("other", "staging", "orders"), "analytics");
@@ -150,7 +150,7 @@ public class LineageRelationalIdentityTest {
   // §3.2 — a bare table from a SELECT is filled with both the connection catalog and schema so it
   // matches an explicitly catalog.schema-qualified write.
   @Test
-  public void withDefaultsFillsBlankCatalogAndSchema() {
+  void withDefaultsFillsBlankCatalogAndSchema() {
     RelationalTable bare = new RelationalTable(null, null, "orders");
     assertEquals(
         "analytics.staging.orders",
@@ -159,7 +159,7 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void withDefaultsLeavesPresentSegmentsUntouched() {
+  void withDefaultsLeavesPresentSegmentsUntouched() {
     RelationalTable qualified =
         LineageRelationalIdentity.withDefaults(
             new RelationalTable(null, "marts", "orders"), "analytics", "staging");
@@ -168,7 +168,7 @@ public class LineageRelationalIdentityTest {
   }
 
   @Test
-  public void withDefaultCatalogNoOpWhenCatalogBlank() {
+  void withDefaultCatalogNoOpWhenCatalogBlank() {
     RelationalTable table = new RelationalTable(null, "staging", "orders");
     assertEquals("staging.orders", LineageRelationalIdentity.datasetName(table));
     assertEquals(

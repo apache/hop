@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -195,7 +197,7 @@ class HopApiExceptionMapperTest {
     ILogChannel log = mock(ILogChannel.class);
     new HopApiExceptionMapper(log).toResponse(new jakarta.ws.rs.NotFoundException());
 
-    org.mockito.Mockito.verify(log, org.mockito.Mockito.never())
+    verify(log, never())
         .logError(
             org.mockito.ArgumentMatchers.anyString(),
             org.mockito.ArgumentMatchers.any(Throwable.class));

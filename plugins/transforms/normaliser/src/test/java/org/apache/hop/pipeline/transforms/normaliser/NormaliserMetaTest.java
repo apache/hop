@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.normaliser;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -60,9 +61,28 @@ class NormaliserMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/normaliser-transform.xml", NormaliserMeta.class);
 
-    // assertEquals(2, meta.getFields().size());
-    // assertEquals("fieldName", meta.getFields().get(0).getName());
-    // assertEquals("two", meta.getFields().get(0).getValue());
+    assertEquals("type", meta.getTypeField());
+    assertEquals("content", meta.getValueField());
+    assertEquals(4, meta.getNormaliserFields().size());
+    NormaliserField last = meta.getNormaliserFields().get(3);
+    assertEquals("fieldD", last.getName());
+    assertEquals("D", last.getValue());
+    assertEquals("field", last.getNorm());
+  }
+
+  /** The type field is as long as the longest type it holds. */
+  @Test
+  void theTypeFieldIsAsLongAsTheLongestType() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i1"));
+    row.addValueMeta(new ValueMetaInteger("i2"));
+
+    meta(field("i1", "short", "value"), field("i2", "much longer", "value"))
+        .getFields(row, "normaliser", null, null, new Variables(), null);
+
+    IValueMeta type = row.searchValueMeta("typefield");
+    assertEquals(IValueMeta.TYPE_STRING, type.getType());
+    assertEquals("much longer".length(), type.getLength());
   }
 
   @Test
@@ -194,6 +214,147 @@ class NormaliserMetaTest {
 
     List<ICheckResult> remarks = check(meta(field("i1", "A", "X"), field("i2", "B", "X")), prev);
 
+    assertTrue(
+        remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK),
+        remarks.toString());
+  }
+
+  /** Issue #9397: no listed fields means every input field, into the value field. */
+  @Test
+  void withoutListedFieldsEveryInputFieldIsNormalisedIntoTheValueField() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i"));
+    row.addValueMeta(new ValueMetaString("a much longer name"));
+
+    NormaliserMeta meta = meta();
+    meta.setValueField("content");
+    meta.getFields(row, "normaliser", null, null, new Variables(), null);
+
+    assertArrayEquals(new String[] {"typefield", "content"}, row.getFieldNames());
+    assertEquals("a much longer name".length(), row.getValueMeta(0).getLength());
+    assertEquals(IValueMeta.TYPE_STRING, row.getValueMeta(1).getType());
+  }
+
+  /** A transform saved before the value field existed has none: it is called value then. */
+  @Test
+  void aMissingValueFieldIsCalledValue() throws Exception {
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaInteger("i"));
+
+    NormaliserMeta meta = meta();
+    meta.setValueField(null);
+    meta.getFields(row, "normaliser", null, null, new Variables(), null);
+
+    assertArrayEquals(new String[] {"typefield", "value"}, row.getFieldNames());
+    assertEquals(IValueMeta.TYPE_INTEGER, row.getValueMeta(1).getType());
+  }
+
+  @Test
+  void checkSaysEveryInputFieldIsNormalisedWhenNoneAreListed() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+    prev.addValueMeta(new ValueMetaInteger("i2"));
+
+    List<ICheckResult> remarks = check(meta(), prev);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_OK
+                        && r.getText().contains("2")
+                        && r.getText().contains("value")),
+        remarks.toString());
+    assertTrue(
+        remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK),
+        remarks.toString());
+  }
+
+  /**
+   * Input fields that are not known yet, while designing a pipeline that gets them at run time,
+   * still leave the value field for the transforms after this one.
+   */
+  @Test
+  void withoutListedFieldsTheValueFieldIsDeclaredWhileTheInputIsUnknown() throws Exception {
+    IRowMeta row = new RowMeta();
+
+    meta().getFields(row, "normaliser", null, null, new Variables(), null);
+
+    assertArrayEquals(new String[] {"typefield", "value"}, row.getFieldNames());
+    assertEquals(IValueMeta.TYPE_STRING, row.getValueMeta(1).getType());
+  }
+
+  /**
+   * With every input field normalised, which one comes first is up to the input: its length would
+   * be too short for the values of the others. The value field keeps only what they all share.
+   */
+  @Test
+  void withoutListedFieldsTheValueFieldKeepsOnlyALengthAndPrecisionAllFieldsShare()
+      throws Exception {
+    IRowMeta texts = new RowMeta();
+    texts.addValueMeta(new ValueMetaString("code", 10, -1));
+    texts.addValueMeta(new ValueMetaString("description", 500, -1));
+    meta().getFields(texts, "normaliser", null, null, new Variables(), null);
+    assertEquals(-1, texts.searchValueMeta("value").getLength());
+
+    IRowMeta amounts = new RowMeta();
+    amounts.addValueMeta(new ValueMetaNumber("net", 9, 2));
+    amounts.addValueMeta(new ValueMetaNumber("rate", 9, 4));
+    meta().getFields(amounts, "normaliser", null, null, new Variables(), null);
+    IValueMeta amount = amounts.searchValueMeta("value");
+    assertEquals(9, amount.getLength());
+    assertEquals(-1, amount.getPrecision());
+
+    IRowMeta same = new RowMeta();
+    same.addValueMeta(new ValueMetaNumber("q1", 9, 2));
+    same.addValueMeta(new ValueMetaNumber("q2", 9, 2));
+    meta().getFields(same, "normaliser", null, null, new Variables(), null);
+    IValueMeta quarter = same.searchValueMeta("value");
+    assertEquals(9, quarter.getLength());
+    assertEquals(2, quarter.getPrecision());
+  }
+
+  /** The type field comes first: a new field with its name is renamed, which Verify points out. */
+  @Test
+  void checkWarnsAboutANewFieldWithTheNameOfTheTypeField() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+    prev.addValueMeta(new ValueMetaInteger("i2"));
+
+    NormaliserMeta allFields = meta();
+    allFields.setTypeField("Value");
+    assertTrue(
+        check(allFields, prev).stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("value")),
+        check(allFields, prev).toString());
+
+    NormaliserMeta listed = meta(field("i1", "A", "kind"), field("i2", "B", "kind"));
+    listed.setTypeField("kind");
+    assertTrue(
+        check(listed, prev).stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("kind")),
+        check(listed, prev).toString());
+  }
+
+  /** No field list at all, from metadata injection for example, is an empty one. */
+  @Test
+  void aMissingFieldListIsAnEmptyOne() {
+    IRowMeta prev = new RowMeta();
+    prev.addValueMeta(new ValueMetaInteger("i1"));
+
+    NormaliserMeta meta = meta();
+    meta.setNormaliserFields(null);
+
+    assertEquals(List.of(), meta.getNormaliserFields());
+    assertTrue(meta.isNormalisingAllFields());
+    assertNull(NormaliserMeta.getDuplicateMapping(null));
+    List<ICheckResult> remarks = check(meta, prev);
     assertTrue(
         remarks.stream().allMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK),
         remarks.toString());

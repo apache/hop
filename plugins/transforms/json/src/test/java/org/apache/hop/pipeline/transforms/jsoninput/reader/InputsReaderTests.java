@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +63,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 
 /**
  * Unit tests for {@link InputsReader}. Placed in this package to exercise protected {@link
@@ -391,7 +391,7 @@ class InputsReaderTests {
       JsonInputData data = new JsonInputData();
       JsonInput jsonInput = newJsonInputWithoutInputRows(meta, data);
       JsonInput spyInput = spy(jsonInput);
-      Mockito.doReturn(false).when(spyInput).onNewFile(org.mockito.ArgumentMatchers.any());
+      doReturn(false).when(spyInput).onNewFile(org.mockito.ArgumentMatchers.any());
 
       InputsReader reader = new InputsReader(spyInput, meta, data, new RecordingErrorHandler());
       var it = reader.iterator();

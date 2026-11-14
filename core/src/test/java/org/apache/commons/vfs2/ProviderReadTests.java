@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -149,15 +149,15 @@ public class ProviderReadTests extends AbstractProviderTestCase {
     final FileObject folder = getReadFolderDir1().resolveFile("subdir4.jar");
     assertTrue(folder.isFolder(), "subdir4.jar/ must exist as folder, check test setup.");
     assertFalse(getManager().canCreateFileSystem(folder), "subdir4.jar/ must not be layerable");
-    try {
-      final FileObject ignored = getManager().createFileSystem(folder);
-      fail("Should not be able to create a layered filesystem on a directory. " + ignored);
-    } catch (final FileSystemException e) {
-      assertSame(
-          "vfs.impl/no-provider-for-file.error",
-          e.getCode(),
-          "Creation of layered filesystem should fail" + e);
-    }
+    final FileSystemException e =
+        assertThrows(
+            FileSystemException.class,
+            () -> getManager().createFileSystem(folder),
+            "Should not be able to create a layered filesystem on a directory.");
+    assertSame(
+        "vfs.impl/no-provider-for-file.error",
+        e.getCode(),
+        "Creation of layered filesystem should fail" + e);
   }
 
   /** Tests that findFiles() works. */
@@ -190,12 +190,9 @@ public class ProviderReadTests extends AbstractProviderTestCase {
 
     // Try getting the content of a folder
     final FileObject folder = getReadFolderDir1();
-    try {
-      folder.getContent().getInputStream();
-      fail();
-    } catch (final FileSystemException e) {
-      assertSameMessage("vfs.provider/read-not-file.error", folder, e);
-    }
+    final FileSystemException e =
+        assertThrows(FileSystemException.class, () -> folder.getContent().getInputStream());
+    assertSameMessage("vfs.provider/read-not-file.error", folder, e);
   }
 
   /** Tests that test read folder is not hidden. */

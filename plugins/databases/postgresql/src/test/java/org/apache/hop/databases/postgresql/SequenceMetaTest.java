@@ -30,10 +30,9 @@ class SequenceMetaTest {
   @Test
   void testSupport() {
 
-    IDatabase[] support =
-        new IDatabase[] {
-          new PostgreSqlDatabaseMeta(),
-        };
+    IDatabase[] support = {
+      new PostgreSqlDatabaseMeta(),
+    };
 
     for (IDatabase db : support) {
       assertSupports(db, true);

@@ -107,7 +107,7 @@ class RedisCodecsTest {
   @Test
   void byteCodecAcceptsValidBase64() throws Exception {
     RedisValueCodec codec = RedisCodecs.create(RedisCodecType.BYTE);
-    byte[] raw = new byte[] {1, 2, 3};
+    byte[] raw = {1, 2, 3};
     String b64 = Base64.getEncoder().encodeToString(raw);
     assertTrue(b64.length() >= 4 && b64.length() % 4 == 0);
     assertArrayEquals(raw, codec.encode(b64));

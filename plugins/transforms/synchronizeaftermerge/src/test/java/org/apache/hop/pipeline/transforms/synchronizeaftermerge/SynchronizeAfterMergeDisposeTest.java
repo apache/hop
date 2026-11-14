@@ -208,7 +208,7 @@ class SynchronizeAfterMergeDisposeTest {
 
   /** A transform whose init() never got as far as a connection. */
   @Test
-  void disposeSurvivesAMissingDatabase() throws Exception {
+  void disposeSurvivesAMissingDatabase() {
     data.db = null;
 
     transform.dispose();

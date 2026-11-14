@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.excelwriter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -131,7 +131,7 @@ class ExcelWriterTransformTest {
   }
 
   @Test
-  void testProtectSheet() throws Exception {
+  void testProtectSheet() {
 
     transform.protectSheet(wb.getSheet(SHEET_NAME), "aa");
     assertTrue(wb.getSheet(SHEET_NAME).getProtect());
@@ -155,16 +155,14 @@ class ExcelWriterTransformTest {
 
     transform.init();
 
-    try {
-      transform.prepareNextOutputFile(any(Object[].class));
-      // An exception should have been thrown!
-      fail();
-    } catch (HopException e) {
-      String content = e.getMessage();
+    // An exception should have been thrown!
+    HopException e =
+        assertThrows(
+            HopException.class, () -> transform.prepareNextOutputFile(any(Object[].class)));
+    String content = e.getMessage();
 
-      // We expected this error message, the sheet name is too long for Excel
-      assertTrue(content.contains("12345678901234567890123456789012"));
-    }
+    // We expected this error message, the sheet name is too long for Excel
+    assertTrue(content.contains("12345678901234567890123456789012"));
   }
 
   @Test

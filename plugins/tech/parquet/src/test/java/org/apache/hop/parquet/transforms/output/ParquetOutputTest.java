@@ -57,7 +57,7 @@ class ParquetOutputTest {
   private TransformMockHelper<ParquetOutputMeta, ParquetOutputData> mockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         new TransformMockHelper<>(
             "Parquet Output", ParquetOutputMeta.class, ParquetOutputData.class);

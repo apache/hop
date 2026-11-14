@@ -38,7 +38,7 @@ class BeamDataFlowPipelineRunConfigurationTest {
   }
 
   @Test
-  void gcpTempLocationIsPropagatedToThePipelineOptions() throws Exception {
+  void gcpTempLocationIsPropagatedToThePipelineOptions() {
     BeamDataFlowPipelineRunConfiguration runConfiguration =
         new BeamDataFlowPipelineRunConfiguration();
     runConfiguration.setGcpTempLocation("gs://my-bucket/beam-temp");

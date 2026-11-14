@@ -19,7 +19,9 @@ package org.apache.hop.mongo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -79,17 +81,17 @@ class MongoPropToOptionTest {
     String tagSetInvalid =
         " { \"key\" : \"value\", \"key2\" : \"value2\" }, { \"key\" : \"value3\" } } ";
     builder.set(MongoProp.tagSet, tagSetInvalid);
-    try {
-      wrapper.getTagSets(builder.build());
-      fail("Expected a parse exception");
-    } catch (MongoDbException e) {
-      assertEquals(
-          "The tagSet property specified cannot be parsed:  "
-              + "[ { \"key\" : \"value\", \"key2\" : \"value2\" }, { \"key\" : \"value3\" } } ]",
-          e.getMessage());
-      // The underlying exception type may vary in 5.x
-      assertTrue(e.getCause() != null);
-    }
+    MongoDbException e =
+        assertThrows(
+            MongoDbException.class,
+            () -> wrapper.getTagSets(builder.build()),
+            "Expected a parse exception");
+    assertEquals(
+        "The tagSet property specified cannot be parsed:  "
+            + "[ { \"key\" : \"value\", \"key2\" : \"value2\" }, { \"key\" : \"value3\" } } ]",
+        e.getMessage());
+    // The underlying exception type may vary in 5.x
+    assertNotNull(e.getCause());
   }
 
   @Test

@@ -314,7 +314,7 @@ class JfrogRepositoryBrowserHttpTest {
   }
 
   @Test
-  void aCatalogUrlStillWinsOverLiveBrowsing() throws Exception {
+  void aCatalogUrlStillWinsOverLiveBrowsing() {
     seedStorage();
     MarketplaceRepository repo = repository();
     repo.setCatalogUrl(baseUrl + "does-not-exist.yaml");

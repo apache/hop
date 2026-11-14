@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 class VCardFieldDiscoveryTest {
 
   @Test
-  void discoverFromSampleCard() throws Exception {
+  void discoverFromSampleCard() {
     VCard card = new VCard();
     card.setFormattedName(new FormattedName("Hop Test"));
     StructuredName name = new StructuredName();

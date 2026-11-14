@@ -117,7 +117,7 @@ class GremlinUpsertTraversalTest {
    * The upsert scripts parse with the Gremlin grammar, on the ANTLR runtime Hop ships in lib/core.
    */
   @Test
-  void upsertScriptsParse() throws Exception {
+  void upsertScriptsParse() {
     GraphUpsertNode a = new GraphUpsertNode("Person", Map.of("pid", 1L), Map.of("name", "Ann"));
     GraphUpsertNode b = new GraphUpsertNode("Person", Map.of("pid", 2L), Map.of());
     for (Object traversal :

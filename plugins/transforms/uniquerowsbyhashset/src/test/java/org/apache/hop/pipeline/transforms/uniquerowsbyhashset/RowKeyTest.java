@@ -51,7 +51,7 @@ class RowKeyTest {
     Timestamp timestampObj = Timestamp.valueOf("2018-01-01 10:10:10.000000000");
     arr1[7] = timestampObj;
 
-    byte[] ipAddr = new byte[] {127, 0, 0, 1};
+    byte[] ipAddr = {127, 0, 0, 1};
     InetAddress addrObj = InetAddress.getByAddress(ipAddr);
     arr1[8] = addrObj;
 

@@ -42,7 +42,7 @@ class DimensionCacheTest {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaTimestamp("DATE_FROM"));
     rowMeta.addValueMeta(new ValueMetaTimestamp("DATE_TO"));
-    int[] keyIndexes = new int[] {};
+    int[] keyIndexes = {};
     int fromDateIndex = 0;
     int toDateIndex = 1;
     DimensionCache dc = new DimensionCache(rowMeta, keyIndexes, fromDateIndex, toDateIndex);

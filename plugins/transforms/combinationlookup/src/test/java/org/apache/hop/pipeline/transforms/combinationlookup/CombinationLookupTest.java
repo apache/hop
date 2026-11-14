@@ -121,7 +121,7 @@ class CombinationLookupTest {
     when(db.getLookup(any(PreparedStatement.class))).thenReturn(new Object[] {5L});
     when(db.getReturnRowMeta()).thenReturn(returnRowMeta);
 
-    Object[] row = new Object[] {"BE", "open", 0L};
+    Object[] row = {"BE", "open", 0L};
     assertEquals(5L, transform.lookupValues(rowMeta, row)[3]);
     assertEquals(5L, transform.lookupValues(rowMeta, row)[3]);
 

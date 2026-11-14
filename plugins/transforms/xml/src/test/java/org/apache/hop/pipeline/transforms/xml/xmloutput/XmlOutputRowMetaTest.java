@@ -89,7 +89,7 @@ class XmlOutputRowMetaTest {
   }
 
   @Test
-  void omitNullValuesLeavesOutNullElements() throws Exception {
+  void omitNullValuesLeavesOutNullElements() {
     String xml = assertTimeoutPreemptively(TIMEOUT, () -> run(true, rowsWithANullName()).xml());
 
     assertEquals(1, count(xml, "<name>"), xml);
@@ -97,7 +97,7 @@ class XmlOutputRowMetaTest {
   }
 
   @Test
-  void nullElementsAreWrittenWhenNotOmitted() throws Exception {
+  void nullElementsAreWrittenWhenNotOmitted() {
     String xml = assertTimeoutPreemptively(TIMEOUT, () -> run(false, rowsWithANullName()).xml());
 
     assertEquals(2, count(xml, "<name"), xml);

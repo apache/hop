@@ -143,8 +143,8 @@ class FilterRowsTest {
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("name"));
-    Object[] aliceRow = new Object[] {"Alice"};
-    Object[] bobRow = new Object[] {"Bob"};
+    Object[] aliceRow = {"Alice"};
+    Object[] bobRow = {"Bob"};
 
     assertTrue(runtimeCondition.evaluate(rowMeta, aliceRow));
     assertFalse(runtimeCondition.evaluate(rowMeta, bobRow));
@@ -191,7 +191,7 @@ class FilterRowsTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("name"));
     rowMeta.addValueMeta(new ValueMetaString("code"));
-    Object[] matchingRow = new Object[] {"Alice", "A-1"};
+    Object[] matchingRow = {"Alice", "A-1"};
 
     assertTrue(runtimeCondition.evaluate(rowMeta, matchingRow));
 
@@ -265,7 +265,7 @@ class FilterRowsTest {
     inputRowMeta.addValueMeta(value);
     transform.setInputRowMeta(inputRowMeta);
 
-    Object[] row = new Object[] {5L};
+    Object[] row = {5L};
     doReturn(row).when(transform).getRow();
     doNothing().when(transform).putRow(any(IRowMeta.class), any(Object[].class));
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
@@ -24,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -226,11 +226,7 @@ class BaseTransformTest {
                   transform.addResultFile(
                       new ResultFile(
                           0, new NonAccessibleFileObject(Integer.toString(i)), null, null));
-                  try {
-                    Thread.sleep(1);
-                  } catch (Exception e) {
-                    fail(e.getMessage());
-                  }
+                  assertDoesNotThrow(() -> Thread.sleep(1));
                 }
               } finally {
                 complete.set(true);
@@ -317,7 +313,7 @@ class BaseTransformTest {
     baseTransform.setRowHandler(rowHandler);
 
     IRowMeta iRowMeta = mock(IRowMeta.class);
-    Object[] objects = new Object[] {"foo", "bar"};
+    Object[] objects = {"foo", "bar"};
     baseTransform.putRow(iRowMeta, objects);
     verify(rowHandler, times(1)).putRow(iRowMeta, objects);
   }
@@ -334,7 +330,7 @@ class BaseTransformTest {
             mockHelper.pipeline);
     baseTransform.setRowHandler(rowHandler);
     IRowMeta iRowMeta = mock(IRowMeta.class);
-    Object[] objects = new Object[] {"foo", "bar"};
+    Object[] objects = {"foo", "bar"};
     baseTransform.putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
     verify(rowHandler, times(1))
         .putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
@@ -359,7 +355,7 @@ class BaseTransformTest {
                 mockHelper.pipeline));
 
     IRowMeta iRowMeta = new RowMeta();
-    Object[] objects = new Object[] {"Bob", "Col"};
+    Object[] objects = {"Bob", "Col"};
     base.putError(iRowMeta, objects, 1L, "PKIX path building failed", null, "Rest001");
 
     verify(base).stopAll();
@@ -430,20 +426,20 @@ class BaseTransformTest {
     baseTransform.setRowHandler(rowHandlerWithDefaultMethods());
 
     IRowMeta iRowMeta = mock(IRowMeta.class);
-    Object[] objects = new Object[] {"foo", "bar"};
+    Object[] objects = {"foo", "bar"};
 
-    try {
-      baseTransform.putRowTo(iRowMeta, objects, new QueueRowSet());
-      fail("Expected default exception for putRowTo");
-    } catch (UnsupportedOperationException uoe) {
-      assertTrue(uoe.getMessage().contains(this.getClass().getName()));
-    }
-    try {
-      baseTransform.getRowFrom(new QueueRowSet());
-      fail("Expected default exception for getRowFrom");
-    } catch (UnsupportedOperationException uoe) {
-      assertTrue(uoe.getMessage().contains(this.getClass().getName()));
-    }
+    UnsupportedOperationException putRowToException =
+        assertThrows(
+            UnsupportedOperationException.class,
+            () -> baseTransform.putRowTo(iRowMeta, objects, new QueueRowSet()),
+            "Expected default exception for putRowTo");
+    assertTrue(putRowToException.getMessage().contains(this.getClass().getName()));
+    UnsupportedOperationException getRowFromException =
+        assertThrows(
+            UnsupportedOperationException.class,
+            () -> baseTransform.getRowFrom(new QueueRowSet()),
+            "Expected default exception for getRowFrom");
+    assertTrue(getRowFromException.getMessage().contains(this.getClass().getName()));
   }
 
   @Test
@@ -459,7 +455,7 @@ class BaseTransformTest {
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("col"));
-    Object[] row = new Object[] {"value"};
+    Object[] row = {"value"};
     QueueRowSet rowSet = new QueueRowSet();
 
     IRowListener rowListener = mock(IRowListener.class);
@@ -611,7 +607,7 @@ class BaseTransformTest {
         Arrays.asList(new ValueMetaInteger("x"), new ValueMetaString("a"));
     RowMeta rowMeta = new RowMeta();
     rowMeta.setValueMetaList(valueMetaList);
-    final Object[] row = new Object[] {};
+    final Object[] row = {};
     rowSet.putRow(rowMeta, row);
 
     baseTransformSpy.setInputRowSets(List.of(rowSet));

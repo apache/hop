@@ -1,0 +1,19 @@
+{
+  "rdbms": {
+    "POSTGRESQL": {
+      "databaseName": "sales",
+      "pluginId": "POSTGRESQL",
+      "accessType": 0,
+      "hostname": "Warehouse.example.com",
+      "password": "Encrypted ",
+      "pluginName": "PostgreSQL",
+      "port": "5432",
+      "attributes": {
+        "PREFERRED_SCHEMA_NAME": "public"
+      },
+      "manualUrl": "",
+      "username": ""
+    }
+  },
+  "name": "warehouse"
+}

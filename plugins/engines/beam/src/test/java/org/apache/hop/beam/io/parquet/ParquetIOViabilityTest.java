@@ -19,7 +19,6 @@ package org.apache.hop.beam.io.parquet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -132,7 +131,7 @@ class ParquetIOViabilityTest {
     // answer is false for records that are equal by value. That is irrelevant here - a
     // ParquetIO read produces records that only need to be shipped, not deduplicated - and
     // ParquetIO sets the coder itself, so it is not a decision a handler has to make.
-    assertTrue(coder.getSchema().getFields().size() == 2, "the coder sees both Hop fields");
+    assertEquals(2, coder.getSchema().getFields().size(), "the coder sees both Hop fields");
   }
 
   @Test

@@ -20,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,18 +36,18 @@ public class HopLinterTest {
   private HopLinter linter;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     linter = new HopLinter();
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     assertNotNull(linter);
     assertNull(linter.getConfig());
   }
 
   @Test
-  public void testLoadDefaultConfig() {
+  void testLoadDefaultConfig() {
     linter.loadDefaultConfig();
 
     LinterConfig config = linter.getConfig();
@@ -68,7 +68,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testLoadConfigFromNonExistentFile() throws IOException {
+  void testLoadConfigFromNonExistentFile() throws IOException {
     File tempFile = File.createTempFile("test-config", ".yml");
     tempFile.delete(); // Ensure it doesn't exist
 
@@ -81,7 +81,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testLoadConfigFromValidFile() throws IOException {
+  void testLoadConfigFromValidFile() throws IOException {
     // Create a temporary YAML config file
     String yamlContent =
         "rules:\n"
@@ -119,7 +119,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testLoadConfigWithCustomRule() throws IOException {
+  void testLoadConfigWithCustomRule() throws IOException {
     // Create a temporary YAML config file with custom rule
     String yamlContent =
         "rules:\n"
@@ -158,25 +158,23 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testLoadConfigWithInvalidYAML() throws IOException {
+  void testLoadConfigWithInvalidYAML() throws IOException {
     File tempFile = File.createTempFile("test-config", ".yml");
     try {
       java.nio.file.Files.write(tempFile.toPath(), "invalid: yaml: content: [".getBytes());
 
-      try {
-        linter.loadConfig(tempFile.getAbsolutePath());
-        fail("Should have thrown IOException for invalid YAML");
-      } catch (IOException e) {
-        // Expected: the file, and what is wrong with it, named once
-        assertTrue(e.getMessage().contains("Invalid lint configuration in"), e.getMessage());
-        assertEquals(
-            1,
-            e.getMessage()
-                    .split(java.util.regex.Pattern.quote(tempFile.getAbsolutePath()), -1)
-                    .length
-                - 1,
-            e.getMessage());
-      }
+      IOException e =
+          assertThrows(
+              IOException.class,
+              () -> linter.loadConfig(tempFile.getAbsolutePath()),
+              "Should have thrown IOException for invalid YAML");
+      // Expected: the file, and what is wrong with it, named once
+      assertTrue(e.getMessage().contains("Invalid lint configuration in"), e.getMessage());
+      assertEquals(
+          1,
+          e.getMessage().split(java.util.regex.Pattern.quote(tempFile.getAbsolutePath()), -1).length
+              - 1,
+          e.getMessage());
 
     } finally {
       tempFile.delete();
@@ -184,7 +182,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testIsRuleEnabled() {
+  void testIsRuleEnabled() {
     linter.loadDefaultConfig();
 
     assertTrue(linter.isRuleEnabled("TRANS-002"));
@@ -194,7 +192,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testGetRuleParameters() {
+  void testGetRuleParameters() {
     linter.loadDefaultConfig();
 
     Map<String, Object> trans001Params = linter.getRuleParameters("STRUCT-001");
@@ -202,7 +200,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testFindHopFiles() {
+  void testFindHopFiles() {
     // Create a temporary directory structure
     File tempDir = createTempDirectoryStructure();
     try {
@@ -222,7 +220,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testFindHopFilesWithNonExistentDirectory() {
+  void testFindHopFilesWithNonExistentDirectory() {
     List<String> hopFiles = linter.findHopFiles("/non/existent/directory");
 
     assertNotNull(hopFiles);
@@ -230,7 +228,7 @@ public class HopLinterTest {
   }
 
   @Test
-  public void testFindHopFilesWithEmptyDirectory() throws IOException {
+  void testFindHopFilesWithEmptyDirectory() throws IOException {
     File tempDir = File.createTempFile("empty", "");
     tempDir.delete();
     tempDir.mkdir();

@@ -119,7 +119,7 @@ class BeamSplunkOutputMetaTest {
   }
 
   @Test
-  void missingInputIsAnErrorAndDoesNotClearValidationSuccess() throws Exception {
+  void missingInputIsAnErrorAndDoesNotClearValidationSuccess() {
     var meta = configured(new Variables());
     var transform = new TransformMeta("BeamSplunkOutput", "splunk", meta);
     var remarks = new ArrayList<ICheckResult>();

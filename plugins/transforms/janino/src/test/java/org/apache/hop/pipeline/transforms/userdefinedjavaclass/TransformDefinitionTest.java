@@ -17,20 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
 
 /** User: Dzmitry Stsiapanau Date: 2/6/14 Time: 2:29 PM */
 class TransformDefinitionTest {
   @Test
-  void testClone() throws Exception {
-    try {
-      TransformDefinition transformDefinition =
-          new TransformDefinition("tag", "transformName", null, "");
-      transformDefinition.clone();
-    } catch (NullPointerException npe) {
-      fail("Null value is not handled");
-    }
+  void testClone() {
+    assertDoesNotThrow(
+        () -> new TransformDefinition("tag", "transformName", null, "").clone(),
+        "Null value is not handled");
   }
 }

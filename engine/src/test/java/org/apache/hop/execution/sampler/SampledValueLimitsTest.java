@@ -73,10 +73,10 @@ class SampledValueLimitsTest {
   @Test
   void unlimitedCopyLeavesEveryValueInANewRow() throws Exception {
     IRowMeta rowMeta = sampleRowMeta();
-    byte[] binary = new byte[] {1, 2, 3, 4};
+    byte[] binary = {1, 2, 3, 4};
     JsonNode json = JsonUtil.jsonMapper().readTree("{\"ok\":true}");
     GenericRecord avro = avroRecord("hi");
-    Object[] row = new Object[] {"text", json, binary, avro};
+    Object[] row = {"text", json, binary, avro};
 
     Object[] copy = SampledValueLimits.unlimited().copyRow(rowMeta, row);
 
@@ -95,10 +95,9 @@ class SampledValueLimitsTest {
   @Test
   void zeroOnOneTypeReplacesOnlyThatType() throws Exception {
     IRowMeta rowMeta = sampleRowMeta();
-    Object[] row =
-        new Object[] {
-          "text", JsonUtil.jsonMapper().readTree("{\"ok\":true}"), new byte[] {9}, avroRecord("hi")
-        };
+    Object[] row = {
+      "text", JsonUtil.jsonMapper().readTree("{\"ok\":true}"), new byte[] {9}, avroRecord("hi")
+    };
 
     Object[] copy = limits(null, null, "0", null).copyRow(rowMeta, row);
 
@@ -114,8 +113,8 @@ class SampledValueLimitsTest {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("body"));
     String longText = "this is longer than five";
-    Object[] shortRow = new Object[] {"short"};
-    Object[] longRow = new Object[] {longText};
+    Object[] shortRow = {"short"};
+    Object[] longRow = {longText};
     SampledValueLimits valueLimits = limits("5", null, null, null);
 
     Object[] shortCopy = valueLimits.copyRow(rowMeta, shortRow);
@@ -130,7 +129,7 @@ class SampledValueLimitsTest {
   @Test
   void binaryAndAvroOverTheLimitAreNullAndSchemaBytesCount() throws Exception {
     IRowMeta rowMeta = sampleRowMeta();
-    byte[] binary = new byte[] {1, 2, 3, 4, 5};
+    byte[] binary = {1, 2, 3, 4, 5};
     GenericRecord small = avroRecord("hi");
     int smallSize = ValueMetaAvroRecord.storedPayloadBytes(small);
     GenericRecord wideSchema = wideSchemaRecord();
@@ -194,7 +193,7 @@ class SampledValueLimitsTest {
     indexed.setStorageMetadata(new ValueMetaString("body"));
     IRowMeta indexedMeta = new RowMeta();
     indexedMeta.addValueMeta(indexed);
-    Object[] indexedRow = new Object[] {Integer.valueOf(1)};
+    Object[] indexedRow = {Integer.valueOf(1)};
     Object[] indexedCopy = valueLimits.copyRow(indexedMeta, indexedRow);
     assertNull(indexedCopy[0]);
     assertEquals(Integer.valueOf(1), indexedRow[0]);
@@ -207,7 +206,7 @@ class SampledValueLimitsTest {
     rowMeta.addValueMeta(new ValueMetaTimestamp("when"));
     Timestamp when = new Timestamp(1_700_000_000_000L);
     when.setNanos(123_456);
-    Object[] row = new Object[] {"this is longer than five", when};
+    Object[] row = {"this is longer than five", when};
 
     Object[] copy = limits("5", null, null, null).copyRow(rowMeta, row);
 
@@ -221,7 +220,7 @@ class SampledValueLimitsTest {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("body"));
     String longText = "still stored";
-    Object[] row = new Object[] {longText};
+    Object[] row = {longText};
 
     Object[] copy = limits("many", null, null, null).copyRow(rowMeta, row);
     Object[] negative = limits("-3", null, null, null).copyRow(rowMeta, row);
@@ -356,7 +355,7 @@ class SampledValueLimitsTest {
     rowMeta.addValueMeta(new ValueMetaJson("payload"));
     store.init(new Variables(), rowMeta, rowMeta);
     JsonNode payload = json("{\"n\":1}");
-    Object[] row = new Object[] {"row-1", payload};
+    Object[] row = {"row-1", payload};
 
     sampler.sampleRow(store, IStream.StreamType.OUTPUT, rowMeta, row);
 

@@ -19,6 +19,7 @@ package org.apache.hop.vfs.ftp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -104,8 +105,9 @@ class FtpSecurityModeTest {
       assertFalse(
           protection.getDescription().startsWith("!"),
           "missing translation: " + protection.getDescription());
-      assertFalse(
-          protection.getDescription().equals(protection.getCode()),
+      assertNotEquals(
+          protection.getDescription(),
+          protection.getCode(),
           "the user should see words, not the bare protocol letter");
     }
   }

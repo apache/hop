@@ -67,8 +67,8 @@ class DefaultCacheTest {
     data.conditions = new int[] {DatabaseLookupMeta.CONDITION_EQ};
     DefaultCache cache = DefaultCache.newCache(data, 16);
 
-    Object[] key = new Object[] {1L};
-    Object[] value = new Object[] {"one"};
+    Object[] key = {1L};
+    Object[] value = {"one"};
     cache.storeRowInCache(meta, lookupMeta, key, value);
 
     assertArrayEquals(value, cache.getRowFromCache(lookupMeta, new Object[] {1L}));
@@ -121,8 +121,8 @@ class DefaultCacheTest {
     data.conditions = new int[] {DatabaseLookupMeta.CONDITION_IS_NULL};
     DefaultCache cache = DefaultCache.newCache(data, 16);
 
-    Object[] nullKey = new Object[] {null};
-    Object[] value = new Object[] {"null-row"};
+    Object[] nullKey = {null};
+    Object[] value = {"null-row"};
     cache.storeRowInCache(meta, lookupMeta, nullKey, value);
     cache.storeRowInCache(meta, lookupMeta, new Object[] {1L}, new Object[] {"one"});
 
@@ -137,7 +137,7 @@ class DefaultCacheTest {
     DefaultCache cache = DefaultCache.newCache(data, 16);
 
     cache.storeRowInCache(meta, lookupMeta, new Object[] {null}, new Object[] {"null-row"});
-    Object[] value = new Object[] {"one"};
+    Object[] value = {"one"};
     cache.storeRowInCache(meta, lookupMeta, new Object[] {1L}, value);
 
     assertArrayEquals(value, cache.getRowFromCache(lookupMeta, new Object[] {999L}));
@@ -158,7 +158,7 @@ class DefaultCacheTest {
     storeMeta.addValueMeta(new ValueMetaInteger("id"));
 
     DefaultCache cache = DefaultCache.newCache(data, 16);
-    Object[] value = new Object[] {"mid"};
+    Object[] value = {"mid"};
     cache.storeRowInCache(meta, storeMeta, new Object[] {5L}, value);
 
     IRowMeta lookupWithRange = new RowMeta();
@@ -242,7 +242,7 @@ class DefaultCacheTest {
     data.conditions = new int[] {condition};
     DefaultCache cache = DefaultCache.newCache(data, 16);
 
-    Object[] value = new Object[] {"hit"};
+    Object[] value = {"hit"};
     cache.storeRowInCache(meta, lookupMeta, new Object[] {cachedKey}, value);
 
     Object[] found = cache.getRowFromCache(lookupMeta, new Object[] {lookupValue});

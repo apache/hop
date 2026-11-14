@@ -48,7 +48,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testLayoutNoOverlapAndLeftToRight() {
+  void testLayoutNoOverlapAndLeftToRight() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -91,7 +91,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testNoteFollowsNearestNodeButDistantNoteStaysPut() {
+  void testNoteFollowsNearestNodeButDistantNoteStaysPut() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -125,7 +125,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testMoveNotesDisabledLeavesNotesAlone() {
+  void testMoveNotesDisabledLeavesNotesAlone() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -144,7 +144,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testTopBottomDirectionFlowsDownward() {
+  void testTopBottomDirectionFlowsDownward() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -169,7 +169,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testSelectionSubsetLeavesUnselectedInPlaceAndAnchors() {
+  void testSelectionSubsetLeavesUnselectedInPlaceAndAnchors() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -203,7 +203,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testPositionsAlignToDefaultGrid() {
+  void testPositionsAlignToDefaultGrid() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -225,7 +225,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testPositionsAlignToCustomGridSize() {
+  void testPositionsAlignToCustomGridSize() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -246,7 +246,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testGridSizeOneDisablesSnapping() {
+  void testGridSizeOneDisablesSnapping() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -270,7 +270,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testSubsetAnchoredLayoutStaysOnGrid() {
+  void testSubsetAnchoredLayoutStaysOnGrid() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -294,7 +294,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testLargeGridStartsOneCellInsideCanvas() {
+  void testLargeGridStartsOneCellInsideCanvas() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -312,7 +312,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testSubsetNearCornerStaysOneCellInsideCanvas() {
+  void testSubsetNearCornerStaysOneCellInsideCanvas() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -333,24 +333,24 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testEmptyPipelineDoesNotThrow() {
+  void testEmptyPipelineDoesNotThrow() {
     PipelineMetaLayout.layout(new PipelineMeta());
   }
 
   @Test
-  public void testNullDoesNotThrow() {
+  void testNullDoesNotThrow() {
     PipelineMetaLayout.layout(null);
   }
 
   @Test
-  public void testSingleTransformDoesNotThrow() {
+  void testSingleTransformDoesNotThrow() {
     PipelineMeta meta = new PipelineMeta();
     meta.addTransform(transform("only"));
     PipelineMetaLayout.layout(meta);
   }
 
   @Test
-  public void testCyclicPipelineDoesNotThrow() {
+  void testCyclicPipelineDoesNotThrow() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");
@@ -373,7 +373,7 @@ public class PipelineMetaLayoutTest {
   }
 
   @Test
-  public void testDisconnectedComponentsDoNotOverlap() {
+  void testDisconnectedComponentsDoNotOverlap() {
     PipelineMeta meta = new PipelineMeta();
     TransformMeta a = transform("a");
     TransformMeta b = transform("b");

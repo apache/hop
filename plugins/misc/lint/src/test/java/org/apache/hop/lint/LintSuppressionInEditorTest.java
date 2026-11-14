@@ -84,7 +84,7 @@ public class LintSuppressionInEditorTest {
   }
 
   @Test
-  public void nativeFindingsReachTheEditorWhenNothingIsSuppressed() throws Exception {
+  void nativeFindingsReachTheEditorWhenNothingIsSuppressed() throws Exception {
     List<LintResult> results = lintAsEditor();
 
     assertTrue(
@@ -96,7 +96,7 @@ public class LintSuppressionInEditorTest {
   }
 
   @Test
-  public void suppressedTransformIsSilentInTheEditor() throws Exception {
+  void suppressedTransformIsSilentInTheEditor() throws Exception {
     writeProjectConfig(
         """
         suppress:
@@ -129,7 +129,7 @@ public class LintSuppressionInEditorTest {
    * suppression narrowed to one rule leaves the other findings on that file alone.
    */
   @Test
-  public void suppressionPathIsRootedAtTheProjectConfig() throws Exception {
+  void suppressionPathIsRootedAtTheProjectConfig() throws Exception {
     List<LintResult> before = lintAsEditor();
     assertTrue(countOfRule(before, "HOP-CHECK") > 0, "no native findings to suppress: " + before);
 
@@ -158,7 +158,7 @@ public class LintSuppressionInEditorTest {
    * severity the pack had capped was still reported as the transform wrote it.
    */
   @Test
-  public void disablingTheNativeRuleSilencesTheEditorToo() throws Exception {
+  void disablingTheNativeRuleSilencesTheEditorToo() throws Exception {
     assertTrue(countOfRule(lintAsEditor(), "HOP-CHECK") > 0, "no native findings to switch off");
 
     writeProjectConfig(
@@ -184,7 +184,7 @@ public class LintSuppressionInEditorTest {
    * silently collapsing the rule ids a project writes its suppressions against.
    */
   @Test
-  public void policyFindingsKeepTheirOwnRuleIdInTheEditor() throws Exception {
+  void policyFindingsKeepTheirOwnRuleIdInTheEditor() throws Exception {
     List<LintResult> results = lintAsEditor();
 
     assertTrue(
@@ -205,7 +205,7 @@ public class LintSuppressionInEditorTest {
    * [TRANS-002] Orphaned Transform: } written into its message.
    */
   @Test
-  public void policyFindingsAreReportedAsTheLintersInTheEditor() throws Exception {
+  void policyFindingsAreReportedAsTheLintersInTheEditor() throws Exception {
     List<LintResult> orphaned =
         lintAsEditor().stream().filter(r -> "TRANS-002".equals(r.getRuleId())).toList();
 
@@ -224,7 +224,7 @@ public class LintSuppressionInEditorTest {
    * that Hop's "not used" remark and {@code TRANS-002} were one finding, and reported both.
    */
   @Test
-  public void editorReportsWhatTheLinterReports() throws Exception {
+  void editorReportsWhatTheLinterReports() throws Exception {
     String fileName = projectDir.resolve("template.hpl").toString();
     List<LintResult> linter =
         new HopLinter()
@@ -250,7 +250,7 @@ public class LintSuppressionInEditorTest {
    * then linted anyway the moment somebody opened it, so the badges came back on every reopen.
    */
   @Test
-  public void excludedFilesAreNotLintedInTheEditor() throws Exception {
+  void excludedFilesAreNotLintedInTheEditor() throws Exception {
     assertTrue(lintAsEditor().size() > 0, "nothing to exclude");
 
     writeProjectConfig("""
@@ -263,7 +263,7 @@ public class LintSuppressionInEditorTest {
 
   /** A rule of "*" accepts whatever is reported on the element, including rules added later. */
   @Test
-  public void wildcardSuppressionCoversEveryRuleOnTheElement() throws Exception {
+  void wildcardSuppressionCoversEveryRuleOnTheElement() throws Exception {
     writeProjectConfig(
         """
         suppress:
@@ -285,7 +285,7 @@ public class LintSuppressionInEditorTest {
 
   /** Without a path or a source, "*" is the linter switched off under another name. */
   @Test
-  public void bareWildcardSuppressionIsRefused() throws Exception {
+  void bareWildcardSuppressionIsRefused() throws Exception {
     writeProjectConfig(
         """
         suppress:

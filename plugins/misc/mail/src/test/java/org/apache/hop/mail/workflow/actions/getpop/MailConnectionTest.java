@@ -17,8 +17,9 @@
 package org.apache.hop.mail.workflow.actions.getpop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,21 +157,15 @@ class MailConnectionTest {
         validTargetTestRtn.endsWith("pdi17713-3"),
         "File without extension test failed - expected pdi17713-3.junk as file name");
 
-    try {
-      validTargetTestRtn = MailConnection.findValidTarget(null, "wibble");
-      fail(
-          "Expected an IllegalArgumentException with a null parameter for folderName to findValidTarget");
-    } catch (IllegalArgumentException expected) {
-      // Expect this exception
-    }
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> MailConnection.findValidTarget(null, "wibble"),
+        "Expected an IllegalArgumentException with a null parameter for folderName to findValidTarget");
 
-    try {
-      validTargetTestRtn = MailConnection.findValidTarget("wibble", null);
-      fail(
-          "Expected an IllegalArgumentException with a null parameter for fileName to findValidTarget");
-    } catch (IllegalArgumentException expected) {
-      // Expect this exception
-    }
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> MailConnection.findValidTarget("wibble", null),
+        "Expected an IllegalArgumentException with a null parameter for fileName to findValidTarget");
   }
 
   /** A message moved on its own counts as moved, not also as deleted. */
@@ -260,12 +255,12 @@ class MailConnectionTest {
           false,
           "junit");
 
-      store = Mockito.mock(Store.class);
+      store = mock(Store.class);
 
-      inbox = Mockito.mock(Folder.class);
-      a = Mockito.mock(Folder.class);
-      b = Mockito.mock(Folder.class);
-      c = Mockito.mock(Folder.class);
+      inbox = mock(Folder.class);
+      a = mock(Folder.class);
+      b = mock(Folder.class);
+      c = mock(Folder.class);
 
       when(a.getFullName()).thenReturn("A");
       when(b.getFullName()).thenReturn("B");

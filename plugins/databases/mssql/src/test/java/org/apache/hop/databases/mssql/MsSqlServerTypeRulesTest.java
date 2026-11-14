@@ -53,7 +53,7 @@ class MsSqlServerTypeRulesTest {
   }
 
   @Test
-  void datetime2IsPreserved() throws Exception {
+  void datetime2IsPreserved() {
     IValueMeta valueMeta = new ValueMetaTimestamp("COL");
     valueMeta.setOriginalColumnTypeName("datetime2");
     assertEquals("DATETIME2", write(valueMeta));

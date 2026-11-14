@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -83,12 +83,9 @@ public class ContentTests extends AbstractProviderTestCase {
     FileObject file = getReadFolder().resolveFile("file1.txt");
     assertSame(FileType.FILE, file.getType());
     assertTrue(file.isFile());
-    try {
-      file.getChildren();
-      fail();
-    } catch (final FileSystemException e) {
-      assertSameMessage("vfs.provider/list-children-not-folder.error", file, e);
-    }
+    final FileSystemException notFolderException =
+        assertThrows(FileSystemException.class, file::getChildren);
+    assertSameMessage("vfs.provider/list-children-not-folder.error", file, notFolderException);
 
     // Should be able to get child by name
     file = file.resolveFile("some-child");
@@ -97,12 +94,9 @@ public class ContentTests extends AbstractProviderTestCase {
     // Check for unknown file
     file = getReadFolder().resolveFile("unknown-file");
     assertFalse(file.exists());
-    try {
-      file.getChildren();
-      fail();
-    } catch (final FileSystemException e) {
-      assertSameMessage("vfs.provider/list-children-not-folder.error", file, e);
-    }
+    final FileSystemException unknownException =
+        assertThrows(FileSystemException.class, file::getChildren);
+    assertSameMessage("vfs.provider/list-children-not-folder.error", file, unknownException);
 
     // Should be able to get child by name
     final FileObject child = file.resolveFile("some-child");
@@ -350,17 +344,11 @@ public class ContentTests extends AbstractProviderTestCase {
     // Try getting the content of an unknown file
     final FileObject unknownFile = getReadFolder().resolveFile("unknown-file");
     final FileContent content = unknownFile.getContent();
-    try {
-      content.getInputStream();
-      fail();
-    } catch (final FileSystemException e) {
-      assertSameMessage("vfs.provider/read-not-file.error", unknownFile, e);
-    }
-    try {
-      content.getSize();
-      fail();
-    } catch (final FileSystemException e) {
-      assertSameMessage("vfs.provider/get-size-not-file.error", unknownFile, e);
-    }
+    final FileSystemException readException =
+        assertThrows(FileSystemException.class, content::getInputStream);
+    assertSameMessage("vfs.provider/read-not-file.error", unknownFile, readException);
+    final FileSystemException sizeException =
+        assertThrows(FileSystemException.class, content::getSize);
+    assertSameMessage("vfs.provider/get-size-not-file.error", unknownFile, sizeException);
   }
 }

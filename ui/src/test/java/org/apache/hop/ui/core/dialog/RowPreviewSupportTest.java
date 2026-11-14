@@ -40,7 +40,7 @@ class RowPreviewSupportTest {
   @Test
   void binaryCellIsHexEncodedUnlessAvoided() throws Exception {
     ValueMetaBinary meta = new ValueMetaBinary("payload");
-    byte[] bytes = new byte[] {0x0a, 0x0b};
+    byte[] bytes = {0x0a, 0x0b};
     assertEquals("0a0b", RowPreviewSupport.formatCell(meta, bytes, false));
     assertEquals(meta.getString(bytes), RowPreviewSupport.formatCell(meta, bytes, true));
   }

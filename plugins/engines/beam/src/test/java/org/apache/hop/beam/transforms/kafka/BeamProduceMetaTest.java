@@ -64,7 +64,7 @@ class BeamProduceMetaTest {
   }
 
   /** key String, avro Avro Record with a real schema. */
-  private static IRowMeta rowMetaWithSchema() throws Exception {
+  private static IRowMeta rowMetaWithSchema() {
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("key"));
     ValueMetaAvroRecord avro = new ValueMetaAvroRecord("avro");
@@ -97,7 +97,7 @@ class BeamProduceMetaTest {
   }
 
   @Test
-  void anAvroFieldWithASchemaIsAccepted() throws Exception {
+  void anAvroFieldWithASchemaIsAccepted() {
     BeamProduceMeta meta = meta("avro");
 
     assertDoesNotThrow(

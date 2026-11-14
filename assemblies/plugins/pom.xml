@@ -56,6 +56,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-action-check-data-catalog</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-checkdbconnection</artifactId>
             <version>${project.version}</version>
             <type>zip</type>

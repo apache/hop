@@ -119,7 +119,7 @@ class Cql3SsTableWriterTest {
     List<IValueMeta> valueMetaList = new ArrayList<>();
     valueMetaList.add(one);
     valueMetaList.add(two);
-    String[] fieldNames = new String[] {"key", "two"};
+    String[] fieldNames = {"key", "two"};
     doReturn(valueMetaList).when(rmi).getValueMetaList();
     doReturn(fieldNames).when(rmi).getFieldNames();
     writer.setRowMeta(rmi);

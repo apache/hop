@@ -200,6 +200,16 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
   }
 
   /**
+   * Reads the rows of this data set one at a time, without loading them all.
+   *
+   * @param handler receives each row in file order; return false to stop reading
+   */
+  public void readRows(IVariables variables, DataSetCsvUtil.IRowHandler handler)
+      throws HopException {
+    DataSetCsvUtil.readRows(variables, this, handler);
+  }
+
+  /**
    * Calculate the row metadata for the data set fields needed for the given location.
    *
    * @param location

@@ -49,7 +49,7 @@ public class ProjectTest {
   private Path tempRoot;
 
   @AfterEach
-  public void tearDown() throws Exception {
+  void tearDown() throws Exception {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     for (String name : registeredProjectNames) {
       config.removeProjectConfig(name);
@@ -64,7 +64,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testEnforcingExecutionInHomeSerialization() throws Exception {
+  void testEnforcingExecutionInHomeSerialization() throws Exception {
     File tempFile = Files.createTempFile("project-config-test", ".json").toFile();
     tempFile.deleteOnExit();
 
@@ -93,7 +93,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testAutoExportMetadataSerialization() throws Exception {
+  void testAutoExportMetadataSerialization() throws Exception {
     File tempFile = Files.createTempFile("project-config-auto-export", ".json").toFile();
     tempFile.deleteOnExit();
 
@@ -117,7 +117,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testProjectIdRoundTripAndOmittedWhenEmpty() throws Exception {
+  void testProjectIdRoundTripAndOmittedWhenEmpty() throws Exception {
     File tempFile = Files.createTempFile("project-config-id", ".json").toFile();
     tempFile.deleteOnExit();
     try {
@@ -141,7 +141,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testLegacyConfigWithoutProjectIdLeavesVariableEmpty() throws Exception {
+  void testLegacyConfigWithoutProjectIdLeavesVariableEmpty() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-id-legacy");
     Path home = tempRoot.resolve("child");
     Files.createDirectories(home);
@@ -161,7 +161,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testProjectIdVariableDoesNotInheritFromParent() throws Exception {
+  void testProjectIdVariableDoesNotInheritFromParent() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-id-parent");
     Path parentHome = tempRoot.resolve("parent");
     Path childHome = tempRoot.resolve("child");
@@ -195,7 +195,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testParentProjectVariablesWhenNoParent() throws Exception {
+  void testParentProjectVariablesWhenNoParent() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-no-parent");
     Path home = tempRoot.resolve("child");
     Files.createDirectories(home);
@@ -217,7 +217,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testParentProjectVariablesWithParent() throws Exception {
+  void testParentProjectVariablesWithParent() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-with-parent");
     Path parentHome = tempRoot.resolve("parent");
     Path childHome = tempRoot.resolve("child");
@@ -247,7 +247,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testParentProjectVariablesImmediateParentOnly() throws Exception {
+  void testParentProjectVariablesImmediateParentOnly() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-chain");
     Path grandHome = tempRoot.resolve("grand");
     Path parentHome = tempRoot.resolve("parent");
@@ -283,7 +283,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testProjectVariableResolvesEnvironmentConfigurationFilePath() throws Exception {
+  void testProjectVariableResolvesEnvironmentConfigurationFilePath() throws Exception {
     HopLogStore.init();
     tempRoot = Files.createTempDirectory("hop-project-environment-variable");
     Path projectHome = tempRoot.resolve("project");
@@ -314,7 +314,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testParentProjectFoldersSerialization() throws Exception {
+  void testParentProjectFoldersSerialization() throws Exception {
     File tempFile = Files.createTempFile("project-config-parent-folders", ".json").toFile();
     tempFile.deleteOnExit();
 
@@ -345,7 +345,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testIsArchiveUri() {
+  void testIsArchiveUri() {
     assertTrue(ProjectConfig.isArchiveUri("zip:file:///tmp/project.zip!/my-project"));
     assertTrue(ProjectConfig.isArchiveUri("zip:http://example.com/p.zip!/folder"));
     assertTrue(ProjectConfig.isArchiveUri("jar:file:///tmp/lib.jar!/META-INF"));
@@ -367,7 +367,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testReadOnlyFlagDefaultsAndSetters() {
+  void testReadOnlyFlagDefaultsAndSetters() {
     ProjectConfig config =
         new ProjectConfig("demo", "/tmp/demo", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
     assertFalse(config.isReadOnly());
@@ -376,7 +376,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testGroupAndTagsHelpers() {
+  void testGroupAndTagsHelpers() {
     ProjectConfig config =
         new ProjectConfig(
             "demo", "/home/user/demo", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
@@ -397,7 +397,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testAddProjectConfigPreservesGroupTagsAndReadOnly() {
+  void testAddProjectConfigPreservesGroupTagsAndReadOnly() {
     ProjectConfig config =
         new ProjectConfig("meta", "/tmp/meta", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
     config.setGroup("Internal");
@@ -420,7 +420,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testUpdateProjectConfigRename() {
+  void testUpdateProjectConfigRename() {
     ProjectConfig config =
         new ProjectConfig("old-name", "/tmp/old", ProjectsConfig.DEFAULT_PROJECT_CONFIG_FILENAME);
     config.setGroup("Legacy");
@@ -434,7 +434,7 @@ public class ProjectTest {
     registeredProjectNames.remove("old-name");
     registeredProjectNames.add("new-name");
 
-    assertTrue(ProjectsConfigSingleton.getConfig().findProjectConfig("old-name") == null);
+    assertNull(ProjectsConfigSingleton.getConfig().findProjectConfig("old-name"));
     ProjectConfig stored = ProjectsConfigSingleton.getConfig().findProjectConfig("new-name");
     assertEquals("new-name", stored.getProjectName());
     assertEquals("/tmp/new", stored.getProjectHome());
@@ -442,7 +442,7 @@ public class ProjectTest {
   }
 
   @Test
-  public void testLoadProjectFromZipArchive() throws Exception {
+  void testLoadProjectFromZipArchive() throws Exception {
     tempRoot = Files.createTempDirectory("hop-project-zip");
     Path zipFile = tempRoot.resolve("project.zip");
 

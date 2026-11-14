@@ -17,13 +17,13 @@
 
 package org.apache.hop.beam.pipeline.fatjar;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.List;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.Test;
@@ -157,12 +157,10 @@ class FatJarKafkaAvroStagingTest {
       FatJarBuilder builder =
           new FatJarBuilder(
               LogChannel.GENERAL, Variables.getADefaultVariableSpace(), tempJar.getPath(), jars);
-      builder.buildTargetJar();
+      assertDoesNotThrow(builder::buildTargetJar, "Building a fat jar from the staged jars failed");
 
       assertTrue(tempJar.isFile(), "no fat jar was produced at " + tempJar);
       assertTrue(tempJar.length() > 0, "the produced fat jar is empty");
-    } catch (HopException e) {
-      fail("Building a fat jar from the staged jars failed: " + e.getMessage(), e);
     } finally {
       tempJar.delete();
     }

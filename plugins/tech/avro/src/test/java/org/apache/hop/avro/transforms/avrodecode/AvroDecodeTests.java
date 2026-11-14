@@ -71,7 +71,7 @@ class AvroDecodeTests {
   @Test
   void testBytes() {
     Schema schema = Schema.create(Schema.Type.BYTES);
-    byte[] data = new byte[] {1, 2, 3};
+    byte[] data = {1, 2, 3};
 
     Object result = AvroDecode.getStandardHopObject(field("f", schema), data);
     assertSame(data, result);
@@ -159,7 +159,7 @@ class AvroDecodeTests {
     // Boolean
     assertEquals(true, AvroDecode.getStandardHopObject(f, true));
     // byte[]
-    byte[] bytes = new byte[] {1};
+    byte[] bytes = {1};
     assertSame(bytes, AvroDecode.getStandardHopObject(f, bytes));
 
     // Float → Double

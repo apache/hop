@@ -16,13 +16,13 @@
  */
 package org.apache.hop.core.row.value;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
@@ -33,7 +33,6 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -164,14 +163,14 @@ class ValueMetaTimestampTest {
         .when(ps)
         .setTimestamp(anyInt(), (Timestamp) any());
 
-    try {
-      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 1, timestamp);
-      verify(ps).setTimestamp(1, timestamp);
-      vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 2, null);
-      verify(ps).setNull(2, java.sql.Types.TIMESTAMP);
-    } catch (HopDatabaseException ex) {
-      fail("Error setting value on prepared statement ");
-    }
+    assertDoesNotThrow(
+        () -> vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 1, timestamp),
+        "Error setting value on prepared statement ");
+    verify(ps).setTimestamp(1, timestamp);
+    assertDoesNotThrow(
+        () -> vm.setPreparedStatementValue(mock(DatabaseMeta.class), ps, 2, null),
+        "Error setting value on prepared statement ");
+    verify(ps).setNull(2, java.sql.Types.TIMESTAMP);
   }
 
   @Test

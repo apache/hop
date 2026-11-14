@@ -97,7 +97,7 @@ class MongoDbDeleteDataTest {
   }
 
   @Test
-  void testSetMongoFields() throws HopException {
+  void testSetMongoFields() {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     MongoDbDeleteField field1 = new MongoDbDeleteField();
     field1.mongoDocPath = "field1";
@@ -124,7 +124,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {"testUser"};
+    Object[] row = {"testUser"};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -145,7 +145,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {"inactive"};
+    Object[] row = {"inactive"};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -167,7 +167,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {18L};
+    Object[] row = {18L};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -189,7 +189,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {90.5};
+    Object[] row = {90.5};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -211,7 +211,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {100L};
+    Object[] row = {100L};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -233,7 +233,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {99.99};
+    Object[] row = {99.99};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -257,7 +257,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {10L, 100L};
+    Object[] row = {10L, 100L};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -278,7 +278,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {};
+    Object[] row = {};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -298,7 +298,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {};
+    Object[] row = {};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -320,7 +320,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {"important"};
+    Object[] row = {"important"};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -341,7 +341,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {"value"};
+    Object[] row = {"value"};
 
     assertThrows(
         HopException.class,
@@ -361,7 +361,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {"value"};
+    Object[] row = {"value"};
 
     assertThrows(
         HopException.class,
@@ -381,7 +381,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {};
+    Object[] row = {};
 
     assertThrows(
         HopException.class,
@@ -401,7 +401,7 @@ class MongoDbDeleteDataTest {
     List<MongoDbDeleteField> fields = new ArrayList<>();
     fields.add(field);
 
-    Object[] row = new Object[] {true};
+    Object[] row = {true};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 
@@ -423,7 +423,7 @@ class MongoDbDeleteDataTest {
     fields.add(field);
 
     Date testDate = new Date();
-    Object[] row = new Object[] {testDate};
+    Object[] row = {testDate};
 
     Document query = MongoDbDeleteData.getQueryObject(fields, rowMeta, row, variables);
 

@@ -43,7 +43,7 @@ class MailInputTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper = new TransformMockHelper<>("MailInput", MailInputMeta.class, MailInputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);

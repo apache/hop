@@ -188,7 +188,7 @@ class FieldHelperTest {
   }
 
   @Test
-  void getGetSignature_Serializable() throws Exception {
+  void getGetSignature_Serializable() {
     LogChannel log = mock(LogChannel.class);
 
     ValueMetaSerializable v = new ValueMetaSerializable("Data");
@@ -227,7 +227,7 @@ class FieldHelperTest {
   }
 
   @Test
-  void getSerializable_Test() throws Exception {
+  void getSerializable_Test() {
     ValueMetaSerializable v = new ValueMetaSerializable("Data");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -265,7 +265,7 @@ class FieldHelperTest {
   }
 
   @Test
-  void setValue_InetAddress() throws Exception {
+  void setValue_InetAddress() {
     ValueMetaInternetAddress v = new ValueMetaInternetAddress("IP");
 
     IRowMeta row = mock(IRowMeta.class);
@@ -279,7 +279,7 @@ class FieldHelperTest {
   }
 
   @Test
-  void setValue_ValueMetaBinary() throws Exception {
+  void setValue_ValueMetaBinary() {
     ValueMetaBinary v = new ValueMetaBinary("Data");
 
     IRowMeta row = mock(IRowMeta.class);

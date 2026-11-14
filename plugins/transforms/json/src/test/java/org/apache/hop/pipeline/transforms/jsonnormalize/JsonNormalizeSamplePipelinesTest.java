@@ -180,8 +180,7 @@ class JsonNormalizeSamplePipelinesTest {
     assertTrue(pipeline.getResult().getNrErrors() > 0);
   }
 
-  private static TransformRowsCollector attachCollector(Pipeline pipeline, String transformName)
-      throws HopException {
+  private static TransformRowsCollector attachCollector(Pipeline pipeline, String transformName) {
     IEngineComponent component = pipeline.findComponent(transformName, 0);
     TransformRowsCollector collector = new TransformRowsCollector();
     component.addRowListener(collector);

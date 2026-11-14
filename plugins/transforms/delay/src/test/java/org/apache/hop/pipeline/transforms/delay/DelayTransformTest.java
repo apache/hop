@@ -73,7 +73,7 @@ class DelayTransformTest {
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("timeoutField"));
-    Object[] rowData = new Object[] {null};
+    Object[] rowData = {null};
 
     BlockingRowSet input = createInputRowSet(rowMeta, rowData);
     BlockingRowSet output = createOutputRowSet(rowMeta);
@@ -102,7 +102,7 @@ class DelayTransformTest {
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("timeoutField"));
-    Object[] rowData = new Object[] {"2"};
+    Object[] rowData = {"2"};
 
     BlockingRowSet input = createInputRowSet(rowMeta, rowData);
     BlockingRowSet output = createOutputRowSet(rowMeta);
@@ -133,7 +133,7 @@ class DelayTransformTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("timeout"));
     rowMeta.addValueMeta(new ValueMetaString("scale"));
-    Object[] rowData = new Object[] {null, ""};
+    Object[] rowData = {null, ""};
 
     BlockingRowSet input = createInputRowSet(rowMeta, rowData);
     BlockingRowSet output = createOutputRowSet(rowMeta);
@@ -152,7 +152,7 @@ class DelayTransformTest {
   }
 
   @Test
-  void processRowWithUnknownScaleThrows() throws Exception {
+  void processRowWithUnknownScaleThrows() {
     DelayMeta meta = new DelayMeta();
     meta.setTimeoutField("timeout");
     meta.setScaleTimeFromField(true);
@@ -165,7 +165,7 @@ class DelayTransformTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("timeout"));
     rowMeta.addValueMeta(new ValueMetaString("scale"));
-    Object[] rowData = new Object[] {1L, "weeks"};
+    Object[] rowData = {1L, "weeks"};
 
     BlockingRowSet input = createInputRowSet(rowMeta, rowData);
     delay.addRowSetToInputRowSets(input);
@@ -179,7 +179,7 @@ class DelayTransformTest {
   }
 
   @Test
-  void processRowWithNegativeTimeoutThrows() throws Exception {
+  void processRowWithNegativeTimeoutThrows() {
     DelayMeta meta = new DelayMeta();
     meta.setTimeoutField("timeout");
 
@@ -189,7 +189,7 @@ class DelayTransformTest {
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("timeout"));
-    Object[] rowData = new Object[] {-1L};
+    Object[] rowData = {-1L};
 
     BlockingRowSet input = createInputRowSet(rowMeta, rowData);
     delay.addRowSetToInputRowSets(input);

@@ -56,7 +56,7 @@ class GroupByTest {
   }
 
   @BeforeEach
-  void setUp() throws HopException {
+  void setUp() {
     mockHelper = new TransformMockHelper<>("Group By", GroupByMeta.class, GroupByData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel);

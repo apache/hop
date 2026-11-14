@@ -71,7 +71,7 @@ class OdsExcelWriterTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     mockHelper =
         new TransformMockHelper<>(
             "ODS Excel Writer Test",
@@ -526,7 +526,7 @@ class OdsExcelWriterTest {
     }
   }
 
-  private String getCellText(OdfTable table, int col, int row) throws Exception {
+  private String getCellText(OdfTable table, int col, int row) {
     OdfTableCell cell = table.getCellByPosition(col, row);
     return cell.getDisplayText();
   }

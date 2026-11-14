@@ -70,7 +70,7 @@ class XsltTest {
   private static final String TEST1_FNAME = "template.xsl";
 
   @BeforeEach
-  public void init() throws Exception {
+  void init() throws Exception {
     HopClientEnvironment.init();
   }
 
@@ -115,7 +115,7 @@ class XsltTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    Object[] r1 = new Object[] {TEST1_XML, TEST1_XSL, fileName};
+    Object[] r1 = {TEST1_XML, TEST1_XSL, fileName};
 
     list.add(new RowMetaAndData(rm, r1));
 
@@ -147,7 +147,7 @@ class XsltTest {
 
     IRowMeta rm = createResultRowMetaInterface();
 
-    Object[] r1 = new Object[] {TEST1_XML, TEST1_XSL, TEST1_FNAME, "Yep, it worked!"};
+    Object[] r1 = {TEST1_XML, TEST1_XSL, TEST1_FNAME, "Yep, it worked!"};
 
     list.add(new RowMetaAndData(rm, r1));
 

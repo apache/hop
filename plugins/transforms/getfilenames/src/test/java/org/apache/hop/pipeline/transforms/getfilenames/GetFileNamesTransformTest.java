@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -208,45 +208,53 @@ class GetFileNamesTransformTest {
             mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
 
     // Use reflection to access private method
-    try {
-      java.lang.reflect.Method method = GetFileNames.class.getDeclaredMethod("buildEmptyRow");
-      method.setAccessible(true);
-      Object[] row = (Object[]) method.invoke(transform);
+    java.lang.reflect.Method method =
+        assertDoesNotThrow(
+            () -> GetFileNames.class.getDeclaredMethod("buildEmptyRow"),
+            "Failed to access buildEmptyRow method");
+    method.setAccessible(true);
+    Object[] row =
+        (Object[])
+            assertDoesNotThrow(
+                () -> method.invoke(transform), "Failed to access buildEmptyRow method");
 
-      assertNotNull(row);
-      // The output row meta has more fields than just the 2 we added due to the transform's default
-      // fields
-      assertTrue(row.length >= 2);
-      assertNull(row[0]);
-      assertNull(row[1]);
-    } catch (Exception e) {
-      fail("Failed to access buildEmptyRow method: " + e.getMessage());
-    }
+    assertNotNull(row);
+    // The output row meta has more fields than just the 2 we added due to the transform's default
+    // fields
+    assertTrue(row.length >= 2);
+    assertNull(row[0]);
+    assertNull(row[1]);
   }
 
   @Test
   void testConstants() {
     // Use reflection to access private constants
-    try {
-      java.lang.reflect.Field field1 = GetFileNames.class.getDeclaredField("CONST_LOG_NO_FILE");
-      field1.setAccessible(true);
-      String constLogNoFile = (String) field1.get(null);
-      assertEquals("GetFileNames.Log.NoFile", constLogNoFile);
+    java.lang.reflect.Field field1 =
+        assertDoesNotThrow(
+            () -> GetFileNames.class.getDeclaredField("CONST_LOG_NO_FILE"),
+            "Failed to access constants");
+    field1.setAccessible(true);
+    String constLogNoFile =
+        (String) assertDoesNotThrow(() -> field1.get(null), "Failed to access constants");
+    assertEquals("GetFileNames.Log.NoFile", constLogNoFile);
 
-      java.lang.reflect.Field field2 =
-          GetFileNames.class.getDeclaredField("CONST_ERROR_FINDING_FIELD");
-      field2.setAccessible(true);
-      String constErrorFindingField = (String) field2.get(null);
-      assertEquals("GetFileNames.Log.ErrorFindingField", constErrorFindingField);
+    java.lang.reflect.Field field2 =
+        assertDoesNotThrow(
+            () -> GetFileNames.class.getDeclaredField("CONST_ERROR_FINDING_FIELD"),
+            "Failed to access constants");
+    field2.setAccessible(true);
+    String constErrorFindingField =
+        (String) assertDoesNotThrow(() -> field2.get(null), "Failed to access constants");
+    assertEquals("GetFileNames.Log.ErrorFindingField", constErrorFindingField);
 
-      java.lang.reflect.Field field3 =
-          GetFileNames.class.getDeclaredField("CONST_COULD_NOT_FIND_FIELD");
-      field3.setAccessible(true);
-      String constCouldNotFindField = (String) field3.get(null);
-      assertEquals("GetFileNames.Exception.CouldnotFindField", constCouldNotFindField);
-    } catch (Exception e) {
-      fail("Failed to access constants: " + e.getMessage());
-    }
+    java.lang.reflect.Field field3 =
+        assertDoesNotThrow(
+            () -> GetFileNames.class.getDeclaredField("CONST_COULD_NOT_FIND_FIELD"),
+            "Failed to access constants");
+    field3.setAccessible(true);
+    String constCouldNotFindField =
+        (String) assertDoesNotThrow(() -> field3.get(null), "Failed to access constants");
+    assertEquals("GetFileNames.Exception.CouldnotFindField", constCouldNotFindField);
   }
 
   // ---------------------------------------------------------------------------

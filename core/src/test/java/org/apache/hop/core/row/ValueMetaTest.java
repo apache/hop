@@ -17,12 +17,13 @@
 
 package org.apache.hop.core.row;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -187,8 +188,8 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"-128", "127"};
-    BigDecimal[] values = new BigDecimal[] {new BigDecimal("-128"), new BigDecimal("127")};
+    String[] strings = {"-128", "127"};
+    BigDecimal[] values = {new BigDecimal("-128"), new BigDecimal("127")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -208,9 +209,9 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] input = new String[] {"-128", "127"};
-    String[] strings = new String[] {"-128.0", "127.0"};
-    BigDecimal[] values = new BigDecimal[] {new BigDecimal("-128"), new BigDecimal("127")};
+    String[] input = {"-128", "127"};
+    String[] strings = {"-128.0", "127.0"};
+    BigDecimal[] values = {new BigDecimal("-128"), new BigDecimal("127")};
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -233,8 +234,8 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"-32768", "32767"};
-    BigDecimal[] values = new BigDecimal[] {new BigDecimal("-32768"), new BigDecimal("32767")};
+    String[] strings = {"-32768", "32767"};
+    BigDecimal[] values = {new BigDecimal("-32768"), new BigDecimal("32767")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -254,9 +255,9 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] inputs = new String[] {"-32768", "32767"};
-    String[] strings = new String[] {"-32768.0", "32767.0"};
-    BigDecimal[] values = new BigDecimal[] {new BigDecimal("-32768"), new BigDecimal("32767")};
+    String[] inputs = {"-32768", "32767"};
+    String[] strings = {"-32768.0", "32767.0"};
+    BigDecimal[] values = {new BigDecimal("-32768"), new BigDecimal("32767")};
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -279,9 +280,8 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"-2147483648", "2147483648"};
-    BigDecimal[] values =
-        new BigDecimal[] {new BigDecimal("-2147483648"), new BigDecimal("2147483648")};
+    String[] strings = {"-2147483648", "2147483648"};
+    BigDecimal[] values = {new BigDecimal("-2147483648"), new BigDecimal("2147483648")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -301,10 +301,9 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] inputs = new String[] {"-2147483648", "2147483648"};
-    String[] strings = new String[] {"-2147483648.0", "2147483648.0"};
-    BigDecimal[] values =
-        new BigDecimal[] {new BigDecimal("-2147483648"), new BigDecimal("2147483648")};
+    String[] inputs = {"-2147483648", "2147483648"};
+    String[] strings = {"-2147483648.0", "2147483648.0"};
+    BigDecimal[] values = {new BigDecimal("-2147483648"), new BigDecimal("2147483648")};
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -327,11 +326,10 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"-9223372036854775808", "9223372036854775808"};
-    BigDecimal[] values =
-        new BigDecimal[] {
-          new BigDecimal("-9223372036854775808"), new BigDecimal("9223372036854775808")
-        };
+    String[] strings = {"-9223372036854775808", "9223372036854775808"};
+    BigDecimal[] values = {
+      new BigDecimal("-9223372036854775808"), new BigDecimal("9223372036854775808")
+    };
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -351,12 +349,11 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] inputs = new String[] {"-9223372036854775808", "9223372036854775807"};
-    String[] strings = new String[] {"-9223372036854775808.0", "9223372036854775807.0"};
-    BigDecimal[] values =
-        new BigDecimal[] {
-          new BigDecimal("-9223372036854775808"), new BigDecimal("9223372036854775807")
-        };
+    String[] inputs = {"-9223372036854775808", "9223372036854775807"};
+    String[] strings = {"-9223372036854775808.0", "9223372036854775807.0"};
+    BigDecimal[] values = {
+      new BigDecimal("-9223372036854775808"), new BigDecimal("9223372036854775807")
+    };
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -379,9 +376,8 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"-1.4E-45", "3.4028235E38"};
-    BigDecimal[] values =
-        new BigDecimal[] {new BigDecimal("-1.4E-45"), new BigDecimal("3.4028235E38")};
+    String[] strings = {"-1.4E-45", "3.4028235E38"};
+    BigDecimal[] values = {new BigDecimal("-1.4E-45"), new BigDecimal("3.4028235E38")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -401,16 +397,14 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] strings =
-        new String[] {
-          "-0.0000000000000000000000000000000000000000000014",
-          "340282350000000000000000000000000000000.0"
-        };
-    BigDecimal[] values =
-        new BigDecimal[] {
-          new BigDecimal("-0.0000000000000000000000000000000000000000000014"),
-          new BigDecimal("340282350000000000000000000000000000000.0")
-        };
+    String[] strings = {
+      "-0.0000000000000000000000000000000000000000000014",
+      "340282350000000000000000000000000000000.0"
+    };
+    BigDecimal[] values = {
+      new BigDecimal("-0.0000000000000000000000000000000000000000000014"),
+      new BigDecimal("340282350000000000000000000000000000000.0")
+    };
 
     for (int i = 0; i < values.length; i++) {
 
@@ -430,9 +424,8 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
 
-    String[] strings = new String[] {"4.9E-324", "1.7976931348623157E308"};
-    BigDecimal[] values =
-        new BigDecimal[] {new BigDecimal("4.9E-324"), new BigDecimal("1.7976931348623157E308")};
+    String[] strings = {"4.9E-324", "1.7976931348623157E308"};
+    BigDecimal[] values = {new BigDecimal("4.9E-324"), new BigDecimal("1.7976931348623157E308")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -452,9 +445,8 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(",");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] strings = new String[] {"4.9E-324", "1.7976931348623157E308"};
-    BigDecimal[] values =
-        new BigDecimal[] {new BigDecimal("4.9E-324"), new BigDecimal("1.7976931348623157E308")};
+    String[] strings = {"4.9E-324", "1.7976931348623157E308"};
+    BigDecimal[] values = {new BigDecimal("4.9E-324"), new BigDecimal("1.7976931348623157E308")};
 
     for (int i = 0; i < values.length; i++) {
       IValueMeta strValueMeta = new ValueMetaString("str");
@@ -473,11 +465,10 @@ class ValueMetaTest {
     numValueMeta.setDecimalSymbol(",");
     numValueMeta.setGroupingSymbol(".");
 
-    String[] strings = new String[] {"0,00000000000000000001", "-0,00000000000000000001"};
-    BigDecimal[] values =
-        new BigDecimal[] {
-          new BigDecimal("0.00000000000000000001"), new BigDecimal("-0.00000000000000000001")
-        };
+    String[] strings = {"0,00000000000000000001", "-0,00000000000000000001"};
+    BigDecimal[] values = {
+      new BigDecimal("0.00000000000000000001"), new BigDecimal("-0.00000000000000000001")
+    };
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -501,11 +492,10 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(".");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] strings = new String[] {"0,00000000000000000001", "-0,00000000000000000001"};
-    BigDecimal[] values =
-        new BigDecimal[] {
-          new BigDecimal("0.00000000000000000001"), new BigDecimal("-0.00000000000000000001")
-        };
+    String[] strings = {"0,00000000000000000001", "-0,00000000000000000001"};
+    BigDecimal[] values = {
+      new BigDecimal("0.00000000000000000001"), new BigDecimal("-0.00000000000000000001")
+    };
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -529,8 +519,8 @@ class ValueMetaTest {
     numValueMeta.setGroupingSymbol(".");
     numValueMeta.setBigNumberFormatting(false);
 
-    String[] strings = new String[] {"67789,135"};
-    BigDecimal[] values = new BigDecimal[] {new BigDecimal("67789.135")};
+    String[] strings = {"67789,135"};
+    BigDecimal[] values = {new BigDecimal("67789.135")};
 
     for (int i = 0; i < values.length; i++) {
       String bigNumberToString = numValueMeta.getString(values[i]);
@@ -573,45 +563,33 @@ class ValueMetaTest {
 
     IValueMeta datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000'XXX");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02:34:54.000Z");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res = getDateOrFail(datValueMeta, "2008-03-09T02:34:54.000Z");
+    // make sure it's what we expect...
+    Calendar c = Calendar.getInstance();
+    c.setTime(res);
+    assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
 
     datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000'XXX");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02:34:54.000+01:00");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res2 = getDateOrFail(datValueMeta, "2008-03-09T02:34:54.000+01:00");
+    // make sure it's what we expect...
+    Calendar c2 = Calendar.getInstance();
+    c2.setTime(res2);
+    assertEquals(2, c2.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c2.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c2.get(Calendar.YEAR), "Year should be 2008");
 
     datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH-mm-ss'.000'XXX");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02-34-54.000-01:00");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res3 = getDateOrFail(datValueMeta, "2008-03-09T02-34-54.000-01:00");
+    // make sure it's what we expect...
+    Calendar c3 = Calendar.getInstance();
+    c3.setTime(res3);
+    assertEquals(2, c3.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c3.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c3.get(Calendar.YEAR), "Year should be 2008");
   }
 
   @Test
@@ -620,17 +598,13 @@ class ValueMetaTest {
 
     IValueMeta datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000'Z");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02:34:54.000UTC");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res = getDateOrFail(datValueMeta, "2008-03-09T02:34:54.000UTC");
+    // make sure it's what we expect...
+    Calendar c = Calendar.getInstance();
+    c.setTime(res);
+    assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
   }
 
   @Test
@@ -639,30 +613,22 @@ class ValueMetaTest {
 
     IValueMeta datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000'Z");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02:34:54.000-0100");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res = getDateOrFail(datValueMeta, "2008-03-09T02:34:54.000-0100");
+    // make sure it's what we expect...
+    Calendar c = Calendar.getInstance();
+    c.setTime(res);
+    assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000'Z");
-    try {
-      Date res = datValueMeta.getDate("2008-03-09T02:34:54.000+0100");
-      // make sure it's what we expect...
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
-      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res2 = getDateOrFail(datValueMeta, "2008-03-09T02:34:54.000+0100");
+    // make sure it's what we expect...
+    Calendar c2 = Calendar.getInstance();
+    c2.setTime(res2);
+    assertEquals(2, c2.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(8, c2.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+    assertEquals(2008, c2.get(Calendar.YEAR), "Year should be 2008");
   }
 
   @Test
@@ -671,26 +637,25 @@ class ValueMetaTest {
 
     IValueMeta datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000Z'");
-    try {
-      Date res = datValueMeta.getDate("2011-03-13T02:23:18.000Z");
-      Calendar c = Calendar.getInstance();
-      c.setTime(res);
-      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
-      assertEquals(13, c.get(Calendar.DAY_OF_MONTH), "Day should be 13");
-      assertEquals(2011, c.get(Calendar.YEAR), "Year should be 2011");
-    } catch (Exception ex) {
-      fail("Error converting date." + ex.getMessage());
-    }
+    Date res = getDateOrFail(datValueMeta, "2011-03-13T02:23:18.000Z");
+    Calendar c = Calendar.getInstance();
+    c.setTime(res);
+    assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+    assertEquals(13, c.get(Calendar.DAY_OF_MONTH), "Day should be 13");
+    assertEquals(2011, c.get(Calendar.YEAR), "Year should be 2011");
 
     TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
     datValueMeta = new ValueMetaString();
     datValueMeta.setConversionMask("yyyy-MM-dd'T'HH:mm:ss'.000Z'");
-    try {
-      datValueMeta.getDate("2011-03-13T02:23:18.000Z");
-      fail("Expected exception when trying to convert date");
-    } catch (Exception ex) {
-      // ignore
-    }
+    final IValueMeta utcLiteralValueMeta = datValueMeta;
+    assertThrows(
+        Exception.class,
+        () -> utcLiteralValueMeta.getDate("2011-03-13T02:23:18.000Z"),
+        "Expected exception when trying to convert date");
+  }
+
+  private static Date getDateOrFail(IValueMeta valueMeta, String value) {
+    return assertDoesNotThrow(() -> valueMeta.getDate(value), "Error converting date.");
   }
 
   @Test

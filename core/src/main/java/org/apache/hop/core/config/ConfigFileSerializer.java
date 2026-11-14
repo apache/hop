@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -80,8 +81,14 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       Files.createDirectories(folder);
     }
     // In the same folder as the file itself: a move is only atomic within one file store.
-    Path temporary = Files.createTempFile(folder, file.getFileName().toString() + ".", ".tmp");
+    // Not Files.createTempFile: that always creates the file as rw-------, and the move would
+    // hand those permissions to the configuration, locking out every other user sharing it.
+    Path temporary =
+        Files.createFile(folder.resolve(file.getFileName() + "." + UUID.randomUUID() + ".tmp"));
     try {
+      // Permissions before content: a 600 configuration must never sit readable under the umask,
+      // not even for the moment between the write and the move, or after a save that dies there.
+      keepPermissions(file, temporary);
       Files.write(temporary, content);
       try {
         Files.move(
@@ -94,6 +101,22 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       // Only ever there when the move did not happen; leaving those behind would fill the
       // configuration folder with the leftovers of every failed save.
       Files.deleteIfExists(temporary);
+    }
+  }
+
+  /**
+   * Give the new file the permissions of the configuration it replaces, so a file an administrator
+   * made group-writable for several users stays that way whoever saves it. A new configuration
+   * keeps the permissions the umask gave it.
+   */
+  private static void keepPermissions(Path file, Path temporary) throws IOException {
+    if (!Files.exists(file)) {
+      return;
+    }
+    try {
+      Files.setPosixFilePermissions(temporary, Files.getPosixFilePermissions(file));
+    } catch (UnsupportedOperationException notPosix) {
+      // Windows and other non-POSIX file stores: nothing to carry over.
     }
   }
 

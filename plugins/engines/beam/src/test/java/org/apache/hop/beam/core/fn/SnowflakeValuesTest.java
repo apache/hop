@@ -87,7 +87,7 @@ class SnowflakeValuesTest {
             .getTime());
     assertInstanceOf(
         Timestamp.class, SnowflakeValues.fromCsv(new ValueMetaTimestamp("t"), "2020-01-02"));
-    byte[] bytes = new byte[] {0, (byte) 0xff, 0x10};
+    byte[] bytes = {0, (byte) 0xff, 0x10};
     assertEquals("00ff10", SnowflakeValues.toCsv(new ValueMetaBinary("b"), bytes));
     assertArrayEquals(bytes, (byte[]) SnowflakeValues.fromCsv(new ValueMetaBinary("b"), "00ff10"));
   }

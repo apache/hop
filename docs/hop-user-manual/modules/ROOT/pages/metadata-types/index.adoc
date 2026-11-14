@@ -40,6 +40,7 @@ By default, Hop contains the following metadata types:
 * xref:metadata-types/azure-authentication.adoc[Azure Connection]: An Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
+* xref:metadata-types/data-catalog.adoc[Data Catalog]: A data catalog, such as DataHub, that Hop reads dataset metadata from: whether a dataset exists, is deprecated, changed recently and passed its assertions.
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
 xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can be used for Inter Process Communication (IPC) or fast data serialization.
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]: Workspace connection for the Databricks Jobs / REST API (PAT); not the JDBC SQL warehouse connection

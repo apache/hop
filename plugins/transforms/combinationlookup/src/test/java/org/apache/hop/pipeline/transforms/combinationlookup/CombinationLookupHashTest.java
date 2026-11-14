@@ -51,7 +51,7 @@ class CombinationLookupHashTest {
     CombinationLookup transform = transform();
     RowMeta hashRowMeta = new RowMeta();
     hashRowMeta.addValueMeta(new ValueMetaString("key"));
-    Object[] hashRow = new Object[] {"abc"};
+    Object[] hashRow = {"abc"};
     transform.getData().hashRowMeta = hashRowMeta;
     transform.getData().hashFieldNr = -1;
 
@@ -75,7 +75,7 @@ class CombinationLookupHashTest {
 
     RowMeta hashRowMeta = new RowMeta();
     hashRowMeta.addValueMeta(new ValueMetaString("key"));
-    Object[] hashRow = new Object[] {"abc"};
+    Object[] hashRow = {"abc"};
     transform.getData().hashRowMeta = hashRowMeta;
 
     assertEquals(42L, transform.hashValue(rowMeta, new Object[] {"abc", 42L}, hashRow));

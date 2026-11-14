@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,7 +47,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
 
 class GetWorkflowStatusServletTest {
@@ -69,7 +69,7 @@ class GetWorkflowStatusServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(GetWorkflowStatusServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -85,22 +85,22 @@ class GetWorkflowStatusServletTest {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = Mockito.mock(Workflow.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock(Workflow.class);
     WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
     ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(GetWorkflowStatusServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
     when(mockHttpServletResponse.getWriter()).thenReturn(printWriter);
     when(mockWorkflowMap.getWorkflow(any(HopServerObjectEntry.class))).thenReturn(mockWorkflow);
-    Mockito.when(mockWorkflow.getWorkflowName()).thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
-    Mockito.when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
-    Mockito.when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
-    Mockito.when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
+    when(mockWorkflow.getWorkflowName()).thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
 
     getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(out.toString().contains(ServletTestUtils.BAD_STRING_TO_TEST));
@@ -148,7 +148,7 @@ class GetWorkflowStatusServletTest {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = Mockito.mock(Workflow.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock(Workflow.class);
     WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
     ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
     ServletOutputStream outMock = mock(ServletOutputStream.class);
@@ -161,14 +161,14 @@ class GetWorkflowStatusServletTest {
     when(mockHttpServletRequest.getParameter("json")).thenReturn(useJson);
     when(mockHttpServletResponse.getOutputStream()).thenReturn(outMock);
     when(mockWorkflowMap.findWorkflow(id)).thenReturn(mockWorkflow);
-    Mockito.when(mockWorkflow.getWorkflowName()).thenReturn("a-workflow");
-    Mockito.when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
-    Mockito.when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
-    Mockito.when(mockWorkflow.isFinished()).thenReturn(true);
-    Mockito.when(mockWorkflow.getLogChannelId()).thenReturn("logId");
-    Mockito.when(mockWorkflow.getExecutionStartDate()).thenReturn(startDate);
-    Mockito.when(mockWorkflow.getExecutionEndDate()).thenReturn(endDate);
-    Mockito.when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
+    when(mockWorkflow.getWorkflowName()).thenReturn("a-workflow");
+    when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    when(mockWorkflow.isFinished()).thenReturn(true);
+    when(mockWorkflow.getLogChannelId()).thenReturn("logId");
+    when(mockWorkflow.getExecutionStartDate()).thenReturn(startDate);
+    when(mockWorkflow.getExecutionEndDate()).thenReturn(endDate);
+    when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
     when(mockWorkflow.getStatusDescription()).thenReturn("Finished");
 
     getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
@@ -187,7 +187,7 @@ class GetWorkflowStatusServletTest {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
-    IWorkflowEngine<WorkflowMeta> mockWorkflow = Mockito.mock(Workflow.class);
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock(Workflow.class);
     WorkflowMeta mockWorkflowMeta = mock(WorkflowMeta.class);
     ILogChannel mockLogChannelInterface = mock(ILogChannel.class);
     ServletOutputStream outMock = mock(ServletOutputStream.class);
@@ -201,12 +201,12 @@ class GetWorkflowStatusServletTest {
     when(mockHttpServletRequest.getParameter("xml")).thenReturn(useXml);
     when(mockHttpServletResponse.getOutputStream()).thenReturn(outMock);
     when(mockWorkflowMap.findWorkflow(id)).thenReturn(mockWorkflow);
-    Mockito.when(mockWorkflow.getWorkflowName()).thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
-    Mockito.when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
-    Mockito.when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
-    Mockito.when(mockWorkflow.isFinished()).thenReturn(true);
-    Mockito.when(mockWorkflow.getLogChannelId()).thenReturn(logId);
-    Mockito.when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
+    when(mockWorkflow.getWorkflowName()).thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
+    when(mockWorkflow.getLogChannel()).thenReturn(mockLogChannelInterface);
+    when(mockWorkflow.getWorkflowMeta()).thenReturn(mockWorkflowMeta);
+    when(mockWorkflow.isFinished()).thenReturn(true);
+    when(mockWorkflow.getLogChannelId()).thenReturn(logId);
+    when(mockWorkflowMeta.getMaximum()).thenReturn(new Point(10, 10));
     when(mockWorkflow.getStatusDescription()).thenReturn("Finished");
 
     getWorkflowStatusServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);

@@ -20,6 +20,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +35,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class AddXmlTest {
 
@@ -49,7 +49,7 @@ class AddXmlTest {
 
     transformMockHelper =
         new TransformMockHelper<>("ADDXML_TEST", AddXmlMeta.class, AddXmlData.class);
-    Mockito.doReturn(transformMockHelper.iLogChannel)
+    doReturn(transformMockHelper.iLogChannel)
         .when(transformMockHelper.logChannelFactory)
         .create(any(), any(ILoggingObject.class));
 

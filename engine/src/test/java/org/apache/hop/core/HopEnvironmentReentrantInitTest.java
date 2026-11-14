@@ -63,7 +63,7 @@ class HopEnvironmentReentrantInitTest {
   }
 
   @Test
-  void afterInitMayCallInitAndIsInitializedWithoutDeadlock() throws Exception {
+  void afterInitMayCallInitAndIsInitializedWithoutDeadlock() {
     assertTimeoutPreemptively(
         Duration.ofSeconds(60),
         () -> {

@@ -32,7 +32,7 @@ class ProxyRoutePlannerTest {
   /** Exposes the protected routing decision, which is what the client actually calls. */
   private static HttpHost proxyFor(String nonProxyHosts, String targetHost) throws Exception {
     return new ProxyRoutePlanner(PROXY, nonProxyHosts) {
-      HttpHost decide(String host) throws Exception {
+      HttpHost decide(String host) {
         return determineProxy(new HttpHost("https", host, 443), null);
       }
     }.decide(targetHost);
@@ -54,7 +54,7 @@ class ProxyRoutePlannerTest {
   void withoutAProxyEveryRouteIsDirect() throws Exception {
     assertNull(
         new ProxyRoutePlanner(null, "localhost") {
-          HttpHost decide() throws Exception {
+          HttpHost decide() {
             return determineProxy(new HttpHost("https", "api.example.com", 443), null);
           }
         }.decide());

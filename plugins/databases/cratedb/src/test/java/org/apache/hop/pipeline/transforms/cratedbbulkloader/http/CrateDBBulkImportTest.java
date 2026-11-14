@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
@@ -52,7 +53,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.mockito.Mockito;
 import org.testcontainers.cratedb.CrateDBContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -265,7 +265,7 @@ class CrateDBBulkImportTest {
 
   void given_batch_size__when_http_insert__should_persist_all_items(Integer batchSize)
       throws Exception {
-    Mockito.mock(Pipeline.class);
+    mock(Pipeline.class);
     CrateDBBulkLoaderMeta meta = new CrateDBBulkLoaderMeta();
     meta.setBatchSize(String.valueOf(batchSize));
     meta.setConnection("test");
@@ -302,7 +302,7 @@ class CrateDBBulkImportTest {
     CrateDBBulkLoaderData data = new CrateDBBulkLoaderData();
     data.setDatabaseMeta(meta2);
 
-    PipelineMeta pipelineMeta = Mockito.mock(PipelineMeta.class);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     when(pipelineMeta.getName()).thenReturn("pipeline");
     when(pipelineMeta.findTransform(anyString())).thenReturn(transformMeta);
     when(pipelineMeta.findDatabase(anyString(), any())).thenReturn(meta2);

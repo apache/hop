@@ -132,7 +132,7 @@ abstract class BaseParsingTest<
    * @param expected array of rows of fields, i.e. { {"field 1 value in row 1","field 2 value in row
    *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
-  protected void checkRowCount(Object[][] expected) throws Exception {
+  protected void checkRowCount(Object[][] expected) {
     assertEquals(expected.length, rows.size(), "Wrong rows count");
     checkContent(expected);
   }

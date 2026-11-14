@@ -18,6 +18,7 @@
 package org.apache.hop.core.row;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,14 +27,15 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.Test;
 
 /**
- * {@link RowMeta#size()} and {@link RowMeta#getValueMeta(int)} read a volatile snapshot instead of
- * taking the read lock. These tests pin the two properties that makes rely on: the snapshot always
- * agrees with the list it was published from, and concurrent readers never see a torn or stale one
- * while another thread mutates the row meta.
+ * {@link RowMeta#size()}, {@link RowMeta#getValueMeta(int)} and the row comparisons read a volatile
+ * snapshot instead of taking the read lock. These tests pin the two properties that makes rely on:
+ * the snapshot always agrees with the list it was published from, and concurrent readers never see
+ * a torn or stale one while another thread mutates the row meta.
  */
 class RowMetaSnapshotConcurrencyTest {
 
@@ -42,7 +44,7 @@ class RowMetaSnapshotConcurrencyTest {
   }
 
   @Test
-  void snapshotTracksEveryMutation() throws Exception {
+  void snapshotTracksEveryMutation() {
     RowMeta rowMeta = new RowMeta();
     assertEquals(0, rowMeta.size());
 
@@ -147,5 +149,112 @@ class RowMetaSnapshotConcurrencyTest {
       throw new AssertionError("concurrent access failed", failure.get());
     }
     assertEquals(20, rowMeta.size());
+  }
+
+  private static RowMeta keyedRowMeta() {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("id"));
+    IValueMeta descending = new ValueMetaInteger("amount");
+    descending.setSortedDescending(true);
+    rowMeta.addValueMeta(descending);
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    return rowMeta;
+  }
+
+  @Test
+  void comparisonsFollowTheKeyOrderAndSortDirection() throws Exception {
+    RowMeta rowMeta = keyedRowMeta();
+    Object[] low = {1L, 10L, "a"};
+    Object[] high = {2L, 10L, "a"};
+    Object[] sameIdLargerAmount = {1L, 20L, "a"};
+    Object[] sameKeysOtherName = {1L, 10L, "b"};
+    int[] keys = {0, 1};
+
+    assertTrue(rowMeta.compare(low, high, keys) < 0);
+    assertTrue(rowMeta.compare(high, low, keys) > 0);
+    // amount sorts descending, so the larger amount comes first
+    assertTrue(rowMeta.compare(sameIdLargerAmount, low, keys) < 0);
+    assertEquals(0, rowMeta.compare(low, sameKeysOtherName, keys));
+    assertTrue(rowMeta.equals(low, sameKeysOtherName, keys));
+    assertFalse(rowMeta.equals(low, high, keys));
+
+    // all fields
+    assertEquals(0, rowMeta.compare(low, low.clone()));
+    assertTrue(rowMeta.compare(low, sameKeysOtherName) < 0);
+
+    // different key positions on each side: name of the first row against name of the second
+    Object[] swapped = {"a", 1L};
+    RowMeta swappedMeta = new RowMeta();
+    swappedMeta.addValueMeta(new ValueMetaString("name"));
+    swappedMeta.addValueMeta(new ValueMetaInteger("id"));
+    assertEquals(0, rowMeta.compare(low, swappedMeta, swapped, new int[] {0, 2}, new int[] {1, 0}));
+    assertTrue(rowMeta.compare(high, swappedMeta, swapped, new int[] {0, 2}, new int[] {1, 0}) > 0);
+
+    // two key lists on rows of the same layout: id of the first row against amount of the second
+    assertTrue(rowMeta.compare(low, high, new int[] {0}, new int[] {1}) < 0);
+    assertEquals(
+        0, rowMeta.compare(new Object[] {10L, 0L, "a"}, low, new int[] {0}, new int[] {1}));
+  }
+
+  @Test
+  void comparisonsStayCorrectWhileTheRowMetaChanges() throws Exception {
+    RowMeta rowMeta = keyedRowMeta();
+    // one spare position: the writer adds and removes a fourth field
+    Object[] low = {1L, 10L, "a", null};
+    Object[] high = {2L, 10L, "a", null};
+    int[] keys = {0, 1};
+
+    CountDownLatch start = new CountDownLatch(1);
+    AtomicReference<Throwable> failure = new AtomicReference<>();
+    List<Thread> threads = new ArrayList<>();
+
+    for (int r = 0; r < 4; r++) {
+      Thread t =
+          new Thread(
+              () -> {
+                try {
+                  start.await();
+                  for (int n = 0; n < 200_000; n++) {
+                    assertTrue(rowMeta.compare(low, high, keys) < 0);
+                    assertTrue(rowMeta.compare(high, low, keys, keys) > 0);
+                    assertTrue(rowMeta.compare(low, rowMeta, high, keys, keys) < 0);
+                    assertTrue(rowMeta.equals(low, low, keys));
+                    // all fields, with or without the writer's extra field
+                    assertEquals(0, rowMeta.compare(low, low));
+                    assertTrue(rowMeta.compare(low, high) < 0);
+                  }
+                } catch (Throwable e) {
+                  failure.compareAndSet(null, e);
+                }
+              });
+      threads.add(t);
+      t.start();
+    }
+
+    Thread writer =
+        new Thread(
+            () -> {
+              try {
+                start.await();
+                for (int n = 0; n < 20_000; n++) {
+                  rowMeta.addValueMeta(new ValueMetaString("extra" + n));
+                  rowMeta.removeValueMeta(rowMeta.size() - 1);
+                }
+              } catch (Throwable e) {
+                failure.compareAndSet(null, e);
+              }
+            });
+    threads.add(writer);
+    writer.start();
+
+    start.countDown();
+    for (Thread t : threads) {
+      t.join(TimeUnit.MINUTES.toMillis(1));
+    }
+
+    if (failure.get() != null) {
+      throw new AssertionError("concurrent comparison failed", failure.get());
+    }
+    assertEquals(3, rowMeta.size());
   }
 }

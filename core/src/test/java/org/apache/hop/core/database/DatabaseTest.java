@@ -279,7 +279,7 @@ class DatabaseTest {
     when(conn.prepareStatement(any())).thenReturn(ps);
 
     db.setConnection(conn);
-    String[] name = new String[] {"a"};
+    String[] name = {"a"};
     db.setLookup("a", name, name, name, name, "a");
     for (int i = 0; i < 10; i++) {
       db.getLookup();
@@ -624,6 +624,7 @@ class DatabaseTest {
   }
 
   @Test
+  @SuppressWarnings("java:S8714") // passes on false or on the expected HopDatabaseException
   void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenUnableToGetTableNames() {
     HopDatabaseException kettleDatabaseException =
         new HopDatabaseException(
@@ -644,6 +645,7 @@ class DatabaseTest {
   }
 
   @Test
+  @SuppressWarnings("java:S8714") // passes on false or on the expected HopDatabaseException
   void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenResultSetNull() {
     HopDatabaseException kettleDatabaseException =
         new HopDatabaseException("Unable to get table-names from the database meta-data.");

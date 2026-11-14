@@ -42,7 +42,7 @@ class RestProxyRoutePlannerTest {
   private static HttpHost determineProxy(RestClientSettings settings, String host)
       throws Exception {
     return new RestProxyRoutePlanner(settings) {
-      HttpHost proxyFor(String target) throws Exception {
+      HttpHost proxyFor(String target) {
         return determineProxy(new HttpHost("https", target, 443), null);
       }
     }.proxyFor(host);

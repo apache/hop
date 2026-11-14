@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.ServletException;
@@ -37,7 +38,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
 
 class StartWorkflowServletTest {
@@ -60,7 +60,7 @@ class StartWorkflowServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(StartWorkflowServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -82,7 +82,7 @@ class StartWorkflowServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(StartWorkflowServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);

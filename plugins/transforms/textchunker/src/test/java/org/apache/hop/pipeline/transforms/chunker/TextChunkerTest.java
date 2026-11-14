@@ -211,7 +211,7 @@ class TextChunkerTest {
   }
 
   @Test
-  void resolvesChunkSizeAndOverlapFromVariables() throws Exception {
+  void resolvesChunkSizeAndOverlapFromVariables() {
     TextChunkerMeta meta = new TextChunkerMeta();
     meta.setDefault();
     meta.setInputField("text");

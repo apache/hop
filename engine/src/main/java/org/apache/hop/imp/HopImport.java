@@ -19,6 +19,7 @@ package org.apache.hop.imp;
 
 import java.io.File;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,8 @@ import picocli.CommandLine.ParameterException;
 @Setter
 @Command(description = "Import metadata", versionProvider = HopVersionProvider.class)
 @HopCommand(id = "import", description = "Import ")
-public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand {
+public class HopImport
+    implements Callable<Integer>, Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final String CONST_IMPORT = "Import is ";
 
   @Option(
@@ -186,6 +188,14 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
     Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_IMPORT);
   }
 
+  // Callable so picocli (hop.cmd.execute) gets the exit code; a Runnable always exits 0.
+  // Same contract as main(): 0 = the import finished, 1 = it stopped or failed.
+  @Override
+  public Integer call() {
+    run();
+    return isFinishedWithoutError() ? 0 : 1;
+  }
+
   @Override
   public void run() {
     try {
@@ -283,8 +293,8 @@ public class HopImport implements Runnable, IHasHopMetadataProvider, IHopCommand
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.HopImportEnd.id, this);
 
-      // main() turns this into the process exit code. Without it every import, successful or not,
-      // exited 1 and no script could tell the difference.
+      // call() and main() turn this into the process exit code. Without it every import,
+      // successful or not, exited 1 and no script could tell the difference.
       finishedWithoutError = true;
 
     } catch (Exception e) {

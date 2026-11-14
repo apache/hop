@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.ServletException;
@@ -36,7 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
 
 class StartExecutionPipelineServletTest {
@@ -59,7 +59,7 @@ class StartExecutionPipelineServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath())
         .thenReturn(StartExecutionPipelineServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
@@ -82,7 +82,7 @@ class StartExecutionPipelineServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    Mockito.spy(Encode.class);
+    spy(Encode.class);
     when(mockHttpServletRequest.getContextPath())
         .thenReturn(StartExecutionPipelineServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))

@@ -48,7 +48,7 @@ public abstract class BaseTextParsingTest
   }
 
   /** Initialize for processing specified file by URL. */
-  protected void initByURL(String url) throws Exception {
+  protected void initByURL(String url) {
     InputFile inputFile = new InputFile();
     inputFile.setFileName(url);
     inputFile.setFileRequired(true);

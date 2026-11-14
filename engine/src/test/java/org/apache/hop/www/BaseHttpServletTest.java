@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -137,7 +138,7 @@ class BaseHttpServletTest {
     when(response.isCommitted()).thenReturn(true);
     servlet.sendSafeError(response, HttpServletResponse.SC_BAD_REQUEST, "bad");
     verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
-    verify(response, org.mockito.Mockito.never()).sendError(anyInt(), anyString());
+    verify(response, never()).sendError(anyInt(), anyString());
   }
 
   @Test
@@ -182,7 +183,7 @@ class BaseHttpServletTest {
   }
 
   @Test
-  void writeXmlOrJsonApiErrorUsesWriterWhenProvided() throws IOException {
+  void writeXmlOrJsonApiErrorUsesWriterWhenProvided() {
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(response.isCommitted()).thenReturn(false);
     doNothing().when(response).resetBuffer();

@@ -159,7 +159,7 @@ class WsdlTest {
   }
 
   @Test
-  void resolvesSchemaImportsRelativeToTheFile() throws Exception {
+  void resolvesSchemaImportsRelativeToTheFile() {
     Wsdl wsdl = load(wsdlFolder.resolve("hello-typed.wsdl").toString());
     assertEquals("Hello_Service", wsdl.getServiceName());
     assertTypesSchemaWasImported(wsdl);

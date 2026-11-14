@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class NotificationSourceModelTest {
 
   @Test
-  public void testAGithubSourceSurvivesTheRoundTrip() {
+  void testAGithubSourceSurvivesTheRoundTrip() {
     NotificationSourceConfig config = new NotificationSourceConfig();
     config.setId("github-apache-hop");
     config.setName("Apache Hop Releases");
@@ -58,7 +58,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testTheGithubUrlIsOfferedForAConfiguredRepository() {
+  void testTheGithubUrlIsOfferedForAConfiguredRepository() {
     NotificationSourceConfig config = new NotificationSourceConfig();
     config.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES);
     config.setGithubOwner("apache");
@@ -69,7 +69,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testOnlyTheChosenTypesFieldsAreWritten() {
+  void testOnlyTheChosenTypesFieldsAreWritten() {
     // Switching a source to RSS and back must not leave it carrying a repository it never polls.
     NotificationSourceModel model = new NotificationSourceModel();
     model.setName("A feed");
@@ -87,7 +87,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testAPluginSourceIsIdentifiedByItsPluginId() {
+  void testAPluginSourceIsIdentifiedByItsPluginId() {
     // The provider is registered under its plugin id, so the source has to carry the same one.
     NotificationSourceModel model = new NotificationSourceModel();
     model.setName("Marketplace");
@@ -102,7 +102,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testAPluginSourceIsNotAskedForCredentials() {
+  void testAPluginSourceIsNotAskedForCredentials() {
     // A plugin's provider authenticates itself.
     NotificationSourceModel model = new NotificationSourceModel();
     model.setType(NotificationSourceConfig.SourceType.CUSTOM_PLUGIN.getDisplayName());
@@ -115,7 +115,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testAGithubSourceShowsOnlyGithubFields() {
+  void testAGithubSourceShowsOnlyGithubFields() {
     NotificationSourceModel model = new NotificationSourceModel();
     model.setType(NotificationSourceConfig.SourceType.GITHUB_RELEASES.getDisplayName());
 
@@ -128,7 +128,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testAnRssSourceShowsOnlyItsUrl() {
+  void testAnRssSourceShowsOnlyItsUrl() {
     NotificationSourceModel model = new NotificationSourceModel();
     model.setType(NotificationSourceConfig.SourceType.RSS_FEED.getDisplayName());
 
@@ -141,7 +141,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testAnUnknownTypeFallsBackToTheFirstOne() {
+  void testAnUnknownTypeFallsBackToTheFirstOne() {
     NotificationSourceModel model = new NotificationSourceModel();
     model.setType("something a future version writes");
 
@@ -149,7 +149,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testTheParseButtonFillsInTheOwnerAndRepository() {
+  void testTheParseButtonFillsInTheOwnerAndRepository() {
     NotificationSourceModel model = new NotificationSourceModel();
     model.setGithubUrl("https://github.com/apache/hop");
 
@@ -160,7 +160,7 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testTheParseButtonLeavesAHalfTypedUrlAlone() {
+  void testTheParseButtonLeavesAHalfTypedUrlAlone() {
     NotificationSourceModel model = new NotificationSourceModel();
     model.setGithubOwner("apache");
     model.setGithubRepo("hop");
@@ -173,14 +173,14 @@ public class NotificationSourceModelTest {
   }
 
   @Test
-  public void testTheTypeComboOffersEveryType() {
+  void testTheTypeComboOffersEveryType() {
     assertEquals(
         NotificationSourceConfig.SourceType.values().length,
         new NotificationSourceModel().getTypeNames(null, null).size());
   }
 
   @Test
-  public void testTheParseButtonKeepsAGoodRepositoryWhenTheUrlIsWrong() {
+  void testTheParseButtonKeepsAGoodRepositoryWhenTheUrlIsWrong() {
     // A typo in the URL must not throw away an owner and repository that were already right.
     NotificationSourceModel model = new NotificationSourceModel();
     model.setGithubOwner("apache");

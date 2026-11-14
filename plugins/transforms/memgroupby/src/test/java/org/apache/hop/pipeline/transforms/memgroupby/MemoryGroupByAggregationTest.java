@@ -23,9 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
@@ -62,7 +64,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 class MemoryGroupByAggregationTest {
   @RegisterExtension
@@ -277,9 +278,9 @@ class MemoryGroupByAggregationTest {
     data.map = Maps.newHashMap();
 
     TransformMeta transformMeta = new TransformMeta(TRANSFORM_NAME, meta);
-    PipelineMeta pipelineMeta = Mockito.mock(PipelineMeta.class);
-    Pipeline pipeline = Mockito.spy(new LocalPipelineEngine());
-    Mockito.when(pipelineMeta.findTransform(TRANSFORM_NAME)).thenReturn(transformMeta);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    Pipeline pipeline = spy(new LocalPipelineEngine());
+    when(pipelineMeta.findTransform(TRANSFORM_NAME)).thenReturn(transformMeta);
 
     // Spy on transform, regrettable but we need to easily inject rows
     MemoryGroupBy transform =

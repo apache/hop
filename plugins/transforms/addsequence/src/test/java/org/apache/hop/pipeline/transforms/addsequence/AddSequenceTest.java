@@ -251,7 +251,7 @@ class AddSequenceTest {
     // Create input row
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("name"));
-    Object[] inputRow = new Object[] {"Alice"};
+    Object[] inputRow = {"Alice"};
 
     // Test addSequence method
     Object[] result = addSequence.addSequence(inputRowMeta, inputRow);
@@ -297,7 +297,7 @@ class AddSequenceTest {
     // Create input row
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("name"));
-    Object[] inputRow = new Object[] {"Charlie"};
+    Object[] inputRow = {"Charlie"};
 
     // Test addSequence method
     Object[] result = addSequence.addSequence(inputRowMeta, inputRow);

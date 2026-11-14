@@ -76,7 +76,7 @@ class BeamMqttConversionTest {
   }
 
   @Test
-  void arbitraryBinaryPayloadSurvivesCoderRoundTrip() throws Exception {
+  void arbitraryBinaryPayloadSurvivesCoderRoundTrip() {
     Pipeline p = Pipeline.create();
     byte[] bytes = {0, -1, 12, 42};
     var output =

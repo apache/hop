@@ -58,10 +58,9 @@ class HttpPostTest {
   void getRequestBodyParametersAsStringWithNullEncoding() {
     HttpPost http = newTransform();
 
-    NameValuePair[] pairs =
-        new NameValuePair[] {
-          new BasicNameValuePair("u", "usr"), new BasicNameValuePair("p", "pass")
-        };
+    NameValuePair[] pairs = {
+      new BasicNameValuePair("u", "usr"), new BasicNameValuePair("p", "pass")
+    };
 
     assertEquals("u=usr&p=pass", http.getRequestBodyParamsAsStr(pairs, null));
   }
@@ -90,7 +89,7 @@ class HttpPostTest {
   }
 
   @Test
-  void attachRawRequestEntityIfNeededDoesNotOverrideExistingEntity() throws Exception {
+  void attachRawRequestEntityIfNeededDoesNotOverrideExistingEntity() {
     HttpPost http = newTransform();
 
     org.apache.hc.client5.http.classic.methods.HttpPost post =

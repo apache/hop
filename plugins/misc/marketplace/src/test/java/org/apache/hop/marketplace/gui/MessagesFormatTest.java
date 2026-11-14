@@ -17,9 +17,9 @@
 
 package org.apache.hop.marketplace.gui;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,17 +52,13 @@ class MessagesFormatTest {
     Properties messages = messages();
     for (String key : messages.stringPropertyNames()) {
       String value = messages.getProperty(key);
-      try {
-        new MessageFormat(value);
-      } catch (IllegalArgumentException e) {
-        fail(
-            "Message '"
-                + key
-                + "' is not a valid MessageFormat pattern ("
-                + e.getMessage()
-                + "). Quote literal braces as '{' and '}':\n  "
-                + value);
-      }
+      assertDoesNotThrow(
+          () -> new MessageFormat(value),
+          () ->
+              "Message '"
+                  + key
+                  + "' is not a valid MessageFormat pattern. Quote literal braces as '{' and '}':\n  "
+                  + value);
     }
   }
 

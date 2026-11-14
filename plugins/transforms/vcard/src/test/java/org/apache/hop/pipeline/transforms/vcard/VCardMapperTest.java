@@ -17,12 +17,14 @@
 package org.apache.hop.pipeline.transforms.vcard;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ezvcard.VCard;
 import ezvcard.VCardVersion;
 import java.util.List;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.junit.jupiter.api.Test;
 
 class VCardMapperTest {
@@ -59,13 +61,13 @@ class VCardMapperTest {
   @Test
   void roundTripPreservesMappedFields() throws Exception {
     RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("fn"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("uid"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email_type"));
+    rowMeta.addValueMeta(new ValueMetaString("fn"));
+    rowMeta.addValueMeta(new ValueMetaString("uid"));
+    rowMeta.addValueMeta(new ValueMetaString("email"));
+    rowMeta.addValueMeta(new ValueMetaString("email_type"));
 
     VCard card = new VCard();
-    Object[] row = new Object[] {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
+    Object[] row = {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
 
     List<VCardFieldMapping> mappings =
         List.of(
@@ -86,13 +88,13 @@ class VCardMapperTest {
   @Test
   void buildVCardFromRow() throws Exception {
     RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("fn"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("uid"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email"));
-    rowMeta.addValueMeta(new org.apache.hop.core.row.value.ValueMetaString("email_type"));
+    rowMeta.addValueMeta(new ValueMetaString("fn"));
+    rowMeta.addValueMeta(new ValueMetaString("uid"));
+    rowMeta.addValueMeta(new ValueMetaString("email"));
+    rowMeta.addValueMeta(new ValueMetaString("email_type"));
 
     VCard card = new VCard();
-    Object[] row = new Object[] {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
+    Object[] row = {"Hop Test", "hop-test-001", "test@example.com", "INTERNET,WORK"};
 
     List<VCardFieldMapping> mappings =
         List.of(
@@ -106,5 +108,50 @@ class VCardMapperTest {
     assertTrue(text.contains("FN:Hop Test"));
     assertTrue(text.contains("UID:hop-test-001"));
     assertTrue(text.toUpperCase().contains("EMAIL;TYPE=INTERNET,WORK:TEST@EXAMPLE.COM"));
+  }
+
+  /** Mapping a field to the categories used to fail: a new card has no categories property. */
+  @Test
+  void categoriesAreWrittenAndReadBack() throws Exception {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("fn"));
+    rowMeta.addValueMeta(new ValueMetaString("tags"));
+    List<VCardFieldMapping> mappings =
+        List.of(
+            new VCardFieldMapping(VCardPropertyType.FN, "fn"),
+            new VCardFieldMapping(VCardPropertyType.CATEGORIES, "tags"));
+
+    VCard card = new VCard();
+    VCardMapper.applyMappings(
+        card, new Object[] {"Hop Test", "friends, work"}, rowMeta, mappings, false, false);
+    String text = VCardMapper.write(card, VCardVersion.V3_0);
+    assertTrue(text.contains("CATEGORIES:friends,work"), text);
+
+    VCard parsed = VCardMapper.parseAll(text).get(0);
+    assertEquals("friends, work", VCardMapper.extractValue(parsed, mappings.get(1)));
+  }
+
+  @Test
+  void aCardWithoutCategoriesGivesNoValue() throws Exception {
+    VCard card = VCardMapper.parseAll(SAMPLE).get(0);
+
+    assertNull(
+        VCardMapper.extractValue(
+            card, new VCardFieldMapping(VCardPropertyType.CATEGORIES, "tags")));
+  }
+
+  /** The type tokens of a mapping are parsed once; the lookups keep giving the same values. */
+  @Test
+  void typeLookupsAreStableOverManyCards() throws Exception {
+    VCard card = VCardMapper.parseAll(SAMPLE).get(0);
+    VCardFieldMapping tel = new VCardFieldMapping(VCardPropertyType.TEL, "tel", "work, voice");
+    VCardFieldMapping fax = new VCardFieldMapping(VCardPropertyType.TEL, "fax", "FAX");
+    VCardFieldMapping anyEmail = new VCardFieldMapping(VCardPropertyType.EMAIL, "email");
+
+    for (int i = 0; i < 3; i++) {
+      assertEquals("+1-555-0100", VCardMapper.extractValue(card, tel));
+      assertNull(VCardMapper.extractValue(card, fax));
+      assertEquals("test@example.com", VCardMapper.extractValue(card, anyEmail));
+    }
   }
 }

@@ -21,8 +21,8 @@ package org.apache.hop.databases.clickhouse;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -48,7 +48,7 @@ class ClickhouseDatabaseMetaTest {
 
   @Test
   void testAccessType() {
-    int[] aTypes = new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
+    int[] aTypes = {DatabaseMeta.TYPE_ACCESS_NATIVE};
     assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
   }
 
@@ -59,13 +59,11 @@ class ClickhouseDatabaseMetaTest {
     assertEquals(
         "jdbc:clickhouse://localhost:8123/sampledb",
         nativeMeta.getURL("localhost", "8123", "sampledb"));
-    try {
-      assertEquals(
-          "jdbc:clickhouse://localhost:8123/sampledb", nativeMeta.getURL("", "8123", "sampledb"));
-      fail("Should have thrown IllegalArgumentException");
-    } catch (IllegalArgumentException dummy) {
-      // expected if host is null or empty
-    }
+    // expected if host is null or empty
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> nativeMeta.getURL("", "8123", "sampledb"),
+        "Should have thrown IllegalArgumentException");
   }
 
   @Test

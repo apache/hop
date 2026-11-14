@@ -24,22 +24,22 @@ import org.junit.jupiter.api.Test;
 public class LintPathUtilsTest {
 
   @Test
-  public void pathsMatchForSameLocalPath() {
+  void pathsMatchForSameLocalPath() {
     assertTrue(LintPathUtils.pathsMatch("/tmp/project/foo.hpl", "/tmp/project/foo.hpl"));
   }
 
   @Test
-  public void pathsMatchForFileUriAndLocalPath() {
+  void pathsMatchForFileUriAndLocalPath() {
     assertTrue(LintPathUtils.pathsMatch("file:///tmp/project/foo.hpl", "/tmp/project/foo.hpl"));
   }
 
   @Test
-  public void pathsDoNotMatchDifferentFiles() {
+  void pathsDoNotMatchDifferentFiles() {
     assertFalse(LintPathUtils.pathsMatch("/tmp/project/foo.hpl", "/tmp/project/bar.hpl"));
   }
 
   @Test
-  public void resolveExplorerFilePathUsesFullHopFilePath() {
+  void resolveExplorerFilePathUsesFullHopFilePath() {
     String fullPath = "/tmp/project/pipelines/extract.hpl";
     assertTrue(
         LintPathUtils.pathsMatch(
@@ -47,7 +47,7 @@ public class LintPathUtilsTest {
   }
 
   @Test
-  public void resolveExplorerFilePathJoinsFolderAndName() {
+  void resolveExplorerFilePathJoinsFolderAndName() {
     assertTrue(
         LintPathUtils.pathsMatch(
             "/tmp/project/pipelines/extract.hpl",

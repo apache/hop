@@ -236,7 +236,7 @@ class GenericDatabaseMetaTest {
     IDatabase dialectMeta = Mockito.mock(IDatabase.class);
     Mockito.when(dialectMeta.getPluginName()).thenReturn(dialect);
     Mockito.when(dialectMeta.getLimitClausePrefix(25)).thenReturn(" TOP 25");
-    IDatabase[] dbInterfaces = new IDatabase[] {dialectMeta};
+    IDatabase[] dbInterfaces = {dialectMeta};
     try (MockedStatic<DatabaseMeta> dbMetaStatic = Mockito.mockStatic(DatabaseMeta.class)) {
       dbMetaStatic.when(DatabaseMeta::getDatabaseInterfaces).thenReturn(dbInterfaces);
       nativeMeta.setDatabaseDialect(dialect);
@@ -252,7 +252,7 @@ class GenericDatabaseMetaTest {
   @Test
   void testSettingDialect() {
     String dialect = "testDialect";
-    IDatabase[] dbInterfaces = new IDatabase[] {mockedMeta};
+    IDatabase[] dbInterfaces = {mockedMeta};
     try (MockedStatic<DatabaseMeta> dbMetaStatic = Mockito.mockStatic(DatabaseMeta.class)) {
       dbMetaStatic.when(DatabaseMeta::getDatabaseInterfaces).thenReturn(dbInterfaces);
       Mockito.when(mockedMeta.getPluginName()).thenReturn(dialect);

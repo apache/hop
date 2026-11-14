@@ -55,7 +55,7 @@ public class OfferedFieldsTest {
   private static final Set<String> PLUGIN_OWN_FIELDS = Set.of("apiKey", "token");
 
   @AfterEach
-  public void clearSubject() {
+  void clearSubject() {
     CustomRuleExecutor.setSubject(null);
   }
 
@@ -110,12 +110,12 @@ public class OfferedFieldsTest {
   // ------------------------------------------------------------------ every offered field
 
   @Test
-  public void everyConnectionFieldResolves() {
+  void everyConnectionFieldResolves() {
     assertResolves(RuleTarget.DATABASE_CONNECTION, connection(), null);
   }
 
   @Test
-  public void everyTransformFieldResolves() {
+  void everyTransformFieldResolves() {
     PipelineMeta pipeline = new PipelineMeta();
     TransformMeta transformMeta = new TransformMeta("Fake", "read", new ErrorHandlingMeta());
     pipeline.addTransform(transformMeta);
@@ -125,7 +125,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void everyActionFieldResolves() {
+  void everyActionFieldResolves() {
     WorkflowMeta workflow = new WorkflowMeta();
     ActionMeta actionMeta = new ActionMeta(new ActionDummy("check"));
     workflow.addAction(actionMeta);
@@ -138,7 +138,7 @@ public class OfferedFieldsTest {
 
   /** Every connection has a type, so IS_EMPTY reports each one. It used to report none. */
   @Test
-  public void databaseTypeIsThePluginId() {
+  void databaseTypeIsThePluginId() {
     DatabaseMeta databaseMeta = connection();
 
     List<LintResult> results =
@@ -153,7 +153,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void attributesIncludeTheExtraOptionsButNotTheirValues() {
+  void attributesIncludeTheExtraOptionsButNotTheirValues() {
     DatabaseMeta databaseMeta = connection();
     databaseMeta.getAttributes().clear();
     databaseMeta.addExtraOption("POSTGRESQL", "sslpassword", "hunter2");
@@ -170,7 +170,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void noAttributesIsAnEmptyCollection() {
+  void noAttributesIsAnEmptyCollection() {
     DatabaseMeta databaseMeta = connection();
     databaseMeta.getAttributes().clear();
 
@@ -187,7 +187,7 @@ public class OfferedFieldsTest {
 
   /** A connection property the linter has no case for is read by getter. */
   @Test
-  public void otherConnectionPropertiesResolve() {
+  void otherConnectionPropertiesResolve() {
     DatabaseMeta databaseMeta = connection();
     databaseMeta.setManualUrl("jdbc:postgresql://db/crm");
 
@@ -200,7 +200,7 @@ public class OfferedFieldsTest {
 
   /** Every connection has the same fields, so a name that matches none of them is a typo. */
   @Test
-  public void anUnknownConnectionFieldIsReported() {
+  void anUnknownConnectionFieldIsReported() {
     List<LintResult> results =
         lint(
             rule(RuleTarget.DATABASE_CONNECTION, "hostnmae", RuleCondition.NOT_EMPTY),
@@ -225,7 +225,7 @@ public class OfferedFieldsTest {
    * the secret suffixes, so it was printed as the current value.
    */
   @Test
-  public void theSshTunnelPassphraseStaysOutOfTheFinding() {
+  void theSshTunnelPassphraseStaysOutOfTheFinding() {
     DatabaseMeta databaseMeta = connection();
     databaseMeta.setSshTunnelPassphrase("hunter2");
 
@@ -241,7 +241,7 @@ public class OfferedFieldsTest {
 
   /** A setting only the database type has is read from it, password marker included. */
   @Test
-  public void aDatabaseTypesOwnSettingsResolve() {
+  void aDatabaseTypesOwnSettingsResolve() {
     DatabaseMeta databaseMeta = connection();
     PluginDatabaseMeta plugin = new PluginDatabaseMeta();
     plugin.walletPin = "1234";
@@ -265,7 +265,7 @@ public class OfferedFieldsTest {
 
   /** Connection flags have an is getter, such as isSshTunnelEnabled. */
   @Test
-  public void aBooleanConnectionPropertyResolves() {
+  void aBooleanConnectionPropertyResolves() {
     DatabaseMeta databaseMeta = connection();
     databaseMeta.setSshTunnelEnabled(false);
 
@@ -298,7 +298,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void transformErrorHandling() {
+  void transformErrorHandling() {
     CustomLintRule rule = rule(RuleTarget.TRANSFORM, "errorHandling", RuleCondition.MUST_BE_TRUE);
 
     assertTrue(lint(rule, pipelineWithErrorHop(true).findTransform("read")).isEmpty());
@@ -308,7 +308,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void targetTransformsAreTheNextTransforms() {
+  void targetTransformsAreTheNextTransforms() {
     PipelineMeta pipeline = pipelineWithErrorHop(true);
     CustomLintRule rule =
         rule(RuleTarget.TRANSFORM, "targetTransforms", RuleCondition.MAX_COLLECTION_SIZE);
@@ -322,7 +322,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void distributes() {
+  void distributes() {
     TransformMeta transformMeta = new TransformMeta("Dummy", "copy", null);
     transformMeta.setDistributes(false);
 
@@ -337,7 +337,7 @@ public class OfferedFieldsTest {
    * hops still count, for this transform and for the others in the pipeline.
    */
   @Test
-  public void aBrokenHopDoesNotBlankTargetTransforms() {
+  void aBrokenHopDoesNotBlankTargetTransforms() {
     PipelineMeta pipeline = pipelineWithErrorHop(true);
     TransformMeta read = pipeline.findTransform("read");
     pipeline.addPipelineHop(new PipelineHopMeta(read, null));
@@ -374,7 +374,7 @@ public class OfferedFieldsTest {
 
   /** An action handles its errors with a hop followed on failure. */
   @Test
-  public void actionErrorHandling() {
+  void actionErrorHandling() {
     CustomLintRule rule = rule(RuleTarget.ACTION, "errorHandling", RuleCondition.MUST_BE_TRUE);
 
     assertTrue(lint(rule, workflow(true).findAction("check")).isEmpty());
@@ -382,7 +382,7 @@ public class OfferedFieldsTest {
   }
 
   @Test
-  public void targetActionsAreTheNextActions() {
+  void targetActionsAreTheNextActions() {
     CustomLintRule rule =
         rule(RuleTarget.ACTION, "targetActions", RuleCondition.MAX_COLLECTION_SIZE);
     rule.setConditionValue("1");
@@ -398,7 +398,7 @@ public class OfferedFieldsTest {
    * are skipped. ActionMeta.equals threw on the second.
    */
   @Test
-  public void brokenHopsDoNotBlankTheActionFields() {
+  void brokenHopsDoNotBlankTheActionFields() {
     WorkflowMeta workflow = workflow(true);
     ActionMeta check = workflow.findAction("check");
     workflow.addWorkflowHop(new WorkflowHopMeta(check, null));

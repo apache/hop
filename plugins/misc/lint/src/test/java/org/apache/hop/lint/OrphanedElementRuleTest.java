@@ -39,12 +39,12 @@ import org.junit.jupiter.api.Test;
 public class OrphanedElementRuleTest {
 
   @AfterEach
-  public void clearSubject() {
+  void clearSubject() {
     CustomRuleExecutor.setSubject(null);
   }
 
   @Test
-  public void aTransformConnectedToNothingIsReportedByName() {
+  void aTransformConnectedToNothingIsReportedByName() {
     PipelineMeta pipeline = pipelineOf("read", "write", "left over");
     connect(pipeline, "read", "write");
 
@@ -56,7 +56,7 @@ public class OrphanedElementRuleTest {
 
   /** A one-transform pipeline has nothing to be disconnected from. */
   @Test
-  public void theOnlyTransformInAPipelineIsNotAnOrphan() {
+  void theOnlyTransformInAPipelineIsNotAnOrphan() {
     assertTrue(lint(pipelineOf("do the thing")).isEmpty());
   }
 
@@ -65,7 +65,7 @@ public class OrphanedElementRuleTest {
    * switched off because most teams treat a disabled hop as work in progress.
    */
   @Test
-  public void aTransformWhoseHopsAreDisabledIsNotAnOrphan() {
+  void aTransformWhoseHopsAreDisabledIsNotAnOrphan() {
     PipelineMeta pipeline = pipelineOf("read", "work in progress");
     connect(pipeline, "read", "work in progress").setEnabled(false);
 
@@ -74,7 +74,7 @@ public class OrphanedElementRuleTest {
 
   /** A pipeline of several transforms and no hops at all is still every one of them. */
   @Test
-  public void transformsInAPipelineWithNoHopsAreAllOrphans() {
+  void transformsInAPipelineWithNoHopsAreAllOrphans() {
     assertEquals(3, lint(pipelineOf("a", "b", "c")).size());
   }
 

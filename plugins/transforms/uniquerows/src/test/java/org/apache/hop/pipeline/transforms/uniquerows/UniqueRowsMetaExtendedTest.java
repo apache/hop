@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.uniquerows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,8 +93,9 @@ class UniqueRowsMetaExtendedTest {
         original.getCompareFields().size(),
         copy.getCompareFields().size(),
         "compareFields size should match");
-    assertFalse(
-        original.getCompareFields() == copy.getCompareFields(),
+    assertNotSame(
+        original.getCompareFields(),
+        copy.getCompareFields(),
         "compareFields should be different instances");
 
     // Verify individual fields are copied correctly
@@ -213,8 +215,9 @@ class UniqueRowsMetaExtendedTest {
         original.getCompareFields().size(),
         clone.getCompareFields().size(),
         "compareFields size should match");
-    assertFalse(
-        original.getCompareFields() == clone.getCompareFields(),
+    assertNotSame(
+        original.getCompareFields(),
+        clone.getCompareFields(),
         "compareFields should be different instances");
   }
 

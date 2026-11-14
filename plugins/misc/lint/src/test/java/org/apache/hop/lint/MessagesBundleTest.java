@@ -44,14 +44,14 @@ public class MessagesBundleTest {
   private static final String BUNDLE = "org/apache/hop/lint/messages/messages_en_US.properties";
 
   @Test
-  public void bundleIsOnTheClasspath() throws IOException {
+  void bundleIsOnTheClasspath() throws IOException {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(BUNDLE)) {
       assertNotNull(stream, "Missing resource bundle: " + BUNDLE);
     }
   }
 
   @Test
-  public void keysResolveInsteadOfFallingBackToPlaceholders() {
+  void keysResolveInsteadOfFallingBackToPlaceholders() {
     assertEquals(
         "Lint", BaseMessages.getString(PkgAnchor.class, "LinterGuiPlugin.Menu.Lint.Label"));
     assertEquals(
@@ -64,7 +64,7 @@ public class MessagesBundleTest {
 
   /** Parameterised messages must actually substitute, not print the {0} placeholder. */
   @Test
-  public void parameterisedKeysSubstitute() {
+  void parameterisedKeysSubstitute() {
     String message =
         BaseMessages.getString(
             PkgAnchor.class, "RuleManagerDialog.Dialog.ConfirmDelete.Message", "My Rule");
@@ -74,7 +74,7 @@ public class MessagesBundleTest {
 
   /** Every key in the bundle must resolve, catching typos and stale entries. */
   @Test
-  public void everyKeyInTheBundleResolves() throws IOException {
+  void everyKeyInTheBundleResolves() throws IOException {
     Properties properties = new Properties();
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(BUNDLE)) {
       assertNotNull(stream);
@@ -99,7 +99,7 @@ public class MessagesBundleTest {
    * compile time. A typo shows up only as a raw key in the UI, on someone else's screen.
    */
   @Test
-  public void everyAnnotationKeyExistsInTheBundle() throws IOException {
+  void everyAnnotationKeyExistsInTheBundle() throws IOException {
     Properties properties = new Properties();
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(BUNDLE)) {
       assertNotNull(stream);

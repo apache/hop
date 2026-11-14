@@ -20,6 +20,7 @@ package org.apache.hop.www.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +38,7 @@ import org.junit.jupiter.api.Test;
 class WebServiceOutputTest {
 
   @Test
-  void theServletOutputDrivesTheResponseDirectly() throws Exception {
+  void theServletOutputDrivesTheResponseDirectly() {
     HttpServletResponse response = mock(HttpServletResponse.class);
     ServletWebServiceOutput output = new ServletWebServiceOutput(response);
 
@@ -105,6 +106,6 @@ class WebServiceOutputTest {
 
     output.setStatus(200);
 
-    verify(log, org.mockito.Mockito.never()).logDetailed(org.mockito.ArgumentMatchers.anyString());
+    verify(log, never()).logDetailed(org.mockito.ArgumentMatchers.anyString());
   }
 }

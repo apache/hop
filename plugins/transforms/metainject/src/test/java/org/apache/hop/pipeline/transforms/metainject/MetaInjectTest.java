@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -57,7 +57,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
 
 class MetaInjectTest {
 
@@ -71,13 +70,13 @@ class MetaInjectTest {
 
   @BeforeEach
   void before() throws Exception {
-    pipelineMeta = Mockito.spy(new PipelineMeta());
+    pipelineMeta = spy(new PipelineMeta());
     MetaInjectData data = new MetaInjectData();
     data.pipelineMeta = pipelineMeta;
     metaInject =
         TransformMockUtil.getTransform(
             MetaInject.class, MetaInjectMeta.class, MetaInjectData.class, "MetaInjectTest");
-    metaInject = Mockito.spy(metaInject);
+    metaInject = spy(metaInject);
     metaInject.init();
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     metaInject.setMetadataProvider(metadataProvider);
@@ -87,7 +86,7 @@ class MetaInjectTest {
     TransformMeta transformMeta = mock(TransformMeta.class);
     Pipeline pipeline = new LocalPipelineEngine();
     pipeline.setLogChannel(LogChannel.GENERAL);
-    pipeline = Mockito.spy(pipeline);
+    pipeline = spy(pipeline);
     doReturn(pipeline).when(metaInject).getPipeline();
     doReturn(INJECTOR_TRANSFORM_NAME).when(transformMeta).getName();
     doReturn(Collections.singletonList(transformMeta))
@@ -107,7 +106,7 @@ class MetaInjectTest {
 
   @Test
   void convertToUpperCaseSet() {
-    String[] input = new String[] {"Test_Transform", "test_transform1"};
+    String[] input = {"Test_Transform", "test_transform1"};
     Set<String> actualResult = MetaInject.convertToUpperCaseSet(input);
     Set<String> expectedResult = new HashSet<>();
     expectedResult.add("TEST_TRANSFORM");
@@ -119,11 +118,7 @@ class MetaInjectTest {
   void testTransformChangeListener() {
     MetaInjectMeta mim = new MetaInjectMeta();
     TransformMeta sm = new TransformMeta("testTransform", mim);
-    try {
-      pipelineMeta.addOrReplaceTransform(sm);
-    } catch (Exception ex) {
-      fail();
-    }
+    assertDoesNotThrow(() -> pipelineMeta.addOrReplaceTransform(sm));
   }
 
   /**

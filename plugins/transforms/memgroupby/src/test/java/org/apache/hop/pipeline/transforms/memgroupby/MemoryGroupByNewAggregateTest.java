@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ class MemoryGroupByNewAggregateTest {
   MemoryGroupByData data;
 
   @BeforeAll
-  static void setUpBeforeClass() throws Exception {
+  static void setUpBeforeClass() {
     mockHelper =
         new TransformMockHelper<>(
             "Memory Group By", MemoryGroupByMeta.class, MemoryGroupByData.class);
@@ -77,7 +78,7 @@ class MemoryGroupByNewAggregateTest {
   }
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     data = new MemoryGroupByData();
 
     List<GAggregate> aggregates = new ArrayList<>();
@@ -94,7 +95,7 @@ class MemoryGroupByNewAggregateTest {
 
     IValueMeta vmi = new ValueMetaInteger();
     when(mockHelper.transformMeta.getTransform()).thenReturn(meta);
-    IRowMeta rmi = Mockito.mock(IRowMeta.class);
+    IRowMeta rmi = mock(IRowMeta.class);
     data.inputRowMeta = rmi;
     when(rmi.getValueMeta(Mockito.anyInt())).thenReturn(vmi);
     data.aggMeta = rmi;

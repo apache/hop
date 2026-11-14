@@ -18,17 +18,17 @@
 package org.apache.hop.laf;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.i18n.IMessageHandler;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 class RemoveAltKeyMessageHandlerTest {
 
   @Test
   void testChineseStyleAltKeyMessage() {
-    IMessageHandler defMessageHandler = Mockito.mock(IMessageHandler.class);
+    IMessageHandler defMessageHandler = mock(IMessageHandler.class);
     when(defMessageHandler.getString("a")).thenReturn("a message");
     when(defMessageHandler.getString("b")).thenReturn("Edit(&E)");
     when(defMessageHandler.getString("c")).thenReturn("Open(&O)...");

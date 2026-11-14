@@ -491,7 +491,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     TransformMeta transform = new TransformMeta();
     IRowMeta prev = new RowMeta();
     IRowMeta info = new RowMeta();
-    String[] input = new String[] {"previous"};
+    String[] input = {"previous"};
     String[] output = new String[0];
     IVariables variables = new Variables();
 
@@ -518,7 +518,7 @@ class RestMetaTest implements IInitializer<ITransformMeta> {
     IRowMeta prev = new RowMeta();
     prev.addValueMeta(new ValueMetaString("methodField"));
     IRowMeta info = new RowMeta();
-    String[] input = new String[] {"previous"};
+    String[] input = {"previous"};
     String[] output = new String[0];
     IVariables variables = new Variables();
 
