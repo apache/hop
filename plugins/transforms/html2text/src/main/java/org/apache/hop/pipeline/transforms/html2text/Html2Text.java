@@ -26,7 +26,6 @@ import static org.jsoup.Jsoup.clean;
 import static org.jsoup.Jsoup.parseBodyFragment;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -45,7 +44,15 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
   private final int cores = Runtime.getRuntime().availableProcessors();
   private final int maxJobs = cores * 100;
   private final ExecutorService executor = commonPool();
-  private final AtomicInteger jobs = new AtomicInteger(0);
+
+  /** How long draining waits for accepted asynchronous work before abandoning it. */
+  private static final long DRAIN_TIMEOUT_MILLIS = 30_000L;
+
+  // Guarded by lock, including reservation before submission.
+  private int jobs;
+  private Throwable failure;
+  // Guards against surfacing the same asynchronous failure twice (finish/checkFailure and dispose).
+  private boolean failureReported;
 
   private final Object lock = new Object();
 
@@ -59,22 +66,105 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void finish() throws HopException {
-    // Wait until all jobs are finished.
+  private void awaitJobs() {
+    awaitJobs(DRAIN_TIMEOUT_MILLIS);
+  }
+
+  private void awaitJobs(final long timeoutMillis) {
+    boolean interrupted = false;
+    final long deadline = System.currentTimeMillis() + timeoutMillis;
     synchronized (lock) {
-      while (jobs.get() > 0) {
+      long remaining = timeoutMillis;
+      while (jobs > 0 && remaining > 0) {
         try {
-          lock.wait();
+          lock.wait(remaining);
         } catch (InterruptedException e) {
-          throw new HopException("Waiting for jobs to finished interrupted", e);
+          // Accepted work should finish before output is closed or resources are disposed, but an
+          // interrupted waiter must not hold up the transform or the pipeline.
+          interrupted = true;
+        }
+        remaining = deadline - System.currentTimeMillis();
+      }
+      if (jobs > 0) {
+        // A worker is stuck and no provider timeout applies. Do not block disposal forever: log and
+        // abandon the remaining jobs.
+        logBasic(
+            "Abandoning "
+                + jobs
+                + " asynchronous job(s) that did not finish within "
+                + timeoutMillis
+                + " ms");
+      }
+    }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Wait for every accepted job to complete on the normal end-of-input path. Unlike {@link
+   * #awaitJobs(long)} there is no timeout: rows that are merely slow must not be lost because the
+   * output is closed while workers still run. A stop (see {@link #stopRunning()}) breaks the wait.
+   */
+  private void awaitJobsUncapped() {
+    boolean interrupted = false;
+    synchronized (lock) {
+      while (jobs > 0 && !isStopped()) {
+        try {
+          lock.wait(1_000L);
+        } catch (InterruptedException e) {
+          // Accepted work should finish before output is closed, but an interrupted waiter must
+          // not hold up the transform or the pipeline.
+          interrupted = true;
         }
       }
     }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private void checkFailure() throws HopException {
+    synchronized (lock) {
+      if (failure != null) {
+        failureReported = true;
+        throw new HopException("Asynchronous processing failed", failure);
+      }
+    }
+  }
+
+  private void finish() throws HopException {
+    awaitJobsUncapped();
+    checkFailure();
     setOutputDone();
   }
 
   @Override
+  public void dispose() {
+    // The common pool is shared. Drain our work, but never shut the pool down.
+    awaitJobs();
+    final boolean shouldLog;
+    synchronized (lock) {
+      // Only log a failure we have not already surfaced through the run loop, so it is not logged
+      // twice; the error accounting below still applies in either case.
+      shouldLog = failure != null && !failureReported;
+      if (shouldLog) {
+        failureReported = true;
+      }
+    }
+    if (failure != null) {
+      if (shouldLog) {
+        logError("Asynchronous processing failed", failure);
+      }
+      setErrors(1);
+      stopAll();
+    }
+    super.dispose();
+  }
+
+  @Override
   public boolean processRow() throws HopException {
+    checkFailure();
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if (r == null) { // no more input to be expected...
       finish();
@@ -100,11 +190,8 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
       cacheIndexPositions();
     } // End If first
 
-    String errorMessage = null;
-
-    process(r);
-
     try {
+      process(r);
       if (isRowLevel()) {
         logRowlevel(
             BaseMessages.getString(
@@ -113,24 +200,15 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
                 getLinesRead() + " : " + getInputRowMeta().getString(r)));
       }
     } catch (Exception e) {
-      if (getTransformMeta().isDoingErrorHandling()) {
-        errorMessage = e.toString();
-      } else {
-        logError(BaseMessages.getString(PKG, "Html2Text.ErrorInTransformRunning") + e.getMessage());
-        setErrors(1);
-        stopAll();
-        setOutputDone(); // signal end to receiver(s)
-        return false;
-      }
-
-      // Add this row to the error output of this transform
-      putError(getInputRowMeta(), r, 1, errorMessage, meta.getHtmlField(), "Html2Text001");
+      // An infrastructure/worker failure must not be attributed to the current input row.
+      checkFailure();
+      handleRowError(r, e);
     }
 
     return true;
   }
 
-  private void process(Object[] inputRow) throws HopTransformException {
+  private void process(Object[] inputRow) throws HopException {
     String html = trim((String) inputRow[data.indexOfHtmlField]);
     if (isBlank(html)) {
       return;
@@ -143,32 +221,62 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
     }
   }
 
-  private void processAsync(String html, Object[] inputRow) throws HopTransformException {
+  private void handleRowError(Object[] row, Exception e) throws HopException {
+    if (!getTransformMeta().isDoingErrorHandling()) {
+      throw new HopException("Error processing row", e);
+    }
+    // Error output has the same serialization requirement as normal output.
+    synchronized (this) {
+      putError(getInputRowMeta(), row, 1, e.toString(), meta.getHtmlField(), "Html2Text001");
+    }
+  }
+
+  private void processAsync(String text, Object[] inputRow) throws HopException {
     synchronized (lock) {
-      while (jobs.get() > maxJobs) {
+      while (jobs >= maxJobs && failure == null) {
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new HopTransformException("Error waiting for async processing lock release", e);
+          Thread.currentThread().interrupt();
+          throw new HopException("Interrupted waiting for async processing", e);
         }
       }
+      checkFailure();
+      jobs++;
     }
 
-    executor.submit(
-        () -> {
-          try {
-            processSync(html, inputRow);
-            jobs.decrementAndGet();
-
-            synchronized (lock) {
-              lock.notifyAll();
+    try {
+      executor.submit(
+          () -> {
+            try {
+              try {
+                processSync(text, inputRow);
+              } catch (Exception e) {
+                handleRowError(inputRow, e);
+              }
+            } catch (Throwable e) {
+              synchronized (lock) {
+                if (failure == null) {
+                  failure = e;
+                }
+              }
+            } finally {
+              synchronized (lock) {
+                jobs--;
+                lock.notifyAll();
+              }
             }
-          } catch (Exception e) {
-            logError(e.getMessage(), e);
-          }
-        });
-
-    jobs.incrementAndGet();
+          });
+    } catch (RuntimeException | Error e) {
+      synchronized (lock) {
+        jobs--;
+        if (failure == null) {
+          failure = e;
+        }
+        lock.notifyAll();
+      }
+      checkFailure();
+    }
   }
 
   private void processSync(String html, Object[] inputRow) throws HopTransformException {

@@ -17,13 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.languagemodelchat;
 
-import static java.lang.Runtime.getRuntime;
 import static java.lang.System.arraycopy;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.util.concurrent.Executors.newWorkStealingPool;
 import static java.util.concurrent.ForkJoinPool.commonPool;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
@@ -37,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -62,11 +60,15 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   private Map<LanguageModel, LanguageModelFacade> facadeMap = new ConcurrentHashMap<>();
   private LanguageModelChatMeta modelMeta;
 
-  private int parallelism = 1;
-  private ForkJoinPool executor;
+  private volatile ExecutorService executor;
+  private volatile boolean ownsExecutor;
   private final int cores = Runtime.getRuntime().availableProcessors();
   private final AtomicInteger jobs = new AtomicInteger(0);
   private final int maxJobs = cores * 100;
+
+  /** How long draining waits for accepted asynchronous work before abandoning it. */
+  private static final long DRAIN_TIMEOUT_MILLIS = 30_000L;
+
   private final Object lock = new Object();
 
   public LanguageModelChat(
@@ -80,29 +82,69 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   }
 
   private void finish() {
-
-    synchronized (lock) {
-      while (jobs.get() > 0) {
-        try {
-          lock.wait();
-        } catch (InterruptedException e) {
-          throw new HopRuntimeException(e);
-        }
-      }
-    }
-
-    if (executor != null) {
-      try {
-        while (executor.hasQueuedSubmissions() || executor.getActiveThreadCount() > 0) {
-          SECONDS.sleep(5);
-        }
-      } catch (InterruptedException e) {
-        logError(e.getMessage(), e);
-      }
-    }
+    awaitJobsUncapped();
+    shutdownOwnedExecutor();
 
     facadeMap.clear();
     setOutputDone();
+  }
+
+  private void awaitJobs() {
+    awaitJobs(DRAIN_TIMEOUT_MILLIS);
+  }
+
+  private void awaitJobs(long timeoutMillis) {
+    boolean interrupted = false;
+    final long deadline = System.currentTimeMillis() + timeoutMillis;
+    synchronized (lock) {
+      long remaining = timeoutMillis;
+      while (jobs.get() > 0 && remaining > 0) {
+        try {
+          lock.wait(remaining);
+        } catch (InterruptedException e) {
+          // Accepted work should finish before output is closed or resources are disposed, but an
+          // interrupted waiter must not hold up the transform or the pipeline forever.
+          interrupted = true;
+        }
+        remaining = deadline - System.currentTimeMillis();
+      }
+      if (jobs.get() > 0) {
+        // A worker is stuck and no provider timeout applies. Do not block disposal forever: log and
+        // abandon the remaining jobs.
+        logBasic(
+            "Abandoning "
+                + jobs.get()
+                + " asynchronous job(s) that did not finish within "
+                + timeoutMillis
+                + " ms");
+      }
+    }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Wait for every accepted job to complete on the normal end-of-input path. Unlike {@link
+   * #awaitJobs(long)} there is no timeout: rows that are merely slow must not be lost because the
+   * output is closed (and the facades dropped) while workers still run. A stop breaks the wait.
+   */
+  private void awaitJobsUncapped() {
+    boolean interrupted = false;
+    synchronized (lock) {
+      while (jobs.get() > 0 && !isStopped()) {
+        try {
+          lock.wait(1_000L);
+        } catch (InterruptedException e) {
+          // Accepted work should finish before output is closed, but an interrupted waiter must
+          // not hold up the transform or the pipeline.
+          interrupted = true;
+        }
+      }
+    }
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
   }
 
   @Override
@@ -127,14 +169,11 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
           new LanguageModel(modelMeta),
           new LanguageModelFacade(variables, modelMeta, getLogChannel()));
 
-      int parallelism =
-          meta.getParallelism() <= 0 ? getRuntime().availableProcessors() : meta.getParallelism();
-      if (parallelism != 0 && this.parallelism != parallelism || executor == null) {
-        if (executor != null) {
-          executor.shutdownNow();
-        }
-        executor = (ForkJoinPool) newWorkStealingPool(parallelism);
-      }
+      ownsExecutor = meta.getParallelism() != 0;
+      executor =
+          ownsExecutor
+              ? newWorkStealingPool(meta.getParallelism() < 0 ? cores : meta.getParallelism())
+              : commonPool();
 
       if (isEmpty(meta.getInputField())) {
         throw new HopException(
@@ -179,53 +218,93 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     }
 
     synchronized (lock) {
-      while (jobs.get() > maxJobs) {
+      while (jobs.get() >= maxJobs && !isStopped()) {
         try {
           lock.wait();
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new HopRuntimeException(e);
         }
       }
     }
 
-    ExecutorService exec = meta.getParallelism() == 0 ? commonPool() : executor;
-
-    exec.submit(
-        () -> {
-          try {
-            processSync(inputRow, message);
-          } catch (Exception e) {
-            try {
-              if (getTransformMeta().isDoingErrorHandling()) {
-                String errorMessage = e.toString();
-                putError(
-                    getInputRowMeta(),
-                    inputRow,
-                    1L,
-                    errorMessage,
-                    meta.getInputField(),
-                    "LanguageModelChat001");
-              } else {
-                logError(i18n("LanguageModelChat.ErrorInTransformRunning") + e.getMessage(), e);
-                setErrors(1L);
-                stopAll();
-              }
-            } catch (HopTransformException ex) {
-              logError(e.getMessage(), e);
-              logError(ex.getMessage(), ex);
-              if (!getTransformMeta().isDoingErrorHandling()) {
-                setErrors(1L);
-                stopAll();
-              }
-            }
-          } finally {
-            jobs.decrementAndGet();
-            synchronized (lock) {
-              lock.notifyAll();
-            }
-          }
-        });
+    if (isStopped()) {
+      return;
+    }
     jobs.incrementAndGet();
+    try {
+      executor.submit(
+          () -> {
+            try {
+              processSync(inputRow, message);
+            } catch (Exception e) {
+              try {
+                if (getTransformMeta().isDoingErrorHandling()) {
+                  String errorMessage = e.toString();
+                  putError(
+                      getInputRowMeta(),
+                      inputRow,
+                      1L,
+                      errorMessage,
+                      meta.getInputField(),
+                      "LanguageModelChat001");
+                } else {
+                  logError(i18n("LanguageModelChat.ErrorInTransformRunning") + e.getMessage(), e);
+                  setErrors(1L);
+                  stopAll();
+                }
+              } catch (HopTransformException ex) {
+                logError(e.getMessage(), e);
+                logError(ex.getMessage(), ex);
+                if (!getTransformMeta().isDoingErrorHandling()) {
+                  setErrors(1L);
+                  stopAll();
+                }
+              }
+            } finally {
+              jobFinished();
+            }
+          });
+    } catch (RejectedExecutionException e) {
+      jobFinished();
+      if (!isStopped()) {
+        throw e;
+      }
+    }
+  }
+
+  private void jobFinished() {
+    jobs.decrementAndGet();
+    synchronized (lock) {
+      lock.notifyAll();
+    }
+  }
+
+  private void shutdownOwnedExecutor() {
+    if (ownsExecutor && executor != null) {
+      // Accepted tasks still drain. Never await this executor from a worker stopping the pipeline.
+      executor.shutdown();
+    }
+  }
+
+  @Override
+  public void stopRunning() throws HopException {
+    setStopped(true);
+    shutdownOwnedExecutor();
+    synchronized (lock) {
+      lock.notifyAll();
+    }
+    super.stopRunning();
+  }
+
+  @Override
+  public void dispose() {
+    shutdownOwnedExecutor();
+    awaitJobs();
+    // The runner disposes after processRow returns, which need not have reached normal EOF after
+    // a stop or failure. Keep facades alive until every accepted worker has left processSync.
+    facadeMap.clear();
+    super.dispose();
   }
 
   private void processSync(Object[] inputRow, String message)
