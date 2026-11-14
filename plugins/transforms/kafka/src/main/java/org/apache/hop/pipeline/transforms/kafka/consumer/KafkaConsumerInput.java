@@ -59,6 +59,22 @@ public class KafkaConsumerInput
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class;
 
+  /** Poll used when stop-when-idle or a max consume duration must be rechecked often. */
+  static final long SHORT_POLL_MS = 100L;
+
+  /**
+   * Poll used when the batch duration is 0. An unbounded poll stays inside the Kafka client until
+   * {@code wakeup()} lands, and a poll stuck outside the selector (DNS, a deserializer) never sees
+   * that the pipeline was stopped.
+   */
+  static final long DEFAULT_POLL_MS = 1_000L;
+
+  /**
+   * Bound for {@code consumer.close()}. The client default is 30s and its coordinator shutdown can
+   * run past the timer it is given. Stop must not sit in Halting for that long.
+   */
+  static final Duration CONSUMER_CLOSE_TIMEOUT = Duration.ofSeconds(10);
+
   public KafkaConsumerInput(
       TransformMeta transformMeta,
       KafkaConsumerInputMeta meta,
@@ -228,12 +244,36 @@ public class KafkaConsumerInput
   @Override
   public void dispose() {
     interruptMaxConsumeDeadlineWakeup();
-    if (data.consumer != null) {
-      data.consumer.wakeup();
-      data.consumer.unsubscribe();
-      data.consumer.close();
+    Consumer<Object, Object> consumer = data == null ? null : data.consumer;
+    // Drop the reference before close so a concurrent stopRunning() does not wakeup a consumer
+    // this thread is already closing. wakeup() from another thread is legal; close() is not.
+    if (data != null) {
+      data.consumer = null;
+    }
+    try {
+      closeConsumer(consumer);
+    } catch (Exception e) {
+      logError("Error closing Kafka consumer", e);
     }
     super.dispose();
+  }
+
+  /**
+   * Close the consumer on the transform thread. Do not call {@code wakeup()} here. Kafka keeps that
+   * flag until the next poll, and {@code close()} polls while it leaves the group. A pending wakeup
+   * makes that poll throw, {@code close()} fails, and the transform thread used to die before
+   * {@code markStop()} — status stayed Halting forever.
+   */
+  static void closeConsumer(Consumer<?, ?> consumer) {
+    if (consumer == null) {
+      return;
+    }
+    try {
+      consumer.poll(Duration.ZERO);
+    } catch (WakeupException e) {
+      // A stop during oneIteration() armed wakeup() while this thread was not in poll().
+    }
+    consumer.close(CONSUMER_CLOSE_TIMEOUT);
   }
 
   public static Consumer buildKafkaConsumer(IVariables variables, KafkaConsumerInputMeta meta) {
@@ -290,8 +330,18 @@ public class KafkaConsumerInput
 
   @Override
   public void stopRunning() throws HopException {
+    if (data == null) {
+      return;
+    }
     data.isKafkaConsumerClosing = true;
-    data.consumer.wakeup();
+    interruptMaxConsumeDeadlineWakeup();
+    // wakeup() is the only KafkaConsumer method that is safe from this thread.
+    if (data.consumer != null) {
+      data.consumer.wakeup();
+    }
+    // The transform thread may be inside the sub-pipeline, not in poll(). Stopping that pipeline
+    // runs each sub-transform's stopRunning() (cancel a query, abort a request).
+    stopSubPipeline();
     super.stopRunning();
   }
 
@@ -304,6 +354,9 @@ public class KafkaConsumerInput
     // When a max consume duration is set, cap the poll to the remaining time so a long batch
     // duration cannot overshoot the deadline.
     //
+    if (shouldStopConsuming()) {
+      return finishStopped();
+    }
     try {
       long now = System.currentTimeMillis();
       if (maxConsumeDurationReached(now, data.maxConsumeDurationMs, data.startTime)) {
@@ -321,6 +374,10 @@ public class KafkaConsumerInput
               now);
       Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
+
+      if (shouldStopConsuming()) {
+        return finishStopped();
+      }
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {
@@ -364,6 +421,11 @@ public class KafkaConsumerInput
           data.lastRecordTime = System.currentTimeMillis();
           if (isBasic()) {
             logBasic(batchLogMessage(records.count(), getLinesInput()));
+          }
+          // Stop arrived while the rows were buffered. Do not run the sub-pipeline or commit:
+          // the offsets stay uncommitted and Kafka will deliver the records again.
+          if (shouldStopConsuming()) {
+            return finishStopped();
           }
           // Pass them to the single threaded transformation and do an iteration...
           //
@@ -418,6 +480,7 @@ public class KafkaConsumerInput
         }
       }
     } catch (WakeupException e) {
+      // The poll that threw this already consumed the wakeup flag, so close() can leave the group.
       // Deadline wakeup (no new messages, poll was still blocked) or the pipeline was stopped.
       if (data.maxConsumeDeadlineWakeup
           || maxConsumeDurationReached(
@@ -427,12 +490,11 @@ public class KafkaConsumerInput
                 + data.maxConsumeDurationMs
                 + "ms reached, stopping gracefully");
       }
-      if (data.executor != null) {
-        data.executor.getPipeline().stopAll();
-      }
-      setOutputDone();
-      stopAll();
-      return false;
+      return finishStopped();
+    }
+
+    if (shouldStopConsuming()) {
+      return finishStopped();
     }
 
     if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
@@ -473,9 +535,9 @@ public class KafkaConsumerInput
 
   /**
    * Poll timeout in milliseconds. Stop-when-idle and max-consume-duration use a short poll so the
-   * deadline can be re-checked when no records arrive. A long or infinite poll would otherwise
-   * never return on an idle topic, and the duration check after poll() would never run. A
-   * configured max consume duration also caps the timeout to the remaining window.
+   * deadline can be re-checked when no records arrive. A batch duration of 0 still polls for {@link
+   * #DEFAULT_POLL_MS} so a stop is noticed while the topic is idle even when {@code wakeup()} does
+   * not land. A configured max consume duration also caps the timeout to the remaining window.
    */
   static long pollTimeoutMs(
       boolean stopWhenIdle,
@@ -484,7 +546,7 @@ public class KafkaConsumerInput
       long startTime,
       long now) {
     boolean shortPoll = stopWhenIdle || maxConsumeDurationMs > 0;
-    long pollMs = shortPoll ? 100L : (batchDuration > 0 ? batchDuration : Long.MAX_VALUE);
+    long pollMs = shortPoll ? SHORT_POLL_MS : (batchDuration > 0 ? batchDuration : DEFAULT_POLL_MS);
     if (maxConsumeDurationMs > 0) {
       long remaining = maxConsumeDurationMs - (now - startTime);
       if (remaining <= 0) {
@@ -527,24 +589,38 @@ public class KafkaConsumerInput
   }
 
   private void interruptMaxConsumeDeadlineWakeup() {
-    if (data.maxConsumeDeadlineThread != null) {
-      data.maxConsumeDeadlineThread.interrupt();
-      data.maxConsumeDeadlineThread = null;
+    if (data == null || data.maxConsumeDeadlineThread == null) {
+      return;
     }
+    data.maxConsumeDeadlineThread.interrupt();
+    data.maxConsumeDeadlineThread = null;
   }
 
   private boolean stopGracefully(String reason) {
     logBasic(reason);
-    data.isKafkaConsumerClosing = true;
+    // This thread is not inside poll(). wakeup() here would stay pending and fail close().
+    return finishStopped();
+  }
+
+  private boolean shouldStopConsuming() {
+    return isStopped() || (data != null && data.isKafkaConsumerClosing);
+  }
+
+  /** Leave processRow. The sub-pipeline is stopped and close() runs from dispose(). */
+  private boolean finishStopped() {
+    if (data != null) {
+      data.isKafkaConsumerClosing = true;
+    }
     interruptMaxConsumeDeadlineWakeup();
-    if (data.consumer != null) {
-      data.consumer.wakeup();
-    }
-    if (data.executor != null) {
-      data.executor.getPipeline().stopAll();
-    }
+    stopSubPipeline();
     setOutputDone();
     return false;
+  }
+
+  private void stopSubPipeline() {
+    if (data != null && data.executor != null && data.executor.getPipeline() != null) {
+      data.executor.getPipeline().stopAll();
+    }
   }
 
   private boolean errorHandlingConditionIsSatisfied() {

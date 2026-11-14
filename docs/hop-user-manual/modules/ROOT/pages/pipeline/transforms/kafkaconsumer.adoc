@@ -88,7 +88,8 @@ NOTE: While either option will trigger consumption, the first satisfied option w
 |Option|Description
 |Duration (ms)|Specify a time in milliseconds.
 This value is the amount of time the transform will spend collecting records prior to the execution of the pipeline.
-If set to a value of ‘0’, then Number of records triggers consumption.
+If set to a value of ‘0’, time does not close a batch and Number of records triggers consumption.
+The consumer still returns from each poll after about one second, so Stop is noticed while the topic is idle.
 |Number of records|Specify a number.
 After every ‘X’ number of records, the specified pipeline will be executed and these ‘X’ records will be passed to the pipeline.
 If set to a value of ‘0’ then Duration triggers consumption.

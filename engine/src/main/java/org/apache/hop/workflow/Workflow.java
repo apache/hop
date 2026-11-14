@@ -186,6 +186,12 @@ public abstract class Workflow extends Variables
   protected Set<ActionMeta> activeActions;
 
   /**
+   * Pipelines a Pipeline action is currently waiting on. A second stop force-stops these after
+   * {@link #stopExecution()} has already set the stopped flag.
+   */
+  private final Set<IPipelineEngine<?>> activeActionPipelines = ConcurrentHashMap.newKeySet();
+
+  /**
    * Join actions that one branch has claimed to run. A branch claims a Join before it publishes its
    * own result and the claim is released when the Join's body returns. A branch that cannot claim
    * the Join leaves it to the pending run, which cannot complete without seeing that result.
@@ -1420,6 +1426,42 @@ public abstract class Workflow extends Variables
 
     log.logBasic(BaseMessages.getString(PKG, "Workflow.Log.StopWorkflowExecution"));
     fireExecutionStoppedListeners();
+  }
+
+  @Override
+  public void registerActivePipeline(IPipelineEngine<?> pipeline) {
+    if (pipeline != null) {
+      activeActionPipelines.add(pipeline);
+    }
+  }
+
+  @Override
+  public void unregisterActivePipeline(IPipelineEngine<?> pipeline) {
+    if (pipeline != null) {
+      activeActionPipelines.remove(pipeline);
+    }
+  }
+
+  /**
+   * The first stop only sets the flag. Child pipelines notice it from {@code waitUntilFinished} and
+   * call {@code stopAll()}, which is one-shot. This follow-up interrupts transform threads that are
+   * still blocked.
+   */
+  @Override
+  public void forceStop() {
+    boolean alreadyStopped = isStopped();
+    setStopped(true);
+    for (IPipelineEngine<?> pipeline : activeActionPipelines) {
+      try {
+        pipeline.forceStop();
+      } catch (Exception e) {
+        log.logError("Error force-stopping a pipeline action", e);
+      }
+    }
+    log.logBasic(BaseMessages.getString(PKG, "Workflow.Log.ForceStopWorkflowExecution"));
+    if (!alreadyStopped) {
+      fireExecutionStoppedListeners();
+    }
   }
 
   /** Sets the stopped. */

@@ -305,6 +305,12 @@ public abstract class Pipeline
   /** Boolean to check if pipeline is already stopped */
   private final AtomicBoolean isAlreadyStopped = new AtomicBoolean(false);
 
+  /**
+   * Threads started for a normal (multi-threaded) pipeline. A single-threaded child has none.
+   * {@link #forceStop()} interrupts these after {@link #stopAll()} has already returned.
+   */
+  private final List<Thread> transformThreads = Collections.synchronizedList(new ArrayList<>());
+
   @Getter @Setter
   protected List<IExecutionDataSampler<? extends IExecutionDataSamplerStore>> dataSamplers;
 
@@ -1531,10 +1537,12 @@ public abstract class Pipeline
 
         // Now start all the threads...
         //
+        transformThreads.clear();
         for (final TransformMetaDataCombi combi : transforms) {
           RunThread runThread = new RunThread(combi);
           Thread thread = new Thread(runThread);
           thread.setName(getName() + " - " + combi.transformName);
+          addTransformThread(thread);
           registerTransformExtensionPoints(combi);
           thread.start();
         }
@@ -2019,6 +2027,33 @@ public abstract class Pipeline
     }
 
     fireExecutionStoppedListeners();
+  }
+
+  /**
+   * Stop, then interrupt transform threads that did not leave their blocking call. {@link
+   * #stopAll()} returns immediately once it has run, so a second stop from the GUI comes here.
+   */
+  @Override
+  public void forceStop() {
+    if (!isStopped()) {
+      stopAll();
+    }
+    List<Thread> threads;
+    synchronized (transformThreads) {
+      threads = new ArrayList<>(transformThreads);
+    }
+    for (Thread thread : threads) {
+      if (thread.isAlive() && thread != Thread.currentThread()) {
+        thread.interrupt();
+      }
+    }
+  }
+
+  /** Remember a transform thread so {@link #forceStop()} can interrupt it. */
+  protected void addTransformThread(Thread thread) {
+    if (thread != null) {
+      transformThreads.add(thread);
+    }
   }
 
   public void stopTransform(TransformMetaDataCombi combi, boolean safeStop) {
