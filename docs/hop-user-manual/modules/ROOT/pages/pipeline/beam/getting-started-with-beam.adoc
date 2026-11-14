@@ -225,6 +225,11 @@ This is handled by https://beam.apache.org/documentation/patterns/side-inputs/[s
 |Sometimes you want to target specific transforms like in `Switch Case` or `Filter Rows`.
 This is fully supported as well and handled by the Beam API which handles https://beam.apache.org/documentation/programming-guide/#additional-outputs[additional outputs].
 
+|Error hops
+|A transform that sends its rows with errors to an error hop does so on Beam too: the error rows leave the transform on an additional output of their own, with the layout of an error row (the fields the transform passed plus the error fields).
+Every worker counts its own errors, so *Max nr errors allowed* and the percentages apply per worker and bundle, as they apply per copy on the local engine.
+The transforms that Beam runs natively (the Beam specific transforms, Memory Group By, Merge Join ...) have no error rows: a pipeline that gives one of them an error hop is refused.
+
 |Non-Beam input transforms
 |When you're reading data using a non-beam transform (see `Beam specific transforms` above) we need to make sure that this transform is executed in exactly one thread.
 Otherwise, you might read your XML or JSON document many times by the inherently parallel intentions of the various engines.

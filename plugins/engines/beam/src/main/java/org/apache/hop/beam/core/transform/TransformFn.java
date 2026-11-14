@@ -317,6 +317,7 @@ public class TransformFn extends TransformBaseFn {
     for (TransformMeta targetTransformMeta : targetTransformMetas) {
       pipelineMeta.addPipelineHop(new PipelineHopMeta(transformMeta, targetTransformMeta));
     }
+    applyErrorHandling(pipelineMeta, transformMeta);
 
     // And the info hops...
     //
@@ -391,7 +392,7 @@ public class TransformFn extends TransformBaseFn {
     TransformMetaDataCombi transformCombi = findCombi(pipeline, transformName);
     transformCombis.add(transformCombi);
 
-    if (targetTransforms.isEmpty()) {
+    if (capturesMainOutput(targetTransforms)) {
       IRowListener rowListener =
           new RowAdapter() {
             @Override

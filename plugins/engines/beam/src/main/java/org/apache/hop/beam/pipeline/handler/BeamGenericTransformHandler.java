@@ -138,6 +138,13 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
         targetTransforms.add(targetStream.getTransformMeta().getName());
       }
     }
+    // Rows with errors go to the error hop's transform: one more output, the last target, with
+    // the layout of an error row
+    String errorHandlingXml = null;
+    if (transformMeta.isDoingErrorHandling()) {
+      targetTransforms.add(transformMeta.getTransformErrorMeta().getTargetTransform().getName());
+      errorHandlingXml = transformMeta.getTransformErrorMeta().getXml();
+    }
 
     // For streaming pipelines we need to flush the rows in the buffer of a generic transform (Table
     // Output, Neo4j Output, ...)
@@ -194,6 +201,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               dataSamplersJson,
               parentLogChannelId);
     }
+
+    ((TransformTransform) transformTransform).setErrorHandlingXml(errorHandlingXml);
 
     if (input == null) {
       // Start from a dummy row and group over it.

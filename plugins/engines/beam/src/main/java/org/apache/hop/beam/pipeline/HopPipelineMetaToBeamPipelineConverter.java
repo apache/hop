@@ -517,7 +517,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
 
       // What fields are we getting from the previous transform(s)?
       //
-      IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, previousTransform);
+      // The layout of the hop into this transform: an error hop carries error rows
+      IRowMeta rowMeta =
+          pipelineMeta.getTransformFields(variables, previousTransform, transformMeta, null);
 
       transformHandler.handleTransform(
           log,
@@ -593,7 +595,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
           // No fuss with info fields sneaking in, all previous transforms need to emit the same
           // layout anyway
           //
-          rowMeta = pipelineMeta.getTransformFields(variables, firstPreviousTransform);
+          rowMeta =
+              pipelineMeta.getTransformFields(
+                  variables, firstPreviousTransform, transformMeta, null);
 
           // Check in the map to see if previousTransform isn't targeting this one
           //
@@ -658,6 +662,16 @@ public class HopPipelineMetaToBeamPipelineConverter {
           }
         }
 
+        if (transformHandler != null && transformMeta.isDoingErrorHandling()) {
+          // A native handler has no rows with errors to hand on: the error transform would read
+          // the transform's output instead
+          throw new HopException(
+              "Transform '"
+                  + transformMeta.getName()
+                  + "' runs natively on Beam, which has no error hop: remove the error hop or run"
+                  + " the pipeline on the Local engine. plugin id="
+                  + transformMeta.getTransformPluginId());
+        }
         if (transformHandler == null) {
           transformHandler = genericTransformHandler;
         }

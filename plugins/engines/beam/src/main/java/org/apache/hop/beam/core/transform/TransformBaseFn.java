@@ -34,11 +34,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionDataBuilder;
@@ -54,15 +56,19 @@ import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
 
@@ -80,6 +86,37 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   protected transient List<IExecutionDataSamplerStore> dataSamplerStores;
   protected transient Timer executionInfoTimer;
   protected transient BoundedWindow batchWindow;
+
+  /**
+   * The error handling of the transform ({@link TransformErrorMeta#getXml()}), null without an
+   * error hop. Its target is the last of the target transforms: the rows with errors leave the
+   * transform on an output of their own, with the layout of an error row.
+   */
+  protected String errorHandlingXml;
+
+  public void setErrorHandlingXml(String errorHandlingXml) {
+    this.errorHandlingXml = errorHandlingXml;
+  }
+
+  /** Gives the transform of the mini-pipeline its error handling, to the error target's dummy. */
+  protected void applyErrorHandling(PipelineMeta pipelineMeta, TransformMeta transformMeta)
+      throws HopXmlException {
+    if (errorHandlingXml == null) {
+      return;
+    }
+    Node node = XmlHandler.loadXmlString(errorHandlingXml, TransformErrorMeta.XML_ERROR_TAG);
+    TransformErrorMeta errorMeta = new TransformErrorMeta(node, pipelineMeta.getTransforms());
+    errorMeta.setEnabled(true);
+    transformMeta.setTransformErrorMeta(errorMeta);
+  }
+
+  /**
+   * @return true when the rows the transform writes are its main output: no target streams, the
+   *     error target aside
+   */
+  protected boolean capturesMainOutput(List<String> targetTransforms) {
+    return targetTransforms.size() == (errorHandlingXml == null ? 0 : 1);
+  }
 
   public TransformBaseFn(String parentLogChannelId, String runConfigName, String dataSamplersJson) {
     this.parentLogChannelId = parentLogChannelId;
