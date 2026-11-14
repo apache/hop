@@ -18,9 +18,9 @@
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
 import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -228,7 +228,9 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
       data.fos = HopVfs.getOutputStream(filename, false, variables);
       data.countingOutputStream = new CountingOutputStream(data.fos);
-      data.zip = new GZIPOutputStream(data.countingOutputStream);
+      data.zip =
+          GzipCompressionLevel.orNotStoredDefault(meta.getCompressionLevel())
+              .newOutputStream(data.countingOutputStream);
       data.dos = CubeStreams.dataOutput(data.zip);
     } catch (Exception e) {
       throw new HopFileException(e);

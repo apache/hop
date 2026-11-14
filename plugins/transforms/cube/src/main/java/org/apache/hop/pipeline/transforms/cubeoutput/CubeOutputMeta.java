@@ -24,6 +24,7 @@ import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -126,6 +127,22 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
   @HopMetadataProperty(key = "add_to_result_filenames")
   private boolean addToResultFilenames;
 
+  /**
+   * How hard to compress the file, from 1 (fastest) to 9 (smallest file). A transform saved before
+   * the level could be chosen has none stored and keeps level 6, the level it always wrote with.
+   */
+  @GuiWidgetElement(
+      id = "compressionLevel",
+      order = "0600",
+      type = GuiElementType.COMBO,
+      label = "i18n::CubeOutputDialog.CompressionLevel.Label",
+      toolTip = "i18n::CubeOutputDialog.CompressionLevel.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_FILE)
+  @HopMetadataProperty(key = "compression_level", storeWithCode = true)
+  private GzipCompressionLevel compressionLevel = GzipCompressionLevel.NOT_STORED_DEFAULT;
+
   public CubeOutputMeta() {
     super();
   }
@@ -136,6 +153,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     doNotOpenNewFileInit = false;
     filenameCreatingParentFolders = false;
     includeTransformNr = false;
+    compressionLevel = GzipCompressionLevel.NOT_STORED_DEFAULT;
   }
 
   @Override

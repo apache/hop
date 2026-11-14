@@ -18,9 +18,12 @@
 package org.apache.hop.pipeline.transforms.zipfile;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -72,6 +75,22 @@ public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
 
   /** Operations type */
   private int operationType;
+
+  /**
+   * The level of a transform saved before the level could be chosen: the level Zip file always
+   * compressed with, so those transforms keep writing the same archives.
+   */
+  public static final GzipCompressionLevel COMPRESSION_LEVEL_NOT_STORED =
+      GzipCompressionLevel.SMALLEST;
+
+  /** How hard to compress the entries, from 1 (fastest) to 9 (smallest archive). */
+  @Getter
+  @Setter
+  @HopMetadataProperty(
+      key = "compression_level",
+      storeWithCode = true,
+      injectionKeyDescription = "ZipFileDialog.CompressionLevel.Label")
+  private GzipCompressionLevel compressionLevel;
 
   /** The operations description */
   public static final String[] operationTypeDesc = {
@@ -241,6 +260,17 @@ public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
     createParentFolder = false;
     keepSourceFolder = false;
     operationType = OPERATION_TYPE_NOTHING;
+    // A newly created transform only: a saved one without a level keeps
+    // COMPRESSION_LEVEL_NOT_STORED.
+    compressionLevel = GzipCompressionLevel.STANDARD;
+  }
+
+  /**
+   * @return the level to compress with: the stored one, or {@link #COMPRESSION_LEVEL_NOT_STORED}
+   *     for a transform saved without a level
+   */
+  public GzipCompressionLevel compressionLevelOrNotStored() {
+    return compressionLevel == null ? COMPRESSION_LEVEL_NOT_STORED : compressionLevel;
   }
 
   private static String getOperationTypeCode(int i) {

@@ -21,10 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +55,7 @@ class ZipFileMetaLoadSaveTest {
             "createParentFolder",
             "keepSourceFolder",
             "operationType",
+            "compressionLevel",
             "operationTypeMeta");
 
     Map<String, String> getterMap = new HashMap<>();
@@ -63,6 +66,9 @@ class ZipFileMetaLoadSaveTest {
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
         "operationType", new IntLoadSaveValidator(ZipFileMeta.operationTypeCode.length));
+
+    attrValidatorMap.put(
+        "compressionLevel", new EnumLoadSaveValidator<>(GzipCompressionLevel.STANDARD));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
