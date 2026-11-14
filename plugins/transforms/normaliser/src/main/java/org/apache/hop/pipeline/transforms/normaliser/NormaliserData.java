@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -26,19 +24,17 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
 public class NormaliserData extends BaseTransformData implements ITransformData {
-  public List<String> type_occ;
-  public int maxlen;
-  public List<Integer> copyFieldnrs;
-  Map<String, List<Placement>> typeToPlacements;
+  /** The types, in the order their rows are written. */
+  String[] types;
+
+  /** Per type, in the order of {@link #types}: where its input fields go. */
+  Placement[][] placements;
+
+  /** The input fields that are copied to every output row, in input order. */
+  int[] copyFieldNrs;
 
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
-
-  public NormaliserData() {
-    super();
-
-    type_occ = null;
-  }
 
   /**
    * Where one input field goes on the output row of its type.

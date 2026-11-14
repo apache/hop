@@ -24,6 +24,7 @@
 		<schema_name />
 	</partitioning>
 	<typefield>type</typefield>
+	<valuefield>content</valuefield>
 	<fields>
 		<field>
 			<name>fieldA</name>
