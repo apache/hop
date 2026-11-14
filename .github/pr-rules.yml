@@ -18,6 +18,9 @@
 # Please keep the entries sorted lexicographically in each category.
 
 # General
+AI:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/tech/ai/**/*', 'plugins/transforms/languagemodelchat/**/*', 'plugins/transforms/textchunker/**/*']
 Beam:
   - changed-files:
       - any-glob-to-any-file: ['engine-beam/**/*']
@@ -27,12 +30,27 @@ Containers:
 Documentation:
   - changed-files:
       - any-glob-to-any-file: ['docs/**/*']
+Git:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/misc/git/**/*', 'plugins/tech/git-vfs/**/*']
+Graph Databases:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/tech/age/**/*', 'plugins/tech/falkordb/**/*', 'plugins/tech/gremlin/**/*', 'plugins/tech/neo4j/**/*']
 Hop Gui:
   - changed-files:
       - any-glob-to-any-file: ['rap/**/*', 'rcp/**/*', 'ui/**/*']
 Integration Testing:
   - changed-files:
       - any-glob-to-any-file: ['integration-tests/**/*']
-Neo4j:
+Lineage:
   - changed-files:
-      - any-glob-to-any-file: ['plugins/tech/neo4j/**/*']
+      - any-glob-to-any-file: ['plugins/tech/openlineage/**/*']
+Lint:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/misc/lint/**/*']
+Spark:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/engines/spark/**/*']
+Unit Testing:
+  - changed-files:
+      - any-glob-to-any-file: ['plugins/misc/testing/**/*']

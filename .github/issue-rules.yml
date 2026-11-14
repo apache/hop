@@ -30,6 +30,15 @@ rules:
   contains: 'Actions'
   addLabels: [ 'Actions' ]
 - valueFor: 'Component'
+  equals: 'AI'
+  addLabels: ['AI']
+- valueFor: 'Component'
+  contains: 'AI,'
+  addLabels: ['AI']
+- valueFor: 'Component'
+  contains: ': AI'
+  addLabels: ['AI']
+- valueFor: 'Component'
   contains: 'API'
   addLabels: [ 'API' ]
 - valueFor: 'Component'
@@ -42,11 +51,23 @@ rules:
   contains: 'Containers'
   addLabels: ['Containers']
 - valueFor: 'Component'
-  contains: 'Database'
+  equals: 'Database'
+  addLabels: ['Database']
+- valueFor: 'Component'
+  contains: 'Database,'
+  addLabels: ['Database']
+- valueFor: 'Component'
+  contains: ': Database'
   addLabels: ['Database']
 - valueFor: 'Component'
   contains: 'Documentation'
   addLabels: ['Documentation']
+- valueFor: 'Component'
+  contains: 'Git'
+  addLabels: ['Git']
+- valueFor: 'Component'
+  contains: 'Graph Databases'
+  addLabels: ['Graph Databases']
 - valueFor: 'Component'
   contains: 'Hop Config'
   addLabels: ['Hop Config']
@@ -72,14 +93,17 @@ rules:
   contains: 'Integration Testing'
   addLabels: ['Integration Testing']
 - valueFor: 'Component'
+  contains: 'Lineage'
+  addLabels: ['Lineage']
+- valueFor: 'Component'
+  contains: 'Lint'
+  addLabels: ['Lint']
+- valueFor: 'Component'
   contains: 'Marketplace'
   addLabels: [ 'Marketplace' ]
 - valueFor: 'Component'
   contains: 'Metadata'
   addLabels: ['Metadata']
-- valueFor: 'Component'
-  contains: 'Neo4j'
-  addLabels: ['Neo4j']
 - valueFor: 'Component'
   contains: 'Pipelines'
   addLabels: ['Pipelines']
@@ -87,11 +111,17 @@ rules:
   contains: 'Samples'
   addLabels: ['Samples']
 - valueFor: 'Component'
+  contains: 'Spark'
+  addLabels: ['Spark']
+- valueFor: 'Component'
   contains: 'Transforms'
   addLabels: ['Transforms']
 - valueFor: 'Component'
   contains: 'Translations'
   addLabels: ['Translations']
+- valueFor: 'Component'
+  contains: 'Unit Testing'
+  addLabels: ['Unit Testing']
 - valueFor: 'Component'
   contains: 'VFS'
   addLabels: ['VFS']
