@@ -85,7 +85,6 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
     awaitJobsUncapped();
     shutdownOwnedExecutor();
 
-    facadeMap.clear();
     setOutputDone();
   }
 

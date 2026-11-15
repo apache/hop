@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
@@ -247,6 +248,51 @@ class LanguageModelChatLifecycleTest {
     } finally {
       releaseOutput.countDown();
       disposer.shutdownNow();
+    }
+  }
+
+  @Test
+  void queuedWorkAfterStopRetainsFacadeAndDrainsOnDispose() throws Exception {
+    final var executor = Executors.newSingleThreadExecutor();
+    final var queueBlocked = new CountDownLatch(1);
+    final var releaseQueue = new CountDownLatch(1);
+    final var workCompleted = new AtomicBoolean();
+    final var blocker =
+        executor.submit(
+            () -> {
+              queueBlocked.countDown();
+              assertTrue(releaseQueue.await(5, TimeUnit.SECONDS));
+              return null;
+            });
+    try (final var facades =
+            mockConstruction(
+                LanguageModelFacade.class,
+                (facade, context) ->
+                    when(facade.inputToChatMessages(any()))
+                        .thenAnswer(
+                            invocation -> {
+                              workCompleted.set(true);
+                              return List.of();
+                            }));
+        final var factory = mockStatic(Executors.class, CALLS_REAL_METHODS)) {
+      assertTrue(queueBlocked.await(5, TimeUnit.SECONDS));
+      factory.when(() -> Executors.newWorkStealingPool(1)).thenReturn(executor);
+      final var transform = transform(1);
+      assertTrue(transform.processRow());
+      transform.stopRunning();
+      assertFalse(transform.processRow());
+      assertFalse(workCompleted.get());
+
+      releaseQueue.countDown();
+      transform.dispose();
+      assertTrue(workCompleted.get(), "dispose must drain accepted queued work after stop");
+      assertEquals(0, transform.getErrors());
+      blocker.get(5, TimeUnit.SECONDS);
+      assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
+    } finally {
+      releaseQueue.countDown();
+      executor.shutdownNow();
+      assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
     }
   }
 
