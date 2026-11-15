@@ -30,9 +30,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.lineage.context.LineageContext;
+import org.apache.hop.lineage.hub.LineageConfiguration;
+import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.hub.LineageSinkTarget;
+import org.apache.hop.lineage.model.LineageEvent;
+import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,5 +127,46 @@ class GetStatusServletTest {
     assertFalse(html.contains("/content/common-ui"));
     assertTrue(html.contains("/static/images/run.svg"));
     assertTrue(html.contains("/static/images/favicon.svg"));
+  }
+
+  @Test
+  void theLineageSinksAreListedWithTheirErrorsEscaped() {
+    HopLogStore.init();
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(
+            LineageConfiguration.forTesting(false, 100, 10, 50L, Set.of()),
+            List.of(),
+            target -> {
+              throw new HopException("<script>alert('x')</script>");
+            });
+    String key =
+        hub.useSink(new LineageSinkTarget("datahub", "datahub", Map.of("URL", "http://gms")));
+    hub.emit(
+        LineageEvent.of(
+            LineageEventKind.RUN_LIFECYCLE,
+            LineageContext.builder().sinks(Set.of(key)).build(),
+            null));
+    hub.flush();
+    StringWriter out = new StringWriter();
+
+    GetStatusServlet.printLineageSinks(new PrintWriter(out), "h3", 0, hub);
+    hub.shutdown();
+
+    String html = out.toString();
+    assertTrue(html.contains("datahub"), html);
+    assertFalse(html.contains("<script>"), html);
+    assertTrue(html.contains("&lt;script&gt;"), html);
+  }
+
+  @Test
+  void noLineageSectionWithoutLineage() {
+    LineageHub hub =
+        LineageHub.newIsolatedForTesting(
+            LineageConfiguration.forTesting(false, 100, 10, 50L, Set.of()), List.of());
+    StringWriter out = new StringWriter();
+
+    GetStatusServlet.printLineageSinks(new PrintWriter(out), "h3", 0, hub);
+
+    assertTrue(out.toString().isEmpty());
   }
 }

@@ -275,6 +275,41 @@ class LineageHubRoutingTest {
     assertNull(hub.failure(flaky));
   }
 
+  @Test
+  void theStatusListsEverySinkWithItsHealth() {
+    ILineageSink variablesSink = batch -> {};
+    LineageHub hub = hub(LINEAGE_ON, List.of(variablesSink));
+
+    String marquez = hub.useSink(target("marquez", "http://marquez:5000"));
+    String broken = hub.useSink(target("broken", "http://nowhere"));
+    hub.useSink(target("idle", "http://idle:5000"));
+    hub.emit(event("one", marquez, broken));
+    hub.emit(event("two", marquez));
+    hub.flush();
+    List<LineageSinkStatus> status = hub.sinkStatus();
+    hub.shutdown();
+
+    assertEquals(4, status.size(), status.toString());
+    LineageSinkStatus global = status.get(0);
+    assertFalse(global.fromRunConfiguration());
+    assertTrue(global.started());
+    LineageSinkStatus running = find(status, "marquez");
+    assertTrue(running.fromRunConfiguration());
+    assertTrue(running.started());
+    assertEquals(2, running.health().sent());
+    LineageSinkStatus failed = find(status, "broken");
+    assertFalse(failed.started());
+    assertTrue(failed.startError().contains("not installed"), failed.startError());
+    LineageSinkStatus idle = find(status, "idle");
+    assertFalse(idle.started());
+    assertNull(idle.startError());
+    assertNull(idle.health());
+  }
+
+  private static LineageSinkStatus find(List<LineageSinkStatus> status, String name) {
+    return status.stream().filter(s -> s.name().equals(name)).findFirst().orElseThrow();
+  }
+
   private static void waitUntil(BooleanSupplier condition) throws InterruptedException {
     long deadline = System.currentTimeMillis() + 5_000;
     while (!condition.getAsBoolean() && System.currentTimeMillis() < deadline) {

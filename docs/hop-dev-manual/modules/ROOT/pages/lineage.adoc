@@ -213,6 +213,7 @@ Sinks implement **`org.apache.hop.lineage.spi.ILineageSink`**:
 * **`init(IVariables variables, ILogChannel log)`** — Optional; called once before the first batch.
 * **`accept(List<LineageEvent> events)`** — Receives a non-empty batch; should not hold references to the list after returning.
 * **`shutdown()`** — Optional cleanup.
+* **`health()`** — Optional; a `LineageSinkHealth` with the counts (sent, failed attempts, rejected, dropped, waiting, on disk) and the last error, for *Tools* > *Lineage sinks* in Hop GUI and the Hop Server status page (`LineageHub.sinkStatus()`). Called from any thread: keep it cheap.
 * **`newConfiguration()`** — Optional; a new `ILineageSinkConfiguration`, an object with `@HopMetadataProperty` and `@GuiWidgetElement` fields (parent `LineageSink.GUI_PLUGIN_ELEMENT_PARENT_ID`), so the sink can be a `lineage-sink` metadata object. Its `toSettings()` gives the variables `init` then reads. Null, the default, means variables only.
 
 The implementation class is annotated with **`@LineageSinkPlugin`** (`id`, optional `name`, `description`), mirroring other Hop plugin types (see xref:plugin-development.adoc[Plugin Development]).

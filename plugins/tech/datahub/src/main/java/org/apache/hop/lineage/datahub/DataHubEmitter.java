@@ -131,6 +131,9 @@ class DataHubEmitter implements OpenLineageEmitter {
   private final long retryBackoffMs;
   private final ILogChannel log;
 
+  /** What went wrong last; see {@link #lastError()}. */
+  private volatile String lastError;
+
   /** Events older than this were left in the spool by an earlier process. */
   private final long replayedBeforeMs;
 
@@ -238,6 +241,7 @@ class DataHubEmitter implements OpenLineageEmitter {
         translations[i] = translator.translate(events.get(i));
       } catch (RuntimeException e) {
         log.logError("Unable to translate a lineage event for DataHub; it is skipped", e);
+        lastError = "Unable to translate a lineage event for DataHub: " + e;
         results[i] = Result.REJECTED;
       }
     }
@@ -876,7 +880,7 @@ class DataHubEmitter implements OpenLineageEmitter {
     if (to - from == 1) {
       Mcp mcp = proposals.get(from);
       outcomes[from] = Result.REJECTED;
-      log.logError(
+      lastError =
           "DataHub refused "
               + mcp.aspectName()
               + " of "
@@ -884,18 +888,20 @@ class DataHubEmitter implements OpenLineageEmitter {
               + " (HTTP "
               + response.status()
               + "): "
-              + abbreviate(response.body()));
+              + abbreviate(response.body());
+      log.logError(lastError);
       return true;
     }
     if (budget[0] < 2) {
       Arrays.fill(outcomes, from, to, Result.REJECTED);
-      log.logError(
+      lastError =
           "DataHub refused "
               + (to - from)
               + " proposal(s) together (HTTP "
               + response.status()
               + ") and they were not singled out further: "
-              + abbreviate(response.body()));
+              + abbreviate(response.body());
+      log.logError(lastError);
       return true;
     }
     budget[0] -= 2;
@@ -929,6 +935,11 @@ class DataHubEmitter implements OpenLineageEmitter {
   }
 
   private void logFailure(DataHubClient.Response response, int proposals) {
+    lastError =
+        "Unable to write to DataHub"
+            + (response.status() > 0 ? " (HTTP " + response.status() + ")" : "")
+            + ": "
+            + abbreviate(response.body());
     log.logError(
         "Unable to write "
             + proposals
@@ -936,6 +947,11 @@ class DataHubEmitter implements OpenLineageEmitter {
             + (response.status() > 0 ? " (HTTP " + response.status() + ")" : "")
             + "; their events are kept and sent again later: "
             + abbreviate(response.body()));
+  }
+
+  @Override
+  public String lastError() {
+    return lastError;
   }
 
   private static String abbreviate(String text) {

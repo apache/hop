@@ -61,6 +61,14 @@ public interface ILineageSink {
     return null;
   }
 
+  /**
+   * How the sink's delivery is going, for Hop GUI and the Hop Server status page. Called from any
+   * thread, often: keep it cheap. Null, the default, when the sink doesn't keep count.
+   */
+  default LineageSinkHealth health() {
+    return null;
+  }
+
   /** Called when the hub shuts down or sinks are reloaded. */
   default void shutdown() throws HopException {
     // default no-op

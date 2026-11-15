@@ -18,6 +18,7 @@
 package org.apache.hop.lineage.openlineage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -91,6 +92,7 @@ class OpenLineageHttpClientTest {
 
     assertEquals(Result.RETRY, client.emit(event()));
     verify(delegate, times(1)).emit(any(RunEvent.class));
+    assertTrue(client.lastError().startsWith("HTTP 401 from "), client.lastError());
   }
 
   @Test

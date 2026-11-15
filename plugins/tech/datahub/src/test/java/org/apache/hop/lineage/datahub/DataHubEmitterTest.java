@@ -263,6 +263,8 @@ class DataHubEmitterTest {
       }
     }
     assertTrue(sent(accepted, OUT, "status"), "the rest of the event is still written");
+    assertTrue(
+        emitter.lastError().startsWith("DataHub refused schemaMetadata of "), emitter.lastError());
     int requests = gms.findAll(postRequestedFor(urlEqualTo(INGEST))).size();
     assertTrue(
         requests <= 1 + 2 * (int) Math.ceil(Math.log(accepted.size() + 1.0) / Math.log(2)),

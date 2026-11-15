@@ -29,6 +29,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.plugin.LineageSinkPlugin;
 import org.apache.hop.lineage.spi.ILineageSink;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
@@ -88,6 +89,11 @@ public class FakeLineageSink implements ILineageSink {
   @Override
   public synchronized void accept(List<LineageEvent> batch) {
     events.addAll(batch);
+  }
+
+  @Override
+  public synchronized LineageSinkHealth health() {
+    return new LineageSinkHealth(events.size(), 0, 0, 0, 0, -1, events.isEmpty() ? 0 : 1L, 0, null);
   }
 
   @Override

@@ -30,6 +30,7 @@ import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.plugin.LineageSinkPlugin;
 import org.apache.hop.lineage.spi.ILineageSink;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 
 /**
  * Hop lineage sink that maps neutral {@link LineageEvent} batches to OpenLineage JSON and POSTs
@@ -106,6 +107,25 @@ public class OpenLineageLineageSink implements ILineageSink {
         + (config.isParentRunsEnabled() ? "on" : "off")
         + ", file dataset naming="
         + (config.isFileSpecNaming() ? "spec" : "legacy");
+  }
+
+  @Override
+  public LineageSinkHealth health() {
+    OpenLineageAsyncDispatcher current = dispatcher;
+    if (current == null) {
+      return null;
+    }
+    OpenLineageSpool currentSpool = spool;
+    return new LineageSinkHealth(
+        current.getSentCount(),
+        current.getFailedCount(),
+        current.getRejectedCount(),
+        current.getDroppedCount(),
+        current.getWaitingCount(),
+        currentSpool == null ? -1 : currentSpool.getStoredCount(),
+        current.getLastSentMillis(),
+        current.getLastErrorMillis(),
+        current.getLastError());
   }
 
   @Override

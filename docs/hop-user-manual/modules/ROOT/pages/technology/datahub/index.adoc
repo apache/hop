@@ -200,6 +200,8 @@ Run a pipeline and open DataHub: the pipeline is listed under the *Apache Hop* p
 on its *Tasks* tab and its runs on the *Runs* tab of each task. The *Lineage* tab of a dataset the
 pipeline wrote shows the tasks and datasets upstream of it.
 
+*Tools* > *Lineage sinks* in Hop GUI, and the status page of a Hop Server, show what the sink sent, what waits and the last error; see xref:metadata-types/lineage-sink.adoc#_sink_health[Sink health].
+
 The sink logs one line when it starts:
 
 ----

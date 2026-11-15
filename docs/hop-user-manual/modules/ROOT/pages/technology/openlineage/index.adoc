@@ -321,3 +321,4 @@ integrating a second lineage producer against the same collector.
   `columnLineage` facet — in Marquez.
 
 On startup the sink logs `OpenLineage lineage sink initialized: url=…, namespace=…`.
+*Tools* > *Lineage sinks* in Hop GUI, and the status page of a Hop Server, show what the sink sent, what waits and the last error; see xref:metadata-types/lineage-sink.adoc#_sink_health[Sink health].

@@ -18,7 +18,9 @@
 package org.apache.hop.lineage.hub;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +48,7 @@ import org.apache.hop.lineage.LineageVariables;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.plugin.LineageSinkPluginType;
 import org.apache.hop.lineage.spi.ILineageSink;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 
 /**
  * Central async hub for lineage events. When lineage is disabled (see {@link
@@ -137,6 +140,13 @@ public final class LineageHub {
 
   /** Releases the holds of a run that ended, in the queue after the run's last event. */
   private record ReleaseRequest(Set<String> keys) {}
+
+  /** The plugin id of each sink configured with variables, for the status page. */
+  private final Map<ILineageSink, String> sinkIds =
+      Collections.synchronizedMap(new IdentityHashMap<>());
+
+  /** Why the sinks configured with variables failed to initialize, or null. */
+  private volatile String sinkInitError;
 
   /** Creates the sink of a target: from the plugin registry, or a stand-in in tests. */
   private final SinkFactory sinkFactory;
@@ -233,6 +243,69 @@ public final class LineageHub {
     applyRelease(request);
   }
 
+  /**
+   * The lineage sinks the hub delivers to, with how their delivery is going: the sinks configured
+   * with variables, and the sinks runs selected in their run configurations.
+   */
+  public List<LineageSinkStatus> sinkStatus() {
+    List<LineageSinkStatus> result = new ArrayList<>();
+    if (resolveConfig().isEnabled()) {
+      if (sinkInitError != null) {
+        result.add(
+            new LineageSinkStatus(
+                String.join(",", resolveConfig().getSinkIds()),
+                "",
+                false,
+                false,
+                null,
+                sinkInitError));
+      }
+      for (ILineageSink sink : sinksInitialized.get() ? sinks : List.<ILineageSink>of()) {
+        String id = sinkIds.getOrDefault(sink, sink.getClass().getSimpleName());
+        result.add(new LineageSinkStatus(id, pluginName(id), false, true, healthOf(sink), null));
+      }
+    }
+    List<LineageSinkTarget> known;
+    Map<String, ILineageSink> started;
+    synchronized (routedSinks) {
+      known = new ArrayList<>(targets.values());
+      started = new HashMap<>(routedSinks);
+    }
+    for (LineageSinkTarget target : known) {
+      String key = target.key();
+      ILineageSink sink = started.get(key);
+      result.add(
+          new LineageSinkStatus(
+              target.name(),
+              pluginName(target.pluginId()),
+              true,
+              sink != null,
+              sink == null ? null : healthOf(sink),
+              failure(key)));
+    }
+    return result;
+  }
+
+  /** Events waiting in the hub's queue for the sinks. */
+  public int getQueuedEventCount() {
+    BlockingQueue<Object> q = queue;
+    return q == null ? 0 : q.size();
+  }
+
+  private LineageSinkHealth healthOf(ILineageSink sink) {
+    try {
+      return sink.health();
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
+  private static String pluginName(String pluginId) {
+    IPlugin plugin =
+        PluginRegistry.getInstance().findPluginWithId(LineageSinkPluginType.class, pluginId);
+    return plugin == null ? pluginId : plugin.getName();
+  }
+
   /** Why the sink of a key failed to start, while it waits to be tried again; null otherwise. */
   public String failure(String key) {
     Failure failure = failedTargets.get(key);
@@ -285,6 +358,8 @@ public final class LineageHub {
     sinksInitialized.set(false);
     sinkInitFailed.set(false);
     sinks = List.of();
+    sinkIds.clear();
+    sinkInitError = null;
     routedSinks.clear();
     failedTargets.clear();
   }
@@ -402,6 +477,8 @@ public final class LineageHub {
       sinksInitialized.set(false);
       sinkInitFailed.set(false);
       sinks = List.of();
+      sinkIds.clear();
+      sinkInitError = null;
       LineageConfiguration.invalidate();
     } finally {
       shutdownLock.writeLock().unlock();
@@ -549,6 +626,7 @@ public final class LineageHub {
       sinkInitFailed.set(true);
       // None of them: some may have been initialized, the one that failed may be half-way.
       sinks = List.of();
+      sinkInitError = String.valueOf(e);
       log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
       if (targets.isEmpty()) {
         return;
@@ -762,6 +840,7 @@ public final class LineageHub {
       if (explicitSinks != null) {
         sinks = List.copyOf(explicitSinks);
         for (ILineageSink sink : sinks) {
+          sinkIds.put(sink, sink.getClass().getSimpleName());
           sink.init(variables, log);
         }
         sinksInitialized.set(true);
@@ -778,6 +857,7 @@ public final class LineageHub {
         }
         try {
           ILineageSink sink = registry.loadClass(plugin, ILineageSink.class);
+          sinkIds.put(sink, plugin.getIds()[0]);
           sink.init(variables, log);
           loaded.add(sink);
         } catch (HopPluginException e) {
