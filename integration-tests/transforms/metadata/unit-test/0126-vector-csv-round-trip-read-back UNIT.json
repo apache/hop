@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "embedding",
+          "data_set_field": "embedding"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "transform_name": "OUTPUT",
+      "data_set_name": "golden-vector-csv-round-trip"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0126-vector-csv-round-trip-read-back UNIT",
+  "description": "Reads the comma-separated file written by 0126-vector-csv-round-trip as Vector and compares the canonical text with the data set",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0126-vector-csv-round-trip-read-back.hpl",
+  "test_type": "UNIT_TEST"
+}

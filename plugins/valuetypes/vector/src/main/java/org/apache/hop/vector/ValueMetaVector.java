@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -42,10 +43,11 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
 /**
  * A dense floating point vector, as produced by an embedding model and consumed by a vector store.
  *
- * <p>The canonical text form is a bracketed, comma separated list of numbers: {@code
+ * <p>The canonical text form is a bracketed, comma separated list of plain decimal numbers: {@code
  * [0.1,0.2,0.3]}. That form is both valid JSON and the literal syntax pgvector accepts, so a vector
  * survives a round trip through a text file, a Data Grid, a JSON document or a database column
- * without a conversion step in between.
+ * without a conversion step in between. Parsing rejects Java float literals and non-finite values
+ * so the text stays in that portable form.
  *
  * <p>The field's {@code length} carries the number of dimensions, the way it carries the size of a
  * String. A length of zero or less means the dimension is unspecified. Hop never pads or truncates
@@ -60,6 +62,14 @@ import org.apache.hop.core.row.value.ValueMetaPlugin;
 public class ValueMetaVector extends ValueMetaBase {
 
   public static final int TYPE_VECTOR = IValueMeta.TYPE_VECTOR;
+
+  /**
+   * Plain decimal / scientific token accepted by {@link #parse(String)}. Rejects Java float
+   * suffixes ({@code 1f}, {@code 2d}), hex floats ({@code 0x1p3}), and named constants ({@code
+   * NaN}, {@code Infinity}).
+   */
+  private static final Pattern PLAIN_DECIMAL =
+      Pattern.compile("[+-]?(?:\\d+\\.\\d*|\\.\\d+|\\d+)(?:[eE][+-]?\\d+)?");
 
   public ValueMetaVector() {
     super(null, TYPE_VECTOR);
@@ -140,9 +150,13 @@ public class ValueMetaVector extends ValueMetaBase {
    * Parse the canonical text form. Surrounding brackets are optional and whitespace is ignored, so
    * both {@code [0.1, 0.2]} and {@code 0.1,0.2} are accepted.
    *
+   * <p>Each element must be a plain decimal or scientific number ({@code 0.1}, {@code -2}, {@code
+   * 1.5e-3}). Java float literals ({@code 1f}, {@code 2d}, {@code 0x1p3}) and non-finite values
+   * ({@code NaN}, {@code Infinity}) are rejected so the text stays valid JSON and pgvector input.
+   *
    * @param string the text to parse, or null
    * @return the parsed vector, or null when the input is null or blank
-   * @throws HopValueException when the text is not a list of numbers
+   * @throws HopValueException when the text is not a list of plain decimal numbers
    */
   public static float[] parse(String string) throws HopValueException {
     if (string == null) {
@@ -166,8 +180,23 @@ public class ValueMetaVector extends ValueMetaBase {
         throw new HopValueException(
             "Empty element at position " + i + " while parsing a vector from '" + string + "'");
       }
+      if (!PLAIN_DECIMAL.matcher(part).matches()) {
+        throw new HopValueException(
+            "'" + part + "' at position " + i + " is not a number in vector '" + string + "'");
+      }
       try {
-        vector[i] = Float.parseFloat(part);
+        float value = Float.parseFloat(part);
+        if (Float.isNaN(value) || Float.isInfinite(value)) {
+          throw new HopValueException(
+              "'"
+                  + part
+                  + "' at position "
+                  + i
+                  + " is not a finite number in vector '"
+                  + string
+                  + "'");
+        }
+        vector[i] = value;
       } catch (NumberFormatException e) {
         throw new HopValueException(
             "'" + part + "' at position " + i + " is not a number in vector '" + string + "'", e);

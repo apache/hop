@@ -687,16 +687,18 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         List<Integer> enclosures = null;
         boolean writeEnclosures = false;
 
-        if (v.isString()) {
-          // Quoting stays tied to the Right pad fields checkbox. isPaddingFields() is also true
-          // for saved transforms that never selected that checkbox, and using it here would drop
-          // enclosures from existing files.
-          if (meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
-            writeEnclosures = true;
-          } else if (!meta.isEnclosureFixDisabled()
-              && containsSeparatorOrEnclosure(str, data.binarySeparator, data.binaryEnclosure)) {
-            writeEnclosures = true;
-          }
+        // Forced enclosure stays a String-only option. isPaddingFields() is also true for saved
+        // transforms that never selected that checkbox, and using it here would drop enclosures
+        // from existing files.
+        if (v.isString() && meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
+          writeEnclosures = true;
+        } else if ((v.isString() || v.getType() == IValueMeta.TYPE_VECTOR)
+            && !meta.isEnclosureFixDisabled()
+            && containsSeparatorOrEnclosure(str, data.binarySeparator, data.binaryEnclosure)) {
+          // Quote String and Vector when the rendered text embeds the separator or enclosure.
+          // Vector's canonical form [0.1,0.2,0.3] needs this for a comma-separated round trip.
+          // Other types (JSON, Binary, Number, Date) keep their previous unquoted output.
+          writeEnclosures = true;
         }
 
         if (writeEnclosures) {
