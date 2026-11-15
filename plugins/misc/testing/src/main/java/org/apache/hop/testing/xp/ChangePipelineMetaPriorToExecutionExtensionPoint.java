@@ -98,6 +98,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint
 
     // Now replace the metadata in the IPipelineEngine<PipelineMeta> object...
     //
+    pipeline.getExtensionDataMap().put(DataSetConst.UNIT_TEST_ORIGINAL_PIPELINE, pipelineMeta);
     pipeline.setPipelineMeta(copyPipelineMeta);
 
     // Set parameters and variables...

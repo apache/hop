@@ -18,7 +18,9 @@
 package org.apache.hop.testing.xp;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -27,6 +29,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageUnitTestEmitter;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -84,6 +87,7 @@ public class ValidatePipelineUnitTestExtensionPoint
       int errors =
           DataSetConst.validateTransformResultAgainstUnitTest(
               pipeline, unitTest, metadataProvider, variables, results);
+      reportToLineage(pipeline, unitTest.getName(), results);
       if (errors == 0) {
         log.logBasic("Unit test '" + unitTest.getName() + "' passed successfully");
       } else {
@@ -140,5 +144,47 @@ public class ValidatePipelineUnitTestExtensionPoint
                         UnitTestResult.getRowMeta(),
                         UnitTestResult.getRowData(results))
                     .open());
+  }
+
+  /**
+   * One result per golden data set, for the lineage sinks of the run: passed when none of its rows
+   * is an error, with the comments of the errors otherwise.
+   */
+  static void reportToLineage(
+      IPipelineEngine<PipelineMeta> pipeline, String unitTestName, List<UnitTestResult> results) {
+    Map<List<String>, List<UnitTestResult>> byLocation = new LinkedHashMap<>();
+    for (UnitTestResult result : results) {
+      if (!StringUtil.isEmpty(result.getTransformName())
+          && !StringUtil.isEmpty(result.getDataSetName())) {
+        byLocation
+            .computeIfAbsent(
+                List.of(result.getTransformName(), result.getDataSetName()), k -> new ArrayList<>())
+            .add(result);
+      }
+    }
+    PipelineMeta original =
+        pipeline.getExtensionDataMap().get(DataSetConst.UNIT_TEST_ORIGINAL_PIPELINE)
+                instanceof PipelineMeta meta
+            ? meta
+            : pipeline.getPipelineMeta();
+    for (Map.Entry<List<String>, List<UnitTestResult>> location : byLocation.entrySet()) {
+      List<String> errors = new ArrayList<>();
+      String comment = null;
+      for (UnitTestResult result : location.getValue()) {
+        if (result.isError()) {
+          errors.add(result.getComment());
+        } else if (comment == null) {
+          comment = result.getComment();
+        }
+      }
+      LineageUnitTestEmitter.emit(
+          pipeline,
+          original,
+          unitTestName,
+          location.getKey().get(0),
+          location.getKey().get(1),
+          errors.isEmpty(),
+          errors.isEmpty() ? comment : String.join("; ", errors));
+    }
   }
 }

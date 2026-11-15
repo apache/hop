@@ -19,7 +19,8 @@
 It accepts what the DataHub lineage sink writes (POST /aspects?action=ingestProposalBatch),
 answers its GraphQL questions as a DataHub that has none of the entities asked for, and writes
 one JSON line per proposal (entity URN, aspect, the Authorization header) to the log file given
-on the command line, so a test can check which runs reported their lineage here.
+on the command line, with the value of assertion aspects, so a test can check which runs reported
+their lineage here.
 
 Usage: python3 -I datahub-ingest-stub.py <port> <proposal log>
 """
@@ -49,6 +50,9 @@ class Handler(BaseHTTPRequestHandler):
                         "aspectName": proposal.get("aspectName"),
                         "authorization": authorization,
                     }
+                    if (proposal.get("aspectName") or "").startswith("assertion"):
+                        # What an assertion is about and how its run went
+                        line["value"] = json.loads(proposal.get("aspect", {}).get("value", "{}"))
                     log.write(json.dumps(line) + "\n")
             self.reply(200, {"value": []})
         elif url.path.endswith("/api/graphql"):

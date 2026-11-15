@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -165,14 +166,28 @@ public final class LineageSinkRoutes {
     if (pipeline.getParentPipeline() != null) {
       return of(pipeline.getParentPipeline(), hub);
     }
-    return of(pipeline.getParentWorkflow(), hub);
+    if (pipeline.getParentWorkflow() != null) {
+      return of(pipeline.getParentWorkflow(), hub);
+    }
+    return of(actionWorkflow(pipeline.getParent()), hub);
   }
 
   private static Set<String> parentSinks(IWorkflowEngine<WorkflowMeta> workflow, LineageHub hub) {
     if (workflow.getParentPipeline() != null) {
       return of(workflow.getParentPipeline(), hub);
     }
-    return of(workflow.getParentWorkflow(), hub);
+    if (workflow.getParentWorkflow() != null) {
+      return of(workflow.getParentWorkflow(), hub);
+    }
+    return of(actionWorkflow(workflow.getParent()), hub);
+  }
+
+  /**
+   * The workflow of an action that started a run without naming its workflow as the parent, such as
+   * the pipelines Run pipeline unit tests starts.
+   */
+  private static IWorkflowEngine<WorkflowMeta> actionWorkflow(Object parent) {
+    return parent instanceof IAction action ? action.getParentWorkflow() : null;
   }
 
   /**

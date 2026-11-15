@@ -73,6 +73,7 @@ final class DataHubTranslator {
   private static final String CONST_VALUE = "value";
   private static final String CONST_DESTINATION_URN = "destinationUrn";
   private static final String CONST_DATA_PROCESS_INSTANCE = "dataProcessInstance";
+  private static final String ASSERTION = "assertion";
   private static final String CONST_WORKFLOW = "WORKFLOW";
   private static final String CONST_PIPELINE = "Pipeline";
   private static final String CONST_WORKFLOW_2 = "Workflow";
@@ -247,6 +248,11 @@ final class DataHubTranslator {
     String jobUrn =
         subject.jobName() == null ? null : DataHubUrns.dataJob(flowUrn, subject.jobName());
     EventType type = event.getEventType();
+
+    List<Mcp> unitTest = unitTestAssertions(event, subject, flowUrn, time);
+    if (unitTest != null) {
+      return new Translation(unitTest, schemas, lifecycle, staleChecks, jobUrn, time);
+    }
 
     if (type == EventType.START) {
       proposals.addAll(flowAspects(flowUrn, subject, jobUrn == null ? description(event) : null));
@@ -1089,6 +1095,95 @@ final class DataHubTranslator {
   // ---------------------------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------------------------
+  // Unit tests
+  // ---------------------------------------------------------------------------------------------
+
+  /**
+   * A Hop unit test result (the mapper's {@value OpenLineageEventMapper#UNIT_TEST_FACET} facet) as
+   * an assertion and its run on each dataset the tested transform writes; none when it writes none,
+   * as DataHub only takes assertions on datasets. Null when the event is not a unit test result.
+   */
+  private List<Mcp> unitTestAssertions(RunEvent event, Subject subject, String flowUrn, long time) {
+    OpenLineage.RunFacets facets = event.getRun().getFacets();
+    Object facet =
+        facets == null || facets.getAdditionalProperties() == null
+            ? null
+            : facets.getAdditionalProperties().get(OpenLineageEventMapper.UNIT_TEST_FACET);
+    if (facet == null) {
+      return null;
+    }
+    JsonNode test = MAPPER.valueToTree(facet);
+    String unitTest = test.path("unitTest").asText("");
+    String dataSet = test.path("dataSet").asText("");
+    boolean passed = test.path("passed").asBoolean(false);
+    String comment = test.path("comment").asText(null);
+    List<String> assertees = new ArrayList<>();
+    for (JsonNode dataset : test.path("datasets")) {
+      String urn =
+          DataHubUrns.datasetForOpenLineage(
+              dataset.path("namespace").asText(), dataset.path("name").asText(), env);
+      if (urn != null && !assertees.contains(urn)) {
+        assertees.add(urn);
+      }
+    }
+    // DataHub takes assertions on datasets only: a test of a transform that writes none has
+    // nothing to go on.
+    String where = subject.jobName() != null ? subject.jobName() : subject.flowName();
+    List<Mcp> proposals = new ArrayList<>();
+    for (String assertee : assertees) {
+      String assertionUrn =
+          DataHubUrns.assertion(String.join("\n", flowUrn, where, unitTest, dataSet, assertee));
+      ObjectNode info = MAPPER.createObjectNode();
+      info.put("type", "CUSTOM");
+      info.put(
+          "description",
+          "Hop unit test " + unitTest + ": golden data set " + dataSet + " at " + where);
+      ObjectNode custom = info.putObject("customAssertion");
+      custom.put("type", "Hop unit test");
+      custom.put("entity", assertee);
+      custom.put(
+          "logic",
+          "The rows reaching "
+              + where
+              + " in unit test "
+              + unitTest
+              + " equal data set "
+              + dataSet);
+      info.putObject("source").put("type", "EXTERNAL");
+      ObjectNode properties = info.putObject(CONST_CUSTOM_PROPERTIES);
+      properties.put("hopUnitTest", unitTest);
+      properties.put("hopDataSet", dataSet);
+      if (subject.flowFilename() != null) {
+        properties.put(FILENAME_PROPERTY, subject.flowFilename());
+      }
+      proposals.add(Mcp.upsert(ASSERTION, assertionUrn, "assertionInfo", info));
+      ObjectNode platform = MAPPER.createObjectNode();
+      platform.put("platform", DataHubUrns.HOP_PLATFORM_URN);
+      if (!StringUtils.isBlank(platformInstance)) {
+        platform.put("instance", DataHubUrns.dataPlatformInstance(platformInstance));
+      }
+      proposals.add(Mcp.upsert(ASSERTION, assertionUrn, "dataPlatformInstance", platform));
+
+      ObjectNode run = MAPPER.createObjectNode();
+      run.put("timestampMillis", time);
+      run.put("runId", event.getRun().getRunId().toString());
+      run.put("asserteeUrn", assertee);
+      run.put("assertionUrn", assertionUrn);
+      run.put("status", "COMPLETE");
+      ObjectNode result = run.putObject("result");
+      result.put("type", passed ? "SUCCESS" : "FAILURE");
+      if (!StringUtils.isBlank(comment)) {
+        result.putObject("nativeResults").put("comment", StringUtils.abbreviate(comment, 2000));
+      }
+      ObjectNode partition = run.putObject("partitionSpec");
+      partition.put("type", "FULL_TABLE");
+      partition.put("partition", "FULL_TABLE_SNAPSHOT");
+      proposals.add(Mcp.upsert(ASSERTION, assertionUrn, "assertionRunEvent", run));
+    }
+    return proposals;
+  }
 
   private ObjectNode platformInstance() {
     ObjectNode instance = MAPPER.createObjectNode();

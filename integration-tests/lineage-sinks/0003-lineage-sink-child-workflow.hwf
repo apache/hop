@@ -77,6 +77,21 @@ limitations under the License.
       <yloc>96</yloc>
       <attributes_hac />
     </action>
+    <action>
+      <name>Run the unit test</name>
+      <description>Runs lineage-sinks-unit-test: its test pipeline inherits this workflow's lineage sink</description>
+      <type>RunPipelineTests</type>
+      <attributes />
+      <test_names>
+        <test_name>
+          <name>lineage-sinks-unit-test</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>480</xloc>
+      <yloc>96</yloc>
+      <attributes_hac />
+    </action>
   </actions>
   <hops>
     <hop>
@@ -85,6 +100,13 @@ limitations under the License.
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0004-lineage-sink-inherited</from>
+      <to>Run the unit test</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

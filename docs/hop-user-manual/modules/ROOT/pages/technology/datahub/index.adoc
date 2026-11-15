@@ -208,6 +208,14 @@ The sink logs one line when it starts:
 DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset schemas=missing, lifecycle=off, spool=off
 ----
 
+== Unit test results
+
+A xref:pipeline/pipeline-unit-testing.adoc[pipeline unit test] that runs with lineage, for example from the *Run pipeline unit tests* action in a workflow whose run configuration selects a DataHub lineage sink, reports each golden data set as an assertion run in DataHub: passed or failed, with what the comparison found.
+
+The assertion is on the tables and files the tested transform writes, as its metadata declares them: a test usually replaces that transform, so it is about what the transform would write. DataHub shows it on the dataset's *Quality* tab, and the xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action can check it before a workflow reads the dataset.
+
+DataHub only takes assertions on datasets: a test of a transform that writes no table or file is not sent.
+
 == Publishing a project without running it
 
 The xref:workflow/actions/publishtodatahub.adoc[Publish to DataHub] action, or `hop datahub-publish` on the command line, publishes a project's pipelines and workflows to DataHub without running them: their tasks, the tables and files they declare, and the layouts of those files as dataset schemas.

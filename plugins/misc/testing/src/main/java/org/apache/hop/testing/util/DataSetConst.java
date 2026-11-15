@@ -76,6 +76,12 @@ public class DataSetConst {
   public static final String ROW_COLLECTION_MAP = "RowCollectionMap";
   public static final String UNIT_TEST_RESULTS = "UnitTestResults";
 
+  /**
+   * The pipeline a unit test run was made from, before it was changed for the test (golden data
+   * transforms replaced, a copy without a file name): what the test's results are about.
+   */
+  public static final String UNIT_TEST_ORIGINAL_PIPELINE = "UNIT_TEST_ORIGINAL_PIPELINE";
+
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
   public static final String STATE_KEY_GOLDEN_DATASET_RESULTS = "GoldenDataSetResults";

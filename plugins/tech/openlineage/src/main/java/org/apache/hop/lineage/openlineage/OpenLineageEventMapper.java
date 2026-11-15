@@ -68,6 +68,7 @@ import org.apache.hop.lineage.model.RelationalLifecycle;
 import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.lineage.model.UnitTestLineagePayload;
 
 /**
  * Maps Hop {@link LineageEvent} instances to OpenLineage {@link RunEvent}s using the official
@@ -139,6 +140,13 @@ public final class OpenLineageEventMapper {
    * {@code name}).
    */
   public static final String COPIED_FROM_FACET = "hopCopiedFrom";
+
+  /**
+   * Run facet of a Hop unit test result on the tested transform's run: the test, its golden data
+   * set, whether it passed, and the datasets the transform declares it writes, which the test
+   * vouches for. They are not the event's outputs: a test run doesn't write them.
+   */
+  public static final String UNIT_TEST_FACET = "hopUnitTest";
 
   /**
    * {@value #HOP_JOB_FACET} facet on a pipeline's or workflow's terminal event: every transform or
@@ -377,6 +385,7 @@ public final class OpenLineageEventMapper {
       }
       case FILE_IO -> mapFileIo(event).map(List::of).orElse(List.of());
       case RELATIONAL_IO -> mapRelationalIo(event).map(List::of).orElse(List.of());
+      case UNIT_TEST -> mapUnitTest(event).map(List::of).orElse(List.of());
       case TRANSFORM_SCHEMA, HTTP_IO -> List.of();
     };
   }
@@ -709,6 +718,58 @@ public final class OpenLineageEventMapper {
     List<OutputDataset> outputs = new ArrayList<>();
     addFileIoDatasets(fileIo, inputs, outputs);
     return observe(event, inputs, outputs, null);
+  }
+
+  /** A unit test result as an {@code OTHER} event of the tested transform's run. */
+  private Optional<RunEvent> mapUnitTest(LineageEvent event) {
+    if (!(event.getPayload() instanceof UnitTestLineagePayload test)) {
+      return Optional.empty();
+    }
+    LineageContext ctx = event.getContext();
+    List<Map<String, Object>> datasets = new ArrayList<>();
+    for (LineagePayload tested : test.getTestedDatasets()) {
+      List<InputDataset> ignoredInputs = new ArrayList<>();
+      List<OutputDataset> outputs = new ArrayList<>();
+      if (tested instanceof FileIoLineagePayload fileIo) {
+        addFileIoDatasets(fileIo, ignoredInputs, outputs);
+        for (OutputDataset output : outputs) {
+          datasets.add(Map.of("namespace", output.getNamespace(), "name", output.getName()));
+        }
+      } else if (tested instanceof RelationalIoLineagePayload relational
+          && !Utils.isEmpty(relational.getDatasetNamespace())) {
+        for (RelationalTable table :
+            qualify(
+                relational.getOutputs(),
+                relational.getDefaultCatalog(),
+                relational.getDefaultSchema())) {
+          String name = LineageRelationalIdentity.datasetName(table);
+          if (!Utils.isEmpty(name)) {
+            datasets.add(Map.of("namespace", relational.getDatasetNamespace(), "name", name));
+          }
+        }
+      }
+    }
+    OpenLineage.DefaultRunFacet facet = new OpenLineage.DefaultRunFacet(producer);
+    Map<String, Object> properties = facet.getAdditionalProperties();
+    properties.put("unitTest", test.getUnitTestName());
+    putIfPresent(properties, "dataSet", test.getDataSetName());
+    properties.put("passed", test.isPassed());
+    putIfPresent(properties, "comment", test.getComment());
+    properties.put("datasets", datasets);
+
+    ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    return Optional.of(
+        ol.newRunEventBuilder()
+            .eventType(EventType.OTHER)
+            .eventTime(eventTime)
+            .run(
+                runNode(
+                    resolveRunId(ctx, event.getEventId()),
+                    eventTime,
+                    null,
+                    Map.of(UNIT_TEST_FACET, facet)))
+            .job(job(resolveJobName(ctx), JobIdentity.of(ctx), null))
+            .build());
   }
 
   /**

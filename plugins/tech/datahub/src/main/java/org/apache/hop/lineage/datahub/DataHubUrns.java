@@ -17,6 +17,10 @@
 
 package org.apache.hop.lineage.datahub;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Locale;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +91,20 @@ final class DataHubUrns {
     return jobUrn.startsWith(prefix) && end > prefix.length()
         ? jobUrn.substring(prefix.length(), end + 1)
         : null;
+  }
+
+  /**
+   * An assertion Hop writes, with an id that stays the same for the same {@code key}: a rerun of a
+   * unit test updates its assertion instead of adding one.
+   */
+  static String assertion(String key) {
+    try {
+      byte[] digest =
+          MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
+      return "urn:li:assertion:hop-" + HexFormat.of().formatHex(digest, 0, 16);
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 is not available", e);
+    }
   }
 
   /** A transform of a pipeline, or an action of a workflow. */

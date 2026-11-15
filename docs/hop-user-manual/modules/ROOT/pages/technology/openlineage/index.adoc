@@ -304,6 +304,10 @@ dataset it receives with one environment, whichever engine sent it, which is wha
 dataset and a Spark file dataset join up. Two environments that must not merge therefore need two
 collector deployments, not two namespaces.
 
+== Unit test results
+
+A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event of the tested transform's run, with a `hopUnitTest` run facet: the test, the data set, whether it passed, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them.
+
 == Dataset identity
 
 The `(namespace, name)` rules the sink uses to identify datasets — and the naming another producer

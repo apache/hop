@@ -29,6 +29,8 @@ NOT_REPORTED = ("0002-lineage-sink-not-reported", "main-0001-lineage-sinks")
 # Published without running: the flow, its tasks with their files, and the files' layouts
 PUBLISHED_FLOW = "publish/0005-lineage-sink-published.hpl"
 PUBLISHED_FILES = ("publish/customers.csv", "published-customers.csv")
+# The unit test of 0006, run by Run pipeline unit tests in 0003: a passed assertion on its file
+UNIT_TESTED_FILE = "unit-tested.csv"
 TOKEN = "Bearer it-token"
 
 
@@ -37,14 +39,19 @@ def proposals(path):
         return [json.loads(line) for line in log if line.strip()]
 
 
+def everything_arrived(kept):
+    """Whether every run and publication the workflow made has reached the stand-in."""
+    expected = (REPORTED, PUBLISHED_FLOW) + INHERITED
+    return all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected) and any(
+        p["aspectName"] == "assertionRunEvent" for p in kept
+    )
+
+
 def main(path):
     # Delivery is asynchronous: wait for the last of the reported runs, then a little longer for
     # anything that should not have come.
     deadline = time.time() + 60
-    while time.time() < deadline and not all(
-        any(name in (p["entityUrn"] or "") for p in proposals(path))
-        for name in (REPORTED, PUBLISHED_FLOW) + INHERITED
-    ):
+    while time.time() < deadline and not everything_arrived(proposals(path)):
         time.sleep(1)
     time.sleep(5)
     kept = proposals(path)
@@ -72,6 +79,20 @@ def main(path):
         ]
         if not schemas:
             problems.append(f"no schema for {name}, a file the published pipeline declares")
+    runs = [
+        p
+        for p in kept
+        if p["aspectName"] == "assertionRunEvent"
+        and UNIT_TESTED_FILE in p.get("value", {}).get("asserteeUrn", "")
+    ]
+    if not runs:
+        problems.append(f"no assertion run on {UNIT_TESTED_FILE} from the unit test")
+    elif runs[-1]["value"].get("result", {}).get("type") != "SUCCESS":
+        problems.append(f"the unit test assertion did not pass: {runs[-1]['value']}")
+    elif not any(
+        p["aspectName"] == "assertionInfo" and p["entityUrn"] == runs[-1]["entityUrn"] for p in kept
+    ):
+        problems.append("the unit test assertion run has no assertion")
     for name in NOT_REPORTED:
         if any(name in (p["entityUrn"] or "") for p in kept):
             problems.append(f"{name} reported its lineage, its run configuration has no sink")
@@ -84,7 +105,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, and the published pipeline was published")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published, and the unit test is an assertion")
     return 0
 
 
