@@ -79,7 +79,7 @@ public class PipelineDocDelegate extends DocDelegate {
     //
     String pipelineSvg =
         PipelineSvgPainter.generatePipelineSvg(
-            pipelineMeta, 1.0f, builder.getVariables(), new DPoint(0, 0), 1.0f, 0);
+            pipelineMeta, 1.0f, builder.getVariables(), new DPoint(0, 0), 1.0f);
     String relativeSvgFilename = calculateTargetImageFile(pipelineName, DocBuilder.STRING_PIPELINE);
     String svgFilename =
         targetRootFolder.getName().getPath() + "/" + DocBuilder.ASSETS_IMAGES + relativeSvgFilename;

@@ -428,9 +428,10 @@ public final class VCardMapper {
     if (tokens == null) {
       tokens =
           Collections.unmodifiableSet(
-              splitList(parameterTypes).stream()
-                  .map(s -> s.toUpperCase(Locale.ROOT))
-                  .collect(Collectors.toCollection(LinkedHashSet::new)));
+              (Set<? extends String>)
+                  splitList(parameterTypes).stream()
+                      .map(s -> s.toUpperCase(Locale.ROOT))
+                      .collect(Collectors.toCollection(LinkedHashSet::new)));
       if (TYPE_TOKENS.size() < MAX_CACHED_TYPE_TOKENS) {
         TYPE_TOKENS.put(parameterTypes, tokens);
       }
