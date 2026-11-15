@@ -103,3 +103,7 @@ image:transforms/execute-sql-script-dialog-parameters-tab.png[Execute SQL script
 |Parameters|The list of parameters that will replace the question marks in the query in the given order.
 So the first question mark will be replaced by the first parameter, the second question mark by the second parameter etc.
 |===
+
+== Samples
+
+The samples project has `transforms/execute-sql-script.hpl`, which runs a `CREATE TABLE IF NOT EXISTS employees` statement once through the `hop-samples` connection.

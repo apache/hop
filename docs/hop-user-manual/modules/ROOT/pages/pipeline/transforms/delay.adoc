@@ -38,3 +38,7 @@ Use this transform if you deliberately want to slow down your pipeline.
 |Get time scale from field|Enable this option to pick the time scale from a field in the incoming stream.
 |Time scale field|Field that contains the time scale value. Accepted values (case-insensitive) are: `ms`, `millisecond(s)`, `s`, `second(s)`, `m`, `minute(s)`, `h`, `hour(s)`. Empty values default to seconds.
 |===
+
+== Samples
+
+The samples project has `transforms/delay-row-basic.hpl`, which delays each of 10 generated rows by 5 seconds, so a line appears in the log every 5 seconds.

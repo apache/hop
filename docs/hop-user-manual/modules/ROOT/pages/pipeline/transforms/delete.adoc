@@ -43,3 +43,7 @@ This is important for data sources that allow for table names with periods in th
 |Commit size|The number of rows to change (insert / update) before running a commit.
 |The keys(s) to look up the value(s)|Specify fields to delete the corresponding rows for
 |===
+
+== Samples
+
+The samples project has `transforms/delete.hpl`, which deletes the employees with `id` 1 and 2 from the `employees` table of the `hop-samples` connection.

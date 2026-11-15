@@ -125,3 +125,6 @@ If no execution matches, the transform writes no output row for that input.
 
 *Find previous successful execution* is the operation to use for incremental extracts: it answers “when did this workflow or pipeline last succeed?” so a xref:pipeline/transforms/tableinput.adoc[Table Input] can filter on a timestamp or increasing ID. How to wire that (or write the watermark yourself on the success path) is in xref:how-to-guides/cdc-filtered-selection.adoc[CDC: filtered selection].
 
+== Samples
+
+The samples project has `transforms/execution-information.hpl`, which lists up to 10 execution IDs from the execution information location `local`.
