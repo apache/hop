@@ -20,13 +20,16 @@ package org.apache.hop.pipeline;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.SvgExportCanvas;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
@@ -68,6 +71,51 @@ class SvgDiagramExportTest {
   }
 
   @Test
+  void partitionedTransformStaysInsideTheCanvas() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("partitioned");
+    TransformMeta transform = new TransformMeta("Dummy", "Top row", new DummyMeta());
+    transform.setLocation(800, 400);
+
+    PartitionSchema schema = new PartitionSchema();
+    schema.setName("SCHEMA_BOX");
+    schema.setDynamicallyDefined(false);
+    schema.setPartitionIDs(List.of("p0", "p1"));
+    TransformPartitioningMeta partitioning = new TransformPartitioningMeta();
+    partitioning.setMethod("Mirror");
+    partitioning.setPartitionSchema(schema);
+    transform.setTransformPartitioningMeta(partitioning);
+    pipeline.addTransform(transform);
+
+    String svg = PipelineSvgPainter.generatePipelineSvg(pipeline, 1f, new Variables());
+    int schemaX = textX(svg, "SCHEMA_BOX");
+    int schemaY = textY(svg, "SCHEMA_BOX");
+    int countX = textX(svg, "Px2");
+
+    assertTrue(schemaX >= 0 && schemaX < 40, "schema x " + schemaX);
+    assertTrue(schemaY >= 0, "schema y " + schemaY);
+    assertTrue(countX >= 0 && countX < 40, "count x " + countX);
+    assertTrue(svgLength(svg, "width") < 400, svg);
+  }
+
+  @Test
+  void copiesLabelStaysInsideTheCanvas() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("copies");
+    TransformMeta transform = new TransformMeta("Dummy", "Many", new DummyMeta());
+    transform.setLocation(800, 400);
+    transform.setCopiesString("12");
+    pipeline.addTransform(transform);
+
+    String svg = PipelineSvgPainter.generatePipelineSvg(pipeline, 1f, new Variables());
+    int labelX = textX(svg, "x12");
+    int labelY = textY(svg, "x12");
+
+    assertTrue(labelX >= 0 && labelX < 40, "x " + labelX);
+    assertTrue(labelY >= 0, "y " + labelY);
+  }
+
+  @Test
   void workflowNoteIsNotClipped() throws Exception {
     WorkflowMeta workflow = new WorkflowMeta();
     workflow.setName("note-clipped");
@@ -101,12 +149,20 @@ class SvgDiagramExportTest {
   }
 
   private static int textX(String svg, String text) {
+    return textAttribute(svg, text, "x=\"");
+  }
+
+  private static int textY(String svg, String text) {
+    return textAttribute(svg, text, "y=\"");
+  }
+
+  private static int textAttribute(String svg, String text, String attribute) {
     int at = svg.indexOf(text);
     assertTrue(at > 0, text);
-    int xAt = svg.lastIndexOf("x=\"", at);
-    assertTrue(xAt >= 0);
-    int end = svg.indexOf('"', xAt + 3);
-    return Math.round(Float.parseFloat(svg.substring(xAt + 3, end)));
+    int attrAt = svg.lastIndexOf(attribute, at);
+    assertTrue(attrAt >= 0);
+    int end = svg.indexOf('"', attrAt + attribute.length());
+    return Math.round(Float.parseFloat(svg.substring(attrAt + attribute.length(), end)));
   }
 
   private static int textLength(String svg) {

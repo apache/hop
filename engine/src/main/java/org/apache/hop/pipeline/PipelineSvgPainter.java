@@ -20,15 +20,18 @@ package org.apache.hop.pipeline;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgExportCanvas;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class PipelineSvgPainter {
@@ -94,6 +97,7 @@ public class PipelineSvgPainter {
             transform.getName(),
             !Utils.isEmpty(transform.getDescription()),
             SvgExportCanvas.ICON_SIZE);
+        includeTransformDecorations(bounds, gc, transform);
       }
       for (NotePadMeta note : pipelineMeta.getNotes()) {
         SvgExportCanvas.includeNote(
@@ -116,6 +120,38 @@ public class PipelineSvgPainter {
       return graphics2D.toXml();
     } catch (Exception e) {
       throw new HopException("Unable to generate SVG for pipeline " + pipelineMeta.getName(), e);
+    }
+  }
+
+  /**
+   * Partition schema box and the {@code xN} copies label are painted outside the icon. {@link
+   * PipelinePainter} draws the box 1.5 icons left and 2 icons above, and the copies label just
+   * above the icon's top-left.
+   */
+  private static void includeTransformDecorations(
+      SvgExportCanvas.Bounds bounds, IGc gc, TransformMeta transform) {
+    Point loc = transform.getLocation() == null ? new Point(50, 50) : transform.getLocation();
+    int icon = SvgExportCanvas.ICON_SIZE;
+    gc.setFont(IGc.EFont.GRAPH);
+    PartitionSchema schema =
+        transform.isPartitioned()
+            ? transform.getTransformPartitioningMeta().getPartitionSchema()
+            : null;
+    if (schema != null) {
+      String count =
+          schema.isDynamicallyDefined()
+              ? Const.NVL(schema.getNumberOfPartitions(), "?")
+              : String.valueOf(schema.getPartitionIDs().size());
+      Point box = gc.textExtent("Px" + count);
+      Point name = gc.textExtent(Const.NVL(schema.getName(), "<no partition name>"));
+      bounds.include(
+          loc.x - icon - icon / 2,
+          loc.y - 2 * icon,
+          Math.max(box.x + 2, name.x),
+          box.y + 5 + name.y);
+    } else if (!"1".equals(transform.getCopiesString())) {
+      Point copies = gc.textExtent("x" + transform.getCopiesString());
+      bounds.include(loc.x - copies.x + 1, loc.y - copies.y - 4, copies.x, copies.y);
     }
   }
 }
