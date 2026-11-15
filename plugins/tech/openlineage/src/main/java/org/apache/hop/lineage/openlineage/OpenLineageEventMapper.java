@@ -54,6 +54,7 @@ import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
+import org.apache.hop.lineage.model.DocumentationLineagePayload;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
 import org.apache.hop.lineage.model.FileIoOperation;
@@ -147,6 +148,13 @@ public final class OpenLineageEventMapper {
    * vouches for. They are not the event's outputs: a test run doesn't write them.
    */
   public static final String UNIT_TEST_FACET = "hopUnitTest";
+
+  /**
+   * Run facet of the documentation of a pipeline or workflow, as {@code hop doc} writes it: {@code
+   * title}, {@code markdown}, {@code project} and the {@code parts} (transforms or actions) it
+   * documents. Only sent when a project is published, on an {@code OTHER} event of its made-up run.
+   */
+  public static final String DOCUMENTATION_FACET = "hopDocumentation";
 
   /**
    * {@value #HOP_JOB_FACET} facet on a pipeline's or workflow's terminal event: every transform or
@@ -386,6 +394,7 @@ public final class OpenLineageEventMapper {
       case FILE_IO -> mapFileIo(event).map(List::of).orElse(List.of());
       case RELATIONAL_IO -> mapRelationalIo(event).map(List::of).orElse(List.of());
       case UNIT_TEST -> mapUnitTest(event).map(List::of).orElse(List.of());
+      case DOCUMENTATION -> mapDocumentation(event).map(List::of).orElse(List.of());
       case TRANSFORM_SCHEMA, HTTP_IO -> List.of();
     };
   }
@@ -768,6 +777,34 @@ public final class OpenLineageEventMapper {
                     eventTime,
                     null,
                     Map.of(UNIT_TEST_FACET, facet)))
+            .job(job(resolveJobName(ctx), JobIdentity.of(ctx), null))
+            .build());
+  }
+
+  /** The documentation of a pipeline or workflow as an {@code OTHER} event of its run. */
+  private Optional<RunEvent> mapDocumentation(LineageEvent event) {
+    if (!(event.getPayload() instanceof DocumentationLineagePayload documentation)) {
+      return Optional.empty();
+    }
+    LineageContext ctx = event.getContext();
+    OpenLineage.DefaultRunFacet facet = new OpenLineage.DefaultRunFacet(producer);
+    Map<String, Object> properties = facet.getAdditionalProperties();
+    properties.put("title", documentation.getTitle());
+    properties.put("markdown", documentation.getMarkdown());
+    putIfPresent(properties, "project", documentation.getProject());
+    properties.put("parts", documentation.getParts());
+
+    ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    return Optional.of(
+        ol.newRunEventBuilder()
+            .eventType(EventType.OTHER)
+            .eventTime(eventTime)
+            .run(
+                runNode(
+                    resolveRunId(ctx, event.getEventId()),
+                    eventTime,
+                    null,
+                    Map.of(DOCUMENTATION_FACET, facet)))
             .job(job(resolveJobName(ctx), JobIdentity.of(ctx), null))
             .build());
   }

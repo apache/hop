@@ -49,6 +49,9 @@ The same is available on the command line as `hop datahub-publish`; see xref:tec
 
 |Folder
 |The folder with the pipelines and workflows to publish, with its subfolders. The default is `'${PROJECT_HOME}'`. The `metadata` folder and hidden folders are skipped.
+
+|Include documentation
+|Also publish what xref:hop-tools/hop-doc.adoc[hop doc] writes for each pipeline and workflow (description, file, parameters and notes) as a DataHub document, related to the pipeline and its tasks. Needs DataHub 1.7 or later; see xref:technology/datahub/index.adoc#_documentation[Documentation].
 |===
 
 == Result

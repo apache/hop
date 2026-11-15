@@ -98,10 +98,22 @@ final class DataHubUrns {
    * unit test updates its assertion instead of adding one.
    */
   static String assertion(String key) {
+    return "urn:li:assertion:" + hashedId(key);
+  }
+
+  /**
+   * A document Hop writes, with an id that stays the same for the same {@code key}: publishing a
+   * project again updates its documents instead of adding them.
+   */
+  static String document(String key) {
+    return "urn:li:document:" + hashedId(key);
+  }
+
+  private static String hashedId(String key) {
     try {
       byte[] digest =
           MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
-      return "urn:li:assertion:hop-" + HexFormat.of().formatHex(digest, 0, 16);
+      return "hop-" + HexFormat.of().formatHex(digest, 0, 16);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA-256 is not available", e);
     }

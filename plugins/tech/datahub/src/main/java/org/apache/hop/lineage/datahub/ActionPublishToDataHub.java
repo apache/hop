@@ -79,6 +79,18 @@ public class ActionPublishToDataHub extends ActionBase implements IAction {
   @HopMetadataProperty(key = "folder")
   private String folder;
 
+  @GuiWidgetElement(
+      id = "includingDocumentation",
+      order = "0300",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ActionPublishToDataHub.Documentation.Label",
+      toolTip = "i18n::ActionPublishToDataHub.Documentation.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_OPTIONS,
+      groupType = GuiWidgetGroupType.BOXES)
+  @HopMetadataProperty(key = "include_documentation")
+  private boolean includingDocumentation;
+
   public ActionPublishToDataHub() {
     this("");
   }
@@ -93,9 +105,11 @@ public class ActionPublishToDataHub extends ActionBase implements IAction {
     Result result = previousResult == null ? new Result() : previousResult;
     result.setResult(false);
     try {
+      DataHubPublisher publisher =
+          new DataHubPublisher(this, getMetadataProvider(), getLogChannel());
+      publisher.setIncludingDocumentation(includingDocumentation);
       DataHubPublisher.Result published =
-          new DataHubPublisher(this, getMetadataProvider(), getLogChannel())
-              .publish(sinkName, StringUtils.defaultIfBlank(folder, "${PROJECT_HOME}"));
+          publisher.publish(sinkName, StringUtils.defaultIfBlank(folder, "${PROJECT_HOME}"));
       logBasic(DataHubPublishCommand.describe(published));
       if (published.isSuccess()) {
         result.setResult(true);

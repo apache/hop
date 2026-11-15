@@ -48,5 +48,11 @@ public enum LineageEventKind {
    * The result of a Hop unit test's comparison of the rows reaching a transform with golden data
    * (payload: {@link UnitTestLineagePayload}), emitted when the tested pipeline run ends.
    */
-  UNIT_TEST
+  UNIT_TEST,
+  /**
+   * The documentation of a pipeline or workflow (payload: {@link DocumentationLineagePayload}), for
+   * a sink that keeps documents next to the pipelines it knows. Only sent when a project is
+   * published, not by runs.
+   */
+  DOCUMENTATION
 }

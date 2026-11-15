@@ -158,11 +158,12 @@ limitations under the License.
     </action>
     <action>
       <name>Publish to DataHub</name>
-      <description>Publishes the pipeline in publish/, which never runs, to the datahub-stub lineage sink</description>
+      <description>Publishes the pipeline in publish/, which never runs, to the datahub-stub lineage sink, with its documentation</description>
       <type>PUBLISH_TO_DATAHUB</type>
       <attributes />
       <sink>datahub-stub</sink>
       <folder>${PROJECT_HOME}/publish</folder>
+      <include_documentation>Y</include_documentation>
       <parallel>N</parallel>
       <xloc>576</xloc>
       <yloc>352</yloc>

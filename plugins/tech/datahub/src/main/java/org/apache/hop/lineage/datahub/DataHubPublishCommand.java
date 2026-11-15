@@ -62,6 +62,13 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
               + " default is the project's home folder.")
   private String folder;
 
+  @CommandLine.Option(
+      names = {"-d", "--include-documentation"},
+      description =
+          "Also publish what hop doc writes for each pipeline and workflow (details, parameters"
+              + " and notes) as a DataHub document. Needs DataHub 1.7 or later.")
+  private boolean includingDocumentation;
+
   private CommandLine cmd;
   private IVariables variables;
   private MultiMetadataProvider metadataProvider;
@@ -88,8 +95,9 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
         }
       }
       String source = folder != null ? folder : "${PROJECT_HOME}";
-      DataHubPublisher.Result result =
-          new DataHubPublisher(variables, metadataProvider, log).publish(sinkName, source);
+      DataHubPublisher publisher = new DataHubPublisher(variables, metadataProvider, log);
+      publisher.setIncludingDocumentation(includingDocumentation);
+      DataHubPublisher.Result result = publisher.publish(sinkName, source);
       log.logBasic(describe(result));
       if (!result.isSuccess()) {
         System.exit(1);

@@ -33,6 +33,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.lineage.LineageDefinitions;
 import org.apache.hop.lineage.hub.LineageSinkTarget;
 import org.apache.hop.lineage.metadata.LineageSink;
+import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.spi.LineageSinkHealth;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,11 +44,18 @@ import org.apache.hop.workflow.WorkflowMeta;
  * with its transforms or actions as tasks, the tables and files they declare as their inputs and
  * outputs, and the layouts of those files as dataset schemas. It writes through a DataHub {@link
  * LineageSink}, so the entities are the ones the runs report to.
+ *
+ * <p>With {@link #setIncludingDocumentation(boolean)} it also publishes what {@code hop doc} writes
+ * for each pipeline and workflow as a DataHub document (DataHub 1.7 and later), related to its flow
+ * and tasks, under a document of the project.
  */
 public final class DataHubPublisher {
 
   /** How long to wait for DataHub to accept what was published. */
   static final long DELIVERY_TIMEOUT_MS = 120_000L;
+
+  /** The name of the project, set when a project is used. */
+  static final String VAR_PROJECT_NAME = "HOP_PROJECT_NAME";
 
   /**
    * What a publication did.
@@ -74,11 +82,22 @@ public final class DataHubPublisher {
   private final IHopMetadataProvider metadataProvider;
   private final ILogChannel log;
 
+  /** Whether to publish the documentation of each pipeline and workflow as well. */
+  private boolean includingDocumentation;
+
   public DataHubPublisher(
       IVariables variables, IHopMetadataProvider metadataProvider, ILogChannel log) {
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.log = log;
+  }
+
+  /**
+   * Publishes what {@code hop doc} writes for each pipeline and workflow as well, as DataHub
+   * documents: DataHub 1.7 or later, an earlier version refuses them.
+   */
+  public void setIncludingDocumentation(boolean includingDocumentation) {
+    this.includingDocumentation = includingDocumentation;
   }
 
   /**
@@ -95,16 +114,28 @@ public final class DataHubPublisher {
     List<String> unreadable = new ArrayList<>();
     LineageSinkHealth health;
     try {
-      for (FileObject file : hopFiles(folder)) {
+      FileObject root = folder(folder);
+      DocumentationWriter documentation = includingDocumentation ? documentationWriter() : null;
+      String project = variables.getVariable(VAR_PROJECT_NAME);
+      for (FileObject file : hopFiles(root)) {
         String filename = HopVfs.getFilename(file);
         try {
+          String relativeFile = root.getName().getRelativeName(file.getName());
           if (filename.endsWith(".hpl")) {
             PipelineMeta meta = new PipelineMeta(filename, metadataProvider, variables);
-            sink.accept(LineageDefinitions.ofPipeline(meta, variables, log));
+            List<LineageEvent> events = LineageDefinitions.ofPipeline(meta, variables, log);
+            if (documentation != null) {
+              events.add(documentation.pipeline(events.get(0), meta, relativeFile, project));
+            }
+            sink.accept(events);
             pipelines++;
           } else {
             WorkflowMeta meta = new WorkflowMeta(variables, filename, metadataProvider);
-            sink.accept(LineageDefinitions.ofWorkflow(meta, variables));
+            List<LineageEvent> events = LineageDefinitions.ofWorkflow(meta, variables);
+            if (documentation != null) {
+              events.add(documentation.workflow(events.get(0), meta, relativeFile, project));
+            }
+            sink.accept(events);
             workflows++;
           }
           log.logDetailed("Published " + filename);
@@ -148,14 +179,36 @@ public final class DataHubPublisher {
     return sink;
   }
 
-  /** The pipelines and workflows in a folder and its subfolders, in a stable order. */
-  private List<FileObject> hopFiles(String folder) throws HopException {
+  private DocumentationWriter documentationWriter() throws HopException {
+    try {
+      return new DocumentationWriter(variables, log);
+    } catch (LinkageError e) {
+      throw new HopException(
+          "Publishing documentation needs the documentation plugin (hop doc), which is not"
+              + " installed",
+          e);
+    }
+  }
+
+  /** The folder to publish, which must exist. */
+  private FileObject folder(String folder) throws HopException {
     String path = variables.resolve(folder);
     try {
       FileObject root = HopVfs.getFileObject(path, variables);
       if (!root.exists() || root.getType() != FileType.FOLDER) {
         throw new HopException("Folder '" + path + "' does not exist");
       }
+      return root;
+    } catch (HopException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopException("Unable to open folder '" + path + "'", e);
+    }
+  }
+
+  /** The pipelines and workflows in a folder and its subfolders, in a stable order. */
+  private List<FileObject> hopFiles(FileObject root) throws HopException {
+    try {
       FileObject[] found =
           root.findFiles(
               new FileSelector() {
@@ -177,10 +230,9 @@ public final class DataHubPublisher {
       List<FileObject> files = new ArrayList<>(found == null ? List.of() : List.of(found));
       files.sort((a, b) -> a.getName().getPath().compareTo(b.getName().getPath()));
       return files;
-    } catch (HopException e) {
-      throw e;
     } catch (Exception e) {
-      throw new HopException("Unable to list the pipelines and workflows in '" + path + "'", e);
+      throw new HopException(
+          "Unable to list the pipelines and workflows in '" + HopVfs.getFilename(root) + "'", e);
     }
   }
 }

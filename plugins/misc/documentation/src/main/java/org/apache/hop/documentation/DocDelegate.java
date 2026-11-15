@@ -19,13 +19,17 @@
 package org.apache.hop.documentation;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.parameters.UnknownParamException;
 
 public abstract class DocDelegate {
@@ -117,5 +121,31 @@ public abstract class DocDelegate {
       }
     }
     content.append(Const.CR);
+  }
+
+  /** The text of the notes in alphabetical order, when notes are included. */
+  protected void addNotes(List<NotePadMeta> notePads, StringBuilder content) {
+    if (!builder.isIncludingNotes() || notePads.isEmpty()) {
+      return;
+    }
+    content.append("## Notes : ").append(Const.CR).append(Const.CR);
+
+    List<NotePadMeta> notes = new ArrayList<>(notePads);
+    notes.sort(Comparator.comparing(NotePadMeta::getNote));
+    for (NotePadMeta note : notes) {
+      content.append(note.getNote()).append(Const.CR);
+    }
+    content.append(Const.CR);
+  }
+
+  /**
+   * The documentation of a pipeline or workflow as Markdown, without the title header and the image
+   * of its graph: its details, its parameters and its notes, as far as they are included.
+   */
+  String markdown(AbstractMeta meta, String relativeFile) throws UnknownParamException {
+    StringBuilder content = new StringBuilder();
+    addDetails(meta, content, relativeFile);
+    addNotes(meta.getNotes(), content);
+    return content.toString();
   }
 }

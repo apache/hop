@@ -35,7 +35,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -46,6 +49,8 @@ import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -163,6 +168,62 @@ class DataHubPublisherTest {
             "urn:li:dataFlow:(hop,emea.flows/orders.hpl,dev)",
             "urn:li:dataFlow:(hop,emea.nightly.hwf,dev)"),
         flows.stream().distinct().sorted().toList());
+  }
+
+  @Test
+  void theDocumentationOfEachPipelineAndWorkflowIsPublishedUnderItsProject() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    pipeline.setDescription("Loads the orders");
+    pipeline.addNote(new NotePadMeta("Runs after the customers", 0, 0, 100, 50));
+    write("flows/orders.hpl", pipeline.getXml(variables));
+    WorkflowMeta workflow = new WorkflowMeta();
+    workflow.setName("nightly");
+    workflow.addAction(new ActionMeta(new ActionStart("Start")));
+    write("nightly.hwf", workflow.getXml(variables));
+    variables.setVariable(DataHubPublisher.VAR_PROJECT_NAME, "sales");
+
+    DataHubPublisher publisher =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"));
+    publisher.setIncludingDocumentation(true);
+    DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
+
+    assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));
+    Map<String, JsonNode> documents = new TreeMap<>();
+    for (JsonNode proposal : proposalsSent()) {
+      if (proposal.get("aspectName").asText().equals("documentInfo")) {
+        JsonNode info = MAPPER.readTree(proposal.path("aspect").path("value").asText());
+        documents.put(info.path("title").asText(), info);
+      }
+    }
+    assertEquals(
+        List.of("Hop project sales", "Pipeline orders", "Workflow nightly"),
+        List.copyOf(documents.keySet()));
+    String orders = documents.get("Pipeline orders").path("contents").path("text").asText();
+    assertTrue(orders.contains("* Description : Loads the orders"), orders);
+    assertTrue(orders.contains("* Filename : flows/orders.hpl"), orders);
+    assertTrue(orders.contains("Runs after the customers"), orders);
+    JsonNode nightly = documents.get("Workflow nightly");
+    assertEquals(
+        "urn:li:dataJob:(urn:li:dataFlow:(hop,emea.nightly.hwf,dev),Start)",
+        nightly.path("relatedAssets").get(1).path("asset").asText());
+    assertEquals(
+        documents.get("Pipeline orders").path("parentDocument"),
+        nightly.path("parentDocument"),
+        "both under the project's document");
+  }
+
+  @Test
+  void withoutTheOptionNoDocumentsArePublished() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    write("orders.hpl", pipeline.getXml(variables));
+
+    new DataHubPublisher(variables, metadata, new LogChannel("publish-test"))
+        .publish("datahub", "${PROJECT_HOME}");
+
+    assertTrue(
+        proposalsSent().stream().noneMatch(p -> p.get("entityType").asText().equals("document")));
   }
 
   @Test

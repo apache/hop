@@ -79,6 +79,25 @@ def main(path):
         ]
         if not schemas:
             problems.append(f"no schema for {name}, a file the published pipeline declares")
+    documents = [p for p in kept if p["aspectName"] == "documentInfo"]
+    published_documents = [
+        p
+        for p in documents
+        if any(PUBLISHED_FLOW in a.get("asset", "") for a in p["value"].get("relatedAssets", []))
+    ]
+    if not published_documents:
+        problems.append("no document related to the published pipeline")
+    else:
+        document = published_documents[-1]["value"]
+        text = document.get("contents", {}).get("text", "")
+        if "Filename : 0005-lineage-sink-published.hpl" not in text or "Never run" not in text:
+            problems.append(f"the published pipeline's document is not what hop doc writes: {text}")
+        parent = document.get("parentDocument", {}).get("document")
+        if not any(
+            p["entityUrn"] == parent and p["value"].get("title", "").startswith("Hop project ")
+            for p in documents
+        ):
+            problems.append(f"the published pipeline's document is not under its project: {parent}")
     runs = [
         p
         for p in kept
@@ -105,7 +124,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published, and the unit test is an assertion")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, and the unit test is an assertion")
     return 0
 
 
