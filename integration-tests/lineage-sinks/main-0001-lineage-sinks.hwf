@@ -157,6 +157,18 @@ limitations under the License.
       <attributes_hac />
     </action>
     <action>
+      <name>Publish to DataHub</name>
+      <description>Publishes the pipeline in publish/, which never runs, to the datahub-stub lineage sink</description>
+      <type>PUBLISH_TO_DATAHUB</type>
+      <attributes />
+      <sink>datahub-stub</sink>
+      <folder>${PROJECT_HOME}/publish</folder>
+      <parallel>N</parallel>
+      <xloc>576</xloc>
+      <yloc>352</yloc>
+      <attributes_hac />
+    </action>
+    <action>
       <name>Check and stop the DataHub stub</name>
       <description>Only 0001, 0003 and 0004 reported their lineage, with the token of the data catalog, and so did the file 0004 wrote</description>
       <type>SHELL</type>
@@ -211,6 +223,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>0003-lineage-sink-child-workflow</from>
+      <to>Publish to DataHub</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Publish to DataHub</from>
       <to>Check and stop the DataHub stub</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

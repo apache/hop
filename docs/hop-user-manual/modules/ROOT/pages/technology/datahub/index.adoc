@@ -208,6 +208,33 @@ The sink logs one line when it starts:
 DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset schemas=missing, lifecycle=off, spool=off
 ----
 
+== Publishing a project without running it
+
+The xref:workflow/actions/publishtodatahub.adoc[Publish to DataHub] action, or `hop datahub-publish` on the command line, publishes a project's pipelines and workflows to DataHub without running them: their tasks, the tables and files they declare, and the layouts of those files as dataset schemas.
+It writes through a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type DataHub, so the pipelines, tasks and datasets are the ones the runs report to.
+
+[source,bash]
+----
+hop datahub-publish -j my-project -e prod -s prod-datahub
+hop datahub-publish -j my-project -s prod-datahub -f '${PROJECT_HOME}/flows'
+----
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+
+|`-s`, `--sink`
+|The lineage sink of type DataHub to publish to. Required.
+
+|`-f`, `--folder`
+|The folder with the pipelines and workflows, with its subfolders. The default is the project's home folder.
+
+|`-j`, `-e`
+|The project and environment, as for `hop doc`.
+|===
+
+The command exits with 1 when a file can't be read or DataHub didn't accept everything.
+
 == Reading from DataHub
 
 The plugin also adds DataHub as a type of xref:metadata-types/data-catalog.adoc[Data Catalog], so

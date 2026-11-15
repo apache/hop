@@ -91,7 +91,7 @@ public final class LineageRunLifecycleEmitter {
   /** The description the subject's metadata gives it (pipeline, workflow, transform, action). */
   public static final String ATTR_DESCRIPTION = "description";
 
-  private static void fillDescription(LineageContext.Builder ctx, String description) {
+  static void fillDescription(LineageContext.Builder ctx, String description) {
     if (!Utils.isEmpty(description)) {
       ctx.putAttribute(ATTR_DESCRIPTION, description);
     }
@@ -238,7 +238,7 @@ public final class LineageRunLifecycleEmitter {
     ctx.putAttribute(ATTR_PARENT_FILENAME, Utils.isEmpty(portable) ? filename : portable);
   }
 
-  private static void fillFilenameFields(
+  static void fillFilenameFields(
       LineageContext.Builder ctx, String filename, IVariables variables) {
     ctx.hopFilename(filename);
     ctx.hopFilenamePortableKey(LineagePortableFilename.portableKey(filename, variables));

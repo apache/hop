@@ -46,6 +46,13 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
 
   private DataHubSinkConfig dataHubConfig;
 
+  /** See {@link DataHubTranslator#setDefinitionsOnly(boolean)}; set before {@link #init}. */
+  private boolean definitionsOnly;
+
+  void setDefinitionsOnly(boolean definitionsOnly) {
+    this.definitionsOnly = definitionsOnly;
+  }
+
   @Override
   public ILineageSinkConfiguration newConfiguration() {
     return new DataHubSinkConfiguration();
@@ -88,8 +95,10 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
   @Override
   protected OpenLineageEmitter createEmitter(OpenLineageSinkConfig config, ILogChannel log)
       throws HopException {
+    DataHubTranslator translator = new DataHubTranslator(dataHubConfig);
+    translator.setDefinitionsOnly(definitionsOnly);
     return new DataHubEmitter(
-        new DataHubTranslator(dataHubConfig),
+        translator,
         new DataHubClient(dataHubConfig.getGmsUrl(), dataHubConfig.getToken(), config),
         dataHubConfig.getSchemaPolicy(),
         dataHubConfig.getActor(),

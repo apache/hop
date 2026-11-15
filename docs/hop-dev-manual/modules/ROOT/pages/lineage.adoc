@@ -222,6 +222,12 @@ The plugin type **`LineageSinkPluginType`** is registered in **`HopEnvironment.g
 
 No sink implementations ship with the engine. Integrators implement `ILineageSink`, annotate the class with `@LineageSinkPlugin(id = "...")`, and package it as a Hop plugin. With no sinks loaded, the hub remains a no-op even when `HOP_LINEAGE_ENABLED=Y`.
 
+== Declaring files and SQL
+
+A transform whose metadata tells which files it reads or writes, or which SQL it runs, implements `org.apache.hop.lineage.api.IDeclaresLineage`: `declaredLineage(variables, inputRowMeta)` returns `DeclaredFile` (operation, file name, layout) and `DeclaredSql` (operation, connection, SQL) entries, with variables resolved. Return what a run reports: the same file name and the same layout, so one dataset describes the file whether a run or a publication described it. Text file input, CSV input, Text file output and Table input implement it; tables are declared with `@RelationalLineage`.
+
+`LineageDefinitions.ofPipeline()` and `ofWorkflow()` turn a pipeline or workflow into the events a run would emit, from those declarations, with the `lineageDefinition` attribute set: their run is made up, and a sink that records runs must not record it. The DataHub plugin's `DataHubPublisher` sends them through a DataHub sink that writes definitions only.
+
 == Emitting events from code
 
 Producers (pipeline/workflow hooks, VFS usage, HTTP client/server filters, transforms) should build a `LineageContext` (often via `LineageContext.builder()`), optionally attach a payload, then emit:

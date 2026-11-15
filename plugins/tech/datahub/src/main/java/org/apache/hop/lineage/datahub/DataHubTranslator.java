@@ -201,7 +201,39 @@ final class DataHubTranslator {
     return Mcp.upsert("dataPlatform", DataHubUrns.HOP_PLATFORM_URN, "dataPlatformInfo", info);
   }
 
+  /**
+   * Whether only what pipelines, workflows and datasets are is written, not that they ran: for a
+   * project published without running it (see {@link DataHubPublisher}). Its runs are made up, so
+   * no run instances, no operations and no deprecations.
+   */
+  private boolean definitionsOnly;
+
+  void setDefinitionsOnly(boolean definitionsOnly) {
+    this.definitionsOnly = definitionsOnly;
+  }
+
   Translation translate(RunEvent event) {
+    Translation translation = translateEvent(event);
+    if (!definitionsOnly) {
+      return translation;
+    }
+    List<Mcp> definitions = new ArrayList<>();
+    for (Mcp mcp : translation.proposals()) {
+      if (!"dataProcessInstance".equals(mcp.entityType())
+          && !"operation".equals(mcp.aspectName())) {
+        definitions.add(mcp);
+      }
+    }
+    return new Translation(
+        definitions,
+        translation.schemas(),
+        List.of(),
+        translation.staleChecks(),
+        translation.jobUrn(),
+        translation.timeMs());
+  }
+
+  private Translation translateEvent(RunEvent event) {
     Subject subject = Subject.of(event);
     List<Mcp> proposals = new ArrayList<>();
     List<SchemaCandidate> schemas = new ArrayList<>();

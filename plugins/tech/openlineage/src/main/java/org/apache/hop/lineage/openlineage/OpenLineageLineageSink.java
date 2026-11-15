@@ -109,6 +109,17 @@ public class OpenLineageLineageSink implements ILineageSink {
         + (config.isFileSpecNaming() ? "spec" : "legacy");
   }
 
+  /**
+   * Waits until the events handed over so far are delivered, at most {@code timeoutMs}. It stops
+   * waiting as soon as a delivery fails: see {@link #health()} for what went wrong.
+   */
+  public void awaitDelivery(long timeoutMs) throws InterruptedException {
+    OpenLineageAsyncDispatcher current = dispatcher;
+    if (current != null) {
+      current.awaitDrain(timeoutMs);
+    }
+  }
+
   @Override
   public LineageSinkHealth health() {
     OpenLineageAsyncDispatcher current = dispatcher;

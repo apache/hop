@@ -43,6 +43,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.IDeclaresLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -69,7 +71,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     actionTransformTypes = {ActionTransformType.INPUT, ActionTransformType.RDBMS})
 @Getter
 @Setter
-public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
+public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData>
+    implements IDeclaresLineage {
   private static final String CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY =
       "TableInput.Exception.SpecifyFieldsEmpty";
 
@@ -314,6 +317,23 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       }
     }
     return sql;
+  }
+
+  /** The query this transform runs, as a run resolves it; none when it can't be read. */
+  @Override
+  public List<IDeclaresLineage.Declaration> declaredLineage(
+      IVariables variables, IRowMeta inputRowMeta) {
+    try {
+      String query = getEffectiveSql(variables);
+      if (variableReplacementActive) {
+        query = variables.resolve(query);
+      }
+      return List.of(
+          new IDeclaresLineage.DeclaredSql(
+              RelationalIoOperation.READ, variables.resolve(connection), query));
+    } catch (HopException e) {
+      return List.of();
+    }
   }
 
   @Override

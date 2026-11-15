@@ -39,6 +39,7 @@ import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -49,6 +50,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageFileIoEmitter;
+import org.apache.hop.lineage.api.IDeclaresLineage;
+import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -78,7 +82,7 @@ import org.w3c.dom.Node;
 @Setter
 public class TextFileInputMeta
     extends BaseFileInputMeta<TextFileInput, TextFileInputData, BaseFileInput>
-    implements ICsvInputAwareMeta<TextFileInputField> {
+    implements ICsvInputAwareMeta<TextFileInputField>, IDeclaresLineage {
   private static final Class<?> PKG = TextFileInputMeta.class;
 
   // Legacy
@@ -1099,5 +1103,39 @@ public class TextFileInputMeta
         content.fileCompression = XmlHandler.getNodeValue(compressionNode);
       }
     }
+  }
+
+  /**
+   * The files this transform reads, as they are now, with the layout of its fields; none when it
+   * takes the file names from another transform.
+   */
+  @Override
+  public List<IDeclaresLineage.Declaration> declaredLineage(
+      IVariables variables, IRowMeta inputRowMeta) {
+    if (getFileInput().isAcceptingFilenames()) {
+      return List.of();
+    }
+    IRowMeta layout = new RowMeta();
+    for (TextFileInputField field : inputFields) {
+      try {
+        IValueMeta value = ValueMetaFactory.createValueMeta(field.getName(), field.getType());
+        value.setLength(field.getLength());
+        value.setPrecision(field.getPrecision());
+        layout.addValueMeta(value);
+      } catch (HopPluginException e) {
+        // A type that is not installed: the layout goes without it
+      }
+    }
+    List<IDeclaresLineage.Declaration> declarations = new ArrayList<>();
+    for (String path : getFilePaths(variables)) {
+      String extension = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : null;
+      declarations.add(
+          new IDeclaresLineage.DeclaredFile(
+              FileIoOperation.READ,
+              path,
+              LineageFileIoEmitter.toContentSchema(
+                  layout, extension == null ? null : extension.toLowerCase(Locale.ROOT))));
+    }
+    return declarations;
   }
 }

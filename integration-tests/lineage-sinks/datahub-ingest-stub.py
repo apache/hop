@@ -52,7 +52,10 @@ class Handler(BaseHTTPRequestHandler):
                     log.write(json.dumps(line) + "\n")
             self.reply(200, {"value": []})
         elif url.path.endswith("/api/graphql"):
-            self.reply(200, {"data": {"entities": []}})
+            # As DataHub answers for entities it doesn't have: one entry per URN asked about, with
+            # nothing in it, so the sink writes the schemas Hop knows.
+            urns = (body.get("variables") or {}).get("urns") or []
+            self.reply(200, {"data": {"entities": [{"urn": urn, "exists": False} for urn in urns]}})
         else:
             self.reply(404, {"message": "not found"})
 

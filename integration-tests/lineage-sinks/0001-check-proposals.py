@@ -26,6 +26,9 @@ import time
 REPORTED = "0001-lineage-sink-reported"
 INHERITED = ("0003-lineage-sink-child-workflow", "0004-lineage-sink-inherited", "inherited.csv")
 NOT_REPORTED = ("0002-lineage-sink-not-reported", "main-0001-lineage-sinks")
+# Published without running: the flow, its tasks with their files, and the files' layouts
+PUBLISHED_FLOW = "publish/0005-lineage-sink-published.hpl"
+PUBLISHED_FILES = ("publish/customers.csv", "published-customers.csv")
 TOKEN = "Bearer it-token"
 
 
@@ -40,7 +43,7 @@ def main(path):
     deadline = time.time() + 60
     while time.time() < deadline and not all(
         any(name in (p["entityUrn"] or "") for p in proposals(path))
-        for name in (REPORTED,) + INHERITED
+        for name in (REPORTED, PUBLISHED_FLOW) + INHERITED
     ):
         time.sleep(1)
     time.sleep(5)
@@ -58,6 +61,17 @@ def main(path):
     for name in INHERITED:
         if not any(name in (p["entityUrn"] or "") for p in kept):
             problems.append(f"nothing about {name}: it should report to the sink of its parent")
+    published = [p for p in kept if PUBLISHED_FLOW in (p["entityUrn"] or "")]
+    aspects = {p["aspectName"] for p in published}
+    for aspect in ("dataFlowInfo", "dataJobInfo", "dataJobInputOutput"):
+        if aspect not in aspects:
+            problems.append(f"the published pipeline has no {aspect}: {sorted(aspects)}")
+    for name in PUBLISHED_FILES:
+        schemas = [
+            p for p in kept if p["aspectName"] == "schemaMetadata" and name in (p["entityUrn"] or "")
+        ]
+        if not schemas:
+            problems.append(f"no schema for {name}, a file the published pipeline declares")
     for name in NOT_REPORTED:
         if any(name in (p["entityUrn"] or "") for p in kept):
             problems.append(f"{name} reported its lineage, its run configuration has no sink")
@@ -70,7 +84,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, and the published pipeline was published")
     return 0
 
 

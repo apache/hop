@@ -439,6 +439,7 @@ under the License.
 *** xref:workflow/actions/ping.adoc[Ping a host]
 *** xref:workflow/actions/pipeline.adoc[Pipeline]
 *** xref:workflow/actions/processresultfilenames.adoc[Process result filenames]
+*** xref:workflow/actions/publishtodatahub.adoc[Publish to DataHub]
 *** xref:workflow/actions/ftpput.adoc[Put a file with FTP]
 *** xref:workflow/actions/sftpput.adoc[Put a file with SFTP]
 *** xref:workflow/actions/repeat.adoc[Repeat]

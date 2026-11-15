@@ -22,6 +22,7 @@
 #   token of the data catalog the lineage sink names;
 # - so did the workflow run with the local-lineage workflow run configuration, the pipeline it ran
 #   with a run configuration without a sink, and the file that pipeline wrote;
+# - the pipeline in publish/ was published without running, with its files and their layouts;
 # - the pipeline run with the local run configuration, and the workflow, reported nothing:
 #   lineage is not enabled with variables in this project.
 
