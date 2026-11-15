@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
+import org.apache.hop.ai.advisor.AiAdvisorInclusion;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisor.AiProposal;
@@ -37,7 +38,7 @@ class PipelineAiAdvisorTest {
     PipelineAiAdvisor advisor = new PipelineAiAdvisor();
     assertEquals(PipelineAiAdvisor.ID, advisor.getId());
     assertEquals(4, advisor.listScenarios().size());
-    assertEquals(6, advisor.listInclusions().size());
+    assertEquals(7, advisor.listInclusions().size());
     advisor
         .listInclusions()
         .forEach(
@@ -56,6 +57,13 @@ class PipelineAiAdvisorTest {
                   inclusion.getId());
             });
     assertFalse(advisor.listBaselineSharing().isEmpty());
+    AiAdvisorInclusion catalog =
+        advisor.listInclusions().stream()
+            .filter(i -> AiAdvisorInclusions.DATA_CATALOG.equals(i.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(catalog.isPicker(), "the data catalog is picked");
+    assertFalse(catalog.isMultiSelect(), "one data catalog at a time");
   }
 
   @Test

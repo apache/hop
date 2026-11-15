@@ -176,8 +176,22 @@ public final class LineageDefinitions {
    */
   public static List<LineagePayload> declaredIo(
       PipelineMeta meta, TransformMeta transformMeta, IVariables variables) throws Exception {
+    return declaredIo(meta, transformMeta, variables, true);
+  }
+
+  /**
+   * What a transform declares it reads and writes, as {@link #declaredIo(PipelineMeta,
+   * TransformMeta, IVariables)} does.
+   *
+   * @param withFields whether to work out the fields that reach the transform, for the columns of
+   *     the datasets. Without them only the tables and files are named, and nothing upstream is
+   *     asked for its fields, which can mean a database query.
+   */
+  public static List<LineagePayload> declaredIo(
+      PipelineMeta meta, TransformMeta transformMeta, IVariables variables, boolean withFields)
+      throws Exception {
     List<LineagePayload> payloads = new ArrayList<>();
-    IRowMeta inputRowMeta = null;
+    IRowMeta inputRowMeta = withFields ? null : new RowMeta();
 
     LineageMetadataWalker.Declaration table =
         LineageMetadataWalker.read(transformMeta.getTransform());
@@ -185,7 +199,9 @@ public final class LineageDefinitions {
       DatabaseMeta databaseMeta =
           meta.findDatabase(variables.resolve(table.connectionName()), variables);
       if (databaseMeta != null) {
-        inputRowMeta = inputFields(meta, transformMeta, variables);
+        if (inputRowMeta == null) {
+          inputRowMeta = inputFields(meta, transformMeta, variables);
+        }
         payloads.add(declaredTable(databaseMeta, variables, table, inputRowMeta));
       }
     }

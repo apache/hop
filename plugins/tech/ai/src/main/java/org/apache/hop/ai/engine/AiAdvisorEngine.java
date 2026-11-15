@@ -199,6 +199,8 @@ public final class AiAdvisorEngine {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));
     }
     AiAdvisorPrompt prompt = prepared.prompt();
+    // Read here, in the background: the UI thread built the prompt and must not wait for a catalog
+    AiAdvisorCatalogContext.fill(prepared.request(), prompt);
     AiChatResult chat = ask(session, advisor, prepared, variables);
     if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));

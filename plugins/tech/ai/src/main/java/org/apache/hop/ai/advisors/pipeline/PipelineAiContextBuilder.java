@@ -23,6 +23,7 @@ import org.apache.hop.ai.advisor.AiAdvisorPrompt;
 import org.apache.hop.ai.advisor.AiAdvisorRequest;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
 import org.apache.hop.ai.config.HopAiConfigSingleton;
+import org.apache.hop.ai.engine.AiAdvisorCatalogContext;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiAdvisorMetadataContext;
 import org.apache.hop.ai.engine.AiCheckResultsSerializer;
@@ -120,6 +121,7 @@ public final class PipelineAiContextBuilder {
           AiTextUtil.redactSecrets(AiTextUtil.truncate(request.getLogExcerpt(), MAX_LOG_CHARS)));
     }
     AiAdvisorMetadataContext.appendToPrompt(prompt, request);
+    AiAdvisorCatalogContext.appendToPrompt(prompt, request, pipelineMeta);
     appendFocusTransform(prompt, pipelineMeta, request.getFocusNodeName());
     if (request.inclusionEnabled(AiAdvisorInclusions.CHECKS) && metadataProvider != null) {
       List<ICheckResult> results = new ArrayList<>();

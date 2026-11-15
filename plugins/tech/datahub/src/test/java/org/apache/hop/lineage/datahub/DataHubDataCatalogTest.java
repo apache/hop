@@ -51,6 +51,8 @@ import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DatasetRef;
 import org.apache.hop.datacatalog.IAssertionCapability.AssertionResult;
 import org.apache.hop.datacatalog.IAssertionCapability.Outcome;
+import org.apache.hop.datacatalog.IContextCapability.DatasetContext;
+import org.apache.hop.datacatalog.IContextCapability.Owner;
 import org.apache.hop.datacatalog.IDeprecationCapability.Deprecation;
 import org.apache.hop.datacatalog.ISchemaCapability.CatalogField;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -270,6 +272,51 @@ class DataHubDataCatalogTest {
 
     assertInstanceOf(
         CatalogAnswer.NotFound.class, connect(url()).deprecation(new CatalogEntityId(ORDERS)));
+  }
+
+  @Test
+  void theContextHasTheDescriptionOwnersTagsAndTerms() throws Exception {
+    answer(
+        "hopDatasetContext",
+        "{\"dataset\":{\"exists\":true,"
+            + "\"properties\":{\"description\":\"From ingestion\"},"
+            + "\"editableProperties\":{\"description\":\"All orders, one row per line\"},"
+            + "\"ownership\":{\"owners\":["
+            + "{\"type\":\"TECHNICAL_OWNER\",\"ownershipType\":{\"info\":{\"name\":\"Technical Owner\"}},"
+            + "\"owner\":{\"username\":\"jdoe\",\"properties\":{\"displayName\":\"Jane Doe\"}}},"
+            + "{\"type\":\"DATAOWNER\",\"ownershipType\":null,"
+            + "\"owner\":{\"name\":\"sales-team\",\"properties\":null}}]},"
+            + "\"tags\":{\"tags\":[{\"tag\":{\"name\":\"PII\",\"properties\":{\"name\":\"PII\"}}}]},"
+            + "\"glossaryTerms\":{\"terms\":[{\"term\":{\"name\":\"a1b2\","
+            + "\"properties\":{\"name\":\"Order\"}}}]}}}");
+
+    CatalogAnswer<DatasetContext> answer = connect(url()).context(new CatalogEntityId(ORDERS));
+
+    assertEquals(
+        CatalogAnswer.known(
+            new DatasetContext(
+                "All orders, one row per line",
+                List.of(
+                    new Owner("Jane Doe", "Technical Owner"), new Owner("sales-team", "DATAOWNER")),
+                List.of("PII"),
+                List.of("Order"))),
+        answer);
+    assertEquals(ORDERS, requests.get(0).path("variables").path("urn").asText());
+  }
+
+  @Test
+  void aDatasetWithoutContextHasAnEmptyOne() throws Exception {
+    answer(
+        "hopDatasetContext",
+        "{\"dataset\":{\"exists\":true,\"properties\":null,\"editableProperties\":null,"
+            + "\"ownership\":null,\"tags\":null,\"glossaryTerms\":null}}");
+
+    assertEquals(
+        CatalogAnswer.known(new DatasetContext(null, List.of(), List.of(), List.of())),
+        connect(url()).context(new CatalogEntityId(ORDERS)));
+
+    answer("hopDatasetContext", "{\"dataset\":null}");
+    assertInstanceOf(CatalogAnswer.NotFound.class, catalog.context(new CatalogEntityId(ORDERS)));
   }
 
   @Test

@@ -268,7 +268,9 @@ The plugin also adds DataHub as a type of xref:metadata-types/data-catalog.adoc[
 workflows can read what DataHub knows about a dataset. The
 xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses it to check, before a
 workflow goes on, that datasets exist in DataHub, aren't deprecated, changed recently enough and
-passed their assertions.
+passed their assertions. The
+xref:hop-gui/perspective-ai-advisor.adoc#data-catalog-context[AI Assistant] uses it to include the
+descriptions, owners, tags, glossary terms and deprecation of a pipeline's datasets in its questions.
 
 A Data Catalog has its own URL and token: it doesn't use the `HOP_LINEAGE_DATAHUB_*` variables. Give
 it the same environment as `HOP_LINEAGE_DATAHUB_ENV`, so a table resolves to the dataset the sink

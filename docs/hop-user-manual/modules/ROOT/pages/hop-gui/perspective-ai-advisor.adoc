@@ -192,6 +192,11 @@ That is usually enough for "what does this graph do?", hop problems, and naming 
 |Off
 |Every turn while checked
 |JSON of metadata objects you pick with *Select metadata…* (connections, run configurations, and so on). Default is none. Use this when the question is about a named connection or similar. Passwords and API keys are redacted; still prefer variables over literals. Do not select objects that hold personal data unless the question needs them.
+
+|Include data catalog context
+|Off
+|Every turn while checked (pipelines)
+|What a xref:metadata-types/data-catalog.adoc[Data Catalog] you pick says about the tables and files the pipeline reads and writes: their descriptions, owners, tags, glossary terms and deprecation. See <<data-catalog-context>>.
 |===
 
 Redaction (see <<secrets-and-personal-information>>) runs on check results, XML, logs and selected metadata.
@@ -201,6 +206,18 @@ Checking *Include selected metadata* with nothing chosen opens the picker.
 The tree lists metadata types that have at least one object.
 Check only the elements the current question needs, then OK.
 *None* clears the selection.
+
+[[data-catalog-context]]
+=== Data catalog context
+
+Checking *Include data catalog context* opens a list of the project's data catalogs; pick the one to read, for example DataHub.
+The assistant can then answer questions such as who owns the table a pipeline loads, what a file is for, or whether a source is deprecated.
+
+* The datasets are the files and tables the transforms declare: the files of Text file input and output and CSV input, and the tables of Table output, Insert/Update, the bulk loaders and similar. They are named the way lineage names them, so they match what the lineage sinks write to the catalog.
+* The tables a Table input reads with its SQL are not looked up: they are only known once the SQL is parsed. With *Include transform / action settings* on, the model still sees the SQL itself.
+* The catalog is read when the question is sent, in the background, so Hop GUI doesn't wait for it. *Show what is sent…* lists the datasets that will be looked up, not what the catalog says.
+* At most 40 datasets are looked up per question. A catalog that can't be reached adds a note saying so instead of failing the question.
+* What the catalog holds goes to the language model: descriptions and names written by the people of your organisation. Use it only with a provider you may send that to.
 
 === Recommended combinations
 

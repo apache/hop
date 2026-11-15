@@ -47,6 +47,7 @@ import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DataCatalog;
 import org.apache.hop.datacatalog.DatasetRef;
 import org.apache.hop.datacatalog.IAssertionCapability;
+import org.apache.hop.datacatalog.IContextCapability;
 import org.apache.hop.datacatalog.IDataCatalog;
 import org.apache.hop.datacatalog.IDeprecationCapability;
 import org.apache.hop.datacatalog.IFreshnessCapability;
@@ -72,7 +73,8 @@ public class DataHubDataCatalog
         IDeprecationCapability,
         IFreshnessCapability,
         IAssertionCapability,
-        ISchemaCapability {
+        ISchemaCapability,
+        IContextCapability {
 
   static final String DEFAULT_ENVIRONMENT = "PROD";
   static final String DEFAULT_CONNECT_TIMEOUT_MS = "5000";
@@ -119,6 +121,16 @@ public class DataHubDataCatalog
           + " urn info { description }"
           + " runEvents(status: COMPLETE, limit: 1) { runEvents { timestampMillis result { type } } }"
           + " } } } }";
+
+  /** Fields DataHub 1.0, 1.7 and 1.8 all have. */
+  private static final String CONTEXT_QUERY =
+      "query hopDatasetContext($urn: String!) { dataset(urn: $urn) { exists"
+          + " properties { description } editableProperties { description }"
+          + " ownership { owners { type ownershipType { info { name } } owner {"
+          + " ... on CorpUser { username properties { displayName } }"
+          + " ... on CorpGroup { name properties { displayName } } } } }"
+          + " tags { tags { tag { name properties { name } } } }"
+          + " glossaryTerms { terms { term { name properties { name } } } } } }";
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -336,6 +348,69 @@ public class DataHubDataCatalog
             deprecation.path("deprecated").asBoolean(false),
             StringUtils.trimToNull(deprecation.path("note").asText(null)),
             instant(deprecation.path("decommissionTime"))));
+  }
+
+  @Override
+  public CatalogAnswer<DatasetContext> context(CatalogEntityId id) {
+    CatalogAnswer<JsonNode> answer = datasetQuery(CONTEXT_QUERY, id.value(), null, 0);
+    if (!(answer instanceof CatalogAnswer.Known<JsonNode> known)) {
+      return answer.unknownAs();
+    }
+    JsonNode dataset = known.value();
+    if (dataset.isMissingNode() || dataset.isNull() || !dataset.path("exists").asBoolean(true)) {
+      return CatalogAnswer.notFound();
+    }
+    // A description edited in DataHub wins over the one its ingestion found
+    String description =
+        StringUtils.defaultIfBlank(
+            dataset.path("editableProperties").path("description").asText(null),
+            dataset.path("properties").path("description").asText(null));
+    List<Owner> owners = new ArrayList<>();
+    for (JsonNode owner : dataset.path("ownership").path("owners")) {
+      JsonNode who = owner.path("owner");
+      String name =
+          firstNonBlank(
+              who.path("properties").path("displayName").asText(null),
+              who.path("username").asText(null),
+              who.path("name").asText(null));
+      if (name != null) {
+        owners.add(
+            new Owner(
+                name,
+                firstNonBlank(
+                    owner.path("ownershipType").path("info").path("name").asText(null),
+                    owner.path("type").asText(null))));
+      }
+    }
+    List<String> tags = new ArrayList<>();
+    for (JsonNode tag : dataset.path("tags").path("tags")) {
+      addName(tags, tag.path("tag"));
+    }
+    List<String> terms = new ArrayList<>();
+    for (JsonNode term : dataset.path("glossaryTerms").path("terms")) {
+      addName(terms, term.path("term"));
+    }
+    return CatalogAnswer.known(
+        new DatasetContext(StringUtils.trimToNull(description), owners, tags, terms));
+  }
+
+  /** The name people see for a tag or term: its display name, else its name. */
+  private static void addName(List<String> names, JsonNode entity) {
+    String name =
+        firstNonBlank(
+            entity.path("properties").path("name").asText(null), entity.path("name").asText(null));
+    if (name != null && !names.contains(name)) {
+      names.add(name);
+    }
+  }
+
+  private static String firstNonBlank(String... values) {
+    for (String value : values) {
+      if (StringUtils.isNotBlank(value)) {
+        return value.trim();
+      }
+    }
+    return null;
   }
 
   @Override
