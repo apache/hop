@@ -81,3 +81,6 @@ So instead of save 0000001, we write 1, etc.
 String fields will no longer be padded to their specified length.
 |===
 
+== Samples
+
+The samples project has `transforms/concat-fields-basic.hpl`, which joins four fields into `1;two;3;four`, once keeping the source fields and once removing them.

@@ -47,3 +47,8 @@ Rows are passed through unchanged so you can keep using the stream after the wri
 * Multiple copies of this transform are not supported.
 * (Re)create takes precedence over validate.
 * The GUI context actions *Create data set* and *Write rows to data set* remain available for interactive use on the pipeline canvas.
+
+== Samples
+
+The samples project has `transforms/dataset-output.hpl`, which writes two rows from a Data grid to the unit test data set `dataset-output`.
+The first run creates the data set and its CSV file.

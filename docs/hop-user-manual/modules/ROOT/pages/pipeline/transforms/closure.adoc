@@ -38,3 +38,7 @@ It attaches the distance (in levels) from parent to child.
 |Distance field name|The name of the distance field that will be added to the output
 |Root is zero|Check this box if the root of the parent-child tree is not empty (null) but zero (0)
 |===
+
+== Samples
+
+The samples project has `transforms/closure-generate-calculate-distance.hpl`, which builds a closure table from an employee hierarchy in a Data grid: each manager with every employee below them and the distance between them, and each employee with itself at distance 0.
