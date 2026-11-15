@@ -31,7 +31,8 @@ import org.apache.hop.spark.util.SparkRunMode;
 
 /**
  * Draws a small badge at the bottom-left of a transform icon when a Spark run-mode override is set
- * (Force distributed / Force Driver Only).
+ * (Force distributed / Force Driver Only), unless the canvas designs for the native Spark engine:
+ * then the plan badge of {@link DrawSparkPlanOnTransformExtensionPoint} shows it.
  */
 @ExtensionPoint(
     id = "DrawSparkRunModeOnTransformExtensionPoint",
@@ -48,7 +49,10 @@ public class DrawSparkRunModeOnTransformExtensionPoint
       ILogChannel log, IVariables variables, PipelinePainterExtension ext) {
     try {
       TransformMeta transformMeta = ext.transformMeta;
-      if (transformMeta == null || !SparkRunMode.hasForcedOverride(transformMeta)) {
+      if (transformMeta == null
+          || !SparkRunMode.hasForcedOverride(transformMeta)
+          || SparkPlanBadges.designingForSpark()) {
+        // Designing for native Spark, the plan badge says where the transform runs
         return;
       }
 

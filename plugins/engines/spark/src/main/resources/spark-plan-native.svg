@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Native Spark: a spark (four-pointed star) on Spark orange -->
+  <circle cx="8" cy="8" r="7.5" fill="#e25a1c"/>
+  <path d="M8 2.5 L9.3 6.7 L13.5 8 L9.3 9.3 L8 13.5 L6.7 9.3 L2.5 8 L6.7 6.7 Z" fill="#ffffff"/>
+</svg>

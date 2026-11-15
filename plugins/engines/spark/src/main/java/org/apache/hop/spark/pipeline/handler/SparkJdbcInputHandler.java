@@ -36,6 +36,7 @@ import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
 import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkTransformPlan;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -135,6 +136,20 @@ public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
       return true;
     }
     return Const.toIntExpanded(variables.resolve(rowLimit), 0) <= 0;
+  }
+
+  @Override
+  public SparkTransformPlan plan(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables)
+      throws HopException {
+    boolean incomingInput = !pipelineMeta.findPreviousTransforms(transformMeta, false).isEmpty();
+    return isNativePartitionedRead(
+            transformMeta(TableInputMeta.class, transformMeta, pipelineMeta),
+            variables,
+            incomingInput)
+        ? SparkTransformPlan.SPARK_CODE
+        : SparkTransformPlan.of(
+            SparkTransformPlan.Kind.HOP, "SparkTransformPlan.TableInput.NotPartitioned");
   }
 
   @Override

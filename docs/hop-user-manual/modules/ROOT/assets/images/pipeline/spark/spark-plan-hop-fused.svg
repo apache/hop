@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Hop's transform in a fused chain: two linked rings on blue -->
+  <circle cx="8" cy="8" r="7.5" fill="#1f6aa5"/>
+  <rect x="2.8" y="5.6" width="6" height="4.8" rx="2.4" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+  <rect x="7.2" y="5.6" width="6" height="4.8" rx="2.4" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+</svg>

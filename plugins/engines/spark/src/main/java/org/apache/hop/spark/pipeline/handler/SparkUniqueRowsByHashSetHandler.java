@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
+import org.apache.hop.spark.pipeline.SparkTransformPlan;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -57,6 +58,13 @@ public class SparkUniqueRowsByHashSetHandler extends SparkBaseTransformHandler {
   @Override
   public boolean supportsErrorHops() {
     return true;
+  }
+
+  @Override
+  public SparkTransformPlan plan(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables) {
+    return SparkTransformPlan.of(
+        SparkTransformPlan.Kind.HOP, "SparkTransformPlan.UniqueRowsByHashSet.ByKey");
   }
 
   @Override

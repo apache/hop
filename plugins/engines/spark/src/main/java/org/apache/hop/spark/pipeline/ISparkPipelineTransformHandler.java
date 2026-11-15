@@ -60,4 +60,15 @@ public interface ISparkPipelineTransformHandler {
   default boolean supportsErrorHops() {
     return false;
   }
+
+  /**
+   * How this handler will run the transform, for the canvas: Spark code, unless the handler hands
+   * the rows to Hop's transform. A handler that does decides here as it does in {@link
+   * #handleTransform}, with the design-time settings and no Spark session.
+   */
+  default SparkTransformPlan plan(
+      PipelineMeta pipelineMeta, TransformMeta transformMeta, IVariables variables)
+      throws HopException {
+    return SparkTransformPlan.SPARK_CODE;
+  }
 }

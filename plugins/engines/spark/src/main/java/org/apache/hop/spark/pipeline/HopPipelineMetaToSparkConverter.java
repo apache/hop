@@ -68,6 +68,7 @@ import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsByHashSetHandler;
 import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsHandler;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.spark.util.SparkJobNames;
+import org.apache.hop.spark.util.SparkRunMode;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -265,6 +266,31 @@ public class HopPipelineMetaToSparkConverter {
     this.genericTransformHandler = new SparkGenericTransformHandler();
     this.genericTransformHandler.setPersistedDatasets(persistedDatasets);
     addDefaultTransformHandlers();
+  }
+
+  /** For {@link #plan()} only: no metadata to hand to the executors, so none is serialized. */
+  private HopPipelineMetaToSparkConverter(
+      IVariables variables,
+      PipelineMeta pipelineMeta,
+      ISparkPipelineEngineRunConfiguration sparkRunConfiguration) {
+    this.variables = variables;
+    this.pipelineMeta = pipelineMeta;
+    this.metadataProvider = null;
+    this.metaStoreJson = null;
+    this.runConfigName = null;
+    this.sparkRunConfiguration = sparkRunConfiguration;
+    this.transformHandlers = new HashMap<>();
+    this.genericTransformHandler = new SparkGenericTransformHandler();
+    addDefaultTransformHandlers();
+  }
+
+  /** How every transform of the pipeline will run with this run configuration. */
+  public static Map<String, SparkTransformPlan> plan(
+      IVariables variables,
+      PipelineMeta pipelineMeta,
+      ISparkPipelineEngineRunConfiguration sparkRunConfiguration) {
+    return new HopPipelineMetaToSparkConverter(variables, pipelineMeta, sparkRunConfiguration)
+        .plan();
   }
 
   protected void addDefaultTransformHandlers() {
@@ -502,6 +528,95 @@ public class HopPipelineMetaToSparkConverter {
     } catch (Exception e) {
       throw new HopException("Error converting Hop pipeline to Spark", e);
     }
+  }
+
+  /**
+   * How every transform will run, decided as a run decides it but without a Spark session: for the
+   * canvas and the checks at design time. The row layouts are the design-time ones, so a transform
+   * that only learns its fields while it runs can still differ.
+   */
+  public Map<String, SparkTransformPlan> plan() {
+    Map<String, SparkTransformPlan> plan = new HashMap<>();
+    List<TransformMeta> transforms = pipelineMeta.getTransforms();
+    Map<String, List<TransformMeta>> chains =
+        sparkRunConfiguration == null || sparkRunConfiguration.isFuseGenericTransforms()
+            ? findFusedChains(transforms)
+            : Map.of();
+    Map<String, String> chainOf = new HashMap<>();
+    for (Map.Entry<String, List<TransformMeta>> chain : chains.entrySet()) {
+      List<String> names = new ArrayList<>();
+      names.add(chain.getKey());
+      chain.getValue().forEach(t -> names.add(t.getName()));
+      String text = String.join(", ", names);
+      names.forEach(name -> chainOf.put(name, text));
+    }
+    for (TransformMeta transformMeta : transforms) {
+      SparkTransformPlan transformPlan = planTransform(transformMeta, chainOf);
+      if (transformPlan != null) {
+        plan.put(transformMeta.getName(), transformPlan);
+      }
+    }
+    return plan;
+  }
+
+  /** How one transform runs; null when its settings can't be read now. */
+  private SparkTransformPlan planTransform(
+      TransformMeta transformMeta, Map<String, String> chainOf) {
+    SparkTransformPlan handlerPlan;
+    ISparkPipelineTransformHandler handler =
+        transformHandlers.get(transformMeta.getTransformPluginId());
+    try {
+      handlerPlan =
+          handler == null
+              ? new SparkTransformPlan(SparkTransformPlan.Kind.HOP, null)
+              : handler.plan(pipelineMeta, transformMeta, variables);
+    } catch (HopException | RuntimeException e) {
+      LogChannel.GENERAL.logDebug(
+          "No native Spark plan for transform '"
+              + transformMeta.getName()
+              + "': "
+              + e.getMessage());
+      return null;
+    }
+    if (handlerPlan.kind() == SparkTransformPlan.Kind.NATIVE) {
+      return handlerPlan;
+    }
+    // Hop's transform runs: where and how is the generic handler's choice
+    String why = handlerPlan.reason();
+    String override = SparkRunMode.getOverride(transformMeta);
+    if (SparkRunMode.resolve(transformMeta, sparkRunConfiguration) == SparkRunMode.DRIVER_ONLY) {
+      String driver =
+          SparkRunMode.OVERRIDE_FORCE_DRIVER_ONLY.equals(override)
+              ? SparkTransformPlan.message(
+                  "SparkTransformPlan.RunMode.Transform", SparkRunMode.DISPLAY_FORCE_DRIVER_ONLY)
+              : SparkTransformPlan.message("SparkTransformPlan.RunMode.Driver");
+      return new SparkTransformPlan(
+          SparkTransformPlan.Kind.DRIVER, SparkTransformPlan.join(why, driver));
+    }
+    if (SparkRunMode.OVERRIDE_FORCE_DISTRIBUTED.equals(override)) {
+      why =
+          SparkTransformPlan.join(
+              why,
+              SparkTransformPlan.message(
+                  "SparkTransformPlan.RunMode.Transform", SparkRunMode.DISPLAY_FORCE_DISTRIBUTED));
+    }
+    boolean oneStream = handlerPlan.kind() == SparkTransformPlan.Kind.ONE_STREAM;
+    try {
+      oneStream = oneStream || SparkGenericTransformHandler.needsOneOrderedStream(transformMeta);
+    } catch (HopException e) {
+      // A run fails on the same settings
+    }
+    if (oneStream) {
+      return new SparkTransformPlan(SparkTransformPlan.Kind.ONE_STREAM, why);
+    }
+    String chain = chainOf.get(transformMeta.getName());
+    if (chain != null) {
+      return new SparkTransformPlan(
+          SparkTransformPlan.Kind.HOP_FUSED,
+          SparkTransformPlan.join(
+              why, SparkTransformPlan.message("SparkTransformPlan.Chain", chain)));
+    }
+    return new SparkTransformPlan(SparkTransformPlan.Kind.HOP, why);
   }
 
   /**
