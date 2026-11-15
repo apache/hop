@@ -85,8 +85,8 @@ public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
   /**
    * Whether this handler can natively (parallel) read the given Table Input configuration:
    * partitioned read requested, no per-row execution, no JDBC parameters in the effective SQL, no
-   * effective row limit, and no incoming parameter rows. Variables must already be the resolved
-   * ones.
+   * effective row limit, no specified output fields, and no incoming parameter rows. Variables must
+   * already be the resolved ones.
    *
    * <p>The SQL is inspected directly (named {@code {param}} and positional {@code ?} placeholders
    * both disqualify) rather than relying on the {@code useNamedParameters} flag: the flag only
@@ -102,6 +102,7 @@ public class SparkJdbcInputHandler extends SparkBaseTransformHandler {
       TableInputMeta meta, IVariables variables, boolean incomingInput) {
     if (incomingInput
         || meta.isExecuteEachInputRow()
+        || meta.isSpecifyFields()
         || !Utils.isEmpty(meta.getLookup())
         || !TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
       return false;

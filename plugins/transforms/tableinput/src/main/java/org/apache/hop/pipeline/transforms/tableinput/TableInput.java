@@ -253,7 +253,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     if (data.partitionSlice == null) {
       return sql;
     }
-    return data.partitionSlice.buildQuery(sql);
+    return data.partitionSlice.buildQuery(TableInputPartitioning.trimSql(sql));
   }
 
   private boolean doQuery(IRowMeta parametersMeta, Object[] parameters) throws HopException {

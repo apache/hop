@@ -60,6 +60,15 @@ class SparkJdbcInputHandlerTest {
   }
 
   @Test
+  void fallbackWhenOutputFieldsAreSpecified() {
+    final var meta = partitionedMeta();
+    meta.setSpecifyFields(true);
+    assertFalse(
+        SparkJdbcInputHandler.isNativePartitionedRead(meta, new Variables(), false),
+        "specified fields require Table Input field mapping and conversion semantics");
+  }
+
+  @Test
   void fallbackWhenIncomingInput() {
     assertFalse(
         SparkJdbcInputHandler.isNativePartitionedRead(partitionedMeta(), new Variables(), true),

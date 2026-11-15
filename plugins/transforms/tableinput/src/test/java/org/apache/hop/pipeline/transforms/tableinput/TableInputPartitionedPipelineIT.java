@@ -96,6 +96,12 @@ class TableInputPartitionedPipelineIT {
 
   /** Builds a pipeline TableInput (N copies) -> Dummy and returns the collected id rows. */
   private List<Long> runPipeline(int copies, int partitions, boolean preview) throws Exception {
+    return runPipeline(copies, partitions, preview, "SELECT id, val FROM T");
+  }
+
+  private List<Long> runPipeline(
+      final int copies, final int partitions, final boolean preview, final String sql)
+      throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(getClass().getName());
     MemoryMetadataProvider provider = new MemoryMetadataProvider();
@@ -104,7 +110,7 @@ class TableInputPartitionedPipelineIT {
 
     TableInputMeta meta = new TableInputMeta();
     meta.setConnection(CONNECTION_NAME);
-    meta.setSql("SELECT id, val FROM T");
+    meta.setSql(sql);
     meta.setUseNamedParameters(false);
     meta.setJdbcPartitionColumn("id");
     meta.setJdbcLowerBound("0");
@@ -170,6 +176,13 @@ class TableInputPartitionedPipelineIT {
     for (long i = 0; i < ROWS; i++) {
       assertTrue(unique.contains(i), "row " + i + " must be present");
     }
+  }
+
+  @Test
+  void terminatedSqlReadsAllRowsOnce() throws Exception {
+    final var ids = runPipeline(4, 4, false, "SELECT id, val FROM T;  ");
+    assertEquals(ROWS, ids.size(), "terminated SQL must read every row exactly once");
+    assertEquals(ROWS, new HashSet<>(ids).size(), "terminated SQL must not duplicate rows");
   }
 
   @Test
