@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.metadata.ILineageSinkConfiguration;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
@@ -105,6 +106,11 @@ public class OpenLineageLineageSink implements ILineageSink {
         + (config.isParentRunsEnabled() ? "on" : "off")
         + ", file dataset naming="
         + (config.isFileSpecNaming() ? "spec" : "legacy");
+  }
+
+  @Override
+  public ILineageSinkConfiguration newConfiguration() {
+    return new OpenLineageSinkConfiguration();
   }
 
   @Override

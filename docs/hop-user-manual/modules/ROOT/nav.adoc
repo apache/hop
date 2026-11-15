@@ -562,6 +562,7 @@ under the License.
 ** xref:metadata-types/hdfs-connection.adoc[HDFS Connection]
 ** xref:metadata-types/hop-server.adoc[Hop Server]
 ** xref:metadata-types/spark-catalog.adoc[Lakehouse catalog]
+** xref:metadata-types/lineage-sink.adoc[Lineage Sink]
 ** xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]
 ** xref:metadata-types/masking-pattern.adoc[Masking Pattern]
 ** xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]

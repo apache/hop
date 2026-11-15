@@ -53,6 +53,14 @@ public final class LineageFileIoEmitter {
   }
 
   /**
+   * Whether lineage is observed for the run of a transform: enabled with variables, or the run
+   * reports to a sink of its own.
+   */
+  public static boolean isEnabled(ITransform transform) {
+    return LineageSinkRoutes.isEnabled(transform);
+  }
+
+  /**
    * Converts a Hop {@link IRowMeta} to the neutral {@link FileIoContentSchema} a file event
    * carries, so a sink can describe the file's columns (name and Hop type). Returns {@code null}
    * for a null/empty row shape. Columns have no path locator and no structure tree here: a reader
@@ -128,7 +136,10 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
-    if (workflow == null || action == null || operation == null || !isEnabled()) {
+    if (workflow == null
+        || action == null
+        || operation == null
+        || !LineageSinkRoutes.isEnabled(workflow)) {
       return;
     }
     emit(
@@ -154,7 +165,10 @@ public final class LineageFileIoEmitter {
       Long bytesTransferred,
       boolean success,
       String message) {
-    if (workflow == null || action == null || operation == null || !isEnabled()) {
+    if (workflow == null
+        || action == null
+        || operation == null
+        || !LineageSinkRoutes.isEnabled(workflow)) {
       return;
     }
     emitWorkflowActionFileIo(
@@ -209,7 +223,7 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
-    if (transform == null || operation == null || !isEnabled()) {
+    if (transform == null || operation == null || !isEnabled(transform)) {
       return;
     }
     LineageContext.Builder ctx = LineageRunLifecycleEmitter.transformContextBuilder(transform);
@@ -266,7 +280,7 @@ public final class LineageFileIoEmitter {
       boolean success,
       String message,
       FileIoContentSchema contentSchema) {
-    if (!isEnabled()) {
+    if (!isEnabled(transform)) {
       return;
     }
     emitTransformFileIo(

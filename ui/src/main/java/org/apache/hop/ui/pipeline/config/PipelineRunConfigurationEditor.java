@@ -32,6 +32,7 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -86,6 +87,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Button wDefault;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
   private MetaSelectionLine<ExecutionDataProfile> wProfile;
+  private MetaSelectionLine<LineageSink> wLineageSink;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -262,6 +264,24 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wProfile.setLayoutData(fdProfile);
     lastControl = wProfile;
 
+    // Which lineage sink do the runs report their lineage to?
+    //
+    wLineageSink =
+        new MetaSelectionLine<>(
+            manager.getVariables(),
+            manager.getMetadataProvider(),
+            LineageSink.class,
+            wMainComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.LineageSink"),
+            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.toolTip.LineageSink"));
+    FormData fdLineageSink = new FormData();
+    fdLineageSink.top = new FormAttachment(lastControl, margin);
+    fdLineageSink.left = new FormAttachment(0, 0);
+    fdLineageSink.right = new FormAttachment(100, 0);
+    wLineageSink.setLayoutData(fdLineageSink);
+    lastControl = wLineageSink;
+
     // What's the type of engine?
     //
     Label wlPluginType = new Label(wMainComp, SWT.RIGHT);
@@ -414,6 +434,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
     wProfile.getComboWidget().addListener(SWT.Modify, modifyListener);
     wProfile.getComboWidget().addListener(SWT.Selection, modifyListener);
+    wLineageSink.getComboWidget().addListener(SWT.Modify, modifyListener);
+    wLineageSink.getComboWidget().addListener(SWT.Selection, modifyListener);
     wExecutionInfoLocation.getComboWidget().addListener(SWT.Modify, modifyListener);
     wExecutionInfoLocation.getComboWidget().addListener(SWT.Selection, modifyListener);
   }
@@ -579,6 +601,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     try {
       wExecutionInfoLocation.fillItems();
       wProfile.fillItems();
+      wLineageSink.fillItems();
       if (loadBalancingWidgets != null) {
         loadBalancingWidgets.refreshServerNames();
       }
@@ -638,6 +661,12 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
 
     wProfile.setText(Const.NVL(workingConfiguration.getExecutionDataProfileName(), ""));
+    try {
+      wLineageSink.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error getting the list of lineage sinks", e);
+    }
+    wLineageSink.setText(Const.NVL(workingConfiguration.getLineageSinkName(), ""));
 
     for (int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++) {
       DescribedVariable vvd = workingConfiguration.getConfigurationVariables().get(i);
@@ -674,6 +703,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
 
     meta.setExecutionDataProfileName(wProfile.getText());
+    meta.setLineageSinkName(wLineageSink.getText());
 
     // The variables
     //

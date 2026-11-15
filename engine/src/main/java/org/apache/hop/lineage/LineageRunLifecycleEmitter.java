@@ -266,7 +266,8 @@ public final class LineageRunLifecycleEmitter {
             .logChannelId(transform.getLogChannel().getLogChannelId())
             .transformName(transform.getTransformName())
             .copyNr(String.valueOf(transform.getCopy()))
-            .pipelineName(pipelineName);
+            .pipelineName(pipelineName)
+            .sinks(LineageSinkRoutes.of(pipeline));
     fillFilenameFields(ctx, filename, filenameVars);
     if (pipeline != null) {
       ctx.putAttribute("pipelineLogChannelId", pipeline.getLogChannelId());
@@ -308,7 +309,8 @@ public final class LineageRunLifecycleEmitter {
                     ? actionLogChannelId
                     : workflow.getLogChannelId())
             .workflowName(workflowName)
-            .actionName(action.getName());
+            .actionName(action.getName())
+            .sinks(LineageSinkRoutes.of(workflow));
     if (!Utils.isEmpty(filename)) {
       fillFilenameFields(ctx, filename, workflow);
     }
@@ -347,7 +349,8 @@ public final class LineageRunLifecycleEmitter {
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)
             .logChannelId(pipeline.getLogChannelId())
-            .pipelineName(name);
+            .pipelineName(name)
+            .sinks(LineageSinkRoutes.of(pipeline));
     fillFilenameFields(ctx, filename, pipeline);
     String pluginId = pipeline.getPluginId();
     if (!Utils.isEmpty(pluginId)) {
@@ -426,7 +429,8 @@ public final class LineageRunLifecycleEmitter {
         LineageContext.builder()
             .subjectType(LineageSubjectType.WORKFLOW)
             .logChannelId(workflow.getLogChannelId())
-            .workflowName(name);
+            .workflowName(name)
+            .sinks(LineageSinkRoutes.of(workflow));
     fillFilenameFields(ctx, filename, workflow);
     fillWorkflowParentFields(ctx, workflow);
     if (meta != null) {
@@ -591,7 +595,8 @@ public final class LineageRunLifecycleEmitter {
             .subjectType(LineageSubjectType.ACTION)
             .logChannelId(extension.actionLogChannelId)
             .workflowName(workflowName)
-            .actionName(actionName);
+            .actionName(actionName)
+            .sinks(LineageSinkRoutes.of(wf));
     fillFilenameFields(ctx, filename, wf);
 
     ctx.putAttribute("workflowLogChannelId", wf.getLogChannelId());

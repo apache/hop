@@ -42,6 +42,7 @@ None/All
 |Description|the description to be used for this pipeline run configuration
 |Execution information location|The xref:metadata-types/execution-information-location.adoc[] to use with this pipeline run configuration.
 |Execution data profile|The xref:metadata-types/execution-data-profile.adoc[] to use with this pipeline run configuration.
+|Lineage sink|Optionally, the xref:metadata-types/lineage-sink.adoc[Lineage Sink] the pipelines run with this configuration report their lineage to, and the runs they start too.
 |Engine Type
 a|The available pipeline engines are listed below.
 Detailed configuration depends on the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[selected engine].

@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.metadata.ILineageSinkConfiguration;
 import org.apache.hop.lineage.model.LineageEvent;
 
 /**
@@ -49,6 +50,16 @@ public interface ILineageSink {
    * whole batch for this sink.
    */
   void accept(List<LineageEvent> events) throws HopException;
+
+  /**
+   * A new, empty configuration of this sink type, for a {@link
+   * org.apache.hop.lineage.metadata.LineageSink} defined in the project's metadata. The hub then
+   * calls {@link #init} with the variables {@link ILineageSinkConfiguration#toSettings} gives, and
+   * with no others. Null when the sink can only be configured with variables.
+   */
+  default ILineageSinkConfiguration newConfiguration() {
+    return null;
+  }
 
   /** Called when the hub shuts down or sinks are reloaded. */
   default void shutdown() throws HopException {

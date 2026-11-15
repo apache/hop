@@ -1,0 +1,142 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: A Lineage Sink is a place, such as an OpenLineage collector or DataHub, that runs report their lineage to.
+
+= Lineage Sink
+
+== Description
+
+A Lineage Sink is a place that pipelines and workflows report their lineage to: an xref:technology/openlineage/index.adoc[OpenLineage] collector such as Marquez, or xref:technology/datahub/index.adoc[DataHub].
+
+A xref:metadata-types/pipeline-run-config.adoc[pipeline run configuration] or a xref:metadata-types/workflow-run-config.adoc[workflow run configuration] selects one in its *Lineage sink* option.
+The runs it starts report their lineage there, and so do the runs those start: the pipelines a workflow runs, the sub-pipelines of a pipeline.
+Such a run reports to the sink of its own run configuration as well, if that has one.
+Lineage then doesn't need to be switched on with variables: a run that selects a sink turns it on for that run.
+
+A project can point all its runs to one sink through its default run configurations, and send the runs of a development and a production run configuration to different places.
+
+Sinks configured with the `HOP_LINEAGE_*` variables keep working as they did, next to these: they get the lineage of every run.
+Do not configure the same place both ways, or it gets every event twice.
+
+== Options
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+
+|Name
+|The name of the Lineage Sink.
+
+|Description
+|A description of the Lineage Sink.
+
+|Sink type
+|The kind of sink: OpenLineage or DataHub. The options below it depend on it, and are grouped in tabs.
+A sink type comes with a plugin, so the list only shows the types of the plugins that are installed.
+|===
+
+Each option has the meaning and the default of the variable that configures the same sink with variables, given in the last column.
+An option left empty keeps that default.
+Options can use variables, for example `'${MARQUEZ_URL}'`; they are resolved with the variables of the run that uses the sink.
+
+=== OpenLineage
+
+[options="header", cols="1,3,2"]
+|===
+|Option|Description|Variable
+
+|Collector URL
+|The URL events are posted to, for example `\http://marquez:5000/api/v1/lineage`. Required.
+|`HOP_LINEAGE_OPENLINEAGE_URL`
+
+|API key
+|Sent as a bearer token, when the collector needs one.
+|`HOP_LINEAGE_OPENLINEAGE_API_KEY`
+
+|Namespace
+|The OpenLineage namespace of Hop's pipelines and workflows.
+|`HOP_LINEAGE_OPENLINEAGE_NAMESPACE`
+
+|Producer
+|The producer URI the events carry.
+|`HOP_LINEAGE_OPENLINEAGE_PRODUCER`
+
+|A job per transform
+|Report each transform as a job of its own; see xref:technology/openlineage/index.adoc#_job_granularity[Job granularity].
+|`HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS`
+
+|Parent run facets
+|Name the run that started a run in a parent facet.
+|`HOP_LINEAGE_OPENLINEAGE_PARENT_RUNS`
+
+|Name files by the OpenLineage spec
+|Name file datasets by the OpenLineage naming spec. On for a new sink; the variable's default, the naming of Hop 2.20 and earlier, is deprecated.
+|`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING`
+
+|Parse SQL
+|Parse the SQL of Table input and Execute SQL script to find the tables they read and write.
+|`HOP_LINEAGE_OPENLINEAGE_SQL_PARSE`
+|===
+
+The *Delivery* tab holds the spool folder and size, the queue size and what happens when it is full, the retries, the timeouts, the metrics log interval and the trust store: the `HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR` to `HOP_LINEAGE_OPENLINEAGE_KEYSTORE_TYPE` settings of the xref:technology/openlineage/index.adoc[OpenLineage] page.
+
+=== DataHub
+
+[options="header", cols="1,3,2"]
+|===
+|Option|Description|Variable
+
+|DataHub data catalog
+|The xref:metadata-types/data-catalog.adoc[Data Catalog] of type DataHub to write to: its URL, access token, environment and trust store are the sink's. Hop then reads from and writes to the same DataHub, and finds the datasets it wrote. The token needs the right to write metadata as well as to read it.
+|`HOP_LINEAGE_DATAHUB_URL`, `…_TOKEN`, `…_ENV`
+
+|Platform instance
+|Keeps the pipelines and workflows of several Hop installations apart in one DataHub.
+|`HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE`
+
+|Write dataset schemas
+|When to write the schema of a dataset; see xref:technology/datahub/index.adoc#_dataset_schemas[Dataset schemas].
+|`HOP_LINEAGE_DATAHUB_DATASET_SCHEMA`
+
+|Deprecate deleted datasets
+|See xref:technology/datahub/index.adoc#_deleted_and_moved_datasets[Deleted and moved datasets].
+|`HOP_LINEAGE_DATAHUB_LIFECYCLE`
+
+|Actor
+|The DataHub user named as the actor of the runs and deprecations Hop writes.
+|`HOP_LINEAGE_DATAHUB_ACTOR`
+
+|Parse SQL
+|Parse the SQL of Table input and Execute SQL script.
+|`HOP_LINEAGE_DATAHUB_SQL_PARSE`
+|===
+
+The *Delivery* tab has the same options as the OpenLineage one, under `HOP_LINEAGE_DATAHUB_`.
+A trust store set there is used instead of the data catalog's.
+
+== Notes
+
+* A run works out its sinks when it starts. A sink edited while a run is going applies to the runs that start after it; the old version is shut down once the runs that used it ended.
+* Runs that resolve a sink to the same settings share it. Runs of another project, or runs whose variables give the sink other settings, get a sink of their own.
+* Only the runs that report to a sink do the work to observe lineage. The other runs of the same Hop process don't, unless lineage is enabled with variables.
+* A run started on another Hop Server reports to the sinks of the run configuration it runs with there.
+* Give each sink its own spool folder.
+* A sink that doesn't exist or whose data catalog is missing is logged on the run, and the run goes on without it.
+* A sink that can't start, for example because its trust store is missing, is logged and tried again a minute later. Until then the runs that select it log that their lineage doesn't reach it.
+* A run configuration selects one sink. To send the same runs to two places, select one in the run configuration and configure the other with variables.

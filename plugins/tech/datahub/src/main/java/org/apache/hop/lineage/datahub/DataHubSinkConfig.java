@@ -27,7 +27,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.openlineage.OpenLineageSinkConfig;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /**
  * Configuration of the DataHub sink, read from {@code HOP_LINEAGE_DATAHUB_*} variables.
@@ -111,11 +113,22 @@ public final class DataHubSinkConfig {
    * How a dataset's {@code schemaMetadata} is written; see {@link
    * #HOP_LINEAGE_DATAHUB_DATASET_SCHEMA}.
    */
-  public enum SchemaPolicy {
+  public enum SchemaPolicy implements IEnumHasCodeAndDescription {
     /** Only when DataHub has no schema for the dataset, or the one it has was written by Hop. */
     MISSING,
     ALWAYS,
-    NEVER
+    NEVER;
+
+    @Override
+    public String getCode() {
+      return name();
+    }
+
+    @Override
+    public String getDescription() {
+      return BaseMessages.getString(
+          DataHubSinkConfig.class, "DataHubSinkConfig.SchemaPolicy." + name());
+    }
   }
 
   private static final String DATAHUB_PREFIX = "HOP_LINEAGE_DATAHUB_";

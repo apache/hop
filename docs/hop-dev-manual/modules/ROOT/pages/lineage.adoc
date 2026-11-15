@@ -26,7 +26,7 @@ The public API lives under the Java package `org.apache.hop.lineage` in the `hop
 == Goals
 
 * **Central entry point** — Producers call `LineageHub.getInstance().emit(...)` instead of talking to each backend directly.
-* **Safe defaults** — The hub is **off** until `HOP_LINEAGE_ENABLED` is set to `Y`.
+* **Safe defaults** — The hub is **off** until `HOP_LINEAGE_ENABLED` is set to `Y`, or a run selects a lineage sink in its run configuration.
 * **Non-blocking pipelines** — Events are queued and dispatched on a dedicated worker thread; sinks run in batch with per-sink error isolation.
 * **Extensibility** — New backends ship as `ILineageSink` implementations registered via `@LineageSinkPlugin`.
 
@@ -131,6 +131,18 @@ When enabled:
 . The worker builds **batches** up to `HOP_LINEAGE_BATCH_MAX`, waiting up to `HOP_LINEAGE_BATCH_LINGER_MS` for additional events before sending a partial batch.
 . Each batch is passed to **every** loaded sink via `ILineageSink.accept(List<LineageEvent>)`. If one sink throws, others still receive the same batch; failures are logged.
 
+=== Sinks selected in run configurations
+
+A `lineage-sink` metadata object (`org.apache.hop.lineage.metadata.LineageSink`) holds the configuration of one sink: an `ILineageSinkConfiguration` the sink plugin hands out with `ILineageSink.newConfiguration()`. A pipeline or workflow run configuration selects one in `lineageSinkName`.
+
+When a run's first lineage context is built, `LineageSinkRoutes` works out the run's sinks: the one of its run configuration, plus the ones of the run that started it. It resolves each with the run's variables (`ILineageSinkConfiguration.toSettings()`) into a `LineageSinkTarget`, registers it with `LineageHub.useSink()`, and keeps the keys with the run. Every `LineageContext` of the run carries them in `sinks`.
+
+The hub delivers an event to the sinks loaded from variables, as above, and to the sinks of the keys it carries. Such a sink is created and initialized, with the target's settings as its only variables, on the first event for it. A sink that fails to start is logged and tried again a minute later, and the other sinks carry on; `LineageHub.failure(key)` lets the next runs log it too.
+
+Code that does extra work only to build an event asks `LineageSinkRoutes.isEnabled(run or transform)`: lineage enabled with variables, or this run has sinks of its own. `LineageHub.isEnabled()` only answers the first half.
+
+A run holds its sinks in the hub (`useSink` and `hold`) and lets go of them when it ends (`LineageSinkRoutes.release`, which queues the release behind the run's last event). A sink no run holds whose name a newer target took, after its settings were edited, is shut down.
+
 **`flush()`** blocks until queued events (and coalesced flush markers) have been processed. **`flushQuietly()`** catches and logs errors. **`flushIfBacklogged()`** flushes only once the queue is at least half full: a nested run calls it, so that a run per row does not drain the hub after every row, but still waits for the sinks before the queue overflows and events are dropped.
 
 **`shutdown()`** stops the worker and calls `shutdown()` on sinks. It is invoked from `HopEnvironment.shutdown()` and `HopEnvironment.reset()`, and from a JVM exit hook that the hub registers when it starts its worker. That hook waits for a hop-run that is still stopping on a termination signal (`holdShutdownOnExit`), so the end of the run is delivered too.
@@ -201,6 +213,7 @@ Sinks implement **`org.apache.hop.lineage.spi.ILineageSink`**:
 * **`init(IVariables variables, ILogChannel log)`** — Optional; called once before the first batch.
 * **`accept(List<LineageEvent> events)`** — Receives a non-empty batch; should not hold references to the list after returning.
 * **`shutdown()`** — Optional cleanup.
+* **`newConfiguration()`** — Optional; a new `ILineageSinkConfiguration`, an object with `@HopMetadataProperty` and `@GuiWidgetElement` fields (parent `LineageSink.GUI_PLUGIN_ELEMENT_PARENT_ID`), so the sink can be a `lineage-sink` metadata object. Its `toSettings()` gives the variables `init` then reads. Null, the default, means variables only.
 
 The implementation class is annotated with **`@LineageSinkPlugin`** (`id`, optional `name`, `description`), mirroring other Hop plugin types (see xref:plugin-development.adoc[Plugin Development]).
 

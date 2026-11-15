@@ -33,6 +33,9 @@ and, with a spool configured, survives a collector outage or a restart — see <
 
 == Enabling the sink
 
+The simplest way is a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type OpenLineage, selected in a pipeline or workflow run configuration: the runs of that configuration report their lineage to it, with the options of the sink, and no variables are needed.
+
+The sink can also be configured with variables, for every run of a Hop process.
 The lineage hub is disabled by default. Enable it and select the OpenLineage sink with these
 **engine-scoped** variables (see xref:{page-component-version}@dev-manual::lineage.adoc[the lineage hub] for the hub-wide
 variables):

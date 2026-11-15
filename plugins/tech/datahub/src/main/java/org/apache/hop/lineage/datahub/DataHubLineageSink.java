@@ -21,6 +21,7 @@ import java.util.Locale;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.metadata.ILineageSinkConfiguration;
 import org.apache.hop.lineage.openlineage.OpenLineageEmitter;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
 import org.apache.hop.lineage.openlineage.OpenLineageLineageSink;
@@ -33,8 +34,9 @@ import org.apache.hop.lineage.plugin.LineageSinkPlugin;
  *
  * <p>It shares the OpenLineage sink's mapping, asynchronous queue and spool, and writes the mapped
  * events to DataHub's metadata API instead of posting them to an OpenLineage collector; see {@link
- * DataHubEmitter} for why, and {@link DataHubTranslator} for the model. Enable it with {@code
- * HOP_LINEAGE_ENABLED=Y}, {@code HOP_LINEAGE_SINK_IDS=datahub} and {@code HOP_LINEAGE_DATAHUB_URL}.
+ * DataHubEmitter} for why, and {@link DataHubTranslator} for the model. Select it as a lineage sink
+ * in a run configuration, or enable it with {@code HOP_LINEAGE_ENABLED=Y}, {@code
+ * HOP_LINEAGE_SINK_IDS=datahub} and {@code HOP_LINEAGE_DATAHUB_URL}.
  */
 @LineageSinkPlugin(
     id = "datahub",
@@ -43,6 +45,11 @@ import org.apache.hop.lineage.plugin.LineageSinkPlugin;
 public class DataHubLineageSink extends OpenLineageLineageSink {
 
   private DataHubSinkConfig dataHubConfig;
+
+  @Override
+  public ILineageSinkConfiguration newConfiguration() {
+    return new DataHubSinkConfiguration();
+  }
 
   @Override
   protected String sinkName() {

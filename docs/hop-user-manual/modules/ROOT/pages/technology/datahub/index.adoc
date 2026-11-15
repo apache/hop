@@ -101,6 +101,9 @@ not every input paired with every output.
 
 == Enabling the sink
 
+The simplest way is a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type DataHub, selected in a pipeline or workflow run configuration. It writes to the DataHub of a DataHub xref:metadata-types/data-catalog.adoc[Data Catalog], with its URL, token and environment, so Hop reads from the same DataHub it writes to. The runs of that configuration report their lineage to it, and no variables are needed.
+
+The sink can also be configured with variables, for every run of a Hop process.
 The lineage hub is off by default. Enable it and select the DataHub sink with these variables, as
 environment variables or in the Hop configuration (_Tools_ > _Edit config variables_):
 
