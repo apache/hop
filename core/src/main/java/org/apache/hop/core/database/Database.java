@@ -38,6 +38,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -4220,20 +4221,22 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public String[] getTablenames(
       String schemanamein, boolean includeSchema, Map<String, String> props)
       throws HopDatabaseException {
-    Map<String, Collection<String>> tableMap = getTableMap(schemanamein, props);
-    List<String> res = new ArrayList<>();
-    for (String schema : tableMap.keySet()) {
-      Collection<String> tables = tableMap.get(schema);
-      for (String table : tables) {
-        if (includeSchema) {
-          res.add(databaseMeta.getQuotedSchemaTableCombination(this, schema, table));
-        } else {
-          res.add(databaseMeta.getQuotedSchemaTableCombination(this, null, table));
-        }
-      }
-    }
-    res.sort(String.CASE_INSENSITIVE_ORDER);
-    return res.toArray(new String[0]);
+    return outputNames(getListedTables(schemanamein, includeSchema, props));
+  }
+
+  /**
+   * List the tables with the names {@link #getTablenames(String, boolean, Map)} returns, sorted on
+   * those names, keeping the catalog and schema of each table for lookups that need them.
+   *
+   * @param schemanamein The schema to list, null for all schemas (or the user's schema on databases
+   *     that list tables per user).
+   * @param includeSchema Put the schema in the output name.
+   * @param props Extra table properties that have to match, may be null.
+   */
+  public List<ListedDatabaseObject> getListedTables(
+      String schemanamein, boolean includeSchema, Map<String, String> props)
+      throws HopDatabaseException {
+    return listObjects(getTableObjectNames(schemanamein, props), includeSchema, true);
   }
 
   public Map<String, Collection<String>> getTableMap() throws HopDatabaseException {
@@ -4348,20 +4351,63 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public String[] getViews(String schemanamein, boolean includeSchema) throws HopDatabaseException {
-    Map<String, Collection<String>> viewMap = getViewMap(schemanamein);
-    List<String> res = new ArrayList<>();
-    for (String schema : viewMap.keySet()) {
-      Collection<String> views = viewMap.get(schema);
-      for (String view : views) {
-        if (includeSchema) {
-          res.add(databaseMeta.getQuotedSchemaTableCombination(this, schema, view));
-        } else {
-          res.add(view);
-        }
+    return outputNames(getListedViews(schemanamein, includeSchema));
+  }
+
+  /**
+   * List the views with the names {@link #getViews(String, boolean)} returns, sorted on those
+   * names, keeping the catalog and schema of each view for lookups that need them.
+   *
+   * @param schemanamein The schema to list, null for all schemas (or the user's schema on databases
+   *     that list tables per user).
+   * @param includeSchema Put the schema in the output name.
+   */
+  public List<ListedDatabaseObject> getListedViews(String schemanamein, boolean includeSchema)
+      throws HopDatabaseException {
+    return listObjects(getViewObjectNames(schemanamein), includeSchema, false);
+  }
+
+  /**
+   * Pair each object with its output name and sort on that name.
+   *
+   * @param quoteWithoutSchema quote the name also when the schema is left out, as is done for
+   *     tables but not for views.
+   */
+  private List<ListedDatabaseObject> listObjects(
+      List<DatabaseObjectName> objectNames, boolean includeSchema, boolean quoteWithoutSchema) {
+    List<ListedDatabaseObject> objects = new ArrayList<>();
+    for (DatabaseObjectName object : objectNames) {
+      String outputName;
+      if (includeSchema) {
+        outputName =
+            databaseMeta.getQuotedSchemaTableCombination(
+                this, object.schemaOrCatalog(), object.name());
+      } else if (quoteWithoutSchema) {
+        outputName = databaseMeta.getQuotedSchemaTableCombination(this, null, object.name());
+      } else {
+        outputName = object.name();
+      }
+      objects.add(new ListedDatabaseObject(object, outputName));
+    }
+    objects.sort(
+        Comparator.comparing(ListedDatabaseObject::outputName, String.CASE_INSENSITIVE_ORDER));
+    return objects;
+  }
+
+  /**
+   * The output names, with an object that is listed twice under the same schema (or catalog) and
+   * name counted once, as in {@link #getTableMap(String)} and {@link #getViewMap(String)}.
+   */
+  private static String[] outputNames(List<ListedDatabaseObject> objects) {
+    Set<DatabaseObjectName> seen = new HashSet<>();
+    List<String> names = new ArrayList<>();
+    for (ListedDatabaseObject listed : objects) {
+      DatabaseObjectName object = listed.object();
+      if (seen.add(new DatabaseObjectName(null, object.schemaOrCatalog(), object.name()))) {
+        names.add(listed.outputName());
       }
     }
-    res.sort(String.CASE_INSENSITIVE_ORDER);
-    return res.toArray(new String[0]);
+    return names.toArray(new String[0]);
   }
 
   public Map<String, Collection<String>> getViewMap() throws HopDatabaseException {
