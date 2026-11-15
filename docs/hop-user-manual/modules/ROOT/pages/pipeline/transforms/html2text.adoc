@@ -23,3 +23,28 @@ under the License.
 
 == Description
 The HTML 2 Text Transform allows you to parse an HTML page and convert the content to text
+
+For every row, the transform reads the HTML from a field and adds a field with the text of that HTML, or, with *Clean HTML Only*, with the HTML cleaned of everything the safelist does not allow.
+
+A row whose HTML field is empty, holds only white space or is null passes on with an empty text.
+
+NOTE: Before Hop 2.21, rows with empty HTML were dropped: they did not reach the output.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, unique in the pipeline.
+|Html text field|The field that holds the HTML.
+|Output text field|The name of the new field with the text, or the cleaned HTML.
+|Clean HTML Only|Keep the HTML and remove the elements and attributes that the safelist does not allow, instead of turning the HTML into text.
+|Safelist|With *Clean HTML Only*: what the cleaned HTML may keep. *None* keeps only the text, *Simple text* adds bold, italic and underline, *Basic* adds links, lists, quotes and paragraphs, *Basic with images* adds images, and *Relaxed* adds headings, tables, divisions and other structural elements.
+|Normalize Text|For text: replace runs of white space, line breaks included, with a single space. Without it the text keeps its white space.
+|===
+
+A row that cannot be converted stops the transform. When the transform has error handling, the row goes to the error hop instead.
+
+To convert rows on several threads, give the transform more copies: each copy converts the rows it gets on a thread of its own.
+
+NOTE: Before Hop 2.21, the transform had a *Use Parallelism* option that converted rows on a thread pool shared by the whole JVM. That option is gone: a transform that had it on converts its rows on one thread per copy now. Set the number of copies to use more threads.

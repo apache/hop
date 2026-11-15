@@ -28,6 +28,9 @@ public class Html2TextData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public int NrPrevFields;
 
+  /** Converts the HTML of a row; made on the first row. */
+  HtmlConverter converter;
+
   public Html2TextData() {
     super();
     indexOfHtmlField = -1;
