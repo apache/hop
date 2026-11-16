@@ -263,13 +263,22 @@ public class GlobalMessageUtil {
       final boolean fallbackOnRoot) {
 
     final Set<Locale> activeLocales = getActiveLocales();
+    boolean foundEmpty = false;
     for (final Locale locale : activeLocales) {
       final String string =
           calculateString(
               pkgNames, locale, key, parameters, resourceClass, bundleName, fallbackOnRoot);
+      if (string != null && string.isEmpty()) {
+        // An empty value is an untranslated key (Weblate writes those): try the next locale.
+        foundEmpty = true;
+        continue;
+      }
       if (!isMissingKey(string)) {
         return string;
       }
+    }
+    if (foundEmpty) {
+      return "";
     }
     if (logNotFoundError) {
       final StringBuilder msg = new StringBuilder();
@@ -290,15 +299,22 @@ public class GlobalMessageUtil {
       final Class<?> resourceClass,
       final String bundleName,
       final boolean fallbackOnRoot) {
+    String empty = null;
     for (final String packageName : pkgNames) {
       try {
-        return calculateString(
-            packageName, locale, key, parameters, resourceClass, bundleName, fallbackOnRoot);
+        final String string =
+            calculateString(
+                packageName, locale, key, parameters, resourceClass, bundleName, fallbackOnRoot);
+        if (!string.isEmpty()) {
+          return string;
+        }
+        // Untranslated in this package: another package may still have a translation.
+        empty = string;
       } catch (final MissingResourceException e) {
         continue;
       }
     }
-    return null;
+    return empty;
   }
 
   static String calculateString(
