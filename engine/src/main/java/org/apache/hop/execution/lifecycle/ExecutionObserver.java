@@ -18,11 +18,13 @@ package org.apache.hop.execution.lifecycle;
 
 /**
  * Receives execution events without coupling the engine to a monitoring implementation. Callbacks
- * must be short and must not wait for another thread to enter the lifecycle. They may reenter it on
- * the same thread. Failures are contained by the lifecycle. An observer whose start fails receives
- * no further callbacks for that execution and must clean up any resources it created before
- * throwing. Likewise, activate must clean up resources it has not yet returned as a scope if it
- * throws.
+ * run outside the registry lock, may reenter the lifecycle, and must be thread-safe: different
+ * executions can notify the same observer concurrently. Callbacks should be short because they run
+ * on the invoking thread. Finish notification for an execution is deferred until its startup
+ * callbacks return; a startup callback must not wait for that notification. Failures are contained
+ * by the lifecycle. An observer whose start fails receives no further callbacks for that execution
+ * and must clean up any resources it created before throwing. Likewise, activate must clean up
+ * resources it has not yet returned as a scope if it throws.
  */
 @FunctionalInterface
 public interface ExecutionObserver {

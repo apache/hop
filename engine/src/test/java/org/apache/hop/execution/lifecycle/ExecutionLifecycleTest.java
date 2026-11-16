@@ -21,11 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -511,6 +513,156 @@ class ExecutionLifecycleTest {
     // Failure isolation must not hide a callback timeout from this test.
     assertEquals(Boolean.TRUE, a.getAttachment(activatedKey));
     assertEquals(Boolean.TRUE, b.getAttachment(activatedKey));
+  }
+
+  @Test
+  void startAndFinishCallbacksDoNotSerializeUnrelatedExecutions() throws Exception {
+    final var starts = new CyclicBarrier(2);
+    final var finishes = new CyclicBarrier(2);
+    final var startedKey = new Object();
+    final var finishedKey = new Object();
+    observe(
+        new ExecutionObserver() {
+          @Override
+          public void started(final ExecutionHandle handle) {
+            awaitTogether(starts);
+            handle.setAttachment(startedKey, Boolean.TRUE);
+          }
+
+          @Override
+          public void finished(
+              final ExecutionHandle handle, final ExecutionState state, final Throwable failure) {
+            awaitTogether(finishes);
+            handle.setAttachment(finishedKey, Boolean.TRUE);
+          }
+        });
+    final var first = new Object();
+    final var second = new Object();
+    try (final var executor = Executors.newFixedThreadPool(2)) {
+      final var one = executor.submit(() -> begin(first, null));
+      final var two = executor.submit(() -> begin(second, null));
+      final var a = one.get(10, TimeUnit.SECONDS);
+      final var b = two.get(10, TimeUnit.SECONDS);
+      final var finishOne =
+          executor.submit(() -> ExecutionLifecycle.finish(first, ExecutionState.SUCCEEDED, null));
+      final var finishTwo =
+          executor.submit(() -> ExecutionLifecycle.finish(second, ExecutionState.SUCCEEDED, null));
+      finishOne.get(10, TimeUnit.SECONDS);
+      finishTwo.get(10, TimeUnit.SECONDS);
+      // Callback exceptions are isolated, so assert that neither barrier timed out.
+      for (final var handle : List.of(a, b)) {
+        assertEquals(Boolean.TRUE, handle.getAttachment(startedKey));
+        assertEquals(Boolean.TRUE, handle.getAttachment(finishedKey));
+      }
+    }
+  }
+
+  @Test
+  void concurrentFinishDoesNotWaitForStartupAndNotifiesOnlySuccessfulStarts() throws Exception {
+    final var entered = new CountDownLatch(1);
+    final var release = new CountDownLatch(1);
+    final var events = Collections.synchronizedList(new ArrayList<String>());
+    final var failure = new IllegalStateException("execution failure");
+    observe(
+        handle -> {
+          throw new IllegalStateException("observer startup failure");
+        });
+    observe(
+        new ExecutionObserver() {
+          @Override
+          public void started(final ExecutionHandle handle) {
+            events.add("start");
+            entered.countDown();
+            try {
+              if (!release.await(5, TimeUnit.SECONDS)) {
+                throw new AssertionError("startup was not released");
+              }
+            } catch (InterruptedException error) {
+              Thread.currentThread().interrupt();
+              throw new AssertionError(error);
+            }
+            events.add("started");
+          }
+
+          @Override
+          public void finished(
+              final ExecutionHandle handle, final ExecutionState state, final Throwable error) {
+            events.add(
+                state == ExecutionState.FAILED && error == failure ? "finish" : "wrong finish");
+          }
+        });
+    observe(handle -> events.add("unexpected start"));
+    final var subject = new Object();
+    try (final var executor = Executors.newFixedThreadPool(2)) {
+      final var startup = executor.submit(() -> begin(subject, null));
+      try {
+        assertTrue(entered.await(5, TimeUnit.SECONDS));
+        final var finish =
+            executor.submit(
+                () -> ExecutionLifecycle.finish(subject, ExecutionState.FAILED, failure));
+        finish.get(5, TimeUnit.SECONDS);
+        assertNull(ExecutionLifecycle.get(subject));
+        assertEquals(List.of("start"), events);
+        ExecutionLifecycle.finish(subject, ExecutionState.CANCELLED, null);
+      } finally {
+        release.countDown();
+      }
+      startup.get(10, TimeUnit.SECONDS);
+    }
+    assertEquals(List.of("start", "started", "finish"), events);
+  }
+
+  @Test
+  void startupCanWaitForAnotherThreadsLookupAndDuplicateBegin() throws Exception {
+    final var verifiedKey = new Object();
+    final var activations = new AtomicInteger();
+    try (final var executor = Executors.newSingleThreadExecutor()) {
+      observe(
+          new ExecutionObserver() {
+            @Override
+            public void started(final ExecutionHandle handle) {
+              try {
+                executor
+                    .submit(
+                        () -> {
+                          assertSame(handle, ExecutionLifecycle.get(handle.getSubject()));
+                          assertSame(handle, begin(handle.getSubject(), null));
+                        })
+                    .get(5, TimeUnit.SECONDS);
+                handle.setAttachment(verifiedKey, Boolean.TRUE);
+              } catch (Exception failure) {
+                throw new AssertionError(failure);
+              }
+            }
+
+            @Override
+            public ExecutionScope activate(final ExecutionHandle handle) {
+              activations.incrementAndGet();
+              return null;
+            }
+          });
+      final var subject = new Object();
+      final var handle = begin(subject, null);
+      assertEquals(Boolean.TRUE, handle.getAttachment(verifiedKey));
+      // The opening begin, not a concurrent duplicate begin, is the startup-readiness barrier.
+      executor
+          .submit(
+              () -> {
+                try (final var scope = ExecutionLifecycle.activate(subject)) {
+                  assertSame(handle, ExecutionLifecycle.current());
+                }
+              })
+          .get(5, TimeUnit.SECONDS);
+      assertEquals(1, activations.get());
+    }
+  }
+
+  private static void awaitTogether(final CyclicBarrier barrier) {
+    try {
+      barrier.await(5, TimeUnit.SECONDS);
+    } catch (Exception failure) {
+      throw new AssertionError(failure);
+    }
   }
 
   private static final class HostileIdentity {

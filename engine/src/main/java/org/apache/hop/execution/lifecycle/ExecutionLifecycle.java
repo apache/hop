@@ -33,11 +33,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * across nested executions; they restore the previous current handle even if either handle
  * finished.
  *
- * <p>Start/finish callbacks are serialized under a reentrant lock to preserve ordering. Observers
- * must not block waiting for another thread's lifecycle operations. Activation and scope closure
- * run outside that lock on the calling thread. Registration changes affect future executions only:
- * successfully started observers remain paired with their execution until finish. With no
- * registered observers begin, activate and associate are allocation-free no-ops.
+ * <p>Observer callbacks run outside the registry lock and may run concurrently for different
+ * executions. A finish racing with startup is recorded immediately, but its callbacks are deferred
+ * until startup callbacks return. Registration changes affect future executions only: successfully
+ * started observers remain paired with their execution until finish. With no registered observers
+ * begin, activate and associate are allocation-free no-ops.
  */
 public final class ExecutionLifecycle {
   private static final ExecutionScope NOOP = () -> {};
@@ -70,13 +70,17 @@ public final class ExecutionLifecycle {
    * Starts once per active subject identity, or returns null when observation is disabled. Parent
    * precedence is captured association (even a captured null), explicit active parent, then
    * current. Names never participate in parent resolution. A finished subject can begin a new,
-   * distinct run.
+   * distinct run. The handle is published before notifying observers: a concurrent or reentrant
+   * begin for the same subject returns it without waiting for startup. Callers must let the opening
+   * begin return before dispatching execution or activation to other threads.
    */
   public static ExecutionHandle begin(
       Object subject, Object parentSubject, ExecutionKind kind, String name, int copy) {
     if (!enabled) {
       return null;
     }
+    final Active active;
+    final List<Registration> registrations;
     LOCK.lock();
     try {
       if (!enabled) {
@@ -97,29 +101,45 @@ public final class ExecutionLifecycle {
         Active explicit = ACTIVE.get(parentSubject);
         parent = explicit == null ? CURRENT.get() : explicit.handle;
       }
-      Active active = new Active(new ExecutionHandle(parent, subject, kind, name, copy));
+      active = new Active(new ExecutionHandle(parent, subject, kind, name, copy));
       ACTIVE.put(subject, active);
       activeCount = ACTIVE.size();
-      List<Registration> registrations = new ArrayList<>(OBSERVERS);
-      for (Registration registration : registrations) {
-        try {
-          registration.observer.started(active.handle);
+      registrations = new ArrayList<>(OBSERVERS);
+    } finally {
+      LOCK.unlock();
+    }
+    for (final var registration : registrations) {
+      boolean started = false;
+      try {
+        registration.observer.started(active.handle);
+        started = true;
+      } catch (Throwable ignored) {
+        // Instrumentation must never prevent execution.
+      }
+      LOCK.lock();
+      try {
+        if (started) {
           active.observers.add(registration.observer);
-        } catch (Throwable ignored) {
-          // Instrumentation must never prevent execution.
         }
         if (active.state != null) {
           break;
         }
+      } finally {
+        LOCK.unlock();
       }
+    }
+    final boolean finished;
+    LOCK.lock();
+    try {
       active.starting = false;
-      if (active.state != null) {
-        notifyFinished(active);
-      }
-      return active.handle;
+      finished = active.state != null;
     } finally {
       LOCK.unlock();
     }
+    if (finished) {
+      notifyFinished(active);
+    }
+    return active.handle;
   }
 
   /**
@@ -183,10 +203,12 @@ public final class ExecutionLifecycle {
 
   /** Removes the active run before notifying observers. Duplicate finishes are harmless. */
   public static void finish(Object subject, ExecutionState state, Throwable failure) {
+    final Active active;
+    final boolean notify;
     LOCK.lock();
     try {
       purgePending();
-      Active active = ACTIVE.get(subject);
+      active = ACTIVE.get(subject);
       if (active == null) {
         return;
       }
@@ -195,11 +217,12 @@ public final class ExecutionLifecycle {
       activeCount = ACTIVE.size();
       active.state = state;
       active.failure = failure;
-      if (!active.starting) {
-        notifyFinished(active);
-      }
+      notify = !active.starting;
     } finally {
       LOCK.unlock();
+    }
+    if (notify) {
+      notifyFinished(active);
     }
   }
 
