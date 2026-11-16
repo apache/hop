@@ -120,6 +120,16 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     IValueMeta v = new ValueMetaString(variables.resolve(this.getValueXmlField()));
     v.setOrigin(name);
 
+    IRowMeta knownTarget = info == null || info.length == 0 ? null : info[0];
+    if (knownTarget != null) {
+      // The target's row with the joined XML, as processRow() builds it, whatever rows the
+      // previous transforms give here
+      IRowMeta target = knownTarget.clone();
+      row.clear();
+      row.addRowMeta(target);
+      row.addValueMeta(v);
+      return;
+    }
     try {
       /*
          Row should only include fields from the target and not the source. During the preview table

@@ -20,9 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -149,5 +152,29 @@ class XmlJoinMetaGetFieldsTest {
     assertEquals("b", strings[0]);
     assertEquals("c", strings[1]);
     assertEquals("result xml field name", strings[2]);
+  }
+
+  /**
+   * The previous fields are merged in the order of the hops: with the source's hop first, a field
+   * both streams have keeps the source's type, and the fields come in the source's order. The
+   * transform writes the target's row, so that is what it declares.
+   */
+  @Test
+  void testGetFieldsGiveTheTargetRowWhateverTheOrderOfThePreviousFields() throws Exception {
+    RowMeta source = new RowMeta();
+    source.addValueMeta(new ValueMetaInteger("c"));
+    source.addValueMeta(new ValueMetaString("a"));
+    RowMeta target = new RowMeta();
+    target.addValueMeta(new ValueMetaString("a"));
+    target.addValueMeta(new ValueMetaString("c"));
+    // As PipelineMeta merges the fields of the previous transforms, the source's first
+    RowMeta rowMeta = source.clone();
+    xmlJoinMeta.setValueXmlField("xml");
+
+    xmlJoinMeta.getFields(
+        rowMeta, "join", new IRowMeta[] {target, source}, null, new Variables(), null);
+
+    assertEquals(List.of("a", "c", "xml"), List.of(rowMeta.getFieldNames()));
+    assertEquals(IValueMeta.TYPE_STRING, rowMeta.getValueMeta(1).getType());
   }
 }
