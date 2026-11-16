@@ -35,7 +35,38 @@ https://github.com/pemistahl/lingua?tab=readme-ov-file#3-which-languages-are-sup
 |Option|Description
 |Transform name|Name of the transform.
 This name must be unique throughout the pipeline.
+|Corpus text field|The field with the text to examine.
+A variable is allowed.
+|Use Parallelism|Detect the language of several rows at the same time.
+The rows can leave the transform in another order than they came in.
+|Low accuracy mode|Use only the three-letter language models.
+This is faster and uses far less memory, but it is less accurate: short texts of a few words are often given the wrong language.
+Use it for longer texts.
+|Languages to detect|The languages the text can be in, by their Lingua name (`ENGLISH`, `FRENCH`, ...).
+A variable is allowed.
+Leave the list empty to detect every spoken language.
+List at least two languages.
 |===
+
+== Output fields
+
+[options="header"]
+|===
+|Field|Description
+|detected_language|The name of the detected language, for example `ENGLISH`, or `UNKNOWN`.
+|detected_language_confidence|Lingua's score for that language, relative to the other languages.
+The detected language is the one with the highest score, so the value is always 1: it is not a probability and does not tell how sure the detection is.
+Empty when the language is `UNKNOWN`.
+|===
+
+A row with an empty text passes with `UNKNOWN` and no confidence.
+The language is also `UNKNOWN` when the two most likely languages score exactly the same.
+
+== Performance
+
+Detecting every spoken language loads the models of all 74 spoken languages: about 1.4 GB of memory, released when the transform finishes.
+When you know which languages the data can contain, list them: with five languages the transform is about 2.5 times as fast and needs about 175 MB.
+A text in a language that is not listed is given one of the listed languages, or `UNKNOWN`.
 
 == Installation
 
