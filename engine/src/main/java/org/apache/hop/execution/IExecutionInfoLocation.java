@@ -302,7 +302,12 @@ public interface IExecutionInfoLocation extends Cloneable {
     public Object createObject(String id, Object parentObject) throws HopException {
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin plugin = registry.findPluginWithId(ExecutionInfoLocationPluginType.class, id);
-      return registry.loadClass(plugin);
+      IExecutionInfoLocation location = registry.loadClass(plugin, IExecutionInfoLocation.class);
+      // The ID is the key the location is stored under, not always a field of its own: without
+      // it the location can't be saved again
+      location.setPluginId(plugin.getIds()[0]);
+      location.setPluginName(plugin.getName());
+      return location;
     }
 
     @Override
