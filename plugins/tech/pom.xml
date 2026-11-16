@@ -49,6 +49,7 @@
         <module>gremlin</module>
         <module>hadoop</module>
         <module>lakehouse</module>
+        <module>microsoft365</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>

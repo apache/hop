@@ -1,0 +1,74 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: A named file system on the document libraries of Microsoft SharePoint sites, through the Microsoft Graph API
+
+= SharePoint Connection
+
+== Description
+
+This metadata type adds the SharePoint sites of a Microsoft 365 tenant to your project as a file system, and describes how Apache Hop signs in to that tenant through the Microsoft Graph API.
+The name of the connection is also a file system scheme: the SharePoint sites of the tenant, their document libraries and the files in them can be read and written with paths such as `+name:///site/library/folder/file.csv+`.
+See xref:vfs/sharepoint-vfs.adoc[Microsoft SharePoint VFS] for the layout of these paths.
+
+Hop signs in as an application, not as a person.
+Register an application in Microsoft Entra ID, grant it Microsoft Graph *application* permissions and have an administrator consent to them:
+
+* `Sites.Read.All` to read files
+* `Sites.ReadWrite.All` to also create, replace, rename and delete files and folders
+* `Sites.Selected` to only reach the sites the application was granted. These sites can not be listed: use the full path of the site, `+name:///site/library+`, and set the SharePoint host on the connection if the site is not found.
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name| Name of the connection, this is the scheme used in file paths: `name://`
+|Description| Description field for additional information
+|Authentication type a| How Hop signs in to Microsoft Entra ID:
+
+* *Client secret authentication*: the client ID and a client secret of the registered application
+* *Client certificate authentication*: the client ID and a certificate of the registered application
+* *Managed identity*: the identity of the environment Hop runs in, found through the default Azure credential chain (managed identity, environment variables, Azure CLI, and so on)
+|Tenant ID| The Directory (tenant) ID of your Microsoft Entra tenant
+|SharePoint host| The SharePoint host of the tenant, for example `contoso.sharepoint.com`. Optional in most cases, see <<_sharepoint_host>>.
+|Client ID| The Application (client) ID of the registered application. Not used with a managed identity.
+|Client Secret| The client secret of the registered application, for client secret authentication
+|PEM Certificate| The certificate and its private key in PEM format, for client certificate authentication
+|===
+
+All the options except the name, the description and the authentication type accept variables.
+
+=== SharePoint host
+
+The host is only used to find a site that is not in the list of the sites of the tenant, typically because the application is not allowed to list them.
+Such a site is read by its address, `<host>/sites/<site>` or `<host>/teams/<site>`.
+
+When the option is empty, Hop reads the root site of the tenant to find the host, so the connection usually works without it.
+Set it when:
+
+* The application can not read the root site, for example with `Sites.Selected` and no grant on the root site.
+The log then says `The SharePoint host of the tenant can not be read, set it on the connection`.
+* The sites are on another host than the root site of the tenant.
+* You want to save the request that reads the root site.
+
+When the application can list the sites (`Sites.Read.All` or `Sites.ReadWrite.All`), the sites are found by their name and the host is not used.
+
+**Test** on this editor requests a Microsoft Graph token with the values in the form.
+
+**Explore** on this editor opens the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] at `+name:///+`.
