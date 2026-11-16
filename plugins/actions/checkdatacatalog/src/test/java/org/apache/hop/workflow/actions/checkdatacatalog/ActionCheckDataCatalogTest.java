@@ -196,7 +196,7 @@ class ActionCheckDataCatalogTest {
   void aDatasetThatPassesEveryCheckGivesTrue() {
     Result result = action().execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
   }
 
@@ -206,7 +206,7 @@ class ActionCheckDataCatalogTest {
 
     Result result = action().execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(0, result.getNrErrors());
   }
 
@@ -214,31 +214,31 @@ class ActionCheckDataCatalogTest {
   void aDeprecatedDatasetFailsOnlyWhenThatIsChecked() {
     FakeCatalog.deprecation =
         CatalogAnswer.known(new IDeprecationCapability.Deprecation(true, "Use v2", null));
-    assertFalse(action().execute(new Result(), 0).getResult());
+    assertFalse(action().execute(new Result(), 0).isResult());
 
     ActionCheckDataCatalog action = action();
     action.setCheckDeprecation(false);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
   void dataOlderThanTheMaximumAgeFailsTheCheck() {
     FakeCatalog.lastUpdated = CatalogAnswer.known(Instant.now().minus(Duration.ofHours(2)));
-    assertFalse(action().execute(new Result(), 0).getResult());
+    assertFalse(action().execute(new Result(), 0).isResult());
 
     ActionCheckDataCatalog action = action();
     action.setMaxAge("");
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
   void unknownFreshnessFailsUnlessUnknownAnswersAreIgnored() {
     FakeCatalog.lastUpdated = CatalogAnswer.notFound();
-    assertFalse(action().execute(new Result(), 0).getResult());
+    assertFalse(action().execute(new Result(), 0).isResult());
 
     ActionCheckDataCatalog action = action();
     action.setUnknownAnswer(CatalogUnknownAnswer.IGNORE);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
@@ -250,40 +250,40 @@ class ActionCheckDataCatalogTest {
                     "a", "No null ids", IAssertionCapability.Outcome.PASSED, Instant.now()),
                 new IAssertionCapability.AssertionResult(
                     "b", null, IAssertionCapability.Outcome.UNKNOWN, null)));
-    assertTrue(action().execute(new Result(), 0).getResult());
+    assertTrue(action().execute(new Result(), 0).isResult());
 
     FakeCatalog.assertions =
         CatalogAnswer.known(
             List.of(
                 new IAssertionCapability.AssertionResult(
                     "c", "Volume", IAssertionCapability.Outcome.ERROR, Instant.now())));
-    assertFalse(action().execute(new Result(), 0).getResult());
+    assertFalse(action().execute(new Result(), 0).isResult());
 
     ActionCheckDataCatalog action = action();
     action.setCheckAssertions(false);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
   void anUnreachableCatalogFailsTheCheckOrIsIgnored() {
     FakeCatalog.resolved = CatalogAnswer.unknown(Reason.UNREACHABLE, "connection refused");
     Result failed = action().execute(new Result(), 0);
-    assertFalse(failed.getResult());
+    assertFalse(failed.isResult());
     assertEquals(0, failed.getNrErrors());
 
     ActionCheckDataCatalog action = action();
     action.setUnknownAnswer(CatalogUnknownAnswer.IGNORE);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
   void aCheckTheCatalogTypeDoesNotSupportIsAnUnknownAnswer() {
     ActionCheckDataCatalog action =
         action("minimal", new CatalogDataset(CatalogDatasetType.CATALOG_ID, null, null, "urn:x"));
-    assertFalse(action.execute(new Result(), 0).getResult());
+    assertFalse(action.execute(new Result(), 0).isResult());
 
     action.setUnknownAnswer(CatalogUnknownAnswer.IGNORE);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
@@ -292,7 +292,7 @@ class ActionCheckDataCatalogTest {
         action(
             "prod", new CatalogDataset(CatalogDatasetType.TABLE, "warehouse", "public", "orders"));
 
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
 
     DatasetRef asked = FakeCatalog.asked.get(0);
     assertTrue(asked.namespace().endsWith("://db.example.com:5432"), asked.namespace());
@@ -302,13 +302,13 @@ class ActionCheckDataCatalogTest {
   @Test
   void aMissingCatalogOrConnectionIsAnError() {
     Result noCatalog = action("not-there").execute(new Result(), 0);
-    assertFalse(noCatalog.getResult());
+    assertFalse(noCatalog.isResult());
     assertEquals(1, noCatalog.getNrErrors());
 
     Result noConnection =
         action("prod", new CatalogDataset(CatalogDatasetType.TABLE, "nowhere", null, "orders"))
             .execute(new Result(), 0);
-    assertFalse(noConnection.getResult());
+    assertFalse(noConnection.isResult());
     assertEquals(1, noConnection.getNrErrors());
   }
 
@@ -388,7 +388,7 @@ class ActionCheckDataCatalogTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertTrue(FakeCatalog.asked.isEmpty());
   }
@@ -404,7 +404,7 @@ class ActionCheckDataCatalogTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertTrue(FakeCatalog.asked.isEmpty());
   }

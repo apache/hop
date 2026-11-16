@@ -154,7 +154,7 @@ class ActionWaitForSqlTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("Exception while waiting for SQL data"));
     verify(action, never()).logBasic(contains("Exception while waiting for SQL data"));

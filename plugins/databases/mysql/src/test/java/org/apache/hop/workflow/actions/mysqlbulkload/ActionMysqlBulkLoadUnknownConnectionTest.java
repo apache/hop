@@ -62,7 +62,7 @@ class ActionMysqlBulkLoadUnknownConnectionTest {
     try (MockedConstruction<Database> databases = mockConstruction(Database.class)) {
       Result result = action.execute(new Result(), 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(1, result.getNrErrors());
       assertTrue(databases.constructed().isEmpty());
     }
@@ -78,9 +78,9 @@ class ActionMysqlBulkLoadUnknownConnectionTest {
         action.getResourceDependencies(new Variables(), workflowMeta);
 
     assertEquals(1, references.size());
-    List<ResourceEntry> entries = references.get(0).getEntries();
+    List<ResourceEntry> entries = references.getFirst().getEntries();
     assertEquals(1, entries.size());
-    assertEquals(ResourceType.FILE, entries.get(0).getResourcetype());
+    assertEquals(ResourceType.FILE, entries.getFirst().getResourcetype());
   }
 
   private ActionMysqlBulkLoad newAction() throws Exception {

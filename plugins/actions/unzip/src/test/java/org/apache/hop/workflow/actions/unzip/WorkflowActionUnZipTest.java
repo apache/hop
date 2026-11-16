@@ -241,7 +241,7 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
     Result result = runUnzipSingleFile(action, zipFile, targetDir, FileExistsEnum.OVERWRITE);
 
     assertEquals(0, result.getNrErrors(), "The action should not report errors");
-    assertTrue(result.getResult(), "The action should succeed");
+    assertTrue(result.isResult(), "The action should succeed");
     assertEquals(
         entryCount,
         countFiles(targetDir),

@@ -78,7 +78,7 @@ class ActionDatabricksJobRunTest {
     Result result = new Result();
     action.execute(result, 0);
     assertEquals(1, result.getNrErrors());
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
   }
 
   @Test
@@ -107,7 +107,7 @@ class ActionDatabricksJobRunTest {
     Result result = new Result();
     action.execute(result, 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals("12", action.getVariable("DatabricksJobId"));
     assertEquals("100", action.getVariable("DatabricksRunId"));
@@ -130,7 +130,7 @@ class ActionDatabricksJobRunTest {
     Result result = new Result();
     action.execute(result, 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("5", action.getVariable("DatabricksRunId"));
     verify(client, never()).getRun(anyLong());
   }
@@ -155,7 +155,7 @@ class ActionDatabricksJobRunTest {
     Result result = new Result();
     action.execute(result, 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     verify(client).submitRun("{\"tasks\":[]}");
   }
 
@@ -168,7 +168,7 @@ class ActionDatabricksJobRunTest {
     action.setClientFactory((c, v) -> client);
     Result r = new Result();
     action.execute(r, 0);
-    assertFalse(r.getResult());
+    assertFalse(r.isResult());
     assertEquals(1, r.getNrErrors());
   }
 
@@ -191,7 +191,7 @@ class ActionDatabricksJobRunTest {
     Result result = new Result();
     action.execute(result, 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals("FAILED", action.getVariable("DatabricksStatus"));
     assertNotNull(action.getVariable("DatabricksError"));

@@ -190,10 +190,10 @@ class ActionMssqlBulkLoadExecuteTest {
     try (MockedConstruction<Database> databases = mockDatabases()) {
       Result result = action.execute(new Result(), 0);
 
-      assertTrue(result.getResult());
+      assertTrue(result.isResult());
       assertEquals(0, result.getNrErrors());
       ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
-      verify(databases.constructed().get(0)).execStatement(sql.capture());
+      verify(databases.constructed().getFirst()).execStatement(sql.capture());
       return sql.getValue();
     }
   }
@@ -202,7 +202,7 @@ class ActionMssqlBulkLoadExecuteTest {
     try (MockedConstruction<Database> databases = mockDatabases()) {
       Result result = action.execute(new Result(), 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(1, result.getNrErrors());
       for (Database db : databases.constructed()) {
         verify(db, never()).execStatement(anyString());

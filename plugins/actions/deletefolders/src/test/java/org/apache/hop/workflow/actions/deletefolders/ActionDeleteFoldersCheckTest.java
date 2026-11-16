@@ -205,7 +205,7 @@ class ActionDeleteFoldersCheckTest {
 
     assertEquals(0, result.getNrErrors());
     assertEquals(0, result.getNrLinesDeleted());
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
   }
 
   @Test

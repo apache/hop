@@ -18,6 +18,7 @@
 package org.apache.hop.neo4j.shared;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -98,7 +99,7 @@ class ThirdPartyGraphDialectTest {
         .add(new IndexUpdate(UpdateType.CREATE, ObjectType.NODE, "i", "My Label", "id"));
     action.setMetadataProvider(metadataProvider);
     Result result = action.execute(new Result(), 0);
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(List.of("ACME CREATE INDEX ON `My Label`"), database.executed);
 
     // The indexes Graph Output and Neo4j Output create
@@ -138,7 +139,7 @@ class ThirdPartyGraphDialectTest {
         .getIndexUpdates()
         .add(new IndexUpdate(UpdateType.CREATE, ObjectType.NODE, "i", "Person", "id"));
     action.setMetadataProvider(metadataProvider);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
     assertEquals(List.of("ACME CREATE INDEX ON test_graph.`Person`"), database.executed);
   }
 
@@ -174,8 +175,8 @@ class ThirdPartyGraphDialectTest {
     assertTrue(database.executed.isEmpty());
 
     assertEquals("$v", unknown.vectorValue("$v"));
-    assertTrue(
-        !NeoExecutionViewerTabBase.buildPathToRootCypher(true, unknown).contains("shortestPath"));
+    assertFalse(
+        NeoExecutionViewerTabBase.buildPathToRootCypher(true, unknown).contains("shortestPath"));
   }
 
   /** Creating a Memgraph vector index twice, or dropping it twice, is not an error. */
