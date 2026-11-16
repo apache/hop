@@ -238,6 +238,7 @@ public class GuiResource {
   @Getter private Image imageExpandAll;
   @Getter private Image imageFindReplace;
   @Getter private Image imageFunction;
+  @Getter private Image imageGlobe;
   @Getter private Image imageKeyboard;
   @Getter private Image imageHelp;
   @Getter private Image imageHide;
@@ -562,6 +563,7 @@ public class GuiResource {
     disposeImage(imageDown);
     disposeImage(imageDuplicate);
     disposeImage(imageFunction);
+    disposeImage(imageGlobe);
     disposeImage(imageKeyboard);
     disposeImage(imageHelp);
     disposeImage(imageHide);
@@ -834,6 +836,7 @@ public class GuiResource {
     imageFindReplace =
         loadAsResource(display, "ui/images/find-replace.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
+    imageGlobe = loadAsResource(display, "ui/images/globe.svg", ConstUi.SMALL_ICON_SIZE);
     imageKeyboard = loadAsResource(display, "ui/images/keyboard.svg", ConstUi.SMALL_ICON_SIZE);
     imageMarketplace =
         loadAsResource(display, "ui/images/marketplace.svg", ConstUi.SMALL_ICON_SIZE);
