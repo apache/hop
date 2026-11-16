@@ -42,7 +42,7 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
   private WorkflowHopMeta hopMeta;
   private HopGuiWorkflowGraph workflowGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiWorkflowHopContext> lambdaBuilder;
+  private final GuiActionLambdaBuilder<HopGuiWorkflowHopContext> lambdaBuilder;
 
   public HopGuiWorkflowHopContext(
       WorkflowMeta workflowMeta,

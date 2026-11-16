@@ -429,29 +429,28 @@ public final class VCardInputFileDialogSection {
     fdAccepting.bottom = new FormAttachment(gOptions, -margin);
     gAccepting.setLayoutData(fdAccepting);
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Filename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Filemask"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardInputFileDialog.Column.ExcludeFilemask"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Required"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              VCardInputMeta.REQUIRED_FILES_DESC),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "VCardInputFileDialog.Column.IncludeSubfolders"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              VCardInputMeta.REQUIRED_FILES_DESC)
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Filename"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Filemask"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardInputFileDialog.Column.ExcludeFilemask"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardInputFileDialog.Column.Required"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          VCardInputMeta.REQUIRED_FILES_DESC),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "VCardInputFileDialog.Column.IncludeSubfolders"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          VCardInputMeta.REQUIRED_FILES_DESC)
+    };
     colinfo[0].setUsingVariables(true);
     colinfo[1].setUsingVariables(true);
     colinfo[2].setUsingVariables(true);

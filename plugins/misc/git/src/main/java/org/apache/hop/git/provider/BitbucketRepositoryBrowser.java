@@ -24,6 +24,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
+  private static final String CONST_VALUES = "values";
 
   private static final String PROVIDER = "Bitbucket";
   private static final String ACCEPT = "application/json";
@@ -58,7 +59,7 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
                   ACCEPT,
                   PROVIDER),
               PROVIDER);
-      JSONArray values = (JSONArray) root.get("values");
+      JSONArray values = (JSONArray) root.get(CONST_VALUES);
       if (values == null || values.isEmpty()) {
         break;
       }
@@ -127,7 +128,7 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
         GitApiHttp.parseObject(
             GitApiHttp.get(url.toString(), auth, GitProvider.AuthStyle.BASIC, ACCEPT, PROVIDER),
             PROVIDER);
-    JSONArray values = (JSONArray) root.get("values");
+    JSONArray values = (JSONArray) root.get(CONST_VALUES);
     List<GitRepositoryInfo> repos = new ArrayList<>();
     if (values != null) {
       for (Object item : values) {
@@ -173,7 +174,7 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
       JSONObject root =
           GitApiHttp.parseObject(
               GitApiHttp.get(url, auth, GitProvider.AuthStyle.BASIC, ACCEPT, PROVIDER), PROVIDER);
-      JSONArray values = (JSONArray) root.get("values");
+      JSONArray values = (JSONArray) root.get(CONST_VALUES);
       if (values == null || values.isEmpty()) {
         break;
       }

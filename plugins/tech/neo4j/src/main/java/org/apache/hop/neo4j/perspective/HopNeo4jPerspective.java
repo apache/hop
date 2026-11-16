@@ -90,6 +90,8 @@ import org.eclipse.swt.widgets.TreeItem;
     documentationUrl = "/hop-gui/perspective-graph-logging.html")
 @GuiPlugin(name = "Neo4j")
 public class HopNeo4jPerspective implements IHopPerspective {
+  private static final String CONST_ERRORS = "errors";
+  private static final String CONST_FILENAME = "filename";
 
   public static final Class<?> PKG = HopNeo4jPerspective.class;
 
@@ -432,7 +434,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     }
     {
       TreeColumn column = new TreeColumn(wTree, SWT.LEFT);
-      column.setText("errors");
+      column.setText(CONST_ERRORS);
       column.setWidth((int) (50 * props.getZoomFactor()));
     }
     {
@@ -585,7 +587,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
           pathExecution.setInput(LoggingCore.getLongValue(node, "linesInput"));
           pathExecution.setOutput(LoggingCore.getLongValue(node, "linesOutput"));
           pathExecution.setRejected(LoggingCore.getLongValue(node, "linesRejected"));
-          pathExecution.setErrors(LoggingCore.getLongValue(node, "errors"));
+          pathExecution.setErrors(LoggingCore.getLongValue(node, CONST_ERRORS));
           pathExecution.setLoggingText(LoggingCore.getStringValue(node, "loggingText"));
           pathExecution.setDurationMs(LoggingCore.getLongValue(node, "durationMs"));
 
@@ -863,7 +865,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
           item.setText(column++, Long.toString(getLong(row, "linesInput")));
           item.setText(column++, Long.toString(getLong(row, "linesOutput")));
           item.setText(column++, Long.toString(getLong(row, "linesRejected")));
-          long errors = getLong(row, "errors");
+          long errors = getLong(row, CONST_ERRORS);
           item.setText(column++, Long.toString(errors));
           item.setText(
               column++,
@@ -993,7 +995,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     if (rows.isEmpty()) {
       return false; // No file found
     }
-    String filename = LoggingCore.getStringValue(rows.get(0), "filename");
+    String filename = LoggingCore.getStringValue(rows.get(0), CONST_FILENAME);
     String transformName = LoggingCore.getStringValue(rows.get(0), "name");
 
     if (StringUtils.isEmpty(filename)) {
@@ -1051,7 +1053,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     if (rows.isEmpty()) {
       return false; // No file found
     }
-    String filename = LoggingCore.getStringValue(rows.get(0), "filename");
+    String filename = LoggingCore.getStringValue(rows.get(0), CONST_FILENAME);
     String actionName = LoggingCore.getStringValue(rows.get(0), "name");
 
     if (StringUtils.isEmpty(filename)) {
@@ -1105,7 +1107,8 @@ public class HopNeo4jPerspective implements IHopPerspective {
 
     List<Map<String, Object>> rows =
         session.executeRead(transaction -> transaction.execute(cypher.toString(), params));
-    String filename = rows.isEmpty() ? null : LoggingCore.getStringValue(rows.get(0), "filename");
+    String filename =
+        rows.isEmpty() ? null : LoggingCore.getStringValue(rows.get(0), CONST_FILENAME);
 
     if (StringUtils.isEmpty(filename)) {
       return false;

@@ -67,8 +67,8 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   private static final Class<?> PKG = WorkflowRunConfigurationEditor.class;
 
-  private WorkflowRunConfiguration runConfiguration;
-  private WorkflowRunConfiguration workingConfiguration;
+  private final WorkflowRunConfiguration runConfiguration;
+  private final WorkflowRunConfiguration workingConfiguration;
 
   private TextVar wName;
   private Text wDescription;
@@ -82,7 +82,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   private Map<String, IWorkflowEngineRunConfiguration> metaMap;
 
-  private Listener modifyListener = e -> setChanged();
+  private final Listener modifyListener = e -> setChanged();
 
   /**
    * @param manager The metadata manager
@@ -301,7 +301,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     }
   }
 
-  private AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
 
   private void changeConnectionType() {
 

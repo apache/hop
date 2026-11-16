@@ -71,6 +71,7 @@ import org.apache.hop.workflow.action.IAction;
 @Getter
 @Setter
 public class ActionDbt extends ActionBase implements IAction {
+  private static final String CONST_DBT_PROJECT = "dbt project '";
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DBT_ACTION_DIALOG_OPTIONS";
 
   public static final String WIDGET_PROJECT = "DBT_PROJECT";
@@ -390,19 +391,19 @@ public class ActionDbt extends ActionBase implements IAction {
           remarks.add(
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  "dbt project '" + dbtProjectName + "' does not exist",
+                  CONST_DBT_PROJECT + dbtProjectName + "' does not exist",
                   this));
         } else if (Utils.isEmpty(project.getProjectDirectory())) {
           remarks.add(
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  "dbt project '" + project.getName() + "' has no project directory",
+                  CONST_DBT_PROJECT + project.getName() + "' has no project directory",
                   this));
         } else {
           remarks.add(
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
-                  "dbt project '" + project.getName() + "' was found",
+                  CONST_DBT_PROJECT + project.getName() + "' was found",
                   this));
         }
       } catch (HopException e) {

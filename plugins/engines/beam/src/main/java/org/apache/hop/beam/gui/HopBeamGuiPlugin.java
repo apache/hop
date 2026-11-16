@@ -57,6 +57,7 @@ import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 public class HopBeamGuiPlugin {
+  private static final String CONST_SPARK = "spark-";
 
   public static final Class<?> PKG = HopBeamGuiPlugin.class; // i18n
 
@@ -297,7 +298,7 @@ public class HopBeamGuiPlugin {
               String n = f.getName();
               // Spark distribution jars are named spark-*.jar; Beam's runner is
               // beam-runners-spark-*
-              if (!n.startsWith("spark-") || !n.endsWith(".jar")) {
+              if (!n.startsWith(CONST_SPARK) || !n.endsWith(".jar")) {
                 return false;
               }
               try {
@@ -359,7 +360,7 @@ public class HopBeamGuiPlugin {
     }
 
     // Spark 3 / Scala 2.12 artifacts (basename patterns)
-    if (name.startsWith("spark-") && name.contains("_2.12-")) {
+    if (name.startsWith(CONST_SPARK) && name.contains("_2.12-")) {
       return true;
     }
     if (name.startsWith("scala-library-2.12")) {
@@ -387,7 +388,7 @@ public class HopBeamGuiPlugin {
     }
 
     // All Spark distribution modules
-    if (name.startsWith("spark-")) {
+    if (name.startsWith(CONST_SPARK)) {
       return true;
     }
 
@@ -488,7 +489,7 @@ public class HopBeamGuiPlugin {
         // Versioned packs own all spark-* jars; drop Beam's spark fragments from the plugin /
         // lib/beam
         if (versionedPack
-            && child.getName().startsWith("spark-")
+            && child.getName().startsWith(CONST_SPARK)
             && parent != null
             && isBeamSdkJarFolder(parent)) {
           continue;

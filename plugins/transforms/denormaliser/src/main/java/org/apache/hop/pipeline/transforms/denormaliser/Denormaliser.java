@@ -51,7 +51,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  private Map<String, IValueMeta> conversionMetaCache = new HashMap<>();
+  private final Map<String, IValueMeta> conversionMetaCache = new HashMap<>();
 
   public Denormaliser(
       TransformMeta transformMeta,

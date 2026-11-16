@@ -33,9 +33,9 @@ import org.odftoolkit.odfdom.doc.table.OdfTable;
 public class OdfWorkbook implements IKWorkbook {
 
   private String filename;
-  private String encoding;
+  private final String encoding;
   private OdfDocument document;
-  private Map<String, OdfSheet> openSheetsMap = new HashMap<>();
+  private final Map<String, OdfSheet> openSheetsMap = new HashMap<>();
   private IVariables variables;
 
   public OdfWorkbook(String filename, String encoding, IVariables variables) throws HopException {

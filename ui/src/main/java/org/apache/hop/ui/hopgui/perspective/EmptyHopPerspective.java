@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Control;
 
 public class EmptyHopPerspective implements IHopPerspective {
 
-  private IHopFileTypeHandler emptyHandler;
+  private final IHopFileTypeHandler emptyHandler;
 
   public EmptyHopPerspective() {
     emptyHandler = new EmptyHopFileTypeHandler();

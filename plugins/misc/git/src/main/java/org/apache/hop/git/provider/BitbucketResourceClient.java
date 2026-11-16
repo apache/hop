@@ -30,6 +30,14 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 class BitbucketResourceClient implements GitResourceClient {
+  private static final String CONST_VALUES = "values";
+  private static final String CONST_STATE = "state";
+  private static final String CONST_REPOSITORIES = "/repositories/";
+  private static final String CONST_DISPLAY_NAME = "display_name";
+  private static final String CONST_CREATED_ON = "created_on";
+  private static final String CONST_MESSAGE = "message";
+  private static final String CONST_MERGED = "MERGED";
+  private static final String CONST_CLOSED = "closed";
 
   /** Matches the e-mail inside a raw Git ident such as {@code Ada Lovelace <ada@example.com>}. */
   private static final Pattern RAW_IDENT_EMAIL = Pattern.compile("<([^>]*)>");
@@ -111,7 +119,7 @@ class BitbucketResourceClient implements GitResourceClient {
     protected List<IssueRef> fetchIssuePage(int page) throws HopException {
       String url = buildUrl(parentType(), owner, repository, options, state, page);
       JSONObject response = parseObject(getBitbucket(url));
-      JSONArray values = (JSONArray) response.get("values");
+      JSONArray values = (JSONArray) response.get(CONST_VALUES);
       if (values == null || values.isEmpty()) {
         issuesRunOut();
         return List.of();
@@ -124,7 +132,7 @@ class BitbucketResourceClient implements GitResourceClient {
                 GitApiHttp.getString(json, "id"),
                 GitApiHttp.getLong(json, "id"),
                 GitApiHttp.getString(json, "title"),
-                GitApiHttp.getString(json, "state")));
+                GitApiHttp.getString(json, CONST_STATE)));
       }
       return issues;
     }
@@ -137,7 +145,7 @@ class BitbucketResourceClient implements GitResourceClient {
           activityType == GitResourceType.PR_COMMENTS ? "/pullrequests/" : "/issues/";
       String url =
           apiBaseUrl
-              + "/repositories/"
+              + CONST_REPOSITORIES
               + encode(owner)
               + "/"
               + encode(repository)
@@ -149,7 +157,7 @@ class BitbucketResourceClient implements GitResourceClient {
               + "&page="
               + page;
       JSONObject response = parseObject(getBitbucket(url));
-      JSONArray values = (JSONArray) response.get("values");
+      JSONArray values = (JSONArray) response.get(CONST_VALUES);
       if (values == null || values.isEmpty()) {
         return List.of();
       }
@@ -186,8 +194,8 @@ class BitbucketResourceClient implements GitResourceClient {
         issue.title(),
         issue.state(),
         GitApiHttp.getString(json, "id"),
-        user != null ? GitApiHttp.getString(user, "display_name") : "",
-        GitApiHttp.getString(json, "created_on"),
+        user != null ? GitApiHttp.getString(user, CONST_DISPLAY_NAME) : "",
+        GitApiHttp.getString(json, CONST_CREATED_ON),
         GitApiHttp.getString(json, "updated_on"),
         extractLink(json, "html"),
         renderedText(json, "content"),
@@ -207,9 +215,9 @@ class BitbucketResourceClient implements GitResourceClient {
         issue.state(),
         GitApiHttp.getString(json, "id"),
         changeType,
-        renderedText(json, "message"),
-        user != null ? GitApiHttp.getString(user, "display_name") : "",
-        GitApiHttp.getString(json, "created_on"),
+        renderedText(json, CONST_MESSAGE),
+        user != null ? GitApiHttp.getString(user, CONST_DISPLAY_NAME) : "",
+        GitApiHttp.getString(json, CONST_CREATED_ON),
         extractLink(json, "html"),
         json);
   }
@@ -253,7 +261,7 @@ class BitbucketResourceClient implements GitResourceClient {
       page++;
 
       JSONObject response = parseObject(body);
-      JSONArray values = (JSONArray) response.get("values");
+      JSONArray values = (JSONArray) response.get(CONST_VALUES);
       if (values == null || values.isEmpty()) {
         exhausted = true;
         return List.of();
@@ -288,11 +296,11 @@ class BitbucketResourceClient implements GitResourceClient {
     String path =
         switch (resourceType) {
           case COMMITS ->
-              "/repositories/" + encode(workspace) + "/" + encode(repository) + "/commits";
+              CONST_REPOSITORIES + encode(workspace) + "/" + encode(repository) + "/commits";
           case ISSUES ->
-              "/repositories/" + encode(workspace) + "/" + encode(repository) + "/issues";
+              CONST_REPOSITORIES + encode(workspace) + "/" + encode(repository) + "/issues";
           case PULL_REQUESTS ->
-              "/repositories/" + encode(workspace) + "/" + encode(repository) + "/pullrequests";
+              CONST_REPOSITORIES + encode(workspace) + "/" + encode(repository) + "/pullrequests";
           case ISSUE_COMMENTS, PR_COMMENTS, ISSUE_EVENTS, COMMIT_FILES ->
               throw new IllegalStateException();
         };
@@ -326,9 +334,9 @@ class BitbucketResourceClient implements GitResourceClient {
             .repoName(repository)
             .id(GitApiHttp.getString(json, "hash"))
             .sha(GitApiHttp.getString(json, "hash"))
-            .title(firstLine(renderedText(json, "message")))
-            .body(renderedText(json, "message"))
-            .author(user != null ? GitApiHttp.getString(user, "display_name") : "")
+            .title(firstLine(renderedText(json, CONST_MESSAGE)))
+            .body(renderedText(json, CONST_MESSAGE))
+            .author(user != null ? GitApiHttp.getString(user, CONST_DISPLAY_NAME) : "")
             .authorEmail(author != null ? rawEmail(GitApiHttp.getString(author, "raw")) : "")
             .authorLogin(user != null ? GitApiHttp.getString(user, "nickname") : "")
             .createdAt(GitApiHttp.getString(json, "date"))
@@ -356,16 +364,16 @@ class BitbucketResourceClient implements GitResourceClient {
             .id(GitApiHttp.getString(json, "id"))
             .number(GitApiHttp.getLong(json, "id"))
             .title(GitApiHttp.getString(json, "title"))
-            .state(GitApiHttp.getString(json, "state"))
+            .state(GitApiHttp.getString(json, CONST_STATE))
             .body(renderedText(json, "content"))
-            .author(reporter != null ? GitApiHttp.getString(reporter, "display_name") : "")
+            .author(reporter != null ? GitApiHttp.getString(reporter, CONST_DISPLAY_NAME) : "")
             .authorLogin(reporter != null ? GitApiHttp.getString(reporter, "nickname") : "")
             // Bitbucket has no labels, and carries a single assignee rather than a list.
-            .assignees(GitJsonLists.names(json, "assignee", "display_name"))
+            .assignees(GitJsonLists.names(json, "assignee", CONST_DISPLAY_NAME))
             .sourceBranch(branchName(source))
             .targetBranch(branchName(destination))
-            .merged("MERGED".equalsIgnoreCase(GitApiHttp.getString(json, "state")))
-            .createdAt(GitApiHttp.getString(json, "created_on"))
+            .merged(CONST_MERGED.equalsIgnoreCase(GitApiHttp.getString(json, CONST_STATE)))
+            .createdAt(GitApiHttp.getString(json, CONST_CREATED_ON))
             .updatedAt(GitApiHttp.getString(json, "updated_on"))
             .url(extractLink(json, "html"))
             .rawJson(rawJson)
@@ -437,15 +445,22 @@ class BitbucketResourceClient implements GitResourceClient {
     if (state == null || state.isBlank() || "all".equalsIgnoreCase(state)) {
       values =
           pullRequests
-              ? new String[] {"OPEN", "MERGED", "DECLINED", "SUPERSEDED"}
+              ? new String[] {"OPEN", CONST_MERGED, "DECLINED", "SUPERSEDED"}
               : new String[] {
-                "new", "open", "resolved", "closed", "on hold", "invalid", "duplicate", "wontfix"
+                "new",
+                "open",
+                "resolved",
+                CONST_CLOSED,
+                "on hold",
+                "invalid",
+                "duplicate",
+                "wontfix"
               };
-    } else if ("closed".equalsIgnoreCase(state)) {
+    } else if (CONST_CLOSED.equalsIgnoreCase(state)) {
       values =
           pullRequests
-              ? new String[] {"MERGED", "DECLINED", "SUPERSEDED"}
-              : new String[] {"resolved", "closed", "invalid", "duplicate", "wontfix"};
+              ? new String[] {CONST_MERGED, "DECLINED", "SUPERSEDED"}
+              : new String[] {"resolved", CONST_CLOSED, "invalid", "duplicate", "wontfix"};
     } else {
       values = pullRequests ? new String[] {"OPEN"} : new String[] {"new", "open"};
     }

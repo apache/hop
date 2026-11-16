@@ -196,19 +196,18 @@ public class ResourceLifecycleEnvironmentDialogTabsExtensionPoint
           }
         });
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ResourceLifecycleEnv.Disk.Column.Path"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ResourceLifecycleEnv.Disk.Column.MinFreeMb"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ResourceLifecycleEnv.Disk.Column.Path"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ResourceLifecycleEnv.Disk.Column.MinFreeMb"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
 

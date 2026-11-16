@@ -27,10 +27,10 @@ import org.apache.hop.core.row.IRowMeta;
  * synchronized to allow concurrent use of multiple Threads.
  */
 public class BlockingRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
-  private BlockingQueue<Object[]> queArray;
+  private final BlockingQueue<Object[]> queArray;
 
-  private int timeoutPut;
-  private int timeoutGet;
+  private final int timeoutPut;
+  private final int timeoutGet;
 
   /**
    * Create new non-blocking-queue with maxSize capacity.

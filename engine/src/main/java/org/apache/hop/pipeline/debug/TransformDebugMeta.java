@@ -40,7 +40,7 @@ public class TransformDebugMeta {
 
   private Condition condition;
 
-  private List<IBreakPointListener> breakPointListers;
+  private final List<IBreakPointListener> breakPointListers;
 
   private IRowMeta rowBufferMeta;
   private List<Object[]> rowBuffer;

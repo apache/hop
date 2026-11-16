@@ -72,3 +72,11 @@ WARNING: For technical reasons, parallel reading of CSV files is only supported 
 |Get Fields button|Click to return a list of fields from the target file based on the current settings (i.e. Delimiter, Enclosure, etc.).
 All fields identified will be added to the Fields Table.
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/csvinput-basic.hpl`, which reads `files/books-tiny-file.csv` and adds a row number.
+Run `transforms/textfileoutput-tiny-file.hpl` first: it creates that file.
+* `workflows/write-read-huge-file.hwf`, which writes a file of 25 million rows with `workflows/textfileoutput-huge-file.hpl` and reads it back with `workflows/csvinput-huge-file.hpl`: CSV input with 4 copies and parallel reading.

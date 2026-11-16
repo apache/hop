@@ -100,20 +100,18 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   /** Default port */
   public static final int DEFAULT_PORT = 5667;
 
-  public static final String[] encryptionModeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.None"),
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.TripleDES"),
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.XOR")
-      };
+  public static final String[] encryptionModeDesc = {
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.None"),
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.TripleDES"),
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.XOR")
+  };
 
-  public static final String[] levelTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.LevelType.Unknown"),
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.OK"),
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Warning"),
-        BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Critical")
-      };
+  public static final String[] levelTypeDesc = {
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.LevelType.Unknown"),
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.OK"),
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Warning"),
+    BaseMessages.getString(PKG, "ActionSendNagiosPassiveCheck.EncryptionMode.Critical")
+  };
 
   public static final int LEVEL_TYPE_UNKNOWN = 0;
   public static final int LEVEL_TYPE_OK = 1;

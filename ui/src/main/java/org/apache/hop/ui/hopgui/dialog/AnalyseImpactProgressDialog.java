@@ -36,10 +36,10 @@ import org.eclipse.swt.widgets.Shell;
 public class AnalyseImpactProgressDialog {
   private static final Class<?> PKG = AnalyseImpactProgressDialog.class;
 
-  private Shell shell;
+  private final Shell shell;
   private final IVariables variables;
-  private PipelineMeta pipelineMeta;
-  private List<DatabaseImpact> impact;
+  private final PipelineMeta pipelineMeta;
+  private final List<DatabaseImpact> impact;
   private boolean impactHasRun;
 
   /**

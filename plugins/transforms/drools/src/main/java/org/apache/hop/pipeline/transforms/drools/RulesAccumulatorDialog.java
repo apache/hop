@@ -59,7 +59,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = Rules.class;
 
-  private RulesAccumulatorMeta input;
+  private final RulesAccumulatorMeta input;
 
   private Label wlRuleFilePath;
   private Button wbBrowse;
@@ -299,18 +299,17 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
 
     int nrRows = (input.getRuleResultColumns() != null ? input.getRuleResultColumns().size() : 1);
 
-    ColumnInfo[] ciResultFields =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-        };
+    ColumnInfo[] ciResultFields = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RulesDialog.ColumnSelection.ColumnType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+    };
 
     wResultColumnsFields =
         new TableView(

@@ -41,6 +41,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Upserts chunk rows with embeddings into a PostgreSQL pgvector table. */
 public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUpsertData> {
+  private static final String CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW =
+      "PgVectorUpsert.Error.BindingRow";
+  private static final String CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING =
+      "PgVectorUpsert.Error.Committing";
 
   private static final Class<?> PKG = PgVectorUpsertMeta.class;
 
@@ -132,7 +136,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       throw e;
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)), e);
+          BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(id)),
+          e);
     }
 
     if (!data.batchMode) {
@@ -145,7 +150,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       data.batchRows.add(row);
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)), e);
+          BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(id)),
+          e);
     }
 
     if (data.batchRows.size() >= data.commitSize) {
@@ -162,7 +168,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       if (!getTransformMeta().isDoingErrorHandling()) {
         rollbackQuietly();
         throw new HopException(
-            BaseMessages.getString(PKG, "PgVectorUpsert.Error.BindingRow", String.valueOf(id)),
+            BaseMessages.getString(
+                PKG, CONST_PG_VECTOR_UPSERT_ERROR_BINDING_ROW, String.valueOf(id)),
             failure);
       }
       // The savepoint already took the row back: the transaction is usable for the next rows.
@@ -216,7 +223,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     try {
       data.database.commit();
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
+      throw new HopException(
+          BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING), e);
     }
   }
 
@@ -491,7 +499,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       // The transaction is already aborted by PostgreSQL: discard the batch and roll back rather
       // than committing on top of a failure.
       discardFailedBatch();
-      throw new HopException(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
+      throw new HopException(
+          BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING), e);
     }
 
     for (Object[] row : rows) {
@@ -548,7 +557,7 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
       try {
         commitBatch();
       } catch (HopException e) {
-        logError(BaseMessages.getString(PKG, "PgVectorUpsert.Error.Committing"), e);
+        logError(BaseMessages.getString(PKG, CONST_PG_VECTOR_UPSERT_ERROR_COMMITTING), e);
         setErrors(getErrors() + 1);
       }
     }

@@ -52,9 +52,9 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
   private static final String PENDING_IMAGE = "hop.pendingMenuImage";
 
   private Map<String, MenuItem> menuItemMap;
-  private Map<String, MenuItem> menuSeparatorMap;
-  private Map<String, Menu> menuParentMap;
-  private Map<String, GuiMenuItem> menuDefinitionMap;
+  private final Map<String, MenuItem> menuSeparatorMap;
+  private final Map<String, Menu> menuParentMap;
+  private final Map<String, GuiMenuItem> menuDefinitionMap;
   private Map<String, KeyboardShortcut> shortcutMap;
   private Map<String, Boolean> menuEnabledMap;
 

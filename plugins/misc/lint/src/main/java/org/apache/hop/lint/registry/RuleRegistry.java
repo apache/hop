@@ -39,6 +39,7 @@ import org.apache.hop.lint.RuleConfig;
  * Discovers rule packs, merges them in priority order, and applies project hop-lint.yml overlays.
  */
 public class RuleRegistry {
+  private static final String CONST_RULE_PACK = "Rule pack '";
 
   private static final RuleRegistry INSTANCE = new RuleRegistry();
 
@@ -108,7 +109,7 @@ public class RuleRegistry {
                   + ")");
         } catch (Exception e) {
           String error =
-              "Rule pack '" + pack.getPackId() + "' could not be loaded: " + messagesOf(e);
+              CONST_RULE_PACK + pack.getPackId() + "' could not be loaded: " + messagesOf(e);
           errors.add(error);
           LogChannel.GENERAL.logError(error, e);
         }
@@ -163,7 +164,7 @@ public class RuleRegistry {
 
       if (foreignCollision && !declaresOverride(pack, ruleId)) {
         LogChannel.GENERAL.logError(
-            "Rule pack '"
+            CONST_RULE_PACK
                 + pack.getPackId()
                 + "' defines rule '"
                 + ruleId
@@ -175,7 +176,7 @@ public class RuleRegistry {
       }
       if (foreignCollision) {
         LogChannel.GENERAL.logBasic(
-            "Rule pack '"
+            CONST_RULE_PACK
                 + pack.getPackId()
                 + "' overrides rule '"
                 + ruleId

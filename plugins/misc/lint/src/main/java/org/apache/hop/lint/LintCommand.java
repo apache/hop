@@ -81,6 +81,7 @@ import picocli.CommandLine.Parameters;
             + "--max-warnings.")
 @HopCommand(id = "lint", description = "Check Hop files against the lint rules")
 public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetadataProvider {
+  private static final String CONST_PROJECT_HOME = "PROJECT_HOME";
 
   // Deliberately no static ILogChannel field here. Touching LogChannel loads Hop's configuration
   // during class initialisation, which prints to stdout before main() gets a chance to run — and
@@ -586,7 +587,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
         configFile != null
             ? RuleRegistry.getInstance().resolve(new File(configFile))
             : RuleRegistry.getInstance()
-                .resolveForContext(new File(context), variables().getVariable("PROJECT_HOME"));
+                .resolveForContext(new File(context), variables().getVariable(CONST_PROJECT_HOME));
 
     List<CustomLintRule> rules = new ArrayList<>(ruleSet.getRules());
     rules.sort(Comparator.comparing(CustomLintRule::generateRuleId));
@@ -633,7 +634,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     // project's hop-lint.yml or an installed pack could not be read.
     LintRun.checkRulePacks();
     HopLinter linter = new HopLinter();
-    linter.setProjectHome(variables().getVariable("PROJECT_HOME"));
+    linter.setProjectHome(variables().getVariable(CONST_PROJECT_HOME));
     linter.loadConfigurationStrictly(firstFile);
 
     // The lint target for path-relative purposes is the project the staged files live in.
@@ -794,7 +795,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
     if (!projectEnabled) {
       return;
     }
-    String projectHome = variables().getVariable("PROJECT_HOME");
+    String projectHome = variables().getVariable(CONST_PROJECT_HOME);
     boolean contains =
         !Utils.isEmpty(projectHome)
             && !Utils.isEmpty(path)
@@ -874,7 +875,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       File metadataFolder = findMetadataFolder(target);
       if (projectMetadata != null) {
         System.out.println(
-            "Using the metadata of project home: " + variables.getVariable("PROJECT_HOME"));
+            "Using the metadata of project home: " + variables.getVariable(CONST_PROJECT_HOME));
       } else if (metadataFolder == null) {
         System.out.println("No metadata/ folder found; linting without a metadata provider.");
       } else {

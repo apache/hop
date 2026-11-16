@@ -36,7 +36,7 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
   private NotePadMeta notePadMeta;
   private HopGuiWorkflowGraph workflowGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiWorkflowNoteContext> lambdaBuilder;
+  private final GuiActionLambdaBuilder<HopGuiWorkflowNoteContext> lambdaBuilder;
 
   public HopGuiWorkflowNoteContext(
       WorkflowMeta workflowMeta,

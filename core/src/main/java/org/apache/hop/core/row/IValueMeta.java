@@ -205,21 +205,20 @@ public interface IValueMeta extends Cloneable {
   int TYPE_VECTOR = 1536;
 
   /** The Constant typeCodes. */
-  String[] typeCodes =
-      new String[] {
-        "-",
-        "Number",
-        "String",
-        "Date",
-        "Boolean",
-        "Integer",
-        "BigNumber",
-        "Serializable",
-        "Binary",
-        "Timestamp",
-        "Internet Address",
-        "Json"
-      };
+  String[] typeCodes = {
+    "-",
+    "Number",
+    "String",
+    "Date",
+    "Boolean",
+    "Integer",
+    "BigNumber",
+    "Serializable",
+    "Binary",
+    "Timestamp",
+    "Internet Address",
+    "Json"
+  };
 
   /** The storage type is the same as the indicated value type */
   int STORAGE_TYPE_NORMAL = 0;
@@ -237,10 +236,9 @@ public interface IValueMeta extends Cloneable {
   int STORAGE_TYPE_INDEXED = 2;
 
   /** The Constant storageTypeCodes. */
-  String[] storageTypeCodes =
-      new String[] {
-        "normal", "binary-string", "indexed",
-      };
+  String[] storageTypeCodes = {
+    "normal", "binary-string", "indexed",
+  };
 
   /** Indicating that the rows are not sorted on this key */
   int SORT_TYPE_NOT_SORTED = 0;
@@ -252,10 +250,9 @@ public interface IValueMeta extends Cloneable {
   int SORT_TYPE_DESCENDING = 2;
 
   /** The Constant sortTypeCodes. */
-  String[] sortTypeCodes =
-      new String[] {
-        "none", "ascending", "descending",
-      };
+  String[] sortTypeCodes = {
+    "none", "ascending", "descending",
+  };
 
   /**
    * Indicating that the string content should NOT be trimmed if conversion is to occur to another

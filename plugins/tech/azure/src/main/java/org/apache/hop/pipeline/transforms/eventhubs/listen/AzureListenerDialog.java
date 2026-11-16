@@ -73,7 +73,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
   private TextVar wBatchOutput;
   private TextVar wMaxWaitTime;
 
-  private AzureListenerMeta input;
+  private final AzureListenerMeta input;
 
   public AzureListenerDialog(
       Shell parent,

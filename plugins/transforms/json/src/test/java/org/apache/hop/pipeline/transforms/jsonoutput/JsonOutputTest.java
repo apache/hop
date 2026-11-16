@@ -71,7 +71,6 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
-import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -380,9 +379,9 @@ class JsonOutputTest {
 
     JsonOutputData transformData = new JsonOutputData();
     transformData.writeToFile = true;
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("key", "value");
-    transformData.ja.add(jsonObject);
+    // one row is waiting to be written
+    transformData.block.append("{\"data\":[{\"key\":\"value\"}");
+    transformData.blockRows = 1;
     transformData.writer = mock(Writer.class);
 
     JsonOutput transform =

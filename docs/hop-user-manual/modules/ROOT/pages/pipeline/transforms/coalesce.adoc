@@ -47,3 +47,6 @@ Pick a list of fields to evaluate and specify a field name and type for the fiel
 |Input fields|The order of the input fields listed in the columns determines the order in which they are evaluated.
 |===
 
+== Samples
+
+The samples project has `transforms/coalesce-basic.hpl`, which puts the first non-null value of `desc1` and `desc2` in a new field `desc`.

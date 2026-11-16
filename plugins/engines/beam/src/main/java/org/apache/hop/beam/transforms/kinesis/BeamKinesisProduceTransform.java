@@ -56,7 +56,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
   private String dataField;
   private String dataType;
   private String partitionKey;
-  private List<KinesisConfigOption> configOptions;
+  private final List<KinesisConfigOption> configOptions;
 
   // Log and count errors.
   private static final Logger LOG = LoggerFactory.getLogger(BeamKinesisProduceTransform.class);

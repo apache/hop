@@ -125,7 +125,7 @@ public class KerberosUtil {
     AppConfigurationEntry config =
         new AppConfigurationEntry(
             Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, keytabConfig);
-    AppConfigurationEntry[] configEntries = new AppConfigurationEntry[] {config};
+    AppConfigurationEntry[] configEntries = {config};
     Subject subject = new Subject();
     return new LoginContext(
         KERBEROS_APP_NAME, subject, null, new HopLoginConfiguration(configEntries));
@@ -135,11 +135,10 @@ public class KerberosUtil {
       final String principal, final String password) throws LoginException {
     Map<String, String> opts = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_USER);
     opts.put(CONST_PRINCIPAL, principal);
-    AppConfigurationEntry[] appConfigurationEntries =
-        new AppConfigurationEntry[] {
-          new AppConfigurationEntry(
-              Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, opts)
-        };
+    AppConfigurationEntry[] appConfigurationEntries = {
+      new AppConfigurationEntry(
+          Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, opts)
+    };
     return new LoginContext(
         KERBEROS_APP_NAME,
         new Subject(),
@@ -158,11 +157,10 @@ public class KerberosUtil {
   public LoginContext getLoginContextFromKerberosCache(String principal) throws LoginException {
     Map<String, String> opts = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS);
     opts.put(CONST_PRINCIPAL, principal);
-    AppConfigurationEntry[] appConfigurationEntries =
-        new AppConfigurationEntry[] {
-          new AppConfigurationEntry(
-              Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, opts)
-        };
+    AppConfigurationEntry[] appConfigurationEntries = {
+      new AppConfigurationEntry(
+          Krb5LoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, opts)
+    };
     return new LoginContext(
         KERBEROS_APP_NAME, new Subject(), null, new HopLoginConfiguration(appConfigurationEntries));
   }

@@ -36,7 +36,7 @@ final class DynamicWaitTimes {
   static class SingleStreamStatus {
     protected boolean active = true;
     private long interval = 1;
-    private long waitTime;
+    private final long waitTime;
 
     SingleStreamStatus(Integer waitTime) {
       this.waitTime = waitTime;

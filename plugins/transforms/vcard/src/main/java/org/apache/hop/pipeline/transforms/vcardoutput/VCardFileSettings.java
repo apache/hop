@@ -66,37 +66,41 @@ public class VCardFileSettings {
     this.doNotOpenNewFileInit = other.doNotOpenNewFileInit;
   }
 
+  /**
+   * The file name as the dialog shows it.
+   *
+   * @param showSamples true for a sample with the current date and time, false for the name with
+   *     {@code <yyyyMMdd>} and {@code <HHmmss>} where the date and time will go
+   */
   public String buildFilename(IVariables variables, boolean showSamples) {
-    String realFileName = variables.resolve(fileName);
+    if (showSamples) {
+      return buildFilename(variables, new Date());
+    }
+    return buildFilename(variables, "<yyyyMMdd>", "<HHmmss>");
+  }
+
+  /**
+   * The name of the file to write.
+   *
+   * @param date the moment that goes into the name when the date or the time is included
+   */
+  public String buildFilename(IVariables variables, Date date) {
+    return buildFilename(
+        variables,
+        new SimpleDateFormat("yyyyMMdd").format(date),
+        new SimpleDateFormat("HHmmss").format(date));
+  }
+
+  private String buildFilename(IVariables variables, String datePart, String timePart) {
+    String filename = variables.resolve(fileName);
     String realExtension = variables.resolve(extension);
-    SimpleDateFormat dateFormat = new SimpleDateFormat();
-    String filename = realFileName;
-    Date now = new Date();
 
     if (dateInFileName) {
-      if (showSamples) {
-        dateFormat.applyPattern("yyyMMdd");
-        filename += "_" + dateFormat.format(now);
-      } else {
-        filename += "_<yyyMMdd>";
-      }
-      if (timeInFileName) {
-        if (showSamples) {
-          dateFormat.applyPattern("HHmmss");
-          filename += "_" + dateFormat.format(now);
-        } else {
-          filename += "_<HHmmss>";
-        }
-      }
-    } else if (timeInFileName) {
-      if (showSamples) {
-        dateFormat.applyPattern("HHmmss");
-        filename += "_" + dateFormat.format(now);
-      } else {
-        filename += "_<HHmmss>";
-      }
+      filename += "_" + datePart;
     }
-
+    if (timeInFileName) {
+      filename += "_" + timePart;
+    }
     if (!Utils.isEmpty(realExtension)) {
       filename += "." + realExtension;
     }

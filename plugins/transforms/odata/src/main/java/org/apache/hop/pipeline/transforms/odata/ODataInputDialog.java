@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class ODataInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ODataInputMeta.class;
+  private static final String CONST_ENTITY_SETS = "EntitySets";
 
   private final ODataInputMeta input;
 
@@ -404,25 +405,24 @@ public class ODataInputDialog extends BaseTransformDialog {
     fdGetFields.top = new FormAttachment(0, margin);
     wGetFields.setLayoutData(fdGetFields);
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.HopName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.ODataPath"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.HopType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              3)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.HopName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.ODataPath"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.HopType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ODataInputDialog.Fields.Column.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          3)
+    };
 
     wFields =
         new TableView(
@@ -581,8 +581,8 @@ public class ODataInputDialog extends BaseTransformDialog {
             }
           } else if (root.has("d")) {
             JsonNode d = root.get("d");
-            if (d.has("EntitySets") && d.get("EntitySets").isArray()) {
-              for (JsonNode it : d.get("EntitySets")) {
+            if (d.has(CONST_ENTITY_SETS) && d.get(CONST_ENTITY_SETS).isArray()) {
+              for (JsonNode it : d.get(CONST_ENTITY_SETS)) {
                 list.add(it.asText());
               }
             } else if (d.isArray()) {

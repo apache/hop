@@ -38,16 +38,16 @@ public class MessageDialogWithToggle {
   private static final int OK = 0;
   private static final int CANCEL = 1;
 
-  private Shell parent;
+  private final Shell parent;
 
-  private String title;
-  private String message;
+  private final String title;
+  private final String message;
 
-  private String[] buttonLabels;
+  private final String[] buttonLabels;
 
-  private int dialogImageType;
+  private final int dialogImageType;
 
-  private String toggleLabel;
+  private final String toggleLabel;
 
   private boolean toggleState;
 

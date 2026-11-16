@@ -67,6 +67,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class SQLFileOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SQLFileOutputMeta.class;
+  private static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
   public static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -186,7 +187,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
     Button wbSchema = new Button(wGConnection, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
-    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbSchema.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
@@ -215,7 +216,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
     Button wbTable = new Button(wGConnection, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbTable.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wSchema, margin);
@@ -379,7 +380,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
 
     Button wbFilename = new Button(wFileName, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename);
-    wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
     fdbFilename.top = new FormAttachment(wStartNewLine, 0);
@@ -808,17 +809,16 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
     wGet.addListener(SWT.Selection, e -> get());
 
     // Select fields table
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Fieldname"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Loading")},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.RenameTo"),
-              ColumnInfo.COLUMN_TYPE_TEXT)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Fieldname"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.Loading")},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SQLFileOutputMeta.Content.RenameTo"),
+          ColumnInfo.COLUMN_TYPE_TEXT)
+    };
 
     colinf[0].setWidth(150); // width for "Name"
     colinf[1].setWidth(100); // width for "Rename"
@@ -1082,7 +1082,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
       }

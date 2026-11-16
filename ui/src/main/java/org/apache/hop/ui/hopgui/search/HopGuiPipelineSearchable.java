@@ -29,8 +29,8 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
 
-  private String location;
-  private PipelineMeta pipelineMeta;
+  private final String location;
+  private final PipelineMeta pipelineMeta;
 
   public HopGuiPipelineSearchable(String location, PipelineMeta pipelineMeta) {
     this.location = location;

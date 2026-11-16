@@ -90,19 +90,18 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
     int arrowSize = textExtent.y;
     Point point = new Point(ext.x1 + ext.iconSize, ext.y1 + (ext.iconSize - textExtent.y) / 2);
 
-    int[] arrow =
-        new int[] {
-          point.x,
-          point.y + textExtent.y / 2,
-          point.x + arrowSize,
-          point.y,
-          point.x + textExtent.x + arrowSize,
-          point.y,
-          point.x + textExtent.x + arrowSize,
-          point.y + textExtent.y,
-          point.x + arrowSize,
-          point.y + textExtent.y,
-        };
+    int[] arrow = {
+      point.x,
+      point.y + textExtent.y / 2,
+      point.x + arrowSize,
+      point.y,
+      point.x + textExtent.x + arrowSize,
+      point.y,
+      point.x + textExtent.x + arrowSize,
+      point.y + textExtent.y,
+      point.x + arrowSize,
+      point.y + textExtent.y,
+    };
 
     gc.fillPolygon(arrow);
     gc.drawPolygon(arrow);

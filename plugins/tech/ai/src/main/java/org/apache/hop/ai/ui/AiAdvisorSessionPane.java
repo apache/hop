@@ -101,6 +101,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Chat UI for the selected {@link AiAdvisorSession}. */
 public class AiAdvisorSessionPane extends Composite {
+  private static final String CONST_AI_ADVISOR_STATUS_DISABLED = "AiAdvisor.Status.Disabled";
 
   private static final Class<?> PKG = AiAdvisorPerspective.class;
 
@@ -121,21 +122,21 @@ public class AiAdvisorSessionPane extends Composite {
   private final List<AiAdvisorInclusion> currentInclusions = new ArrayList<>();
   private final Map<String, Button> inclusionButtons = new LinkedHashMap<>();
   private final Map<String, Button> inclusionPickers = new LinkedHashMap<>();
-  private Label wlStatus;
-  private Composite questionArea;
+  private final Label wlStatus;
+  private final Composite questionArea;
 
   /** Position in the earlier questions while browsing with Up and Down; -1 is the draft. */
   private int historyIndex = -1;
 
   private String historyDraft = "";
   private boolean showingHistory;
-  private FormData questionData;
-  private FormData statusData;
+  private final FormData questionData;
+  private final FormData statusData;
   private Link wFocus;
   private FormData focusData;
-  private AiAdvisorTranscriptPanel transcript;
-  private Text wPrompt;
-  private Button wSend;
+  private final AiAdvisorTranscriptPanel transcript;
+  private final Text wPrompt;
+  private final Button wSend;
   private Button wMetadataSelect;
   private final List<IPlugin> advisorPlugins = new ArrayList<>();
   private final SendShortcutGuard sendShortcutGuard = new SendShortcutGuard();
@@ -1100,7 +1101,7 @@ public class AiAdvisorSessionPane extends Composite {
                 PKG,
                 HopAiConfigSingleton.getConfig().isAiEnabled()
                     ? "AiAdvisor.Status.NoSession"
-                    : "AiAdvisor.Status.Disabled"));
+                    : CONST_AI_ADVISOR_STATUS_DISABLED));
         transcript.showSession(null);
         updateSendButton();
         return;
@@ -1118,7 +1119,7 @@ public class AiAdvisorSessionPane extends Composite {
       updateInclusionPickerButtons();
       if (!enabled) {
         // The conversation stays readable; nothing can be asked until the assistant is enabled.
-        setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
+        setStatus(BaseMessages.getString(PKG, CONST_AI_ADVISOR_STATUS_DISABLED));
       } else {
         setStatus(
             Utils.isEmpty(session.getStatusMessage()) && advisorPlugins.isEmpty()
@@ -1715,7 +1716,7 @@ public class AiAdvisorSessionPane extends Composite {
     }
     HopAiConfig config = HopAiConfigSingleton.getConfig();
     if (!config.isAiEnabled()) {
-      setStatus(BaseMessages.getString(PKG, "AiAdvisor.Status.Disabled"));
+      setStatus(BaseMessages.getString(PKG, CONST_AI_ADVISOR_STATUS_DISABLED));
       return;
     }
     String prompt = wPrompt.getText();

@@ -33,13 +33,13 @@ import org.eclipse.swt.widgets.Shell;
 public class ShowBrowserDialog extends Dialog {
   private static final Class<?> PKG = ShowBrowserDialog.class;
 
-  private String dialogTitle;
-  private String content;
+  private final String dialogTitle;
+  private final String content;
 
   private Browser wBrowser;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
   public ShowBrowserDialog(Shell parent, String dialogTitle, String content) {
     super(parent, SWT.NONE);

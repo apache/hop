@@ -77,6 +77,7 @@ import picocli.CommandLine.Parameters;
     })
 @HopCommand(id = "marketplace", description = "Hop plugin marketplace")
 public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
+  private static final String CONST_ERROR = "ERROR: ";
 
   private ILogChannel log;
   private CommandLine cmd;
@@ -299,7 +300,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       } catch (CommandLine.ExecutionException e) {
         throw e;
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         if (log != null) {
           log.logError("Marketplace install failed", e);
         }
@@ -440,7 +441,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         new PluginUninstaller(log, hopHome).uninstall(artifactId);
         System.out.println("Uninstalled " + artifactId + ". Restart Hop.");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "uninstall failed" : e.getMessage(), e);
       }
@@ -480,7 +481,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
           }
         }
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "list failed" : e.getMessage(), e);
       }
@@ -554,7 +555,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         CliTable.printTable(System.out, headers, rows);
         System.out.println(matches.size() + " plugin(s) matched.");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "query failed" : e.getMessage(), e);
       }
@@ -646,7 +647,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 + envPath
                 + ". Restart Hop (or re-run) so new plugins are loaded.");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         if (log != null) {
           log.logError("Marketplace apply failed", e);
         }
@@ -708,7 +709,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       } catch (CommandLine.ExecutionException e) {
         throw e;
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "validate failed" : e.getMessage(), e);
       }
@@ -907,7 +908,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 + " → "
                 + repo.normalizedUrl());
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this), e.getMessage() == null ? "repo add failed" : e.getMessage(), e);
       }
@@ -942,7 +943,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         MarketplaceRepositoryDefinition.save(out, repo);
         System.out.println("Wrote repository definition: " + out.toAbsolutePath().normalize());
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo export failed" : e.getMessage(),
@@ -1004,7 +1005,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                   + " enabled, so there is no public repository to fall back on.");
         }
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo import failed" : e.getMessage(),
@@ -1029,7 +1030,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         config.save();
         System.out.println("Removed repository '" + id + "'");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo remove failed" : e.getMessage(),
@@ -1054,7 +1055,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         config.save();
         System.out.println("Primary marketplace repository is now '" + id + "'");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo set-primary failed" : e.getMessage(),
@@ -1079,7 +1080,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         config.save();
         System.out.println("Enabled repository '" + id + "'");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo enable failed" : e.getMessage(),
@@ -1104,7 +1105,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         config.save();
         System.out.println("Disabled repository '" + id + "'");
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo disable failed" : e.getMessage(),
@@ -1131,7 +1132,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
               (repo.isPrimary() ? "* " : "  ") + repo.getId() + "  " + repo.normalizedUrl());
         }
       } catch (Exception e) {
-        System.err.println("ERROR: " + e.getMessage());
+        System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
             new CommandLine(this),
             e.getMessage() == null ? "repo reset-defaults failed" : e.getMessage(),

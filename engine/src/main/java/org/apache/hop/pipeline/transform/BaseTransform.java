@@ -146,7 +146,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private String transformName;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   @Getter @Setter private String containerId;
 

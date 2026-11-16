@@ -62,16 +62,16 @@ public class TikaOutput {
   private final ILogChannel log;
   private final IVariables variables;
 
-  private ParseContext context;
-  private Detector detector;
-  private Parser parser;
+  private final ParseContext context;
+  private final Detector detector;
+  private final Parser parser;
 
   private Metadata lastMetadata;
 
   /** Output character encoding, or <code>null</code> for platform default */
-  private String encoding = null;
+  private final String encoding = null;
 
-  private boolean prettyPrint = false;
+  private final boolean prettyPrint = false;
 
   public TikaOutput(ClassLoader classLoader, ILogChannel log, IVariables variables)
       throws IOException, MimeTypeException {
@@ -310,8 +310,8 @@ public class TikaOutput {
 
   /** Uses GSON to do the JSON escaping, but does the general JSON glueing ourselves. */
   private class NoDocumentJSONMetHandler extends NoDocumentMetHandler {
-    private NumberFormat formatter;
-    private Gson gson;
+    private final NumberFormat formatter;
+    private final Gson gson;
 
     public NoDocumentJSONMetHandler(Metadata metadata, PrintWriter writer) {
       super(metadata, writer);

@@ -60,10 +60,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
 
   private static final Class<?> PKG = DatabaseLookupMeta.class;
 
-  protected static final String[] conditionStrings =
-      new String[] {
-        "=", "<>", "<", "<=", ">", ">=", "LIKE", "BETWEEN", "IS NULL", "IS NOT NULL",
-      };
+  protected static final String[] conditionStrings = {
+    "=", "<>", "<", "<=", ">", ">=", "LIKE", "BETWEEN", "IS NULL", "IS NOT NULL",
+  };
 
   public static final int CONDITION_EQ = 0;
   public static final int CONDITION_NE = 1;

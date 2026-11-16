@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Event;
 
 @GuiPlugin
 public class WelcomeSetup {
+  private static final String CONST_SETUP_DIALOG_ERROR_HEADER = "SetupDialog.Error.Header";
 
   private static final Class<?> PKG = SetupGuiPlugin.class;
 
@@ -102,8 +103,8 @@ public class WelcomeSetup {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
           e);
     }
   }
@@ -116,8 +117,8 @@ public class WelcomeSetup {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
           e);
     }
   }

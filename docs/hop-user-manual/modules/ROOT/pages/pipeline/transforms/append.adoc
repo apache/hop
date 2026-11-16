@@ -39,3 +39,7 @@ Note: This name has to be unique in a single pipeline.
 |Head hop|The name of the transform from which will be read the first stream.
 |Tail hop|The name of the transform from which will be read the second stream.
 |===
+
+== Samples
+
+The samples project has `transforms/append-streams-basic.hpl`, which sends the 10 rows of *Second Stream* (Head hop) and then the 10 rows of *First Stream* (Tail hop) to one output.

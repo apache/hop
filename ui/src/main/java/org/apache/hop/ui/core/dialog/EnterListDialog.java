@@ -287,7 +287,7 @@ public class EnterListDialog extends Dialog {
     // Add listeners
 
     // Drag & Drop for transforms
-    Transfer[] transfers = new Transfer[] {TextTransfer.getInstance()};
+    Transfer[] transfers = {TextTransfer.getInstance()};
 
     DragSource ddSource = new DragSource(wListSource, DND.DROP_MOVE | DND.DROP_COPY);
     ddSource.setTransfer(transfers);

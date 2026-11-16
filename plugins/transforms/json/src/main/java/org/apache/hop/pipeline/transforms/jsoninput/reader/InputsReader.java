@@ -38,10 +38,10 @@ import org.apache.hop.pipeline.transforms.jsoninput.JsonInputMeta;
 
 public class InputsReader implements Iterable<InputStream> {
 
-  private JsonInput transform;
-  private JsonInputMeta meta;
-  private JsonInputData data;
-  private ErrorHandler errorHandler;
+  private final JsonInput transform;
+  private final JsonInputMeta meta;
+  private final JsonInputData data;
+  private final ErrorHandler errorHandler;
 
   private static final String CONST_REMOVE = "remove";
 
@@ -183,7 +183,7 @@ public class InputsReader implements Iterable<InputStream> {
 
   protected class FileNamesIterator extends ChainedIterator<FileObject, String> {
 
-    private IVariables vars;
+    private final IVariables vars;
 
     public FileNamesIterator(
         IVariables varSpace, ErrorHandler handler, Iterator<String> fileNames) {
@@ -217,8 +217,8 @@ public class InputsReader implements Iterable<InputStream> {
 
   protected class StringFieldIterator implements Iterator<String> {
 
-    private RowIterator rowIter;
-    private int idx;
+    private final RowIterator rowIter;
+    private final int idx;
 
     public StringFieldIterator(RowIterator rowIter, int idx) {
       this.rowIter = rowIter;
@@ -286,8 +286,8 @@ public class InputsReader implements Iterable<InputStream> {
 
   protected class RowIterator implements Iterator<Object[]> {
 
-    private ITransform transform;
-    private ErrorHandler errorHandler;
+    private final ITransform transform;
+    private final ErrorHandler errorHandler;
     private boolean gotNext;
 
     public RowIterator(ITransform transform, JsonInputData data, ErrorHandler errorHandler) {

@@ -30,7 +30,7 @@ import org.apache.parquet.schema.MessageType;
 
 public class ParquetReadSupport extends ReadSupport<RowMetaAndData> {
 
-  private List<ParquetField> fields;
+  private final List<ParquetField> fields;
 
   public ParquetReadSupport(List<ParquetField> fields) {
     this.fields = fields;

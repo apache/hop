@@ -90,7 +90,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
   private TableView wRelMappings;
   private TableView wNodeMappings;
 
-  private GraphOutputMeta input;
+  private final GraphOutputMeta input;
 
   private GraphModel activeModel;
 
@@ -327,19 +327,15 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
     // Table: field to model mapping
     //
-    ColumnInfo[] parameterColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
-          new ColumnInfo(
-              "Target type", ColumnInfo.COLUMN_TYPE_CCOMBO, ModelTargetType.getNames(), false),
-          new ColumnInfo("Target", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-          new ColumnInfo("Property", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-          new ColumnInfo(
-              "Target hint",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ModelTargetHint.getDescriptions(),
-              false),
-        };
+    ColumnInfo[] parameterColumns = {
+      new ColumnInfo("Field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+      new ColumnInfo(
+          "Target type", ColumnInfo.COLUMN_TYPE_CCOMBO, ModelTargetType.getNames(), false),
+      new ColumnInfo("Target", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+      new ColumnInfo("Property", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+      new ColumnInfo(
+          "Target hint", ColumnInfo.COLUMN_TYPE_CCOMBO, ModelTargetHint.getDescriptions(), false),
+    };
 
     wFieldMappings =
         new TableView(
@@ -385,20 +381,18 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
     // Table: field to model mapping
     //
-    ColumnInfo[] mappingColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              "Mapping type",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RelationshipMappingType.getDescriptions(),
-              false),
-          new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
-          new ColumnInfo("Field value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo(
-              "Target relationship", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-          new ColumnInfo("Source node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-          new ColumnInfo("Target node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-        };
+    ColumnInfo[] mappingColumns = {
+      new ColumnInfo(
+          "Mapping type",
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RelationshipMappingType.getDescriptions(),
+          false),
+      new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+      new ColumnInfo("Field value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+      new ColumnInfo("Target relationship", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+      new ColumnInfo("Source node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+      new ColumnInfo("Target node", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+    };
 
     wRelMappings =
         new TableView(
@@ -440,18 +434,14 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
     // Table: field to model mapping
     //
-    ColumnInfo[] mappingColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              "Mapping type",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              NodeMappingType.getDescriptions(),
-              false),
-          new ColumnInfo("Target node name", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-          new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
-          new ColumnInfo("Field value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo("Target label", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
-        };
+    ColumnInfo[] mappingColumns = {
+      new ColumnInfo(
+          "Mapping type", ColumnInfo.COLUMN_TYPE_CCOMBO, NodeMappingType.getDescriptions(), false),
+      new ColumnInfo("Target node name", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+      new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+      new ColumnInfo("Field value", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+      new ColumnInfo("Target label", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[0], false),
+    };
 
     wNodeMappings =
         new TableView(

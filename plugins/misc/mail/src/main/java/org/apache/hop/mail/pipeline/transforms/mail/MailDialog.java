@@ -64,16 +64,16 @@ import org.jspecify.annotations.NonNull;
 public class MailDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MailMeta.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "MailDialog.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "MailDialog.Filetype.All")
+  };
 
-  private static final String[] IMAGES_FILE_TYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "MailDialog.Filetype.Png"),
-        BaseMessages.getString(PKG, "MailDialog.Filetype.Jpeg"),
-        BaseMessages.getString(PKG, "MailDialog.Filetype.Gif"),
-        BaseMessages.getString(PKG, "MailDialog.Filetype.All")
-      };
+  private static final String[] IMAGES_FILE_TYPES = {
+    BaseMessages.getString(PKG, "MailDialog.Filetype.Png"),
+    BaseMessages.getString(PKG, "MailDialog.Filetype.Jpeg"),
+    BaseMessages.getString(PKG, "MailDialog.Filetype.Gif"),
+    BaseMessages.getString(PKG, "MailDialog.Filetype.All")
+  };
   public static final String CONST_NORMAL = "normal";
 
   private boolean gotEncodings = false;
@@ -385,17 +385,16 @@ public class MailDialog extends BaseTransformDialog {
 
     final int nrFieldsRows = input.getEmbeddedImages().size();
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailDialog.Fields.Image.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MailDialog.Fields.Image.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     columnInfos[0].setUsingVariables(true);
     columnInfos[0].setToolTip(BaseMessages.getString(PKG, "MailDialog.Fields.Image.Tooltip"));

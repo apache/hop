@@ -84,6 +84,7 @@ import org.apache.hop.lineage.model.RunLifecyclePhase;
  * terminal event, where OpenLineage expects to find a run's datasets. See {@link #observe}.
  */
 public final class OpenLineageEventMapper {
+  private static final String CONST_UNKNOWN = "unknown";
 
   /**
    * Hop context attributes set by {@code LineageRunLifecycleEmitter} that carry the parent run's
@@ -347,7 +348,7 @@ public final class OpenLineageEventMapper {
 
   private static String hopVersion() {
     String[] version = new HopVersionProvider().getVersion();
-    return version.length > 0 && !Utils.isEmpty(version[0]) ? version[0] : "unknown";
+    return version.length > 0 && !Utils.isEmpty(version[0]) ? version[0] : CONST_UNKNOWN;
   }
 
   /**
@@ -1908,7 +1909,8 @@ public final class OpenLineageEventMapper {
       return ctx.getLogChannelId();
     }
     String jobName = resolveJobName(ctx);
-    String suffix = eventId != null && eventId.length() >= 8 ? eventId.substring(0, 8) : "unknown";
+    String suffix =
+        eventId != null && eventId.length() >= 8 ? eventId.substring(0, 8) : CONST_UNKNOWN;
     return jobName + "-" + suffix;
   }
 
@@ -1947,7 +1949,7 @@ public final class OpenLineageEventMapper {
    */
   public static String resolveJobName(LineageContext ctx) {
     if (ctx == null) {
-      return "unknown";
+      return CONST_UNKNOWN;
     }
     if (ctx.getSubjectType() == LineageSubjectType.TRANSFORM
         && !Utils.isEmpty(ctx.getTransformName())) {
@@ -1979,7 +1981,7 @@ public final class OpenLineageEventMapper {
     if (!Utils.isEmpty(ctx.getActionName())) {
       return ctx.getActionName();
     }
-    return "unknown";
+    return CONST_UNKNOWN;
   }
 
   static String nameFromUri(String uri) {

@@ -37,14 +37,18 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplore
     description = "Hop install spec (hop-env.yaml) editor",
     image = "ui/images/marketplace.svg")
 public class HopInstallSpecFileType extends BaseExplorerFileType<HopInstallSpecFileTypeHandler> {
+  private static final String CONST_HOP_INSTALL_SPEC = "Hop install spec";
 
   public HopInstallSpecFileType() {
     super(
-        "Hop install spec",
+        CONST_HOP_INSTALL_SPEC,
         ".yaml",
         HopInstallSpecFiles.WELL_KNOWN_NAMES.toArray(new String[0]),
         new String[] {
-          "Hop install spec", "Hop install spec", "Hop install spec", "Hop install spec"
+          CONST_HOP_INSTALL_SPEC,
+          CONST_HOP_INSTALL_SPEC,
+          CONST_HOP_INSTALL_SPEC,
+          CONST_HOP_INSTALL_SPEC
         },
         FileTypeCapabilities.getCapabilities(
             IHopFileType.CAPABILITY_SAVE,

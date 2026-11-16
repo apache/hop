@@ -703,8 +703,8 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
   static class OpenFifo extends Thread {
     private BufferedOutputStream fifoStream = null;
     private Exception ex;
-    private String fifoName;
-    private int size;
+    private final String fifoName;
+    private final int size;
 
     OpenFifo(String fifoName, int size) {
       this.fifoName = fifoName;
@@ -735,9 +735,9 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
   }
 
   static class SqlRunner extends Thread {
-    private MySqlBulkLoaderData data;
+    private final MySqlBulkLoaderData data;
 
-    private String loadCommand;
+    private final String loadCommand;
 
     private Exception ex;
 

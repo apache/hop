@@ -31,13 +31,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.reflection.RunMetadata;
 import org.apache.hop.reflection.pipeline.meta.PipelineLog;
 import org.apache.hop.reflection.pipeline.meta.PipelineToLogLocation;
 import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
@@ -47,6 +46,8 @@ import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
     extensionPointId = "PipelinePrepareExecution",
     description = "At the start of a pipeline, handle any Pipeline Log metadata objects")
 public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
+  private static final String CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT =
+      "Error handling Pipeline Log metadata object '";
 
   public static final String PIPELINE_LOGGING_FLAG = "PipelineLoggingActive";
 
@@ -66,10 +67,8 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       return;
     }
 
-    IHopMetadataProvider metadataProvider = pipeline.getMetadataProvider();
-    IHopMetadataSerializer<PipelineLog> serializer =
-        metadataProvider.getSerializer(PipelineLog.class);
-    List<PipelineLog> pipelineLogs = serializer.loadAll();
+    List<PipelineLog> pipelineLogs =
+        RunMetadata.loadAll(pipeline, pipeline.getMetadataProvider(), PipelineLog.class);
 
     for (PipelineLog pipelineLog : pipelineLogs) {
       handlePipelineLog(log, pipelineLog, pipeline, variables);
@@ -114,14 +113,14 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       if (pipelineLog.isFailParentOnLoggingFailure()) {
         pipeline.stopAll();
         throw new HopException(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
@@ -176,7 +175,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                   throw e;
                 } else {
                   log.logError(
-                      "Error handling Pipeline Log metadata object '"
+                      CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                           + pipelineLog.getName()
                           + "' at the end of pipeline: "
                           + e.getMessage(),
@@ -248,14 +247,14 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       if (pipelineLog.isFailParentOnLoggingFailure()) {
         pipeline.stopAll();
         throw new HopException(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),
             e);
       } else {
         log.logError(
-            "Error handling Pipeline Log metadata object '"
+            CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT
                 + pipelineLog.getName()
                 + "' at the start of pipeline: "
                 + e.getMessage(),

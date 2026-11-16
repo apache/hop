@@ -93,6 +93,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
+  private static final String CONST_TABLE_WIDGET = "TABLE widget '";
   public static final String CONST_PARENT_ID = ", parent ID: ";
   public static final String NONE_DATABASE_META = "NoneDatabaseMeta";
   private static final Class<?> PKG = GuiCompositeWidgets.class;
@@ -500,7 +501,7 @@ public class GuiCompositeWidgets {
   private static final class WidgetGroup {
     private final String label;
     private String order;
-    private String image;
+    private final String image;
     private Image extraImage;
     private final List<GuiElements> elements = new ArrayList<>();
     private final List<Consumer<Composite>> extras = new ArrayList<>();
@@ -752,7 +753,7 @@ public class GuiCompositeWidgets {
       // A grid with no columns was rejected while scanning. Leave the row out.
       if (elementType == GuiElementType.TABLE && !hasTableColumns(guiElements)) {
         LogChannel.UI.logError(
-            "TABLE widget '" + guiElements.getId() + "' has no columns and is not shown");
+            CONST_TABLE_WIDGET + guiElements.getId() + "' has no columns and is not shown");
         return lastControl;
       }
 
@@ -2187,7 +2188,7 @@ public class GuiCompositeWidgets {
     } else {
       if (raw != null) {
         LogChannel.UI.logError(
-            "TABLE widget '" + guiElements.getId() + "' is not a List and is shown empty");
+            CONST_TABLE_WIDGET + guiElements.getId() + "' is not a List and is shown empty");
       }
       values = List.of();
     }
@@ -2268,7 +2269,7 @@ public class GuiCompositeWidgets {
       constructor = rowClass.getConstructor();
     } catch (NoSuchMethodException e) {
       LogChannel.UI.logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + guiElements.getId()
               + "' row class "
               + rowClass.getName()
@@ -2310,7 +2311,7 @@ public class GuiCompositeWidgets {
       }
     } else if (raw != null) {
       LogChannel.UI.logError(
-          "TABLE widget '" + guiElements.getId() + "' is not a List, replacing the value");
+          CONST_TABLE_WIDGET + guiElements.getId() + "' is not a List, replacing the value");
     }
     writeList(sourceData, guiElements, built);
   }

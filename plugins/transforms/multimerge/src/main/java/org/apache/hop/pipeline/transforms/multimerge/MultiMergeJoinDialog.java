@@ -68,7 +68,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
   private ColumnInfo[] ciKeys;
 
   private final MultiMergeJoinMeta joinMeta;
-  private String[] allInputTransforms;
+  private final String[] allInputTransforms;
 
   public MultiMergeJoinDialog(
       Shell parent,

@@ -23,7 +23,7 @@ package org.apache.hop.core.logging;
  * can also specify a subject like a transform name.
  */
 public class LogTableField implements Cloneable {
-  private String id;
+  private final String id;
   private boolean enabled;
   private String fieldName;
   private Object subject;

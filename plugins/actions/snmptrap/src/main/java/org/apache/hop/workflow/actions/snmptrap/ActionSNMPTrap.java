@@ -103,12 +103,11 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   /** Default port */
   public static final int DEFAULT_PORT = 162;
 
-  protected static final String[] targetTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.Community"),
-        BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.User")
-      };
-  protected static final String[] targetTypeCode = new String[] {"community", "user"};
+  protected static final String[] targetTypeDesc = {
+    BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.Community"),
+    BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.User")
+  };
+  protected static final String[] targetTypeCode = {"community", "user"};
 
   public ActionSNMPTrap(String n) {
     super(n, "");

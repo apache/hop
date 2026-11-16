@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0104-vcard-output-date-time-in-name-generate</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>The file name gets the date and the time of the run: contacts_yyyyMMdd_HHmmss.vcf.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/13 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/13 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>three cards</from>
+      <to>VCard output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>three cards</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>Eve Dated</item>
+        <item>dated-1</item>
+      </line>
+      <line>
+        <item>Fay Dated</item>
+        <item>dated-2</item>
+      </line>
+      <line>
+        <item>Gus Dated</item>
+        <item>dated-3</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>fn</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>uid</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>VCard output</name>
+    <type>VCardOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <operation_type>writetofile</operation_type>
+    <vcard_version>3.0</vcard_version>
+    <output_field>vcard_text</output_field>
+    <pass_input_fields>N</pass_input_fields>
+    <add_prodid>N</add_prodid>
+    <add_revision>N</add_revision>
+    <file_name_in_field>N</file_name_in_field>
+    <file_name_field>vcard_filename</file_name_field>
+    <encoding>UTF-8</encoding>
+    <file>
+      <name>${java.io.tmpdir}/vcard-output-0104-dated/contacts</name>
+      <extension>vcf</extension>
+      <create_parent_folder>Y</create_parent_folder>
+      <append>N</append>
+      <add_date>Y</add_date>
+      <add_time>Y</add_time>
+      <doNotOpenNewFileInit>Y</doNotOpenNewFileInit>
+    </file>
+    <field>
+      <hop_field>fn</hop_field>
+      <property>fn</property>
+      <parameter_types/>
+    </field>
+    <field>
+      <hop_field>uid</hop_field>
+      <property>uid</property>
+      <parameter_types/>
+    </field>
+    <add_to_result_filenames>N</add_to_result_filenames>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

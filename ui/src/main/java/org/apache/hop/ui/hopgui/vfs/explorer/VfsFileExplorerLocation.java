@@ -99,6 +99,9 @@ import org.eclipse.swt.widgets.Widget;
  */
 @GuiPlugin
 public class VfsFileExplorerLocation extends Composite {
+  private static final String CONST_VFS_FILE_EXPLORER_OPERATION_COPYING =
+      "VfsFileExplorer.Operation.Copying";
+  private static final String CONST_UI_IMAGES_COPY_SVG = "ui/images/copy.svg";
 
   public static final Class<?> PKG = VfsFileExplorer.class;
 
@@ -491,7 +494,7 @@ public class VfsFileExplorerLocation extends Composite {
         String key =
             mode == VfsFileTransfer.Mode.MOVE
                 ? "VfsFileExplorer.Operation.Moving"
-                : "VfsFileExplorer.Operation.Copying";
+                : CONST_VFS_FILE_EXPLORER_OPERATION_COPYING;
         copyIntoFolder(
             target, entries, mode, BaseMessages.getString(PKG, key, entries.get(0).getName()));
       }
@@ -1080,7 +1083,7 @@ public class VfsFileExplorerLocation extends Composite {
     String sourceUri = row.getUri();
     String sourceName = row.getName();
     runChange(
-        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying", sourceName),
+        BaseMessages.getString(PKG, CONST_VFS_FILE_EXPLORER_OPERATION_COPYING, sourceName),
         destination,
         operation -> {
           FileObject source = HopVfs.getFileObject(sourceUri, variables);
@@ -1151,7 +1154,7 @@ public class VfsFileExplorerLocation extends Composite {
     String description =
         files.size() == 1
             ? BaseMessages.getString(
-                PKG, "VfsFileExplorer.Operation.Copying", files.get(0).getName())
+                PKG, CONST_VFS_FILE_EXPLORER_OPERATION_COPYING, files.get(0).getName())
             : BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying.Many", files.size());
     copyIntoFolder(destination, files, VfsFileTransfer.Mode.COPY, description);
   }
@@ -2092,7 +2095,7 @@ public class VfsFileExplorerLocation extends Composite {
     String operationKey =
         mode == VfsFileTransfer.Mode.MOVE
             ? "VfsFileExplorer.Operation.Moving"
-            : "VfsFileExplorer.Operation.Copying";
+            : CONST_VFS_FILE_EXPLORER_OPERATION_COPYING;
     copyIntoFolder(
         destinationUri,
         entries,
@@ -2317,7 +2320,11 @@ public class VfsFileExplorerLocation extends Composite {
     boolean canWrite = canWrite();
     Menu menu = new Menu(tree);
     menuItem(
-        menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFolders);
+        menu,
+        "VfsFileExplorer.Menu.Copy",
+        CONST_UI_IMAGES_COPY_SVG,
+        any,
+        this::copySelectedFolders);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Cut",
@@ -2389,7 +2396,8 @@ public class VfsFileExplorerLocation extends Composite {
         file != null && HopVfsFileDialog.getArchiveScheme(file.getName()) != null,
         this::drillInto);
     new MenuItem(menu, SWT.SEPARATOR);
-    menuItem(menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFiles);
+    menuItem(
+        menu, "VfsFileExplorer.Menu.Copy", CONST_UI_IMAGES_COPY_SVG, any, this::copySelectedFiles);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Cut",
@@ -2428,14 +2436,14 @@ public class VfsFileExplorerLocation extends Composite {
     menuItem(
         menu,
         "VfsFileExplorer.Menu.CopyPath",
-        "ui/images/copy.svg",
+        CONST_UI_IMAGES_COPY_SVG,
         !uris.isEmpty(),
         () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, uris)));
     List<String> relative = relativeToProject(uris);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.CopyProjectPath",
-        "ui/images/copy.svg",
+        CONST_UI_IMAGES_COPY_SVG,
         relative != null,
         () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, relative)));
   }

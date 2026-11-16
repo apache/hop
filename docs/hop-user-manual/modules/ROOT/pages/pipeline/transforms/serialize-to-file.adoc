@@ -52,6 +52,12 @@ The Serialize to file transform supports a write-once access pattern, and does n
 
 |Add filenames to result
 |Add the written filename to the list of result filenames.
+
+|Compression level
+|How hard to compress the file: 1 - Fastest, 2 - Very fast, 3 - Fast, 4 - Balanced, faster, 5 - Balanced, 6 - Standard (the Java default), 7 - Smaller files, 8 - Very small files, 9 - Smallest files.
+A low level writes much faster and gives a somewhat larger file.
+De-serialize from file reads every level.
+A new transform uses 6 - Standard, and so does a transform saved before this option existed.
 |===
 
 == Several files at once

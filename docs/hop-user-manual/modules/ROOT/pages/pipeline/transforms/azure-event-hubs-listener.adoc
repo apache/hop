@@ -77,3 +77,8 @@ It receives the following fields:
 * sequenceNumber (Integer)
 * host (String)
 * enqueuedTime (Timestamp)
+
+== Samples
+
+The samples project has `transforms/azure-event-hubs-listener.hpl`, which listens for messages with the `$Default` consumer group.
+Fill in the Event Hubs connection settings before you run it.

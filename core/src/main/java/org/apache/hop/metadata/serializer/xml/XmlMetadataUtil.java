@@ -57,6 +57,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XmlMetadataUtil {
+  private static final String CONST_VALUE = "value";
 
   private static final String FQN_TRANSFORM_FACTORY =
       "org.apache.hop.pipeline.transform.ITransformMeta$TransformFactory";
@@ -592,12 +593,12 @@ public class XmlMetadataUtil {
       // An empty value is legitimate: an attribute written as <value/> reads back as null, and
       // setAttribute(group, key, null) stores one. serializeObjectToXml already renders a null
       // object as an empty tag, so route through it instead of dereferencing valueObject.
-      xml.append(XmlHandler.addTagValue(Const.NVL(valueTag, "value"), (String) null));
+      xml.append(XmlHandler.addTagValue(Const.NVL(valueTag, CONST_VALUE), (String) null));
       return;
     }
     Class<?> valueClass = valueObject.getClass();
     HopMetadataProperty keyProperty = valueClass.getAnnotation(HopMetadataProperty.class);
-    String valueTagKey = Const.NVL(valueTag, "value");
+    String valueTagKey = Const.NVL(valueTag, CONST_VALUE);
     String valueTagGroup = "";
     if (keyProperty != null) {
       valueTagKey = Const.NVL(keyProperty.key(), valueTagKey);
@@ -606,7 +607,7 @@ public class XmlMetadataUtil {
       // This is typically Map<String, Map<String, String>>
       // We don't have any more values to give names to the underlying map so let's pick key/value
       //
-      serializeMapToXml("", valueTagKey, "key", "value", map, xml);
+      serializeMapToXml("", valueTagKey, "key", CONST_VALUE, map, xml);
     } else {
       xml.append(serializeObjectToXml(valueObject, keyProperty, valueTagGroup, valueTagKey));
     }
@@ -1223,7 +1224,7 @@ public class XmlMetadataUtil {
       Class<?> mapValueClass =
           parentProperty != null ? parentProperty.mapValueClass() : String.class;
       String keyWrapper = parentProperty != null ? parentProperty.mapKeyWrapper() : "key";
-      String valueWrapper = parentProperty != null ? parentProperty.mapValueWrapper() : "value";
+      String valueWrapper = parentProperty != null ? parentProperty.mapValueWrapper() : CONST_VALUE;
 
       if (parentProperty == null || StringUtils.isEmpty(parentProperty.storeMapAsList())) {
         return deSerializeMap(
@@ -1536,7 +1537,8 @@ public class XmlMetadataUtil {
       List<Node> valueNodes = XmlHandler.getNodes(itemNode, valueWrapper);
       for (Node valueNode : valueNodes) {
         Object childKey = deSerializeMapKey(metadataProvider, String.class, valueNode, "key");
-        Object childValue = deSerializeMapKey(metadataProvider, String.class, valueNode, "value");
+        Object childValue =
+            deSerializeMapKey(metadataProvider, String.class, valueNode, CONST_VALUE);
         childMap.put(childKey, childValue);
       }
       return childMap;

@@ -33,7 +33,7 @@ public final class HopInstallSpecFiles {
   public static final String FULL_CLIENT_FILENAME = "full-client-env.yaml";
 
   public static final List<String> WELL_KNOWN_NAMES =
-      List.of("hop-env.yaml", "hop-env.yml", "hop-env.json", FULL_CLIENT_FILENAME);
+      List.of(DEFAULT_FILENAME, "hop-env.yml", "hop-env.json", FULL_CLIENT_FILENAME);
 
   /** A VFS scheme: letter, then letters/digits/+/-/. up to a colon. */
   private static final Pattern SCHEME = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*:");

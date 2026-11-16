@@ -35,7 +35,7 @@ public class FieldHelper {
   private static final Class<?> PKG = FieldHelper.class;
 
   private int index = -1;
-  private IValueMeta meta;
+  private final IValueMeta meta;
 
   public FieldHelper(IRowMeta rowMeta, String fieldName) {
     this.meta = rowMeta.searchValueMeta(fieldName);

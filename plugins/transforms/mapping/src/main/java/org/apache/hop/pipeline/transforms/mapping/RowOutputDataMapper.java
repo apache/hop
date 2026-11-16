@@ -28,11 +28,11 @@ import org.apache.hop.pipeline.transform.RowAdapter;
  */
 public class RowOutputDataMapper extends RowAdapter {
 
-  private MappingIODefinition inputDefinition;
-  private MappingIODefinition outputDefinition;
+  private final MappingIODefinition inputDefinition;
+  private final MappingIODefinition outputDefinition;
   private boolean first = true;
   private IRowMeta renamedRowMeta;
-  private IPutRow iPutRow;
+  private final IPutRow iPutRow;
 
   public RowOutputDataMapper(
       MappingIODefinition inputDefinition, MappingIODefinition outputDefinition, IPutRow iPutRow) {

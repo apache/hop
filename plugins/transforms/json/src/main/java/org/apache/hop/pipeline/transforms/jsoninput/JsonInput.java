@@ -65,6 +65,7 @@ import org.apache.hop.pipeline.transforms.jsoninput.reader.RowOutputConverter;
  */
 public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData> {
   private static final Class<?> PKG = JsonInputMeta.class;
+  private static final String CONST_JSON_INPUT_LOG_IS_NOT_A_FILE = "JsonInput.Log.IsNotAFile";
 
   private RowOutputConverter rowOutputConverter;
 
@@ -278,7 +279,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
 
   public boolean onNewFile(FileObject file) throws FileSystemException {
     if (file == null) {
-      String errMsg = BaseMessages.getString(PKG, "JsonInput.Log.IsNotAFile", "null");
+      String errMsg = BaseMessages.getString(PKG, CONST_JSON_INPUT_LOG_IS_NOT_A_FILE, "null");
       logError(errMsg);
       inputError(errMsg);
       return false;
@@ -287,14 +288,15 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "JsonInput.Log.IsNotAFile", file.getName().getFriendlyURI()));
+                  PKG, CONST_JSON_INPUT_LOG_IS_NOT_A_FILE, file.getName().getFriendlyURI()));
         }
         // Skip this missing file; InputsReader will advance to the next one.
         data.skipEmptyFile = true;
         return false;
       }
       String errMsg =
-          BaseMessages.getString(PKG, "JsonInput.Log.IsNotAFile", file.getName().getFriendlyURI());
+          BaseMessages.getString(
+              PKG, CONST_JSON_INPUT_LOG_IS_NOT_A_FILE, file.getName().getFriendlyURI());
       logError(errMsg);
       inputError(errMsg);
       return false;

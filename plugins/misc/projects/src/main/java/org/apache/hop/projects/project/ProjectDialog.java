@@ -575,34 +575,33 @@ public class ProjectDialog extends Dialog {
     fdlParentFolders.top = new FormAttachment(wParentProject, 2 * margin);
     wlParentFolders.setLayoutData(fdlParentFolders);
 
-    ColumnInfo[] columnInfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.Folder"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.CopyOnce"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.CopyOnEnable"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.Overwrite"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.ExclusionWildcard"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columnInfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.Folder"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.CopyOnce"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.CopyOnEnable"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.Overwrite"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES_NO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.ExclusionWildcard"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columnInfo[0].setUsingVariables(true);
     columnInfo[0].setToolTip(
         BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Tooltip.Folder"));
@@ -646,24 +645,23 @@ public class ProjectDialog extends Dialog {
     fdlVariables.top = new FormAttachment(0, 0);
     wlVariables.setLayoutData(fdlVariables);
 
-    ColumnInfo[] columnInfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableValue"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableDescription"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columnInfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableValue"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ProjectDialog.DetailTable.Label.VariableDescription"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columnInfo[0].setUsingVariables(true);
     columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_VARIABLE);
     columnInfo[1].setUsingVariables(true);

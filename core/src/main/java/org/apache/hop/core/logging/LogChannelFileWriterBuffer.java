@@ -24,9 +24,9 @@ import org.apache.hop.core.Const;
 
 public class LogChannelFileWriterBuffer {
 
-  private HopLogLayout layout;
+  private final HopLogLayout layout;
 
-  private String logChannelId;
+  private final String logChannelId;
 
   private final List<HopLoggingEvent> buffer = Collections.synchronizedList(new LinkedList<>());
 

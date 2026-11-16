@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.spark.core.HopSparkUtil;
 import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 import org.apache.hop.spark.core.SparkNativeMetricsListener;
@@ -47,6 +48,7 @@ import org.apache.hop.spark.pipeline.handler.SparkBaseTransformHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkFileOutputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkGenericTransformHandler;
+import org.apache.hop.spark.pipeline.handler.SparkJdbcInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableInputHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMaintenanceHandler;
 import org.apache.hop.spark.pipeline.handler.SparkLakeTableMergeHandler;
@@ -85,7 +87,8 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.SPARK_LAKE_TABLE_OUTPUT_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MERGE_PLUGIN_ID,
           SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID,
-          SparkConst.SPARK_SQL_PLUGIN_ID);
+          SparkConst.SPARK_SQL_PLUGIN_ID,
+          SparkConst.TABLE_INPUT_PLUGIN_ID);
 
   /**
    * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
@@ -188,6 +191,7 @@ public class HopPipelineMetaToSparkConverter {
     transformHandlers.put(
         SparkConst.SPARK_LAKE_TABLE_MAINTENANCE_PLUGIN_ID, new SparkLakeTableMaintenanceHandler());
     transformHandlers.put(SparkConst.SPARK_SQL_PLUGIN_ID, new SparkSqlHandler());
+    transformHandlers.put(SparkConst.TABLE_INPUT_PLUGIN_ID, new SparkJdbcInputHandler());
   }
 
   public void validatePipeline() throws HopException {
@@ -222,12 +226,29 @@ public class HopPipelineMetaToSparkConverter {
 
       for (TransformMeta transformMeta : transforms) {
         String pluginId = transformMeta.getTransformPluginId();
-        ISparkPipelineTransformHandler handler =
-            transformHandlers.getOrDefault(pluginId, genericTransformHandler);
-        boolean nativeHandler = transformHandlers.containsKey(pluginId);
 
         List<TransformMeta> previousTransforms =
             pipelineMeta.findPreviousTransforms(transformMeta, false);
+
+        // Per-transform handler selection: Table Input only runs through its native JDBC handler
+        // when the partitioned read actually applies; any other configuration (parameters in the
+        // SQL, per-row execution, incoming parameter stream, lookup, row limit) keeps the generic
+        // handler so the multi-input union below and driver-side sampling are preserved.
+        ISparkPipelineTransformHandler handler =
+            transformHandlers.getOrDefault(pluginId, genericTransformHandler);
+        if (SparkConst.TABLE_INPUT_PLUGIN_ID.equals(pluginId)
+            && handler instanceof SparkJdbcInputHandler) {
+          TableInputMeta tableInputMeta = new TableInputMeta();
+          HopSparkUtil.loadTransformMetadata(
+              tableInputMeta, transformMeta, metadataProvider, pipelineMeta);
+          if (SparkJdbcInputHandler.isNativePartitionedRead(
+              tableInputMeta, variables, !previousTransforms.isEmpty())) {
+            handler = transformHandlers.get(pluginId);
+          } else {
+            handler = genericTransformHandler;
+          }
+        }
+        boolean nativeHandler = handler != genericTransformHandler;
 
         Dataset<Row> input = null;
         IRowMeta rowMeta;

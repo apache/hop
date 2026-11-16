@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Browser-backed file selection and download support for Hop Web. */
 final class UserFileTransfer {
+  private static final String CONST_HOP_FILE = "hop-file";
 
   interface UploadListener {
     void uploaded(String filename, Path uploadedFile) throws Exception;
@@ -303,7 +304,7 @@ final class UserFileTransfer {
 
   static String safeUploadFilename(String filename) {
     if (filename == null) {
-      return "hop-file";
+      return CONST_HOP_FILE;
     }
     String basename = filename.replace('\\', '/');
     basename = basename.substring(basename.lastIndexOf('/') + 1);
@@ -323,9 +324,9 @@ final class UserFileTransfer {
   }
 
   static String safeHeaderFilename(String filename) {
-    String safe = filename == null ? "hop-file" : filename;
+    String safe = filename == null ? CONST_HOP_FILE : filename;
     safe = safe.replaceAll("[\\x00-\\x1f\\x7f\\\\/\"]", "_");
-    return safe.isBlank() ? "hop-file" : safe;
+    return safe.isBlank() ? CONST_HOP_FILE : safe;
   }
 
   static String contentDisposition(String filename) {

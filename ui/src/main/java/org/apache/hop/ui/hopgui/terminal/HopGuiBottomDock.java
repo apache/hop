@@ -76,6 +76,9 @@ import org.eclipse.swt.widgets.ToolItem;
  */
 @GuiPlugin(name = "Terminal panel", description = "Terminal panel")
 public class HopGuiBottomDock extends Composite implements TabClosable {
+  private static final String CONST_TERMINAL_WIDGET = "terminalWidget";
+  private static final String CONST_VALUE = "value";
+  private static final String CONST_TERMINAL_ID = "terminalId";
 
   private static final Class<?> PKG = HopGuiBottomDock.class;
 
@@ -252,7 +255,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
           }
           lastContentTab = item;
           updateFontToolItems();
-          ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
+          ITerminalWidget widget = (ITerminalWidget) item.getData(CONST_TERMINAL_WIDGET);
           if (widget != null) {
             Composite composite = widget.getTerminalComposite();
             if (composite != null && !composite.isDisposed()) {
@@ -301,7 +304,9 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         event -> {
           CTabItem item = terminalTabs.getSelection();
           // Only terminal tabs can be renamed (not the "+" tab or generic tool tabs).
-          if (item != null && item != newTerminalTab && item.getData("terminalWidget") != null) {
+          if (item != null
+              && item != newTerminalTab
+              && item.getData(CONST_TERMINAL_WIDGET) != null) {
             renameTerminalTab(item);
           }
         });
@@ -351,9 +356,9 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         BaseMessages.getString(
             PKG, "HopGuiTerminalPanel.Tab.Tooltip", shellPath, workingDirectory));
 
-    terminalTab.setData("terminalId", terminalId);
-    terminalTab.setData("workingDirectory", workingDirectory);
-    terminalTab.setData("shellPath", shellPath);
+    terminalTab.setData(CONST_TERMINAL_ID, terminalId);
+    terminalTab.setData(STATE_WORKING_DIR, workingDirectory);
+    terminalTab.setData(STATE_SHELL_PATH, shellPath);
 
     Composite terminalWidgetComposite = new Composite(terminalTabs, SWT.NONE);
     terminalWidgetComposite.setLayout(new FormLayout());
@@ -363,7 +368,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         new JediTerminalWidget(
             terminalWidgetComposite, shellPath, workingDirectory, getTerminalFontSizePercent());
 
-    terminalTab.setData("terminalWidget", terminalWidget);
+    terminalTab.setData(CONST_TERMINAL_WIDGET, terminalWidget);
 
     updateTabTextWithTerminalType(terminalTab, terminalWidget);
 
@@ -382,7 +387,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     if (terminalTab == null || terminalTab.isDisposed()) {
       return;
     }
-    ITerminalWidget terminalWidget = (ITerminalWidget) terminalTab.getData("terminalWidget");
+    ITerminalWidget terminalWidget = (ITerminalWidget) terminalTab.getData(CONST_TERMINAL_WIDGET);
     if (terminalWidget == null) {
       return;
     }
@@ -517,7 +522,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     if (selected == null || selected == newTerminalTab || selected.isDisposed()) {
       return null;
     }
-    if (selected.getData("terminalWidget") != null) {
+    if (selected.getData(CONST_TERMINAL_WIDGET) != null) {
       return TOOL_ID_TERMINAL;
     }
     Object toolId = selected.getData(DATA_TOOL_ID);
@@ -565,7 +570,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       return null;
     }
     for (CTabItem item : terminalTabs.getItems()) {
-      if (item != newTerminalTab && item.getData("terminalWidget") != null) {
+      if (item != newTerminalTab && item.getData(CONST_TERMINAL_WIDGET) != null) {
         last = item;
       }
     }
@@ -596,7 +601,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
   private int countTerminalTabs() {
     int count = 0;
     for (CTabItem item : terminalTabs.getItems()) {
-      if (item != newTerminalTab && item.getData("terminalWidget") != null) {
+      if (item != newTerminalTab && item.getData(CONST_TERMINAL_WIDGET) != null) {
         count++;
       }
     }
@@ -755,12 +760,12 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       return;
     }
 
-    ITerminalWidget widget = (ITerminalWidget) tabItem.getData("terminalWidget");
+    ITerminalWidget widget = (ITerminalWidget) tabItem.getData(CONST_TERMINAL_WIDGET);
     if (widget != null) {
       widget.dispose();
     }
 
-    String terminalId = (String) tabItem.getData("terminalId");
+    String terminalId = (String) tabItem.getData(CONST_TERMINAL_ID);
     if (terminalId != null) {
       unregisterTerminal(terminalId);
     }
@@ -898,7 +903,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         terminalsEnabled
             && selected != null
             && !selected.isDisposed()
-            && selected.getData("terminalWidget") != null;
+            && selected.getData(CONST_TERMINAL_WIDGET) != null;
     boolean shown = increaseFontItem != null && !increaseFontItem.isDisposed();
     if (terminal == shown) {
       return;
@@ -1079,7 +1084,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
   private void disposeTerminalTabs() {
     java.util.List<CTabItem> itemsToClose = new java.util.ArrayList<>();
     for (CTabItem item : terminalTabs.getItems()) {
-      if (!item.isDisposed() && item.getData("terminalWidget") != null) {
+      if (!item.isDisposed() && item.getData(CONST_TERMINAL_WIDGET) != null) {
         itemsToClose.add(item);
       }
     }
@@ -1093,7 +1098,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     if (item == null || item.isDisposed()) {
       return;
     }
-    ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
+    ITerminalWidget widget = (ITerminalWidget) item.getData(CONST_TERMINAL_WIDGET);
     if (widget != null) {
       widget.dispose();
     }
@@ -1147,7 +1152,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       if (item == newTerminalTab) {
         continue;
       }
-      ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
+      ITerminalWidget widget = (ITerminalWidget) item.getData(CONST_TERMINAL_WIDGET);
       if (widget != null) {
         widget.setFontScalePercent(terminalFontSizePercent);
       }
@@ -1220,14 +1225,14 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
         if (item == newTerminalTab) {
           continue;
         }
-        String terminalId = (String) item.getData("terminalId");
+        String terminalId = (String) item.getData(CONST_TERMINAL_ID);
         if (terminalId != null) {
           terminalIds.add(terminalId);
 
           java.util.Map<String, Object> state = new java.util.HashMap<>();
           state.put(STATE_TAB_NAME, item.getText());
-          state.put(STATE_WORKING_DIR, item.getData("workingDirectory"));
-          state.put(STATE_SHELL_PATH, item.getData("shellPath"));
+          state.put(STATE_WORKING_DIR, item.getData(STATE_WORKING_DIR));
+          state.put(STATE_SHELL_PATH, item.getData(STATE_SHELL_PATH));
 
           stateMap.add(new AuditState(terminalId, state));
         }
@@ -1242,7 +1247,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       stateMap.add(
           new AuditState(
               STATE_TERMINAL_FONT_SIZE_PERCENT_KEY,
-              java.util.Map.of("value", Integer.valueOf(terminalFontSizePercent))));
+              java.util.Map.of(CONST_VALUE, Integer.valueOf(terminalFontSizePercent))));
 
       // Persist the dock height. When visible, read the live sash ratio so a user-dragged divider
       // is captured (there is no drag listener updating terminalHeightPercent); otherwise keep the
@@ -1250,7 +1255,7 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       stateMap.add(
           new AuditState(
               STATE_TERMINAL_HEIGHT_PERCENT_KEY,
-              java.util.Map.of("value", Integer.valueOf(getCurrentTerminalHeightPercent()))));
+              java.util.Map.of(CONST_VALUE, Integer.valueOf(getCurrentTerminalHeightPercent()))));
 
       AuditList auditList = new AuditList(terminalIds);
       AuditManager.getActive()
@@ -1357,8 +1362,8 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       AuditState fontSizeState = stateMap.get(STATE_TERMINAL_FONT_SIZE_PERCENT_KEY);
       if (fontSizeState != null
           && fontSizeState.getStateMap() != null
-          && fontSizeState.getStateMap().get("value") != null) {
-        int saved = Const.toInt(fontSizeState.getStateMap().get("value").toString(), 100);
+          && fontSizeState.getStateMap().get(CONST_VALUE) != null) {
+        int saved = Const.toInt(fontSizeState.getStateMap().get(CONST_VALUE).toString(), 100);
         terminalFontSizePercent = Math.clamp(saved, 50, 200);
       }
 
@@ -1366,8 +1371,8 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
       AuditState heightState = stateMap.get(STATE_TERMINAL_HEIGHT_PERCENT_KEY);
       if (heightState != null
           && heightState.getStateMap() != null
-          && heightState.getStateMap().get("value") != null) {
-        int saved = Const.toInt(heightState.getStateMap().get("value").toString(), 35);
+          && heightState.getStateMap().get(CONST_VALUE) != null) {
+        int saved = Const.toInt(heightState.getStateMap().get(CONST_VALUE).toString(), 35);
         terminalHeightPercent = Math.clamp(saved, 5, 95);
       }
 

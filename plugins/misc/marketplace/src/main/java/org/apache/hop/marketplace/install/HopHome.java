@@ -35,6 +35,7 @@ import org.apache.hop.core.exception.HopException;
  * {@code plugins/} folder Hop already scans.
  */
 public final class HopHome {
+  private static final String CONST_PLUGINS = "plugins";
 
   private static final String HOP_CONFIG_FOLDER = "HOP_CONFIG_FOLDER";
   private static final String HOP_PLUGIN_BASE_FOLDERS = "HOP_PLUGIN_BASE_FOLDERS";
@@ -109,7 +110,7 @@ public final class HopHome {
   }
 
   private static boolean isWritablePluginsHome(Path home) {
-    Path plugins = home.resolve("plugins");
+    Path plugins = home.resolve(CONST_PLUGINS);
     return Files.isDirectory(plugins) && Files.isWritable(plugins);
   }
 
@@ -118,7 +119,7 @@ public final class HopHome {
       return;
     }
     for (String folder : configured.split(",")) {
-      addConfiguredParent(paths, folder, "plugins");
+      addConfiguredParent(paths, folder, CONST_PLUGINS);
     }
   }
 
@@ -138,6 +139,8 @@ public final class HopHome {
 
   /** True if path is a directory that looks like a Hop install (has {@code plugins/}). */
   static boolean isHopHome(Path path) {
-    return path != null && Files.isDirectory(path) && Files.isDirectory(path.resolve("plugins"));
+    return path != null
+        && Files.isDirectory(path)
+        && Files.isDirectory(path.resolve(CONST_PLUGINS));
   }
 }

@@ -52,9 +52,9 @@ public class HopDescribedVariablesDialog extends Dialog {
 
   private Shell shell;
   private final PropsUi props;
-  private String message;
+  private final String message;
   private List<DescribedVariable> describedVariables;
-  private String selectedVariable;
+  private final String selectedVariable;
 
   /**
    * When true, the dialog edits the configuration file's own description as well as its variables.

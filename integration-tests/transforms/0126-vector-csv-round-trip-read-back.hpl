@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <pipeline_version/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>0126-vector-csv-round-trip-read-back</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Issue #9286: reads the comma-separated file written by 0126-vector-csv-round-trip with CSV File Input, field type Vector, then converts each vector back to its canonical text so the unit test can compare it with the data set.</description>
+    <extended_description/>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/11/14 11:30:00.000</created_date>
+    <modified_date>2026/11/14 11:30:00.000</modified_date>
+  </info>
+  <transform>
+    <type>CSVInput</type>
+    <name>Read vectors</name>
+    <filename>${java.io.tmpdir}/0126/vector-csv-round-trip.csv</filename>
+    <filename_field/>
+    <include_filename>N</include_filename>
+    <rownum_field/>
+    <header>Y</header>
+    <separator>,</separator>
+    <enclosure>"</enclosure>
+    <buffer_size>50000</buffer_size>
+    <lazy_conversion>N</lazy_conversion>
+    <add_filename_result>N</add_filename_result>
+    <parallel>N</parallel>
+    <encoding>UTF-8</encoding>
+    <newline_possible>N</newline_possible>
+    <schemaDefinition/>
+    <ignoreFields>N</ignoreFields>
+    <namingScheme/>
+    <fields>
+      <field>
+        <name>id</name>
+        <length>-1</length>
+        <type>String</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>embedding</name>
+        <length>-1</length>
+        <type>Vector</type>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <description/>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>SelectValues</type>
+    <name>Back to text</name>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>embedding</name>
+        <rename>embedding</rename>
+        <type>String</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <storage_type/>
+        <conversion_mask/>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>N</lenient_string_to_number>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <encoding/>
+      </meta>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <description/>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <transform>
+    <type>Dummy</type>
+    <name>OUTPUT</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>576</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <description/>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+  </transform>
+  <order>
+    <hop>
+      <from>Read vectors</from>
+      <to>Back to text</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Back to text</from>
+      <to>OUTPUT</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

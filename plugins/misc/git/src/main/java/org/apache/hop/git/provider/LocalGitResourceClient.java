@@ -136,7 +136,7 @@ public final class LocalGitResourceClient {
                     : bareName;
           }
           String remoteUrl = repo.getConfig().getString("remote", "origin", "url");
-          String owner = "local";
+          String owner = PROVIDER;
           if (remoteUrl != null && !remoteUrl.isBlank()) {
             Matcher matcher = REMOTE_OWNER_REPO.matcher(remoteUrl.trim());
             if (matcher.find()) {

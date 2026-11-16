@@ -52,3 +52,7 @@ See xref:concepts.adoc#data-types[Data types].
 
 IMPORTANT: *Value* is a *single* constant per field.
 *Group* is the thousands separator, not a row group.
+
+== Samples
+
+The samples project has `transforms/add-constants.hpl`, which adds a constant of each data type (BigNumber, Boolean, Date, Integer, Number, String and Timestamp) to a generated row.

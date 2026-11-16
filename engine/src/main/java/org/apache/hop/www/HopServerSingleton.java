@@ -49,7 +49,7 @@ public class HopServerSingleton {
   private static HopServerSingleton hopServerSingleton;
   private static org.apache.hop.www.HopServer hopServer;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;

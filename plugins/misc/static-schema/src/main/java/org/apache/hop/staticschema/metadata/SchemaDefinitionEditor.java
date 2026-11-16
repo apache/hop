@@ -155,62 +155,61 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
     fdlFields.right = new FormAttachment(100, 0);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldFormat"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldLength"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldPrecision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldCurrency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldDecimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldGroup"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldIfNull"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldTrimType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.trimTypeDesc,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldComment"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.RoundingType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaString.roundingTypeDesc,
-              true),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldFormat"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldLength"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldPrecision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldCurrency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldDecimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldGroup"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldIfNull"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldTrimType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaString.trimTypeDesc,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldComment"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.RoundingType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaString.roundingTypeDesc,
+          true),
+    };
     columnInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =

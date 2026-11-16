@@ -43,17 +43,15 @@ import org.eclipse.swt.widgets.Shell;
 public class XsdValidatorDialog extends ActionDialog {
   private static final Class<?> PKG = XsdValidator.class;
 
-  private static final String[] FILETYPES_XML =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xml"),
-        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
-      };
+  private static final String[] FILETYPES_XML = {
+    BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xml"),
+    BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
+  };
 
-  private static final String[] FILETYPES_XSD =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xsd"),
-        BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
-      };
+  private static final String[] FILETYPES_XSD = {
+    BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xsd"),
+    BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
+  };
 
   private Button wAllowExternalEntities;
 

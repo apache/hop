@@ -202,63 +202,62 @@ public class FieldSplitterDialog extends BaseTransformDialog {
 
     final int fieldsRows = input.getFields().size();
 
-    final ColumnInfo[] fieldColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.NewField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.ID"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.RemoveID"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              "Y",
-              "N"),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              4),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Nullif"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.IfNull"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.TrimType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc,
-              true),
-        };
+    final ColumnInfo[] fieldColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.NewField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.ID"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.RemoveID"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          "Y",
+          "N"),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          4),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Group"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Decimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.Nullif"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.IfNull"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FieldSplitterDialog.ColumnInfo.TrimType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.trimTypeDesc,
+          true),
+    };
     wFields =
         new TableView(
             variables,

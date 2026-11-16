@@ -26,10 +26,10 @@ public class NumberRangeSet {
   public static final String MULTI_VALUE_SEPARATOR = ",";
 
   /** List of all rules that have to be considered */
-  private List<NumberRangeRule> rules;
+  private final List<NumberRangeRule> rules;
 
   /** Value that is returned if no rule matches */
-  private String fallBackValue;
+  private final String fallBackValue;
 
   public NumberRangeSet(List<NumberRangeRule> rules, String fallBackValue) {
     this.rules = rules;

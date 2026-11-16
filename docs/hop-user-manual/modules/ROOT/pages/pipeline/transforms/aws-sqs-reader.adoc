@@ -69,3 +69,8 @@ On the Output Definition Tab you can define the output fields for the informatio
 |MD5 Hash|MD5 hash of the message body
 |Message Node from SNS|if the message was sent from SNS this field will contain the content of the JSON node "Message" within the Message body.
 |===
+
+== Samples
+
+The samples project has `transforms/aws-sqs-reader.hpl`, which reads messages from the `sample-queue` queue in `eu-west-1`.
+It needs AWS credentials and an existing queue.

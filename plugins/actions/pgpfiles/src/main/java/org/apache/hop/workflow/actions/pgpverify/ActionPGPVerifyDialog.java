@@ -42,10 +42,11 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionPGPVerifyDialog extends ActionDialog {
   private static final Class<?> PKG = ActionPGPVerify.class;
 
-  private static final String[] EXTENSIONS = new String[] {"*"};
+  private static final String[] EXTENSIONS = {"*"};
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionPGPVerify.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionPGPVerify.Filetype.All")
+  };
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private TextVar wGPGLocation;

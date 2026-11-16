@@ -122,3 +122,7 @@ You want to turn the raw data into the database layout below.
 |2|8|8|<SHAPE type="rectangle"><COLOUR>blue</COLOUR><WIDTH> 4</WIDTH><LENGTH>6</LENGTH></SHAPE>
 |5|5|2|<SHAPE type="circle"><COLOUR>blue</COLOUR><RADIUS> 5</RADIUS></SHAPE>
 |===
+
+== Samples
+
+The samples project has `transforms/add-xml-basic.hpl`, which turns each Data grid row into a `row` XML element in the new field `xmlvaluename`, with `group` as an attribute and the other three fields as child elements.

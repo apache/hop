@@ -53,7 +53,7 @@ public class AzureWriterDialog extends BaseTransformDialog {
   private TextVar wBatchSize;
   private ComboVar wMessageField;
 
-  private AzureWriterMeta input;
+  private final AzureWriterMeta input;
 
   public AzureWriterDialog(
       Shell parent,

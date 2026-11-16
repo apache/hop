@@ -44,4 +44,7 @@ The Zip File transform creates a standard ZIP archive using the options you spec
 *Move source file: Moves the source file to the location specified in the Move to folder fieldname box.
 *Delete source file: Deletes the source file from the folder.
 |Move to folder fieldname|Define the field that contains the target folder to move the source file to after zipping.
+|Compression level|How hard to compress the files: 1 - Fastest, 2 - Very fast, 3 - Fast, 4 - Balanced, faster, 5 - Balanced, 6 - Standard (the Java default), 7 - Smaller files, 8 - Very small files, 9 - Smallest files.
+A lower level zips faster and gives a somewhat larger archive.
+A new transform uses 6 - Standard. A transform saved before this option existed keeps 9 - Smallest files, the level it always used.
 |===

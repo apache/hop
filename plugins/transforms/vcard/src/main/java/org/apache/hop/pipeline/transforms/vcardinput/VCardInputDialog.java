@@ -51,6 +51,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 public class VCardInputDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final String CONST_V_CARD_INPUT_DIALOG_GET_FIELDS_DIALOG_TITLE =
+      "VCardInputDialog.GetFields.DialogTitle";
 
   private static final Class<?> PKG = VCardInputDialog.class;
   private final VCardInputMeta input;
@@ -157,7 +159,7 @@ public class VCardInputDialog extends BaseTransformDialog implements ITransformD
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       mb.setMessage(
           BaseMessages.getString(PKG, "VCardInputDialog.GetFields.AcceptFilenames.Message"));
-      mb.setText(BaseMessages.getString(PKG, "VCardInputDialog.GetFields.DialogTitle"));
+      mb.setText(BaseMessages.getString(PKG, CONST_V_CARD_INPUT_DIALOG_GET_FIELDS_DIALOG_TITLE));
       mb.open();
       return;
     }
@@ -166,7 +168,7 @@ public class VCardInputDialog extends BaseTransformDialog implements ITransformD
       if (files.nrOfFiles() == 0) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(BaseMessages.getString(PKG, "VCardInputDialog.GetFields.NoFiles"));
-        mb.setText(BaseMessages.getString(PKG, "VCardInputDialog.GetFields.DialogTitle"));
+        mb.setText(BaseMessages.getString(PKG, CONST_V_CARD_INPUT_DIALOG_GET_FIELDS_DIALOG_TITLE));
         mb.open();
         return;
       }
@@ -175,7 +177,7 @@ public class VCardInputDialog extends BaseTransformDialog implements ITransformD
       if (mappings.isEmpty()) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "VCardInputDialog.GetFields.NoProperties"));
-        mb.setText(BaseMessages.getString(PKG, "VCardInputDialog.GetFields.DialogTitle"));
+        mb.setText(BaseMessages.getString(PKG, CONST_V_CARD_INPUT_DIALOG_GET_FIELDS_DIALOG_TITLE));
         mb.open();
         return;
       }
@@ -188,7 +190,7 @@ public class VCardInputDialog extends BaseTransformDialog implements ITransformD
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "VCardInputDialog.GetFields.DialogTitle"),
+          BaseMessages.getString(PKG, CONST_V_CARD_INPUT_DIALOG_GET_FIELDS_DIALOG_TITLE),
           BaseMessages.getString(PKG, "VCardInputDialog.GetFields.Failed", e.getMessage()),
           e);
     }

@@ -113,7 +113,7 @@ public class LdapInputDialog extends BaseTransformDialog {
   private CCombo wFilterField;
   private CCombo wSearchScope;
 
-  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  public static final int[] dateLengths = {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
   private ColumnInfo[] colinf;
   private boolean gotPreviousFields = false;
 

@@ -63,8 +63,8 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     HASHCODE("HASHCODE", BaseMessages.getString(PKG, "CheckSumMeta.Type.HASHCODE")),
     ;
 
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     CheckSumType(String code, String description) {
       this.code = code;
@@ -124,8 +124,8 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     BINARY("binary", BaseMessages.getString(PKG, "CheckSumMeta.ResultType.Binary")),
     ;
 
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     ResultType(String code, String description) {
       this.code = code;

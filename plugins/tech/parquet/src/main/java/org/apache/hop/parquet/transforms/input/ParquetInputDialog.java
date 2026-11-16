@@ -133,37 +133,36 @@ public class ParquetInputDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(lastControl, 2 * margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.SourceField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              new String[0]),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetField.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetType.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetFormat.Label"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetLength.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              true,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetPrecision.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              true,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.SourceField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          new String[0]),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetField.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetType.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetFormat.Label"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          3),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetLength.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          true,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ParquetInputDialog.FieldsColumn.TargetPrecision.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          true,
+          false),
+    };
     columns[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     wFields =
         new TableView(

@@ -79,3 +79,8 @@ This tab is available when the result type is *Row*. The listed columns are appe
 |Length|Field length. Empty means unspecified.
 |Precision|Field precision. Empty means unspecified.
 |===
+
+== Samples
+
+The samples project has `transforms/call-db-procedure.hpl`, which calls H2's built-in `LENGTH` function for two rows through the `hop-samples` connection.
+To call a stored procedure of your own, change the connection and the procedure name.

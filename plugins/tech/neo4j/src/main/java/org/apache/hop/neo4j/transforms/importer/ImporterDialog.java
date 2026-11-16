@@ -71,7 +71,7 @@ public class ImporterDialog extends BaseTransformDialog {
 
   private CCombo wNeo4jVersion;
 
-  private ImporterMeta input;
+  private final ImporterMeta input;
 
   public ImporterDialog(
       Shell parent, IVariables variables, ImporterMeta inputMetadata, PipelineMeta pipelineMeta) {
@@ -113,7 +113,7 @@ public class ImporterDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
-    String[] fieldnames = new String[] {};
+    String[] fieldnames = {};
     try {
       fieldnames = pipelineMeta.getPrevTransformFields(variables, transformMeta).getFieldNames();
     } catch (HopTransformException e) {

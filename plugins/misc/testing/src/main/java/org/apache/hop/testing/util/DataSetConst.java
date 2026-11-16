@@ -106,12 +106,11 @@ public class DataSetConst {
    */
   public static final double NUMERIC_COMPARE_EPSILON = 0.000001d;
 
-  private static final String[] tweakDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.BYPASS_TRANSFORM.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.REMOVE_TRANSFORM.Desc"),
-      };
+  private static final String[] tweakDesc = {
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.BYPASS_TRANSFORM.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.REMOVE_TRANSFORM.Desc"),
+  };
 
   /**
    * Legacy stored codes. Dialogs show the translated label and write this code back. Any other type
@@ -121,11 +120,10 @@ public class DataSetConst {
 
   public static final String TEST_TYPE_UNIT_TEST = "UNIT_TEST";
 
-  private static final String[] testTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "DataSetConst.TestType.DEVELOPMENT.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.TestType.UNIT_TEST.Desc"),
-      };
+  private static final String[] testTypeDesc = {
+    BaseMessages.getString(PKG, "DataSetConst.TestType.DEVELOPMENT.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.TestType.UNIT_TEST.Desc"),
+  };
 
   /**
    * Validate the execution results of a pipeline against the golden data sets of a unit test.

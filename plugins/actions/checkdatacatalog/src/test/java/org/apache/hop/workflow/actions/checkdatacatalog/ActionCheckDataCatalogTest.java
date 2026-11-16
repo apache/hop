@@ -38,6 +38,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.datacatalog.CatalogAnswer;
 import org.apache.hop.datacatalog.CatalogAnswer.Reason;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DataCatalog;
 import org.apache.hop.datacatalog.DatasetRef;

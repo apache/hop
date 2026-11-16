@@ -262,13 +262,12 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdlKeys.top = new FormAttachment(0, 0);
     wlKeys.setLayoutData(fdlKeys);
 
-    ColumnInfo[] ciKeys =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeRowsDialog.ColumnInfo.KeyField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] ciKeys = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeRowsDialog.ColumnInfo.KeyField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wKeys =
         new TableView(
@@ -324,13 +323,12 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdlValues.top = new FormAttachment(wDiffField, margin);
     wlValues.setLayoutData(fdlValues);
 
-    ColumnInfo[] ciValues =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeRowsDialog.ColumnInfo.ValueField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] ciValues = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeRowsDialog.ColumnInfo.ValueField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wValues =
         new TableView(
@@ -387,22 +385,21 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdlExtra.top = new FormAttachment(wDiffField, margin);
     wlExtra.setLayoutData(fdlExtra);
 
-    ColumnInfo[] ciExtra =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Reference.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES,
-              NO),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Field.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.RenameTo.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] ciExtra = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Reference.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          YES,
+          NO),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Field.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.RenameTo.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wExtra =
         new TableView(

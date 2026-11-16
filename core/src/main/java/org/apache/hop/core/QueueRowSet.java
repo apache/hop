@@ -27,7 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
  */
 public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
-  private LinkedList<Object[]> buffer;
+  private final LinkedList<Object[]> buffer;
 
   public QueueRowSet() {
     buffer = new LinkedList<>();

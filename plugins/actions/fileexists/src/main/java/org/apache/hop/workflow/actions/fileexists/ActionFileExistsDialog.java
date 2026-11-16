@@ -43,14 +43,13 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionFileExistsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFileExists.class;
 
-  private static final String[] EXTENSIONS = new String[] {"*.txt", "*.csv", "*"};
+  private static final String[] EXTENSIONS = {"*.txt", "*.csv", "*"};
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionFileExists.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionFileExists.Filetype.CSV"),
-        BaseMessages.getString(PKG, "ActionFileExists.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionFileExists.Filetype.Text"),
+    BaseMessages.getString(PKG, "ActionFileExists.Filetype.CSV"),
+    BaseMessages.getString(PKG, "ActionFileExists.Filetype.All")
+  };
 
   private TextVar wFilename;
 

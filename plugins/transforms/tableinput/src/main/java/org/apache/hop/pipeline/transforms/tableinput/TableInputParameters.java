@@ -41,7 +41,7 @@ final class TableInputParameters {
 
   static RowMetaAndData concatenate(IRowMeta rowMeta, Object[]... rows) {
     IRowMeta meta = new RowMeta();
-    Object[] data = new Object[] {};
+    Object[] data = {};
     if (rows != null) {
       for (Object[] row : rows) {
         data = append(meta, data, rowMeta, row);

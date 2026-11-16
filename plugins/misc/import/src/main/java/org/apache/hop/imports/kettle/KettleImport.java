@@ -82,6 +82,12 @@ import org.w3c.dom.NodeList;
     documentationUrl = "/hop-vs-kettle/import-kettle-projects.html")
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
+  private static final String CONST_RUN_CONFIGURATION = "run_configuration";
+  private static final String CONST_TRANS_NAME = "trans_name";
+  private static final String CONST_FILENAME = "filename";
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_USERNAME = "username";
+  private static final String CONST_CONNECTION = "connection";
   public static final String CONST_SERVERNAME = "servername";
   public static final String CONST_PASSWORD = "password";
   private static final String SFTP_PUT_TYPE = "SFTPPut";
@@ -104,7 +110,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       List.of(
           CONST_SERVERNAME,
           "serverport",
-          "username",
+          CONST_USERNAME,
           CONST_PASSWORD,
           "usekeyfilename",
           "keyfilename",
@@ -229,7 +235,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       //
       Node targetNode = XmlHandler.getSubNode(documentElement, "info");
       if (targetNode != null) {
-        targetNode.insertBefore(nameSync, XmlHandler.getSubNode(targetNode, "description"));
+        targetNode.insertBefore(nameSync, XmlHandler.getSubNode(targetNode, CONST_DESCRIPTION));
         addCreatedHopVersion(doc, targetNode);
       }
     } else if (extension.equalsIgnoreCase("kjb")) {
@@ -238,7 +244,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
       // Add the name-sync node in /workflow/
       //
-      documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
+      documentElement.insertBefore(
+          nameSync, XmlHandler.getSubNode(documentElement, CONST_DESCRIPTION));
       addCreatedHopVersion(doc, documentElement);
     }
 
@@ -478,7 +485,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    NodeList connectionList = doc.getElementsByTagName("connection");
+    NodeList connectionList = doc.getElementsByTagName(CONST_CONNECTION);
     for (int i = 0; i < connectionList.getLength(); i++) {
       if (connectionList.item(i).getParentNode().equals(doc.getDocumentElement())) {
         Element connElement = (Element) connectionList.item(i);
@@ -512,11 +519,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
           if (connElement.getElementsByTagName("port").getLength() > 0) {
             databaseMeta.getIDatabase().setPort(getTextContent(connElement, "port", 0));
           }
-          if (connElement.getElementsByTagName("username").getLength() > 0) {
-            databaseMeta.getIDatabase().setUsername(getTextContent(connElement, "username", 0));
+          if (connElement.getElementsByTagName(CONST_USERNAME).getLength() > 0) {
+            databaseMeta.getIDatabase().setUsername(getTextContent(connElement, CONST_USERNAME, 0));
           }
-          if (connElement.getElementsByTagName("password").getLength() > 0) {
-            databaseMeta.getIDatabase().setPassword(getTextContent(connElement, "password", 0));
+          if (connElement.getElementsByTagName(CONST_PASSWORD).getLength() > 0) {
+            databaseMeta.getIDatabase().setPassword(getTextContent(connElement, CONST_PASSWORD, 0));
           }
           if (connElement.getElementsByTagName(CONST_SERVERNAME).getLength() > 0
               && !Utils.isEmpty(getTextContent(connElement, CONST_SERVERNAME, 0))) {
@@ -648,7 +655,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       renameNode(doc, addFilenameElement, "addFilenameToResult");
     }
 
-    setChildElement(doc, stepNode, "connection", connectionName);
+    setChildElement(doc, stepNode, CONST_CONNECTION, connectionName);
   }
 
   /**
@@ -696,7 +703,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
           "Imported from the Kettle SFTPPut step \"" + transformName + "\"");
       setSftpProperty(connection, "setServerName", settings.get(CONST_SERVERNAME));
       setSftpProperty(connection, "setServerPort", Const.NVL(settings.get("serverport"), "22"));
-      setSftpProperty(connection, "setUsername", settings.get("username"));
+      setSftpProperty(connection, "setUsername", settings.get(CONST_USERNAME));
       setSftpProperty(
           connection,
           "setPassword",
@@ -743,7 +750,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private String uniqueSftpConnectionName(String serverName, String transformName) {
     String base = StringUtils.isEmpty(serverName) ? transformName : serverName;
     String cleaned = base.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
-    String name = "sftp-" + (StringUtils.isEmpty(cleaned) ? "connection" : cleaned);
+    String name = "sftp-" + (StringUtils.isEmpty(cleaned) ? CONST_CONNECTION : cleaned);
     String uniqueName = name;
     int copy = 2;
     while (sftpConnectionNames.containsValue(uniqueName)) {
@@ -797,7 +804,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
     //
     Element createdHopVersion = doc.createElement("created_hop_version");
     createdHopVersion.appendChild(doc.createTextNode(Const.NVL(Const.getHopVersion(), "")));
-    parent.insertBefore(createdHopVersion, XmlHandler.getSubNode(parent, "description"));
+    parent.insertBefore(createdHopVersion, XmlHandler.getSubNode(parent, CONST_DESCRIPTION));
   }
 
   private void setChildElement(Document doc, Node parent, String name, String value) {
@@ -828,11 +835,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
     if (entryType != EntryType.JOB && entryType != EntryType.TRANS) {
       return;
     }
-    if (StringUtils.isNotBlank(getChildText(entryNode, "run_configuration"))) {
+    if (StringUtils.isNotBlank(getChildText(entryNode, CONST_RUN_CONFIGURATION))) {
       return;
     }
     // Reuses the element when the source wrote an empty one, so this never adds a second.
-    setChildElement(doc, entryNode, "run_configuration", defaultActionRunConfiguration(entryType));
+    setChildElement(
+        doc, entryNode, CONST_RUN_CONFIGURATION, defaultActionRunConfiguration(entryType));
   }
 
   /**
@@ -881,7 +889,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
           Node childNode = node.getChildNodes().item(j);
           if ((childNode.getNodeName().equals("jobname")
                   || childNode.getNodeName().equals("transname")
-                  || childNode.getNodeName().equals("trans_name"))
+                  || childNode.getNodeName().equals(CONST_TRANS_NAME))
               && !StringUtil.isEmpty(childNode.getTextContent())) {
             nodeToProcess = processRepositoryNode(node);
           }
@@ -1051,7 +1059,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
 
         if ((entryType == EntryType.JOB || entryType == EntryType.TRANS)
-            && currentNode.getNodeName().equals("run_configuration")) {
+            && currentNode.getNodeName().equals(CONST_RUN_CONFIGURATION)) {
           String defaultRunConfiguration =
               entryType == EntryType.JOB
                   ? defaultWorkflowRunConfiguration
@@ -1108,7 +1116,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
           setChildElement(
               doc,
               currentNode,
-              entryType == EntryType.METAINJECT ? "run_configuration" : "runConfiguration",
+              entryType == EntryType.METAINJECT ? CONST_RUN_CONFIGURATION : "runConfiguration",
               defaultPipelineRunConfiguration);
         }
       }
@@ -1227,14 +1235,16 @@ public class KettleImport extends HopImportBase implements IHopImport {
    */
   private void migrateTransformationReference(Document doc, Node transformNode) {
     String specificationMethod = getChildText(transformNode, "specification_method");
-    String transName = getChildText(transformNode, "trans_name");
+    String transName = getChildText(transformNode, CONST_TRANS_NAME);
     String directoryPath = getChildText(transformNode, "directory_path");
     for (String name :
-        new String[] {"specification_method", "trans_object_id", "trans_name", "directory_path"}) {
+        new String[] {
+          "specification_method", "trans_object_id", CONST_TRANS_NAME, "directory_path"
+        }) {
       removeChildElement(transformNode, name);
     }
 
-    Element filenameElement = getChildElement(transformNode, "filename");
+    Element filenameElement = getChildElement(transformNode, CONST_FILENAME);
     String filename = filenameElement == null ? "" : filenameElement.getTextContent();
 
     // Kettle keeps the repository name when you switch a step to a filename, so a filename wins
@@ -1247,7 +1257,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
     String folder = directoryPath == null ? "" : StringUtils.strip(directoryPath, "/");
     if (filenameElement == null) {
-      filenameElement = doc.createElement("filename");
+      filenameElement = doc.createElement(CONST_FILENAME);
       transformNode.appendChild(filenameElement);
     }
     filenameElement.setTextContent(
@@ -1284,13 +1294,13 @@ public class KettleImport extends HopImportBase implements IHopImport {
           type = ".hpl";
         }
       }
-      if (childNode.getNodeName().equals("filename")) {
+      if (childNode.getNodeName().equals(CONST_FILENAME)) {
         filename = childNode.getTextContent().replaceAll(".ktr", "").replaceAll(".kjb", "");
         childNode.setTextContent(filename + type);
         filenameNode = childNode;
       }
 
-      if (childNode.getNodeName().equals("run_configuration")) {
+      if (childNode.getNodeName().equals(CONST_RUN_CONFIGURATION)) {
         childNode.setTextContent(DEFAULT_RUN_CONFIGURATION);
       }
       if (childNode.getNodeName().equals("jobname")

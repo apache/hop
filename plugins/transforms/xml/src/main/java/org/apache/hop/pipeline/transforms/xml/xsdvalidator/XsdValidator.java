@@ -127,51 +127,34 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         xsdfilename = getInputRowMeta().getString(row, data.xsdindex);
       }
 
-      // Get XSD file
+      // A compiled schema is kept per copy, by XSD file name. Only resolve the file when the
+      // schema still has to be compiled.
+      Schema cachedSchema = getCachedSchema(xsdfilename);
       FileObject xsdfile =
-          StringUtils.isNotEmpty(xsdfilename) ? HopVfs.getFileObject(xsdfilename, variables) : null;
+          cachedSchema == null && StringUtils.isNotEmpty(xsdfilename)
+              ? HopVfs.getFileObject(xsdfilename, variables)
+              : null;
 
       try {
-
-        // The factory resolves the schema document itself, so it needs the same external-access
-        // restrictions as the validator it produces. Honour the transform's own opt-in so a
-        // pipeline that deliberately relies on remote schemas keeps working.
-        SchemaFactory factoryXSDValidator =
-            meta.isAllowExternalEntities()
-                ? SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-                : XmlParserFactoryProducer.createSecureSchemaFactory(
-                    XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         // Get XML stream
         Source sourceXML = getSourceXML(getInputRowMeta().getString(row, data.xmlindex));
 
-        // create the schema
+        // The compiled schema: from the cache, or compiled now and kept
         Schema schematXSD =
-            xsdfile != null
-                ? getXsdSchemaFromFile(xsdfile, factoryXSDValidator)
-                : getXsdSchema(xsdfilename, factoryXSDValidator);
+            cachedSchema != null ? cachedSchema : compileSchema(xsdfilename, xsdfile);
 
-        // Create XSDValidator
-        Validator xsdValidator = schematXSD.newValidator();
-
-        // Prevent against XML Entity Expansion (XEE) attacks.
-        // https://www.owasp.org/index.php/XML_Security_Cheat_Sheet#XML_Entity_Expansion
-        if (!meta.isAllowExternalEntities()) {
-          xsdValidator.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-          xsdValidator.setFeature("http://xml.org/sax/features/external-general-entities", false);
-          xsdValidator.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-          xsdValidator.setProperty(
-              "http://apache.org/xml/properties/internal/entity-resolver",
-              (XMLEntityResolver)
-                  xmlResourceIdentifier -> {
-                    String message =
-                        BaseMessages.getString(PKG, "XsdValidator.Exception.DisallowedDocType");
-                    throw new IOException(message);
-                  });
-        }
+        // The validator of this schema, configured once
+        Validator xsdValidator = getValidator(schematXSD);
 
         // Validate XML / XSD
-        xsdValidator.validate(sourceXML);
+        try {
+          xsdValidator.validate(sourceXML);
+        } catch (SAXException | IOException e) {
+          // Don't reuse a validator that failed; the next row gets a new one.
+          data.validators.remove(schematXSD);
+          throw e;
+        }
 
         isvalid = true;
 
@@ -244,6 +227,83 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
     }
 
     return true;
+  }
+
+  /**
+   * The schema factory of this copy, created on first use. The factory resolves the schema document
+   * itself, so it needs the same external-access restrictions as the validator it produces. Honour
+   * the transform's own opt-in so a pipeline that deliberately relies on remote schemas keeps
+   * working. A SchemaFactory is not thread-safe, which is why it is kept per copy.
+   */
+  private SchemaFactory getSchemaFactory() throws SAXException {
+    if (data.schemaFactory == null) {
+      data.schemaFactory =
+          meta.isAllowExternalEntities()
+              ? SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+              : XmlParserFactoryProducer.createSecureSchemaFactory(
+                  XMLConstants.W3C_XML_SCHEMA_NS_URI);
+    }
+    return data.schemaFactory;
+  }
+
+  /** The schema compiled earlier for this XSD file name, or null. */
+  private Schema getCachedSchema(String xsdfilename) {
+    if (StringUtils.isEmpty(xsdfilename)) {
+      return data.schemaFromDocuments;
+    }
+    return data.schemas.get(xsdfilename);
+  }
+
+  /**
+   * Compiles the schema and keeps it for the next rows. A schema that fails to compile is not kept,
+   * so every row that uses it reports the error.
+   */
+  private Schema compileSchema(String xsdfilename, FileObject xsdfile)
+      throws SAXException, HopTransformException, FileSystemException {
+    if (xsdfile == null) {
+      Schema schema = getXsdSchema(xsdfilename, getSchemaFactory());
+      data.schemaFromDocuments = schema;
+      return schema;
+    }
+    Schema schema = getXsdSchemaFromFile(xsdfile, getSchemaFactory());
+    data.schemas.put(xsdfilename, schema);
+    return schema;
+  }
+
+  /**
+   * The validator of this schema for this copy, configured once. A Validator is not thread-safe,
+   * which is why it is kept per copy. reset() is not used: it would drop the features set here.
+   *
+   * <p>The schema without an XSD file is the exception: its validator keeps the schemas it loaded
+   * from the location hints of earlier documents and would validate later documents against them,
+   * whatever their own hints say. That schema gets a new validator for every row.
+   */
+  private Validator getValidator(Schema schema) throws SAXException {
+    Validator xsdValidator = data.validators.get(schema);
+    if (xsdValidator != null) {
+      return xsdValidator;
+    }
+    xsdValidator = schema.newValidator();
+
+    // Prevent against XML Entity Expansion (XEE) attacks.
+    // https://www.owasp.org/index.php/XML_Security_Cheat_Sheet#XML_Entity_Expansion
+    if (!meta.isAllowExternalEntities()) {
+      xsdValidator.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      xsdValidator.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      xsdValidator.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      xsdValidator.setProperty(
+          "http://apache.org/xml/properties/internal/entity-resolver",
+          (XMLEntityResolver)
+              xmlResourceIdentifier -> {
+                String message =
+                    BaseMessages.getString(PKG, "XsdValidator.Exception.DisallowedDocType");
+                throw new IOException(message);
+              });
+    }
+    if (schema != data.schemaFromDocuments) {
+      data.validators.put(schema, xsdValidator);
+    }
+    return xsdValidator;
   }
 
   private Schema getXsdSchema(String xsdfilename, SchemaFactory factoryXSDValidator)

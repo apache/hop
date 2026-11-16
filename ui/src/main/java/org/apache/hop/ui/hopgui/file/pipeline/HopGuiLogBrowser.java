@@ -66,7 +66,7 @@ public class HopGuiLogBrowser {
   @Getter private ILogParentProvided logProvider;
   private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
-  private AtomicBoolean paused;
+  private final AtomicBoolean paused;
   private final AtomicInteger lastLogId = new AtomicInteger(-1);
 
   /** First log buffer id included in the current view (advanced when the user clears the log). */

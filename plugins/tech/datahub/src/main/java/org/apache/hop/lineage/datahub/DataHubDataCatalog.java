@@ -23,8 +23,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +50,7 @@ import org.apache.hop.datacatalog.IAssertionCapability;
 import org.apache.hop.datacatalog.IDataCatalog;
 import org.apache.hop.datacatalog.IDeprecationCapability;
 import org.apache.hop.datacatalog.IFreshnessCapability;
+import org.apache.hop.datacatalog.ISchemaCapability;
 import org.apache.hop.datacatalog.plugin.DataCatalogPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -62,7 +68,11 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @Getter
 @Setter
 public class DataHubDataCatalog
-    implements IDataCatalog, IDeprecationCapability, IFreshnessCapability, IAssertionCapability {
+    implements IDataCatalog,
+        IDeprecationCapability,
+        IFreshnessCapability,
+        IAssertionCapability,
+        ISchemaCapability {
 
   static final String DEFAULT_ENVIRONMENT = "PROD";
   static final String DEFAULT_CONNECT_TIMEOUT_MS = "5000";
@@ -88,6 +98,21 @@ public class DataHubDataCatalog
       "query hopDatasetOperations($urn: String!, $limit: Int) {"
           + " dataset(urn: $urn) { operations(limit: $limit) { lastUpdatedTimestamp } } }";
 
+  /** The tags and terms of a field, with every name DataHub gives them. */
+  private static final String LABELS =
+      "globalTags { tags { tag { urn name properties { name } } } }"
+          + " glossaryTerms { terms { term { urn name hierarchicalName properties { name }"
+          + " parentNodes { nodes { properties { name } } } } } }";
+
+  private static final String SCHEMA_QUERY =
+      "query hopDatasetSchema($urn: String!) { dataset(urn: $urn) {"
+          + " schemaMetadata { fields { fieldPath nativeDataType type nullable "
+          + LABELS
+          + " } }"
+          + " editableSchemaMetadata { editableSchemaFieldInfo { fieldPath "
+          + LABELS
+          + " } } } }";
+
   private static final String ASSERTIONS_QUERY =
       "query hopDatasetAssertions($urn: String!, $count: Int) {"
           + " dataset(urn: $urn) { assertions(start: 0, count: $count) { total assertions {"
@@ -96,6 +121,9 @@ public class DataHubDataCatalog
           + " } } } }";
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
+
+  /** A type or version part of a DataHub v2 field path, with the dot after it. */
+  private static final Pattern V2_PATH_PART = Pattern.compile("\\[[^\\]]*\\]\\.?");
 
   private String pluginId;
   private String pluginName;
@@ -325,6 +353,115 @@ public class DataHubDataCatalog
       }
     }
     return last == null ? CatalogAnswer.notFound() : CatalogAnswer.known(last);
+  }
+
+  @Override
+  public CatalogAnswer<List<CatalogField>> schema(CatalogEntityId id) {
+    CatalogAnswer<JsonNode> answer = datasetQuery(SCHEMA_QUERY, id.value(), null, 0);
+    if (!(answer instanceof CatalogAnswer.Known<JsonNode> known)) {
+      return answer.unknownAs();
+    }
+    JsonNode fields = known.value().path("schemaMetadata").path("fields");
+    if (!fields.isArray() || fields.isEmpty()) {
+      return CatalogAnswer.notFound();
+    }
+    // Tags and terms added in the DataHub UI live apart from the ingested schema
+    // and can be stored under a v1 and a v2 path of the same field
+    Map<String, List<JsonNode>> edited = new LinkedHashMap<>();
+    for (JsonNode info :
+        known.value().path("editableSchemaMetadata").path("editableSchemaFieldInfo")) {
+      edited
+          .computeIfAbsent(fieldName(info.path("fieldPath").asText("")), k -> new ArrayList<>())
+          .add(info);
+    }
+    List<CatalogField> result = new ArrayList<>();
+    for (JsonNode field : fields) {
+      String name = fieldName(field.path("fieldPath").asText(""));
+      if (name.isEmpty()) {
+        continue;
+      }
+      Set<String> tags = new LinkedHashSet<>();
+      Set<String> terms = new LinkedHashSet<>();
+      addLabels(field, tags, terms);
+      for (JsonNode editedField : edited.getOrDefault(name, List.of())) {
+        addLabels(editedField, tags, terms);
+      }
+      result.add(
+          new CatalogField(
+              name,
+              StringUtils.trimToNull(field.path("nativeDataType").asText(null)),
+              StringUtils.trimToNull(field.path("type").asText(null)),
+              field.path("nullable").isBoolean() ? field.path("nullable").asBoolean() : null,
+              Set.copyOf(tags),
+              Set.copyOf(terms)));
+    }
+    return CatalogAnswer.known(result);
+  }
+
+  /**
+   * The name of a field: its path, without the type and version parts of a DataHub v2 path ({@code
+   * [version=2.0].[type=string].email} is {@code email}).
+   */
+  static String fieldName(String fieldPath) {
+    if (!fieldPath.startsWith("[")) {
+      return fieldPath;
+    }
+    // The bracketed parts can hold dots of their own: [version=2.0]
+    return StringUtils.strip(V2_PATH_PART.matcher(fieldPath).replaceAll(""), ".");
+  }
+
+  private static void addLabels(JsonNode field, Set<String> tags, Set<String> terms) {
+    for (JsonNode association : field.path("globalTags").path("tags")) {
+      JsonNode tag = association.path("tag");
+      addNames(tags, tag.path("urn"), tag.path("name"), tag.path("properties").path("name"));
+    }
+    for (JsonNode association : field.path("glossaryTerms").path("terms")) {
+      JsonNode term = association.path("term");
+      addNames(
+          terms,
+          term.path("urn"),
+          term.path("name"),
+          term.path("hierarchicalName"),
+          term.path("properties").path("name"));
+      String path = glossaryPath(term);
+      if (path != null) {
+        terms.add(path);
+      }
+    }
+  }
+
+  /**
+   * The path of a term in the glossary, from the top node down: {@code Classification.Personal}.
+   * DataHub's hierarchicalName is the id in the term's URN, which is only a path for terms ingested
+   * from a business glossary file. A term created in the DataHub UI has a generated id.
+   */
+  private static String glossaryPath(JsonNode term) {
+    String name = StringUtils.trimToNull(term.path("properties").path("name").asText(null));
+    JsonNode parents = term.path("parentNodes").path("nodes");
+    if (name == null || !parents.isArray() || parents.isEmpty()) {
+      return null;
+    }
+    // DataHub lists the direct parent first
+    List<String> parts = new ArrayList<>();
+    for (JsonNode parent : parents) {
+      String parentName =
+          StringUtils.trimToNull(parent.path("properties").path("name").asText(null));
+      if (parentName == null) {
+        return null;
+      }
+      parts.add(0, parentName);
+    }
+    parts.add(name);
+    return String.join(".", parts);
+  }
+
+  private static void addNames(Set<String> names, JsonNode... values) {
+    for (JsonNode value : values) {
+      String text = StringUtils.trimToNull(value.asText(null));
+      if (text != null) {
+        names.add(text);
+      }
+    }
   }
 
   @Override

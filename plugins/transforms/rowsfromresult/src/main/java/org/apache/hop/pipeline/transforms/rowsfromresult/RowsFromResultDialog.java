@@ -71,25 +71,24 @@ public class RowsFromResultDialog extends BaseTransformDialog {
 
     final int FieldsRows = input.getResultFields().size();
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Fieldname"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Fieldname"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RowsFromResultDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wFields =
         new TableView(

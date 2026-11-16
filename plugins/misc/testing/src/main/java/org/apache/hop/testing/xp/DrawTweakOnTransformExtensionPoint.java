@@ -106,23 +106,22 @@ public class DrawTweakOnTransformExtensionPoint
     //                 | /
     //                 E/
     //
-    int[] arrow =
-        new int[] {
-          x,
-          y + aH / 3, // A
-          x + 5 * aW / 8,
-          y + aH / 3, // B
-          x + 5 * aW / 8,
-          y, // C
-          x + aW,
-          y + aH / 2, // D
-          x + 5 * aW / 8,
-          y + aH, // E
-          x + 5 * aW / 8,
-          y + 2 * aH / 3, // F
-          x,
-          y + 2 * aH / 3, // G
-        };
+    int[] arrow = {
+      x,
+      y + aH / 3, // A
+      x + 5 * aW / 8,
+      y + aH / 3, // B
+      x + 5 * aW / 8,
+      y, // C
+      x + aW,
+      y + aH / 2, // D
+      x + 5 * aW / 8,
+      y + aH, // E
+      x + 5 * aW / 8,
+      y + 2 * aH / 3, // F
+      x,
+      y + 2 * aH / 3, // G
+    };
     gc.fillPolygon(arrow);
   }
 }

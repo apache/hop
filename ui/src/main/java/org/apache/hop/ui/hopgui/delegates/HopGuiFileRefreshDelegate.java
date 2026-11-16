@@ -30,7 +30,7 @@ public class HopGuiFileRefreshDelegate {
 
   private final HopGui hopGui;
 
-  private DefaultFileMonitor fileMonitor;
+  private final DefaultFileMonitor fileMonitor;
 
   private final FileRefreshHandlerMap fileHandlerMap;
 

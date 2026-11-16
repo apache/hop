@@ -76,14 +76,14 @@ public class LafMessageHandler extends GlobalMessages {
   protected String calculateString(
       String packageName, String key, Object[] parameters, Class<?> resourceClass) {
     if (replaceWith != null) {
-      final String[] pkgNames = new String[] {replacePackage(packageName), replaceSysBundle};
+      final String[] pkgNames = {replacePackage(packageName), replaceSysBundle};
       final String string = super.calculateString(pkgNames, key, parameters, resourceClass);
       if (!GlobalMessageUtil.isMissingKey(string)) {
         return string;
       }
     }
 
-    final String[] pkgNames = new String[] {packageName, SYSTEM_BUNDLE_PACKAGE};
+    final String[] pkgNames = {packageName, SYSTEM_BUNDLE_PACKAGE};
     return GlobalMessageUtil.calculateString(
         pkgNames, key, parameters, resourceClass, BUNDLE_NAME, false);
   }

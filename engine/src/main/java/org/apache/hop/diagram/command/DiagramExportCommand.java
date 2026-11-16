@@ -67,6 +67,7 @@ import picocli.CommandLine.ParameterException;
     versionProvider = HopVersionProvider.class)
 @HopCommand(id = "export", description = "Export diagrams")
 public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
+  private static final String CONST_HOP_EXPORT = "hop-export";
 
   @Option(
       names = {"-f", "--file"},
@@ -120,7 +121,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
 
   public DiagramExportCommand() {
     this.variables = Variables.getADefaultVariableSpace();
-    this.log = new LogChannel("hop-export");
+    this.log = new LogChannel(CONST_HOP_EXPORT);
   }
 
   @Override
@@ -130,7 +131,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
     this.cmd = cmd;
     this.variables = variables != null ? variables : Variables.getADefaultVariableSpace();
     this.metadataProvider = metadataProvider;
-    this.log = new LogChannel("hop-export");
+    this.log = new LogChannel(CONST_HOP_EXPORT);
 
     Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_EXPORT);
   }
@@ -140,7 +141,7 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
     try {
       System.setProperty(Const.HOP_PLATFORM_RUNTIME, "EXPORT");
       if (log == null) {
-        log = new LogChannel("hop-export");
+        log = new LogChannel(CONST_HOP_EXPORT);
       }
       if (variables == null) {
         variables = Variables.getADefaultVariableSpace();

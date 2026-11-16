@@ -419,19 +419,18 @@ public class RepeatDialog extends ActionDialog {
     wlParameters.setLayoutData(fdlParameters);
     lastControl = wlParameters;
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Name.Column.Header"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Value.Column.Header"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Name.Column.Header"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Value.Column.Header"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columnInfos[1].setUsingVariables(true);
 
     wParameters =

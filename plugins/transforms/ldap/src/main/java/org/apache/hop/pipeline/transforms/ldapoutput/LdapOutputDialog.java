@@ -142,7 +142,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
 
   private Button wbbFilename;
 
-  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  public static final int[] dateLengths = {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
   public LdapOutputDialog(
       Shell parent, IVariables variables, LdapOutputMeta transformMeta, PipelineMeta pipelineMeta) {

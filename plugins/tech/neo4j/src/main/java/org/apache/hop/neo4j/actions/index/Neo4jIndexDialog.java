@@ -110,40 +110,39 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
 
     // The columns
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.UpdateType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              UpdateType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ObjectType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexName"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectName"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectProperties"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              IndexType.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorDimensions"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorSimilarity"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphVectorSimilarity.getNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorCapacity"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.UpdateType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          UpdateType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ObjectType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexName"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectName"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.ObjectProperties"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          IndexType.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorDimensions"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorSimilarity"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphVectorSimilarity.getNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.VectorCapacity"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+    };
     columns[5].setToolTip(
         BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Column.IndexType.Tooltip"));
     columns[2].setUsingVariables(true);

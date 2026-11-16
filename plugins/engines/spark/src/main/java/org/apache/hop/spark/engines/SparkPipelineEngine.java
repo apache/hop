@@ -118,6 +118,9 @@ import scala.Option;
 @Getter
 @Setter
 public class SparkPipelineEngine extends Variables implements IPipelineEngine<PipelineMeta> {
+  private static final String CONST_SPARK_UI_ENABLED = "spark.ui.enabled";
+  private static final String CONST_SPARK_SQL_SHUFFLE_PARTITIONS = "spark.sql.shuffle.partitions";
+  private static final String CONST_SPARK_MASTER = "spark.master";
 
   private final PipelineEngineCapabilities engineCapabilities =
       new SparkPipelineEngineCapabilities();
@@ -1073,12 +1076,12 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     String master = resolve(sparkEngineRunConfiguration.getSparkMaster());
     if (StringUtils.isEmpty(master)) {
       // Prefer master from spark-submit / SparkConf when run config leaves it blank
-      String confMaster = System.getProperty("spark.master");
+      String confMaster = System.getProperty(CONST_SPARK_MASTER);
       if (StringUtils.isEmpty(confMaster)) {
         try {
           SparkConf conf = new SparkConf(true);
-          if (conf.contains("spark.master")) {
-            confMaster = conf.get("spark.master");
+          if (conf.contains(CONST_SPARK_MASTER)) {
+            confMaster = conf.get(CONST_SPARK_MASTER);
           }
         } catch (Exception e) {
           // ignore — fall back to local
@@ -1167,14 +1170,14 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
     // Defaults for local/dev only when not already set by submit or run config extras
     if (!underSubmit
-        && System.getProperty("spark.ui.enabled") == null
-        && !configuredKeys.contains("spark.ui.enabled")) {
-      builder.config("spark.ui.enabled", "false");
+        && System.getProperty(CONST_SPARK_UI_ENABLED) == null
+        && !configuredKeys.contains(CONST_SPARK_UI_ENABLED)) {
+      builder.config(CONST_SPARK_UI_ENABLED, "false");
     }
     if (!underSubmit
-        && System.getProperty("spark.sql.shuffle.partitions") == null
-        && !configuredKeys.contains("spark.sql.shuffle.partitions")) {
-      builder.config("spark.sql.shuffle.partitions", "4");
+        && System.getProperty(CONST_SPARK_SQL_SHUFFLE_PARTITIONS) == null
+        && !configuredKeys.contains(CONST_SPARK_SQL_SHUFFLE_PARTITIONS)) {
+      builder.config(CONST_SPARK_SQL_SHUFFLE_PARTITIONS, "4");
     }
 
     SparkSession session = builder.getOrCreate();
@@ -1201,7 +1204,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       return true;
     }
     // spark-submit always sets spark.master before invoking main
-    String master = System.getProperty("spark.master");
+    String master = System.getProperty(CONST_SPARK_MASTER);
     return StringUtils.isNotEmpty(master) && !master.startsWith("local");
   }
 

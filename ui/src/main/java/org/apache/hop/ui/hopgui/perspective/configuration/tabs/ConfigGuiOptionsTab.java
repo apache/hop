@@ -76,6 +76,11 @@ import org.eclipse.swt.widgets.Text;
 @GuiPlugin
 public class ConfigGuiOptionsTab {
   private static final Class<?> PKG = BaseDialog.class;
+  private static final String CONST_THEME = "theme";
+  private static final String CONST_PREFERENCES = "preferences";
+  private static final String CONST_HOP_WEB = "hop-web";
+  private static final String CONST_FOLLOW_SYSTEM = "followSystem";
+  private static final String CONST_DARK_MODE = "darkMode";
   public static final String ENTER_OPTIONS_DIALOG_ENTER_NUMBER_HINT =
       "EnterOptionsDialog.EnterNumber.Hint";
 
@@ -274,10 +279,10 @@ public class ConfigGuiOptionsTab {
         try {
           AuditState themeState =
               AuditManager.retrieveState(
-                  HopGui.getInstance().getLog(), "hop-web", "preferences", "theme");
+                  HopGui.getInstance().getLog(), CONST_HOP_WEB, CONST_PREFERENCES, CONST_THEME);
           if (themeState != null) {
-            followSystem = themeState.extractBoolean("followSystem", true);
-            darkMode = themeState.extractBoolean("darkMode", darkMode);
+            followSystem = themeState.extractBoolean(CONST_FOLLOW_SYSTEM, true);
+            darkMode = themeState.extractBoolean(CONST_DARK_MODE, darkMode);
             wDarkMode.setSelection(darkMode);
           }
         } catch (Exception ignored) {
@@ -1440,20 +1445,24 @@ public class ConfigGuiOptionsTab {
       try {
         AuditState themeState =
             AuditManager.retrieveState(
-                HopGui.getInstance().getLog(), "hop-web", "preferences", "theme");
+                HopGui.getInstance().getLog(), CONST_HOP_WEB, CONST_PREFERENCES, CONST_THEME);
         if (themeState != null) {
-          previousAuditFollowSystem = themeState.extractBoolean("followSystem", true);
-          previousAuditDarkMode = themeState.extractBoolean("darkMode", previousAuditDarkMode);
+          previousAuditFollowSystem = themeState.extractBoolean(CONST_FOLLOW_SYSTEM, true);
+          previousAuditDarkMode = themeState.extractBoolean(CONST_DARK_MODE, previousAuditDarkMode);
         }
       } catch (Exception ignored) {
         // ignore
       }
 
       java.util.Map<String, Object> themeStateMap = new java.util.HashMap<>();
-      themeStateMap.put("followSystem", Boolean.valueOf(followSystem));
-      themeStateMap.put("darkMode", Boolean.valueOf(darkMode));
+      themeStateMap.put(CONST_FOLLOW_SYSTEM, Boolean.valueOf(followSystem));
+      themeStateMap.put(CONST_DARK_MODE, Boolean.valueOf(darkMode));
       AuditManager.storeState(
-          HopGui.getInstance().getLog(), "hop-web", "preferences", "theme", themeStateMap);
+          HopGui.getInstance().getLog(),
+          CONST_HOP_WEB,
+          CONST_PREFERENCES,
+          CONST_THEME,
+          themeStateMap);
 
       // Don't persist dark mode to HopConfig when in web (restore props value before save)
       props.setDarkMode(previousDarkMode);

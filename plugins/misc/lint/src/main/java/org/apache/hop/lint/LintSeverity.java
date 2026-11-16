@@ -25,6 +25,8 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /** Severity helpers shared by lint results, verify integration, and pre-commit checks. */
 public final class LintSeverity {
+  private static final String CONST_WARNING = "WARNING";
+  private static final String CONST_ERROR = "ERROR";
 
   public enum FailOn implements IEnumHasCodeAndDescription {
     ERROR,
@@ -94,20 +96,20 @@ public final class LintSeverity {
     if (Utils.isEmpty(severity)) {
       return false;
     }
-    if ("ERROR".equalsIgnoreCase(severity)) {
+    if (CONST_ERROR.equalsIgnoreCase(severity)) {
       return true;
     }
-    if ("WARNING".equalsIgnoreCase(severity)) {
+    if (CONST_WARNING.equalsIgnoreCase(severity)) {
       return failOn == FailOn.WARNING || failOn == FailOn.INFO;
     }
     return failOn == FailOn.INFO && "INFO".equalsIgnoreCase(severity);
   }
 
   public static int toCheckResultType(String severity) {
-    if ("ERROR".equalsIgnoreCase(severity)) {
+    if (CONST_ERROR.equalsIgnoreCase(severity)) {
       return ICheckResult.TYPE_RESULT_ERROR;
     }
-    if ("WARNING".equalsIgnoreCase(severity)) {
+    if (CONST_WARNING.equalsIgnoreCase(severity)) {
       return ICheckResult.TYPE_RESULT_WARNING;
     }
     if ("INFO".equalsIgnoreCase(severity)) {
@@ -118,10 +120,10 @@ public final class LintSeverity {
 
   public static String fromCheckResultType(int type) {
     if (type == ICheckResult.TYPE_RESULT_ERROR) {
-      return "ERROR";
+      return CONST_ERROR;
     }
     if (type == ICheckResult.TYPE_RESULT_WARNING) {
-      return "WARNING";
+      return CONST_WARNING;
     }
     if (type == ICheckResult.TYPE_RESULT_COMMENT) {
       return "INFO";

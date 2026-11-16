@@ -37,9 +37,9 @@ import org.eclipse.swt.widgets.Shell;
 public class GetSqlProgressDialog {
   private static final Class<?> PKG = GetSqlProgressDialog.class;
 
-  private Shell shell;
+  private final Shell shell;
   private final IVariables variables;
-  private PipelineMeta pipelineMeta;
+  private final PipelineMeta pipelineMeta;
   private List<SqlStatement> stats;
 
   /** Creates a new dialog that will handle the wait while getting the SQL for a pipeline... */

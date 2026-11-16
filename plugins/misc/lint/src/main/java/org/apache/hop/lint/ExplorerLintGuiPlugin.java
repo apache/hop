@@ -55,6 +55,9 @@ import org.eclipse.swt.widgets.MenuItem;
     id = "HopLintCheckerExplorerGuiPlugin",
     description = "Hop Lint Checker Explorer Integration")
 public class ExplorerLintGuiPlugin {
+  private static final String CONST_LINTING_ERROR = "Linting Error";
+  private static final String CONST_AN_ERROR_OCCURRED_DURING_LINTING =
+      "An error occurred during linting: ";
 
   private static final Class<?> PKG = ExplorerLintGuiPlugin.class; // for i18n purposes
 
@@ -194,7 +197,7 @@ public class ExplorerLintGuiPlugin {
     } catch (Exception e) {
       log.logError("Error linting selected file: " + e.getMessage(), e);
       showErrorDialog(
-          "Linting Error",
+          CONST_LINTING_ERROR,
           "An error occurred while linting the selected file: " + e.getMessage(),
           e);
     }
@@ -264,7 +267,7 @@ public class ExplorerLintGuiPlugin {
     } catch (Exception e) {
       log.logError("Error linting selected folder: " + e.getMessage(), e);
       showErrorDialog(
-          "Linting Error",
+          CONST_LINTING_ERROR,
           "An error occurred while linting the selected folder: " + e.getMessage(),
           e);
     }
@@ -309,7 +312,7 @@ public class ExplorerLintGuiPlugin {
       handler = hopGui.fileDelegate.fileOpen(normalizedPath);
     } catch (Exception e) {
       log.logError("Error opening file for linting: " + e.getMessage(), e);
-      showErrorDialog("Linting Error", "Could not open the file to lint: " + e.getMessage(), e);
+      showErrorDialog(CONST_LINTING_ERROR, "Could not open the file to lint: " + e.getMessage(), e);
       return;
     }
 
@@ -351,8 +354,8 @@ public class ExplorerLintGuiPlugin {
                 .asyncExec(
                     () ->
                         showErrorDialog(
-                            "Linting Error",
-                            "An error occurred during linting: " + e.getMessage(),
+                            CONST_LINTING_ERROR,
+                            CONST_AN_ERROR_OCCURRED_DURING_LINTING + e.getMessage(),
                             e));
           }
         },
@@ -431,8 +434,8 @@ public class ExplorerLintGuiPlugin {
                 .asyncExec(
                     () ->
                         showErrorDialog(
-                            "Linting Error",
-                            "An error occurred during linting: " + e.getMessage(),
+                            CONST_LINTING_ERROR,
+                            CONST_AN_ERROR_OCCURRED_DURING_LINTING + e.getMessage(),
                             e));
           }
         },
@@ -632,8 +635,8 @@ public class ExplorerLintGuiPlugin {
                     () -> {
                       progressDialog.close();
                       showErrorDialog(
-                          "Linting Error",
-                          "An error occurred during linting: " + e.getMessage(),
+                          CONST_LINTING_ERROR,
+                          CONST_AN_ERROR_OCCURRED_DURING_LINTING + e.getMessage(),
                           e);
                     });
           }

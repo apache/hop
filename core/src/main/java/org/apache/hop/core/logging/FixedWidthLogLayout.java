@@ -29,7 +29,7 @@ public class FixedWidthLogLayout {
   private static final int MAX_LOG_LEVEL_LENGTH =
       Arrays.stream(LogLevel.getLogLevelCodes()).map(String::length).reduce(0, Integer::max);
 
-  private boolean timeAdded;
+  private final boolean timeAdded;
 
   public FixedWidthLogLayout() {
     this(true);

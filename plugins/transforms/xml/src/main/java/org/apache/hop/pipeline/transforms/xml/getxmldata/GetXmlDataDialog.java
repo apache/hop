@@ -943,69 +943,68 @@ public class GetXmlDataDialog extends BaseTransformDialog {
 
     final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.XPath.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Element.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GetXmlDataField.ElementTypeDesc,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.ResultType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GetXmlDataField.ResultTypeDesc,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Type.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.getTypes(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              5),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Length.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Precision.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Currency.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Decimal.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Group.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.TrimType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GetXmlDataField.trimTypeDesc,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, "System.Combo.No")
-              },
-              true),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.XPath.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Element.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GetXmlDataField.ElementTypeDesc,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.ResultType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GetXmlDataField.ResultTypeDesc,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Type.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.getTypes(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Format.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          5),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Length.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Precision.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Currency.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Decimal.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Group.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.TrimType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GetXmlDataField.trimTypeDesc,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+            BaseMessages.getString(PKG, "System.Combo.No")
+          },
+          true),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);

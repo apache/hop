@@ -35,7 +35,7 @@ public class OdfCell implements IKCell {
   public static final String TYPE_STRING = "string";
   public static final String TYPE_TIME = "time";
 
-  private OdfTableCell cell;
+  private final OdfTableCell cell;
 
   public OdfCell(OdfTableCell cell) {
     this.cell = cell;

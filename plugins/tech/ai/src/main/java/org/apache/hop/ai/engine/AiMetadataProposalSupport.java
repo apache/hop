@@ -48,6 +48,26 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 
 /** Validates and saves CLIPBOARD_METADATA / SAVE_METADATA hop_proposals. */
 public final class AiMetadataProposalSupport {
+  private static final String CONST_RDBMS = "rdbms";
+  private static final String CONST_METADATA_TYPE = "metadataType";
+  private static final String CONST_TYPE_KEY = "typeKey";
+  private static final String CONST_CONTENT = "content";
+  private static final String CONST_PLUGIN_ID = "pluginId";
+  private static final String CONST_DATABASE_PLUGIN_ID = "databasePluginId";
+  private static final String CONST_DATABASE_TYPE = "databaseType";
+  private static final String CONST_HOSTNAME = "hostname";
+  private static final String CONST_DATABASE_NAME = "databaseName";
+  private static final String CONST_DATABASE = "database";
+  private static final String CONST_USERNAME = "username";
+  private static final String CONST_PASSWORD = "password";
+  private static final String CONST_PLUGIN_NAME = "pluginName";
+  private static final String CONST_POSTGRESQL = "POSTGRESQL";
+  private static final String CONST_MARIADB = "MARIADB";
+  private static final String CONST_MYSQL = "MYSQL";
+  private static final String CONST_ORACLE = "ORACLE";
+  private static final String CONST_MSSQL = "MSSQL";
+  private static final String CONST_MSSQLNATIVE = "MSSQLNATIVE";
+  private static final String CONST_SNOWFLAKE = "SNOWFLAKE";
 
   private static final Class<?> PKG = AiMetadataProposalSupport.class;
 
@@ -63,7 +83,7 @@ public final class AiMetadataProposalSupport {
    */
   static final Set<String> SAVABLE_TYPE_KEYS =
       Set.of(
-          "rdbms",
+          CONST_RDBMS,
           "cassandra-connection",
           "mongodb-connection",
           "neo4j-connection",
@@ -92,7 +112,7 @@ public final class AiMetadataProposalSupport {
       result.setWarning(BaseMessages.getString(PKG, "AiMetadataProposalSupport.Warning.Clipboard"));
     } else {
       String name = Const.NVL(targetName(proposal, metadataProvider), "");
-      String typeKey = Const.NVL(firstParameter(proposal, "typeKey", "metadataType"), "");
+      String typeKey = Const.NVL(firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE), "");
       if (exists(proposal, metadataProvider)) {
         result.setWarning(
             BaseMessages.getString(
@@ -117,7 +137,7 @@ public final class AiMetadataProposalSupport {
       return name;
     }
     try {
-      String typeKey = firstParameter(proposal, "typeKey", "metadataType");
+      String typeKey = firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE);
       Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
       return parseObject(metadataClass, metadataProvider, jsonParam(proposal)).getName();
     } catch (Exception e) {
@@ -137,7 +157,7 @@ public final class AiMetadataProposalSupport {
     try {
       Class<IHopMetadata> metadataClass =
           metadataProvider.getMetadataClassForKey(
-              firstParameter(proposal, "typeKey", "metadataType"));
+              firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE));
       return metadataProvider.getSerializer(metadataClass).exists(name);
     } catch (Exception e) {
       return false;
@@ -150,7 +170,7 @@ public final class AiMetadataProposalSupport {
     if (error != null) {
       throw new HopException(error);
     }
-    String typeKey = firstParameter(proposal, "typeKey", "metadataType");
+    String typeKey = firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE);
     String name = firstParameter(proposal, "name");
     Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(typeKey);
     IHopMetadata object = parseObject(metadataClass, metadataProvider, jsonParam(proposal));
@@ -285,13 +305,13 @@ public final class AiMetadataProposalSupport {
     if (proposal == null) {
       return "Missing proposal";
     }
-    String typeKey = firstParameter(proposal, "typeKey", "metadataType");
+    String typeKey = firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE);
     String json = jsonParam(proposal);
     if (Utils.isEmpty(typeKey)) {
       return "typeKey is required";
     }
     if (Utils.isEmpty(json)) {
-      if ("rdbms".equalsIgnoreCase(typeKey)) {
+      if (CONST_RDBMS.equalsIgnoreCase(typeKey)) {
         return "json parameter is required (or pluginId, hostname, databaseName). "
             + "Example json: {\"name\":\"test_edw\",\"rdbms\":{\"POSTGRESQL\":{\"pluginId\":\"POSTGRESQL\","
             + "\"hostname\":\"localhost\",\"port\":\"5432\",\"databaseName\":\"test_edw\","
@@ -323,12 +343,12 @@ public final class AiMetadataProposalSupport {
     if (proposal == null) {
       return "";
     }
-    String json = firstParameter(proposal, "json", "content", "connectionJson", "rdbmsJson");
+    String json = firstParameter(proposal, "json", CONST_CONTENT, "connectionJson", "rdbmsJson");
     if (Utils.isEmpty(json) || "null".equalsIgnoreCase(json) || "{}".equals(json)) {
       json = Const.NVL(synthesizeRdbmsJson(proposal), "");
     }
-    String typeKey = firstParameter(proposal, "typeKey", "metadataType");
-    if ("rdbms".equalsIgnoreCase(typeKey)) {
+    String typeKey = firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE);
+    if (CONST_RDBMS.equalsIgnoreCase(typeKey)) {
       json = normalizeRdbmsJson(json, proposal);
     }
     return json;
@@ -346,14 +366,14 @@ public final class AiMetadataProposalSupport {
     try {
       ObjectMapper mapper = HopJson.newMapper();
       JsonNode root = mapper.readTree(json);
-      if (root != null && root.has("content")) {
-        root = root.get("content");
+      if (root != null && root.has(CONST_CONTENT)) {
+        root = root.get(CONST_CONTENT);
       }
       if (root == null || !root.isObject()) {
         return json;
       }
       String name = firstNonEmpty(text(root, "name"), firstParameter(proposal, "name"));
-      JsonNode rdbms = root.get("rdbms");
+      JsonNode rdbms = root.get(CONST_RDBMS);
       String pluginId = resolveDatabasePluginId(proposal);
       ObjectNode inner = mapper.createObjectNode();
       if (rdbms != null && rdbms.isTextual()) {
@@ -374,54 +394,67 @@ public final class AiMetadataProposalSupport {
           if (Utils.isEmpty(pluginId)) {
             pluginId =
                 resolveDatabasePluginId(
-                    text(rdbms, "pluginId", "type", "databaseType", "databasePluginId"));
+                    text(
+                        rdbms,
+                        CONST_PLUGIN_ID,
+                        "type",
+                        CONST_DATABASE_TYPE,
+                        CONST_DATABASE_PLUGIN_ID));
           }
           inner = (ObjectNode) rdbms.deepCopy();
         }
       }
-      copyIfMissing(inner, root, "hostname", "host");
+      copyIfMissing(inner, root, CONST_HOSTNAME, "host");
       copyIfMissing(inner, root, "port");
-      copyIfMissing(inner, root, "databaseName", "database");
-      copyIfMissing(inner, root, "username", "user");
-      copyIfMissing(inner, root, "password");
+      copyIfMissing(inner, root, CONST_DATABASE_NAME, CONST_DATABASE);
+      copyIfMissing(inner, root, CONST_USERNAME, "user");
+      copyIfMissing(inner, root, CONST_PASSWORD);
       if (Utils.isEmpty(pluginId)) {
         pluginId =
             resolveDatabasePluginId(
-                text(root, "pluginId", "type", "databaseType", "databasePluginId"));
+                text(root, CONST_PLUGIN_ID, "type", CONST_DATABASE_TYPE, CONST_DATABASE_PLUGIN_ID));
       }
       if (Utils.isEmpty(pluginId)) {
         pluginId =
             resolveDatabasePluginId(
-                firstParameter(proposal, "pluginId", "databaseType", "databasePluginId", "type"));
+                firstParameter(
+                    proposal,
+                    CONST_PLUGIN_ID,
+                    CONST_DATABASE_TYPE,
+                    CONST_DATABASE_PLUGIN_ID,
+                    "type"));
       }
       if (Utils.isEmpty(pluginId)) {
         return json;
       }
       pluginId = resolveDatabasePluginId(pluginId);
-      inner.put("pluginId", pluginId);
-      if (!inner.has("pluginName") || Utils.isEmpty(text(inner, "pluginName"))) {
+      inner.put(CONST_PLUGIN_ID, pluginId);
+      if (!inner.has(CONST_PLUGIN_NAME) || Utils.isEmpty(text(inner, CONST_PLUGIN_NAME))) {
         String resolvedPluginName = resolveDatabasePluginName(pluginId);
         if (!Utils.isEmpty(resolvedPluginName)) {
-          inner.put("pluginName", resolvedPluginName);
+          inner.put(CONST_PLUGIN_NAME, resolvedPluginName);
         }
       }
       if (!inner.has("accessType")) {
         inner.put("accessType", 0);
       }
-      if (Utils.isEmpty(text(inner, "hostname"))) {
-        putIfPresent(inner, "hostname", firstParameter(proposal, "hostname", "host"));
+      if (Utils.isEmpty(text(inner, CONST_HOSTNAME))) {
+        putIfPresent(inner, CONST_HOSTNAME, firstParameter(proposal, CONST_HOSTNAME, "host"));
       }
       if (Utils.isEmpty(text(inner, "port"))) {
         putIfPresent(inner, "port", firstParameter(proposal, "port"));
       }
-      if (Utils.isEmpty(text(inner, "databaseName"))) {
-        putIfPresent(inner, "databaseName", firstParameter(proposal, "databaseName", "database"));
+      if (Utils.isEmpty(text(inner, CONST_DATABASE_NAME))) {
+        putIfPresent(
+            inner,
+            CONST_DATABASE_NAME,
+            firstParameter(proposal, CONST_DATABASE_NAME, CONST_DATABASE));
       }
-      if (Utils.isEmpty(text(inner, "username"))) {
-        putIfPresent(inner, "username", firstParameter(proposal, "username", "user"));
+      if (Utils.isEmpty(text(inner, CONST_USERNAME))) {
+        putIfPresent(inner, CONST_USERNAME, firstParameter(proposal, CONST_USERNAME, "user"));
       }
-      if (Utils.isEmpty(text(inner, "password"))) {
-        putIfPresent(inner, "password", firstParameter(proposal, "password"));
+      if (Utils.isEmpty(text(inner, CONST_PASSWORD))) {
+        putIfPresent(inner, CONST_PASSWORD, firstParameter(proposal, CONST_PASSWORD));
       }
       ObjectNode out = mapper.createObjectNode();
       if (!Utils.isEmpty(name)) {
@@ -429,7 +462,7 @@ public final class AiMetadataProposalSupport {
       }
       ObjectNode rdbmsOut = mapper.createObjectNode();
       rdbmsOut.set(pluginId, inner);
-      out.set("rdbms", rdbmsOut);
+      out.set(CONST_RDBMS, rdbmsOut);
       return mapper.writeValueAsString(out);
     } catch (Exception e) {
       return json;
@@ -440,14 +473,14 @@ public final class AiMetadataProposalSupport {
       Set.of(
           "pluginid",
           "pluginname",
-          "hostname",
+          CONST_HOSTNAME,
           "host",
           "port",
           "databasename",
-          "database",
-          "username",
+          CONST_DATABASE,
+          CONST_USERNAME,
           "user",
-          "password",
+          CONST_PASSWORD,
           "accesstype",
           "attributes",
           "type",
@@ -527,17 +560,18 @@ public final class AiMetadataProposalSupport {
    */
   static String synthesizeRdbmsJson(AiProposal proposal) {
     if (proposal == null
-        || !"rdbms".equalsIgnoreCase(firstParameter(proposal, "typeKey", "metadataType"))) {
+        || !CONST_RDBMS.equalsIgnoreCase(
+            firstParameter(proposal, CONST_TYPE_KEY, CONST_METADATA_TYPE))) {
       return "";
     }
     String pluginId = resolveDatabasePluginId(proposal);
-    String hostname = firstParameter(proposal, "hostname", "host", "server", "serverName");
+    String hostname = firstParameter(proposal, CONST_HOSTNAME, "host", "server", "serverName");
     String port = firstParameter(proposal, "port");
     String databaseName =
-        firstParameter(proposal, "databaseName", "database", "db", "dbName", "dbname");
-    String name = firstParameter(proposal, "name", "databaseName");
-    String username = firstParameter(proposal, "username", "user", "userName");
-    String password = firstParameter(proposal, "password");
+        firstParameter(proposal, CONST_DATABASE_NAME, CONST_DATABASE, "db", "dbName", "dbname");
+    String name = firstParameter(proposal, "name", CONST_DATABASE_NAME);
+    String username = firstParameter(proposal, CONST_USERNAME, "user", "userName");
+    String password = firstParameter(proposal, CONST_PASSWORD);
     String blob = harvestText(proposal);
     if (Utils.isEmpty(pluginId)) {
       pluginId = resolveDatabasePluginId(blob);
@@ -620,16 +654,16 @@ public final class AiMetadataProposalSupport {
   }
 
   static String defaultPort(String pluginId) {
-    if ("POSTGRESQL".equals(pluginId)) {
+    if (CONST_POSTGRESQL.equals(pluginId)) {
       return "5432";
     }
-    if ("MYSQL".equals(pluginId) || "MARIADB".equals(pluginId)) {
+    if (CONST_MYSQL.equals(pluginId) || CONST_MARIADB.equals(pluginId)) {
       return "3306";
     }
-    if ("ORACLE".equals(pluginId)) {
+    if (CONST_ORACLE.equals(pluginId)) {
       return "1521";
     }
-    if ("MSSQL".equals(pluginId) || "MSSQLNATIVE".equals(pluginId)) {
+    if (CONST_MSSQL.equals(pluginId) || CONST_MSSQLNATIVE.equals(pluginId)) {
       return "1433";
     }
     return "5432";
@@ -638,7 +672,13 @@ public final class AiMetadataProposalSupport {
   static String resolveDatabasePluginId(AiProposal proposal) {
     return resolveDatabasePluginId(
         firstParameter(
-            proposal, "pluginId", "databaseType", "databasePluginId", "type", "engine", "dialect"));
+            proposal,
+            CONST_PLUGIN_ID,
+            CONST_DATABASE_TYPE,
+            CONST_DATABASE_PLUGIN_ID,
+            "type",
+            "engine",
+            "dialect"));
   }
 
   static String resolveDatabasePluginId(String raw) {
@@ -648,22 +688,24 @@ public final class AiMetadataProposalSupport {
     String normalized = raw.trim();
     String upper = normalized.toUpperCase().replace(' ', '_').replace('-', '_');
     if (upper.contains("POSTGRES")) {
-      return "POSTGRESQL";
+      return CONST_POSTGRESQL;
     }
     if (upper.contains("MARIA")) {
-      return "MARIADB";
+      return CONST_MARIADB;
     }
-    if (upper.contains("MSSQL") || upper.contains("SQL_SERVER") || upper.contains("SQLSERVER")) {
-      return upper.contains("NATIVE") ? "MSSQLNATIVE" : "MSSQL";
+    if (upper.contains(CONST_MSSQL)
+        || upper.contains("SQL_SERVER")
+        || upper.contains("SQLSERVER")) {
+      return upper.contains("NATIVE") ? CONST_MSSQLNATIVE : CONST_MSSQL;
     }
-    if (upper.contains("SNOWFLAKE")) {
-      return "SNOWFLAKE";
+    if (upper.contains(CONST_SNOWFLAKE)) {
+      return CONST_SNOWFLAKE;
     }
-    if (upper.contains("MYSQL")) {
-      return "MYSQL";
+    if (upper.contains(CONST_MYSQL)) {
+      return CONST_MYSQL;
     }
-    if (upper.contains("ORACLE")) {
-      return "ORACLE";
+    if (upper.contains(CONST_ORACLE)) {
+      return CONST_ORACLE;
     }
     if (upper.contains("NONE") || upper.contains("GENERIC")) {
       return "";
@@ -688,25 +730,25 @@ public final class AiMetadataProposalSupport {
       // Registry might not be fully initialized in some unit test contexts
     }
     String upper = pluginId.trim().toUpperCase();
-    if ("POSTGRESQL".equals(upper)) {
+    if (CONST_POSTGRESQL.equals(upper)) {
       return "PostgreSQL";
     }
-    if ("MYSQL".equals(upper)) {
+    if (CONST_MYSQL.equals(upper)) {
       return "MySQL";
     }
-    if ("MARIADB".equals(upper)) {
+    if (CONST_MARIADB.equals(upper)) {
       return "MariaDB";
     }
-    if ("ORACLE".equals(upper)) {
+    if (CONST_ORACLE.equals(upper)) {
       return "Oracle";
     }
-    if ("SNOWFLAKE".equals(upper)) {
+    if (CONST_SNOWFLAKE.equals(upper)) {
       return "Snowflake";
     }
-    if ("MSSQL".equals(upper)) {
+    if (CONST_MSSQL.equals(upper)) {
       return "MS SQL Server";
     }
-    if ("MSSQLNATIVE".equals(upper)) {
+    if (CONST_MSSQLNATIVE.equals(upper)) {
       return "MS SQL Server (Native)";
     }
     return "";
@@ -745,8 +787,8 @@ public final class AiMetadataProposalSupport {
       throws Exception {
     ObjectMapper mapper = HopJson.newMapper();
     JsonNode root = mapper.readTree(json);
-    if (root != null && root.has("content")) {
-      root = root.get("content");
+    if (root != null && root.has(CONST_CONTENT)) {
+      root = root.get(CONST_CONTENT);
     }
     JsonParser jsonParser = mapper.treeAsTokens(root);
     if (jsonParser.currentToken() == null) {

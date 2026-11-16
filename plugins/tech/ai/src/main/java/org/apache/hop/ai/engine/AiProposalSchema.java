@@ -47,6 +47,12 @@ import org.apache.hop.i18n.BaseMessages;
  * block, so parsing, repair and review work the same whichever way the answer came.
  */
 public final class AiProposalSchema {
+  private static final String CONST_VALUE = "value";
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_RISK_LEVEL = "riskLevel";
+  private static final String CONST_PARAMETERS = "parameters";
+  private static final String CONST_ANSWER = "answer";
+  private static final String CONST_PROPOSALS = "proposals";
 
   private static final Class<?> PKG = AiProposalSchema.class;
 
@@ -65,19 +71,21 @@ public final class AiProposalSchema {
         JsonObjectSchema.builder()
             .addStringProperty("name", "Parameter name, for example transformName")
             .addStringProperty(
-                "value", "Parameter value as text; JSON objects and XML are written as a string")
-            .required("name", "value")
+                CONST_VALUE,
+                "Parameter value as text; JSON objects and XML are written as a string")
+            .required("name", CONST_VALUE)
             .additionalProperties(false)
             .build();
     JsonObjectSchema proposal =
         JsonObjectSchema.builder()
             .addStringProperty("id", "1, 2, 3, ... in the order to apply")
-            .addStringProperty("description", "What the change does, in the user's language")
+            .addStringProperty(CONST_DESCRIPTION, "What the change does, in the user's language")
             .addProperty(
-                "riskLevel", JsonEnumSchema.builder().enumValues("LOW", "MEDIUM", "HIGH").build())
+                CONST_RISK_LEVEL,
+                JsonEnumSchema.builder().enumValues("LOW", "MEDIUM", "HIGH").build())
             .addProperty("type", JsonEnumSchema.builder().enumValues(types).build())
-            .addProperty("parameters", JsonArraySchema.builder().items(parameter).build())
-            .required("id", "description", "riskLevel", "type", "parameters")
+            .addProperty(CONST_PARAMETERS, JsonArraySchema.builder().items(parameter).build())
+            .required("id", CONST_DESCRIPTION, CONST_RISK_LEVEL, "type", CONST_PARAMETERS)
             .additionalProperties(false)
             .build();
     return JsonSchema.builder()
@@ -85,17 +93,17 @@ public final class AiProposalSchema {
         .rootElement(
             JsonObjectSchema.builder()
                 .addProperty(
-                    "answer",
+                    CONST_ANSWER,
                     JsonStringSchema.builder()
                         .description("The whole answer for the user, in Markdown")
                         .build())
                 .addProperty(
-                    "proposals",
+                    CONST_PROPOSALS,
                     JsonArraySchema.builder()
                         .description("Proposed changes; empty unless the user asked for a change")
                         .items(proposal)
                         .build())
-                .required("answer", "proposals")
+                .required(CONST_ANSWER, CONST_PROPOSALS)
                 .additionalProperties(false)
                 .build())
         .build();
@@ -113,24 +121,24 @@ public final class AiProposalSchema {
     try {
       ObjectMapper mapper = HopJson.newMapper();
       JsonNode root = mapper.readTree(json.trim());
-      if (root == null || !root.isObject() || !root.has("answer")) {
+      if (root == null || !root.isObject() || !root.has(CONST_ANSWER)) {
         return json;
       }
-      String answer = withoutProposalBlocks(root.path("answer").asText(""), mapper);
+      String answer = withoutProposalBlocks(root.path(CONST_ANSWER).asText(""), mapper);
       List<Map<String, Object>> proposals = new ArrayList<>();
-      for (JsonNode node : root.path("proposals")) {
+      for (JsonNode node : root.path(CONST_PROPOSALS)) {
         Map<String, Object> proposal = new LinkedHashMap<>();
         proposal.put("id", node.path("id").asText(Integer.toString(proposals.size() + 1)));
-        proposal.put("description", node.path("description").asText(""));
-        proposal.put("riskLevel", node.path("riskLevel").asText("LOW"));
+        proposal.put(CONST_DESCRIPTION, node.path(CONST_DESCRIPTION).asText(""));
+        proposal.put(CONST_RISK_LEVEL, node.path(CONST_RISK_LEVEL).asText("LOW"));
         proposal.put("type", node.path("type").asText(""));
         Map<String, String> parameters = new LinkedHashMap<>();
-        JsonNode list = node.path("parameters");
+        JsonNode list = node.path(CONST_PARAMETERS);
         if (list.isArray()) {
           for (JsonNode parameter : list) {
             String name = parameter.path("name").asText("");
             if (!name.isEmpty()) {
-              parameters.put(name, valueText(parameter.path("value")));
+              parameters.put(name, valueText(parameter.path(CONST_VALUE)));
             }
           }
         } else if (list.isObject()) {
@@ -139,7 +147,7 @@ public final class AiProposalSchema {
               .forEachRemaining(
                   entry -> parameters.put(entry.getKey(), valueText(entry.getValue())));
         }
-        proposal.put("parameters", parameters);
+        proposal.put(CONST_PARAMETERS, parameters);
         proposals.add(proposal);
       }
       if (proposals.isEmpty()) {
@@ -147,7 +155,7 @@ public final class AiProposalSchema {
       }
       return answer
           + "\n\n```hop_proposals\n"
-          + mapper.writeValueAsString(Map.of("proposals", proposals))
+          + mapper.writeValueAsString(Map.of(CONST_PROPOSALS, proposals))
           + "\n```";
     } catch (Exception e) {
       return json;
@@ -169,7 +177,7 @@ public final class AiProposalSchema {
       boolean proposals;
       try {
         JsonNode block = mapper.readTree(matcher.group(1).trim());
-        proposals = block != null && block.isObject() && block.has("proposals");
+        proposals = block != null && block.isObject() && block.has(CONST_PROPOSALS);
       } catch (Exception e) {
         proposals = false;
       }

@@ -161,17 +161,12 @@ public class ActionDbtDialog extends ActionDialog implements IActionDialog {
   }
 
   private TableView pairTable(Composite parent, int rows, ModifyListener lsMod) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDbt.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionDbt.Column.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDbt.Column.Name"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionDbt.Column.Value"), ColumnInfo.COLUMN_TYPE_TEXT, false)
+    };
     return new TableView(
         variables,
         parent,

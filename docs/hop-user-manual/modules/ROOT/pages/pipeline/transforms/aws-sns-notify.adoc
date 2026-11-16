@@ -67,3 +67,8 @@ All rows can be specified either from a field (`F` column) or as a static value 
 ** Message: the message you want to send
 
 |===
+
+== Samples
+
+The samples project has `transforms/aws-sns-notify.hpl`, which sends one notification for the first row of a Data grid.
+Fill in the AWS credentials, the topic ARN, the subject and the message before you run it.

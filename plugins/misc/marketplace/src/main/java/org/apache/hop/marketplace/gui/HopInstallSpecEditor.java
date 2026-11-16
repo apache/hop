@@ -91,6 +91,25 @@ import org.eclipse.swt.widgets.Text;
 @Getter
 @Setter
 public class HopInstallSpecEditor extends Dialog {
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_ADD =
+      "HopInstallSpecEditor.Button.Add";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_EDIT =
+      "HopInstallSpecEditor.Button.Edit";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_REMOVE =
+      "HopInstallSpecEditor.Button.Remove";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_UP =
+      "HopInstallSpecEditor.Button.MoveUp";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_DOWN =
+      "HopInstallSpecEditor.Button.MoveDown";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER =
+      "HopInstallSpecEditor.Error.Header";
+  private static final String CONST_LIB_JDBC = "lib/jdbc";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_VALIDATION_HEADER =
+      "HopInstallSpecEditor.Validation.Header";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_OK =
+      "HopInstallSpecEditor.Button.Ok";
+  private static final String CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_CANCEL =
+      "HopInstallSpecEditor.Button.Cancel";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
 
@@ -467,11 +486,11 @@ public class HopInstallSpecEditor extends Dialog {
     fdlHelp.right = new FormAttachment(100, 0);
     wlHelp.setLayoutData(fdlHelp);
 
-    Button wAdd = sideButton(comp, "HopInstallSpecEditor.Button.Add", wlHelp);
-    Button wEdit = sideButton(comp, "HopInstallSpecEditor.Button.Edit", wAdd);
-    Button wRemove = sideButton(comp, "HopInstallSpecEditor.Button.Remove", wEdit);
-    Button wUp = sideButton(comp, "HopInstallSpecEditor.Button.MoveUp", wRemove);
-    Button wDown = sideButton(comp, "HopInstallSpecEditor.Button.MoveDown", wUp);
+    Button wAdd = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_ADD, wlHelp);
+    Button wEdit = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_EDIT, wAdd);
+    Button wRemove = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_REMOVE, wEdit);
+    Button wUp = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_UP, wRemove);
+    Button wDown = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_DOWN, wUp);
     Button wImport = sideButton(comp, "HopInstallSpecEditor.Button.ImportRepos", wDown);
 
     wAdd.addListener(SWT.Selection, e -> addRepository());
@@ -533,11 +552,11 @@ public class HopInstallSpecEditor extends Dialog {
     wlHelp.setLayoutData(fdlHelp);
 
     Button wCatalog = sideButton(comp, "HopInstallSpecEditor.Button.AddFromCatalog", wlHelp, null);
-    Button wAdd = sideButton(comp, "HopInstallSpecEditor.Button.Add", wCatalog, wCatalog);
-    Button wEdit = sideButton(comp, "HopInstallSpecEditor.Button.Edit", wAdd, wCatalog);
-    Button wRemove = sideButton(comp, "HopInstallSpecEditor.Button.Remove", wEdit, wCatalog);
-    Button wUp = sideButton(comp, "HopInstallSpecEditor.Button.MoveUp", wRemove, wCatalog);
-    Button wDown = sideButton(comp, "HopInstallSpecEditor.Button.MoveDown", wUp, wCatalog);
+    Button wAdd = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_ADD, wCatalog, wCatalog);
+    Button wEdit = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_EDIT, wAdd, wCatalog);
+    Button wRemove = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_REMOVE, wEdit, wCatalog);
+    Button wUp = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_UP, wRemove, wCatalog);
+    Button wDown = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_DOWN, wUp, wCatalog);
 
     wCatalog.addListener(SWT.Selection, e -> addPluginsFromCatalog());
     wAdd.addListener(SWT.Selection, e -> addPlugin());
@@ -592,11 +611,11 @@ public class HopInstallSpecEditor extends Dialog {
     fdlHelp.right = new FormAttachment(100, 0);
     wlHelp.setLayoutData(fdlHelp);
 
-    Button wAdd = sideButton(comp, "HopInstallSpecEditor.Button.Add", wlHelp);
-    Button wEdit = sideButton(comp, "HopInstallSpecEditor.Button.Edit", wAdd);
-    Button wRemove = sideButton(comp, "HopInstallSpecEditor.Button.Remove", wEdit);
-    Button wUp = sideButton(comp, "HopInstallSpecEditor.Button.MoveUp", wRemove);
-    Button wDown = sideButton(comp, "HopInstallSpecEditor.Button.MoveDown", wUp);
+    Button wAdd = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_ADD, wlHelp);
+    Button wEdit = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_EDIT, wAdd);
+    Button wRemove = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_REMOVE, wEdit);
+    Button wUp = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_UP, wRemove);
+    Button wDown = sideButton(comp, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_MOVE_DOWN, wUp);
 
     wAdd.addListener(SWT.Selection, e -> addDependency());
     wEdit.addListener(SWT.Selection, e -> editDependency());
@@ -692,7 +711,7 @@ public class HopInstallSpecEditor extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+          BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
           BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Load", filename),
           e);
     }
@@ -782,7 +801,7 @@ public class HopInstallSpecEditor extends Dialog {
     item.setText(1, Const.NVL(ref.getGroupId(), ""));
     item.setText(2, Const.NVL(ref.getArtifactId(), ""));
     item.setText(3, Const.NVL(ref.getVersion(), ""));
-    item.setText(4, Const.NVL(ref.getTarget(), "lib/jdbc"));
+    item.setText(4, Const.NVL(ref.getTarget(), CONST_LIB_JDBC));
     item.setData(ref);
   }
 
@@ -1071,7 +1090,7 @@ public class HopInstallSpecEditor extends Dialog {
       String validationError = validateSpec(spec);
       if (validationError != null) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        box.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.Header"));
+        box.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_VALIDATION_HEADER));
         box.setMessage(validationError);
         box.open();
         return false;
@@ -1090,7 +1109,7 @@ public class HopInstallSpecEditor extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+          BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
           BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Save", filename),
           e);
       return false;
@@ -1139,7 +1158,7 @@ public class HopInstallSpecEditor extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+          BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
           BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.OpenYaml", currentFilename),
           e);
     }
@@ -1217,7 +1236,7 @@ public class HopInstallSpecEditor extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+          BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
           BaseMessages.getString(PKG, "MarketplaceDialog.Validate.Error"),
           e);
     }
@@ -1244,7 +1263,7 @@ public class HopInstallSpecEditor extends Dialog {
       MarketplaceConfig live = MarketplaceConfig.load();
       if (!live.isEnabled()) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        box.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"));
+        box.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER));
         box.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Disabled"));
         box.open();
         return;
@@ -1273,7 +1292,7 @@ public class HopInstallSpecEditor extends Dialog {
         e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+        BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
         BaseMessages.getString(PKG, "MarketplaceDialog.Apply.Error"),
         cause);
   }
@@ -1415,16 +1434,17 @@ public class HopInstallSpecEditor extends Dialog {
 
     final boolean[] ok = {false};
     Button wOk = new Button(dialog, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Ok"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_OK));
     Button wCancel = new Button(dialog, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_CANCEL));
     wCancel.addListener(SWT.Selection, e -> dialog.dispose());
     wOk.addListener(
         SWT.Selection,
         e -> {
           if (StringUtils.isBlank(wId.getText()) || StringUtils.isBlank(wUrl.getText())) {
             MessageBox box = new MessageBox(dialog, SWT.OK | SWT.ICON_WARNING);
-            box.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.Header"));
+            box.setText(
+                BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_VALIDATION_HEADER));
             box.setMessage(
                 BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.RepoIdUrl"));
             box.open();
@@ -1477,7 +1497,7 @@ public class HopInstallSpecEditor extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.Header"),
+          BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_ERROR_HEADER),
           BaseMessages.getString(PKG, "HopInstallSpecEditor.Error.ImportRepos"),
           e);
     }
@@ -1539,16 +1559,17 @@ public class HopInstallSpecEditor extends Dialog {
 
     final boolean[] ok = {false};
     Button wOk = new Button(dialog, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Ok"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_OK));
     Button wCancel = new Button(dialog, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_CANCEL));
     wCancel.addListener(SWT.Selection, e -> dialog.dispose());
     wOk.addListener(
         SWT.Selection,
         e -> {
           if (StringUtils.isBlank(wArt.getText())) {
             MessageBox box = new MessageBox(dialog, SWT.OK | SWT.ICON_WARNING);
-            box.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.Header"));
+            box.setText(
+                BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_VALIDATION_HEADER));
             box.setMessage(
                 BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.PluginArtifact"));
             box.open();
@@ -1598,7 +1619,7 @@ public class HopInstallSpecEditor extends Dialog {
 
   private void addDependency() {
     HopInstallSpec.DependencyRef ref = new HopInstallSpec.DependencyRef();
-    ref.setTarget("lib/jdbc");
+    ref.setTarget(CONST_LIB_JDBC);
     if (editDependencyDialog(ref, true)) {
       addDepItem(ref);
       markDirty();
@@ -1618,7 +1639,7 @@ public class HopInstallSpecEditor extends Dialog {
       sel[0].setText(1, Const.NVL(ref.getGroupId(), ""));
       sel[0].setText(2, Const.NVL(ref.getArtifactId(), ""));
       sel[0].setText(3, Const.NVL(ref.getVersion(), ""));
-      sel[0].setText(4, Const.NVL(ref.getTarget(), "lib/jdbc"));
+      sel[0].setText(4, Const.NVL(ref.getTarget(), CONST_LIB_JDBC));
       markDirty();
     }
   }
@@ -1646,20 +1667,21 @@ public class HopInstallSpecEditor extends Dialog {
     Text wVer = textField(dialog, wlVer, middle, Const.NVL(ref.getVersion(), ""));
     Label wlTarget =
         labeled(dialog, "HopInstallSpecEditor.Dep.Column.Target", wVer, middle, margin);
-    Text wTarget = textField(dialog, wlTarget, middle, Const.NVL(ref.getTarget(), "lib/jdbc"));
+    Text wTarget = textField(dialog, wlTarget, middle, Const.NVL(ref.getTarget(), CONST_LIB_JDBC));
 
     final boolean[] ok = {false};
     Button wOk = new Button(dialog, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Ok"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_OK));
     Button wCancel = new Button(dialog, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_BUTTON_CANCEL));
     wCancel.addListener(SWT.Selection, e -> dialog.dispose());
     wOk.addListener(
         SWT.Selection,
         e -> {
           if (StringUtils.isAnyBlank(wGroup.getText(), wArt.getText(), wVer.getText())) {
             MessageBox box = new MessageBox(dialog, SWT.OK | SWT.ICON_WARNING);
-            box.setText(BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.Header"));
+            box.setText(
+                BaseMessages.getString(PKG, CONST_HOP_INSTALL_SPEC_EDITOR_VALIDATION_HEADER));
             box.setMessage(BaseMessages.getString(PKG, "HopInstallSpecEditor.Validation.DepGav"));
             box.open();
             return;
@@ -1667,7 +1689,7 @@ public class HopInstallSpecEditor extends Dialog {
           ref.setGroupId(wGroup.getText().trim());
           ref.setArtifactId(wArt.getText().trim());
           ref.setVersion(wVer.getText().trim());
-          ref.setTarget(StringUtils.defaultIfBlank(wTarget.getText(), "lib/jdbc").trim());
+          ref.setTarget(StringUtils.defaultIfBlank(wTarget.getText(), CONST_LIB_JDBC).trim());
           ok[0] = true;
           dialog.dispose();
         });

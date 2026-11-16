@@ -32,6 +32,12 @@ The Pipeline Probe metadata type works by specifying a receiving pipeline (`Pipe
 
 The receiving pipeline can then continue to process the probe data with all the functionality Apache Hop pipelines have to offer.
 
+== When changes take effect
+
+A run reads the pipeline probes once, when it first needs them, and every pipeline and workflow it starts uses what it read: the child pipelines of a Pipeline executor, the pipelines of a workflow, a mapping and so on. A run is a top-level pipeline or workflow, the one that Hop Run, Hop GUI, Hop Server or the API starts.
+
+A pipeline probe that you add or change while a run is going on takes effect with the next run. This matters for runs that go on for a long time, such as a workflow that loops for hours or a streaming pipeline.
+
 == Related Plugins
 
 * Pipeline Probe

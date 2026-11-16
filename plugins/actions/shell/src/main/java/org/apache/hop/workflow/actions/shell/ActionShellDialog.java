@@ -57,11 +57,10 @@ import org.eclipse.swt.widgets.Text;
 public class ActionShellDialog extends ActionDialog {
   private static final Class<?> PKG = ActionShell.class;
 
-  private static final String[] FILEFORMATS =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionShell.Fileformat.Scripts"),
-        BaseMessages.getString(PKG, "ActionShell.Fileformat.All")
-      };
+  private static final String[] FILEFORMATS = {
+    BaseMessages.getString(PKG, "ActionShell.Fileformat.Scripts"),
+    BaseMessages.getString(PKG, "ActionShell.Fileformat.All")
+  };
 
   private Label wlFilename;
 

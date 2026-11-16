@@ -25,6 +25,7 @@ import org.json.simple.JSONObject;
 
 /** Gitea and Forgejo repository browser ({@code /api/v1}). */
 class GiteaRepositoryBrowser implements GitRepositoryBrowser {
+  private static final String CONST_PAGE = "&page=";
 
   private static final String PROVIDER = "Gitea";
   private static final String ACCEPT = "application/json";
@@ -103,7 +104,7 @@ class GiteaRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(organization.getSlug())
               + "/repos?limit="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page;
     } else {
       url =
@@ -112,7 +113,7 @@ class GiteaRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(organization.getSlug())
               + "/repos?limit="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page;
     }
 
@@ -139,7 +140,7 @@ class GiteaRepositoryBrowser implements GitRepositoryBrowser {
               + GitApiHttp.urlEncode(repository)
               + "/branches?limit="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page;
       GitApiHttp.ApiResponse response = giteaGetPaged(url, auth);
       JSONArray array = GitApiHttp.parseArray(response.getBody(), PROVIDER);

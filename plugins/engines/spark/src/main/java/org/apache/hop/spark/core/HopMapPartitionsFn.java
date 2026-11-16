@@ -74,6 +74,7 @@ import org.apache.spark.sql.Row;
  * executors never receive live Hop graph objects.
  */
 public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Serializable {
+  private static final String CONST_PROJECT_HOME = "PROJECT_HOME";
   private static final long serialVersionUID = 4L;
 
   /** Publish progress at least every this many input rows. */
@@ -385,7 +386,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       transformMeta.setLocation(400, 200);
       pipelineMeta.addTransform(transformMeta);
       // Give CurrentDirectoryResolver a folder under PROJECT_HOME when resolving relatives
-      String projectHome = variables.getVariable("PROJECT_HOME");
+      String projectHome = variables.getVariable(CONST_PROJECT_HOME);
       if (StringUtils.isNotEmpty(projectHome)) {
         pipelineMeta.setFilename(
             projectHome
@@ -426,7 +427,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
                 + " host="
                 + host
                 + " PROJECT_HOME="
-                + variables.getVariable("PROJECT_HOME")
+                + variables.getVariable(CONST_PROJECT_HOME)
                 + " HOP_SPARK_PROJECT_PACKAGE="
                 + variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI),
             e);
@@ -928,7 +929,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               + "' → '"
               + resolved
               + "' (PROJECT_HOME="
-              + (variables != null ? variables.getVariable("PROJECT_HOME") : null)
+              + (variables != null ? variables.getVariable(CONST_PROJECT_HOME) : null)
               + ", package="
               + (variables != null
                   ? variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI)
@@ -980,7 +981,7 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     }
     String packageUri = variables.getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
     String sparkFile = variables.getVariable(SparkProjectPackage.VAR_PACKAGE_SPARK_FILE);
-    String projectHome = variables.getVariable("PROJECT_HOME");
+    String projectHome = variables.getVariable(CONST_PROJECT_HOME);
     if (StringUtils.isEmpty(packageUri)
         && StringUtils.isEmpty(sparkFile)
         && StringUtils.isEmpty(projectHome)) {

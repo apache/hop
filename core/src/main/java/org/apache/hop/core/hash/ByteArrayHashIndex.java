@@ -26,7 +26,7 @@ public class ByteArrayHashIndex {
   private static final int STANDARD_INDEX_SIZE = 512;
   private static final float STANDARD_LOAD_FACTOR = 0.78f;
 
-  private IRowMeta keyRowMeta;
+  private final IRowMeta keyRowMeta;
   private ByteArrayHashIndexEntry[] index;
   private int count;
   private int resizeThresHold;
@@ -232,8 +232,8 @@ public class ByteArrayHashIndex {
   }
 
   private static final class ByteArrayHashIndexEntry {
-    private int hashCode;
-    private byte[] key;
+    private final int hashCode;
+    private final byte[] key;
     private byte[] value;
     private ByteArrayHashIndexEntry nextEntry;
 

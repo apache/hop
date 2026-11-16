@@ -27,8 +27,8 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 public class MetadataContext implements IActionContextHandlersProvider {
 
-  private HopGui hopGui;
-  private IHopMetadataProvider metadataProvider;
+  private final HopGui hopGui;
+  private final IHopMetadataProvider metadataProvider;
 
   public MetadataContext(HopGui hopGui, IHopMetadataProvider metadataProvider) {
     this.hopGui = hopGui;

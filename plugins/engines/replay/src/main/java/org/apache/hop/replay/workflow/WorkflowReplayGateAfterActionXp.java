@@ -45,6 +45,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
     extensionPointId = "WorkflowAfterActionExecution")
 public class WorkflowReplayGateAfterActionXp
     implements IExtensionPoint<WorkflowExecutionExtension> {
+  private static final String CONST_REPLAY_GATE = "Replay Gate [";
 
   @Override
   public void callExtensionPoint(
@@ -122,7 +123,7 @@ public class WorkflowReplayGateAfterActionXp
         out.write(manifest.toJson().getBytes(StandardCharsets.UTF_8));
       }
       log.logBasic(
-          "Replay Gate ["
+          CONST_REPLAY_GATE
               + actionName
               + "]: sealed execution "
               + executionId
@@ -130,7 +131,7 @@ public class WorkflowReplayGateAfterActionXp
               + targetFolder);
     } catch (Exception e) {
       log.logError(
-          "Replay Gate ["
+          CONST_REPLAY_GATE
               + actionName
               + "]: the action succeeded but its manifest could not be written. Replay will run it again.",
           e);
@@ -145,12 +146,12 @@ public class WorkflowReplayGateAfterActionXp
       if (manifestFile.exists()) {
         manifestFile.delete();
         log.logBasic(
-            "Replay Gate ["
+            CONST_REPLAY_GATE
                 + actionName
                 + "]: removed the sealed manifest because the action did not complete successfully.");
       }
     } catch (Exception e) {
-      log.logError("Replay Gate [" + actionName + "]: unable to remove the sealed manifest", e);
+      log.logError(CONST_REPLAY_GATE + actionName + "]: unable to remove the sealed manifest", e);
     }
   }
 }

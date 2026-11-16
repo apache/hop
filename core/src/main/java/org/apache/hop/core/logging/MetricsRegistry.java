@@ -30,8 +30,8 @@ import org.apache.hop.core.metrics.IMetricsSnapshot;
 public class MetricsRegistry {
   private static MetricsRegistry registry = new MetricsRegistry();
 
-  private Map<String, Map<String, IMetricsSnapshot>> snapshotMaps;
-  private Map<String, Queue<IMetricsSnapshot>> snapshotLists;
+  private final Map<String, Map<String, IMetricsSnapshot>> snapshotMaps;
+  private final Map<String, Queue<IMetricsSnapshot>> snapshotLists;
 
   public static MetricsRegistry getInstance() {
     return registry;

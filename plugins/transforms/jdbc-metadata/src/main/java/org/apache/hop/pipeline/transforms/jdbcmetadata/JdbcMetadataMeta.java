@@ -131,233 +131,224 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   // following of argument descriptors describe arguments to metdata methods
   // 1) name of the argument
   // 2) java type of the argument.
-  private static final Object[] ARG_CATALOG = new Object[] {"catalog", String.class};
-  private static final Object[] ARG_SCHEMA = new Object[] {"schema", String.class};
-  private static final Object[] ARG_TABLE = new Object[] {"table", String.class};
-  private static final Object[] ARG_COLUMN_NAME_PATTERN =
-      new Object[] {"columnNamePattern", String.class};
-  private static final Object[] ARG_NULLABLE =
-      new Object[] {"nullable", Boolean.class, new Object[] {}};
-  private static final Object[] ARG_SCHEMA_PATTERN = new Object[] {"schemaPattern", String.class};
-  private static final Object[] ARG_SCOPE = new Object[] {"scope", Integer.class, OPTIONS_SCOPE};
-  private static final Object[] ARG_TABLE_TYPES = new Object[] {"tableTypes", String[].class};
-  private static final Object[] ARG_TABLE_NAME_PATTERN =
-      new Object[] {"tableNamePattern", String.class};
-  private static final Object[] ARG_PARENT_CATALOG = new Object[] {"parentCatalog", String.class};
-  private static final Object[] ARG_PARENT_SCHEMA = new Object[] {"parentSchema", String.class};
-  private static final Object[] ARG_PARENT_TABLE = new Object[] {"parentTable", String.class};
-  private static final Object[] ARG_FOREIGN_CATALOG = new Object[] {"foreignCatalog", String.class};
-  private static final Object[] ARG_FOREIGN_SCHEMA = new Object[] {"foreignSchema", String.class};
-  private static final Object[] ARG_FOREIGN_TABLE = new Object[] {"foreignTable", String.class};
+  private static final Object[] ARG_CATALOG = {"catalog", String.class};
+  private static final Object[] ARG_SCHEMA = {"schema", String.class};
+  private static final Object[] ARG_TABLE = {"table", String.class};
+  private static final Object[] ARG_COLUMN_NAME_PATTERN = {"columnNamePattern", String.class};
+  private static final Object[] ARG_NULLABLE = {"nullable", Boolean.class, new Object[] {}};
+  private static final Object[] ARG_SCHEMA_PATTERN = {"schemaPattern", String.class};
+  private static final Object[] ARG_SCOPE = {"scope", Integer.class, OPTIONS_SCOPE};
+  private static final Object[] ARG_TABLE_TYPES = {"tableTypes", String[].class};
+  private static final Object[] ARG_TABLE_NAME_PATTERN = {"tableNamePattern", String.class};
+  private static final Object[] ARG_PARENT_CATALOG = {"parentCatalog", String.class};
+  private static final Object[] ARG_PARENT_SCHEMA = {"parentSchema", String.class};
+  private static final Object[] ARG_PARENT_TABLE = {"parentTable", String.class};
+  private static final Object[] ARG_FOREIGN_CATALOG = {"foreignCatalog", String.class};
+  private static final Object[] ARG_FOREIGN_SCHEMA = {"foreignSchema", String.class};
+  private static final Object[] ARG_FOREIGN_TABLE = {"foreignTable", String.class};
 
   // this is a map of the methods we can get metadata from.
   // 1) name of the java.sql.DatabaseMetaData method
   // 2) array of argument descriptors
   // 3) array of return fields
   // 4) initially empty slot where the actual Method object is lazily stored.
-  public static final Object[] methodDescriptors =
+  public static final Object[] methodDescriptors = {
+    new Object[] {"getCatalogs", new Object[] {}, new IValueMeta[] {COL_TABLE_CAT}, null},
+    new Object[] {
+      "getBestRowIdentifier",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE, ARG_SCOPE, ARG_NULLABLE},
+      new IValueMeta[] {
+        COL_SCOPE, COL_COLUMN_NAME, COL_DATA_TYPE, COL_TYPE_NAME,
+        COL_COLUMN_SIZE, COL_BUFFER_LENGTH, COL_DECIMAL_DIGITS, COL_PSEUDO_COLUMN
+      },
+      null
+    },
+    new Object[] {
+      "getColumnPrivileges",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE, ARG_COLUMN_NAME_PATTERN},
+      new IValueMeta[] {
+        COL_TABLE_CAT, COL_TABLE_SCHEM, COL_TABLE_NAME, COL_COLUMN_NAME,
+        COL_GRANTOR, COL_GRANTEE, COL_PRIVILEGE, COL_IS_GRANTABLE
+      },
+      null
+    },
+    new Object[] {
+      "getColumns",
       new Object[] {
-        new Object[] {"getCatalogs", new Object[] {}, new IValueMeta[] {COL_TABLE_CAT}, null},
-        new Object[] {
-          "getBestRowIdentifier",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE, ARG_SCOPE, ARG_NULLABLE},
-          new IValueMeta[] {
-            COL_SCOPE, COL_COLUMN_NAME, COL_DATA_TYPE, COL_TYPE_NAME,
-            COL_COLUMN_SIZE, COL_BUFFER_LENGTH, COL_DECIMAL_DIGITS, COL_PSEUDO_COLUMN
-          },
-          null
-        },
-        new Object[] {
-          "getColumnPrivileges",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE, ARG_COLUMN_NAME_PATTERN},
-          new IValueMeta[] {
-            COL_TABLE_CAT, COL_TABLE_SCHEM, COL_TABLE_NAME, COL_COLUMN_NAME,
-            COL_GRANTOR, COL_GRANTEE, COL_PRIVILEGE, COL_IS_GRANTABLE
-          },
-          null
-        },
-        new Object[] {
-          "getColumns",
-          new Object[] {
-            ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN, ARG_COLUMN_NAME_PATTERN
-          },
-          new IValueMeta[] {
-            COL_TABLE_CAT,
-            COL_TABLE_SCHEM,
-            COL_TABLE_NAME,
-            COL_COLUMN_NAME,
-            COL_DATA_TYPE,
-            COL_TYPE_NAME,
-            COL_COLUMN_SIZE,
-            COL_BUFFER_LENGTH,
-            COL_DECIMAL_DIGITS,
-            COL_NUM_PREC_RADIX,
-            COL_NULLABLE,
-            COL_REMARKS,
-            COL_COLUMN_DEF,
-            COL_SQL_DATA_TYPE,
-            COL_SQL_DATETIME_SUB,
-            COL_CHAR_OCTET_LENGTH,
-            COL_ORDINAL_POSITION,
-            COL_IS_NULLABLE,
-            COL_SCOPE_CATALOG,
-            COL_SCOPE_SCHEMA,
-            COL_SCOPE_TABLE,
-            COL_SOURCE_DATA_TYPE,
-            COL_IS_AUTOINCREMENT,
-            COL_IS_GENERATEDCOLUMN
-          },
-          null
-        },
-        new Object[] {
-          "getCrossReference",
-          new Object[] {
-            ARG_PARENT_CATALOG, ARG_PARENT_SCHEMA, ARG_PARENT_TABLE,
-            ARG_FOREIGN_CATALOG, ARG_FOREIGN_SCHEMA, ARG_FOREIGN_TABLE,
-          },
-          new IValueMeta[] {
-            COL_PKTABLE_CAT,
-            COL_PKTABLE_SCHEM,
-            COL_PKTABLE_NAME,
-            COL_PKCOLUMN_NAME,
-            COL_FKTABLE_CAT,
-            COL_FKTABLE_SCHEM,
-            COL_FKTABLE_NAME,
-            COL_FKCOLUMN_NAME,
-            COL_KEY_SEQ,
-            COL_UPDATE_RULE,
-            COL_DELETE_RULE,
-            COL_FK_NAME,
-            COL_PK_NAME,
-            COL_DEFERRABILITY
-          },
-          null
-        },
-        new Object[] {
-          "getExportedKeys",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
-          new IValueMeta[] {
-            COL_PKTABLE_CAT,
-            COL_PKTABLE_SCHEM,
-            COL_PKTABLE_NAME,
-            COL_PKCOLUMN_NAME,
-            COL_FKTABLE_CAT,
-            COL_FKTABLE_SCHEM,
-            COL_FKTABLE_NAME,
-            COL_FKCOLUMN_NAME,
-            COL_KEY_SEQ,
-            COL_UPDATE_RULE,
-            COL_DELETE_RULE,
-            COL_FK_NAME,
-            COL_PK_NAME,
-            COL_DEFERRABILITY
-          },
-          null
-        },
-        new Object[] {
-          "getImportedKeys",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
-          new IValueMeta[] {
-            COL_PKTABLE_CAT,
-            COL_PKTABLE_SCHEM,
-            COL_PKTABLE_NAME,
-            COL_PKCOLUMN_NAME,
-            COL_FKTABLE_CAT,
-            COL_FKTABLE_SCHEM,
-            COL_FKTABLE_NAME,
-            COL_FKCOLUMN_NAME,
-            COL_KEY_SEQ,
-            COL_UPDATE_RULE,
-            COL_DELETE_RULE,
-            COL_FK_NAME,
-            COL_PK_NAME,
-            COL_DEFERRABILITY
-          },
-          null
-        },
-        new Object[] {
-          "getPrimaryKeys",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
-          new IValueMeta[] {
-            COL_TABLE_CAT,
-            COL_TABLE_SCHEM,
-            COL_TABLE_NAME,
-            COL_COLUMN_NAME,
-            COL_KEY_SEQ,
-            COL_PK_NAME
-          },
-          null
-        },
-        new Object[] {
-          "getSchemas", new Object[] {}, new IValueMeta[] {COL_TABLE_SCHEM, COL_TABLE_CATALOG}, null
-        },
-        new Object[] {
-          "getTablePrivileges",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN},
-          new IValueMeta[] {
-            COL_TABLE_CAT,
-            COL_TABLE_SCHEM,
-            COL_TABLE_NAME,
-            COL_GRANTOR,
-            COL_GRANTEE,
-            COL_PRIVILEGE,
-            COL_IS_GRANTABLE
-          },
-          null
-        },
-        new Object[] {"getTableTypes", new Object[] {}, new IValueMeta[] {COL_TABLE_TYPE}, null},
-        new Object[] {
-          "getTables",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN, ARG_TABLE_TYPES},
-          new IValueMeta[] {
-            COL_TABLE_CAT,
-            COL_TABLE_SCHEM,
-            COL_TABLE_NAME,
-            COL_TABLE_TYPE,
-            COL_REMARKS,
-            COL_TYPE_CAT,
-            COL_TYPE_SCHEM,
-            COL_TYPE_NAME,
-            COL_SELF_REFERENCING_COL_NAME,
-            COL_REF_GENERATION
-          },
-          null
-        },
-        new Object[] {
-          "getTypeInfo",
-          new Object[] {},
-          new IValueMeta[] {
-            COL_TYPE_NAME,
-            COL_DATA_TYPE,
-            COL_PRECISION,
-            COL_LITERAL_PREFIX,
-            COL_LITERAL_SUFFIX,
-            COL_CREATE_PARAMS,
-            COL_NULLABLE,
-            COL_CASE_SENSITIVE,
-            COL_SEARCHABLE,
-            COL_UNSIGNED_ATTRIBUTE,
-            COL_FIXED_PREC_SCALE,
-            COL_AUTO_INCREMENT,
-            COL_LOCAL_TYPE_NAME,
-            COL_MINIMUM_SCALE,
-            COL_MAXIMUM_SCALE,
-            COL_SQL_DATA_TYPE,
-            COL_SQL_DATETIME_SUB,
-            COL_NUM_PREC_RADIX
-          },
-          null
-        },
-        new Object[] {
-          "getVersionColumns",
-          new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
-          new IValueMeta[] {
-            COL_SCOPE, COL_COLUMN_NAME, COL_DATA_TYPE, COL_TYPE_NAME,
-            COL_COLUMN_SIZE, COL_BUFFER_LENGTH, COL_DECIMAL_DIGITS, COL_PSEUDO_COLUMN
-          },
-          null
-        }
-      };
+        ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN, ARG_COLUMN_NAME_PATTERN
+      },
+      new IValueMeta[] {
+        COL_TABLE_CAT,
+        COL_TABLE_SCHEM,
+        COL_TABLE_NAME,
+        COL_COLUMN_NAME,
+        COL_DATA_TYPE,
+        COL_TYPE_NAME,
+        COL_COLUMN_SIZE,
+        COL_BUFFER_LENGTH,
+        COL_DECIMAL_DIGITS,
+        COL_NUM_PREC_RADIX,
+        COL_NULLABLE,
+        COL_REMARKS,
+        COL_COLUMN_DEF,
+        COL_SQL_DATA_TYPE,
+        COL_SQL_DATETIME_SUB,
+        COL_CHAR_OCTET_LENGTH,
+        COL_ORDINAL_POSITION,
+        COL_IS_NULLABLE,
+        COL_SCOPE_CATALOG,
+        COL_SCOPE_SCHEMA,
+        COL_SCOPE_TABLE,
+        COL_SOURCE_DATA_TYPE,
+        COL_IS_AUTOINCREMENT,
+        COL_IS_GENERATEDCOLUMN
+      },
+      null
+    },
+    new Object[] {
+      "getCrossReference",
+      new Object[] {
+        ARG_PARENT_CATALOG, ARG_PARENT_SCHEMA, ARG_PARENT_TABLE,
+        ARG_FOREIGN_CATALOG, ARG_FOREIGN_SCHEMA, ARG_FOREIGN_TABLE,
+      },
+      new IValueMeta[] {
+        COL_PKTABLE_CAT,
+        COL_PKTABLE_SCHEM,
+        COL_PKTABLE_NAME,
+        COL_PKCOLUMN_NAME,
+        COL_FKTABLE_CAT,
+        COL_FKTABLE_SCHEM,
+        COL_FKTABLE_NAME,
+        COL_FKCOLUMN_NAME,
+        COL_KEY_SEQ,
+        COL_UPDATE_RULE,
+        COL_DELETE_RULE,
+        COL_FK_NAME,
+        COL_PK_NAME,
+        COL_DEFERRABILITY
+      },
+      null
+    },
+    new Object[] {
+      "getExportedKeys",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
+      new IValueMeta[] {
+        COL_PKTABLE_CAT,
+        COL_PKTABLE_SCHEM,
+        COL_PKTABLE_NAME,
+        COL_PKCOLUMN_NAME,
+        COL_FKTABLE_CAT,
+        COL_FKTABLE_SCHEM,
+        COL_FKTABLE_NAME,
+        COL_FKCOLUMN_NAME,
+        COL_KEY_SEQ,
+        COL_UPDATE_RULE,
+        COL_DELETE_RULE,
+        COL_FK_NAME,
+        COL_PK_NAME,
+        COL_DEFERRABILITY
+      },
+      null
+    },
+    new Object[] {
+      "getImportedKeys",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
+      new IValueMeta[] {
+        COL_PKTABLE_CAT,
+        COL_PKTABLE_SCHEM,
+        COL_PKTABLE_NAME,
+        COL_PKCOLUMN_NAME,
+        COL_FKTABLE_CAT,
+        COL_FKTABLE_SCHEM,
+        COL_FKTABLE_NAME,
+        COL_FKCOLUMN_NAME,
+        COL_KEY_SEQ,
+        COL_UPDATE_RULE,
+        COL_DELETE_RULE,
+        COL_FK_NAME,
+        COL_PK_NAME,
+        COL_DEFERRABILITY
+      },
+      null
+    },
+    new Object[] {
+      "getPrimaryKeys",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
+      new IValueMeta[] {
+        COL_TABLE_CAT, COL_TABLE_SCHEM, COL_TABLE_NAME, COL_COLUMN_NAME, COL_KEY_SEQ, COL_PK_NAME
+      },
+      null
+    },
+    new Object[] {
+      "getSchemas", new Object[] {}, new IValueMeta[] {COL_TABLE_SCHEM, COL_TABLE_CATALOG}, null
+    },
+    new Object[] {
+      "getTablePrivileges",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN},
+      new IValueMeta[] {
+        COL_TABLE_CAT,
+        COL_TABLE_SCHEM,
+        COL_TABLE_NAME,
+        COL_GRANTOR,
+        COL_GRANTEE,
+        COL_PRIVILEGE,
+        COL_IS_GRANTABLE
+      },
+      null
+    },
+    new Object[] {"getTableTypes", new Object[] {}, new IValueMeta[] {COL_TABLE_TYPE}, null},
+    new Object[] {
+      "getTables",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA_PATTERN, ARG_TABLE_NAME_PATTERN, ARG_TABLE_TYPES},
+      new IValueMeta[] {
+        COL_TABLE_CAT,
+        COL_TABLE_SCHEM,
+        COL_TABLE_NAME,
+        COL_TABLE_TYPE,
+        COL_REMARKS,
+        COL_TYPE_CAT,
+        COL_TYPE_SCHEM,
+        COL_TYPE_NAME,
+        COL_SELF_REFERENCING_COL_NAME,
+        COL_REF_GENERATION
+      },
+      null
+    },
+    new Object[] {
+      "getTypeInfo",
+      new Object[] {},
+      new IValueMeta[] {
+        COL_TYPE_NAME,
+        COL_DATA_TYPE,
+        COL_PRECISION,
+        COL_LITERAL_PREFIX,
+        COL_LITERAL_SUFFIX,
+        COL_CREATE_PARAMS,
+        COL_NULLABLE,
+        COL_CASE_SENSITIVE,
+        COL_SEARCHABLE,
+        COL_UNSIGNED_ATTRIBUTE,
+        COL_FIXED_PREC_SCALE,
+        COL_AUTO_INCREMENT,
+        COL_LOCAL_TYPE_NAME,
+        COL_MINIMUM_SCALE,
+        COL_MAXIMUM_SCALE,
+        COL_SQL_DATA_TYPE,
+        COL_SQL_DATETIME_SUB,
+        COL_NUM_PREC_RADIX
+      },
+      null
+    },
+    new Object[] {
+      "getVersionColumns",
+      new Object[] {ARG_CATALOG, ARG_SCHEMA, ARG_TABLE},
+      new IValueMeta[] {
+        COL_SCOPE, COL_COLUMN_NAME, COL_DATA_TYPE, COL_TYPE_NAME,
+        COL_COLUMN_SIZE, COL_BUFFER_LENGTH, COL_DECIMAL_DIGITS, COL_PSEUDO_COLUMN
+      },
+      null
+    }
+  };
 
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize

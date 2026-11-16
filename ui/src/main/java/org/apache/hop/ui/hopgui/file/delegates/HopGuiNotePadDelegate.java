@@ -35,9 +35,9 @@ import org.apache.hop.ui.hopgui.file.shared.ISnapshotUndoSupport;
 public class HopGuiNotePadDelegate {
   private static final Class<?> PKG = HopGui.class;
 
-  private HopGui hopGui;
-  private IHopFileTypeHandler handler;
-  private PropsUi props;
+  private final HopGui hopGui;
+  private final IHopFileTypeHandler handler;
+  private final PropsUi props;
 
   public HopGuiNotePadDelegate(HopGui hopGui, IHopFileTypeHandler handler) {
     this.hopGui = hopGui;

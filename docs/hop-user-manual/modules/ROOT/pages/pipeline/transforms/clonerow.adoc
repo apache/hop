@@ -39,3 +39,7 @@ Note: This name has to be unique in a single pipeline.
 * Y / true : this is a cloned row, a copy of the original row
 |Clone flag field|The name of the clone flag field
 |===
+
+== Samples
+
+The samples project has `transforms/clone-row-basic.hpl`, which clones each of 5 generated rows once and adds `Flagfield` (N for the original row, Y for the clone) and `CopyNumber`.

@@ -92,6 +92,8 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 @GuiPlugin
 public class DatabaseWorkbench extends Composite implements TabClosable {
+  private static final String CONST_DATABASE_PERSPECTIVE_ERROR_TITLE =
+      "DatabasePerspective.Error.Title";
 
   public static final Class<?> PKG = DatabasePerspective.class;
 
@@ -322,7 +324,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
     } catch (Exception e) {
       new ErrorDialog(
           host.getShell(),
-          BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+          BaseMessages.getString(PKG, CONST_DATABASE_PERSPECTIVE_ERROR_TITLE),
           BaseMessages.getString(PKG, "DatabasePerspective.Error.LoadConnections"),
           e);
     }
@@ -420,7 +422,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       if (host != null && host.getShell() != null) {
         new ErrorDialog(
             host.getShell(),
-            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            BaseMessages.getString(PKG, CONST_DATABASE_PERSPECTIVE_ERROR_TITLE),
             BaseMessages.getString(PKG, "DatabasePerspective.Error.LoadConnections"),
             e);
       }
@@ -957,7 +959,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       } catch (Exception e) {
         new ErrorDialog(
             host.getShell(),
-            BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+            BaseMessages.getString(PKG, CONST_DATABASE_PERSPECTIVE_ERROR_TITLE),
             e.getMessage(),
             e);
       }
@@ -1241,7 +1243,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
         } catch (Exception e) {
           new ErrorDialog(
               host.getShell(),
-              BaseMessages.getString(PKG, "DatabasePerspective.Error.Title"),
+              BaseMessages.getString(PKG, CONST_DATABASE_PERSPECTIVE_ERROR_TITLE),
               BaseMessages.getString(PKG, "DatabasePerspective.Error.OpenFile", filename),
               e);
         }

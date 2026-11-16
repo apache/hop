@@ -314,55 +314,54 @@ public class RegexEvalDialog extends BaseTransformDialog {
 
     final int fieldsRows = input.getRegexFields().size();
 
-    ColumnInfo[] columnInfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.NewField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Nullif"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.IfNull"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.TrimType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc,
-              true),
-        };
+    ColumnInfo[] columnInfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.NewField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Group"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Decimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.Nullif"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.IfNull"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RegexEvalDialog.ColumnInfo.TrimType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.trimTypeDesc,
+          true),
+    };
     columnInfo[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =

@@ -18,16 +18,23 @@
 package org.apache.hop.pipeline.transforms.execprocess;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CountDownLatch;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -44,8 +51,13 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   private static final Class<?> PKG = ExecProcessMeta.class;
   public static final String CONST_EXEC_PROCESS_EXCEPTION_COULD_NOT_FIND_FIELD =
       "ExecProcess.Exception.CouldNotFindField";
-  private boolean killing;
-  private CountDownLatch waitForLatch;
+
+  /**
+   * How long a stopped process is given to exit on a graceful destroy before it is force-killed.
+   */
+  private static final long GRACE_PERIOD_SECONDS = 30;
+
+  private final AtomicReference<ProcessExecution> activeExecution = new AtomicReference<>();
 
   public ExecProcess(
       TransformMeta transformMeta,
@@ -95,13 +107,19 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
           cmdArray.add(Const.NVL(argString, ""));
         }
 
-        execProcess(cmdArray.toArray(new String[0]), processResult);
+        if (!execProcess(cmdArray.toArray(new String[0]), processResult)) {
+          setOutputDone();
+          return false;
+        }
       } else {
         if (isDetailed() && !hasBalancedQuotes(processString)) {
           logDetailed(
               BaseMessages.getString(PKG, "ExecProcess.Log.UnbalancedQuotes", processString));
         }
-        execProcess(tokenizeCommandLine(processString), processResult);
+        if (!execProcess(tokenizeCommandLine(processString), processResult)) {
+          setOutputDone();
+          return false;
+        }
       }
 
       if (meta.isFailWhenNotSuccess() && processResult.getExitValue() != 0) {
@@ -199,124 +217,196 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
   @Override
   public void stopRunning() throws HopException {
-    if (waitForLatch != null) {
-      killing = true;
+    // A pipeline stop must not wait for a child process or a stream reader. In particular, a
+    // descendant can keep a pipe open after the direct child exits.
+    setStopped(true);
+    final var execution = activeExecution.get();
+    if (execution != null) {
+      execution.cancelled.set(true);
+    }
+  }
+
+  private boolean execProcess(final String[] command, final ProcessResult result)
+      throws HopException {
+    final var execution = new ProcessExecution();
+    activeExecution.set(execution);
+    Process child = null;
+    boolean completed = false;
+    try {
+      if (isStopped()) {
+        return false;
+      }
       try {
-        waitForLatch.await();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new HopException("Interrupted exception while kill the process", e);
+        child = data.runtime.exec(command);
+      } catch (Exception e) {
+        // An exec failure may be an IOException, SecurityException or IllegalArgumentException; all
+        // must reach the error hop rather than escape processRow as a non-HopException.
+        if (isStopped() || execution.cancelled.get()) {
+          return false;
+        }
+        result.setErrorStream(e.getMessage());
+        return true;
+      }
+      if (isCancelled(execution)) {
+        return false;
+      }
+      final Process process = child;
+      // Owned daemon readers keep blocked pipes out of the shared common pool. They close their
+      // streams on normal completion; cancellation also arranges asynchronous stream cleanup.
+      final var stdout = execution.readers.submit(() -> readOutput(process.getInputStream()));
+      final var stderr = execution.readers.submit(() -> readOutput(process.getErrorStream()));
+      while (true) {
+        // Remember children while the parent is alive: after it exits, inherited pipes may
+        // still be held by descendants that are no longer discoverable through that parent.
+        try (final var descendants = process.descendants()) {
+          descendants.forEach(execution.descendants::add);
+        }
+        if (isCancelled(execution)) {
+          return false;
+        }
+        // Poll at a second's granularity so we do not rescan /proc more often than needed.
+        if (process.waitFor(1, TimeUnit.SECONDS)) {
+          break;
+        }
+      }
+      final var output = awaitOutput(stdout, execution);
+      if (isCancelled(execution)) {
+        return false;
+      }
+      final var error = awaitOutput(stderr, execution);
+      if (isCancelled(execution)) {
+        return false;
+      }
+      result.setOutputStream(output);
+      result.setErrorStream(error);
+      result.setExitValue(process.exitValue());
+      completed = true;
+      return true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new HopException("Interrupted while running process " + Arrays.toString(command), e);
+    } catch (ExecutionException e) {
+      throw new HopException("Unable to read process output", e.getCause());
+    } finally {
+      activeExecution.compareAndSet(execution, null);
+      execution.readers.shutdownNow();
+      if (child != null) {
+        if (completed) {
+          // Normal completion: the owned readers already closed the streams. Closing them again is
+          // a defensive no-op that needs no dedicated thread.
+          closeProcessStream(child.getOutputStream());
+          closeProcessStream(child.getInputStream());
+          closeProcessStream(child.getErrorStream());
+        } else {
+          // Aborted: destroy the process (graceful then forced) inline on the transform thread so a
+          // hop-run shutdown that exits the JVM cannot orphan a still-running command, then close
+          // its streams on a background thread.
+          cleanupProcess(child, execution);
+        }
       }
     }
   }
 
-  private void execProcess(String[] process, ProcessResult processresult) throws HopException {
-    Process p = null;
-    waitForLatch = new CountDownLatch(1);
-    try {
-      String errorMsg = null;
-      // execute process
+  private boolean isCancelled(final ProcessExecution execution) {
+    return isStopped() || execution.cancelled.get();
+  }
+
+  private String awaitOutput(final Future<String> output, final ProcessExecution execution)
+      throws InterruptedException, ExecutionException {
+    while (!isCancelled(execution)) {
       try {
-        p = data.runtime.exec(process);
-      } catch (Exception e) {
-        errorMsg = e.getMessage();
-      }
-      if (p == null) {
-        processresult.setErrorStream(errorMsg);
-      } else {
-        final Process child = p;
-        // Drain stdout/stderr while the process runs. Reading only after onExit() can deadlock:
-        // if the child fills either pipe buffer before exiting, it blocks on write forever.
-        CompletableFuture<String> stdoutFuture =
-            CompletableFuture.supplyAsync(
-                () -> {
-                  try {
-                    return getOutputString(
-                        new BufferedReader(new InputStreamReader(child.getInputStream())));
-                  } catch (IOException e) {
-                    throw new CompletionException(e);
-                  }
-                });
-        CompletableFuture<String> stderrFuture =
-            CompletableFuture.supplyAsync(
-                () -> {
-                  try {
-                    return getOutputString(
-                        new BufferedReader(new InputStreamReader(child.getErrorStream())));
-                  } catch (IOException e) {
-                    throw new CompletionException(e);
-                  }
-                });
-
-        while (true) {
-          try {
-            if (child.waitFor(1, TimeUnit.SECONDS)) {
-              break;
-            }
-          } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw new HopException(
-                "Interrupted exception while running the process " + Arrays.toString(process) + "!",
-                ie);
-          }
-          if (killing) {
-            child.children().forEach(ProcessHandle::destroy);
-            if (child.isAlive()) {
-              child.destroy();
-            }
-            try {
-              if (!child.waitFor(30, TimeUnit.SECONDS)) {
-                child.destroyForcibly();
-                child.waitFor();
-              }
-            } catch (InterruptedException ie) {
-              Thread.currentThread().interrupt();
-              throw new HopException(
-                  "Interrupted exception while running the process "
-                      + Arrays.toString(process)
-                      + "!",
-                  ie);
-            }
-            logMinimal(BaseMessages.getString(PKG, "ExecProcess.AbortProcess"));
-            break;
-          }
-        }
-
-        try {
-          processresult.setOutputStream(stdoutFuture.get());
-          processresult.setErrorStream(stderrFuture.get());
-        } catch (ExecutionException e) {
-          Throwable cause = e.getCause();
-          if (cause instanceof IOException ioe) {
-            throw ioe;
-          }
-          if (cause instanceof RuntimeException re) {
-            throw re;
-          }
-          throw new IOException(cause);
-        } catch (InterruptedException ie) {
-          Thread.currentThread().interrupt();
-          throw new HopException(
-              "Interrupted exception while running the process " + Arrays.toString(process) + "!",
-              ie);
-        }
-
-        processresult.setExitValue(child.exitValue());
-      }
-    } catch (IOException ioe) {
-      throw new HopException(
-          "IO exception while running the process " + Arrays.toString(process) + "!", ioe);
-    } catch (Exception e) {
-      throw new HopException(e);
-    } finally {
-      if (killing || waitForLatch.getCount() > 0) {
-        waitForLatch.countDown();
-        killing = false;
-      }
-      if (p != null) {
-        p.destroy();
+        return output.get(100, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException e) {
+        // Observe stop requests even after the process exits but a stream drainer is still active.
       }
     }
+    return null;
+  }
+
+  private String readOutput(final InputStream stream) throws IOException {
+    try (final var reader = new BufferedReader(new InputStreamReader(stream))) {
+      return getOutputString(reader);
+    }
+  }
+
+  private void cleanupProcess(final Process process, final ProcessExecution execution) {
+    // Aborted: stop the process right away on the transform thread so a hop-run shutdown that calls
+    // System.exit() cannot orphan a still-running command. Only the stream close, that can block in
+    // native I/O or on a reader's monitor, is deferred to a background thread.
+    killProcess(process, execution);
+    closeStreamsAsync(process);
+  }
+
+  /**
+   * Stop the process gracefully (SIGTERM) and, after a grace period, force it (SIGKILL). This runs
+   * on the transform thread before processRow returns, so a pipeline shutdown that exits the JVM
+   * cannot orphan a still-running command. The daemon cleanup that used to own this work could be
+   * killed by System.exit() before the forced kill ever ran.
+   */
+  private void killProcess(final Process process, final ProcessExecution execution) {
+    try {
+      try (final var descendants = process.descendants()) {
+        descendants.forEach(execution.descendants::add);
+      }
+      // Ask gracefully first (SIGTERM) so a script trapping it can clean up and roll back, then
+      // fall back to a forced kill (SIGKILL) only if it does not exit.
+      execution.descendants.forEach(ProcessHandle::destroy);
+      if (process.isAlive()) {
+        process.destroy();
+      }
+      if (!process.waitFor(GRACE_PERIOD_SECONDS, TimeUnit.SECONDS)) {
+        execution.descendants.forEach(ProcessHandle::destroyForcibly);
+        if (process.isAlive()) {
+          process.destroyForcibly();
+        }
+      }
+    } catch (InterruptedException e) {
+      // A forced kill still makes sure the process goes away without waiting again.
+      Thread.currentThread().interrupt();
+      execution.descendants.forEach(ProcessHandle::destroyForcibly);
+      if (process.isAlive()) {
+        process.destroyForcibly();
+      }
+    }
+  }
+
+  /**
+   * Close the process streams on a daemon thread. stream.close() may block in native I/O or on a
+   * reader's monitor, so it must not run inline on the transform or pipeline thread.
+   */
+  private void closeStreamsAsync(final Process process) {
+    final var closer =
+        new Thread(
+            () -> {
+              closeProcessStream(process.getOutputStream());
+              closeProcessStream(process.getInputStream());
+              closeProcessStream(process.getErrorStream());
+            },
+            "hop-execprocess-cleanup");
+    closer.setDaemon(true);
+    closer.start();
+  }
+
+  private void closeProcessStream(final Closeable stream) {
+    try {
+      stream.close();
+    } catch (IOException e) {
+      logDebug("Unable to close process stream", e);
+    }
+  }
+
+  private static final class ProcessExecution {
+    private final AtomicBoolean cancelled = new AtomicBoolean();
+    // Owned by the executing (transform) thread, which also performs the graceful-then-forced kill.
+    private final Set<ProcessHandle> descendants = new HashSet<>();
+    private final ExecutorService readers =
+        Executors.newFixedThreadPool(
+            2,
+            task -> {
+              final var thread = new Thread(task, "hop-execprocess-output");
+              thread.setDaemon(true);
+              return thread;
+            });
   }
 
   /**

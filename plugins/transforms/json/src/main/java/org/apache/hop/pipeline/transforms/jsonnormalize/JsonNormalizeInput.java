@@ -154,7 +154,11 @@ public class JsonNormalizeInput
     data.inputRowMeta = getInputRowMeta();
     if (!meta.isInFields() && data.inputRowMeta == null) {
       data.outputRowMeta = new RowMeta();
-      if (!meta.isDoNotFailIfNoFile() && (data.files == null || data.files.nrOfFiles() == 0)) {
+      if (data.files == null) {
+        // The check below is about the files: have the list before asking how many there are
+        data.files = meta.getFileInputList(this);
+      }
+      if (!meta.isDoNotFailIfNoFile() && data.files.nrOfFiles() == 0) {
         String errMsg = BaseMessages.getString(JsonInputMeta.class, "JsonInput.Log.NoFiles");
         logError(errMsg);
         inputError(errMsg);

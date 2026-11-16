@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     fileFilterNames = {"Mermaid Diagrams (*.mmd)"},
     supportedSubjectTypes = {PipelineMeta.class})
 public class PipelineMermaidDiagramExporter extends BaseDiagramExporter<PipelineMeta> {
+  private static final String CONST_BR = "<br/>";
 
   public PipelineMermaidDiagramExporter() {
     super();
@@ -124,8 +125,8 @@ public class PipelineMermaidDiagramExporter extends BaseDiagramExporter<Pipeline
         .replace("]", "#93;")
         .replace("(", "#40;")
         .replace(")", "#41;")
-        .replace("\r\n", "<br/>")
-        .replace("\n", "<br/>")
-        .replace("\r", "<br/>");
+        .replace("\r\n", CONST_BR)
+        .replace("\n", CONST_BR)
+        .replace("\r", CONST_BR);
   }
 }

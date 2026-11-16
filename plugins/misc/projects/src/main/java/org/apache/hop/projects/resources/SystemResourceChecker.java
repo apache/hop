@@ -30,6 +30,7 @@ import org.apache.hop.core.variables.IVariables;
  * Const#toLongExpanded(String, long)}.
  */
 public final class SystemResourceChecker {
+  private static final String CONST_DISK_PATH = "Disk path '";
 
   private SystemResourceChecker() {}
 
@@ -84,14 +85,14 @@ public final class SystemResourceChecker {
       String path = disk.getPath();
       Long usable = actual.getUsableSpaceByPath().get(path);
       if (usable == null) {
-        result.addViolation("Disk path '" + path + "' was not measured (missing from snapshot)");
+        result.addViolation(CONST_DISK_PATH + path + "' was not measured (missing from snapshot)");
         continue;
       }
 
       long minMb = resolveMinFreeMb(disk.getMinFreeBytes(), variables);
       if (minMb <= 0) {
         result.addViolation(
-            "Disk path '"
+            CONST_DISK_PATH
                 + path
                 + "' has invalid min free space expression: '"
                 + Const.NVL(disk.getMinFreeBytes(), "")
@@ -103,12 +104,12 @@ public final class SystemResourceChecker {
       File file = new File(path);
       if (!file.exists()) {
         result.addViolation(
-            "Disk path '" + path + "' does not exist (required free space: " + minMb + " MiB)");
+            CONST_DISK_PATH + path + "' does not exist (required free space: " + minMb + " MiB)");
         continue;
       }
       if (usable < minBytes) {
         result.addViolation(
-            "Disk path '"
+            CONST_DISK_PATH
                 + path
                 + "' has "
                 + formatMb(usable)

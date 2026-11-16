@@ -67,13 +67,11 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class TikaDialog extends BaseTransformDialog {
-  public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  public static final int[] dateLengths = {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
   private static final Class<?> PKG = TikaMeta.class;
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
   private final TikaMeta input;
   private CTabFolder wTabFolder;
   private Label wlFilename;

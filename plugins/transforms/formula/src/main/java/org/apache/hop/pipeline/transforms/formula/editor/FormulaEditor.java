@@ -55,29 +55,29 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private static final int DEFAULT_WIDTH = 900;
   private static final int DEFAULT_HEIGHT = 700;
 
-  private Shell shell;
-  private Tree tree;
-  private SashForm sashForm;
+  private final Shell shell;
+  private final Tree tree;
+  private final SashForm sashForm;
   private StyledTextComp expressionEditor;
   private String formula;
-  private Browser message;
+  private final Browser message;
 
-  private Button ok;
-  private Button cancel;
+  private final Button ok;
+  private final Button cancel;
 
-  private Color blue;
-  private Color red;
-  private Color green;
-  private Color white;
-  private Color gray;
-  private Color black;
+  private final Color blue;
+  private final Color red;
+  private final Color green;
+  private final Color white;
+  private final Color gray;
+  private final Color black;
 
   Menu helperMenu;
 
   private FunctionLib functionLib;
   private String[] categories;
 
-  private SashForm rightSash;
+  private final SashForm rightSash;
 
   public FormulaEditor(
       IVariables variables, Shell parent, int style, String formula, String[] inputFields)

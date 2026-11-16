@@ -26,8 +26,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class CheckBox extends Composite {
-  private Button button;
-  private Label label;
+  private final Button button;
+  private final Label label;
 
   public CheckBox(Composite composite) {
     super(composite, SWT.NONE);

@@ -38,7 +38,7 @@ public class ServerConnectionManager {
 
   private static ServerConnectionManager serverConnectionManager;
 
-  private PoolingHttpClientConnectionManager manager;
+  private final PoolingHttpClientConnectionManager manager;
 
   private ServerConnectionManager() {
     if (needToInitializeSSLContext()) {

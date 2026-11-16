@@ -150,8 +150,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wNextPageUrlJsonPath;
   private TextVar wNextPageUrlXPath;
 
-  private int middle;
-  private int margin;
+  private final int middle;
+  private final int margin;
   private IVariables variables;
   Control lastControl;
 

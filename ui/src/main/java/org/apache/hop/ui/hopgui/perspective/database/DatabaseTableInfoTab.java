@@ -76,9 +76,9 @@ public class DatabaseTableInfoTab implements IHopFileTypeHandler {
   @Getter private final Composite control;
   @Getter private CTabItem tabItem;
 
-  private TableView columnsView;
-  private TableView indexesView;
-  private IContentEditorWidget ddlEditor;
+  private final TableView columnsView;
+  private final TableView indexesView;
+  private final IContentEditorWidget ddlEditor;
 
   public DatabaseTableInfoTab(
       Composite parent,

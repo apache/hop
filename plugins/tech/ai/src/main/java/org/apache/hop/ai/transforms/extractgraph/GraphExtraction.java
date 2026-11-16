@@ -45,6 +45,11 @@ import org.apache.hop.core.exception.HopException;
  * are exact duplicates.
  */
 public final class GraphExtraction {
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_SOURCE = "source";
+  private static final String CONST_TARGET = "target";
+  private static final String CONST_ENTITIES = "entities";
+  private static final String CONST_RELATIONSHIPS = "relationships";
 
   /** An entity: a thing the text mentions. */
   public record Entity(String name, String type, String description) {}
@@ -94,18 +99,20 @@ public final class GraphExtraction {
                 "name", JsonStringSchema.builder().description("as the text names it").build())
             .addProperty("type", typeElement(entityTypes, "what kind of thing it is"))
             .addProperty(
-                "description", JsonStringSchema.builder().description("one sentence").build())
-            .required("name", "type", "description")
+                CONST_DESCRIPTION, JsonStringSchema.builder().description("one sentence").build())
+            .required("name", "type", CONST_DESCRIPTION)
             .additionalProperties(false)
             .build();
     JsonObjectSchema relationship =
         JsonObjectSchema.builder()
-            .addProperty("source", JsonStringSchema.builder().description("an entity name").build())
-            .addProperty("target", JsonStringSchema.builder().description("an entity name").build())
+            .addProperty(
+                CONST_SOURCE, JsonStringSchema.builder().description("an entity name").build())
+            .addProperty(
+                CONST_TARGET, JsonStringSchema.builder().description("an entity name").build())
             .addProperty("type", typeElement(relationshipTypes, "in UPPER_SNAKE_CASE"))
             .addProperty(
-                "description", JsonStringSchema.builder().description("one sentence").build())
-            .required("source", "target", "type", "description")
+                CONST_DESCRIPTION, JsonStringSchema.builder().description("one sentence").build())
+            .required(CONST_SOURCE, CONST_TARGET, "type", CONST_DESCRIPTION)
             .additionalProperties(false)
             .build();
     return JsonSchema.builder()
@@ -115,9 +122,10 @@ public final class GraphExtraction {
                 : schemaName.replaceAll("[^A-Za-z0-9_-]+", "_"))
         .rootElement(
             JsonObjectSchema.builder()
-                .addProperty("entities", JsonArraySchema.builder().items(entity).build())
-                .addProperty("relationships", JsonArraySchema.builder().items(relationship).build())
-                .required("entities", "relationships")
+                .addProperty(CONST_ENTITIES, JsonArraySchema.builder().items(entity).build())
+                .addProperty(
+                    CONST_RELATIONSHIPS, JsonArraySchema.builder().items(relationship).build())
+                .required(CONST_ENTITIES, CONST_RELATIONSHIPS)
                 .additionalProperties(false)
                 .build())
         .build();
@@ -181,7 +189,7 @@ public final class GraphExtraction {
 
     Set<Entity> entities = new LinkedHashSet<>();
     Map<String, String> entityNames = new HashMap<>();
-    for (JsonNode node : array(root, "entities")) {
+    for (JsonNode node : array(root, CONST_ENTITIES)) {
       String name = text(node, "name");
       if (name.isEmpty()) {
         continue;
@@ -197,14 +205,14 @@ public final class GraphExtraction {
                 + String.join(", ", entityTypes));
         continue;
       }
-      entities.add(new Entity(name, type, text(node, "description")));
+      entities.add(new Entity(name, type, text(node, CONST_DESCRIPTION)));
       entityNames.putIfAbsent(key(name), name);
     }
 
     Set<Relationship> relationships = new LinkedHashSet<>();
-    for (JsonNode node : array(root, "relationships")) {
-      String source = text(node, "source");
-      String target = text(node, "target");
+    for (JsonNode node : array(root, CONST_RELATIONSHIPS)) {
+      String source = text(node, CONST_SOURCE);
+      String target = text(node, CONST_TARGET);
       if (source.isEmpty() || target.isEmpty()) {
         continue;
       }
@@ -229,7 +237,8 @@ public final class GraphExtraction {
                 + "' is not one of the entities");
         continue;
       }
-      relationships.add(new Relationship(sourceName, targetName, type, text(node, "description")));
+      relationships.add(
+          new Relationship(sourceName, targetName, type, text(node, CONST_DESCRIPTION)));
     }
     return new GraphExtraction(new ArrayList<>(entities), new ArrayList<>(relationships), dropped);
   }

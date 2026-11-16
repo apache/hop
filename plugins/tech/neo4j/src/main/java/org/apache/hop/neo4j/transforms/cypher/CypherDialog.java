@@ -109,7 +109,7 @@ public class CypherDialog extends BaseTransformDialog {
 
   private TableView wReturns;
 
-  private CypherMeta input;
+  private final CypherMeta input;
 
   public CypherDialog(
       Shell parent, IVariables variables, CypherMeta inputMetadata, PipelineMeta pipelineMeta) {
@@ -406,13 +406,12 @@ public class CypherDialog extends BaseTransformDialog {
 
     // Table: parameter and field
     //
-    ColumnInfo[] parameterColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
-          new ColumnInfo(
-              "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-        };
+    ColumnInfo[] parameterColumns = {
+      new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+      new ColumnInfo(
+          "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+    };
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);
     wlParameters.setText("Parameters: (NOTE that parameters for labels are not supported)");
@@ -515,20 +514,16 @@ public class CypherDialog extends BaseTransformDialog {
 
     // Table: return field name and type
     //
-    ColumnInfo[] returnColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo(
-              "Return type",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames(),
-              false),
-          new ColumnInfo(
-              "Source type",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphPropertyDataType.getNames(),
-              false),
-        };
+    ColumnInfo[] returnColumns = {
+      new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          "Return type",
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames(),
+          false),
+      new ColumnInfo(
+          "Source type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyDataType.getNames(), false),
+    };
 
     Label wlReturns = new Label(wReturnsComp, SWT.LEFT);
     wlReturns.setText("Returns");

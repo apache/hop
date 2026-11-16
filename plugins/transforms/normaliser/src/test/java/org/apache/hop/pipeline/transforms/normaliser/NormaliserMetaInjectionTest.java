@@ -35,6 +35,7 @@ class NormaliserMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Normal
   @Test
   void test() throws Exception {
     check("TYPEFIELD", () -> meta.getTypeField());
+    check("VALUEFIELD", () -> meta.getValueField());
     check("NAME", () -> meta.getNormaliserFields().get(0).getName());
     check("VALUE", () -> meta.getNormaliserFields().get(0).getValue());
     check("NORMALISED", () -> meta.getNormaliserFields().get(0).getNorm());

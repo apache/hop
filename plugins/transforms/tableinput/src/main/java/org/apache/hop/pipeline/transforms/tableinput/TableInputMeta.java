@@ -70,6 +70,8 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 @Getter
 @Setter
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
+  private static final String CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY =
+      "TableInput.Exception.SpecifyFieldsEmpty";
 
   private static final Class<?> PKG = TableInputMeta.class;
 
@@ -130,6 +132,32 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       injectionKey = "VALIDATE_SPECIFIED_FIELDS",
       injectionKeyDescription = "TableInputMeta.Injection.ValidateSpecifiedFields")
   private boolean validateSpecifiedFields;
+
+  /**
+   * JDBC partition column used for a parallel (partitioned) read. When set together with {@link
+   * #jdbcLowerBound}, {@link #jdbcUpperBound} and {@link #jdbcNumPartitions}, the query is sliced
+   * into disjoint ranges of this column. The classic Hop engine reads one slice per transform copy,
+   * the native Spark engine reads one slice per Spark task via spark.read.jdbc. Empty (default) =
+   * one single full read, current behavior.
+   */
+  @HopMetadataProperty(key = "jdbc_partition_column")
+  private String jdbcPartitionColumn;
+
+  /** Inclusive lower bound of the partition column range. Variable-resolvable. */
+  @HopMetadataProperty(key = "jdbc_lower_bound")
+  private String jdbcLowerBound;
+
+  /** Exclusive upper bound of the partition column range. Variable-resolvable. */
+  @HopMetadataProperty(key = "jdbc_upper_bound")
+  private String jdbcUpperBound;
+
+  /**
+   * Number of parallel reads (slices). On the classic engine this should match the transform copy
+   * count; on the native Spark engine it becomes spark.read.jdbc numPartitions. Empty or 0
+   * (default) = one single full read, current behavior.
+   */
+  @HopMetadataProperty(key = "jdbc_num_partitions")
+  private String jdbcNumPartitions;
 
   @HopMetadataProperty(
       key = "field",
@@ -368,7 +396,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
             cr =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
-                    BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"),
+                    BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY),
                     transformMeta);
             remarks.add(cr);
           } else {
@@ -632,7 +660,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       throws HopTransformException {
     if (Utils.isEmpty(fields)) {
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+          BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY));
     }
     boolean added = false;
     try {
@@ -649,7 +677,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
     if (!added) {
       throw new HopTransformException(
-          BaseMessages.getString(PKG, "TableInput.Exception.SpecifyFieldsEmpty"));
+          BaseMessages.getString(PKG, CONST_TABLE_INPUT_EXCEPTION_SPECIFY_FIELDS_EMPTY));
     }
   }
 

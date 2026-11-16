@@ -59,6 +59,7 @@ import picocli.CommandLine.ParameterException;
 @HopCommand(id = "import", description = "Import ")
 public class HopImport
     implements Callable<Integer>, Runnable, IHasHopMetadataProvider, IHopCommand {
+  private static final String CONST_AT = "' at ";
   private static final String CONST_IMPORT = "Import is ";
 
   @Option(
@@ -353,7 +354,7 @@ public class HopImport
               + "' is imported into its own home folder");
     }
     outputFolderName = projectHome;
-    log.logBasic("Importing into project '" + projectName + "' at " + projectHome);
+    log.logBasic("Importing into project '" + projectName + CONST_AT + projectHome);
   }
 
   /**
@@ -380,12 +381,12 @@ public class HopImport
       log.logError(
           "Unable to register project '"
               + projectName
-              + "' at "
+              + CONST_AT
               + projectHome
               + ". Is the projects plugin available? Nothing was imported.");
       return false;
     }
-    log.logBasic("Registered project '" + projectName + "' at " + projectHome);
+    log.logBasic("Registered project '" + projectName + CONST_AT + projectHome);
     return true;
   }
 

@@ -111,6 +111,11 @@ import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
+  private static final String CONST_PROJECT = "Project '";
+  private static final String CONST_COULD_NOT_BE_LOADED_BECAUSE = "' could not be loaded because ";
+  private static final String CONST_NO_LONGER_EXISTS_YOU_CAN_UPDATE_THE_PATH =
+      " no longer exists.\n\nYou can update the path in the Project configuration.";
+  private static final String CONST_PROJECT_NOT_AVAILABLE = "Project not available";
 
   public static final Class<?> PKG = ProjectsGuiPlugin.class; // i18n
 
@@ -360,12 +365,12 @@ public class ProjectsGuiPlugin {
         String displayName = missing.projectName != null ? missing.projectName : projectName;
         MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
         box.setMessage(
-            "Project '"
+            CONST_PROJECT
                 + displayName
-                + "' could not be loaded because "
+                + CONST_COULD_NOT_BE_LOADED_BECAUSE
                 + missing.path
-                + " no longer exists.\n\nYou can update the path in the Project configuration.");
-        box.setText("Project not available");
+                + CONST_NO_LONGER_EXISTS_YOU_CAN_UPDATE_THE_PATH);
+        box.setText(CONST_PROJECT_NOT_AVAILABLE);
         box.open();
         selectProjectInUiOnly(projectName);
         return;
@@ -692,12 +697,12 @@ public class ProjectsGuiPlugin {
         String displayName = missing.projectName != null ? missing.projectName : projectName;
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
         box.setMessage(
-            "Project '"
+            CONST_PROJECT
                 + displayName
-                + "' could not be loaded because "
+                + CONST_COULD_NOT_BE_LOADED_BECAUSE
                 + missing.path
-                + " no longer exists.\n\nYou can update the path in the Project configuration.");
-        box.setText("Project not available");
+                + CONST_NO_LONGER_EXISTS_YOU_CAN_UPDATE_THE_PATH);
+        box.setText(CONST_PROJECT_NOT_AVAILABLE);
         box.open();
         selectProjectInUiOnly(projectName);
         return;
@@ -1147,12 +1152,12 @@ public class ProjectsGuiPlugin {
         String displayName = missing.projectName != null ? missing.projectName : projectName;
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
         box.setMessage(
-            "Project '"
+            CONST_PROJECT
                 + displayName
-                + "' could not be loaded because "
+                + CONST_COULD_NOT_BE_LOADED_BECAUSE
                 + missing.path
-                + " no longer exists.\n\nYou can update the path in the Project configuration.");
-        box.setText("Project not available");
+                + CONST_NO_LONGER_EXISTS_YOU_CAN_UPDATE_THE_PATH);
+        box.setText(CONST_PROJECT_NOT_AVAILABLE);
         box.open();
         selectProjectInUiOnly(projectName);
         return;

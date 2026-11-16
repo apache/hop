@@ -55,11 +55,10 @@ import org.eclipse.swt.widgets.TableItem;
 public class XmlWellFormedDialog extends ActionDialog {
   private static final Class<?> PKG = XmlWellFormedDialog.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.Xml"),
-        BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.Xml"),
+    BaseMessages.getString(PKG, "ActionXMLWellFormed.Filetype.All")
+  };
 
   private Label wlSourceFileFolder;
   private Button wbSourceFileFolder;
@@ -335,17 +334,16 @@ public class XmlWellFormedDialog extends ActionDialog {
             : (action.getSourceFileFolders().isEmpty() ? 0 : action.getSourceFileFolders().size());
     final int FieldsRows = rows;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionXMLWellFormed.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(

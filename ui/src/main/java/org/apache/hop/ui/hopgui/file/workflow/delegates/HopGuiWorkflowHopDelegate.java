@@ -33,9 +33,9 @@ public class HopGuiWorkflowHopDelegate {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 
-  private HopGui hopGui;
-  private HopGuiWorkflowGraph workflowGraph;
-  private PropsUi props;
+  private final HopGui hopGui;
+  private final HopGuiWorkflowGraph workflowGraph;
+  private final PropsUi props;
 
   public HopGuiWorkflowHopDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;

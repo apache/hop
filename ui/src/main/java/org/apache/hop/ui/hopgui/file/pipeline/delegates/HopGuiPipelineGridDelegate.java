@@ -226,79 +226,78 @@ public class HopGuiPipelineGridDelegate {
 
     addToolBar();
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.TransformName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Copynr"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Input"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Read"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Written"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Output"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Updated"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Rejected"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Errors"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.BuffersInput"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.BuffersOutput"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Duration"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Speed"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineLog.Column.Status"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.TransformName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Copynr"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Input"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Read"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Written"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Output"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Updated"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Rejected"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Errors"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.BuffersInput"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.BuffersOutput"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Duration"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Speed"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLog.Column.Status"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+    };
 
     columns[1].setAlignment(SWT.RIGHT);
     columns[2].setAlignment(SWT.RIGHT);

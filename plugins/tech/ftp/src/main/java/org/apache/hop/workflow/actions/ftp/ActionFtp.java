@@ -66,6 +66,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 @Setter
 public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtp.class;
+  private static final String CONST_ACTION_FTP_ERROR_GETTING = "ActionFTP.ErrorGetting";
   private static final String CONST_LOCAL_FILE_EXISTS = "ActionFTP.LocalFileExists";
 
   /** Default encoding when making a new ftp action instance. */
@@ -307,7 +308,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
       // failure when Nr errors at most can still leave the action true.
       if (!download.successConditionBroken) {
         download.updateErrors();
-        logError(BaseMessages.getString(PKG, "ActionFTP.ErrorGetting", e.getMessage()), e);
+        logError(BaseMessages.getString(PKG, CONST_ACTION_FTP_ERROR_GETTING, e.getMessage()), e);
       }
     } finally {
       FtpHelper.disconnect(getLogChannel(), ftpClient);
@@ -366,7 +367,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
       ftpFiles = ftpClient.listFiles();
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "ActionFTP.ErrorGetting", e.getMessage()), e);
+          BaseMessages.getString(PKG, CONST_ACTION_FTP_ERROR_GETTING, e.getMessage()), e);
     }
     if (ftpFiles == null) {
       ftpFiles = new FTPFile[0];
@@ -444,7 +445,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
           throw new HopException(
               BaseMessages.getString(
                   PKG,
-                  "ActionFTP.ErrorGetting",
+                  CONST_ACTION_FTP_ERROR_GETTING,
                   filename + " : " + Const.NVL(ftpclient.getReplyString(), "").trim()));
         }
       }

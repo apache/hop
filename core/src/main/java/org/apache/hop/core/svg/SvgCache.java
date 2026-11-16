@@ -49,7 +49,7 @@ import org.w3c.dom.svg.SVGSVGElement;
 public class SvgCache {
   private static SvgCache instance;
 
-  private Map<String, SvgCacheEntry> fileDocumentMap;
+  private final Map<String, SvgCacheEntry> fileDocumentMap;
 
   private SvgCache() {
     fileDocumentMap = new HashMap<>();

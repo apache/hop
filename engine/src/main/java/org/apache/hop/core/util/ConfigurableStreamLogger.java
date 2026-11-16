@@ -28,10 +28,10 @@ import org.apache.hop.core.logging.LogLevel;
 /** Provides the ability to specify the desired logLevel on which the StreamLogger should write. */
 public class ConfigurableStreamLogger implements Runnable {
 
-  private InputStream is;
-  private String type;
-  private LogLevel logLevel;
-  private ILogChannel log;
+  private final InputStream is;
+  private final String type;
+  private final LogLevel logLevel;
+  private final ILogChannel log;
 
   /**
    * @param in the InputStream

@@ -190,38 +190,37 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
 
     // the field mapping grid in between
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldName"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldFormat"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldLength"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              true,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldPrecision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              true,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.Comment"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldName"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldFormat"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldLength"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          true,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.FieldPrecision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          true,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "DataSetDialog.ColumnInfo.Comment"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
 
     wFieldMapping =
         new TableView(
