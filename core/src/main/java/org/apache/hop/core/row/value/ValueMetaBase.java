@@ -292,7 +292,17 @@ public class ValueMetaBase implements IValueMeta {
     this(name, IValueMeta.TYPE_NONE, -1, -1);
   }
 
-  protected ValueMetaBase(String name, int type) {
+  /**
+   * Creates value metadata for components compiled against the legacy public constructor.
+   *
+   * @param name the field name
+   * @param type the value type
+   * @deprecated Retained for binary compatibility. Use {@link
+   *     ValueMetaFactory#createValueMeta(String, int)} for type-specific value metadata in new
+   *     code.
+   */
+  @Deprecated(since = "2.21")
+  public ValueMetaBase(String name, int type) {
     this(name, type, -1, -1);
   }
 
