@@ -355,8 +355,7 @@ public class HopVfs {
     try {
       DefaultFileSystemManager fsm = new DefaultFileSystemManager();
       fsm.addProvider("ram", new org.apache.commons.vfs2.provider.ram.RamFileProvider());
-      fsm.addProvider(
-          "file", new org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider());
+      fsm.addProvider("file", new HopLocalFileProvider());
       fsm.addProvider("res", new org.apache.commons.vfs2.provider.res.ResourceFileProvider());
       fsm.addProvider("zip", new org.apache.commons.vfs2.provider.zip.ZipFileProvider());
       fsm.addProvider("gz", new org.apache.commons.vfs2.provider.gzip.GzipFileProvider());
