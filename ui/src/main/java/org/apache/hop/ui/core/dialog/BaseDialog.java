@@ -34,8 +34,6 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.security.HopDialogEditGuard;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variable;
-import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -107,12 +105,9 @@ public abstract class BaseDialog extends Dialog {
   private static final ThreadLocal<Deque<Object>> DIALOG_SUBJECT_STACK =
       ThreadLocal.withInitial(ArrayDeque::new);
 
-  @Variable(
-      scope = VariableScope.APPLICATION,
-      value = "N",
-      description =
-          "Set this value to 'Y' if you want to use the system file open/save dialog when browsing files.")
-  public static final String HOP_USE_NATIVE_FILE_DIALOG = "HOP_USE_NATIVE_FILE_DIALOG";
+  /** See {@link BaseDialogVariables#HOP_USE_NATIVE_FILE_DIALOG}. */
+  public static final String HOP_USE_NATIVE_FILE_DIALOG =
+      BaseDialogVariables.HOP_USE_NATIVE_FILE_DIALOG;
 
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;

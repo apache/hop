@@ -29,7 +29,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
@@ -52,7 +51,7 @@ public class PipelineGetFieldsExtensionPoint
     }
 
     // Check if a unit test is active in Hop GUI
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
+    PipelineUnitTest unitTest = DataSetConst.getActiveUnitTest(pipelineMeta);
     if (unitTest == null) {
       return;
     }

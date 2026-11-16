@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -1992,6 +1993,46 @@ public class GuiCompositeWidgets {
 
   public void setWidgetsListener(IGuiPluginCompositeWidgetsListener listener) {
     this.compositeWidgetsListener = listener;
+  }
+
+  /**
+   * The widgets listener of a source object: the object itself when it implements {@link
+   * IGuiPluginCompositeWidgetsListener}, or one that passes the calls on when it implements {@link
+   * IGuiPluginModelWidgetsListener}, which model classes use to stay free of SWT.
+   *
+   * @param source the object the widgets show, or null
+   * @return its listener, or empty when it doesn't listen to its widgets
+   */
+  public static Optional<IGuiPluginCompositeWidgetsListener> listenerOf(Object source) {
+    if (source instanceof IGuiPluginCompositeWidgetsListener listener) {
+      return Optional.of(listener);
+    }
+    if (source instanceof IGuiPluginModelWidgetsListener model) {
+      return Optional.of(
+          new IGuiPluginCompositeWidgetsListener() {
+            @Override
+            public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+              model.widgetsCreated(compositeWidgets);
+            }
+
+            @Override
+            public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+              model.widgetsPopulated(compositeWidgets);
+            }
+
+            @Override
+            public void widgetModified(
+                GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+              model.widgetModified(compositeWidgets, widgetId);
+            }
+
+            @Override
+            public void persistContents(GuiCompositeWidgets compositeWidgets) {
+              model.persistContents(compositeWidgets);
+            }
+          });
+    }
+    return Optional.empty();
   }
 
   public void enableWidgets(Object sourceData, String parentGuiElementId, boolean enabled) {

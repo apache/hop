@@ -34,7 +34,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.eclipse.swt.SWT;
@@ -150,12 +149,14 @@ public class ConfigPluginOptionsTab {
    * widgets are enabled until the user changes something.
    */
   static void attachWidgetsListener(GuiCompositeWidgets compositeWidgets, Object pluginSourceData) {
-    if (pluginSourceData instanceof IGuiPluginCompositeWidgetsListener listener) {
-      // This listener saves the changed values immediately, so we don't have to worry about that.
-      //
-      compositeWidgets.setWidgetsListener(listener);
-      listener.widgetsPopulated(compositeWidgets);
-    }
+    GuiCompositeWidgets.listenerOf(pluginSourceData)
+        .ifPresent(
+            listener -> {
+              // This listener saves the changed values immediately, so we don't have to worry
+              // about that.
+              compositeWidgets.setWidgetsListener(listener);
+              listener.widgetsPopulated(compositeWidgets);
+            });
   }
 
   /**

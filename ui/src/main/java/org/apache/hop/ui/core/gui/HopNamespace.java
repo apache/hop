@@ -93,7 +93,7 @@ public class HopNamespace {
    * reference to {@link Display} out of the code path a headless process runs.
    */
   private static boolean hasUserInterface() {
-    return "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
+    return Const.isGuiRuntime();
   }
 
   /** The namespace of the session on this thread, or null. Only call with a user interface. */

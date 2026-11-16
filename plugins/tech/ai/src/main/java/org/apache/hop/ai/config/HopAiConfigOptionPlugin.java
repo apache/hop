@@ -18,7 +18,6 @@
 package org.apache.hop.ai.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,33 +32,17 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
-import org.apache.hop.ui.util.EnvironmentUtils;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Text;
 import picocli.CommandLine;
 
 @Getter
@@ -72,7 +55,7 @@ import picocli.CommandLine;
     configKey = HopAiConfig.HOP_CONFIG_KEY,
     configClass = HopAiConfig.class)
 @GuiPlugin(description = "i18n::HopAiConfig.Tab.Name", classLoaderGroup = "hop-ai")
-public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final Class<?> PKG = HopAiConfigOptionPlugin.class;
   private static final String PARENT = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID;
@@ -92,7 +75,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       toolTip = "i18n::HopAiConfigOptionPlugin.GitWarning.Tooltip",
       groupType = GuiWidgetGroupType.BOXES,
       group = "i18n::HopAiConfigOptionPlugin.Group")
-  public void gitWarning(Event event) {
+  public void gitWarning() {
     // Notice text only; LINK is the widget type this form can show without a value field.
   }
 
@@ -135,7 +118,7 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
       label = "",
       groupType = GuiWidgetGroupType.BOXES,
       group = "i18n::HopAiConfigOptionPlugin.Group")
-  public void defaultProviderWarning(Event event) {
+  public void defaultProviderWarning() {
     // Text only, set while the default provider is not defined in the open project.
   }
 
@@ -370,138 +353,16 @@ public class HopAiConfigOptionPlugin implements IConfigOptions, IGuiPluginCompos
 
   @Override
   public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
-    addContextFilesHint(compositeWidgets);
-    alignWithProviderLine(compositeWidgets);
-    updateDefaultProviderWarning(compositeWidgets);
-    // The providers are metadata of the open project; the list follows when another one opens.
-    HopGui hopGui = HopGui.peekInstance();
-    if (hopGui != null && hopGui.getEventsHandler() != null) {
-      hopGui
-          .getEventsHandler()
-          .addEventListener(
-              HopAiConfigOptionPlugin.class.getName() + "ProjectActivated",
-              e ->
-                  hopGui
-                      .getDisplay()
-                      .asyncExec(
-                          () -> reloadProviders(compositeWidgets, hopGui.getMetadataProvider())),
-              HopGuiEvents.ProjectActivated.name());
-    }
+    // The widgets themselves are handled by a GUI class: this one is also used without SWT
+    HopAiConfigOptionWidgets.populated(compositeWidgets);
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
     if (WIDGET_DEFAULT_PROVIDER.equals(widgetId)) {
-      updateDefaultProviderWarning(compositeWidgets);
+      HopAiConfigOptionWidgets.updateDefaultProviderWarning(compositeWidgets);
     }
-  }
-
-  /** List the providers of the project that is open now, keeping the configured name. */
-  static void reloadProviders(
-      GuiCompositeWidgets compositeWidgets, IHopMetadataProvider metadataProvider) {
-    if (!(compositeWidgets.getWidgetsMap().get(WIDGET_DEFAULT_PROVIDER)
-            instanceof MetaSelectionLine<?> line)
-        || line.isDisposed()) {
-      return;
-    }
-    String name = HopAiConfigSingleton.getConfig().getDefaultProviderName();
-    line.setMetadataProvider(metadataProvider);
-    try {
-      line.fillItems();
-    } catch (HopException e) {
-      LogChannel.UI.logError("Unable to list the AI providers of the open project", e);
-    }
-    if (!Const.NVL(name, "").equals(Const.NVL(line.getText(), ""))) {
-      line.setText(Const.NVL(name, ""));
-    }
-    updateDefaultProviderWarning(compositeWidgets);
-  }
-
-  /**
-   * The default provider is a Hop-wide setting, the providers are project metadata. Say so when the
-   * open project has no provider by that name: its sessions then use the provider picked last.
-   */
-  static void updateDefaultProviderWarning(GuiCompositeWidgets compositeWidgets) {
-    if (!(compositeWidgets.getWidgetsMap().get(WIDGET_DEFAULT_PROVIDER_WARNING)
-            instanceof Link link)
-        || link.isDisposed()) {
-      return;
-    }
-    String name = null;
-    if (compositeWidgets.getWidgetsMap().get(WIDGET_DEFAULT_PROVIDER)
-        instanceof MetaSelectionLine<?> line) {
-      name = line.getText();
-      if (!Utils.isEmpty(name) && Arrays.asList(line.getItems()).contains(name)) {
-        name = null;
-      }
-    }
-    String text =
-        Utils.isEmpty(name)
-            ? ""
-            : BaseMessages.getString(
-                PKG, "HopAiConfigOptionPlugin.DefaultProvider.Missing", name.replace("&", "&&"));
-    if (text.equals(link.getText()) && link.getVisible() == !text.isEmpty()) {
-      return;
-    }
-    link.setText(text);
-    link.setVisible(!text.isEmpty());
-    if (link.getLayoutData() instanceof FormData data) {
-      data.height = text.isEmpty() ? 0 : SWT.DEFAULT;
-    }
-    link.getParent().layout(true, true);
-  }
-
-  /**
-   * The text fields end where the provider field ends, before its buttons, so their variable icons
-   * line up with the provider's in one column.
-   */
-  static void alignWithProviderLine(GuiCompositeWidgets compositeWidgets) {
-    if (!(compositeWidgets.getWidgetsMap().get(WIDGET_DEFAULT_PROVIDER)
-            instanceof MetaSelectionLine<?> line)
-        || line.getwToolBar() == null) {
-      return;
-    }
-    int inset = line.getwToolBar().computeSize(SWT.DEFAULT, SWT.DEFAULT).x + PropsUi.getMargin();
-    Composite parent = null;
-    for (String id : new String[] {WIDGET_EXTRA_CONTEXT, WIDGET_CONTEXT_FILES}) {
-      Control control = compositeWidgets.getWidgetsMap().get(id);
-      if (control != null && control.getLayoutData() instanceof FormData data) {
-        data.right = new FormAttachment(100, -inset);
-        parent = control.getParent();
-      }
-    }
-    if (parent != null) {
-      parent.layout(true, true);
-    }
-  }
-
-  /**
-   * An example of what Context files takes, in the empty field. A multi-line field on macOS shows
-   * no message of its own, so it is painted.
-   */
-  static void addContextFilesHint(GuiCompositeWidgets compositeWidgets) {
-    Control control = compositeWidgets.getWidgetsMap().get(WIDGET_CONTEXT_FILES);
-    Text text = control instanceof TextVar textVar ? textVar.getTextWidget() : null;
-    if (text == null || text.isDisposed() || text.getData(HINT_DATA_KEY) != null) {
-      return;
-    }
-    text.setData(HINT_DATA_KEY, Boolean.TRUE);
-    String hint = BaseMessages.getString(PKG, "HopAiConfigOptionPlugin.ExtraContextFiles.Hint");
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      text.setMessage(hint);
-      return;
-    }
-    text.addPaintListener(
-        e -> {
-          if (text.getCharCount() > 0) {
-            return;
-          }
-          e.gc.setForeground(GuiResource.getInstance().getColorDarkGray());
-          e.gc.drawText(hint, PropsUi.getMargin(), PropsUi.getMargin() / 2, true);
-        });
-    text.addListener(SWT.Modify, e -> text.redraw());
   }
 
   @Override
