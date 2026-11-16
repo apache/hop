@@ -25,6 +25,8 @@ under the License.
 
 The Sorted Merge transform merges rows coming from multiple input transforms providing these rows are sorted themselves on the given key fields.
 
+Every input must be sorted on the key fields in the direction set for each field in the Fields table. The transform merges in that direction, even when a transform before it sorted the rows the other way. When a row of an input sorts before the previous row of the same input, the transform stops with an error naming the input and the two rows, rather than merging the rows in the wrong place. Verify pipeline warns when a previous transform, such as Sort rows, sorts a key field descending while the merge sorts it ascending.
+
 == Options
 
 [options="header"]
