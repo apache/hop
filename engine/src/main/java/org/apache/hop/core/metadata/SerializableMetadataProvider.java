@@ -148,14 +148,24 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
 
           String classKey = jsonParser.getText();
+          if (jsonParser.nextToken() != JsonToken.START_ARRAY) {
+            throw new HopException("Expected a metadata array for key " + classKey);
+          }
+
+          // Snapshots include empty arrays for optional plugins which may not be installed here.
+          // There is no metadata to load, so these types don't need to be resolved.
+          //
+          if (jsonParser.nextToken() == JsonToken.END_ARRAY) {
+            continue;
+          }
           Class<IHopMetadata> managedClass = getManagedClass(classKey);
 
           if (managedClass == null) {
-            // Skip this JSON Array
-            jsonParser.nextToken(); // skip "{"
-            while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-              // Go to END_ARRAY
-            }
+            // Skip complete objects, including nested arrays, before advancing to the next type.
+            //
+            do {
+              jsonParser.skipChildren();
+            } while (jsonParser.nextToken() != JsonToken.END_ARRAY);
             continue;
           }
 
@@ -166,13 +176,12 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
 
           // Loop over the metadata objects in the JSON for the given class...
           //
-          jsonParser.nextToken(); // skip "{"
-          while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
+          do {
             IHopMetadata object = metadataParser.loadJsonObject(managedClass, jsonParser);
             if (object != null) {
               serializer.save(object);
             }
-          }
+          } while (jsonParser.nextToken() != JsonToken.END_ARRAY);
         }
       }
     } catch (Exception e) {
