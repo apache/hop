@@ -189,3 +189,8 @@ The result can be one of the following situations:
 ** Stream date field" cannot be before the earliest start date of the currently valid rows.
 ** select min(date_from) from dim_table where date_to = "2199-12-31 23:59:59.999"
 ** It is important to ensure that the incoming rows are sorted by the "Stream date field"
+
+== Samples
+
+The samples project has `transforms/dimensionlookup-basic.hpl`, which loads five rows for three customers into the `dim_sample` dimension of the `hop-samples` connection.
+A new `street`, `number` or `zip` adds a version, a new `name` is written to every version (punch through), and a new `city` only changes the latest version.

@@ -99,3 +99,8 @@ Mail for which the header matches your filter will be retrieved, the rest is ign
 |Option|Description
 |Sender (FROM)|Only retrieve
 |===
+
+== Samples
+
+The samples project has `transforms/email-messages-input.hpl`, which reads the messages in the `INBOX` folder of a mail server and its subfolders.
+Create a mail server connection named `sample-mail` before you run it.

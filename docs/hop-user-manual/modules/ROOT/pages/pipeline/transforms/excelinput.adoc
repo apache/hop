@@ -152,3 +152,9 @@ Some of these are missing.
 |Root uri field|The field name that contains only the root part of the URI.
 |===
 
+== Samples
+
+The samples project has:
+
+* `transforms/microsoft-excel-input.hpl`, which reads the `id`, `title` and `author` of two books from the `Books` sheet of `files/microsoft-excel-input.xlsx`.
+* `pipelines/read-transactions.hpl`, which reads the files in `pipelines/input/` that match the regular expression `file-.*.xlsx`, and uses the sheet row number to split the header row of each file from its data rows.

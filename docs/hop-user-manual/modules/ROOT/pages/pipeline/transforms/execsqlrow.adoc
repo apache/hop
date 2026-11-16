@@ -52,3 +52,7 @@ The same counts show up in the transform's own metrics: read rows as input (I), 
 
 Because of the scripting/dynamic nature of the transform, it does not use prepared statements and thus is not intended to work fast or optimal.
 For good performance turn to dedicated transforms like Table Output (insert into), Table Input (Select), Update, Delete, etc.
+
+== Samples
+
+The samples project has `transforms/execute-row-sql-script.hpl`, which runs the `DELETE` and the `UPDATE` statement in the two rows of a Data grid against the `employees` table of the `hop-samples` connection, and adds to each row the number of rows the statement updated, inserted, deleted and read.
