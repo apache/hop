@@ -89,7 +89,7 @@ Hop reads dataset metadata from it; writing to a catalog stays with the lineage 
 The API is experimental.
 
 Annotation:: `@DataCatalogPlugin`, together with `@GuiPlugin` for the options
-Implement:: `IDataCatalog`, plus the `ICatalogCapability` interfaces for what the catalog can answer: `IDeprecationCapability`, `IFreshnessCapability`, `IAssertionCapability`
+Implement:: `IDataCatalog`, plus the `ICatalogCapability` interfaces for what the catalog can answer: `IDeprecationCapability`, `IFreshnessCapability`, `IAssertionCapability`, `ISchemaCapability`
 Plugin type:: `DataCatalogPluginType`, id `DATA_CATALOGS`
 Examples:: `plugins/tech/datahub` (`DataHubDataCatalog`)
 
@@ -104,6 +104,7 @@ A catalog that can't answer is a normal outcome, not an exception; the caller de
 A dataset is a `DatasetRef`.
 Build it with `DatasetRef.ofTable(...)` or `ofFile(...)`: those give a table or a file the OpenLineage namespace and name that lineage gives it, so `resolve()` finds the dataset lineage wrote.
 `ofCatalogId(...)` names a dataset by the catalog's own id.
+A transform or action that lets the user pick a dataset stores a `CatalogDataset` (type, connection, schema, name) and calls `toRef(variables, metadataProvider)`, which also reports a dataset that can't be named.
 
 == Configuration options
 

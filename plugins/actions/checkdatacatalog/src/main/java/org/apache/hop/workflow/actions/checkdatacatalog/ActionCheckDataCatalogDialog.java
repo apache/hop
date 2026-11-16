@@ -22,6 +22,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.ui.core.PropsUi;

@@ -26,6 +26,7 @@ A Data Catalog is a catalog, such as DataHub, that Hop reads dataset metadata fr
 The catalog stays the owner of that metadata. Hop only reads it.
 
 The xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses a Data Catalog to check datasets before a workflow goes on.
+The xref:pipeline/transforms/maskfields.adoc[Mask fields] transform can use one to mask the fields that carry a tag or glossary term, such as `PII`.
 
 This metadata type is experimental: its options and what the catalog types can answer may still change.
 
@@ -109,3 +110,5 @@ DataHub learns about operations from the sources that report them, such as the u
 The DataHub lineage sink of Hop doesn't report them yet, so a table that only Hop writes has none.
 * *Assertions*: the latest run of each assertion on the dataset, up to 100 assertions.
 The assertions themselves are defined and run in DataHub.
+* *Fields*: the fields of the dataset's schema, with the tags and glossary terms on them, both the ones that came with the ingested schema and the ones added in DataHub.
+The xref:pipeline/transforms/maskfields.adoc[Mask fields] transform uses them.

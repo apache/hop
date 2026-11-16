@@ -57,6 +57,30 @@ image::transforms/maskfields/maskfields-dialog.png[Mask fields dialog,width="60%
 
 When a field cannot be masked and the transform has error handling, the error row has that field and every masked field after it set to null.
 
+=== Data catalog
+
+These options mask fields by the tags and glossary terms a xref:metadata-types/data-catalog.adoc[Data Catalog], such as DataHub, has on them. They are experimental. Leave *Data catalog* empty not to use them.
+
+[options="header"]
+|===
+|Option|Description
+
+|Data catalog
+|The data catalog that says which fields carry a tag or term.
+
+|Dataset type, Dataset connection, Dataset schema, Dataset
+|The dataset whose fields the catalog labels: a table of a relational connection, a file, or the id of the dataset in the catalog. A table and a file are found the way xref:metadata-types/data-catalog.adoc#_how_datasets_are_found[a data catalog finds datasets].
+
+|Tag or term, Masking rule
+|Every incoming field that the catalog labels with the tag or glossary term on a row is masked with that row's Masking pattern. A tag is matched by its name or URN (`PII`, `urn:li:tag:PII`), a term by its name, its URN or its path in the glossary, the term groups above it followed by its name (`Personal`, `Classification.Personal`), without regard to case. The first row that matches a field wins.
+|===
+
+When the transform starts, it reads the fields of the dataset from the catalog. When the first row arrives, it masks every incoming field whose name matches a labelled field, without regard to case: `EMAIL` in the stream matches `email` in the catalog. A field that only shows up at run time is masked too. The log has a line for every field masked this way, with its tag or term.
+
+A field that also has a row in the fields table keeps the pattern of that row.
+
+When the catalog can't be reached, refuses the token, doesn't have the dataset or has no fields for it, or a tag or term holds a variable that is not set, the transform doesn't start: it doesn't guess which fields to mask.
+
 == What a pattern writes
 
 *SYNTHETIC* builds `prefix + token + suffix` for a string. The token is a *SEQUENCE* (an integer that starts at *Sequence start* and steps by one) or a *UUID*. A number field can take a sequence only, with an empty prefix and suffix. A date cannot take a generated token.
