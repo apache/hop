@@ -32,7 +32,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -53,7 +53,7 @@ import picocli.CommandLine;
     description = "Explorer Perspective" // Tab label in options dialog
     )
 public class ExplorerPerspectiveConfigPlugin
-    implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+    implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final String WIDGET_ID_LAZY_LOADING_DEPTH = "10000-lazy-loading-depth";
   private static final String WIDGET_ID_FILE_LOADING_MAX_SIZE = "10100-file-loading-max-size";
@@ -242,8 +242,7 @@ public class ExplorerPerspectiveConfigPlugin
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 
@@ -352,7 +351,7 @@ public class ExplorerPerspectiveConfigPlugin
     return labels;
   }
 
-  private static String readComboText(Control control) {
+  private static String readComboText(Object control) {
     if (control instanceof Combo combo) {
       return combo.getText();
     }

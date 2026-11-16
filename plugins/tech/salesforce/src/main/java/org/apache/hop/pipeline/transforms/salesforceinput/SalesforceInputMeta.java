@@ -474,14 +474,4 @@ public class SalesforceInputMeta
       remarks.add(cr);
     }
   }
-
-  public SalesforceInputDialog getDialog(
-      org.eclipse.swt.widgets.Shell shell,
-      IVariables variables,
-      org.apache.hop.pipeline.transform.ITransformMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    return new SalesforceInputDialog(
-        shell, variables, (SalesforceInputMeta) transformMeta, pipelineMeta);
-  }
 }

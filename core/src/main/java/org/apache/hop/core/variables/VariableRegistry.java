@@ -79,7 +79,7 @@ public class VariableRegistry {
       for (File jarFile : cache.getNativeJars()) {
         IndexView index = cache.getIndex(jarFile);
         for (AnnotationInstance info : index.getAnnotations(Variable.class)) {
-          register(jarFile, info.target().asField());
+          registerOrSkip(jarFile, info.target().asField());
         }
       }
 
@@ -87,11 +87,30 @@ public class VariableRegistry {
       for (File jarFile : cache.getPluginJars()) {
         IndexView index = cache.getIndex(jarFile);
         for (AnnotationInstance info : index.getAnnotations(Variable.class)) {
-          register(jarFile, info.target().asField());
+          registerOrSkip(jarFile, info.target().asField());
         }
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logDetailed("Unable to find variable definitions", e);
+    }
+  }
+
+  /**
+   * Registers the variable, or skips it when its class can't be loaded: a class that needs a
+   * library this run doesn't have, SWT without a GUI for example, must not stop Hop from starting
+   * or keep the other variables from being registered.
+   */
+  private static void registerOrSkip(File jarFile, FieldInfo fieldInfo) {
+    try {
+      register(jarFile, fieldInfo);
+    } catch (Exception | LinkageError e) {
+      LogChannel.GENERAL.logDetailed(
+          "Unable to read variable "
+              + fieldInfo.declaringClass().name()
+              + "."
+              + fieldInfo.name()
+              + ", skipping it: "
+              + e);
     }
   }
 

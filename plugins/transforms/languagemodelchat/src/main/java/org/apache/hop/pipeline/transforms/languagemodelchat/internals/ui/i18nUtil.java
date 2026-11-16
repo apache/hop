@@ -19,11 +19,13 @@ package org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui;
 
 import static org.apache.hop.i18n.BaseMessages.getString;
 
-import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatDialog;
+import org.apache.hop.pipeline.transforms.languagemodelchat.LanguageModelChatMeta;
 
 public class i18nUtil {
 
-  private static final Class<?> PKG = LanguageModelChatDialog.class; // For Translator
+  // The messages of the transform's package. Not the dialog's class: the metadata and the transform
+  // use these too, also without SWT, and loading the dialog needs SWT.
+  private static final Class<?> PKG = LanguageModelChatMeta.class; // For Translator
 
   public static String i18n(String key) {
     return getString(PKG, key);

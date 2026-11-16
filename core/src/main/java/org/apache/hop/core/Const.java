@@ -2005,6 +2005,15 @@ public class Const {
   }
 
   /**
+   * Whether this process runs Hop GUI or Hop Web, as {@link #HOP_PLATFORM_RUNTIME} tells. Code
+   * outside the GUI asks this before it touches a GUI class: without SWT, as in hop-run, hop-server
+   * or a Spark executor, merely loading one (HopGui for example) fails with a NoClassDefFoundError.
+   */
+  public static boolean isGuiRuntime() {
+    return "GUI".equalsIgnoreCase(getHopPlatformRuntime());
+  }
+
+  /**
    * Determine the quoting character depending on the OS. Often used for shell calls, gives back "
    * for Windows systems otherwise '
    *

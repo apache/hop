@@ -141,7 +141,7 @@ class AwsSecretsManagerWidgetVisibilityTest extends SwtBotTestBase {
       widgets.createCompositeWidgets(
           resolver, null, shell, VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID, null);
       widgets.setWidgetsContents(resolver, shell, VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID);
-      widgets.setWidgetsListener(resolver);
+      widgets.setWidgetsListener(GuiCompositeWidgets.listenerOf(resolver).orElseThrow());
       resolver.widgetsPopulated(widgets);
 
       shell.layout(true, true);

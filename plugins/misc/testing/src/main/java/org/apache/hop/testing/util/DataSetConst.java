@@ -49,6 +49,7 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.UnitTestResult;
+import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.xp.RowCollection;
 
 public class DataSetConst {
@@ -745,5 +746,17 @@ public class DataSetConst {
 
   public static String[] getTweakDescriptions() {
     return tweakDesc;
+  }
+
+  /**
+   * The unit test active for the pipeline in Hop GUI, or null. Outside Hop GUI and Hop Web there is
+   * none, and this answers without loading TestingGuiPlugin, which needs SWT to load: code that
+   * also runs in hop-run, hop-server or on a Spark executor asks here.
+   */
+  public static PipelineUnitTest getActiveUnitTest(PipelineMeta pipelineMeta) {
+    if (!Const.isGuiRuntime()) {
+      return null;
+    }
+    return TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
   }
 }

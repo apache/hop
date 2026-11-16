@@ -39,7 +39,7 @@ import org.apache.hop.lint.registry.ProjectLintYamlExporter;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
@@ -57,7 +57,7 @@ import picocli.CommandLine;
  */
 @ConfigPlugin(id = "linter-config", description = "Configure linter rules and settings")
 @GuiPlugin(description = "Linter")
-public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class LinterConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -120,8 +120,7 @@ public class LinterConfigPlugin implements IConfigOptions, IGuiPluginCompositeWi
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     enableDependentWidgets(compositeWidgets);
     persistContents(compositeWidgets);
   }

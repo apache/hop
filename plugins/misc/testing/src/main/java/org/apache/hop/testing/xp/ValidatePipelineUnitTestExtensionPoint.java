@@ -19,6 +19,7 @@ package org.apache.hop.testing.xp;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -97,7 +98,8 @@ public class ValidatePipelineUnitTestExtensionPoint
 
         String dontShowResults =
             pipeline.getVariable(DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "N");
-        if ("N".equalsIgnoreCase(dontShowResults)) {
+        // Only Hop GUI can show them: elsewhere touching HopGui needs SWT, and the log has them
+        if (Const.isGuiRuntime() && "N".equalsIgnoreCase(dontShowResults)) {
           final HopGui hopGui = HopGui.getInstance();
           if (hopGui != null) {
             showUnitTestErrors(pipeline, results, hopGui);
