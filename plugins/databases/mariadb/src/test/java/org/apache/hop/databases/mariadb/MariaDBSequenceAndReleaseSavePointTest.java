@@ -50,6 +50,14 @@ class MariaDBSequenceAndReleaseSavePointTest {
   }
 
   @Test
+  void testSequenceNoMaxValueOption() {
+    // MariaDB rejects MAXVALUE -1 in CREATE SEQUENCE, so a sequence without a maximum value must
+    // use NOMAXVALUE
+    assertTrue(db.isSupportsSequenceNoMaxValueOption());
+    assertEquals("NOMAXVALUE", db.getSequenceNoMaxValueOption());
+  }
+
+  @Test
   void testSequenceExistsInCurrentDatabase() {
     assertEquals(
         "SELECT TABLE_NAME AS sequence_name FROM INFORMATION_SCHEMA.TABLES"

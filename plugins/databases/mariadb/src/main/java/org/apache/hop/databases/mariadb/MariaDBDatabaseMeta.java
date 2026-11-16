@@ -99,6 +99,15 @@ public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
     return true;
   }
 
+  /**
+   * MariaDB accepts NOMAXVALUE in CREATE SEQUENCE but rejects MAXVALUE -1, which Hop would
+   * otherwise generate for a sequence without a maximum value.
+   */
+  @Override
+  public boolean isSupportsSequenceNoMaxValueOption() {
+    return true;
+  }
+
   /** Sequences are listed from the current database, where MariaDB stores them as tables. */
   @Override
   public String getSqlListOfSequences() {
