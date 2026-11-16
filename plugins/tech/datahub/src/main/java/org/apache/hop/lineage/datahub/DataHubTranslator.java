@@ -150,6 +150,9 @@ final class DataHubTranslator {
   private final String actor;
   private final boolean lifecycleEnabled;
 
+  /** The platform instance of the tables of each database server, by namespace. */
+  private final Map<String, String> databaseInstances;
+
   /** The most runs whose properties are remembered between their start and their end. */
   static final int MAX_OPEN_RUNS = 1_024;
 
@@ -184,16 +187,28 @@ final class DataHubTranslator {
         config.getCluster(),
         config.getPlatformInstance(),
         config.getActor(),
-        config.isLifecycleEnabled());
+        config.isLifecycleEnabled(),
+        config.getDatabaseInstances());
   }
 
   DataHubTranslator(
       String env, String cluster, String platformInstance, String actor, boolean lifecycleEnabled) {
+    this(env, cluster, platformInstance, actor, lifecycleEnabled, Map.of());
+  }
+
+  DataHubTranslator(
+      String env,
+      String cluster,
+      String platformInstance,
+      String actor,
+      boolean lifecycleEnabled,
+      Map<String, String> databaseInstances) {
     this.env = env;
     this.cluster = cluster;
     this.platformInstance = platformInstance;
     this.actor = actor;
     this.lifecycleEnabled = lifecycleEnabled;
+    this.databaseInstances = databaseInstances == null ? Map.of() : Map.copyOf(databaseInstances);
   }
 
   /** The {@code hop} data platform, so Hop's pipelines show under their own name and logo. */
@@ -299,6 +314,7 @@ final class DataHubTranslator {
     for (String dataset : distinct(inputs, outputs)) {
       proposals.add(Mcp.upsert(CONST_DATASET, dataset, CONST_STATUS, status()));
     }
+    proposals.addAll(datasetPlatformInstances(event));
     proposals.addAll(localFileNames(event));
     schemas.addAll(schemaCandidates(event));
     if (lifecycleEnabled) {
@@ -593,9 +609,7 @@ final class DataHubTranslator {
       Object name = source.getAdditionalProperties().get("name");
       String target = datasetUrn(output);
       String sourceUrn =
-          namespace instanceof String ns && name instanceof String n
-              ? DataHubUrns.datasetForOpenLineage(ns, n, env)
-              : null;
+          namespace instanceof String ns && name instanceof String n ? datasetUrn(ns, n) : null;
       if (target != null && sourceUrn != null && !sourceUrn.equals(target)) {
         copies.put(target, sourceUrn);
       }
@@ -755,8 +769,7 @@ final class DataHubTranslator {
       List<Map<String, Object>> writes = pipelineWrites(event);
       for (Map<String, Object> write : writes == null ? List.<Map<String, Object>>of() : writes) {
         String urn =
-            DataHubUrns.datasetForOpenLineage(
-                String.valueOf(write.get("namespace")), String.valueOf(write.get("name")), env);
+            datasetUrn(String.valueOf(write.get("namespace")), String.valueOf(write.get("name")));
         Long rows = write.get("rows") instanceof Number number ? number.longValue() : null;
         String type = String.valueOf(write.get("operationType"));
         if (urn != null && !unchanged(type, rows) && seen.add(urn)) {
@@ -886,9 +899,39 @@ final class DataHubTranslator {
   }
 
   private String datasetUrn(OpenLineage.Dataset dataset) {
-    return dataset == null
-        ? null
-        : DataHubUrns.datasetForOpenLineage(dataset.getNamespace(), dataset.getName(), env);
+    return dataset == null ? null : datasetUrn(dataset.getNamespace(), dataset.getName());
+  }
+
+  /** A dataset's URN, its name prefixed with the platform instance of its database server. */
+  private String datasetUrn(String namespace, String name) {
+    return DataHubUrns.datasetForOpenLineage(namespace, name, env, databaseInstances);
+  }
+
+  /**
+   * The platform instance of each table on a database server that has one, as DataHub's SQL sources
+   * write it: the table shows under that instance, next to the tables they ingest.
+   */
+  private List<Mcp> datasetPlatformInstances(RunEvent event) {
+    if (databaseInstances.isEmpty()) {
+      return List.of();
+    }
+    Map<String, Mcp> proposals = new LinkedHashMap<>();
+    for (OpenLineage.Dataset dataset : union(event.getInputs(), event.getOutputs())) {
+      String instance =
+          dataset == null
+              ? null
+              : DataHubUrns.databaseInstance(dataset.getNamespace(), databaseInstances);
+      String urn = instance == null ? null : datasetUrn(dataset);
+      if (urn == null) {
+        continue;
+      }
+      String platformUrn = urn.substring("urn:li:dataset:(".length(), urn.indexOf(','));
+      ObjectNode aspect = MAPPER.createObjectNode();
+      aspect.put("platform", platformUrn);
+      aspect.put("instance", DataHubUrns.dataPlatformInstance(platformUrn, instance));
+      proposals.put(urn, Mcp.upsert(CONST_DATASET, urn, "dataPlatformInstance", aspect));
+    }
+    return new ArrayList<>(proposals.values());
   }
 
   /**
@@ -1059,8 +1102,7 @@ final class DataHubTranslator {
           if (source == null || StringUtils.isBlank(source.getField())) {
             continue;
           }
-          String upstreamDataset =
-              DataHubUrns.datasetForOpenLineage(source.getNamespace(), source.getName(), env);
+          String upstreamDataset = datasetUrn(source.getNamespace(), source.getName());
           if (upstreamDataset != null) {
             edges.add(
                 new FieldEdge(
@@ -1135,10 +1177,7 @@ final class DataHubTranslator {
           OpenLineage.LifecycleStateChangeDatasetFacetPreviousIdentifier previous =
               facet.getPreviousIdentifier();
           String previousUrn =
-              previous == null
-                  ? null
-                  : DataHubUrns.datasetForOpenLineage(
-                      previous.getNamespace(), previous.getName(), env);
+              previous == null ? null : datasetUrn(previous.getNamespace(), previous.getName());
           if (previousUrn != null && !previousUrn.equals(urn)) {
             changes.add(
                 new LifecycleChange(
@@ -1190,9 +1229,7 @@ final class DataHubTranslator {
     String comment = test.path("comment").asText(null);
     List<String> assertees = new ArrayList<>();
     for (JsonNode dataset : test.path("datasets")) {
-      String urn =
-          DataHubUrns.datasetForOpenLineage(
-              dataset.path("namespace").asText(), dataset.path("name").asText(), env);
+      String urn = datasetUrn(dataset.path("namespace").asText(), dataset.path("name").asText());
       if (urn != null && !assertees.contains(urn)) {
         assertees.add(urn);
       }

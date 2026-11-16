@@ -35,11 +35,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.datacatalog.CatalogAnswer;
 import org.apache.hop.datacatalog.CatalogAnswer.Reason;
@@ -222,6 +224,17 @@ public class DataHubDataCatalog
   @HopMetadataProperty
   private String trustStoreType;
 
+  @GuiWidgetElement(
+      id = "databaseInstances",
+      order = "090",
+      parentId = DataCatalog.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TABLE,
+      label = "i18n::DataHubDataCatalog.DatabaseInstances.Label",
+      toolTip = "i18n::DataHubDataCatalog.DatabaseInstances.Tooltip",
+      tableRows = 3)
+  @HopMetadataProperty
+  private List<DataHubDatabaseInstance> databaseInstances = new ArrayList<>();
+
   /** The client of an initialized copy. */
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
@@ -231,6 +244,11 @@ public class DataHubDataCatalog
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private String actualEnvironment;
+
+  /** The platform instance of each database server, by namespace, of an initialized copy. */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private Map<String, String> actualDatabaseInstances = Map.of();
 
   public DataHubDataCatalog() {
     environment = DEFAULT_ENVIRONMENT;
@@ -251,6 +269,15 @@ public class DataHubDataCatalog
     copy.trustStorePath = trustStorePath;
     copy.trustStorePassword = trustStorePassword;
     copy.trustStoreType = trustStoreType;
+    copy.databaseInstances = new ArrayList<>();
+    if (databaseInstances != null) {
+      for (DataHubDatabaseInstance row : databaseInstances) {
+        if (row != null) {
+          copy.databaseInstances.add(
+              new DataHubDatabaseInstance(row.getConnection(), row.getPlatformInstance()));
+        }
+      }
+    }
     return copy;
   }
 
@@ -270,6 +297,8 @@ public class DataHubDataCatalog
         StringUtils.defaultIfBlank(variables.resolve(environment), DEFAULT_ENVIRONMENT)
             .trim()
             .toUpperCase(Locale.ROOT);
+    actualDatabaseInstances =
+        DataHubDatabaseInstances.resolve(databaseInstances, variables, metadataProvider);
     client =
         new DataHubClient(
             actualUrl,
@@ -279,6 +308,16 @@ public class DataHubDataCatalog
             variables.resolve(trustStorePath),
             secret(variables, trustStorePassword),
             StringUtils.defaultIfBlank(variables.resolve(trustStoreType), "PKCS12"));
+  }
+
+  /** The relational connections of the project, for the connection column of the instances. */
+  public List<String> connectionNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
+    try {
+      return metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames();
+    } catch (HopException e) {
+      log.logError("Unable to list the relational connections", e);
+      return List.of();
+    }
   }
 
   private static String secret(IVariables variables, String value) {
@@ -321,7 +360,7 @@ public class DataHubDataCatalog
         StringUtils.isNotBlank(dataset.catalogId())
             ? dataset.catalogId().trim()
             : DataHubUrns.datasetForOpenLineage(
-                dataset.namespace(), dataset.name(), actualEnvironment);
+                dataset.namespace(), dataset.name(), actualEnvironment, actualDatabaseInstances);
     CatalogAnswer<JsonNode> answer = datasetQuery(EXISTS_QUERY, urn, null, 0);
     if (!(answer instanceof CatalogAnswer.Known<JsonNode> known)) {
       return answer.unknownAs();

@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.logging.HopLogStore;
@@ -664,6 +665,66 @@ class DataHubTranslatorTest {
           OpenLineageClientUtils.runEventFromJson(OpenLineageClientUtils.toJson(live));
       assertEquals(translator.translate(live), translator.translate(replayed));
     }
+  }
+
+  // A table on a server with a platform instance is named with it and shows under it, like the
+  // tables DataHub's SQL source with that platform_instance ingests. Other servers are unchanged.
+  @Test
+  void aTableOnAServerWithAPlatformInstanceIsNamedWithIt() {
+    DataHubTranslator withInstances =
+        new DataHubTranslator(
+            "PROD",
+            "prod",
+            null,
+            "urn:li:corpuser:datahub",
+            false,
+            Map.of("postgres://db:5432", "warehouse"));
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    List<RunEvent> mapped =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    events.pipeline(RunLifecyclePhase.STARTED),
+                    events.graph("Read>Calculate"),
+                    lifecycle(read, RunLifecyclePhase.STARTED),
+                    event(read, LineageEventKind.RELATIONAL_IO, tableRead("postgres://db:5432")),
+                    event(read, LineageEventKind.RELATIONAL_IO, tableRead("postgres://other:5432")),
+                    lifecycle(read, RunLifecyclePhase.FINISHED),
+                    events.pipeline(RunLifecyclePhase.FINISHED)));
+    List<Mcp> proposals = new ArrayList<>();
+    mapped.forEach(e -> proposals.addAll(withInstances.translate(e).proposals()));
+    String warehouse =
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.sales.public.orders,PROD)";
+    String other = "urn:li:dataset:(urn:li:dataPlatform:postgres,sales.public.orders,PROD)";
+
+    JsonNode inputs = one(proposals, READ, "dataJobInputOutput").value().get("inputDatasets");
+    assertEquals(
+        List.of(warehouse, other), List.of(inputs.get(0).asText(), inputs.get(1).asText()));
+    JsonNode instance = one(proposals, warehouse, "dataPlatformInstance").value();
+    assertEquals("urn:li:dataPlatform:postgres", instance.get("platform").asText());
+    assertEquals(
+        "urn:li:dataPlatformInstance:(urn:li:dataPlatform:postgres,warehouse)",
+        instance.get("instance").asText());
+    assertTrue(find(proposals, other, "dataPlatformInstance").isEmpty());
+    assertTrue(
+        all(mapped).stream()
+            .noneMatch(
+                m ->
+                    m.aspectName().equals("dataPlatformInstance")
+                        && m.entityType().equals("dataset")));
+  }
+
+  private static RelationalIoLineagePayload tableRead(String namespace) {
+    return new RelationalIoLineagePayload(
+        RelationalIoOperation.READ,
+        namespace,
+        List.of(new RelationalTable("sales", "public", "orders")),
+        List.of(),
+        null,
+        null,
+        true,
+        null);
   }
 
   // An event replayed from the spool by a later process is translated exactly like a live one.

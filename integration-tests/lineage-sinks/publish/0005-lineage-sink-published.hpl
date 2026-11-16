@@ -21,7 +21,7 @@ limitations under the License.
   <info>
     <name>0005-lineage-sink-published</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Never run: published to DataHub by main-0001-lineage-sinks without running it, with the file it reads and the file it writes, and their layouts.</description>
+    <description>Never run: published to DataHub by main-0001-lineage-sinks without running it, with the file it reads, the file and the table it writes, and their layouts. The table is on a server the data catalog gives a platform instance.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -49,6 +49,11 @@ limitations under the License.
     <hop>
       <from>Read customers</from>
       <to>Write customers</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Double id</from>
+      <to>Load warehouse</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -172,6 +177,43 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>208</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Load warehouse</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commit>1000</commit>
+    <connection>warehouse</connection>
+    <fields>
+    </fields>
+    <return_field/>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema>public</schema>
+    <specify_fields>N</specify_fields>
+    <table>customers</table>
+    <tablename_field/>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>N</truncate>
+    <use_batch>Y</use_batch>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
       <yloc>160</yloc>
     </GUI>
   </transform>

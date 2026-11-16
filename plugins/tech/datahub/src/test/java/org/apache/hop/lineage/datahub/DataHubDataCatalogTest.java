@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -164,6 +167,36 @@ class DataHubDataCatalogTest {
 
     assertEquals(CatalogAnswer.known(new CatalogEntityId(ORDERS)), answer);
     assertEquals(ORDERS, requests.get(0).path("variables").path("urn").asText());
+  }
+
+  // With a platform instance for its server, a table is the dataset the sink writes for it too
+  @Test
+  void aTableOnAServerWithAPlatformInstanceResolvesWithIt() throws Exception {
+    String warehouseOrders =
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.sales.public.orders,DEV)";
+    answer(
+        "hopDatasetExists", "{\"dataset\":{\"urn\":\"" + warehouseOrders + "\",\"exists\":true}}");
+    DatabaseMeta sales = mock(DatabaseMeta.class);
+    when(sales.getName()).thenReturn("sales");
+    when(sales.getPluginId()).thenReturn("POSTGRESQL");
+    when(sales.getHostname()).thenReturn("db");
+    when(sales.getPort()).thenReturn("5432");
+    MemoryMetadataProvider metadata = new MemoryMetadataProvider();
+    metadata.getSerializer(DatabaseMeta.class).save(sales);
+    DataHubDataCatalog configured = new DataHubDataCatalog();
+    configured.setUrl(url());
+    configured.setEnvironment("dev");
+    configured.getDatabaseInstances().add(new DataHubDatabaseInstance("sales", "warehouse"));
+    catalog = configured.clone();
+    configured.getDatabaseInstances().get(0).setPlatformInstance("changed after the copy");
+    catalog.initialize(new Variables(), metadata);
+
+    CatalogAnswer<CatalogEntityId> answer =
+        catalog.resolve(DatasetRef.of("postgres://db:5432", "sales.public.orders"));
+
+    assertEquals(CatalogAnswer.known(new CatalogEntityId(warehouseOrders)), answer);
+    assertEquals(warehouseOrders, requests.get(0).path("variables").path("urn").asText());
+    assertEquals(List.of("sales"), catalog.connectionNames(null, metadata));
   }
 
   @Test

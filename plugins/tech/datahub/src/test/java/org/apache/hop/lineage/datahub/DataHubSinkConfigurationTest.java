@@ -18,12 +18,16 @@
 package org.apache.hop.lineage.datahub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -126,6 +130,33 @@ class DataHubSinkConfigurationTest {
     configuration.setDataCatalog("datahub");
     variables.setVariable("DATAHUB_URL", "");
     assertMessage(configuration, "'datahub' has no DataHub URL");
+  }
+
+  // The catalog's platform instances reach the sink, so it writes the URNs the catalog reads.
+  @Test
+  void theDatabasePlatformInstancesComeFromTheDataCatalog() throws Exception {
+    DatabaseMeta sales = mock(DatabaseMeta.class);
+    when(sales.getName()).thenReturn("sales");
+    when(sales.getPluginId()).thenReturn("POSTGRESQL");
+    when(sales.getHostname()).thenReturn("db");
+    when(sales.getPort()).thenReturn("5432");
+    metadata.getSerializer(DatabaseMeta.class).save(sales);
+    DataHubDataCatalog dataHub =
+        (DataHubDataCatalog) metadata.getSerializer(DataCatalog.class).load("datahub").getCatalog();
+    DataHubSinkConfiguration configuration = new DataHubSinkConfiguration();
+    configuration.setDataCatalog("datahub");
+
+    Map<String, String> settings = configuration.toSettings(variables, metadata);
+    assertFalse(settings.containsKey(DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES));
+
+    dataHub.getDatabaseInstances().add(new DataHubDatabaseInstance("sales", "warehouse"));
+    settings = configuration.toSettings(variables, metadata);
+    assertEquals(
+        Map.of("postgres://db:5432", "warehouse"),
+        DataHubSinkConfig.fromVariables(variablesOf(settings)).getDatabaseInstances());
+
+    dataHub.getDatabaseInstances().add(new DataHubDatabaseInstance("gone", "elsewhere"));
+    assertMessage(configuration, "'gone' of a platform instance does not exist");
   }
 
   @Test

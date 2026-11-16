@@ -72,7 +72,8 @@ transform.
 |File, table
 |A *dataset*, named the way DataHub's own sources name it: a table on its database platform
 (`postgres`, `mssql`, …) with its qualified name, an object as `bucket/key` on `s3`, `gcs` or `abs`,
-a local file as its path on `file`.
+a local file as its path on `file`. A table on a database server with a platform instance is named
+with it, see <<Database platform instances>>.
 
 |Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
 |Column-level lineage, on the task and on the dataset.
@@ -144,6 +145,7 @@ its URL, which stops lineage delivery for every sink.
 |`HOP_LINEAGE_DATAHUB_TOKEN` |_(empty)_ |DataHub personal access token, sent as a bearer token. It can be stored encrypted, as `hop-encrypt` writes it (`Encrypted …`).
 |`HOP_LINEAGE_DATAHUB_ENV` |`PROD` |DataHub environment of the datasets, pipelines and tasks. Use the value the other sources that describe the same datasets use, or their lineage does not join up.
 |`HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE` |_(empty)_ |Keeps the pipelines of several Hop installations, or of projects with the same folder layout, apart in one DataHub: their ids are prefixed with it (`emea.flows/nightly.hwf`).
+|`HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES` |_(empty)_ |The platform instances of database servers, as `<namespace>=<instance>` pairs separated by commas, such as `postgres://db.example.com:5432=warehouse`; see <<Database platform instances>>. A sink of a xref:metadata-types/lineage-sink.adoc[Lineage Sink] takes them from its data catalog instead.
 |`HOP_LINEAGE_DATAHUB_DATASET_SCHEMA` |`missing` |When a dataset's schema is written; see <<Dataset schemas>>. `missing`, `always` or `never`.
 |`HOP_LINEAGE_DATAHUB_LIFECYCLE` |`N` |`Y` deprecates datasets a run deletes or moves; see <<Deleted and moved datasets>>.
 |`HOP_LINEAGE_DATAHUB_ACTOR` |`urn:li:corpuser:datahub` |The DataHub user named as the creator of runs and deprecations.
@@ -153,6 +155,23 @@ its URL, which stops lineage delivery for every sink.
 |`HOP_LINEAGE_DATAHUB_MAX_RETRIES`, `…_RETRY_BACKOFF_MS`, `…_CONNECT_TIMEOUT_MS`, `…_READ_TIMEOUT_MS`, `…_BUFFER_SIZE`, `…_OVERFLOW_POLICY`, `…_ENQUEUE_TIMEOUT_MS`, `…_SHUTDOWN_DRAIN_MS`, `…_METRICS_INTERVAL_MS` |as OpenLineage |Delivery settings, with the meaning and defaults of their xref:technology/openlineage/index.adoc[OpenLineage] counterparts.
 |`HOP_LINEAGE_DATAHUB_TRUSTSTORE_PATH`, `…_TRUSTSTORE_PASSWORD`, `…_KEYSTORE_TYPE` |_(empty)_, `PKCS12` |Trust store for a GMS with a certificate the JVM does not trust.
 |===
+
+== Database platform instances
+
+A DataHub ingestion source can have a `platform_instance`, to keep apart two database servers that
+hold databases and tables of the same name. Its tables are then named with it:
+`warehouse.sales.public.orders` instead of `sales.public.orders`. For Hop's lineage to land on those
+datasets, give the server the same instance in Hop: list its connection and the instance under
+*Database platform instances* in the DataHub xref:metadata-types/data-catalog.adoc[Data Catalog].
+
+A table on that server is then named `<instance>.<database>.<schema>.<table>` and shows under its
+instance, by the sink of a Lineage Sink that uses the catalog, by
+<<Publishing a project without running it,publishing>>, and when Hop reads the catalog
+(Check data catalog, Mask fields, the AI Assistant). Without instances, nothing changes. The
+instance belongs to the server (host and port): every connection to it, and every database on it,
+gets the same one. A sink configured with variables takes them from
+`HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES`, with the namespace Hop gives the server
+(`postgres://db.example.com:5432`, the host in lower case and the port).
 
 == Durability
 

@@ -22,6 +22,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 
@@ -133,11 +134,7 @@ final class DataHubUrns {
   }
 
   static String dataPlatformInstance(String platformInstance) {
-    return "urn:li:dataPlatformInstance:("
-        + HOP_PLATFORM_URN
-        + ","
-        + encode(platformInstance)
-        + ")";
+    return dataPlatformInstance(HOP_PLATFORM_URN, platformInstance);
   }
 
   static String dataset(String platform, String name, String env) {
@@ -163,6 +160,19 @@ final class DataHubUrns {
    * @return the URN, or {@code null} when the identity is incomplete
    */
   static String datasetForOpenLineage(String namespace, String name, String env) {
+    return datasetForOpenLineage(namespace, name, env, Map.of());
+  }
+
+  /**
+   * As {@link #datasetForOpenLineage(String, String, String)}, with the name of a table on a
+   * database server that has a platform instance prefixed with it ({@code
+   * warehouse.analytics.public.orders}), as DataHub's SQL sources with a {@code platform_instance}
+   * name it.
+   *
+   * @param databaseInstances the platform instance by namespace ({@code postgres://db:5432})
+   */
+  static String datasetForOpenLineage(
+      String namespace, String name, String env, Map<String, String> databaseInstances) {
     if (StringUtils.isBlank(namespace) || StringUtils.isBlank(name)) {
       return null;
     }
@@ -180,7 +190,23 @@ final class DataHubUrns {
                   : bucketOf(authority) + "/" + StringUtils.removeStart(name, "/");
           default -> name;
         };
+    String instance = databaseInstance(namespace, databaseInstances);
+    if (instance != null) {
+      datasetName = instance + "." + datasetName;
+    }
     return dataset(platform, datasetName, env);
+  }
+
+  /** The platform instance of the tables in a namespace, or {@code null} when it has none. */
+  static String databaseInstance(String namespace, Map<String, String> databaseInstances) {
+    return namespace == null || databaseInstances == null || databaseInstances.isEmpty()
+        ? null
+        : StringUtils.trimToNull(databaseInstances.get(namespace.trim()));
+  }
+
+  /** A platform instance of a data platform: {@code urn:li:dataPlatformInstance:(<platform>,x)}. */
+  static String dataPlatformInstance(String platformUrn, String platformInstance) {
+    return "urn:li:dataPlatformInstance:(" + platformUrn + "," + encode(platformInstance) + ")";
   }
 
   /** The DataHub platform for an OpenLineage namespace scheme. */

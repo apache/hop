@@ -151,6 +151,14 @@ public class DataHubSinkConfiguration extends OpenLineageDeliveryConfiguration {
         catalog.getTrustStorePassword(),
         variables);
     put(settings, DATAHUB_PREFIX + "KEYSTORE_TYPE", catalog.getTrustStoreType(), variables);
+    Map<String, String> databaseInstances =
+        DataHubDatabaseInstances.resolve(
+            catalog.getDatabaseInstances(), variables, metadataProvider);
+    if (!databaseInstances.isEmpty()) {
+      settings.put(
+          DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES,
+          DataHubDatabaseInstances.format(databaseInstances));
+    }
     put(
         settings,
         DataHubSinkConfig.HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE,

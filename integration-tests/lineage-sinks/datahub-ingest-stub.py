@@ -51,9 +51,14 @@ class Handler(BaseHTTPRequestHandler):
                         "authorization": authorization,
                     }
                     aspect = proposal.get("aspectName") or ""
-                    if aspect.startswith("assertion") or aspect in ("documentInfo", "dataJobInfo"):
+                    if aspect.startswith("assertion") or aspect in (
+                        "documentInfo",
+                        "dataJobInfo",
+                        "dataJobInputOutput",
+                        "dataPlatformInstance",
+                    ):
                         # What an assertion is about and how its run went, what a document says,
-                        # the properties of a task
+                        # the properties of a task, what it reads and writes, a platform instance
                         line["value"] = json.loads(proposal.get("aspect", {}).get("value", "{}"))
                     log.write(json.dumps(line) + "\n")
             self.reply(200, {"value": []})

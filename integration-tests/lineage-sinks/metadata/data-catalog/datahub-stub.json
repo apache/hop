@@ -8,7 +8,13 @@
       "readTimeoutMs": "10000",
       "trustStorePath": "",
       "trustStorePassword": "",
-      "trustStoreType": ""
+      "trustStoreType": "",
+      "databaseInstances": [
+        {
+          "connection": "warehouse",
+          "platformInstance": "warehouse"
+        }
+      ]
     }
   },
   "name": "datahub-stub",

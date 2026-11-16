@@ -116,6 +116,10 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
         + (dataHubConfig.getPlatformInstance() == null
             ? ""
             : ", platform instance=" + dataHubConfig.getPlatformInstance())
+        + (dataHubConfig.getDatabaseInstances().isEmpty()
+            ? ""
+            : ", database instances="
+                + DataHubDatabaseInstances.format(dataHubConfig.getDatabaseInstances()))
         + ", dataset schemas="
         + dataHubConfig.getSchemaPolicy().name().toLowerCase(Locale.ROOT)
         + ", lifecycle="

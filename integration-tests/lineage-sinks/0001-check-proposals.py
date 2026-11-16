@@ -36,6 +36,9 @@ LOGIC = (
     (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
     (PUBLISHED_FLOW, "Double id", "double_id", "ADD(id, id)"),
 )
+# A table on the server the data catalog gives the platform instance warehouse
+WAREHOUSE_TABLE = "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.sales.public.customers,DEV)"
+WAREHOUSE_INSTANCE = "urn:li:dataPlatformInstance:(urn:li:dataPlatform:postgres,warehouse)"
 TOKEN = "Bearer it-token"
 
 
@@ -129,6 +132,21 @@ def main(path):
         found = infos[-1]["value"].get("customProperties", {}).get("logic." + field) if infos else None
         if found != expression:
             problems.append(f"task {task} of {flow} shows {found} as the logic of {field}, not {expression}")
+    loads = [
+        p
+        for p in published
+        if p["aspectName"] == "dataJobInputOutput" and p["entityUrn"].endswith(",Load warehouse)")
+    ]
+    outputs = loads[-1]["value"].get("outputDatasets", []) if loads else None
+    if outputs != [WAREHOUSE_TABLE]:
+        problems.append(f"Load warehouse writes {outputs}, not {WAREHOUSE_TABLE}")
+    instances = [
+        p["value"].get("instance")
+        for p in kept
+        if p["aspectName"] == "dataPlatformInstance" and p["entityUrn"] == WAREHOUSE_TABLE
+    ]
+    if WAREHOUSE_INSTANCE not in instances:
+        problems.append(f"{WAREHOUSE_TABLE} is not in platform instance warehouse: {instances}")
     for name in NOT_REPORTED:
         if any(name in (p["entityUrn"] or "") for p in kept):
             problems.append(f"{name} reported its lineage, its run configuration has no sink")
@@ -141,7 +159,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit test is an assertion, and transforms show their expressions")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit test is an assertion, transforms show their expressions, and a table is named with the platform instance of its server")
     return 0
 
 
