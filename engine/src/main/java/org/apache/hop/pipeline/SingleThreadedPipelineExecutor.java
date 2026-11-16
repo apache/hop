@@ -299,6 +299,19 @@ public class SingleThreadedPipelineExecutor {
    *
    * @return true if more iterations can be performed. False if this is not the case.
    */
+  /**
+   * Whether every input row set is done and has no rows left: the transform has read all its input.
+   * A transform removes a row set it read to the end, so no row sets left means the same.
+   */
+  private static boolean isAllInputRead(List<IRowSet> rowSets) {
+    for (IRowSet rowSet : rowSets) {
+      if (!rowSet.isDone() || rowSet.size() > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public boolean oneIteration() throws HopException {
 
     this.exceptionsRaisedCounter = 0;
@@ -367,6 +380,21 @@ public class SingleThreadedPipelineExecutor {
               transformDone = !combi.transform.processRow();
               if (combi.transform.getErrors() > 0) {
                 return false;
+              }
+            }
+
+            // All input arrived and was read, but the transform can still have work: a reader
+            // going through the file a row named, a mapping, the rows a Table output still holds.
+            // Like a transform without input, it is called until it says it is done. Otherwise it
+            // never sees the end of its input, and the single-threaded engine, which runs one
+            // iteration, disposes it with that work undone.
+            //
+            if (!transformDone && isAllInputRead(combi.transform.getInputRowSets())) {
+              while (!transformDone && !pipeline.isStopped()) {
+                transformDone = !combi.transform.processRow();
+                if (combi.transform.getErrors() > 0) {
+                  return false;
+                }
               }
             }
           }
