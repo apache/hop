@@ -95,6 +95,188 @@ class DataHubTranslatorTest {
     return urns;
   }
 
+  @Test
+  void aCompletedRunTellsDataHubItChangedTheDatasetsItWrote() {
+    List<RunEvent> events =
+        new HopEvents("orders")
+            .readThenWrite(
+                "file:///data/in.csv", "file:///out/x.csv", 98, RunLifecyclePhase.FINISHED);
+    List<Mcp> proposals = all(events);
+
+    JsonNode operation = one(proposals, OUT, "operation").value();
+    assertEquals("INSERT", operation.get("operationType").asText());
+    assertEquals("DATA_PROCESS", operation.get("sourceType").asText());
+    assertEquals(98L, operation.get("numAffectedRows").asLong());
+    assertEquals(
+        operation.get("timestampMillis").asLong(), operation.get("lastUpdatedTimestamp").asLong());
+    assertEquals("urn:li:corpuser:datahub", operation.get("actor").asText());
+    // The pipeline reports it, once it completed
+    assertEquals("orders", operation.get("customProperties").get("hopJob").asText());
+    assertEquals(
+        operation.get("customProperties").get("hopRunId").asText(),
+        operation.get("messageId").asText());
+    // Reading a dataset doesn't change it
+    assertTrue(find(proposals, IN, "operation").isEmpty());
+  }
+
+  @Test
+  void aRunKeepsItsNameAndStartAndGainsItsRowCounts() {
+    HopEvents run = new HopEvents("orders");
+    List<Mcp> proposals =
+        all(
+            run.readThenWrite(
+                "file:///data/in.csv", "file:///out/x.csv", 98, RunLifecyclePhase.FINISHED));
+    String writeRun = DataHubUrns.dataProcessInstance(UUID.fromString(run.transformRunId("Write")));
+
+    List<Mcp> properties = find(proposals, writeRun, "dataProcessInstanceProperties");
+    assertEquals(2, properties.size(), "written at the start and again at the end");
+    JsonNode started = properties.get(0).value();
+    JsonNode ended = properties.get(1).value();
+    assertEquals(started.get("name"), ended.get("name"));
+    assertEquals(started.get("created"), ended.get("created"));
+    assertEquals("98", ended.get("customProperties").get("linesOutput").asText());
+    assertEquals(
+        started.get("customProperties").get("hopRunId"),
+        ended.get("customProperties").get("hopRunId"));
+  }
+
+  @Test
+  void copiesOfAWriterGiveOneOperationWithAllTheirRows() {
+    HopEvents run = new HopEvents("orders");
+    List<RunEvent> events =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    run.pipeline(RunLifecyclePhase.STARTED),
+                    run.graph("Read>Write"),
+                    run.read("Read", "file:///data/in.csv"),
+                    run.write("Write", "file:///out/x.csv"),
+                    run.transform("Read", RunLifecyclePhase.FINISHED, 100, 0),
+                    run.transform("Write", "0", RunLifecyclePhase.FINISHED, 0, 60),
+                    run.transform("Write", "1", RunLifecyclePhase.FINISHED, 0, 40),
+                    run.pipeline(RunLifecyclePhase.FINISHED)));
+
+    List<Mcp> operations = find(all(events), OUT, "operation");
+
+    assertEquals(1, operations.size());
+    assertEquals(100L, operations.get(0).value().get("numAffectedRows").asLong());
+  }
+
+  @Test
+  void aWriterThatFinishedInAPipelineThatFailedReportsNoOperation() {
+    HopEvents run = new HopEvents("orders");
+    List<RunEvent> events =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    run.pipeline(RunLifecyclePhase.STARTED),
+                    run.graph("Read>Write"),
+                    run.read("Read", "file:///data/in.csv"),
+                    run.write("Write", "file:///out/x.csv"),
+                    // Stopped by the failure upstream: no errors of its own
+                    run.transform("Write", RunLifecyclePhase.FINISHED, 0, 5000),
+                    run.transform("Read", RunLifecyclePhase.FAILED, 5000, 0),
+                    run.pipeline(RunLifecyclePhase.FAILED)));
+
+    assertTrue(find(all(events), OUT, "operation").isEmpty());
+  }
+
+  @Test
+  void anEndThatIsSentAgainStillCarriesTheRowCounts() {
+    HopEvents run = new HopEvents("orders");
+    List<RunEvent> events =
+        run.readThenWrite(
+            "file:///data/in.csv", "file:///out/x.csv", 98, RunLifecyclePhase.FINISHED);
+    String writeRun = DataHubUrns.dataProcessInstance(UUID.fromString(run.transformRunId("Write")));
+    RunEvent writeEnd =
+        events.stream()
+            .filter(
+                e ->
+                    e.getEventType() == RunEvent.EventType.COMPLETE
+                        && e.getJob().getName().equals("orders/Write"))
+            .findFirst()
+            .orElseThrow();
+
+    all(events);
+    // Delivery failed, the dispatcher offers the same event again
+    List<Mcp> retried = translator.translate(writeEnd).proposals();
+
+    JsonNode properties = one(retried, writeRun, "dataProcessInstanceProperties").value();
+    assertEquals("98", properties.get("customProperties").get("linesOutput").asText());
+  }
+
+  @Test
+  void runsThatEndedDoNotCrowdOutARunThatIsStillGoing() {
+    HopEvents longRun = new HopEvents("orders");
+    List<RunEvent> events =
+        longRun.readThenWrite(
+            "file:///data/in.csv", "file:///out/x.csv", 98, RunLifecyclePhase.FINISHED);
+    // Its starts (pipeline, Read, Write), then more short runs than the translator keeps open runs
+    // for, then its ends
+    all(events.subList(0, 3));
+    for (int i = 0; i < 400; i++) {
+      all(new HopEvents("short" + i).readThenWrite("file:///data/in.csv", "file:///out/y.csv"));
+    }
+    List<Mcp> proposals = all(events.subList(3, events.size()));
+    String writeRun =
+        DataHubUrns.dataProcessInstance(UUID.fromString(longRun.transformRunId("Write")));
+
+    JsonNode properties = one(proposals, writeRun, "dataProcessInstanceProperties").value();
+    assertEquals("98", properties.get("customProperties").get("linesOutput").asText());
+  }
+
+  @Test
+  void aStoppedPipelineDoesNotMakeADatasetLookUpToDate() {
+    HopEvents run = new HopEvents("orders");
+    List<RunEvent> events =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    run.pipeline(RunLifecyclePhase.STARTED),
+                    run.graph("Read>Write"),
+                    run.read("Read", "file:///data/in.csv"),
+                    run.write("Write", "file:///out/x.csv"),
+                    run.transform("Read", RunLifecyclePhase.FINISHED, 5000, 0),
+                    run.transform("Write", RunLifecyclePhase.FINISHED, 0, 5000),
+                    run.pipelineStopped()));
+
+    assertTrue(find(all(events), OUT, "operation").isEmpty());
+  }
+
+  @Test
+  void aFileRewrittenWithNothingWasEmptied() {
+    List<Mcp> proposals =
+        all(
+            new HopEvents("orders")
+                .readThenWrite(
+                    "file:///data/in.csv", "file:///out/x.csv", 0, RunLifecyclePhase.FINISHED));
+
+    // A file is replaced when it is written: what it held is gone, how many rows is not known
+    JsonNode operation = one(proposals, OUT, "operation").value();
+    assertEquals("DELETE", operation.get("operationType").asText());
+    assertFalse(operation.has("numAffectedRows"));
+  }
+
+  @Test
+  void aFailedRunDoesNotMakeADatasetLookUpToDate() {
+    List<Mcp> proposals =
+        all(
+            new HopEvents("orders")
+                .readThenWrite(
+                    "file:///data/in.csv", "file:///out/x.csv", 40, RunLifecyclePhase.FAILED));
+
+    assertTrue(find(proposals, OUT, "operation").isEmpty());
+  }
+
+  @Test
+  void aWriteWithoutCountsIsStillAnOperation() {
+    List<Mcp> proposals =
+        all(new HopEvents("orders").readThenWrite("file:///data/in.csv", "file:///out/x.csv"));
+
+    JsonNode operation = one(proposals, OUT, "operation").value();
+    assertFalse(operation.has("numAffectedRows"));
+  }
+
   // A pipeline is one flow and its transforms are the jobs inside it — not one flow per transform.
   @Test
   void aPipelineIsAFlowAndItsTransformsAreItsJobs() {
