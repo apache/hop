@@ -80,6 +80,9 @@ final class DataHubTranslator {
   private static final String CONST_PIPELINE = "Pipeline";
   private static final String CONST_WORKFLOW_2 = "Workflow";
 
+  /** The task property prefix of the expression that calculates a field: {@code logic.total}. */
+  static final String LOGIC_PROPERTY_PREFIX = "logic.";
+
   static final String HOP_PLATFORM_LOGO = "https://hop.apache.org/img/hop-logo.svg";
 
   /** Marks the schemas Hop writes, so a later write only replaces Hop's own. */
@@ -263,7 +266,8 @@ final class DataHubTranslator {
     if (type == EventType.START) {
       proposals.addAll(flowAspects(flowUrn, subject, jobUrn == null ? description(event) : null));
       if (jobUrn != null) {
-        proposals.addAll(jobAspects(jobUrn, flowUrn, subject, description(event)));
+        proposals.addAll(
+            jobAspects(jobUrn, flowUrn, subject, description(event), transformLogic(event)));
       }
       proposals.addAll(runStarted(event, subject, jobUrn != null ? jobUrn : flowUrn, time));
       return new Translation(proposals, schemas, lifecycle, staleChecks, jobUrn, time);
@@ -290,7 +294,7 @@ final class DataHubTranslator {
     if (ioJobUrn == null && (!jobInputs.isEmpty() || !jobOutputs.isEmpty())) {
       ioJobUrn = DataHubUrns.dataJob(flowUrn, subject.flowName());
       proposals.addAll(flowAspects(flowUrn, subject, description(event)));
-      proposals.addAll(jobAspects(ioJobUrn, flowUrn, subject, null));
+      proposals.addAll(jobAspects(ioJobUrn, flowUrn, subject, null, Map.of()));
     }
     for (String dataset : distinct(inputs, outputs)) {
       proposals.add(Mcp.upsert(CONST_DATASET, dataset, CONST_STATUS, status()));
@@ -319,6 +323,10 @@ final class DataHubTranslator {
               ioJobUrn,
               CONST_DATA_JOB_INPUT_OUTPUT,
               jobInputOutput(jobInputs, jobOutputs, upstreamJobs(subject, flowUrn), fieldEdges)));
+      Mcp sql = sqlLogic(event, ioJobUrn);
+      if (sql != null) {
+        proposals.add(sql);
+      }
     }
     proposals.addAll(runEnded(event, inputs, outputs, time));
     if (type == EventType.COMPLETE) {
@@ -377,7 +385,12 @@ final class DataHubTranslator {
     return proposals;
   }
 
-  private List<Mcp> jobAspects(String jobUrn, String flowUrn, Subject subject, String description) {
+  private List<Mcp> jobAspects(
+      String jobUrn,
+      String flowUrn,
+      Subject subject,
+      String description,
+      Map<String, String> logic) {
     List<Mcp> proposals = new ArrayList<>();
     ObjectNode info = MAPPER.createObjectNode();
     info.put("name", subject.jobName() != null ? subject.jobName() : subject.flowName());
@@ -391,6 +404,7 @@ final class DataHubTranslator {
       // Which file the task belongs to: only that file's runs may retire it (see StaleCheck).
       properties.put(FILENAME_PROPERTY, subject.flowFilename());
     }
+    logic.forEach(properties::put);
     proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataJobInfo", info));
     proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "subTypes", subTypes(subject.jobType())));
     proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, CONST_STATUS, status()));
@@ -398,6 +412,55 @@ final class DataHubTranslator {
       proposals.add(Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataPlatformInstance", platformInstance()));
     }
     return proposals;
+  }
+
+  /**
+   * The expressions a transform calculates its fields with (Formula, Calculator), as task
+   * properties: {@code logic.<field>} with the expression. DataHub's transformation logic aspect
+   * only takes SQL, so they are not put there.
+   */
+  static Map<String, String> transformLogic(RunEvent event) {
+    OpenLineage.JobFacets facets = event.getJob().getFacets();
+    OpenLineage.JobFacet facet =
+        facets == null || facets.getAdditionalProperties() == null
+            ? null
+            : facets
+                .getAdditionalProperties()
+                .get(OpenLineageEventMapper.HOP_TRANSFORM_LOGIC_FACET);
+    if (facet == null
+        || facet.getAdditionalProperties() == null
+        || !(facet.getAdditionalProperties().get("fields") instanceof List<?> fields)) {
+      return Map.of();
+    }
+    Map<String, String> logic = new LinkedHashMap<>();
+    for (Object item : fields) {
+      if (item instanceof Map<?, ?> field
+          && field.get("field") instanceof String name
+          && !StringUtils.isBlank(name)
+          && field.get("expression") instanceof String expression
+          && !StringUtils.isBlank(expression)) {
+        logic.put(LOGIC_PROPERTY_PREFIX + name, expression);
+      }
+    }
+    return logic;
+  }
+
+  /**
+   * The SQL a task ran as DataHub's transformation logic, when its run ran exactly one statement
+   * (the {@code sql} job facet).
+   */
+  private static Mcp sqlLogic(RunEvent event, String jobUrn) {
+    OpenLineage.JobFacets facets = event.getJob().getFacets();
+    if (facets == null
+        || facets.getSql() == null
+        || StringUtils.isBlank(facets.getSql().getQuery())) {
+      return null;
+    }
+    ObjectNode logic = MAPPER.createObjectNode();
+    ObjectNode statement = logic.putArray("transforms").addObject().putObject("queryStatement");
+    statement.put(CONST_VALUE, facets.getSql().getQuery());
+    statement.put("language", "SQL");
+    return Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataTransformLogic", logic);
   }
 
   /** The description the Hop metadata gives the event's job, from the documentation facet. */

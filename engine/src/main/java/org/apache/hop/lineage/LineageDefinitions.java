@@ -99,6 +99,7 @@ public final class LineageDefinitions {
       LineageRunLifecycleEmitter.fillDescription(transform, transformMeta.getDescription());
       transform.putAttribute("pipelineLogChannelId", runId);
       transform.putAttribute("transformPluginId", transformMeta.getTransformPluginId());
+      LineageTransformLogic.put(transform, transformMeta, variables);
       LineageContext context = transform.build();
       events.add(lifecycle(context, RunLifecyclePhase.STARTED));
       try {

@@ -77,6 +77,12 @@ a local file as its path on `file`.
 |Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
 |Column-level lineage, on the task and on the dataset.
 
+|SQL a transform ran (Table Input, Execute SQL), expressions it calculated fields with (Formula, Calculator)
+|The SQL is the task's *transformation logic*, when the run ran exactly one statement. DataHub only
+takes SQL there, so a Formula's or Calculator's expressions are *properties* of the task instead:
+`logic.<field>` with the expression, such as `logic.total` = `[price] * [qty]`, or
+`MULTIPLY(total, rate)` for a calculation.
+
 |A file or table a run wrote
 |An *operation* on the dataset when the run succeeds: `INSERT`, `UPDATE` or `DELETE`, or `CREATE`,
 `DROP` or `ALTER` for a dataset created, deleted, moved or renamed, with the number of rows when Hop

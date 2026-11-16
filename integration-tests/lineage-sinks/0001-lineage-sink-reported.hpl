@@ -43,6 +43,11 @@ limitations under the License.
   <order>
     <hop>
       <from>Generate rows</from>
+      <to>Measure marker</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Measure marker</from>
       <to>Write to log</to>
       <enabled>Y</enabled>
     </hop>
@@ -101,6 +106,33 @@ limitations under the License.
     <GUI>
       <xloc>304</xloc>
       <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Measure marker</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <formulas>
+      <formula>
+        <field_name>marker_length</field_name>
+        <formula>LEN([marker])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+    </formulas>
+    <attributes/>
+    <GUI>
+      <xloc>208</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

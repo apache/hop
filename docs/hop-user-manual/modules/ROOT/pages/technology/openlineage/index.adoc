@@ -146,6 +146,11 @@ job facet with the subject type and the pipeline, workflow, transform or action 
 A job name such as `nightly/Load orders` cannot be split back reliably, so a collector that models
 pipelines and transforms separately reads those names from the facet.
 
+A transform that ran exactly one SQL statement (Table Input, Execute SQL) has it in the standard
+`sql` job facet. A Formula or Calculator lists the expressions it calculates its fields with in a
+`hopTransformLogic` job facet: `fields`, each with its `field`, its `language` (`formula` or
+`calculator`) and its `expression`, such as `[price] * [qty]` or `MULTIPLY(total, rate)`.
+
 === Row counts
 
 A transform's `COMPLETE` or `FAIL` event carries the row counters of that transform copy in a

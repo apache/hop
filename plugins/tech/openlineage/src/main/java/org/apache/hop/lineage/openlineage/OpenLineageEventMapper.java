@@ -46,12 +46,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.LineageFileIdentity;
 import org.apache.hop.lineage.LineageRelationalIdentity;
 import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.LineageTransformLogic;
+import org.apache.hop.lineage.api.IDeclaresTransformLogic.FieldLogic;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.model.DocumentationLineagePayload;
@@ -148,6 +151,13 @@ public final class OpenLineageEventMapper {
    * vouches for. They are not the event's outputs: a test run doesn't write them.
    */
   public static final String UNIT_TEST_FACET = "hopUnitTest";
+
+  /**
+   * Key of the job facet with the expressions a transform calculates its fields with (Formula,
+   * Calculator): {@code fields}, each with its {@code field}, {@code language} and {@code
+   * expression}. SQL is in the standard {@code sql} facet instead.
+   */
+  public static final String HOP_TRANSFORM_LOGIC_FACET = "hopTransformLogic";
 
   /**
    * Run facet of the documentation of a pipeline or workflow, as {@code hop doc} writes it: {@code
@@ -645,6 +655,9 @@ public final class OpenLineageEventMapper {
     if (!Utils.isEmpty(sqlText)) {
       facets.sql(ol.newSQLJobFacet(sqlText, null));
     }
+    if (!identity.logic().isEmpty()) {
+      facets.put(HOP_TRANSFORM_LOGIC_FACET, transformLogicFacet(identity.logic()));
+    }
     if (!Utils.isEmpty(identity.description())) {
       facets.documentation(ol.newDocumentationJobFacet(identity.description(), null));
     }
@@ -666,6 +679,21 @@ public final class OpenLineageEventMapper {
     putIfPresent(properties, "actionName", identity.actionName());
     putIfPresent(properties, "filename", identity.filename());
     properties.putAll(identity.extra());
+    return facet;
+  }
+
+  /** The expressions a transform calculates its fields with, in the order it calculates them. */
+  private OpenLineage.JobFacet transformLogicFacet(List<FieldLogic> logic) {
+    OpenLineage.DefaultJobFacet facet = new OpenLineage.DefaultJobFacet(producer, null);
+    List<Map<String, String>> fields = new ArrayList<>();
+    for (FieldLogic field : logic) {
+      Map<String, String> entry = new LinkedHashMap<>();
+      entry.put("field", field.field());
+      entry.put("language", Const.NVL(field.language(), ""));
+      entry.put("expression", field.expression());
+      fields.add(entry);
+    }
+    facet.getAdditionalProperties().put("fields", fields);
     return facet;
   }
 
@@ -1260,7 +1288,8 @@ public final class OpenLineageEventMapper {
       String actionName,
       String filename,
       String description,
-      Map<String, Object> extra) {
+      Map<String, Object> extra,
+      List<FieldLogic> logic) {
 
     /** The engine attributes that name who started a pipeline or workflow, copied to the facet. */
     private static final List<String> PARENT_ATTRIBUTES =
@@ -1274,7 +1303,7 @@ public final class OpenLineageEventMapper {
     /** The subject the context describes. */
     static JobIdentity of(LineageContext ctx) {
       if (ctx == null) {
-        return new JobIdentity(null, null, null, null, null, null, null, Map.of());
+        return new JobIdentity(null, null, null, null, null, null, null, Map.of(), List.of());
       }
       Map<String, Object> extra = new LinkedHashMap<>();
       if (ctx.getSubjectType() == LineageSubjectType.PIPELINE
@@ -1294,7 +1323,10 @@ public final class OpenLineageEventMapper {
           ctx.getSubjectType() == LineageSubjectType.ACTION ? ctx.getActionName() : null,
           filenameOf(ctx),
           ctx.getAttributes().get(LineageRunLifecycleEmitter.ATTR_DESCRIPTION),
-          Collections.unmodifiableMap(extra));
+          Collections.unmodifiableMap(extra),
+          ctx.getSubjectType() == LineageSubjectType.TRANSFORM
+              ? LineageTransformLogic.get(ctx.getAttributes())
+              : List.of());
     }
 
     /**
@@ -1311,7 +1343,8 @@ public final class OpenLineageEventMapper {
             null,
             filenameOf(ctx),
             null,
-            Map.of());
+            Map.of(),
+            List.of());
       }
       return of(ctx);
     }
@@ -1328,7 +1361,8 @@ public final class OpenLineageEventMapper {
           actionName,
           filename,
           description,
-          Collections.unmodifiableMap(more));
+          Collections.unmodifiableMap(more),
+          logic);
     }
 
     private static String filenameOf(LineageContext ctx) {

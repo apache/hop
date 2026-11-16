@@ -516,6 +516,7 @@ public final class LineageRunLifecycleEmitter {
     }
     ITransform transform = combi.transform;
     ctx.putAttribute("transformErrors", String.valueOf(transform.getErrors()));
+    LineageTransformLogic.put(ctx, combi.transformMeta, transform);
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
       LineageRowCounts.putTransformCounts(ctx, transform);

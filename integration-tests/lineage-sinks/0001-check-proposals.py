@@ -31,6 +31,11 @@ PUBLISHED_FLOW = "publish/0005-lineage-sink-published.hpl"
 PUBLISHED_FILES = ("publish/customers.csv", "published-customers.csv")
 # The unit test of 0006, run by Run pipeline unit tests in 0003: a passed assertion on its file
 UNIT_TESTED_FILE = "unit-tested.csv"
+# The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
+LOGIC = (
+    (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
+    (PUBLISHED_FLOW, "Double id", "double_id", "ADD(id, id)"),
+)
 TOKEN = "Bearer it-token"
 
 
@@ -112,6 +117,18 @@ def main(path):
         p["aspectName"] == "assertionInfo" and p["entityUrn"] == runs[-1]["entityUrn"] for p in kept
     ):
         problems.append("the unit test assertion run has no assertion")
+    # What a transform calculates its fields with: a Formula that ran, a Calculator published
+    for flow, task, field, expression in LOGIC:
+        infos = [
+            p
+            for p in kept
+            if p["aspectName"] == "dataJobInfo"
+            and flow in (p["entityUrn"] or "")
+            and (p["entityUrn"] or "").endswith("," + task + ")")
+        ]
+        found = infos[-1]["value"].get("customProperties", {}).get("logic." + field) if infos else None
+        if found != expression:
+            problems.append(f"task {task} of {flow} shows {found} as the logic of {field}, not {expression}")
     for name in NOT_REPORTED:
         if any(name in (p["entityUrn"] or "") for p in kept):
             problems.append(f"{name} reported its lineage, its run configuration has no sink")
@@ -124,7 +141,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, and the unit test is an assertion")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit test is an assertion, and transforms show their expressions")
     return 0
 
 

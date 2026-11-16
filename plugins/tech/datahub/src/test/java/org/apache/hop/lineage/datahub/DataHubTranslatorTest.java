@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.LineageTransformLogic;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.datahub.DataHubTranslator.LifecycleChange;
@@ -46,6 +47,9 @@ import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
+import org.apache.hop.lineage.model.RelationalIoLineagePayload;
+import org.apache.hop.lineage.model.RelationalIoOperation;
+import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
@@ -591,6 +595,75 @@ class DataHubTranslatorTest {
                     hop.transform("Clean", RunLifecyclePhase.FINISHED),
                     hop.pipeline(RunLifecyclePhase.FINISHED)));
     events.forEach(e -> assertTrue(off.translate(e).lifecycle().isEmpty()));
+  }
+
+  // The expressions a transform calculates its fields with are properties of its task. The one
+  // statement a task ran is its transformation logic, which DataHub only has for SQL.
+  @Test
+  void aTaskShowsItsExpressionsAndTheStatementItRan() {
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    LineageContext calculate =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.TRANSFORM)
+            .pipelineName("orders")
+            .transformName("Calculate")
+            .logChannelId(events.transformRunId("Calculate"))
+            .hopFilenamePortableKey(events.filename())
+            .putAttribute("pipelineLogChannelId", events.pipelineRunId())
+            .putAttribute(
+                LineageTransformLogic.ATTRIBUTE,
+                "[{\"field\":\"total\",\"language\":\"formula\",\"expression\":\"[price] * [qty]\"},"
+                    + "{\"field\":\"tax\",\"language\":\"calculator\",\"expression\":\"MULTIPLY(total, rate)\"}]")
+            .build();
+    String sql = "SELECT id, price, qty FROM sales.public.orders";
+    List<RunEvent> mapped =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    events.pipeline(RunLifecyclePhase.STARTED),
+                    events.graph("Read>Calculate"),
+                    lifecycle(read, RunLifecyclePhase.STARTED),
+                    lifecycle(calculate, RunLifecyclePhase.STARTED),
+                    event(
+                        read,
+                        LineageEventKind.RELATIONAL_IO,
+                        new RelationalIoLineagePayload(
+                            RelationalIoOperation.READ,
+                            "postgres://db:5432",
+                            List.of(new RelationalTable("sales", "public", "orders")),
+                            List.of(),
+                            sql,
+                            null,
+                            true,
+                            null)),
+                    lifecycle(read, RunLifecyclePhase.FINISHED),
+                    lifecycle(calculate, RunLifecyclePhase.FINISHED),
+                    events.pipeline(RunLifecyclePhase.FINISHED)));
+    List<Mcp> proposals = all(mapped);
+    String calculateJob = "urn:li:dataJob:(" + FLOW + ",Calculate)";
+
+    JsonNode properties =
+        one(proposals, calculateJob, "dataJobInfo").value().get("customProperties");
+    assertEquals("[price] * [qty]", properties.get("logic.total").asText());
+    assertEquals("MULTIPLY(total, rate)", properties.get("logic.tax").asText());
+    assertTrue(find(proposals, calculateJob, "dataTransformLogic").isEmpty());
+
+    JsonNode statement =
+        one(proposals, READ, "dataTransformLogic")
+            .value()
+            .get("transforms")
+            .get(0)
+            .get("queryStatement");
+    assertEquals(sql, statement.get("value").asText());
+    assertEquals("SQL", statement.get("language").asText());
+    assertNull(one(proposals, READ, "dataJobInfo").value().get("customProperties").get("logic.id"));
+
+    for (RunEvent live : mapped) {
+      RunEvent replayed =
+          OpenLineageClientUtils.runEventFromJson(OpenLineageClientUtils.toJson(live));
+      assertEquals(translator.translate(live), translator.translate(replayed));
+    }
   }
 
   // An event replayed from the spool by a later process is translated exactly like a live one.
