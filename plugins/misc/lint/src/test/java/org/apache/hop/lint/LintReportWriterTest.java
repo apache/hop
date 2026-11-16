@@ -240,6 +240,50 @@ public class LintReportWriterTest {
     assertEquals(0, results.get(1).get("ruleIndex").asInt());
   }
 
+  /**
+   * Hop's own verify remarks carry the transform they were reported on as their rule name. The rule
+   * was described by the first one, so code-scanning tools labelled every finding with it.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9500">#9500</a>
+   */
+  @Test
+  public void sarifNativeRuleIsNotDescribedByATransformName() throws Exception {
+    JsonNode rules =
+        sarifRules(
+            List.of(
+                nativeRemark("CONNECTION_NOT_ASSIGNED", "Load customers"),
+                nativeRemark("CONNECTION_NOT_ASSIGNED", "Load orders")));
+
+    assertEquals(1, rules.size());
+    String text = rules.get(0).get("shortDescription").get("text").asText();
+    assertEquals("CONNECTION_NOT_ASSIGNED", text);
+  }
+
+  /** A remark classified by a native rule is described by that rule's name. */
+  @Test
+  public void sarifNativeRuleTakesTheClassifyingRulesName() throws Exception {
+    LintRuleDetails details =
+        new LintRuleDetails("Hop Verify Remark", "Every remark Hop's checks produce", null, null);
+    JsonNode rules =
+        sarifRules(
+            List.of(
+                nativeRemark("HOP-CHECK", "Load customers").withRuleDetails(details),
+                nativeRemark("HOP-CHECK", "Load orders").withRuleDetails(details)));
+
+    assertEquals("Hop Verify Remark", rules.get(0).get("shortDescription").get("text").asText());
+  }
+
+  private static LintResult nativeRemark(String ruleId, String transformName) {
+    return new LintResult(
+        ruleId,
+        transformName,
+        "WARNING",
+        "No connection is set",
+        PROJECT.resolve("pipelines/load.hpl").toString(),
+        LintSourceRef.transform(transformName),
+        LintResult.Origin.HOP_NATIVE);
+  }
+
   /** The SARIF schema requires a rule's tags to be unique. */
   @Test
   public void sarifTagsAreUnique() throws Exception {

@@ -27,19 +27,26 @@ import java.util.Map;
  * What a finding carries about the rule that produced it, for the reports to write out.
  *
  * <p>None of it changes what the rule checks: it is the rule's description, where to read more
- * about it, and the tags its pack gave it.
+ * about it, and the tags its pack gave it, with its name for the reports that describe the rule.
  *
+ * @param name the rule's name, empty when it has none
  * @param description the rule's description, empty when it has none
  * @param helpUri where to read more about the rule, or null
  * @param tags the rule's tags, each key holding one or more values
  */
-public record LintRuleDetails(String description, String helpUri, Map<String, List<String>> tags) {
+public record LintRuleDetails(
+    String name, String description, String helpUri, Map<String, List<String>> tags) {
 
-  public static final LintRuleDetails NONE = new LintRuleDetails("", null, Map.of());
+  public static final LintRuleDetails NONE = new LintRuleDetails("", "", null, Map.of());
 
   public LintRuleDetails {
+    name = name != null ? name : "";
     description = description != null ? description : "";
     tags = copyOf(tags);
+  }
+
+  public LintRuleDetails(String description, String helpUri, Map<String, List<String>> tags) {
+    this("", description, helpUri, tags);
   }
 
   /** The details of a rule, or {@link #NONE} when there is no rule. */
@@ -47,7 +54,8 @@ public record LintRuleDetails(String description, String helpUri, Map<String, Li
     if (rule == null) {
       return NONE;
     }
-    return new LintRuleDetails(rule.getDescription(), rule.getHelpUri(), rule.getTags());
+    return new LintRuleDetails(
+        rule.getName(), rule.getDescription(), rule.getHelpUri(), rule.getTags());
   }
 
   /**
@@ -55,10 +63,10 @@ public record LintRuleDetails(String description, String helpUri, Map<String, Li
    *
    * <p>A remark from Hop's own checks with an error code of its own is reported under that code.
    * The tags of the native rule that classified it apply to it, but that rule's description and
-   * help link are about the rule, not about the code.
+   * help link are about the rule, not about the code; so is its name.
    */
   public LintRuleDetails tagsOnly() {
-    return hasTags() ? new LintRuleDetails("", null, tags) : NONE;
+    return hasTags() ? new LintRuleDetails("", "", null, tags) : NONE;
   }
 
   public boolean hasTags() {
