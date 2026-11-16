@@ -37,6 +37,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 @SuppressWarnings("java:S1104")
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
 
+  /** Per field: its metadata in normal storage, for a lazily converted field. */
+  private IValueMeta[] normalStorageMetas;
+
   private static final Class<?> PKG = CalculatorMeta.class;
   public static final String CONST_FOR_CALCULATION = " for calculation #";
 
@@ -197,6 +200,35 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
   }
 
   /**
+   * The metadata of a field as a calculation sees it: in normal storage. A lazily converted field
+   * (CSV input with lazy conversion) keeps its raw bytes in the row that goes on, but a calculation
+   * works on the value, so it gets the value and metadata in normal storage.
+   */
+  private IValueMeta normalStorageMeta(int index) {
+    IValueMeta valueMeta = data.getCalcRowMeta().getValueMeta(index);
+    if (valueMeta.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL) {
+      return valueMeta;
+    }
+    if (normalStorageMetas == null) {
+      normalStorageMetas = new IValueMeta[data.getCalcRowMeta().size()];
+    }
+    if (normalStorageMetas[index] == null) {
+      IValueMeta normal = valueMeta.clone();
+      normal.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+      normalStorageMetas[index] = normal;
+    }
+    return normalStorageMetas[index];
+  }
+
+  private static Object toNormalStorage(IValueMeta valueMeta, Object value)
+      throws HopValueException {
+    if (value == null || valueMeta.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL) {
+      return value;
+    }
+    return valueMeta.convertToNormalStorageType(value);
+  }
+
+  /**
    * @param inputRowMeta the input row metadata
    * @param r the input row (data)
    * @return A row including the calculations, excluding the temporary values
@@ -216,24 +248,27 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
         Object dataA = null;
 
         if (data.getFieldIndexes()[i].indexA >= 0) {
-          metaA = data.getCalcRowMeta().getValueMeta(data.getFieldIndexes()[i].indexA);
-          dataA = calcData[data.getFieldIndexes()[i].indexA];
+          int indexA = data.getFieldIndexes()[i].indexA;
+          metaA = normalStorageMeta(indexA);
+          dataA = toNormalStorage(data.getCalcRowMeta().getValueMeta(indexA), calcData[indexA]);
         }
 
         IValueMeta metaB = null;
         Object dataB = null;
 
         if (data.getFieldIndexes()[i].indexB >= 0) {
-          metaB = data.getCalcRowMeta().getValueMeta(data.getFieldIndexes()[i].indexB);
-          dataB = calcData[data.getFieldIndexes()[i].indexB];
+          int indexB = data.getFieldIndexes()[i].indexB;
+          metaB = normalStorageMeta(indexB);
+          dataB = toNormalStorage(data.getCalcRowMeta().getValueMeta(indexB), calcData[indexB]);
         }
 
         IValueMeta metaC = null;
         Object dataC = null;
 
         if (data.getFieldIndexes()[i].indexC >= 0) {
-          metaC = data.getCalcRowMeta().getValueMeta(data.getFieldIndexes()[i].indexC);
-          dataC = calcData[data.getFieldIndexes()[i].indexC];
+          int indexC = data.getFieldIndexes()[i].indexC;
+          metaC = normalStorageMeta(indexC);
+          dataC = toNormalStorage(data.getCalcRowMeta().getValueMeta(indexC), calcData[indexC]);
         }
 
         CalculationType calcType = fn.getCalcType();
