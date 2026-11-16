@@ -215,6 +215,7 @@ public class PipelineDebugPanel {
     status = new Label(parent, SWT.WRAP);
     status.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
     status.setText(text("PipelineDebugPanel.Status.NoSession"));
+    PropsUi.setLook(status);
 
     SashForm sash = new SashForm(parent, SWT.HORIZONTAL);
     sash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -233,6 +234,7 @@ public class PipelineDebugPanel {
     lists.setWeights(50, 50);
 
     CTabFolder tabs = new CTabFolder(sash, SWT.BORDER);
+    PropsUi.setLook(tabs);
     rowHost = new Composite(tabs, SWT.NONE);
     GridLayout rowsLayout = new GridLayout(1, false);
     rowsLayout.marginWidth = 0;
@@ -441,6 +443,7 @@ public class PipelineDebugPanel {
     table.setHeaderVisible(true);
     table.setLinesVisible(true);
     table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    PropsUi.setLook(table);
     for (String key : transformsList ? transformColumns() : hopColumns()) {
       TableColumn column = new TableColumn(table, SWT.LEFT);
       column.setText(text(key));
