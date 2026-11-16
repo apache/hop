@@ -33,7 +33,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
@@ -100,6 +103,29 @@ class YamlReaderTests {
     assertEquals("Alice", row[0]);
     assertEquals(25L, row[1]);
     assertInstanceOf(Date.class, row[2]);
+  }
+
+  @Test
+  void aQuotedDateBecomesTheDateItsFieldDeclares() {
+    String yaml = """
+				order_id: 1
+				order_date: '2020-02-28'
+				shipped: 'Y'
+				""";
+
+    reader.loadString(yaml);
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("order_id"));
+    ValueMetaDate date = new ValueMetaDate("order_date");
+    date.setConversionMask("yyyy-MM-dd");
+    rowMeta.addValueMeta(date);
+    rowMeta.addValueMeta(new ValueMetaBoolean("shipped"));
+    Object[] row = reader.getRow(rowMeta);
+
+    assertEquals(1L, row[0]);
+    assertInstanceOf(Date.class, row[1]);
+    assertEquals(true, row[2]);
   }
 
   @Test
