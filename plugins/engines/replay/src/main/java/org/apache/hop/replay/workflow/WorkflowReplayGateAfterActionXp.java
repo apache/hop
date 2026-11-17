@@ -76,7 +76,7 @@ public class WorkflowReplayGateAfterActionXp
     Result result = extension.actionExecutionResult;
     boolean success =
         result != null
-            && result.getResult()
+            && result.isResult()
             && result.getNrErrors() == 0
             && !result.isStopped()
             && !workflow.isStopped();
@@ -97,7 +97,7 @@ public class WorkflowReplayGateAfterActionXp
     manifest.setConfigurationHash(ReplayGateIdentity.configurationHash(workflow, actionMeta));
     manifest.setVariables(changedVariables);
     manifest.setElapsedTimeMillis(result.getElapsedTimeMillis());
-    manifest.setResult(result.getResult());
+    manifest.setResult(result.isResult());
     manifest.setNrErrors(result.getNrErrors());
     manifest.setNrLinesInput(result.getNrLinesInput());
     manifest.setNrLinesOutput(result.getNrLinesOutput());

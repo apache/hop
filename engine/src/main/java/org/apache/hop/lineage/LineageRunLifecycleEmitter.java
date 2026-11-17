@@ -436,7 +436,7 @@ public final class LineageRunLifecycleEmitter {
     ctx.putAttribute("errors", String.valueOf(result != null ? result.getNrErrors() : 0));
     if (result != null) {
       ctx.putAttribute("nrErrors", String.valueOf(result.getNrErrors()));
-      ctx.putAttribute("result", String.valueOf(result.getResult()));
+      ctx.putAttribute("result", String.valueOf(result.isResult()));
     }
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
@@ -494,7 +494,7 @@ public final class LineageRunLifecycleEmitter {
       if (r.getNrErrors() > 0) {
         return true;
       }
-      return !r.getResult();
+      return !r.isResult();
     }
     return false;
   }
@@ -605,7 +605,7 @@ public final class LineageRunLifecycleEmitter {
 
     if (extension.actionExecutionResult != null) {
       ctx.putAttribute("nrErrors", String.valueOf(extension.actionExecutionResult.getNrErrors()));
-      ctx.putAttribute("result", String.valueOf(extension.actionExecutionResult.getResult()));
+      ctx.putAttribute("result", String.valueOf(extension.actionExecutionResult.isResult()));
     }
 
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
@@ -628,6 +628,6 @@ public final class LineageRunLifecycleEmitter {
     if (ar == null) {
       return false;
     }
-    return ar.getNrErrors() > 0 || !ar.getResult();
+    return ar.getNrErrors() > 0 || !ar.isResult();
   }
 }

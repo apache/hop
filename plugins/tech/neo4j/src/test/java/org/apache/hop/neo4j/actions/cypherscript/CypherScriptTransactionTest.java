@@ -63,7 +63,7 @@ class CypherScriptTransactionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals(List.of("CREATE (:A)", "FAIL"), database.executed);
     assertTrue(database.rolledBack, "The transaction was not rolled back");
@@ -85,7 +85,7 @@ class CypherScriptTransactionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(List.of("CREATE (:A)", "CREATE (:B)"), database.executed);
     assertTrue(database.committed);
@@ -99,7 +99,7 @@ class CypherScriptTransactionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(List.of("CREATE (:A)", "CREATE (:B)", "AUTO", "CREATE (:C)"), database.executed);
     assertEquals(List.of("AUTO"), database.autoCommitted);
@@ -115,7 +115,7 @@ class CypherScriptTransactionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals(List.of("CREATE (:A)", "AUTO", "FAIL"), database.executed);
     assertEquals(List.of("AUTO"), database.autoCommitted);
@@ -132,7 +132,7 @@ class CypherScriptTransactionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(List.of(), database.autoCommitted);
     assertEquals(1, database.commits);
   }
@@ -246,11 +246,6 @@ class CypherScriptTransactionTest {
         @Override
         public IGraphDialect getGraphDialect() {
           return dialect;
-        }
-
-        @Override
-        public boolean isSupportingTransactions() {
-          return true;
         }
 
         @Override

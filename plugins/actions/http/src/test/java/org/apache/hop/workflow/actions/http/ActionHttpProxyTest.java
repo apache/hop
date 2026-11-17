@@ -92,8 +92,8 @@ class ActionHttpProxyTest {
           proxyWasCalled.set(true);
           List<String> proxyAuth = exchange.getRequestHeaders().get("Proxy-Authorization");
           List<String> serverAuth = exchange.getRequestHeaders().get("Authorization");
-          proxyAuthorization.set(proxyAuth == null ? null : proxyAuth.get(0));
-          serverAuthorization.set(serverAuth == null ? null : serverAuth.get(0));
+          proxyAuthorization.set(proxyAuth == null ? null : proxyAuth.getFirst());
+          serverAuthorization.set(serverAuth == null ? null : serverAuth.getFirst());
 
           if (proxyAuth == null) {
             exchange.getResponseHeaders().add("Proxy-Authenticate", "Basic realm=\"hop-test\"");
@@ -148,7 +148,7 @@ class ActionHttpProxyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(PROXIED_PAYLOAD, FileUtils.readFileToString(target, UTF_8));
     assertEquals(basic(PROXY_USER, PROXY_PASSWORD), proxyAuthorization.get());
@@ -166,7 +166,7 @@ class ActionHttpProxyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertNull(proxyAuthorization.get(), "the server's credentials were sent to the proxy");
     assertNull(serverAuthorization.get(), "the server's credentials were sent to the proxy");
@@ -185,7 +185,7 @@ class ActionHttpProxyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(basic(PROXY_USER, PROXY_PASSWORD), proxyAuthorization.get());
     // The server never challenged, so its credentials stayed at home.
     assertNull(serverAuthorization.get());
@@ -209,7 +209,7 @@ class ActionHttpProxyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertTrue(originWasCalled.get());
     assertEquals(ORIGIN_PAYLOAD, FileUtils.readFileToString(target, UTF_8));
     assertNull(proxyAuthorization.get(), "the request went through the proxy after all");
@@ -233,7 +233,7 @@ class ActionHttpProxyTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(PROXIED_PAYLOAD, FileUtils.readFileToString(target, UTF_8));
     assertEquals(basic(PROXY_USER, PROXY_PASSWORD), proxyAuthorization.get());
   }
@@ -294,7 +294,7 @@ class ActionHttpProxyTest {
             .getBuffer(action.getLogChannel().getLogChannelId(), false)
             .toString();
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertTrue(originWasCalled.get());
     assertTrue(log.contains("localhost"), "the URL should still be logged: " + log);
     assertFalse(log.contains("topsecret"), "the password in the URL was logged: " + log);

@@ -69,7 +69,7 @@ class WorkflowEntryTest {
     jem.setMetadataProvider(new MemoryMetadataProvider());
     jem.setConnectionName("does-not-exist");
     Result result = jem.execute(new Result(), 0);
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 }

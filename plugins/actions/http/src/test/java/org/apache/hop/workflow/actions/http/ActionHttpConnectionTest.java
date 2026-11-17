@@ -73,7 +73,7 @@ class ActionHttpConnectionTest {
         "/",
         exchange -> {
           List<String> auth = exchange.getRequestHeaders().get("Authorization");
-          authorization.set(auth == null ? null : auth.get(0));
+          authorization.set(auth == null ? null : auth.getFirst());
           requestPath.set(exchange.getRequestURI().getPath());
 
           byte[] body = PAYLOAD.getBytes(UTF_8);
@@ -103,7 +103,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("/v1/items", requestPath.get());
     assertEquals(PAYLOAD, FileUtils.readFileToString(target, UTF_8));
   }
@@ -118,7 +118,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(
         "Basic " + Base64.getEncoder().encodeToString((USER + ":" + PASSWORD).getBytes(UTF_8)),
         authorization.get());
@@ -136,7 +136,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("/elsewhere", requestPath.get());
     assertNull(authorization.get(), "the connection credentials went to another host");
   }
@@ -156,7 +156,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
