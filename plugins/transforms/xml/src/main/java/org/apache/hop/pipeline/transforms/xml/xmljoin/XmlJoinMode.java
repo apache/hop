@@ -22,7 +22,7 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /**
  * Where the XML join adds the source elements. Only shown in the dialog: the transform stores it as
- * {@link XmlJoinMeta#isComplexJoin()}.
+ * {@code complexJoin} in {@link XmlJoinMeta}.
  */
 public enum XmlJoinMode implements IEnumHasCodeAndDescription {
   /** Every element goes to the one node the XPath statement finds. */
