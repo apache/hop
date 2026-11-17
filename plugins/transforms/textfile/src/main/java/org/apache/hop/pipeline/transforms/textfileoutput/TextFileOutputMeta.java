@@ -691,7 +691,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   /**
    * The layout of the file this transform writes: the output fields when some are listed, the whole
-   * row otherwise. The same for a run's lineage and for a published pipeline.
+   * row otherwise.
+   *
+   * @param outputRowMeta the row the transform writes; null or empty when it is not known, then
+   *     only listed fields give a layout, with the types they are listed with
    */
   public FileIoContentSchema writtenContentSchema(IRowMeta outputRowMeta) {
     List<FileIoTabularColumn> cols = new ArrayList<>();
@@ -734,11 +737,18 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     return new FileIoContentSchema("delimited", cols, List.of());
   }
 
-  /** The file a run writes first, with its layout; none when the name comes from a field. */
+  /**
+   * The file a run writes first, with its layout; none when the name comes from a field, or holds
+   * the date or time of the run, so no publication names a file no run writes.
+   */
   @Override
   public List<IDeclaresLineage.Declaration> declaredLineage(
       IVariables variables, IRowMeta inputRowMeta) {
-    if (fileNameInField || Utils.isEmpty(fileSettings.fileName)) {
+    boolean dated =
+        (fileSettings.isSpecifyingFormat() && !Utils.isEmpty(fileSettings.getDateTimeFormat()))
+            || (!fileSettings.isSpecifyingFormat()
+                && (fileSettings.isDateInFilename() || fileSettings.isTimeInFilename()));
+    if (fileNameInField || Utils.isEmpty(fileSettings.fileName) || dated) {
       return List.of();
     }
     String filename =

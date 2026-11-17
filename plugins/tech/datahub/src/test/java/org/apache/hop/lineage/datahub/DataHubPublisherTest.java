@@ -37,12 +37,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.datacatalog.DataCatalog;
 import org.apache.hop.lineage.datahub.DataHubTranslator.Mcp;
 import org.apache.hop.lineage.metadata.LineageSink;
@@ -168,6 +170,42 @@ class DataHubPublisherTest {
             "urn:li:dataFlow:(hop,emea.flows/orders.hpl,dev)",
             "urn:li:dataFlow:(hop,emea.nightly.hwf,dev)"),
         flows.stream().distinct().sorted().toList());
+  }
+
+  @Test
+  void namesResolveAsARunOfTheFileResolvesThem() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    pipeline.addParameterDefinition("OUT_DIR", "/data/out", "");
+    write("flows/orders.hpl", pipeline.getXml(variables));
+    WorkflowMeta workflow = new WorkflowMeta();
+    workflow.setName("nightly");
+    write("jobs/nightly.hwf", workflow.getXml(variables));
+    // What the publication runs with: an action in a workflow elsewhere, say
+    variables.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "/the/calling/workflow");
+    variables.setVariable("OUT_DIR", "/not/the/default");
+
+    IVariables ofPipeline =
+        DataHubPublisher.variablesOf(
+            new PipelineMeta(project.resolve("flows/orders.hpl").toString(), metadata, variables),
+            variables);
+    IVariables ofWorkflow =
+        DataHubPublisher.variablesOf(
+            new WorkflowMeta(variables, project.resolve("jobs/nightly.hwf").toString(), metadata),
+            variables);
+
+    assertEquals(
+        HopVfs.getFileObject(project.resolve("flows").toString()).getName().getURI(),
+        ofPipeline.resolve("${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}"));
+    assertEquals("/data/out", ofPipeline.resolve("${OUT_DIR}"), "the default of the parameter");
+    assertEquals(
+        HopVfs.getFileObject(project.resolve("jobs").toString()).getName().getURI(),
+        ofWorkflow.resolve("${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}"));
+    assertEquals(project.toString(), ofWorkflow.resolve("${PROJECT_HOME}"));
+    assertEquals(
+        "/the/calling/workflow",
+        variables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER),
+        "the variables of the publication stay as they are");
   }
 
   @Test

@@ -61,6 +61,6 @@ It fails when a file can't be read (the others are still published) or DataHub r
 
 == Notes
 
-* Names are resolved with the variables of the workflow, as a run resolves them. A transform whose table or file can't be resolved without running (a file name from a field, a connection that doesn't exist) is published without that dataset.
-* Text file input publishes the files that match its file list when the action runs.
-* A table's columns are only published when the fields that reach the transform can be worked out without a database: tables are best described by DataHub's own database ingestion.
+* Names are resolved as a run of each pipeline or workflow resolves them: with the variables of the workflow, the file's own folder as `'${Internal.Entry.Current.Folder}'`, and the default values of its parameters. A transform whose table or file can't be resolved without running (a file name from a field, a connection that doesn't exist) is published without that dataset.
+* Text file input publishes the files that match its file list when the action runs. Text file output with the date or time in its file name publishes no file: no run writes a file of that name.
+* Publishing asks no database for anything. Behind a transform with a relational connection, such as a Table input, the fields that reach a transform are not worked out: a file's layout then comes from the fields its transform lists, and a table's columns from the field mapping of its transform, without their types. Tables are best described by DataHub's own database ingestion.

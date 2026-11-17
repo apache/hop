@@ -24,8 +24,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
+import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -123,7 +126,8 @@ public final class DataHubPublisher {
           String relativeFile = root.getName().getRelativeName(file.getName());
           if (filename.endsWith(".hpl")) {
             PipelineMeta meta = new PipelineMeta(filename, metadataProvider, variables);
-            List<LineageEvent> events = LineageDefinitions.ofPipeline(meta, variables, log);
+            List<LineageEvent> events =
+                LineageDefinitions.ofPipeline(meta, variablesOf(meta, variables), log);
             if (documentation != null) {
               events.add(documentation.pipeline(events.get(0), meta, relativeFile, project));
             }
@@ -131,7 +135,8 @@ public final class DataHubPublisher {
             pipelines++;
           } else {
             WorkflowMeta meta = new WorkflowMeta(variables, filename, metadataProvider);
-            List<LineageEvent> events = LineageDefinitions.ofWorkflow(meta, variables);
+            List<LineageEvent> events =
+                LineageDefinitions.ofWorkflow(meta, variablesOf(meta, variables));
             if (documentation != null) {
               events.add(documentation.workflow(events.get(0), meta, relativeFile, project));
             }
@@ -153,6 +158,26 @@ public final class DataHubPublisher {
       sink.shutdown();
     }
     return new Result(pipelines, workflows, unreadable, health);
+  }
+
+  /**
+   * The variables a run of a pipeline or workflow resolves its names with, as far as they are known
+   * without running it: those it is published with, its own internal variables (its folder is
+   * {@code Internal.Entry.Current.Folder}) and its parameters, set to their defaults as a run
+   * without parameter values sets them.
+   */
+  static IVariables variablesOf(AbstractMeta meta, IVariables parent) {
+    IVariables own = new Variables();
+    own.initializeFrom(parent);
+    meta.setInternalHopVariables(own);
+    for (String parameter : meta.listParameters()) {
+      try {
+        own.setVariable(parameter, Const.NVL(meta.getParameterDefault(parameter), ""));
+      } catch (UnknownParamException e) {
+        // Listed, so known
+      }
+    }
+    return own;
   }
 
   /** A DataHub sink that writes definitions only, from the settings of a lineage sink. */

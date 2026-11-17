@@ -27,6 +27,11 @@ limitations under the License.
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
     <parameters>
+      <parameter>
+        <name>OUT_DIR</name>
+        <default_value>/data/published</default_value>
+        <description>Where the customers are written: a publication resolves it with this default</description>
+      </parameter>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
@@ -68,7 +73,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/publish/customers.csv</filename>
+    <filename>${Internal.Entry.Current.Folder}/customers.csv</filename>
     <filename_field/>
     <rownum_field/>
     <include_filename>N</include_filename>
@@ -132,7 +137,7 @@ limitations under the License.
     <fileNameInField>N</fileNameInField>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>${java.io.tmpdir}/lineage-sinks-it/published-customers</name>
+      <name>${OUT_DIR}/published-customers</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>N</do_not_open_new_file_init>
       <extention>csv</extention>

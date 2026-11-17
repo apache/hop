@@ -26,10 +26,12 @@ import time
 REPORTED = "0001-lineage-sink-reported"
 INHERITED = ("0003-lineage-sink-child-workflow", "0004-lineage-sink-inherited", "inherited.csv")
 NOT_REPORTED = ("0002-lineage-sink-not-reported", "main-0001-lineage-sinks")
-# Published without running: the flow, its tasks with their files, and the files' layouts
+# Published without running: the flow, its tasks with their files, and the files' layouts. The
+# names resolve as a run of the pipeline resolves them: its own folder, and its parameter's default.
 PUBLISHED_FLOW = "publish/0005-lineage-sink-published.hpl"
-PUBLISHED_FILES = ("publish/customers.csv", "published-customers.csv")
-# The unit test of 0006, run by Run pipeline unit tests in 0003: a passed assertion on its file
+PUBLISHED_FILES = ("publish/customers.csv", "/data/published/published-customers.csv")
+# The unit test of 0006, run by Run pipeline unit tests in 0003: a passed assertion on its file,
+# and nothing else about the run, which runs a changed copy of the pipeline
 UNIT_TESTED_FILE = "unit-tested.csv"
 # The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
 LOGIC = (
@@ -81,6 +83,16 @@ def main(path):
     for aspect in ("dataFlowInfo", "dataJobInfo", "dataJobInputOutput"):
         if aspect not in aspects:
             problems.append(f"the published pipeline has no {aspect}: {sorted(aspects)}")
+    unresolved = sorted(
+        {
+            p["entityUrn"]
+            for p in kept
+            if "${" in (p["entityUrn"] or "")
+            or (p["aspectName"] == "dataJobInputOutput" and "${" in json.dumps(p["value"]))
+        }
+    )
+    if unresolved:
+        problems.append(f"published with a variable that was not resolved: {unresolved}")
     for name in PUBLISHED_FILES:
         schemas = [
             p for p in kept if p["aspectName"] == "schemaMetadata" and name in (p["entityUrn"] or "")

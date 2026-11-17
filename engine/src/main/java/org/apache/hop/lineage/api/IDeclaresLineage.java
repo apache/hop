@@ -60,10 +60,11 @@ public interface IDeclaresLineage {
 
   /**
    * What the transform reads and writes, as far as its metadata tells. Empty when that is only
-   * known at runtime, such as a file name that comes from a field.
+   * known at runtime, such as a file name that comes from a field or holds the date of the run.
    *
    * @param variables the variables to resolve names with
-   * @param inputRowMeta the fields that reach the transform, for a layout that depends on them
+   * @param inputRowMeta the fields that reach the transform, for a layout that depends on them;
+   *     empty when they can't be told without a database, or are not needed
    */
   List<Declaration> declaredLineage(IVariables variables, IRowMeta inputRowMeta);
 }

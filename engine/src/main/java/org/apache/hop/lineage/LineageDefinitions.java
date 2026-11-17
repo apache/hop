@@ -18,9 +18,11 @@
 package org.apache.hop.lineage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -46,6 +48,8 @@ import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
+import org.apache.hop.metadata.util.HopMetadataPropertyWalker;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -103,7 +107,7 @@ public final class LineageDefinitions {
       LineageContext context = transform.build();
       events.add(lifecycle(context, RunLifecyclePhase.STARTED));
       try {
-        for (LineagePayload io : declaredIo(meta, transformMeta, variables)) {
+        for (LineagePayload io : declaredIo(meta, transformMeta, variables, true)) {
           events.add(
               LineageEvent.of(
                   io instanceof FileIoLineagePayload
@@ -173,11 +177,13 @@ public final class LineageDefinitions {
 
   /**
    * What a transform declares it reads and writes, as event payloads: its tables, and its files and
-   * SQL. Empty when it declares nothing that can be resolved without running.
+   * SQL. Empty when it declares nothing that can be resolved without running. Only the tables and
+   * files are named, with the columns the transform lists itself: nothing upstream is asked for its
+   * fields.
    */
   public static List<LineagePayload> declaredIo(
       PipelineMeta meta, TransformMeta transformMeta, IVariables variables) throws Exception {
-    return declaredIo(meta, transformMeta, variables, true);
+    return declaredIo(meta, transformMeta, variables, false);
   }
 
   /**
@@ -185,8 +191,8 @@ public final class LineageDefinitions {
    * TransformMeta, IVariables)} does.
    *
    * @param withFields whether to work out the fields that reach the transform, for the columns of
-   *     the datasets. Without them only the tables and files are named, and nothing upstream is
-   *     asked for its fields, which can mean a database query.
+   *     the datasets, when no transform upstream has a relational connection: asking one of those
+   *     for its fields can mean a database query, which a publication must not depend on.
    */
   public static List<LineagePayload> declaredIo(
       PipelineMeta meta, TransformMeta transformMeta, IVariables variables, boolean withFields)
@@ -257,17 +263,41 @@ public final class LineageDefinitions {
   }
 
   /**
-   * The fields that reach a transform, or none when they can't be worked out without running: a
-   * Table input upstream asks its database for them, which a publication must not depend on. The
-   * datasets are published without their columns then.
+   * The fields that reach a transform, or none when they can't be worked out without a database: a
+   * transform upstream with a relational connection, such as a Table input, may ask it for them.
+   * The datasets are published without those columns then.
    */
   private static IRowMeta inputFields(
       PipelineMeta meta, TransformMeta transformMeta, IVariables variables) {
+    if (usesADatabaseUpstream(meta, transformMeta, new HashSet<>())) {
+      return new RowMeta();
+    }
     try {
       return meta.getPrevTransformFields(variables, transformMeta);
     } catch (Exception e) {
       return new RowMeta();
     }
+  }
+
+  /** Whether a transform upstream, info streams included, has a relational connection set. */
+  static boolean usesADatabaseUpstream(
+      PipelineMeta meta, TransformMeta transformMeta, Set<String> seen) {
+    for (TransformMeta previous : meta.findPreviousTransforms(transformMeta, true)) {
+      if (!seen.add(previous.getName())) {
+        continue;
+      }
+      if (previous.getTransform() != null
+          && HopMetadataPropertyWalker.collectStrings(
+                  previous.getTransform(), HopMetadataPropertyType.RDBMS_CONNECTION, false)
+              .stream()
+              .anyMatch(connection -> !Utils.isEmpty(connection.value()))) {
+        return true;
+      }
+      if (usesADatabaseUpstream(meta, previous, seen)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** A table a transform declares with {@link org.apache.hop.lineage.api.RelationalLineage}. */

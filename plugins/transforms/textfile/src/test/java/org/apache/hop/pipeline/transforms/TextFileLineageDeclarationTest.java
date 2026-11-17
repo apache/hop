@@ -100,6 +100,29 @@ class TextFileLineageDeclarationTest {
   }
 
   @Test
+  void textFileOutputDeclaresNoFileWhenItsNameHoldsTheDateOfTheRun() {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    meta.setDefault();
+    meta.getFileSettings().setFileName("/data/out/orders");
+    meta.getFileSettings().setExtension("csv");
+    meta.getFileSettings().setDateInFilename(true);
+    assertTrue(meta.declaredLineage(new Variables(), row()).isEmpty(), "a date");
+
+    meta.getFileSettings().setDateInFilename(false);
+    meta.getFileSettings().setTimeInFilename(true);
+    assertTrue(meta.declaredLineage(new Variables(), row()).isEmpty(), "a time");
+
+    meta.getFileSettings().setTimeInFilename(false);
+    meta.getFileSettings().setSpecifyingFormat(true);
+    meta.getFileSettings().setDateTimeFormat("yyyyMMdd");
+    assertTrue(meta.declaredLineage(new Variables(), row()).isEmpty(), "a date format");
+
+    meta.getFileSettings().setDateTimeFormat("");
+    assertEquals(
+        1, meta.declaredLineage(new Variables(), row()).size(), "a format that is not filled in");
+  }
+
+  @Test
   void csvInputDeclaresTheFileItReadsWithItsFields() {
     IVariables variables = new Variables();
     variables.setVariable("IN", "/data/in");

@@ -18,14 +18,17 @@
 package org.apache.hop.lineage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.variables.IVariables;
@@ -38,6 +41,8 @@ import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -59,6 +64,44 @@ class LineageDefinitionsTest {
     TransformMeta transformMeta = new TransformMeta(name, name, meta);
     transformMeta.setTransformPluginId("Fake");
     return transformMeta;
+  }
+
+  /** Transform metadata with a relational connection, such as Table input's. */
+  public abstract static class ReadsADatabase implements ITransformMeta {
+    @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    private String connection = "warehouse";
+
+    @Override
+    public Object clone() {
+      return this;
+    }
+  }
+
+  @Test
+  void theFieldsReachingATransformAreOnlyWorkedOutWithoutADatabaseUpstream() {
+    PipelineMeta meta = new PipelineMeta();
+    TransformMeta database =
+        new TransformMeta(
+            "Read table",
+            "Read table",
+            mock(
+                ReadsADatabase.class,
+                withSettings().useConstructor().defaultAnswer(CALLS_REAL_METHODS)));
+    TransformMeta calculate = transform("Calculate");
+    TransformMeta write = transform("Write");
+    TransformMeta file = transform("Read file");
+    TransformMeta writeFile = transform("Write file");
+    for (TransformMeta transform : List.of(database, calculate, write, file, writeFile)) {
+      meta.addTransform(transform);
+    }
+    meta.addPipelineHop(new PipelineHopMeta(database, calculate));
+    meta.addPipelineHop(new PipelineHopMeta(calculate, write));
+    meta.addPipelineHop(new PipelineHopMeta(file, writeFile));
+
+    assertTrue(
+        LineageDefinitions.usesADatabaseUpstream(meta, write, new HashSet<>()),
+        "two transforms down from a Table input");
+    assertFalse(LineageDefinitions.usesADatabaseUpstream(meta, writeFile, new HashSet<>()));
   }
 
   /** read -> write, listed write first: the reader is described first, as a run finishes it. */
