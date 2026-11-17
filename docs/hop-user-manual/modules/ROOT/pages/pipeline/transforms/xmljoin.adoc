@@ -31,23 +31,61 @@ Only one row is produced after the join. This single row contains the fields of 
 
 == Options
 
+The options are grouped the way the dialog shows them.
+The XML field options list the fields of the transform selected above them. You can also type a field name or a variable.
+When exactly two transforms send rows to the XML Join, picking one of them as the target or the source fills in the other.
+
 [options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Target XML Transform|Transform that sends the target document to the join.
-|Target XML Field|Field that contains the XML structure.
-|Source XML Transform|Transform that send the XML structure(s) to the join that need to be added to the target.
-|Source XML Field|Field that contains the XML structures that get added to the target.
-|XPath Statement|An XPath statement used to find the node in the target document where the new tags start to be inserted.
-When the complex join is enabled, a single ? character is used as a placeholder.
-|Complex Join|Flag to enable the complex join syntax, using the placeholder in the XPath Statement
-|Join Comparison Field|Field that contains the values that get replaced in the XPath Statement
-|Result XML field|The field that will contain the result.
-|Encoding|Character encoding to be used in the XML Header and to transform the XML
+2+h|Target document (one row)
+|Transform|The transform that sends the XML document to add the elements to. Only its first row is used.
+|XML field|The field of the target transform that holds the XML document.
+2+h|Source elements (one per row)
+|Transform|The transform that sends the XML elements to add, one element per row.
+|XML field|The field of the source transform that holds the XML element to add.
+2+h|Where to add them
+|Add elements|*Under one node*: every element is added to the node the XPath statement finds.
+
+*Under the node of their key*: a `?` in the XPath statement is replaced by the key field of each row, so each element can go to its own node.
+This is what older versions called a complex join.
+|XPath statement|Where in the target document to add the elements, for example `//orders`.
+Under the node of their key, a `?` is replaced by the key field of each row, for example `//order[@id='?']/lines`.
+The key field can also hold the whole XPath statement: set the XPath statement to `?`.
+
+The line under the XPath statement checks it as you type, once the target document is loaded (see below).
+In green it names the node the elements go under and its parent, and under the node of their key the key that node has.
+In red it says that the statement finds no node, or why it is not a valid XPath statement.
+Before the document is loaded, it says what the statement does and what is missing.
+|Key field|The field of the source transform whose value replaces `?` in the XPath statement.
+Only used when elements are added under the node of their key.
+2+h|Result
+|XML field|The field that holds the joined XML document. The output row has the fields of the target transform plus this field.
+|Encoding|The encoding written in the XML header.
+Characters the encoding cannot hold are written as character references, for example `+&#8364;+` for the euro sign in ISO-8859-1.
+Leave empty for UTF-8.
 |Omit XML header|Whether the XML header is omitted from the output.
 The character encoding of the target XML is preserved regardless of whether the header is included.
-|Omit null values from XML|Whether null values are removed from the output. If this option is not selected, null values are included in the XML output as an empty element, such as <abc/>.
-When this option is selected, the null values are completely omitted from the output and no empty elements exist.
+|Omit null values|Whether null values are removed from the output. If this option is not selected, null values are included in the XML output as an empty element, such as <abc/>.
+When this option is selected, empty elements without attributes are removed, and so is an element that is left with no attributes, elements or text.
+Whitespace counts as text: in an indented document, an element whose empty children were removed keeps the whitespace between them, and stays.
 This is useful to save space in the output file (for high volume transactions) or to use the empty tags for special conditions in the output.
 |===
+
+== Target document
+
+Beside the options, *Load* shows the XML document in the first row of the target transform as a tree.
+Only the target transform and the transforms before it run for this, in preview.
+As with any preview, that includes output transforms among them, such as a Table output.
+
+* *Expand all* and *Collapse all*, the icons beside *Load*, open or close every node under the selected node, or the whole document when no node is selected.
+In a large document, *Expand all* opens level by level and stops at 5,000 nodes.
+* Click the node to add the elements to, and the XPath statement for it is filled in.
+* Under the node of their key, also choose the attribute or text that holds the key below the tree.
+When the key field is empty, a key with the name of a source field is chosen, and that field becomes the key field.
+* The node the XPath statement finds is highlighted, also for a statement you type, and the line under the XPath statement says which node that is.
+Under one node, that is the first node the statement finds, the one the elements go under.
+The tree lists the first 200 elements under a node; the line says when the node the statement finds is not among them.
+
+When you switch between the two ways to add elements, a statement written by a click is written again for the new way. A statement you typed stays as it is.

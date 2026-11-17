@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-xml-join-options.csv",
+  "name": "golden-xml-join-options",
+  "description": "Expected XML Join results per option (issue #9515)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "case"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "doc"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "result"
+    }
+  ],
+  "folder_name": ""
+}

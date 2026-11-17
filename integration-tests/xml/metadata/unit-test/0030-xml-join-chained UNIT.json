@@ -1,0 +1,52 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "xmlCustomers",
+          "data_set_field": "xmlCustomers"
+        },
+        {
+          "transform_field": "xmlCustomerC4",
+          "data_set_field": "xmlCustomerC4"
+        },
+        {
+          "transform_field": "xmlOrders",
+          "data_set_field": "xmlOrders"
+        },
+        {
+          "transform_field": "xmlLines",
+          "data_set_field": "xmlLines"
+        },
+        {
+          "transform_field": "xmlDiscounts",
+          "data_set_field": "xmlDiscounts"
+        },
+        {
+          "transform_field": "xmlShipments",
+          "data_set_field": "xmlShipments"
+        },
+        {
+          "transform_field": "xmlExport",
+          "data_set_field": "xmlExport"
+        }
+      ],
+      "field_order": [
+        "xmlExport"
+      ],
+      "transform_name": "result",
+      "data_set_name": "golden-xml-join-chained"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0030-xml-join-chained UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0030-xml-join-chained.hpl",
+  "test_type": "UNIT_TEST"
+}
