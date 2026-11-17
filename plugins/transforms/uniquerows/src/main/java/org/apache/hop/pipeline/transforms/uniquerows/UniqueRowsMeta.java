@@ -191,11 +191,27 @@ public class UniqueRowsMeta extends BaseTransformMeta<UniqueRows, UniqueRowsData
       }
     }
     if (countRows) {
-      IValueMeta v = new ValueMetaInteger(countField);
-      v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-      v.setOrigin(name);
-      row.addValueMeta(v);
+      row.addValueMeta(countValueMeta(name));
     }
+  }
+
+  /**
+   * A duplicate goes to the error hop with the count of its set so far, in the count field, after
+   * the input fields.
+   */
+  @Override
+  public void getErrorRowFields(
+      IRowMeta row, String name, IVariables variables, IHopMetadataProvider metadataProvider) {
+    if (countRows) {
+      row.addValueMeta(countValueMeta(name));
+    }
+  }
+
+  private IValueMeta countValueMeta(String name) {
+    IValueMeta v = new ValueMetaInteger(countField);
+    v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
+    v.setOrigin(name);
+    return v;
   }
 
   @Override
