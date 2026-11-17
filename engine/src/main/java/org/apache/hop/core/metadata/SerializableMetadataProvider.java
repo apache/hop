@@ -18,19 +18,25 @@
 package org.apache.hop.core.metadata;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -134,13 +140,13 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
   public SerializableMetadataProvider(String storeJson) throws HopException {
     this();
     this.description = "Serializable metadata provider (source is JSON)";
-    JsonFactory jsonFactory = new JsonFactory();
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonFactory jsonFactory = objectMapper.getFactory();
     try {
 
       try (ByteArrayInputStream inputStream =
               new ByteArrayInputStream(storeJson.getBytes(StandardCharsets.UTF_8));
-          com.fasterxml.jackson.core.JsonParser jsonParser =
-              jsonFactory.createParser(inputStream)) {
+          JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
 
         // Loop over the classes until there's no more left
         //
@@ -177,9 +183,19 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
           // Loop over the metadata objects in the JSON for the given class...
           //
           do {
-            IHopMetadata object = metadataParser.loadJsonObject(managedClass, jsonParser);
-            if (object != null) {
-              serializer.save(object);
+            // One object at a time: an object that can't be built here, because it refers to a
+            // plugin this Hop doesn't have, is left out instead of failing everything that reads
+            // this metadata. It is read whole first, so the next object starts where it should.
+            //
+            JsonNode objectNode = objectMapper.readTree(jsonParser);
+            try (JsonParser objectParser = objectNode.traverse(objectMapper)) {
+              objectParser.nextToken();
+              IHopMetadata object = metadataParser.loadJsonObject(managedClass, objectParser);
+              if (object != null) {
+                serializer.save(object);
+              }
+            } catch (Exception e) {
+              logSkippedObject(classKey, objectNode, e);
             }
           } while (jsonParser.nextToken() != JsonToken.END_ARRAY);
         }
@@ -194,6 +210,14 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
    * @return
    */
   private Class<IHopMetadata> getManagedClass(String classKey) {
+    if (!isMetadataTypeInstalled(classKey)) {
+      // Metadata written by a Hop with more plugins installed: nothing here can use it
+      LogChannel.GENERAL.logBasic(
+          "Skipping the metadata of type '"
+              + classKey
+              + "': no installed plugin provides this type.");
+      return null;
+    }
     Class<IHopMetadata> managedClass;
     try {
       managedClass = getMetadataClassForKey(classKey);
@@ -202,5 +226,33 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
       managedClass = null;
     }
     return managedClass;
+  }
+
+  /** Whether an installed plugin provides this metadata type, under its key or a former key. */
+  private boolean isMetadataTypeInstalled(String classKey) {
+    if (PluginRegistry.getInstance().findPluginWithId(MetadataPluginType.class, classKey) != null) {
+      return true;
+    }
+    for (Class<IHopMetadata> metadataClass : this.<IHopMetadata>getMetadataClasses()) {
+      if (HopMetadataUtil.matchesKey(metadataClass.getAnnotation(HopMetadata.class), classKey)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** One object of an installed type that this Hop can't build: one line, the cause included. */
+  private static void logSkippedObject(String classKey, JsonNode objectNode, Exception e) {
+    JsonNode name = objectNode.get("name");
+    LogChannel.GENERAL.logError(
+        "Skipping the metadata object '"
+            + (name == null ? "?" : name.asText())
+            + "' of type '"
+            + classKey
+            + "': it can't be loaded here. "
+            + Const.NVL(e.getMessage(), e.toString()).trim());
+    if (LogChannel.GENERAL.isDebug()) {
+      LogChannel.GENERAL.logDebug(Const.getStackTracker(e));
+    }
   }
 }
