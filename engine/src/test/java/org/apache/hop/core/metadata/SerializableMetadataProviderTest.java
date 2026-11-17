@@ -29,6 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -201,6 +202,56 @@ class SerializableMetadataProviderTest {
         """;
 
     assertServerAfterUnavailableConnection(json, "graph-database-connection");
+  }
+
+  /**
+   * An object of an installed type that refers to a plugin this Hop doesn't have is left out; the
+   * objects around it still load.
+   */
+  @Test
+  void testObjectThatCannotBeBuiltIsSkipped() throws Exception {
+    final var json =
+        """
+        {
+          "pipeline-run-configuration": [
+            {"name": "before", "engineRunConfiguration": {"Local": {}}},
+            {"name": "unavailable", "engineRunConfiguration": {"NotInstalledEngine": {}}},
+            {"name": "after", "engineRunConfiguration": {"Local": {}}}
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    final var provider = new SerializableMetadataProvider(json);
+
+    final var runConfigurations = provider.getSerializer(PipelineRunConfiguration.class);
+    assertEquals(
+        List.of("after", "before"), runConfigurations.listObjectNames().stream().sorted().toList());
+    assertNotNull(runConfigurations.load("before").getEngineRunConfiguration());
+    assertNotNull(provider.getSerializer(HopServerMeta.class).load("server1"));
+  }
+
+  /** A type no plugin provides is skipped without looking up its class, which logs an error. */
+  @Test
+  void testUnknownTypeWithObjectsIsSkippedWithoutLookup() throws Exception {
+    final var json =
+        """
+        {
+          "not-installed-type": [{"name": "x", "nested": [1, 2]}],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            assertEquals("server", key, "A type no plugin provides must not be looked up");
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    assertNotNull(provider.getSerializer(HopServerMeta.class).load("server1"));
   }
 
   private void assertServerAfterUnavailableConnection(
