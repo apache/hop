@@ -49,7 +49,7 @@ import picocli.CommandLine;
  *
  * @see <a href="https://github.com/apache/hop/issues/8826">#8826</a>
  */
-public class ActionRunLinterTest {
+class ActionRunLinterTest {
 
   @TempDir private Path dir;
 
@@ -142,7 +142,7 @@ public class ActionRunLinterTest {
     assertEquals(2, cli.get("summary").get("warnings").asInt(), cli.toString());
 
     assertEquals(1, exitCode);
-    assertFalse(result.getResult(), "hop lint exits 1, so the action fails");
+    assertFalse(result.isResult(), "hop lint exits 1, so the action fails");
     assertEquals(0, result.getNrErrors(), "failing on findings is not an error in the action");
   }
 
@@ -169,7 +169,7 @@ public class ActionRunLinterTest {
     ActionRunLinter action = action(project);
     action.setBaselineFile(baseline.toString());
     action.setFailOn(LintSeverity.FailOn.WARNING);
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
   }
 
   @Test
@@ -181,7 +181,7 @@ public class ActionRunLinterTest {
     Result result = action.execute(new Result(), 0);
 
     assertEquals(0, exitCode);
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
   }
 
   @Test
@@ -190,14 +190,14 @@ public class ActionRunLinterTest {
     action.setFailOn(LintSeverity.FailOn.NONE);
 
     action.setMaxWarnings("1");
-    assertFalse(action.execute(new Result(), 0).getResult());
+    assertFalse(action.execute(new Result(), 0).isResult());
     assertEquals(
         1,
         hopLint(
             new StringBuilder(), "--fail-on", "NONE", "--max-warnings", "1", project.toString()));
 
     action.setMaxWarnings("2");
-    assertTrue(action.execute(new Result(), 0).getResult());
+    assertTrue(action.execute(new Result(), 0).isResult());
     assertEquals(
         0,
         hopLint(
@@ -215,7 +215,7 @@ public class ActionRunLinterTest {
     action.setBaselineFile(baseline.toString());
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult(), "every finding is accepted");
+    assertTrue(result.isResult(), "every finding is accepted");
     assertTrue(result.getRows().isEmpty(), result.getRows().toString());
     assertEquals("0", action.getVariable(ActionRunLinter.VAR_ERRORS));
   }
@@ -227,7 +227,7 @@ public class ActionRunLinterTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -257,7 +257,13 @@ public class ActionRunLinterTest {
     assertEquals("2.1.0", sarif.get("version").asText(), sarif.toString());
     assertEquals(1, result.getResultFilesList().size());
     assertTrue(
-        result.getResultFilesList().get(0).getFile().getName().getPath().endsWith("report.sarif"));
+        result
+            .getResultFilesList()
+            .getFirst()
+            .getFile()
+            .getName()
+            .getPath()
+            .endsWith("report.sarif"));
   }
 
   /** The minimum severity narrows the rows and the report, never the outcome or the counts. */
@@ -270,7 +276,7 @@ public class ActionRunLinterTest {
 
     assertEquals(List.of("ERROR"), column(result, "severity"));
     assertEquals("2", action.getVariable(ActionRunLinter.VAR_WARNINGS));
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
   }
 
   @Test
@@ -312,7 +318,7 @@ public class ActionRunLinterTest {
     Result result = action.execute(new Result(), 0);
 
     assertEquals(0, result.getNrErrors());
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertTrue(Files.exists(report), report.toString());
   }
 
@@ -361,7 +367,7 @@ public class ActionRunLinterTest {
     try {
       ActionRunLinter action = action(project);
       Result result = action.execute(new Result(), 0);
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals("1", action.getVariable(ActionRunLinter.VAR_ERRORS));
 
       assertEquals(1, cliErrors("--fail-on", "NONE", project.toString()));
@@ -392,7 +398,7 @@ public class ActionRunLinterTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -403,7 +409,7 @@ public class ActionRunLinterTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -442,7 +448,7 @@ public class ActionRunLinterTest {
     ActionRunLinter action = action(clean);
     action.setFailOn(LintSeverity.FailOn.NONE);
     Result result = action.execute(new Result(), 0);
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
 
     StringBuilder err = new StringBuilder();

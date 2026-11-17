@@ -23,6 +23,8 @@
   project: "Apache Hop"
   javaFileCount: 4447
   awesome: true
+  release-date: '2020-02-28'
+  incubating: 'N'
   used-apache-projects:
     - Spark
     - Flink

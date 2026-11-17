@@ -121,7 +121,7 @@ class WorkflowReplayGateXpTest {
 
     assertFalse(beforeExt.executeAction);
     assertNotNull(beforeExt.result);
-    assertTrue(beforeExt.result.getResult());
+    assertTrue(beforeExt.result.isResult());
     assertEquals(42L, beforeExt.result.getNrLinesOutput());
     assertEquals(1, beforeExt.result.getResultFiles().size());
     assertEquals("yes", replay.getVariable("LOADED"));

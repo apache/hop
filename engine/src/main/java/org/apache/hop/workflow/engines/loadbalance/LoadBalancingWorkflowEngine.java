@@ -260,7 +260,7 @@ public class LoadBalancingWorkflowEngine extends RemoteWorkflowEngine {
 
   private void updateFinishedAssignmentAndState() {
     try {
-      boolean failed = result != null && (result.getNrErrors() > 0 || !result.getResult());
+      boolean failed = result != null && (result.getNrErrors() > 0 || !result.isResult());
       if (assignment != null && coordinator != null) {
         assignment.setStatus(
             failed

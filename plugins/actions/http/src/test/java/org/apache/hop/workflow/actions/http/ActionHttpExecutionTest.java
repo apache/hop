@@ -99,7 +99,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertFalse(result.getResultFiles().isEmpty());
     assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
@@ -127,7 +127,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
   }
@@ -145,7 +145,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals(0, result.getBytesReadThisAction());
     assertEquals(0, result.getBytesWrittenThisAction());
@@ -167,7 +167,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
     assertEquals(payload.getBytes(UTF_8).length, result.getBytesReadThisAction());
@@ -191,7 +191,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(payload, FileUtils.readFileToString(tempFileForDownload, UTF_8));
     assertEquals(payload, http.getVariable("HTTP_REPLY"));
@@ -213,7 +213,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertNull(http.getVariable("HTTP_REPLY"));
     assertNull(workflow.getVariable("HTTP_REPLY"));
@@ -232,7 +232,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals("previous content", Files.readString(target));
     assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
@@ -252,7 +252,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals("previous content", Files.readString(target));
     assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
@@ -273,7 +273,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals("previous content|download only payload", Files.readString(target));
     assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
@@ -294,13 +294,13 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals("previous content", Files.readString(target));
     assertEquals(List.of(target), filesIn(dir), "no part file is left behind");
   }
 
   @Test
-  void testHttpMissingTargetFolderFailsBeforeTheRequestIsSent(@TempDir Path dir) throws Exception {
+  void testHttpMissingTargetFolderFailsBeforeTheRequestIsSent(@TempDir Path dir) {
     int requestsBefore = countedRequests.get();
 
     ActionHttp http = new ActionHttp();
@@ -311,7 +311,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals(requestsBefore, countedRequests.get(), "the request must not have been sent");
   }
@@ -342,7 +342,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(previousResult, 0);
 
-    assertFalse(result.getResult(), "a failed row must fail the action");
+    assertFalse(result.isResult(), "a failed row must fail the action");
     assertEquals(1, result.getNrErrors());
     assertEquals("download only payload", Files.readString(first));
     assertEquals(List.of(first), filesIn(dir), "a failed row must not create a target file");
@@ -359,7 +359,7 @@ class ActionHttpExecutionTest {
 
     Result result = http.execute(previousResult, 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(0, result.getNrErrors());
   }
 

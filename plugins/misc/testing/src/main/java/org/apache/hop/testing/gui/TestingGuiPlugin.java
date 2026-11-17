@@ -1568,7 +1568,7 @@ public class TestingGuiPlugin {
   public static final PipelineUnitTest getCurrentUnitTest(PipelineMeta pipelineMeta) {
     // When rendering a pipeline on a server status page we never have a current unit test
     //
-    if (!"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+    if (!Const.isGuiRuntime()) {
       return null;
     }
     // Same rule as getPipelineGraph: never access HopGui/SWT from a worker thread (issue #7896).

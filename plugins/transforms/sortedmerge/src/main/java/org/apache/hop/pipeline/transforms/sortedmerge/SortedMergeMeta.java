@@ -129,6 +129,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
                   BaseMessages.getString(PKG, "SortedMergeMeta.CheckResult.AllSortKeysFound"),
                   transformMeta);
           remarks.add(cr);
+          checkInputSortOrder(remarks, pipelineMeta, transformMeta, variables);
         } else {
           cr =
               new CheckResult(
@@ -162,6 +163,43 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
               BaseMessages.getString(PKG, "SortedMergeMeta.CheckResult.ExpectedInputError"),
               transformMeta);
       remarks.add(cr);
+    }
+  }
+
+  /**
+   * Warns about an input that says its rows are sorted descending on a field the merge sorts
+   * ascending: the merge would stop at its first row out of order.
+   */
+  private void checkInputSortOrder(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IVariables variables) {
+    if (pipelineMeta == null) {
+      return;
+    }
+    for (TransformMeta previous : pipelineMeta.findPreviousTransforms(transformMeta)) {
+      IRowMeta fields;
+      try {
+        fields = pipelineMeta.getTransformFields(variables, previous);
+      } catch (HopTransformException e) {
+        // The missing fields are reported above
+        continue;
+      }
+      for (MergeField field : mergeFields) {
+        IValueMeta valueMeta = fields.searchValueMeta(field.getFieldName());
+        if (field.isAscending() && valueMeta != null && valueMeta.isSortedDescending()) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_WARNING,
+                  BaseMessages.getString(
+                      PKG,
+                      "SortedMergeMeta.CheckResult.InputSortedDescending",
+                      previous.getName(),
+                      field.getFieldName()),
+                  transformMeta));
+        }
+      }
     }
   }
 

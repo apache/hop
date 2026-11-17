@@ -29,7 +29,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
@@ -45,7 +45,7 @@ import picocli.CommandLine;
 @GuiPlugin(
     description = "Dropbox" // Tab label in options dialog
     )
-public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final String WIDGET_ID_DROPBOX_ACCESS_TOKEN = "10000-dropbox-access-token";
 
@@ -112,8 +112,7 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

@@ -71,7 +71,7 @@ class ActionDatabricksJobWaitTest {
     Result result = new Result();
     action.execute(result, 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("SUCCESS", action.getVariable("DatabricksStatus"));
     assertEquals("55", action.getVariable("DatabricksRunId"));
   }
@@ -86,7 +86,7 @@ class ActionDatabricksJobWaitTest {
 
     Result result = new Result();
     action.execute(result, 0);
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -105,7 +105,7 @@ class ActionDatabricksJobWaitTest {
 
     Result result = new Result();
     action.execute(result, 0);
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals("FAILED", action.getVariable("DatabricksStatus"));
   }
 
@@ -129,7 +129,7 @@ class ActionDatabricksJobWaitTest {
 
     Result result = new Result();
     action.execute(result, 0);
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals("CANCELED", action.getVariable("DatabricksStatus"));
     String error = action.getVariable("DatabricksError");

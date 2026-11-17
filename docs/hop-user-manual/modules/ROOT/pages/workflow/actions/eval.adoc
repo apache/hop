@@ -124,7 +124,7 @@ When a workflow action finishes, the result of the execution will be a Result ob
 [options="header"]
 |===
 |Expression|Alternative|Data type|Meaning
-|```previous_result.getResult()```||boolean|true if the previous workflow action was executed successfully, false if there was some error.
+|```previous_result.isResult()```||boolean|true if the previous workflow action was executed successfully, false if there was some error.
 |```previous_result.getExitStatus()```|exit_status|int|exit status of previous shell script workflow action
 |```previous_result.getActionNr()```|nr|int|The action number is increased every time a workflow action is executed.
 |```previous_result.getNrErrors()```|errors|long|the number of errors, also available as variable "errors".

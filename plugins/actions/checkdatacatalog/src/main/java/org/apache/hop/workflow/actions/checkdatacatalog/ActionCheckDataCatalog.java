@@ -32,7 +32,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -40,6 +39,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.datacatalog.CatalogAnswer;
+import org.apache.hop.datacatalog.CatalogDataset;
 import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DataCatalog;
 import org.apache.hop.datacatalog.DatasetRef;
@@ -298,34 +298,7 @@ public class ActionCheckDataCatalog extends ActionBase implements IAction {
 
   /** The dataset as Hop identifies it, so the catalog finds the dataset lineage wrote. */
   DatasetRef datasetRef(CatalogDataset dataset) throws HopException {
-    String name = resolve(dataset.getName());
-    if (StringUtils.isBlank(name)) {
-      throw new HopException(BaseMessages.getString(PKG, "ActionCheckDataCatalog.Error.NoName"));
-    }
-    CatalogDatasetType type =
-        dataset.getType() == null ? CatalogDatasetType.TABLE : dataset.getType();
-    DatasetRef ref =
-        switch (type) {
-          case CATALOG_ID -> DatasetRef.ofCatalogId(name.trim());
-          case FILE -> DatasetRef.ofFile(name, this);
-          case TABLE -> {
-            String connectionName = resolve(dataset.getConnection());
-            DatabaseMeta databaseMeta =
-                DatabaseMeta.loadDatabase(getMetadataProvider(), connectionName);
-            if (databaseMeta == null) {
-              throw new HopException(
-                  BaseMessages.getString(
-                      PKG, "ActionCheckDataCatalog.Error.MissingConnection", connectionName, name));
-            }
-            yield DatasetRef.ofTable(databaseMeta, this, resolve(dataset.getSchema()), name.trim());
-          }
-        };
-    if (!ref.isComplete()) {
-      // A connection without a host (an embedded database, a manual URL) has no name to look for
-      throw new HopException(
-          BaseMessages.getString(PKG, "ActionCheckDataCatalog.Error.NoIdentity", name));
-    }
-    return ref;
+    return dataset.toRef(this, getMetadataProvider());
   }
 
   /** How many checks the last {@link #check} skipped because the catalog could not answer. */

@@ -212,4 +212,45 @@ class GlobalMessageUtilTest {
             GlobalMessages.PKG,
             GlobalMessages.BUNDLE_NAME));
   }
+
+  @Test
+  void emptyTranslationFallsBackToTheNextLocale() {
+    // messages_fr_FR has "emptyKey=", the way Weblate writes an untranslated key
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRANCE);
+    assertEquals(
+        "Empty in French foo",
+        GlobalMessageUtil.calculateString(
+            new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},
+            "emptyKey",
+            new String[] {"foo"},
+            GlobalMessages.PKG,
+            GlobalMessages.BUNDLE_NAME));
+  }
+
+  @Test
+  void emptyTranslationFallsBackToTheNextPackageFirst() {
+    // empty in i18n/messages_fr_FR, translated in foo/messages_fr
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRANCE);
+    assertEquals(
+        "Traduit dans foo foo",
+        GlobalMessageUtil.calculateString(
+            new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE, "org.apache.hop.foo"},
+            "emptyInFrenchOnly",
+            new String[] {"foo"},
+            GlobalMessages.PKG,
+            GlobalMessages.BUNDLE_NAME));
+  }
+
+  @Test
+  void keyThatIsEmptyEverywhereStaysEmpty() {
+    LanguageChoice.getInstance().setDefaultLocale(Locale.FRANCE);
+    assertEquals(
+        "",
+        GlobalMessageUtil.calculateString(
+            new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},
+            "alwaysEmpty",
+            new String[] {},
+            GlobalMessages.PKG,
+            GlobalMessages.BUNDLE_NAME));
+  }
 }

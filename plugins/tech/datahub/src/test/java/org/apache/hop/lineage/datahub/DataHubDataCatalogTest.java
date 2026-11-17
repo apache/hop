@@ -18,7 +18,9 @@
 package org.apache.hop.lineage.datahub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.HopClientEnvironment;
@@ -49,6 +52,7 @@ import org.apache.hop.datacatalog.DatasetRef;
 import org.apache.hop.datacatalog.IAssertionCapability.AssertionResult;
 import org.apache.hop.datacatalog.IAssertionCapability.Outcome;
 import org.apache.hop.datacatalog.IDeprecationCapability.Deprecation;
+import org.apache.hop.datacatalog.ISchemaCapability.CatalogField;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -179,6 +183,70 @@ class DataHubDataCatalogTest {
         assertInstanceOf(CatalogAnswer.Unknown.class, answer);
     assertEquals(Reason.NOT_RESOLVABLE, unknown.reason());
     assertTrue(requests.isEmpty());
+  }
+
+  @Test
+  void theSchemaHasTheTagsAndTermsOfTheIngestedSchemaAndOfTheUi() throws Exception {
+    answer(
+        "hopDatasetSchema",
+        "{\"dataset\":{\"schemaMetadata\":{\"fields\":["
+            + "{\"fieldPath\":\"id\",\"nativeDataType\":\"INTEGER\",\"type\":\"NUMBER\","
+            + "\"nullable\":false,\"globalTags\":null,\"glossaryTerms\":null},"
+            + "{\"fieldPath\":\"email\",\"nativeDataType\":\"VARCHAR(255)\",\"type\":\"STRING\","
+            + "\"nullable\":true,\"globalTags\":{\"tags\":[{\"tag\":{\"urn\":\"urn:li:tag:PII\","
+            + "\"name\":\"PII\",\"properties\":null}}]},\"glossaryTerms\":null},"
+            + "{\"fieldPath\":\"[version=2.0].[type=struct].address.[type=string].city\","
+            + "\"nativeDataType\":\"string\",\"type\":\"STRING\"}]},"
+            + "\"editableSchemaMetadata\":{\"editableSchemaFieldInfo\":["
+            + "{\"fieldPath\":\"email\",\"globalTags\":{\"tags\":[{\"tag\":"
+            + "{\"urn\":\"urn:li:tag:Legacy\",\"name\":\"Legacy\",\"properties\":null}}]},"
+            + "\"glossaryTerms\":null},"
+            + "{\"fieldPath\":\"[version=2.0].[type=string].email\",\"globalTags\":{\"tags\":[{\"tag\":"
+            + "{\"urn\":\"urn:li:tag:Contact\",\"name\":\"Contact\",\"properties\":{\"name\":\"Contact\"}}}]},"
+            + "\"glossaryTerms\":{\"terms\":[{\"term\":{\"urn\":\"urn:li:glossaryTerm:7d4e\","
+            + "\"name\":\"7d4e\",\"hierarchicalName\":\"7d4e\","
+            + "\"properties\":{\"name\":\"Personal\"},\"parentNodes\":{\"nodes\":["
+            + "{\"properties\":{\"name\":\"Classification\"}},"
+            + "{\"properties\":{\"name\":\"Governance\"}}]}}}]}}]}}}");
+
+    CatalogAnswer<List<CatalogField>> answer = connect(url()).schema(new CatalogEntityId(ORDERS));
+
+    List<CatalogField> fields =
+        assertInstanceOf(CatalogAnswer.Known.class, answer).value() instanceof List<?> list
+            ? list.stream().map(CatalogField.class::cast).toList()
+            : List.of();
+    assertEquals(
+        List.of("id", "email", "address.city"), fields.stream().map(CatalogField::name).toList());
+    CatalogField id = fields.get(0);
+    assertEquals("INTEGER", id.nativeType());
+    assertEquals("NUMBER", id.type());
+    assertEquals(Boolean.FALSE, id.nullable());
+    assertTrue(id.tags().isEmpty());
+    CatalogField email = fields.get(1);
+    assertEquals(
+        Set.of(
+            "urn:li:tag:PII",
+            "PII",
+            "urn:li:tag:Legacy",
+            "Legacy",
+            "urn:li:tag:Contact",
+            "Contact"),
+        email.tags());
+    assertTrue(email.isLabelledWith("pii"));
+    assertTrue(email.isLabelledWith("Governance.Classification.Personal"));
+    assertTrue(email.isLabelledWith("urn:li:glossaryTerm:7d4e"));
+    assertFalse(email.isLabelledWith("Classification.Personal"));
+    assertTrue(email.isLabelledWith("Personal"));
+    assertFalse(fields.get(2).isLabelledWith("PII"));
+    assertNull(fields.get(2).nullable());
+  }
+
+  @Test
+  void aDatasetWithoutASchemaHasNone() throws Exception {
+    answer("hopDatasetSchema", "{\"dataset\":{\"schemaMetadata\":null}}");
+
+    assertInstanceOf(
+        CatalogAnswer.NotFound.class, connect(url()).schema(new CatalogEntityId(ORDERS)));
   }
 
   @Test

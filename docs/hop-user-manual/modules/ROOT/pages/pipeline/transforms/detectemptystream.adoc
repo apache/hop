@@ -37,3 +37,7 @@ If the input stream is not empty it will not output anything.
 This name must be unique throughout the pipeline.
 |===
 
+== Samples
+
+The samples project has `transforms/detect-empty-stream-basic.hpl`: Get file names looks for a file that doesn't exist, so Detect empty stream passes on one row with null values for the Get file names fields.
+The *No files found!* error in the log comes from Get file names and doesn't stop the pipeline.

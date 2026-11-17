@@ -1,0 +1,49 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "detected_language",
+          "data_set_field": "detected_language"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-0128-detect-language",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "detected_language",
+          "data_set_field": "detected_language"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-0128-detect-language-chosen",
+      "transform_name": "validate chosen"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0128-detect-language UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0128-detect-language.hpl"
+}

@@ -1395,6 +1395,13 @@ public class PipelineMeta extends AbstractMeta
       row = getThisTransformFields(variables, transformMeta, targetTransform, row, monitor);
     }
 
+    // The transform's own values of an error row, a count for example
+    if (transformMeta.getTransform() != null) {
+      transformMeta
+          .getTransform()
+          .getErrorRowFields(row, transformMeta.getName(), variables, metadataProvider);
+    }
+
     // Add to this the error fields...
     TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();
     row.addRowMeta(transformErrorMeta.getErrorRowMeta(variables));

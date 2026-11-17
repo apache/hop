@@ -109,7 +109,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <filename>${PROJECT_HOME}/0006-groupby-alwaysgiveback-result.hpl</filename>
+      <filename>${PROJECT_HOME}/0006-groupby-alwaysgiveback-result-false.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -127,7 +127,7 @@ limitations under the License.
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
       <run_configuration>local</run_configuration>
-      <name>0006-groupby-alwaysgiveback-result.hpl 2</name>
+      <name>0006-groupby-alwaysgiveback-result-false.hpl</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
@@ -147,16 +147,16 @@ limitations under the License.
     </hop>
     <hop>
       <from>0006-groupby-alwaysgiveback-result.hpl</from>
-      <to>0006-groupby-alwaysgiveback-result.hpl 2</to>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
+      <to>0006-groupby-alwaysgiveback-result-false.hpl</to>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>0006-groupby-alwaysgiveback-result.hpl 2</from>
+      <from>0006-groupby-alwaysgiveback-result-false.hpl</from>
       <to>Run Group By tests</to>
       <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
+      <unconditional>N</unconditional>
       <enabled>Y</enabled>
     </hop>
   </hops>

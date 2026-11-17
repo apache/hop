@@ -104,7 +104,7 @@ class ActionDbtExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
   }
 
@@ -119,7 +119,7 @@ class ActionDbtExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -133,7 +133,7 @@ class ActionDbtExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertFalse(
         Files.exists(runResults), "the previous run's artifacts must not survive into this run");
   }
@@ -147,7 +147,7 @@ class ActionDbtExecutionTest {
     Result result = action.execute(new Result(), 0);
     long elapsedMs = System.currentTimeMillis() - startedAt;
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertTrue(
         elapsedMs < 30_000, "the action should have been cut short, took " + elapsedMs + "ms");
@@ -160,6 +160,6 @@ class ActionDbtExecutionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
   }
 }

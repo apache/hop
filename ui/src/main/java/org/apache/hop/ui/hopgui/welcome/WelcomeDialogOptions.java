@@ -29,15 +29,14 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 @ConfigPlugin(id = "WelcomeDialogOption", description = "Enable or disable the welcome dialog")
 @GuiPlugin(description = "i18n::WelcomeDialog.Description")
-public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginModelWidgetsListener {
   protected static final Class<?> PKG = WelcomeDialogOptions.class;
 
   @CommandLine.Option(
@@ -163,9 +162,9 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-    this.welcomeDialogShowAtStartup = ((Button) changedWidget).getSelection();
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
+    this.welcomeDialogShowAtStartup =
+        ((Button) compositeWidgets.getWidgetsMap().get(widgetId)).getSelection();
     persistContents(compositeWidgets);
   }
 

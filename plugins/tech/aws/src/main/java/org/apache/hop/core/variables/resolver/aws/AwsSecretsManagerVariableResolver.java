@@ -45,7 +45,7 @@ import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -85,7 +85,7 @@ import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundExce
     documentationUrl =
         "/metadata-types/variable-resolver/aws-secrets-manager-variable-resolver.html")
 public class AwsSecretsManagerVariableResolver
-    implements IVariableResolver, IGuiPluginCompositeWidgetsListener {
+    implements IVariableResolver, IGuiPluginModelWidgetsListener {
   private static final String CONST_SECRET = "Secret '";
 
   private static final String DEFAULT_VERSION_STAGE = "AWSCURRENT";
@@ -546,8 +546,7 @@ public class AwsSecretsManagerVariableResolver
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     if (ID_AUTHENTICATION_TYPE.equals(widgetId)) {
       hideFieldsThatDoNotApply(compositeWidgets);
     }

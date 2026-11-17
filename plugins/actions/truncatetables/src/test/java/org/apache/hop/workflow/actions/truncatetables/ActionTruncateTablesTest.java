@@ -63,7 +63,7 @@ class ActionTruncateTablesTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -84,7 +84,7 @@ class ActionTruncateTablesTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("non-existent-db"));
   }
@@ -96,7 +96,7 @@ class ActionTruncateTablesTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("No database connection is defined"));
   }
@@ -119,7 +119,7 @@ class ActionTruncateTablesTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("Unable to load connection corrupt-db from metadata"));
   }
@@ -151,11 +151,11 @@ class ActionTruncateTablesTest {
                 when(db.checkTableExists(any(), eq("valid_table"))).thenReturn(true))) {
       Result result = action.execute(new Result(), 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(1, result.getNrErrors());
       assertEquals(1, result.getNrLinesDeleted());
       verify(action).logError(contains("empty"));
-      verify(databases.constructed().get(0)).truncateTable("valid_table");
+      verify(databases.constructed().getFirst()).truncateTable("valid_table");
     }
   }
 
@@ -190,11 +190,11 @@ class ActionTruncateTablesTest {
                 when(db.checkTableExists(any(), eq("valid_table"))).thenReturn(true))) {
       Result result = action.execute(previous, 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(1, result.getNrErrors());
       assertEquals(1, result.getNrLinesDeleted());
       verify(action).logError(contains("empty"));
-      verify(databases.constructed().get(0)).truncateTable("valid_table");
+      verify(databases.constructed().getFirst()).truncateTable("valid_table");
     }
   }
 
@@ -212,7 +212,8 @@ class ActionTruncateTablesTest {
     action.check(remarks, workflowMeta, variables, null);
 
     assertFalse(remarks.isEmpty());
-    assertEquals(org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING, remarks.get(0).getType());
+    assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING, remarks.getFirst().getType());
   }
 
   @Test
@@ -227,6 +228,7 @@ class ActionTruncateTablesTest {
     action.check(remarks, workflowMeta, new org.apache.hop.core.variables.Variables(), null);
 
     assertFalse(remarks.isEmpty());
-    assertEquals(org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING, remarks.get(0).getType());
+    assertEquals(
+        org.apache.hop.core.ICheckResult.TYPE_RESULT_WARNING, remarks.getFirst().getType());
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.lint;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -41,7 +42,8 @@ public class PipelineBeforeStartLintExtension implements IExtensionPoint<Object>
   public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
       throws HopException {
     try {
-      if (HopGui.peekInstance() == null) {
+      // hop-run starts a workflow with this extension point too, where touching HopGui needs SWT
+      if (!Const.isGuiRuntime() || HopGui.peekInstance() == null) {
         return;
       }
       HopGuiPipelineGraph graph = HopGui.getActivePipelineGraph();

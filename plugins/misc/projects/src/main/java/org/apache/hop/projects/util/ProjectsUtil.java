@@ -194,7 +194,7 @@ public class ProjectsUtil {
     // where this info is valuable. Audit I/O must not block enabling a project (e.g. Docker audit
     // folder permission issues).
     //
-    if (Const.getHopPlatformRuntime() != null && Const.getHopPlatformRuntime().equals("GUI")) {
+    if (Const.isGuiRuntime()) {
       try {
         AuditManager.registerEvent(
             HopGui.DEFAULT_HOP_GUI_NAMESPACE, STRING_PROJECT_AUDIT_TYPE, projectName, "open");

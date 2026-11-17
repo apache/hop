@@ -1,0 +1,49 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "nr",
+          "data_set_field": "nr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "nr"
+      ],
+      "data_set_name": "golden-0129-sorted-merge-descending",
+      "transform_name": "validate descending input"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "nr",
+          "data_set_field": "nr"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        }
+      ],
+      "field_order": [
+        "nr"
+      ],
+      "data_set_name": "golden-0129-sorted-merge-descending",
+      "transform_name": "validate sorted input"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0129-sorted-merge-descending UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0129-sorted-merge-descending.hpl"
+}

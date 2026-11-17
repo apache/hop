@@ -29,7 +29,7 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.pipeline.debug.DebugSessionStore;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
@@ -43,8 +43,7 @@ import picocli.CommandLine;
     configKey = DebugSessionsConfig.HOP_CONFIG_KEY,
     configClass = DebugSessionsConfig.class)
 @GuiPlugin(description = "i18n::DebugSessionsConfig.GuiPlugin.Description")
-public class DebugSessionsConfigPlugin
-    implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class DebugSessionsConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final String WIDGET_ID_FOLDER = "10000-debug-sessions-folder";
 
@@ -102,8 +101,7 @@ public class DebugSessionsConfigPlugin
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

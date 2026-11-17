@@ -246,7 +246,7 @@ public class ProjectEnvironmentAfterEnabledExtensionPoint
   }
 
   static boolean isGuiRuntime() {
-    return "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
+    return Const.isGuiRuntime();
   }
 
   private static void warnGui(String title, String message) {

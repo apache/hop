@@ -72,7 +72,7 @@ class ActionDeleteExecutionInfoTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(1, result.getNrLinesDeleted());
     assertNull(stored.getExecution("old"));
@@ -92,7 +92,7 @@ class ActionDeleteExecutionInfoTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(2, result.getNrLinesDeleted());
     assertTrue(stored.getExecutionIds(false, 0).isEmpty());
     assertNotNull(provider.getSerializer(ExecutionInfoLocation.class).load("exec-loc"));

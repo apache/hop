@@ -97,3 +97,7 @@ If you have a pipeline that relies on quote characters reaching the process as-i
 Enable *Arguments in fields* when you would rather not rely on quoting at all, or when an argument contains characters that are awkward to quote.
 The process field then holds only the executable and each *Argument fields* entry is passed as one argument exactly as it is, with no splitting and no quote removal.
 This is the most reliable option for values that come from your data, such as file paths built at runtime.
+
+== Samples
+
+The samples project has `transforms/execute-a-process.hpl`, which runs `echo` with the arguments `hello` and `world` from two fields and puts `hello world` in the field `output` and the exit value in `Exit value`.

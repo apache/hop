@@ -58,6 +58,22 @@
       "field_precision": -1,
       "field_name": "statistics",
       "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "release-date",
+      "field_format": "yyyy-MM-dd"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "incubating",
+      "field_format": ""
     }
   ],
   "folder_name": ""

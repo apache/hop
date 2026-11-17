@@ -38,12 +38,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.yaml.snakeyaml.Yaml;
@@ -437,7 +439,9 @@ public class YamlReader {
       case IValueMeta.TYPE_INTEGER -> convertToInteger(normalizedValue);
       case IValueMeta.TYPE_NUMBER -> convertToDouble(normalizedValue);
       case IValueMeta.TYPE_BIGNUMBER -> convertToBigDecimal(normalizedValue);
-      case IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_DATE, IValueMeta.TYPE_BINARY -> normalizedValue;
+      case IValueMeta.TYPE_DATE -> convertToDate(normalizedValue, valueMeta);
+      case IValueMeta.TYPE_BOOLEAN -> convertToBoolean(normalizedValue, valueMeta);
+      case IValueMeta.TYPE_BINARY -> normalizedValue;
       default -> convertToString(normalizedValue, valueMeta);
     };
   }
@@ -465,6 +469,39 @@ public class YamlReader {
       end--;
     }
     return s.substring(0, end);
+  }
+
+  /**
+   * object -> date. SnakeYAML reads an unquoted ISO date as a {@link java.util.Date}; a quoted one,
+   * or another format, stays text and is parsed with the field's format, so the value matches the
+   * Date type the field declares.
+   */
+  private Object convertToDate(Object value, IValueMeta valueMeta) {
+    if (value instanceof java.util.Date) {
+      return value;
+    }
+    return convertText(value, valueMeta);
+  }
+
+  /** object -> boolean: YAML booleans stay, text (Y/N, true/false) is converted. */
+  private Object convertToBoolean(Object value, IValueMeta valueMeta) {
+    if (value instanceof Boolean) {
+      return value;
+    }
+    return convertText(value, valueMeta);
+  }
+
+  /** Text to the field's type with its format, as Hop converts a String field. */
+  private static Object convertText(Object value, IValueMeta valueMeta) {
+    ValueMetaString text = new ValueMetaString(valueMeta.getName());
+    text.setConversionMask(valueMeta.getConversionMask());
+    text.setDateFormatLenient(valueMeta.isDateFormatLenient());
+    try {
+      return valueMeta.convertData(text, value.toString());
+    } catch (HopValueException e) {
+      throw new IllegalArgumentException(
+          "Unable to convert '" + value + "' of field '" + valueMeta.getName() + "'", e);
+    }
   }
 
   /** object -> long */

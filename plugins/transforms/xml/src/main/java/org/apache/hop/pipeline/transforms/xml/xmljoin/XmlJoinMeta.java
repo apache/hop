@@ -107,6 +107,40 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     encoding = Const.UTF_8;
   }
 
+  /**
+   * At design time the info streams of this transform have no transform set, so Hop passes an empty
+   * row for the target. Look the target transform up by name and use its fields instead.
+   */
+  @Override
+  public void getFields(
+      PipelineMeta pipelineMeta,
+      IRowMeta row,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    if (!isKnown(info, 0) && pipelineMeta != null) {
+      TransformMeta targetTransform = pipelineMeta.findTransform(getTargetXmlTransform());
+      if (targetTransform != null) {
+        IRowMeta[] withTarget =
+            new IRowMeta[] {
+              pipelineMeta.getTransformFields(variables, targetTransform),
+              info != null && info.length > 1 ? info[1] : null
+            };
+        getFields(row, name, withTarget, nextTransform, variables, metadataProvider);
+        return;
+      }
+    }
+    getFields(row, name, info, nextTransform, variables, metadataProvider);
+  }
+
+  /** An empty row is the row of a stream without a transform: its fields are not known. */
+  private static boolean isKnown(IRowMeta[] info, int index) {
+    return info != null && info.length > index && info[index] != null && !info[index].isEmpty();
+  }
+
   @Override
   public void getFields(
       IRowMeta row,
@@ -120,6 +154,16 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     IValueMeta v = new ValueMetaString(variables.resolve(this.getValueXmlField()));
     v.setOrigin(name);
 
+    if (isKnown(info, 0)) {
+      IRowMeta knownTarget = info[0];
+      // The target's row with the joined XML, as processRow() builds it, whatever rows the
+      // previous transforms give here
+      IRowMeta target = knownTarget.clone();
+      row.clear();
+      row.addRowMeta(target);
+      row.addValueMeta(v);
+      return;
+    }
     try {
       /*
          Row should only include fields from the target and not the source. During the preview table
@@ -127,11 +171,11 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
          remove the source fields.
       */
       List<String> targetFieldNames = null;
-      IRowMeta targetRowMeta = info[0];
+      IRowMeta targetRowMeta = info != null && info.length > 0 ? info[0] : null;
       if (targetRowMeta != null) {
         targetFieldNames = Arrays.asList(targetRowMeta.getFieldNames());
       }
-      IRowMeta sourceRowMeta = info[1];
+      IRowMeta sourceRowMeta = info != null && info.length > 1 ? info[1] : null;
       if (sourceRowMeta != null) {
         for (String fieldName : sourceRowMeta.getFieldNames()) {
           if (targetFieldNames == null || !targetFieldNames.contains(fieldName)) {

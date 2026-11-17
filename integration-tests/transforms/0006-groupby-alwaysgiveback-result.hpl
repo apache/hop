@@ -54,11 +54,6 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Count = 0</from>
-      <to>Success</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Group by</from>
       <to>Detect empty stream</to>
       <enabled>Y</enabled>
@@ -66,6 +61,21 @@ limitations under the License.
     <hop>
       <from>Detect empty stream</from>
       <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Count = 0</from>
+      <to>Percentile is null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Percentile is null</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Percentile is null</from>
+      <to>Percentile not null - Abort</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -237,6 +247,12 @@ limitations under the License.
         <type>COUNT_ANY</type>
         <valuefield/>
       </field>
+      <field>
+        <aggregate>Percentile</aggregate>
+        <subject>ColA</subject>
+        <type>PERCENTILE_NEAREST_RANK</type>
+        <valuefield>50</valuefield>
+      </field>
     </fields>
     <give_back_row>Y</give_back_row>
     <group>
@@ -248,6 +264,54 @@ limitations under the License.
     <GUI>
       <xloc>704</xloc>
       <yloc>272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Percentile is null</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Success</send_true_to>
+    <send_false_to>Percentile not null - Abort</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>Percentile</leftvalue>
+        <function>IS NULL</function>
+        <rightvalue/>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Percentile not null - Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>The percentile of a group without values is not null</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>1088</xloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>

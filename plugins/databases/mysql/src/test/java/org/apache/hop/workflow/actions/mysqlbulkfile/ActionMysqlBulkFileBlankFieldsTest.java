@@ -152,8 +152,8 @@ class ActionMysqlBulkFileBlankFieldsTest {
 
       assertEquals(1, databases.constructed().size());
       ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
-      verify(databases.constructed().get(0)).prepareSql(sql.capture());
-      assertTrue(result.getResult());
+      verify(databases.constructed().getFirst()).prepareSql(sql.capture());
+      assertTrue(result.isResult());
       return sql.getValue();
     }
   }

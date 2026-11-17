@@ -87,6 +87,16 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         }
       }
 
+      if (propKey == null) {
+        // A properties file has no way to write a key that is not there
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "PropertyOutput.Error.NullKey", meta.getKeyField()));
+      }
+      if (propValue == null) {
+        // Properties take no null value: a missing value is written as an empty one (key=)
+        propValue = "";
+      }
+
       if (!data.keySet.contains(propKey)) {
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Key", propKey));

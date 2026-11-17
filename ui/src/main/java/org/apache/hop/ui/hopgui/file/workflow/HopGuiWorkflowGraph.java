@@ -4274,8 +4274,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Do double buffering to prevent flickering on Windows
     //
-    boolean needsDoubleBuffering =
-        Const.isWindows() && "GUI".equalsIgnoreCase(Const.getHopPlatformRuntime());
+    boolean needsDoubleBuffering = Const.isWindows() && Const.isGuiRuntime();
 
     Image image = null;
     GC swtGc = e.gc;

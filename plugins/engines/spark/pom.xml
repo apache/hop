@@ -228,6 +228,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-tableinput</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-uniquerows</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -302,6 +308,14 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- H2 database dialect so the JDBC connection metadata used by the partitioned Table
+             Input read resolves its @DatabaseMetaPlugin type in tests. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-h2</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Filter Rows for target-stream unit tests -->
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -370,6 +384,20 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Spark ITs (*IT.java) start a local SparkSession against an in-memory H2,
+                 so they run in the failsafe integration-test phase instead of surefire. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

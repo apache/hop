@@ -326,7 +326,9 @@ public abstract class DisabledGuiWidgetsTestBase extends SwtBotTestBase {
       widgets.createCompositeWidgets(source, null, shell, parentId, null);
       widgets.setWidgetsContents(source, shell, parentId);
 
-      if (listenerFor(source) instanceof IGuiPluginCompositeWidgetsListener listener) {
+      IGuiPluginCompositeWidgetsListener listener =
+          GuiCompositeWidgets.listenerOf(listenerFor(source)).orElse(null);
+      if (listener != null) {
         widgets.setWidgetsListener(listener);
         listener.widgetsCreated(widgets);
         listener.widgetsPopulated(widgets);

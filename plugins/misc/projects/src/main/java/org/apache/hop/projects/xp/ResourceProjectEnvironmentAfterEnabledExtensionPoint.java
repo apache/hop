@@ -88,7 +88,7 @@ public class ResourceProjectEnvironmentAfterEnabledExtensionPoint
 
     // warn
     log.logError(report);
-    if ("GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+    if (Const.isGuiRuntime()) {
       try {
         MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
         box.setText(BaseMessages.getString(PKG, "ResourceLifecycleEnv.Check.Title"));
