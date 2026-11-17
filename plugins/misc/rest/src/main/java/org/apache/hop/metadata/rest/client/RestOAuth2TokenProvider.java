@@ -114,6 +114,24 @@ public final class RestOAuth2TokenProvider {
     CACHE.remove(cacheKey(settings));
   }
 
+  /**
+   * Drops the cached token for these settings only if it is still the one a server rejected (issue
+   * #9550). Several transform copies share one token, so they tend to get their 401s together; the
+   * first one through replaces the token, and the others must then pick up that replacement rather
+   * than throw it away and fetch yet another. Some providers revoke the previous token every time
+   * they issue one, so a fetch per copy would knock the copies offline in turn.
+   *
+   * @param rejectedToken the access token the server answered 401 to
+   */
+  public static void invalidate(RestClientSettings settings, String rejectedToken) {
+    if (rejectedToken == null) {
+      return;
+    }
+    CACHE.computeIfPresent(
+        cacheKey(settings),
+        (key, cached) -> rejectedToken.equals(cached.accessToken()) ? null : cached);
+  }
+
   /** Visible for tests: forget everything, so one test cannot see another's token. */
   public static void clearCache() {
     CACHE.clear();

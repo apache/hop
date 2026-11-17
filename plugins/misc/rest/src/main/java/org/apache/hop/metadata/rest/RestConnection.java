@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -136,6 +138,13 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    */
   @HopMetadataProperty(key = "non_proxy_hosts")
   private String nonProxyHosts;
+
+  /**
+   * Headers sent on every request made through this connection, the connection test included (issue
+   * #9551). A header with the same name set on the request itself wins.
+   */
+  @HopMetadataProperty(key = "headers")
+  private List<RestConnectionHeader> headers = new ArrayList<>();
 
   @HopMetadataProperty(key = "auth_type")
   private String authType;
@@ -302,6 +311,8 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
       settings.setNonProxyHosts(resolve(nonProxyHosts));
     }
 
+    settings.setStaticHeaders(resolveStaticHeaders());
+
     // Configure SSL if needed (client cert, trust store, or ignore SSL)
     if (needsSslConfiguration()) {
       try {
@@ -360,6 +371,27 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     return settings;
   }
 
+  /** The static headers with their names and values resolved; nameless rows are skipped. */
+  private Map<String, String> resolveStaticHeaders() {
+    Map<String, String> resolved = new LinkedHashMap<>();
+    if (headers == null) {
+      return resolved;
+    }
+    for (RestConnectionHeader header : headers) {
+      if (header == null) {
+        continue;
+      }
+      String headerName = resolve(header.getName());
+      if (Utils.isEmpty(headerName) || Utils.isEmpty(headerName.trim())) {
+        continue;
+      }
+      resolved.put(
+          headerName.trim(),
+          Const.NVL(Encr.decryptPasswordOptionallyEncrypted(resolve(header.getValue())), ""));
+    }
+    return resolved;
+  }
+
   /**
    * Applies this connection's authentication to the headers of one request.
    *
@@ -407,28 +439,59 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
         && authType.trim().equalsIgnoreCase(canonicalLabel.trim());
   }
 
-  /** Performs a GET against the URL with this connection's authentication, returning the body. */
+  /**
+   * Performs a GET against the URL with this connection's authentication and static headers,
+   * returning the body. An OAuth 2 token the server rejects with a 401 is replaced and the request
+   * sent once more (issue #9550).
+   */
   public String getResponse(String url) throws HopException {
     RestClientSettings settings = createClientSettings();
+    // Scoped to the URL rather than to the base URL: see applyAuthentication().
+    RestClientSettings requestSettings = createClientSettings();
+    requestSettings.setAuthOrigin(url);
+    RestAuthenticator authenticator = new RestAuthenticator(requestSettings);
     Map<String, String> headers = new LinkedHashMap<>();
-    applyAuthentication(headers, url);
-
-    HttpUriRequestBase request = new HttpUriRequestBase("GET", URI.create(url));
-    headers.forEach(request::addHeader);
+    authenticator.applyRequestHeaders(headers, url);
 
     try (CloseableHttpClient httpClient = RestClientFactory.createClient(settings)) {
-      return httpClient.execute(
-          request,
-          response -> {
-            if (response.getCode() != HttpStatus.SC_OK) {
-              throw new IOException("Error connecting to " + url + ": " + response.getCode());
-            }
-            HttpEntity entity = response.getEntity();
-            return entity == null ? "" : EntityUtils.toString(entity);
-          });
+      Response response = get(httpClient, url, headers);
+      if (response.status() == HttpStatus.SC_UNAUTHORIZED
+          && authenticator.refreshAfterUnauthorized(headers, url)) {
+        getLog().logBasic("The server rejected the OAuth 2 token; retrying with a new token.");
+        response = get(httpClient, url, headers);
+      }
+      if (response.status() != HttpStatus.SC_OK) {
+        String hint =
+            response.status() == HttpStatus.SC_UNAUTHORIZED
+                ? authenticator.unauthorizedHint()
+                : null;
+        throw new IOException(
+            "Error connecting to "
+                + url
+                + ": "
+                + response.status()
+                + (hint == null ? "" : ". " + hint));
+      }
+      return response.body();
     } catch (Exception e) {
       throw new HopException("Error connecting to " + url, e);
     }
+  }
+
+  /** A response read into memory: the status and the body as text. */
+  private record Response(int status, String body) {}
+
+  private static Response get(
+      CloseableHttpClient httpClient, String url, Map<String, String> headers) throws IOException {
+    HttpUriRequestBase request = new HttpUriRequestBase("GET", URI.create(url));
+    headers.forEach(request::addHeader);
+    return httpClient.execute(
+        request,
+        response -> {
+          HttpEntity entity = response.getEntity();
+          return new Response(
+              response.getCode(), entity == null ? "" : EntityUtils.toString(entity));
+        });
   }
 
   /**

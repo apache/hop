@@ -36,6 +36,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.RestConnectionHeader;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +61,7 @@ class ActionHttpConnectionTest {
   private HttpServer server;
   private final AtomicReference<String> authorization = new AtomicReference<>();
   private final AtomicReference<String> requestPath = new AtomicReference<>();
+  private final AtomicReference<String> userHeader = new AtomicReference<>();
 
   @BeforeAll
   static void setupBeforeClass() throws Exception {
@@ -75,6 +77,7 @@ class ActionHttpConnectionTest {
           List<String> auth = exchange.getRequestHeaders().get("Authorization");
           authorization.set(auth == null ? null : auth.getFirst());
           requestPath.set(exchange.getRequestURI().getPath());
+          userHeader.set(exchange.getRequestHeaders().getFirst("x-as-user-email"));
 
           byte[] body = PAYLOAD.getBytes(UTF_8);
           exchange.sendResponseHeaders(200, body.length);
@@ -91,6 +94,46 @@ class ActionHttpConnectionTest {
     server.stop(0);
     authorization.set(null);
     requestPath.set(null);
+    userHeader.set(null);
+  }
+
+  @Test
+  void theConnectionsStaticHeadersAreSent() throws Exception {
+    // Issue #9551.
+    File target = File.createTempFile("staticheaders", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(connectionWithUserHeader(), target);
+    action.setUrl("v1/items");
+
+    assertTrue(action.execute(new Result(), 0).isResult());
+    assertEquals("hop@example.com", userHeader.get());
+  }
+
+  @Test
+  void aHeaderSetOnTheActionWinsOverTheConnectionsStaticHeader() throws Exception {
+    File target = File.createTempFile("staticheadersoverride", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(connectionWithUserHeader(), target);
+    action.setUrl("v1/items");
+    ActionHttp.Header header = new ActionHttp.Header();
+    header.setHeaderName("X-As-User-Email");
+    header.setHeaderValue("action@example.com");
+    action.setHeaders(List.of(header));
+
+    assertTrue(action.execute(new Result(), 0).isResult());
+    assertEquals("action@example.com", userHeader.get());
+  }
+
+  private MemoryMetadataProvider connectionWithUserHeader() throws Exception {
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    RestConnection connection = new RestConnection();
+    connection.setName("test-connection");
+    connection.setBaseUrl("http://localhost:" + server.getAddress().getPort());
+    connection.setHeaders(List.of(new RestConnectionHeader("x-as-user-email", "hop@example.com")));
+    provider.getSerializer(RestConnection.class).save(connection);
+    return provider;
   }
 
   @Test

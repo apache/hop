@@ -142,6 +142,10 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
       // add HttpPost headers
       addHttpHeaders(post, rowData);
+      // The connection's static headers come after the transform's own: a header set here wins.
+      if (data.restAuthenticator != null) {
+        data.restAuthenticator.applyStaticHeaders(post, uri.toString());
+      }
       // QUERY PARAMETERS
       addQueryParams(post, rowData);
       // BODY PARAMETERS
@@ -656,7 +660,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restAuthenticator.applyRequestHeaders(authHeaders, uri.toString());
+    data.restAuthenticator.applyAuthenticationHeaders(authHeaders, uri.toString());
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       post.setHeader(authHeader.getKey(), authHeader.getValue());
     }

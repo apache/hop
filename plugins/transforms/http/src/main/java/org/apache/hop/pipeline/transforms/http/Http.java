@@ -312,17 +312,19 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
   /**
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
    * a challenge, so the connection writes them onto every request itself. They stay scoped to the
-   * connection's base URL: an absolute URL on another host is sent without them.
+   * connection's base URL: an absolute URL on another host is sent without them. The connection's
+   * static headers follow the same rule, but a header this transform already set wins.
    */
   private void addConnectionAuthentication(HttpGet method, URI uri) {
     if (data.restAuthenticator == null) {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restAuthenticator.applyRequestHeaders(authHeaders, uri.toString());
+    data.restAuthenticator.applyAuthenticationHeaders(authHeaders, uri.toString());
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       method.setHeader(authHeader.getKey(), authHeader.getValue());
     }
+    data.restAuthenticator.applyStaticHeaders(method, uri.toString());
   }
 
   /** HttpClient 5 requires {@link BasicScheme#initPreemptive} for preemptive Basic auth. */

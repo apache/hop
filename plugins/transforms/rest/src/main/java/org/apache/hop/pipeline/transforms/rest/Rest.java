@@ -66,6 +66,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.net.URIBuilder;
@@ -110,6 +111,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private RestConnection connection;
   private RestClientSettings clientSettings;
   private RestAuthenticator authenticator;
+
+  /** The Bearer 401 hint is logged once per transform copy, not once per row. */
+  private boolean unauthorizedHintLogged;
 
   private static final Configuration JSON_PATH_CONFIGURATION =
       Configuration.builder()
@@ -457,17 +461,22 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                 contentType != null ? contentType : String.valueOf(data.mediaType)));
       }
 
+      Supplier<HttpExchange> send =
+          () -> {
+            try {
+              return executeRequest(
+                  finalRequestUri, headerMap, finalEntity, finalContentType, rowData);
+            } catch (HopException e) {
+              throw new HopRuntimeException(e);
+            }
+          };
+      // One new OAuth 2 token per exchange at most, however often executeWithRetry goes round.
+      boolean[] tokenRefreshed = {false};
+
       startTime = System.currentTimeMillis();
       response =
           executeWithRetry(
-              () -> {
-                try {
-                  return executeRequest(
-                      finalRequestUri, headerMap, finalEntity, finalContentType, rowData);
-                } catch (HopException e) {
-                  throw new HopRuntimeException(e);
-                }
-              });
+              () -> sendRenewingRejectedToken(send, headerMap, finalRequestUri, tokenRefreshed));
 
       long responseTime = System.currentTimeMillis() - startTime;
 
@@ -521,6 +530,82 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           e);
     }
     // The client is not closed here: it is shared by every row and released on dispose().
+  }
+
+  /**
+   * Sends the request, and when it comes back 401 on an OAuth 2 token Hop applied, sends it once
+   * more with a new token (issue #9550). Without this a token the server stopped accepting before
+   * its expiry time — revoked, rotated, or replaced because another client asked for one — keeps
+   * being sent until that time passes, and adding 401 to the retry status codes only resends it.
+   *
+   * <p>It runs inside {@link #executeWithRetry}, so the new token is in place before any configured
+   * retry. A streaming request reports a failed status as an exception rather than a response; a
+   * 401 there is just as safe to resend, because no record has gone downstream yet.
+   */
+  private HttpExchange sendRenewingRejectedToken(
+      Supplier<HttpExchange> send,
+      Map<String, String> headers,
+      String requestUri,
+      boolean[] tokenRefreshed) {
+    HttpExchange exchange;
+    try {
+      exchange = send.get();
+    } catch (HopRuntimeException e) {
+      if (isUnauthorizedStream(e) && renewRejectedToken(headers, requestUri, tokenRefreshed)) {
+        return send.get();
+      }
+      throw e;
+    }
+    if (exchange.status() == HttpStatus.SC_UNAUTHORIZED
+        && renewRejectedToken(headers, requestUri, tokenRefreshed)) {
+      return send.get();
+    }
+    return exchange;
+  }
+
+  /**
+   * After a 401: whether the headers now carry a new OAuth 2 token and the request is worth one
+   * more try. Logs the Bearer hint once when there is nothing Hop can do.
+   */
+  private boolean renewRejectedToken(
+      Map<String, String> headers, String requestUri, boolean[] tokenRefreshed) {
+    try {
+      if (!tokenRefreshed[0] && authenticator().refreshAfterUnauthorized(headers, requestUri)) {
+        tokenRefreshed[0] = true;
+        logBasic(BaseMessages.getString(PKG, "Rest.Log.OAuth2TokenRejectedRetrying"));
+        return true;
+      }
+      if (!unauthorizedHintLogged) {
+        String hint = authenticator().unauthorizedHint();
+        if (hint != null) {
+          unauthorizedHintLogged = true;
+          logBasic(hint);
+        }
+      }
+      return false;
+    } catch (HopException e) {
+      throw new HopRuntimeException(e);
+    }
+  }
+
+  private static boolean isUnauthorizedStream(Throwable e) {
+    for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+      if (cause instanceof StreamingStatusException streaming
+          && streaming.status == HttpStatus.SC_UNAUTHORIZED) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** A streaming response with a status other than 2xx; carries the status for the 401 check. */
+  private static final class StreamingStatusException extends IOException {
+    private final int status;
+
+    StreamingStatusException(int status, String message) {
+      super(message);
+      this.status = status;
+    }
   }
 
   /**
@@ -630,7 +715,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           // Nothing readable; the status alone still has to surface.
         }
       }
-      throw new IOException(
+      throw new StreamingStatusException(
+          status,
           "The streaming request failed with status "
               + status
               + (body.isBlank()

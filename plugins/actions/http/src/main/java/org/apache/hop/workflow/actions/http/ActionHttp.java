@@ -729,10 +729,12 @@ public class ActionHttp extends ActionBase {
       return;
     }
     Map<String, String> authHeaders = new LinkedHashMap<>();
-    restAuthenticator.applyRequestHeaders(authHeaders, urlToUse);
+    restAuthenticator.applyAuthenticationHeaders(authHeaders, urlToUse);
     for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
       request.setHeader(authHeader.getKey(), authHeader.getValue());
     }
+    // The connection's static headers, where the action did not set the same header itself.
+    restAuthenticator.applyStaticHeaders(request, urlToUse);
   }
 
   /** Copies the configured headers onto the request. */

@@ -17,7 +17,9 @@
 
 package org.apache.hop.metadata.rest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -36,9 +38,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -58,6 +62,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -139,6 +144,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wProxyUsername;
   private TextVar wProxyPassword;
   private TextVar wNonProxyHosts;
+
+  private TableView wHeaders;
 
   private ComboVar wPaginationType;
   private TextVar wPageParamName;
@@ -595,6 +602,19 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
 
+    CTabItem wHeadersTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wHeadersTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wHeadersTabItem.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Headers.Title"));
+
+    Composite wHeadersInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout headersLayout = new FormLayout();
+    headersLayout.marginWidth = PropsUi.getFormMargin();
+    headersLayout.marginHeight = PropsUi.getFormMargin();
+    wHeadersInner.setLayout(headersLayout);
+    PropsUi.setLook(wHeadersInner);
+    buildHeadersWidgets(wHeadersInner);
+    wHeadersTabItem.setControl(wHeadersInner);
+
     CTabItem wAdvancedTabItem = new CTabItem(wTabFolder, SWT.NONE);
     wAdvancedTabItem.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTabItem.setText(
@@ -664,6 +684,49 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wNextPageUrlXPath
     };
     enableControls(controls);
+  }
+
+  /** Builds the table of headers sent on every request (issue #9551) on the Headers tab. */
+  private void buildHeadersWidgets(Composite p) {
+    Label wlInfo = new Label(p, SWT.LEFT | SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdlInfo = new FormData();
+    fdlInfo.left = new FormAttachment(0, 0);
+    fdlInfo.right = new FormAttachment(100, 0);
+    fdlInfo.top = new FormAttachment(0, margin);
+    wlInfo.setLayoutData(fdlInfo);
+
+    ColumnInfo nameColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Column.Name"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    nameColumn.setUsingVariables(true);
+    ColumnInfo valueColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Column.Value"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    valueColumn.setUsingVariables(true);
+
+    wHeaders =
+        new TableView(
+            variables,
+            p,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            new ColumnInfo[] {nameColumn, valueColumn},
+            1,
+            e -> markChangedIfUserEdit(),
+            PropsUi.getInstance());
+    FormData fdHeaders = new FormData();
+    fdHeaders.left = new FormAttachment(0, 0);
+    fdHeaders.right = new FormAttachment(100, 0);
+    fdHeaders.top = new FormAttachment(wlInfo, margin);
+    fdHeaders.bottom = new FormAttachment(100, -margin);
+    wHeaders.setLayoutData(fdHeaders);
   }
 
   /** Builds the timeout and proxy settings on the dedicated Advanced tab. */
@@ -1512,6 +1575,18 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wProxyPassword.setText(Const.NVL(metadata.getProxyPassword(), ""));
       wNonProxyHosts.setText(Const.NVL(metadata.getNonProxyHosts(), ""));
 
+      wHeaders.removeAll();
+      if (metadata.getHeaders() != null) {
+        for (RestConnectionHeader header : metadata.getHeaders()) {
+          TableItem item = new TableItem(wHeaders.table, SWT.NONE);
+          item.setText(1, Const.NVL(header.getName(), ""));
+          item.setText(2, Const.NVL(header.getValue(), ""));
+        }
+      }
+      wHeaders.removeEmptyRows();
+      wHeaders.setRowNums();
+      wHeaders.optimizeTableView();
+
       if (StringUtils.isEmpty(metadata.getAuthType())
           || CERTIFICATE.equals(metadata.getAuthType())) {
         metadata.setAuthType(NO_AUTH);
@@ -1613,6 +1688,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setProxyUsername(wProxyUsername.getText());
     connection.setProxyPassword(wProxyPassword.getText());
     connection.setNonProxyHosts(wNonProxyHosts.getText());
+
+    List<RestConnectionHeader> headers = new ArrayList<>();
+    for (TableItem item : wHeaders.getNonEmptyItems()) {
+      headers.add(new RestConnectionHeader(item.getText(1), item.getText(2)));
+    }
+    connection.setHeaders(headers);
 
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals(BASIC)) {
