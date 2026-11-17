@@ -49,7 +49,7 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 @GuiPlugin(classLoaderGroup = "vfs-graph")
 @HopMetadata(
-    key = "sharepoint",
+    key = "sharepoint-connection",
     name = "i18n::SharePointConnection.Name",
     description = "i18n::SharePointConnection.Description",
     image = "sharepoint.svg",

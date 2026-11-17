@@ -56,8 +56,9 @@ All the options except the name, the description and the authentication type acc
 
 === SharePoint host
 
-The host is only used to find a site that is not in the list of the sites of the tenant, typically because the application is not allowed to list them.
-Such a site is read by its address, `<host>/sites/<site>` or `<host>/teams/<site>`.
+A site is first read by its address, `<host>/sites/<site>` or `<host>/teams/<site>`, so that a file is reached without listing all the sites of the tenant.
+This also works when the application is not allowed to list the sites.
+The sites are only listed to browse the root `+name:///+`, or to find a site that has no such address.
 
 When the option is empty, Hop reads the root site of the tenant to find the host, so the connection usually works without it.
 Set it when:
@@ -66,8 +67,6 @@ Set it when:
 The log then says `The SharePoint host of the tenant can not be read, set it on the connection`.
 * The sites are on another host than the root site of the tenant.
 * You want to save the request that reads the root site.
-
-When the application can list the sites (`Sites.Read.All` or `Sites.ReadWrite.All`), the sites are found by their name and the host is not used.
 
 **Test** on this editor requests a Microsoft Graph token with the values in the form.
 

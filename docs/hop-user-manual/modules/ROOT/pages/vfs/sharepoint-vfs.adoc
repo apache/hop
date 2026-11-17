@@ -54,7 +54,7 @@ The path has three parts: the site, the document library, and the path of the fi
 * The library is the name of the document library.
 The default library of a site is named `Documents` on an English tenant, even though its URL says `Shared Documents`.
 * Site and library names are not case-sensitive.
-When two sites have the same name, only the first one is reachable and the other one is reported in the log.
+When two sites have the same name, the one under `/sites` is used rather than the one under `/teams`.
 * With the permission `Sites.Selected` the root `+m365:///+` is empty, because the application can not list the sites. Set the SharePoint host on the connection and enter the path of a site it was granted, such as `+m365:///Finance+`.
 
 You can browse the sites, libraries and files in the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] or in any file dialog.

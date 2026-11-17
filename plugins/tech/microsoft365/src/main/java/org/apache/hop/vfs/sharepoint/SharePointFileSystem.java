@@ -102,14 +102,14 @@ public class SharePointFileSystem extends AbstractFileSystem {
 
   private final GraphServiceClient client;
 
-  /** Site name to site id, whatever the case of the name, null until the sites are listed. */
-  private volatile @Nullable Map<String, String> siteIds;
+  /** Site name to site id, whatever the case of the name, for the sites found so far. */
+  private volatile Map<String, String> siteIds = newNameMap();
 
   /** The SharePoint host of the tenant, null until it is needed. */
   private volatile @Nullable String hostname;
 
-  /** False once Microsoft Graph refused to list the sites. */
-  private volatile boolean sitesListable = true;
+  /** True once the sites were listed, or Microsoft Graph refused to list them. */
+  private volatile boolean sitesListed;
 
   /** Site id to (drive name to drive id, whatever the case of the name). */
   private final Map<String, Map<String, String>> driveIds = new ConcurrentHashMap<>();
@@ -164,6 +164,7 @@ public class SharePointFileSystem extends AbstractFileSystem {
               + " can not be listed, use the full path of a site the application was granted.");
     }
     siteIds = sites;
+    sitesListed = true;
     driveIds.clear();
     return sites;
   }
@@ -237,7 +238,7 @@ public class SharePointFileSystem extends AbstractFileSystem {
           return site.getId();
         }
       } catch (ApiException e) {
-        LogChannel.GENERAL.logBasic(
+        String message =
             "The SharePoint site "
                 + host
                 + "/"
@@ -245,7 +246,13 @@ public class SharePointFileSystem extends AbstractFileSystem {
                 + "/"
                 + siteName
                 + " can not be read: "
-                + describe(e));
+                + describe(e);
+        // The site is expected to be missing under one of the managed paths
+        if (e.getResponseStatusCode() == HTTP_NOT_FOUND) {
+          LogChannel.GENERAL.logDetailed(message);
+        } else {
+          LogChannel.GENERAL.logBasic(message);
+        }
       }
     }
     return null;
@@ -260,10 +267,8 @@ public class SharePointFileSystem extends AbstractFileSystem {
       return listSites();
     } catch (FileSystemException e) {
       LogChannel.GENERAL.logDetailed(e.getMessage());
-      Map<String, String> sites = newNameMap();
-      sitesListable = false;
-      siteIds = sites;
-      return sites;
+      sitesListed = true;
+      return siteIds;
     }
   }
 
@@ -288,23 +293,19 @@ public class SharePointFileSystem extends AbstractFileSystem {
    * @return the id of the site or null if there is no site with this name
    */
   @Nullable String findSiteId(String siteName) throws FileSystemException {
-    Map<String, String> sites = siteIds;
-    boolean cached = sites != null;
-    if (!cached) {
-      sites = listSitesIfAllowed();
+    String siteId = siteIds.get(siteName);
+    if (siteId != null) {
+      return siteId;
     }
-    String siteId = sites.get(siteName);
-    // The site may have been created since the sites were listed
-    if (siteId == null && cached && sitesListable) {
-      sites = listSitesIfAllowed();
-      siteId = sites.get(siteName);
+    // Reading the site by its address takes one or two requests, whatever the number of sites
+    siteId = findSiteIdByPath(siteName);
+    if (siteId != null) {
+      siteIds.put(siteName, siteId);
+      return siteId;
     }
-    // The site may be readable without being listed
-    if (siteId == null) {
-      siteId = findSiteIdByPath(siteName);
-      if (siteId != null) {
-        sites.put(siteName, siteId);
-      }
+    // A site that has no such address may still be listed, the sites are only listed once for this
+    if (!sitesListed) {
+      siteId = listSitesIfAllowed().get(siteName);
     }
     return siteId;
   }

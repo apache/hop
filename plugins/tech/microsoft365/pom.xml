@@ -116,6 +116,13 @@
             <groupId>com.azure</groupId>
             <artifactId>azure-core</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <!-- Hop already ships a newer one in lib/core -->
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
