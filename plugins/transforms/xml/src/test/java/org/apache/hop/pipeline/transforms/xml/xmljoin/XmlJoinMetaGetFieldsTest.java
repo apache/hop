@@ -27,8 +27,12 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -176,5 +180,62 @@ class XmlJoinMetaGetFieldsTest {
 
     assertEquals(List.of("a", "c", "xml"), List.of(rowMeta.getFieldNames()));
     assertEquals(IValueMeta.TYPE_STRING, rowMeta.getValueMeta(1).getType());
+  }
+
+  /**
+   * At design time Hop gives an empty row for the target stream: the info streams of the XML join
+   * have no transform set. The fields are those of the target transform, found by name, plus the
+   * XML field, whatever the order of the hops.
+   */
+  @Test
+  void testGetFieldsAtDesignTimeGiveTheTargetRow() throws Exception {
+    PipelineMeta designTime = new PipelineMeta();
+    TransformMeta target =
+        new TransformMeta(
+            "Fields",
+            "target",
+            new DeclaresFields(new ValueMetaString("a"), new ValueMetaString("xml")));
+    TransformMeta source =
+        new TransformMeta("Fields", "source", new DeclaresFields(new ValueMetaInteger("b")));
+    xmlJoinMeta.setTargetXmlTransform("target");
+    xmlJoinMeta.setSourceXmlTransform("source");
+    xmlJoinMeta.setTargetXmlField("xml");
+    xmlJoinMeta.setValueXmlField("out");
+    TransformMeta join = new TransformMeta("XMLJoin", "join", xmlJoinMeta);
+    designTime.addTransform(target);
+    designTime.addTransform(source);
+    designTime.addTransform(join);
+    // The source's hop first: its fields come first in the merged previous fields
+    designTime.addPipelineHop(new PipelineHopMeta(source, join));
+    designTime.addPipelineHop(new PipelineHopMeta(target, join));
+    xmlJoinMeta.searchInfoAndTargetTransforms(designTime.getTransforms());
+
+    IRowMeta fields = designTime.getTransformFields(new Variables(), join);
+
+    assertEquals(List.of("a", "xml", "out"), List.of(fields.getFieldNames()));
+  }
+
+  /** A transform that only declares the fields it is given. */
+  private static class DeclaresFields extends BaseTransformMeta {
+    private final IValueMeta[] fields;
+
+    DeclaresFields(IValueMeta... fields) {
+      this.fields = fields;
+    }
+
+    @Override
+    public void getFields(
+        IRowMeta row,
+        String name,
+        IRowMeta[] info,
+        TransformMeta nextTransform,
+        IVariables variables,
+        IHopMetadataProvider metadataProvider) {
+      for (IValueMeta field : fields) {
+        IValueMeta copy = field.clone();
+        copy.setOrigin(name);
+        row.addValueMeta(copy);
+      }
+    }
   }
 }
