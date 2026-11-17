@@ -64,8 +64,15 @@ public final class AiAdvisorCatalogContext {
 
   static final int MAX_CHARS = 30_000;
 
-  /** What {@link #fill} looks up, and the marker it replaces. */
-  record Pending(String marker, String catalogName, List<TouchedDataset> datasets) {}
+  /** Less room than this in the question, and the catalog is not asked. */
+  static final int MIN_CHARS = 400;
+
+  /**
+   * What {@link #fill} looks up, and the marker it replaces.
+   *
+   * @param pipeline the pipeline, for when the request has no copy of it
+   */
+  record Pending(String marker, String catalogName, PipelineMeta pipeline) {}
 
   private AiAdvisorCatalogContext() {}
 
@@ -90,7 +97,8 @@ public final class AiAdvisorCatalogContext {
 
   /**
    * Adds the section with a marker for the catalog's answers when the inclusion is on and a catalog
-   * is picked. Reads only the pipeline: call it on the UI thread with the rest of the prompt.
+   * is picked. Reads nothing: the datasets are worked out in {@link #fill}, since that can open
+   * files (a file list, a remote file system).
    */
   public static void appendToPrompt(
       StringBuilder prompt, AiAdvisorRequest request, PipelineMeta pipelineMeta) {
@@ -105,31 +113,33 @@ public final class AiAdvisorCatalogContext {
       return;
     }
     String catalogName = picked.get(0);
-    List<TouchedDataset> datasets =
-        PipelineDatasets.of(
-            pipelineMeta,
-            request.getVariables() != null ? request.getVariables() : new Variables());
     String marker = "hop-data-catalog-" + UUID.randomUUID();
-    request.getAttributes().put(ATTR_PENDING, new Pending(marker, catalogName, datasets));
-    StringBuilder placeholder = new StringBuilder(marker).append('\n');
-    placeholder
-        .append("What data catalog '")
-        .append(catalogName)
-        .append("' says about these datasets is read when the question is sent:");
-    for (TouchedDataset dataset : datasets) {
-      placeholder.append("\n- ").append(dataset.dataset().describe());
-    }
-    if (datasets.isEmpty()) {
-      placeholder.append(" none, the pipeline declares no tables or files.");
-    }
-    AiTextUtil.appendSection(prompt, SECTION, placeholder.toString());
+    request.getAttributes().put(ATTR_PENDING, new Pending(marker, catalogName, pipelineMeta));
+    AiTextUtil.appendSection(
+        prompt,
+        SECTION,
+        marker
+            + "\nWhat data catalog '"
+            + catalogName
+            + "' says about the tables and files this pipeline reads and writes is read when the"
+            + " question is sent.");
+  }
+
+  /** As {@link #fill(AiAdvisorRequest, AiAdvisorPrompt, int)}, with up to {@link #MAX_CHARS}. */
+  public static void fill(AiAdvisorRequest request, AiAdvisorPrompt prompt) {
+    fill(request, prompt, MAX_CHARS);
   }
 
   /**
-   * Asks the catalog and puts its answers in the place of the marker. Runs in the background. A
-   * catalog that can't be reached leaves a note saying so, not a failed question.
+   * Asks the catalog about the datasets of the pipeline and puts its answers in the place of the
+   * marker. Runs in the background. A catalog that can't be reached leaves a note saying so, not a
+   * failed question.
+   *
+   * @param room how many characters the answers may take, so the question still fits the model's
+   *     context; at most {@link #MAX_CHARS}. With less than {@link #MIN_CHARS} the catalog is not
+   *     asked, and the section says so.
    */
-  public static void fill(AiAdvisorRequest request, AiAdvisorPrompt prompt) {
+  public static void fill(AiAdvisorRequest request, AiAdvisorPrompt prompt, int room) {
     if (request == null
         || prompt == null
         || !(request.getAttributes().get(ATTR_PENDING) instanceof Pending pending)) {
@@ -145,10 +155,23 @@ public final class AiAdvisorCatalogContext {
       return;
     }
     IVariables variables = request.getVariables();
-    // JSON escapes a slash; unescaped, paths can be shortened and tags in a description broken
-    String json = lookUp(pending, variables, request.getMetadataProvider()).replace("\\/", "/");
+    String json;
+    if (room < MIN_CHARS) {
+      json = leftOut(pending.catalogName());
+    } else {
+      // The copy the question was prepared with, not the pipeline the user may be editing
+      PipelineMeta pipeline =
+          request.getArtifact() instanceof PipelineMeta copy ? copy : pending.pipeline();
+      List<TouchedDataset> datasets =
+          PipelineDatasets.of(pipeline, variables != null ? variables : new Variables());
+      // JSON escapes a slash; unescaped, paths can be shortened and tags in a description broken
+      json =
+          lookUp(pending.catalogName(), datasets, variables, request.getMetadataProvider())
+              .replace("\\/", "/");
+    }
     String content =
-        AiTextUtil.breakSectionTags(AiTextUtil.redactSecrets(AiTextUtil.truncate(json, MAX_CHARS)));
+        AiTextUtil.breakSectionTags(
+            AiTextUtil.redactSecrets(AiTextUtil.truncate(json, Math.min(room, MAX_CHARS))));
     if (variables != null) {
       content = AiTextUtil.shortenPaths(content, variables);
     }
@@ -156,13 +179,25 @@ public final class AiAdvisorCatalogContext {
   }
 
   @SuppressWarnings("unchecked")
-  static String lookUp(
-      Pending pending, IVariables variables, IHopMetadataProvider metadataProvider) {
+  private static String leftOut(String catalogName) {
     JSONObject root = new JSONObject();
-    root.put("catalog", pending.catalogName());
+    root.put("catalog", catalogName);
+    root.put("notIncluded", "the question has no room left for it in the model's context");
+    return root.toJSONString();
+  }
+
+  @SuppressWarnings("unchecked")
+  static String lookUp(
+      String catalogName,
+      List<TouchedDataset> touchedDatasets,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    JSONObject root = new JSONObject();
+    root.put("catalog", catalogName);
     JSONArray datasets = new JSONArray();
     root.put("datasets", datasets);
-    if (pending.datasets().isEmpty()) {
+    if (touchedDatasets.isEmpty()) {
+      root.put("note", "the pipeline declares no tables or files");
       return root.toJSONString();
     }
     IDataCatalog catalog = null;
@@ -170,9 +205,9 @@ public final class AiAdvisorCatalogContext {
       DataCatalog meta =
           metadataProvider == null
               ? null
-              : metadataProvider.getSerializer(DataCatalog.class).load(pending.catalogName());
+              : metadataProvider.getSerializer(DataCatalog.class).load(catalogName);
       if (meta == null) {
-        root.put("error", "data catalog " + pending.catalogName() + " doesn't exist");
+        root.put("error", "data catalog " + catalogName + " doesn't exist");
         return root.toJSONString();
       }
       catalog = meta.connect(variables, metadataProvider);
@@ -180,9 +215,9 @@ public final class AiAdvisorCatalogContext {
       IDeprecationCapability deprecation =
           catalog.capability(IDeprecationCapability.class).orElse(null);
       int count = 0;
-      for (TouchedDataset touched : pending.datasets()) {
+      for (TouchedDataset touched : touchedDatasets) {
         if (count++ >= MAX_DATASETS) {
-          root.put("notLookedUp", pending.datasets().size() - MAX_DATASETS);
+          root.put("notLookedUp", touchedDatasets.size() - MAX_DATASETS);
           break;
         }
         JSONObject dataset = describe(touched);

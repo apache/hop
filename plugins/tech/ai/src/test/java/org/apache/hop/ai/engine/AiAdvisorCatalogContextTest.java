@@ -58,6 +58,8 @@ class AiAdvisorCatalogContextTest {
   /** Every call the catalog was asked, by every copy of it. */
   private static final AtomicInteger CALLS = new AtomicInteger();
 
+  private static final AtomicInteger DECLARED = new AtomicInteger();
+
   @BeforeAll
   static void init() throws Exception {
     HopClientEnvironment.init();
@@ -136,7 +138,12 @@ class AiAdvisorCatalogContextTest {
   private static TransformMeta transform(String name, IDeclaresLineage.Declaration... declared) {
     ITransformMeta meta =
         mock(ITransformMeta.class, withSettings().extraInterfaces(IDeclaresLineage.class));
-    when(((IDeclaresLineage) meta).declaredLineage(any(), any())).thenReturn(List.of(declared));
+    when(((IDeclaresLineage) meta).declaredLineage(any(), any()))
+        .thenAnswer(
+            call -> {
+              DECLARED.incrementAndGet();
+              return List.of(declared);
+            });
     TransformMeta transformMeta = new TransformMeta(name, name, meta);
     transformMeta.setTransformPluginId("Fake");
     return transformMeta;
@@ -171,17 +178,18 @@ class AiAdvisorCatalogContextTest {
   }
 
   @Test
-  void theUiThreadOnlyListsTheDatasetsAndTheBackgroundAsksTheCatalog() throws Exception {
+  void theUiThreadReadsNothingAndTheBackgroundAsksTheCatalog() throws Exception {
     AiAdvisorRequest request = request(true);
     CALLS.set(0);
+    DECLARED.set(0);
     StringBuilder built = new StringBuilder();
 
     AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
 
     assertEquals(0, CALLS.get(), "building the prompt doesn't wait for the catalog");
+    assertEquals(0, DECLARED.get(), "nor for the files the transforms declare");
     String before = built.toString();
     assertTrue(before.contains("<data_catalog>"), before);
-    assertTrue(before.contains("/data/orders.csv"), before);
 
     AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", before + "<question>\nwhy\n</question>");
     AiAdvisorCatalogContext.fill(request, prompt);
@@ -215,6 +223,35 @@ class AiAdvisorCatalogContextTest {
     assertTrue(
         prompt.getUserPrompt().contains("the catalog can't be read: connection refused"),
         prompt.getUserPrompt());
+  }
+
+  @Test
+  void withoutRoomInTheQuestionTheCatalogIsNotAsked() throws Exception {
+    AiAdvisorRequest request = request(true);
+    StringBuilder built = new StringBuilder();
+    AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
+    CALLS.set(0);
+
+    AiAdvisorCatalogContext.fill(request, prompt, AiAdvisorCatalogContext.MIN_CHARS - 1);
+
+    assertEquals(0, CALLS.get());
+    assertTrue(prompt.getUserPrompt().contains("no room left"), prompt.getUserPrompt());
+  }
+
+  @Test
+  void theAnswersTakeNoMoreThanTheRoomLeft() throws Exception {
+    AiAdvisorRequest request = request(true);
+    StringBuilder built = new StringBuilder();
+    AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
+    int before = prompt.getUserPrompt().length();
+
+    AiAdvisorCatalogContext.fill(request, prompt, 500);
+
+    assertTrue(
+        prompt.getUserPrompt().length() < before + 500,
+        prompt.getUserPrompt().length() + " characters");
   }
 
   @Test

@@ -199,8 +199,17 @@ public final class AiAdvisorEngine {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));
     }
     AiAdvisorPrompt prompt = prepared.prompt();
-    // Read here, in the background: the UI thread built the prompt and must not wait for a catalog
-    AiAdvisorCatalogContext.fill(prepared.request(), prompt);
+    // Read here, in the background: the UI thread built the prompt and must not wait for a catalog.
+    // Only as much as still fits the context the question was checked against.
+    AiAdvisorCatalogContext.fill(
+        prepared.request(),
+        prompt,
+        roomLeft(
+            AiProviderSettings.contextBudget(prepared.provider(), variables),
+            AiProviderSettings.maxOutputTokens(prepared.provider(), variables),
+            prompt.getSystemPrompt(),
+            prompt.getUserPrompt(),
+            prepared.history()));
     AiChatResult chat = ask(session, advisor, prepared, variables);
     if (session.isCancelled() || Thread.currentThread().isInterrupted()) {
       throw new HopException(BaseMessages.getString(PKG, "AiAdvisorEngine.Cancelled"));
@@ -642,14 +651,7 @@ public final class AiAdvisorEngine {
       String userPrompt,
       List<ChatMessage> history)
       throws HopException {
-    int tokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
-    for (ChatMessage message : history) {
-      if (message instanceof UserMessage user && user.hasSingleText()) {
-        tokens += estimateTokens(user.singleText());
-      } else if (message instanceof AiMessage ai) {
-        tokens += estimateTokens(ai.text());
-      }
-    }
+    int tokens = promptTokens(systemPrompt, userPrompt, history);
     int reserve = answerReserve(contextSize, maxOutputTokens);
     if (tokens + reserve > contextSize) {
       throw new AiUserException(
@@ -661,6 +663,36 @@ public final class AiAdvisorEngine {
               Integer.toString(contextSize),
               Integer.toString(reserve)));
     }
+  }
+
+  /** The estimated tokens of a question: its instructions, its text, and the history with it. */
+  static int promptTokens(String systemPrompt, String userPrompt, List<ChatMessage> history) {
+    int tokens = estimateTokens(systemPrompt) + estimateTokens(userPrompt);
+    for (ChatMessage message : history) {
+      if (message instanceof UserMessage user && user.hasSingleText()) {
+        tokens += estimateTokens(user.singleText());
+      } else if (message instanceof AiMessage ai) {
+        tokens += estimateTokens(ai.text());
+      }
+    }
+    return tokens;
+  }
+
+  /**
+   * How many characters can still be added to a question that {@link #checkPromptFits} let through,
+   * so it still fits.
+   */
+  static int roomLeft(
+      int contextSize,
+      Integer maxOutputTokens,
+      String systemPrompt,
+      String userPrompt,
+      List<ChatMessage> history) {
+    int tokens =
+        contextSize
+            - answerReserve(contextSize, maxOutputTokens)
+            - promptTokens(systemPrompt, userPrompt, history);
+    return Math.max(0, tokens) * CHARS_PER_TOKEN;
   }
 
   /** The tokens kept free for the answer: the provider's output limit, or a share of the window. */

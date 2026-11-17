@@ -215,8 +215,8 @@ The assistant can then answer questions such as who owns the table a pipeline lo
 
 * The datasets are the files and tables the transforms declare: the files of Text file input and output and CSV input, and the tables of Table output, Insert/Update, the bulk loaders and similar. They are named the way lineage names them, so they match what the lineage sinks write to the catalog.
 * The tables a Table input reads with its SQL are not looked up: they are only known once the SQL is parsed. With *Include transform / action settings* on, the model still sees the SQL itself.
-* The catalog is read when the question is sent, in the background, so Hop GUI doesn't wait for it. *Show what is sent…* lists the datasets that will be looked up, not what the catalog says.
-* At most 40 datasets are looked up per question. A catalog that can't be reached adds a note saying so instead of failing the question.
+* The datasets are worked out and the catalog is read when the question is sent, in the background, so Hop GUI doesn't wait for them. *Show what is sent…* shows where the catalog's answers go, not the answers.
+* At most 40 datasets are looked up per question, and the answers take no more room than the question has left in the model's context: with no room left, the catalog is not asked. A catalog that can't be reached adds a note saying so instead of failing the question.
 * What the catalog holds goes to the language model: descriptions and names written by the people of your organisation. Use it only with a provider you may send that to.
 
 === Recommended combinations
