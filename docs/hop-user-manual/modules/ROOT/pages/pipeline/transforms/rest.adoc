@@ -206,7 +206,8 @@ Use this tab to loop over paged REST APIs. Paging behaviour (Link header, offset
 
 Paging stops when:
 
-* the connection strategy reports no further page (no `rel="next"` link, empty page, or missing cursor),
+* the connection strategy reports no further page (no `rel="next"` link, empty page, or missing cursor). For `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`, a page is empty when the connection's items path finds nothing in it, or else when this transform's split path finds nothing, or else when the body is empty (see xref:metadata-types/rest-connection.adoc[REST connection], **When paging stops**),
+* the connection's total count path says every item was read,
 * HTTP status is outside the 2xx range,
 * the maximum page request limit is reached, or
 * for `LINK_HEADER`, the next URL was already fetched (cycle guard).

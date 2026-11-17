@@ -167,6 +167,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     int pageNumber = 1;
     long offset = 0;
 
+    /** Items read so far, counted with the items path or the split path, for the total count. */
+    long itemsRead = 0;
+
     /** Next full URL supplied by RFC 5988 Link header paging. */
     String linkNextUrl;
 
@@ -927,6 +930,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         connection != null ? connection.getPaginationType() : RestPaginationType.NONE;
     PaginationState state = new PaginationState();
     state.effectiveLimit = resolvePagingLimit(connection);
+    state.pageNumber = resolveFirstPageNumber(connection);
 
     String resolvedSplitPath = resolveSplitPathOrPagingExpression(meta.getResultSplitPath());
     int maxLoops =
@@ -1010,12 +1014,39 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     RestPaginationType type = connection.getPaginationType();
     if (RestPaginationType.OFFSET_LIMIT.equals(type)
+        || RestPaginationType.PAGE_NUMBER.equals(type)
         || RestPaginationType.BODY_CURSOR.equals(type)
         || RestPaginationType.HEADER_CURSOR.equals(type)) {
       int lim = connection.getDefaultLimit();
       return lim > 0 ? lim : 100;
     }
     return 100;
+  }
+
+  /**
+   * The page number {@link RestPaginationType#PAGE_NUMBER} paging starts at: the connection's first
+   * page number, or 1 when it is empty. A value that is not a whole number of zero or more is an
+   * error rather than a silent 1, which would skip or repeat a page without anyone noticing.
+   */
+  private int resolveFirstPageNumber(RestConnection connection) throws HopException {
+    if (connection == null || Utils.isEmpty(connection.getFirstPageNumber())) {
+      return 1;
+    }
+    String value = Const.trim(resolve(connection.getFirstPageNumber()));
+    if (Utils.isEmpty(value)) {
+      return 1;
+    }
+    try {
+      int first = Integer.parseInt(value);
+      if (first >= 0) {
+        return first;
+      }
+    } catch (NumberFormatException e) {
+      // Reported below.
+    }
+    throw new HopException(
+        BaseMessages.getString(
+            PKG, "Rest.Error.PaginationFirstPageNumber", connection.getName(), value));
   }
 
   private LinkedHashMap<String, String> buildPagingQuery(
@@ -1031,8 +1062,15 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         q.put(offKey, Long.toString(state.offset));
         q.put(limKey, Integer.toString(state.effectiveLimit));
       }
-      case PAGE_NUMBER ->
-          q.put(NVL(resolve(conn.getPageParamName()), "page"), Integer.toString(state.pageNumber));
+      case PAGE_NUMBER -> {
+        q.put(NVL(resolve(conn.getPageParamName()), "page"), Integer.toString(state.pageNumber));
+        // The page size goes out only when both its name and its value are filled in: page-number
+        // paging never sent one before, and an API that does not know the parameter may reject it.
+        String limKey = resolve(conn.getLimitParamName());
+        if (!Utils.isEmpty(limKey) && conn.getDefaultLimit() > 0) {
+          q.put(limKey, Integer.toString(state.effectiveLimit));
+        }
+      }
       case CURSOR -> {
         if (!Utils.isEmpty(state.cursorToken)) {
           q.put(NVL(resolve(conn.getPageParamName()), "cursor"), state.cursorToken);
@@ -1113,8 +1151,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
 
     boolean httpOk = ex.status >= 200 && ex.status < 300;
-    boolean hadPayload = exchangeHadPayload(ex, resolvedSplitPath);
-
     if (!httpOk) {
       return false;
     }
@@ -1129,21 +1165,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         return !Utils.isEmpty(state.linkNextUrl);
       }
       case OFFSET_LIMIT -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(conn, state, ex, resolvedSplitPath)) {
           return false;
         }
         state.offset += state.effectiveLimit;
         return true;
       }
       case PAGE_NUMBER -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(conn, state, ex, resolvedSplitPath)) {
           return false;
         }
         state.pageNumber++;
         return true;
       }
       case CURSOR -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(conn, state, ex, resolvedSplitPath)) {
           return false;
         }
         return extractCursorForNext(conn, ex.body)
@@ -1173,17 +1209,111 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   /**
-   * @return whether this response appears to carry at least one item (whole body when no
-   *     split-path, or extracted elements when splitting).
+   * Whether page, offset and cursor paging should ask for another page after this one.
+   *
+   * <p>A page is empty when the connection's items path finds nothing in it. Without an items path
+   * the result split path decides, and without either an empty body does — which an API that wraps
+   * its results in an envelope never sends (#9549). The items path wins over the split path because
+   * it describes the API, while the split path describes the rows this transform wants.
+   *
+   * <p>With a total count path as well, paging also stops once that many items were read, so the
+   * last, empty, page is not fetched at all.
    */
-  private boolean exchangeHadPayload(RestExchangeResult ex, String resolvedSplitPath)
+  private boolean pageHadItemsAndMoreRemain(
+      RestConnection conn, PaginationState state, RestExchangeResult ex, String resolvedSplitPath)
       throws HopException {
-    List<String> items =
-        Utils.isEmpty(resolvedSplitPath) ? null : splitResultItems(ex.body, resolvedSplitPath);
-    if (items != null) {
-      return !items.isEmpty();
+    String itemsExpression = pagingExpression(conn.getItemsJsonPath(), conn.getItemsXPath());
+    String countingExpression =
+        Utils.isEmpty(itemsExpression) ? resolvedSplitPath : itemsExpression;
+    if (Utils.isEmpty(countingExpression)) {
+      return !Utils.isEmpty(NVL(ex.body, "").trim());
     }
-    return !Utils.isEmpty(NVL(ex.body, "").trim());
+    List<String> items = splitResultItems(ex.body, countingExpression);
+    if (items.isEmpty()) {
+      return false;
+    }
+    state.itemsRead += items.size();
+
+    Long totalCount = readTotalCount(conn, ex.body);
+    if (totalCount != null && state.itemsRead >= totalCount) {
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "Rest.Log.PaginationTotalCountReached", state.itemsRead, totalCount));
+      }
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Picks the JsonPath or the XPath of a pair of paging expressions, the way the cursor and
+   * next-URL expressions are picked: the JsonPath when the response is read as JSON, otherwise the
+   * XPath for an XML response. A JsonPath with no XPath next to it is always used, so a mistake in
+   * it fails loudly rather than being ignored. Returns {@code null} when neither applies.
+   */
+  private String pagingExpression(String jsonPath, String xPath) {
+    String appType = NVL(resolve(meta.getApplicationType()), "");
+    String json = resolveSplitPathOrPagingExpression(jsonPath);
+    String xml = resolveSplitPathOrPagingExpression(xPath);
+    if (!Utils.isEmpty(json) && (shouldParseResponseAsJson(appType, json) || Utils.isEmpty(xml))) {
+      return json;
+    }
+    if (!Utils.isEmpty(xml) && isXmlApplicationType(appType)) {
+      return xml;
+    }
+    return null;
+  }
+
+  private static boolean isXmlApplicationType(String appType) {
+    return RestMeta.APPLICATION_TYPE_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_TEXT_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_ATOM_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_SVG_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_XHTML.equals(appType);
+  }
+
+  /**
+   * The total number of items the API reports through the connection's total count path, or {@code
+   * null} when no path is set or the page does not hold a whole number there.
+   */
+  private Long readTotalCount(RestConnection conn, String body) throws HopException {
+    String expression = pagingExpression(conn.getTotalCountJsonPath(), conn.getTotalCountXPath());
+    if (Utils.isEmpty(expression)) {
+      return null;
+    }
+    String value;
+    try {
+      // The same JSON-or-XML rule as splitResultItems(), so the count and the items agree.
+      if (shouldParseResponseAsJson(NVL(resolve(meta.getApplicationType()), ""), expression)) {
+        Object raw =
+            JsonPath.using(JSON_PATH_CONFIGURATION).parse(NVL(body, "{}")).read(expression);
+        if (raw instanceof Number number) {
+          return number.longValue();
+        }
+        value = raw == null ? null : raw.toString();
+      } else {
+        Document doc;
+        try (StringReader sr = new StringReader(NVL(body, ""))) {
+          doc = documentBuilderFactory().newDocumentBuilder().parse(new InputSource(sr));
+        }
+        value = XPathFactory.newInstance().newXPath().compile(expression).evaluate(doc);
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.PaginationTotalCount", expression), e);
+    }
+    if (Utils.isEmpty(Const.trim(value))) {
+      return null;
+    }
+    try {
+      return Long.parseLong(Const.trim(value));
+    } catch (NumberFormatException e) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "Rest.Log.PaginationTotalCountNotANumber", expression, value));
+      return null;
+    }
   }
 
   /** Uses RFC 5988 / RFC 8288 Web Link parsing ({@code LinkHeaderPaging}) for {@code rel=next}. */

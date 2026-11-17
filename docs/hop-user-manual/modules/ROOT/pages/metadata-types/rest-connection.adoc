@@ -162,12 +162,41 @@ Pagination is configured on the connection; the REST client reads these settings
 |Pagination strategy|How Hop obtains the next page. See the strategies below. Default is `NONE`.
 |Page / cursor parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` (for example `page`, `cursor`), body field name for `BODY_CURSOR`, or request header name for `HEADER_CURSOR`. Ignored by `OFFSET_LIMIT`, `LINK_HEADER` and `BODY_NEXT_URL`.
 |Offset query parameter name|Query parameter for the starting index in `OFFSET_LIMIT` paging. Defaults to `offset` when blank.
-|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank.
-|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100).
+|First page number|The page number `PAGE_NUMBER` starts at. Leave empty for `1`. Use `0` for an API that counts pages from zero. Supports variables.
+|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank. `PAGE_NUMBER` uses it as the page size parameter, and only when it is filled in.
+|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100). `PAGE_NUMBER` sends it only when both this and the parameter name are filled in.
 |Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token, for every cursor strategy.
 |Cursor XPath|XPath expression against an XML response body to read the next cursor token, for every cursor strategy.
 |Next page URL JsonPath|JsonPath expression that reads the next page URL out of a JSON response body (`BODY_NEXT_URL`).
 |Next page URL XPath|XPath expression that reads the next page URL out of an XML response body (`BODY_NEXT_URL`).
+|Items JsonPath / XPath|Where the items are in a page, for example `$.list`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: a page where this finds nothing ends paging. Leave empty to keep the default rule. See **When paging stops** below.
+|Total count JsonPath / XPath|Where the API reports the total number of items, for example `$.count`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: paging stops once that many items were read, so the last, empty, page is never requested. The items are counted with the items path, or else with the result split path of the REST client transform. Without either, the total count is not used.
+|===
+
+=== When paging stops
+
+`PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR` request pages until one comes back empty. What counts as empty:
+
+. When **Items JsonPath** (or **Items XPath**) is set: a page where it finds no items.
+. Otherwise, when the REST client transform has a result split path: a page where the split path finds nothing.
+. Otherwise: a page with an empty response body.
+
+Many APIs wrap their items in an envelope that is never empty, for example `{"page":3,"pageSize":20,"count":46,"list":[]}`. Without an items path or a split path, Hop keeps requesting pages until the transform's maximum number of page requests is reached. Set the items path to `$.list` for such an API, also when the transform has no split path because it wants one row per page. The items path decides when paging stops; the split path still decides how a page is split into rows.
+
+A non-2xx response always ends the loop, and the transform's maximum number of page requests (256 by default) is a safeguard for every strategy.
+
+Example for an API that counts pages from zero and takes a page size (`GET /workflows?page=0&pageSize=100`):
+
+[options="header"]
+|===
+|Option |Value
+|Pagination strategy|`PAGE_NUMBER`
+|Page / cursor parameter name|`page`
+|First page number|`0`
+|Limit / batch size parameter name|`pageSize`
+|Default batch size|`100`
+|Items JsonPath|`$.list`
+|Total count JsonPath|`$.count`
 |===
 
 === Pagination strategies
@@ -178,7 +207,7 @@ Pagination is configured on the connection; the REST client reads these settings
 |`NONE`|No pagination metadata is applied. Use this for single-request APIs.
 |`LINK_HEADER`|Follows the RFC 5988 `Link` response header: Hop requests the bracketed URI whose `rel` relation includes `next`. GitHub, Shopify, and similar APIs use this style. Hop stops when no `next` link is present or when the same URL would be requested again (cycle guard).
 |`OFFSET_LIMIT`|Adds offset/limit (or custom-named) query parameters. After each successful non-empty page, the offset increases by the batch size. An empty page ends the loop.
-|`PAGE_NUMBER`|Adds a page query parameter starting at `1` and increments it after each successful non-empty page. An empty page ends the loop.
+|`PAGE_NUMBER`|Adds a page query parameter starting at the first page number (`1` by default) and increments it after each successful non-empty page. When the limit parameter name and the default batch size are both filled in, the page size is sent as well. An empty page ends the loop.
 |`CURSOR`|Adds a cursor query parameter on follow-up requests. The token is extracted from the previous response with JsonPath (JSON) or XPath (XML). An empty page or missing next token ends the loop.
 |`BODY_CURSOR`|Merges the cursor and batch size into the request body of a `POST`, `PUT` or `PATCH` (JSON or form url-encoded, following the application type). On a `GET` they are sent as query parameters instead, because HTTP clients do not send a `GET` body. The loop ends when the next cursor is empty — not when a page is empty, since APIs of this shape (Slack, for example) can return sparse pages while still advertising a next cursor.
 |`HEADER_CURSOR`|Sends the cursor as a request header rather than a parameter. The next token is read from the body as with `CURSOR`, and an empty token ends the loop.
