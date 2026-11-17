@@ -79,8 +79,8 @@ with it, see <<Database platform instances>>.
 |Column-level lineage, on the task and on the dataset.
 
 |SQL a transform ran (Table Input, Execute SQL), expressions it calculated fields with (Formula, Calculator)
-|The SQL is the task's *transformation logic*, when the run ran exactly one statement. DataHub only
-takes SQL there, so a Formula's or Calculator's expressions are *properties* of the task instead:
+|The SQL is the task's *transformation logic*, when the run ran exactly one statement; a run that
+ran none, or several, leaves it empty. DataHub only takes SQL there, so a Formula's or Calculator's expressions are *properties* of the task instead:
 `logic.<field>` with the expression, such as `logic.total` = `[price] * [qty]`, or
 `MULTIPLY(total, rate)` for a calculation.
 

@@ -343,10 +343,7 @@ final class DataHubTranslator {
               ioJobUrn,
               CONST_DATA_JOB_INPUT_OUTPUT,
               jobInputOutput(jobInputs, jobOutputs, upstreamJobs(subject, flowUrn), fieldEdges)));
-      Mcp sql = sqlLogic(event, ioJobUrn);
-      if (sql != null) {
-        proposals.add(sql);
-      }
+      proposals.add(sqlLogic(event, ioJobUrn));
     }
     proposals.addAll(runEnded(event, inputs, outputs, time));
     if (type == EventType.COMPLETE) {
@@ -467,19 +464,20 @@ final class DataHubTranslator {
 
   /**
    * The SQL a task ran as DataHub's transformation logic, when its run ran exactly one statement
-   * (the {@code sql} job facet).
+   * (the {@code sql} job facet). None otherwise, also when an earlier run of the task ran one: the
+   * task would show a statement it no longer runs.
    */
   private static Mcp sqlLogic(RunEvent event, String jobUrn) {
     OpenLineage.JobFacets facets = event.getJob().getFacets();
-    if (facets == null
-        || facets.getSql() == null
-        || StringUtils.isBlank(facets.getSql().getQuery())) {
-      return null;
-    }
     ObjectNode logic = MAPPER.createObjectNode();
-    ObjectNode statement = logic.putArray("transforms").addObject().putObject("queryStatement");
-    statement.put(CONST_VALUE, facets.getSql().getQuery());
-    statement.put("language", "SQL");
+    ArrayNode transforms = logic.putArray("transforms");
+    if (facets != null
+        && facets.getSql() != null
+        && !StringUtils.isBlank(facets.getSql().getQuery())) {
+      ObjectNode statement = transforms.addObject().putObject("queryStatement");
+      statement.put(CONST_VALUE, facets.getSql().getQuery());
+      statement.put("language", "SQL");
+    }
     return Mcp.upsert(CONST_DATA_JOB, jobUrn, "dataTransformLogic", logic);
   }
 

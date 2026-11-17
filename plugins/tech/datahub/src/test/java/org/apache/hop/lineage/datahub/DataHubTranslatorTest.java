@@ -648,7 +648,11 @@ class DataHubTranslatorTest {
         one(proposals, calculateJob, "dataJobInfo").value().get("customProperties");
     assertEquals("[price] * [qty]", properties.get("logic.total").asText());
     assertEquals("MULTIPLY(total, rate)", properties.get("logic.tax").asText());
-    assertTrue(find(proposals, calculateJob, "dataTransformLogic").isEmpty());
+    // A statement an earlier run of the task ran is not left showing
+    assertEquals(
+        0,
+        one(proposals, calculateJob, "dataTransformLogic").value().get("transforms").size(),
+        "a task that ran no single statement has none");
 
     JsonNode statement =
         one(proposals, READ, "dataTransformLogic")
