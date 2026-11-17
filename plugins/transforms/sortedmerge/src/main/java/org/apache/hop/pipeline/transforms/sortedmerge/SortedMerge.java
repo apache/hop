@@ -20,11 +20,13 @@ package org.apache.hop.pipeline.transforms.sortedmerge;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -82,6 +84,8 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     // Add it to the sorted buffer in the right position...
     //
     if (extraRow != null) {
+      verifyMergeOrder(smallestRow, extraRow);
+
       // Add this one to the sortedBuffer
       //
       RowSetRow add =
@@ -160,10 +164,12 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
         }
       }
 
+      // Compare with the metadata that carries the merge settings: the metadata of the rows only
+      // says how they are sorted when the transform before this one says so
       data.comparator =
           (o1, o2) -> {
             try {
-              return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
+              return data.rowMeta.compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
             } catch (HopValueException e) {
               throw new HopRuntimeException(
                   BaseMessages.getString(PKG, "SortedMerge.Exception.ErrorComparingRows"), e);
@@ -174,6 +180,87 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
       //
       data.sortedBuffer.sort(data.comparator);
     }
+  }
+
+  /**
+   * Every input must give its rows in the merge order. A row that sorts before the previous row of
+   * the same input would be merged in the wrong place, without an error, so the merge stops there.
+   *
+   * @param previous the previous row of the input, the row just merged
+   * @param row the next row of that input
+   */
+  private void verifyMergeOrder(RowSetRow previous, Object[] row) throws HopTransformException {
+    int order;
+    try {
+      order = data.rowMeta.compare(row, previous.getRowData(), data.fieldIndices);
+    } catch (HopValueException e) {
+      throw new HopTransformException(
+          BaseMessages.getString(PKG, "SortedMerge.Exception.ErrorComparingRows"), e);
+    }
+    if (order >= 0) {
+      return;
+    }
+
+    IRowSet rowSet = previous.getRowSet();
+    StringBuilder mergeOrder = new StringBuilder();
+    StringBuilder hint = new StringBuilder();
+    for (int f = 0; f < data.fieldIndices.length; f++) {
+      SortedMergeMeta.MergeField mergeField = meta.getMergeFields().get(f);
+      if (f > 0) {
+        mergeOrder.append(", ");
+      }
+      mergeOrder
+          .append(mergeField.getFieldName())
+          .append(' ')
+          .append(
+              BaseMessages.getString(
+                  PKG,
+                  mergeField.isAscending()
+                      ? "SortedMerge.Exception.Ascending"
+                      : "SortedMerge.Exception.Descending"));
+
+      // The transform before this one can say the rows are sorted the other way
+      IValueMeta declared =
+          rowSet.getRowMeta() == null
+              ? null
+              : rowSet.getRowMeta().searchValueMeta(mergeField.getFieldName());
+      if (mergeField.isAscending() && declared != null && declared.isSortedDescending()) {
+        hint.append(Const.CR)
+            .append(
+                BaseMessages.getString(
+                    PKG,
+                    "SortedMerge.Exception.InputSortedDescending",
+                    rowSet.getOriginTransformName(),
+                    mergeField.getFieldName()));
+      }
+    }
+    throw new HopTransformException(
+        BaseMessages.getString(
+                PKG,
+                "SortedMerge.Exception.InputNotInMergeOrder",
+                rowSet.getOriginTransformName(),
+                mergeValues(row),
+                mergeValues(previous.getRowData()),
+                mergeOrder.toString())
+            + hint);
+  }
+
+  /** The values of the merge fields of a row, for a message. */
+  private String mergeValues(Object[] row) {
+    StringBuilder values = new StringBuilder();
+    for (int index : data.fieldIndices) {
+      IValueMeta valueMeta = data.rowMeta.getValueMeta(index);
+      if (!values.isEmpty()) {
+        values.append(", ");
+      }
+      values.append(valueMeta.getName()).append('=');
+      try {
+        values.append(valueMeta.getString(row[index]));
+      } catch (HopValueException e) {
+        values.append(row[index]);
+      }
+    }
+    return values.toString();
   }
 
   @Override

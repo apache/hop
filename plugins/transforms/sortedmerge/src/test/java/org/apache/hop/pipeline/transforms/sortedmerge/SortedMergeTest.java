@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -109,6 +110,69 @@ class SortedMergeTest {
     assertTrue(drain(transform.getOutputRowSets().getFirst()).isEmpty());
   }
 
+  /** Rows sorted descending, without a transform before saying so, merge descending. */
+  @Test
+  void processRowMergesDescendingStreams() throws Exception {
+    SortedMerge transform =
+        createTransform(
+            descendingKey(),
+            stringKeyMeta(),
+            new Object[][] {{"echo"}, {"charlie"}, {"alpha"}},
+            new Object[][] {{"foxtrot"}, {"delta"}, {"bravo"}});
+
+    assertEquals(
+        List.of("foxtrot", "echo", "delta", "charlie", "bravo", "alpha"),
+        keys(runToCompletion(transform)));
+  }
+
+  /** Rows a Sort rows marked descending merge descending when the merge says so too. */
+  @Test
+  void processRowMergesStreamsMarkedDescending() throws Exception {
+    IRowMeta rowMeta = stringKeyMeta();
+    rowMeta.getValueMeta(0).setSortedDescending(true);
+    SortedMerge transform =
+        createTransform(
+            descendingKey(),
+            rowMeta,
+            new Object[][] {{"echo"}, {"charlie"}, {"alpha"}},
+            new Object[][] {{"foxtrot"}, {"delta"}, {"bravo"}});
+
+    assertEquals(
+        List.of("foxtrot", "echo", "delta", "charlie", "bravo", "alpha"),
+        keys(runToCompletion(transform)));
+  }
+
+  /** An input that is not in the merge order would be merged wrongly: the merge stops there. */
+  @Test
+  void processRowFailsWhenAnInputIsNotInTheMergeOrder() {
+    SortedMerge transform =
+        createTransform(
+            stringKeyMeta(), new Object[][] {{"bravo"}, {"alpha"}}, new Object[][] {{"charlie"}});
+
+    HopTransformException thrown =
+        assertThrows(HopTransformException.class, () -> runToCompletion(transform));
+    assertTrue(
+        thrown.getMessage().contains("key=alpha comes after key=bravo"), thrown.getMessage());
+    assertFalse(thrown.getMessage().contains("set Ascending to N"), thrown.getMessage());
+  }
+
+  /**
+   * Rows a Sort rows marked descending, merged ascending: the setting decides, and the error says
+   * what to change.
+   */
+  @Test
+  void processRowFailsWithAHintWhenAnInputIsMarkedDescending() {
+    IRowMeta rowMeta = stringKeyMeta();
+    rowMeta.getValueMeta(0).setSortedDescending(true);
+    SortedMerge transform =
+        createTransform(
+            rowMeta, new Object[][] {{"bravo"}, {"alpha"}}, new Object[][] {{"charlie"}});
+
+    HopTransformException thrown =
+        assertThrows(HopTransformException.class, () -> runToCompletion(transform));
+    assertTrue(thrown.getMessage().contains("set Ascending to N for key"), thrown.getMessage());
+  }
+
   @Test
   void processRowFailsWhenSortKeyIsMissing() {
     IRowMeta rowMeta = stringKeyMeta();
@@ -128,6 +192,8 @@ class SortedMergeTest {
     doThrow(new HopValueException("compare failed"))
         .when(rowMeta)
         .compare(any(Object[].class), any(Object[].class), any(int[].class));
+    // The merge compares with its own copy of the input's metadata
+    doReturn(rowMeta).when(rowMeta).clone();
 
     SortedMerge transform =
         createTransform(rowMeta, new Object[][] {{"left"}}, new Object[][] {{"right"}});
@@ -177,6 +243,12 @@ class SortedMergeTest {
     }
     transform.addRowSetToOutputRowSets(new QueueRowSet());
     return transform;
+  }
+
+  private static SortedMergeMeta descendingKey() {
+    SortedMergeMeta meta = new SortedMergeMeta();
+    meta.getMergeFields().add(new SortedMergeMeta.MergeField("key", false));
+    return meta;
   }
 
   private static IRowMeta stringKeyMeta() {
