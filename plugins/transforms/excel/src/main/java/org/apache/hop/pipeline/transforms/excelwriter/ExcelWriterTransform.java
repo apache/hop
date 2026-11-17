@@ -710,13 +710,16 @@ public class ExcelWriterTransform
             }
             break;
           case IValueMeta.TYPE_BOOLEAN:
-            if (v != null) {
-              cell.setCellValue(vMeta.getBoolean(v));
+            // A lazily converted empty value is not null but converts to null: no cell value
+            Boolean bool = v != null ? vMeta.getBoolean(v) : null;
+            if (bool != null) {
+              cell.setCellValue(bool);
             }
             break;
           case IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER:
-            if (v != null) {
-              cell.setCellValue(vMeta.getNumber(v));
+            Double number = v != null ? vMeta.getNumber(v) : null;
+            if (number != null) {
+              cell.setCellValue(number);
             }
             break;
           default:
