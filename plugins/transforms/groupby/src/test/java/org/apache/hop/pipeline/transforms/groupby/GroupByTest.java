@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.groupby;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -267,6 +268,49 @@ class GroupByTest {
     Object[] result = groupBy.getAggregateResult();
     assertEquals(30.0, ((Number) result[0]).doubleValue(), 1e-9);
     assertEquals(2L, ((Number) result[1]).longValue());
+  }
+
+  @Test
+  void percentileNearestRankOfAGroupWithoutValuesIsNull() throws Exception {
+    data.inputRowMeta = inputRowMeta;
+    data.subjectnrs = new int[] {1, 1};
+    data.counts = new long[2];
+    data.mean = new double[2];
+    data.previousSums = new Object[0];
+    data.previousAvgSum = new Object[0];
+    data.previousAvgCount = new long[0];
+    data.movingAvgWindows = new ArrayDeque[2];
+
+    meta.getAggregations().clear();
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "p75",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK),
+                "75"));
+    meta.getAggregations()
+        .add(
+            new Aggregation(
+                "p0",
+                "amount",
+                Aggregation.getTypeDescLongFromCode(Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK),
+                "0"));
+
+    // Only null amounts: no values to rank
+    groupBy.newAggregate(new Object[] {"A", null});
+    groupBy.calcAggregate(new Object[] {"A", null});
+    Object[] result = groupBy.getAggregateResult();
+    assertNull(result[0]);
+    assertNull(result[1]);
+
+    // A 0th percentile is the smallest value, not an index before the first one
+    groupBy.newAggregate(new Object[] {"A", 4.0});
+    groupBy.calcAggregate(new Object[] {"A", 4.0});
+    groupBy.calcAggregate(new Object[] {"A", 2.0});
+    result = groupBy.getAggregateResult();
+    assertEquals(4.0, (Double) result[0], 1e-9);
+    assertEquals(2.0, (Double) result[1], 1e-9);
   }
 
   @Test
