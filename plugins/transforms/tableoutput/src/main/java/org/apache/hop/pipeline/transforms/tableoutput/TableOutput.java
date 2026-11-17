@@ -1456,8 +1456,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       stopAll();
     } finally {
       // Only at the end of the run: batchComplete() flushes after every iteration of a
-      // single-threaded
-      // run, and the transforms after this one still read what follows
+      // single-threaded run, and the transforms after this one still read what follows
       if (dispose) {
         setOutputDone();
       }

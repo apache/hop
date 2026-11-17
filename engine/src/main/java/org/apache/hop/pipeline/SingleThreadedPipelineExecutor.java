@@ -295,23 +295,43 @@ public class SingleThreadedPipelineExecutor {
   }
 
   /**
-   * Give all transforms in the pipeline the chance to process all rows on input...
+   * Whether the transform has read all its input: every input row set is done, has no rows left,
+   * and the transform that writes into it is done. A transform removes a row set it read to the
+   * end, so no row sets left means the same.
    *
-   * @return true if more iterations can be performed. False if this is not the case.
+   * <p>A row set can be marked done between batches: Sort rows calls setOutputDone() in every
+   * batchComplete(). In the batch callers (Kafka consumer, Event Hubs listener) more rows follow in
+   * the next iteration, so only a finished writer means the end of the input.
    */
-  /**
-   * Whether every input row set is done and has no rows left: the transform has read all its input.
-   * A transform removes a row set it read to the end, so no row sets left means the same.
-   */
-  private static boolean isAllInputRead(List<IRowSet> rowSets) {
+  private boolean isAllInputRead(List<IRowSet> rowSets) {
     for (IRowSet rowSet : rowSets) {
-      if (!rowSet.isDone() || rowSet.size() > 0) {
+      if (!rowSet.isDone() || rowSet.size() > 0 || !isOriginDone(rowSet)) {
         return false;
       }
     }
     return true;
   }
 
+  /**
+   * @return true when the transform that writes into the row set is done. A row set without such a
+   *     transform comes from a RowProducer, which marks it done once finished() is called.
+   */
+  private boolean isOriginDone(IRowSet rowSet) {
+    for (int i = 0; i < transforms.size(); i++) {
+      TransformMetaDataCombi combi = transforms.get(i);
+      if (combi.transformName.equals(rowSet.getOriginTransformName())
+          && combi.copy == rowSet.getOriginTransformCopy()) {
+        return done[i];
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Give all transforms in the pipeline the chance to process all rows on input...
+   *
+   * @return true if more iterations can be performed. False if this is not the case.
+   */
   public boolean oneIteration() throws HopException {
 
     this.exceptionsRaisedCounter = 0;
@@ -328,6 +348,10 @@ public class SingleThreadedPipelineExecutor {
           // This means that it is impractical to use this pipeline type to load large files.
           //
           boolean transformDone = false;
+          // A transform that finishes at the end of its input already wrote what it held there:
+          // batchComplete() would write it again (Group by, Memory group by, Unique rows)
+          //
+          boolean finishedAtEndOfInput = false;
           // For every input row we call the processRow() method of the transform.
           //
           List<IRowSet> infoRowSets = transformInfoRowSets.get(s);
@@ -397,13 +421,16 @@ public class SingleThreadedPipelineExecutor {
                 }
               }
             }
+            finishedAtEndOfInput = transformDone;
           }
 
           // Signal the transform that a batch of rows has passed for this iteration (sort rows and
           // all)
           //
           try {
-            combi.transform.batchComplete();
+            if (!finishedAtEndOfInput) {
+              combi.transform.batchComplete();
+            }
           } catch (Exception e) {
             combi.transform.setErrors(1);
             throw e;
