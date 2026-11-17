@@ -598,6 +598,40 @@ class DataHubTranslatorTest {
     events.forEach(e -> assertTrue(off.translate(e).lifecycle().isEmpty()));
   }
 
+  // A run that failed may have failed before its statement ran: what the task showed stays.
+  @Test
+  void aFailedRunLeavesTheStatementATaskShows() {
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    List<Mcp> proposals =
+        all(
+            HopEvents.mapper()
+                .mapBatch(
+                    List.of(
+                        events.pipeline(RunLifecyclePhase.STARTED),
+                        lifecycle(read, RunLifecyclePhase.STARTED),
+                        lifecycle(read, RunLifecyclePhase.FAILED),
+                        events.pipeline(RunLifecyclePhase.FAILED))));
+
+    assertTrue(find(proposals, READ, "dataTransformLogic").isEmpty(), proposals.toString());
+
+    HopEvents completed = new HopEvents("orders");
+    LineageContext reads = completed.transformContext("Read");
+    List<Mcp> ran =
+        all(
+            HopEvents.mapper()
+                .mapBatch(
+                    List.of(
+                        completed.pipeline(RunLifecyclePhase.STARTED),
+                        lifecycle(reads, RunLifecyclePhase.STARTED),
+                        lifecycle(reads, RunLifecyclePhase.FINISHED),
+                        completed.pipeline(RunLifecyclePhase.FINISHED))));
+    assertEquals(
+        0,
+        one(ran, READ, "dataTransformLogic").value().get("transforms").size(),
+        "a run that completed without a statement clears it");
+  }
+
   // The expressions a transform calculates its fields with are properties of its task. The one
   // statement a task ran is its transformation logic, which DataHub only has for SQL.
   @Test

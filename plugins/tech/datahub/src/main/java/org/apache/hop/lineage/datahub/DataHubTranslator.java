@@ -36,7 +36,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
@@ -153,9 +152,6 @@ final class DataHubTranslator {
 
   /** The platform instance of the tables of each database server, by namespace. */
   private final Map<String, String> databaseInstances;
-
-  /** The projects whose document was sent: once is enough, the documents under it follow. */
-  private final Set<String> documentedProjects = ConcurrentHashMap.newKeySet();
 
   /** The most runs whose properties are remembered between their start and their end. */
   static final int MAX_OPEN_RUNS = 1_024;
@@ -343,7 +339,10 @@ final class DataHubTranslator {
               ioJobUrn,
               CONST_DATA_JOB_INPUT_OUTPUT,
               jobInputOutput(jobInputs, jobOutputs, upstreamJobs(subject, flowUrn), fieldEdges)));
-      proposals.add(sqlLogic(event, ioJobUrn));
+      Mcp sql = sqlLogic(event, ioJobUrn);
+      if (sql != null) {
+        proposals.add(sql);
+      }
     }
     proposals.addAll(runEnded(event, inputs, outputs, time));
     if (type == EventType.COMPLETE) {
@@ -464,16 +463,24 @@ final class DataHubTranslator {
 
   /**
    * The SQL a task ran as DataHub's transformation logic, when its run ran exactly one statement
-   * (the {@code sql} job facet). None otherwise, also when an earlier run of the task ran one: the
-   * task would show a statement it no longer runs.
+   * (the {@code sql} job facet). A run that completed without one clears it, so the task doesn't
+   * show a statement it no longer runs; a failed run leaves it, since it may have failed before its
+   * statement ran.
+   *
+   * @return the aspect, or null to leave the task's logic as it is
    */
   private static Mcp sqlLogic(RunEvent event, String jobUrn) {
     OpenLineage.JobFacets facets = event.getJob().getFacets();
+    boolean ranOne =
+        facets != null
+            && facets.getSql() != null
+            && !StringUtils.isBlank(facets.getSql().getQuery());
+    if (!ranOne && event.getEventType() != EventType.COMPLETE) {
+      return null;
+    }
     ObjectNode logic = MAPPER.createObjectNode();
     ArrayNode transforms = logic.putArray("transforms");
-    if (facets != null
-        && facets.getSql() != null
-        && !StringUtils.isBlank(facets.getSql().getQuery())) {
+    if (ranOne) {
       ObjectNode statement = transforms.addObject().putObject("queryStatement");
       statement.put(CONST_VALUE, facets.getSql().getQuery());
       statement.put("language", "SQL");
@@ -1320,9 +1327,8 @@ final class DataHubTranslator {
                   Objects.toString(platformInstance, ""),
                   Objects.toString(cluster, ""),
                   project));
-    }
-    // Sent with the first document of the project only
-    if (project != null && documentedProjects.add(parentUrn)) {
+      // Sent with each document of the project: it is small, and a document whose delivery is
+      // tried again must not lose the parent it points to
       ObjectNode properties = MAPPER.createObjectNode();
       properties.put("hopProject", project);
       proposals.addAll(

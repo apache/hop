@@ -262,6 +262,28 @@ class LineageHubRoutingTest {
   }
 
   @Test
+  void anInterruptedRunStillLetsGoOfItsSinkAfterItsEvents() throws Exception {
+    LineageHub hub = hub(LINEAGE_OFF, List.of());
+    String old = hub.useSink(target("marquez", "http://old:5000"));
+    hub.emit(event("start", old));
+    hub.flush();
+    hub.useSink(target("marquez", "http://new:5000"));
+    for (int i = 0; i < 200; i++) {
+      hub.emit(event("event " + i, old));
+    }
+
+    Thread.currentThread().interrupt();
+    hub.release(Set.of(old));
+    assertTrue(Thread.interrupted(), "the interrupt is kept for the caller");
+    hub.flush();
+    FakeLineageSink sink = started.get("http://old:5000");
+    waitUntil(sink::isShutdown);
+    hub.shutdown();
+
+    assertEquals(201, pipelines(sink).size(), "every event before the release reached it");
+  }
+
+  @Test
   void theLatestVersionOfASinkStaysWhenItsRunsEnd() {
     LineageHub hub = hub(LINEAGE_OFF, List.of());
 

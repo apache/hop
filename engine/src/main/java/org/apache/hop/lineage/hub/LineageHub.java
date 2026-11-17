@@ -235,17 +235,27 @@ public final class LineageHub {
       return;
     }
     ReleaseRequest request = new ReleaseRequest(Set.copyOf(keys));
+    boolean interrupted = false;
     shutdownLock.readLock().lock();
     try {
       BlockingQueue<Object> q = queue;
       if (running.get() && q != null) {
-        q.put(request);
-        return;
+        // After the run's last events, also on an interrupted thread: let go before they are
+        // delivered, and a replaced version would be shut down with them still waiting
+        while (true) {
+          try {
+            q.put(request);
+            return;
+          } catch (InterruptedException e) {
+            interrupted = true;
+          }
+        }
       }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
     } finally {
       shutdownLock.readLock().unlock();
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
     }
     applyRelease(request);
   }

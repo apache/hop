@@ -121,22 +121,22 @@ class ValidatePipelineUnitTestLineageTest {
   }
 
   @Test
-  void aGoldenDataSetThatWasNotComparedIsAnError() {
+  void aValidationThatStoppedMakesEveryGoldenDataSetAnError() {
+    String why = "Unable to validate the unit test: data set golden-load can't be read";
     List<Reported> reported =
         report(
             pipeline("Write", "Load"),
             unitTest("Write", "golden-write", "Load", "golden-load", "Gone", "golden-gone"),
-            List.of(result("Write", "golden-write", false, "3 rows compared")),
-            "Unable to validate the unit test: data set golden-load can't be read");
+            List.of(
+                result("Write", "golden-write", false, "3 rows compared"),
+                // Added before the golden data set is read, which then failed
+                result("Load", "golden-load", false, "WARNING: no test results found")),
+            why);
 
     assertEquals(
         List.of(
-            new Reported("Write", "golden-write", Result.PASSED, "3 rows compared"),
-            new Reported(
-                "Load",
-                "golden-load",
-                Result.ERROR,
-                "Unable to validate the unit test: data set golden-load can't be read")),
+            new Reported("Write", "golden-write", Result.ERROR, why),
+            new Reported("Load", "golden-load", Result.ERROR, why)),
         reported,
         "a golden data set of a transform the pipeline no longer has is left out, as the test"
             + " leaves it out");

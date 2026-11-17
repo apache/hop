@@ -132,9 +132,9 @@ class AiPromptLayoutTest {
 
   @Test
   void whatIsAddedAfterTheCheckGetsOnlyTheRoomLeft() {
-    // 4096 tokens, 1000 for the answer, 1000 for the question: 2096 tokens left
+    // 4096 tokens, 1000 for the answer, 1000 for the question, 409 kept free: 1687 tokens left
     assertEquals(
-        2096 * AiAdvisorEngine.CHARS_PER_TOKEN,
+        1687 * AiAdvisorEngine.JSON_CHARS_PER_TOKEN,
         AiAdvisorEngine.roomLeft(4096, 1000, "", "x".repeat(4000), List.of()));
     assertEquals(0, AiAdvisorEngine.roomLeft(4096, 1000, "", "x".repeat(40_000), List.of()));
   }

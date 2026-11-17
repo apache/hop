@@ -185,6 +185,8 @@ class AiAdvisorCatalogContextTest {
     StringBuilder built = new StringBuilder();
 
     AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    // The copy the question is prepared with
+    request.setArtifact(pipeline());
 
     assertEquals(0, CALLS.get(), "building the prompt doesn't wait for the catalog");
     assertEquals(0, DECLARED.get(), "nor for the files the transforms declare");
@@ -214,6 +216,8 @@ class AiAdvisorCatalogContextTest {
     AiAdvisorRequest request = request(false);
     StringBuilder built = new StringBuilder();
     AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    // The copy the question is prepared with
+    request.setArtifact(pipeline());
     AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
     CALLS.set(0);
 
@@ -230,6 +234,8 @@ class AiAdvisorCatalogContextTest {
     AiAdvisorRequest request = request(true);
     StringBuilder built = new StringBuilder();
     AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    // The copy the question is prepared with
+    request.setArtifact(pipeline());
     AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
     CALLS.set(0);
 
@@ -244,6 +250,8 @@ class AiAdvisorCatalogContextTest {
     AiAdvisorRequest request = request(true);
     StringBuilder built = new StringBuilder();
     AiAdvisorCatalogContext.appendToPrompt(built, request, pipeline());
+    // The copy the question is prepared with
+    request.setArtifact(pipeline());
     AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
     int before = prompt.getUserPrompt().length();
 
@@ -252,6 +260,25 @@ class AiAdvisorCatalogContextTest {
     assertTrue(
         prompt.getUserPrompt().length() < before + 500,
         prompt.getUserPrompt().length() + " characters");
+  }
+
+  @Test
+  void withoutACopyOfThePipelineNothingIsRead() throws Exception {
+    AiAdvisorRequest request = request(true);
+    PipelineMeta live = pipeline();
+    StringBuilder built = new StringBuilder();
+    AiAdvisorCatalogContext.appendToPrompt(built, request, live);
+    // The copy could not be made, so the request holds the pipeline the user edits
+    request.setArtifact(live);
+    AiAdvisorPrompt prompt = new AiAdvisorPrompt("system", built.toString());
+    DECLARED.set(0);
+    CALLS.set(0);
+
+    AiAdvisorCatalogContext.fill(request, prompt);
+
+    assertEquals(0, DECLARED.get());
+    assertEquals(0, CALLS.get());
+    assertTrue(prompt.getUserPrompt().contains("no copy of the pipeline"), prompt.getUserPrompt());
   }
 
   @Test

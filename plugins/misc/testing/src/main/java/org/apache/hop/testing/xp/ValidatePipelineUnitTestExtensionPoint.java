@@ -161,11 +161,11 @@ public class ValidatePipelineUnitTestExtensionPoint
   /**
    * One result per golden data set of the unit test, for the lineage sinks of the run: passed when
    * none of its rows is an error, failed with the comments of the errors otherwise. A golden data
-   * set without results was not compared at all, say because the golden data set could not be read:
-   * an error.
+   * set without results was not compared at all: an error.
    *
-   * @param why why the rows were not compared, for the golden data sets without results; null to
-   *     take it from the results
+   * @param why why the validation stopped, such as a golden data set that could not be read: then
+   *     every golden data set is an error, since a result may be from before its comparison
+   *     finished. Null when the validation finished.
    */
   static void reportToLineage(
       IPipelineEngine<PipelineMeta> pipeline,
@@ -210,7 +210,7 @@ public class ValidatePipelineUnitTestExtensionPoint
         }
       }
       UnitTestLineagePayload.Result outcome;
-      if (location.getValue().isEmpty()) {
+      if (location.getValue().isEmpty() || why != null) {
         outcome = UnitTestLineagePayload.Result.ERROR;
         comment = Const.NVL(notCompared, "The rows were not compared");
       } else if (errors.isEmpty()) {

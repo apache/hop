@@ -146,13 +146,15 @@ class DataHubDocumentationTest {
   }
 
   @Test
-  void theProjectsDocumentIsSentWithTheFirstDocumentOfAPublication() {
+  void eachDocumentCarriesItsProjectsDocument() {
+    // A delivery tried again translates again: a document must not lose the parent it points to
     DataHubTranslator translator = publication();
     List<Mcp> first = translate(translator, "sales", "first");
-    List<Mcp> second = translate(translator, "sales", "second");
+    List<Mcp> again = translate(translator, "sales", "first");
 
     assertEquals(6, first.size(), "the project's document and the pipeline's: " + first);
-    assertEquals(3, second.size(), "the pipeline's: " + second);
+    assertEquals(
+        first.stream().map(Mcp::entityUrn).toList(), again.stream().map(Mcp::entityUrn).toList());
   }
 
   @Test

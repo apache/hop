@@ -45,6 +45,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeAll;
@@ -91,17 +92,25 @@ class LineageDefinitionsTest {
     TransformMeta write = transform("Write");
     TransformMeta file = transform("Read file");
     TransformMeta writeFile = transform("Write file");
-    for (TransformMeta transform : List.of(database, calculate, write, file, writeFile)) {
+    TransformMeta mapping =
+        new TransformMeta("Mapping", "Mapping", mock(TransformWithMappingMeta.class));
+    TransformMeta writeMapped = transform("Write mapped");
+    for (TransformMeta transform :
+        List.of(database, calculate, write, file, writeFile, mapping, writeMapped)) {
       meta.addTransform(transform);
     }
     meta.addPipelineHop(new PipelineHopMeta(database, calculate));
     meta.addPipelineHop(new PipelineHopMeta(calculate, write));
     meta.addPipelineHop(new PipelineHopMeta(file, writeFile));
+    meta.addPipelineHop(new PipelineHopMeta(mapping, writeMapped));
 
     assertTrue(
         LineageDefinitions.usesADatabaseUpstream(meta, write, new HashSet<>()),
         "two transforms down from a Table input");
     assertFalse(LineageDefinitions.usesADatabaseUpstream(meta, writeFile, new HashSet<>()));
+    assertTrue(
+        LineageDefinitions.usesADatabaseUpstream(meta, writeMapped, new HashSet<>()),
+        "a mapping asks the transforms of its pipeline");
   }
 
   /** read -> write, listed write first: the reader is described first, as a run finishes it. */

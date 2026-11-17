@@ -162,7 +162,7 @@ public final class DataHubPublisher {
           log.logError("Unable to publish " + filename + ", it is skipped: " + e.getMessage());
         }
       }
-      sink.awaitDelivery(DELIVERY_TIMEOUT_MS);
+      deliver(sink, DELIVERY_TIMEOUT_MS);
       documentationNotPublished = publishDocuments(sink, documents);
       health = sink.health();
     } catch (InterruptedException e) {
@@ -187,22 +187,53 @@ public final class DataHubPublisher {
       return null;
     }
     LineageSinkHealth before = sink.health();
+    if (before.waiting() > 0) {
+      return notPublished(
+          "The documentation is not published: DataHub did not receive all pipelines and workflows"
+              + " in time");
+    }
     sink.accept(documents.subList(0, 1));
-    sink.awaitDelivery(FIRST_DOCUMENT_TIMEOUT_MS);
+    deliver(sink, FIRST_DOCUMENT_TIMEOUT_MS);
     LineageSinkHealth after = sink.health();
-    if (after.waiting() > 0
-        || after.rejected() > before.rejected()
-        || after.dropped() > before.dropped()) {
-      String why =
-          "DataHub did not take the documentation, which needs DataHub 1.7 or later; it is not"
+    String error = after.lastError() == null ? "" : ": " + after.lastError();
+    if (after.rejected() > before.rejected() || after.dropped() > before.dropped()) {
+      return notPublished(
+          "DataHub refused the documentation, which needs DataHub 1.7 or later; it is not"
               + " published"
-              + (after.lastError() == null ? "" : ": " + after.lastError());
-      log.logError(why);
-      return why;
+              + error);
+    }
+    if (after.waiting() > 0) {
+      return notPublished(
+          "The documentation is not published: DataHub did not take the first document in time"
+              + error);
     }
     sink.accept(documents.subList(1, documents.size()));
-    sink.awaitDelivery(DELIVERY_TIMEOUT_MS);
+    deliver(sink, DELIVERY_TIMEOUT_MS);
     return null;
+  }
+
+  private String notPublished(String why) {
+    log.logError(why);
+    return why;
+  }
+
+  /**
+   * Waits until DataHub took everything sent, or the time is up. The sink stops waiting while it
+   * pauses before trying again after a failure; this waits through those pauses.
+   */
+  private static void deliver(DataHubLineageSink sink, long timeoutMs) throws InterruptedException {
+    long deadline = System.currentTimeMillis() + timeoutMs;
+    while (true) {
+      long left = deadline - System.currentTimeMillis();
+      if (left <= 0) {
+        return;
+      }
+      sink.awaitDelivery(left);
+      if (sink.health().waiting() == 0 || System.currentTimeMillis() >= deadline) {
+        return;
+      }
+      Thread.sleep(Math.min(200L, Math.max(1L, deadline - System.currentTimeMillis())));
+    }
   }
 
   /**

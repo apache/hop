@@ -236,7 +236,7 @@ DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset s
 == Unit test results
 
 A xref:pipeline/pipeline-unit-testing.adoc[pipeline unit test] that runs with lineage, for example from the *Run pipeline unit tests* action in a workflow whose run configuration selects a DataHub lineage sink, reports each golden data set as an assertion run in DataHub: passed or failed, with what the comparison found, or an error when the rows could not be compared, for example because the golden data set could not be read.
-The test's run itself, of a changed copy of the pipeline, is not reported.
+The test's run itself, of a changed copy of the pipeline, is not reported to a lineage sink selected in a run configuration; a sink configured with `HOP_LINEAGE_*` variables gets it, as it gets every run.
 
 The assertion is on the tables and files the tested transform writes, as its metadata declares them: a test usually replaces that transform, so it is about what the transform would write. DataHub shows it on the dataset's *Quality* tab, and the xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action can check it before a workflow reads the dataset.
 

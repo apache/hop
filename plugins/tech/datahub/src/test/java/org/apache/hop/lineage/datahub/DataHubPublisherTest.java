@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import io.openlineage.client.OpenLineage.RunEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -230,19 +231,16 @@ class DataHubPublisherTest {
     assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));
     Map<String, JsonNode> documents = new TreeMap<>();
     List<String> aspects = new ArrayList<>();
-    int projectDocuments = 0;
     for (JsonNode proposal : proposalsSent()) {
       aspects.add(proposal.get("aspectName").asText());
       if (proposal.get("aspectName").asText().equals("documentInfo")) {
         JsonNode info = MAPPER.readTree(proposal.path("aspect").path("value").asText());
         documents.put(info.path("title").asText(), info);
-        projectDocuments += info.path("title").asText().startsWith("Hop project") ? 1 : 0;
       }
     }
     assertEquals(
         List.of("Hop project sales", "Pipeline orders", "Workflow nightly"),
         List.copyOf(documents.keySet()));
-    assertEquals(1, projectDocuments, "the project's document is sent once");
     assertTrue(
         aspects.indexOf("documentInfo") > aspects.lastIndexOf("dataFlowInfo"),
         "the documents follow the pipelines and workflows: " + aspects);
@@ -295,6 +293,37 @@ class DataHubPublisherTest {
       }
     }
     throw new AssertionError("no document of the pipeline");
+  }
+
+  @Test
+  void aPublicationWaitsForDataHubToComeBack() throws Exception {
+    // Four refusals in a row: more than the sink retries at once, so it pauses before it tries
+    // again
+    String state = Scenario.STARTED;
+    for (int i = 1; i <= 4; i++) {
+      String next = i == 4 ? "available" : "down " + i;
+      gms.stubFor(
+          post(urlEqualTo(INGEST))
+              .atPriority(1)
+              .inScenario("unavailable")
+              .whenScenarioStateIs(state)
+              .willReturn(aResponse().withStatus(503))
+              .willSetStateTo(next));
+      state = next;
+    }
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    write("orders.hpl", pipeline.getXml(variables));
+
+    DataHubPublisher publisher =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"));
+    publisher.setIncludingDocumentation(true);
+    DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
+
+    assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));
+    assertTrue(
+        proposalsSent().stream().anyMatch(p -> p.get("entityType").asText().equals("document")),
+        "the documents follow once the pipeline is delivered");
   }
 
   @Test

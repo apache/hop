@@ -51,6 +51,7 @@ import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.util.HopMetadataPropertyWalker;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -264,7 +265,8 @@ public final class LineageDefinitions {
 
   /**
    * The fields that reach a transform, or none when they can't be worked out without a database: a
-   * transform upstream with a relational connection, such as a Table input, may ask it for them.
+   * transform upstream with a relational connection, such as a Table input, may ask it for them,
+   * and one that runs another pipeline (a mapping, an executor) asks that pipeline's transforms.
    * The datasets are published without those columns then.
    */
   private static IRowMeta inputFields(
@@ -279,12 +281,18 @@ public final class LineageDefinitions {
     }
   }
 
-  /** Whether a transform upstream, info streams included, has a relational connection set. */
+  /**
+   * Whether a transform upstream, info streams included, has a relational connection set, or runs
+   * another pipeline, whose transforms may have one.
+   */
   static boolean usesADatabaseUpstream(
       PipelineMeta meta, TransformMeta transformMeta, Set<String> seen) {
     for (TransformMeta previous : meta.findPreviousTransforms(transformMeta, true)) {
       if (!seen.add(previous.getName())) {
         continue;
+      }
+      if (previous.getTransform() instanceof TransformWithMappingMeta<?, ?>) {
+        return true;
       }
       if (previous.getTransform() != null
           && HopMetadataPropertyWalker.collectStrings(

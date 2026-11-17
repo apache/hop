@@ -70,7 +70,8 @@ public final class AiAdvisorCatalogContext {
   /**
    * What {@link #fill} looks up, and the marker it replaces.
    *
-   * @param pipeline the pipeline, for when the request has no copy of it
+   * @param pipeline the pipeline the prompt was built from: the datasets are read from the
+   *     request's copy of it, never from this one, which the user may be editing
    */
   record Pending(String marker, String catalogName, PipelineMeta pipeline) {}
 
@@ -156,12 +157,18 @@ public final class AiAdvisorCatalogContext {
     }
     IVariables variables = request.getVariables();
     String json;
+    // The copy the question was prepared with, not the pipeline the user may be editing
+    PipelineMeta pipeline =
+        request.getArtifact() instanceof PipelineMeta copy && copy != pending.pipeline()
+            ? copy
+            : null;
     if (room < MIN_CHARS) {
-      json = leftOut(pending.catalogName());
+      json =
+          leftOut(
+              pending.catalogName(), "the question has no room left for it in the model's context");
+    } else if (pipeline == null) {
+      json = leftOut(pending.catalogName(), "there is no copy of the pipeline to read it from");
     } else {
-      // The copy the question was prepared with, not the pipeline the user may be editing
-      PipelineMeta pipeline =
-          request.getArtifact() instanceof PipelineMeta copy ? copy : pending.pipeline();
       List<TouchedDataset> datasets =
           PipelineDatasets.of(pipeline, variables != null ? variables : new Variables());
       // JSON escapes a slash; unescaped, paths can be shortened and tags in a description broken
@@ -179,10 +186,10 @@ public final class AiAdvisorCatalogContext {
   }
 
   @SuppressWarnings("unchecked")
-  private static String leftOut(String catalogName) {
+  private static String leftOut(String catalogName, String why) {
     JSONObject root = new JSONObject();
     root.put("catalog", catalogName);
-    root.put("notIncluded", "the question has no room left for it in the model's context");
+    root.put("notIncluded", why);
     return root.toJSONString();
   }
 

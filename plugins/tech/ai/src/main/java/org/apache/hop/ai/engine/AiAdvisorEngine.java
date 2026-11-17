@@ -629,6 +629,9 @@ public final class AiAdvisorEngine {
   /** Roughly four characters per token for English text and code; JSON packs a little tighter. */
   static final int CHARS_PER_TOKEN = 4;
 
+  /** Characters per token of JSON such as a data catalog's answers. */
+  static final int JSON_CHARS_PER_TOKEN = 3;
+
   /** Kept free for the answer when the provider sets no output limit. */
   static final int DEFAULT_ANSWER_RESERVE = 2_048;
 
@@ -679,8 +682,10 @@ public final class AiAdvisorEngine {
   }
 
   /**
-   * How many characters can still be added to a question that {@link #checkPromptFits} let through,
-   * so it still fits.
+   * How many characters of JSON can still be added to a question that {@link #checkPromptFits} let
+   * through, so it still fits. The estimate is rough, so a tenth of the window stays free, and JSON
+   * full of names and URNs is counted at {@link #JSON_CHARS_PER_TOKEN}: it takes more tokens than
+   * prose.
    */
   static int roomLeft(
       int contextSize,
@@ -691,8 +696,9 @@ public final class AiAdvisorEngine {
     int tokens =
         contextSize
             - answerReserve(contextSize, maxOutputTokens)
-            - promptTokens(systemPrompt, userPrompt, history);
-    return Math.max(0, tokens) * CHARS_PER_TOKEN;
+            - promptTokens(systemPrompt, userPrompt, history)
+            - contextSize / 10;
+    return Math.max(0, tokens) * JSON_CHARS_PER_TOKEN;
   }
 
   /** The tokens kept free for the answer: the provider's output limit, or a share of the window. */
