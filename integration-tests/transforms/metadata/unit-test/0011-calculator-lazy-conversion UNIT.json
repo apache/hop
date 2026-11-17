@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "lower",
+          "data_set_field": "lower"
+        },
+        {
+          "transform_field": "sum",
+          "data_set_field": "sum"
+        }
+      ],
+      "field_order": [
+        "lower",
+        "sum"
+      ],
+      "transform_name": "verify",
+      "data_set_name": "golden-calculator-lazy-conversion"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0011-calculator-lazy-conversion UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0011-calculator-lazy-conversion.hpl",
+  "test_type": "UNIT_TEST"
+}
