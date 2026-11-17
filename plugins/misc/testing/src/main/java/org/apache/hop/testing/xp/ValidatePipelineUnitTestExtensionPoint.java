@@ -30,10 +30,12 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageUnitTestEmitter;
+import org.apache.hop.lineage.model.UnitTestLineagePayload;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
+import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.dialog.ShowRowsDialog;
@@ -66,6 +68,9 @@ public class ValidatePipelineUnitTestExtensionPoint
       return;
     }
 
+    PipelineUnitTest unitTest = null;
+    final List<UnitTestResult> results = new ArrayList<>();
+    boolean reported = false;
     try {
       IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();
 
@@ -76,10 +81,8 @@ public class ValidatePipelineUnitTestExtensionPoint
       // If the pipeline has a variable set with the unit test in it, we're dealing with a unit test
       // situation.
       //
-      PipelineUnitTest unitTest =
-          metadataProvider.getSerializer(PipelineUnitTest.class).load(unitTestName);
+      unitTest = metadataProvider.getSerializer(PipelineUnitTest.class).load(unitTestName);
 
-      final List<UnitTestResult> results = new ArrayList<>();
       pipeline.getExtensionDataMap().put(DataSetConst.UNIT_TEST_RESULTS, results);
 
       // Validate execution results with what's in the data sets...
@@ -87,7 +90,8 @@ public class ValidatePipelineUnitTestExtensionPoint
       int errors =
           DataSetConst.validateTransformResultAgainstUnitTest(
               pipeline, unitTest, metadataProvider, variables, results);
-      reportToLineage(pipeline, unitTest.getName(), results);
+      reported = true;
+      reportToLineage(pipeline, unitTest, results, null);
       if (errors == 0) {
         log.logBasic("Unit test '" + unitTest.getName() + "' passed successfully");
       } else {
@@ -126,6 +130,14 @@ public class ValidatePipelineUnitTestExtensionPoint
       log.logBasic("----------------------------------------------");
     } catch (Throwable e) {
       log.logError("Unable to validate unit test/golden rows", e);
+      if (unitTest != null && !reported) {
+        // Otherwise the previous result of the test would still show
+        reportToLineage(
+            pipeline,
+            unitTest,
+            results,
+            "Unable to validate the unit test: " + Const.NVL(e.getMessage(), e.toString()));
+      }
     }
   }
 
@@ -147,13 +159,33 @@ public class ValidatePipelineUnitTestExtensionPoint
   }
 
   /**
-   * One result per golden data set, for the lineage sinks of the run: passed when none of its rows
-   * is an error, with the comments of the errors otherwise.
+   * One result per golden data set of the unit test, for the lineage sinks of the run: passed when
+   * none of its rows is an error, failed with the comments of the errors otherwise. A golden data
+   * set without results was not compared at all, say because the golden data set could not be read:
+   * an error.
+   *
+   * @param why why the rows were not compared, for the golden data sets without results; null to
+   *     take it from the results
    */
   static void reportToLineage(
-      IPipelineEngine<PipelineMeta> pipeline, String unitTestName, List<UnitTestResult> results) {
+      IPipelineEngine<PipelineMeta> pipeline,
+      PipelineUnitTest unitTest,
+      List<UnitTestResult> results,
+      String why) {
     Map<List<String>, List<UnitTestResult>> byLocation = new LinkedHashMap<>();
+    for (PipelineUnitTestSetLocation golden : unitTest.getGoldenDataSets()) {
+      if (!StringUtil.isEmpty(golden.getTransformName())
+          && !StringUtil.isEmpty(golden.getDataSetName())
+          && pipeline.getPipelineMeta().findTransform(golden.getTransformName()) != null) {
+        byLocation.put(
+            List.of(golden.getTransformName(), golden.getDataSetName()), new ArrayList<>());
+      }
+    }
+    String notCompared = why;
     for (UnitTestResult result : results) {
+      if (notCompared == null && StringUtil.isEmpty(result.getTransformName())) {
+        notCompared = result.getComment();
+      }
       if (!StringUtil.isEmpty(result.getTransformName())
           && !StringUtil.isEmpty(result.getDataSetName())) {
         byLocation
@@ -177,14 +209,24 @@ public class ValidatePipelineUnitTestExtensionPoint
           comment = result.getComment();
         }
       }
+      UnitTestLineagePayload.Result outcome;
+      if (location.getValue().isEmpty()) {
+        outcome = UnitTestLineagePayload.Result.ERROR;
+        comment = Const.NVL(notCompared, "The rows were not compared");
+      } else if (errors.isEmpty()) {
+        outcome = UnitTestLineagePayload.Result.PASSED;
+      } else {
+        outcome = UnitTestLineagePayload.Result.FAILED;
+        comment = String.join("; ", errors);
+      }
       LineageUnitTestEmitter.emit(
           pipeline,
           original,
-          unitTestName,
+          unitTest.getName(),
           location.getKey().get(0),
           location.getKey().get(1),
-          errors.isEmpty(),
-          errors.isEmpty() ? comment : String.join("; ", errors));
+          outcome,
+          comment);
     }
   }
 }

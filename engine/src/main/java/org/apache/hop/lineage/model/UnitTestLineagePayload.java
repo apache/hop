@@ -34,8 +34,18 @@ public final class UnitTestLineagePayload implements LineagePayload {
   /** The golden data set the rows were compared with. */
   private final String dataSetName;
 
-  /** Whether the rows were the expected ones. */
-  private final boolean passed;
+  /** How a golden data set of a unit test came out. */
+  public enum Result {
+    /** The rows were the expected ones. */
+    PASSED,
+    /** The rows were not the expected ones. */
+    FAILED,
+    /** The rows could not be compared, such as when the golden data set could not be read. */
+    ERROR
+  }
+
+  /** How the comparison came out. */
+  private final Result result;
 
   /** What the comparison found, or null. */
   private final String comment;
@@ -50,13 +60,18 @@ public final class UnitTestLineagePayload implements LineagePayload {
   public UnitTestLineagePayload(
       String unitTestName,
       String dataSetName,
-      boolean passed,
+      Result result,
       String comment,
       List<LineagePayload> testedDatasets) {
     this.unitTestName = Objects.requireNonNull(unitTestName, "unitTestName");
     this.dataSetName = dataSetName;
-    this.passed = passed;
+    this.result = Objects.requireNonNull(result, "result");
     this.comment = comment;
     this.testedDatasets = testedDatasets == null ? List.of() : List.copyOf(testedDatasets);
+  }
+
+  /** Whether the rows were the expected ones. */
+  public boolean isPassed() {
+    return result == Result.PASSED;
   }
 }

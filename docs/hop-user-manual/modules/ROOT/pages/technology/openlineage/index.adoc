@@ -311,7 +311,9 @@ collector deployments, not two namespaces.
 
 == Unit test results
 
-A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event of the tested transform's run, with a `hopUnitTest` run facet: the test, the data set, whether it passed, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them.
+A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event with a `hopUnitTest` run facet: the test, the data set, whether it passed, `error` when the rows could not be compared at all, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them. The event belongs to the tested transform's run with `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y`, to the pipeline's run otherwise.
+
+A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy.
 
 == Dataset identity
 

@@ -53,9 +53,35 @@ public final class LineageSinkRoutes {
 
   private LineageSinkRoutes() {}
 
-  /** The keys of the sinks a pipeline run reports to; empty when there are none. */
+  /**
+   * Set to {@code Y} on a pipeline run that runs a unit test, and on the runs it starts (the
+   * testing plugin's {@code __UnitTest_Run__}).
+   */
+  public static final String VAR_RUN_UNIT_TEST = "__UnitTest_Run__";
+
+  /**
+   * The keys of the sinks a pipeline run reports to; empty when there are none, or when the run
+   * runs a unit test. Such a run runs a copy of the pipeline, with data sets in place of transforms
+   * and no file name: its lineage is not the pipeline's. Its sinks get only the test's results, see
+   * {@link #ofUnitTest}.
+   */
   public static Set<String> of(IPipelineEngine<PipelineMeta> pipeline) {
+    return ofRun(pipeline, LineageHub.getInstance());
+  }
+
+  static Set<String> ofRun(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {
+    // Held now, so they are released when the run ends, like the sinks of any run
+    Set<String> sinks = of(pipeline, hub);
+    return isUnitTestRun(pipeline) ? Set.of() : sinks;
+  }
+
+  /** The keys of the sinks the results of the unit test a pipeline run runs report to. */
+  public static Set<String> ofUnitTest(IPipelineEngine<PipelineMeta> pipeline) {
     return of(pipeline, LineageHub.getInstance());
+  }
+
+  static boolean isUnitTestRun(IPipelineEngine<PipelineMeta> pipeline) {
+    return pipeline != null && "Y".equalsIgnoreCase(pipeline.getVariable(VAR_RUN_UNIT_TEST));
   }
 
   /** The keys of the sinks a workflow run reports to; empty when there are none. */

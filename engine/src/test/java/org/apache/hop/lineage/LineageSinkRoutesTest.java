@@ -183,6 +183,21 @@ class LineageSinkRoutesTest {
   }
 
   @Test
+  void aUnitTestRunReportsOnlyItsResultsToItsSinks() {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline("marquez", null);
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "Y");
+
+    assertEquals(Set.of(), LineageSinkRoutes.ofRun(pipeline, hub), "not its run lineage");
+    assertEquals(
+        Set.of(key("marquez", "http://marquez:5000")),
+        LineageSinkRoutes.of(pipeline, hub),
+        "its results, and held to be released when it ends");
+
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "N");
+    assertEquals(LineageSinkRoutes.of(pipeline, hub), LineageSinkRoutes.ofRun(pipeline, hub));
+  }
+
+  @Test
   void aRunKeepsTheSinksItStartedWith() {
     IPipelineEngine<PipelineMeta> pipeline = pipeline("marquez", null);
     Set<String> first = LineageSinkRoutes.of(pipeline, hub);

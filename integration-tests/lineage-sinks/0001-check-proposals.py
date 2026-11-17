@@ -33,6 +33,7 @@ PUBLISHED_FILES = ("publish/customers.csv", "/data/published/published-customers
 # The unit test of 0006, run by Run pipeline unit tests in 0003: a passed assertion on its file,
 # and nothing else about the run, which runs a changed copy of the pipeline
 UNIT_TESTED_FILE = "unit-tested.csv"
+UNIT_TESTED_PIPELINE = "0006-lineage-sink-unit-tested"
 # The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
 LOGIC = (
     (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
@@ -132,6 +133,9 @@ def main(path):
         p["aspectName"] == "assertionInfo" and p["entityUrn"] == runs[-1]["entityUrn"] for p in kept
     ):
         problems.append("the unit test assertion run has no assertion")
+    unit_test_runs = sorted({p["entityUrn"] for p in kept if UNIT_TESTED_PIPELINE in (p["entityUrn"] or "")})
+    if unit_test_runs:
+        problems.append(f"the unit test run reported its own lineage: {unit_test_runs}")
     # What a transform calculates its fields with: a Formula that ran, a Calculator published
     for flow, task, field, expression in LOGIC:
         infos = [

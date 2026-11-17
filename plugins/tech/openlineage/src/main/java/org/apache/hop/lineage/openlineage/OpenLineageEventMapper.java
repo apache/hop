@@ -791,21 +791,29 @@ public final class OpenLineageEventMapper {
     properties.put("unitTest", test.getUnitTestName());
     putIfPresent(properties, "dataSet", test.getDataSetName());
     properties.put("passed", test.isPassed());
+    if (test.getResult() == UnitTestLineagePayload.Result.ERROR) {
+      // Not compared at all, rather than compared and found different
+      properties.put("error", true);
+    }
     putIfPresent(properties, "comment", test.getComment());
     properties.put("datasets", datasets);
 
+    // On the transform's job when transforms have jobs of their own, on the pipeline's otherwise,
+    // as the transform's file I/O
+    boolean perTransform = isTransformOfAPipelineRun(ctx);
+    String runId =
+        perTransform
+            ? resolveRunId(ctx, event.getEventId())
+            : resolveFileIoRunId(ctx, event.getEventId());
+    String jobName = perTransform ? resolveJobName(ctx) : resolveFileIoJobName(ctx);
+    JobIdentity identity = perTransform ? JobIdentity.of(ctx) : JobIdentity.ioOwner(ctx);
     ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
     return Optional.of(
         ol.newRunEventBuilder()
             .eventType(EventType.OTHER)
             .eventTime(eventTime)
-            .run(
-                runNode(
-                    resolveRunId(ctx, event.getEventId()),
-                    eventTime,
-                    null,
-                    Map.of(UNIT_TEST_FACET, facet)))
-            .job(job(resolveJobName(ctx), JobIdentity.of(ctx), null))
+            .run(runNode(runId, eventTime, null, Map.of(UNIT_TEST_FACET, facet)))
+            .job(job(jobName, identity, null))
             .build());
   }
 

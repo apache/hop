@@ -17,6 +17,9 @@
 
 package org.apache.hop.lineage.datahub;
 
+import static org.apache.hop.lineage.model.UnitTestLineagePayload.Result.ERROR;
+import static org.apache.hop.lineage.model.UnitTestLineagePayload.Result.FAILED;
+import static org.apache.hop.lineage.model.UnitTestLineagePayload.Result.PASSED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,7 +47,7 @@ class DataHubUnitTestTest {
   private final DataHubTranslator translator =
       new DataHubTranslator("PROD", "prod", "emea", "urn:li:corpuser:datahub", false);
 
-  private List<Mcp> translate(boolean passed, List<LineagePayload> tested) {
+  private List<Mcp> translate(UnitTestLineagePayload.Result result, List<LineagePayload> tested) {
     OpenLineageEventMapper mapper =
         OpenLineageEventMapper.builder("hop", "https://hop.apache.org")
             .transformJobs(true)
@@ -67,7 +70,11 @@ class DataHubUnitTestTest {
                 LineageEventKind.UNIT_TEST,
                 ctx,
                 new UnitTestLineagePayload(
-                    "orders-test", "golden", passed, passed ? null : "row 3 differs", tested)))) {
+                    "orders-test",
+                    "golden",
+                    result,
+                    result == PASSED ? null : "row 3 differs",
+                    tested)))) {
       proposals.addAll(translator.translate(event).proposals());
     }
     return proposals;
@@ -87,7 +94,7 @@ class DataHubUnitTestTest {
 
   @Test
   void aFailedTestIsAFailedAssertionRunOnTheDatasetTheTransformWrites() {
-    List<Mcp> proposals = translate(false, writesOrders());
+    List<Mcp> proposals = translate(FAILED, writesOrders());
 
     Mcp info = only(proposals, "assertionInfo");
     assertEquals("assertion", info.entityType());
@@ -110,8 +117,8 @@ class DataHubUnitTestTest {
 
   @Test
   void aRerunUpdatesTheSameAssertion() {
-    String first = only(translate(false, writesOrders()), "assertionInfo").entityUrn();
-    Mcp rerun = only(translate(true, writesOrders()), "assertionRunEvent");
+    String first = only(translate(FAILED, writesOrders()), "assertionInfo").entityUrn();
+    Mcp rerun = only(translate(PASSED, writesOrders()), "assertionRunEvent");
 
     assertEquals(first, rerun.entityUrn());
     assertEquals("SUCCESS", rerun.value().path("result").path("type").asText());
@@ -119,8 +126,15 @@ class DataHubUnitTestTest {
   }
 
   @Test
+  void aTestThatCouldNotCompareItsRowsIsAnErrorNotAFailure() {
+    Mcp run = only(translate(ERROR, writesOrders()), "assertionRunEvent");
+
+    assertEquals("ERROR", run.value().path("result").path("type").asText());
+  }
+
+  @Test
   void aTransformThatWritesNothingHasNoAssertion() {
     // DataHub takes assertions on datasets only
-    assertTrue(translate(true, List.of()).isEmpty());
+    assertTrue(translate(PASSED, List.of()).isEmpty());
   }
 }

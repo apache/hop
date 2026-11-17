@@ -38,7 +38,7 @@ import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.UnitTestLineagePayload;
 import org.junit.jupiter.api.Test;
 
-/** A Hop unit test result as a run facet of the tested transform's run. */
+/** A Hop unit test result as a run facet of the tested transform's run, or its pipeline's. */
 class OpenLineageUnitTestTest {
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final String PIPELINE_RUN = UUID.randomUUID().toString();
@@ -64,7 +64,7 @@ class OpenLineageUnitTestTest {
         new UnitTestLineagePayload(
             "orders-test",
             "golden-orders",
-            false,
+            UnitTestLineagePayload.Result.FAILED,
             "row 3: amount 10 is not 12",
             List.of(
                 new FileIoLineagePayload(
@@ -105,5 +105,35 @@ class OpenLineageUnitTestTest {
     assertEquals(2, facet.path("datasets").size(), facet.toString());
     assertEquals("postgres://db:5432", facet.path("datasets").get(1).path("namespace").asText());
     assertEquals("sales.public.orders", facet.path("datasets").get(1).path("name").asText());
+  }
+
+  @Test
+  void withoutJobsForTransformsTheResultIsOnThePipelinesRun() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+
+    List<RunEvent> events =
+        mapper.toRunEvents(
+            unitTest(
+                new UnitTestLineagePayload(
+                    "orders-test",
+                    "golden",
+                    UnitTestLineagePayload.Result.ERROR,
+                    null,
+                    List.of())));
+
+    assertEquals(1, events.size());
+    RunEvent event = events.get(0);
+    assertEquals(UUID.fromString(PIPELINE_RUN), event.getRun().getRunId());
+    assertEquals("orders", event.getJob().getName(), "no job of its own for the transform");
+    JsonNode facet =
+        MAPPER.valueToTree(
+            event
+                .getRun()
+                .getFacets()
+                .getAdditionalProperties()
+                .get(OpenLineageEventMapper.UNIT_TEST_FACET));
+    assertEquals(false, facet.path("passed").asBoolean(true));
+    assertEquals(true, facet.path("error").asBoolean(false), "not compared: " + facet);
   }
 }

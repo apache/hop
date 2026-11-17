@@ -230,7 +230,9 @@ A transform whose metadata tells which files it reads or writes, or which SQL it
 
 == Unit test results
 
-When a pipeline unit test ends, the testing plugin calls `LineageUnitTestEmitter.emit()` for each golden data set: a `UNIT_TEST` event on the tested transform's run with an `UnitTestLineagePayload` (test, data set, passed, comment, and the IO the transform declares, read from the pipeline as it was before the test changed it). The OpenLineage mapper turns it into the `hopUnitTest` run facet; the DataHub sink into an assertion and an assertion run per declared dataset.
+When a pipeline unit test ends, the testing plugin calls `LineageUnitTestEmitter.emit()` for each golden data set: a `UNIT_TEST` event on the tested transform's run with an `UnitTestLineagePayload` (test, data set, result, comment, and the IO the transform declares, read from the pipeline as it was before the test changed it). The result is `PASSED`, `FAILED`, or `ERROR` when the rows were not compared, for example because the golden data set could not be read. The OpenLineage mapper turns it into the `hopUnitTest` run facet; the DataHub sink into an assertion and an assertion run per declared dataset.
+
+A unit test runs a changed copy of the pipeline, without a file name. Its other events don't reach the sinks of run configurations: `LineageSinkRoutes.of()` is empty for a run with `__UnitTest_Run__=Y`, and `LineageSinkRoutes.ofUnitTest()` gives the sinks for the results. The sinks configured with variables get the run's events as before.
 
 == Documentation
 

@@ -1226,6 +1226,7 @@ final class DataHubTranslator {
     String unitTest = test.path("unitTest").asText("");
     String dataSet = test.path("dataSet").asText("");
     boolean passed = test.path("passed").asBoolean(false);
+    boolean error = test.path("error").asBoolean(false);
     String comment = test.path("comment").asText(null);
     List<String> assertees = new ArrayList<>();
     for (JsonNode dataset : test.path("datasets")) {
@@ -1274,7 +1275,7 @@ final class DataHubTranslator {
       run.put("assertionUrn", assertionUrn);
       run.put("status", "COMPLETE");
       ObjectNode result = run.putObject("result");
-      result.put("type", passed ? "SUCCESS" : "FAILURE");
+      result.put("type", passed ? "SUCCESS" : error ? "ERROR" : "FAILURE");
       if (!StringUtils.isBlank(comment)) {
         result.putObject("nativeResults").put("comment", StringUtils.abbreviate(comment, 2000));
       }

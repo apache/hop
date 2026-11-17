@@ -18,6 +18,7 @@
 package org.apache.hop.lineage;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.hub.LineageHub;
@@ -51,7 +52,7 @@ public final class LineageUnitTestEmitter {
    * @param unitTestName the name of the unit test
    * @param transformName the transform whose rows were compared
    * @param dataSetName the golden data set
-   * @param passed whether the rows were the expected ones
+   * @param result how the comparison came out
    * @param comment what the comparison found
    */
   public static void emit(
@@ -60,10 +61,12 @@ public final class LineageUnitTestEmitter {
       String unitTestName,
       String transformName,
       String dataSetName,
-      boolean passed,
+      UnitTestLineagePayload.Result result,
       String comment) {
     try {
-      if (!(pipeline instanceof Pipeline local) || !LineageSinkRoutes.isEnabled(pipeline)) {
+      Set<String> sinks = LineageSinkRoutes.ofUnitTest(pipeline);
+      if (!(pipeline instanceof Pipeline local)
+          || (!LineageHub.getInstance().isEnabled() && sinks.isEmpty())) {
         return;
       }
       ITransform transform = local.getTransform(transformName, 0);
@@ -71,6 +74,8 @@ public final class LineageUnitTestEmitter {
       if (ctx == null) {
         return;
       }
+      // The run's other events reach these sinks only when it is not a unit test run
+      ctx.sinks(sinks);
       PipelineMeta definition = tested != null ? tested : pipeline.getPipelineMeta();
       if (definition != null && !Utils.isEmpty(definition.getFilename())) {
         LineageRunLifecycleEmitter.fillFilenameFields(ctx, definition.getFilename(), pipeline);
@@ -83,7 +88,7 @@ public final class LineageUnitTestEmitter {
                   new UnitTestLineagePayload(
                       unitTestName,
                       dataSetName,
-                      passed,
+                      result,
                       comment,
                       testedDatasets(definition, pipeline, transformName))));
     } catch (Exception e) {
