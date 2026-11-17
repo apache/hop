@@ -120,6 +120,108 @@ class SerializableMetadataProviderTest {
     assertNotNull(roundTripped.getSerializer(HopServerMeta.class).load("server1"));
   }
 
+  @Test
+  void testEmptyUnknownTypesDoNotRequirePlugins() throws Exception {
+    final var json =
+        """
+        {
+          "salesforceconnection": [],
+          "server": [{"name": "server1", "hostname": "localhost"}],
+          "neo4j-connection": []
+        }
+        """;
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            assertEquals("server", key, "Empty types must not require a registered plugin");
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    final var server = provider.getSerializer(HopServerMeta.class).load("server1");
+    assertNotNull(server);
+    assertEquals("localhost", server.getHostname());
+  }
+
+  @Test
+  void testUnavailableNeo4jConnectionWithManualUrlsIsSkipped() throws Exception {
+    // Shape from integration-tests/neo4j/metadata/neo4j-connection/Test.json.
+    final var json =
+        """
+        {
+          "neo4j-connection": [
+            {
+              "server": "${NEO_HOSTNAME}",
+              "browserPort": "7474",
+              "databaseName": "",
+              "manualUrls": [],
+              "automaticVariable": "",
+              "usingEncryption": false,
+              "routing": true,
+              "name": "Test",
+              "username": "${NEO_USERNAME}"
+            }
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    assertServerAfterUnavailableConnection(json, "neo4j-connection");
+  }
+
+  @Test
+  void testUnavailableGraphDatabaseConnectionWithManualUrlsIsSkipped() throws Exception {
+    // Shape from plugins/tech/neo4j/src/main/samples/metadata/
+    // graph-database-connection/demo-neo4j.json.
+    final var json =
+        """
+        {
+          "graph-database-connection": [
+            {
+              "graphDatabase": {
+                "NEO4J": {
+                  "databaseName": "",
+                  "manualUrls": [],
+                  "automaticVariable": "",
+                  "server": "${NEO4J_HOSTNAME}",
+                  "boltPort": "${NEO4J_PORT}",
+                  "automatic": true,
+                  "protocol": "neo4j",
+                  "routing": false,
+                  "usingEncryption": false
+                }
+              },
+              "name": "demo-neo4j"
+            }
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    assertServerAfterUnavailableConnection(json, "graph-database-connection");
+  }
+
+  private void assertServerAfterUnavailableConnection(
+      final String json, final String unavailableKey) throws Exception {
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            if (unavailableKey.equals(key)) {
+              throw new HopException("Metadata plugin is not installed: " + key);
+            }
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    final var server = provider.getSerializer(HopServerMeta.class).load("server1");
+    assertNotNull(server);
+    assertEquals("localhost", server.getHostname());
+  }
+
   /** Delegates everything but throws when one specific object is loaded. */
   private static class FailingOnLoadSerializer<T extends IHopMetadata>
       implements IHopMetadataSerializer<T> {
