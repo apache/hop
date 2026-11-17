@@ -104,14 +104,14 @@ A `WorkflowHopMeta` between action A and action B can behave in one of three way
 ----
 hop.setUnconditional(true);
 ----
-* **On Success (Conditional)**: Action B executes only if Action A returned a successful result (`result.getResult() == true`):
+* **On Success (Conditional)**: Action B executes only if Action A returned a successful result (`result.isResult() == true`):
 +
 [source,java]
 ----
 hop.setUnconditional(false);
 hop.setEvaluation(true);
 ----
-* **On Failure (Conditional)**: Action B executes only if Action A failed (`result.getResult() == false`):
+* **On Failure (Conditional)**: Action B executes only if Action A failed (`result.isResult() == false`):
 +
 [source,java]
 ----
@@ -148,7 +148,7 @@ IWorkflowEngine<WorkflowMeta> workflowEngine = WorkflowEngineFactory.createWorkf
 Result result = workflowEngine.startExecution();
 
 // Inspect outcome
-if (result.getResult() && result.getNrErrors() == 0) {
+if (result.isResult() && result.getNrErrors() == 0) {
   System.out.println("Workflow succeeded!");
 } else {
   System.err.println("Workflow failed with " + result.getNrErrors() + " errors.");

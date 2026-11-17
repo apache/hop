@@ -611,8 +611,8 @@ public class Result implements Cloneable {
    * Returns whether the pipeline or workflow was successful.
    *
    * @return true if the execution was successful, false otherwise
-   * @deprecated Use isResult() instead. This method remains for backward compatibility and will be
-   *     removed in a future release.
+   * @deprecated Use {@link #isResult()} instead. This method remains for backward compatibility and
+   *     will be removed in a future release.
    */
   @Deprecated(since = "2.16")
   public boolean getResult() {
@@ -621,6 +621,8 @@ public class Result implements Cloneable {
 
   /**
    * Returns whether the pipeline or workflow execution was successful.
+   *
+   * <p>Written out: Lombok does not generate isResult() while the deprecated getResult() exists.
    *
    * @return true if the execution was successful, false otherwise
    */
