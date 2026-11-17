@@ -137,7 +137,7 @@ class ActionWorkflowAsyncLifecycleTest {
         assertSame(launcher, seen.get().getParent());
         assertEquals(ExecutionState.SUCCEEDED, childState.get());
         assertEquals(0, child.getResult().getNrErrors());
-        assertTrue(child.getResult().getResult());
+        assertTrue(child.getResult().isResult());
         assertEquals(1, ends.get(child));
         assertEquals(1, ends.get(action));
         assertEquals(1, ends.get(parent));
