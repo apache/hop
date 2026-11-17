@@ -240,6 +240,28 @@ class LineageHubRoutingTest {
   }
 
   @Test
+  void aSinkEditedBetweenTwoRunsIsShutDown() throws Exception {
+    LineageHub hub = hub(LINEAGE_OFF, List.of());
+
+    String first = hub.useSink(target("marquez", "http://old:5000"));
+    hub.emit(event("the run before the edit", first));
+    hub.release(Set.of(first));
+    hub.flush();
+    FakeLineageSink old = started.get("http://old:5000");
+    assertFalse(old.isShutdown(), "the latest version stays after its run");
+
+    String edited = hub.useSink(target("marquez", "http://new:5000"));
+    waitUntil(old::isShutdown);
+    hub.emit(event("the run after the edit", edited));
+    hub.flush();
+    hub.shutdown();
+
+    assertEquals(List.of("the run before the edit"), pipelines(old));
+    assertEquals(List.of("the run after the edit"), pipelines(started.get("http://new:5000")));
+    assertEquals(1, hub.sinkStatus().size(), "only the edited version is listed");
+  }
+
+  @Test
   void theLatestVersionOfASinkStaysWhenItsRunsEnd() {
     LineageHub hub = hub(LINEAGE_OFF, List.of());
 

@@ -92,16 +92,16 @@ public final class LineageSinkRoutes {
         pipeline.getExtensionDataMap(),
         hub,
         () -> {
-          Set<String> sinks = inherited(parentSinks(pipeline, hub), hub);
+          Set<String> parents = parentSinks(pipeline, hub);
           PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
-          addSink(
-              sinks,
-              runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
-              pipeline,
-              pipeline.getMetadataProvider(),
-              pipeline.getLogChannel(),
-              hub);
-          return sinks;
+          String own =
+              useSink(
+                  runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
+                  pipeline,
+                  pipeline.getMetadataProvider(),
+                  pipeline.getLogChannel(),
+                  hub);
+          return withParents(parents, own, hub);
         });
   }
 
@@ -113,16 +113,16 @@ public final class LineageSinkRoutes {
         workflow.getExtensionDataMap(),
         hub,
         () -> {
-          Set<String> sinks = inherited(parentSinks(workflow, hub), hub);
+          Set<String> parents = parentSinks(workflow, hub);
           WorkflowRunConfiguration runConfiguration = workflow.getWorkflowRunConfiguration();
-          addSink(
-              sinks,
-              runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
-              workflow,
-              workflow.getMetadataProvider(),
-              workflow.getLogChannel(),
-              hub);
-          return sinks;
+          String own =
+              useSink(
+                  runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
+                  workflow,
+                  workflow.getMetadataProvider(),
+                  workflow.getLogChannel(),
+                  hub);
+          return withParents(parents, own, hub);
         });
   }
 
@@ -156,10 +156,24 @@ public final class LineageSinkRoutes {
     hub.release(sinks);
   }
 
-  /** The sinks of the run that started this one, held for this run as well. */
-  private static Set<String> inherited(Set<String> parentSinks, LineageHub hub) {
-    hub.hold(parentSinks);
-    return new LinkedHashSet<>(parentSinks);
+  /**
+   * The sinks of the run that started this one and the run's own, each held once for this run, as
+   * {@link #release} lets go of each once. The parent's are safe to hold now: the parent holds them
+   * until it ends, after this run.
+   *
+   * @param own the run's own sink, which {@link LineageHub#useSink} already held, or null
+   */
+  private static Set<String> withParents(Set<String> parentSinks, String own, LineageHub hub) {
+    Set<String> inherited = new LinkedHashSet<>(parentSinks);
+    if (own != null) {
+      inherited.remove(own);
+    }
+    hub.hold(inherited);
+    Set<String> sinks = new LinkedHashSet<>(parentSinks);
+    if (own != null) {
+      sinks.add(own);
+    }
+    return sinks;
   }
 
   private static Set<String> parentSinks(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {
@@ -191,11 +205,12 @@ public final class LineageSinkRoutes {
   }
 
   /**
-   * Adds the sink of a run configuration. A sink that can't be loaded or resolved is logged on the
-   * run and left out: lineage must not stop a run.
+   * Uses and holds the sink of a run configuration. A sink that can't be loaded or resolved is
+   * logged on the run and left out: lineage must not stop a run.
+   *
+   * @return the key of the sink, or null when there is none
    */
-  private static void addSink(
-      Set<String> sinks,
+  private static String useSink(
       String sinkName,
       IVariables variables,
       IHopMetadataProvider metadataProvider,
@@ -203,7 +218,7 @@ public final class LineageSinkRoutes {
       LineageHub hub) {
     String name = variables.resolve(sinkName);
     if (Utils.isEmpty(name) || metadataProvider == null) {
-      return;
+      return null;
     }
     try {
       LineageSink sink = metadataProvider.getSerializer(LineageSink.class).load(name);
@@ -211,7 +226,6 @@ public final class LineageSinkRoutes {
         throw new IllegalArgumentException("lineage sink '" + name + "' does not exist");
       }
       String key = hub.useSink(sink.toTarget(variables, metadataProvider));
-      sinks.add(key);
       String failure = hub.failure(key);
       if (failure != null && log != null) {
         log.logError(
@@ -222,10 +236,12 @@ public final class LineageSinkRoutes {
                 + "). It is tried again a minute after it failed; until then this run's lineage"
                 + " doesn't reach it.");
       }
+      return key;
     } catch (Exception e) {
       if (log != null) {
         log.logError("Unable to use lineage sink '" + name + "', this run doesn't report to it", e);
       }
+      return null;
     }
   }
 

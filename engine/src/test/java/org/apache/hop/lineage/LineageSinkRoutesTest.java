@@ -44,6 +44,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.hub.LineageConfiguration;
 import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.hub.LineageSinkStatus;
 import org.apache.hop.lineage.hub.LineageSinkTarget;
 import org.apache.hop.lineage.metadata.FakeLineageSink;
 import org.apache.hop.lineage.metadata.LineageSink;
@@ -153,6 +154,32 @@ class LineageSinkRoutesTest {
     assertEquals(Set.of(datahub, marquez), LineageSinkRoutes.of(withItsOwn, hub));
     assertEquals(Set.of(datahub), LineageSinkRoutes.of(withoutItsOwn, hub));
     assertEquals(Set.of(datahub, marquez), LineageSinkRoutes.of(subPipeline, hub));
+  }
+
+  @Test
+  void aRunThatSelectsTheSinkOfItsParentHoldsItOnce() throws Exception {
+    IWorkflowEngine<WorkflowMeta> parent = workflow("marquez");
+    IPipelineEngine<PipelineMeta> child = pipeline("marquez", null);
+    when(child.getParentWorkflow()).thenReturn(parent);
+    String old = key("marquez", "http://marquez:5000");
+    assertEquals(Set.of(old), LineageSinkRoutes.of(child, hub));
+    hub.emit(
+        LineageEvent.of(
+            LineageEventKind.RUN_LIFECYCLE,
+            LineageContext.builder().sinks(Set.of(old)).build(),
+            null));
+    hub.flush();
+
+    LineageSinkRoutes.release(child.getExtensionDataMap(), hub);
+    LineageSinkRoutes.release(parent.getExtensionDataMap(), hub);
+    hub.flush();
+    variables.setVariable("MARQUEZ_URL", "http://marquez:5001");
+    LineageSinkRoutes.of(pipeline("marquez", null), hub);
+    List<LineageSinkStatus> status = hub.sinkStatus();
+    hub.shutdown();
+
+    assertEquals(1, status.size(), "the version both runs used is retired: " + status);
+    assertFalse(status.get(0).started(), "the edited version starts with its first event");
   }
 
   @Test

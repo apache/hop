@@ -197,11 +197,18 @@ public final class LineageHub {
    */
   public String useSink(LineageSinkTarget target) {
     String key = target.key();
+    List<ILineageSink> retired = new ArrayList<>();
     synchronized (routedSinks) {
       targets.putIfAbsent(key, target);
-      latestKeys.put(target.name(), key);
+      String replaced = latestKeys.put(target.name(), key);
       holds.merge(key, 1, Integer::sum);
+      // A version no run holds any more, say from before an edit between two runs: none of its
+      // events are waiting, since a run lets go of its sinks after its last event.
+      if (replaced != null && !replaced.equals(key) && !holds.containsKey(replaced)) {
+        retire(replaced, retired);
+      }
     }
+    shutdownInBackground(retired);
     return key;
   }
 
@@ -321,14 +328,23 @@ public final class LineageHub {
         if (held != null || target == null || key.equals(latestKeys.get(target.name()))) {
           continue;
         }
-        targets.remove(key);
-        failedTargets.remove(key);
-        ILineageSink sink = routedSinks.remove(key);
-        if (sink != null) {
-          retired.add(sink);
-        }
+        retire(key, retired);
       }
     }
+    shutdownInBackground(retired);
+  }
+
+  /** Forgets a target; its sink, when it started, is added to {@code retired}. */
+  private void retire(String key, List<ILineageSink> retired) {
+    targets.remove(key);
+    failedTargets.remove(key);
+    ILineageSink sink = routedSinks.remove(key);
+    if (sink != null) {
+      retired.add(sink);
+    }
+  }
+
+  private void shutdownInBackground(List<ILineageSink> retired) {
     if (!retired.isEmpty()) {
       // A shutdown waits for the sink's own queue to drain: not on the dispatcher thread.
       Thread thread =
