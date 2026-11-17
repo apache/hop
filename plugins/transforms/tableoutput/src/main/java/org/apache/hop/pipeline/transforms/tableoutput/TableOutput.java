@@ -82,6 +82,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
         truncateTable();
       }
+      // The end of the rows: write what is still buffered and say so, as processRow() must. A
+      // single-threaded run only disposes the transforms once all of them are done, so the
+      // transforms after this one would otherwise wait for more rows
+      emptyAndCommitBatchBuffers(false);
+      setOutputDone();
       return false;
     }
 
@@ -1450,7 +1455,11 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       setErrors(1);
       stopAll();
     } finally {
-      setOutputDone();
+      // Only at the end of the run: batchComplete() flushes after every iteration of a
+      // single-threaded run, and the transforms after this one still read what follows
+      if (dispose) {
+        setOutputDone();
+      }
 
       if (getErrors() > 0) {
         try {

@@ -336,6 +336,28 @@ class SimpleMappingTest {
     verify(transformMockHelper.pipeline, times(1)).startThreads();
   }
 
+  /**
+   * A single-threaded mapping with input only runs while it is driven. After the last input row
+   * nothing else finishes it, so waiting for it would wait forever.
+   */
+  @Test
+  void testProcessRowEndOfInputDrivesSingleThreadedLoop() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(false);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    simpleMpData.mappingOutput = null;
+    SingleThreadedPipelineExecutor executor = mock(SingleThreadedPipelineExecutor.class);
+    when(executor.oneIteration()).thenReturn(true, true, false);
+    simpleMpData.executor = executor;
+
+    smp = newSimpleMapping();
+    smp.addRowSetToInputRowSets(transformMockHelper.getMockInputRowSet(new Object[] {}));
+
+    assertTrue(smp.processRow(), "the input row goes to the mapping");
+    assertFalse(smp.processRow(), "the end of the input finishes the mapping");
+    verify(executor, times(3)).oneIteration();
+    verify(transformMockHelper.pipeline, never()).waitUntilFinished();
+  }
+
   @Test
   void initRefusesIncomingHopWhenNoInputThroughTheEngine() {
     SimpleMapping mapping = mappingWithIncomingHop();
