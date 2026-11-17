@@ -138,7 +138,8 @@ class DataHubDataCatalogTest {
     configured.setUrl("${DATAHUB_URL}");
     configured.setToken(Encr.encryptPasswordIfNotUsingVariables("my-token"));
     configured.setEnvironment("dev");
-    configured.setReadTimeoutMs("500");
+    // Short, for the slow DataHub below, and long enough for a loaded build machine
+    configured.setReadTimeoutMs("2000");
     IVariables variables = new Variables();
     variables.setVariable("DATAHUB_URL", url);
     catalog = configured.clone();
@@ -440,7 +441,7 @@ class DataHubDataCatalogTest {
 
   @Test
   void aSlowDataHubTimesOut() throws Exception {
-    answers.put("appConfig", new Answer(200, "{\"data\":{}}", 3000));
+    answers.put("appConfig", new Answer(200, "{\"data\":{}}", 5000));
 
     assertEquals(Reason.TIMEOUT, reasonOf(connect(url()).ping()));
   }
