@@ -42,6 +42,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionWait;
+import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -290,6 +291,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     PipelineExecutorData pipelineExecutorData = getData();
 
     IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
+    ExecutionLifecycle.associate(executorPipeline, this);
     pipelineExecutorData.setExecutorPipeline(executorPipeline);
 
     passParametersToPipeline(parameterValues);
