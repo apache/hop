@@ -78,7 +78,7 @@ Options can use variables, for example `'${MARQUEZ_URL}'`; they are resolved wit
 |`HOP_LINEAGE_OPENLINEAGE_PRODUCER`
 
 |A job per transform
-|Report each transform as a job of its own; see xref:technology/openlineage/index.adoc#_job_granularity[Job granularity].
+|Report each transform as a job of its own; see xref:technology/openlineage/index.adoc#job-granularity[Job granularity].
 |`HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS`
 
 |Parent run facets
@@ -111,11 +111,11 @@ The *Delivery* tab holds the spool folder and size, the queue size and what happ
 |`HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE`
 
 |Write dataset schemas
-|When to write the schema of a dataset; see xref:technology/datahub/index.adoc#_dataset_schemas[Dataset schemas].
+|When to write the schema of a dataset; see xref:technology/datahub/index.adoc#dataset-schemas[Dataset schemas].
 |`HOP_LINEAGE_DATAHUB_DATASET_SCHEMA`
 
 |Deprecate deleted datasets
-|See xref:technology/datahub/index.adoc#_deleted_and_moved_datasets[Deleted and moved datasets].
+|See xref:technology/datahub/index.adoc#deleted-and-moved-datasets[Deleted and moved datasets].
 |`HOP_LINEAGE_DATAHUB_LIFECYCLE`
 
 |Actor
