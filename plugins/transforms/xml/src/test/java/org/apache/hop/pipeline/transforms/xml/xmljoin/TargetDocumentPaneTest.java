@@ -110,9 +110,7 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
               List.of(FIRST_HEADER, SECOND_HEADER),
               texts(tree.getItem(0).getItems()),
               "the root is open");
-          assertTrue(
-              labelTexts(shell)
-                  .contains(BaseMessages.getString(PKG, "XmlJoin.Document.Click", "target")));
+          assertTrue(labelTexts(shell).contains(message("XmlJoin.Document.Click", "target")));
 
           select(tree, ROOT, SECOND_HEADER, LINES);
 
@@ -390,6 +388,106 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
         });
   }
 
+  /**
+   * GTK selects the first row when the tree gets the focus with nothing selected. That is not a
+   * click: it writes no statement. A click after it does.
+   */
+  @Test
+  void theTreeGettingTheFocusWritesNothing() throws Exception {
+    Document doc = parse(ORDERS);
+    withPane(
+        () -> {
+          pane.get().setDocument(doc, "target");
+          pane.get().show("//nothing");
+          Tree tree = treeOf(sceneShell());
+          assertEquals(0, tree.getSelectionCount());
+
+          tree.setFocus();
+          while (display.readAndDispatch()) {
+            // the focus and what follows it
+          }
+
+          assertTrue(written.isEmpty(), "the focus writes no statement");
+          assertEquals(0, tree.getSelectionCount(), "and selects nothing");
+          select(tree, ROOT, SECOND_HEADER, LINES);
+          assertEquals(List.of("/OrderList/OrderHeader[2]/OrderLines"), written);
+        });
+  }
+
+  /**
+   * Under the node of their key, the key chosen for a click is one that tells the node apart. A key
+   * other nodes share is reported: the transform puts the elements under the first of them.
+   */
+  @Test
+  void aKeyOtherNodesShareIsNotChosenAndIsReported() throws Exception {
+    Document doc =
+        parse(
+            "<orders><order currency=\"EUR\" no=\"1\"><lines/></order>"
+                + "<order currency=\"EUR\" no=\"2\"><lines/></order></orders>");
+    String second = "<order currency=\"EUR\" no=\"2\">";
+    withPane(
+        () -> {
+          Shell shell = sceneShell();
+          TargetDocumentPane documentPane = pane.get();
+          documentPane.setByKey(true);
+          documentPane.setKeyNames(() -> List.of("order_no"));
+          documentPane.setDocument(doc, "target");
+          Tree tree = treeOf(shell);
+
+          select(tree, "<orders>", second, "<lines/>");
+          CCombo key = keyOf(shell);
+          assertEquals("@no of order = 2", key.getText(), "not the currency the orders share");
+          assertEquals("/orders/order[@no='?']/lines", written.get(written.size() - 1));
+          documentPane.show(written.get(written.size() - 1));
+          assertEquals(Outcome.FOUND, documentPane.check().outcome());
+
+          key.select(List.of(key.getItems()).indexOf("@currency of order = EUR"));
+          key.notifyListeners(SWT.Selection, new Event());
+          documentPane.show(written.get(written.size() - 1));
+          assertEquals(
+              new Check(
+                  Outcome.KEY_NOT_UNIQUE,
+                  "<lines/>",
+                  "<order currency=\"EUR\" no=\"1\">",
+                  "EUR",
+                  2,
+                  null),
+              documentPane.check());
+          assertSelected(tree, second, "<lines/>");
+        });
+  }
+
+  /**
+   * The check only follows ? written as ='?'. A statement that uses it otherwise is not checked,
+   * rather than reported as wrong; one that is not valid with a key filled in is. Under one node, ?
+   * is not replaced, and alone it is not a valid statement.
+   */
+  @Test
+  void aStatementTheCheckCannotFollowIsNotReportedAsWrong() throws Exception {
+    Document doc = parse(ORDERS);
+    withPane(
+        () -> {
+          TargetDocumentPane documentPane = pane.get();
+          documentPane.setByKey(true);
+          documentPane.setDocument(doc, "target");
+
+          for (String statement :
+              List.of(
+                  "/OrderList/OrderHeader[@orderNumber=?]/OrderLines",
+                  "/OrderList/OrderHeader[contains(@orderNumber, '?')]/OrderLines",
+                  "/OrderList/OrderHeader[@orderNumber!='?']/OrderLines")) {
+            documentPane.show(statement);
+            assertEquals(Check.of(Outcome.NOT_FOLLOWED), documentPane.check(), statement);
+          }
+          documentPane.show("/OrderList/OrderHeader[@orderNumber='?'/OrderLines");
+          assertEquals(Outcome.INVALID, documentPane.check().outcome());
+
+          documentPane.setByKey(false);
+          documentPane.show("?");
+          assertEquals(Outcome.INVALID, documentPane.check().outcome());
+        });
+  }
+
   /** A large document lists the first children of a node and counts the rest. */
   @Test
   void aLargeDocumentListsTheFirstChildren() throws Exception {
@@ -403,9 +501,7 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
           pane.get().setDocument(doc, "target");
           TreeItem[] items = treeOf(sceneShell()).getItem(0).getItems();
           assertEquals(TargetDocumentPane.MAX_CHILDREN + 1, items.length);
-          assertEquals(
-              BaseMessages.getString(PKG, "XmlJoin.Document.More", 50),
-              items[items.length - 1].getText());
+          assertEquals(message("XmlJoin.Document.More", 50), items[items.length - 1].getText());
         });
   }
 
@@ -443,8 +539,14 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
     assertEquals(parentText, selection[0].getParentItem().getText());
   }
 
-  private static String message(String key) {
-    return BaseMessages.getString(PKG, key);
+  /**
+   * A message as the pane shows it. BaseMessages shows a message it can't find or format as !key!,
+   * which an expected text built the same way would match.
+   */
+  static String message(String key, Object... arguments) {
+    String text = BaseMessages.getString(PKG, key, arguments);
+    assertFalse(text.startsWith("!") && text.endsWith("!"), "no message " + key + ": " + text);
+    return text;
   }
 
   /**
@@ -470,6 +572,8 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
       tree.notifyListeners(SWT.Expand, expand);
       item.setExpanded(true);
     }
+    // As a click arrives: the mouse button goes down, then the row is selected
+    tree.notifyListeners(SWT.MouseDown, new Event());
     tree.setSelection(item);
     tree.notifyListeners(SWT.Selection, new Event());
   }
@@ -496,7 +600,7 @@ class TargetDocumentPaneTest extends SwtBotTestBase {
 
   /** The tool with the tooltip of the message key. */
   private static ToolItem toolOf(Composite parent, String key) {
-    String toolTip = BaseMessages.getString(PKG, key, TargetDocumentPane.MAX_EXPANDED);
+    String toolTip = message(key, TargetDocumentPane.MAX_EXPANDED);
     for (Control control : controlsOf(parent, ToolBar.class)) {
       for (ToolItem item : ((ToolBar) control).getItems()) {
         if (toolTip.equals(item.getToolTipText())) {

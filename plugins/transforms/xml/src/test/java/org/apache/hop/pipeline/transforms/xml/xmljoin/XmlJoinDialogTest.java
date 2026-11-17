@@ -38,7 +38,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -312,6 +311,11 @@ class XmlJoinDialogTest extends SwtBotTestBase {
   @Test
   void theJoinModeShowsAndStoresTheComplexJoin() {
     XmlJoinMeta meta = meta(m -> m.setComplexJoin(true));
+    for (XmlJoinMode mode : XmlJoinMode.values()) {
+      String description = mode.getDescription();
+      assertFalse(
+          description.startsWith("!") && description.endsWith("!"), "no description " + mode);
+    }
 
     withXmlJoinDialog(
         meta,
@@ -361,7 +365,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
   @Test
   void theDialogExplainsTheTransform() {
     XmlJoinMeta meta = new XmlJoinMeta();
-    String intro = BaseMessages.getString(PKG, "XmlJoin.Intro");
+    String intro = message("XmlJoin.Intro");
 
     withXmlJoinDialog(
         meta,
@@ -826,7 +830,14 @@ class XmlJoinDialogTest extends SwtBotTestBase {
         dialog -> {
           dialog.button(message("XmlJoin.Document.Load.Button")).click();
           // A short line first, and the dialog laid out with it, as when someone starts typing
-          display.syncExec(() -> setValue(dialogShell(), TARGET_XPATH, "/orders"));
+          // In a small dialog the options scroll: the box must grow, and what its content scrolls
+          // over too, for the key field to stay in reach
+          display.syncExec(
+              () -> {
+                Shell shell = dialogShell();
+                shell.setSize(shell.getSize().x, 360);
+                setValue(shell, TARGET_XPATH, "/orders");
+              });
           dialog.sleep(500);
           display.syncExec(
               () -> {
@@ -852,7 +863,58 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                 ScrolledComposite box = (ScrolledComposite) line.getParent().getParent();
                 Rectangle shown = display.map(box, null, box.getClientArea());
                 assertTrue(k.y + k.height <= shown.y + shown.height, "the box grows with the line");
+                Rectangle inBox = keyField.getBounds();
+                assertTrue(
+                    inBox.y + inBox.height <= box.getContent().getSize().y,
+                    "the box scrolls over the key field");
                 assertEquals(minWidth, options.getMinWidth(), "the options are as wide as before");
+              });
+          clickButton(dialog, "System.Button.Cancel");
+        });
+  }
+
+  /**
+   * Under the node of their key, the line under the statement warns when other nodes have the key
+   * of the clicked node, and says which node the transform takes. A ? it can't follow is not
+   * checked.
+   */
+  @Test
+  void theLineUnderTheXPathWarnsAboutAKeyOtherNodesShare() throws Exception {
+    XmlJoinMeta meta = targetAndSourceByKey();
+    meta.setJoinCompareField("currency");
+    withXmlJoinDialog(
+        meta,
+        TargetDocumentPaneTest.parse(
+            "<orders><order currency=\"EUR\" no=\"1\"><lines/></order>"
+                + "<order currency=\"EUR\" no=\"2\"><lines/></order></orders>"),
+        dialog -> {
+          dialog.button(message("XmlJoin.Document.Load.Button")).click();
+          display.syncExec(
+              () -> {
+                Shell shell = dialogShell();
+                TargetDocumentPaneTest.select(
+                    TargetDocumentPaneTest.treeOf(documentBoxOf(shell)),
+                    "<orders>",
+                    "<order currency=\"EUR\" no=\"2\">",
+                    "<lines/>");
+                assertEquals(
+                    "/orders/order[@currency='?']/lines", textOf(inputFor(shell, TARGET_XPATH)));
+                assertCheck(
+                    shell,
+                    GuiResource.getInstance().getImageWarning(),
+                    message(
+                        "XmlJoin.XPathHint.KeyNotUnique",
+                        "EUR",
+                        message(
+                            "XmlJoin.XPathHint.Node.InParent",
+                            "<lines/>",
+                            "<order currency=\"EUR\" no=\"1\">")));
+
+                setValue(shell, TARGET_XPATH, "/orders/order[@no=?]/lines");
+                assertCheck(
+                    shell,
+                    GuiResource.getInstance().getImageInfo(),
+                    message("XmlJoin.XPathHint.NotFollowed"));
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -907,7 +969,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
   }
 
   private static String message(String key, Object... arguments) {
-    return BaseMessages.getString(PKG, key, arguments);
+    return TargetDocumentPaneTest.message(key, arguments);
   }
 
   /** The scrolled options left of the target document. */
@@ -978,7 +1040,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
   }
 
   private static String shellTitle() {
-    return BaseMessages.getString(PKG, "XmlJoin.DialogTitle");
+    return message("XmlJoin.DialogTitle");
   }
 
   private static void clickButton(SWTBot dialog, String key) {
@@ -1066,8 +1128,8 @@ class XmlJoinDialogTest extends SwtBotTestBase {
    * also carry the label itself.
    */
   private static Control inputFor(Shell shell, Option option) {
-    String boxTitle = BaseMessages.getString(PKG, option.box());
-    String label = BaseMessages.getString(PKG, option.label());
+    String boxTitle = message(option.box());
+    String label = message(option.label());
     Group box =
         controlsOf(shell, Group.class).stream()
             .map(Group.class::cast)

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -191,8 +192,11 @@ class UpstreamPipelineTest {
     assertTrue(e.getMessage().contains(expected), e.getMessage());
   }
 
+  /** A message as Load shows it; BaseMessages shows one it can't find or format as !key!. */
   private static String message(String key, Object... arguments) {
-    return BaseMessages.getString(PKG, key, arguments);
+    String text = BaseMessages.getString(PKG, key, arguments);
+    assertFalse(text.startsWith("!") && text.endsWith("!"), "no message " + key + ": " + text);
+    return text;
   }
 
   /** Injectors, so that the transforms that become a Dummy can be told apart. */

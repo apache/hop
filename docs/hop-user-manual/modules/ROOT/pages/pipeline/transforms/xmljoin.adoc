@@ -33,7 +33,7 @@ Only one row is produced after the join. This single row contains the fields of 
 
 The options are grouped the way the dialog shows them.
 The XML field options list the fields of the transform selected above them. You can also type a field name or a variable.
-When exactly two transforms send rows to the XML Join, picking one of them as the target or the source fills in the other.
+When exactly two transforms send rows to the XML Join, picking one of them as the target or the source fills in the other when it is still empty.
 
 [options="header"]
 |===
@@ -48,15 +48,16 @@ When exactly two transforms send rows to the XML Join, picking one of them as th
 2+h|Where to add them
 |Add elements|*Under one node*: every element is added to the node the XPath statement finds.
 
-*Under the node of their key*: a `?` in the XPath statement is replaced by the key field of each row, so each element can go to its own node.
+*Under the node of their key*: every `?` in the XPath statement is replaced by the key field of each row, so each element can go to its own node.
 This is what older versions called a complex join.
 |XPath statement|Where in the target document to add the elements, for example `//orders`.
-Under the node of their key, a `?` is replaced by the key field of each row, for example `//order[@id='?']/lines`.
+Under the node of their key, every `?` is replaced by the key field of each row, for example `//order[@id='?']/lines`.
 The key field can also hold the whole XPath statement: set the XPath statement to `?`.
 
 The line under the XPath statement checks it as you type, once the target document is loaded (see below).
 In green it names the node the elements go under and its parent, and under the node of their key the key that node has.
 In red it says that the statement finds no node, or why it is not a valid XPath statement.
+Under the node of their key it also warns when other nodes have the same key as the highlighted node: the transform puts the elements for that key under the first of them.
 Before the document is loaded, it says what the statement does and what is missing.
 |Key field|The field of the source transform whose value replaces `?` in the XPath statement.
 Only used when elements are added under the node of their key.

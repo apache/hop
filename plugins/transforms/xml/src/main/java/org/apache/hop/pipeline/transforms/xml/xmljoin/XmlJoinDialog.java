@@ -282,6 +282,20 @@ public class XmlJoinDialog extends BaseTransformDialog {
               byKey && hasPlaceholder
                   ? "XmlJoin.XPathHint.NotFound.ByKey"
                   : "XmlJoin.XPathHint.NotFound");
+    } else if (check.outcome() == TargetDocumentPane.Outcome.KEY_FINDS_NO_NODE) {
+      icon = resource.getImageError();
+      color = resource.getColorRed();
+      text = message("XmlJoin.XPathHint.KeyFindsNoNode", check.keyValue());
+    } else if (check.outcome() == TargetDocumentPane.Outcome.KEY_NOT_UNIQUE) {
+      icon = resource.getImageWarning();
+      text = message("XmlJoin.XPathHint.KeyNotUnique", check.keyValue(), location(check));
+      toolTip =
+          message(
+              "XmlJoin.XPathHint.Example",
+              check.keyValue(),
+              TargetXPathBuilder.forKeyValue(xpath, check.keyValue()));
+    } else if (check.outcome() == TargetDocumentPane.Outcome.NOT_FOLLOWED) {
+      text = message("XmlJoin.XPathHint.NotFollowed");
     } else if (byKey && !hasPlaceholder) {
       icon = resource.getImageWarning();
       text = message("XmlJoin.XPathHint.NoPlaceholder");
@@ -343,10 +357,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
    * The node the elements go under, highlighted in the target document or past the listed nodes.
    */
   private static String found(TargetDocumentPane.Check check, boolean byKey) {
-    String node =
-        check.parent() == null
-            ? message("XmlJoin.XPathHint.Node.Root", check.node())
-            : message("XmlJoin.XPathHint.Node.InParent", check.node(), check.parent());
+    String node = location(check);
     String where;
     if (!byKey) {
       where = message("XmlJoin.XPathHint.Found", node);
@@ -365,6 +376,13 @@ public class XmlJoinDialog extends BaseTransformDialog {
             ? message("XmlJoin.XPathHint.Highlighted")
             : message("XmlJoin.XPathHint.NotListed", TargetDocumentPane.MAX_CHILDREN);
     return where + " " + shown;
+  }
+
+  /** The node of a check and its parent, or that it is the root. */
+  private static String location(TargetDocumentPane.Check check) {
+    return check.parent() == null
+        ? message("XmlJoin.XPathHint.Node.Root", check.node())
+        : message("XmlJoin.XPathHint.Node.InParent", check.node(), check.parent());
   }
 
   private static String message(String key, Object... arguments) {

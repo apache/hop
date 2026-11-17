@@ -76,10 +76,21 @@ final class TargetDocumentPane {
     NO_DOCUMENT,
     /** There is no statement to check, or it comes from the key field. */
     NOT_CHECKED,
+    /**
+     * Under the node of their key: the statement uses ? other than in ='?', the check can't follow.
+     */
+    NOT_FOLLOWED,
     /** The statement is not valid XPath. */
     INVALID,
     /** The statement finds no node. */
     NOT_FOUND,
+    /**
+     * Under the node of their key: with the key of the node filled in, the statement finds another
+     * node first, the one the transform takes. {@link Check#node()} is that node.
+     */
+    KEY_NOT_UNIQUE,
+    /** Under the node of their key: with the key of the node filled in, it finds no node. */
+    KEY_FINDS_NO_NODE,
     /** The statement finds a node, highlighted in the tree. */
     FOUND,
     /** The statement finds a node the tree does not list. */
@@ -129,6 +140,12 @@ final class TargetDocumentPane {
 
   /** Set by {@link #find()}: the elements the statement finds, for any key. */
   private int foundCount;
+
+  /** Set by {@link #find()}: the statement uses ? in a way the check can't follow. */
+  private boolean notFollowed;
+
+  /** A mouse button or key went down in the tree: the next selection is someone's click. */
+  private boolean userInput;
 
   private List<KeyCandidate> candidates = List.of();
 
@@ -217,6 +234,8 @@ final class TargetDocumentPane {
     fdTree.height = (int) (250 * zoom);
     wTree.setLayoutData(fdTree);
     wTree.addListener(SWT.Expand, e -> fill((TreeItem) e.item));
+    wTree.addListener(SWT.MouseDown, e -> userInput = true);
+    wTree.addListener(SWT.KeyDown, e -> userInput = true);
     wTree.addListener(SWT.Selection, e -> clicked());
 
     setByKey(false);
@@ -285,22 +304,61 @@ final class TargetDocumentPane {
   }
 
   private Check checkOf(Element found, boolean listed, KeyCandidate key) {
-    if (xpath.isEmpty() || TargetXPathBuilder.KEY_PLACEHOLDER.equals(xpath)) {
+    if (xpath.isEmpty() || byKey && TargetXPathBuilder.KEY_PLACEHOLDER.equals(xpath)) {
       return Check.of(Outcome.NOT_CHECKED);
     }
     if (findError != null) {
       return new Check(Outcome.INVALID, null, null, null, 0, findError);
     }
+    if (notFollowed) {
+      return Check.of(Outcome.NOT_FOLLOWED);
+    }
     if (found == null) {
       return Check.of(Outcome.NOT_FOUND);
+    }
+    if (byKey && key != null) {
+      // What the transform does with the key of this node: it takes the first node it finds
+      Node taken = nodeOf(TargetXPathBuilder.forKeyValue(xpath, key.value()));
+      if (!(taken instanceof Element takenElement)) {
+        return new Check(
+            Outcome.KEY_FINDS_NO_NODE,
+            describe(found),
+            parentOf(found),
+            key.value(),
+            foundCount,
+            null);
+      }
+      if (takenElement != found) {
+        return new Check(
+            Outcome.KEY_NOT_UNIQUE,
+            describe(takenElement),
+            parentOf(takenElement),
+            key.value(),
+            foundCount,
+            null);
+      }
     }
     return new Check(
         listed ? Outcome.FOUND : Outcome.FOUND_NOT_LISTED,
         describe(found),
-        found.getParentNode() instanceof Element parent ? describe(parent) : null,
+        parentOf(found),
         byKey && key != null ? key.value() : null,
         byKey ? foundCount : 1,
         null);
+  }
+
+  private static String parentOf(Element element) {
+    return element.getParentNode() instanceof Element parent ? describe(parent) : null;
+  }
+
+  /** The node a statement finds the way the transform evaluates it: the first one. */
+  private Node nodeOf(String statement) {
+    try {
+      return (Node)
+          XPathFactory.newInstance().newXPath().evaluate(statement, document, XPathConstants.NODE);
+    } catch (XPathExpressionException e) {
+      return null;
+    }
   }
 
   /** Writes the statement for the node again, after the join mode changed. */
@@ -385,6 +443,18 @@ final class TargetDocumentPane {
 
   private void clicked() {
     TreeItem[] selection = wTree.getSelection();
+    boolean byInput = userInput;
+    userInput = false;
+    if (!byInput
+        && picked == null
+        && selection.length == 1
+        && wTree.getItemCount() > 0
+        && selection[0] == wTree.getItem(0)) {
+      // Nobody clicked: GTK selects the first row when the tree gets the focus with nothing
+      // selected. That must not write over the statement.
+      wTree.deselectAll();
+      return;
+    }
     picked =
         selection.length == 1 && selection[0].getData() instanceof Element element ? element : null;
     chooseKey(selectedKey());
@@ -434,11 +504,19 @@ final class TargetDocumentPane {
       }
     }
     if (choice == null && !candidates.isEmpty()) {
-      choice = candidates.get(0);
+      // A key that tells this node apart, so the transform finds it with its value
+      choice =
+          candidates.stream().filter(this::leadsToPicked).findFirst().orElse(candidates.get(0));
     }
     if (choice != null) {
       wKey.select(candidates.indexOf(choice));
     }
+  }
+
+  /** Whether the statement for the picked node with this key, its value filled in, finds it. */
+  private boolean leadsToPicked(KeyCandidate key) {
+    String statement = TargetXPathBuilder.xpath(picked, key);
+    return nodeOf(TargetXPathBuilder.forKeyValue(statement, key.value())) == picked;
   }
 
   private KeyCandidate selectedKey() {
@@ -496,11 +574,31 @@ final class TargetDocumentPane {
   private Element find() {
     findError = null;
     foundCount = 0;
-    if (xpath.isEmpty() || TargetXPathBuilder.KEY_PLACEHOLDER.equals(xpath)) {
+    notFollowed = false;
+    if (xpath.isEmpty() || byKey && TargetXPathBuilder.KEY_PLACEHOLDER.equals(xpath)) {
       return null;
     }
-    String statement =
-        byKey ? xpath.replaceAll("\\s*=\\s*'\\?'", "").replaceAll("\\s*=\\s*\"\\?\"", "") : xpath;
+    String statement = xpath;
+    if (byKey) {
+      // Valid XPath once the transform fills in a key?
+      try {
+        XPathFactory.newInstance()
+            .newXPath()
+            .evaluate(TargetXPathBuilder.forKeyValue(xpath, "0"), document, XPathConstants.NODESET);
+      } catch (XPathExpressionException e) {
+        findError = messageOf(e);
+        return null;
+      }
+      // Only = '?': not the = of !=, <= or >=
+      statement =
+          xpath
+              .replaceAll("(?<![!<>])\\s*=\\s*'\\?'", "")
+              .replaceAll("(?<![!<>])\\s*=\\s*\"\\?\"", "");
+      if (statement.contains(TargetXPathBuilder.KEY_PLACEHOLDER)) {
+        notFollowed = true;
+        return null;
+      }
+    }
     NodeList nodes;
     try {
       nodes =
@@ -509,7 +607,12 @@ final class TargetDocumentPane {
                   .newXPath()
                   .evaluate(statement, document, XPathConstants.NODESET);
     } catch (XPathExpressionException e) {
-      findError = messageOf(e);
+      if (byKey) {
+        // Valid with a key filled in: taking out ='?' is what broke it
+        notFollowed = true;
+      } else {
+        findError = messageOf(e);
+      }
       return null;
     }
     Element first = null;
