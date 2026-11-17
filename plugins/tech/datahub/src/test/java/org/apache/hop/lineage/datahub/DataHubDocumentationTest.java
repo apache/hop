@@ -40,10 +40,16 @@ import org.junit.jupiter.api.Test;
 class DataHubDocumentationTest {
   private static final String FLOW = "urn:li:dataFlow:(hop,emea.orders.hpl,prod)";
 
-  private final DataHubTranslator translator =
-      new DataHubTranslator("PROD", "prod", "emea", "urn:li:corpuser:datahub", false);
+  /** A publication: each has a sink, and a translator, of its own. */
+  private static DataHubTranslator publication() {
+    return new DataHubTranslator("PROD", "prod", "emea", "urn:li:corpuser:datahub", false);
+  }
 
   private List<Mcp> translate(String project, String markdown) {
+    return translate(publication(), project, markdown);
+  }
+
+  private List<Mcp> translate(DataHubTranslator translator, String project, String markdown) {
     OpenLineageEventMapper mapper =
         OpenLineageEventMapper.builder("hop", "https://hop.apache.org")
             .transformJobs(true)
@@ -137,6 +143,16 @@ class DataHubDocumentationTest {
             .orElseThrow();
     assertEquals(project.entityUrn(), info.path("parentDocument").path("document").asText());
     assertEquals("sales", project.value().path("customProperties").path("hopProject").asText());
+  }
+
+  @Test
+  void theProjectsDocumentIsSentWithTheFirstDocumentOfAPublication() {
+    DataHubTranslator translator = publication();
+    List<Mcp> first = translate(translator, "sales", "first");
+    List<Mcp> second = translate(translator, "sales", "second");
+
+    assertEquals(6, first.size(), "the project's document and the pipeline's: " + first);
+    assertEquals(3, second.size(), "the pipeline's: " + second);
   }
 
   @Test

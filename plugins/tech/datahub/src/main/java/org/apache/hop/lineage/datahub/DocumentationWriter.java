@@ -33,18 +33,20 @@ import org.apache.hop.workflow.action.ActionMeta;
 
 /**
  * The documentation events of the pipelines and workflows {@link DataHubPublisher} publishes, with
- * what {@code hop doc} writes for them, parameters and notes included. It needs the documentation
- * plugin.
+ * what {@code hop doc} writes for them. It needs the documentation plugin.
  */
 final class DocumentationWriter {
 
   private final DocMarkdown markdown;
 
   /**
+   * @param includingParameters list the parameters, as {@code hop doc -ip} does
+   * @param includingNotes add the text of the notes, as {@code hop doc -in} does
    * @throws LinkageError when the documentation plugin is not installed
    */
-  DocumentationWriter(IVariables variables, ILogChannel log) {
-    this.markdown = new DocMarkdown(log, variables, true, true);
+  DocumentationWriter(
+      IVariables variables, ILogChannel log, boolean includingParameters, boolean includingNotes) {
+    this.markdown = new DocMarkdown(log, variables, includingParameters, includingNotes);
   }
 
   /**

@@ -20,6 +20,7 @@ package org.apache.hop.lineage.datahub;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -48,14 +49,17 @@ import org.apache.hop.workflow.WorkflowMeta;
  * outputs, and the layouts of those files as dataset schemas. It writes through a DataHub {@link
  * LineageSink}, so the entities are the ones the runs report to.
  *
- * <p>With {@link #setIncludingDocumentation(boolean)} it also publishes what {@code hop doc} writes
- * for each pipeline and workflow as a DataHub document (DataHub 1.7 and later), related to its flow
- * and tasks, under a document of the project.
+ * <p>With {@code includingDocumentation} set it also publishes what {@code hop doc} writes for each
+ * pipeline and workflow as a DataHub document (DataHub 1.7 and later), related to its flow and
+ * tasks, under a document of the project.
  */
 public final class DataHubPublisher {
 
   /** How long to wait for DataHub to accept what was published. */
   static final long DELIVERY_TIMEOUT_MS = 120_000L;
+
+  /** How long to wait for DataHub to take the first document, before the others are sent. */
+  static final long FIRST_DOCUMENT_TIMEOUT_MS = 30_000L;
 
   /** The name of the project, set when a project is used. */
   static final String VAR_PROJECT_NAME = "HOP_PROJECT_NAME";
@@ -66,14 +70,20 @@ public final class DataHubPublisher {
    * @param pipelines the pipelines published
    * @param workflows the workflows published
    * @param unreadable the files that could not be read, and were skipped
+   * @param documentationNotPublished why the documentation was not published, or null
    * @param health how the delivery to DataHub went
    */
   public record Result(
-      int pipelines, int workflows, List<String> unreadable, LineageSinkHealth health) {
+      int pipelines,
+      int workflows,
+      List<String> unreadable,
+      String documentationNotPublished,
+      LineageSinkHealth health) {
 
     /** Whether everything was read and DataHub accepted all of it. */
     public boolean isSuccess() {
       return unreadable.isEmpty()
+          && documentationNotPublished == null
           && health != null
           && health.waiting() == 0
           && health.rejected() == 0
@@ -85,22 +95,23 @@ public final class DataHubPublisher {
   private final IHopMetadataProvider metadataProvider;
   private final ILogChannel log;
 
-  /** Whether to publish the documentation of each pipeline and workflow as well. */
-  private boolean includingDocumentation;
+  /**
+   * Whether to publish what {@code hop doc} writes for each pipeline and workflow as well, as
+   * DataHub documents: DataHub 1.7 or later, an earlier version refuses them.
+   */
+  @Setter private boolean includingDocumentation;
+
+  /** Whether the documentation lists the parameters, as {@code hop doc -ip} does. */
+  @Setter private boolean includingParameters;
+
+  /** Whether the documentation has the text of the notes, as {@code hop doc -in} does. */
+  @Setter private boolean includingNotes;
 
   public DataHubPublisher(
       IVariables variables, IHopMetadataProvider metadataProvider, ILogChannel log) {
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.log = log;
-  }
-
-  /**
-   * Publishes what {@code hop doc} writes for each pipeline and workflow as well, as DataHub
-   * documents: DataHub 1.7 or later, an earlier version refuses them.
-   */
-  public void setIncludingDocumentation(boolean includingDocumentation) {
-    this.includingDocumentation = includingDocumentation;
   }
 
   /**
@@ -115,6 +126,8 @@ public final class DataHubPublisher {
     int pipelines = 0;
     int workflows = 0;
     List<String> unreadable = new ArrayList<>();
+    List<LineageEvent> documents = new ArrayList<>();
+    String documentationNotPublished = null;
     LineageSinkHealth health;
     try {
       FileObject root = folder(folder);
@@ -129,7 +142,7 @@ public final class DataHubPublisher {
             List<LineageEvent> events =
                 LineageDefinitions.ofPipeline(meta, variablesOf(meta, variables), log);
             if (documentation != null) {
-              events.add(documentation.pipeline(events.get(0), meta, relativeFile, project));
+              documents.add(documentation.pipeline(events.get(0), meta, relativeFile, project));
             }
             sink.accept(events);
             pipelines++;
@@ -138,7 +151,7 @@ public final class DataHubPublisher {
             List<LineageEvent> events =
                 LineageDefinitions.ofWorkflow(meta, variablesOf(meta, variables));
             if (documentation != null) {
-              events.add(documentation.workflow(events.get(0), meta, relativeFile, project));
+              documents.add(documentation.workflow(events.get(0), meta, relativeFile, project));
             }
             sink.accept(events);
             workflows++;
@@ -150,6 +163,7 @@ public final class DataHubPublisher {
         }
       }
       sink.awaitDelivery(DELIVERY_TIMEOUT_MS);
+      documentationNotPublished = publishDocuments(sink, documents);
       health = sink.health();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -157,7 +171,38 @@ public final class DataHubPublisher {
     } finally {
       sink.shutdown();
     }
-    return new Result(pipelines, workflows, unreadable, health);
+    return new Result(pipelines, workflows, unreadable, documentationNotPublished, health);
+  }
+
+  /**
+   * Sends the documents after the pipelines and workflows are delivered, so a DataHub that refuses
+   * documents (before 1.7) refuses only them. The first goes alone: when DataHub doesn't take it,
+   * the others are not sent.
+   *
+   * @return why the documents were not published, or null when they were
+   */
+  private String publishDocuments(DataHubLineageSink sink, List<LineageEvent> documents)
+      throws HopException, InterruptedException {
+    if (documents.isEmpty()) {
+      return null;
+    }
+    LineageSinkHealth before = sink.health();
+    sink.accept(documents.subList(0, 1));
+    sink.awaitDelivery(FIRST_DOCUMENT_TIMEOUT_MS);
+    LineageSinkHealth after = sink.health();
+    if (after.waiting() > 0
+        || after.rejected() > before.rejected()
+        || after.dropped() > before.dropped()) {
+      String why =
+          "DataHub did not take the documentation, which needs DataHub 1.7 or later; it is not"
+              + " published"
+              + (after.lastError() == null ? "" : ": " + after.lastError());
+      log.logError(why);
+      return why;
+    }
+    sink.accept(documents.subList(1, documents.size()));
+    sink.awaitDelivery(DELIVERY_TIMEOUT_MS);
+    return null;
   }
 
   /**
@@ -206,7 +251,7 @@ public final class DataHubPublisher {
 
   private DocumentationWriter documentationWriter() throws HopException {
     try {
-      return new DocumentationWriter(variables, log);
+      return new DocumentationWriter(variables, log, includingParameters, includingNotes);
     } catch (LinkageError e) {
       throw new HopException(
           "Publishing documentation needs the documentation plugin (hop doc), which is not"

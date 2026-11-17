@@ -251,7 +251,7 @@ It writes through a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type 
 ----
 hop datahub-publish -j my-project -e prod -s prod-datahub
 hop datahub-publish -j my-project -s prod-datahub -f '${PROJECT_HOME}/flows'
-hop datahub-publish -j my-project -s prod-datahub -d
+hop datahub-publish -j my-project -s prod-datahub -d -ip
 ----
 
 [options="header", cols="1,3"]
@@ -267,6 +267,12 @@ hop datahub-publish -j my-project -s prod-datahub -d
 |`-d`, `--include-documentation`
 |Also publish the documentation of each pipeline and workflow as a DataHub document. Needs DataHub 1.7 or later. See <<_documentation>>.
 
+|`-ip`, `--include-parameters`
+|With `-d`: list the parameters of each pipeline and workflow, with their default values, in its document, as `hop doc -ip` does.
+
+|`-in`, `--include-notes`
+|With `-d`: add the text of the notes of each pipeline and workflow to its document, as `hop doc -in` does.
+
 |`-j`, `-e`
 |The project and environment, as for `hop doc`.
 |===
@@ -277,14 +283,16 @@ The command exits with 1 when a file can't be read or DataHub didn't accept ever
 === Documentation
 
 With `-d`, or *Include documentation* in the action, each pipeline and workflow also becomes a DataHub document.
-The document holds what xref:hop-tools/hop-doc.adoc[hop doc] writes for the file: its description and extended description, its file name relative to the published folder, when it was last changed, its parameters, and the text of its notes.
+The document holds what xref:hop-tools/hop-doc.adoc[hop doc] writes for the file: its description and extended description, its file name relative to the published folder, and when it was last changed.
+Its parameters, with their default values, and the text of its notes are only added when asked for (`-ip`, `-in`, or *Include parameters* and *Include notes* in the action), as with `hop doc`: they end up in a catalog that more people read than the project.
 The image of the graph is left out: DataHub shows the tasks itself.
 
 * The document is related to the pipeline or workflow and to each of its tasks, so it appears on their pages in DataHub.
 * The documents of a project sit under one document named `Hop project <name>`.
 * Publishing again updates the same documents.
 
-Documents need DataHub 1.7 or later. Earlier versions, such as 1.0, have no documents and refuse them: the publication then fails with the documents as refused.
+Documents need DataHub 1.7 or later. Earlier versions, such as 1.0, have no documents and refuse them.
+The documents are sent after every pipeline and workflow is delivered, and the first one alone: when DataHub doesn't take it, the others are not sent, and the publication fails with that reason. The pipelines, tasks and datasets are published all the same.
 Leave the option off for those versions.
 A document stays in DataHub when its pipeline or workflow is deleted.
 

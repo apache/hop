@@ -236,7 +236,7 @@ A unit test runs a changed copy of the pipeline, without a file name. Its other 
 
 == Documentation
 
-When `DataHubPublisher` publishes a project with documentation, it adds a `DOCUMENTATION` event to the definition of each pipeline and workflow, with a `DocumentationLineagePayload`: a title, the Markdown `DocMarkdown` (documentation plugin) builds the way `hop doc` does, the project name, and the names of the transforms or actions. Runs never emit it. The OpenLineage mapper turns it into the `hopDocumentation` run facet of an `OTHER` event; the DataHub sink into a `document` entity related to the flow and its tasks, under a document of the project.
+When `DataHubPublisher` publishes a project with documentation, it sends a `DOCUMENTATION` event for each pipeline and workflow once every definition is delivered, with a `DocumentationLineagePayload`: a title, the Markdown `DocMarkdown` (documentation plugin) builds the way `hop doc` does, the project name, and the names of the transforms or actions. Runs never emit it. The OpenLineage mapper turns it into the `hopDocumentation` run facet of an `OTHER` event; the DataHub sink into a `document` entity related to the flow and its tasks, under a document of the project.
 
 == Emitting events from code
 

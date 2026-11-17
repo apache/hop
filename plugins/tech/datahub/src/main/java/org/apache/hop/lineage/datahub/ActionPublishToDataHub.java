@@ -91,6 +91,30 @@ public class ActionPublishToDataHub extends ActionBase implements IAction {
   @HopMetadataProperty(key = "include_documentation")
   private boolean includingDocumentation;
 
+  @GuiWidgetElement(
+      id = "includingParameters",
+      order = "0310",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ActionPublishToDataHub.Parameters.Label",
+      toolTip = "i18n::ActionPublishToDataHub.Parameters.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_OPTIONS,
+      groupType = GuiWidgetGroupType.BOXES)
+  @HopMetadataProperty(key = "include_parameters")
+  private boolean includingParameters;
+
+  @GuiWidgetElement(
+      id = "includingNotes",
+      order = "0320",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ActionPublishToDataHub.Notes.Label",
+      toolTip = "i18n::ActionPublishToDataHub.Notes.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_OPTIONS,
+      groupType = GuiWidgetGroupType.BOXES)
+  @HopMetadataProperty(key = "include_notes")
+  private boolean includingNotes;
+
   public ActionPublishToDataHub() {
     this("");
   }
@@ -108,6 +132,8 @@ public class ActionPublishToDataHub extends ActionBase implements IAction {
       DataHubPublisher publisher =
           new DataHubPublisher(this, getMetadataProvider(), getLogChannel());
       publisher.setIncludingDocumentation(includingDocumentation);
+      publisher.setIncludingParameters(includingParameters);
+      publisher.setIncludingNotes(includingNotes);
       DataHubPublisher.Result published =
           publisher.publish(sinkName, StringUtils.defaultIfBlank(folder, "${PROJECT_HOME}"));
       logBasic(DataHubPublishCommand.describe(published));

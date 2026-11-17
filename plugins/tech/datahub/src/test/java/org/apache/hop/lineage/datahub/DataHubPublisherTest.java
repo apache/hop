@@ -18,6 +18,7 @@
 package org.apache.hop.lineage.datahub;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -228,19 +229,27 @@ class DataHubPublisherTest {
 
     assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));
     Map<String, JsonNode> documents = new TreeMap<>();
+    List<String> aspects = new ArrayList<>();
+    int projectDocuments = 0;
     for (JsonNode proposal : proposalsSent()) {
+      aspects.add(proposal.get("aspectName").asText());
       if (proposal.get("aspectName").asText().equals("documentInfo")) {
         JsonNode info = MAPPER.readTree(proposal.path("aspect").path("value").asText());
         documents.put(info.path("title").asText(), info);
+        projectDocuments += info.path("title").asText().startsWith("Hop project") ? 1 : 0;
       }
     }
     assertEquals(
         List.of("Hop project sales", "Pipeline orders", "Workflow nightly"),
         List.copyOf(documents.keySet()));
+    assertEquals(1, projectDocuments, "the project's document is sent once");
+    assertTrue(
+        aspects.indexOf("documentInfo") > aspects.lastIndexOf("dataFlowInfo"),
+        "the documents follow the pipelines and workflows: " + aspects);
     String orders = documents.get("Pipeline orders").path("contents").path("text").asText();
     assertTrue(orders.contains("* Description : Loads the orders"), orders);
     assertTrue(orders.contains("* Filename : flows/orders.hpl"), orders);
-    assertTrue(orders.contains("Runs after the customers"), orders);
+    assertFalse(orders.contains("Runs after the customers"), "notes only when asked: " + orders);
     JsonNode nightly = documents.get("Workflow nightly");
     assertEquals(
         "urn:li:dataJob:(urn:li:dataFlow:(hop,emea.nightly.hwf,dev),Start)",
@@ -249,6 +258,86 @@ class DataHubPublisherTest {
         documents.get("Pipeline orders").path("parentDocument"),
         nightly.path("parentDocument"),
         "both under the project's document");
+  }
+
+  @Test
+  void theNotesAndParametersAreDocumentedWhenAsked() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    pipeline.addNote(new NotePadMeta("Runs after the customers", 0, 0, 100, 50));
+    pipeline.addParameterDefinition("OUT_DIR", "/data/out", "Where the orders go");
+    write("orders.hpl", pipeline.getXml(variables));
+
+    DataHubPublisher publisher =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"));
+    publisher.setIncludingDocumentation(true);
+    String withoutThem = documentText(publisher);
+    gms.resetRequests();
+    publisher.setIncludingNotes(true);
+    publisher.setIncludingParameters(true);
+    String withThem = documentText(publisher);
+
+    assertFalse(withoutThem.contains("Runs after the customers"), withoutThem);
+    assertFalse(withoutThem.contains("/data/out"), withoutThem);
+    assertTrue(withThem.contains("Runs after the customers"), withThem);
+    assertTrue(withThem.contains("/data/out"), withThem);
+  }
+
+  private String documentText(DataHubPublisher publisher) throws Exception {
+    DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
+    assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));
+    for (JsonNode proposal : proposalsSent()) {
+      if (proposal.get("aspectName").asText().equals("documentInfo")) {
+        JsonNode info = MAPPER.readTree(proposal.path("aspect").path("value").asText());
+        if (info.path("title").asText().equals("Pipeline orders")) {
+          return info.path("contents").path("text").asText();
+        }
+      }
+    }
+    throw new AssertionError("no document of the pipeline");
+  }
+
+  @Test
+  void aDataHubWithoutDocumentsStillGetsEveryPipeline() throws Exception {
+    // DataHub before 1.7 refuses documents
+    gms.stubFor(
+        post(urlEqualTo(INGEST))
+            .atPriority(1)
+            .withRequestBody(containing("\"entityType\":\"document\""))
+            .willReturn(aResponse().withStatus(422).withBody("Unknown entity type document")));
+    for (String name : List.of("customers", "orders", "invoices")) {
+      PipelineMeta pipeline = new PipelineMeta();
+      pipeline.setName(name);
+      write(name + ".hpl", pipeline.getXml(variables));
+    }
+    variables.setVariable(DataHubPublisher.VAR_PROJECT_NAME, "sales");
+
+    DataHubPublisher publisher =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"));
+    publisher.setIncludingDocumentation(true);
+    DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
+
+    assertFalse(result.isSuccess());
+    assertTrue(
+        DataHubPublishCommand.describe(result).contains("needs DataHub 1.7 or later"),
+        DataHubPublishCommand.describe(result));
+    List<String> flows = new ArrayList<>();
+    List<String> documentsTried = new ArrayList<>();
+    for (var request : gms.findAll(postRequestedFor(urlEqualTo(INGEST)))) {
+      for (JsonNode proposal : MAPPER.readTree(request.getBodyAsString()).get("proposals")) {
+        String urn = proposal.get("entityUrn").asText();
+        if (proposal.get("aspectName").asText().equals("dataFlowInfo") && !flows.contains(urn)) {
+          flows.add(urn);
+        }
+        if (proposal.get("entityType").asText().equals("document")
+            && !documentsTried.contains(urn)) {
+          documentsTried.add(urn);
+        }
+      }
+    }
+    assertEquals(3, flows.size(), "every pipeline, delivered before the documents: " + flows);
+    assertEquals(
+        2, documentsTried.size(), "the project's and the first pipeline's: " + documentsTried);
   }
 
   @Test

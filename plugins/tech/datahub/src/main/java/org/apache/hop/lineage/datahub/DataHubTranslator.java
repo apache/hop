@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
@@ -152,6 +153,9 @@ final class DataHubTranslator {
 
   /** The platform instance of the tables of each database server, by namespace. */
   private final Map<String, String> databaseInstances;
+
+  /** The projects whose document was sent: once is enough, the documents under it follow. */
+  private final Set<String> documentedProjects = ConcurrentHashMap.newKeySet();
 
   /** The most runs whose properties are remembered between their start and their end. */
   static final int MAX_OPEN_RUNS = 1_024;
@@ -1310,7 +1314,6 @@ final class DataHubTranslator {
     List<Mcp> proposals = new ArrayList<>();
     String parentUrn = null;
     if (project != null) {
-      // Sent with each document of the project: it is small, and needs no memory of what was sent
       parentUrn =
           DataHubUrns.document(
               String.join(
@@ -1319,6 +1322,9 @@ final class DataHubTranslator {
                   Objects.toString(platformInstance, ""),
                   Objects.toString(cluster, ""),
                   project));
+    }
+    // Sent with the first document of the project only
+    if (project != null && documentedProjects.add(parentUrn)) {
       ObjectNode properties = MAPPER.createObjectNode();
       properties.put("hopProject", project);
       proposals.addAll(

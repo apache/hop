@@ -65,9 +65,23 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
   @CommandLine.Option(
       names = {"-d", "--include-documentation"},
       description =
-          "Also publish what hop doc writes for each pipeline and workflow (details, parameters"
-              + " and notes) as a DataHub document. Needs DataHub 1.7 or later.")
+          "Also publish what hop doc writes for each pipeline and workflow as a DataHub"
+              + " document. Needs DataHub 1.7 or later.")
   private boolean includingDocumentation;
+
+  @CommandLine.Option(
+      names = {"-ip", "--include-parameters"},
+      description =
+          "With -d: list the parameters of each pipeline and workflow in its document, as hop"
+              + " doc -ip does")
+  private boolean includingParameters;
+
+  @CommandLine.Option(
+      names = {"-in", "--include-notes"},
+      description =
+          "With -d: add the text of the notes of each pipeline and workflow to its document, as"
+              + " hop doc -in does")
+  private boolean includingNotes;
 
   private CommandLine cmd;
   private IVariables variables;
@@ -97,6 +111,8 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
       String source = folder != null ? folder : "${PROJECT_HOME}";
       DataHubPublisher publisher = new DataHubPublisher(variables, metadataProvider, log);
       publisher.setIncludingDocumentation(includingDocumentation);
+      publisher.setIncludingParameters(includingParameters);
+      publisher.setIncludingNotes(includingNotes);
       DataHubPublisher.Result result = publisher.publish(sinkName, source);
       log.logBasic(describe(result));
       if (!result.isSuccess()) {
@@ -131,6 +147,9 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
     }
     if (!result.unreadable().isEmpty()) {
       line.append(". Not published: ").append(String.join(", ", result.unreadable()));
+    }
+    if (result.documentationNotPublished() != null) {
+      line.append(". ").append(result.documentationNotPublished());
     }
     return line.toString();
   }
