@@ -105,6 +105,26 @@ public class ValueMetaBase implements IValueMeta {
   private static final String CONST_STORAGE_META = "storage-meta";
   private static final String CONST_LENGTH = "length";
   private static final String CONST_PRECISION = "precision";
+
+  // Keys of the field settings in the JSON form of the metadata (storeMetaInJson)
+  private static final String JSON_ORIGIN = "origin";
+  private static final String JSON_COMMENTS = "comments";
+  private static final String JSON_DECIMAL_SYMBOL = "decimalSymbol";
+  private static final String JSON_GROUPING_SYMBOL = "groupingSymbol";
+  private static final String JSON_CURRENCY_SYMBOL = "currencySymbol";
+  private static final String JSON_ROUNDING_TYPE = "roundingType";
+  private static final String JSON_TRIM_TYPE = "trimType";
+  private static final String JSON_DATE_FORMAT_LENIENT = "dateFormatLenient";
+  private static final String JSON_DATE_FORMAT_LOCALE = "dateFormatLocale";
+  private static final String JSON_DATE_FORMAT_TIME_ZONE = "dateFormatTimeZone";
+  private static final String JSON_LENIENT_STRING_TO_NUMBER = "lenientStringToNumber";
+  private static final String JSON_STRING_ENCODING = "stringEncoding";
+  private static final String JSON_CASE_INSENSITIVE = "caseInsensitive";
+  private static final String JSON_COLLATOR_DISABLED = "collatorDisabled";
+  private static final String JSON_COLLATOR_LOCALE = "collatorLocale";
+  private static final String JSON_COLLATOR_STRENGTH = "collatorStrength";
+  private static final String JSON_SORTED_DESCENDING = "sortedDescending";
+  private static final String JSON_OUTPUT_PADDING = "outputPaddingEnabled";
   private static final String CONST_COLLATOR_STRENGTH = "collator_strength";
   private static final String CONST_FALSE = "false";
   private static final String CONST_CANNOT_CONVERT =
@@ -6077,6 +6097,32 @@ public class ValueMetaBase implements IValueMeta {
     jValue.put(CONST_LENGTH, getLength());
     jValue.put(CONST_PRECISION, getPrecision());
     jValue.put("conversionMask", getConversionMask());
+    // The rest of what the binary format (writeMeta) keeps: where the field comes from and how
+    // its values are written, read and compared.
+    jValue.put(JSON_ORIGIN, getOrigin());
+    jValue.put(JSON_COMMENTS, getComments());
+    jValue.put(JSON_DECIMAL_SYMBOL, getDecimalSymbol());
+    jValue.put(JSON_GROUPING_SYMBOL, getGroupingSymbol());
+    jValue.put(JSON_CURRENCY_SYMBOL, getCurrencySymbol());
+    jValue.put(JSON_ROUNDING_TYPE, getRoundingType());
+    jValue.put(JSON_TRIM_TYPE, (long) getTrimType());
+    jValue.put(JSON_DATE_FORMAT_LENIENT, isDateFormatLenient());
+    if (getDateFormatLocale() != null) {
+      jValue.put(JSON_DATE_FORMAT_LOCALE, getDateFormatLocale().toLanguageTag());
+    }
+    if (getDateFormatTimeZone() != null) {
+      jValue.put(JSON_DATE_FORMAT_TIME_ZONE, getDateFormatTimeZone().getID());
+    }
+    jValue.put(JSON_LENIENT_STRING_TO_NUMBER, isLenientStringToNumber());
+    jValue.put(JSON_STRING_ENCODING, getStringEncoding());
+    jValue.put(JSON_CASE_INSENSITIVE, isCaseInsensitive());
+    jValue.put(JSON_COLLATOR_DISABLED, isCollatorDisabled());
+    if (getCollatorLocale() != null) {
+      jValue.put(JSON_COLLATOR_LOCALE, getCollatorLocale().toLanguageTag());
+    }
+    jValue.put(JSON_COLLATOR_STRENGTH, (long) getCollatorStrength());
+    jValue.put(JSON_SORTED_DESCENDING, isSortedDescending());
+    jValue.put(JSON_OUTPUT_PADDING, isOutputPaddingEnabled());
   }
 
   @Override
@@ -6087,6 +6133,64 @@ public class ValueMetaBase implements IValueMeta {
     setPrecision((int) precision);
     String conversionMask = (String) jValue.get("conversionMask");
     setConversionMask(conversionMask);
+
+    // JSON written by older versions has none of the keys below: the defaults stay.
+    //
+    if (jValue.containsKey(JSON_ORIGIN)) {
+      setOrigin((String) jValue.get(JSON_ORIGIN));
+    }
+    if (jValue.containsKey(JSON_COMMENTS)) {
+      setComments((String) jValue.get(JSON_COMMENTS));
+    }
+    if (jValue.containsKey(JSON_DECIMAL_SYMBOL)) {
+      setDecimalSymbol((String) jValue.get(JSON_DECIMAL_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_GROUPING_SYMBOL)) {
+      setGroupingSymbol((String) jValue.get(JSON_GROUPING_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_CURRENCY_SYMBOL)) {
+      setCurrencySymbol((String) jValue.get(JSON_CURRENCY_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_ROUNDING_TYPE)) {
+      setRoundingType((String) jValue.get(JSON_ROUNDING_TYPE));
+    }
+    if (jValue.get(JSON_TRIM_TYPE) instanceof Long trim) {
+      setTrimType(trim.intValue());
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LENIENT) instanceof Boolean lenient) {
+      setDateFormatLenient(lenient);
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LOCALE) instanceof String locale) {
+      setDateFormatLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_DATE_FORMAT_TIME_ZONE) instanceof String timeZone) {
+      setDateFormatTimeZone(TimeZone.getTimeZone(timeZone));
+    }
+    if (jValue.get(JSON_LENIENT_STRING_TO_NUMBER) instanceof Boolean lenient) {
+      setLenientStringToNumber(lenient);
+    }
+    if (jValue.containsKey(JSON_STRING_ENCODING)) {
+      setStringEncoding((String) jValue.get(JSON_STRING_ENCODING));
+    }
+    if (jValue.get(JSON_CASE_INSENSITIVE) instanceof Boolean caseInsensitive) {
+      setCaseInsensitive(caseInsensitive);
+    }
+    if (jValue.get(JSON_COLLATOR_DISABLED) instanceof Boolean collatorOff) {
+      setCollatorDisabled(collatorOff);
+    }
+    // The locale creates the collator, the strength is set on it: locale first.
+    if (jValue.get(JSON_COLLATOR_LOCALE) instanceof String locale) {
+      setCollatorLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_COLLATOR_STRENGTH) instanceof Long strength) {
+      setCollatorStrength(strength.intValue());
+    }
+    if (jValue.get(JSON_SORTED_DESCENDING) instanceof Boolean descending) {
+      setSortedDescending(descending);
+    }
+    if (jValue.get(JSON_OUTPUT_PADDING) instanceof Boolean padding) {
+      setOutputPaddingEnabled(padding);
+    }
   }
 
   public static final class TrimTypeCodeConverter implements IIntCodeConverter {
