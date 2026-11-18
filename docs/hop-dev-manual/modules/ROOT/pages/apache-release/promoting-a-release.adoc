@@ -71,10 +71,9 @@ svn commit -m 'Move release files for Apache hop 1.2.0-rc1'
 
 == Creating Dockerhub Artifacts
 
-To create the docker images you can use the build used to create the client, go to the folder with the code and do following steps
-
-first take a copy of the source code release and build the software
-(could be that you still have the build from the creating a release steps)
+To create the docker images you can use the build that created the client: the
+`target/checkout` folder `release:perform` left behind. Go to that folder and do the following steps.
+If it is gone, take a copy of the source code release and build the software first.
 
 [source,bash]
 ----

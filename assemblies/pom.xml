@@ -40,5 +40,8 @@
 
     <properties>
         <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+        <!-- Nothing under assemblies/ is deployed except hop-client, which sets this back to
+             false and deploys a flattened POM that does not reference this parent. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 </project>

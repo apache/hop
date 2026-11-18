@@ -29,7 +29,6 @@
     <name>Hop GUI</name>
 
     <properties>
-        <assembly_package-phase>none</assembly_package-phase>
         <jediterm.version>3.76</jediterm.version>
         <pty4j.version>0.14.0</pty4j.version>
         <xmlgraphics-commons.version>2.11</xmlgraphics-commons.version>
@@ -158,19 +157,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>assemblies</id>
-            <activation>
-                <property>
-                    <name>assemblies</name>
-                    <value>!false</value>
-                </property>
-            </activation>
-            <properties>
-                <assembly_package-phase>package</assembly_package-phase>
-            </properties>
-        </profile>
-    </profiles>
 </project>
