@@ -19,9 +19,12 @@ package org.apache.hop.ui.hopgui;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Display;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,6 +86,55 @@ class SessionDisplayTest {
       display.when(Display::getDefault).thenReturn(defaultDisplay);
 
       assertSame(defaultDisplay, SessionDisplay.currentOrDefault());
+    }
+  }
+
+  @Test
+  @DisplayName("without SWT on the classpath there is no display, rather than an error")
+  void currentAnswersNullWithoutSwt() {
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display
+          .when(Display::getCurrent)
+          .thenThrow(new NoClassDefFoundError("org/eclipse/swt/widgets/Display"));
+
+      assertNull(SessionDisplay.current());
+    }
+  }
+
+  @Test
+  @DisplayName("when the SWT native libraries don't load there is no display")
+  void currentAnswersNullWhenTheNativesDontLoad() {
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display
+          .when(Display::getCurrent)
+          .thenThrow(new UnsatisfiedLinkError("no swt-gtk in java.library.path"));
+      display.when(Display::getDefault).thenThrow(new UnsatisfiedLinkError("no swt-gtk"));
+
+      assertNull(SessionDisplay.current());
+      assertNull(SessionDisplay.currentOrDefault());
+    }
+  }
+
+  @Test
+  @DisplayName("without a display server the default display isn't there either")
+  void currentOrDefaultAnswersNullWithoutADisplayServer() {
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display.when(Display::getCurrent).thenReturn(null);
+      display
+          .when(Display::getDefault)
+          .thenThrow(new SWTError(SWT.ERROR_NO_HANDLES, "gtk_init_check() failed"));
+
+      assertNull(SessionDisplay.currentOrDefault());
+    }
+  }
+
+  @Test
+  @DisplayName("the JVM's own errors are not taken for a missing display")
+  void virtualMachineErrorsStillPropagate() {
+    try (MockedStatic<Display> display = mockStatic(Display.class)) {
+      display.when(Display::getCurrent).thenThrow(new OutOfMemoryError("Java heap space"));
+
+      assertThrows(OutOfMemoryError.class, SessionDisplay::current);
     }
   }
 }
