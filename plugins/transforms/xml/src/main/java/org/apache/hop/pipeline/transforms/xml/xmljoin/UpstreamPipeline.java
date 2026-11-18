@@ -23,9 +23,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -48,6 +52,34 @@ final class UpstreamPipeline {
   private static final Class<?> PKG = XmlJoinMeta.class;
 
   private static final String DUMMY_PLUGIN_ID = "Dummy";
+
+  /** Where the transform categories are named. */
+  private static final String CATEGORY_PACKAGE = "org.apache.hop.pipeline.transform";
+
+  /** The categories of transforms that read, or work on the rows they get, and write nothing. */
+  private static final List<String> READ_ONLY_CATEGORIES =
+      List.of(
+          "BaseTransform.Category.Input",
+          "BaseTransform.Category.Transform",
+          "BaseTransform.Category.Flow",
+          "BaseTransform.Category.Joins",
+          "BaseTransform.Category.Statistics",
+          "BaseTransform.Category.Validation",
+          "BaseTransform.Category.Inline");
+
+  /**
+   * Transforms in those categories that do more: they run other pipelines, workflows or SQL, or
+   * take away the mail or messages they read.
+   */
+  private static final Set<String> NOT_READ_ONLY =
+      Set.of(
+          "PipelineExecutor",
+          "WorkflowExecutor",
+          "MetaInject",
+          "ExecuteTests",
+          "DynamicSqlRow",
+          "MailInput",
+          "AwsSqSreader");
 
   private UpstreamPipeline() {}
 
@@ -107,6 +139,31 @@ final class UpstreamPipeline {
     transformMeta.setTransformPluginId(DUMMY_PLUGIN_ID);
     transformMeta.setTransformErrorMeta(null);
     transformMeta.setCopiesString("1");
+  }
+
+  /**
+   * The transforms of a pipeline that may write or run something else when it runs: those outside
+   * the categories of transforms that only read or work on rows, and the few inside them that do
+   * more. A transform whose plugin is unknown is one of them.
+   */
+  static List<String> mayWrite(PipelineMeta pipelineMeta) {
+    Set<String> readOnly = new HashSet<>();
+    for (String key : READ_ONLY_CATEGORIES) {
+      // Plugins are registered with their category in the language Hop shows
+      readOnly.add(BaseMessages.getString(CATEGORY_PACKAGE, key));
+    }
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<String> names = new ArrayList<>();
+    for (TransformMeta transformMeta : pipelineMeta.getTransforms()) {
+      String pluginId = transformMeta.getTransformPluginId();
+      IPlugin plugin = registry.findPluginWithId(TransformPluginType.class, pluginId);
+      if (plugin == null
+          || NOT_READ_ONLY.contains(pluginId)
+          || !readOnly.contains(plugin.getCategory())) {
+        names.add(transformMeta.getName());
+      }
+    }
+    return names;
   }
 
   /**

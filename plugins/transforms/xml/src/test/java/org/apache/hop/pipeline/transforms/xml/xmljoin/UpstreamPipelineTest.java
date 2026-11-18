@@ -146,6 +146,25 @@ class UpstreamPipelineTest {
     assertSame(dummy, kept.getTargetTransform());
   }
 
+  /**
+   * Load asks before it runs transforms that may write. The Injector (Inline) and the Dummy (Flow)
+   * only work on rows. A transform whose plugin is unknown, as the Table output is in this test,
+   * may write.
+   */
+  @Test
+  void theTransformsThatMayWriteAreNamed() {
+    PipelineMeta pipeline = new PipelineMeta();
+    add(pipeline, "generate");
+    pipeline.addTransform(new TransformMeta("Dummy", "pass", new DummyMeta()));
+    assertEquals(List.of(), UpstreamPipeline.mayWrite(pipeline));
+
+    // The plugin id follows the class of the transform; a pipeline read from a file has the id
+    TransformMeta write = new TransformMeta("TableOutput", "write", new DummyMeta());
+    write.setTransformPluginId("TableOutput");
+    pipeline.addTransform(write);
+    assertEquals(List.of("write"), UpstreamPipeline.mayWrite(pipeline));
+  }
+
   @Test
   void anUnknownTransformIsReported() {
     PipelineMeta pipeline = new PipelineMeta();

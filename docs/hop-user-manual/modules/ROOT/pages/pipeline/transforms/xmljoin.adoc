@@ -46,21 +46,21 @@ When exactly two transforms send rows to the XML Join, picking one of them as th
 |Transform|The transform that sends the XML elements to add, one element per row.
 |XML field|The field of the source transform that holds the XML element to add.
 2+h|Where to add them
-|Add elements|*Under one node*: every element is added to the node the XPath statement finds.
+|Join by key|Off: every element is added to the node the XPath statement finds.
 
-*Under the node of their key*: every `?` in the XPath statement is replaced by the key field of each row, so each element can go to its own node.
-This is what older versions called a complex join.
+On: every `?` in the XPath statement is replaced by the key field of each row, so each element goes under the node of its key.
+Older versions called this a complex join.
 |XPath statement|Where in the target document to add the elements, for example `//orders`.
-Under the node of their key, every `?` is replaced by the key field of each row, for example `//order[@id='?']/lines`.
+To join by key, every `?` is replaced by the key field of each row, for example `//order[@id='?']/lines`.
 The key field can also hold the whole XPath statement: set the XPath statement to `?`.
 
 The line under the XPath statement checks it as you type, once the target document is loaded (see below).
-In green it names the node the elements go under and its parent, and under the node of their key the key that node has.
+In green it names the node the elements go under and its parent, and when joining by key the key that node has.
 In red it says that the statement finds no node, or why it is not a valid XPath statement.
-Under the node of their key it also warns when other nodes have the same key as the highlighted node: the transform puts the elements for that key under the first of them.
+When joining by key it also warns when other nodes have the same key as the highlighted node: the transform puts the elements for that key under the first of them.
 Before the document is loaded, it says what the statement does and what is missing.
 |Key field|The field of the source transform whose value replaces `?` in the XPath statement.
-Only used when elements are added under the node of their key.
+Only used to join by key.
 2+h|Result
 |XML field|The field that holds the joined XML document. The output row has the fields of the target transform plus this field.
 |Encoding|The encoding written in the XML header.
@@ -78,15 +78,16 @@ This is useful to save space in the output file (for high volume transactions) o
 
 Beside the options, *Load* shows the XML document in the first row of the target transform as a tree.
 Only the target transform and the transforms before it run for this, in preview.
-As with any preview, that includes output transforms among them, such as a Table output.
+When any of them may write or run something else, such as a Table output, an Execute SQL script or a Pipeline executor, Load names them and asks before it runs them.
 
 * *Expand all* and *Collapse all*, the icons beside *Load*, open or close every node under the selected node, or the whole document when no node is selected.
 In a large document, *Expand all* opens level by level and stops at 5,000 nodes.
 * Click the node to add the elements to, and the XPath statement for it is filled in.
-* Under the node of their key, also choose the attribute or text that holds the key below the tree.
+* To join by key, also choose the attribute or text that holds the key below the tree.
 When the key field is empty, a key with the name of a source field is chosen, and that field becomes the key field.
+Choosing another key field afterwards chooses the key with its name, when the node has one.
 * The node the XPath statement finds is highlighted, also for a statement you type, and the line under the XPath statement says which node that is.
-Under one node, that is the first node the statement finds, the one the elements go under.
+Without join by key, that is the first node the statement finds, the one the elements go under.
 The tree lists the first 200 elements under a node; the line says when the node the statement finds is not among them.
 
-When you switch between the two ways to add elements, a statement written by a click is written again for the new way. A statement you typed stays as it is.
+When you switch Join by key on or off, a statement written by a click is written again for the new setting. A statement you typed stays as it is.

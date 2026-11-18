@@ -23,6 +23,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -151,6 +152,9 @@ final class TargetDocumentPane {
 
   /** The statement in the transform, variables resolved. */
   private String xpath = "";
+
+  /** Evaluates the statements; creating an XPath factory scans the classpath. */
+  private XPath evaluator;
 
   /**
    * @param load loads the document, see {@link #setDocument}
@@ -354,16 +358,48 @@ final class TargetDocumentPane {
   /** The node a statement finds the way the transform evaluates it: the first one. */
   private Node nodeOf(String statement) {
     try {
-      return (Node)
-          XPathFactory.newInstance().newXPath().evaluate(statement, document, XPathConstants.NODE);
+      return (Node) evaluator().evaluate(statement, document, XPathConstants.NODE);
     } catch (XPathExpressionException e) {
       return null;
     }
   }
 
+  private XPath evaluator() {
+    if (evaluator == null) {
+      evaluator = XPathFactory.newInstance().newXPath();
+    }
+    return evaluator;
+  }
+
   /** Writes the statement for the node again, after the join mode changed. */
   void pickAgain() {
     notifyPick();
+  }
+
+  /**
+   * The key names changed, the key field for instance. When the node has a key with one of the new
+   * names, that key is chosen and the statement for it written.
+   */
+  void keyNamesChanged() {
+    if (!byKey || picked == null || candidates.isEmpty()) {
+      return;
+    }
+    KeyCandidate named = namedKey();
+    if (named != null && named != selectedKey()) {
+      wKey.select(candidates.indexOf(named));
+      notifyPick();
+    }
+  }
+
+  /** The first key of the node with one of the key names, in their order. */
+  private KeyCandidate namedKey() {
+    for (String name : keyNames.get()) {
+      KeyCandidate candidate = TargetXPathBuilder.findByName(candidates, name);
+      if (candidate != null) {
+        return candidate;
+      }
+    }
+    return null;
   }
 
   /**
@@ -496,12 +532,7 @@ final class TargetDocumentPane {
       choice = sameKey(previous);
     }
     if (choice == null && !candidates.isEmpty()) {
-      for (String name : keyNames.get()) {
-        choice = TargetXPathBuilder.findByName(candidates, name);
-        if (choice != null) {
-          break;
-        }
-      }
+      choice = namedKey();
     }
     if (choice == null && !candidates.isEmpty()) {
       // A key that tells this node apart, so the transform finds it with its value
@@ -582,8 +613,7 @@ final class TargetDocumentPane {
     if (byKey) {
       // Valid XPath once the transform fills in a key?
       try {
-        XPathFactory.newInstance()
-            .newXPath()
+        evaluator()
             .evaluate(TargetXPathBuilder.forKeyValue(xpath, "0"), document, XPathConstants.NODESET);
       } catch (XPathExpressionException e) {
         findError = messageOf(e);
@@ -601,11 +631,7 @@ final class TargetDocumentPane {
     }
     NodeList nodes;
     try {
-      nodes =
-          (NodeList)
-              XPathFactory.newInstance()
-                  .newXPath()
-                  .evaluate(statement, document, XPathConstants.NODESET);
+      nodes = (NodeList) evaluator().evaluate(statement, document, XPathConstants.NODESET);
     } catch (XPathExpressionException e) {
       if (byKey) {
         // Valid with a key filled in: taking out ='?' is what broke it

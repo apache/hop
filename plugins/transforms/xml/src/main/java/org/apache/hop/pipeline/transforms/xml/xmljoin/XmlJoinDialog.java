@@ -17,14 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.xml.xmljoin.TargetXPathBuilder.KeyCandidate;
@@ -50,6 +54,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -62,10 +67,9 @@ import org.w3c.dom.Document;
 /**
  * The XML join options come from the annotated fields of {@link XmlJoinMeta}. This dialog adds a
  * line saying what the transform does, fills the combos (the input transforms, the encodings, the
- * fields of the selected target and source transform) and enables the key field for the join mode
- * that uses it. Under the XPath statement a line checks it against the target document. Beside the
- * options the first target document can be shown as a tree, to click the node to add the elements
- * to.
+ * fields of the selected target and source transform) and enables the key field when joining by
+ * key. Under the XPath statement a line checks it against the target document. Beside the options
+ * the first target document can be shown as a tree, to click the node to add the elements to.
  */
 public class XmlJoinDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XmlJoinMeta.class;
@@ -100,6 +104,18 @@ public class XmlJoinDialog extends BaseTransformDialog {
 
   /** The statement the document pane wrote last, to write it again when the join mode changes. */
   private String writtenXPath;
+
+  /** True while a node picked in the document fills in the options. */
+  private boolean picking;
+
+  /**
+   * The output fields of the transforms, by name, looked up once: an upstream transform may need a
+   * database query to describe them.
+   */
+  private final Map<String, String[]> fieldsByTransform = new HashMap<>();
+
+  /** The encodings, listed the first time the encoding combo gets focus: that takes a while. */
+  private String[] encodings;
 
   public XmlJoinDialog(
       Shell parent, IVariables variables, XmlJoinMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -154,8 +170,9 @@ public class XmlJoinDialog extends BaseTransformDialog {
             }
             input.setChanged();
             switch (widgetId) {
-              case XmlJoinMeta.WIDGET_JOIN_MODE -> joinModeChanged();
+              case XmlJoinMeta.WIDGET_COMPLEX_JOIN -> joinModeChanged();
               case XmlJoinMeta.WIDGET_TARGET_XPATH -> wDocument.show(resolvedXPath());
+              case XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD -> keyFieldChanged();
               case XmlJoinMeta.WIDGET_TARGET_XML_TRANSFORM -> {
                 fillOtherInput(XmlJoinMeta.WIDGET_TARGET_XML_TRANSFORM);
                 wDocument.setDocument(null, null);
@@ -179,14 +196,19 @@ public class XmlJoinDialog extends BaseTransformDialog {
             .toArray(String[]::new);
     setComboItems(XmlJoinMeta.WIDGET_TARGET_XML_TRANSFORM, inputTransforms);
     setComboItems(XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM, inputTransforms);
-    setComboItems(XmlJoinMeta.WIDGET_ENCODING, ConstUi.getEncodings());
-    listFieldsOnFocus(XmlJoinMeta.WIDGET_TARGET_XML_FIELD, XmlJoinMeta.WIDGET_TARGET_XML_TRANSFORM);
-    listFieldsOnFocus(XmlJoinMeta.WIDGET_SOURCE_XML_FIELD, XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM);
-    listFieldsOnFocus(
-        XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD, XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM);
+    listItemsOnFocus(XmlJoinMeta.WIDGET_ENCODING, this::encodings);
+    listItemsOnFocus(
+        XmlJoinMeta.WIDGET_TARGET_XML_FIELD,
+        () -> fieldsOf(XmlJoinMeta.WIDGET_TARGET_XML_TRANSFORM));
+    listItemsOnFocus(
+        XmlJoinMeta.WIDGET_SOURCE_XML_FIELD,
+        () -> fieldsOf(XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM));
+    listItemsOnFocus(
+        XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD,
+        () -> fieldsOf(XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM));
     addXPathCheck();
     enableKeyField();
-    wDocument.setByKey(joinMode() == XmlJoinMode.BY_KEY);
+    wDocument.setByKey(byKey());
     wDocument.show(resolvedXPath());
     updateXPathCheck();
 
@@ -233,13 +255,18 @@ public class XmlJoinDialog extends BaseTransformDialog {
     fdCheck.top = new FormAttachment(xpath, margin);
     wXPathCheck.setLayoutData(fdCheck);
 
-    // The rows that were under the statement go under the line now
+    // Whatever was attached under the statement row, the statement or its label, goes under the
+    // line now. What is attached beside them, centred or level with their top, stays.
+    Control xpathLabel = widgets.getLabelsMap().get(XmlJoinMeta.WIDGET_TARGET_XPATH);
+    Set<Control> xpathRow = xpathLabel == null ? Set.of(xpath) : Set.of(xpath, xpathLabel);
     for (Control control : content.getChildren()) {
       if (control != wXPathCheck
+          && !xpathRow.contains(control)
           && control.getLayoutData() instanceof FormData fd
           && fd.top != null
-          && fd.top.control == xpath
-          && fd.top.alignment != SWT.CENTER) {
+          && fd.top.control != null
+          && xpathRow.contains(fd.top.control)
+          && (fd.top.alignment == SWT.DEFAULT || fd.top.alignment == SWT.BOTTOM)) {
         fd.top = new FormAttachment(wXPathCheck, fd.top.offset);
       }
     }
@@ -258,7 +285,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     GuiResource resource = GuiResource.getInstance();
     String xpath = Const.NVL(resolvedXPath(), "").trim();
     String keyField = variables.resolve(textOf(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD));
-    boolean byKey = joinMode() == XmlJoinMode.BY_KEY;
+    boolean byKey = byKey();
     boolean hasPlaceholder = xpath.contains(TargetXPathBuilder.KEY_PLACEHOLDER);
     TargetDocumentPane.Check check = wDocument.check();
 
@@ -326,7 +353,10 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wXPathCheckText.setForeground(color);
     wXPathCheckText.setToolTipText(toolTip == null ? text : text + Const.CR + toolTip);
     int width = wXPathCheck.getSize().x;
-    if (width > 0 && wXPathCheck.computeSize(width, SWT.DEFAULT, true).y == heightBefore) {
+    if (width > 0 && wXPathCheck.computeSize(width, SWT.DEFAULT, true).y <= heightBefore) {
+      // The text fits in the line as it is. Laying out the options again only when the line has to
+      // grow keeps typing smooth: in Hop Web every layout is a round trip. A line that could be
+      // shorter keeps its height until the options are laid out again.
       wXPathCheck.layout(true, true);
     } else {
       relayoutOptions();
@@ -334,9 +364,9 @@ public class XmlJoinDialog extends BaseTransformDialog {
   }
 
   /**
-   * The check line got more or fewer lines: its box grows or shrinks, the options under it move,
-   * and the height they scroll over changes. The width stays: measured again, the options would be
-   * as wide as the statement typed in them.
+   * The check line got more lines: its box grows, the options under it move, and the height they
+   * scroll over changes. The width stays: measured again, the options would be as wide as the
+   * statement typed in them.
    */
   private void relayoutOptions() {
     // The line sits in a scrolled box, and the boxes in the scrolled options: from the inside out,
@@ -423,18 +453,34 @@ public class XmlJoinDialog extends BaseTransformDialog {
    * field.
    */
   private void picked(String xpath, KeyCandidate key) {
-    if (key != null && Utils.isEmpty(textOf(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD))) {
-      String localName = key.name().substring(key.name().indexOf(':') + 1);
-      for (String field : fieldsOf(XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM)) {
-        if (field.equalsIgnoreCase(localName)) {
-          setText(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD, field);
-          break;
+    picking = true;
+    try {
+      if (key != null && Utils.isEmpty(textOf(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD))) {
+        String localName = key.name().substring(key.name().indexOf(':') + 1);
+        for (String field : fieldsOf(XmlJoinMeta.WIDGET_SOURCE_XML_TRANSFORM)) {
+          if (field.equalsIgnoreCase(localName)) {
+            setText(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD, field);
+            break;
+          }
         }
       }
+      writtenXPath = xpath;
+      setText(XmlJoinMeta.WIDGET_TARGET_XPATH, xpath);
+    } finally {
+      picking = false;
     }
-    writtenXPath = xpath;
-    setText(XmlJoinMeta.WIDGET_TARGET_XPATH, xpath);
     updateXPathCheck();
+  }
+
+  /**
+   * Another key field: when the statement was written by a click in the document, the key of the
+   * node named like the field is chosen, and the statement written for it. A statement typed by
+   * hand stays.
+   */
+  private void keyFieldChanged() {
+    if (!picking && writtenXPath != null && writtenXPath.equals(resolvedXPath())) {
+      wDocument.keyNamesChanged();
+    }
   }
 
   /** The names to choose a key by: the key field, or else the fields of the source transform. */
@@ -446,13 +492,13 @@ public class XmlJoinDialog extends BaseTransformDialog {
   }
 
   /**
-   * The key field and the key in the document only mean something under the node of their key. A
-   * statement the document wrote is written again for the new mode; one typed by hand stays.
+   * The key field and the key in the document only mean something when joining by key. A statement
+   * the document wrote is written again when that is switched; one typed by hand stays.
    */
   private void joinModeChanged() {
     enableKeyField();
     boolean written = writtenXPath != null && writtenXPath.equals(resolvedXPath());
-    wDocument.setByKey(joinMode() == XmlJoinMode.BY_KEY);
+    wDocument.setByKey(byKey());
     if (written) {
       wDocument.pickAgain();
     } else {
@@ -466,11 +512,16 @@ public class XmlJoinDialog extends BaseTransformDialog {
 
   /**
    * The XML document in the first row of the target transform. Only that transform and the
-   * transforms that lead to it are run, in preview. Null when the preview was cancelled or sent no
+   * transforms that lead to it are run, in preview. When some of them may write, they are named and
+   * the user is asked first. Null when that was declined, or the preview was cancelled or sent no
    * rows; the preview log is shown in that last case.
    */
   Document firstTargetDocument(String targetTransform, String targetField) throws HopException {
     PipelineMeta upstream = UpstreamPipeline.of(pipelineMeta, variables, targetTransform);
+    List<String> mayWrite = UpstreamPipeline.mayWrite(upstream);
+    if (!mayWrite.isEmpty() && !runAnyway(mayWrite)) {
+      return null;
+    }
     PipelinePreviewProgressDialog progress =
         new PipelinePreviewProgressDialog(
             shell, variables, upstream, new String[] {targetTransform}, new int[] {1});
@@ -502,17 +553,46 @@ public class XmlJoinDialog extends BaseTransformDialog {
     return UpstreamPipeline.documentIn(rowMeta, rows.get(0), targetTransform, targetField);
   }
 
+  /** Names the transforms that may write when Load runs them, and asks whether to run them. */
+  private boolean runAnyway(List<String> transformNames) {
+    StringBuilder names = new StringBuilder();
+    for (String name : transformNames) {
+      names.append(names.isEmpty() ? "" : Const.CR).append("    ").append(name);
+    }
+    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_WARNING);
+    box.setText(BaseMessages.getString(PKG, "XmlJoin.Document.Title"));
+    box.setMessage(BaseMessages.getString(PKG, "XmlJoin.Document.MayWrite", names.toString()));
+    return box.open() == SWT.YES;
+  }
+
   /**
-   * Lists the fields of the transform chosen in another combo when the field combo gets focus.
-   * Looking them up when the dialog opens would make it wait for whatever the upstream transforms
-   * need to describe their fields, a database query for instance.
+   * Lists the items of a combo when it gets focus. Looking them up when the dialog opens would make
+   * it wait: for whatever the upstream transforms need to describe their fields, a database query
+   * for instance, or for the list of encodings.
    */
-  private void listFieldsOnFocus(String fieldWidgetId, String transformWidgetId) {
-    Control control = widgets.getWidgetsMap().get(fieldWidgetId);
-    if (control instanceof ComboVar comboVar) {
-      comboVar
-          .getCComboWidget()
-          .addListener(SWT.FocusIn, e -> setComboItems(fieldWidgetId, fieldsOf(transformWidgetId)));
+  private void listItemsOnFocus(String widgetId, Supplier<String[]> items) {
+    Control control = widgets.getWidgetsMap().get(widgetId);
+    Control focusControl =
+        control instanceof ComboVar comboVar ? comboVar.getCComboWidget() : control;
+    if (focusControl != null) {
+      focusControl.addListener(SWT.FocusIn, e -> setComboItems(widgetId, items.get()));
+    }
+  }
+
+  private String[] encodings() {
+    if (encodings == null) {
+      encodings = whileBusy(ConstUi::getEncodings);
+    }
+    return encodings;
+  }
+
+  /** Shows a busy cursor while a slow lookup runs. */
+  private String[] whileBusy(Supplier<String[]> lookup) {
+    shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+    try {
+      return lookup.get();
+    } finally {
+      shell.setCursor(null);
     }
   }
 
@@ -522,25 +602,30 @@ public class XmlJoinDialog extends BaseTransformDialog {
     if (Utils.isEmpty(name)) {
       return new String[0];
     }
+    return fieldsByTransform.computeIfAbsent(name, n -> whileBusy(() -> lookUpFields(n)));
+  }
+
+  private String[] lookUpFields(String transformName) {
     try {
-      IRowMeta fields = pipelineMeta.getTransformFields(variables, name);
+      IRowMeta fields = pipelineMeta.getTransformFields(variables, transformName);
       return fields == null ? new String[0] : fields.getFieldNames();
     } catch (HopException e) {
-      logError(BaseMessages.getString(PKG, "XmlJoin.Log.UnableToGetFields", name), e);
+      logError(BaseMessages.getString(PKG, "XmlJoin.Log.UnableToGetFields", transformName), e);
       return new String[0];
     }
   }
 
-  private XmlJoinMode joinMode() {
-    return IEnumHasCodeAndDescription.lookupDescription(
-        XmlJoinMode.class, textOf(XmlJoinMeta.WIDGET_JOIN_MODE), XmlJoinMode.ONE_NODE);
+  /** Whether each element goes under the node of its key: a complex join. */
+  private boolean byKey() {
+    return widgets.getWidgetsMap().get(XmlJoinMeta.WIDGET_COMPLEX_JOIN) instanceof Button button
+        && button.getSelection();
   }
 
-  /** The key field only means something when elements go under the node of their key. */
+  /** The key field only means something when joining by key. */
   private void enableKeyField() {
     Control keyField = widgets.getWidgetsMap().get(XmlJoinMeta.WIDGET_JOIN_COMPARE_FIELD);
     if (keyField != null) {
-      keyField.setEnabled(joinMode() == XmlJoinMode.BY_KEY);
+      keyField.setEnabled(byKey());
     }
   }
 
@@ -598,7 +683,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
   /** Replaces the items of a combo and keeps what it shows. */
   private void setComboItems(String widgetId, String[] items) {
     Control control = widgets.getWidgetsMap().get(widgetId);
-    if (control == null || control.isDisposed()) {
+    if (control == null || control.isDisposed() || Arrays.equals(itemsOf(control), items)) {
       return;
     }
     boolean wasLoading = loading;
@@ -618,6 +703,15 @@ public class XmlJoinDialog extends BaseTransformDialog {
     }
   }
 
+  private static String[] itemsOf(Control control) {
+    if (control instanceof ComboVar comboVar) {
+      return comboVar.getItems();
+    } else if (control instanceof Combo combo) {
+      return combo.getItems();
+    }
+    return null;
+  }
+
   private void cancel() {
     transformName = null;
     input.setChanged(backupChanged);
@@ -630,23 +724,6 @@ public class XmlJoinDialog extends BaseTransformDialog {
     }
     transformName = wTransformName.getText();
     widgets.getWidgetsContents(input, XmlJoinMeta.GUI_PLUGIN_ELEMENT_PARENT_ID);
-    storeEmptyOptionsAsEmptyStrings();
     dispose();
-  }
-
-  /**
-   * The widgets leave an option that was never set at null. This dialog has always stored an empty
-   * string instead: the transform then reports a missing field by name rather than failing on a
-   * null, and saved pipelines keep the empty tags they had.
-   */
-  private void storeEmptyOptionsAsEmptyStrings() {
-    input.setTargetXmlTransform(Const.NVL(input.getTargetXmlTransform(), ""));
-    input.setTargetXmlField(Const.NVL(input.getTargetXmlField(), ""));
-    input.setSourceXmlTransform(Const.NVL(input.getSourceXmlTransform(), ""));
-    input.setSourceXmlField(Const.NVL(input.getSourceXmlField(), ""));
-    input.setValueXmlField(Const.NVL(input.getValueXmlField(), ""));
-    input.setTargetXPath(Const.NVL(input.getTargetXPath(), ""));
-    input.setJoinCompareField(Const.NVL(input.getJoinCompareField(), ""));
-    input.setEncoding(Const.NVL(input.getEncoding(), ""));
   }
 }

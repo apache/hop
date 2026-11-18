@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -102,7 +101,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
       new Option(SOURCE_BOX, "XmlJoin.SourceXMLTransform.Label");
   private static final Option SOURCE_XML_FIELD =
       new Option(SOURCE_BOX, "XmlJoin.SourceXMLField.Label");
-  private static final Option JOIN_MODE = new Option(JOIN_BOX, "XmlJoin.JoinMode.Label");
+  private static final Option COMPLEX_JOIN = new Option(JOIN_BOX, "XmlJoin.ComplexJoin.Label");
   private static final Option TARGET_XPATH = new Option(JOIN_BOX, "XmlJoin.TargetXPath.Label");
   private static final Option KEY_FIELD = new Option(JOIN_BOX, "XmlJoin.JoinCompareFiled.Label");
   private static final Option VALUE_XML_FIELD =
@@ -192,35 +191,19 @@ class XmlJoinDialogTest extends SwtBotTestBase {
 
   /**
    * OK without touching anything must store exactly what the transform had, and not flag it. An
-   * option that was never set is stored as an empty string, which is how saved pipelines have
-   * always looked after the dialog (an empty tag rather than no tag).
+   * option that was never set stays unset, as in the other dialogs built from annotations: the
+   * transform reports it by name when it runs.
    */
   @ParameterizedTest(name = "{0}")
   @MethodSource("transforms")
   void okWithoutChangesKeepsEveryOption(String description, XmlJoinMeta meta) throws HopException {
-    String expected = XmlMetadataUtil.serializeObjectToXml(withEmptyStringsForUnset(meta));
+    String expected = XmlMetadataUtil.serializeObjectToXml(meta);
     meta.setChanged(false);
 
     withXmlJoinDialog(meta, dialog -> clickButton(dialog, "System.Button.OK"));
 
     assertEquals(expected, XmlMetadataUtil.serializeObjectToXml(meta), description);
     assertFalse(meta.hasChanged(), "OK without edits must not mark " + description + " changed");
-  }
-
-  private static XmlJoinMeta withEmptyStringsForUnset(XmlJoinMeta meta) {
-    XmlJoinMeta copy = new XmlJoinMeta();
-    copy.setTargetXmlTransform(Const.NVL(meta.getTargetXmlTransform(), ""));
-    copy.setTargetXmlField(Const.NVL(meta.getTargetXmlField(), ""));
-    copy.setSourceXmlTransform(Const.NVL(meta.getSourceXmlTransform(), ""));
-    copy.setSourceXmlField(Const.NVL(meta.getSourceXmlField(), ""));
-    copy.setValueXmlField(Const.NVL(meta.getValueXmlField(), ""));
-    copy.setTargetXPath(Const.NVL(meta.getTargetXPath(), ""));
-    copy.setComplexJoin(meta.isComplexJoin());
-    copy.setJoinCompareField(Const.NVL(meta.getJoinCompareField(), ""));
-    copy.setEncoding(Const.NVL(meta.getEncoding(), ""));
-    copy.setOmitXmlHeader(meta.isOmitXmlHeader());
-    copy.setOmitNullValues(meta.isOmitNullValues());
-    return copy;
   }
 
   /** Every option edited in the dialog must reach the transform on OK. */
@@ -238,7 +221,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                 setValue(shell, TARGET_XML_FIELD, "doc");
                 setValue(shell, SOURCE_XML_TRANSFORM, SOURCE_TRANSFORM);
                 setValue(shell, SOURCE_XML_FIELD, "line");
-                setValue(shell, JOIN_MODE, XmlJoinMode.BY_KEY.getDescription());
+                setChecked(shell, COMPLEX_JOIN, true);
                 setValue(shell, TARGET_XPATH, "//order[@id='?']/lines");
                 setValue(shell, KEY_FIELD, "orderId");
                 setValue(shell, VALUE_XML_FIELD, "result");
@@ -298,7 +281,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                 Shell shell = dialogShell();
                 setValue(shell, TARGET_XML_FIELD, "other");
                 setValue(shell, TARGET_XPATH, "//other");
-                setValue(shell, JOIN_MODE, XmlJoinMode.BY_KEY.getDescription());
+                setChecked(shell, COMPLEX_JOIN, true);
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -307,15 +290,11 @@ class XmlJoinDialogTest extends SwtBotTestBase {
     assertFalse(meta.hasChanged(), "Cancel must restore the changed flag");
   }
 
-  /** The join mode shows and stores the complex join flag of the transform. */
+  /** Join by key shows and stores the complex join flag of the transform. */
   @Test
-  void theJoinModeShowsAndStoresTheComplexJoin() {
+  void joinByKeyShowsAndStoresTheComplexJoin() {
     XmlJoinMeta meta = meta(m -> m.setComplexJoin(true));
-    for (XmlJoinMode mode : XmlJoinMode.values()) {
-      String description = mode.getDescription();
-      assertFalse(
-          description.startsWith("!") && description.endsWith("!"), "no description " + mode);
-    }
+    assertFalse(message("XmlJoin.ComplexJoin.Tooltip").startsWith("!"), "a tooltip");
 
     withXmlJoinDialog(
         meta,
@@ -323,21 +302,16 @@ class XmlJoinDialogTest extends SwtBotTestBase {
           display.syncExec(
               () -> {
                 Shell shell = dialogShell();
-                Control joinMode = inputFor(shell, JOIN_MODE);
-                assertEquals(
-                    List.of(
-                        XmlJoinMode.ONE_NODE.getDescription(), XmlJoinMode.BY_KEY.getDescription()),
-                    List.of(itemsOf(joinMode)));
-                assertEquals(XmlJoinMode.BY_KEY.getDescription(), textOf(joinMode));
-                setValue(shell, JOIN_MODE, XmlJoinMode.ONE_NODE.getDescription());
+                assertTrue(((Button) inputFor(shell, COMPLEX_JOIN)).getSelection());
+                setChecked(shell, COMPLEX_JOIN, false);
               });
           clickButton(dialog, "System.Button.OK");
         });
 
-    assertFalse(meta.isComplexJoin(), "'Under one node' is a simple join");
+    assertFalse(meta.isComplexJoin(), "no longer joined by key");
   }
 
-  /** The key field only means something when elements go under the node of their key. */
+  /** The key field only means something when joining by key. */
   @Test
   void theKeyFieldFollowsTheJoinMode() {
     XmlJoinMeta meta = new XmlJoinMeta();
@@ -348,13 +322,10 @@ class XmlJoinDialogTest extends SwtBotTestBase {
           display.syncExec(
               () -> {
                 Shell shell = dialogShell();
-                assertFalse(
-                    inputFor(shell, KEY_FIELD).isEnabled(), "disabled for elements under one node");
-                setValue(shell, JOIN_MODE, XmlJoinMode.BY_KEY.getDescription());
-                assertTrue(
-                    inputFor(shell, KEY_FIELD).isEnabled(),
-                    "enabled for elements under the node of their key");
-                setValue(shell, JOIN_MODE, XmlJoinMode.ONE_NODE.getDescription());
+                assertFalse(inputFor(shell, KEY_FIELD).isEnabled(), "disabled without join by key");
+                setChecked(shell, COMPLEX_JOIN, true);
+                assertTrue(inputFor(shell, KEY_FIELD).isEnabled(), "enabled to join by key");
+                setChecked(shell, COMPLEX_JOIN, false);
                 assertFalse(inputFor(shell, KEY_FIELD).isEnabled(), "disabled again");
               });
           clickButton(dialog, "System.Button.Cancel");
@@ -484,6 +455,28 @@ class XmlJoinDialogTest extends SwtBotTestBase {
 
                 setValue(shell, TARGET_XML_TRANSFORM, "not an input");
                 assertEquals(0, focusedItems(shell, TARGET_XML_FIELD).length);
+
+                focusedItems(shell, KEY_FIELD);
+                focusedItems(shell, TARGET_XML_FIELD);
+                assertEquals(
+                    3, FIELD_LOOKUPS.get(), "the fields of each transform are looked up once");
+              });
+          clickButton(dialog, "System.Button.Cancel");
+        });
+  }
+
+  /** The encodings are listed when the encoding combo gets focus, not when the dialog opens. */
+  @Test
+  void theEncodingsAreListedOnFocus() {
+    withXmlJoinDialog(
+        meta(m -> m.setEncoding("ISO-8859-1")),
+        dialog -> {
+          display.syncExec(
+              () -> {
+                Shell shell = dialogShell();
+                assertEquals(0, itemsOf(inputFor(shell, ENCODING)).length, "none when it opens");
+                assertTrue(List.of(focusedItems(shell, ENCODING)).contains("UTF-8"));
+                assertEquals("ISO-8859-1", textOf(inputFor(shell, ENCODING)));
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -602,7 +595,7 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                 assertCheck(
                     shell, resource.getImageInfo(), message("XmlJoin.XPathHint.NotChecked"));
 
-                setValue(shell, JOIN_MODE, XmlJoinMode.BY_KEY.getDescription());
+                setChecked(shell, COMPLEX_JOIN, true);
                 assertCheck(
                     shell, resource.getImageWarning(), message("XmlJoin.XPathHint.NoPlaceholder"));
 
@@ -622,12 +615,15 @@ class XmlJoinDialogTest extends SwtBotTestBase {
 
                 Control xpath = inputFor(shell, TARGET_XPATH);
                 Control keyField = inputFor(shell, KEY_FIELD);
+                Control keyLabel = labelFor(shell, KEY_FIELD);
                 Composite line = checkLineOf(shell);
                 Rectangle x = display.map(xpath.getParent(), null, xpath.getBounds());
                 Rectangle h = display.map(line.getParent(), null, line.getBounds());
                 Rectangle k = display.map(keyField.getParent(), null, keyField.getBounds());
+                Rectangle kl = display.map(keyLabel.getParent(), null, keyLabel.getBounds());
                 assertTrue(h.y >= x.y + x.height, "the line is under the statement");
                 assertTrue(k.y >= h.y + h.height, "the key field is under the line");
+                assertTrue(kl.y >= h.y + h.height, "and so is its label");
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -795,14 +791,14 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                     "<orders>",
                     "<order orderId=\"8\">",
                     "<lines/>");
-                setValue(shell, JOIN_MODE, XmlJoinMode.ONE_NODE.getDescription());
+                setChecked(shell, COMPLEX_JOIN, false);
                 assertEquals(
                     "/orders/order[2]/lines",
                     textOf(inputFor(shell, TARGET_XPATH)),
                     "the statement the document wrote follows the join mode");
 
                 setValue(shell, TARGET_XPATH, "//lines");
-                setValue(shell, JOIN_MODE, XmlJoinMode.BY_KEY.getDescription());
+                setChecked(shell, COMPLEX_JOIN, true);
                 assertEquals(
                     "//lines",
                     textOf(inputFor(shell, TARGET_XPATH)),
@@ -868,6 +864,13 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                     inBox.y + inBox.height <= box.getContent().getSize().y,
                     "the box scrolls over the key field");
                 assertEquals(minWidth, options.getMinWidth(), "the options are as wide as before");
+
+                // A shorter text fits in the line as it is: the options are not laid out again
+                int height = line.getSize().y;
+                Rectangle keyBefore = keyField.getBounds();
+                setValue(shell, TARGET_XPATH, "/orders");
+                assertEquals(height, line.getSize().y, "the line keeps its height");
+                assertEquals(keyBefore, keyField.getBounds(), "the key field stays where it is");
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -915,6 +918,67 @@ class XmlJoinDialogTest extends SwtBotTestBase {
                     shell,
                     GuiResource.getInstance().getImageInfo(),
                     message("XmlJoin.XPathHint.NotFollowed"));
+              });
+          clickButton(dialog, "System.Button.Cancel");
+        });
+  }
+
+  /**
+   * After a click in the document, another key field chooses the key of the node with its name and
+   * writes the statement for it. A statement typed by hand stays.
+   */
+  @Test
+  void anotherKeyFieldChoosesTheKeyWithItsName() throws Exception {
+    withXmlJoinDialog(
+        targetAndSourceByKey(),
+        TargetDocumentPaneTest.parse(
+            "<orders><order id=\"7\" ref=\"A\"><lines/></order>"
+                + "<order id=\"8\" ref=\"B\"><lines/></order></orders>"),
+        dialog -> {
+          dialog.button(message("XmlJoin.Document.Load.Button")).click();
+          display.syncExec(
+              () -> {
+                Shell shell = dialogShell();
+                TargetDocumentPaneTest.select(
+                    TargetDocumentPaneTest.treeOf(documentBoxOf(shell)),
+                    "<orders>",
+                    "<order id=\"8\" ref=\"B\">",
+                    "<lines/>");
+                assertEquals("/orders/order[@id='?']/lines", textOf(inputFor(shell, TARGET_XPATH)));
+                assertEquals("", textOf(inputFor(shell, KEY_FIELD)), "no source field is id");
+
+                setValue(shell, KEY_FIELD, "ref");
+                assertEquals(
+                    "/orders/order[@ref='?']/lines",
+                    textOf(inputFor(shell, TARGET_XPATH)),
+                    "the key named like the key field");
+                assertCheck(
+                    shell,
+                    GuiResource.getInstance().getImageSuccess(),
+                    message(
+                            "XmlJoin.XPathHint.Found.ByKey",
+                            "B",
+                            message(
+                                "XmlJoin.XPathHint.Node.InParent",
+                                "<lines/>",
+                                "<order id=\"8\" ref=\"B\">"))
+                        + " "
+                        + message("XmlJoin.XPathHint.KeyNodes.Many", 2)
+                        + " "
+                        + message("XmlJoin.XPathHint.Highlighted"));
+
+                setValue(shell, KEY_FIELD, "orderId");
+                assertEquals(
+                    "/orders/order[@ref='?']/lines",
+                    textOf(inputFor(shell, TARGET_XPATH)),
+                    "no key named orderId: the key stays");
+
+                setValue(shell, TARGET_XPATH, "/orders/order[@id='?']/lines");
+                setValue(shell, KEY_FIELD, "ref");
+                assertEquals(
+                    "/orders/order[@id='?']/lines",
+                    textOf(inputFor(shell, TARGET_XPATH)),
+                    "a statement typed by hand stays");
               });
           clickButton(dialog, "System.Button.Cancel");
         });
@@ -1154,6 +1218,17 @@ class XmlJoinDialogTest extends SwtBotTestBase {
       }
     }
     throw new AssertionError("no input found for '" + label + "' in '" + boxTitle + "'");
+  }
+
+  /** The label in front of an option's input, in the same composite as the input. */
+  private static Control labelFor(Shell shell, Option option) {
+    String label = message(option.label());
+    Control input = inputFor(shell, option);
+    Composite content = input instanceof CCombo ? input.getParent().getParent() : input.getParent();
+    return controlsOf(content, Label.class).stream()
+        .filter(l -> label.equals(((Label) l).getText()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("no label '" + label + "'"));
   }
 
   private static boolean isInput(Control control) {

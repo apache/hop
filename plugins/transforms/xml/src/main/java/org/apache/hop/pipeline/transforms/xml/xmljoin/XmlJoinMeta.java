@@ -70,7 +70,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   public static final String WIDGET_SOURCE_XML_TRANSFORM = "XML_JOIN_SOURCE_XML_TRANSFORM";
   public static final String WIDGET_SOURCE_XML_FIELD = "XML_JOIN_SOURCE_XML_FIELD";
   public static final String WIDGET_TARGET_XPATH = "XML_JOIN_TARGET_XPATH";
-  public static final String WIDGET_JOIN_MODE = "XML_JOIN_JOIN_MODE";
+  public static final String WIDGET_COMPLEX_JOIN = "XML_JOIN_COMPLEX_JOIN";
   public static final String WIDGET_JOIN_COMPARE_FIELD = "XML_JOIN_JOIN_COMPARE_FIELD";
   public static final String WIDGET_VALUE_XML_FIELD = "XML_JOIN_VALUE_XML_FIELD";
   public static final String WIDGET_ENCODING = "XML_JOIN_ENCODING";
@@ -86,7 +86,20 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private static final String GROUP_RESULT = "i18n::XmlJoin.ResultGroup.Label";
   private static final String GROUP_RESULT_ORDER = "400";
 
-  /** Flag: execute complex join. The dialog shows it as {@link #getJoinMode()}. */
+  /**
+   * Flag: execute complex join. Each element goes under the node of its key: ? in the XPath
+   * statement is replaced by the key field of each row.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_COMPLEX_JOIN,
+      order = "0305",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::XmlJoin.ComplexJoin.Label",
+      toolTip = "i18n::XmlJoin.ComplexJoin.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_JOIN,
+      groupOrder = GROUP_JOIN_ORDER)
   @HopMetadataProperty(injectionKey = "COMPLEX_JOIN")
   private boolean complexJoin;
 
@@ -233,36 +246,9 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   @HopMetadataProperty(injectionKey = "OMIT_NULL_VALUES")
   private boolean omitNullValues;
 
-  /**
-   * Only here to put the join mode in the dialog: the widget annotations go on a field. It is not
-   * stored. {@link #getJoinMode()} and {@link #setJoinMode(XmlJoinMode)} read and write {@link
-   * #complexJoin}, which is.
-   */
-  @SuppressWarnings("unused")
-  @GuiWidgetElement(
-      id = WIDGET_JOIN_MODE,
-      order = "0305",
-      type = GuiElementType.COMBO,
-      variables = false,
-      label = "i18n::XmlJoin.JoinMode.Label",
-      toolTip = "i18n::XmlJoin.JoinMode.Tooltip",
-      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
-      groupType = GuiWidgetGroupType.BOXES,
-      group = GROUP_JOIN,
-      groupOrder = GROUP_JOIN_ORDER)
-  private transient XmlJoinMode joinMode;
-
   public XmlJoinMeta() {
     super();
     encoding = Const.UTF_8;
-  }
-
-  public XmlJoinMode getJoinMode() {
-    return complexJoin ? XmlJoinMode.BY_KEY : XmlJoinMode.ONE_NODE;
-  }
-
-  public void setJoinMode(XmlJoinMode joinMode) {
-    complexJoin = joinMode == XmlJoinMode.BY_KEY;
   }
 
   /**
@@ -309,7 +295,8 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    IValueMeta v = new ValueMetaString(variables.resolve(this.getValueXmlField()));
+    // Left empty in the dialog, the field is null; older dialogs stored an empty name
+    IValueMeta v = new ValueMetaString(variables.resolve(Const.NVL(this.getValueXmlField(), "")));
     v.setOrigin(name);
 
     if (isKnown(info, 0)) {
