@@ -49,13 +49,18 @@ import org.apache.hop.reflection.probe.transform.PipelineDataProbe;
     id = "PipelineDataProbeXp",
     extensionPointId = "PipelineStartThreads",
     description = "Before the start of a pipeline, after init, attach the data probes needed")
-public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
+public class PipelineDataProbeXp implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   public static final String PIPELINE_DATA_PROBE_FLAG = "PipelineDataProbeActive";
 
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, Pipeline pipeline)
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> engine)
       throws HopException {
+    // Works on the transforms of Hop's own pipeline engine: Spark, Beam ... have none
+    if (!(engine instanceof Pipeline pipeline)) {
+      return;
+    }
 
     // Prevent recursive data probing of the pipeline
     //

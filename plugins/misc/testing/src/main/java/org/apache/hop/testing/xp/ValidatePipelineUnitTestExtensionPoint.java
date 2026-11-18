@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.DataSetConst;
@@ -54,6 +55,10 @@ public class ValidatePipelineUnitTestExtensionPoint
     boolean runUnitTest =
         "Y".equalsIgnoreCase(pipeline.getVariable(DataSetConst.VAR_RUN_UNIT_TEST));
     if (!runUnitTest) {
+      return;
+    }
+    // The data set rows come from row listeners on the transforms of the local engine
+    if (!(pipeline instanceof LocalPipelineEngine)) {
       return;
     }
 

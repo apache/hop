@@ -33,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -61,6 +62,10 @@ public class WriteToDataSetExtensionPoint
     boolean writeToDataSet =
         "Y".equalsIgnoreCase(pipeline.getVariable(DataSetConst.VAR_WRITE_TO_DATASET));
     if (!writeToDataSet) {
+      return;
+    }
+    // The data set rows come from row listeners on the transforms of the local engine
+    if (!(pipeline instanceof LocalPipelineEngine)) {
       return;
     }
 
