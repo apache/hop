@@ -162,57 +162,42 @@ Bound for every module, so plugin discovery works. Nothing to do unless you are 
 Tests::
 JUnit 5 through Surefire. UI tests are tagged and can be included or excluded, see below.
 
-== Maintaining the Hop BOM
+== Generating the Hop BOM
 
 The `bom` module publishes the `org.apache.hop:hop-bom` POM for consumers to import into `dependencyManagement`.
 See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading] for the import and versionless dependency examples.
-The module uses `jar` packaging so the normal Maven test lifecycle runs its JUnit maintenance tests.
-The main JAR contains the build-time `BomGenerator` tool and license resources; consumers import the POM, not the JAR.
-Producing this main JAR allows normal Maven installation and deployment without publishing a test JAR or allowing incomplete projects.
-Jandex indexing is disabled because the generator is not a Hop runtime plugin.
+The module has `pom` packaging and is included only by the `apache-release` profile, so ordinary and incremental builds do not generate or publish it.
+The Apache parent configures Maven Release Plugin with `releaseProfiles=apache-release` for the release build.
+Activate `apache-release` explicitly when preparing a release so Maven also updates the BOM module's parent version.
 
-The checked-in `bom/pom.xml` is generated in full by `bom/src/main/java/org/apache/hop/bom/BomGenerator.java`; do not edit it manually.
-The generator extracts the release version from the root POM and recursively follows direct module declarations and the `base` profile's module declarations, independently of the active reactor.
-Undeclared directories, including nested worktrees and standalone tools, are not scanned, so discovery does not depend on Git ignore rules or local Git configuration.
-Only JAR libraries are managed, unconditionally in the top-level dependency management; the BOM does not require consumers to activate the `base` profile.
-Other module profiles, including `config-doc`, `assemblies`, and `webtest`, are ignored, and POM and ZIP artifacts are not managed.
-The generator validates library release alignment, duplicate coordinates, and exclusions before writing the complete POM.
-The maintenance test generates a POM in a temporary directory and compares its exact content with the checked-in file.
-Normal builds do not regenerate the source POM; they fail if it is out of date.
-When adding, removing, or changing a published module, regenerate the BOM and keep these checks passing.
-Keep exclusions narrow: the BOM itself and unpublished build/test artifacts.
-The exact exclusions and their reasons are recorded in `BomGenerator`.
-They cover the BOM itself and unpublished local Eclipse wrappers.
-The BOM is forced into incremental builds so adding or removing another module also runs its coverage check.
-Do not use broad exclusions to hide missing published artifacts.
+`eu.maveniverse.maven.plugins:bom-builder3` automatically generates `bom/target/bom-pom.xml` during `generate-resources`.
+The checked-in `bom/pom.xml` is only the publication configuration; there is no dependency list or generator to maintain manually.
+New library modules in the release reactor are included automatically.
+The plugin replaces the module POM for installation and deployment with the generated standalone POM, without modifying the source POM.
+The generated POM preserves publication metadata such as licenses and SCM information, but has no parent, inherited dependencies, third-party dependency management, or build configuration.
+Consumers do not need any of Hop's build profiles.
 
-Run the generator from the project root with Java 21 or later; source-file launch needs no previously built Hop artifacts:
+Only reactor main artifacts are collected; direct and transitive dependencies are disabled.
+`includePoms=false` excludes POM aggregators, the BOM itself, distribution modules, and the unpublished local Eclipse wrappers.
+Attached ZIPs, sources, Javadoc and test JARs are not collected, and ZIP dependencies declared by assembly modules are not followed.
+The build-time `hop-config-doc` and browser-test `hop-web-integration-tests` artifacts are excluded explicitly by group and artifact ID.
+These exclusions match coordinates, not artifact types; a future module whose main artifact is a ZIP would need an explicit exclusion.
+Keep exclusions narrow rather than hiding published libraries.
 
-[source,bash]
-----
-java bom/src/main/java/org/apache/hop/bom/BomGenerator.java
-----
+IMPORTANT: Publish the BOM only from the full release reactor with all library profiles enabled and incremental reactor reduction disabled (`gib.disable=true`, the default).
+A standalone `-f bom/pom.xml` build, a reduced reactor, or disabled library profiles can generate an incomplete BOM.
+Do not install or deploy such a BOM as a release artifact.
 
-The first optional argument is the project root and the second is the output POM path.
-Without a root argument, the generator checks the working directory and at most one parent for both `mvnw` and `Jenkinsfile`.
-Without an output argument, it writes `<root>/bom/pom.xml`.
-For example, generate a separate file for inspection with:
+The normal release build generates and publishes the BOM automatically; no separate regeneration command is needed.
+For local inspection without installing or deploying, run from the project root:
 
 [source,bash]
 ----
-java bom/src/main/java/org/apache/hop/bom/BomGenerator.java . /tmp/hop-bom.xml
+./mvnw -Papache-release -Dconfig-doc=false -DskipTests generate-resources
 ----
 
-During publication, `flatten-maven-plugin` writes a consumer POM under `bom/target` and Maven installs or deploys that file instead of the source POM.
-It removes the parent, profiles, build configuration, properties, and inherited dependencies while preserving the BOM's own unconditional dependency management, so importing it does not impose the root POM's third-party versions.
-
-Run the maintenance tests and license check with:
-
-[source,bash]
-----
-./mvnw -pl bom test
-./mvnw apache-rat:check -Drat.skip=false
-----
+Inspect `bom/target/bom-pom.xml` before publication.
+The CycloneDX software bill of materials generated by the release profile is separate from this Maven dependency BOM and remains unchanged.
 
 == What CI runs
 
