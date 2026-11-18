@@ -1836,7 +1836,9 @@ public class VfsFileExplorerLocation extends Composite {
       child.setText(row.getName());
       child.setImage(folderImage);
       child.setData(new FolderNode(row.getUri(), row.getName()));
-      new TreeItem(child, SWT.NONE);
+      // Shown while the folder is listed, the listing replaces it with the sub-folders
+      new TreeItem(child, SWT.NONE)
+          .setText(BaseMessages.getString(PKG, "VfsFileExplorer.Tree.Loading"));
     }
   }
 
