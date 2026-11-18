@@ -183,6 +183,23 @@ class LineageSinkRoutesTest {
   }
 
   @Test
+  void aRunWithoutExtensionDataHoldsNoSinks() {
+    IPipelineEngine<PipelineMeta> noExtensionData = pipeline("marquez", null);
+    when(noExtensionData.getExtensionDataMap()).thenReturn(null);
+    String old = key("marquez", "http://marquez:5000");
+    assertEquals(Set.of(old), LineageSinkRoutes.of(noExtensionData, hub));
+    assertEquals(Set.of(old), LineageSinkRoutes.of(noExtensionData, hub));
+    hub.flush();
+
+    variables.setVariable("MARQUEZ_URL", "http://marquez:5001");
+    LineageSinkRoutes.of(pipeline("marquez", null), hub);
+    List<LineageSinkStatus> status = hub.sinkStatus();
+    hub.shutdown();
+
+    assertEquals(1, status.size(), "nothing holds the old version, so it is retired: " + status);
+  }
+
+  @Test
   void aUnitTestRunReportsOnlyItsResultsToItsSinks() {
     IPipelineEngine<PipelineMeta> pipeline = pipeline("marquez", null);
     variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "Y");

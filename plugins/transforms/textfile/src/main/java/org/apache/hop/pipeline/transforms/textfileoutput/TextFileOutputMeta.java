@@ -739,7 +739,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   /**
    * The file a run writes first, with its layout; none when the name comes from a field, or holds
-   * the date or time of the run, so no publication names a file no run writes.
+   * the date or time of the run or the partition, so no publication names a file no run writes.
    */
   @Override
   public List<IDeclaresLineage.Declaration> declaredLineage(
@@ -748,7 +748,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         (fileSettings.isSpecifyingFormat() && !Utils.isEmpty(fileSettings.getDateTimeFormat()))
             || (!fileSettings.isSpecifyingFormat()
                 && (fileSettings.isDateInFilename() || fileSettings.isTimeInFilename()));
-    if (fileNameInField || Utils.isEmpty(fileSettings.fileName) || dated) {
+    if (fileNameInField
+        || Utils.isEmpty(fileSettings.fileName)
+        || dated
+        || fileSettings.isPartNrInFilename()) {
       return List.of();
     }
     String filename =

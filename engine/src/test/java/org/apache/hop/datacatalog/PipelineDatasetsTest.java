@@ -33,10 +33,12 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.datacatalog.PipelineDatasets.TouchedDataset;
+import org.apache.hop.lineage.LineageSqlTables;
 import org.apache.hop.lineage.api.IDeclaresLineage;
 import org.apache.hop.lineage.api.RelationalLineage;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.lineage.model.RelationalIoOperation;
+import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -116,7 +118,7 @@ class PipelineDatasetsTest {
 
     List<TouchedDataset> datasets = PipelineDatasets.of(meta, variables);
 
-    // The tables in SQL are only known once the SQL is parsed, which the OpenLineage plugin does
+    // The tables in SQL are only known once the SQL is parsed, which needs a registered parser
     assertEquals(3, datasets.size(), datasets.toString());
     assertEquals(DatasetRef.of("file", "/data/in.csv"), datasets.get(0).dataset());
     assertEquals(Set.of("Read"), datasets.get(0).readBy());
@@ -128,6 +130,36 @@ class PipelineDatasetsTest {
         DatasetRef.of("postgres://db.example.com:5432", "sales.public.orders"),
         datasets.get(2).dataset());
     assertEquals(Set.of("Load"), datasets.get(2).writtenBy());
+  }
+
+  @Test
+  void theTablesInSqlAreFoundWithTheRegisteredParser() {
+    PipelineMeta meta = spy(new PipelineMeta());
+    meta.setName("orders");
+    doReturn(postgres()).when(meta).findDatabase(eq("sales"), any(IVariables.class));
+    meta.addTransform(
+        transform(
+            "Read",
+            new IDeclaresLineage.DeclaredSql(
+                RelationalIoOperation.READ, "sales", "SELECT id FROM orders")));
+    LineageSqlTables.register(
+        (sql, namespace) ->
+            "SELECT id FROM orders".equals(sql)
+                    && "postgres://db.example.com:5432".equals(namespace)
+                ? new LineageSqlTables.Tables(
+                    List.of(new RelationalTable(null, null, "orders")), List.of())
+                : LineageSqlTables.Tables.EMPTY);
+    try {
+      List<TouchedDataset> datasets = PipelineDatasets.of(meta, new Variables());
+
+      assertEquals(1, datasets.size(), datasets.toString());
+      assertEquals(
+          DatasetRef.of("postgres://db.example.com:5432", "sales.public.orders"),
+          datasets.get(0).dataset());
+      assertEquals(Set.of("Read"), datasets.get(0).readBy());
+    } finally {
+      LineageSqlTables.register(null);
+    }
   }
 
   @Test

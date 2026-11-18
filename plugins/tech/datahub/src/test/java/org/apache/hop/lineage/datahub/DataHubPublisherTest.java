@@ -281,6 +281,47 @@ class DataHubPublisherTest {
     assertTrue(withThem.contains("/data/out"), withThem);
   }
 
+  @Test
+  void aPipelineWhoseDocumentationFailsIsStillPublished() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("orders");
+    // Sorting the notes for the documentation fails on a note without text
+    pipeline.addNote(new NotePadMeta("Runs after the customers", 0, 0, 100, 50));
+    pipeline.addNote(new NotePadMeta(null, 0, 100, 100, 50));
+    write("orders.hpl", pipeline.getXml(variables));
+
+    DataHubPublisher publisher =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"));
+    publisher.setIncludingDocumentation(true);
+    publisher.setIncludingNotes(true);
+    DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
+
+    assertEquals(1, result.pipelines());
+    assertTrue(result.unreadable().isEmpty(), result.unreadable().toString());
+    List<JsonNode> sent = proposalsSent();
+    assertTrue(
+        sent.stream().anyMatch(p -> p.get("aspectName").asText().equals("dataFlowInfo")),
+        "the pipeline is published");
+    assertTrue(
+        sent.stream().noneMatch(p -> p.get("entityType").asText().equals("document")),
+        "its documentation is not");
+  }
+
+  @Test
+  void anUpperCaseExtensionIsAPipeline() throws Exception {
+    PipelineMeta pipeline = new PipelineMeta();
+    pipeline.setName("load");
+    write("LOAD.HPL", pipeline.getXml(variables));
+
+    DataHubPublisher.Result result =
+        new DataHubPublisher(variables, metadata, new LogChannel("publish-test"))
+            .publish("datahub", "${PROJECT_HOME}");
+
+    assertEquals(1, result.pipelines());
+    assertEquals(0, result.workflows());
+    assertTrue(result.unreadable().isEmpty(), result.unreadable().toString());
+  }
+
   private String documentText(DataHubPublisher publisher) throws Exception {
     DataHubPublisher.Result result = publisher.publish("datahub", "${PROJECT_HOME}");
     assertTrue(result.isSuccess(), DataHubPublishCommand.describe(result));

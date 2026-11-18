@@ -19,6 +19,7 @@ package org.apache.hop.lineage.hub;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -348,6 +349,55 @@ class LineageHubRoutingTest {
     assertFalse(idle.started());
     assertNull(idle.startError());
     assertNull(idle.health());
+  }
+
+  @Test
+  void aReInitShutsDownTheSinksRunsStarted() throws Exception {
+    LineageHub hub = hub(LINEAGE_OFF, List.of());
+
+    String marquez = hub.useSink(target("marquez", "http://marquez:5000"));
+    hub.emit(event("before", marquez));
+    hub.flush();
+    FakeLineageSink first = started.get("http://marquez:5000");
+
+    hub.environmentReady();
+    waitUntil(first::isShutdown);
+    hub.emit(event("after", marquez));
+    hub.flush();
+    FakeLineageSink second = started.get("http://marquez:5000");
+    hub.shutdown();
+
+    assertNotSame(first, second);
+    assertEquals(List.of("before"), pipelines(first));
+    assertEquals(List.of("after"), pipelines(second));
+  }
+
+  @Test
+  void aSinkThatFailsToInitShutsDownTheOnesThatStartedAndIsNotTriedAgain() {
+    FakeLineageSink fine = new FakeLineageSink();
+    AtomicInteger inits = new AtomicInteger();
+    FakeLineageSink failing =
+        new FakeLineageSink() {
+          @Override
+          public void init(IVariables variables, ILogChannel log) {
+            inits.incrementAndGet();
+            throw new IllegalStateException("simulated: the spool folder is read-only");
+          }
+        };
+    LineageHub hub = hub(LINEAGE_ON, List.of(fine, failing));
+
+    hub.emit(event("before"));
+    hub.flush();
+    assertTrue(fine.isShutdown(), "the sink that started is shut down");
+
+    // A run's own sink starts a new worker, which doesn't start the failing sinks again
+    String marquez = hub.useSink(target("marquez", "http://marquez:5000"));
+    hub.emit(event("routed", marquez));
+    hub.flush();
+    hub.shutdown();
+
+    assertEquals(1, inits.get());
+    assertEquals(List.of("routed"), pipelines(started.get("http://marquez:5000")));
   }
 
   private static LineageSinkStatus find(List<LineageSinkStatus> status, String name) {

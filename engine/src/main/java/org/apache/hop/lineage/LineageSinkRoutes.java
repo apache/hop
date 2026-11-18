@@ -274,7 +274,11 @@ public final class LineageSinkRoutes {
   private static Set<String> cached(
       Map<String, Object> extensionData, LineageHub hub, Supplier<Set<String>> resolver) {
     if (extensionData == null) {
-      return Collections.unmodifiableSet(resolver.get());
+      // Nowhere to remember them, so release() can't let go of them later: let go now, or each
+      // call would hold the sinks once more, and an edited sink's old version would never retire.
+      Set<String> sinks = resolver.get();
+      hub.release(sinks);
+      return Collections.unmodifiableSet(sinks);
     }
     synchronized (extensionData) {
       Object known = extensionData.get(EXTENSION_DATA_KEY);

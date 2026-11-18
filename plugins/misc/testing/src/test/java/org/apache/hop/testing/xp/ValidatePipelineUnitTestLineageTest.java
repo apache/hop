@@ -121,6 +121,22 @@ class ValidatePipelineUnitTestLineageTest {
   }
 
   @Test
+  void aUnitTestWithoutGoldenDataSetsReportsOnlyItsResults() {
+    PipelineUnitTest unitTest = unitTest();
+    unitTest.setGoldenDataSets(null);
+
+    List<Reported> reported =
+        report(
+            pipeline("Write"),
+            unitTest,
+            List.of(result("Write", "golden-write", false, "3 rows compared")),
+            null);
+
+    assertEquals(
+        List.of(new Reported("Write", "golden-write", Result.PASSED, "3 rows compared")), reported);
+  }
+
+  @Test
   void aValidationThatStoppedMakesEveryGoldenDataSetAnError() {
     String why = "Unable to validate the unit test: data set golden-load can't be read";
     List<Reported> reported =

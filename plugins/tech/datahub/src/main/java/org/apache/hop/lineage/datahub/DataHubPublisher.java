@@ -137,24 +137,30 @@ public final class DataHubPublisher {
         String filename = HopVfs.getFilename(file);
         try {
           String relativeFile = root.getName().getRelativeName(file.getName());
-          if (filename.endsWith(".hpl")) {
+          if (file.getName().getExtension().toLowerCase(Locale.ROOT).equals("hpl")) {
             PipelineMeta meta = new PipelineMeta(filename, metadataProvider, variables);
             List<LineageEvent> events =
                 LineageDefinitions.ofPipeline(meta, variablesOf(meta, variables), log);
-            if (documentation != null) {
-              documents.add(documentation.pipeline(events.get(0), meta, relativeFile, project));
-            }
             sink.accept(events);
             pipelines++;
+            if (documentation != null) {
+              addDocument(
+                  documents,
+                  filename,
+                  () -> documentation.pipeline(events.get(0), meta, relativeFile, project));
+            }
           } else {
             WorkflowMeta meta = new WorkflowMeta(variables, filename, metadataProvider);
             List<LineageEvent> events =
                 LineageDefinitions.ofWorkflow(meta, variablesOf(meta, variables));
-            if (documentation != null) {
-              documents.add(documentation.workflow(events.get(0), meta, relativeFile, project));
-            }
             sink.accept(events);
             workflows++;
+            if (documentation != null) {
+              addDocument(
+                  documents,
+                  filename,
+                  () -> documentation.workflow(events.get(0), meta, relativeFile, project));
+            }
           }
           log.logDetailed("Published " + filename);
         } catch (Exception e) {
@@ -172,6 +178,28 @@ public final class DataHubPublisher {
       sink.shutdown();
     }
     return new Result(pipelines, workflows, unreadable, documentationNotPublished, health);
+  }
+
+  /** Writes the document of one file. */
+  @FunctionalInterface
+  private interface DocumentSource {
+    LineageEvent document() throws Exception;
+  }
+
+  /**
+   * Adds the documentation of a file that is already published. When it can't be written, the
+   * file's lineage stays published and only its document is left out.
+   */
+  private void addDocument(List<LineageEvent> documents, String filename, DocumentSource source) {
+    try {
+      documents.add(source.document());
+    } catch (Exception e) {
+      log.logError(
+          "Unable to write the documentation of "
+              + filename
+              + ", its lineage is published without it: "
+              + e.getMessage());
+    }
   }
 
   /**

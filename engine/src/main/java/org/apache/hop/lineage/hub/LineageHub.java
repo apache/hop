@@ -386,8 +386,15 @@ public final class LineageHub {
     sinks = List.of();
     sinkIds.clear();
     sinkInitError = null;
-    routedSinks.clear();
-    failedTargets.clear();
+    // The next event of each run starts its sink again: shut down the ones started so far, or two
+    // dispatchers would deliver the same spool.
+    List<ILineageSink> started;
+    synchronized (routedSinks) {
+      started = new ArrayList<>(routedSinks.values());
+      routedSinks.clear();
+      failedTargets.clear();
+    }
+    shutdownInBackground(started);
   }
 
   /**
@@ -654,11 +661,13 @@ public final class LineageHub {
       sinks = List.of();
       sinkInitError = String.valueOf(e);
       log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
+      // Not tried again when a routed event starts a new worker: it would fail the same way.
+      // shutdown() and environmentReady() start over.
+      sinksInitialized.set(true);
       if (targets.isEmpty()) {
         return;
       }
       // The sinks runs selected in their run configurations are started on their own.
-      sinksInitialized.set(true);
     }
 
     while (running.get() && !Thread.currentThread().isInterrupted()) {
@@ -863,44 +872,55 @@ public final class LineageHub {
       }
       IVariables variables = LineageVariables.engineVariables();
 
-      if (explicitSinks != null) {
-        sinks = List.copyOf(explicitSinks);
-        for (ILineageSink sink : sinks) {
-          sinkIds.put(sink, sink.getClass().getSimpleName());
-          sink.init(variables, log);
+      // The sinks init() was called on, also the one that failed: it may have started a thread
+      // or opened its spool before it failed. Shut down when one of them fails.
+      List<ILineageSink> started = new ArrayList<>();
+      try {
+        if (explicitSinks != null) {
+          for (ILineageSink sink : explicitSinks) {
+            sinkIds.put(sink, sink.getClass().getSimpleName());
+            started.add(sink);
+            sink.init(variables, log);
+          }
+          sinks = List.copyOf(explicitSinks);
+          sinksInitialized.set(true);
+          return;
         }
-        sinksInitialized.set(true);
-        return;
-      }
 
-      List<ILineageSink> loaded = new ArrayList<>();
-      LineageConfiguration cfg = resolveConfig();
-      PluginRegistry registry = PluginRegistry.getInstance();
-      for (IPlugin plugin : registry.getPlugins(LineageSinkPluginType.class)) {
-        String id = plugin.getIds()[0].toLowerCase(Locale.ROOT);
-        if (!cfg.getSinkIds().isEmpty() && !cfg.getSinkIds().contains(id)) {
-          continue;
+        LineageConfiguration cfg = resolveConfig();
+        PluginRegistry registry = PluginRegistry.getInstance();
+        for (IPlugin plugin : registry.getPlugins(LineageSinkPluginType.class)) {
+          String id = plugin.getIds()[0].toLowerCase(Locale.ROOT);
+          if (!cfg.getSinkIds().isEmpty() && !cfg.getSinkIds().contains(id)) {
+            continue;
+          }
+          try {
+            ILineageSink sink = registry.loadClass(plugin, ILineageSink.class);
+            sinkIds.put(sink, plugin.getIds()[0]);
+            started.add(sink);
+            sink.init(variables, log);
+          } catch (HopPluginException e) {
+            throw new HopException("Unable to load lineage sink plugin " + plugin.getName(), e);
+          } catch (LinkageError e) {
+            // A sink built on another plugin (DataHub on OpenLineage) installed without it.
+            throw new HopException(
+                "Unable to load lineage sink plugin "
+                    + plugin.getName()
+                    + ": a class it needs is missing ("
+                    + e.getMessage()
+                    + "). Check that the plugins it builds on are installed as well.",
+                e);
+          }
         }
-        try {
-          ILineageSink sink = registry.loadClass(plugin, ILineageSink.class);
-          sinkIds.put(sink, plugin.getIds()[0]);
-          sink.init(variables, log);
-          loaded.add(sink);
-        } catch (HopPluginException e) {
-          throw new HopException("Unable to load lineage sink plugin " + plugin.getName(), e);
-        } catch (LinkageError e) {
-          // A sink built on another plugin (DataHub on OpenLineage) installed without it.
-          throw new HopException(
-              "Unable to load lineage sink plugin "
-                  + plugin.getName()
-                  + ": a class it needs is missing ("
-                  + e.getMessage()
-                  + "). Check that the plugins it builds on are installed as well.",
-              e);
+        sinks = List.copyOf(started);
+        sinksInitialized.set(true);
+      } catch (HopException | RuntimeException | LinkageError e) {
+        for (ILineageSink sink : started) {
+          shutdownQuietly(sink);
         }
+        sinkIds.clear();
+        throw e;
       }
-      sinks = List.copyOf(loaded);
-      sinksInitialized.set(true);
     }
   }
 

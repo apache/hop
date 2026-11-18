@@ -28,6 +28,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageDefinitions;
 import org.apache.hop.lineage.LineageFileIdentity;
 import org.apache.hop.lineage.LineageRelationalIdentity;
+import org.apache.hop.lineage.LineageSqlTables;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.lineage.model.LineagePayload;
@@ -78,8 +79,17 @@ public final class PipelineDatasets {
           }
         } else if (payload instanceof RelationalIoLineagePayload relational
             && !Utils.isEmpty(relational.getDatasetNamespace())) {
-          addTables(found, relational, relational.getInputs(), transform, true);
-          addTables(found, relational, relational.getOutputs(), transform, false);
+          List<RelationalTable> inputs = relational.getInputs();
+          List<RelationalTable> outputs = relational.getOutputs();
+          if (inputs.isEmpty() && outputs.isEmpty() && !Utils.isEmpty(relational.getSqlText())) {
+            // Table input: the tables are in its SQL, found as the sinks find them
+            LineageSqlTables.Tables parsed =
+                LineageSqlTables.parse(relational.getSqlText(), relational.getDatasetNamespace());
+            inputs = parsed.inputs();
+            outputs = parsed.outputs();
+          }
+          addTables(found, relational, inputs, transform, true);
+          addTables(found, relational, outputs, transform, false);
         }
       }
     }

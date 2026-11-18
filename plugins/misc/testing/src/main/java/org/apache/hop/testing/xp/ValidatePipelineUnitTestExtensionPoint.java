@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.lineage.LineageUnitTestEmitter;
 import org.apache.hop.lineage.model.UnitTestLineagePayload;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -70,7 +71,8 @@ public class ValidatePipelineUnitTestExtensionPoint
 
     PipelineUnitTest unitTest = null;
     final List<UnitTestResult> results = new ArrayList<>();
-    boolean reported = false;
+    boolean validated = false;
+    String notValidated = null;
     try {
       IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();
 
@@ -90,8 +92,7 @@ public class ValidatePipelineUnitTestExtensionPoint
       int errors =
           DataSetConst.validateTransformResultAgainstUnitTest(
               pipeline, unitTest, metadataProvider, variables, results);
-      reported = true;
-      reportToLineage(pipeline, unitTest, results, null);
+      validated = true;
       if (errors == 0) {
         log.logBasic("Unit test '" + unitTest.getName() + "' passed successfully");
       } else {
@@ -130,14 +131,33 @@ public class ValidatePipelineUnitTestExtensionPoint
       log.logBasic("----------------------------------------------");
     } catch (Throwable e) {
       log.logError("Unable to validate unit test/golden rows", e);
-      if (unitTest != null && !reported) {
-        // Otherwise the previous result of the test would still show
-        reportToLineage(
-            pipeline,
-            unitTest,
-            results,
-            "Unable to validate the unit test: " + Const.NVL(e.getMessage(), e.toString()));
+      if (!validated) {
+        // Reported as an error, otherwise the previous result of the test would still show
+        notValidated =
+            "Unable to validate the unit test: " + Const.NVL(e.getMessage(), e.toString());
       }
+    }
+    if (unitTest != null) {
+      reportToLineageQuietly(pipeline, unitTest, results, notValidated, log);
+    }
+  }
+
+  /**
+   * Reports the result to the lineage sinks of the run, after it is shown: a failure here is
+   * logged, and never hides or changes the result of the test.
+   */
+  private static void reportToLineageQuietly(
+      IPipelineEngine<PipelineMeta> pipeline,
+      PipelineUnitTest unitTest,
+      List<UnitTestResult> results,
+      String why,
+      ILogChannel log) {
+    try {
+      if (LineageSinkRoutes.isEnabled(pipeline)) {
+        reportToLineage(pipeline, unitTest, results, why);
+      }
+    } catch (Exception e) {
+      log.logError("Unable to report the result of unit test '" + unitTest.getName() + "'", e);
     }
   }
 
@@ -173,7 +193,9 @@ public class ValidatePipelineUnitTestExtensionPoint
       List<UnitTestResult> results,
       String why) {
     Map<List<String>, List<UnitTestResult>> byLocation = new LinkedHashMap<>();
-    for (PipelineUnitTestSetLocation golden : unitTest.getGoldenDataSets()) {
+    List<PipelineUnitTestSetLocation> goldenDataSets =
+        unitTest.getGoldenDataSets() == null ? List.of() : unitTest.getGoldenDataSets();
+    for (PipelineUnitTestSetLocation golden : goldenDataSets) {
       if (!StringUtil.isEmpty(golden.getTransformName())
           && !StringUtil.isEmpty(golden.getDataSetName())
           && pipeline.getPipelineMeta().findTransform(golden.getTransformName()) != null) {

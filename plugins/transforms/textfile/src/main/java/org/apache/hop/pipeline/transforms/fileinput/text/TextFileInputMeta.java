@@ -1128,7 +1128,9 @@ public class TextFileInputMeta
     }
     List<IDeclaresLineage.Declaration> declarations = new ArrayList<>();
     for (String path : getFilePaths(variables)) {
-      String extension = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : null;
+      String baseName = path.substring(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1);
+      String extension =
+          baseName.contains(".") ? baseName.substring(baseName.lastIndexOf('.') + 1) : null;
       declarations.add(
           new IDeclaresLineage.DeclaredFile(
               FileIoOperation.READ,

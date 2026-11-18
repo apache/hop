@@ -123,6 +123,17 @@ class TextFileLineageDeclarationTest {
   }
 
   @Test
+  void textFileOutputDeclaresNoFileWhenItsNameHoldsThePartition() {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    meta.setDefault();
+    meta.getFileSettings().setFileName("/data/out/orders");
+    meta.getFileSettings().setExtension("csv");
+    meta.getFileSettings().setPartNrInFilename(true);
+
+    assertTrue(meta.declaredLineage(new Variables(), row()).isEmpty());
+  }
+
+  @Test
   void csvInputDeclaresTheFileItReadsWithItsFields() {
     IVariables variables = new Variables();
     variables.setVariable("IN", "/data/in");
@@ -166,5 +177,24 @@ class TextFileLineageDeclarationTest {
 
     meta.getFileInput().setAcceptingFilenames(true);
     assertTrue(meta.declaredLineage(new Variables(), null).isEmpty());
+  }
+
+  @Test
+  void textFileInputTakesTheFormatFromTheFileNameNotItsFolder() throws Exception {
+    Path dotted = Files.createDirectory(folder.resolve("v1.2"));
+    Path file = Files.writeString(dotted.resolve("customers"), "id\n1\n");
+    TextFileInputMeta meta = new TextFileInputMeta();
+    meta.setDefault();
+    InputFile input = new InputFile();
+    input.setFileName(file.toString());
+    meta.getFileInput().getInputFiles().add(input);
+    TextFileInputField id = new TextFileInputField("id", 0, 3);
+    id.setType(IValueMeta.TYPE_INTEGER);
+    meta.getInputFields().add(id);
+
+    IDeclaresLineage.DeclaredFile declared =
+        (IDeclaresLineage.DeclaredFile) meta.declaredLineage(new Variables(), null).get(0);
+
+    assertEquals("", declared.content().getFormatHint(), "no extension, no format");
   }
 }
