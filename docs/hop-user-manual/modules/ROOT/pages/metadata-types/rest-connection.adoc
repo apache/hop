@@ -163,8 +163,9 @@ Pagination is configured on the connection; the REST client reads these settings
 |Page / cursor parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` (for example `page`, `cursor`), body field name for `BODY_CURSOR`, or request header name for `HEADER_CURSOR`. Ignored by `OFFSET_LIMIT`, `LINK_HEADER` and `BODY_NEXT_URL`.
 |Offset query parameter name|Query parameter for the starting index in `OFFSET_LIMIT` paging. Defaults to `offset` when blank.
 |First page number|The page number `PAGE_NUMBER` starts at. Leave empty for `1`. Use `0` for an API that counts pages from zero. Supports variables.
-|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank. `PAGE_NUMBER` uses it as the page size parameter, and only when it is filled in.
-|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100). `PAGE_NUMBER` sends it only when both this and the parameter name are filled in.
+|Page size parameter name|Query parameter that carries the page size with `PAGE_NUMBER` (for example `pageSize`). The value is the default batch size. Leave empty to send no page size, which is what page-number paging always did.
+|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank. Not used by `PAGE_NUMBER`, which has its own page size parameter name.
+|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100). `PAGE_NUMBER` sends it as the page size, only when the page size parameter name is filled in as well.
 |Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token, for every cursor strategy.
 |Cursor XPath|XPath expression against an XML response body to read the next cursor token, for every cursor strategy.
 |Next page URL JsonPath|JsonPath expression that reads the next page URL out of a JSON response body (`BODY_NEXT_URL`).
@@ -193,7 +194,7 @@ Example for an API that counts pages from zero and takes a page size (`GET /work
 |Pagination strategy|`PAGE_NUMBER`
 |Page / cursor parameter name|`page`
 |First page number|`0`
-|Limit / batch size parameter name|`pageSize`
+|Page size parameter name|`pageSize`
 |Default batch size|`100`
 |Items JsonPath|`$.list`
 |Total count JsonPath|`$.count`
@@ -207,7 +208,7 @@ Example for an API that counts pages from zero and takes a page size (`GET /work
 |`NONE`|No pagination metadata is applied. Use this for single-request APIs.
 |`LINK_HEADER`|Follows the RFC 5988 `Link` response header: Hop requests the bracketed URI whose `rel` relation includes `next`. GitHub, Shopify, and similar APIs use this style. Hop stops when no `next` link is present or when the same URL would be requested again (cycle guard).
 |`OFFSET_LIMIT`|Adds offset/limit (or custom-named) query parameters. After each successful non-empty page, the offset increases by the batch size. An empty page ends the loop.
-|`PAGE_NUMBER`|Adds a page query parameter starting at the first page number (`1` by default) and increments it after each successful non-empty page. When the limit parameter name and the default batch size are both filled in, the page size is sent as well. An empty page ends the loop.
+|`PAGE_NUMBER`|Adds a page query parameter starting at the first page number (`1` by default) and increments it after each successful non-empty page. When the page size parameter name and the default batch size are both filled in, the page size is sent as well. An empty page ends the loop.
 |`CURSOR`|Adds a cursor query parameter on follow-up requests. The token is extracted from the previous response with JsonPath (JSON) or XPath (XML). An empty page or missing next token ends the loop.
 |`BODY_CURSOR`|Merges the cursor and batch size into the request body of a `POST`, `PUT` or `PATCH` (JSON or form url-encoded, following the application type). On a `GET` they are sent as query parameters instead, because HTTP clients do not send a `GET` body. The loop ends when the next cursor is empty — not when a page is empty, since APIs of this shape (Slack, for example) can return sparse pages while still advertising a next cursor.
 |`HEADER_CURSOR`|Sends the cursor as a request header rather than a parameter. The next token is read from the body as with `CURSOR`, and an empty token ends the loop.

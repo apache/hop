@@ -1066,7 +1066,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         q.put(NVL(resolve(conn.getPageParamName()), "page"), Integer.toString(state.pageNumber));
         // The page size goes out only when both its name and its value are filled in: page-number
         // paging never sent one before, and an API that does not know the parameter may reject it.
-        String limKey = resolve(conn.getLimitParamName());
+        // Its own parameter name, not the offset/limit one, which an old connection may still hold.
+        String limKey = resolve(conn.getPageSizeParamName());
         if (!Utils.isEmpty(limKey) && conn.getDefaultLimit() > 0) {
           q.put(limKey, Integer.toString(state.effectiveLimit));
         }

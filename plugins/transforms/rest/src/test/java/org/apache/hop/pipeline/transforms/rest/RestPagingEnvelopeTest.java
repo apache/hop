@@ -77,7 +77,7 @@ class RestPagingEnvelopeTest {
   void zeroBasedPagesWithAPageSizeReadEveryItemOnce() throws Exception {
     RestConnection connection = pageNumberConnection();
     connection.setFirstPageNumber("0");
-    connection.setLimitParamName("pageSize");
+    connection.setPageSizeParamName("pageSize");
     connection.setDefaultLimit(2);
     PagingRest rest = build(connection, "$.list[*]", 10, RestPagingEnvelopeTest::envelopeJson);
 
@@ -91,10 +91,12 @@ class RestPagingEnvelopeTest {
 
   @Test
   void anOldConnectionStillStartsAtPageOneWithoutAPageSize() throws Exception {
-    // Saved before #9548: no first page number. A limit parameter name left over from another
-    // paging mode is not enough to send a page size; it takes a default limit as well.
+    // Saved before #9548: no first page number and no page size parameter. The editor keeps the
+    // fields of other paging modes, so a limit parameter and a default limit left over from an
+    // earlier OFFSET_LIMIT setup must not make it send a page size it never sent before.
     RestConnection connection = pageNumberConnection();
     connection.setLimitParamName("pageSize");
+    connection.setDefaultLimit(2);
     PagingRest rest = build(connection, null, 1, uri -> "{\"list\":[1]}");
 
     rest.runPaginationLoop(new Object[] {"row"});
@@ -263,7 +265,7 @@ class RestPagingEnvelopeTest {
   private static RestConnection zeroBasedEnvelope() {
     RestConnection connection = pageNumberConnection();
     connection.setFirstPageNumber("0");
-    connection.setLimitParamName("pageSize");
+    connection.setPageSizeParamName("pageSize");
     connection.setDefaultLimit(2);
     return connection;
   }

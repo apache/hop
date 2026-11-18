@@ -270,6 +270,16 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   private String firstPageNumber;
 
   /**
+   * Query parameter that carries the page size with {@link RestPaginationType#PAGE_NUMBER}, sent
+   * with {@link #defaultLimit} as its value. A key of its own rather than {@link #limitParamName}:
+   * the editor keeps the fields of other paging types, so a page-number connection can still hold a
+   * limit parameter from an earlier offset/limit setup, and reusing it would make such a connection
+   * start sending a parameter it never sent before. Empty sends no page size.
+   */
+  @HopMetadataProperty(key = "page_size_param_name")
+  private String pageSizeParamName;
+
+  /**
    * JsonPath to the items in a page. When set, a page where it finds nothing ends {@link
    * RestPaginationType#PAGE_NUMBER}, {@link RestPaginationType#OFFSET_LIMIT} and {@link
    * RestPaginationType#CURSOR} paging, also when the response body itself is not empty (an envelope

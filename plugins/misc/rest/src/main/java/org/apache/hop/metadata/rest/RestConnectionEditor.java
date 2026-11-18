@@ -150,6 +150,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wNextPageUrlJsonPath;
   private TextVar wNextPageUrlXPath;
   private TextVar wFirstPageNumber;
+  private TextVar wPageSizeParamName;
   private TextVar wItemsJsonPath;
   private TextVar wItemsXPath;
   private TextVar wTotalCountJsonPath;
@@ -677,6 +678,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wNextPageUrlJsonPath,
       wNextPageUrlXPath,
       wFirstPageNumber,
+      wPageSizeParamName,
       wItemsJsonPath,
       wItemsXPath,
       wTotalCountJsonPath,
@@ -846,6 +848,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             "RestConnectionEditor.Pagination.FirstPage.Label",
             "RestConnectionEditor.Pagination.FirstPage.Tooltip");
     lastControl = wFirstPageNumber;
+
+    wPageSizeParamName =
+        addPaginationTextRow(
+            p,
+            lastControl,
+            "RestConnectionEditor.Pagination.PageSizeParam.Label",
+            "RestConnectionEditor.Pagination.PageSizeParam.Tooltip");
+    lastControl = wPageSizeParamName;
 
     Label wlOff = new Label(p, SWT.RIGHT);
     wlOff.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.OffsetParam.Label"));
@@ -1050,19 +1060,21 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     boolean offset = RestPaginationType.OFFSET_LIMIT.equals(t);
     boolean cursor = RestPaginationType.CURSOR.equals(t) || bodyCursor || headerCursor;
     boolean page = RestPaginationType.PAGE_NUMBER.equals(t);
-    boolean limitBatch = offset || page || bodyCursor || headerCursor;
+    boolean limitBatch = offset || bodyCursor || headerCursor;
     // The modes that stop on an empty page, and so can use an items path or a total count.
     boolean itemsStop = offset || page || RestPaginationType.CURSOR.equals(t);
 
     wPageParamName.setEnabled(pageOrCursor);
     wOffsetParamName.setEnabled(offset);
     wLimitParamName.setEnabled(limitBatch);
-    wDefaultLimit.setEnabled(limitBatch);
+    // The default batch size is also the page size that PAGE_NUMBER sends.
+    wDefaultLimit.setEnabled(limitBatch || page);
     wCursorJsonPath.setEnabled(cursor);
     wCursorXPath.setEnabled(cursor);
     wNextPageUrlJsonPath.setEnabled(bodyNextUrl);
     wNextPageUrlXPath.setEnabled(bodyNextUrl);
     wFirstPageNumber.setEnabled(page);
+    wPageSizeParamName.setEnabled(page);
     wItemsJsonPath.setEnabled(itemsStop);
     wItemsXPath.setEnabled(itemsStop);
     wTotalCountJsonPath.setEnabled(itemsStop);
@@ -1667,6 +1679,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wNextPageUrlJsonPath.setText(Const.NVL(metadata.getNextPageUrlJsonPath(), ""));
       wNextPageUrlXPath.setText(Const.NVL(metadata.getNextPageUrlXPath(), ""));
       wFirstPageNumber.setText(Const.NVL(metadata.getFirstPageNumber(), ""));
+      wPageSizeParamName.setText(Const.NVL(metadata.getPageSizeParamName(), ""));
       wItemsJsonPath.setText(Const.NVL(metadata.getItemsJsonPath(), ""));
       wItemsXPath.setText(Const.NVL(metadata.getItemsXPath(), ""));
       wTotalCountJsonPath.setText(Const.NVL(metadata.getTotalCountJsonPath(), ""));
@@ -1750,6 +1763,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setNextPageUrlJsonPath(wNextPageUrlJsonPath.getText());
     connection.setNextPageUrlXPath(wNextPageUrlXPath.getText());
     connection.setFirstPageNumber(wFirstPageNumber.getText());
+    connection.setPageSizeParamName(wPageSizeParamName.getText());
     connection.setItemsJsonPath(wItemsJsonPath.getText());
     connection.setItemsXPath(wItemsXPath.getText());
     connection.setTotalCountJsonPath(wTotalCountJsonPath.getText());

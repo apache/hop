@@ -59,6 +59,7 @@ class RestConnectionPaginationTest {
     assertEquals(RestPaginationType.PAGE_NUMBER, connection.getPaginationType());
     // Empty first page number means page one, as before.
     assertNull(connection.getFirstPageNumber());
+    assertNull(connection.getPageSizeParamName());
     assertNull(connection.getItemsJsonPath());
     assertNull(connection.getItemsXPath());
     assertNull(connection.getTotalCountJsonPath());
@@ -72,7 +73,7 @@ class RestConnectionPaginationTest {
     connection.setName("ironclad");
     connection.setPaginationType(RestPaginationType.PAGE_NUMBER);
     connection.setFirstPageNumber("0");
-    connection.setLimitParamName("pageSize");
+    connection.setPageSizeParamName("pageSize");
     connection.setDefaultLimit(100);
     connection.setItemsJsonPath("$.list");
     connection.setItemsXPath("/page/list/item");
@@ -81,13 +82,14 @@ class RestConnectionPaginationTest {
 
     JSONObject json = parser().getJsonObject(connection);
     assertEquals("0", json.get("first_page_number"));
+    assertEquals("pageSize", json.get("page_size_param_name"));
     assertEquals("$.list", json.get("items_json_path"));
     assertEquals("$.count", json.get("total_count_json_path"));
 
     RestConnection loaded = fromJson(json.toJSONString());
 
     assertEquals("0", loaded.getFirstPageNumber());
-    assertEquals("pageSize", loaded.getLimitParamName());
+    assertEquals("pageSize", loaded.getPageSizeParamName());
     assertEquals(100, loaded.getDefaultLimit());
     assertEquals("$.list", loaded.getItemsJsonPath());
     assertEquals("/page/list/item", loaded.getItemsXPath());
