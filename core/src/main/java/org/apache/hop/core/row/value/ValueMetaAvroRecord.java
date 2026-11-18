@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -25,7 +27,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
@@ -35,8 +40,10 @@ import org.apache.avro.io.BinaryDecoder;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.EncoderFactory;
-import org.apache.avro.io.JsonDecoder;
+import org.apache.avro.io.JsonEncoder;
+import org.apache.avro.util.Utf8;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -57,6 +64,8 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
 
   private Schema schema;
   private static final String CONST_SCHEMA = "schema";
+  private static final String CONST_DATA = "data";
+  private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
   private static final String CONST_SPECIFIED = " specified.";
   private static final String CONST_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
   private static final String CONST_SCHEMA_NEEDED =
@@ -64,6 +73,13 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
 
   /** Reject a corrupt length instead of allocating it. Sample rows are far smaller than this. */
   private static final int MAX_AVRO_BYTES = 32 * 1024 * 1024;
+
+  /**
+   * Write a record as text with its schema (see {@link #convertGenericRecordToString}), so it can
+   * be read back without one. Off by default: the text is then only the data, as before.
+   */
+  private final boolean stringWithSchema =
+      Const.toBoolean(System.getProperty(Const.HOP_AVRO_RECORD_STRING_WITH_SCHEMA, "N"));
 
   public ValueMetaAvroRecord() {
     super(null, IValueMeta.TYPE_AVRO);
@@ -119,7 +135,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
           case STORAGE_TYPE_NORMAL:
             try {
               String jsonString = (String) object;
-              return convertStringToGenericRecord(jsonString);
+              return convertStringToGenericRecord(jsonString, schema);
             } catch (Exception e) {
               throw new HopValueException(
                   "Error converting a JSON representation of an Avro GenericRecord to a native representation",
@@ -136,7 +152,9 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
   }
 
   /**
-   * Convert the record to both schema and data in a single JSON block...
+   * Convert the record to both schema and data in a single JSON block, the data in Avro's JSON
+   * encoding: <code>{ "schema" : ..., "data" : ... }</code>. {@link
+   * #convertStringToGenericRecord(String)} reads it back.
    *
    * @param genericRecord The record to convert to JSON
    * @return The JSON representation of a generic Avro record
@@ -146,33 +164,185 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
       throws HopValueException {
     try {
       Schema schema = genericRecord.getSchema();
-      String schemaJson = schema.toString();
-      String dataJson = genericRecord.toString();
+      ByteArrayOutputStream data = new ByteArrayOutputStream();
+      JsonEncoder encoder = EncoderFactory.get().jsonEncoder(schema, data);
+      new GenericDatumWriter<GenericRecord>(schema).write(genericRecord, encoder);
+      encoder.flush();
 
-      return "{ \"schema\" : " + schemaJson + ", \"data\" : " + dataJson + " }";
+      return "{ \"schema\" : "
+          + schema
+          + ", \"data\" : "
+          + data.toString(StandardCharsets.UTF_8)
+          + " }";
     } catch (Exception e) {
       throw new HopValueException(
           "Unable to convert an Avro record to a JSON String using the provided schema", e);
     }
   }
 
+  /** Read a record from the schema and data JSON {@link #convertGenericRecordToString} writes. */
   public static GenericRecord convertStringToGenericRecord(String jsonString)
       throws HopValueException {
+    return convertStringToGenericRecord(jsonString, null);
+  }
+
+  /**
+   * Read a record from text: either the schema and data JSON {@link #convertGenericRecordToString}
+   * writes, or only the data (as a record's toString() writes it) when a schema is given. The data
+   * can be in Avro's JSON encoding or plain JSON values.
+   *
+   * @param jsonString The text to read
+   * @param schema The schema of data without one, or null
+   * @return The record
+   */
+  public static GenericRecord convertStringToGenericRecord(String jsonString, Schema schema)
+      throws HopValueException {
+    JsonNode json;
     try {
-      // Convert schema AND data to JSON...
-      //
-      JSONObject json = (JSONObject) new JSONParser().parse(jsonString);
-      JSONObject schemaObject = (JSONObject) json.get(CONST_SCHEMA);
-      JSONObject dataObject = (JSONObject) json.get("data");
-
-      Schema schema = new Schema.Parser().parse(schemaObject.toJSONString());
-
-      JsonDecoder jsonDecoder = DecoderFactory.get().jsonDecoder(schema, dataObject.toJSONString());
-      GenericDatumReader<GenericRecord> genericDatumReader = new GenericDatumReader<>(schema);
-      return genericDatumReader.read(null, jsonDecoder);
+      json = JSON_MAPPER.readTree(jsonString);
     } catch (Exception e) {
-      throw new HopValueException("Unable to convert a String to an Avro record", e);
+      throw new HopValueException("Unable to read an Avro record from text: not valid JSON", e);
     }
+    if (json != null && json.has(CONST_SCHEMA) && json.has(CONST_DATA)) {
+      Schema textSchema;
+      try {
+        textSchema = new Schema.Parser().parse(json.get(CONST_SCHEMA).toString());
+      } catch (Exception e) {
+        throw new HopValueException("Unable to read the Avro schema in the text", e);
+      }
+      return (GenericRecord) jsonToAvro(json.get(CONST_DATA), textSchema);
+    }
+    if (schema == null) {
+      throw new HopValueException(
+          "Unable to read an Avro record from text without a schema: the text holds no"
+              + " \"schema\" and the field has none");
+    }
+    return (GenericRecord) jsonToAvro(json, schema);
+  }
+
+  /**
+   * One JSON value as the Avro value of the schema. A union value can be wrapped in its type, as
+   * Avro's JSON encoding writes it, or plain, as a record's toString() writes it: then the first
+   * type it fits is used.
+   */
+  private static Object jsonToAvro(JsonNode node, Schema schema) throws HopValueException {
+    boolean isNull = node == null || node.isNull();
+    switch (schema.getType()) {
+      case NULL:
+        if (isNull) {
+          return null;
+        }
+        break;
+      case BOOLEAN:
+        if (!isNull && node.isBoolean()) {
+          return node.booleanValue();
+        }
+        break;
+      case INT:
+        if (!isNull && node.isIntegralNumber() && node.canConvertToInt()) {
+          return node.intValue();
+        }
+        break;
+      case LONG:
+        if (!isNull && node.isIntegralNumber() && node.canConvertToLong()) {
+          return node.longValue();
+        }
+        break;
+      case FLOAT:
+        if (!isNull && node.isNumber()) {
+          return node.floatValue();
+        }
+        break;
+      case DOUBLE:
+        if (!isNull && node.isNumber()) {
+          return node.doubleValue();
+        }
+        break;
+      case STRING:
+        if (!isNull && node.isTextual()) {
+          return new Utf8(node.textValue());
+        }
+        break;
+      case BYTES:
+        if (!isNull && node.isTextual()) {
+          return ByteBuffer.wrap(node.textValue().getBytes(StandardCharsets.ISO_8859_1));
+        }
+        break;
+      case FIXED:
+        if (!isNull && node.isTextual()) {
+          return new GenericData.Fixed(
+              schema, node.textValue().getBytes(StandardCharsets.ISO_8859_1));
+        }
+        break;
+      case ENUM:
+        if (!isNull && node.isTextual() && schema.hasEnumSymbol(node.textValue())) {
+          return new GenericData.EnumSymbol(schema, node.textValue());
+        }
+        break;
+      case ARRAY:
+        if (!isNull && node.isArray()) {
+          GenericData.Array<Object> array = new GenericData.Array<>(node.size(), schema);
+          for (JsonNode element : node) {
+            array.add(jsonToAvro(element, schema.getElementType()));
+          }
+          return array;
+        }
+        break;
+      case MAP:
+        if (!isNull && node.isObject()) {
+          Map<Utf8, Object> map = new LinkedHashMap<>();
+          for (Map.Entry<String, JsonNode> entry : node.properties()) {
+            map.put(new Utf8(entry.getKey()), jsonToAvro(entry.getValue(), schema.getValueType()));
+          }
+          return map;
+        }
+        break;
+      case RECORD:
+        if (!isNull && node.isObject()) {
+          GenericData.Record avroRecord = new GenericData.Record(schema);
+          for (Schema.Field field : schema.getFields()) {
+            JsonNode value = node.get(field.name());
+            if (value == null && field.hasDefaultValue()) {
+              avroRecord.put(field.pos(), GenericData.get().getDefaultValue(field));
+            } else {
+              avroRecord.put(field.pos(), jsonToAvro(value, field.schema()));
+            }
+          }
+          return avroRecord;
+        }
+        break;
+      case UNION:
+        return unionToAvro(node, schema);
+      default:
+        break;
+    }
+    throw new HopValueException(
+        "Unable to read " + (isNull ? "null" : node.toString()) + " as Avro type " + schema);
+  }
+
+  private static Object unionToAvro(JsonNode node, Schema union) throws HopValueException {
+    // Avro's JSON encoding: {"type name": value}
+    if (node != null && node.isObject() && node.size() == 1) {
+      String typeName = node.fieldNames().next();
+      for (Schema type : union.getTypes()) {
+        if (typeName.equals(type.getFullName()) || typeName.equals(type.getName())) {
+          return jsonToAvro(node.get(typeName), type);
+        }
+      }
+    }
+    // Plain JSON: the first type the value fits
+    for (Schema type : union.getTypes()) {
+      try {
+        return jsonToAvro(node, type);
+      } catch (HopValueException e) {
+        // Try the next type of the union
+      }
+    }
+    throw new HopValueException(
+        "Unable to read "
+            + (node == null ? "null" : node.toString())
+            + " as any type of Avro union "
+            + union);
   }
 
   /**
@@ -260,7 +430,12 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
         case IValueMeta.TYPE_AVRO:
           string =
               switch (storageType) {
-                case STORAGE_TYPE_NORMAL -> object == null ? null : object.toString();
+                case STORAGE_TYPE_NORMAL ->
+                    object == null
+                        ? null
+                        : stringWithSchema
+                            ? convertGenericRecordToString((GenericRecord) object)
+                            : object.toString();
                 default ->
                     throw new HopValueException(
                         this
@@ -291,6 +466,28 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
               + toStringMeta()
               + "]");
     }
+  }
+
+  /**
+   * An Avro record from another value: a record is copied. Text is read as the schema and data JSON
+   * {@link #convertGenericRecordToString} writes, or as only the data when this field has a schema.
+   */
+  @Override
+  public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
+    if (data2 == null) {
+      return null;
+    }
+    if (meta2 != null && meta2.getType() == TYPE_AVRO) {
+      return cloneValueData(data2);
+    }
+    if (meta2 != null && meta2.isString()) {
+      String json = meta2.getString(data2);
+      if (StringUtils.isEmpty(json)) {
+        return null;
+      }
+      return convertStringToGenericRecord(json, schema);
+    }
+    throw new HopValueException(this + " : unable to convert " + meta2 + " data to an Avro record");
   }
 
   @Override

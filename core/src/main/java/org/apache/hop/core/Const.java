@@ -640,6 +640,19 @@ public class Const {
       "HOP_EMPTY_STRING_DIFFERS_FROM_NULL";
 
   /**
+   * Write an Avro record as text with its schema, so the text can be converted back to a record
+   * without one.
+   */
+  @Variable(
+      value = "N",
+      description =
+          "Set this variable to Y to write an Avro record as text with its schema and its data in"
+              + " Avro's JSON encoding, so the text converts back to the record without a schema."
+              + " With N only the data is written")
+  public static final String HOP_AVRO_RECORD_STRING_WITH_SCHEMA =
+      "HOP_AVRO_RECORD_STRING_WITH_SCHEMA";
+
+  /**
    * System wide flag to allow non-strict string to number conversion for backward compatibility. If
    * this setting is set to "Y", an string starting with digits will be converted successfully into
    * a number. (example: 192.168.1.1 will be converted into 192 or 192.168 depending on the decimal
