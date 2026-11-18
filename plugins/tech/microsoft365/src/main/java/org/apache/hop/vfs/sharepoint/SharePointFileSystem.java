@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,7 +56,6 @@ import java.util.function.Function;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
@@ -64,8 +64,9 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
- * One named Microsoft 365 connection. The sites are the folders of the root, the document libraries
- * (drives) of a site are the folders of that site.
+ * One named Microsoft 365 connection. The managed paths, {@code sites} and {@code teams}, are the
+ * fixed folders of the root. The sites are the folders of their managed path, and the document
+ * libraries (drives) of a site are the folders of that site.
  */
 @NullMarked
 public class SharePointFileSystem extends AbstractFileSystem {
@@ -88,8 +89,11 @@ public class SharePointFileSystem extends AbstractFileSystem {
   /** The id that addresses the root folder of a document library, and the root site of a tenant. */
   static final String ROOT_ITEM_ID = "root";
 
-  /** A site created by a Microsoft Teams team may live under /teams. */
-  private static final List<String> MANAGED_PATHS = List.of("sites", "teams");
+  /**
+   * The fixed folders of the root. The address of a site is under one of them, a site created by a
+   * Microsoft Teams team may live under /teams.
+   */
+  static final List<String> MANAGED_PATHS = List.of("sites", "teams");
 
   /** The only properties of a file or folder that are used, the others are not requested. */
   private static final String[] ITEM_PROPERTIES = {
@@ -102,14 +106,11 @@ public class SharePointFileSystem extends AbstractFileSystem {
 
   private final GraphServiceClient client;
 
-  /** Site name to site id, whatever the case of the name, for the sites found so far. */
-  private volatile Map<String, String> siteIds = newNameMap();
+  /** Managed path and site name to site id, whatever their case, for the sites found so far. */
+  private final Map<String, String> siteIds = newNameMap();
 
   /** The SharePoint host of the tenant, null until it is needed. */
   private volatile @Nullable String hostname;
-
-  /** True once the sites were listed, or Microsoft Graph refused to list them. */
-  private volatile boolean sitesListed;
 
   /** Site id to (drive name to drive id, whatever the case of the name). */
   private final Map<String, Map<String, String>> driveIds = new ConcurrentHashMap<>();
@@ -135,38 +136,86 @@ public class SharePointFileSystem extends AbstractFileSystem {
   }
 
   /**
-   * Lists the sites of the tenant and refreshes the cache.
-   *
-   * @return the site ids by site name
+   * @return true if the name is one of the fixed folders of the root, whatever its case
    */
-  Map<String, String> listSites() throws FileSystemException {
-    Map<String, String> sites = newNameMap();
+  static boolean isManagedPath(@Nullable String name) {
+    return name != null && MANAGED_PATHS.stream().anyMatch(name::equalsIgnoreCase);
+  }
+
+  /**
+   * Lists the sites under a managed path. An application that is only granted some sites
+   * (Sites.Selected) can not list them: the folder is empty and its sites are reached by their full
+   * path.
+   *
+   * @param managedPath {@code sites} or {@code teams}
+   * @return the site ids by site name, the name being the one in the address of the site
+   */
+  Map<String, String> listSites(String managedPath) {
+    List<Site> tenantSites = new ArrayList<>();
     try {
-      addSites(sites, client.sites().get());
-    } catch (ApiException e) {
-      throw new FileSystemException(
-          "Microsoft Graph refused to list the SharePoint sites: " + describe(e), e);
-    }
-    if (sites.isEmpty()) {
-      // Depending on the tenant the plain listing is empty and only the search returns the sites
-      try {
+      addSites(tenantSites, client.sites().get());
+      if (tenantSites.isEmpty()) {
+        // Depending on the tenant the plain listing is empty and only the search returns the sites
         String url = client.getRequestAdapter().getBaseUrl() + "/sites?search=*";
-        addSites(sites, client.sites().withUrl(url).get());
-      } catch (ApiException e) {
-        LogChannel.GENERAL.logBasic(
-            "Microsoft Graph refused to search the SharePoint sites: " + describe(e));
+        addSites(tenantSites, client.sites().withUrl(url).get());
       }
+    } catch (ApiException e) {
+      LogChannel.GENERAL.logBasic(
+          "Microsoft Graph refused to list the SharePoint sites: " + describe(e));
     }
-    if (sites.isEmpty()) {
+    if (tenantSites.isEmpty()) {
       LogChannel.GENERAL.logBasic(
           "Microsoft Graph returned no SharePoint site. Listing the sites needs the application"
               + " permission Sites.Read.All with admin consent. With Sites.Selected the sites"
               + " can not be listed, use the full path of a site the application was granted.");
     }
-    siteIds = sites;
-    sitesListed = true;
-    driveIds.clear();
+    Map<String, String> sites = newNameMap();
+    for (Site site : tenantSites) {
+      String name = siteNameUnder(managedPath, site.getWebUrl());
+      if (name != null && site.getId() != null && sites.putIfAbsent(name, site.getId()) == null) {
+        siteIds.put(siteKey(managedPath, name), site.getId());
+      }
+    }
     return sites;
+  }
+
+  private void addSites(List<Site> sites, @Nullable SiteCollectionResponse firstPage) {
+    forEachPaged(
+        firstPage,
+        SiteCollectionResponse::getValue,
+        nextLink -> client.sites().withUrl(nextLink).get(),
+        sites::add);
+  }
+
+  /**
+   * The name of a site is the last part of its address, such as {@code Finance} for {@code
+   * https://contoso.sharepoint.com/sites/Finance}.
+   *
+   * @return the name of the site, or null if its address is not directly under the managed path:
+   *     the root site, a site under another managed path or a subsite
+   */
+  static @Nullable String siteNameUnder(String managedPath, @Nullable String webUrl) {
+    if (webUrl == null) {
+      return null;
+    }
+    String path;
+    try {
+      path = URI.create(webUrl).getPath();
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+    if (path == null) {
+      return null;
+    }
+    // "/sites/Finance" is split in an empty string, the managed path and the name
+    String[] parts = path.split("/");
+    return parts.length == 3 && parts[1].equalsIgnoreCase(managedPath) && !parts[2].isEmpty()
+        ? parts[2]
+        : null;
+  }
+
+  private static String siteKey(String managedPath, String siteName) {
+    return managedPath + "/" + siteName;
   }
 
   /**
@@ -183,38 +232,14 @@ public class SharePointFileSystem extends AbstractFileSystem {
     return text.toString();
   }
 
-  private void addSites(Map<String, String> sites, @Nullable SiteCollectionResponse firstPage) {
-    forEachPaged(
-        firstPage,
-        SiteCollectionResponse::getValue,
-        nextLink -> client.sites().withUrl(nextLink).get(),
-        site -> addSite(sites, site));
-  }
-
-  /** Two sites can have the same name, only the first one is kept. */
-  private static void addSite(Map<String, String> sites, Site site) {
-    String name = site.getName() != null ? site.getName() : site.getDisplayName();
-    if (name == null || site.getId() == null) {
-      return;
-    }
-    String namesake = sites.putIfAbsent(name, site.getId());
-    if (namesake != null && !namesake.equals(site.getId())) {
-      LogChannel.GENERAL.logBasic(
-          "The SharePoint site "
-              + site.getWebUrl()
-              + " is ignored: another site is already named '"
-              + name
-              + "'");
-    }
-  }
-
   /**
-   * Reads a site by its address, {@code /sites/name} of the SharePoint host of the tenant. This
-   * also works when the application can not list the sites (Sites.Selected).
+   * Reads a site by its address, such as {@code /sites/Finance} of the SharePoint host of the
+   * tenant. This takes one request whatever the number of sites, and also works when the
+   * application can not list the sites (Sites.Selected).
    *
    * @return the id of the site or null if it does not exist or can not be read
    */
-  private @Nullable String findSiteIdByPath(String siteName) {
+  private @Nullable String readSiteId(String managedPath, String siteName) {
     String host;
     try {
       host = hostname();
@@ -227,48 +252,23 @@ public class SharePointFileSystem extends AbstractFileSystem {
     if (host == null) {
       return null;
     }
-    String encodedSiteName = SharePointFileName.encodeSegment(siteName);
-    for (String managedPath : MANAGED_PATHS) {
-      // The address of the site relative to the host, such as contoso.sharepoint.com:/sites/Finance
-      String address = host + ":/" + managedPath + "/";
-      String url = client.getRequestAdapter().getBaseUrl() + "/sites/" + address + encodedSiteName;
-      try {
-        Site site = client.sites().bySiteId(ROOT_ITEM_ID).withUrl(url).get();
-        if (site != null && site.getId() != null) {
-          return site.getId();
-        }
-      } catch (ApiException e) {
-        String message =
-            "The SharePoint site "
-                + host
-                + "/"
-                + managedPath
-                + "/"
-                + siteName
-                + " can not be read: "
-                + describe(e);
-        // The site is expected to be missing under one of the managed paths
-        if (e.getResponseStatusCode() == HTTP_NOT_FOUND) {
-          LogChannel.GENERAL.logDetailed(message);
-        } else {
-          LogChannel.GENERAL.logBasic(message);
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Lists the sites, an application that is only granted some sites (Sites.Selected) can not list
-   * them and reaches its sites by their address.
-   */
-  private Map<String, String> listSitesIfAllowed() {
+    // The address of the site relative to the host, such as contoso.sharepoint.com:/sites/Finance
+    String address = host + ":/" + managedPath.toLowerCase(Locale.ROOT) + "/";
+    String url =
+        client.getRequestAdapter().getBaseUrl()
+            + "/sites/"
+            + address
+            + SharePointFileName.encodeSegment(siteName);
     try {
-      return listSites();
-    } catch (FileSystemException e) {
-      LogChannel.GENERAL.logDetailed(e.getMessage());
-      sitesListed = true;
-      return siteIds;
+      Site site = client.sites().bySiteId(ROOT_ITEM_ID).withUrl(url).get();
+      return site == null ? null : site.getId();
+    } catch (ApiException e) {
+      // A site that does not exist is not worth a line in the log
+      if (e.getResponseStatusCode() != HTTP_NOT_FOUND) {
+        LogChannel.GENERAL.logBasic(
+            "The SharePoint site " + address + siteName + " can not be read: " + describe(e));
+      }
+      return null;
     }
   }
 
@@ -290,22 +290,21 @@ public class SharePointFileSystem extends AbstractFileSystem {
   }
 
   /**
-   * @return the id of the site or null if there is no site with this name
+   * @param managedPath the first name of the path, a site only exists under {@code sites} or {@code
+   *     teams}
+   * @return the id of the site or null if there is no such site
    */
-  @Nullable String findSiteId(String siteName) throws FileSystemException {
-    String siteId = siteIds.get(siteName);
-    if (siteId != null) {
-      return siteId;
+  @Nullable String findSiteId(@Nullable String managedPath, @Nullable String siteName) {
+    if (siteName == null || !isManagedPath(managedPath)) {
+      return null;
     }
-    // Reading the site by its address takes one or two requests, whatever the number of sites
-    siteId = findSiteIdByPath(siteName);
-    if (siteId != null) {
-      siteIds.put(siteName, siteId);
-      return siteId;
-    }
-    // A site that has no such address may still be listed, the sites are only listed once for this
-    if (!sitesListed) {
-      siteId = listSitesIfAllowed().get(siteName);
+    String key = siteKey(managedPath, siteName);
+    String siteId = siteIds.get(key);
+    if (siteId == null) {
+      siteId = readSiteId(managedPath, siteName);
+      if (siteId != null) {
+        siteIds.put(key, siteId);
+      }
     }
     return siteId;
   }
@@ -334,8 +333,8 @@ public class SharePointFileSystem extends AbstractFileSystem {
   /**
    * @return the id of the document library or null if the site or the library does not exist
    */
-  @Nullable String findDriveId(SharePointFileName name) throws FileSystemException {
-    String siteId = findSiteId(name.getSiteName());
+  @Nullable String findDriveId(SharePointFileName name) {
+    String siteId = findSiteId(name.getManagedPath(), name.getSiteName());
     if (siteId == null) {
       return null;
     }

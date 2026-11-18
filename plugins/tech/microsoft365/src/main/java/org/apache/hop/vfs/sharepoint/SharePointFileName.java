@@ -30,18 +30,25 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Named Microsoft 365 connection URI: {@code connectionName:///site/library/path/in/the/library}.
+ * Named Microsoft 365 connection URI: {@code
+ * connectionName:///sites/site/library/path/in/the/library}.
  */
 @NullMarked
 public class SharePointFileName extends AbstractFileName {
 
-  /** Depth of a site: {@code connection:///site}. */
-  public static final int SITE_DEPTH = 1;
+  /** Depth of a managed path, the fixed folders of the root: {@code connection:///sites}. */
+  public static final int MANAGED_PATH_DEPTH = 1;
 
-  /** Depth of a document library (drive): {@code connection:///site/library}. */
-  public static final int DRIVE_DEPTH = 2;
+  /** Depth of a site: {@code connection:///sites/site}. */
+  public static final int SITE_DEPTH = 2;
 
-  /** The decoded names of the path: the site, the library, then the folders and the file. */
+  /** Depth of a document library (drive): {@code connection:///sites/site/library}. */
+  public static final int DRIVE_DEPTH = 3;
+
+  /**
+   * The decoded names of the path: the managed path, the site, the library, then the folders and
+   * the file.
+   */
   private final String[] segments;
 
   public SharePointFileName(final String scheme, final String path, final FileType type) {
@@ -58,7 +65,15 @@ public class SharePointFileName extends AbstractFileName {
   }
 
   /**
-   * @return the name of the site or null for the root of the file system
+   * @return the managed path of the site, {@code sites} or {@code teams}, or null for the root of
+   *     the file system
+   */
+  public @Nullable String getManagedPath() {
+    return segments.length >= MANAGED_PATH_DEPTH ? segments[MANAGED_PATH_DEPTH - 1] : null;
+  }
+
+  /**
+   * @return the name of the site or null above the sites
    */
   public @Nullable String getSiteName() {
     return segments.length >= SITE_DEPTH ? segments[SITE_DEPTH - 1] : null;
@@ -93,7 +108,8 @@ public class SharePointFileName extends AbstractFileName {
   }
 
   /**
-   * @return the number of names in the path: 0 for the root, 1 for a site, 2 for a library
+   * @return the number of names in the path: 0 for the root, 1 for a managed path, 2 for a site, 3
+   *     for a library
    */
   public int getLevel() {
     return segments.length;

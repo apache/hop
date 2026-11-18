@@ -42,7 +42,6 @@ import org.apache.hop.vfs.sharepoint.metadatatype.SharePointConnection.Authentic
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -66,7 +65,6 @@ public class SharePointConnectionEditor extends MetadataEditor<SharePointConnect
       "SharePointConnectionEditor-GuiWidgetsParent";
 
   private TextVar wName;
-  private Composite wWidgetsComposite;
   private GuiCompositeWidgets guiCompositeWidgets;
 
   public SharePointConnectionEditor(
@@ -105,19 +103,10 @@ public class SharePointConnectionEditor extends MetadataEditor<SharePointConnect
     fdName.right = new FormAttachment(wIcon, -margin);
     wName.setLayoutData(fdName);
 
-    wWidgetsComposite = new Composite(parent, SWT.NONE);
-    PropsUi.setLook(wWidgetsComposite);
-    wWidgetsComposite.setLayout(new FormLayout());
-    FormData fdWidgetsComposite = new FormData();
-    fdWidgetsComposite.top = new FormAttachment(wName, margin);
-    fdWidgetsComposite.left = new FormAttachment(0, 0);
-    fdWidgetsComposite.right = new FormAttachment(100, 0);
-    fdWidgetsComposite.bottom = new FormAttachment(100, 0);
-    wWidgetsComposite.setLayoutData(fdWidgetsComposite);
-
-    guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables());
-    guiCompositeWidgets.createCompositeWidgets(
-        metadata, null, wWidgetsComposite, GUI_PLUGIN_ELEMENT_PARENT_ID, wName);
+    // The options are grouped in tabs, in a container that scrolls when the editor is too small
+    guiCompositeWidgets =
+        GuiCompositeWidgets.addScrolledComposite(
+            parent, manager.getVariables(), wName, null, GUI_PLUGIN_ELEMENT_PARENT_ID, metadata);
     guiCompositeWidgets.setWidgetsListener(
         new GuiCompositeWidgetsAdapter() {
           @Override
@@ -156,8 +145,7 @@ public class SharePointConnectionEditor extends MetadataEditor<SharePointConnect
   @Override
   public void setWidgetsContent() {
     wName.setText(Const.NVL(getMetadata().getName(), ""));
-    guiCompositeWidgets.setWidgetsContents(
-        metadata, wWidgetsComposite, GUI_PLUGIN_ELEMENT_PARENT_ID);
+    guiCompositeWidgets.setWidgetsContents(metadata, null, GUI_PLUGIN_ELEMENT_PARENT_ID);
     hideUnusedCredentials();
   }
 

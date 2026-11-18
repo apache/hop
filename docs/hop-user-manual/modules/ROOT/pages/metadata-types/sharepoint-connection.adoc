@@ -23,7 +23,7 @@ under the License.
 == Description
 
 This metadata type adds the SharePoint sites of a Microsoft 365 tenant to your project as a file system, and describes how Apache Hop signs in to that tenant through the Microsoft Graph API.
-The name of the connection is also a file system scheme: the SharePoint sites of the tenant, their document libraries and the files in them can be read and written with paths such as `+name:///site/library/folder/file.csv+`.
+The name of the connection is also a file system scheme: the SharePoint sites of the tenant, their document libraries and the files in them can be read and written with paths such as `+name:///sites/site/library/folder/file.csv+`.
 See xref:vfs/sharepoint-vfs.adoc[Microsoft SharePoint VFS] for the layout of these paths.
 
 Hop signs in as an application, not as a person.
@@ -31,7 +31,7 @@ Register an application in Microsoft Entra ID, grant it Microsoft Graph *applica
 
 * `Sites.Read.All` to read files
 * `Sites.ReadWrite.All` to also create, replace, rename and delete files and folders
-* `Sites.Selected` to only reach the sites the application was granted. These sites can not be listed: use the full path of the site, `+name:///site/library+`, and set the SharePoint host on the connection if the site is not found.
+* `Sites.Selected` to only reach the sites the application was granted. These sites can not be listed: use the full path of the site, `+name:///sites/site/library+`, and set the SharePoint host on the connection if the site is not found.
 
 == Options
 
@@ -56,9 +56,9 @@ All the options except the name, the description and the authentication type acc
 
 === SharePoint host
 
-A site is first read by its address, `<host>/sites/<site>` or `<host>/teams/<site>`, so that a file is reached without listing all the sites of the tenant.
+A site is read by its address, `<host>/sites/<site>` or `<host>/teams/<site>`, so that a file is reached without listing all the sites of the tenant.
 This also works when the application is not allowed to list the sites.
-The sites are only listed to browse the root `+name:///+`, or to find a site that has no such address.
+The sites are only listed to browse the folders `+name:///sites+` and `+name:///teams+`.
 
 When the option is empty, Hop reads the root site of the tenant to find the host, so the connection usually works without it.
 Set it when:

@@ -40,8 +40,8 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A site, a document library, or a file or folder of a document library, depending on the depth of
- * its name.
+ * A managed path, a site, a document library, or a file or folder of a document library, depending
+ * on the depth of its name.
  */
 @NullMarked
 public class SharePointFileObject extends AbstractFileObject<SharePointFileSystem> {
@@ -73,7 +73,7 @@ public class SharePointFileObject extends AbstractFileObject<SharePointFileSyste
     SharePointFileSystem fileSystem = getAbstractFileSystem();
     int depth = name.getLevel();
     if (depth == SharePointFileName.SITE_DEPTH) {
-      siteId = fileSystem.findSiteId(name.getSiteName());
+      siteId = fileSystem.findSiteId(name.getManagedPath(), name.getSiteName());
     } else if (depth >= SharePointFileName.DRIVE_DEPTH) {
       driveId = fileSystem.findDriveId(name);
       if (driveId != null && name.isItem()) {
@@ -92,8 +92,14 @@ public class SharePointFileObject extends AbstractFileObject<SharePointFileSyste
   @Override
   protected FileType doGetType() {
     int depth = name().getLevel();
-    if (depth < SharePointFileName.SITE_DEPTH) {
+    if (depth < SharePointFileName.MANAGED_PATH_DEPTH) {
       return FileType.FOLDER;
+    }
+    if (depth == SharePointFileName.MANAGED_PATH_DEPTH) {
+      // The folders of the root are fixed, whether their sites can be listed or not
+      return SharePointFileSystem.isManagedPath(name().getManagedPath())
+          ? FileType.FOLDER
+          : FileType.IMAGINARY;
     }
     if (depth == SharePointFileName.SITE_DEPTH) {
       return siteId == null ? FileType.IMAGINARY : FileType.FOLDER;
@@ -133,8 +139,10 @@ public class SharePointFileObject extends AbstractFileObject<SharePointFileSyste
     SharePointFileSystem fileSystem = getAbstractFileSystem();
     int depth = name().getLevel();
     List<String> names = new ArrayList<>();
-    if (depth < SharePointFileName.SITE_DEPTH) {
-      names.addAll(fileSystem.listSites().keySet());
+    if (depth < SharePointFileName.MANAGED_PATH_DEPTH) {
+      names.addAll(SharePointFileSystem.MANAGED_PATHS);
+    } else if (depth == SharePointFileName.MANAGED_PATH_DEPTH) {
+      names.addAll(fileSystem.listSites(name().getManagedPath()).keySet());
     } else if (depth == SharePointFileName.SITE_DEPTH) {
       names.addAll(fileSystem.listDrives(siteId).keySet());
     } else {
@@ -148,7 +156,7 @@ public class SharePointFileObject extends AbstractFileObject<SharePointFileSyste
 
   @Override
   protected FileObject @Nullable [] doListChildrenResolved() throws Exception {
-    // The sites and the document libraries are resolved by name, anything that is not a folder is
+    // The managed paths, sites and libraries are resolved by name, anything that is not a folder is
     // rejected by the listing of the names
     if (name().getLevel() < SharePointFileName.DRIVE_DEPTH || doGetType() != FileType.FOLDER) {
       return null;
@@ -269,6 +277,7 @@ public class SharePointFileObject extends AbstractFileObject<SharePointFileSyste
     SharePointFileName source = name();
     return source.isItem()
         && target.isItem()
+        && source.getManagedPath().equalsIgnoreCase(target.getManagedPath())
         && source.getSiteName().equalsIgnoreCase(target.getSiteName())
         && source.getDriveName().equalsIgnoreCase(target.getDriveName());
   }

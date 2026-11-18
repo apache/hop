@@ -30,7 +30,6 @@
     <name>Hop Plugins Technology Microsoft 365</name>
 
     <properties>
-        <azure-eventhubs.version>3.3.0</azure-eventhubs.version>
         <azure-graph.version>6.58.0</azure-graph.version>
     </properties>
 

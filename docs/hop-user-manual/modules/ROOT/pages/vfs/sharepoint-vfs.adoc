@@ -37,25 +37,29 @@ The application it signs in with needs the Microsoft Graph application permissio
 
 == Usage and testing
 
-The path has three parts: the site, the document library, and the path of the file or folder in that library.
+The path follows the address of the site in SharePoint: `sites` or `teams`, the site, the document library, then the path of the file or folder in that library.
 
-`+m365:///<site>/<library>/<folder>/<file>+`
+`+m365:///sites/<site>/<library>/<folder>/<file>+` +
+`+m365:///teams/<site>/<library>/<folder>/<file>+`
 
 [options="header",cols="2,3"]
 |===
 |Path|What it is
-|`+m365:///+`|The SharePoint sites of the tenant
-|`+m365:///Finance+`|The document libraries of the site `Finance`
-|`+m365:///Finance/Documents+`|The root folder of the library `Documents`
-|`+m365:///Finance/Documents/reports/2026/daily.csv+`|A file in that library
+|`+m365:///+`|Two fixed folders, `sites` and `teams`
+|`+m365:///sites+`|The SharePoint sites whose address is under `/sites`
+|`+m365:///teams+`|The SharePoint sites whose address is under `/teams`
+|`+m365:///sites/Finance+`|The document libraries of the site `Finance`
+|`+m365:///sites/Finance/Documents+`|The root folder of the library `Documents`
+|`+m365:///sites/Finance/Documents/reports/2026/daily.csv+`|A file in that library
 |===
 
-* The site is the name of the site as it appears in its URL (`Finance` for `+https://contoso.sharepoint.com/sites/Finance+`).
+* The beginning of the path is what follows the host in the address of the site: `+m365:///sites/Finance+` for `+https://contoso.sharepoint.com/sites/Finance+`, `+m365:///teams/Communication+` for `+https://contoso.sharepoint.com/teams/Communication+`.
+A site under `/sites` and a site under `/teams` can have the same name, they are two different paths.
 * The library is the name of the document library.
 The default library of a site is named `Documents` on an English tenant, even though its URL says `Shared Documents`.
 * Site and library names are not case-sensitive.
-When two sites have the same name, the one under `/sites` is used rather than the one under `/teams`.
-* With the permission `Sites.Selected` the root `+m365:///+` is empty, because the application can not list the sites. Set the SharePoint host on the connection and enter the path of a site it was granted, such as `+m365:///Finance+`.
+* With the permission `Sites.Selected` the folders `sites` and `teams` are empty, because the application can not list the sites. Enter the full path of a site it was granted, such as `+m365:///sites/Finance+`.
+* The root site of the tenant and subsites are not reachable.
 
 You can browse the sites, libraries and files in the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] or in any file dialog.
 
@@ -67,15 +71,15 @@ Where the files of a channel are depends on the type of the channel.
 [options="header",cols="1,2,3"]
 |===
 |Channel|Site|Path
-|Standard|The site of the team|`+m365:///<team>/Documents/<channel>/<file>+`
-|Private or shared|A site of its own, usually named `<team>-<channel>`|`+m365:///<team>-<channel>/Documents/<channel>/<file>+`
+|Standard|The site of the team|`+m365:///sites/<team>/Documents/<channel>/<file>+`
+|Private or shared|A site of its own, usually named `<team>-<channel>`|`+m365:///sites/<team>-<channel>/Documents/<channel>/<file>+`
 |===
 
 * A channel is a folder of the library `Documents`, never a site or a library by itself.
 The folder of the default channel is named `General`.
 * The name of the site of a team is not always the name of the team.
-To find the exact names, open the *Files* tab of the channel in Teams and choose *Open in SharePoint*: the site is what follows `/sites/` or `/teams/` in the URL, the folder is what follows `Shared Documents/`.
-* Do not put `/sites` or `/teams` in the path, only the name of the site.
+To find the exact names, open the *Files* tab of the channel in Teams and choose *Open in SharePoint*: the path starts with what follows the host in the URL, `/sites/<site>` or `/teams/<site>`, and the folder is what follows `Shared Documents/`.
+* The site of a team is under `/sites` on most tenants and under `/teams` on some, use the one of the URL.
 * With the permission `Sites.Selected`, the site of a private or shared channel has to be granted to the application separately from the site of the team.
 
 == Limitations

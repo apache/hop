@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.IVfsBrowseLocation;
@@ -60,6 +61,10 @@ import org.jspecify.annotations.Nullable;
 public class SharePointConnection extends HopMetadataBase
     implements IHopMetadata, IVfsBrowseLocation {
   private static final Class<?> PKG = SharePointConnection.class;
+
+  public static final String GROUP_CONNECTION = "i18n::SharePointConnectionEditor.Group.Connection";
+  public static final String GROUP_AUTHENTICATION =
+      "i18n::SharePointConnectionEditor.Group.Authentication";
 
   public static final String WIDGET_AUTHENTICATION_TYPE = "sharepoint-authentication-type";
   public static final String WIDGET_CLIENT_ID = "sharepoint-client-id";
@@ -118,6 +123,9 @@ public class SharePointConnection extends HopMetadataBase
       id = "sharepoint-description",
       order = "0100",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = "010",
       type = GuiElementType.MULTI_LINE_TEXT,
       multiLineTextHeight = 4,
       variables = false,
@@ -129,6 +137,9 @@ public class SharePointConnection extends HopMetadataBase
       id = WIDGET_AUTHENTICATION_TYPE,
       order = "0200",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_AUTHENTICATION,
+      groupOrder = "020",
       type = GuiElementType.COMBO,
       variables = false,
       label = "i18n::SharePointConnectionEditor.AuthenticationType.Label")
@@ -139,6 +150,9 @@ public class SharePointConnection extends HopMetadataBase
       id = "sharepoint-tenant-id",
       order = "0300",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = "010",
       type = GuiElementType.TEXT,
       label = "i18n::SharePointConnectionEditor.TenantId.Label",
       toolTip = "i18n::SharePointConnectionEditor.TenantId.Tooltip")
@@ -153,6 +167,9 @@ public class SharePointConnection extends HopMetadataBase
       id = "sharepoint-hostname",
       order = "0400",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_CONNECTION,
+      groupOrder = "010",
       type = GuiElementType.TEXT,
       label = "i18n::SharePointConnectionEditor.Hostname.Label",
       toolTip = "i18n::SharePointConnectionEditor.Hostname.Tooltip")
@@ -163,6 +180,9 @@ public class SharePointConnection extends HopMetadataBase
       id = WIDGET_CLIENT_ID,
       order = "0500",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_AUTHENTICATION,
+      groupOrder = "020",
       type = GuiElementType.TEXT,
       label = "i18n::SharePointConnectionEditor.ClientId.Label",
       toolTip = "i18n::SharePointConnectionEditor.ClientId.Tooltip")
@@ -173,6 +193,9 @@ public class SharePointConnection extends HopMetadataBase
       id = WIDGET_CLIENT_SECRET,
       order = "0600",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_AUTHENTICATION,
+      groupOrder = "020",
       type = GuiElementType.TEXT,
       password = true,
       label = "i18n::SharePointConnectionEditor.ClientSecret.Label",
@@ -185,6 +208,9 @@ public class SharePointConnection extends HopMetadataBase
       id = WIDGET_CERTIFICATE,
       order = "0700",
       parentId = SharePointConnectionEditor.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.TABS,
+      group = GROUP_AUTHENTICATION,
+      groupOrder = "020",
       type = GuiElementType.MULTI_LINE_TEXT,
       multiLineTextHeight = 12,
       label = "i18n::SharePointConnectionEditor.PEMCertificate.Label",
@@ -200,17 +226,27 @@ public class SharePointConnection extends HopMetadataBase
       case SECRET -> {
         log.logBasic("SharePoint authentication is using Client Secret Credentials");
         yield new ClientSecretCredentialBuilder()
-            .tenantId(resolvedTenantId)
-            .clientId(variables.resolve(getClientId()))
-            .clientSecret(variables.resolve(getClientSecret()))
+            .tenantId(required(resolvedTenantId, "SharePointConnectionEditor.TenantId.Label"))
+            .clientId(
+                required(
+                    variables.resolve(getClientId()), "SharePointConnectionEditor.ClientId.Label"))
+            .clientSecret(
+                required(
+                    variables.resolve(getClientSecret()),
+                    "SharePointConnectionEditor.ClientSecret.Label"))
             .build();
       }
       case CERTIFICATE -> {
         log.logBasic("SharePoint authentication is using Client Certificate Credentials");
-        String resolvedCertificate = variables.resolve(getCertificate());
+        String resolvedCertificate =
+            required(
+                variables.resolve(getCertificate()),
+                "SharePointConnectionEditor.PEMCertificate.Label");
         yield new ClientCertificateCredentialBuilder()
-            .tenantId(resolvedTenantId)
-            .clientId(variables.resolve(getClientId()))
+            .tenantId(required(resolvedTenantId, "SharePointConnectionEditor.TenantId.Label"))
+            .clientId(
+                required(
+                    variables.resolve(getClientId()), "SharePointConnectionEditor.ClientId.Label"))
             .pemCertificate(
                 new ByteArrayInputStream(resolvedCertificate.getBytes(StandardCharsets.UTF_8)))
             .build();
@@ -220,5 +256,20 @@ public class SharePointConnection extends HopMetadataBase
         yield new DefaultAzureCredentialBuilder().tenantId(resolvedTenantId).build();
       }
     };
+  }
+
+  /**
+   * @param value the resolved value of an option
+   * @param labelKey the key of the label of the option in the editor
+   * @return the value
+   * @throws HopException if the option is empty
+   */
+  private static String required(@Nullable String value, String labelKey) throws HopException {
+    if (value == null || value.isBlank()) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "SharePointConnection.MissingOption", BaseMessages.getString(PKG, labelKey)));
+    }
+    return value;
   }
 }
