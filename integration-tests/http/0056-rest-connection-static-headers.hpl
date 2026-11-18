@@ -21,7 +21,7 @@ limitations under the License.
   <info>
     <name>0056-rest-connection-static-headers</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Static headers on a REST connection (issue #9551): the endpoint answers 403 without an x-as-user-email header. The connection sends it on every row; a header field on the transform with the same name wins.</description>
+    <description>Static headers on a REST connection (issue #9551): the endpoint answers 403 without an x-as-user-email header. The connection sends it on every row; a header field on the transform with the same name wins. The HTTP client and HTTP POST transforms send it too when they use the connection.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -78,6 +78,46 @@ limitations under the License.
     <hop>
       <from>check own header wins</from>
       <to>Abort (own header)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>1 row (HTTP client)</from>
+      <to>HTTP client via connection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>HTTP client via connection</from>
+      <to>read user (HTTP client)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>read user (HTTP client)</from>
+      <to>check HTTP client</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check HTTP client</from>
+      <to>Abort (HTTP client)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>1 row (HTTP POST)</from>
+      <to>HTTP POST via connection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>HTTP POST via connection</from>
+      <to>read user (HTTP POST)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>read user (HTTP POST)</from>
+      <to>check HTTP POST</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>check HTTP POST</from>
+      <to>Abort (HTTP POST)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -511,6 +551,403 @@ limitations under the License.
     <GUI>
       <xloc>752</xloc>
       <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>1 row (HTTP client)</name>
+    <type>RowGenerator</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>HTTP client via connection</name>
+    <type>Http</type>
+    <description>The HTTP client transform builds its request itself, so it adds the connection's static headers on its own path.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection_name>static-headers</connection_name>
+    <url>/requires-user</url>
+    <urlInField>N</urlInField>
+    <ignoreSsl>N</ignoreSsl>
+    <urlField/>
+    <encoding>UTF-8</encoding>
+    <httpLogin/>
+    <httpPassword>Encrypted </httpPassword>
+    <proxyHost/>
+    <proxyPort/>
+    <socketTimeout>10000</socketTimeout>
+    <connectionTimeout>10000</connectionTimeout>
+    <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
+    <lookup>
+    </lookup>
+    <result>
+      <name>result</name>
+      <code>result_status</code>
+      <response_time/>
+      <response_header/>
+    </result>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>read user (HTTP client)</name>
+    <type>JsonInput</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>user</name>
+        <path>$.user</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>result</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check HTTP client</name>
+    <type>FilterRows</type>
+    <description>Fails unless the HTTP client transform sent the connection's header.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>Y</negated>
+            <leftvalue>result_status</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>Integer</type>
+              <text>200</text>
+              <length>-1</length>
+              <precision>0</precision>
+              <isnull>N</isnull>
+              <mask>#</mask>
+            </value>
+          </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>OR</operator>
+            <leftvalue>user</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>hop@httpecho</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+              <mask/>
+            </value>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort (HTTP client)</name>
+    <type>Abort</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>752</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>1 row (HTTP POST)</name>
+    <type>RowGenerator</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <never_ending>N</never_ending>
+    <limit>1</limit>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>496</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>HTTP POST via connection</name>
+    <type>HttpPost</type>
+    <description>Same check for the HTTP POST transform, which also builds its own request.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
+    <connectionTimeout>10000</connectionTimeout>
+    <connection_name>static-headers</connection_name>
+    <encoding>UTF-8</encoding>
+    <httpPassword>Encrypted </httpPassword>
+    <ignoreSsl>N</ignoreSsl>
+    <lookup>
+</lookup>
+    <postafile>N</postafile>
+    <result>
+      <code>result_status</code>
+      <name>result</name>
+    </result>
+    <socketTimeout>10000</socketTimeout>
+    <url>/requires-user</url>
+    <urlInField>N</urlInField>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>496</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>read user (HTTP POST)</name>
+    <type>JsonInput</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <include>N</include>
+    <include_field/>
+    <rownum>N</rownum>
+    <addresultfile>N</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>N</removeSourceField>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <rownum_field/>
+    <file>
+      <name/>
+      <filemask/>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+    </file>
+    <fields>
+      <field>
+        <name>user</name>
+        <path>$.user</path>
+        <type>String</type>
+        <format/>
+        <currency/>
+        <decimal/>
+        <group/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <limit>0</limit>
+    <IsInFields>Y</IsInFields>
+    <IsAFile>N</IsAFile>
+    <valueField>result</valueField>
+    <shortFileFieldName/>
+    <pathFieldName/>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <uriNameFieldName/>
+    <rootUriNameFieldName/>
+    <extensionFieldName/>
+    <sizeFieldName/>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>496</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>check HTTP POST</name>
+    <type>FilterRows</type>
+    <description>Fails unless the HTTP POST transform sent the connection's header.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to/>
+    <send_false_to/>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <conditions>
+          <condition>
+            <negated>Y</negated>
+            <leftvalue>result_status</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>Integer</type>
+              <text>200</text>
+              <length>-1</length>
+              <precision>0</precision>
+              <isnull>N</isnull>
+              <mask>#</mask>
+            </value>
+          </condition>
+          <condition>
+            <negated>Y</negated>
+            <operator>OR</operator>
+            <leftvalue>user</leftvalue>
+            <function>=</function>
+            <rightvalue/>
+            <value>
+              <name>constant</name>
+              <type>String</type>
+              <text>hop@httpecho</text>
+              <length>-1</length>
+              <precision>-1</precision>
+              <isnull>N</isnull>
+              <mask/>
+            </value>
+          </condition>
+        </conditions>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>496</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort (HTTP POST)</name>
+    <type>Abort</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>752</xloc>
+      <yloc>496</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

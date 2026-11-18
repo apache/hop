@@ -1,0 +1,14 @@
+{
+  "name": "oauth2-token-rejected-while-paging",
+  "auth_type": "OAuth 2",
+  "base_url": "http://${OAUTH_HOSTNAME}:8080",
+  "test_url": "",
+  "ignoreSsl": false,
+  "oauth2_token_url": "http://${OAUTH_HOSTNAME}:8080/paging/token",
+  "oauth2_grant": "CLIENT_CREDENTIALS",
+  "oauth2_client_id": "hop-it-0058",
+  "oauth2_client_secret": "hop-it-0058-secret",
+  "oauth2_credentials_in_body": false,
+  "pagination_type": "PAGE_NUMBER",
+  "page_param_name": "page"
+}

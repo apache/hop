@@ -21,7 +21,7 @@ limitations under the License.
   <info>
     <name>0057-rest-connection-oauth2-token-rotation-reset</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Puts the WireMock token rotation scenario back at its start, so 0057 sees a fresh server however often it runs.</description>
+    <description>Puts every scenario of the WireMock OAuth mock back at its start, so 0057, 0058 and 0059 each see a fresh server however often they run.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
