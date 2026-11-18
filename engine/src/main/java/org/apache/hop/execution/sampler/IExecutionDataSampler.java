@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -100,7 +101,21 @@ public interface IExecutionDataSampler<Store extends IExecutionDataSamplerStore>
                 + object.getClass().getName()
                 + "'");
       }
-      return ((IExecutionDataSampler<?>) object).getPluginId();
+      IExecutionDataSampler<?> sampler = (IExecutionDataSampler<?>) object;
+      // An object created in code may not have its id yet: the registry knows it by its class
+      String pluginId = sampler.getPluginId();
+      if (Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(ExecutionDataSamplerPluginType.class, object);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to determine the plugin id of sampler class " + object.getClass().getName());
+        }
+        pluginId = plugin.getIds()[0];
+        sampler.setPluginId(pluginId);
+        sampler.setPluginName(plugin.getName());
+      }
+      return pluginId;
     }
   }
 }

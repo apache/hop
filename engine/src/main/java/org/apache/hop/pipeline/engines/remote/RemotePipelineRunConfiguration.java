@@ -113,6 +113,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
 
   public RemotePipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("Remote");
+    setEnginePluginName("Hop remote pipeline engine");
   }
 
   public RemotePipelineRunConfiguration(RemotePipelineRunConfiguration config) {

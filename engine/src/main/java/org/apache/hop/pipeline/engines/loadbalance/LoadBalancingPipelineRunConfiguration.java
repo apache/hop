@@ -243,6 +243,9 @@ public class LoadBalancingPipelineRunConfiguration extends EmptyPipelineRunConfi
 
   public LoadBalancingPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("LoadBalancing");
+    setEnginePluginName("Hop load-balancing pipeline engine");
     this.servers = new ArrayList<>();
     this.algorithm = LoadBalancingAlgorithm.EVEN_LOAD.getDescription();
     this.maxRetries = "2";

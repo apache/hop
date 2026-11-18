@@ -19,6 +19,7 @@ package org.apache.hop.core.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
@@ -30,10 +31,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.local.FileExecutionInfoLocation;
+import org.apache.hop.execution.sampler.IExecutionDataSampler;
+import org.apache.hop.execution.sampler.plugins.first.FirstRowsExecutionDataSampler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataDefaultObjectFactory;
@@ -44,8 +48,12 @@ import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfigurationMetadataObjectFactory;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
+import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,6 +91,80 @@ class MetadataObjectIdTest {
 
   @Test
   void everyRegisteredPluginComesBackAsItselfWhenSavedAgain() throws Exception {
+    // As read from a file
+    assertEveryRegisteredPluginComesBack(
+        (registry, factory, valueType, id) -> factory.createObject(id, null));
+  }
+
+  /**
+   * Created in code, as a default run configuration or with its own constructor, without anybody
+   * setting its plugin ID: saved and read again it still comes back as itself.
+   */
+  @Test
+  void everyRegisteredPluginCreatedInCodeComesBackAsItself() throws Exception {
+    assertEveryRegisteredPluginComesBack(
+        (registry, factory, valueType, id) -> createdInCode(registry, valueType, id));
+  }
+
+  /** Without an ID and of no registered plugin, saving fails instead of writing a null key. */
+  @Test
+  void anObjectOfNoKnownPluginIsAnError() {
+    // A class of its own, which no plugin registers
+    FirstRowsExecutionDataSampler unknownSampler = new FirstRowsExecutionDataSampler() {};
+    HopException samplerError =
+        assertThrows(
+            HopException.class,
+            () ->
+                new IExecutionDataSampler.ExecutionDataSamplerObjectFactory()
+                    .getObjectId(unknownSampler));
+    assertTrue(samplerError.getMessage().contains("plugin id"), samplerError.getMessage());
+
+    EmptyPipelineRunConfiguration noEngine = new EmptyPipelineRunConfiguration();
+    HopException runConfigurationError =
+        assertThrows(
+            HopException.class,
+            () -> new PipelineRunConfigurationMetadataObjectFactory().getObjectId(noEngine));
+    assertTrue(
+        runConfigurationError.getMessage().contains("engine plugin id"),
+        runConfigurationError.getMessage());
+  }
+
+  /** An object of a property type for one plugin ID. */
+  private interface IObjectCreator {
+    Object create(
+        PluginRegistry registry, IHopMetadataObjectFactory factory, Class<?> valueType, String id)
+        throws Exception;
+  }
+
+  private static Object createdInCode(PluginRegistry registry, Class<?> valueType, String id)
+      throws Exception {
+    if (valueType == IPipelineEngineRunConfiguration.class) {
+      IPlugin engine = registry.findPluginWithId(PipelineEnginePluginType.class, id);
+      return registry
+          .loadClass(engine, IPipelineEngine.class)
+          .createDefaultPipelineEngineRunConfiguration();
+    }
+    if (valueType == IWorkflowEngineRunConfiguration.class) {
+      IPlugin engine = registry.findPluginWithId(WorkflowEnginePluginType.class, id);
+      return registry
+          .loadClass(engine, IWorkflowEngine.class)
+          .createDefaultWorkflowEngineRunConfiguration();
+    }
+    if (valueType == IDatabase.class) {
+      // The database plugin type doesn't name its main type
+      return registry.loadClass(registry.findPluginWithId(DatabasePluginType.class, id));
+    }
+    for (var pluginType : registry.getPluginTypes()) {
+      IPlugin plugin = registry.findPluginWithId(pluginType, id);
+      if (plugin != null && plugin.getMainType() == valueType) {
+        return registry.loadClass(plugin);
+      }
+    }
+    throw new IllegalStateException("No plugin with ID " + id + " for " + valueType.getName());
+  }
+
+  private static void assertEveryRegisteredPluginComesBack(IObjectCreator creator)
+      throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
     List<String> failures = new ArrayList<>();
     Map<String, Integer> roundTrips = new TreeMap<>();
@@ -99,8 +181,8 @@ class MetadataObjectIdTest {
                 .newInstance();
         String property = holderClass.getSimpleName() + "." + field.getName();
         for (String id : pluginIds(registry, valueType)) {
-          // As read from a file, and as the copy an editor or a run works on
-          Object read = factory.createObject(id, null);
+          // As created, and as the copy an editor or a run works on
+          Object read = creator.create(registry, factory, valueType, id);
           List<Object> objects = new ArrayList<>(List.of(read));
           Method clone = publicClone(read);
           if (clone != null) {

@@ -58,7 +58,6 @@ public class AnonymousPipelineRunner {
               new LocalPipelineRunConfiguration(),
               null,
               false);
-      runConfiguration.getEngineRunConfiguration().setEnginePluginId("Local");
 
       // To avoid classpath issues we need to serialize the pipeline metadata to XML and re-inflate
       // it.

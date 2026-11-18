@@ -21,6 +21,7 @@ import java.util.Optional;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.datacatalog.plugin.DataCatalogPluginType;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -97,7 +98,21 @@ public interface IDataCatalog extends Cloneable, AutoCloseable {
         throw new HopException(
             "Object is not an IDataCatalog but a " + object.getClass().getName());
       }
-      return catalog.getPluginId();
+      // An object created in code may not have its id yet: the registry knows it by its class
+      String pluginId = catalog.getPluginId();
+      if (Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(DataCatalogPluginType.class, object);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to determine the plugin id of data catalog class "
+                  + object.getClass().getName());
+        }
+        pluginId = plugin.getIds()[0];
+        catalog.setPluginId(pluginId);
+        catalog.setPluginName(plugin.getName());
+      }
+      return pluginId;
     }
   }
 }
