@@ -110,13 +110,17 @@
                                         <include name="vs/**/*.css"></include>
                                     </fileset>
                                 </copy>
+                                <!-- Sorted, and LF line endings, so the list (and the jar) are the same on every build host -->
                                 <pathconvert dirsep="/" pathsep="${line.separator}" property="monaco.file.list">
-                                    <fileset dir="${monaco.resources.dir}">
-                                        <include name="vs/**"></include>
-                                    </fileset>
+                                    <sort>
+                                        <fileset dir="${monaco.resources.dir}">
+                                            <include name="vs/**"></include>
+                                        </fileset>
+                                    </sort>
                                     <map from="${monaco.resources.dir}${file.separator}" to=""></map>
                                 </pathconvert>
-                                <echo file="${monaco.resources.dir}/monaco-files.list" message="${monaco.file.list}"></echo>
+                                <echo encoding="UTF-8" file="${monaco.resources.dir}/monaco-files.list" message="${monaco.file.list}"></echo>
+                                <fixcrlf encoding="UTF-8" eol="lf" file="${monaco.resources.dir}/monaco-files.list"></fixcrlf>
                             </target>
                         </configuration>
                     </execution>
