@@ -266,8 +266,17 @@ class WriteToLogDialogTest extends SwtBotTestBase {
     Properties messages = loadMessages(localeCode);
     return Arrays.stream(LogLevel.values())
         .map(level -> "LogWriter.Level." + level.getCode() + ".LongDesc")
-        .map(key -> messages.getProperty(key, fallback.getProperty(key)))
+        .map(key -> translated(messages, fallback, key))
         .toArray(String[]::new);
+  }
+
+  /**
+   * Same rule as {@code GlobalMessageUtil}: Weblate writes an untranslated key as {@code key=}, and
+   * an empty value falls back to the default locale just like a missing key.
+   */
+  private static String translated(Properties messages, Properties fallback, String key) {
+    String value = messages.getProperty(key);
+    return value == null || value.isEmpty() ? fallback.getProperty(key) : value;
   }
 
   private static Properties loadMessages(String localeCode) throws IOException {
