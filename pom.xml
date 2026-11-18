@@ -135,7 +135,8 @@
              downstream and then cannot resolve org.eclipse.tm4e.core:jar:${project.version}
              from any repository. buildUpstreamMode=impacted covers this too; the
              forced build keeps it independent of that setting. -->
-        <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
+        <!-- The BOM coverage test also needs to run when an unrelated module is added or removed. -->
+        <gib.forceBuildModules>hop-bom,org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
         <google-auth.version>1.46.0</google-auth.version>
@@ -769,6 +770,7 @@
                 </property>
             </activation>
             <modules>
+                <module>bom</module>
                 <module>core</module>
                 <module>engine</module>
                 <module>lib</module>

@@ -53,6 +53,12 @@ That builds every module, runs the unit tests, applies the license and formattin
 
 |`./mvnw test -pl core`
 |Unit tests of a single module.
+
+|`./mvnw -pl bom test`
+|Runs the BOM maintenance tests.
+
+|`./mvnw apache-rat:check -Drat.skip=false`
+|Runs the Apache RAT license check explicitly.
 |===
 
 == Profiles
@@ -155,6 +161,34 @@ Bound for every module, so plugin discovery works. Nothing to do unless you are 
 
 Tests::
 JUnit 5 through Surefire. UI tests are tagged and can be included or excluded, see below.
+
+== Maintaining the Hop BOM
+
+The `bom` module publishes the `org.apache.hop:hop-bom` POM for consumers to import into `dependencyManagement`.
+See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading] for the import and versionless dependency examples.
+The module uses `jar` packaging so the normal Maven test lifecycle runs its JUnit maintenance tests.
+The main JAR contains only build metadata and license resources, with no runtime classes; consumers import the POM, not the JAR.
+Producing this main JAR allows normal Maven installation and deployment without publishing a test JAR or allowing incomplete projects.
+Jandex indexing is disabled because the BOM has no runtime classes to index.
+
+The JUnit maintenance tests scan all source project POMs, including modules declared only in profiles, rather than checking only the active reactor.
+Source discovery also applies best-effort exclusion globs from the root `.gitignore` and an existing `excludesfile` referenced by `~/.gitconfig`; it does not implement full Git ignore semantics.
+They check that the BOM manages the expected coordinates with the correct dependency type and version, and detect duplicate entries, stale entries, and invalid exclusions.
+When adding, removing, or changing a published module, update the BOM and keep these checks passing.
+Keep exclusions narrow: the BOM itself and unpublished build/test artifacts.
+The exact exclusions and their reasons are recorded in `bom/src/test/java/org/apache/hop/bom/HopBomTest.java`.
+They cover the BOM itself, standalone benchmark and Spark materializer tools, the Selenium test harness, local Eclipse wrappers, and unpublished assembly intermediates.
+The published `hop-client` distribution remains managed.
+The BOM is forced into incremental builds so adding or removing another module also runs its coverage check.
+Do not use broad exclusions to hide missing published artifacts.
+
+Run the maintenance tests and license check with:
+
+[source,bash]
+----
+./mvnw -pl bom test
+./mvnw apache-rat:check -Drat.skip=false
+----
 
 == What CI runs
 

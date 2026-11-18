@@ -20,6 +20,58 @@ under the License.
 
 Hop loads plugins from folders at runtime, which means dependency management is not only a Maven concern: where a jar lands decides which classloader sees it, and that decides whether your plugin works.
 
+== Managing Hop dependency versions
+
+Import `org.apache.hop:hop-bom` in your project's `dependencyManagement` to align Hop artifact versions.
+Set the `hop.version` property to the Hop version you use.
+
+[source,xml]
+----
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.hop</groupId>
+      <artifactId>hop-bom</artifactId>
+      <version>${hop.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+----
+
+Then declare the dependencies you need without individual versions, including `hop-core`, `hop-engine`, and `hop-transform-*` artifacts such as `hop-transform-calculator`.
+For a plugin running inside Hop, use `provided` scope for Hop dependencies supplied by the host rather than bundling another copy.
+
+[source,xml]
+----
+<dependencies>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-core</artifactId>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-engine</artifactId>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-transform-calculator</artifactId>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+----
+
+The BOM manages the primary JAR or POM type of each release module, including optional plugins, plus ZIP artifacts produced by their assembly descriptors.
+For example, use `<type>zip</type>` when depending on the `hop-client` distribution or a plugin distribution ZIP; a ZIP and a JAR have separate dependency-management entries.
+Sources, Javadoc and test classifiers are not managed.
+The BOM manages versions; importing it does not add dependencies, package jars, or change runtime classloading or plugin visibility.
+Declaring a dependency on another plugin does not by itself make that plugin's classes visible at runtime.
+`hop-libs` provides separate third-party dependency management and is not imported by `hop-bom`.
+See xref:build-and-test.adoc[Building and testing] for BOM maintenance and validation.
+
 == The layout
 
 `lib/core`::
