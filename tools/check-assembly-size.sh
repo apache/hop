@@ -49,6 +49,9 @@ for f in "$ROOT"/assemblies/plugins/target/hop-assemblies-plugins-*.zip; do
   # plugins aggregate should also stay under the limit
   check "hop-assemblies-plugins" "$f"
 done
+for f in "$ROOT"/assemblies/web-war/target/hop-web-*.war "$ROOT"/assemblies/web-war/target/hop-web-*-plugins.zip; do
+  check "hop-web" "$f"
+done
 
 if (( FAILED )); then
   echo "Assembly size check failed (limit ${MAX_BYTES} bytes)."

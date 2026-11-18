@@ -21,29 +21,20 @@
 #
 cd "${0%/*}"
 
-# unzip files for docker image
+# web.Dockerfile builds the image from assemblies/web-war/target (run the Maven build first)
 #
-unzip -qu ../assemblies/web/target/hop.war -d ../assemblies/web/target/webapp
-unzip -qu ../assemblies/plugins/target/hop-assemblies-*.zip -d ../assemblies/plugins/target/
-unzip -quj ../assemblies/lib-jdbc/target/hop-assemblies-*.zip -d ../assemblies/lib-jdbc/target/jdbc-drivers
+WEBAPP=../assemblies/web-war/target/webapp
+OPTIONAL=../assemblies/web-war/target/optional
+mkdir -p ${OPTIONAL}/config ${OPTIONAL}/plugins ${OPTIONAL}/lib/core ${OPTIONAL}/lib/jdbc
 
 # copy recent changes in libraries...
 #
-ls -lrt ../assemblies/web/target/webapp/WEB-INF/lib/
-
 echo "Copying Hop jar file from the target folders."
-cp ../core/target/hop-core-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
-cp ../engine/target/hop-engine-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib
-cp ../ui/target/hop-ui-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
-cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
-
-# copy recent changes to a few plugins
-#
-cp ../plugins/engines/beam/target/hop-plugins*.jar ../assemblies/plugins/target/plugins/engines/beam/
+cp ../core/target/hop-core-*SNAPSHOT.jar ${WEBAPP}/WEB-INF/lib/
+cp ../engine/target/hop-engine-*SNAPSHOT.jar ${WEBAPP}/WEB-INF/lib/
+cp ../ui/target/hop-ui-*SNAPSHOT.jar ${WEBAPP}/WEB-INF/lib/
+cp ../rap/target/hop-*SNAPSHOT.jar ${WEBAPP}/WEB-INF/lib/
 
 #build docker image
 docker build ../ -f web.Dockerfile -t hop-web
 
-#cleanup
-rm -rf ../assemblies/web/target/webapp
-rm -rf ../assemblies/plugins/target/plugins

@@ -32,7 +32,7 @@
         <!-- hop-client-<version>.zip is published to Maven Central next to the copy on
              dist.apache.org, so it can be resolved as a normal artifact. The other assemblies
              (web, plugins, static, debug) stay unpublished through the parent's
-             maven.deploy.skip. The deployed POM is flattened, see flatten-maven-plugin below. -->
+             maven.deploy.skip. -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <org.eclipse.swt.cocoa.macosx.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.aarch64.version>
         <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
@@ -168,37 +168,10 @@
 
     <build>
         <plugins>
-            <!-- The dependencies above are build inputs for the assembly descriptor, not a
-                 classpath for consumers: several are never published (hop-assemblies-*) and the
-                 parent hop-assemblies POM is not deployed either. Publish a POM without parent,
-                 dependencies, profiles or build so hop-client:zip resolves on its own. -->
+            <!-- Deploy a POM without parent or dependencies; see the assemblies parent. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten-maven-plugin.version}</version>
-                <configuration>
-                    <flattenMode>ossrh</flattenMode>
-                    <outputDirectory>${project.build.directory}</outputDirectory>
-                    <!-- Flatten skips pom packaging unless told otherwise. -->
-                    <updatePomFile>true</updatePomFile>
-                    <pomElements>
-                        <dependencies>remove</dependencies>
-                        <dependencyManagement>remove</dependencyManagement>
-                        <profiles>remove</profiles>
-                        <build>remove</build>
-                        <repositories>remove</repositories>
-                        <pluginRepositories>remove</pluginRepositories>
-                    </pomElements>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>flatten</id>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

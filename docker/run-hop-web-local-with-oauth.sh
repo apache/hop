@@ -243,17 +243,16 @@ overlay_module_jars() {
 }
 
 prepare_webapp() {
-  local war="${PROJECT_ROOT}/assemblies/web/target/hop.war"
-  local webapp="${PROJECT_ROOT}/assemblies/web/target/webapp"
-  local client_lib="${PROJECT_ROOT}/assemblies/client/target/hop/lib/core"
-  [[ -f "${war}" ]] || die "hop.war not found"
-  log "Preparing exploded web application"
-  rm -rf "${webapp}"
-  unzip -q "${war}" -d "${webapp}"
-  log "Overlaying latest Hop module JARs"
+  # web.Dockerfile builds the image from assemblies/web-war/target (webapp, tomcat, optional).
+  local webapp="${PROJECT_ROOT}/assemblies/web-war/target/webapp"
+
+  [[ -d "${webapp}/WEB-INF/lib" ]] || die "Hop Web not found at ${webapp}. Run the Maven build first."
+  local optional="${PROJECT_ROOT}/assemblies/web-war/target/optional"
+  mkdir -p "${optional}/config" "${optional}/plugins" "${optional}/lib/core" "${optional}/lib/jdbc"
+
+  # Overlay fresh module JARs so the image picks up local changes without rebuilding the war.
+  log "Overlaying latest Hop module JARs (core, engine, ui, rap)"
   overlay_module_jars "${webapp}/WEB-INF/lib"
-  overlay_module_jars "${client_lib}"
-  rm -f "${webapp}/WEB-INF/lib"/hop-ui-rcp-*.jar
 }
 
 build_image() {
@@ -264,7 +263,6 @@ build_image() {
   [[ "${DOCKER_NO_CACHE}" == "true" ]] && cache_flag=(--no-cache)
   log "Building Docker image ${IMAGE_NAME}"
   docker build "${PROJECT_ROOT}" -f "${SCRIPT_DIR}/web.Dockerfile" -t "${IMAGE_NAME}" "${cache_flag[@]}"
-  rm -rf "${PROJECT_ROOT}/assemblies/web/target/webapp"
 }
 
 # Defaults that depend on --port

@@ -68,22 +68,24 @@ Two independent switches control this, and mixing them up is what breaks the mar
 |Property |Gates
 
 |`assemblies`
-|The `assemblies/` reactor: `hop-client`, `hop-assemblies-web` (`hop.war`),
-`hop-assemblies-plugins`, `hop-assemblies-static` and `hop-assemblies-debug`. The release
-builds it, and only `hop-client` is deployed. The `assemblies` parent sets
-`maven.deploy.skip`, and `hop-client` switches it back off.
+|The `assemblies/` reactor: `hop-client`, `hop-web` (`assemblies/web-war`),
+`hop-assemblies-web` (`hop.war`), `hop-assemblies-plugins`, `hop-assemblies-static` and
+`hop-assemblies-debug`. The release builds it, and only `hop-client` and `hop-web` are
+deployed. The `assemblies` parent sets `maven.deploy.skip`, and those two switch it back off.
 
 |`module.zips`
 |The per-module `artifactId-version.zip` attached next to each plugin jar. This is the
 artifact the marketplace installs, so a release must **never** disable it.
 |===
 
-Net effect on a release: every plugin zip is staged, and so is `hop-client-<version>.zip`.
-The other `assemblies/` modules are built but not staged.
+Net effect on a release: every plugin zip is staged, and so are `hop-client-<version>.zip`,
+`hop-web-<version>.war` and `hop-web-<version>-plugins.zip`. The other `assemblies/` modules
+are built but not staged.
 
-The staged `hop-client` POM is flattened: it has no parent and no dependencies, so
-`org.apache.hop:hop-client:<version>:zip` resolves on its own. Its dependencies are only
-inputs for the assembly and are left out of the deployed POM.
+The staged `hop-client` and `hop-web` POMs are flattened: they have no parent and no
+dependencies, so `org.apache.hop:hop-client:<version>:zip` and
+`org.apache.hop:hop-web:<version>:war` resolve on their own. Their dependencies are only
+inputs for the assemblies and are left out of the deployed POMs.
 
 They used to share the single `assemblies` property, so one `-Dassemblies=false` silently
 dropped every plugin zip while the build still reported `BUILD SUCCESS`. That is why the
@@ -92,7 +94,7 @@ zips are missing from Maven Central for 2.12.0-2.14.0 and 2.16.0-2.18.1.
 WARNING: Do not add `-Dmodule.zips=false` or `-P=-assembly` (singular) to the release
 commands: either one drops every plugin zip while the build still reports `BUILD SUCCESS`.
 Do not add `-Dassemblies=false` or `-P=-assemblies` (plural) either: that leaves
-`hop-client` out of the staging repository. And do not pass `-Darguments="..."` on the
+`hop-client` and `hop-web` out of the staging repository. And do not pass `-Darguments="..."` on the
 command line, because it replaces the `<arguments>` configured in the root pom wholesale.
 Older versions of this guide passed `-P=-assemblies`; the root pom no longer does.
 
@@ -163,7 +165,9 @@ After the `release:perform` operation a staging repository will have been create
 * Go to the https://repository.apache.org/#stagingRepositories[Nexus staging repository] (Use your ASF credentials to log in)
 * Find Staged release its name will be orgapachehop-<number>
 * Do a quick check the repository contains the artifacts, including
-`org/apache/hop/hop-client/<version>/hop-client-<version>.zip`
+`org/apache/hop/hop-client/<version>/hop-client-<version>.zip`,
+`org/apache/hop/hop-web/<version>/hop-web-<version>.war` and
+`org/apache/hop/hop-web/<version>/hop-web-<version>-plugins.zip`
 * Select the repository and click on the Close button
 * Description when closing: Prepare Apache Hop <version>-rc<number> release
 * After a while, the status will go from open to closed

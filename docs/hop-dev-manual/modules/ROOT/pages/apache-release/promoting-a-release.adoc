@@ -78,7 +78,7 @@ If it is gone, take a copy of the source code release and build the software fir
 [source,bash]
 ----
 unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/
-unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
+# docker/web.Dockerfile takes Hop Web from assemblies/web-war/target as the build left it
 
 # Create and push Dataflow template
 # Create hop-fatjar.jar
