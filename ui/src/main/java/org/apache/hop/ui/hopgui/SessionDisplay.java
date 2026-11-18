@@ -34,6 +34,12 @@ import org.eclipse.swt.widgets.Display;
  * following #7896 / #7897).
  *
  * <p>A thread whose session died is a thread with no display, which is what these methods answer.
+ *
+ * <p>The same goes for a JVM where SWT can't give a display at all: SWT isn't on the classpath or
+ * its native libraries don't load ({@code NoClassDefFoundError}, {@code UnsatisfiedLinkError}), or
+ * there is no display server ({@code SWTError: No more handles}). Those are errors, not runtime
+ * exceptions, and they mean "no display" too. Only the JVM's own errors ({@link
+ * VirtualMachineError}, such as running out of memory) still propagate.
  */
 public class SessionDisplay {
 
@@ -52,6 +58,8 @@ public class SessionDisplay {
       return Display.getCurrent();
     } catch (RuntimeException e) {
       return null;
+    } catch (Error e) {
+      return noDisplay(e);
     }
   }
 
@@ -72,6 +80,22 @@ public class SessionDisplay {
       return Display.getDefault();
     } catch (RuntimeException e) {
       return null;
+    } catch (Error e) {
+      return noDisplay(e);
     }
+  }
+
+  /**
+   * SWT can't give a display in this JVM. {@code SWTError} isn't named in a catch on purpose:
+   * matching it would need the SWT class to load, which is one of the cases handled here.
+   *
+   * @param error What asking for the display threw
+   * @return null, there is no display
+   */
+  private static Display noDisplay(Error error) {
+    if (error instanceof VirtualMachineError virtualMachineError) {
+      throw virtualMachineError;
+    }
+    return null;
   }
 }
