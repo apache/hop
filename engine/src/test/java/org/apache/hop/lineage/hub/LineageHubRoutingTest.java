@@ -373,6 +373,20 @@ class LineageHubRoutingTest {
   }
 
   @Test
+  void aReInitShutsDownTheSinksOfTheVariables() throws Exception {
+    FakeLineageSink sink = new FakeLineageSink();
+    LineageHub hub = hub(LINEAGE_ON, List.of(sink));
+
+    hub.emit(event("before"));
+    hub.flush();
+    hub.environmentReady();
+    waitUntil(sink::isShutdown);
+    hub.shutdown();
+
+    assertEquals(List.of("before"), pipelines(sink));
+  }
+
+  @Test
   void aSinkThatFailsToInitShutsDownTheOnesThatStartedAndIsNotTriedAgain() {
     FakeLineageSink fine = new FakeLineageSink();
     AtomicInteger inits = new AtomicInteger();

@@ -383,14 +383,14 @@ public final class LineageHub {
     LineageConfiguration.invalidate();
     sinksInitialized.set(false);
     sinkInitFailed.set(false);
+    // The sinks start again on the next worker, and each run's on its next event: shut down the
+    // ones started so far, or two dispatchers would deliver the same spool.
+    List<ILineageSink> started = new ArrayList<>(sinks);
     sinks = List.of();
     sinkIds.clear();
     sinkInitError = null;
-    // The next event of each run starts its sink again: shut down the ones started so far, or two
-    // dispatchers would deliver the same spool.
-    List<ILineageSink> started;
     synchronized (routedSinks) {
-      started = new ArrayList<>(routedSinks.values());
+      started.addAll(routedSinks.values());
       routedSinks.clear();
       failedTargets.clear();
     }

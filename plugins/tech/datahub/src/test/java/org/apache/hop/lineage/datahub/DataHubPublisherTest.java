@@ -298,6 +298,11 @@ class DataHubPublisherTest {
 
     assertEquals(1, result.pipelines());
     assertTrue(result.unreadable().isEmpty(), result.unreadable().toString());
+    assertFalse(result.isSuccess(), "the missing documentation is reported");
+    assertEquals(1, result.undocumented().size());
+    assertTrue(
+        DataHubPublishCommand.describe(result).contains("Published without documentation: "),
+        DataHubPublishCommand.describe(result));
     List<JsonNode> sent = proposalsSent();
     assertTrue(
         sent.stream().anyMatch(p -> p.get("aspectName").asText().equals("dataFlowInfo")),

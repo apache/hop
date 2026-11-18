@@ -70,6 +70,7 @@ public final class DataHubPublisher {
    * @param pipelines the pipelines published
    * @param workflows the workflows published
    * @param unreadable the files that could not be read, and were skipped
+   * @param undocumented the files that are published, but whose documentation could not be written
    * @param documentationNotPublished why the documentation was not published, or null
    * @param health how the delivery to DataHub went
    */
@@ -77,12 +78,14 @@ public final class DataHubPublisher {
       int pipelines,
       int workflows,
       List<String> unreadable,
+      List<String> undocumented,
       String documentationNotPublished,
       LineageSinkHealth health) {
 
     /** Whether everything was read and DataHub accepted all of it. */
     public boolean isSuccess() {
       return unreadable.isEmpty()
+          && undocumented.isEmpty()
           && documentationNotPublished == null
           && health != null
           && health.waiting() == 0
@@ -126,6 +129,7 @@ public final class DataHubPublisher {
     int pipelines = 0;
     int workflows = 0;
     List<String> unreadable = new ArrayList<>();
+    List<String> undocumented = new ArrayList<>();
     List<LineageEvent> documents = new ArrayList<>();
     String documentationNotPublished = null;
     LineageSinkHealth health;
@@ -146,6 +150,7 @@ public final class DataHubPublisher {
             if (documentation != null) {
               addDocument(
                   documents,
+                  undocumented,
                   filename,
                   () -> documentation.pipeline(events.get(0), meta, relativeFile, project));
             }
@@ -158,6 +163,7 @@ public final class DataHubPublisher {
             if (documentation != null) {
               addDocument(
                   documents,
+                  undocumented,
                   filename,
                   () -> documentation.workflow(events.get(0), meta, relativeFile, project));
             }
@@ -177,7 +183,8 @@ public final class DataHubPublisher {
     } finally {
       sink.shutdown();
     }
-    return new Result(pipelines, workflows, unreadable, documentationNotPublished, health);
+    return new Result(
+        pipelines, workflows, unreadable, undocumented, documentationNotPublished, health);
   }
 
   /** Writes the document of one file. */
@@ -190,10 +197,15 @@ public final class DataHubPublisher {
    * Adds the documentation of a file that is already published. When it can't be written, the
    * file's lineage stays published and only its document is left out.
    */
-  private void addDocument(List<LineageEvent> documents, String filename, DocumentSource source) {
+  private void addDocument(
+      List<LineageEvent> documents,
+      List<String> undocumented,
+      String filename,
+      DocumentSource source) {
     try {
       documents.add(source.document());
     } catch (Exception e) {
+      undocumented.add(filename);
       log.logError(
           "Unable to write the documentation of "
               + filename

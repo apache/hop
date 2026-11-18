@@ -148,6 +148,10 @@ public class DataHubPublishCommand implements Runnable, IHopCommand, IHasHopMeta
     if (!result.unreadable().isEmpty()) {
       line.append(". Not published: ").append(String.join(", ", result.unreadable()));
     }
+    if (!result.undocumented().isEmpty()) {
+      line.append(". Published without documentation: ")
+          .append(String.join(", ", result.undocumented()));
+    }
     if (result.documentationNotPublished() != null) {
       line.append(". ").append(result.documentationNotPublished());
     }
