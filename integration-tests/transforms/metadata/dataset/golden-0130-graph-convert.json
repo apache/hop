@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-0130-graph-convert.csv",
+  "name": "golden-0130-graph-convert",
+  "description": "The graph text comes back unchanged after a round trip through a Graph field; empty text stays empty",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "text_out",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
