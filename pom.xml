@@ -111,6 +111,7 @@
         <commonmark.version>0.30.1</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
+        <flatten-maven-plugin.version>1.8.0</flatten-maven-plugin.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <!-- Build the upstreams of every impacted module, not only of the directly changed
              ones. With the default (changed), a REST change selects hop-tech-opensearch as
@@ -1069,7 +1070,7 @@
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
                             <!-- Comma-separated Ant patterns (single excludes element). -->
-                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
+                            <excludes>**/hop-assemblies*/**,hop-ui-rap/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>

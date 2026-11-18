@@ -29,10 +29,10 @@
     <name>Hop Client</name>
 
     <properties>
-        <!-- hop-client is a release distribution artifact (staged to dist.apache.org), so it
-             must be deployed like any other module despite the assemblies/ parent's
-             maven.deploy.skip=true, which only exists to keep the other assembly zips
-             (web, plugins, static) out of Nexus/Maven Central. -->
+        <!-- hop-client-<version>.zip is published to Maven Central next to the copy on
+             dist.apache.org, so it can be resolved as a normal artifact. The other assemblies
+             (web, plugins, static, debug) stay unpublished through the parent's
+             maven.deploy.skip. The deployed POM is flattened, see flatten-maven-plugin below. -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <org.eclipse.swt.cocoa.macosx.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.aarch64.version>
         <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
@@ -41,30 +41,58 @@
         <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
     </properties>
 
+    <!-- hop-core, hop-engine and hop-ui resolve their dependencies against hop-libs. Import it
+         here too so lib/core gets the same versions and exclusions as those modules' builds. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-assemblies-plugins</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+            <!-- Unpacked as is; its dependencies must not take part in version mediation
+                 for the lib/core dependency set. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-assemblies-static</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+            <!-- Unpacked as is; its dependencies must not take part in version mediation
+                 for the lib/core dependency set. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-engine</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
         </dependency>
         <!-- hop-engines-beam and hop-engines-spark are marketplace-optional plugins (not bundled
              in the client). Use -Pbeam / -Pfull to bake the full Beam plugin — including its
@@ -73,7 +101,6 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
         </dependency>
 
         <!-- RCP fragment -->
@@ -81,7 +108,6 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui-rcp</artifactId>
             <version>${project.version}</version>
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>
@@ -139,6 +165,43 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- The dependencies above are build inputs for the assembly descriptor, not a
+                 classpath for consumers: several are never published (hop-assemblies-*) and the
+                 parent hop-assemblies POM is not deployed either. Publish a POM without parent,
+                 dependencies, profiles or build so hop-client:zip resolves on its own. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten-maven-plugin.version}</version>
+                <configuration>
+                    <flattenMode>ossrh</flattenMode>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <!-- Flatten skips pom packaging unless told otherwise. -->
+                    <updatePomFile>true</updatePomFile>
+                    <pomElements>
+                        <dependencies>remove</dependencies>
+                        <dependencyManagement>remove</dependencyManagement>
+                        <profiles>remove</profiles>
+                        <build>remove</build>
+                        <repositories>remove</repositories>
+                        <pluginRepositories>remove</pluginRepositories>
+                    </pomElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <!--
       Opt-in Beam engine + SDKs in hop-client (plugin jar plus its libs in lib/core).
