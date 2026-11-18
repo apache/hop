@@ -305,6 +305,39 @@ public final class YamlRulePackParser {
     }
   }
 
+  /**
+   * The {@code pack.overrides:} list of a pack shipped as a classpath resource, falling back to the
+   * YAML beside the plugin jar the same way {@link #loadRulesWithAdjacentFallback} does. A pack
+   * that cannot be read declares no overrides; loading its rules reports the error.
+   */
+  public static List<String> readOverridesWithAdjacentFallback(
+      String resourcePath, String packId, RulePackOwner owner, Class<?> anchor) {
+    if (Utils.isEmpty(resourcePath)) {
+      return Collections.emptyList();
+    }
+    try {
+      for (ClassLoader loader : classLoadersToTry(anchor)) {
+        if (loader == null) {
+          continue;
+        }
+        try (InputStream inputStream = loader.getResourceAsStream(resourcePath)) {
+          if (inputStream != null) {
+            return parsePackMetadata(readYaml(inputStream, resourcePath), packId, owner, 0)
+                .overrides();
+          }
+        }
+      }
+      File adjacent = findPackYamlAdjacentTo(anchor, resourcePath);
+      if (adjacent != null) {
+        return readPackMetadata(adjacent, packId, owner, 0).overrides();
+      }
+    } catch (IOException | RuntimeException e) {
+      LogChannel.GENERAL.logError(
+          "Failed to read the overrides of rule pack " + packId + ": " + e.getMessage());
+    }
+    return Collections.emptyList();
+  }
+
   private static ClassLoader[] classLoadersToTry(Class<?> anchor) {
     ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
     ClassLoader anchorLoader = anchor != null ? anchor.getClassLoader() : null;

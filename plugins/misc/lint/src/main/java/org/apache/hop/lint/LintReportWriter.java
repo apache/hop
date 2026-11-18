@@ -170,9 +170,8 @@ public final class LintReportWriter {
           // one rule id while carrying the transform name as their result name, so using that
           // here would label the rule after whichever transform happened to be reported first.
           rule.put("name", id);
-          rule.putObject("shortDescription")
-              .put("text", result.getRuleName() != null ? result.getRuleName() : id);
           LintRuleDetails details = result.getRuleDetails();
+          rule.putObject("shortDescription").put("text", shortDescription(id, result, details));
           if (!details.description().isBlank()) {
             rule.putObject("fullDescription").put("text", details.description());
           }
@@ -235,6 +234,18 @@ public final class LintReportWriter {
               ArrayNode array = target.putArray(key);
               values.forEach(array::add);
             });
+  }
+
+  /**
+   * A remark from Hop's own checks carries the transform or action it was reported on as its rule
+   * name, so the first one reported would describe the rule for every finding of it. Those take the
+   * name of the native rule that classified them, or the rule id.
+   */
+  private static String shortDescription(String id, LintResult result, LintRuleDetails details) {
+    if (result.getOrigin() == LintResult.Origin.HOP_NATIVE) {
+      return details.name().isBlank() ? id : details.name();
+    }
+    return result.getRuleName() != null ? result.getRuleName() : id;
   }
 
   private static String sarifLevel(String severity) {

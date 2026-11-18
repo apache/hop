@@ -27,6 +27,7 @@ public abstract class AbstractYamlRulePack implements IHopLintRulePack {
   private final RulePackOwner owner;
   private final int priority;
   private final String resourcePath;
+  private List<String> overrides;
 
   protected AbstractYamlRulePack(
       String packId, String displayName, RulePackOwner owner, int priority, String resourcePath) {
@@ -55,6 +56,18 @@ public abstract class AbstractYamlRulePack implements IHopLintRulePack {
   @Override
   public int getPriority() {
     return priority;
+  }
+
+  /** The rules this pack replaces, as declared in the {@code overrides:} of its YAML pack block. */
+  @Override
+  public synchronized List<String> getOverrides() {
+    if (overrides == null) {
+      overrides =
+          List.copyOf(
+              YamlRulePackParser.readOverridesWithAdjacentFallback(
+                  resourcePath, packId, owner, getClass()));
+    }
+    return overrides;
   }
 
   @Override

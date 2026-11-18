@@ -498,6 +498,40 @@ public class RuleRegistryTest {
     assertEquals("acme", merged.get("DB-001").getPackId());
   }
 
+  /**
+   * A pack registered through ServiceLoader is an {@link AbstractYamlRulePack}; the overrides: in
+   * its YAML were ignored, so it could not replace a core rule the way a discovered file pack can.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9500">#9500</a>
+   */
+  @Test
+  public void aClasspathPackMayOverrideACoreRule() {
+    IHopLintRulePack acme =
+        new AbstractYamlRulePack(
+            "acme",
+            "Acme Rules",
+            RulePackOwner.VENDOR,
+            500,
+            "org/apache/hop/lint/registry/test-override-pack.yml") {};
+    assertEquals(List.of("DB-001"), acme.getOverrides());
+
+    Map<String, CustomLintRule> merged = new LinkedHashMap<>();
+    RuleRegistry.mergePack(merged, EagerRulePack.of(new HopCoreRulePack()));
+    assertEquals("hop-core", merged.get("DB-001").getPackId());
+
+    RuleRegistry.mergePack(merged, EagerRulePack.of(acme));
+
+    CustomLintRule surviving = merged.get("DB-001");
+    assertEquals("acme", surviving.getPackId());
+    assertEquals("INFO", surviving.getSeverity());
+  }
+
+  /** A classpath pack without an overrides: block declares none. */
+  @Test
+  public void aClasspathPackWithoutOverridesDeclaresNone() {
+    assertTrue(new HopCoreRulePack().getOverrides().isEmpty());
+  }
+
   private CustomLintRule ruleFrom(String packId, String ruleId, String severity) {
     CustomLintRule rule = new CustomLintRule();
     rule.setId(ruleId);
