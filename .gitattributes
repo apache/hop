@@ -1,0 +1,55 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Line endings are fixed by the repository, not by the platform or core.autocrlf, so a
+# checkout (and the hop-client zip built from it) has the same bytes on every machine.
+#
+# Text files check out with LF everywhere. Git detects text vs. binary on its own, and a
+# file already committed with CRLF keeps its CRLF (test data that needs it stays as is).
+* text=auto eol=lf
+
+# Unix scripts: always LF, a CR breaks the shebang line
+*.sh text eol=lf
+mvnw text eol=lf
+assemblies/static/src/main/resources/hop text eol=lf
+*Dockerfile text eol=lf
+
+# Windows scripts: always CRLF, cmd.exe mis-parses labels and GOTO in LF batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files: never convert, never diff as text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.zip binary
+*.gz binary
+*.bz2 binary
+*.xls binary
+*.xlsx binary
+*.ods binary
+*.parquet binary
+*.avro binary
+*.dbf binary
+*.p12 binary
+*.jks binary
+*.keystore binary
+*.truststore binary
+*.ser binary
