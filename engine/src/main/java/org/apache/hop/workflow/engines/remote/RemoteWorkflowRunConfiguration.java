@@ -109,6 +109,9 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
 
   public RemoteWorkflowRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("Remote");
+    setEnginePluginName("Hop remote workflow engine");
   }
 
   public RemoteWorkflowRunConfiguration(RemoteWorkflowRunConfiguration config) {

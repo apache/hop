@@ -400,7 +400,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       if ((answer & SWT.YES) != 0) {
         LocalWorkflowRunConfiguration localWorkflowRunConfiguration =
             new LocalWorkflowRunConfiguration();
-        localWorkflowRunConfiguration.setEnginePluginId("Local");
         WorkflowRunConfiguration local =
             new WorkflowRunConfiguration(
                 "local",

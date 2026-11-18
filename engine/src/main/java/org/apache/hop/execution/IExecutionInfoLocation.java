@@ -25,6 +25,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -318,7 +319,22 @@ public interface IExecutionInfoLocation extends Cloneable {
                 + object.getClass().getName()
                 + "'");
       }
-      return ((IExecutionInfoLocation) object).getPluginId();
+      IExecutionInfoLocation location = (IExecutionInfoLocation) object;
+      // An object created in code may not have its id yet: the registry knows it by its class
+      String pluginId = location.getPluginId();
+      if (Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(ExecutionInfoLocationPluginType.class, object);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to determine the plugin id of execution information location class "
+                  + object.getClass().getName());
+        }
+        pluginId = plugin.getIds()[0];
+        location.setPluginId(pluginId);
+        location.setPluginName(plugin.getName());
+      }
+      return pluginId;
     }
   }
 }

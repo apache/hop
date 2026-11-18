@@ -223,6 +223,9 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
 
   public LocalPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("Local");
+    setEnginePluginName("Hop local pipeline engine");
     this.rowSetSize = Integer.toString(Const.ROWS_IN_ROWSET);
     this.feedbackShown = false;
     this.feedbackSize = Integer.toString(Const.ROWS_UPDATE);

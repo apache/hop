@@ -63,6 +63,9 @@ public class SingleThreadedPipelineRunConfiguration extends EmptyPipelineRunConf
 
   public SingleThreadedPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("LocalSingle");
+    setEnginePluginName("Hop local single threaded pipeline engine");
     this.sampleTypeInGui = LocalPipelineRunConfiguration.SampleType.Last.name();
     this.sampleSize = "100";
   }

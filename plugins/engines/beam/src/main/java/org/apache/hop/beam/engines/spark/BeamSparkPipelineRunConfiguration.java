@@ -177,6 +177,9 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
   public BeamSparkPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("BeamSparkPipelineEngine");
+    setEnginePluginName("Beam Spark pipeline engine");
     this.tempLocation = System.getProperty("java.io.tmpdir");
   }
 

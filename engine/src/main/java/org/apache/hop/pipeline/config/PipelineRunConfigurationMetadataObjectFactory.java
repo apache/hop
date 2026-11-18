@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -65,6 +66,14 @@ public class PipelineRunConfigurationMetadataObjectFactory implements IHopMetada
           "Object provided needs to be of class "
               + IPipelineEngineRunConfiguration.class.getName());
     }
-    return ((IPipelineEngineRunConfiguration) object).getEnginePluginId();
+    String pluginId = ((IPipelineEngineRunConfiguration) object).getEnginePluginId();
+    if (Utils.isEmpty(pluginId)) {
+      // Written without it, the run configuration can't be read back
+      throw new HopException(
+          "The pipeline engine run configuration of class "
+              + object.getClass().getName()
+              + " has no engine plugin id");
+    }
+    return pluginId;
   }
 }
