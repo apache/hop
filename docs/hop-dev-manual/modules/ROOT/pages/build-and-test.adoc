@@ -167,20 +167,44 @@ JUnit 5 through Surefire. UI tests are tagged and can be included or excluded, s
 The `bom` module publishes the `org.apache.hop:hop-bom` POM for consumers to import into `dependencyManagement`.
 See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading] for the import and versionless dependency examples.
 The module uses `jar` packaging so the normal Maven test lifecycle runs its JUnit maintenance tests.
-The main JAR contains only build metadata and license resources, with no runtime classes; consumers import the POM, not the JAR.
+The main JAR contains the build-time `BomGenerator` tool and license resources; consumers import the POM, not the JAR.
 Producing this main JAR allows normal Maven installation and deployment without publishing a test JAR or allowing incomplete projects.
-Jandex indexing is disabled because the BOM has no runtime classes to index.
+Jandex indexing is disabled because the generator is not a Hop runtime plugin.
 
-The JUnit maintenance tests scan all source project POMs, including modules declared only in profiles, rather than checking only the active reactor.
-Source discovery also applies best-effort exclusion globs from the root `.gitignore` and an existing `excludesfile` referenced by `~/.gitconfig`; it does not implement full Git ignore semantics.
-They check that the BOM manages the expected coordinates with the correct dependency type and version, and detect duplicate entries, stale entries, and invalid exclusions.
-When adding, removing, or changing a published module, update the BOM and keep these checks passing.
+The checked-in `bom/pom.xml` is generated in full by `bom/src/main/java/org/apache/hop/bom/BomGenerator.java`; do not edit it manually.
+The generator extracts the release version from the root POM and recursively follows direct module declarations and the `base` profile's module declarations, independently of the active reactor.
+Undeclared directories, including nested worktrees and standalone tools, are not scanned, so discovery does not depend on Git ignore rules or local Git configuration.
+Only JAR libraries are managed, unconditionally in the top-level dependency management; the BOM does not require consumers to activate the `base` profile.
+Other module profiles, including `config-doc`, `assemblies`, and `webtest`, are ignored, and POM and ZIP artifacts are not managed.
+The generator validates library release alignment, duplicate coordinates, and exclusions before writing the complete POM.
+The maintenance test generates a POM in a temporary directory and compares its exact content with the checked-in file.
+Normal builds do not regenerate the source POM; they fail if it is out of date.
+When adding, removing, or changing a published module, regenerate the BOM and keep these checks passing.
 Keep exclusions narrow: the BOM itself and unpublished build/test artifacts.
-The exact exclusions and their reasons are recorded in `bom/src/test/java/org/apache/hop/bom/HopBomTest.java`.
-They cover the BOM itself, standalone benchmark and Spark materializer tools, the Selenium test harness, local Eclipse wrappers, and unpublished assembly intermediates.
-The published `hop-client` distribution remains managed.
+The exact exclusions and their reasons are recorded in `BomGenerator`.
+They cover the BOM itself and unpublished local Eclipse wrappers.
 The BOM is forced into incremental builds so adding or removing another module also runs its coverage check.
 Do not use broad exclusions to hide missing published artifacts.
+
+Run the generator from the project root with Java 21 or later; source-file launch needs no previously built Hop artifacts:
+
+[source,bash]
+----
+java bom/src/main/java/org/apache/hop/bom/BomGenerator.java
+----
+
+The first optional argument is the project root and the second is the output POM path.
+Without a root argument, the generator checks the working directory and at most one parent for both `mvnw` and `Jenkinsfile`.
+Without an output argument, it writes `<root>/bom/pom.xml`.
+For example, generate a separate file for inspection with:
+
+[source,bash]
+----
+java bom/src/main/java/org/apache/hop/bom/BomGenerator.java . /tmp/hop-bom.xml
+----
+
+During publication, `flatten-maven-plugin` writes a consumer POM under `bom/target` and Maven installs or deploys that file instead of the source POM.
+It removes the parent, profiles, build configuration, properties, and inherited dependencies while preserving the BOM's own unconditional dependency management, so importing it does not impose the root POM's third-party versions.
 
 Run the maintenance tests and license check with:
 

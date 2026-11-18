@@ -18,300 +18,425 @@
  */
 package org.apache.hop.bom;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Predicate;
-import java.util.regex.PatternSyntaxException;
+import java.util.concurrent.TimeUnit;
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import javax.xml.xpath.XPathFactoryConfigurationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/** Checks the published BOM independently of the modules enabled in the current reactor. */
+/** Exercises BOM generation through its public command-line entry point. */
 class HopBomTest {
-  private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = documentBuilderFactory();
-  private static final XPathFactory XPATH_FACTORY = xpathFactory();
+  private static final String BASE = "/project/dependencyManagement/dependencies/dependency";
 
-  private static final Map<String, String> EXCLUSIONS =
-      Map.ofEntries(
-          Map.entry("bom/pom.xml", "The BOM cannot manage itself"),
-          Map.entry(
-              "engine-bench/pom.xml", "Standalone JMH benchmarks, outside the release reactor"),
-          Map.entry(
-              "web-tests/pom.xml", "Selenium test harness; installation and deployment skipped"),
-          Map.entry(
-              "tools/spark-client-pack/pom.xml",
-              "Standalone Spark pack materializer, not a Hop release artifact"),
-          Map.entry("lib-p2/swtbot/pom.xml", "Unpublished local Eclipse wrapper"),
-          Map.entry("lib-p2/tm4e/pom.xml", "Unpublished local Eclipse wrapper"),
-          Map.entry("assemblies/pom.xml", "Unpublished assembly parent"),
-          Map.entry("assemblies/debug/pom.xml", "Unpublished debug assembly"),
-          Map.entry("assemblies/plugins/pom.xml", "Unpublished intermediate plugin assembly"),
-          Map.entry("assemblies/static/pom.xml", "Unpublished intermediate static assembly"),
-          Map.entry("assemblies/web/pom.xml", "Unpublished web assembly"));
+  @TempDir Path temporaryDirectory;
 
   @Test
-  void managesEveryProjectArtifact() throws Exception {
-    final var bomDirectory =
-        Path.of(System.getProperty("basedir", ".")).toAbsolutePath().normalize();
-    final var root = bomDirectory.getParent();
-    final var version = text(parse(root.resolve("pom.xml")), "/project/version");
-    final var sourcePoms = sourcePoms(root);
-    final var expected = new TreeMap<String, String>();
-    final var unusedExclusions = new TreeSet<>(EXCLUSIONS.keySet());
+  void checkedInBomMatchesGeneratedPomExactly() throws Exception {
+    final var root = sourceRoot();
+    final var generated = temporaryDirectory.resolve("pom.xml");
 
-    for (final var pom : sourcePoms) {
-      final var relative = root.relativize(pom).toString().replace('\\', '/');
-      if (EXCLUSIONS.containsKey(relative)) {
-        unusedExclusions.remove(relative);
-        continue;
-      }
-      final var model = parse(pom);
-      final var group = inherited(model, "groupId");
-      final var artifact = text(model, "/project/artifactId");
-      final var packaging = defaultTo(text(model, "/project/packaging"), "jar");
-      assertEquals("org.apache.hop", group, relative + ": unexpected group; review BOM coverage");
-      assertEquals(
-          version, inherited(model, "version"), relative + ": not aligned to the Hop release");
-      assertTrue(
-          Set.of("jar", "pom").contains(packaging),
-          relative + ": review new packaging " + packaging);
-      addExpected(expected, group + ":" + artifact + ":" + packaging, relative);
+    BomGenerator.main(new String[] {root.toString(), generated.toString()});
 
-      // The inherited assembly profile publishes unclassified ZIPs when this descriptor exists.
-      final var assembly = pom.getParent().resolve("src/assembly/assembly.xml");
-      if (Files.isRegularFile(assembly)) {
-        assertEquals(
-            "",
-            text(model, "/project/properties/assembly_appendId"),
-            relative + ": review assembly classifier override");
-        final var formats = nodes(parse(assembly), "/assembly/formats/format");
-        assertTrue(formats.getLength() > 0, relative + ": assembly has no formats");
-        for (int i = 0; i < formats.getLength(); i++) {
-          addExpected(
-              expected,
-              group + ":" + artifact + ":" + formats.item(i).getTextContent().trim(),
-              relative);
-        }
-      }
-    }
-    assertTrue(unusedExclusions.isEmpty(), "Remove stale BOM exclusions: " + unusedExclusions);
-    assertFalse(expected.isEmpty(), "No source POMs found under " + root);
-    assertEquals(
-        "false",
-        text(parse(root.resolve("pom.xml")), "/project/properties/assembly_appendId"),
-        "Review BOM ZIP classifiers when the assembly convention changes");
-
-    final var managed =
-        nodes(
-            parse(bomDirectory.resolve("pom.xml")),
-            "/project/dependencyManagement/dependencies/dependency");
-    final var actual = new TreeSet<String>();
-    for (int i = 0; i < managed.getLength(); i++) {
-      final var dependency = managed.item(i);
-      final var coordinate =
-          text(dependency, "groupId")
-              + ":"
-              + text(dependency, "artifactId")
-              + ":"
-              + defaultTo(text(dependency, "type"), "jar");
-      assertTrue(actual.add(coordinate), "Duplicate BOM entry: " + coordinate);
-      assertEquals(
-          "${project.version}",
-          text(dependency, "version"),
-          coordinate + ": use the BOM release version");
-      assertEquals(
-          "", text(dependency, "scope"), coordinate + ": do not impose a dependency scope");
-      assertEquals("", text(dependency, "classifier"), coordinate + ": unexpected classifier");
-    }
-
-    final var missing = new TreeMap<>(expected);
-    actual.forEach(missing::remove);
-    final var stale = new TreeSet<>(actual);
-    stale.removeAll(expected.keySet());
-    assertAll(
-        () ->
-            assertTrue(
-                missing.isEmpty(),
-                "Add entries to bom/pom.xml (coordinate=source POM): " + missing),
-        () ->
-            assertTrue(
-                stale.isEmpty(),
-                "Remove stale or incorrectly typed entries from bom/pom.xml: " + stale));
+    assertEquals(Files.readString(root.resolve("bom/pom.xml")), Files.readString(generated));
   }
 
-  private static void addExpected(
-      final Map<String, String> expected, final String coordinate, final String pom) {
-    final var previous = expected.putIfAbsent(coordinate, pom);
-    assertNull(
-        previous, "Duplicate project coordinate " + coordinate + " in " + previous + " and " + pom);
-  }
-
-  private static Set<Path> sourcePoms(final Path root) throws IOException {
-    final var result = new TreeSet<Path>();
-    final var ignored = ignoredPaths(root);
-    // This build-only module deliberately uses JDK I/O: depending on HopVfs would pull Hop
-    // runtime artifacts into the BOM's tests and prevent testing before those artifacts exist.
-    Files.walkFileTree(
+  @Test
+  void includesDirectAndRecursivelyDeclaredModulesInBaseManagement() throws Exception {
+    final var root =
+        fixtureRoot(
+            """
+        <modules>
+          <module>direct</module>
+          <module>nested</module>
+        </modules>
+        """);
+    module(root, "direct", "hop-direct", "");
+    module(
         root,
-        new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult preVisitDirectory(
-              final Path directory, final BasicFileAttributes attributes) {
-            if (Set.of("target", ".git", "node_modules")
-                    .contains(directory.getFileName().toString())
-                || ignored.stream().anyMatch(pattern -> pattern.test(root.relativize(directory)))) {
-              return FileVisitResult.SKIP_SUBTREE;
-            }
-            return FileVisitResult.CONTINUE;
-          }
+        "nested",
+        "hop-nested",
+        """
+        <packaging>pom</packaging>
+        <modules><module>leaf</module></modules>
+        """);
+    module(root, "nested/leaf", "hop-leaf", "");
 
-          @Override
-          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attributes) {
-            if (file.getFileName().toString().equals("pom.xml")
-                && ignored.stream().noneMatch(pattern -> pattern.test(root.relativize(file)))) {
-              result.add(file);
-            }
-            return FileVisitResult.CONTINUE;
-          }
-        });
-    return result;
+    final var generated = generate(root, "generated.xml");
+
+    assertEquals(Set.of("hop-direct:jar", "hop-leaf:jar"), coordinates(generated, BASE));
+    assertEquals("hop-bom", text(generated, "/project/artifactId"));
+    assertEquals("0", text(generated, "count(/project/profiles/profile)"));
   }
 
-  private static List<Predicate<Path>> ignoredPaths(final Path root) {
-    final var patterns = new ArrayList<>(optionalLines(root.resolve(".gitignore")));
-    final var home = Path.of(System.getProperty("user.home", "."));
-    for (final var line : optionalLines(home.resolve(".gitconfig"))) {
-      final var entry = line.split("=", 2);
-      if (entry.length == 2 && entry[0].trim().equalsIgnoreCase("excludesfile")) {
-        var value = entry[1].trim();
-        if (value.startsWith("\"") && value.endsWith("\"") && value.length() >= 2) {
-          value = value.substring(1, value.length() - 1);
-        }
-        try {
-          final var file =
-              value.startsWith("~/") ? home.resolve(value.substring(2)) : home.resolve(value);
-          patterns.addAll(optionalLines(file));
-        } catch (final InvalidPathException ignored) {
-          // Local Git configuration is optional; an unusable path must not break BOM coverage.
-        }
-      }
-    }
+  @Test
+  void promotesBaseModulesRegardlessOfActivationAndIgnoresOtherProfiles() throws Exception {
+    final var root =
+        fixtureRoot(
+            """
+        <modules><module>direct</module></modules>
+        <profiles>
+          <profile>
+            <id>base</id>
+            <activation>
+              <property><name>hop.base</name><value>enabled</value></property>
+            </activation>
+            <modules><module>base</module></modules>
+          </profile>
+          <profile>
+            <id>assemblies</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <modules><module>missing-assemblies</module></modules>
+          </profile>
+          <profile>
+            <id>config-doc</id>
+            <modules><module>invalid-config-doc</module></modules>
+          </profile>
+          <profile>
+            <id>webtest</id>
+            <modules><module>missing-webtest</module></modules>
+          </profile>
+          <profile>
+            <id>optional</id>
+            <modules><module>missing-optional</module></modules>
+          </profile>
+        </profiles>
+        """);
+    module(root, "direct", "hop-direct", "");
+    module(
+        root,
+        "base",
+        "hop-base",
+        """
+        <packaging>pom</packaging>
+        <profiles>
+          <profile>
+            <id>base</id>
+            <activation><jdk>[999,)</jdk></activation>
+            <modules><module>jdk</module></modules>
+          </profile>
+          <profile>
+            <id>optional</id>
+            <modules><module>missing-optional</module></modules>
+          </profile>
+        </profiles>
+        """);
+    module(root, "base/jdk", "hop-jdk", "");
+    write(root.resolve("invalid-config-doc/pom.xml"), "not XML");
 
-    final var result = new ArrayList<Predicate<Path>>();
-    for (final var line : patterns) {
-      var pattern = line.trim();
-      // Best effort only: comments and negations are not exclusion globs.
-      if (pattern.isEmpty() || pattern.startsWith("#") || pattern.startsWith("!")) {
-        continue;
-      }
-      final var anchored = pattern.startsWith("/");
-      if (anchored) {
-        pattern = pattern.substring(1);
-      }
-      if (pattern.endsWith("/")) {
-        pattern = pattern.substring(0, pattern.length() - 1);
-      }
-      try {
-        final var matcher = root.getFileSystem().getPathMatcher("glob:" + pattern);
-        final var basenameOnly = !anchored && !pattern.contains("/");
-        result.add(path -> matcher.matches(basenameOnly ? path.getFileName() : path));
-      } catch (final PatternSyntaxException ignored) {
-        // Ignore Git syntax that cannot be represented by a simple filesystem glob.
-      }
-    }
-    return result;
+    final var generated = generate(root, "generated.xml");
+
+    assertEquals(Set.of("hop-direct:jar", "hop-jdk:jar"), coordinates(generated, BASE));
+    assertEquals("0", text(generated, "count(/project/profiles)"));
   }
 
-  private static List<String> optionalLines(final Path file) {
-    try {
-      return Files.isRegularFile(file) ? Files.readAllLines(file) : List.of();
-    } catch (final IOException ignored) {
-      return List.of();
+  @Test
+  void rejectsDuplicateCoordinates() throws Exception {
+    final var root =
+        fixtureRoot(
+            """
+        <modules><module>first</module><module>second</module></modules>
+        """);
+    module(root, "first", "hop-duplicate", "");
+    module(root, "second", "hop-duplicate", "");
+    final var output = temporaryDirectory.resolve("generated.xml");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BomGenerator.main(new String[] {root.toString(), output.toString()}));
+  }
+
+  @Test
+  void rejectsModulesWithDifferentReleaseVersions() throws Exception {
+    final var root = fixtureRoot("<modules><module>wrong-version</module></modules>");
+    module(root, "wrong-version", "hop-wrong-version", "<version>2.0-SNAPSHOT</version>");
+    final var output = temporaryDirectory.resolve("generated.xml");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> BomGenerator.main(new String[] {root.toString(), output.toString()}));
+  }
+
+  @Test
+  void emitsOnlyJarsIgnoringAssembliesAndTraversingPomAndZipModules() throws Exception {
+    final var root =
+        fixtureRoot(
+            """
+        <modules>
+          <module>plugin</module><module>plain</module>
+          <module>aggregator</module><module>archive</module>
+        </modules>
+        """);
+    module(root, "plugin", "hop-plugin", "");
+    module(root, "plain", "hop-plain", "<packaging>jar</packaging>");
+    module(
+        root,
+        "aggregator",
+        "hop-aggregator",
+        """
+        <packaging>pom</packaging>
+        <modules><module>leaf</module></modules>
+        """);
+    module(root, "aggregator/leaf", "hop-pom-leaf", "");
+    module(
+        root,
+        "archive",
+        "hop-archive",
+        """
+        <packaging>zip</packaging>
+        <modules><module>leaf</module></modules>
+        """);
+    module(root, "archive/leaf", "hop-zip-leaf", "");
+    write(
+        root.resolve("plugin/src/assembly/assembly.xml"),
+        """
+        <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0">
+          <id>plugin</id>
+          <formats><format>zip</format></formats>
+        </assembly>
+        """);
+
+    final var generated = generate(root, "generated.xml");
+
+    assertEquals(
+        Set.of("hop-plugin:jar", "hop-plain:jar", "hop-pom-leaf:jar", "hop-zip-leaf:jar"),
+        coordinates(generated, BASE));
+    assertEquals("0", text(generated, "count(/project/profiles)"));
+  }
+
+  @Test
+  void ignoresUndeclaredWorktreesAndStandalonePoms() throws Exception {
+    final var root = fixtureRoot("<modules><module>declared</module></modules>");
+    module(root, "declared", "hop-declared", "");
+    // These would fail validation if generation scanned the filesystem instead of module edges.
+    module(root, "worktrees/other/engine", "hop-declared", "<version>99.0</version>");
+    module(root, "engine-bench", "hop-bench", "<version>99.0</version>");
+    module(root, "tools/spark-client-pack", "hop-pack", "<version>99.0</version>");
+    write(root.resolve("unrelated/pom.xml"), "not XML");
+
+    final var generated = generate(root, "generated.xml");
+
+    assertEquals(Set.of("hop-declared:jar"), coordinates(generated, BASE));
+  }
+
+  @Test
+  void zeroArgumentsFindsRootInCurrentDirectoryOrOneParent() throws Exception {
+    final var root = fixtureRoot("<modules><module>module</module></modules>");
+    module(root, "module", "hop-module", "");
+    final var output = root.resolve("bom/pom.xml");
+    Files.createDirectories(output.getParent());
+
+    for (final var directory : List.of(root, root.resolve("bom"))) {
+      Files.deleteIfExists(output);
+
+      runGenerator(directory, true);
+
+      assertEquals("hop-bom", text(parse(output), "/project/artifactId"));
+      assertEquals(Set.of("hop-module:jar"), coordinates(parse(output), BASE));
     }
   }
 
-  private static DocumentBuilderFactory documentBuilderFactory() {
-    // Pin the JDK provider instead of consulting system properties or classpath providers.
+  @Test
+  void zeroArgumentsRejectsRootMoreThanOneParentAway() throws Exception {
+    final var root = fixtureRoot("");
+    final var directory = Files.createDirectories(root.resolve("bom/child"));
+
+    runGenerator(directory, false);
+  }
+
+  @Test
+  void zeroArgumentsRequiresBothRootMarkers() throws Exception {
+    final var root = fixtureRoot("");
+    Files.delete(root.resolve("Jenkinsfile"));
+
+    runGenerator(root, false);
+  }
+
+  @Test
+  void explicitRootArgumentDefaultsOutputToBomPom() throws Exception {
+    final var root = fixtureRoot("<modules><module>module</module></modules>");
+    module(root, "module", "hop-module", "");
+
+    runGenerator(temporaryDirectory, true, root.toString());
+
+    final var generated = parse(root.resolve("bom/pom.xml"));
+    assertEquals("hop-bom", text(generated, "/project/artifactId"));
+    assertEquals(Set.of("hop-module:jar"), coordinates(generated, BASE));
+  }
+
+  @Test
+  void generatesDeterministicallyWithoutUsingExistingBomAsTemplate() throws Exception {
+    final var root = fixtureRoot("<modules><module>module</module><module>bom</module></modules>");
+    module(root, "module", "hop-module", "");
+
+    // The first invocation has no existing BOM at all.
+    final var first = temporaryDirectory.resolve("first.xml");
+    BomGenerator.main(new String[] {root.toString(), first.toString()});
+    // A second invocation must ignore even an unusable existing BOM, not copy or patch it.
+    write(root.resolve("bom/pom.xml"), "not a BOM template");
+    final var second = temporaryDirectory.resolve("second.xml");
+    BomGenerator.main(new String[] {root.toString(), second.toString()});
+
+    assertEquals(Files.readString(first), Files.readString(second));
+    assertEquals("hop-bom", text(parse(first), "/project/artifactId"));
+    assertEquals(Set.of("hop-module:jar"), coordinates(parse(first), BASE));
+    assertEquals("not a BOM template", Files.readString(root.resolve("bom/pom.xml")));
+  }
+
+  private static Path sourceRoot() {
+    final var basedir = Path.of(System.getProperty("basedir", ".")).toAbsolutePath().normalize();
+    for (final var candidate : new Path[] {basedir, basedir.getParent()}) {
+      if (candidate != null
+          && Files.isRegularFile(candidate.resolve("mvnw"))
+          && Files.isRegularFile(candidate.resolve("Jenkinsfile"))) {
+        return candidate;
+      }
+    }
+    throw new IllegalStateException("Hop root not found in basedir or its parent: " + basedir);
+  }
+
+  private void runGenerator(final Path directory, final boolean succeeds, final String... arguments)
+      throws Exception {
+    final var command = new ArrayList<String>();
+    command.add(Path.of(System.getProperty("java.home"), "bin", "java").toString());
+    command.add("-cp");
+    command.add(
+        Path.of(BomGenerator.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+            .toString());
+    command.add(BomGenerator.class.getName());
+    command.addAll(List.of(arguments));
+    final var log = Files.createTempFile(temporaryDirectory, "generator-", ".log");
+    final var process =
+        new ProcessBuilder(command)
+            // ProcessBuilder requires a File for the child process working directory.
+            .directory(directory.toFile())
+            .redirectErrorStream(true)
+            .redirectOutput(log.toFile())
+            .start();
+    try (final var input = process.getInputStream();
+        final var error = process.getErrorStream();
+        final var output = process.getOutputStream()) {
+      output.close();
+      assertTrue(process.waitFor(30, TimeUnit.SECONDS), "Generator timed out in " + directory);
+      final var message = Files.readString(log);
+      if (succeeds) {
+        assertEquals(0, process.exitValue(), message);
+      } else {
+        assertNotEquals(0, process.exitValue(), message);
+        assertTrue(message.contains("Cannot find mvnw and Jenkinsfile"), message);
+        assertTrue(message.contains("or its parent; supply the project root"), message);
+      }
+    } finally {
+      if (process.isAlive()) {
+        process.destroyForcibly();
+        assertTrue(process.waitFor(5, TimeUnit.SECONDS), "Generator did not terminate");
+      }
+    }
+  }
+
+  private Path fixtureRoot(final String content) throws IOException {
+    final var root = temporaryDirectory.resolve("source");
+    write(
+        root.resolve("pom.xml"),
+        """
+        <project xmlns="http://maven.apache.org/POM/4.0.0">
+          <modelVersion>4.0.0</modelVersion>
+          <groupId>org.apache.hop</groupId>
+          <artifactId>hop</artifactId>
+          <version>1.0-SNAPSHOT</version>
+          <packaging>pom</packaging>
+          <properties><assembly_appendId>false</assembly_appendId></properties>
+          %s
+        </project>
+        """
+            .formatted(content));
+    write(root.resolve("mvnw"), "");
+    write(root.resolve("Jenkinsfile"), "");
+    return root;
+  }
+
+  private static void module(
+      final Path root, final String directory, final String artifact, final String content)
+      throws IOException {
+    final var parent = root.resolve(directory).relativize(root).resolve("pom.xml");
+    write(
+        root.resolve(directory).resolve("pom.xml"),
+        """
+        <project xmlns="http://maven.apache.org/POM/4.0.0">
+          <modelVersion>4.0.0</modelVersion>
+          <parent>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <relativePath>%s</relativePath>
+          </parent>
+          <artifactId>%s</artifactId>
+          %s
+        </project>
+        """
+            .formatted(parent.toString().replace('\\', '/'), artifact, content));
+  }
+
+  private static void write(final Path file, final String content) throws IOException {
+    Files.createDirectories(file.getParent());
+    Files.writeString(file, content);
+  }
+
+  private Document generate(final Path root, final String filename) throws Exception {
+    final var output = temporaryDirectory.resolve(filename);
+    BomGenerator.main(new String[] {root.toString(), output.toString()});
+    return parse(output);
+  }
+
+  private static Document parse(final Path file) throws Exception {
+    // Use only JDK XML support; this build-only module must not depend on Hop runtime artifacts.
     final var factory = DocumentBuilderFactory.newDefaultInstance();
-    try {
-      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-      factory.setXIncludeAware(false);
-      factory.setExpandEntityReferences(false);
-      return factory;
-    } catch (final ParserConfigurationException e) {
-      throw new ExceptionInInitializerError(e);
+    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    try (final var input = Files.newInputStream(file)) {
+      return factory.newDocumentBuilder().parse(input);
     }
-  }
-
-  private static XPathFactory xpathFactory() {
-    final var factory = XPathFactory.newDefaultInstance();
-    try {
-      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      return factory;
-    } catch (final XPathFactoryConfigurationException e) {
-      throw new ExceptionInInitializerError(e);
-    }
-  }
-
-  private static Document parse(final Path pom) throws Exception {
-    // Factories are shared, but neither factories nor their builders are thread-safe.
-    final DocumentBuilder builder;
-    synchronized (DOCUMENT_BUILDER_FACTORY) {
-      builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
-    }
-    try (final var input = Files.newInputStream(pom)) {
-      return builder.parse(input);
-    }
-  }
-
-  private static String inherited(final Document model, final String field) throws Exception {
-    return defaultTo(text(model, "/project/" + field), text(model, "/project/parent/" + field));
-  }
-
-  private static String defaultTo(final String value, final String fallback) {
-    return value.isEmpty() ? fallback : value;
   }
 
   private static String text(final Node node, final String expression) throws Exception {
-    return xpath().evaluate(expression, node).trim();
+    return XPathFactory.newDefaultInstance().newXPath().evaluate(expression, node).trim();
   }
 
-  private static NodeList nodes(final Node node, final String expression) throws Exception {
-    return (NodeList) xpath().evaluate(expression, node, XPathConstants.NODESET);
-  }
-
-  private static XPath xpath() {
-    synchronized (XPATH_FACTORY) {
-      return XPATH_FACTORY.newXPath();
+  private static Set<String> coordinates(final Document model, final String expression)
+      throws Exception {
+    final var nodes =
+        (NodeList)
+            XPathFactory.newDefaultInstance()
+                .newXPath()
+                .evaluate(expression, model, XPathConstants.NODESET);
+    final var coordinates = new TreeSet<String>();
+    for (int i = 0; i < nodes.getLength(); i++) {
+      final var dependency = nodes.item(i);
+      assertEquals("0", text(dependency, "count(type)"), "JAR dependencies must omit type");
+      final var coordinate = text(dependency, "artifactId") + ":jar";
+      assertTrue(coordinates.add(coordinate), "Duplicate dependency: " + coordinate);
+      assertEquals("org.apache.hop", text(dependency, "groupId"), coordinate);
+      assertEquals("${project.version}", text(dependency, "version"), coordinate);
+      assertEquals("", text(dependency, "classifier"), coordinate);
+      assertEquals("", text(dependency, "scope"), coordinate);
     }
+    return coordinates;
   }
 }

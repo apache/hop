@@ -64,8 +64,8 @@ For a plugin running inside Hop, use `provided` scope for Hop dependencies suppl
 </dependencies>
 ----
 
-The BOM manages the primary JAR or POM type of each release module, including optional plugins, plus ZIP artifacts produced by their assembly descriptors.
-For example, use `<type>zip</type>` when depending on the `hop-client` distribution or a plugin distribution ZIP; a ZIP and a JAR have separate dependency-management entries.
+The BOM manages JAR libraries from the `base` reactor, including plugin JARs, without requiring consumers to activate a profile.
+POM artifacts, distribution ZIPs such as `hop-client`, and modules from build/test tooling profiles such as `config-doc` are not managed.
 Sources, Javadoc and test classifiers are not managed.
 The BOM manages versions; importing it does not add dependencies, package jars, or change runtime classloading or plugin visibility.
 Declaring a dependency on another plugin does not by itself make that plugin's classes visible at runtime.
