@@ -45,15 +45,20 @@ import org.apache.hop.reflection.pipeline.transform.PipelineLogging;
     id = "PipelineStartLoggingXp",
     extensionPointId = "PipelinePrepareExecution",
     description = "At the start of a pipeline, handle any Pipeline Log metadata objects")
-public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
+public class PipelineStartLoggingXp implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
   private static final String CONST_ERROR_HANDLING_PIPELINE_LOG_METADATA_OBJECT =
       "Error handling Pipeline Log metadata object '";
 
   public static final String PIPELINE_LOGGING_FLAG = "PipelineLoggingActive";
 
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, Pipeline pipeline)
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> engine)
       throws HopException {
+    // Works on the transforms of Hop's own pipeline engine: Spark, Beam ... have none
+    if (!(engine instanceof Pipeline pipeline)) {
+      return;
+    }
 
     // Prevent recursive logging of the logging pipeline
     //
