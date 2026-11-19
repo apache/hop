@@ -130,7 +130,8 @@ pipeline {
                 sh "unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
                 // Optional Wave 1 plugins are marketplace-only; install into the extracted client for IT/Docker
                 sh "./tools/install-wave1-plugins.sh ./assemblies/client/target/hop"
-                sh "unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
+                // And for the Hop Web image, which takes the rest from assemblies/web-war/target
+                sh "./tools/install-wave1-plugins.sh ./assemblies/web-war/target/optional"
             }
         }
         stage('Generate Hop fat jar'){

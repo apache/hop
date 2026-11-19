@@ -197,26 +197,16 @@ overlay_module_jars() {
 }
 
 prepare_webapp() {
-  local war="${PROJECT_ROOT}/assemblies/web/target/hop.war"
-  local webapp="${PROJECT_ROOT}/assemblies/web/target/webapp"
-  local client_lib="${PROJECT_ROOT}/assemblies/client/target/hop/lib/core"
+  # web.Dockerfile builds the image from assemblies/web-war/target (webapp, tomcat, optional).
+  local webapp="${PROJECT_ROOT}/assemblies/web-war/target/webapp"
 
-  [[ -f "${war}" ]] || die "hop.war not found at ${war}. Run Maven build first."
+  [[ -d "${webapp}/WEB-INF/lib" ]] || die "Hop Web not found at ${webapp}. Run the Maven build first."
+  local optional="${PROJECT_ROOT}/assemblies/web-war/target/optional"
+  mkdir -p "${optional}/config" "${optional}/plugins" "${optional}/lib/core" "${optional}/lib/jdbc"
 
-  log "Preparing exploded web application"
-  rm -rf "${webapp}"
-  unzip -q "${war}" -d "${webapp}"
-
-  # web.Dockerfile copies client lib/core AFTER the webapp, overwriting WEB-INF/lib.
-  # Overlay fresh module JARs in both places so the image picks up local changes.
+  # Overlay fresh module JARs so the image picks up local changes without rebuilding the war.
   log "Overlaying latest Hop module JARs (core, engine, ui, rap)"
   overlay_module_jars "${webapp}/WEB-INF/lib"
-  overlay_module_jars "${client_lib}"
-
-  # Do not leave the desktop RCP UI fragment on the Hop Web classpath (see web.Dockerfile).
-  # Stripping here keeps the staged webapp correct even if Dockerfile is bypassed.
-  rm -f "${webapp}/WEB-INF/lib"/hop-ui-rcp-*.jar
-  log "Removed hop-ui-rcp from staged webapp WEB-INF/lib (Hop Web must use hop-ui-rap only)"
 }
 
 build_image() {
@@ -235,8 +225,6 @@ build_image() {
     -t "${IMAGE_NAME}" \
     "${cache_flag[@]}"
 
-  log "Cleaning up exploded webapp staging directory"
-  rm -rf "${PROJECT_ROOT}/assemblies/web/target/webapp"
 }
 
 wait_for_hop_web() {

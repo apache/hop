@@ -36,7 +36,7 @@ Before starting, ensure you have:
 
 == Build Hop
 
-Hop currently doesn't offer any standalone Hop Web builds.
+Each release publishes a war and a plugins zip for your own Tomcat (`org.apache.hop:hop-web` on Maven Central). The xref:{page-component-version}@manual::hop-gui/hop-web.adoc#hop-web-tomcat[user manual] explains how to deploy them. This page covers building them yourself.
 
 Running your own Hop Web environment is straightforward but requires you to build Hop. Follow the xref:setup-dev-environment.adoc[development environment setup] guide to get the Hop source code and build Hop.
 
@@ -53,156 +53,39 @@ Additional info in xref:hopweb/developer-guide.adoc#_building_the_hop_web_docker
 
 We'll use Apache Tomcat in this example. If you use another application server, the process should be similar.
 
-This version of Hop is built with Java {java-version}, so you'll need to https://tomcat.apache.org/download-10.cgi[download the latest Tomcat 10] (or use the official Tomcat 10 Docker image).
+This version of Hop is built with Java {java-version}, so you'll need https://tomcat.apache.org/download-10.cgi[Tomcat 10.1 or later] (or the official Tomcat 10 Docker image).
 
-Copy or extract the following files from your Hop build, where `$CATALINA_HOME` is your Tomcat installation folder.
+The build puts Hop Web for Tomcat in `assemblies/web-war`: `hop-web-<version>.war` and `hop-web-<version>-plugins.zip` in `target`, and the same content unpacked in `target/webapp` (the web application) and `target/tomcat` (`plugins` and `jdbc-drivers`).
+The scripts in the war already have the right classpath, `hop-ui-rcp` is left out, and `hop-config.json` registers the projects under `+${HOP_CONFIG_FOLDER}+`.
 
 [source,bash]
 ----
 # Set CATALINA_HOME if it's not already set (replace with your actual Tomcat installation path)
 export CATALINA_HOME="${CATALINA_HOME:-/path/to/your/tomcat}"
 
-# Step 1: Extract webapp to ROOT directory (not /hop/)
-unzip -o assemblies/web/target/hop.war -d $CATALINA_HOME/webapps/ROOT/
+# The web application, as ROOT (not /hop/)
+cp assemblies/web-war/target/hop-web-*.war $CATALINA_HOME/webapps/ROOT.war
 
-# Step 2: Extract client distribution (contains config, libs, plugins, JDBC drivers)
-unzip -o assemblies/client/target/hop-client-*.zip -d /tmp/hop-client/
-
-# Step 3: Copy config folder
-cp -r /tmp/hop-client/hop/config $CATALINA_HOME/webapps/ROOT/
-
-# Step 4: Copy core libraries
-# lib/core already includes Beam SDKs when the Beam marketplace plugin is installed into the
-# client (plugins/engines/beam/lib-beam is a legacy path and is no longer created).
-cp -r /tmp/hop-client/hop/lib/core/* $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/
-
-# Step 4b: Remove RCP jar (RCP is for desktop GUI, not web)
-rm -f $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/hop-ui-rcp-*.jar
-
-# Step 5: Copy plugins
-cp -r /tmp/hop-client/hop/plugins $CATALINA_HOME/
-
-# Step 6: Copy JDBC drivers
-mkdir -p $CATALINA_HOME/jdbc-drivers
-cp -r /tmp/hop-client/hop/lib/jdbc/* $CATALINA_HOME/jdbc-drivers/
-
-# Step 7: Cleanup
-rm -rf /tmp/hop-client
+# plugins/ and jdbc-drivers/
+unzip -o assemblies/web-war/target/hop-web-*-plugins.zip -d $CATALINA_HOME
 ----
 
-=== Modify startup script
+=== Settings
 
-Configure Tomcat to run Hop by adding the information below to `$CATALINA_HOME/bin/startup.sh`.
-
-**Important**: You must insert these environment variables and `CATALINA_OPTS` *before* the `exec` line that starts Tomcat. The `exec` line should be the last line in the file and looks like:
+Hop Web finds `config` in the web application and `plugins` and `jdbc-drivers` in `$CATALINA_BASE` by itself (`HopWebDefaults`), so it starts without further settings.
+To change a folder or set other options, pass them as system properties in `$CATALINA_HOME/bin/setenv.sh`:
 
 [source,bash]
 ----
-exec "$PRGDIR"/"$EXECUTABLE" start "$@"
-----
-
-To find the correct insertion point:
-1. Open `$CATALINA_HOME/bin/startup.sh` in a text editor
-2. Search for the line containing `exec "$PRGDIR"/"$EXECUTABLE" start "$@"`
-3. Insert the code block below *immediately before* that line
-4. Ensure there is only *one* `exec` line in the file (if you see multiple, remove any duplicates after the first one)
-
-Add the following code block:
-
-[source,bash]
-----
-
-export HOP_AES_ENCODER_KEY=
 # specify where Hop should store audit information
-export HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
-# specify where Hop should manage configuration metadata (e.g. projects and environments information).
-export HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
+HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
 # specify the hop log level
-export HOP_LOG_LEVEL="Basic"
-# any additional JRE settings you want to pass on
-#export HOP_OPTIONS=
-# default Hop password encoder plugin
-export HOP_PASSWORD_ENCODER_PLUGIN="Hop"
-# point Hop to the plugins folder
-export HOP_PLUGIN_BASE_FOLDERS="${CATALINA_HOME}/plugins"
-# path to jdbc drivers
-export HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"
+HOP_LOG_LEVEL="Basic"
 
-# Set TOMCAT start variables
-# Note: Use double quotes so shell variables are expanded before being passed to JVM
-export CATALINA_OPTS="${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY=\"${HOP_AES_ENCODER_KEY}\" -DHOP_AUDIT_FOLDER=\"${HOP_AUDIT_FOLDER}\" -DHOP_CONFIG_FOLDER=\"${HOP_CONFIG_FOLDER}\" -DHOP_LOG_LEVEL=\"${HOP_LOG_LEVEL}\" -DHOP_PASSWORD_ENCODER_PLUGIN=\"${HOP_PASSWORD_ENCODER_PLUGIN}\" -DHOP_PLUGIN_BASE_FOLDERS=\"${HOP_PLUGIN_BASE_FOLDERS}\" -DHOP_SHARED_JDBC_FOLDERS=\"${HOP_SHARED_JDBC_FOLDERS}\""
-
+CATALINA_OPTS="${CATALINA_OPTS} -DHOP_AUDIT_FOLDER=${HOP_AUDIT_FOLDER} -DHOP_LOG_LEVEL=${HOP_LOG_LEVEL}"
 ----
 
-=== Project settings
-
-If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `+${HOP_CONFIG_FOLDER}+`.
-
-On Linux, use the following sed command to fix this in one line:
-
-`+sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json+`
-
-On macOS, use (note the empty string '' after -i):
-
-`+sed -i '' 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json+`
-
-On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the one below:
-
-[source, json]
-----
-  "projectsConfig" : {
-    "enabled" : true,
-    "projectMandatory" : true,
-    "defaultProject" : "default",
-    "standardParentProject" : "default",
-    "projectConfigurations" : [ {
-      "projectName" : "default",
-      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/default",
-      "configFilename" : "project-config.json"
-    }, {
-      "projectName" : "samples",
-      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/samples",
-      "configFilename" : "project-config.json"
-    } ]
-  }
-
-----
-
-
-=== Script classpaths 
-
-To make sure all hop scripts are accessible and work correctly with Hop Web, update their classpaths: 
-
-This can be done with a couple of `sed` commands. On Linux:
-
-[source, bash]
-----
-sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-run.sh
-sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-conf.sh
-sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
-sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-encrypt.sh
-sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-import.sh
-----
-
-On macOS, use (note the empty string '' after -i):
-
-[source, bash]
-----
-sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-run.sh
-sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-conf.sh
-sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
-sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-encrypt.sh
-sed -i '' 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-import.sh
-----
-
-The `CLASSPATH` lines in the various scripts should look similar to the one below after editing: 
-
-`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:lib/swt/osx/arm64/*"`
-
-Once the classpaths have been updated, make sure to make the scripts executable: 
-
-`+chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh+`
-
+The user manual lists the folder settings and their defaults.
 
 === Start Tomcat
 
@@ -245,9 +128,8 @@ image:hop-web.png[Hop Web, width="90%"]
 
 === ClassNotFoundException or missing libraries
 
-* **Verify libraries copied**: `ls $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/ | wc -l` (should show 100+ files)
-* **Check core/beam libraries**: Ensure Step 4 and Step 5 completed successfully
-* **Verify script classpaths**: Check that sed commands updated the CLASSPATH in scripts
+* **Verify the war was unpacked**: `ls $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/ | wc -l` (should show 100+ files)
+* **Check the plugins folder**: `$CATALINA_HOME/plugins` should exist, or `HOP_PLUGIN_BASE_FOLDERS` should point to one
 
 === Hop Web shows 404 or blank page
 
@@ -257,18 +139,17 @@ image:hop-web.png[Hop Web, width="90%"]
 
 === RCP or SWT-related errors
 
-* **Remove RCP jar**: Ensure Step 4b removed `hop-ui-rcp-*.jar`
-* **Verify removal**: `ls $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/*rcp*` (should show nothing)
+* **No RCP jar**: `ls $CATALINA_HOME/webapps/ROOT/WEB-INF/lib/*rcp*` should show nothing. The war leaves `hop-ui-rcp` out; a jar copied in by hand brings the error back.
 
-=== Environment variables not working
+=== Settings not picked up
 
-* **Check startup.sh**: Verify variables were added before the `exec` line
-* **Verify syntax**: `grep HOP_CONFIG_FOLDER $CATALINA_HOME/bin/startup.sh`
-* **Restart Tomcat**: Always restart after modifying `startup.sh`
+* **Check setenv.sh**: `grep HOP_ $CATALINA_HOME/bin/setenv.sh`
+* **Check the log**: at startup Hop Web logs each folder it chose itself, for example `HOP_PLUGIN_BASE_FOLDERS=... (default)`
+* **Restart Tomcat**: Always restart after modifying `setenv.sh`
 
 === Projects not found
 
-* **Check hop-config.json**: Verify paths were updated with sed command
+* **Check hop-config.json**: the project paths should start with `+${HOP_CONFIG_FOLDER}+`
 * **Verify variable substitution**: `grep HOP_CONFIG_FOLDER $CATALINA_HOME/webapps/ROOT/config/hop-config.json`
 * **Check project directories**: `ls $CATALINA_HOME/webapps/ROOT/config/projects/`
 
