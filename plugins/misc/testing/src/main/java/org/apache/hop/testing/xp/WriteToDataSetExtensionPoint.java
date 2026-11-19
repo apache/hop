@@ -30,10 +30,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -64,10 +64,6 @@ public class WriteToDataSetExtensionPoint
     if (!writeToDataSet) {
       return;
     }
-    // The data set rows come from row listeners on the transforms of the local engine
-    if (!(pipeline instanceof LocalPipelineEngine)) {
-      return;
-    }
 
     pipeline.addExecutionFinishedListener(
         engine -> {
@@ -82,6 +78,16 @@ public class WriteToDataSetExtensionPoint
           WriteToDataSetExtensionPoint.mappingsMap.remove(pipelineMeta.getName());
           WriteToDataSetExtensionPoint.setsMap.remove(pipelineMeta.getName());
         });
+
+    // The data set rows come from a row listener on a transform of Hop's own engine (local,
+    // single threaded). Spark, Beam ... have no such transforms: say so instead of writing nothing.
+    if (!(pipeline instanceof Pipeline)) {
+      log.logError(
+          "Writing rows to a data set is not supported on pipeline engine '"
+              + pipeline.getClass().getSimpleName()
+              + "': no data set was written.");
+      return;
+    }
 
     try {
       IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();

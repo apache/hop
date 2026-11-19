@@ -18,13 +18,16 @@
 package org.apache.hop.testing.xp;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -32,9 +35,10 @@ import org.apache.hop.testing.util.DataSetConst;
 import org.junit.jupiter.api.Test;
 
 /**
- * Validating a unit test and writing rows to a data set use row listeners on the transforms of
- * Hop's local engine, like the other unit test listeners. On another engine they do nothing, even
- * with the unit test flags set: there are no rows to validate or write.
+ * Validating a unit test uses row listeners on the transforms of Hop's local engine, like the other
+ * unit test listeners: on another engine it does nothing, even with the unit test flags set.
+ * Writing rows to a data set is not part of a unit test and works on any engine with Hop's own
+ * transforms (local, single threaded). On another engine it writes nothing but still cleans up.
  */
 class UnitTestListenersEngineTest {
 
@@ -64,18 +68,33 @@ class UnitTestListenersEngineTest {
     verify(pipelineMeta).getMetadataProvider();
   }
 
+  /** Spark, Beam ...: no transforms to listen to, but the flag and the maps are still cleared. */
   @Test
   @SuppressWarnings("unchecked")
-  void writingToADataSetLeavesAnotherEngineAlone() throws Exception {
+  void writingToADataSetOnAnotherEngineOnlyCleansUp() throws Exception {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     IPipelineEngine<PipelineMeta> engine =
         writeToDataSetEngine(mock(IPipelineEngine.class), pipelineMeta);
+    ILogChannel log = mock(ILogChannel.class);
+
+    new WriteToDataSetExtensionPoint().callExtensionPoint(log, new Variables(), engine);
+
+    verify(engine).addExecutionFinishedListener(any());
+    verify(pipelineMeta, never()).getMetadataProvider();
+    verify(log).logError(contains("not supported"));
+  }
+
+  /** The single threaded engine is a Pipeline, but not a LocalPipelineEngine. */
+  @Test
+  void writingToADataSetRunsOnTheSingleThreadedEngine() throws Exception {
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    IPipelineEngine<PipelineMeta> engine = writeToDataSetEngine(mock(Pipeline.class), pipelineMeta);
 
     new WriteToDataSetExtensionPoint()
         .callExtensionPoint(LogChannel.GENERAL, new Variables(), engine);
 
-    verify(engine, never()).addExecutionFinishedListener(any());
-    verify(pipelineMeta, never()).getMetadataProvider();
+    verify(engine).addExecutionFinishedListener(any());
+    verify(pipelineMeta).getMetadataProvider();
   }
 
   @Test
