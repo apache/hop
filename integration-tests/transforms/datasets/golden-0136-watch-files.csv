@@ -1,0 +1,4 @@
+short_filename,event_type,size,is_directory,scheme,watch_id
+sample-file1.txt,CREATED,751,N,file,it-watch-files
+sample-file2.txt,CREATED,751,N,file,it-watch-files
+sample-file3.txt,CREATED,751,N,file,it-watch-files

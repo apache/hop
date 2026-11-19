@@ -92,6 +92,7 @@ import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.fs.HopWindowsLocalFileSystem;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
+import org.apache.hop.spark.pipeline.SparkVerifiedTransforms;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
@@ -1389,12 +1390,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         if (ban != null) {
           return EngineCompatibility.unsupported(ban);
         }
-        if (HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {
+        if (HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)
+            || SparkVerifiedTransforms.PLUGIN_IDS.contains(id)) {
           return EngineCompatibility.supported();
         }
       }
     }
-    // No opinion for ordinary transforms — generic mapPartitions may still work
+    // Not verified either way: generic mapPartitions may still work
     return EngineCompatibility.unknown();
   }
 

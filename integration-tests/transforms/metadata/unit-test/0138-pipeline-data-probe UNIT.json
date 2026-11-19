@@ -1,0 +1,58 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Pipeline data probe: the probe pipeline receives every value of the probed transform",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "sourcePipelineName",
+          "data_set_field": "sourcePipelineName"
+        },
+        {
+          "transform_field": "sourceTransformName",
+          "data_set_field": "sourceTransformName"
+        },
+        {
+          "transform_field": "sourceTransformCopy",
+          "data_set_field": "sourceTransformCopy"
+        },
+        {
+          "transform_field": "rowNr",
+          "data_set_field": "rowNr"
+        },
+        {
+          "transform_field": "fieldName",
+          "data_set_field": "fieldName"
+        },
+        {
+          "transform_field": "fieldType",
+          "data_set_field": "fieldType"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "sourcePipelineName",
+        "sourceTransformName",
+        "sourceTransformCopy",
+        "rowNr",
+        "fieldName",
+        "fieldType",
+        "value"
+      ],
+      "data_set_name": "golden-0138-pipeline-data-probe",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0138-pipeline-data-probe UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0138-pipeline-data-probe.hpl"
+}

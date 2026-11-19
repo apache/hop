@@ -43,7 +43,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::AnalyticQueryMeta.keyword",
-    documentationUrl = "/pipeline/transforms/analyticquery.html")
+    documentationUrl = "/pipeline/transforms/analyticquery.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class;
