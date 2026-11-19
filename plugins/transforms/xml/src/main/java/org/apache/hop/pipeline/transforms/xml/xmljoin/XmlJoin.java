@@ -117,20 +117,20 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       }
 
       // get target xml
+      String targetField =
+          requiredOption(
+              meta.getTargetXmlField(), "XmlJoin.CheckResult.TargetXMLFieldNotSpecified");
       IRowMeta targetStreamRowMeta = data.targetRowSet.getRowMeta();
       String[] targetStreamFieldNames = targetStreamRowMeta.getFieldNames();
       for (int i = 0; i < targetStreamFieldNames.length; i++) {
-        if (variables.resolve(meta.getTargetXmlField()).equals(targetStreamFieldNames[i])) {
+        if (targetField.equals(targetStreamFieldNames[i])) {
           targetFieldId = i;
         }
       }
       // Throw exception if target field has not been found
       if (targetFieldId == -1) {
         throw new HopException(
-            BaseMessages.getString(
-                PKG,
-                CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                variables.resolve(meta.getTargetXmlField())));
+            BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, targetField));
       }
 
       IRowMeta sourceStreamRowMeta =
@@ -152,7 +152,8 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
 
       InputSource inputSource = new InputSource(new StringReader(strTarget));
 
-      data.xPathStatement = variables.resolve(meta.getTargetXPath());
+      data.xPathStatement =
+          requiredOption(meta.getTargetXPath(), "XmlJoin.CheckResult.TargetXPathNotSpecified");
       try {
         DocumentBuilder builder =
             XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
@@ -202,37 +203,36 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         // assume failure
         // get the column of the join xml set
         // get target xml
+        String sourceField =
+            requiredOption(
+                meta.getSourceXmlField(), "XmlJoin.CheckResult.SourceXMLFieldNotSpecified");
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (variables.resolve(meta.getSourceXmlField()).equals(sourceFieldNames[i])) {
+          if (sourceField.equals(sourceFieldNames[i])) {
             data.iSourceXMLField = i;
           }
         }
         // Throw exception if source xml field has not been found
         if (data.iSourceXMLField == -1) {
           throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                  variables.resolve(meta.getSourceXmlField())));
+              BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, sourceField));
         }
       }
 
       if (meta.isComplexJoin() && data.iCompareFieldID == -1) {
         // get the column of the compare value
+        String compareField =
+            requiredOption(meta.getJoinCompareField(), "XmlJoin.Exception.KeyFieldNotSpecified");
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (variables.resolve(meta.getJoinCompareField()).equals(sourceFieldNames[i])) {
+          if (compareField.equals(sourceFieldNames[i])) {
             data.iCompareFieldID = i;
           }
         }
         // Throw exception if source xml field has not been found
         if (data.iCompareFieldID == -1) {
           throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                  variables.resolve(meta.getJoinCompareField())));
+              BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, compareField));
         }
       }
 
@@ -263,6 +263,18 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
     }
 
     return true;
+  }
+
+  /**
+   * An option with its variables resolved. An option left empty, null or an empty string, is
+   * reported by name rather than looked up as a field or evaluated.
+   */
+  private String requiredOption(String option, String notSpecifiedKey) throws HopException {
+    String resolved = variables.resolve(option);
+    if (Utils.isEmpty(resolved)) {
+      throw new HopException(BaseMessages.getString(PKG, notSpecifiedKey));
+    }
+    return resolved;
   }
 
   /**

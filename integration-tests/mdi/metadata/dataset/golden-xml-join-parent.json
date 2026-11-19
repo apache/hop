@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-xml-join-parent.csv",
+  "name": "golden-xml-join-parent",
+  "description": "XML Join result with every option injected (issue #9515)",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "doc"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "xml_result"
+    }
+  ],
+  "folder_name": ""
+}

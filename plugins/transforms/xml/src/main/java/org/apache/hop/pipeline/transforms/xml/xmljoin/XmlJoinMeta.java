@@ -27,6 +27,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -55,50 +59,190 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     categoryDescription = "i18n::XmlJoin.category",
     keywords = "i18n::XmlJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/xmljoin.html")
+@GuiPlugin
 public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class;
 
-  /** Flag: execute complex join */
+  public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "XML_JOIN_DIALOG_OPTIONS";
+
+  public static final String WIDGET_TARGET_XML_TRANSFORM = "XML_JOIN_TARGET_XML_TRANSFORM";
+  public static final String WIDGET_TARGET_XML_FIELD = "XML_JOIN_TARGET_XML_FIELD";
+  public static final String WIDGET_SOURCE_XML_TRANSFORM = "XML_JOIN_SOURCE_XML_TRANSFORM";
+  public static final String WIDGET_SOURCE_XML_FIELD = "XML_JOIN_SOURCE_XML_FIELD";
+  public static final String WIDGET_TARGET_XPATH = "XML_JOIN_TARGET_XPATH";
+  public static final String WIDGET_COMPLEX_JOIN = "XML_JOIN_COMPLEX_JOIN";
+  public static final String WIDGET_JOIN_COMPARE_FIELD = "XML_JOIN_JOIN_COMPARE_FIELD";
+  public static final String WIDGET_VALUE_XML_FIELD = "XML_JOIN_VALUE_XML_FIELD";
+  public static final String WIDGET_ENCODING = "XML_JOIN_ENCODING";
+  public static final String WIDGET_OMIT_XML_HEADER = "XML_JOIN_OMIT_XML_HEADER";
+  public static final String WIDGET_OMIT_NULL_VALUES = "XML_JOIN_OMIT_NULL_VALUES";
+
+  private static final String GROUP_TARGET = "i18n::XmlJoin.TargetGroup.Label";
+  private static final String GROUP_TARGET_ORDER = "100";
+  private static final String GROUP_SOURCE = "i18n::XmlJoin.SourceGroup.Label";
+  private static final String GROUP_SOURCE_ORDER = "200";
+  private static final String GROUP_JOIN = "i18n::XmlJoin.JoinGroup.Label";
+  private static final String GROUP_JOIN_ORDER = "300";
+  private static final String GROUP_RESULT = "i18n::XmlJoin.ResultGroup.Label";
+  private static final String GROUP_RESULT_ORDER = "400";
+
+  /**
+   * Flag: execute complex join. Each element goes under the node of its key: ? in the XPath
+   * statement is replaced by the key field of each row.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_COMPLEX_JOIN,
+      order = "0305",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::XmlJoin.ComplexJoin.Label",
+      toolTip = "i18n::XmlJoin.ComplexJoin.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_JOIN,
+      groupOrder = GROUP_JOIN_ORDER)
   @HopMetadataProperty(injectionKey = "COMPLEX_JOIN")
   private boolean complexJoin;
 
   /** What transform holds the XML string to join into */
+  @GuiWidgetElement(
+      id = WIDGET_TARGET_XML_TRANSFORM,
+      order = "0110",
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::XmlJoin.TargetXMLTransform.Label",
+      toolTip = "i18n::XmlJoin.TargetXMLTransform.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_TARGET,
+      groupOrder = GROUP_TARGET_ORDER)
   @HopMetadataProperty(injectionKey = "TARGET_XML_TRANSFORM")
   private String targetXmlTransform;
 
   /** What field holds the XML string to join into */
+  @GuiWidgetElement(
+      id = WIDGET_TARGET_XML_FIELD,
+      order = "0120",
+      type = GuiElementType.COMBO,
+      label = "i18n::XmlJoin.TargetXMLField.Label",
+      toolTip = "i18n::XmlJoin.TargetXMLField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_TARGET,
+      groupOrder = GROUP_TARGET_ORDER)
   @HopMetadataProperty(injectionKey = "TARGET_XML_FIELD")
   private String targetXmlField;
 
   /** What field holds the XML tags to join */
+  @GuiWidgetElement(
+      id = WIDGET_SOURCE_XML_FIELD,
+      order = "0220",
+      type = GuiElementType.COMBO,
+      label = "i18n::XmlJoin.SourceXMLField.Label",
+      toolTip = "i18n::XmlJoin.SourceXMLField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_SOURCE,
+      groupOrder = GROUP_SOURCE_ORDER)
   @HopMetadataProperty(injectionKey = "SOURCE_XML_FIELD")
   private String sourceXmlField;
 
   /** The name value containing the resulting XML fragment */
+  @GuiWidgetElement(
+      id = WIDGET_VALUE_XML_FIELD,
+      order = "0410",
+      type = GuiElementType.TEXT,
+      label = "i18n::XmlJoin.ValueXMLField.Label",
+      toolTip = "i18n::XmlJoin.ValueXMLField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_RESULT,
+      groupOrder = GROUP_RESULT_ORDER)
   @HopMetadataProperty(injectionKey = "VALUE_XML_FIELD")
   private String valueXmlField;
 
   /** The name of the repeating row XML element */
+  @GuiWidgetElement(
+      id = WIDGET_TARGET_XPATH,
+      order = "0310",
+      type = GuiElementType.TEXT,
+      label = "i18n::XmlJoin.TargetXPath.Label",
+      toolTip = "i18n::XmlJoin.TargetXPath.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_JOIN,
+      groupOrder = GROUP_JOIN_ORDER)
   @HopMetadataProperty(injectionKey = "TARGET_XPATH")
   private String targetXPath;
 
   /** What transform holds the XML strings to join */
+  @GuiWidgetElement(
+      id = WIDGET_SOURCE_XML_TRANSFORM,
+      order = "0210",
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::XmlJoin.SourceXMLTransform.Label",
+      toolTip = "i18n::XmlJoin.SourceXMLTransform.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_SOURCE,
+      groupOrder = GROUP_SOURCE_ORDER)
   @HopMetadataProperty(injectionKey = "SOURCE_XML_TRANSFORM")
   private String sourceXmlTransform;
 
   /** What field holds the join compare value */
+  @GuiWidgetElement(
+      id = WIDGET_JOIN_COMPARE_FIELD,
+      order = "0330",
+      type = GuiElementType.COMBO,
+      label = "i18n::XmlJoin.JoinCompareFiled.Label",
+      toolTip = "i18n::XmlJoin.JoinCompareField.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_JOIN,
+      groupOrder = GROUP_JOIN_ORDER)
   @HopMetadataProperty(injectionKey = "JOIN_COMPARE_FIELD")
   private String joinCompareField;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
+  @GuiWidgetElement(
+      id = WIDGET_ENCODING,
+      order = "0420",
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::XmlJoin.Encoding.Label",
+      toolTip = "i18n::XmlJoin.Encoding.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_RESULT,
+      groupOrder = GROUP_RESULT_ORDER)
   @HopMetadataProperty(injectionKey = "ENCODING")
   private String encoding;
 
   /** Flag: execute complex join */
+  @GuiWidgetElement(
+      id = WIDGET_OMIT_XML_HEADER,
+      order = "0430",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::XmlJoin.OmitXMLHeader.Label",
+      toolTip = "i18n::XmlJoin.OmitXMLHeader.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_RESULT,
+      groupOrder = GROUP_RESULT_ORDER)
   @HopMetadataProperty(injectionKey = "OMIT_XML_HEADER")
   private boolean omitXmlHeader;
 
   /** Flag: omit null values from result xml */
+  @GuiWidgetElement(
+      id = WIDGET_OMIT_NULL_VALUES,
+      order = "0440",
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::XmlJoin.OmitNullValues.Label",
+      toolTip = "i18n::XmlJoin.OmitNullValues.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP_RESULT,
+      groupOrder = GROUP_RESULT_ORDER)
   @HopMetadataProperty(injectionKey = "OMIT_NULL_VALUES")
   private boolean omitNullValues;
 
@@ -151,7 +295,8 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    IValueMeta v = new ValueMetaString(variables.resolve(this.getValueXmlField()));
+    // Left empty in the dialog, the field is null; older dialogs stored an empty name
+    IValueMeta v = new ValueMetaString(variables.resolve(Const.NVL(this.getValueXmlField(), "")));
     v.setOrigin(name);
 
     if (isKnown(info, 0)) {

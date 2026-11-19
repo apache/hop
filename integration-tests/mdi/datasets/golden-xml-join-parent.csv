@@ -1,0 +1,2 @@
+doc,xml_result
+"<orders><order id=""1""><lines/><drop/></order><order id=""2""><lines/></order></orders>","<orders><order id=""1""><lines><line>é &#8364;</line></lines></order><order id=""2""><lines><line sku=""B""/></lines></order></orders>"

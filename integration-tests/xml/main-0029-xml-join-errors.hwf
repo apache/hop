@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0029-xml-join-errors</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Issue #9515: XML Join fails with a clear message for an XPath without a match and for missing fields.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/11/16 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/11/16 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description></description>
+      <type>SPECIAL</type>
+      <attributes/>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>valid parameters</name>
+      <description>The defaults must run without errors, so the failures below come from the overridden parameter.</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: valid parameters</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>The XML Join error pipeline failed with its default parameters.</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>simple XPath finds no node</name>
+      <description></description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>SIMPLE_XPATH</name>
+          <stream_name/>
+          <value>//missing</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify: simple XPath finds no node</name>
+      <description></description>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var errors = previous_result.getNrErrors();
+var found = previous_result.getLogText().indexOf("XPath statement returned no result [//missing]") &gt;= 0;
+if (errors == 0 || !found) {
+  action.logError("Expected the pipeline to fail with 'XPath statement returned no result [//missing]' in the log, got " + errors + " error(s), message found: " + found);
+}
+errors &gt; 0 &amp;&amp; found;</script>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: simple XPath finds no node</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>simple XPath finds no node: expected the pipeline to fail with 'XPath statement returned no result [//missing]'</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>complex XPath finds no node</name>
+      <description></description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>COMPLEX_XPATH</name>
+          <stream_name/>
+          <value>//order[@id='?']/missing</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>288</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify: complex XPath finds no node</name>
+      <description></description>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var errors = previous_result.getNrErrors();
+var found = previous_result.getLogText().indexOf("XPath statement returned no result [//order[@id='1']/missing]") &gt;= 0;
+if (errors == 0 || !found) {
+  action.logError("Expected the pipeline to fail with 'XPath statement returned no result [//order[@id='1']/missing]' in the log, got " + errors + " error(s), message found: " + found);
+}
+errors &gt; 0 &amp;&amp; found;</script>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>288</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: complex XPath finds no node</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>complex XPath finds no node: expected the pipeline to fail with 'XPath statement returned no result [//order[@id='1']/missing]'</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>288</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>target XML field is missing</name>
+      <description></description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>TARGET_FIELD</name>
+          <stream_name/>
+          <value>no_such_target_field</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>400</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify: target XML field is missing</name>
+      <description></description>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var errors = previous_result.getNrErrors();
+var found = previous_result.getLogText().indexOf("The specified field 'no_such_target_field' could not be found in the input.") &gt;= 0;
+if (errors == 0 || !found) {
+  action.logError("Expected the pipeline to fail with 'The specified field 'no_such_target_field' could not be found in the input.' in the log, got " + errors + " error(s), message found: " + found);
+}
+errors &gt; 0 &amp;&amp; found;</script>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>400</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: target XML field is missing</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>target XML field is missing: expected the pipeline to fail with 'The specified field 'no_such_target_field' could not be found in the input.'</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>400</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>source XML field is missing</name>
+      <description></description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>SOURCE_FIELD</name>
+          <stream_name/>
+          <value>no_such_source_field</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>512</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify: source XML field is missing</name>
+      <description></description>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var errors = previous_result.getNrErrors();
+var found = previous_result.getLogText().indexOf("The specified field 'no_such_source_field' could not be found in the input.") &gt;= 0;
+if (errors == 0 || !found) {
+  action.logError("Expected the pipeline to fail with 'The specified field 'no_such_source_field' could not be found in the input.' in the log, got " + errors + " error(s), message found: " + found);
+}
+errors &gt; 0 &amp;&amp; found;</script>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>512</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: source XML field is missing</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>source XML field is missing: expected the pipeline to fail with 'The specified field 'no_such_source_field' could not be found in the input.'</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>512</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>comparison field is missing</name>
+      <description></description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0029-xml-join-errors.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>COMPARE_FIELD</name>
+          <stream_name/>
+          <value>no_such_compare_field</value>
+        </parameter>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>624</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Verify: comparison field is missing</name>
+      <description></description>
+      <type>EVAL</type>
+      <attributes/>
+      <script>var errors = previous_result.getNrErrors();
+var found = previous_result.getLogText().indexOf("The specified field 'no_such_compare_field' could not be found in the input.") &gt;= 0;
+if (errors == 0 || !found) {
+  action.logError("Expected the pipeline to fail with 'The specified field 'no_such_compare_field' could not be found in the input.' in the log, got " + errors + " error(s), message found: " + found);
+}
+errors &gt; 0 &amp;&amp; found;</script>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>624</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Unexpected: comparison field is missing</name>
+      <description></description>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>comparison field is missing: expected the pipeline to fail with 'The specified field 'no_such_compare_field' could not be found in the input.'</message>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>624</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description></description>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>736</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>valid parameters</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>valid parameters</from>
+      <to>Unexpected: valid parameters</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>valid parameters</from>
+      <to>simple XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>simple XPath finds no node</from>
+      <to>Verify: simple XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>simple XPath finds no node</from>
+      <to>Unexpected: simple XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: simple XPath finds no node</from>
+      <to>Unexpected: simple XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: simple XPath finds no node</from>
+      <to>complex XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>complex XPath finds no node</from>
+      <to>Verify: complex XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>complex XPath finds no node</from>
+      <to>Unexpected: complex XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: complex XPath finds no node</from>
+      <to>Unexpected: complex XPath finds no node</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: complex XPath finds no node</from>
+      <to>target XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>target XML field is missing</from>
+      <to>Verify: target XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>target XML field is missing</from>
+      <to>Unexpected: target XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: target XML field is missing</from>
+      <to>Unexpected: target XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: target XML field is missing</from>
+      <to>source XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>source XML field is missing</from>
+      <to>Verify: source XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>source XML field is missing</from>
+      <to>Unexpected: source XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: source XML field is missing</from>
+      <to>Unexpected: source XML field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: source XML field is missing</from>
+      <to>comparison field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>comparison field is missing</from>
+      <to>Verify: comparison field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>comparison field is missing</from>
+      <to>Unexpected: comparison field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: comparison field is missing</from>
+      <to>Unexpected: comparison field is missing</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Verify: comparison field is missing</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
