@@ -59,8 +59,8 @@ That builds every module, runs the unit tests, applies the license and formattin
 
 Several profiles activate themselves, which is why the build usually needs no flags:
 
-`base` / `assemblies`::
-Decide which module sets are in the reactor. Both are on unless you pass `-Dbase=false` or `-Dassemblies=false`.
+`base` / `assemblies` / `web-tests`::
+Decide which module sets are in the reactor. All are on unless you pass `-Dbase=false`, `-Dassemblies=false` or `-Dweb-tests=false`.
 
 `swt-unix` / `swt-mac` / `swt-windows`::
 Selected by your operating system, and pick the matching SWT artifact. `swt-mac` also adds `-XstartOnFirstThread` to the test JVM, which SWT needs on macOS.
@@ -80,7 +80,7 @@ Skips every check and every test.
 Run only, or skip, the SWTBot UI tests. See xref:testing/ui-testing.adoc[UI tests with SWTBot].
 
 `webtest`::
-The Selenium tests that drive Hop Web in a container. They need Docker and take minutes, so they are out of the normal build: `mvn -Pwebtest -pl web-tests test`.
+The Selenium tests that drive Hop Web in a container. The `web-tests` module is always in the reactor, so version changes and releases update it, but its tests are skipped unless you ask for them: they need Docker and take minutes. Run them with `mvn -Dwebtest -pl web-tests test`.
 
 `apache-release` / `deploy-snapshots`::
 Release plumbing, including the CycloneDX SBOM. See xref:apache-release/index.adoc[the release process].
