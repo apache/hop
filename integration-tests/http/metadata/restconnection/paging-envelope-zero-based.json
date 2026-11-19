@@ -1,0 +1,12 @@
+{
+  "name": "paging-envelope-zero-based",
+  "pagination_type": "PAGE_NUMBER",
+  "page_param_name": "page",
+  "first_page_number": "0",
+  "page_size_param_name": "pageSize",
+  "default_limit": 2,
+  "auth_type": "No Auth",
+  "base_url": "http://${PAGING_HOSTNAME}",
+  "test_url": "",
+  "ignoreSsl": false
+}

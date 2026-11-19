@@ -21,6 +21,7 @@ import static org.apache.hop.core.Const.NVL;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import java.io.BufferedReader;
@@ -49,7 +50,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import javax.net.ssl.SSLContext;
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -98,6 +98,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rest.common.RestConst;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -117,6 +119,12 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           .build();
 
   private final ObjectMapper paginationJsonMapper = new ObjectMapper();
+
+  /** Whether the paging stop settings were checked, which logs the ones that have no effect. */
+  private boolean pageStopSetupChecked;
+
+  /** Whether a page where the items path and the split path disagree was logged. */
+  private boolean itemsAndRowsMismatchLogged;
 
   /**
    * Outcome of one HTTP invocation (body, timing, serialization of headers needed for paging and
@@ -166,6 +174,17 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final class PaginationState {
     int pageNumber = 1;
     long offset = 0;
+
+    /** Items read so far, counted with the items path, for the total count. */
+    long itemsRead = 0;
+
+    /**
+     * The connection's items and total count paths, resolved once per input row for the JSON or XML
+     * response this transform reads. {@code null} when not set or not usable.
+     */
+    String itemsExpression;
+
+    String totalCountExpression;
 
     /** Next full URL supplied by RFC 5988 Link header paging. */
     String linkNextUrl;
@@ -927,6 +946,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         connection != null ? connection.getPaginationType() : RestPaginationType.NONE;
     PaginationState state = new PaginationState();
     state.effectiveLimit = resolvePagingLimit(connection);
+    // Only for PAGE_NUMBER: the editor keeps the fields of other paging types, so a connection
+    // switched to another type can still hold a first page number that no longer resolves.
+    if (RestPaginationType.PAGE_NUMBER.equals(pagingType)) {
+      state.pageNumber = resolveFirstPageNumber(connection);
+    }
+    if (stopsOnEmptyPage(pagingType)) {
+      resolvePageStopExpressions(connection, state);
+    }
 
     String resolvedSplitPath = resolveSplitPathOrPagingExpression(meta.getResultSplitPath());
     int maxLoops =
@@ -984,10 +1011,14 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           break;
         }
       }
-      totalEmitted += emitPagedResultRows(rowData, resolvedSplitPath, ex);
+      // Parsed at most once, however many paths (split, items, total count, cursor) read it.
+      ParsedBody page = new ParsedBody(ex.body);
+      int rowsFromPage = emitPagedResultRows(rowData, resolvedSplitPath, ex, page);
+      totalEmitted += rowsFromPage;
 
       hasMore =
-          continuePaginationAfterExchange(connection, pagingType, state, resolvedSplitPath, ex);
+          continuePaginationAfterExchange(
+              connection, pagingType, state, resolvedSplitPath, ex, page, rowsFromPage);
       loopIdx++;
       if (!hasMore || loopIdx >= maxLoops && isDetailed()) {
         if (loopIdx >= maxLoops && hasMore && isDetailed()) {
@@ -1010,12 +1041,39 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     RestPaginationType type = connection.getPaginationType();
     if (RestPaginationType.OFFSET_LIMIT.equals(type)
+        || RestPaginationType.PAGE_NUMBER.equals(type)
         || RestPaginationType.BODY_CURSOR.equals(type)
         || RestPaginationType.HEADER_CURSOR.equals(type)) {
       int lim = connection.getDefaultLimit();
       return lim > 0 ? lim : 100;
     }
     return 100;
+  }
+
+  /**
+   * The page number {@link RestPaginationType#PAGE_NUMBER} paging starts at: the connection's first
+   * page number, or 1 when it is empty. A value that is not a whole number of zero or more is an
+   * error rather than a silent 1, which would skip or repeat a page without anyone noticing.
+   */
+  private int resolveFirstPageNumber(RestConnection connection) throws HopException {
+    if (connection == null || Utils.isEmpty(connection.getFirstPageNumber())) {
+      return 1;
+    }
+    String value = Const.trim(resolve(connection.getFirstPageNumber()));
+    if (Utils.isEmpty(value)) {
+      return 1;
+    }
+    try {
+      int first = Integer.parseInt(value);
+      if (first >= 0) {
+        return first;
+      }
+    } catch (NumberFormatException e) {
+      // Reported below.
+    }
+    throw new HopException(
+        BaseMessages.getString(
+            PKG, "Rest.Error.PaginationFirstPageNumber", connection.getName(), value));
   }
 
   private LinkedHashMap<String, String> buildPagingQuery(
@@ -1031,8 +1089,16 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         q.put(offKey, Long.toString(state.offset));
         q.put(limKey, Integer.toString(state.effectiveLimit));
       }
-      case PAGE_NUMBER ->
-          q.put(NVL(resolve(conn.getPageParamName()), "page"), Integer.toString(state.pageNumber));
+      case PAGE_NUMBER -> {
+        q.put(NVL(resolve(conn.getPageParamName()), "page"), Integer.toString(state.pageNumber));
+        // The page size goes out only when both its name and its value are filled in: page-number
+        // paging never sent one before, and an API that does not know the parameter may reject it.
+        // Its own parameter name, not the offset/limit one, which an old connection may still hold.
+        String limKey = resolve(conn.getPageSizeParamName());
+        if (!Utils.isEmpty(limKey) && conn.getDefaultLimit() > 0) {
+          q.put(limKey, Integer.toString(state.effectiveLimit));
+        }
+      }
       case CURSOR -> {
         if (!Utils.isEmpty(state.cursorToken)) {
           q.put(NVL(resolve(conn.getPageParamName()), "cursor"), state.cursorToken);
@@ -1105,7 +1171,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       RestPaginationType pagingType,
       PaginationState state,
       String resolvedSplitPath,
-      RestExchangeResult ex)
+      RestExchangeResult ex,
+      ParsedBody page,
+      int rowsFromPage)
       throws HopException {
 
     if (conn == null || pagingType == null || RestPaginationType.NONE.equals(pagingType)) {
@@ -1113,8 +1181,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
 
     boolean httpOk = ex.status >= 200 && ex.status < 300;
-    boolean hadPayload = exchangeHadPayload(ex, resolvedSplitPath);
-
     if (!httpOk) {
       return false;
     }
@@ -1125,28 +1191,28 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         return !Utils.isEmpty(state.linkNextUrl);
       }
       case BODY_NEXT_URL -> {
-        state.linkNextUrl = extractNextPageUrlFromBody(conn, ex.body).orElse(null);
+        state.linkNextUrl = extractNextPageUrlFromBody(conn, page).orElse(null);
         return !Utils.isEmpty(state.linkNextUrl);
       }
       case OFFSET_LIMIT -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(state, page, resolvedSplitPath, rowsFromPage)) {
           return false;
         }
         state.offset += state.effectiveLimit;
         return true;
       }
       case PAGE_NUMBER -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(state, page, resolvedSplitPath, rowsFromPage)) {
           return false;
         }
         state.pageNumber++;
         return true;
       }
       case CURSOR -> {
-        if (!hadPayload) {
+        if (!pageHadItemsAndMoreRemain(state, page, resolvedSplitPath, rowsFromPage)) {
           return false;
         }
-        return extractCursorForNext(conn, ex.body)
+        return extractCursorForNext(conn, page)
             .map(
                 tok -> {
                   state.cursorToken = tok;
@@ -1155,7 +1221,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             .orElse(false);
       }
       case BODY_CURSOR, HEADER_CURSOR -> {
-        return extractCursorForNext(conn, ex.body)
+        return extractCursorForNext(conn, page)
             .map(
                 tok -> {
                   state.cursorToken = tok;
@@ -1172,18 +1238,286 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
   }
 
+  /** The paging types that ask for pages until one is empty, and so can use an items path. */
+  private static boolean stopsOnEmptyPage(RestPaginationType pagingType) {
+    return RestPaginationType.PAGE_NUMBER.equals(pagingType)
+        || RestPaginationType.OFFSET_LIMIT.equals(pagingType)
+        || RestPaginationType.CURSOR.equals(pagingType);
+  }
+
   /**
-   * @return whether this response appears to carry at least one item (whole body when no
-   *     split-path, or extracted elements when splitting).
+   * Resolves the connection's items and total count paths once for this input row, and on the first
+   * row logs the settings that have no effect, which would otherwise only show as paging that runs
+   * on to the maximum number of page requests.
    */
-  private boolean exchangeHadPayload(RestExchangeResult ex, String resolvedSplitPath)
-      throws HopException {
-    List<String> items =
-        Utils.isEmpty(resolvedSplitPath) ? null : splitResultItems(ex.body, resolvedSplitPath);
-    if (items != null) {
-      return !items.isEmpty();
+  private void resolvePageStopExpressions(RestConnection conn, PaginationState state) {
+    state.itemsExpression = pagingExpression(conn.getItemsJsonPath(), conn.getItemsXPath());
+    state.totalCountExpression =
+        pagingExpression(conn.getTotalCountJsonPath(), conn.getTotalCountXPath());
+    boolean totalCountWithoutItems =
+        !Utils.isEmpty(state.totalCountExpression) && Utils.isEmpty(state.itemsExpression);
+
+    if (!pageStopSetupChecked) {
+      pageStopSetupChecked = true;
+      String appType = NVL(resolve(meta.getApplicationType()), "");
+      logUnusedXPath(conn.getItemsXPath(), state.itemsExpression, appType);
+      logUnusedXPath(conn.getTotalCountXPath(), state.totalCountExpression, appType);
+      if (totalCountWithoutItems) {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "Rest.Log.PaginationTotalCountWithoutItemsPath", state.totalCountExpression));
+      }
     }
-    return !Utils.isEmpty(NVL(ex.body, "").trim());
+    // The items are counted with the items path. A split path can give more than one row per
+    // item, so counting its rows against the total would stop paging too early.
+    if (totalCountWithoutItems) {
+      state.totalCountExpression = null;
+    }
+  }
+
+  /** Logs an XPath that is set but not used, because the response is not read as XML. */
+  private void logUnusedXPath(String xPath, String usedExpression, String appType) {
+    String resolved = resolveSplitPathOrPagingExpression(xPath);
+    if (!Utils.isEmpty(resolved) && Utils.isEmpty(usedExpression)) {
+      logBasic(BaseMessages.getString(PKG, "Rest.Log.PaginationXPathNotUsed", resolved, appType));
+    }
+  }
+
+  /**
+   * Whether page, offset and cursor paging should ask for another page after this one.
+   *
+   * <p>A page is empty when the connection's items path finds nothing in it. Without an items path
+   * the result split path decides, and without either an empty body does — which an API that wraps
+   * its results in an envelope never sends (#9549). The items path wins over the split path because
+   * it describes the API, while the split path describes the rows this transform wants.
+   *
+   * <p>With an items path and a total count path, paging also stops once that many items were read,
+   * so the last, empty, page is not fetched at all.
+   *
+   * @param rowsFromPage the rows the split path gave for this page, compared with the items found
+   */
+  private boolean pageHadItemsAndMoreRemain(
+      PaginationState state, ParsedBody page, String resolvedSplitPath, int rowsFromPage)
+      throws HopException {
+    boolean splitting = !Utils.isEmpty(resolvedSplitPath);
+    if (Utils.isEmpty(state.itemsExpression)) {
+      // The split path already ran over this page to emit its rows.
+      return splitting ? rowsFromPage > 0 : !Utils.isEmpty(NVL(page.text(), "").trim());
+    }
+    long items = countPageItems(page, state.itemsExpression);
+    if (splitting) {
+      logItemsAndRowsMismatch(state, resolvedSplitPath, items, rowsFromPage);
+    }
+    if (items == 0) {
+      return false;
+    }
+    state.itemsRead += items;
+
+    Long totalCount =
+        Utils.isEmpty(state.totalCountExpression)
+            ? null
+            : readTotalCount(page, state.totalCountExpression);
+    if (totalCount != null && state.itemsRead >= totalCount) {
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "Rest.Log.PaginationTotalCountReached", state.itemsRead, totalCount));
+      }
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * The items path decides when paging stops and the split path which rows a page gives. When they
+   * point at different things, paging either runs on over pages that give no rows, or stops after a
+   * first page that did give rows. Both are logged once, naming both paths.
+   */
+  private void logItemsAndRowsMismatch(
+      PaginationState state, String resolvedSplitPath, long items, int rowsFromPage) {
+    if (itemsAndRowsMismatchLogged) {
+      return;
+    }
+    String message = null;
+    if (items > 0 && rowsFromPage == 0) {
+      message =
+          BaseMessages.getString(
+              PKG,
+              "Rest.Log.PaginationItemsWithoutRows",
+              state.itemsExpression,
+              items,
+              resolvedSplitPath);
+    } else if (items == 0 && rowsFromPage > 0 && state.itemsRead == 0) {
+      // itemsRead is still 0 only on the first page: every page that continues adds its items.
+      message =
+          BaseMessages.getString(
+              PKG,
+              "Rest.Log.PaginationRowsWithoutItems",
+              state.itemsExpression,
+              resolvedSplitPath,
+              rowsFromPage);
+    }
+    if (message != null) {
+      itemsAndRowsMismatchLogged = true;
+      logBasic(message);
+    }
+  }
+
+  /**
+   * Picks the JsonPath or the XPath of a pair of paging expressions: the XPath for an XML response
+   * when one is set, otherwise the JsonPath. A connection can hold both when JSON and XML
+   * transforms share it. A JsonPath with no XPath next to it is always used, so a mistake in it
+   * fails loudly rather than being ignored. Returns {@code null} when neither applies.
+   */
+  private String pagingExpression(String jsonPath, String xPath) {
+    String appType = NVL(resolve(meta.getApplicationType()), "");
+    String json = resolveSplitPathOrPagingExpression(jsonPath);
+    String xml = resolveSplitPathOrPagingExpression(xPath);
+    if (!Utils.isEmpty(xml) && isXmlApplicationType(appType)) {
+      return xml;
+    }
+    if (!Utils.isEmpty(json) && (shouldParseResponseAsJson(appType, json) || Utils.isEmpty(xml))) {
+      return json;
+    }
+    return null;
+  }
+
+  private static boolean isXmlApplicationType(String appType) {
+    return RestMeta.APPLICATION_TYPE_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_TEXT_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_ATOM_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_SVG_XML.equals(appType)
+        || RestMeta.APPLICATION_TYPE_XHTML.equals(appType);
+  }
+
+  /**
+   * The number of items the items path finds in a page. A JsonPath to an array counts its elements,
+   * like the result split path. An XPath counts the nodes it selects, except empty ones: an element
+   * without attributes, child elements or text, such as the {@code <list/>} of an empty page when
+   * the path points at the container rather than at the items in it.
+   */
+  private long countPageItems(ParsedBody page, String expression) throws HopException {
+    String appType = NVL(resolve(meta.getApplicationType()), "");
+    try {
+      if (shouldParseResponseAsJson(appType, expression)) {
+        Object raw = page.json().read(expression);
+        if (raw instanceof Iterable<?> iterable) {
+          long count = 0;
+          for (Object element : iterable) {
+            if (element != null) {
+              count++;
+            }
+          }
+          return count;
+        }
+        return raw == null ? 0 : 1;
+      }
+      if (isXmlApplicationType(appType)) {
+        NodeList nodes =
+            (NodeList)
+                XPathFactory.newInstance()
+                    .newXPath()
+                    .compile(expression)
+                    .evaluate(page.xml(), XPathConstants.NODESET);
+        long count = 0;
+        for (int i = 0; i < nodes.getLength(); i++) {
+          if (!isEmptyXmlNode(nodes.item(i))) {
+            count++;
+          }
+        }
+        return count;
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "Rest.Error.PaginationItems", expression), e);
+    }
+    throw new HopException(
+        BaseMessages.getString(PKG, "Rest.Error.PaginationItemsType", expression, appType));
+  }
+
+  private static boolean isEmptyXmlNode(Node node) {
+    if (node instanceof Element element) {
+      if (element.hasAttributes()) {
+        return false;
+      }
+      for (Node child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+        if (child.getNodeType() == Node.ELEMENT_NODE) {
+          return false;
+        }
+      }
+    }
+    return Utils.isEmpty(Const.trim(node.getTextContent()));
+  }
+
+  /**
+   * The total number of items the API reports through the connection's total count path, or {@code
+   * null} when the page does not hold a whole number there. A page the path cannot be read from is
+   * logged and treated the same way: paging then goes on until a page has no items.
+   */
+  private Long readTotalCount(ParsedBody page, String expression) {
+    String value;
+    try {
+      // The same JSON-or-XML rule as the items, so the count and the items agree.
+      if (shouldParseResponseAsJson(NVL(resolve(meta.getApplicationType()), ""), expression)) {
+        Object raw = page.json().read(expression);
+        if (raw instanceof Number number) {
+          return number.longValue();
+        }
+        value = raw == null ? null : raw.toString();
+      } else {
+        value = XPathFactory.newInstance().newXPath().compile(expression).evaluate(page.xml());
+      }
+    } catch (Exception e) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "Rest.Log.PaginationTotalCountUnreadable", expression, e.getMessage()));
+      return null;
+    }
+    if (Utils.isEmpty(Const.trim(value))) {
+      return null;
+    }
+    try {
+      return Long.parseLong(Const.trim(value));
+    } catch (NumberFormatException e) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "Rest.Log.PaginationTotalCountNotANumber", expression, value));
+      return null;
+    }
+  }
+
+  /**
+   * One page's response body, parsed as JSON or XML on first use and then kept, so that the split
+   * path, the items path, the total count and the cursor do not each parse it again.
+   */
+  private final class ParsedBody {
+    private final String text;
+    private DocumentContext json;
+    private Document xml;
+
+    ParsedBody(String text) {
+      this.text = text;
+    }
+
+    String text() {
+      return text;
+    }
+
+    DocumentContext json() {
+      if (json == null) {
+        json = JsonPath.using(JSON_PATH_CONFIGURATION).parse(NVL(text, "{}"));
+      }
+      return json;
+    }
+
+    Document xml() throws Exception {
+      if (xml == null) {
+        try (StringReader sr = new StringReader(NVL(text, ""))) {
+          xml = documentBuilderFactory().newDocumentBuilder().parse(new InputSource(sr));
+        }
+      }
+      return xml;
+    }
   }
 
   /** Uses RFC 5988 / RFC 8288 Web Link parsing ({@code LinkHeaderPaging}) for {@code rel=next}. */
@@ -1315,7 +1649,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   private int emitPagedResultRows(
-      Object[] rowTemplate, String resolvedSplitPath, RestExchangeResult ex) throws HopException {
+      Object[] rowTemplate, String resolvedSplitPath, RestExchangeResult ex, ParsedBody page)
+      throws HopException {
 
     String splitPathResolved = Utils.isEmpty(resolvedSplitPath) ? null : resolvedSplitPath;
     if (splitPathResolved == null) {
@@ -1323,7 +1658,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       return 1;
     }
 
-    List<String> chunks = splitResultItems(ex.body, splitPathResolved);
+    List<String> chunks = splitResultItems(page, splitPathResolved);
     if (chunks.isEmpty()) {
       return 0;
     }
@@ -1348,7 +1683,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     return emitted;
   }
 
-  private List<String> splitResultItems(String body, String jsonOrXPathExpr) throws HopException {
+  private List<String> splitResultItems(ParsedBody page, String jsonOrXPathExpr)
+      throws HopException {
     String appType = NVL(resolve(meta.getApplicationType()), "");
 
     List<String> out = new ArrayList<>();
@@ -1356,23 +1692,12 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // Prefer JsonPath when the expression is JsonPath or the request type is JSON. Request
       // Content-Type (e.g. FORM URLENCODED) does not dictate the response payload format.
       if (shouldParseResponseAsJson(appType, jsonOrXPathExpr)) {
-        Object raw =
-            JsonPath.using(JSON_PATH_CONFIGURATION).parse(NVL(body, "{}")).read(jsonOrXPathExpr);
+        Object raw = page.json().read(jsonOrXPathExpr);
         appendStructuredJsonPieces(out, raw);
         return out;
       }
-      if (RestMeta.APPLICATION_TYPE_XML.equals(appType)
-          || RestMeta.APPLICATION_TYPE_TEXT_XML.equals(appType)
-          || RestMeta.APPLICATION_TYPE_ATOM_XML.equals(appType)
-          || RestMeta.APPLICATION_TYPE_SVG_XML.equals(appType)
-          || RestMeta.APPLICATION_TYPE_XHTML.equals(appType)) {
-
-        DocumentBuilderFactory df = documentBuilderFactory();
-        DocumentBuilder db = df.newDocumentBuilder();
-        Document doc;
-        try (StringReader sr = new StringReader(NVL(body, ""))) {
-          doc = db.parse(new InputSource(sr));
-        }
+      if (isXmlApplicationType(appType)) {
+        Document doc = page.xml();
         XPathFactory xpf = XPathFactory.newInstance();
         XPath xp = xpf.newXPath();
         XPathExpression expr = xp.compile(jsonOrXPathExpr);
@@ -1440,7 +1765,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
   }
 
-  private java.util.Optional<String> extractCursorForNext(RestConnection conn, String body) {
+  private java.util.Optional<String> extractCursorForNext(RestConnection conn, ParsedBody page) {
     if (conn == null) {
       return java.util.Optional.empty();
     }
@@ -1449,10 +1774,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String cursorJsonPath = conn.getCursorJsonPath();
       if (shouldParseResponseAsJson(appType, resolve(cursorJsonPath))
           && !Utils.isEmpty(cursorJsonPath)) {
-        Object raw =
-            JsonPath.using(JSON_PATH_CONFIGURATION)
-                .parse(NVL(body, "{}"))
-                .read(resolve(cursorJsonPath));
+        Object raw = page.json().read(resolve(cursorJsonPath));
         if (raw == null) {
           return java.util.Optional.empty();
         }
@@ -1467,11 +1789,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (Utils.isEmpty(conn.getCursorXPath())) {
           return java.util.Optional.empty();
         }
-        DocumentBuilderFactory df = documentBuilderFactory();
-        Document doc;
-        try (StringReader sr = new StringReader(NVL(body, ""))) {
-          doc = df.newDocumentBuilder().parse(new InputSource(sr));
-        }
+        Document doc = page.xml();
         XPathFactory xpf = XPathFactory.newInstance();
         XPathExpression expr =
             xpf.newXPath().compile(resolveSplitPathOrPagingExpression(conn.getCursorXPath()));
@@ -1485,7 +1803,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     return java.util.Optional.empty();
   }
 
-  private java.util.Optional<String> extractNextPageUrlFromBody(RestConnection conn, String body) {
+  private java.util.Optional<String> extractNextPageUrlFromBody(
+      RestConnection conn, ParsedBody page) {
     if (conn == null) {
       return java.util.Optional.empty();
     }
@@ -1494,10 +1813,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       String nextPageUrlJsonPath = conn.getNextPageUrlJsonPath();
       if (shouldParseResponseAsJson(appType, resolve(nextPageUrlJsonPath))
           && !Utils.isEmpty(nextPageUrlJsonPath)) {
-        Object raw =
-            JsonPath.using(JSON_PATH_CONFIGURATION)
-                .parse(NVL(body, "{}"))
-                .read(resolveSplitPathOrPagingExpression(nextPageUrlJsonPath));
+        Object raw = page.json().read(resolveSplitPathOrPagingExpression(nextPageUrlJsonPath));
         return normalizeNextPageUrl(raw);
       }
 
@@ -1507,11 +1823,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         if (Utils.isEmpty(conn.getNextPageUrlXPath())) {
           return java.util.Optional.empty();
         }
-        DocumentBuilderFactory df = documentBuilderFactory();
-        Document doc;
-        try (StringReader sr = new StringReader(NVL(body, ""))) {
-          doc = df.newDocumentBuilder().parse(new InputSource(sr));
-        }
+        Document doc = page.xml();
         XPathFactory xpf = XPathFactory.newInstance();
         XPathExpression expr =
             xpf.newXPath().compile(resolveSplitPathOrPagingExpression(conn.getNextPageUrlXPath()));

@@ -261,6 +261,49 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "next_page_url_x_path")
   private String nextPageUrlXPath;
 
+  /**
+   * Number of the first page requested with {@link RestPaginationType#PAGE_NUMBER}, for APIs that
+   * count pages from zero. Empty means 1, which is what page-number paging has always started at. A
+   * String so it can hold a variable.
+   */
+  @HopMetadataProperty(key = "first_page_number")
+  private String firstPageNumber;
+
+  /**
+   * Query parameter that carries the page size with {@link RestPaginationType#PAGE_NUMBER}, sent
+   * with {@link #defaultLimit} as its value. A key of its own rather than {@link #limitParamName}:
+   * the editor keeps the fields of other paging types, so a page-number connection can still hold a
+   * limit parameter from an earlier offset/limit setup, and reusing it would make such a connection
+   * start sending a parameter it never sent before. Empty sends no page size.
+   */
+  @HopMetadataProperty(key = "page_size_param_name")
+  private String pageSizeParamName;
+
+  /**
+   * JsonPath to the items in a page. When set, a page where it finds nothing ends {@link
+   * RestPaginationType#PAGE_NUMBER}, {@link RestPaginationType#OFFSET_LIMIT} and {@link
+   * RestPaginationType#CURSOR} paging, also when the response body itself is not empty (an envelope
+   * such as {@code {"count":87,"list":[]}}). Empty keeps the old rule: the result split path, or
+   * else an empty body.
+   */
+  @HopMetadataProperty(key = "items_json_path")
+  private String itemsJsonPath;
+
+  /** XPath to the items in a page, the XML counterpart of {@link #itemsJsonPath}. */
+  @HopMetadataProperty(key = "items_x_path")
+  private String itemsXPath;
+
+  /**
+   * JsonPath to the total number of items the API will return, for example {@code $.count}. Paging
+   * stops once that many items were read, rather than after one more, empty, page.
+   */
+  @HopMetadataProperty(key = "total_count_json_path")
+  private String totalCountJsonPath;
+
+  /** XPath to the total number of items, the XML counterpart of {@link #totalCountJsonPath}. */
+  @HopMetadataProperty(key = "total_count_x_path")
+  private String totalCountXPath;
+
   public RestConnection(IVariables variables) {
     this.variables = variables;
   }
