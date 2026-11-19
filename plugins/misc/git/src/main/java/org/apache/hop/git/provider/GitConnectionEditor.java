@@ -203,15 +203,6 @@ public class GitConnectionEditor extends MetadataEditor<GitConnection> {
     fdPassword.right = new FormAttachment(95, 0);
     wPassword.setLayoutData(fdPassword);
 
-    Button wTest = new Button(parent, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "GitConnectionDialog.TestConnection.Label"));
-    PropsUi.setLook(wTest);
-    FormData fdTest = new FormData();
-    fdTest.top = new FormAttachment(wPassword, margin * 2);
-    fdTest.left = new FormAttachment(middle, 0);
-    wTest.setLayoutData(fdTest);
-    wTest.addListener(SWT.Selection, e -> testConnection());
-
     setWidgetsContent();
     updateProviderFields();
 
@@ -222,6 +213,14 @@ public class GitConnectionEditor extends MetadataEditor<GitConnection> {
     wToken.addModifyListener(lsMod);
     wPassword.addModifyListener(lsMod);
     resetChanged();
+  }
+
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    Button wTest = new Button(parent, SWT.PUSH);
+    wTest.setText(BaseMessages.getString(PKG, "GitConnectionDialog.TestConnection.Label"));
+    wTest.addListener(SWT.Selection, e -> testConnection());
+    return new Button[] {wTest};
   }
 
   /** Offers only the mechanisms the selected provider actually accepts. */
