@@ -112,7 +112,7 @@
                                     <artifactId>hop-client</artifactId>
                                     <version>${project.version}</version>
                                     <type>zip</type>
-                                    <includes>hop/lib/core/**,hop/lib/jdbc/**,hop/plugins/**</includes>
+                                    <includes>hop/config/**,hop/lib/core/**,hop/lib/jdbc/**,hop/plugins/**</includes>
                                     <outputDirectory>${hop-web.client.dir}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
@@ -132,6 +132,13 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <target>
+                                <!-- The client's configuration replaces the web app's reduced one:
+                                     the samples of the plugin assemblies (transforms/, actions/,
+                                     datasets/ ...) are only there. First, so the hop-config.json
+                                     rewrite below applies to the copied file. -->
+                                <copy overwrite="true" todir="${hop-web.webapp.dir}/config">
+                                    <fileset dir="${hop-web.client.dir}/hop/config"></fileset>
+                                </copy>
                                 <!-- hop-ui-rcp is the desktop UI fragment. Its GuiPlugins fail on
                                      RAP with NoClassDefFoundError for SWT-only types. -->
                                 <copy todir="${hop-web.webapp.dir}/WEB-INF/lib">
