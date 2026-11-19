@@ -105,6 +105,26 @@ public class ValueMetaBase implements IValueMeta {
   private static final String CONST_STORAGE_META = "storage-meta";
   private static final String CONST_LENGTH = "length";
   private static final String CONST_PRECISION = "precision";
+
+  // Keys of the field settings in the JSON form of the metadata (storeMetaInJson)
+  private static final String JSON_ORIGIN = "origin";
+  private static final String JSON_COMMENTS = "comments";
+  private static final String JSON_DECIMAL_SYMBOL = "decimalSymbol";
+  private static final String JSON_GROUPING_SYMBOL = "groupingSymbol";
+  private static final String JSON_CURRENCY_SYMBOL = "currencySymbol";
+  private static final String JSON_ROUNDING_TYPE = "roundingType";
+  private static final String JSON_TRIM_TYPE = "trimType";
+  private static final String JSON_DATE_FORMAT_LENIENT = "dateFormatLenient";
+  private static final String JSON_DATE_FORMAT_LOCALE = "dateFormatLocale";
+  private static final String JSON_DATE_FORMAT_TIME_ZONE = "dateFormatTimeZone";
+  private static final String JSON_LENIENT_STRING_TO_NUMBER = "lenientStringToNumber";
+  private static final String JSON_STRING_ENCODING = "stringEncoding";
+  private static final String JSON_CASE_INSENSITIVE = "caseInsensitive";
+  private static final String JSON_COLLATOR_DISABLED = "collatorDisabled";
+  private static final String JSON_COLLATOR_LOCALE = "collatorLocale";
+  private static final String JSON_COLLATOR_STRENGTH = "collatorStrength";
+  private static final String JSON_SORTED_DESCENDING = "sortedDescending";
+  private static final String JSON_OUTPUT_PADDING = "outputPaddingEnabled";
   private static final String CONST_COLLATOR_STRENGTH = "collator_strength";
   private static final String CONST_FALSE = "false";
   private static final String CONST_CANNOT_CONVERT =
@@ -339,9 +359,7 @@ public class ValueMetaBase implements IValueMeta {
     this.dateFormatTimeZone = TimeZone.getDefault();
     this.identicalFormat = true;
     this.bigNumberFormatting = true;
-    this.lenientStringToNumber =
-        convertStringToBoolean(
-            Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
+    this.lenientStringToNumber = defaultLenientStringToNumber();
     this.emptyStringAndNullAreDifferent =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
@@ -6077,6 +6095,48 @@ public class ValueMetaBase implements IValueMeta {
     jValue.put(CONST_LENGTH, getLength());
     jValue.put(CONST_PRECISION, getPrecision());
     jValue.put("conversionMask", getConversionMask());
+    // The rest of the field's settings: where it comes from and how its values are written, read
+    // and compared.
+    jValue.put(JSON_ORIGIN, getOrigin());
+    jValue.put(JSON_COMMENTS, getComments());
+    jValue.put(JSON_ROUNDING_TYPE, getRoundingType());
+    jValue.put(JSON_TRIM_TYPE, (long) getTrimType());
+    jValue.put(JSON_DATE_FORMAT_LENIENT, isDateFormatLenient());
+    jValue.put(JSON_STRING_ENCODING, getStringEncoding());
+    jValue.put(JSON_CASE_INSENSITIVE, isCaseInsensitive());
+    jValue.put(JSON_COLLATOR_DISABLED, isCollatorDisabled());
+    jValue.put(JSON_COLLATOR_STRENGTH, (long) getCollatorStrength());
+
+    // The settings below start out as the regional settings of the JVM that creates the field.
+    // JSON row metadata is read on another machine (the Beam and Spark workers), which must use
+    // its own regional settings for a field nobody configured. So only a value that differs from
+    // this JVM's default is written: one somebody set. A setting deliberately equal to this
+    // JVM's default can't be told apart and is left to the reader as well.
+    putIfNotDefault(
+        jValue, JSON_DECIMAL_SYMBOL, getDecimalSymbol(), "" + Const.getDefaultDecimalSeparator());
+    putIfNotDefault(
+        jValue,
+        JSON_GROUPING_SYMBOL,
+        getGroupingSymbol(),
+        "" + Const.getDefaultGroupingSeparator());
+    putIfNotDefault(
+        jValue, JSON_CURRENCY_SYMBOL, getCurrencySymbol(), Const.getDefaultCurrencySymbol());
+    Locale formatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    if (getDateFormatLocale() != null && !getDateFormatLocale().equals(formatLocale)) {
+      jValue.put(JSON_DATE_FORMAT_LOCALE, getDateFormatLocale().toLanguageTag());
+    }
+    if (getDateFormatTimeZone() != null
+        && !getDateFormatTimeZone().getID().equals(TimeZone.getDefault().getID())) {
+      jValue.put(JSON_DATE_FORMAT_TIME_ZONE, getDateFormatTimeZone().getID());
+    }
+    if (getCollatorLocale() != null && !getCollatorLocale().equals(formatLocale)) {
+      jValue.put(JSON_COLLATOR_LOCALE, getCollatorLocale().toLanguageTag());
+    }
+    if (isLenientStringToNumber() != defaultLenientStringToNumber()) {
+      jValue.put(JSON_LENIENT_STRING_TO_NUMBER, isLenientStringToNumber());
+    }
+    jValue.put(JSON_SORTED_DESCENDING, isSortedDescending());
+    jValue.put(JSON_OUTPUT_PADDING, isOutputPaddingEnabled());
   }
 
   @Override
@@ -6087,6 +6147,76 @@ public class ValueMetaBase implements IValueMeta {
     setPrecision((int) precision);
     String conversionMask = (String) jValue.get("conversionMask");
     setConversionMask(conversionMask);
+
+    // JSON written by older versions has none of the keys below: the defaults stay.
+    //
+    if (jValue.containsKey(JSON_ORIGIN)) {
+      setOrigin((String) jValue.get(JSON_ORIGIN));
+    }
+    if (jValue.containsKey(JSON_COMMENTS)) {
+      setComments((String) jValue.get(JSON_COMMENTS));
+    }
+    if (jValue.containsKey(JSON_DECIMAL_SYMBOL)) {
+      setDecimalSymbol((String) jValue.get(JSON_DECIMAL_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_GROUPING_SYMBOL)) {
+      setGroupingSymbol((String) jValue.get(JSON_GROUPING_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_CURRENCY_SYMBOL)) {
+      setCurrencySymbol((String) jValue.get(JSON_CURRENCY_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_ROUNDING_TYPE)) {
+      setRoundingType((String) jValue.get(JSON_ROUNDING_TYPE));
+    }
+    if (jValue.get(JSON_TRIM_TYPE) instanceof Long trim) {
+      setTrimType(trim.intValue());
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LENIENT) instanceof Boolean lenient) {
+      setDateFormatLenient(lenient);
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LOCALE) instanceof String locale) {
+      setDateFormatLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_DATE_FORMAT_TIME_ZONE) instanceof String timeZone) {
+      setDateFormatTimeZone(TimeZone.getTimeZone(timeZone));
+    }
+    if (jValue.get(JSON_LENIENT_STRING_TO_NUMBER) instanceof Boolean lenient) {
+      setLenientStringToNumber(lenient);
+    }
+    if (jValue.containsKey(JSON_STRING_ENCODING)) {
+      setStringEncoding((String) jValue.get(JSON_STRING_ENCODING));
+    }
+    if (jValue.get(JSON_CASE_INSENSITIVE) instanceof Boolean caseInsensitive) {
+      setCaseInsensitive(caseInsensitive);
+    }
+    if (jValue.get(JSON_COLLATOR_DISABLED) instanceof Boolean collatorOff) {
+      setCollatorDisabled(collatorOff);
+    }
+    // The locale creates the collator, the strength is set on it: locale first.
+    if (jValue.get(JSON_COLLATOR_LOCALE) instanceof String locale) {
+      setCollatorLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_COLLATOR_STRENGTH) instanceof Long strength) {
+      setCollatorStrength(strength.intValue());
+    }
+    if (jValue.get(JSON_SORTED_DESCENDING) instanceof Boolean descending) {
+      setSortedDescending(descending);
+    }
+    if (jValue.get(JSON_OUTPUT_PADDING) instanceof Boolean padding) {
+      setOutputPaddingEnabled(padding);
+    }
+  }
+
+  private static void putIfNotDefault(
+      JSONObject jValue, String key, String value, String jvmDefault) {
+    if (!Objects.equals(value, jvmDefault)) {
+      jValue.put(key, value);
+    }
+  }
+
+  private static boolean defaultLenientStringToNumber() {
+    return convertStringToBoolean(
+        Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
   }
 
   public static final class TrimTypeCodeConverter implements IIntCodeConverter {
