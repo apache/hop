@@ -26,13 +26,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.sharepoint.metadatatype.SharePointConnection;
 import org.apache.hop.vfs.sharepoint.metadatatype.SharePointConnection.AuthenticationType;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SharePointFileSystemTest {
+
+  /** The credentials are logged, which needs the log store. */
+  @BeforeAll
+  static void initLogging() {
+    HopLogStore.init();
+  }
 
   @Test
   void rootHasTwoFixedFolders() {
