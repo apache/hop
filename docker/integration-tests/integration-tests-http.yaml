@@ -48,6 +48,10 @@ services:
         condition: service_started
       httpsse:
         condition: service_started
+      # Waited for: the token rotation test (0057) runs first when filtered on its own, and WireMock
+      # takes a few seconds to load its mappings.
+      oauth:
+        condition: service_healthy
       # Waited for rather than just started: it is the only service a test cannot reach on its
       # own, so a request arriving before nginx is up comes back as a 503 from the proxy, which
       # reads exactly like a broken proxy configuration.
@@ -114,6 +118,22 @@ services:
     hostname: paging
     volumes:
       - ./resource/http/paging/paging.conf:/etc/nginx/nginx.conf:ro
+
+  # A stateful OAuth 2 server and API for the token rotation test (issue #9550): the API accepts the
+  # first token twice and then rejects it, and the token endpoint issues a second token only after
+  # that. nginx cannot keep that state, WireMock scenarios can. The test resets the scenario through
+  # /__admin/scenarios/reset before it runs.
+  oauth:
+    image: wiremock/wiremock:3.9.1
+    hostname: oauth
+    volumes:
+      - ./resource/http/oauth/mappings:/home/wiremock/mappings:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/__admin/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
 
   # Forward proxy for the REST/HTTP proxy tests. Two ports so one container covers both paths:
   # 3128 is open, 3129 demands Basic credentials. Squid stamps every response it serves with an

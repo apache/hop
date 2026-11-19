@@ -66,6 +66,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.net.URIBuilder;
@@ -112,6 +113,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   private RestConnection connection;
   private RestClientSettings clientSettings;
   private RestAuthenticator authenticator;
+
+  /** The Bearer 401 hint is logged once per transform copy, not once per row. */
+  private boolean unauthorizedHintLogged;
 
   private static final Configuration JSON_PATH_CONFIGURATION =
       Configuration.builder()
@@ -397,20 +401,24 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
 
-      if (!acceptHeaderProvided
-          && data.streaming
-          && data.streamingFormat == RestStreamingFormat.SSE) {
-        // An event-stream endpoint is entitled to answer something else, or nothing, when asked
-        // for application/json. The user can still override this on the Headers tab.
-        headerMap.put(CONST_ACCEPT, "text/event-stream");
-      } else if (!acceptHeaderProvided && data.mediaType != null) {
-        headerMap.put(CONST_ACCEPT, data.mediaType.getMimeType());
-      }
-
       /* The single place authentication is applied, for both the connection and the transform's
        * own credentials. It has to happen against this map rather than the invocation builder,
-       * A row that supplied its own Authorization keeps it. */
+       * A row that supplied its own Authorization keeps it. The connection's static headers are
+       * added here too, so they come after the headers set on the transform and before the
+       * transform's defaults below. */
       authenticator().applyRequestHeaders(headerMap, requestUri);
+
+      // The default Accept only goes out when neither the transform nor the connection set one:
+      // a static Accept on the connection beats this default (issue #9551).
+      if (!acceptHeaderProvided && !containsHeader(headerMap, CONST_ACCEPT)) {
+        if (data.streaming && data.streamingFormat == RestStreamingFormat.SSE) {
+          // An event-stream endpoint is entitled to answer something else, or nothing, when asked
+          // for application/json. The user can still override this on the Headers tab.
+          headerMap.put(CONST_ACCEPT, "text/event-stream");
+        } else if (data.mediaType != null) {
+          headerMap.put(CONST_ACCEPT, data.mediaType.getMimeType());
+        }
+      }
 
       if (pagingHeaderParams != null && !pagingHeaderParams.isEmpty()) {
         for (Map.Entry<String, String> e : pagingHeaderParams.entrySet()) {
@@ -481,9 +489,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           executeWithRetry(
               () -> {
                 try {
-                  return executeRequest(
-                      finalRequestUri, headerMap, finalEntity, finalContentType, rowData);
+                  return logUnauthorizedHint(
+                      executeRequest(
+                          finalRequestUri, headerMap, finalEntity, finalContentType, rowData));
                 } catch (HopException e) {
+                  if (isUnauthorizedStream(e)) {
+                    logUnauthorizedHint();
+                  }
                   throw new HopRuntimeException(e);
                 }
               });
@@ -540,6 +552,59 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           e);
     }
     // The client is not closed here: it is shared by every row and released on dispose().
+  }
+
+  /**
+   * After a 401 that Hop cannot do anything about, logs a hint once per transform copy. A rejected
+   * OAuth 2 token is renewed by the client itself (issue #9550), before the response gets here.
+   */
+  private HttpExchange logUnauthorizedHint(HttpExchange exchange) {
+    if (exchange.status() == HttpStatus.SC_UNAUTHORIZED) {
+      logUnauthorizedHint();
+    }
+    return exchange;
+  }
+
+  private void logUnauthorizedHint() {
+    // The request went out, so the authenticator that applied its credentials exists.
+    if (unauthorizedHintLogged || authenticator == null) {
+      return;
+    }
+    String hint = authenticator.unauthorizedHint();
+    if (hint != null) {
+      unauthorizedHintLogged = true;
+      logBasic(hint);
+    }
+  }
+
+  /** Whether a map of headers carries this header, matching the name case-insensitively. */
+  private static boolean containsHeader(Map<String, String> headers, String name) {
+    for (String key : headers.keySet()) {
+      if (key != null && key.equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isUnauthorizedStream(Throwable e) {
+    for (Throwable cause = e; cause != null; cause = cause.getCause()) {
+      if (cause instanceof StreamingStatusException streaming
+          && streaming.status == HttpStatus.SC_UNAUTHORIZED) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** A streaming response with a status other than 2xx; carries the status for the 401 check. */
+  private static final class StreamingStatusException extends IOException {
+    private final int status;
+
+    StreamingStatusException(int status, String message) {
+      super(message);
+      this.status = status;
+    }
   }
 
   /**
@@ -649,7 +714,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           // Nothing readable; the status alone still has to surface.
         }
       }
-      throw new IOException(
+      throw new StreamingStatusException(
+          status,
           "The streaming request failed with status "
               + status
               + (body.isBlank()
@@ -2251,7 +2317,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
   /** Overridable so tests can supply a client without reaching the network. */
   protected CloseableHttpClient createClient() throws HopException {
-    return RestClientFactory.createClient(clientSettings());
+    return RestClientFactory.createClient(clientSettings(), authenticator(), getLogChannel());
   }
 
   /** The resolved client configuration, built once per transform copy. */

@@ -1,0 +1,13 @@
+{
+  "name": "static-headers",
+  "auth_type": "No Auth",
+  "base_url": "http://${ECHO_HOSTNAME}",
+  "test_url": "http://${ECHO_HOSTNAME}/requires-user",
+  "ignoreSsl": false,
+  "headers": [
+    {
+      "name": "x-as-user-email",
+      "value": "hop@${ECHO_HOSTNAME}"
+    }
+  ]
+}
