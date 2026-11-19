@@ -42,6 +42,7 @@ import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +80,15 @@ public class GoogleSheetsOutput
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  /**
+   * Creates the HTTP transport for the Google APIs, with variables resolved in the proxy host and
+   * port.
+   */
+  private NetHttpTransport newHttpTransport() throws GeneralSecurityException, IOException {
+    return GoogleSheetsConnectionFactory.newTransport(
+        resolve(meta.getProxyHost()), resolve(meta.getProxyPort()));
+  }
+
   /** Initialize and do work where other transforms need to wait for... */
   @Override
   public boolean init() {
@@ -91,9 +101,7 @@ public class GoogleSheetsOutput
 
       // Check if file exists
       try {
-        httpTransport =
-            GoogleSheetsConnectionFactory.newTransport(
-                resolve(meta.getProxyHost()), resolve(meta.getProxyPort()));
+        httpTransport = newHttpTransport();
         jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
@@ -536,8 +544,7 @@ public class GoogleSheetsOutput
                 "Clearing range" + range + " in Spreadsheet :" + resolve(meta.getSpreadsheetKey()));
           }
           // Creating service
-          httpTransport =
-              GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          httpTransport = newHttpTransport();
           JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =
