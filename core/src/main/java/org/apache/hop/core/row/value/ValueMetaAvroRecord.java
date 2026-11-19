@@ -252,10 +252,16 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
         if (!isNull && node.isNumber()) {
           return node.floatValue();
         }
+        if (nonFiniteNumber(node) instanceof Double nonFinite) {
+          return nonFinite.floatValue();
+        }
         break;
       case DOUBLE:
         if (!isNull && node.isNumber()) {
           return node.doubleValue();
+        }
+        if (nonFiniteNumber(node) instanceof Double nonFinite) {
+          return nonFinite;
         }
         break;
       case STRING:
@@ -272,6 +278,10 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
         if (!isNull && node.isTextual()) {
           return new GenericData.Fixed(
               schema, node.textValue().getBytes(StandardCharsets.ISO_8859_1));
+        }
+        // A record's toString() writes the bytes as an array of numbers: [1, 2, 3, -6]
+        if (fixedBytes(node, schema.getFixedSize()) instanceof byte[] bytes) {
+          return new GenericData.Fixed(schema, bytes);
         }
         break;
       case ENUM:
@@ -298,7 +308,9 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
         }
         break;
       case RECORD:
-        if (!isNull && node.isObject()) {
+        // Only an object with no keys the record doesn't have: in a union of records written by
+        // toString(), a record whose fields are all optional would otherwise match any object.
+        if (!isNull && node.isObject() && onlyFieldsOf(node, schema)) {
           GenericData.Record avroRecord = new GenericData.Record(schema);
           for (Schema.Field field : schema.getFields()) {
             JsonNode value = node.get(field.name());
@@ -318,6 +330,46 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
     }
     throw new HopValueException(
         "Unable to read " + (isNull ? "null" : node.toString()) + " as Avro type " + schema);
+  }
+
+  /** NaN and the infinities, which JSON writers (toString(), Avro's encoder) write as text. */
+  private static Double nonFiniteNumber(JsonNode node) {
+    if (node == null || !node.isTextual()) {
+      return null;
+    }
+    return switch (node.textValue()) {
+      case "NaN" -> Double.NaN;
+      case "Infinity" -> Double.POSITIVE_INFINITY;
+      case "-Infinity" -> Double.NEGATIVE_INFINITY;
+      default -> null;
+    };
+  }
+
+  private static byte[] fixedBytes(JsonNode node, int size) {
+    if (node == null || !node.isArray() || node.size() != size) {
+      return null;
+    }
+    byte[] bytes = new byte[size];
+    for (int i = 0; i < size; i++) {
+      JsonNode element = node.get(i);
+      if (!element.isIntegralNumber()
+          || !element.canConvertToInt()
+          || element.intValue() < Byte.MIN_VALUE
+          || element.intValue() > Byte.MAX_VALUE) {
+        return null;
+      }
+      bytes[i] = (byte) element.intValue();
+    }
+    return bytes;
+  }
+
+  private static boolean onlyFieldsOf(JsonNode node, Schema recordSchema) {
+    for (Map.Entry<String, JsonNode> entry : node.properties()) {
+      if (recordSchema.getField(entry.getKey()) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static Object unionToAvro(JsonNode node, Schema union) throws HopValueException {

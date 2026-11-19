@@ -337,6 +337,83 @@ class ValueMetaAvroRecordTest {
     verifyGenericRecords(genericRecord, back);
   }
 
+  /**
+   * toString() doesn't say which record of a union a value is: the reader must not take a record
+   * whose fields are all optional for an object with other keys.
+   */
+  @Test
+  void aUnionOfRecordsReadsBackAsTheRightRecord() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"Outer\",\"fields\":[{\"name\":\"two\",\"type\":["
+                    + "{\"type\":\"record\",\"name\":\"A\",\"fields\":[{\"name\":\"a\","
+                    + "\"type\":[\"null\",\"string\"],\"default\":null}]},"
+                    + "{\"type\":\"record\",\"name\":\"B\",\"fields\":[{\"name\":\"b\","
+                    + "\"type\":\"string\"}]}]}]}");
+    Schema recordB = schema.getField("two").schema().getTypes().get(1);
+    GenericRecord b = new GenericData.Record(recordB);
+    b.put("b", "bee");
+    GenericRecord outer = new GenericData.Record(schema);
+    outer.put("two", b);
+
+    GenericRecord back = ValueMetaAvroRecord.convertStringToGenericRecord(outer.toString(), schema);
+
+    GenericRecord two = (GenericRecord) back.get("two");
+    assertEquals("B", two.getSchema().getName());
+    assertEquals("bee", two.get("b").toString());
+  }
+
+  /** A fixed value, as toString() writes it ([1, 2, 3, -6]) and as Avro's JSON encoding does. */
+  @Test
+  void aFixedValueReadsBackFromBothTexts() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"R\",\"fields\":[{\"name\":\"hash\",\"type\":"
+                    + "{\"type\":\"fixed\",\"name\":\"Hash\",\"size\":4}}]}");
+    GenericRecord original = new GenericData.Record(schema);
+    original.put(
+        "hash", new GenericData.Fixed(schema.getField("hash").schema(), new byte[] {1, 2, 3, -6}));
+
+    GenericRecord fromPlain =
+        ValueMetaAvroRecord.convertStringToGenericRecord(original.toString(), schema);
+    GenericRecord fromEncoded =
+        ValueMetaAvroRecord.convertStringToGenericRecord(
+            ValueMetaAvroRecord.convertGenericRecordToString(original));
+
+    assertEquals(original, fromPlain);
+    assertEquals(original, fromEncoded);
+  }
+
+  /** NaN and the infinities are written as text by toString() and by Avro's JSON encoding. */
+  @Test
+  void nanAndInfinityReadBackFromBothTexts() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"R\",\"fields\":["
+                    + "{\"name\":\"d\",\"type\":\"double\"},"
+                    + "{\"name\":\"f\",\"type\":\"float\"},"
+                    + "{\"name\":\"n\",\"type\":[\"null\",\"double\"]}]}");
+    GenericRecord original = new GenericData.Record(schema);
+    original.put("d", Double.NaN);
+    original.put("f", Float.NEGATIVE_INFINITY);
+    original.put("n", Double.POSITIVE_INFINITY);
+
+    GenericRecord fromPlain =
+        ValueMetaAvroRecord.convertStringToGenericRecord(original.toString(), schema);
+    GenericRecord fromEncoded =
+        ValueMetaAvroRecord.convertStringToGenericRecord(
+            ValueMetaAvroRecord.convertGenericRecordToString(original));
+
+    for (GenericRecord back : new GenericRecord[] {fromPlain, fromEncoded}) {
+      assertTrue(Double.isNaN((Double) back.get("d")));
+      assertEquals(Float.NEGATIVE_INFINITY, back.get("f"));
+      assertEquals(Double.POSITIVE_INFINITY, back.get("n"));
+    }
+  }
+
   /** Text file input, CSV input and the like read an Avro record field this way. */
   @Test
   void aRecordIsReadFromText() throws Exception {
