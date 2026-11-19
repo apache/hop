@@ -1,0 +1,28 @@
+{
+  "sink": {
+    "datahub": {
+      "dataCatalog": "datahub-stub",
+      "platformInstance": "it-lineage-sinks",
+      "datasetSchema": "MISSING",
+      "lifecycle": false,
+      "actor": "",
+      "sqlParse": true,
+      "spoolDirectory": "",
+      "spoolMaxBytes": "",
+      "bufferSize": "",
+      "overflowPolicy": "DROP",
+      "enqueueTimeoutMs": "",
+      "maxRetries": "",
+      "retryBackoffMs": "",
+      "connectTimeoutMs": "",
+      "readTimeoutMs": "",
+      "shutdownDrainMs": "",
+      "metricsIntervalMs": "",
+      "trustStorePath": "",
+      "trustStorePassword": "",
+      "keyStoreType": ""
+    }
+  },
+  "name": "datahub-stub",
+  "description": "DataHub at the stand-in, as the data catalog datahub-stub describes it"
+}

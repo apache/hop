@@ -41,7 +41,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageRelationalIoEmitter;
-import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -183,7 +183,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
    */
   @VisibleForTesting
   void recordDynamicLineageTarget(String tableName) {
-    if (Utils.isEmpty(tableName) || !LineageHub.getInstance().isEnabled()) {
+    if (Utils.isEmpty(tableName) || !LineageSinkRoutes.isEnabled(this)) {
       return;
     }
     if (data.dynamicTablesWritten.size() >= MAX_DYNAMIC_LINEAGE_TABLES) {

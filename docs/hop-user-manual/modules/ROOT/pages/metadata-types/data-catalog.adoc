@@ -27,6 +27,7 @@ The catalog stays the owner of that metadata. Hop only reads it.
 
 The xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses a Data Catalog to check datasets before a workflow goes on.
 The xref:pipeline/transforms/maskfields.adoc[Mask fields] transform can use one to mask the fields that carry a tag or glossary term, such as `PII`.
+The xref:hop-gui/perspective-ai-advisor.adoc#data-catalog-context[AI Assistant] can include what a Data Catalog says about the tables and files of a pipeline (descriptions, owners, tags, glossary terms, deprecation) in its questions.
 
 This metadata type is experimental: its options and what the catalog types can answer may still change.
 
@@ -97,6 +98,12 @@ Use the same one as the DataHub lineage sink (`HOP_LINEAGE_DATAHUB_ENV`), or a t
 |Trust store, Trust store password, Trust store type
 |A trust store with the certificate of a DataHub whose certificate Java doesn't trust, its password and its type (`PKCS12` or `JKS`).
 |`PKCS12`
+
+|Database platform instances
+|A relational connection and the `platform_instance` of the DataHub ingestion source that reads its database server.
+The tables on that server are then the datasets `<instance>.<database>.<schema>.<table>`, as DataHub names them; see xref:technology/datahub/index.adoc#_database_platform_instances[Database platform instances].
+A DataHub lineage sink that uses this catalog names them the same way.
+|
 |===
 
 Every option takes variables, for example `'${DATAHUB_URL}'` and `'${DATAHUB_TOKEN}'`.

@@ -21,13 +21,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variable;
 import org.apache.hop.core.variables.VariableScope;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.openlineage.OpenLineageSinkConfig;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
 /**
  * Configuration of the DataHub sink, read from {@code HOP_LINEAGE_DATAHUB_*} variables.
@@ -75,6 +78,19 @@ public final class DataHubSinkConfig {
 
   @Variable(
       scope = VariableScope.ENGINE,
+      value = "",
+      description =
+          "Optional DataHub platform instances of database servers, as"
+              + " '<namespace>=<instance>' pairs separated by commas, e.g."
+              + " 'postgres://db.example.com:5432=warehouse'. The tables of such a server are"
+              + " named '<instance>.<database>.<schema>.<table>', as DataHub's SQL sources with a"
+              + " platform_instance name them. A DataHub data catalog sets this from its"
+              + " 'Database platform instances'.")
+  public static final String HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES =
+      "HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES";
+
+  @Variable(
+      scope = VariableScope.ENGINE,
       value = "missing",
       description =
           "When the DataHub lineage sink writes a dataset's schema: 'missing' (only when DataHub"
@@ -111,11 +127,22 @@ public final class DataHubSinkConfig {
    * How a dataset's {@code schemaMetadata} is written; see {@link
    * #HOP_LINEAGE_DATAHUB_DATASET_SCHEMA}.
    */
-  public enum SchemaPolicy {
+  public enum SchemaPolicy implements IEnumHasCodeAndDescription {
     /** Only when DataHub has no schema for the dataset, or the one it has was written by Hop. */
     MISSING,
     ALWAYS,
-    NEVER
+    NEVER;
+
+    @Override
+    public String getCode() {
+      return name();
+    }
+
+    @Override
+    public String getDescription() {
+      return BaseMessages.getString(
+          DataHubSinkConfig.class, "DataHubSinkConfig.SchemaPolicy." + name());
+    }
   }
 
   private static final String DATAHUB_PREFIX = "HOP_LINEAGE_DATAHUB_";
@@ -160,6 +187,10 @@ public final class DataHubSinkConfig {
   @Getter private final SchemaPolicy schemaPolicy;
   @Getter private final boolean lifecycleEnabled;
   @Getter private final String actor;
+
+  /** The platform instance of the tables of each database server, by namespace. */
+  @Getter private final Map<String, String> databaseInstances;
+
   private final IVariables source;
 
   private DataHubSinkConfig(
@@ -170,6 +201,7 @@ public final class DataHubSinkConfig {
       SchemaPolicy schemaPolicy,
       boolean lifecycleEnabled,
       String actor,
+      Map<String, String> databaseInstances,
       IVariables source) {
     this.gmsUrl = gmsUrl;
     this.token = token;
@@ -178,6 +210,7 @@ public final class DataHubSinkConfig {
     this.schemaPolicy = schemaPolicy;
     this.lifecycleEnabled = lifecycleEnabled;
     this.actor = actor;
+    this.databaseInstances = databaseInstances;
     this.source = source;
   }
 
@@ -203,12 +236,22 @@ public final class DataHubSinkConfig {
         parseBoolean(value(variables, HOP_LINEAGE_DATAHUB_LIFECYCLE), false),
         StringUtils.defaultIfBlank(
             value(variables, HOP_LINEAGE_DATAHUB_ACTOR), "urn:li:corpuser:datahub"),
+        databaseInstances(value(variables, HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES)),
         variables);
   }
 
   private static String value(IVariables variables, String name) {
     String value = variables.getVariable(name, null);
     return StringUtils.isBlank(value) ? null : value.trim();
+  }
+
+  private static Map<String, String> databaseInstances(String value) {
+    try {
+      return DataHubDatabaseInstances.parse(value);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES + ": " + e.getMessage(), e);
+    }
   }
 
   static SchemaPolicy schemaPolicy(String value) {

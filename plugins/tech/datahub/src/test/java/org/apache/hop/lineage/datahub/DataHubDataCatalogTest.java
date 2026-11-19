@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -51,6 +54,8 @@ import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DatasetRef;
 import org.apache.hop.datacatalog.IAssertionCapability.AssertionResult;
 import org.apache.hop.datacatalog.IAssertionCapability.Outcome;
+import org.apache.hop.datacatalog.IContextCapability.DatasetContext;
+import org.apache.hop.datacatalog.IContextCapability.Owner;
 import org.apache.hop.datacatalog.IDeprecationCapability.Deprecation;
 import org.apache.hop.datacatalog.ISchemaCapability.CatalogField;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -133,7 +138,8 @@ class DataHubDataCatalogTest {
     configured.setUrl("${DATAHUB_URL}");
     configured.setToken(Encr.encryptPasswordIfNotUsingVariables("my-token"));
     configured.setEnvironment("dev");
-    configured.setReadTimeoutMs("500");
+    // Short, for the slow DataHub below, and long enough for a loaded build machine
+    configured.setReadTimeoutMs("2000");
     IVariables variables = new Variables();
     variables.setVariable("DATAHUB_URL", url);
     catalog = configured.clone();
@@ -162,6 +168,36 @@ class DataHubDataCatalogTest {
 
     assertEquals(CatalogAnswer.known(new CatalogEntityId(ORDERS)), answer);
     assertEquals(ORDERS, requests.get(0).path("variables").path("urn").asText());
+  }
+
+  // With a platform instance for its server, a table is the dataset the sink writes for it too
+  @Test
+  void aTableOnAServerWithAPlatformInstanceResolvesWithIt() throws Exception {
+    String warehouseOrders =
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.sales.public.orders,DEV)";
+    answer(
+        "hopDatasetExists", "{\"dataset\":{\"urn\":\"" + warehouseOrders + "\",\"exists\":true}}");
+    DatabaseMeta sales = mock(DatabaseMeta.class);
+    when(sales.getName()).thenReturn("sales");
+    when(sales.getPluginId()).thenReturn("POSTGRESQL");
+    when(sales.getHostname()).thenReturn("db");
+    when(sales.getPort()).thenReturn("5432");
+    MemoryMetadataProvider metadata = new MemoryMetadataProvider();
+    metadata.getSerializer(DatabaseMeta.class).save(sales);
+    DataHubDataCatalog configured = new DataHubDataCatalog();
+    configured.setUrl(url());
+    configured.setEnvironment("dev");
+    configured.getDatabaseInstances().add(new DataHubDatabaseInstance("sales", "warehouse"));
+    catalog = configured.clone();
+    configured.getDatabaseInstances().get(0).setPlatformInstance("changed after the copy");
+    catalog.initialize(new Variables(), metadata);
+
+    CatalogAnswer<CatalogEntityId> answer =
+        catalog.resolve(DatasetRef.of("postgres://db:5432", "sales.public.orders"));
+
+    assertEquals(CatalogAnswer.known(new CatalogEntityId(warehouseOrders)), answer);
+    assertEquals(warehouseOrders, requests.get(0).path("variables").path("urn").asText());
+    assertEquals(List.of("sales"), catalog.connectionNames(null, metadata));
   }
 
   @Test
@@ -273,6 +309,51 @@ class DataHubDataCatalogTest {
   }
 
   @Test
+  void theContextHasTheDescriptionOwnersTagsAndTerms() throws Exception {
+    answer(
+        "hopDatasetContext",
+        "{\"dataset\":{\"exists\":true,"
+            + "\"properties\":{\"description\":\"From ingestion\"},"
+            + "\"editableProperties\":{\"description\":\"All orders, one row per line\"},"
+            + "\"ownership\":{\"owners\":["
+            + "{\"type\":\"TECHNICAL_OWNER\",\"ownershipType\":{\"info\":{\"name\":\"Technical Owner\"}},"
+            + "\"owner\":{\"username\":\"jdoe\",\"properties\":{\"displayName\":\"Jane Doe\"}}},"
+            + "{\"type\":\"DATAOWNER\",\"ownershipType\":null,"
+            + "\"owner\":{\"name\":\"sales-team\",\"properties\":null}}]},"
+            + "\"tags\":{\"tags\":[{\"tag\":{\"name\":\"PII\",\"properties\":{\"name\":\"PII\"}}}]},"
+            + "\"glossaryTerms\":{\"terms\":[{\"term\":{\"name\":\"a1b2\","
+            + "\"properties\":{\"name\":\"Order\"}}}]}}}");
+
+    CatalogAnswer<DatasetContext> answer = connect(url()).context(new CatalogEntityId(ORDERS));
+
+    assertEquals(
+        CatalogAnswer.known(
+            new DatasetContext(
+                "All orders, one row per line",
+                List.of(
+                    new Owner("Jane Doe", "Technical Owner"), new Owner("sales-team", "DATAOWNER")),
+                List.of("PII"),
+                List.of("Order"))),
+        answer);
+    assertEquals(ORDERS, requests.get(0).path("variables").path("urn").asText());
+  }
+
+  @Test
+  void aDatasetWithoutContextHasAnEmptyOne() throws Exception {
+    answer(
+        "hopDatasetContext",
+        "{\"dataset\":{\"exists\":true,\"properties\":null,\"editableProperties\":null,"
+            + "\"ownership\":null,\"tags\":null,\"glossaryTerms\":null}}");
+
+    assertEquals(
+        CatalogAnswer.known(new DatasetContext(null, List.of(), List.of(), List.of())),
+        connect(url()).context(new CatalogEntityId(ORDERS)));
+
+    answer("hopDatasetContext", "{\"dataset\":null}");
+    assertInstanceOf(CatalogAnswer.NotFound.class, catalog.context(new CatalogEntityId(ORDERS)));
+  }
+
+  @Test
   void theLastUpdateIsTheNewestOperation() throws Exception {
     answer(
         "hopDatasetOperations",
@@ -360,7 +441,7 @@ class DataHubDataCatalogTest {
 
   @Test
   void aSlowDataHubTimesOut() throws Exception {
-    answers.put("appConfig", new Answer(200, "{\"data\":{}}", 3000));
+    answers.put("appConfig", new Answer(200, "{\"data\":{}}", 5000));
 
     assertEquals(Reason.TIMEOUT, reasonOf(connect(url()).ping()));
   }

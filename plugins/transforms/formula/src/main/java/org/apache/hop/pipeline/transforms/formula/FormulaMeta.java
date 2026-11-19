@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.api.IDeclaresTransformLogic;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -43,7 +44,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/formula.html")
 @Getter
 @Setter
-public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
+public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData>
+    implements IDeclaresTransformLogic {
 
   /** The formula calculations to be performed */
   @HopMetadataProperty(
@@ -114,5 +116,21 @@ public class FormulaMeta extends BaseTransformMeta<Formula, FormulaData> {
         row.setValueMeta(index, v); // replace it
       }
     }
+  }
+
+  /** Each formula, with the field it calculates or replaces. */
+  @Override
+  public List<FieldLogic> transformLogic(IVariables variables) {
+    List<FieldLogic> logic = new ArrayList<>();
+    for (FormulaMetaFunction formula : formulas) {
+      String field =
+          Utils.isEmpty(formula.getReplaceField())
+              ? formula.getFieldName()
+              : formula.getReplaceField();
+      if (!Utils.isEmpty(field) && !Utils.isEmpty(formula.getFormula())) {
+        logic.add(new FieldLogic(field, "formula", formula.getFormula()));
+      }
+    }
+    return logic;
   }
 }

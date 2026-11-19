@@ -1,0 +1,15 @@
+{
+  "base_filename": "lineage-sinks-golden.csv",
+  "name": "lineage-sinks-golden",
+  "description": "Two rows of Ann",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "customer"
+    }
+  ]
+}

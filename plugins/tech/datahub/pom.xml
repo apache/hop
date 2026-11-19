@@ -43,6 +43,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- What hop doc writes for a pipeline or workflow, published as DataHub documents. At
+             runtime it comes from the documentation plugin folder (see dependencies.xml). -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-documentation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- The mapping, queue and spool this sink extends. At runtime they come from the
              openlineage plugin folder (see dependencies.xml), so nothing is bundled twice. -->
         <dependency>
@@ -61,8 +68,9 @@
 
     <build>
         <plugins>
-            <!-- Every jar this plugin needs is in the openlineage plugin folder, which
-                 dependencies.xml adds to its class path: stage no lib/ folder of its own. -->
+            <!-- Every jar this plugin needs is in the openlineage and documentation plugin
+                 folders, which dependencies.xml adds to its class path: stage no lib/ folder of
+                 its own. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>

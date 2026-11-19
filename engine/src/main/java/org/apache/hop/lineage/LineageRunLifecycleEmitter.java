@@ -91,7 +91,7 @@ public final class LineageRunLifecycleEmitter {
   /** The description the subject's metadata gives it (pipeline, workflow, transform, action). */
   public static final String ATTR_DESCRIPTION = "description";
 
-  private static void fillDescription(LineageContext.Builder ctx, String description) {
+  static void fillDescription(LineageContext.Builder ctx, String description) {
     if (!Utils.isEmpty(description)) {
       ctx.putAttribute(ATTR_DESCRIPTION, description);
     }
@@ -238,7 +238,7 @@ public final class LineageRunLifecycleEmitter {
     ctx.putAttribute(ATTR_PARENT_FILENAME, Utils.isEmpty(portable) ? filename : portable);
   }
 
-  private static void fillFilenameFields(
+  static void fillFilenameFields(
       LineageContext.Builder ctx, String filename, IVariables variables) {
     ctx.hopFilename(filename);
     ctx.hopFilenamePortableKey(LineagePortableFilename.portableKey(filename, variables));
@@ -266,7 +266,8 @@ public final class LineageRunLifecycleEmitter {
             .logChannelId(transform.getLogChannel().getLogChannelId())
             .transformName(transform.getTransformName())
             .copyNr(String.valueOf(transform.getCopy()))
-            .pipelineName(pipelineName);
+            .pipelineName(pipelineName)
+            .sinks(LineageSinkRoutes.of(pipeline));
     fillFilenameFields(ctx, filename, filenameVars);
     if (pipeline != null) {
       ctx.putAttribute("pipelineLogChannelId", pipeline.getLogChannelId());
@@ -308,7 +309,8 @@ public final class LineageRunLifecycleEmitter {
                     ? actionLogChannelId
                     : workflow.getLogChannelId())
             .workflowName(workflowName)
-            .actionName(action.getName());
+            .actionName(action.getName())
+            .sinks(LineageSinkRoutes.of(workflow));
     if (!Utils.isEmpty(filename)) {
       fillFilenameFields(ctx, filename, workflow);
     }
@@ -347,7 +349,8 @@ public final class LineageRunLifecycleEmitter {
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)
             .logChannelId(pipeline.getLogChannelId())
-            .pipelineName(name);
+            .pipelineName(name)
+            .sinks(LineageSinkRoutes.of(pipeline));
     fillFilenameFields(ctx, filename, pipeline);
     String pluginId = pipeline.getPluginId();
     if (!Utils.isEmpty(pluginId)) {
@@ -426,7 +429,8 @@ public final class LineageRunLifecycleEmitter {
         LineageContext.builder()
             .subjectType(LineageSubjectType.WORKFLOW)
             .logChannelId(workflow.getLogChannelId())
-            .workflowName(name);
+            .workflowName(name)
+            .sinks(LineageSinkRoutes.of(workflow));
     fillFilenameFields(ctx, filename, workflow);
     fillWorkflowParentFields(ctx, workflow);
     if (meta != null) {
@@ -512,6 +516,11 @@ public final class LineageRunLifecycleEmitter {
     }
     ITransform transform = combi.transform;
     ctx.putAttribute("transformErrors", String.valueOf(transform.getErrors()));
+    // Once per transform run, and only when someone receives it: DataHub reads the logic from the
+    // start of a run, and OpenLineage merges the job facets of a run's events.
+    if (phase == RunLifecyclePhase.STARTED && LineageSinkRoutes.isEnabled(transform)) {
+      LineageTransformLogic.put(ctx, combi.transformMeta, transform);
+    }
     if (phase == RunLifecyclePhase.FINISHED || phase == RunLifecyclePhase.FAILED) {
       ctx.putAttribute(OUTCOME, phase == RunLifecyclePhase.FAILED ? FAILED : SUCCESS);
       LineageRowCounts.putTransformCounts(ctx, transform);
@@ -591,7 +600,8 @@ public final class LineageRunLifecycleEmitter {
             .subjectType(LineageSubjectType.ACTION)
             .logChannelId(extension.actionLogChannelId)
             .workflowName(workflowName)
-            .actionName(actionName);
+            .actionName(actionName)
+            .sinks(LineageSinkRoutes.of(wf));
     fillFilenameFields(ctx, filename, wf);
 
     ctx.putAttribute("workflowLogChannelId", wf.getLogChannelId());

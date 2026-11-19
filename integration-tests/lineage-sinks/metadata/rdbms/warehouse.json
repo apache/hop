@@ -1,0 +1,27 @@
+{
+  "rdbms": {
+    "POSTGRESQL": {
+      "databaseName": "sales",
+      "pluginId": "POSTGRESQL",
+      "accessType": 0,
+      "hostname": "warehouse.example.com",
+      "password": "",
+      "port": "5432",
+      "pluginName": "PostgreSQL",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "hop"
+    }
+  },
+  "name": "warehouse",
+  "description": "Never connected to: the published pipeline loads a table on it, with the platform instance the datahub-stub catalog gives it"
+}

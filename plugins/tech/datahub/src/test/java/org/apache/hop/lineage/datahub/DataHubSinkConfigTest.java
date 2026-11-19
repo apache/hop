@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
@@ -86,6 +87,28 @@ class DataHubSinkConfigTest {
 
     variables.setVariable(DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATASET_SCHEMA, "sometimes");
     assertThrows(IllegalArgumentException.class, () -> DataHubSinkConfig.fromVariables(variables));
+  }
+
+  @Test
+  void readsThePlatformInstancesOfDatabaseServers() {
+    Variables variables = variables("http://localhost:8080");
+    assertTrue(DataHubSinkConfig.fromVariables(variables).getDatabaseInstances().isEmpty());
+
+    variables.setVariable(
+        DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES,
+        "postgres://db:5432=warehouse, mysql://crm:3306=crm");
+    assertEquals(
+        Map.of("postgres://db:5432", "warehouse", "mysql://crm:3306", "crm"),
+        DataHubSinkConfig.fromVariables(variables).getDatabaseInstances());
+
+    variables.setVariable(
+        DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES, "postgres://db:5432");
+    IllegalArgumentException e =
+        assertThrows(
+            IllegalArgumentException.class, () -> DataHubSinkConfig.fromVariables(variables));
+    assertTrue(
+        e.getMessage().startsWith(DataHubSinkConfig.HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES),
+        e.getMessage());
   }
 
   // The delivery settings shared with the OpenLineage sink pass through; the mapping is fixed.

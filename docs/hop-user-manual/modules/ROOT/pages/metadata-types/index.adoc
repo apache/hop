@@ -55,6 +55,7 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/hdfs-connection.adoc[HDFS Connection]: Named HDFS access via HttpFS, Knox or WebHDFS (no Hadoop client JARs)
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
+* xref:metadata-types/lineage-sink.adoc[Lineage Sink]: A place, such as an OpenLineage collector or DataHub, that runs report their lineage to
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection
 * xref:metadata-types/masking-pattern.adoc[Masking Pattern]: A reusable rule for replacing personal data in a field
 * xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]: Connect to one or more S3 endpoints using a Minio client

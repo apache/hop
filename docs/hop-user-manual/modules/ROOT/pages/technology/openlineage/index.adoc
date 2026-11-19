@@ -33,6 +33,9 @@ and, with a spool configured, survives a collector outage or a restart — see <
 
 == Enabling the sink
 
+The simplest way is a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type OpenLineage, selected in a pipeline or workflow run configuration: the runs of that configuration report their lineage to it, with the options of the sink, and no variables are needed.
+
+The sink can also be configured with variables, for every run of a Hop process.
 The lineage hub is disabled by default. Enable it and select the OpenLineage sink with these
 **engine-scoped** variables (see xref:{page-component-version}@dev-manual::lineage.adoc[the lineage hub] for the hub-wide
 variables):
@@ -142,6 +145,11 @@ what its job is: a `jobType` facet (`PIPELINE`, `WORKFLOW`, `TRANSFORM` or `ACTI
 job facet with the subject type and the pipeline, workflow, transform or action name and file name.
 A job name such as `nightly/Load orders` cannot be split back reliably, so a collector that models
 pipelines and transforms separately reads those names from the facet.
+
+A transform that ran exactly one SQL statement (Table Input, Execute SQL) has it in the standard
+`sql` job facet. A Formula or Calculator lists the expressions it calculates its fields with in a
+`hopTransformLogic` job facet: `fields`, each with its `field`, its `language` (`formula` or
+`calculator`) and its `expression`, such as `[price] * [qty]` or `MULTIPLY(total, rate)`.
 
 === Row counts
 
@@ -301,6 +309,12 @@ dataset it receives with one environment, whichever engine sent it, which is wha
 dataset and a Spark file dataset join up. Two environments that must not merge therefore need two
 collector deployments, not two namespaces.
 
+== Unit test results
+
+A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event with a `hopUnitTest` run facet: the test, the data set, whether it passed, `error` when the rows could not be compared at all, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them. The event belongs to the tested transform's run with `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y`, to the pipeline's run otherwise.
+
+A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy.
+
 == Dataset identity
 
 The `(namespace, name)` rules the sink uses to identify datasets — and the naming another producer
@@ -318,3 +332,4 @@ integrating a second lineage producer against the same collector.
   `columnLineage` facet — in Marquez.
 
 On startup the sink logs `OpenLineage lineage sink initialized: url=…, namespace=…`.
+*Tools* > *Lineage sinks* in Hop GUI, and the status page of a Hop Server, show what the sink sent, what waits and the last error; see xref:metadata-types/lineage-sink.adoc#_sink_health[Sink health].

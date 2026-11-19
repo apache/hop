@@ -31,10 +31,12 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.LineageTransformLogic;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.datahub.DataHubTranslator.LifecycleChange;
@@ -46,6 +48,9 @@ import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload;
 import org.apache.hop.lineage.model.PipelineGraphLineagePayload.Transition;
+import org.apache.hop.lineage.model.RelationalIoLineagePayload;
+import org.apache.hop.lineage.model.RelationalIoOperation;
+import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
@@ -591,6 +596,173 @@ class DataHubTranslatorTest {
                     hop.transform("Clean", RunLifecyclePhase.FINISHED),
                     hop.pipeline(RunLifecyclePhase.FINISHED)));
     events.forEach(e -> assertTrue(off.translate(e).lifecycle().isEmpty()));
+  }
+
+  // A run that failed may have failed before its statement ran: what the task showed stays.
+  @Test
+  void aFailedRunLeavesTheStatementATaskShows() {
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    List<Mcp> proposals =
+        all(
+            HopEvents.mapper()
+                .mapBatch(
+                    List.of(
+                        events.pipeline(RunLifecyclePhase.STARTED),
+                        lifecycle(read, RunLifecyclePhase.STARTED),
+                        lifecycle(read, RunLifecyclePhase.FAILED),
+                        events.pipeline(RunLifecyclePhase.FAILED))));
+
+    assertTrue(find(proposals, READ, "dataTransformLogic").isEmpty(), proposals.toString());
+
+    HopEvents completed = new HopEvents("orders");
+    LineageContext reads = completed.transformContext("Read");
+    List<Mcp> ran =
+        all(
+            HopEvents.mapper()
+                .mapBatch(
+                    List.of(
+                        completed.pipeline(RunLifecyclePhase.STARTED),
+                        lifecycle(reads, RunLifecyclePhase.STARTED),
+                        lifecycle(reads, RunLifecyclePhase.FINISHED),
+                        completed.pipeline(RunLifecyclePhase.FINISHED))));
+    assertEquals(
+        0,
+        one(ran, READ, "dataTransformLogic").value().get("transforms").size(),
+        "a run that completed without a statement clears it");
+  }
+
+  // The expressions a transform calculates its fields with are properties of its task. The one
+  // statement a task ran is its transformation logic, which DataHub only has for SQL.
+  @Test
+  void aTaskShowsItsExpressionsAndTheStatementItRan() {
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    LineageContext calculate =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.TRANSFORM)
+            .pipelineName("orders")
+            .transformName("Calculate")
+            .logChannelId(events.transformRunId("Calculate"))
+            .hopFilenamePortableKey(events.filename())
+            .putAttribute("pipelineLogChannelId", events.pipelineRunId())
+            .putAttribute(
+                LineageTransformLogic.ATTRIBUTE,
+                "[{\"field\":\"total\",\"language\":\"formula\",\"expression\":\"[price] * [qty]\"},"
+                    + "{\"field\":\"tax\",\"language\":\"calculator\",\"expression\":\"MULTIPLY(total, rate)\"}]")
+            .build();
+    String sql = "SELECT id, price, qty FROM sales.public.orders";
+    List<RunEvent> mapped =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    events.pipeline(RunLifecyclePhase.STARTED),
+                    events.graph("Read>Calculate"),
+                    lifecycle(read, RunLifecyclePhase.STARTED),
+                    lifecycle(calculate, RunLifecyclePhase.STARTED),
+                    event(
+                        read,
+                        LineageEventKind.RELATIONAL_IO,
+                        new RelationalIoLineagePayload(
+                            RelationalIoOperation.READ,
+                            "postgres://db:5432",
+                            List.of(new RelationalTable("sales", "public", "orders")),
+                            List.of(),
+                            sql,
+                            null,
+                            true,
+                            null)),
+                    lifecycle(read, RunLifecyclePhase.FINISHED),
+                    lifecycle(calculate, RunLifecyclePhase.FINISHED),
+                    events.pipeline(RunLifecyclePhase.FINISHED)));
+    List<Mcp> proposals = all(mapped);
+    String calculateJob = "urn:li:dataJob:(" + FLOW + ",Calculate)";
+
+    JsonNode properties =
+        one(proposals, calculateJob, "dataJobInfo").value().get("customProperties");
+    assertEquals("[price] * [qty]", properties.get("logic.total").asText());
+    assertEquals("MULTIPLY(total, rate)", properties.get("logic.tax").asText());
+    // A statement an earlier run of the task ran is not left showing
+    assertEquals(
+        0,
+        one(proposals, calculateJob, "dataTransformLogic").value().get("transforms").size(),
+        "a task that ran no single statement has none");
+
+    JsonNode statement =
+        one(proposals, READ, "dataTransformLogic")
+            .value()
+            .get("transforms")
+            .get(0)
+            .get("queryStatement");
+    assertEquals(sql, statement.get("value").asText());
+    assertEquals("SQL", statement.get("language").asText());
+    assertNull(one(proposals, READ, "dataJobInfo").value().get("customProperties").get("logic.id"));
+
+    for (RunEvent live : mapped) {
+      RunEvent replayed =
+          OpenLineageClientUtils.runEventFromJson(OpenLineageClientUtils.toJson(live));
+      assertEquals(translator.translate(live), translator.translate(replayed));
+    }
+  }
+
+  // A table on a server with a platform instance is named with it and shows under it, like the
+  // tables DataHub's SQL source with that platform_instance ingests. Other servers are unchanged.
+  @Test
+  void aTableOnAServerWithAPlatformInstanceIsNamedWithIt() {
+    DataHubTranslator withInstances =
+        new DataHubTranslator(
+            "PROD",
+            "prod",
+            null,
+            "urn:li:corpuser:datahub",
+            false,
+            Map.of("postgres://db:5432", "warehouse"));
+    HopEvents events = new HopEvents("orders");
+    LineageContext read = events.transformContext("Read");
+    List<RunEvent> mapped =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    events.pipeline(RunLifecyclePhase.STARTED),
+                    events.graph("Read>Calculate"),
+                    lifecycle(read, RunLifecyclePhase.STARTED),
+                    event(read, LineageEventKind.RELATIONAL_IO, tableRead("postgres://db:5432")),
+                    event(read, LineageEventKind.RELATIONAL_IO, tableRead("postgres://other:5432")),
+                    lifecycle(read, RunLifecyclePhase.FINISHED),
+                    events.pipeline(RunLifecyclePhase.FINISHED)));
+    List<Mcp> proposals = new ArrayList<>();
+    mapped.forEach(e -> proposals.addAll(withInstances.translate(e).proposals()));
+    String warehouse =
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.sales.public.orders,PROD)";
+    String other = "urn:li:dataset:(urn:li:dataPlatform:postgres,sales.public.orders,PROD)";
+
+    JsonNode inputs = one(proposals, READ, "dataJobInputOutput").value().get("inputDatasets");
+    assertEquals(
+        List.of(warehouse, other), List.of(inputs.get(0).asText(), inputs.get(1).asText()));
+    JsonNode instance = one(proposals, warehouse, "dataPlatformInstance").value();
+    assertEquals("urn:li:dataPlatform:postgres", instance.get("platform").asText());
+    assertEquals(
+        "urn:li:dataPlatformInstance:(urn:li:dataPlatform:postgres,warehouse)",
+        instance.get("instance").asText());
+    assertTrue(find(proposals, other, "dataPlatformInstance").isEmpty());
+    assertTrue(
+        all(mapped).stream()
+            .noneMatch(
+                m ->
+                    m.aspectName().equals("dataPlatformInstance")
+                        && m.entityType().equals("dataset")));
+  }
+
+  private static RelationalIoLineagePayload tableRead(String namespace) {
+    return new RelationalIoLineagePayload(
+        RelationalIoOperation.READ,
+        namespace,
+        List.of(new RelationalTable("sales", "public", "orders")),
+        List.of(),
+        null,
+        null,
+        true,
+        null);
   }
 
   // An event replayed from the spool by a later process is translated exactly like a live one.

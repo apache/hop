@@ -39,6 +39,11 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.IDeclaresLineage;
+import org.apache.hop.lineage.model.FileIoContentSchema;
+import org.apache.hop.lineage.model.FileIoOperation;
+import org.apache.hop.lineage.model.FileIoPathSyntax;
+import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -59,7 +64,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/textfileoutput.html")
 @Getter
 @Setter
-public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFileOutputData> {
+public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFileOutputData>
+    implements IDeclaresLineage {
 
   private static final Class<?> PKG = TextFileOutputMeta.class;
 
@@ -681,6 +687,89 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
             showSamples)
       };
     }
+  }
+
+  /**
+   * The layout of the file this transform writes: the output fields when some are listed, the whole
+   * row otherwise.
+   *
+   * @param outputRowMeta the row the transform writes; null or empty when it is not known, then
+   *     only listed fields give a layout, with the types they are listed with
+   */
+  public FileIoContentSchema writtenContentSchema(IRowMeta outputRowMeta) {
+    List<FileIoTabularColumn> cols = new ArrayList<>();
+    if (outputFields != null && !outputFields.isEmpty()) {
+      for (TextFileField f : outputFields) {
+        String typeDesc = f.getTypeDesc();
+        if (outputRowMeta != null) {
+          IValueMeta v = outputRowMeta.searchValueMeta(f.getName());
+          if (v != null) {
+            typeDesc = v.getTypeDesc();
+          }
+        }
+        cols.add(
+            new FileIoTabularColumn(
+                f.getName(),
+                typeDesc,
+                f.getLength(),
+                f.getPrecision(),
+                null,
+                FileIoPathSyntax.NONE,
+                false));
+      }
+    } else if (outputRowMeta != null) {
+      for (int i = 0; i < outputRowMeta.size(); i++) {
+        IValueMeta v = outputRowMeta.getValueMeta(i);
+        cols.add(
+            new FileIoTabularColumn(
+                v.getName(),
+                v.getTypeDesc(),
+                v.getLength(),
+                v.getPrecision(),
+                null,
+                FileIoPathSyntax.DELIMITED,
+                false));
+      }
+    }
+    if (cols.isEmpty()) {
+      return null;
+    }
+    return new FileIoContentSchema("delimited", cols, List.of());
+  }
+
+  /**
+   * The file a run writes first, with its layout; none when the name comes from a field, or holds
+   * the date or time of the run or the partition, so no publication names a file no run writes.
+   */
+  @Override
+  public List<IDeclaresLineage.Declaration> declaredLineage(
+      IVariables variables, IRowMeta inputRowMeta) {
+    boolean dated =
+        (fileSettings.isSpecifyingFormat() && !Utils.isEmpty(fileSettings.getDateTimeFormat()))
+            || (!fileSettings.isSpecifyingFormat()
+                && (fileSettings.isDateInFilename() || fileSettings.isTimeInFilename()));
+    if (fileNameInField
+        || Utils.isEmpty(fileSettings.fileName)
+        || dated
+        || fileSettings.isPartNrInFilename()) {
+      return List.of();
+    }
+    String filename =
+        buildFilename(
+            fileSettings.fileName,
+            fileSettings.extension,
+            variables,
+            0,
+            null,
+            0,
+            false,
+            null,
+            0,
+            false,
+            this);
+    return List.of(
+        new IDeclaresLineage.DeclaredFile(
+            FileIoOperation.WRITE, filename, writtenContentSchema(inputRowMeta)));
   }
 
   protected String getPartPrefix() {

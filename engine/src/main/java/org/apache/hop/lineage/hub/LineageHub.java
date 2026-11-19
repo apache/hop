@@ -18,8 +18,13 @@
 package org.apache.hop.lineage.hub;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,10 +43,12 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.lineage.LineageVariables;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.plugin.LineageSinkPluginType;
 import org.apache.hop.lineage.spi.ILineageSink;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 
 /**
  * Central async hub for lineage events. When lineage is disabled (see {@link
@@ -49,7 +56,7 @@ import org.apache.hop.lineage.spi.ILineageSink;
  */
 public final class LineageHub {
 
-  private static final LineageHub INSTANCE = new LineageHub(null, null);
+  private static final LineageHub INSTANCE = new LineageHub(null, null, null);
 
   private final ILogChannel log = new LogChannel("LineageHub");
 
@@ -98,9 +105,65 @@ public final class LineageHub {
    */
   private final Set<CountDownLatch> exitHolds = ConcurrentHashMap.newKeySet();
 
-  private LineageHub(LineageConfiguration fixedConfiguration, List<ILineageSink> explicitSinks) {
+  /**
+   * The lineage sinks defined in metadata that runs selected, by {@link LineageSinkTarget#key()}.
+   * Only settings: they are kept for the life of the JVM, so a run that started before a shutdown
+   * still reaches its sinks after it.
+   */
+  private final Map<String, LineageSinkTarget> targets = new ConcurrentHashMap<>();
+
+  /** The sinks started for {@link #targets}, by key, on the first event for each. */
+  private final Map<String, ILineageSink> routedSinks = new ConcurrentHashMap<>();
+
+  /**
+   * The targets whose sink failed to start, with when and why. Their events are dropped until the
+   * sink is tried again, {@link #RETRY_FAILED_SINK_MS} later.
+   */
+  private final Map<String, Failure> failedTargets = new ConcurrentHashMap<>();
+
+  /**
+   * How many runs hold each target (see {@link #useSink} and {@link #hold}). A target no run holds
+   * whose name a newer target took is retired. Guarded by {@code routedSinks}.
+   */
+  private final Map<String, Integer> holds = new HashMap<>();
+
+  /** The key of the most recent target of each sink name. */
+  private final Map<String, String> latestKeys = new ConcurrentHashMap<>();
+
+  /** How long a sink that failed to start is left alone before it is tried again. */
+  static final long RETRY_FAILED_SINK_MS = 60_000L;
+
+  /** {@link #RETRY_FAILED_SINK_MS}, shorter in tests. */
+  long retryFailedSinkMs = RETRY_FAILED_SINK_MS;
+
+  private record Failure(long timeMillis, String message) {}
+
+  /** Releases the holds of a run that ended, in the queue after the run's last event. */
+  private record ReleaseRequest(Set<String> keys) {}
+
+  /** The plugin id of each sink configured with variables, for the status page. */
+  private final Map<ILineageSink, String> sinkIds =
+      Collections.synchronizedMap(new IdentityHashMap<>());
+
+  /** Why the sinks configured with variables failed to initialize, or null. */
+  private volatile String sinkInitError;
+
+  /** Creates the sink of a target: from the plugin registry, or a stand-in in tests. */
+  private final SinkFactory sinkFactory;
+
+  /** Creates the sink of a {@link LineageSinkTarget}, not yet initialized. */
+  @FunctionalInterface
+  public interface SinkFactory {
+    ILineageSink create(LineageSinkTarget target) throws HopException;
+  }
+
+  private LineageHub(
+      LineageConfiguration fixedConfiguration,
+      List<ILineageSink> explicitSinks,
+      SinkFactory sinkFactory) {
     this.fixedConfiguration = fixedConfiguration;
     this.explicitSinks = explicitSinks;
+    this.sinkFactory = sinkFactory != null ? sinkFactory : LineageHub::loadSink;
   }
 
   public static LineageHub getInstance() {
@@ -113,9 +176,206 @@ public final class LineageHub {
    * @param configuration hub tuning
    * @param sinks sinks to invoke (may be empty)
    */
-  static LineageHub newIsolatedForTesting(
+  public static LineageHub newIsolatedForTesting(
       LineageConfiguration configuration, List<ILineageSink> sinks) {
-    return new LineageHub(configuration, new ArrayList<>(sinks));
+    return new LineageHub(configuration, new ArrayList<>(sinks), null);
+  }
+
+  /**
+   * Isolated hub for unit tests that also starts the sinks runs select, with {@code sinkFactory}
+   * instead of the plugin registry.
+   */
+  public static LineageHub newIsolatedForTesting(
+      LineageConfiguration configuration, List<ILineageSink> sinks, SinkFactory sinkFactory) {
+    return new LineageHub(configuration, new ArrayList<>(sinks), sinkFactory);
+  }
+
+  /**
+   * Makes a lineage sink defined in metadata available to the events that carry the key this
+   * returns (see the {@code sinks} of {@link org.apache.hop.lineage.context.LineageContext}). The
+   * sink starts when the first of them is delivered.
+   */
+  public String useSink(LineageSinkTarget target) {
+    String key = target.key();
+    List<ILineageSink> retired = new ArrayList<>();
+    synchronized (routedSinks) {
+      targets.putIfAbsent(key, target);
+      String replaced = latestKeys.put(target.name(), key);
+      holds.merge(key, 1, Integer::sum);
+      // A version no run holds any more, say from before an edit between two runs: none of its
+      // events are waiting, since a run lets go of its sinks after its last event.
+      if (replaced != null && !replaced.equals(key) && !holds.containsKey(replaced)) {
+        retire(replaced, retired);
+      }
+    }
+    shutdownInBackground(retired);
+    return key;
+  }
+
+  /**
+   * Keeps the sinks of these keys for a run that reports to them, such as the sinks of the run that
+   * started it. {@link #useSink} holds the sink it returns. Undo with {@link #release} when the run
+   * ends.
+   */
+  public void hold(Set<String> keys) {
+    synchronized (routedSinks) {
+      for (String key : keys) {
+        holds.merge(key, 1, Integer::sum);
+      }
+    }
+  }
+
+  /**
+   * Lets go of the sinks a run held, once the events it emitted so far are delivered. A sink that
+   * no run holds any more, and that a newer version of the same lineage sink replaced, is shut
+   * down: its settings changed, say an edited URL or a new token.
+   */
+  public void release(Set<String> keys) {
+    if (keys.isEmpty()) {
+      return;
+    }
+    ReleaseRequest request = new ReleaseRequest(Set.copyOf(keys));
+    boolean interrupted = false;
+    shutdownLock.readLock().lock();
+    try {
+      BlockingQueue<Object> q = queue;
+      if (running.get() && q != null) {
+        // After the run's last events, also on an interrupted thread: let go before they are
+        // delivered, and a replaced version would be shut down with them still waiting
+        while (true) {
+          try {
+            q.put(request);
+            return;
+          } catch (InterruptedException e) {
+            interrupted = true;
+          }
+        }
+      }
+    } finally {
+      shutdownLock.readLock().unlock();
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    applyRelease(request);
+  }
+
+  /**
+   * The lineage sinks the hub delivers to, with how their delivery is going: the sinks configured
+   * with variables, and the sinks runs selected in their run configurations.
+   */
+  public List<LineageSinkStatus> sinkStatus() {
+    List<LineageSinkStatus> result = new ArrayList<>();
+    if (resolveConfig().isEnabled()) {
+      if (sinkInitError != null) {
+        result.add(
+            new LineageSinkStatus(
+                String.join(",", resolveConfig().getSinkIds()),
+                "",
+                false,
+                false,
+                null,
+                sinkInitError));
+      }
+      for (ILineageSink sink : sinksInitialized.get() ? sinks : List.<ILineageSink>of()) {
+        String id = sinkIds.getOrDefault(sink, sink.getClass().getSimpleName());
+        result.add(new LineageSinkStatus(id, pluginName(id), false, true, healthOf(sink), null));
+      }
+    }
+    List<LineageSinkTarget> known;
+    Map<String, ILineageSink> started;
+    synchronized (routedSinks) {
+      known = new ArrayList<>(targets.values());
+      started = new HashMap<>(routedSinks);
+    }
+    for (LineageSinkTarget target : known) {
+      String key = target.key();
+      ILineageSink sink = started.get(key);
+      result.add(
+          new LineageSinkStatus(
+              target.name(),
+              pluginName(target.pluginId()),
+              true,
+              sink != null,
+              sink == null ? null : healthOf(sink),
+              failure(key)));
+    }
+    return result;
+  }
+
+  /** Events waiting in the hub's queue for the sinks. */
+  public int getQueuedEventCount() {
+    BlockingQueue<Object> q = queue;
+    return q == null ? 0 : q.size();
+  }
+
+  private LineageSinkHealth healthOf(ILineageSink sink) {
+    try {
+      return sink.health();
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
+  private static String pluginName(String pluginId) {
+    IPlugin plugin =
+        PluginRegistry.getInstance().findPluginWithId(LineageSinkPluginType.class, pluginId);
+    return plugin == null ? pluginId : plugin.getName();
+  }
+
+  /** Why the sink of a key failed to start, while it waits to be tried again; null otherwise. */
+  public String failure(String key) {
+    Failure failure = failedTargets.get(key);
+    return failure == null ? null : failure.message();
+  }
+
+  private void applyRelease(ReleaseRequest request) {
+    List<ILineageSink> retired = new ArrayList<>();
+    synchronized (routedSinks) {
+      for (String key : request.keys()) {
+        Integer held = holds.computeIfPresent(key, (k, n) -> n > 1 ? n - 1 : null);
+        LineageSinkTarget target = targets.get(key);
+        if (held != null || target == null || key.equals(latestKeys.get(target.name()))) {
+          continue;
+        }
+        retire(key, retired);
+      }
+    }
+    shutdownInBackground(retired);
+  }
+
+  /** Forgets a target; its sink, when it started, is added to {@code retired}. */
+  private void retire(String key, List<ILineageSink> retired) {
+    targets.remove(key);
+    failedTargets.remove(key);
+    ILineageSink sink = routedSinks.remove(key);
+    if (sink != null) {
+      retired.add(sink);
+    }
+  }
+
+  private void shutdownInBackground(List<ILineageSink> retired) {
+    if (!retired.isEmpty()) {
+      // A shutdown waits for the sink's own queue to drain: not on the dispatcher thread.
+      Thread thread =
+          new Thread(
+              () -> {
+                for (ILineageSink sink : retired) {
+                  shutdownQuietly(sink);
+                }
+              },
+              "Hop-LineageHub-RetireSink");
+      thread.setDaemon(true);
+      thread.start();
+    }
+  }
+
+  private void shutdownQuietly(ILineageSink sink) {
+    try {
+      sink.shutdown();
+    } catch (Exception e) {
+      log.logError("Error shutting down lineage sink " + sink.getClass().getName(), e);
+    }
   }
 
   /** Invoked after {@link org.apache.hop.core.HopEnvironment} finishes plugin registration. */
@@ -123,13 +383,26 @@ public final class LineageHub {
     LineageConfiguration.invalidate();
     sinksInitialized.set(false);
     sinkInitFailed.set(false);
+    // The sinks start again on the next worker, and each run's on its next event: shut down the
+    // ones started so far, or two dispatchers would deliver the same spool.
+    List<ILineageSink> started = new ArrayList<>(sinks);
     sinks = List.of();
+    sinkIds.clear();
+    sinkInitError = null;
+    synchronized (routedSinks) {
+      started.addAll(routedSinks.values());
+      routedSinks.clear();
+      failedTargets.clear();
+    }
+    shutdownInBackground(started);
   }
 
   /**
-   * Whether lineage observation is switched on. Callers that would do measurable work purely to
-   * build an event — e.g. accumulating per-row state — should check this first; it is a cheap read
-   * of the memoized configuration.
+   * Whether lineage observation is switched on for every run, with {@code HOP_LINEAGE_ENABLED}. A
+   * run can also report to sinks selected in its run configuration: callers with a run at hand ask
+   * {@link org.apache.hop.lineage.LineageSinkRoutes#isEnabled} instead. Callers that would do
+   * measurable work purely to build an event — e.g. accumulating per-row state — should check this
+   * first; it is a cheap read of the memoized configuration.
    */
   public boolean isEnabled() {
     return resolveConfig().isEnabled();
@@ -141,7 +414,8 @@ public final class LineageHub {
    */
   public void emit(LineageEvent event) {
     LineageConfiguration cfg = resolveConfig();
-    if (!cfg.isEnabled() || sinkInitFailed.get()) {
+    boolean routed = !event.getContext().getSinks().isEmpty();
+    if (!routed && (!cfg.isEnabled() || sinkInitFailed.get())) {
       return;
     }
     shutdownLock.readLock().lock();
@@ -166,7 +440,7 @@ public final class LineageHub {
    */
   public void flush() {
     LineageConfiguration cfg = resolveConfig();
-    if (!cfg.isEnabled() || !running.get()) {
+    if ((!cfg.isEnabled() && targets.isEmpty()) || !running.get()) {
       return;
     }
     FlushRequest request = new FlushRequest();
@@ -236,6 +510,8 @@ public final class LineageHub {
       sinksInitialized.set(false);
       sinkInitFailed.set(false);
       sinks = List.of();
+      sinkIds.clear();
+      sinkInitError = null;
       LineageConfiguration.invalidate();
     } finally {
       shutdownLock.writeLock().unlock();
@@ -281,7 +557,7 @@ public final class LineageHub {
     if (q == null) {
       return;
     }
-    if (!sinksInitialized.get() || sinks.isEmpty()) {
+    if ((!sinksInitialized.get() || sinks.isEmpty()) && targets.isEmpty()) {
       q.clear();
       return;
     }
@@ -296,6 +572,12 @@ public final class LineageHub {
           batch.clear();
         }
         fr.done.countDown();
+      } else if (o instanceof ReleaseRequest release) {
+        if (!batch.isEmpty()) {
+          dispatchBatch(batch);
+          batch.clear();
+        }
+        applyRelease(release);
       } else {
         batch.add((LineageEvent) o);
         if (batch.size() >= cfg.getBatchMax()) {
@@ -375,8 +657,17 @@ public final class LineageHub {
       // A sink whose classes do not load (NoClassDefFoundError) ends up here too. It used to
       // kill this thread silently, leaving the hub "running" but dispatching nothing.
       sinkInitFailed.set(true);
+      // None of them: some may have been initialized, the one that failed may be half-way.
+      sinks = List.of();
+      sinkInitError = String.valueOf(e);
       log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
-      return;
+      // Not tried again when a routed event starts a new worker: it would fail the same way.
+      // shutdown() and environmentReady() start over.
+      sinksInitialized.set(true);
+      if (targets.isEmpty()) {
+        return;
+      }
+      // The sinks runs selected in their run configurations are started on their own.
     }
 
     while (running.get() && !Thread.currentThread().isInterrupted()) {
@@ -387,6 +678,10 @@ public final class LineageHub {
         }
         if (first instanceof FlushRequest fr) {
           processFlush(fr, cfg);
+          continue;
+        }
+        if (first instanceof ReleaseRequest release) {
+          applyRelease(release);
           continue;
         }
         List<LineageEvent> batch = new ArrayList<>();
@@ -400,6 +695,12 @@ public final class LineageHub {
             dispatchBatch(batch);
             batch.clear();
             processFlush(fr, cfg);
+            break;
+          }
+          if (o instanceof ReleaseRequest release) {
+            dispatchBatch(batch);
+            batch.clear();
+            applyRelease(release);
             break;
           }
           batch.add((LineageEvent) o);
@@ -443,6 +744,12 @@ public final class LineageHub {
           batch.clear();
         }
         nested.done.countDown();
+      } else if (o instanceof ReleaseRequest release) {
+        if (!batch.isEmpty()) {
+          dispatchBatch(batch);
+          batch.clear();
+        }
+        applyRelease(release);
       } else {
         batch.add((LineageEvent) o);
         if (batch.size() >= cfg.getBatchMax()) {
@@ -461,14 +768,92 @@ public final class LineageHub {
     if (batch.isEmpty()) {
       return;
     }
-    List<ILineageSink> active = sinks;
+    List<ILineageSink> active = sinksInitialized.get() ? sinks : List.of();
     for (ILineageSink sink : active) {
-      try {
-        sink.accept(new ArrayList<>(batch));
-      } catch (Exception e) {
-        log.logError("Lineage sink failed: " + sink.getClass().getName(), e);
+      deliver(sink, batch);
+    }
+    if (targets.isEmpty()) {
+      return;
+    }
+    Map<String, List<LineageEvent>> routed = new LinkedHashMap<>();
+    for (LineageEvent event : batch) {
+      for (String key : event.getContext().getSinks()) {
+        routed.computeIfAbsent(key, k -> new ArrayList<>()).add(event);
       }
     }
+    for (Map.Entry<String, List<LineageEvent>> entry : routed.entrySet()) {
+      ILineageSink sink = routedSink(entry.getKey());
+      if (sink != null) {
+        deliver(sink, entry.getValue());
+      }
+    }
+  }
+
+  private void deliver(ILineageSink sink, List<LineageEvent> events) {
+    try {
+      sink.accept(new ArrayList<>(events));
+    } catch (Exception e) {
+      log.logError("Lineage sink failed: " + sink.getClass().getName(), e);
+    }
+  }
+
+  /**
+   * The started sink of a target, starting it on its first event. Null when the target is unknown
+   * or its sink failed to start; that is logged, the sink is tried again a minute later, and the
+   * other sinks carry on.
+   */
+  private ILineageSink routedSink(String key) {
+    ILineageSink sink = routedSinks.get(key);
+    if (sink != null || waitsForRetry(key)) {
+      return sink;
+    }
+    synchronized (routedSinks) {
+      sink = routedSinks.get(key);
+      LineageSinkTarget target = targets.get(key);
+      if (sink != null || target == null || waitsForRetry(key)) {
+        return sink;
+      }
+      failedTargets.remove(key);
+      try {
+        sink = sinkFactory.create(target);
+        Variables settings = new Variables();
+        target.settings().forEach(settings::setVariable);
+        sink.init(settings, log);
+        routedSinks.put(key, sink);
+        return sink;
+      } catch (Exception | LinkageError e) {
+        failedTargets.put(key, new Failure(System.currentTimeMillis(), String.valueOf(e)));
+        if (sink != null) {
+          // It may have started a thread or opened its spool before it failed.
+          shutdownQuietly(sink);
+        }
+        log.logError(
+            "Unable to start lineage sink '"
+                + target.name()
+                + "'; the runs that selected it don't report their lineage to it. It is tried"
+                + " again in a minute.",
+            e);
+        return null;
+      }
+    }
+  }
+
+  private boolean waitsForRetry(String key) {
+    Failure failure = failedTargets.get(key);
+    return failure != null && System.currentTimeMillis() - failure.timeMillis() < retryFailedSinkMs;
+  }
+
+  /** The sink plugin of a target, from the plugin registry. */
+  private static ILineageSink loadSink(LineageSinkTarget target) throws HopException {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    IPlugin plugin = registry.findPluginWithId(LineageSinkPluginType.class, target.pluginId());
+    if (plugin == null) {
+      throw new HopException(
+          "The lineage sink type '"
+              + target.pluginId()
+              + "' is not available: is its plugin installed?");
+    }
+    return registry.loadClass(plugin, ILineageSink.class);
   }
 
   private void initSinksIfNeeded() throws HopException {
@@ -479,54 +864,75 @@ public final class LineageHub {
       if (sinksInitialized.get()) {
         return;
       }
-      IVariables variables = LineageVariables.engineVariables();
-
-      if (explicitSinks != null) {
-        sinks = List.copyOf(explicitSinks);
-        for (ILineageSink sink : sinks) {
-          sink.init(variables, log);
-        }
+      if (!resolveConfig().isEnabled()) {
+        // Only the sinks runs selected in their run configurations: they start on their own.
+        sinks = List.of();
         sinksInitialized.set(true);
         return;
       }
+      IVariables variables = LineageVariables.engineVariables();
 
-      List<ILineageSink> loaded = new ArrayList<>();
-      LineageConfiguration cfg = resolveConfig();
-      PluginRegistry registry = PluginRegistry.getInstance();
-      for (IPlugin plugin : registry.getPlugins(LineageSinkPluginType.class)) {
-        String id = plugin.getIds()[0].toLowerCase(Locale.ROOT);
-        if (!cfg.getSinkIds().isEmpty() && !cfg.getSinkIds().contains(id)) {
-          continue;
+      // The sinks init() was called on, also the one that failed: it may have started a thread
+      // or opened its spool before it failed. Shut down when one of them fails.
+      List<ILineageSink> started = new ArrayList<>();
+      try {
+        if (explicitSinks != null) {
+          for (ILineageSink sink : explicitSinks) {
+            sinkIds.put(sink, sink.getClass().getSimpleName());
+            started.add(sink);
+            sink.init(variables, log);
+          }
+          sinks = List.copyOf(explicitSinks);
+          sinksInitialized.set(true);
+          return;
         }
-        try {
-          ILineageSink sink = registry.loadClass(plugin, ILineageSink.class);
-          sink.init(variables, log);
-          loaded.add(sink);
-        } catch (HopPluginException e) {
-          throw new HopException("Unable to load lineage sink plugin " + plugin.getName(), e);
-        } catch (LinkageError e) {
-          // A sink built on another plugin (DataHub on OpenLineage) installed without it.
-          throw new HopException(
-              "Unable to load lineage sink plugin "
-                  + plugin.getName()
-                  + ": a class it needs is missing ("
-                  + e.getMessage()
-                  + "). Check that the plugins it builds on are installed as well.",
-              e);
+
+        LineageConfiguration cfg = resolveConfig();
+        PluginRegistry registry = PluginRegistry.getInstance();
+        for (IPlugin plugin : registry.getPlugins(LineageSinkPluginType.class)) {
+          String id = plugin.getIds()[0].toLowerCase(Locale.ROOT);
+          if (!cfg.getSinkIds().isEmpty() && !cfg.getSinkIds().contains(id)) {
+            continue;
+          }
+          try {
+            ILineageSink sink = registry.loadClass(plugin, ILineageSink.class);
+            sinkIds.put(sink, plugin.getIds()[0]);
+            started.add(sink);
+            sink.init(variables, log);
+          } catch (HopPluginException e) {
+            throw new HopException("Unable to load lineage sink plugin " + plugin.getName(), e);
+          } catch (LinkageError e) {
+            // A sink built on another plugin (DataHub on OpenLineage) installed without it.
+            throw new HopException(
+                "Unable to load lineage sink plugin "
+                    + plugin.getName()
+                    + ": a class it needs is missing ("
+                    + e.getMessage()
+                    + "). Check that the plugins it builds on are installed as well.",
+                e);
+          }
         }
+        sinks = List.copyOf(started);
+        sinksInitialized.set(true);
+      } catch (HopException | RuntimeException | LinkageError e) {
+        for (ILineageSink sink : started) {
+          shutdownQuietly(sink);
+        }
+        sinkIds.clear();
+        throw e;
       }
-      sinks = List.copyOf(loaded);
-      sinksInitialized.set(true);
     }
   }
 
   private void shutdownSinks() {
-    for (ILineageSink sink : sinks) {
-      try {
-        sink.shutdown();
-      } catch (Exception e) {
-        log.logError("Error shutting down lineage sink " + sink.getClass().getName(), e);
-      }
+    List<ILineageSink> all = new ArrayList<>(sinks);
+    synchronized (routedSinks) {
+      all.addAll(routedSinks.values());
+      routedSinks.clear();
+      failedTargets.clear();
+    }
+    for (ILineageSink sink : all) {
+      shutdownQuietly(sink);
     }
   }
 

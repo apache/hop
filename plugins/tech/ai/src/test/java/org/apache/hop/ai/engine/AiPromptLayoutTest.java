@@ -131,6 +131,15 @@ class AiPromptLayoutTest {
   }
 
   @Test
+  void whatIsAddedAfterTheCheckGetsOnlyTheRoomLeft() {
+    // 4096 tokens, 1000 for the answer, 1000 for the question, 409 kept free: 1687 tokens left
+    assertEquals(
+        1687 * AiAdvisorEngine.JSON_CHARS_PER_TOKEN,
+        AiAdvisorEngine.roomLeft(4096, 1000, "", "x".repeat(4000), List.of()));
+    assertEquals(0, AiAdvisorEngine.roomLeft(4096, 1000, "", "x".repeat(40_000), List.of()));
+  }
+
+  @Test
   void outputLimitIsKeptFreeForTheAnswer() {
     // 3000 prompt tokens fit 4096 on their own, but not with 2000 reserved for the answer.
     assertThrows(

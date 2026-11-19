@@ -23,6 +23,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -44,8 +45,13 @@ public class LineageHubPipelineCompletedXp
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitPipeline(pipeline, phase, null);
+    // After its last event: the sinks it reported to can be let go of once that is delivered.
+    LineageSinkRoutes.release(pipeline);
     // A top-level run waits for delivery. A nested run only waits once the queue fills up: that
     // keeps a run per row from dropping events, without a full drain after every row.
+    if (!LineageSinkRoutes.isEnabled(pipeline)) {
+      return;
+    }
     if (LineageRunLifecycleEmitter.isTopLevel(pipeline)) {
       LineageHub.getInstance().flushQuietly();
     } else {

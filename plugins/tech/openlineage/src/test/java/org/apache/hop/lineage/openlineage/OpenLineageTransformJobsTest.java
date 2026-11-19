@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.openlineage.client.OpenLineage;
 import io.openlineage.client.OpenLineage.RunEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import org.apache.hop.lineage.LineageTransformLogic;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
@@ -383,5 +386,61 @@ class OpenLineageTransformJobsTest {
     RunEvent pipeline = eventFor(events, PIPELINE);
     assertEquals(List.of("file:/data/a.csv"), names(pipeline.getInputs()));
     assertEquals(List.of("file:/out/x.csv"), names(pipeline.getOutputs()));
+  }
+
+  // The expressions a transform calculates its fields with are a facet of its job, on its start and
+  // on its end. A transform without them has no such facet.
+  @Test
+  void aTransformsExpressionsAreAFacetOfItsJob() {
+    LineageContext calculate =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.TRANSFORM)
+            .pipelineName(PIPELINE)
+            .transformName("Calculate")
+            .logChannelId(uuid("Calculate"))
+            .putAttribute(OpenLineageEventMapper.ATTR_PIPELINE_LOG_CHANNEL_ID, PIPELINE_RUN)
+            .putAttribute(
+                LineageTransformLogic.ATTRIBUTE,
+                "[{\"field\":\"total\",\"language\":\"formula\",\"expression\":\"[price] * [qty]\"}]")
+            .build();
+    LineageContext read = transformContext("Read");
+    List<RunEvent> events =
+        mapper(true)
+            .mapBatch(
+                List.of(
+                    lifecycle(pipelineContext(), RunLifecyclePhase.STARTED, uuid("p1")),
+                    lifecycle(read, RunLifecyclePhase.STARTED, uuid("r1")),
+                    lifecycle(calculate, RunLifecyclePhase.STARTED, uuid("c1")),
+                    lifecycle(read, RunLifecyclePhase.FINISHED, uuid("r2")),
+                    lifecycle(calculate, RunLifecyclePhase.FINISHED, uuid("c2")),
+                    lifecycle(pipelineContext(), RunLifecyclePhase.FINISHED, uuid("p2"))));
+
+    int withLogic = 0;
+    for (RunEvent event : events) {
+      Object hop =
+          event
+              .getJob()
+              .getFacets()
+              .getAdditionalProperties()
+              .get(OpenLineageEventMapper.HOP_JOB_FACET)
+              .getAdditionalProperties()
+              .get("transformName");
+      OpenLineage.JobFacet logic =
+          event
+              .getJob()
+              .getFacets()
+              .getAdditionalProperties()
+              .get(OpenLineageEventMapper.HOP_TRANSFORM_LOGIC_FACET);
+      if ("Calculate".equals(hop)) {
+        assertEquals(
+            List.of(
+                Map.of("field", "total", "language", "formula", "expression", "[price] * [qty]")),
+            logic.getAdditionalProperties().get("fields"));
+        withLogic++;
+      } else {
+        assertNull(logic, "no logic for " + event.getJob().getName());
+      }
+    }
+    assertEquals(2, withLogic, "the start and the end of Calculate");
   }
 }

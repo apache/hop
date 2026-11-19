@@ -33,7 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
-import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -462,7 +462,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                 friendlyPath(targetFilename)));
       }
       // The source is gone after the move, so collect what lineage needs first
-      boolean lineageEnabled = LineageHub.getInstance().isEnabled();
+      boolean lineageEnabled = LineageSinkRoutes.isEnabled(this);
       String sourceUri = lineageEnabled ? vfsUriString(data.sourceFile) : null;
       String targetUri = lineageEnabled ? vfsUriString(data.targetFile) : null;
       Long lineageBytes = lineageEnabled ? nullableContentSize(data.sourceFile) : null;
@@ -509,7 +509,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       }
       return;
     }
-    boolean lineageEnabled = LineageHub.getInstance().isEnabled();
+    boolean lineageEnabled = LineageSinkRoutes.isEnabled(this);
     String sourceUri = lineageEnabled ? vfsUriString(data.sourceFile) : null;
     Long deleteBytes = lineageEnabled ? nullableContentSize(data.sourceFile) : null;
     if (!data.sourceFile.delete()) {
@@ -528,7 +528,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
   }
 
   private void emitCopyLineage() {
-    if (meta.simulate || !LineageHub.getInstance().isEnabled()) {
+    if (meta.simulate || !LineageSinkRoutes.isEnabled(this)) {
       return;
     }
     Long bytes = nullableContentSize(data.targetFile);

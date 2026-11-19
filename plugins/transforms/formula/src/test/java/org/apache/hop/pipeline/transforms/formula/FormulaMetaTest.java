@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lineage.api.IDeclaresTransformLogic.FieldLogic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -138,5 +139,26 @@ class FormulaMetaTest {
     formulaMeta.setFormulas(formulas);
     assertEquals(formulas, formulaMeta.getFormulas());
     assertEquals(1, formulaMeta.getFormulas().size());
+  }
+
+  @Test
+  void eachFormulaIsTheLogicOfTheFieldItCalculatesOrReplaces() {
+    FormulaMeta meta = new FormulaMeta();
+    FormulaMetaFunction total = new FormulaMetaFunction();
+    total.setFieldName("total");
+    total.setFormula("[price] * [qty]");
+    FormulaMetaFunction replaced = new FormulaMetaFunction();
+    replaced.setFieldName("ignored");
+    replaced.setReplaceField("name");
+    replaced.setFormula("UPPER([name])");
+    FormulaMetaFunction empty = new FormulaMetaFunction();
+    empty.setFieldName("empty");
+    meta.getFormulas().addAll(List.of(total, replaced, empty));
+
+    assertEquals(
+        List.of(
+            new FieldLogic("total", "formula", "[price] * [qty]"),
+            new FieldLogic("name", "formula", "UPPER([name])")),
+        meta.transformLogic(new Variables()));
   }
 }
