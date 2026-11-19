@@ -359,9 +359,7 @@ public class ValueMetaBase implements IValueMeta {
     this.dateFormatTimeZone = TimeZone.getDefault();
     this.identicalFormat = true;
     this.bigNumberFormatting = true;
-    this.lenientStringToNumber =
-        convertStringToBoolean(
-            Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
+    this.lenientStringToNumber = defaultLenientStringToNumber();
     this.emptyStringAndNullAreDifferent =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
@@ -6097,30 +6095,46 @@ public class ValueMetaBase implements IValueMeta {
     jValue.put(CONST_LENGTH, getLength());
     jValue.put(CONST_PRECISION, getPrecision());
     jValue.put("conversionMask", getConversionMask());
-    // The rest of what the binary format (writeMeta) keeps: where the field comes from and how
-    // its values are written, read and compared.
+    // The rest of the field's settings: where it comes from and how its values are written, read
+    // and compared.
     jValue.put(JSON_ORIGIN, getOrigin());
     jValue.put(JSON_COMMENTS, getComments());
-    jValue.put(JSON_DECIMAL_SYMBOL, getDecimalSymbol());
-    jValue.put(JSON_GROUPING_SYMBOL, getGroupingSymbol());
-    jValue.put(JSON_CURRENCY_SYMBOL, getCurrencySymbol());
     jValue.put(JSON_ROUNDING_TYPE, getRoundingType());
     jValue.put(JSON_TRIM_TYPE, (long) getTrimType());
     jValue.put(JSON_DATE_FORMAT_LENIENT, isDateFormatLenient());
-    if (getDateFormatLocale() != null) {
-      jValue.put(JSON_DATE_FORMAT_LOCALE, getDateFormatLocale().toLanguageTag());
-    }
-    if (getDateFormatTimeZone() != null) {
-      jValue.put(JSON_DATE_FORMAT_TIME_ZONE, getDateFormatTimeZone().getID());
-    }
-    jValue.put(JSON_LENIENT_STRING_TO_NUMBER, isLenientStringToNumber());
     jValue.put(JSON_STRING_ENCODING, getStringEncoding());
     jValue.put(JSON_CASE_INSENSITIVE, isCaseInsensitive());
     jValue.put(JSON_COLLATOR_DISABLED, isCollatorDisabled());
-    if (getCollatorLocale() != null) {
+    jValue.put(JSON_COLLATOR_STRENGTH, (long) getCollatorStrength());
+
+    // The settings below start out as the regional settings of the JVM that creates the field.
+    // JSON row metadata is read on another machine (the Beam and Spark workers), which must use
+    // its own regional settings for a field nobody configured. So only a value that differs from
+    // this JVM's default is written: one somebody set. A setting deliberately equal to this
+    // JVM's default can't be told apart and is left to the reader as well.
+    putIfNotDefault(
+        jValue, JSON_DECIMAL_SYMBOL, getDecimalSymbol(), "" + Const.getDefaultDecimalSeparator());
+    putIfNotDefault(
+        jValue,
+        JSON_GROUPING_SYMBOL,
+        getGroupingSymbol(),
+        "" + Const.getDefaultGroupingSeparator());
+    putIfNotDefault(
+        jValue, JSON_CURRENCY_SYMBOL, getCurrencySymbol(), Const.getDefaultCurrencySymbol());
+    Locale formatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    if (getDateFormatLocale() != null && !getDateFormatLocale().equals(formatLocale)) {
+      jValue.put(JSON_DATE_FORMAT_LOCALE, getDateFormatLocale().toLanguageTag());
+    }
+    if (getDateFormatTimeZone() != null
+        && !getDateFormatTimeZone().getID().equals(TimeZone.getDefault().getID())) {
+      jValue.put(JSON_DATE_FORMAT_TIME_ZONE, getDateFormatTimeZone().getID());
+    }
+    if (getCollatorLocale() != null && !getCollatorLocale().equals(formatLocale)) {
       jValue.put(JSON_COLLATOR_LOCALE, getCollatorLocale().toLanguageTag());
     }
-    jValue.put(JSON_COLLATOR_STRENGTH, (long) getCollatorStrength());
+    if (isLenientStringToNumber() != defaultLenientStringToNumber()) {
+      jValue.put(JSON_LENIENT_STRING_TO_NUMBER, isLenientStringToNumber());
+    }
     jValue.put(JSON_SORTED_DESCENDING, isSortedDescending());
     jValue.put(JSON_OUTPUT_PADDING, isOutputPaddingEnabled());
   }
@@ -6191,6 +6205,18 @@ public class ValueMetaBase implements IValueMeta {
     if (jValue.get(JSON_OUTPUT_PADDING) instanceof Boolean padding) {
       setOutputPaddingEnabled(padding);
     }
+  }
+
+  private static void putIfNotDefault(
+      JSONObject jValue, String key, String value, String jvmDefault) {
+    if (!Objects.equals(value, jvmDefault)) {
+      jValue.put(key, value);
+    }
+  }
+
+  private static boolean defaultLenientStringToNumber() {
+    return convertStringToBoolean(
+        Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
   }
 
   public static final class TrimTypeCodeConverter implements IIntCodeConverter {

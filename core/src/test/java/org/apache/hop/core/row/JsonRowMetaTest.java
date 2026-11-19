@@ -27,6 +27,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.text.Collator;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import org.apache.hop.core.HopClientEnvironment;
@@ -102,6 +104,48 @@ class JsonRowMetaTest {
     }
 
     assertSettingsOtherThanTheDefaults(copy);
+  }
+
+  /**
+   * Written on one machine (the Beam launcher), read on another (a worker): a field nobody
+   * configured formats with the reader's regional settings, not the writer's.
+   */
+  @Test
+  void aFieldNobodyConfiguredUsesTheRegionalSettingsOfTheReader() throws Exception {
+    Locale originalLocale = Locale.getDefault();
+    Locale originalFormat = Locale.getDefault(Locale.Category.FORMAT);
+    TimeZone originalTimeZone = TimeZone.getDefault();
+    try {
+      setRegionalSettings(Locale.forLanguageTag("nl-BE"), "Europe/Brussels");
+      IRowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta(new ValueMetaNumber("amount"));
+      ValueMetaDate moment = new ValueMetaDate("moment");
+      moment.setConversionMask("yyyy-MM-dd HH:mm");
+      rowMeta.addValueMeta(moment);
+      // Set explicitly, equal to the default of the reader: still written
+      ValueMetaNumber price = new ValueMetaNumber("price");
+      price.setDecimalSymbol(".");
+      rowMeta.addValueMeta(price);
+      String json = JsonRowMeta.toJson(rowMeta);
+
+      setRegionalSettings(Locale.US, "UTC");
+      IRowMeta copy = JsonRowMeta.fromJson(json);
+
+      assertEquals("1.5", copy.getValueMeta(0).getString(1.5));
+      Date tenUtc = Date.from(Instant.parse("2025-11-19T10:00:00Z"));
+      assertEquals("2025-11-19 10:00", copy.getValueMeta(1).getString(tenUtc));
+      assertEquals(".", copy.getValueMeta(2).getDecimalSymbol());
+    } finally {
+      Locale.setDefault(originalLocale);
+      Locale.setDefault(Locale.Category.FORMAT, originalFormat);
+      TimeZone.setDefault(originalTimeZone);
+    }
+  }
+
+  private static void setRegionalSettings(Locale locale, String timeZone) {
+    Locale.setDefault(locale);
+    Locale.setDefault(Locale.Category.FORMAT, locale);
+    TimeZone.setDefault(TimeZone.getTimeZone(timeZone));
   }
 
   /** JSON written before these settings were stored loads with the defaults, as before. */
