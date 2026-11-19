@@ -170,8 +170,8 @@ Pagination is configured on the connection; the REST client reads these settings
 |Cursor XPath|XPath expression against an XML response body to read the next cursor token, for every cursor strategy.
 |Next page URL JsonPath|JsonPath expression that reads the next page URL out of a JSON response body (`BODY_NEXT_URL`).
 |Next page URL XPath|XPath expression that reads the next page URL out of an XML response body (`BODY_NEXT_URL`).
-|Items JsonPath / XPath|Where the items are in a page, for example `$.list`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: a page where this finds nothing ends paging. Leave empty to keep the default rule. See **When paging stops** below.
-|Total count JsonPath / XPath|Where the API reports the total number of items, for example `$.count`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: paging stops once that many items were read, so the last, empty, page is never requested. The items are counted with the items path, or else with the result split path of the REST client transform. Without either, the total count is not used.
+|Items JsonPath / XPath|Where the items are in a page, for example `$.list` or `/envelope/list/item`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: a page where this finds nothing ends paging. Leave empty to keep the default rule. See **When paging stops** below. When both paths are set, an XML response uses the XPath and any other response the JsonPath; the same goes for the total count paths. An XPath is only used with an XML application type; otherwise the transform logs that it is not used.
+|Total count JsonPath / XPath|Where the API reports the total number of items, for example `$.count` or `/envelope/count`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: paging stops once that many items were read, so the last, empty, page is never requested. The items are counted with the items path, so the total count is only used together with an items path; without one, the transform logs that the total count is not used. It does not count the rows of the result split path, because a split path can give more than one row per item. A page where the count cannot be read, or is not a whole number, is logged and paging goes on until a page has no items.
 |===
 
 === When paging stops
@@ -183,6 +183,10 @@ Pagination is configured on the connection; the REST client reads these settings
 . Otherwise: a page with an empty response body.
 
 Many APIs wrap their items in an envelope that is never empty, for example `{"page":3,"pageSize":20,"count":46,"list":[]}`. Without an items path or a split path, Hop keeps requesting pages until the transform's maximum number of page requests is reached. Set the items path to `$.list` for such an API, also when the transform has no split path because it wants one row per page. The items path decides when paging stops; the split path still decides how a page is split into rows.
+
+A JsonPath to an array, such as `$.list`, counts the elements of that array. An XPath counts the nodes it selects, so select the items themselves, for example `/envelope/list/item`. An XPath to the element around the items, such as `/envelope/list`, still ends paging on the empty `<list/>` of the last page, but counts every page as one item, so a total count cannot stop paging early with it.
+
+When the transform also has a split path, the two should point at the same items. If the items path finds items in a page where the split path gives no rows, or finds nothing in a first page where the split path does give rows, the transform logs both paths once.
 
 A non-2xx response always ends the loop, and the transform's maximum number of page requests (256 by default) is a safeguard for every strategy.
 

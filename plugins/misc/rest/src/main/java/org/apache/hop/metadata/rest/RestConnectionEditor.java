@@ -998,7 +998,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             p,
             wItemsJsonPath,
             "RestConnectionEditor.Pagination.ItemsXPath.Label",
-            "RestConnectionEditor.Pagination.ItemsJson.Tooltip");
+            "RestConnectionEditor.Pagination.ItemsXPath.Tooltip");
     wTotalCountJsonPath =
         addPaginationTextRow(
             p,
@@ -1010,7 +1010,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             p,
             wTotalCountJsonPath,
             "RestConnectionEditor.Pagination.TotalCountXPath.Label",
-            "RestConnectionEditor.Pagination.TotalCountJson.Tooltip");
+            "RestConnectionEditor.Pagination.TotalCountXPath.Tooltip");
 
     refreshPaginationSensitiveFields();
   }

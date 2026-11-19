@@ -176,15 +176,37 @@ class RestPagingEnvelopeTest {
   }
 
   @Test
-  void aTotalCountCountsWithTheSplitPathWhenThereIsNoItemsPath() throws Exception {
+  void aTotalCountIsOnlyUsedWithAnItemsPath() throws Exception {
+    // A split path can give several rows per item, so its rows are not counted against the
+    // total: paging stops on the empty page instead.
     RestConnection connection = zeroBasedEnvelope();
     connection.setTotalCountJsonPath("$.count");
     PagingRest rest = build(connection, "$.list[*]", 50, RestPagingEnvelopeTest::envelopeJson);
 
     rest.runPaginationLoop(new Object[] {"row"});
 
-    assertEquals(3, rest.queries.size());
+    assertEquals(4, rest.queries.size());
     assertEquals(TOTAL_ITEMS, rest.emitted.size());
+  }
+
+  @Test
+  void aSplitPathWithSeveralRowsPerItemReadsEveryPage() throws Exception {
+    // Two rows per item: counting rows would reach the total of 6 after page two of three.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setTotalCountJsonPath("$.count");
+    PagingRest rest =
+        build(
+            connection,
+            "$.list[*].tags[*]",
+            50,
+            uri ->
+                envelopeJson(uri)
+                    .replaceAll("\\{\"id\":(\\d+)}", "{\"id\":$1,\"tags\":[\"a\",\"b\"]}"));
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(4, rest.queries.size());
+    assertEquals(2 * TOTAL_ITEMS, rest.emitted.size());
   }
 
   @Test
@@ -252,7 +274,182 @@ class RestPagingEnvelopeTest {
     assertEquals(3, rest.queries.size());
   }
 
+  @Test
+  void anXmlResponseUsesTheXPathsWhenJsonPathsAreSetToo() throws Exception {
+    // A connection shared by JSON and XML transforms holds both kinds of path.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsJsonPath("$.list");
+    connection.setItemsXPath("/page/list/item");
+    connection.setTotalCountJsonPath("$.count");
+    connection.setTotalCountXPath("/page/count");
+    PagingRest rest = build(connection, null, 50, RestPagingEnvelopeTest::envelopeXml);
+    rest.getMeta().setApplicationType(RestMeta.APPLICATION_TYPE_XML);
+    rest.data().mediaType = ContentType.APPLICATION_XML;
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(3, rest.queries.size());
+  }
+
+  // ------------------------------------------------------------------ review of #9573
+
+  @Test
+  void aFirstPageNumberLeftOverFromPageNumberPagingIsIgnoredByOtherTypes() throws Exception {
+    // The editor keeps the fields of other paging types: START_PAGE is not set, and the first
+    // page number does not apply to offset paging, so it must not fail the transform.
+    RestConnection connection = new RestConnection();
+    connection.setName("paging");
+    connection.setPaginationType(RestPaginationType.OFFSET_LIMIT);
+    connection.setFirstPageNumber("${START_PAGE}");
+    connection.setDefaultLimit(2);
+    connection.setItemsJsonPath("$.list");
+    PagingRest rest =
+        build(
+            connection,
+            null,
+            50,
+            uri -> envelope(Integer.parseInt(query(uri).get("offset")) / 2, 2));
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(4, rest.queries.size());
+  }
+
+  @Test
+  void anItemsXPathToTheContainerStopsOnTheEmptyPage() throws Exception {
+    // /page/list selects the <list/> of the empty page too; it must not count as an item.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsXPath("/page/list");
+    PagingRest rest = xmlRest(connection);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(4, rest.queries.size());
+  }
+
+  @Test
+  void anItemsXPathToTheContainerNeverStopsOnTheTotalCountTooEarly() throws Exception {
+    // A container counts as one item per page, which is never more than the items in it.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsXPath("/page/list");
+    connection.setTotalCountXPath("/page/count");
+    PagingRest rest = xmlRest(connection);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(4, rest.queries.size());
+  }
+
+  @Test
+  void anItemsXPathCountsAnEmptyItemWithAttributes() throws Exception {
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsXPath("/page/list/item");
+    connection.setTotalCountXPath("/page/count");
+    PagingRest rest =
+        build(
+            connection,
+            null,
+            50,
+            uri -> envelopeXml(uri).replaceAll("<item>(\\d+)</item>", "<item id=\"$1\"/>"));
+    rest.getMeta().setApplicationType(RestMeta.APPLICATION_TYPE_XML);
+    rest.data().mediaType = ContentType.APPLICATION_XML;
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(3, rest.queries.size());
+  }
+
+  @Test
+  void aTotalCountWithoutAnItemsPathIsLogged() throws Exception {
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setTotalCountJsonPath("$.count");
+    PagingRest rest = build(connection, null, 7, RestPagingEnvelopeTest::envelopeJson);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(1, rest.logged("\"$.count\" is not used"), rest.logs.toString());
+  }
+
+  @Test
+  void anXPathWithANonXmlApplicationTypeIsLogged() throws Exception {
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsXPath("/page/list/item");
+    PagingRest rest = xmlRest(connection);
+    rest.getMeta().setApplicationType(RestMeta.APPLICATION_TYPE_TEXT_PLAIN);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(1, rest.logged("\"/page/list/item\" on the connection is not used"));
+  }
+
+  @Test
+  void aTotalCountThatCannotBeReadIsLoggedAndPagingGoesOn() throws Exception {
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsXPath("/page/list/item");
+    connection.setTotalCountXPath("/page/count[");
+    PagingRest rest = xmlRest(connection);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(4, rest.queries.size());
+    assertTrue(rest.logged("could not read the total count") > 0, rest.logs.toString());
+  }
+
+  @Test
+  void itemsWithoutRowsAreLoggedOnce() throws Exception {
+    // The split path points at something the API does not send.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsJsonPath("$.list");
+    PagingRest rest = build(connection, "$.data[*]", 50, RestPagingEnvelopeTest::envelopeJson);
+
+    assertThrows(HopException.class, () -> rest.runPaginationLoop(new Object[] {"row"}));
+
+    assertEquals(4, rest.queries.size());
+    assertEquals(1, rest.logged("but the result split path \"$.data[*]\" gave no rows"));
+  }
+
+  @Test
+  void rowsWithoutItemsOnTheFirstPageAreLogged() throws Exception {
+    // The items path points at something the API does not send.
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsJsonPath("$.items");
+    PagingRest rest = build(connection, "$.list[*]", 50, RestPagingEnvelopeTest::envelopeJson);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(1, rest.queries.size());
+    assertEquals(1, rest.logged("found no items in the first page"));
+  }
+
+  @Test
+  void anItemsPathAndASplitPickingPageFieldsLogNothing() throws Exception {
+    RestConnection connection = zeroBasedEnvelope();
+    connection.setItemsJsonPath("$.list");
+    PagingRest rest = build(connection, "$.page", 50, RestPagingEnvelopeTest::envelopeJson);
+
+    rest.runPaginationLoop(new Object[] {"row"});
+
+    assertEquals(0, rest.logged("the items path"), rest.logs.toString());
+  }
+
   // ------------------------------------------------------------------ helpers
+
+  private PagingRest xmlRest(RestConnection connection) throws Exception {
+    PagingRest rest = build(connection, null, 50, RestPagingEnvelopeTest::envelopeXml);
+    rest.getMeta().setApplicationType(RestMeta.APPLICATION_TYPE_XML);
+    rest.data().mediaType = ContentType.APPLICATION_XML;
+    return rest;
+  }
+
+  private static String envelopeXml(URI uri) {
+    int page = Integer.parseInt(query(uri).get("page"));
+    StringBuilder xml = new StringBuilder("<page><count>" + TOTAL_ITEMS + "</count><list>");
+    for (int id = page * 2 + 1; id <= Math.min(page * 2 + 2, TOTAL_ITEMS); id++) {
+      xml.append("<item>").append(id).append("</item>");
+    }
+    return xml.append("</list></page>").toString();
+  }
 
   private static RestConnection pageNumberConnection() {
     RestConnection connection = new RestConnection();
@@ -375,6 +572,7 @@ class RestPagingEnvelopeTest {
   static class PagingRest extends Rest {
     final List<Object[]> emitted = new ArrayList<>();
     final List<String> queries = new ArrayList<>();
+    final List<String> logs = new ArrayList<>();
 
     PagingRest(
         TransformMeta transformMeta,
@@ -393,6 +591,17 @@ class RestPagingEnvelopeTest {
     @Override
     public void putRow(IRowMeta rowMeta, Object[] row) {
       emitted.add(row);
+    }
+
+    @Override
+    public void logBasic(String message) {
+      logs.add(message);
+      super.logBasic(message);
+    }
+
+    /** How many basic log lines contain the given text. */
+    long logged(String text) {
+      return logs.stream().filter(line -> line.contains(text)).count();
     }
   }
 }
