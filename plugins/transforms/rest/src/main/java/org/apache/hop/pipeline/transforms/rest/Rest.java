@@ -382,20 +382,24 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
 
-      if (!acceptHeaderProvided
-          && data.streaming
-          && data.streamingFormat == RestStreamingFormat.SSE) {
-        // An event-stream endpoint is entitled to answer something else, or nothing, when asked
-        // for application/json. The user can still override this on the Headers tab.
-        headerMap.put(CONST_ACCEPT, "text/event-stream");
-      } else if (!acceptHeaderProvided && data.mediaType != null) {
-        headerMap.put(CONST_ACCEPT, data.mediaType.getMimeType());
-      }
-
       /* The single place authentication is applied, for both the connection and the transform's
        * own credentials. It has to happen against this map rather than the invocation builder,
-       * A row that supplied its own Authorization keeps it. */
+       * A row that supplied its own Authorization keeps it. The connection's static headers are
+       * added here too, so they come after the headers set on the transform and before the
+       * transform's defaults below. */
       authenticator().applyRequestHeaders(headerMap, requestUri);
+
+      // The default Accept only goes out when neither the transform nor the connection set one:
+      // a static Accept on the connection beats this default (issue #9551).
+      if (!acceptHeaderProvided && !containsHeader(headerMap, CONST_ACCEPT)) {
+        if (data.streaming && data.streamingFormat == RestStreamingFormat.SSE) {
+          // An event-stream endpoint is entitled to answer something else, or nothing, when asked
+          // for application/json. The user can still override this on the Headers tab.
+          headerMap.put(CONST_ACCEPT, "text/event-stream");
+        } else if (data.mediaType != null) {
+          headerMap.put(CONST_ACCEPT, data.mediaType.getMimeType());
+        }
+      }
 
       if (pagingHeaderParams != null && !pagingHeaderParams.isEmpty()) {
         for (Map.Entry<String, String> e : pagingHeaderParams.entrySet()) {
@@ -461,22 +465,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                 contentType != null ? contentType : String.valueOf(data.mediaType)));
       }
 
-      Supplier<HttpExchange> send =
-          () -> {
-            try {
-              return executeRequest(
-                  finalRequestUri, headerMap, finalEntity, finalContentType, rowData);
-            } catch (HopException e) {
-              throw new HopRuntimeException(e);
-            }
-          };
-      // One new OAuth 2 token per exchange at most, however often executeWithRetry goes round.
-      boolean[] tokenRefreshed = {false};
-
       startTime = System.currentTimeMillis();
       response =
           executeWithRetry(
-              () -> sendRenewingRejectedToken(send, headerMap, finalRequestUri, tokenRefreshed));
+              () -> {
+                try {
+                  return logUnauthorizedHint(
+                      executeRequest(
+                          finalRequestUri, headerMap, finalEntity, finalContentType, rowData));
+                } catch (HopException e) {
+                  if (isUnauthorizedStream(e)) {
+                    logUnauthorizedHint();
+                  }
+                  throw new HopRuntimeException(e);
+                }
+              });
 
       long responseTime = System.currentTimeMillis() - startTime;
 
@@ -533,59 +536,36 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   /**
-   * Sends the request, and when it comes back 401 on an OAuth 2 token Hop applied, sends it once
-   * more with a new token (issue #9550). Without this a token the server stopped accepting before
-   * its expiry time — revoked, rotated, or replaced because another client asked for one — keeps
-   * being sent until that time passes, and adding 401 to the retry status codes only resends it.
-   *
-   * <p>It runs inside {@link #executeWithRetry}, so the new token is in place before any configured
-   * retry. A streaming request reports a failed status as an exception rather than a response; a
-   * 401 there is just as safe to resend, because no record has gone downstream yet.
+   * After a 401 that Hop cannot do anything about, logs a hint once per transform copy. A rejected
+   * OAuth 2 token is renewed by the client itself (issue #9550), before the response gets here.
    */
-  private HttpExchange sendRenewingRejectedToken(
-      Supplier<HttpExchange> send,
-      Map<String, String> headers,
-      String requestUri,
-      boolean[] tokenRefreshed) {
-    HttpExchange exchange;
-    try {
-      exchange = send.get();
-    } catch (HopRuntimeException e) {
-      if (isUnauthorizedStream(e) && renewRejectedToken(headers, requestUri, tokenRefreshed)) {
-        return send.get();
-      }
-      throw e;
-    }
-    if (exchange.status() == HttpStatus.SC_UNAUTHORIZED
-        && renewRejectedToken(headers, requestUri, tokenRefreshed)) {
-      return send.get();
+  private HttpExchange logUnauthorizedHint(HttpExchange exchange) {
+    if (exchange.status() == HttpStatus.SC_UNAUTHORIZED) {
+      logUnauthorizedHint();
     }
     return exchange;
   }
 
-  /**
-   * After a 401: whether the headers now carry a new OAuth 2 token and the request is worth one
-   * more try. Logs the Bearer hint once when there is nothing Hop can do.
-   */
-  private boolean renewRejectedToken(
-      Map<String, String> headers, String requestUri, boolean[] tokenRefreshed) {
-    try {
-      if (!tokenRefreshed[0] && authenticator().refreshAfterUnauthorized(headers, requestUri)) {
-        tokenRefreshed[0] = true;
-        logBasic(BaseMessages.getString(PKG, "Rest.Log.OAuth2TokenRejectedRetrying"));
+  private void logUnauthorizedHint() {
+    // The request went out, so the authenticator that applied its credentials exists.
+    if (unauthorizedHintLogged || authenticator == null) {
+      return;
+    }
+    String hint = authenticator.unauthorizedHint();
+    if (hint != null) {
+      unauthorizedHintLogged = true;
+      logBasic(hint);
+    }
+  }
+
+  /** Whether a map of headers carries this header, matching the name case-insensitively. */
+  private static boolean containsHeader(Map<String, String> headers, String name) {
+    for (String key : headers.keySet()) {
+      if (key != null && key.equalsIgnoreCase(name)) {
         return true;
       }
-      if (!unauthorizedHintLogged) {
-        String hint = authenticator().unauthorizedHint();
-        if (hint != null) {
-          unauthorizedHintLogged = true;
-          logBasic(hint);
-        }
-      }
-      return false;
-    } catch (HopException e) {
-      throw new HopRuntimeException(e);
     }
+    return false;
   }
 
   private static boolean isUnauthorizedStream(Throwable e) {
@@ -2025,7 +2005,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
   /** Overridable so tests can supply a client without reaching the network. */
   protected CloseableHttpClient createClient() throws HopException {
-    return RestClientFactory.createClient(clientSettings());
+    return RestClientFactory.createClient(clientSettings(), authenticator(), getLogChannel());
   }
 
   /** The resolved client configuration, built once per transform copy. */

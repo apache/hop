@@ -35,10 +35,11 @@ public class RestConnectionHeader {
   private String name;
 
   /**
-   * The value. A value that is a secret belongs in a variable; an {@code Encrypted ...} value is
-   * decrypted too.
+   * The value. Static headers often carry something credential-like (an {@code x-api-key}, say), so
+   * the value is stored encrypted, like the connection's other secrets. A value that was saved in
+   * plain text still loads.
    */
-  @HopMetadataProperty(key = "value")
+  @HopMetadataProperty(key = "value", password = true)
   private String value;
 
   public RestConnectionHeader(String name, String value) {

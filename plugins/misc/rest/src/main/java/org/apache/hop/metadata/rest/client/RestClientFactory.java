@@ -29,6 +29,7 @@ import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.HostnameVerificationPolicy;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.core5.util.Timeout;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -50,6 +51,19 @@ public final class RestClientFactory {
    * Builds the client described by the settings. Close it when finished: it owns a connection pool.
    */
   public static CloseableHttpClient createClient(RestClientSettings settings) {
+    return createClient(settings, null, null);
+  }
+
+  /**
+   * Builds the client described by the settings, for requests that {@code authenticator} adds the
+   * credentials to. With OAuth 2, a request that comes back 401 on a token that authenticator
+   * applied is sent once more with a new token (issue #9550).
+   *
+   * @param authenticator the authenticator the caller applies to its requests, or {@code null}
+   * @param log where the token renewal is logged, or {@code null}
+   */
+  public static CloseableHttpClient createClient(
+      RestClientSettings settings, RestAuthenticator authenticator, ILogChannel log) {
     HttpClientBuilder builder =
         HttpClients.custom().setConnectionManager(createConnectionManager(settings));
 
@@ -72,6 +86,11 @@ public final class RestClientFactory {
         new RestAuthenticator(settings).createCredentialsProvider();
     if (credentialsProvider != null) {
       builder.setDefaultCredentialsProvider(credentialsProvider);
+    }
+
+    if (authenticator != null && settings.getAuthType() == RestAuthType.OAUTH2) {
+      builder.addExecInterceptorFirst(
+          RestOAuth2RenewalExec.NAME, new RestOAuth2RenewalExec(authenticator, log));
     }
 
     return builder.build();

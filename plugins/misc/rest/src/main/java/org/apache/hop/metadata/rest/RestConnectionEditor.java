@@ -1578,6 +1578,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wHeaders.removeAll();
       if (metadata.getHeaders() != null) {
         for (RestConnectionHeader header : metadata.getHeaders()) {
+          if (header == null) {
+            continue;
+          }
           TableItem item = new TableItem(wHeaders.table, SWT.NONE);
           item.setText(1, Const.NVL(header.getName(), ""));
           item.setText(2, Const.NVL(header.getValue(), ""));

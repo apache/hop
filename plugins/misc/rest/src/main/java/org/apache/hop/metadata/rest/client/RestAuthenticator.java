@@ -27,6 +27,7 @@ import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpMessage;
@@ -62,17 +63,40 @@ public class RestAuthenticator {
    * supplied itself is the row's business, and swapping it for a token of ours would change who the
    * request is made as.
    */
-  private final Map<String, Boolean> appliedOAuth2Tokens =
-      Collections.synchronizedMap(
-          new LinkedHashMap<>() {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
-              return size() > APPLIED_TOKENS_REMEMBERED;
-            }
-          });
+  private final Map<String, Boolean> appliedOAuth2Tokens = rememberedTokens();
+
+  /** Tokens a server rejected again straight after a renewal: see {@link #renewedTokenRejected}. */
+  private final Map<String, Boolean> tokensRejectedAfterRenewal = rememberedTokens();
+
+  /**
+   * The origin the credentials and static headers are scoped to instead of the settings' own, or
+   * {@code null} to use the settings' one.
+   */
+  private final String authOrigin;
 
   public RestAuthenticator(RestClientSettings settings) {
+    this(settings, null);
+  }
+
+  /**
+   * An authenticator scoped to another origin than the settings name. The connection test uses it
+   * for its one request to an explicitly named URL, without copying the settings.
+   *
+   * @param authOrigin the URL whose scheme, host and port the credentials are sent to
+   */
+  public RestAuthenticator(RestClientSettings settings, String authOrigin) {
     this.settings = settings;
+    this.authOrigin = authOrigin;
+  }
+
+  private static Map<String, Boolean> rememberedTokens() {
+    return Collections.synchronizedMap(
+        new LinkedHashMap<>() {
+          @Override
+          protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+            return size() > APPLIED_TOKENS_REMEMBERED;
+          }
+        });
   }
 
   /**
@@ -91,14 +115,36 @@ public class RestAuthenticator {
   }
 
   /**
-   * Adds the authentication headers only, without the static headers. For callers that write the
-   * headers onto a request object themselves; they add the static headers with {@link
-   * #applyStaticHeaders(HttpMessage, String)}.
+   * Adds the authentication headers and the connection's static headers to a request object, for
+   * the callers that build one themselves (HTTP client, HTTP POST, the HTTP action). Call it after
+   * the request's own headers are set and before any default the caller only adds when nothing else
+   * did, such as a default {@code Content-Type}.
    *
-   * @param headers the outbound header map, modified in place
+   * <p>The authentication headers replace a header of the same name, as they always have on these
+   * callers. A static header is only added where the request does not already carry one with that
+   * name.
+   *
+   * @param request the outbound request, modified in place
    * @param requestUri the URI this request is going to
    */
-  public void applyAuthenticationHeaders(Map<String, String> headers, String requestUri) {
+  public void applyTo(HttpMessage request, String requestUri) {
+    if (request == null) {
+      return;
+    }
+    Map<String, String> authHeaders = new LinkedHashMap<>();
+    applyAuthenticationHeaders(authHeaders, requestUri);
+    authHeaders.forEach(request::setHeader);
+    if (!hasStaticHeaders() || !targetMatchesOrigin(requestUri)) {
+      return;
+    }
+    for (Map.Entry<String, String> header : settings.getStaticHeaders().entrySet()) {
+      if (!headerAlreadySupplied(request, header.getKey())) {
+        request.setHeader(header.getKey(), header.getValue() == null ? "" : header.getValue());
+      }
+    }
+  }
+
+  private void applyAuthenticationHeaders(Map<String, String> headers, String requestUri) {
     if (headers == null || !targetMatchesOrigin(requestUri)) {
       return;
     }
@@ -113,37 +159,16 @@ public class RestAuthenticator {
     }
   }
 
-  /**
-   * Adds the connection's static headers (issue #9551) that the map does not already carry.
-   *
-   * @param headers the outbound header map, modified in place
-   * @param requestUri the URI this request is going to
-   */
-  public void applyStaticHeaders(Map<String, String> headers, String requestUri) {
+  /** Adds the connection's static headers (issue #9551) that the map does not already carry. */
+  private void applyStaticHeaders(Map<String, String> headers, String requestUri) {
     if (headers == null || !hasStaticHeaders() || !targetMatchesOrigin(requestUri)) {
       return;
     }
     for (Map.Entry<String, String> header : settings.getStaticHeaders().entrySet()) {
       if (!headerAlreadySupplied(headers, header.getKey())) {
+        // Replace an empty header of the same name rather than add a second one next to it.
+        headers.keySet().removeIf(name -> name != null && name.equalsIgnoreCase(header.getKey()));
         headers.put(header.getKey(), header.getValue() == null ? "" : header.getValue());
-      }
-    }
-  }
-
-  /**
-   * Adds the connection's static headers (issue #9551) to a request that does not already carry a
-   * header with the same name. Call it after the request's own headers are set.
-   *
-   * @param request the outbound request, modified in place
-   * @param requestUri the URI this request is going to
-   */
-  public void applyStaticHeaders(HttpMessage request, String requestUri) {
-    if (request == null || !hasStaticHeaders() || !targetMatchesOrigin(requestUri)) {
-      return;
-    }
-    for (Map.Entry<String, String> header : settings.getStaticHeaders().entrySet()) {
-      if (!request.containsHeader(header.getKey())) {
-        request.setHeader(header.getKey(), header.getValue() == null ? "" : header.getValue());
       }
     }
   }
@@ -153,46 +178,86 @@ public class RestAuthenticator {
   }
 
   /**
-   * Called after a request came back 401 (issue #9550). When the request carried an OAuth 2 access
-   * token that this authenticator put there, the token is dropped from the shared cache (unless
-   * another request already replaced it), the current token is written into {@code headers}, and
-   * the result is {@code true}: the caller sends the request once more. A second 401 is the
-   * caller's to report as usual — call this at most once per request.
+   * Whether a request that came back 401 carried an OAuth 2 access token this authenticator put
+   * there, and a new token is worth trying (issue #9550). An {@code Authorization} header a row or
+   * the transform supplied itself is the row's business: swapping it for a token of ours would
+   * change who the request is made as. A token that was rejected again straight after a renewal is
+   * not renewed again either.
    *
-   * <p>Without this, a token the server stopped accepting early — revoked, rotated, or invalidated
-   * because another client asked for a new one — keeps being sent until its expiry time passes.
-   *
-   * @param headers the headers the rejected request was sent with, modified in place
+   * @param authorization the {@code Authorization} header the rejected request was sent with
    * @param requestUri the URI the request went to
-   * @return whether the headers now carry a different token and the request is worth sending again
+   */
+  public boolean isRenewable(String authorization, String requestUri) {
+    String rejected = bearerToken(authorization);
+    return rejected != null
+        && settings.getAuthType() == RestAuthType.OAUTH2
+        && targetMatchesOrigin(requestUri)
+        && appliedOAuth2Tokens.containsKey(rejected)
+        && !tokensRejectedAfterRenewal.containsKey(rejected);
+  }
+
+  /**
+   * Drops a token the server rejected from the shared cache (unless another request already
+   * replaced it) and returns the {@code Authorization} header to send the request with once more,
+   * or {@code null} when the token endpoint handed the same token back. Call it only when {@link
+   * #isRenewable} is true.
+   *
+   * <p>Without this, a token the server stopped accepting early (revoked, rotated, or invalidated
+   * because another client asked for a new one) keeps being sent until its expiry time passes.
+   *
+   * @param authorization the {@code Authorization} header the rejected request was sent with
+   * @return the new {@code Authorization} header, or {@code null} when there is nothing new to send
    * @throws HopException when a new token cannot be obtained
    */
-  public boolean refreshAfterUnauthorized(Map<String, String> headers, String requestUri)
-      throws HopException {
-    if (headers == null
-        || settings.getAuthType() != RestAuthType.OAUTH2
-        || !targetMatchesOrigin(requestUri)) {
-      return false;
-    }
-    Map.Entry<String, String> authorization = findHeader(headers, HttpHeaders.AUTHORIZATION);
-    if (authorization == null
-        || authorization.getValue() == null
-        || !authorization.getValue().startsWith(BEARER_PREFIX)) {
-      return false;
-    }
-    String rejected = authorization.getValue().substring(BEARER_PREFIX.length());
-    if (!appliedOAuth2Tokens.containsKey(rejected)) {
-      return false;
+  public String renewRejectedToken(String authorization) throws HopException {
+    String rejected = bearerToken(authorization);
+    if (rejected == null) {
+      return null;
     }
     RestOAuth2TokenProvider.invalidate(settings, rejected);
     String current = RestOAuth2TokenProvider.getAccessToken(settings);
     if (rejected.equals(current)) {
       // The token endpoint handed the same token back: sending it again gets the same answer.
-      return false;
+      return null;
     }
     appliedOAuth2Tokens.put(current, Boolean.TRUE);
-    authorization.setValue(BEARER_PREFIX + current);
-    return true;
+    return BEARER_PREFIX + current;
+  }
+
+  /**
+   * Drops a rejected token from the shared cache without fetching a new one, for a request that
+   * cannot be sent again (its body was streamed). The next request fetches a new token.
+   *
+   * @param authorization the {@code Authorization} header the rejected request was sent with
+   */
+  public void dropRejectedToken(String authorization) {
+    String rejected = bearerToken(authorization);
+    if (rejected != null) {
+      RestOAuth2TokenProvider.invalidate(settings, rejected);
+    }
+  }
+
+  /**
+   * Called when the request sent once more with a renewed token got a 401 again. That token is not
+   * renewed on later requests: a new token did not fix what the server objects to (a missing
+   * permission or scope, say), and renewing on every request would only fetch token after token and
+   * drop the one every pipeline in this JVM shares. It still expires and is replaced as usual.
+   *
+   * @param authorization the {@code Authorization} header the second request was sent with
+   */
+  public void renewedTokenRejected(String authorization) {
+    String token = bearerToken(authorization);
+    if (token != null) {
+      tokensRejectedAfterRenewal.put(token, Boolean.TRUE);
+    }
+  }
+
+  /** The token of a Bearer {@code Authorization} header, or {@code null}. */
+  private static String bearerToken(String authorization) {
+    if (authorization == null || !authorization.startsWith(BEARER_PREFIX)) {
+      return null;
+    }
+    return authorization.substring(BEARER_PREFIX.length());
   }
 
   /**
@@ -314,14 +379,14 @@ public class RestAuthenticator {
     return false;
   }
 
-  /** The map entry for a header, matching the name case-insensitively, or {@code null}. */
-  private static Map.Entry<String, String> findHeader(Map<String, String> headers, String name) {
-    for (Map.Entry<String, String> entry : headers.entrySet()) {
-      if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name)) {
-        return entry;
+  /** True when the request already carries this header with a value of its own. */
+  private static boolean headerAlreadySupplied(HttpMessage request, String name) {
+    for (Header header : request.getHeaders(name)) {
+      if (header.getValue() != null && !Utils.isEmpty(header.getValue().trim())) {
+        return true;
       }
     }
-    return null;
+    return false;
   }
 
   /**
@@ -346,7 +411,7 @@ public class RestAuthenticator {
   }
 
   private HttpHost originHost() {
-    return hostOf(settings.getAuthOrigin());
+    return hostOf(authOrigin != null ? authOrigin : settings.getAuthOrigin());
   }
 
   /** The scheme, host and port of a URL, or {@code null} when it has none or cannot be parsed. */

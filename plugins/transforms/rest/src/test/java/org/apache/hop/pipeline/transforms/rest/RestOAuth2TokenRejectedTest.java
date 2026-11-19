@@ -32,13 +32,19 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.RestConnectionHeader;
 import org.apache.hop.metadata.rest.client.RestOAuth2TokenProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -47,6 +53,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,8 +70,20 @@ class RestOAuth2TokenRejectedTest {
   private final AtomicInteger tokensIssued = new AtomicInteger();
   private final AtomicInteger token1Accepted = new AtomicInteger();
   private final List<String> apiRequests = new CopyOnWriteArrayList<>();
+  private final List<String> acceptHeaders = new CopyOnWriteArrayList<>();
   private volatile int token1Uses;
   private volatile boolean rejectEverything;
+  private volatile boolean tokenEndpointDownAfterFirstToken;
+
+  @BeforeAll
+  static void initPasswordEncoder() throws Exception {
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            HopTwoWayPasswordEncoder.class.getName(),
+            TwoWayPasswordEncoderPluginType.class,
+            TwoWayPasswordEncoderPlugin.class);
+    Encr.init("Hop");
+  }
 
   @BeforeEach
   void startServer() throws IOException {
@@ -75,8 +94,10 @@ class RestOAuth2TokenRejectedTest {
     tokensIssued.set(0);
     token1Accepted.set(0);
     apiRequests.clear();
+    acceptHeaders.clear();
     token1Uses = 2;
     rejectEverything = false;
+    tokenEndpointDownAfterFirstToken = false;
 
     server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
     server.createContext("/token", this::issueToken);
@@ -121,6 +142,80 @@ class RestOAuth2TokenRejectedTest {
 
     assertEquals(401L, status(rest.callRest(new Object[] {"row"})));
     assertEquals(2, apiRequests.size(), "one more try, not a loop");
+  }
+
+  @Test
+  void aTokenTheServerKeepsRejectingIsRenewedOnlyOnce() throws Exception {
+    // A 401 a new token does not fix (no permission, missing scope) used to fetch a new token for
+    // every row, each time dropping the token the whole JVM shares.
+    CollectingRest rest = build("/workflows", false);
+    rejectEverything = true;
+
+    List<Long> statuses = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      statuses.add(status(rest.callRest(new Object[] {"row-" + i})));
+    }
+
+    assertEquals(List.of(401L, 401L, 401L, 401L, 401L), statuses);
+    assertEquals(2, tokensIssued.get());
+    assertEquals(
+        List.of(
+            "Bearer token-1",
+            "Bearer token-2",
+            "Bearer token-2",
+            "Bearer token-2",
+            "Bearer token-2",
+            "Bearer token-2"),
+        apiRequests);
+  }
+
+  @Test
+  void aTokenEndpointThatFailsLeavesTheRowWithItsOwn401() throws Exception {
+    CollectingRest rest = build("/workflows", false);
+    token1Uses = 0;
+    tokenEndpointDownAfterFirstToken = true;
+
+    assertEquals(401L, status(rest.callRest(new Object[] {"row"})));
+    assertEquals(List.of("Bearer token-1"), apiRequests);
+  }
+
+  @Test
+  void aResentRequestIsCountedOnceInTheRequestBytes() throws Exception {
+    // The renewal is inside the client: the transform hands over one request and counts it once.
+    CollectingRest rest = build("/workflows", false);
+    rest.meta().setMethod(RestMeta.HTTP_METHOD_POST);
+    rest.data().method = RestMeta.HTTP_METHOD_POST;
+    rest.data().useBody = true;
+    rest.data().indexOfBodyField = 0;
+    token1Uses = 0;
+
+    assertEquals(200L, status(rest.callRest(new Object[] {"0123456789"})));
+
+    assertEquals(List.of("Bearer token-1", "Bearer token-2"), apiRequests);
+    assertEquals(10L, rest.bytesOut());
+  }
+
+  @Test
+  void aStaticAcceptOnTheConnectionReplacesTheTransformsDefault() throws Exception {
+    // Issue #9551: the default Accept from the media type used to count as "already set".
+    CollectingRest rest = build("/workflows", false);
+    rest.connection()
+        .setHeaders(List.of(new RestConnectionHeader("Accept", "application/vnd.api+json")));
+    token1Uses = 1;
+
+    assertEquals(200L, status(rest.callRest(new Object[] {"row"})));
+
+    assertEquals(List.of("application/vnd.api+json"), acceptHeaders);
+  }
+
+  @Test
+  void withoutAStaticAcceptTheDefaultStillGoesOut() throws Exception {
+    CollectingRest rest = build("/workflows", false);
+    token1Uses = 1;
+
+    assertEquals(200L, status(rest.callRest(new Object[] {"row"})));
+
+    assertEquals(List.of("application/json"), acceptHeaders);
   }
 
   @Test
@@ -237,6 +332,24 @@ class RestOAuth2TokenRejectedTest {
       return (RestMeta) getMeta();
     }
 
+    RestData data() {
+      return (RestData) getData();
+    }
+
+    Long bytesOut() {
+      return dataVolumeOut;
+    }
+
+    RestConnection connection() {
+      try {
+        Field field = Rest.class.getDeclaredField("connection");
+        field.setAccessible(true);
+        return (RestConnection) field.get(this);
+      } catch (ReflectiveOperationException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
     @Override
     public void putRow(IRowMeta rowMeta, Object[] row) {
       emitted.add(row);
@@ -245,6 +358,10 @@ class RestOAuth2TokenRejectedTest {
 
   private void issueToken(HttpExchange exchange) throws IOException {
     exchange.getRequestBody().readAllBytes();
+    if (tokenEndpointDownAfterFirstToken && tokensIssued.get() >= 1) {
+      respond(exchange, 500, "{\"error\":\"server_error\"}");
+      return;
+    }
     String token = "token-" + tokensIssued.incrementAndGet();
     respond(
         exchange,
@@ -255,6 +372,9 @@ class RestOAuth2TokenRejectedTest {
   private void api(HttpExchange exchange, String body) throws IOException {
     String authorization = exchange.getRequestHeaders().getFirst("Authorization");
     apiRequests.add(authorization == null ? "-" : authorization);
+    String accept = exchange.getRequestHeaders().getFirst("Accept");
+    acceptHeaders.add(accept == null ? "-" : accept);
+    exchange.getRequestBody().readAllBytes();
     boolean accepted;
     if (rejectEverything || authorization == null) {
       accepted = false;

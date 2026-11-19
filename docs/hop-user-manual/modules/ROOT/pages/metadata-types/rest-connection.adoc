@@ -129,7 +129,7 @@ A code is pasted rather than captured by a local listener: Hop cannot assume it 
 
 Hop refreshes 30 seconds before the `expires_in` the server reported, to absorb clock skew; if the server reports no expiry, the token is treated as lasting five minutes.
 
-**A rejected token is replaced once.** A server can stop accepting a token before its expiry time: it was revoked, rotated, or replaced because another client asked for a new one. When a request carrying a token Hop fetched gets a `401`, Hop drops that token, fetches a new one and sends the request once more. A second `401` is reported as usual. This applies to the REST client transform (also while paging or streaming) and to the connection test. An `Authorization` header that the transform or an input row sets itself is never replaced. When several copies get the `401` at the same time, only the first fetches a new token; the others use it.
+**A rejected token is replaced once.** A server can stop accepting a token before its expiry time: it was revoked, rotated, or replaced because another client asked for a new one. When a request carrying a token Hop fetched gets a `401`, Hop drops that token, fetches a new one and sends the request once more. A second `401` is reported as usual, and Hop does not renew that new token again on later requests: the server objects to something a new token does not fix, such as a missing permission or scope. When fetching the new token fails, Hop logs the error and the request keeps its `401`. This applies to every request made through the connection: the REST client transform (also while paging or streaming), the HTTP client and HTTP POST transforms, the HTTP action and the connection test. A request whose body cannot be read a second time, such as a file the HTTP action uploads, is not sent again; it keeps its `401`, and the next request gets a new token. An `Authorization` header that the transform or an input row sets itself is never replaced. When several copies get the `401` at the same time, only the first fetches a new token; the others use it.
 
 The token request goes out through the same client as the API call, so it uses the connection's proxy, TLS settings and timeouts.
 
@@ -141,10 +141,10 @@ The **Headers** tab lists headers that go out on every request made through the 
 |===
 |Option |Description
 |Header name|The name of the header. Supports variables.
-|Value|The value of the header. Supports variables, for example `+${API_USER_EMAIL}+`, and encrypted values. Put secrets in a variable rather than in the connection.
+|Value|The value of the header. Supports variables, for example `+${API_USER_EMAIL}+`. Values are stored encrypted in the connection file, like the connection's passwords and secrets.
 |===
 
-A header with the same name set on the transform or action, or by an input row, wins. So does the header of the authentication type: a static `Authorization` header is not sent when the connection already authenticates. Like the credentials, the headers are only sent to the host of the base URL when one is set, so a request to another host, for example a URL taken from an input field, goes out without them.
+A header with the same name set on the transform or action, or by an input row, wins. A default the transform only adds when nothing else set the header does not: a static `Accept` replaces the REST client's default `Accept`, and a static `Content-Type` replaces HTTP POST's default `text/xml` (a content type picked on the transform still wins). So does the header of the authentication type: a static `Authorization` header is not sent when the connection already authenticates. Like the credentials, the headers are only sent to the host of the base URL when one is set, so a request to another host, for example a URL taken from an input field, goes out without them.
 
 The headers are sent by the REST client, HTTP client and HTTP POST transforms and by the HTTP action when they use the connection.
 

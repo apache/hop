@@ -24,9 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
@@ -316,15 +314,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
    * static headers follow the same rule, but a header this transform already set wins.
    */
   private void addConnectionAuthentication(HttpGet method, URI uri) {
-    if (data.restAuthenticator == null) {
-      return;
+    if (data.restAuthenticator != null) {
+      data.restAuthenticator.applyTo(method, uri.toString());
     }
-    Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restAuthenticator.applyAuthenticationHeaders(authHeaders, uri.toString());
-    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
-      method.setHeader(authHeader.getKey(), authHeader.getValue());
-    }
-    data.restAuthenticator.applyStaticHeaders(method, uri.toString());
   }
 
   /** HttpClient 5 requires {@link BasicScheme#initPreemptive} for preemptive Basic auth. */
@@ -606,8 +598,9 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       }
       data.restConnection.setVariables(this);
       RestClientSettings settings = data.restConnection.createClientSettings();
-      data.restConnectionClient = RestClientFactory.createClient(settings);
       data.restAuthenticator = new RestAuthenticator(settings);
+      data.restConnectionClient =
+          RestClientFactory.createClient(settings, data.restAuthenticator, getLogChannel());
       return true;
     } catch (Exception e) {
       // Keep the cause: a class loader split between the metadata plugin and this transform

@@ -33,12 +33,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.rest.client.RestAuthenticator;
 import org.apache.hop.metadata.rest.client.RestOAuth2TokenProvider;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +70,16 @@ class RestConnectionOAuth2TokenRejectedTest {
   private volatile int token1Uses;
   private volatile boolean alwaysIssueToken1;
   private volatile boolean rejectEverything;
+
+  @BeforeAll
+  static void initPasswordEncoder() throws Exception {
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            HopTwoWayPasswordEncoder.class.getName(),
+            TwoWayPasswordEncoderPluginType.class,
+            TwoWayPasswordEncoderPlugin.class);
+    Encr.init("Hop");
+  }
 
   @BeforeEach
   void startServer() throws IOException {
@@ -156,7 +172,7 @@ class RestConnectionOAuth2TokenRejectedTest {
 
     authenticator.applyRequestHeaders(headers, url);
 
-    assertFalse(authenticator.refreshAfterUnauthorized(headers, url));
+    assertFalse(authenticator.isRenewable(headers.get("authorization"), url));
     assertEquals("Bearer the-rows-own-token", headers.get("authorization"));
     assertEquals(0, tokensIssued.get());
   }

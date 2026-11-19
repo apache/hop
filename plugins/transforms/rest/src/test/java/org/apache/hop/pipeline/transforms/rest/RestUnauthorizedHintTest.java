@@ -31,7 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -47,6 +52,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rest.fields.ResultField;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +70,16 @@ class RestUnauthorizedHintTest {
   private HttpServer server;
   private String baseUrl;
   private final AtomicInteger apiRequests = new AtomicInteger();
+
+  @BeforeAll
+  static void initPasswordEncoder() throws Exception {
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            HopTwoWayPasswordEncoder.class.getName(),
+            TwoWayPasswordEncoderPluginType.class,
+            TwoWayPasswordEncoderPlugin.class);
+    Encr.init("Hop");
+  }
 
   @BeforeEach
   void startServer() throws IOException {

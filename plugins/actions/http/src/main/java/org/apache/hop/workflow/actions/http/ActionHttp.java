@@ -32,10 +32,8 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -369,7 +367,8 @@ public class ActionHttp extends ActionBase {
         try (CloseableHttpClient httpClient =
             restSettings == null
                 ? createHttpClient(target)
-                : RestClientFactory.createClient(restSettings)) {
+                : RestClientFactory.createClient(
+                    restSettings, restAuthenticator, getLogChannel())) {
 
           // See if we need to send a file over?
           if (!Utils.isEmpty(realUploadFile)) {
@@ -721,20 +720,14 @@ public class ActionHttp extends ActionBase {
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
    * a challenge, so the connection writes them onto every request itself. They stay scoped to the
    * connection's base URL: an absolute URL on another host, typed in or taken from a result row, is
-   * sent without them.
+   * sent without them. The connection's static headers follow the same rule, but a header the
+   * action set itself wins.
    */
   private void addConnectionAuthentication(
       ClassicHttpRequest request, RestAuthenticator restAuthenticator, String urlToUse) {
-    if (restAuthenticator == null) {
-      return;
+    if (restAuthenticator != null) {
+      restAuthenticator.applyTo(request, urlToUse);
     }
-    Map<String, String> authHeaders = new LinkedHashMap<>();
-    restAuthenticator.applyAuthenticationHeaders(authHeaders, urlToUse);
-    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
-      request.setHeader(authHeader.getKey(), authHeader.getValue());
-    }
-    // The connection's static headers, where the action did not set the same header itself.
-    restAuthenticator.applyStaticHeaders(request, urlToUse);
   }
 
   /** Copies the configured headers onto the request. */

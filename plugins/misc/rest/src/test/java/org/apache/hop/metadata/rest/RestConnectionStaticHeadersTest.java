@@ -118,6 +118,42 @@ class RestConnectionStaticHeadersTest {
   }
 
   @Test
+  void headerValuesAreStoredEncrypted() throws Exception {
+    RestConnection connection = new RestConnection(new Variables());
+    connection.setName("ironclad");
+    connection.setHeaders(List.of(new RestConnectionHeader("x-api-key", "s3cret-key")));
+
+    String json =
+        new JsonMetadataParser<>(RestConnection.class, new MemoryMetadataProvider())
+            .getJsonObject(connection)
+            .toJSONString();
+    RestConnection loaded = fromJson(json);
+
+    assertFalse(json.contains("s3cret-key"), json);
+    assertTrue(json.contains("Encrypted "), json);
+    assertEquals("s3cret-key", loaded.getHeaders().get(0).getValue());
+  }
+
+  @Test
+  void aValueSavedInPlainTextStillLoads() throws Exception {
+    RestConnection connection =
+        fromJson("{\"headers\":[{\"name\":\"x-api-key\",\"value\":\"plain-key\"}]}");
+
+    assertEquals("plain-key", connection.getHeaders().get(0).getValue());
+  }
+
+  @Test
+  void anEmptyHeaderOfTheSameNameIsReplacedNotDoubled() {
+    Map<String, String> headers = new LinkedHashMap<>();
+    headers.put("X-Tenant", "");
+
+    authenticator("https://api.example.com")
+        .applyRequestHeaders(headers, "https://api.example.com/workflows");
+
+    assertEquals(Map.of(USER_HEADER, "hop@example.com", "x-tenant", "acme"), headers);
+  }
+
+  @Test
   void settingsCarryTheResolvedHeaders() throws HopException {
     Variables variables = new Variables();
     variables.setVariable("API_USER", "hop@example.com");
@@ -179,8 +215,7 @@ class RestConnectionStaticHeadersTest {
     HttpGet request = new HttpGet("https://api.example.com/workflows");
     request.setHeader("x-tenant", "set-by-the-transform");
 
-    authenticator("https://api.example.com")
-        .applyStaticHeaders(request, "https://api.example.com/workflows");
+    authenticator("https://api.example.com").applyTo(request, "https://api.example.com/workflows");
 
     assertEquals("set-by-the-transform", request.getFirstHeader("x-tenant").getValue());
     assertEquals("hop@example.com", request.getFirstHeader(USER_HEADER).getValue());

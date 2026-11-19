@@ -47,6 +47,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -75,6 +76,8 @@ import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
 // It is optional to disable SSL/TLS
 @SuppressWarnings({"java:S5527", "java:S4830", "java:S4423"})
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
+
+  private static final Class<?> PKG = RestConnection.class;
   public static final String BASIC = "Basic";
   public static final String API_KEY = "API Key";
   public static final String BEARER = "Bearer";
@@ -393,7 +396,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   /**
-   * Applies this connection's authentication to the headers of one request.
+   * Applies this connection's authentication and static headers to the headers of one request.
    *
    * <p>The credentials are scoped to {@code url} rather than to the connection's base URL: this is
    * a one-shot call against an explicitly named URL, so asking for it is consent to authenticate
@@ -401,9 +404,12 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    * URL that changes underneath it.
    */
   public void applyAuthentication(Map<String, String> headers, String url) throws HopException {
-    RestClientSettings settings = createClientSettings();
-    settings.setAuthOrigin(url);
-    new RestAuthenticator(settings).applyRequestHeaders(headers, url);
+    urlScopedAuthenticator(createClientSettings(), url).applyRequestHeaders(headers, url);
+  }
+
+  /** An authenticator for one request to an explicitly named URL: see applyAuthentication(). */
+  private static RestAuthenticator urlScopedAuthenticator(RestClientSettings settings, String url) {
+    return new RestAuthenticator(settings, url);
   }
 
   /** Backwards compatibility with early versions of this metadata type. */
@@ -446,52 +452,32 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    */
   public String getResponse(String url) throws HopException {
     RestClientSettings settings = createClientSettings();
-    // Scoped to the URL rather than to the base URL: see applyAuthentication().
-    RestClientSettings requestSettings = createClientSettings();
-    requestSettings.setAuthOrigin(url);
-    RestAuthenticator authenticator = new RestAuthenticator(requestSettings);
-    Map<String, String> headers = new LinkedHashMap<>();
-    authenticator.applyRequestHeaders(headers, url);
-
-    try (CloseableHttpClient httpClient = RestClientFactory.createClient(settings)) {
-      Response response = get(httpClient, url, headers);
-      if (response.status() == HttpStatus.SC_UNAUTHORIZED
-          && authenticator.refreshAfterUnauthorized(headers, url)) {
-        getLog().logBasic("The server rejected the OAuth 2 token; retrying with a new token.");
-        response = get(httpClient, url, headers);
-      }
-      if (response.status() != HttpStatus.SC_OK) {
-        String hint =
-            response.status() == HttpStatus.SC_UNAUTHORIZED
-                ? authenticator.unauthorizedHint()
-                : null;
-        throw new IOException(
-            "Error connecting to "
-                + url
-                + ": "
-                + response.status()
-                + (hint == null ? "" : ". " + hint));
-      }
-      return response.body();
-    } catch (Exception e) {
-      throw new HopException("Error connecting to " + url, e);
-    }
-  }
-
-  /** A response read into memory: the status and the body as text. */
-  private record Response(int status, String body) {}
-
-  private static Response get(
-      CloseableHttpClient httpClient, String url, Map<String, String> headers) throws IOException {
+    RestAuthenticator authenticator = urlScopedAuthenticator(settings, url);
     HttpUriRequestBase request = new HttpUriRequestBase("GET", URI.create(url));
-    headers.forEach(request::addHeader);
-    return httpClient.execute(
-        request,
-        response -> {
-          HttpEntity entity = response.getEntity();
-          return new Response(
-              response.getCode(), entity == null ? "" : EntityUtils.toString(entity));
-        });
+    authenticator.applyTo(request, url);
+
+    try (CloseableHttpClient httpClient =
+        RestClientFactory.createClient(settings, authenticator, getLog())) {
+      return httpClient.execute(
+          request,
+          response -> {
+            if (response.getCode() != HttpStatus.SC_OK) {
+              String hint =
+                  response.getCode() == HttpStatus.SC_UNAUTHORIZED
+                      ? authenticator.unauthorizedHint()
+                      : null;
+              String message =
+                  BaseMessages.getString(
+                      PKG, "RestConnection.Error.Status", url, String.valueOf(response.getCode()));
+              throw new IOException(hint == null ? message : message + " " + hint);
+            }
+            HttpEntity entity = response.getEntity();
+            return entity == null ? "" : EntityUtils.toString(entity);
+          });
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "RestConnection.Error.Connecting", url), e);
+    }
   }
 
   /**

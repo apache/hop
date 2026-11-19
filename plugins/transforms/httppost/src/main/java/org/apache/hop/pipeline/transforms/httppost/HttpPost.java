@@ -28,9 +28,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.auth.AuthCache;
 import org.apache.hc.client5.http.auth.AuthScope;
@@ -132,8 +130,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       org.apache.hc.client5.http.classic.methods.HttpPost post =
           new org.apache.hc.client5.http.classic.methods.HttpPost(uri);
 
-      addConnectionAuthentication(post, uri);
-
       MultipartEntityBuilder multipart = null;
       boolean useMultipart = meta.isPostAFile() || meta.isMultipartupload();
 
@@ -142,10 +138,11 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
       // add HttpPost headers
       addHttpHeaders(post, rowData);
-      // The connection's static headers come after the transform's own: a header set here wins.
-      if (data.restAuthenticator != null) {
-        data.restAuthenticator.applyStaticHeaders(post, uri.toString());
-      }
+      // The connection's authentication and static headers come after the transform's own
+      // headers, so a header set here wins over a static one, and before the default content
+      // type, so a static Content-Type wins over that default.
+      addConnectionAuthentication(post, uri);
+      addDefaultContentType(post);
       // QUERY PARAMETERS
       addQueryParams(post, rowData);
       // BODY PARAMETERS
@@ -583,8 +580,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
       data.restConnection.setVariables(this);
       RestClientSettings settings = data.restConnection.createClientSettings();
-      data.restConnectionClient = RestClientFactory.createClient(settings);
       data.restAuthenticator = new RestAuthenticator(settings);
+      data.restConnectionClient =
+          RestClientFactory.createClient(settings, data.restAuthenticator, getLogChannel());
       return true;
     } catch (Exception e) {
       // Keep the cause: a class loader split between the metadata plugin and this transform
@@ -652,17 +650,13 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
   /**
    * Bearer, API-key and preemptive Basic authentication are request headers rather than answers to
    * a challenge, so the connection writes them onto every request itself. They stay scoped to the
-   * connection's base URL: an absolute URL on another host is sent without them.
+   * connection's base URL: an absolute URL on another host is sent without them. The connection's
+   * static headers follow the same rule, but a header this transform already set wins.
    */
   private void addConnectionAuthentication(
       org.apache.hc.client5.http.classic.methods.HttpPost post, URI uri) {
-    if (data.restAuthenticator == null) {
-      return;
-    }
-    Map<String, String> authHeaders = new LinkedHashMap<>();
-    data.restAuthenticator.applyAuthenticationHeaders(authHeaders, uri.toString());
-    for (Map.Entry<String, String> authHeader : authHeaders.entrySet()) {
-      post.setHeader(authHeader.getKey(), authHeader.getValue());
+    if (data.restAuthenticator != null) {
+      data.restAuthenticator.applyTo(post, uri.toString());
     }
   }
 
@@ -700,26 +694,51 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
   }
 
   /**
-   * add HttpPost header ContentType
+   * add HttpPost header ContentType, when one is configured on the transform. The default, {@code
+   * text/xml}, is added later by {@link #addDefaultContentType}.
    *
    * @param post the HTTP POST request to which the multipart entity will be attached
    */
   private void addHeadersContentType(org.apache.hc.client5.http.classic.methods.HttpPost post) {
+    if (!data.contentTypeHeaderOverwrite && !meta.isPostAFile() && !isDefaultContentType()) {
+      setContentType(post, data.realContentType);
+    }
+  }
+
+  /**
+   * The default content type, {@code text/xml}, for a request that has none yet. It comes after the
+   * connection's static headers: a static {@code Content-Type} on the REST connection wins over
+   * this default, but not over a content type configured on the transform (issue #9551).
+   */
+  private void addDefaultContentType(org.apache.hc.client5.http.classic.methods.HttpPost post) {
+    if (!data.contentTypeHeaderOverwrite
+        && !meta.isPostAFile()
+        && isDefaultContentType()
+        && !post.containsHeader(CONTENT_TYPE)) {
+      setContentType(post, CONTENT_TYPE_TEXT_XML);
+    }
+  }
+
+  /**
+   * Whether the content type is the default rather than one picked on the transform: empty (older
+   * pipelines, from before the content type became configurable) or {@code text/xml}, which is what
+   * a new transform starts with.
+   */
+  private boolean isDefaultContentType() {
+    return Utils.isEmpty(data.realContentType)
+        || CONTENT_TYPE_TEXT_XML.equalsIgnoreCase(data.realContentType.trim());
+  }
+
+  private void setContentType(
+      org.apache.hc.client5.http.classic.methods.HttpPost post, String contentType) {
     // Specify content type and encoding
     // If content encoding is not explicitly specified
     // ISO-8859-1 is assumed by the POSTMethod
-    if (!data.contentTypeHeaderOverwrite && !meta.isPostAFile()) {
-      // Use the configured content type, falling back to text/xml for backwards compatibility
-      // (e.g. pipelines created before the content type became configurable).
-      String contentType =
-          Utils.isEmpty(data.realContentType) ? CONTENT_TYPE_TEXT_XML : data.realContentType;
-      // can be overwritten now
-      String headerValue =
-          Utils.isEmpty(data.realEncoding) ? contentType : contentType + "; " + data.realEncoding;
-      post.setHeader(CONTENT_TYPE, headerValue);
-      if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, PKG_HEADER_VALUE, CONTENT_TYPE, headerValue));
-      }
+    String headerValue =
+        Utils.isEmpty(data.realEncoding) ? contentType : contentType + "; " + data.realEncoding;
+    post.setHeader(CONTENT_TYPE, headerValue);
+    if (isDebug()) {
+      logDebug(BaseMessages.getString(PKG, PKG_HEADER_VALUE, CONTENT_TYPE, headerValue));
     }
   }
 
