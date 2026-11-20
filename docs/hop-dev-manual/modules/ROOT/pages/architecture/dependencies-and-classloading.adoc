@@ -64,7 +64,7 @@ For a plugin running inside Hop, use `provided` scope for Hop dependencies suppl
 </dependencies>
 ----
 
-The BOM is generated automatically from the release reactor and manages Hop library JARs, including plugin JARs, without requiring consumers to activate a profile.
+The BOM is generated automatically from the reactor during normal CI and release builds and manages Hop library JARs, including plugin JARs, without requiring consumers to activate a profile.
 POM artifacts, distribution ZIPs such as `hop-client`, and build/test tooling such as `hop-config-doc` are not managed.
 Sources, Javadoc and test classifiers are not managed.
 The BOM manages versions; importing it does not add dependencies, package jars, or change runtime classloading or plugin visibility.

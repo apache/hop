@@ -166,9 +166,9 @@ JUnit 5 through Surefire. UI tests are tagged and can be included or excluded, s
 
 The `bom` module publishes the `org.apache.hop:hop-bom` POM for consumers to import into `dependencyManagement`.
 See xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading] for the import and versionless dependency examples.
-The module has `pom` packaging and is included only by the `apache-release` profile, so ordinary and incremental builds do not generate or publish it.
-The Apache parent configures Maven Release Plugin with `releaseProfiles=apache-release` for the release build.
-Activate `apache-release` explicitly when preparing a release so Maven also updates the BOM module's parent version.
+The module has `pom` packaging and is included by the default `base` profile, so normal CI builds generate and check it as well as release builds.
+Incremental CI forces the BOM module to run even when another module changes.
+The maintenance test follows declared modules, including profile modules, rather than scanning the filesystem, so nested worktrees do not affect coverage.
 
 `eu.maveniverse.maven.plugins:bom-builder3` automatically generates `bom/target/bom-pom.xml` during `generate-resources`.
 The checked-in `bom/pom.xml` is only the publication configuration; there is no dependency list or generator to maintain manually.
@@ -184,16 +184,21 @@ The build-time `hop-config-doc` and browser-test `hop-web-integration-tests` art
 These exclusions match coordinates, not artifact types; a future module whose main artifact is a ZIP would need an explicit exclusion.
 Keep exclusions narrow rather than hiding published libraries.
 
-IMPORTANT: Publish the BOM only from the full release reactor with all library profiles enabled and incremental reactor reduction disabled (`gib.disable=true`, the default).
-A standalone `-f bom/pom.xml` build, a reduced reactor, or disabled library profiles can generate an incomplete BOM.
-Do not install or deploy such a BOM as a release artifact.
+The maintenance tests check that the generated BOM covers all declared library modules, contains only Hop JARs at the current version, and has standalone publication metadata without inherited dependencies or build configuration.
+The explicit tooling exclusion list is checked against the plugin configuration and source modules so stale exclusions fail the build.
+Update the configuration and the documented exclusions in `HopBomTest` together when a new non-library JAR module is added.
 
-The normal release build generates and publishes the BOM automatically; no separate regeneration command is needed.
+IMPORTANT: Publish the BOM only with all library profiles enabled and incremental reactor reduction disabled (`gib.disable=true`, the default).
+The generator reads Maven's complete project list, so `-pl bom` from the project root still generates a complete BOM without building the libraries.
+A standalone `-f bom/pom.xml` build or disabled library profiles can generate an incomplete BOM; the maintenance tests reject missing libraries.
+Do not skip these tests when validating a release BOM.
+
+Normal CI and release builds generate and check the BOM automatically; no separate regeneration command is needed.
 For local inspection without installing or deploying, run from the project root:
 
 [source,bash]
 ----
-./mvnw -Papache-release -Dconfig-doc=false -DskipTests generate-resources
+./mvnw -pl bom test
 ----
 
 Inspect `bom/target/bom-pom.xml` before publication.
