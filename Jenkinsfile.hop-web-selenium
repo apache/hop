@@ -133,7 +133,7 @@ pipeline {
                     def imageArgs = params.BUILD_IMAGE != false
                         ? "-Dhopweb.image=${CI_IMAGE} -Dhopweb.pull=false"
                         : "-Dhopweb.image=${HOP_WEB_IMAGE}"
-                    sh "mvn -f web-tests/pom.xml -B -e clean test ${imageArgs}"
+                    sh "mvn -f web-tests/pom.xml -B -e clean test -Dwebtest ${imageArgs}"
                 }
             }
             post {
