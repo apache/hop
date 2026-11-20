@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
@@ -27,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Counts how often it is prepared and records, for every copy, whether it was flagged as prepared
- * and which input fields the preparation saw.
+ * and which input fields the preparation saw, and the fields every copy read its rows with.
  */
 public class PrepareOnceTestTransform
     extends BaseTransform<PrepareOnceTestMeta, PrepareOnceTestData> {
@@ -35,11 +37,13 @@ public class PrepareOnceTestTransform
   static final AtomicInteger PREPARED = new AtomicInteger();
   static final List<Boolean> FLAGGED = new CopyOnWriteArrayList<>();
   static volatile IRowMeta preparedWith;
+  static final Map<Integer, List<String>> READ_WITH = new ConcurrentHashMap<>();
 
   static void reset() {
     PREPARED.set(0);
     FLAGGED.clear();
     preparedWith = null;
+    READ_WITH.clear();
   }
 
   public PrepareOnceTestTransform(
@@ -69,6 +73,7 @@ public class PrepareOnceTestTransform
       setOutputDone();
       return false;
     }
+    READ_WITH.putIfAbsent(getCopy(), List.of(getInputRowMeta().getFieldNames()));
     putRow(getInputRowMeta(), row);
     return true;
   }

@@ -51,7 +51,8 @@ public final class TransformPrepareOnce {
   private TransformPrepareOnce() {}
 
   /**
-   * Prepare the transforms of an initialized pipeline once each, on copy 0, and flag every copy. A
+   * Prepare the transforms of an initialized pipeline that run in several copies once each, on copy
+   * 0, and flag every copy. A transform in a single copy keeps doing that work on its first row. A
    * pipeline that doesn't prepare itself (a per-partition pipeline of a distributed engine) only
    * flags the transforms its engine prepared. A transactional pipeline (a connection group) leaves
    * the work to the transforms' first row, inside the transaction.
@@ -87,7 +88,9 @@ public final class TransformPrepareOnce {
         }
       }
       IVariables variables = first.transform instanceof IVariables v ? v : pipeline;
-      if (!first.meta.needsPrepareOnce(variables)) {
+      // A single copy races nobody: it does the work on its first row, from the real row layout,
+      // exactly as before
+      if (transformCopies.size() < 2 || !first.meta.needsPrepareOnce(variables)) {
         continue;
       }
       prepare(first.transform, pipeline.getPipelineMeta(), first.transformMeta, variables);
@@ -190,17 +193,26 @@ public final class TransformPrepareOnce {
       TransformMeta transformMeta,
       IVariables variables)
       throws HopException {
+    BaseTransform<?, ?> preset = null;
     if (transform instanceof BaseTransform<?, ?> baseTransform
         && baseTransform.getInputRowMeta() == null) {
       // The rows haven't arrived yet: the layout the previous transforms declare, as the SQL a
       // transform dialog shows is built from
       baseTransform.setInputRowMeta(pipelineMeta.getPrevTransformFields(variables, transformMeta));
+      preset = baseTransform;
     }
     try {
       transform.prepareOnce();
     } catch (HopException e) {
       throw new HopException(
           "Unable to prepare transform '" + transformMeta.getName() + "' for this run", e);
+    } finally {
+      if (preset != null) {
+        // Only for the preparation: a transform takes the layout of the rows that really arrive
+        // from its first row, and only while it has none. The declared layout can differ (Get rows
+        // from result declares its fields for design time only).
+        preset.setInputRowMeta(null);
+      }
     }
   }
 }

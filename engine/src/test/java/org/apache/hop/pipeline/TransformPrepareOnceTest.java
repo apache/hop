@@ -26,6 +26,10 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -87,6 +91,46 @@ class TransformPrepareOnceTest {
     // Before the first row: the fields the previous transform declares
     assertEquals(
         List.of("id", "name"), List.of(PrepareOnceTestTransform.preparedWith.getFieldNames()));
+  }
+
+  /** Nothing to race: the transform does the work on its first row, from the real row layout. */
+  @Test
+  void aSingleCopyLeavesTheWorkToTheFirstRow() throws Exception {
+    run(new LocalPipelineEngine(pipeline(1), new Variables(), null));
+    assertEquals(0, PrepareOnceTestTransform.PREPARED.get());
+    assertEquals(List.of(false), PrepareOnceTestTransform.FLAGGED);
+  }
+
+  /**
+   * The declared layout is only for the preparation. Rows can arrive with another one (Get rows
+   * from result declares its fields for design time only), and copy 0 reads them with that one like
+   * every other copy.
+   */
+  @Test
+  void everyCopyReadsTheRowsWithTheirOwnLayout() throws Exception {
+    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipeline(3), new Variables(), null);
+    pipeline.setMetadataProvider(new MemoryMetadataProvider());
+    pipeline.prepareExecution();
+    RowProducer producer = pipeline.addRowProducer("src", 0);
+    pipeline.startThreads();
+    IRowMeta arriving = new RowMeta();
+    arriving.addValueMeta(new ValueMetaString("name"));
+    arriving.addValueMeta(new ValueMetaInteger("id"));
+    arriving.addValueMeta(new ValueMetaString("extra"));
+    // Distributed round robin: one row for every copy
+    for (long id = 1; id <= 3; id++) {
+      producer.putRow(arriving, new Object[] {"row " + id, id, "x"});
+    }
+    producer.finished();
+    pipeline.waitUntilFinished();
+    assertEquals(0, pipeline.getErrors());
+
+    assertEquals(
+        List.of("id", "name"), List.of(PrepareOnceTestTransform.preparedWith.getFieldNames()));
+    assertEquals(3, PrepareOnceTestTransform.READ_WITH.size());
+    for (List<String> fields : PrepareOnceTestTransform.READ_WITH.values()) {
+      assertEquals(List.of("name", "id", "extra"), fields);
+    }
   }
 
   @Test

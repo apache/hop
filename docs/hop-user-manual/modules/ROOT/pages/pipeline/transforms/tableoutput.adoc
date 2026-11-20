@@ -97,9 +97,11 @@ There is an option to exclude the field containing the tablename from being inse
 
 == Several copies, partitions or bundles
 
-*Truncate table* and *Automatically update table structure* happen once per run, before any row is written: on the local engine on the first copy, on the native Spark and Beam engines on the driver, before the job starts.
+When the transform runs in several copies on the local engine, or on the native Spark and Beam engines, *Truncate table* and *Automatically update table structure* happen once per run, before any row is written: on the local engine on the first copy, on the native Spark and Beam engines on the driver, before the job starts.
 The copies, Spark partitions or Beam bundles then only insert, so they don't truncate each other's rows or change the table at the same time.
-The table structure follows the fields the previous transforms declare, as the *SQL* button does.
+The table structure then follows the fields the previous transforms declare, as the *SQL* button does.
+
+A single copy on the local engine still does both when the first row arrives, and the table structure follows the fields of that row.
 
 *Truncate on first row* still truncates when the first row arrives, as only then is it known that rows arrive.
 In a transactional pipeline the truncate and table changes also wait for the first row, so they stay inside the transaction.
