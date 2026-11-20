@@ -58,6 +58,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
@@ -184,6 +185,21 @@ public class ValueMetaBase implements IValueMeta {
   public static final String XML_DATA_TAG = "value-data";
 
   public static final String COMPATIBLE_DATE_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * Counts every {@link #setName(String)} call that changes a non-empty name. RowMeta uses it to
+   * know when its name index can be trusted without rescanning: as long as the count is unchanged
+   * no named value meta anywhere was renamed. Naming a value meta that had no name yet (as {@code
+   * ValueMetaFactory.createValueMeta(name, type)} does) does not count.
+   */
+  private static final AtomicLong NAME_CHANGES = new AtomicLong();
+
+  /**
+   * @return the number of times a value meta with a non-empty name was renamed so far
+   */
+  public static long getNameChanges() {
+    return NAME_CHANGES.get();
+  }
 
   @HopMetadataProperty(key = "name")
   protected String name;
@@ -794,7 +810,11 @@ public class ValueMetaBase implements IValueMeta {
    */
   @Override
   public void setName(String name) {
+    String previous = this.name;
     this.name = name;
+    if (previous != null && !previous.isEmpty() && !previous.equals(name)) {
+      NAME_CHANGES.incrementAndGet();
+    }
   }
 
   /**

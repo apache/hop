@@ -208,7 +208,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       if (nextRow == null) {
         done = true;
       } else {
-        closePreviousQuery();
+        closePreviousResult();
 
         boolean success = doQuery(getInputRowMeta(), nextRow);
         if (!success) {
@@ -233,6 +233,27 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
   private void closePreviousQuery() throws HopDatabaseException {
     if (data.db != null) {
       data.db.closeQuery(data.rs);
+    }
+    data.keepingStatement = false;
+  }
+
+  /**
+   * Before the query for the next input row: when the previous one kept its prepared statement,
+   * only its result set is closed so the statement can be executed again; otherwise everything is
+   * closed as before.
+   */
+  private void closePreviousResult() throws HopDatabaseException {
+    if (!data.keepingStatement) {
+      closePreviousQuery();
+      return;
+    }
+    if (data.rs != null) {
+      try {
+        data.rs.close();
+      } catch (SQLException e) {
+        throw new HopDatabaseException("Couldn't close the result set of the previous query", e);
+      }
+      data.rs = null;
     }
   }
 
@@ -291,6 +312,13 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     try {
       if (boundMeta == null || boundMeta.isEmpty()) {
         data.rs = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
+      } else if (meta.isExecuteEachInputRow()) {
+        // The same SQL runs once per input row: keep the prepared statement and only bind the
+        // next row's parameters.
+        data.keepingStatement = true;
+        data.rs =
+            data.db.openQueryKeepingStatement(
+                sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       } else {
         data.rs = data.db.openQuery(sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       }
