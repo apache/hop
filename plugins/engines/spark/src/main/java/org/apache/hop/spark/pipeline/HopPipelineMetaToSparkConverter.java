@@ -114,9 +114,6 @@ public class HopPipelineMetaToSparkConverter {
               "BlockUntilTransformsFinish",
               "Block until transforms finish is not supported on the native Spark engine. It waits for other transforms of the same Hop pipeline, but a Spark partition only runs the transforms of its own stage, so the transforms it waits for are never found."),
           Map.entry(
-              "CSVInput",
-              "CSV file input is not supported on the native Spark engine. It only reads paths on the machine that runs it, and its lazy conversion and file names from a field give wrong rows. Use Text file input or Spark file input instead."),
-          Map.entry(
               "ClosureGenerator",
               "Closure generator is not supported on the native Spark engine. It needs every parent-child row in one place, and on Spark every partition only sees its own rows."),
           Map.entry(

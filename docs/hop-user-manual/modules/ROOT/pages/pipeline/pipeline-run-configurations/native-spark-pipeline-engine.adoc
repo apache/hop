@@ -221,7 +221,6 @@ Transforms that exchange rows, files or variables with the workflow or pipeline 
 
 Other:
 
-* xref:pipeline/transforms/csvinput.adoc[CSV file input]: it only reads paths on the machine that runs it. Use xref:pipeline/transforms/textfileinput.adoc[Text File Input] or xref:pipeline/transforms/spark-file-input.adoc[Spark file input] instead
 * xref:pipeline/transforms/injector.adoc[Injector]: it receives the rows an application hands to Hop's own pipeline engine
 * xref:pipeline/transforms/kafkaconsumer.adoc[Kafka consumer]: the engine has no support for unbounded streams; use the Beam Kafka transforms on a Beam engine
 

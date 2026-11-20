@@ -71,9 +71,7 @@ import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
     description = "i18n::CsvInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::CsvInputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/csvinput.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/csvinput.html")
 @Getter
 @Setter
 public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>

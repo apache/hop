@@ -41,6 +41,7 @@ public final class SparkVerifiedTransforms {
           "AvroFileInput",
           "AvroOutput",
           "BinaryFileOutput",
+          "CSVInput",
           "Calculator",
           "ChangeFileEncoding",
           "CheckSum",

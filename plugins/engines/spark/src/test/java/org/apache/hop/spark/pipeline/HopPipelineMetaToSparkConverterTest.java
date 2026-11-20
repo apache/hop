@@ -41,7 +41,6 @@ import org.apache.hop.pipeline.transforms.append.AppendMeta;
 import org.apache.hop.pipeline.transforms.blockingtransform.BlockingTransformMeta;
 import org.apache.hop.pipeline.transforms.blockuntiltransformsfinish.BlockUntilTransformsFinishMeta;
 import org.apache.hop.pipeline.transforms.closure.ClosureGeneratorMeta;
-import org.apache.hop.pipeline.transforms.csvinput.CsvInputMeta;
 import org.apache.hop.pipeline.transforms.detectemptystream.DetectEmptyStreamMeta;
 import org.apache.hop.pipeline.transforms.detectlastrow.DetectLastRowMeta;
 import org.apache.hop.pipeline.transforms.drools.RulesAccumulatorMeta;
@@ -152,7 +151,6 @@ class HopPipelineMetaToSparkConverterTest {
     SparkPipelineEngine engine = new SparkPipelineEngine();
     Map<String, String> expected =
         Map.of(
-            "CSVInput", "Text file input",
             "RowsFromResult", "previous result",
             "RowsToResult", "does not carry rows",
             "SetVariable", "parent workflow",
@@ -253,7 +251,6 @@ class HopPipelineMetaToSparkConverterTest {
             Map.entry(SparkConst.JOIN_ROWS_PLUGIN_ID, JoinRowsMeta.class),
             Map.entry(SparkConst.MASK_FIELDS_PLUGIN_ID, MaskFieldsMeta.class),
             Map.entry("BlockUntilTransformsFinish", BlockUntilTransformsFinishMeta.class),
-            Map.entry("CSVInput", CsvInputMeta.class),
             Map.entry("ClosureGenerator", ClosureGeneratorMeta.class),
             Map.entry("FieldsChangeSequence", FieldsChangeSequenceMeta.class),
             Map.entry("FilesFromResult", FilesFromResultMeta.class),
