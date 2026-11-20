@@ -19,8 +19,11 @@ package org.apache.hop.spark.engines;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +40,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.plugins.IClassLoadingPlugin;
@@ -104,6 +108,38 @@ class SparkPipelineEngineNamedVfsConnectionTest {
 
   @Test
   void aHopTransformOnSparkWritesThroughTheRunsNamedConnection() throws Exception {
+    assertTheRunWritesThroughItsNamedConnection();
+  }
+
+  /**
+   * Hop Server and {@code hop-run} never call {@code cleanup()}, so the next run reuses the Spark
+   * session, and with it the task threads. Those still carry the namespace of the run that created
+   * them, which is closed by then.
+   */
+  @Test
+  void theNextRunOnTheSameSparkSessionWritesThroughItsOwnConnection() throws Exception {
+    assertTheRunWritesThroughItsNamedConnection();
+    assertTheRunWritesThroughItsNamedConnection();
+  }
+
+  /**
+   * A wrong master or an unreachable cluster: the run never starts, so it never finishes and lets
+   * go of its namespace either. On a server that would leak a file system manager every time.
+   */
+  @Test
+  void aStartThatFailsLetsGoOfTheNamespace() throws Exception {
+    SparkPipelineEngine engine = spy(newRun());
+    doThrow(new HopException("The cluster is unreachable")).when(engine).createSparkSession();
+
+    engine.prepareExecution();
+    assertEquals(1, HopVfsNamespaces.size(), "Preparing takes the namespace of the run");
+
+    assertThrows(HopException.class, engine::startThreads);
+    assertEquals(0, HopVfsNamespaces.size(), "The failed start did not let go of its namespace");
+  }
+
+  /** Metadata of its own for every run, like every export sent to a Hop Server. */
+  private SparkPipelineEngine newRun() throws Exception {
     Path input = tempDir.resolve("input.csv");
     Files.writeString(input, "id,name\n1,one\n2,two\n3,three\n", StandardCharsets.UTF_8);
 
@@ -122,6 +158,12 @@ class SparkPipelineEngineNamedVfsConnectionTest {
         new SparkPipelineEngine(pipelineMeta, new LoggingObject("test"), new Variables());
     engine.setMetadataProvider(metadata);
     engine.setPipelineRunConfiguration(runConfiguration);
+    return engine;
+  }
+
+  private void assertTheRunWritesThroughItsNamedConnection() throws Exception {
+    RESOLVED.clear();
+    SparkPipelineEngine engine = newRun();
     engine.prepareExecution();
     engine.startThreads();
     engine.waitUntilFinished();

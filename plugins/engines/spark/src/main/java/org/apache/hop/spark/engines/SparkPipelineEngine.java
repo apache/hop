@@ -306,6 +306,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   @Override
   public void startThreads() throws HopException {
     HopVfsNamespace previousNamespace = null;
+    boolean sparkThreadStarted = false;
     ClassLoader pluginCl = getClass().getClassLoader();
     ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
     try {
@@ -418,6 +419,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               "hop-spark-pipeline");
       sparkThread.setContextClassLoader(pluginCl);
       sparkThread.start();
+      sparkThreadStarted = true;
 
       // Live progress for the Hop Metrics grid (same cadence as Beam)
       metricsRefreshTimer = new Timer("hop-spark-metrics-refresh", true);
@@ -445,6 +447,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       setStopped(true);
       setErrors(getErrors() + 1);
       ExecutorUtil.cleanup(metricsRefreshTimer);
+      if (!sparkThreadStarted) {
+        // Nothing will finish this run and let go of the namespace: no wrong master or unreachable
+        // cluster may leak a file system manager on a server. A started thread releases it itself.
+        releaseVfsNamespace();
+      }
       throw new HopException("Unexpected error starting Spark pipeline", e);
     } finally {
       Thread.currentThread().setContextClassLoader(previousCl);
