@@ -5173,6 +5173,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   /**
    * Return SQL statement (INSERT INTO TableName ...
    *
+   * <p>This quotes the table and column names again for every call. To render many rows of the same
+   * layout use {@link #getSqlOutputTemplate(String, String, IRowMeta, String)} once and {@link
+   * SqlInsertTemplate#getSql(Object[])} per row; the output is identical.
+   *
    * @param schemaName tableName The schema
    * @param tableName
    * @param fields
@@ -5182,88 +5186,25 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public String getSqlOutput(
       String schemaName, String tableName, IRowMeta fields, Object[] r, String dateFormat)
       throws HopDatabaseException {
-    StringBuilder ins = new StringBuilder(128);
+    return getSqlOutputTemplate(schemaName, tableName, fields, dateFormat).getSql(r);
+  }
 
-    try {
-      String schemaTable =
-          databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
-      ins.append("INSERT INTO ").append(schemaTable).append('(');
-
-      // now add the names in the row:
-      for (int i = 0; i < fields.size(); i++) {
-        if (i > 0) {
-          ins.append(", ");
-        }
-        String name = fields.getValueMeta(i).getName();
-        ins.append(databaseMeta.quoteField(name));
-      }
-      ins.append(") VALUES (");
-
-      java.text.SimpleDateFormat[] fieldDateFormatters =
-          new java.text.SimpleDateFormat[fields.size()];
-
-      // new add values ...
-      for (int i = 0; i < fields.size(); i++) {
-        IValueMeta valueMeta = fields.getValueMeta(i);
-        Object valueData = r[i];
-
-        if (i > 0) {
-          ins.append(",");
-        }
-
-        // Check for null values...
-        //
-        if (valueMeta.isNull(valueData)) {
-          ins.append("null");
-        } else {
-          // Normal cases...
-          //
-          switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_STRING:
-              String string = valueMeta.getString(valueData);
-              // Have the database dialect do the quoting.
-              // This also adds the single quotes around the string (thanks to
-              // PostgreSQL)
-              //
-              string = databaseMeta.quoteSqlString(string);
-              ins.append(string);
-              break;
-            case IValueMeta.TYPE_DATE:
-              Date date = fields.getDate(r, i);
-
-              if (Utils.isEmpty(dateFormat)) {
-                // Deprecated path. How a date literal is spelled in generated SQL is dialect
-                // syntax.
-                if (databaseMeta.getIDatabase().isOracleVariant()) {
-                  if (fieldDateFormatters[i] == null) {
-                    fieldDateFormatters[i] = new java.text.SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                  }
-                  ins.append("TO_DATE('")
-                      .append(fieldDateFormatters[i].format(date))
-                      .append("', 'YYYY/MM/DD HH24:MI:SS')");
-                } else {
-                  ins.append("'").append(fields.getString(r, i)).append("'");
-                }
-              } else {
-                try {
-                  java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(dateFormat);
-                  ins.append("'").append(formatter.format(fields.getDate(r, i))).append("'");
-                } catch (Exception e) {
-                  throw new HopDatabaseException("Error : ", e);
-                }
-              }
-              break;
-            default:
-              ins.append(fields.getString(r, i));
-              break;
-          }
-        }
-      }
-      ins.append(')');
-    } catch (Exception e) {
-      throw new HopDatabaseException(e);
-    }
-    return ins.toString();
+  /**
+   * Prepare the rendering of literal INSERT statements for rows of one layout: the quoted table and
+   * column names and the date formatters are worked out once.
+   *
+   * @param schemaName the schema, may be empty
+   * @param tableName the table, variables are resolved
+   * @param fields the layout of the rows
+   * @param dateFormat date format of date fields, or empty for the dialect default
+   * @return a template rendering the same text as {@link #getSqlOutput(String, String, IRowMeta,
+   *     Object[], String)}
+   * @throws HopDatabaseException when the names cannot be quoted
+   */
+  public SqlInsertTemplate getSqlOutputTemplate(
+      String schemaName, String tableName, IRowMeta fields, String dateFormat)
+      throws HopDatabaseException {
+    return new SqlInsertTemplate(databaseMeta, this, schemaName, tableName, fields, dateFormat);
   }
 
   public Savepoint setSavepoint() throws HopDatabaseException {
