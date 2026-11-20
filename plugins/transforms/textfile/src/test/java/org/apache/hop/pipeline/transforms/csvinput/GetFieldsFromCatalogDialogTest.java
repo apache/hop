@@ -18,12 +18,15 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -71,6 +74,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * The CSV file input and Text file input dialogs fill their field table from the schema a data
@@ -89,7 +93,7 @@ class GetFieldsFromCatalogDialogTest extends SwtBotTestBase {
       List.of(
           List.of("id", "Integer", "", "", "0"),
           List.of("email", "String", "", "255", ""),
-          List.of("signed_up", "Date", "yyyy-MM-dd", "", ""));
+          List.of("signed_up", "Date", "", "", ""));
 
   private static MemoryMetadataProvider metadataProvider;
 
@@ -207,6 +211,75 @@ class GetFieldsFromCatalogDialogTest extends SwtBotTestBase {
     // Text file input has a position column between the format and the length
     assertEquals(EXPECTED, rows);
     assertTrue(SchemaCatalog.asked.name().endsWith(FILE), String.valueOf(SchemaCatalog.asked));
+  }
+
+  @Test
+  void csvFileInputDisablesTheCatalogButtonWhenItIgnoresTheFields() {
+    CsvInputMeta meta = new CsvInputMeta();
+    meta.setDefault();
+    meta.setFilename(FILE);
+    meta.setIgnoreFields(true);
+    PipelineMeta pipelineMeta = pipelineWith(meta, "CSV file input");
+    boolean[] enabled = new boolean[1];
+
+    withDialog(
+        parent -> new CsvInputDialog(parent, new Variables(), meta, pipelineMeta).open(),
+        bot -> {
+          SWTBotShell dialog =
+              bot.shell(BaseMessages.getString(CsvInput.class, "CsvInputDialog.Shell.Title"));
+          dialog.activate();
+          enabled[0] =
+              dialog
+                  .bot()
+                  .button(
+                      BaseMessages.getString(
+                          CsvInput.class, "CsvInputDialog.GetFieldsFromCatalog.Button"))
+                  .isEnabled();
+          dialog.bot().button(buttonLabel("System.Button.Cancel")).click();
+        });
+
+    assertFalse(enabled[0], "the button does nothing while the fields are ignored");
+  }
+
+  @Test
+  void textFileInputLooksUpTheFirstFileAFolderWildcardMatches(@TempDir Path folder)
+      throws Exception {
+    Files.writeString(folder.resolve("customers.csv"), "id;email;signed_up\n");
+    Files.writeString(folder.resolve("notes.txt"), "not read\n");
+    TextFileInputMeta meta = new TextFileInputMeta();
+    meta.setDefault();
+    InputFile file = new InputFile();
+    file.setFileName(folder.toString());
+    file.setFileMask(".*\\.csv");
+    meta.getFileInput().getInputFiles().add(file);
+    PipelineMeta pipelineMeta = pipelineWith(meta, "Text file input");
+    String fieldsTab =
+        BaseMessages.getString(TextFileInputMeta.class, "TextFileInputDialog.FieldsTab.TabTitle");
+
+    withDialog(
+        parent -> new TextFileInputDialog(parent, new Variables(), meta, pipelineMeta).open(),
+        bot -> {
+          SWTBotShell dialog =
+              bot.shell(
+                  BaseMessages.getString(
+                      TextFileInputMeta.class, "TextFileInputDialog.DialogTitle"));
+          dialog.activate();
+          display.syncExec(() -> selectTab(dialog.widget, fieldsTab));
+          dialog
+              .bot()
+              .button(
+                  BaseMessages.getString(
+                      TextFileInputMeta.class, "TextFileInputDialog.GetFieldsFromCatalog.Button"))
+              .click();
+          getFieldsFromCatalog(bot, "text-wildcard");
+          readFields(bot, dialog, shell -> tableOnTab(shell, fieldsTab));
+          dialog.bot().button(buttonLabel("System.Button.Cancel")).click();
+        });
+
+    assertNotNull(SchemaCatalog.asked, "the catalog was not asked");
+    assertTrue(
+        SchemaCatalog.asked.name().endsWith("/customers.csv"),
+        "the dataset is the file the wildcard matches, not the folder: " + SchemaCatalog.asked);
   }
 
   /** Accepts the catalog and dataset the dialog starts with. */

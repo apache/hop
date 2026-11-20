@@ -132,6 +132,7 @@ public class CsvInputDialog extends BaseTransformDialog
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
   private MetaSelectionLine wNamingScheme;
   private Button wIgnoreFields;
+  private Button wGetFromCatalog;
 
   public CsvInputDialog(
       Shell parent, IVariables variables, CsvInputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -147,7 +148,8 @@ public class CsvInputDialog extends BaseTransformDialog
     if (CatalogFieldsDialog.isAvailable(metadataProvider)) {
       buttonBar.custom(
           BaseMessages.getString(PKG, "CsvInputDialog.GetFieldsFromCatalog.Button"),
-          e -> getFieldsFromCatalog());
+          e -> getFieldsFromCatalog(),
+          button -> wGetFromCatalog = button);
     }
     buttonBar.preview(e -> preview()).cancel(e -> cancel()).build();
 
@@ -820,6 +822,9 @@ public class CsvInputDialog extends BaseTransformDialog
     }
     wFields.setEnabled(!wIgnoreFields.getSelection());
     wGet.setEnabled(!wIgnoreFields.getSelection());
+    if (wGetFromCatalog != null) {
+      wGetFromCatalog.setEnabled(!wIgnoreFields.getSelection());
+    }
   }
 
   private void setEncodings() {

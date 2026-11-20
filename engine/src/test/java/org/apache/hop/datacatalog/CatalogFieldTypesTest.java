@@ -65,16 +65,11 @@ class CatalogFieldTypesTest {
   }
 
   @Test
-  void datesAndTimesGetAnIsoFormat() {
-    assertField(of("DATE", "DATE"), IValueMeta.TYPE_DATE, -1, -1, "yyyy-MM-dd");
-    assertField(of("DATETIME", "DATE"), IValueMeta.TYPE_DATE, -1, -1, "yyyy-MM-dd HH:mm:ss");
-    assertField(of("TIME", "TIME"), IValueMeta.TYPE_DATE, -1, -1, "HH:mm:ss");
-    assertField(
-        of("TIMESTAMP(6) WITH TIME ZONE", "TIME"),
-        IValueMeta.TYPE_TIMESTAMP,
-        -1,
-        -1,
-        "yyyy-MM-dd HH:mm:ss");
+  void datesAndTimesGetNoFormat() {
+    assertField(of("DATE", "DATE"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("DATETIME", "DATE"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("TIME", "TIME"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("TIMESTAMP(6) WITH TIME ZONE", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
   }
 
   @Test
@@ -83,8 +78,8 @@ class CatalogFieldTypesTest {
     assertField(of("int", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
     assertField(of("double", "NUMBER"), IValueMeta.TYPE_NUMBER, -1, -1, null);
     assertField(of("decimal", "NUMBER"), IValueMeta.TYPE_BIGNUMBER, -1, -1, null);
-    assertField(of("date", "DATE"), IValueMeta.TYPE_DATE, -1, -1, "yyyy-MM-dd");
-    assertField(of("timestamp", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, "yyyy-MM-dd HH:mm:ss");
+    assertField(of("date", "DATE"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("timestamp", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
     assertField(of("boolean", "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
     assertField(of("binary", "BYTES"), IValueMeta.TYPE_BINARY, -1, 0, null);
   }
@@ -93,7 +88,7 @@ class CatalogFieldTypesTest {
   void anUnknownNativeTypeFallsBackToTheCatalogType() {
     assertField(of("money", "NUMBER"), IValueMeta.TYPE_NUMBER, -1, -1, null);
     assertField(of(null, "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
-    assertField(of("", "DATE"), IValueMeta.TYPE_DATE, -1, -1, "yyyy-MM-dd");
+    assertField(of("", "DATE"), IValueMeta.TYPE_DATE, -1, -1, null);
     assertField(of("struct<a:int>", "STRUCT"), IValueMeta.TYPE_STRING, -1, -1, null);
     assertField(of(null, null), IValueMeta.TYPE_STRING, -1, -1, null);
   }

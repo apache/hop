@@ -74,7 +74,7 @@ This happens only in the dialog: the transform keeps the fields it was given, an
 
 The native type of a field gives its Hop type, length and precision: `VARCHAR(255)` is a String of length 255, `DECIMAL(10,2)` a BigNumber with length 10 and precision 2, `NUMERIC(10)` an Integer, `TIMESTAMP` a Timestamp.
 A native type Hop doesn't know falls back to the catalog's own type, and to a String after that.
-A catalog has no formats, so a date gets `yyyy-MM-dd`, a date and time `yyyy-MM-dd HH:mm:ss` and a time `HH:mm:ss`: check them against the file.
+A catalog has no formats, so a date gets none and uses Hop's default format, `yyyy/MM/dd HH:mm:ss.SSS`. That is what Hop writes to a file when the output has no format of its own; check it against the file.
 
 == DataHub
 

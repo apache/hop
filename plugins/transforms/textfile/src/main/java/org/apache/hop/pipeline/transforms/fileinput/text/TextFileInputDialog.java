@@ -3241,19 +3241,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     return fields;
   }
 
-  /** Sets the input width to minimal width... */
   /** Fills the fields from the schema a data catalog has for the first file. */
   private void getFieldsFromCatalog() {
-    String filename = null;
-    if (wFilenameList.getItemCount() > 0) {
-      String[] fileRecord = wFilenameList.getItem(0);
-      filename = fileRecord == null || fileRecord.length == 0 ? null : fileRecord[0];
-    }
     CatalogFieldsDialog.getFields(
         shell,
         variables,
         metadataProvider,
-        new CatalogDataset(CatalogDatasetType.FILE, null, null, filename),
+        new CatalogDataset(CatalogDatasetType.FILE, null, null, firstFileForCatalog()),
         wFields,
         1,
         2,
@@ -3262,6 +3256,24 @@ public class TextFileInputDialog extends BaseTransformDialog
         6);
   }
 
+  /**
+   * The first file the transform reads, resolved the way lineage names it, so a folder with a
+   * wildcard gives the first matching file. Falls back to the first file row as entered when
+   * nothing matches yet.
+   */
+  private String firstFileForCatalog() {
+    if (wFilenameList.getItemCount() <= 0) {
+      return null;
+    }
+    String[] fileRecord = wFilenameList.getItem(0);
+    String entered = fileRecord == null || fileRecord.length == 0 ? null : fileRecord[0];
+    TextFileInputMeta meta = new TextFileInputMeta();
+    getInfo(meta, true);
+    String[] files = meta.getFilePaths(variables);
+    return files.length > 0 ? files[0] : entered;
+  }
+
+  /** Sets the input width to minimal width... */
   public void setMinimalWidth() {
     int nrNonEmptyFields = wFields.nrNonEmpty();
     for (int i = 0; i < nrNonEmptyFields; i++) {

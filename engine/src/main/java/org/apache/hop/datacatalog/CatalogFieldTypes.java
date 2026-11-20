@@ -43,14 +43,11 @@ import org.apache.hop.datacatalog.ISchemaCapability.CatalogField;
  * DECIMAL(10,2)} a BigNumber with length 10 and precision 2, and the names the Hop lineage sinks
  * write ({@code string}, {@code int}, {@code double}, {@code decimal}, ...) map back to the Hop
  * type they came from. A native type it doesn't know falls back to the catalog's own type ({@code
- * STRING}, {@code NUMBER}, ...), and anything else becomes a String. A catalog has no formats, so a
- * date or time gets an ISO format to start from.
+ * STRING}, {@code NUMBER}, ...), and anything else becomes a String. A catalog has no formats, so
+ * no field gets one: a date then uses Hop's default format, which is what Hop itself writes to a
+ * file when no format is set.
  */
 public final class CatalogFieldTypes {
-
-  public static final String DATE_FORMAT = "yyyy-MM-dd";
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-  public static final String TIME_FORMAT = "HH:mm:ss";
 
   /** Longest integer that still fits a Hop Integer. */
   private static final int MAX_INTEGER_DIGITS = 18;
@@ -76,10 +73,8 @@ public final class CatalogFieldTypes {
     if (valueMeta == null) {
       valueMeta = fromCatalogType(field.name(), field.type());
     }
-    if (!valueMeta.isDate()) {
-      // A number comes with a display mask of its own; a catalog says nothing about formats
-      valueMeta.setConversionMask(null);
-    }
+    // A number comes with a default mask of its own; a catalog says nothing about formats
+    valueMeta.setConversionMask(null);
     return valueMeta;
   }
 
@@ -130,12 +125,11 @@ public final class CatalogFieldTypes {
       case "double", "double precision", "float", "float4", "float8", "real", "binary_double" ->
           new ValueMetaNumber(name);
       case "boolean", "bool", "bit" -> new ValueMetaBoolean(name);
-      case "date" -> withFormat(new ValueMetaDate(name), DATE_FORMAT);
-      case "datetime", "datetime2", "smalldatetime" ->
-          withFormat(new ValueMetaDate(name), DATE_TIME_FORMAT);
-      case "time" -> withFormat(new ValueMetaDate(name), TIME_FORMAT);
+      case "date" -> new ValueMetaDate(name);
+      case "datetime", "datetime2", "smalldatetime" -> new ValueMetaDate(name);
+      case "time" -> new ValueMetaDate(name);
       case "timestamp", "timestamptz", "timestamp with time zone", "timestamp without time zone" ->
-          withFormat(new ValueMetaTimestamp(name), DATE_TIME_FORMAT);
+          new ValueMetaTimestamp(name);
       case "binary", "varbinary", "blob", "longblob", "bytea", "bytes", "raw" ->
           new ValueMetaBinary(name);
       default -> null;
@@ -148,8 +142,8 @@ public final class CatalogFieldTypes {
     return switch (typeName) {
       case "NUMBER" -> new ValueMetaNumber(name);
       case "BOOLEAN" -> new ValueMetaBoolean(name);
-      case "DATE" -> withFormat(new ValueMetaDate(name), DATE_FORMAT);
-      case "TIME" -> withFormat(new ValueMetaTimestamp(name), DATE_TIME_FORMAT);
+      case "DATE" -> new ValueMetaDate(name);
+      case "TIME" -> new ValueMetaTimestamp(name);
       case "BYTES", "FIXED" -> new ValueMetaBinary(name);
       default -> new ValueMetaString(name);
     };
@@ -162,11 +156,6 @@ public final class CatalogFieldTypes {
     if (precision >= 0 && length > 0) {
       valueMeta.setPrecision(precision);
     }
-    return valueMeta;
-  }
-
-  private static IValueMeta withFormat(IValueMeta valueMeta, String format) {
-    valueMeta.setConversionMask(format);
     return valueMeta;
   }
 }
