@@ -383,6 +383,15 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
+  public boolean isReservedWord(String word) {
+    // The dialect can be switched at any time: never cache its words here.
+    if (databaseDialect != null) {
+      return databaseDialect.isReservedWord(word);
+    }
+    return super.isReservedWord(word);
+  }
+
+  @Override
   public String getEndQuote() {
     if (databaseDialect != null) {
       return databaseDialect.getEndQuote();
