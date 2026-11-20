@@ -444,9 +444,13 @@ public abstract class S3CommonFileObject extends AbstractFileObject implements I
   }
 
   /**
-   * headObject failed with a non-404 error (e.g. 400 from cross-region). Use listObjectsV2 (which
-   * handles cross-region) to determine if the path is a file, folder, or imaginary. If list returns
-   * 403 (e.g. public bucket with GetObject but not ListBucket), try getObject for the exact key.
+   * headObject failed with a non-404 error (e.g. 400 from cross-region, or 403 for a missing key
+   * when the caller has no unconditional ListBucket). Use listObjectsV2 (which handles
+   * cross-region) to determine if the path is a file, folder, or imaginary. If that list returns
+   * 403, list the key as a folder ({@code key/}) next: a ListBucket permission restricted with an
+   * {@code s3:prefix} condition such as {@code folder/*} denies the bare key but allows the folder
+   * prefix. If that is denied too (e.g. public bucket with GetObject but not ListBucket), try
+   * getObject for the exact key.
    */
   private void resolveTypeViaList(String key, String bucket, String keyWithDelimiter)
       throws FileSystemException {
@@ -483,12 +487,37 @@ public abstract class S3CommonFileObject extends AbstractFileObject implements I
       }
     } catch (S3Exception listError) {
       if (isAccessDenied(listError)) {
+        if (resolveTypeViaFolderList(bucket, keyWithDelimiter)) {
+          return;
+        }
         resolveTypeViaGetObject(key, bucket);
       } else {
         LogChannel.GENERAL.logError(
             "Could not get information on " + getQualifiedName(), listError);
         throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), listError);
       }
+    }
+  }
+
+  /**
+   * List the key as a folder prefix. Returns false when that list is denied as well, true when it
+   * answered: the path is then a folder (with content) or imaginary (nothing under it).
+   */
+  private boolean resolveTypeViaFolderList(String bucket, String keyWithDelimiter)
+      throws FileSystemException {
+    try {
+      if (checkFolderViaList(bucket, keyWithDelimiter)) {
+        this.key = keyWithDelimiter;
+      }
+      return true;
+    } catch (S3Exception folderListError) {
+      if (isAccessDenied(folderListError)) {
+        return false;
+      }
+      LogChannel.GENERAL.logError(
+          "Could not get information on " + getQualifiedName(), folderListError);
+      throw new FileSystemException(
+          "vfs.provider/get-type.error", getQualifiedName(), folderListError);
     }
   }
 
@@ -529,8 +558,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject implements I
     }
   }
 
-  private void checkFolderViaList(String bucket, String keyWithDelimiter)
-      throws FileSystemException {
+  private boolean checkFolderViaList(String bucket, String keyWithDelimiter) {
     ListObjectsV2Response response =
         fileSystem
             .getS3Client()
@@ -547,6 +575,7 @@ public abstract class S3CommonFileObject extends AbstractFileObject implements I
     if (hasContent) {
       injectType(FileType.FOLDER);
     }
+    return hasContent;
   }
 
   private void closeS3Object() throws IOException {

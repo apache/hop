@@ -21,9 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -445,6 +447,85 @@ class S3FileObjectTest {
                 .build());
     s3FileObjectFileSpy.doAttach();
     assertEquals(FileType.IMAGINARY, s3FileObjectFileSpy.getType());
+  }
+
+  /**
+   * #9604: s3:ListBucket is only granted with an s3:prefix condition such as "some/key/*". A HEAD
+   * on the folder key and a list of the bare key are denied, a list of "some/key/" is allowed.
+   */
+  @Test
+  void testDoAttachFolderUnderPrefixRestrictedListBucket() throws Exception {
+    denyHeadObject();
+    denyListOfPrefix(origKey);
+    when(s3ClientMock.listObjectsV2(
+            argThat((ListObjectsV2Request r) -> r != null && (origKey + "/").equals(r.prefix()))))
+        .thenReturn(
+            ListObjectsV2Response.builder()
+                .contents(
+                    software.amazon.awssdk.services.s3.model.S3Object.builder()
+                        .key(origKey + "/file.parquet")
+                        .size(1L)
+                        .build())
+                .commonPrefixes(new ArrayList<>())
+                .build());
+
+    s3FileObjectFileSpy.doAttach();
+
+    assertEquals(FileType.FOLDER, s3FileObjectFileSpy.getType());
+    assertEquals(origKey + "/", s3FileObjectFileSpy.getKey());
+    verify(s3ClientMock, never()).getObject(any(GetObjectRequest.class));
+  }
+
+  /** The folder prefix may be listed but holds nothing: the path is imaginary, not an error. */
+  @Test
+  void testDoAttachEmptyPrefixUnderPrefixRestrictedListBucket() throws Exception {
+    denyHeadObject();
+    denyListOfPrefix(origKey);
+    when(s3ClientMock.listObjectsV2(
+            argThat((ListObjectsV2Request r) -> r != null && (origKey + "/").equals(r.prefix()))))
+        .thenReturn(
+            ListObjectsV2Response.builder()
+                .contents(new ArrayList<>())
+                .commonPrefixes(new ArrayList<>())
+                .build());
+
+    s3FileObjectFileSpy.doAttach();
+
+    assertEquals(FileType.IMAGINARY, s3FileObjectFileSpy.getType());
+    verify(s3ClientMock, never()).getObject(any(GetObjectRequest.class));
+  }
+
+  /** No ListBucket at all (e.g. a public object): both lists are denied, getObject decides. */
+  @Test
+  void testDoAttachFileWithoutListBucket() throws Exception {
+    denyHeadObject();
+    when(s3ClientMock.listObjectsV2(any(ListObjectsV2Request.class))).thenThrow(accessDenied());
+
+    s3FileObjectFileSpy.doAttach();
+
+    verify(s3ClientMock, times(2)).listObjectsV2(any(ListObjectsV2Request.class));
+    verify(s3ClientMock).getObject(any(GetObjectRequest.class));
+  }
+
+  private void denyHeadObject() {
+    when(s3ClientMock.headObject(
+            any(software.amazon.awssdk.services.s3.model.HeadObjectRequest.class)))
+        .thenThrow(accessDenied());
+  }
+
+  private void denyListOfPrefix(String prefix) {
+    when(s3ClientMock.listObjectsV2(
+            argThat((ListObjectsV2Request r) -> r != null && prefix.equals(r.prefix()))))
+        .thenThrow(accessDenied());
+  }
+
+  private static S3Exception accessDenied() {
+    return (S3Exception)
+        S3Exception.builder()
+            .statusCode(403)
+            .message("Access Denied")
+            .awsErrorDetails(AwsErrorDetails.builder().errorCode("AccessDenied").build())
+            .build();
   }
 
   private List<Bucket> createBuckets() {
