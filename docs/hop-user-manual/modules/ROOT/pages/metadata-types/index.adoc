@@ -58,6 +58,7 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/lineage-sink.adoc[Lineage Sink]: A place, such as an OpenLineage collector or DataHub, that runs report their lineage to
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection
 * xref:metadata-types/masking-pattern.adoc[Masking Pattern]: A reusable rule for replacing personal data in a field
+* xref:metadata-types/sharepoint-connection.adoc[SharePoint Connection]: Named VFS access to the document libraries of the SharePoint sites of a Microsoft 365
 * xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]: Connect to one or more S3 endpoints using a Minio client
 * xref:metadata-types/naming-scheme.adoc[Naming Scheme]: Reusable rules to normalize Hop field names, database identifiers, and file or folder names
 * xref:metadata-types/webdav-connection.adoc[WebDAV Connection]: Named WebDAV or WebDAV-over-HTTPS endpoint used as a VFS scheme in file paths

@@ -158,6 +158,14 @@ plugins:
     description: Microsoft Azure Cloud platform
     installPath: plugins/tech/azure
     modulePath: plugins/tech/azure
+  - artifactId: hop-tech-microsoft365
+    name: Microsoft 365
+    category: Technology
+    description: >-
+      Named SharePoint connections usable as a VFS location: read and write the files of
+      SharePoint document libraries and Microsoft Teams channels through Microsoft Graph.
+    installPath: plugins/tech/microsoft365
+    modulePath: plugins/tech/microsoft365
   - artifactId: hop-tech-aws
     name: AWS
     category: Technology
