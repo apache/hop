@@ -62,4 +62,42 @@ class SecretRedactionTest {
   void leavesOrdinaryValuesUntouched() {
     assertEquals("localhost", SecretRedaction.redact("hostname", "localhost"));
   }
+
+  @Test
+  void keepsValuesThatOnlyReferenceAVariable() {
+    // ${PROD_DB_PASSWORD} names where the credential comes from, it is not the credential.
+    assertEquals("${PROD_DB_PASSWORD}", SecretRedaction.redact("password", "${PROD_DB_PASSWORD}"));
+    assertEquals(SecretRedaction.REDACTED, SecretRedaction.redact("password", "x${SUFFIX}"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "AES 2be98afc86aa7f2e4cb79ce10df90acde",
+        "AES2 q83vEjRWeJCrze8SNFZ4kA==",
+        "Encrypted 2be98afc86aa"
+      })
+  void recognisesEncodedPasswords(String value) {
+    assertTrue(SecretRedaction.isEncryptedValue(value), value);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"AES 256", "AES2 mode", "Encryption at rest"})
+  void leavesTextThatOnlyStartsLikeAnEncoderPrefixAlone(String value) {
+    assertFalse(SecretRedaction.isEncryptedValue(value), value);
+  }
+
+  @Test
+  void restConnectionHeaderValueIsASecretButItsNameAndPrefixAreNot() {
+    assertTrue(SecretRedaction.isSecretName("auth_header_value"));
+    assertFalse(SecretRedaction.isSecretName("auth_header_name"));
+    assertFalse(SecretRedaction.isSecretName("auth_header_prefix"));
+    // An OAuth authorization URL is not a secret, so "authorization" is only checked on entry
+    // names, such as a header called Authorization.
+    assertFalse(SecretRedaction.isSecretName("oauth2_authorization_url"));
+    assertTrue(SecretRedaction.isSecretEntryName("Authorization"));
+    assertTrue(SecretRedaction.isSecretEntryName("Proxy-Authorization"));
+    assertTrue(SecretRedaction.isSecretEntryName("API_TOKEN"));
+    assertFalse(SecretRedaction.isSecretEntryName("Accept"));
+  }
 }

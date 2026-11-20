@@ -122,6 +122,7 @@ public final class HopMetadataJsonParser implements DocumentParser {
     JsonNode body = value;
     // A top-level value has no parent object for redactSecrets to check its name against.
     if (value.isValueNode()
+        && !value.isBoolean()
         && SecretRedaction.REDACTED.equals(SecretRedaction.redact(key, value.asText()))) {
       body = TextNode.valueOf(SecretRedaction.REDACTED);
     }
@@ -200,14 +201,21 @@ public final class HopMetadataJsonParser implements DocumentParser {
       boolean secretEntry = isSecretEntry(object, fields);
       for (String field : fields) {
         JsonNode value = object.get(field);
-        if (value != null && value.isValueNode()) {
-          String redacted = SecretRedaction.redact(field, value.asText());
-          if (secretEntry && SecretRedaction.isEntryValueKey(field) && !value.asText().isEmpty()) {
-            redacted = SecretRedaction.REDACTED;
-          }
+        // null and true/false say whether something is set, not what it is.
+        if (value == null || value.isNull() || value.isBoolean()) {
+          continue;
+        }
+        boolean entryValue = secretEntry && SecretRedaction.isEntryValueKey(field);
+        if (value.isValueNode()) {
+          String text = value.asText();
+          String redacted =
+              entryValue ? SecretRedaction.redactValue(text) : SecretRedaction.redact(field, text);
           if (SecretRedaction.REDACTED.equals(redacted)) {
             object.put(field, SecretRedaction.REDACTED);
           }
+        } else if (entryValue && !value.isEmpty()) {
+          // A list or object under a secret entry has no names of its own to check.
+          object.put(field, SecretRedaction.REDACTED);
         } else {
           redactSecrets(value);
         }
@@ -220,19 +228,18 @@ public final class HopMetadataJsonParser implements DocumentParser {
 
   /**
    * True for a name/value entry whose name reads like a credential, such as {@code {"name":
-   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration, or {@code {"key":
+   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration, {@code {"name":
+   * "Authorization", "value": "..."}} in a REST connection's headers, or {@code {"key":
    * "DB_PASSWORD", "value": "..."}} in a pipeline unit test. The value sits under {@code value}, so
    * checking field names alone would keep it.
    */
   private static boolean isSecretEntry(ObjectNode object, List<String> fields) {
     for (String field : fields) {
       JsonNode value = object.get(field);
-      // "key" names unit test variables. It is not a shared entry name key: in transform XML
-      // <key> is a container (Insert/Update keys), not the name of a value.
-      if ((SecretRedaction.isEntryNameKey(field) || "key".equals(field))
+      if (("name".equals(field) || "key".equals(field))
           && value != null
           && value.isTextual()
-          && SecretRedaction.isSecretName(value.asText())) {
+          && SecretRedaction.isSecretEntryName(value.asText())) {
         return true;
       }
     }

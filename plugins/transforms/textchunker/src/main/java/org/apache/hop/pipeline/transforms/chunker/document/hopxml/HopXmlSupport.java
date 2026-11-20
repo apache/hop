@@ -296,7 +296,7 @@ public final class HopXmlSupport {
         continue;
       }
       String defaultValue =
-          SecretRedaction.redact(name, directChildText(parameter, "default_value"));
+          SecretRedaction.redactEntryValue(name, directChildText(parameter, "default_value"));
       String description = directChildText(parameter, "description");
       sb.append("- ").append(name).append(": default=").append(defaultValue);
       if (!description.isEmpty()) {
@@ -363,8 +363,8 @@ public final class HopXmlSupport {
     }
 
     String text = SecretRedaction.redact(tag, textOnly.toString().trim());
-    if (secretEntryValue && !text.isEmpty()) {
-      text = SecretRedaction.REDACTED;
+    if (secretEntryValue) {
+      text = SecretRedaction.redactValue(text);
     }
     if (childElements.isEmpty()) {
       if (!text.isEmpty() && !SKIP_TAGS.contains(tag)) {
@@ -374,7 +374,7 @@ public final class HopXmlSupport {
     }
 
     // The root is the transform or action itself: its <name> is not the name of an entry.
-    boolean secretEntry = depth > 0 && isSecretEntry(childElements);
+    boolean secretEntry = depth > 0 && isSecretEntry(tag, childElements);
     if (childElements.size() == 1 && text.isEmpty()) {
       indent(sb, depth).append(tag).append(":\n");
       serializeElement(childElements.get(0), sb, depth + 1, maxDepth, secretEntryValue);
@@ -392,11 +392,20 @@ public final class HopXmlSupport {
     }
   }
 
-  /** True when one of the children names the entry, and that name reads like a credential. */
-  private static boolean isSecretEntry(List<Element> childElements) {
+  /**
+   * True for a name/value entry whose name reads like a credential: a {@code <parameter>} named by
+   * its {@code <name>}, a pipeline executor mapping named by {@code <variable>} or a Set variables
+   * field named by {@code <variable_name>}. Field definitions have a {@code <name>} too, but they
+   * are not entries: a field called {@code token_count} keeps its settings.
+   */
+  private static boolean isSecretEntry(String tag, List<Element> childElements) {
     for (Element child : childElements) {
-      if (SecretRedaction.isEntryNameKey(child.getTagName())
-          && SecretRedaction.isSecretName(child.getTextContent())) {
+      String childTag = child.getTagName();
+      boolean namesEntry =
+          "variable".equals(childTag)
+              || "variable_name".equals(childTag)
+              || ("name".equals(childTag) && "parameter".equals(tag));
+      if (namesEntry && SecretRedaction.isSecretEntryName(child.getTextContent())) {
         return true;
       }
     }

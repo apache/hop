@@ -178,13 +178,18 @@ class HopPipelineXmlParserTest {
             </parameters>
           </transform>
           <transform>
-            <name>Constants</name>
-            <type>Constant</type>
+            <name>Generate rows</name>
+            <type>RowGenerator</type>
             <fields>
               <field>
-                <name>client_secret</name>
+                <name>token_count</name>
+                <type>Integer</type>
+                <nullif>4096</nullif>
+              </field>
+              <field>
+                <name>password_changed_at</name>
                 <type>String</type>
-                <nullif>abc123</nullif>
+                <nullif>2026-01-01</nullif>
               </field>
             </fields>
           </transform>
@@ -194,9 +199,46 @@ class HopPipelineXmlParserTest {
     String all = allSections(new HopPipelineXmlParser().parse(xml));
 
     assertFalse(all.contains("tok123"), all);
-    assertFalse(all.contains("abc123"), all);
     assertTrue(all.contains("API_TOKEN"), all);
     assertTrue(all.contains("eu-west-1"), all);
+    // Field definitions are not name/value entries: a field named like a credential keeps its
+    // settings.
+    assertTrue(all.contains("nullif: 4096"), all);
+    assertTrue(all.contains("nullif: 2026-01-01"), all);
+  }
+
+  @Test
+  void variableReferencesAreKept() {
+    String xml =
+        """
+        <pipeline>
+          <info>
+            <name>references</name>
+            <parameters>
+              <parameter>
+                <name>DB_PASSWORD</name>
+                <default_value>${PROD_DB_PASSWORD}</default_value>
+              </parameter>
+            </parameters>
+          </info>
+          <transform>
+            <name>Run child</name>
+            <type>PipelineExecutor</type>
+            <parameters>
+              <variablemapping>
+                <variable>API_TOKEN</variable>
+                <field/>
+                <input>${VAULT_API_TOKEN}</input>
+              </variablemapping>
+            </parameters>
+          </transform>
+        </pipeline>
+        """;
+
+    String all = allSections(new HopPipelineXmlParser().parse(xml));
+
+    assertTrue(all.contains("default=${PROD_DB_PASSWORD}"), all);
+    assertTrue(all.contains("input: ${VAULT_API_TOKEN}"), all);
   }
 
   private static String allSections(DocumentNode root) {

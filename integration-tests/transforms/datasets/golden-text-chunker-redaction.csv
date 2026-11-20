@@ -1,10 +1,37 @@
 chunk_text
+"Auth header name
+
+""X-API-Key"""
+"Auth header value
+
+""**redacted**"""
+"Auth type
+
+""API_KEY"""
+"Base Url
+
+""https://api.example.com"""
+"Headers
+
+[ {
+  ""name"" : ""Authorization"",
+  ""value"" : ""**redacted**""
+}, {
+  ""name"" : ""Accept"",
+  ""value"" : ""application/json""
+} ]"
 "Overview
 
 Hop metadata '0001 UNIT'"
 "Overview
 
+Hop metadata 'openai'"
+"Overview
+
 Hop metadata 'prod-env'"
+"Overview
+
+Hop metadata 'prod-lists'"
 "Overview
 
 Hop metadata 'prod-rest'"
@@ -53,6 +80,15 @@ Hop metadata 'smtp'"
   ""value"" : ""eu-west-1"",
   ""description"" : """"
 } ]"
+"Variables
+
+[ {
+  ""name"" : ""API_TOKENS"",
+  ""value"" : ""**redacted**""
+}, {
+  ""name"" : ""DB_PASSWORD"",
+  ""value"" : ""${VAULT_DB_PASSWORD}""
+} ]"
 "param-demo > Overview
 
 Hop pipeline 'param-demo'
@@ -60,6 +96,22 @@ Hop pipeline 'param-demo'
 Parameters:
 - DB_PASSWORD: default=**redacted** — Database password
 - THRESHOLD: default=30"
+"reference-demo > Overview
+
+Hop pipeline 'reference-demo'
+
+Parameters:
+- DB_PASSWORD: default=${PROD_DB_PASSWORD}"
+"reference-demo > Transform: Generate rows (RowGenerator)
+
+transform:
+  name: Generate rows
+  type: RowGenerator
+  fields:
+    field:
+      name: token_count
+      type: Integer
+      nullif: 4096"
 "secret-demo > Overview
 
 Hop pipeline 'secret-demo'"
