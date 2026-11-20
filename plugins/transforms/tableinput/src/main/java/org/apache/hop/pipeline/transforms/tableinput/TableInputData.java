@@ -46,6 +46,12 @@ public class TableInputData extends BaseTransformData implements ITransformData 
   /** Resolved partitioning slice for this copy, or null when partitioning is not configured. */
   public TableInputPartitioning.TableInputPartitionSlice partitionSlice;
 
+  /**
+   * True while the query of "execute for each row" keeps its prepared statement open between input
+   * rows (see {@link org.apache.hop.core.database.Database#openQueryKeepingStatement}).
+   */
+  public boolean keepingStatement;
+
   public TableInputData() {
     super();
 

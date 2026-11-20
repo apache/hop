@@ -215,10 +215,16 @@ public class RowMeta implements IRowMeta {
     try {
       this.valueMetaList = valueMetaList;
       this.cache.invalidate();
+      long nameChanges = ValueMetaBase.getNameChanges();
       for (int i = 0, len = valueMetaList.size(); i < len; i++) {
         IValueMeta valueMeta = valueMetaList.get(i);
         cache.storeMapping(valueMeta.getName(), i);
+        cache.knownNames.add(valueMeta.getName());
+        cache.noteAdded(valueMeta);
       }
+      this.cache.markComplete(nameChanges);
+      // The row goes on using the caller's list, which the caller may still change.
+      this.cache.externalList = true;
       this.needRealClone = null;
       refreshSnapshot();
     } finally {
@@ -257,25 +263,33 @@ public class RowMeta implements IRowMeta {
 
   /**
    * Resolves an existing column index for duplicate detection. Must be called with the write lock
-   * held. After {@link #removeValueMeta(int)} the name cache is cleared; this method still finds
-   * matches by scanning {@link #valueMetaList} (same idea as {@link #indexOfValue(String)}).
+   * held.
+   *
+   * <p>A cache hit is checked against the current name, so it is always right. A miss is only
+   * trusted when {@link RowMetaCache#isMissProven(String, int)}: the cache is complete for every
+   * add, insert and replace, no named value meta has been renamed since it was last checked, and
+   * every name involved lower-cases like plain ASCII, so the lower-cased cache keys agree with
+   * {@link String#equalsIgnoreCase(String)}. Otherwise the cache is completed once from the list -
+   * picking up value metas renamed in place - and asked again, or, for names whose case folding the
+   * cache keys cannot represent, the list is scanned as {@link #indexOfValue(String)} does. This
+   * avoids scanning on every add (that scan made adding n fields O(n&sup2;)).
    */
   private Integer indexOfExistingValueMetaIgnoreCase(String name) {
     if (Utils.isEmpty(name)) {
       return null;
     }
     Integer index = cache.findAndCompare(name, valueMetaList);
-    if (index != null) {
+    if (index != null || cache.isMissProven(name, valueMetaList.size())) {
       return index;
     }
-    for (int i = 0; i < valueMetaList.size(); i++) {
-      if (name.equalsIgnoreCase(valueMetaList.get(i).getName())) {
-        cache.storeMapping(name, i);
-        needRealClone = null;
-        return i;
+    if (RowMetaCache.lowerCasesLikeAscii(name)) {
+      cache.revalidate(valueMetaList);
+      if (!cache.unsafeNames) {
+        return cache.findAndCompare(name, valueMetaList);
       }
     }
-    return null;
+    int found = indexOfValue(name);
+    return found < 0 ? null : found;
   }
 
   /**
@@ -298,6 +312,8 @@ public class RowMeta implements IRowMeta {
         int sz = valueMetaList.size();
         valueMetaList.add(newMeta);
         cache.storeMapping(newMeta.getName(), sz);
+        cache.knownNames.add(newMeta.getName());
+        cache.noteAdded(newMeta);
         needRealClone = null;
         refreshSnapshot();
       } finally {
@@ -329,6 +345,10 @@ public class RowMeta implements IRowMeta {
         // If data is inserted at the index position, the subsequent data will be moved one step
         // backwards.
         cache.insertAtMapping(newMeta.getName(), index);
+        if (index <= cache.knownNames.size()) {
+          cache.knownNames.add(index, newMeta.getName());
+        }
+        cache.noteAdded(newMeta);
         needRealClone = null;
         refreshSnapshot();
       } finally {
@@ -378,6 +398,15 @@ public class RowMeta implements IRowMeta {
         }
         valueMetaList.set(index, newMeta);
         cache.replaceMapping(old.getName(), newMeta.getName(), index);
+        if (index < cache.knownNames.size()) {
+          cache.knownNames.set(index, newMeta.getName());
+        }
+        cache.noteAdded(newMeta);
+        if (!Utils.isEmpty(old.getName()) && !old.getName().equalsIgnoreCase(newMeta.getName())) {
+          // The old name's entry is gone; if the row held that name twice (setValueMetaList allows
+          // it) the other one is no longer mapped, so the next duplicate check completes the cache.
+          cache.complete = false;
+        }
         needRealClone = null;
         refreshSnapshot();
       } finally {
@@ -771,7 +800,12 @@ public class RowMeta implements IRowMeta {
     try {
       for (int x = 0; x < r.size(); x++) {
         IValueMeta field = r.getValueMeta(x);
-        if (searchValueMeta(field.getName()) == null) {
+        String fieldName = field.getName();
+        boolean exists =
+            Utils.isEmpty(fieldName)
+                ? searchValueMeta(fieldName) != null
+                : indexOfExistingValueMetaIgnoreCase(fieldName) != null;
+        if (!exists) {
           addValueMeta(field); // Not in list yet: add
         } else {
           // We want to rename the field to Name[2], Name[3], ...
@@ -789,7 +823,9 @@ public class RowMeta implements IRowMeta {
     //
     int index = 1;
     String name = valueMeta.getName() + "_" + index;
-    while (searchValueMeta(name) != null) {
+    // Called with the write lock held; the candidate is never empty, so the complete-cache lookup
+    // answers exactly what searchValueMeta(name) would.
+    while (indexOfExistingValueMetaIgnoreCase(name) != null) {
       index++;
       name = valueMeta.getName() + "_" + index;
     }
@@ -802,7 +838,13 @@ public class RowMeta implements IRowMeta {
 
     // OK, this is the new name and origin to pick
     //
+    long nameChangesBefore = ValueMetaBase.getNameChanges();
     copy.setName(name);
+    if (copy instanceof ValueMetaBase) {
+      // renaming the copy (not in this row) bumped the global counter; don't let our own rename
+      // force a full revalidation on the next add
+      cache.ownRenameDone(nameChangesBefore);
+    }
     if (originTransform != null) {
       copy.setOrigin(originTransform);
     }
@@ -948,6 +990,7 @@ public class RowMeta implements IRowMeta {
     try {
       valueMetaList.clear();
       cache.invalidate();
+      cache.markComplete(ValueMetaBase.getNameChanges());
       needRealClone = null;
       refreshSnapshot();
     } finally {
@@ -1388,6 +1431,45 @@ public class RowMeta implements IRowMeta {
   static class RowMetaCache {
     @VisibleForTesting final Map<String, Integer> mapping;
 
+    /**
+     * True when {@link #mapping} holds an entry for every non-empty name in the row, so a miss
+     * proves the name is absent. Only read and written with the owning row's write lock held,
+     * except that a reader dropping a stale entry may clear it (never set it).
+     */
+    @VisibleForTesting volatile boolean complete;
+
+    /**
+     * True when a name was mapped whose lower-cased key may not agree with {@link
+     * String#equalsIgnoreCase(String)}: a name with non-ASCII characters, or a capital I in a
+     * default locale that lower-cases it to a dotless i. A miss can then not be trusted.
+     */
+    volatile boolean unsafeNames;
+
+    /** True when the row uses a list its caller handed in and may still change. */
+    volatile boolean externalList;
+
+    /**
+     * {@link ValueMetaBase#getNameChanges()} as read just before the cache was last proven
+     * complete. If the counter moved since, some value meta may have been renamed in place, so a
+     * miss has to be checked against the list again.
+     */
+    private volatile long validatedAtNameChanges;
+
+    /**
+     * True when the row holds a value meta whose renames the counter cannot see: one that does not
+     * extend {@link ValueMetaBase}, or one without a name (naming an unnamed value meta does not
+     * count as a rename). Misses are then always checked against the list, as before.
+     */
+    private volatile boolean alwaysValidate;
+
+    /**
+     * The name of every value meta, by position, as it was when it went into {@link #mapping}. When
+     * renames may have happened, comparing these references with the current names is a cheap way
+     * to prove nothing in this row changed, without rebuilding the mapping. Only used with the
+     * owning row's write lock held (or its read lock, when cloning).
+     */
+    final List<String> knownNames;
+
     RowMetaCache() {
       this(new ConcurrentHashMap<>());
     }
@@ -1399,20 +1481,160 @@ public class RowMeta implements IRowMeta {
      */
     RowMetaCache(RowMetaCache rowMetaCache) {
       this(new ConcurrentHashMap<>(rowMetaCache.mapping));
+      this.knownNames.addAll(rowMetaCache.knownNames);
+      this.complete = rowMetaCache.complete;
+      this.validatedAtNameChanges = rowMetaCache.validatedAtNameChanges;
+      this.alwaysValidate = rowMetaCache.alwaysValidate;
+      this.unsafeNames = rowMetaCache.unsafeNames;
     }
 
     RowMetaCache(Map<String, Integer> mapping) {
       this.mapping = mapping;
+      this.knownNames = new ArrayList<>();
+      this.validatedAtNameChanges = ValueMetaBase.getNameChanges();
+      this.complete = mapping.isEmpty();
+    }
+
+    /**
+     * True when a miss in {@link #mapping} proves that no value meta in the row has the given name.
+     *
+     * @param name the name that was not found
+     * @param listSize the current size of the row's list, which the cache must know in full
+     */
+    boolean isMissProven(String name, int listSize) {
+      return complete
+          && !alwaysValidate
+          && !unsafeNames
+          && !externalList
+          && knownNames.size() == listSize
+          && validatedAtNameChanges == ValueMetaBase.getNameChanges()
+          && lowerCasesLikeAscii(name);
+    }
+
+    /**
+     * True when the default-locale lower case of the name, which keys {@link #mapping}, matches
+     * names exactly as {@link String#equalsIgnoreCase(String)} does: only ASCII characters, and no
+     * capital I unless the default locale lower-cases it to a plain i (Turkish and Azerbaijani do
+     * not).
+     */
+    static boolean lowerCasesLikeAscii(String name) {
+      boolean capitalI = false;
+      for (int i = 0, length = name.length(); i < length; i++) {
+        char c = name.charAt(i);
+        if (c >= 0x80) {
+          return false;
+        }
+        capitalI |= c == 'I';
+      }
+      return !capitalI || "i".equals("I".toLowerCase());
+    }
+
+    private void noteMapped(String name) {
+      if (!lowerCasesLikeAscii(name)) {
+        unsafeNames = true;
+      }
+    }
+
+    /**
+     * Make a miss trustworthy again after renames may have happened. If every value meta still
+     * carries the very name object it had when it was mapped, the mapping is still exact and only
+     * the rename count is refreshed: an O(n) pass of reference checks. Otherwise the mapping is
+     * completed from the list.
+     */
+    void revalidate(List<? extends IValueMeta> metas) {
+      // read before checking: a rename during the check must invalidate this result again
+      long nameChanges = ValueMetaBase.getNameChanges();
+      int size = metas.size();
+      if (complete && knownNames.size() == size) {
+        boolean unchanged = true;
+        for (int i = 0; i < size && unchanged; i++) {
+          // identity on purpose: the same String object means setName was not called with a
+          // different value since it was mapped; an equal copy only costs a full completion
+          unchanged = metas.get(i).getName() == knownNames.get(i);
+        }
+        if (unchanged) {
+          markComplete(nameChanges);
+          return;
+        }
+      }
+      complete(metas);
+    }
+
+    /** The mapping now covers every name, as of the given rename count. */
+    void markComplete(long nameChanges) {
+      validatedAtNameChanges = nameChanges;
+      complete = true;
+    }
+
+    /** Record a value meta that was put in the row, see {@link #alwaysValidate}. */
+    void noteAdded(IValueMeta valueMeta) {
+      if (!(valueMeta instanceof ValueMetaBase) || Utils.isEmpty(valueMeta.getName())) {
+        alwaysValidate = true;
+      }
+    }
+
+    /**
+     * The row renamed a fresh copy, which bumped the rename counter by one. If nothing else was
+     * renamed meanwhile, the cache stays proven.
+     */
+    void ownRenameDone(long nameChangesBefore) {
+      if (validatedAtNameChanges == nameChangesBefore
+          && ValueMetaBase.getNameChanges() == nameChangesBefore + 1) {
+        validatedAtNameChanges = nameChangesBefore + 1;
+      }
+    }
+
+    /**
+     * Fill in the missing names so a miss can be trusted again. Valid entries are kept, stale ones
+     * are dropped, and every name not mapped yet gets its first occurrence - the index a scan of
+     * the list would have found and cached.
+     */
+    void complete(List<? extends IValueMeta> metas) {
+      // read before scanning: a rename during the scan must invalidate this result again
+      long nameChanges = ValueMetaBase.getNameChanges();
+      int size = metas.size();
+      mapping
+          .entrySet()
+          .removeIf(
+              e ->
+                  e.getValue() >= size
+                      || !e.getKey().equalsIgnoreCase(metas.get(e.getValue()).getName()));
+      boolean unverifiable = false;
+      unsafeNames = false;
+      for (String key : mapping.keySet()) {
+        noteMapped(key);
+      }
+      knownNames.clear();
+      for (int i = 0; i < size; i++) {
+        IValueMeta valueMeta = metas.get(i);
+        String name = valueMeta.getName();
+        knownNames.add(name);
+        if (Utils.isEmpty(name)) {
+          unverifiable = true;
+        } else {
+          mapping.putIfAbsent(name.toLowerCase(), i);
+          noteMapped(name);
+          unverifiable |= !(valueMeta instanceof ValueMetaBase);
+        }
+      }
+      alwaysValidate = unverifiable;
+      markComplete(nameChanges);
     }
 
     void invalidate() {
       mapping.clear();
+      knownNames.clear();
+      complete = false;
+      // nothing is mapped any more; recomputed by complete() or noteAdded()
+      alwaysValidate = false;
+      unsafeNames = false;
     }
 
     void storeMapping(String name, int index) {
       if (Utils.isEmpty(name)) {
         return;
       }
+      noteMapped(name);
       mapping.put(name.toLowerCase(), index);
     }
 
@@ -1428,6 +1650,7 @@ public class RowMeta implements IRowMeta {
         return;
       }
 
+      noteMapped(name);
       String key = name.toLowerCase();
       // For all values that are greater than or equal to the index, increment them by 1.
       mapping.replaceAll((k, v) -> v >= index ? v + 1 : v);
@@ -1445,6 +1668,7 @@ public class RowMeta implements IRowMeta {
         IValueMeta value = metas.get(index);
         if (!name.equalsIgnoreCase(value.getName())) {
           mapping.remove(name);
+          complete = false;
           index = null;
         }
       }
