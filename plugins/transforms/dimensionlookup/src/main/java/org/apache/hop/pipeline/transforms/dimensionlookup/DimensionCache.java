@@ -17,17 +17,31 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.nio.ByteBuffer;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
@@ -47,6 +61,22 @@ public class DimensionCache implements Comparator<Object[]> {
   private int[] keyIndexes;
   private int fromDateIndex;
   private int toDateIndex;
+
+  /** Natural key, normalised, to the [start, end) run of its versions in the sorted cache. */
+  private Map<Object, Long> keyIndex;
+
+  private KeyNormalizer[] keyNormalizers;
+
+  /** Whether the date ranges are pre-computed as longs, by row index, in the arrays below. */
+  private boolean fastDates;
+
+  private boolean timestampDates;
+  private long[] fromMillis;
+  private int[] fromNanos;
+  private boolean[] fromNull;
+  private long[] toMillis;
+  private int[] toNanos;
+  private boolean[] toNull;
 
   /**
    * Create a new dimension cache object
@@ -106,6 +136,7 @@ public class DimensionCache implements Comparator<Object[]> {
    * @param row the row to add
    */
   public void addRow(Object[] row) {
+    clearIndex();
     rowCache.add(row);
   }
 
@@ -126,6 +157,7 @@ public class DimensionCache implements Comparator<Object[]> {
    * @param row the row to add
    */
   public void addRow(int index, Object[] row) {
+    clearIndex();
     rowCache.add(index, row);
   }
 
@@ -139,6 +171,9 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public int lookupRow(Object[] lookupRowData) throws HopException {
     try {
+      if (keyIndex != null) {
+        return lookupRowIndexed(lookupRowData);
+      }
       // First perform the lookup!
       //
       int index = Collections.binarySearch(rowCache, lookupRowData, this);
@@ -162,59 +197,161 @@ public class DimensionCache implements Comparator<Object[]> {
           // See if the natural key matches...
           //
           int cmp = rowMeta.compare(row, lookupRowData, keyIndexes);
-          if (cmp == 0) {
-            // The natural keys match, now see if the lookup date (lookupRowData[fromDateIndex]) is
-            // between
-            // row[fromDateIndex] and row[toDateIndex]
-            //
-            Date fromDate = rowMeta.getDate(row, fromDateIndex);
-            Date toDate = rowMeta.getDate(row, toDateIndex);
-            Date lookupDate = rowMeta.getDate(lookupRowData, fromDateIndex);
-
-            if (fromDate == null && toDate != null) {
-              // This is the case where the fromDate is null and the toDate is not.
-              // This is a special case where null as a start date means -Infinity
-              //
-              if (toDate.compareTo(lookupDate) > 0) {
-                return insertionPoint; // found the key!!
-              } else {
-                // This should never happen, it's a flaw in the data or the binary search
-                // algorithm...
-                // TODO: print the row perhaps?
-                //
-                throw new HopException(
-                    "Key sorting problem detected during row cache lookup: the lookup date of "
-                        + "the row retrieved is higher than or equal to the end of the date range.");
-              }
-            } else if (fromDate != null && toDate == null) {
-              // This is the case where the toDate is null and the fromDate is not.
-              // This is a special case where null as an end date means +Infinity
-              //
-              if (fromDate.compareTo(lookupDate) <= 0) {
-                return insertionPoint; // found the key!!
-              } else {
-                // This should never happen, it's a flaw in the data or the binary search
-                // algorithm...
-                // TODO: print the row perhaps?
-                //
-                throw new HopException(
-                    "Key sorting problem detected during row cache lookup: the lookup date of the row "
-                        + "retrieved is lower than or equal to the start of the date range.");
-              }
-            } else {
-              // Both dates are available: simply see if the lookup date falls in between...
-              //
-              if (fromDate.compareTo(lookupDate) <= 0 && toDate.compareTo(lookupDate) > 0) {
-                return insertionPoint;
-              }
-              // Else this is a cache miss.
-            }
+          if (cmp == 0 && isInRangeAtInsertionPoint(row, lookupRowData)) {
+            return insertionPoint;
           }
         }
       }
       return index;
     } catch (HopRuntimeException e) {
       throw new HopException(e);
+    }
+  }
+
+  /**
+   * The same lookup as the binary search over the whole cache, but the natural key is found with
+   * the key index, so the binary search only runs over that key's versions and only compares dates.
+   * Because the versions of a key are contiguous in the sorted cache and the comparator partitions
+   * them the same way, the search ends on the same row index (or, for a known key, the same
+   * insertion point) as the search over the whole cache. An unknown key returns -1.
+   */
+  private int lookupRowIndexed(Object[] lookupRowData) throws HopException {
+    Long run = keyIndex.get(indexKey(lookupRowData));
+    if (run == null) {
+      return -1;
+    }
+    int start = (int) (run >>> 32);
+    int end = (int) (long) run; // exclusive
+
+    int index;
+    if (fastDates) {
+      index = searchVersionsFast(start, end, lookupRowData);
+    } else {
+      index = searchVersions(start, end, lookupRowData);
+    }
+    if (index < 0) {
+      int insertionPoint = -(index + 1);
+      // The row at the insertion point only has the same natural key when it lies in this run.
+      if (insertionPoint < rowCache.size() - 1
+          && insertionPoint < end
+          && isInRangeAtInsertionPoint(rowCache.get(insertionPoint), lookupRowData)) {
+        return insertionPoint;
+      }
+    }
+    return index;
+  }
+
+  /** Collections.binarySearch over [start, end) with the date part of {@link #compare}. */
+  private int searchVersions(int start, int end, Object[] lookupRowData) {
+    int low = start;
+    int high = end - 1;
+    while (low <= high) {
+      int mid = (low + high) >>> 1;
+      int cmp = compareDateRange(rowCache.get(mid), lookupRowData);
+      if (cmp < 0) {
+        low = mid + 1;
+      } else if (cmp > 0) {
+        high = mid - 1;
+      } else {
+        return mid;
+      }
+    }
+    return -(low + 1);
+  }
+
+  /** {@link #searchVersions} on the pre-computed dates, with plain long comparisons. */
+  private int searchVersionsFast(int start, int end, Object[] lookupRowData) throws HopException {
+    Date lookupDate = rowMeta.getValueMeta(fromDateIndex).getDate(lookupRowData[fromDateIndex]);
+    boolean lookupNull = lookupDate == null;
+    long lookupMillis = 0L;
+    int lookupNanos = 0;
+    if (!lookupNull) {
+      lookupMillis = lookupDate.getTime();
+      lookupNanos = nanosOf(lookupDate);
+    }
+
+    int low = start;
+    int high = end - 1;
+    while (low <= high) {
+      int mid = (low + high) >>> 1;
+      int cmp;
+      if (fromNull[mid]) {
+        cmp = lookupNull ? 0 : -1;
+      } else if (lookupNull) {
+        cmp = 1;
+      } else {
+        cmp = compareInstant(fromMillis[mid], fromNanos[mid], lookupMillis, lookupNanos);
+      }
+      if (cmp < 0
+          && !toNull[mid]
+          && compareInstant(toMillis[mid], toNanos[mid], lookupMillis, lookupNanos) > 0) {
+        cmp = 0;
+      }
+      if (cmp < 0) {
+        low = mid + 1;
+      } else if (cmp > 0) {
+        high = mid - 1;
+      } else {
+        return mid;
+      }
+    }
+    return -(low + 1);
+  }
+
+  private static int compareInstant(long millis1, int nanos1, long millis2, int nanos2) {
+    int cmp = Long.compare(millis1, millis2);
+    return cmp != 0 ? cmp : Integer.compare(nanos1, nanos2);
+  }
+
+  /** Only a timestamp column compares nanoseconds (Timestamp.compareTo), a date column does not. */
+  private int nanosOf(Date date) {
+    return timestampDates ? ((Timestamp) date).getNanos() : 0;
+  }
+
+  /**
+   * The check on the row at the binary search's insertion point once its natural key is known to
+   * match: does the lookup date (lookupRowData[fromDateIndex]) fall between row[fromDateIndex] and
+   * row[toDateIndex]?
+   */
+  private boolean isInRangeAtInsertionPoint(Object[] row, Object[] lookupRowData)
+      throws HopException {
+    Date fromDate = rowMeta.getDate(row, fromDateIndex);
+    Date toDate = rowMeta.getDate(row, toDateIndex);
+    Date lookupDate = rowMeta.getDate(lookupRowData, fromDateIndex);
+
+    if (fromDate == null && toDate != null) {
+      // This is the case where the fromDate is null and the toDate is not.
+      // This is a special case where null as a start date means -Infinity
+      //
+      if (toDate.compareTo(lookupDate) > 0) {
+        return true; // found the key!!
+      } else {
+        // This should never happen, it's a flaw in the data or the binary search
+        // algorithm...
+        //
+        throw new HopException(
+            "Key sorting problem detected during row cache lookup: the lookup date of "
+                + "the row retrieved is higher than or equal to the end of the date range.");
+      }
+    } else if (fromDate != null && toDate == null) {
+      // This is the case where the toDate is null and the fromDate is not.
+      // This is a special case where null as an end date means +Infinity
+      //
+      if (fromDate.compareTo(lookupDate) <= 0) {
+        return true; // found the key!!
+      } else {
+        // This should never happen, it's a flaw in the data or the binary search
+        // algorithm...
+        //
+        throw new HopException(
+            "Key sorting problem detected during row cache lookup: the lookup date of the row "
+                + "retrieved is lower than or equal to the start of the date range.");
+      }
+    } else {
+      // Both dates are available: simply see if the lookup date falls in between...
+      // Else this is a cache miss.
+      //
+      return fromDate.compareTo(lookupDate) <= 0 && toDate.compareTo(lookupDate) > 0;
     }
   }
 
@@ -307,7 +444,221 @@ public class DimensionCache implements Comparator<Object[]> {
   }
 
   public void sortRows() {
+    clearIndex();
     Collections.sort(rowCache, this);
+  }
+
+  /**
+   * Index the sorted cache by natural key, so that {@link #lookupRow} no longer binary-searches all
+   * rows with generic row comparisons. Call it after {@link #sortRows()}; any later change to the
+   * cache drops the index again and lookups go back to the binary search.
+   *
+   * <p>The index only works when key equality can be expressed as equality of a normalised value
+   * that agrees with how the key column's metadata compares: see {@link #keyNormalizer}. When a key
+   * column is of another kind, or the sorted rows show that the normalised keys and the comparison
+   * disagree, no index is built and nothing changes.
+   *
+   * @return true when the index was built
+   */
+  public boolean buildIndex() {
+    clearIndex();
+    if (rowCache == null || rowCache.isEmpty() || keyIndexes == null || keyIndexes.length == 0) {
+      return false;
+    }
+    try {
+      KeyNormalizer[] normalizers = new KeyNormalizer[keyIndexes.length];
+      for (int i = 0; i < keyIndexes.length; i++) {
+        normalizers[i] = keyNormalizer(rowMeta.getValueMeta(keyIndexes[i]));
+        if (normalizers[i] == null) {
+          return false;
+        }
+      }
+      keyNormalizers = normalizers;
+
+      int size = rowCache.size();
+      Map<Object, Long> index = HashMap.newHashMap(size);
+      Object runKey = null;
+      int runStart = 0;
+      for (int i = 0; i < size; i++) {
+        Object key = indexKey(rowCache.get(i));
+        if (i > 0) {
+          boolean sameKey = key.equals(runKey);
+          boolean comparesEqual =
+              rowMeta.compare(rowCache.get(i - 1), rowCache.get(i), keyIndexes) == 0;
+          if (sameKey != comparesEqual) {
+            // The normalised key does not agree with the comparison: do not index.
+            clearIndex();
+            return false;
+          }
+          if (sameKey) {
+            continue;
+          }
+          if (index.put(runKey, run(runStart, i)) != null) {
+            // The same key in two places: the cache is not sorted the way it is indexed.
+            clearIndex();
+            return false;
+          }
+        }
+        runKey = key;
+        runStart = i;
+      }
+      if (index.put(runKey, run(runStart, size)) != null) {
+        clearIndex();
+        return false;
+      }
+
+      fastDates = preComputeDates();
+      keyIndex = index;
+      return true;
+    } catch (Exception e) {
+      // Whatever the index cannot handle, the binary search still does.
+      clearIndex();
+      return false;
+    }
+  }
+
+  /** Whether lookups use the natural key index. */
+  public boolean isIndexed() {
+    return keyIndex != null;
+  }
+
+  private static Long run(int start, int end) {
+    return ((long) start << 32) | (end & 0xFFFFFFFFL);
+  }
+
+  private void clearIndex() {
+    keyIndex = null;
+    keyNormalizers = null;
+    fastDates = false;
+    timestampDates = false;
+    fromMillis = null;
+    fromNanos = null;
+    fromNull = null;
+    toMillis = null;
+    toNanos = null;
+    toNull = null;
+  }
+
+  /** The natural key of a cache or lookup row, normalised, as a hash key. */
+  private Object indexKey(Object[] row) throws HopValueException {
+    if (keyNormalizers.length == 1) {
+      return keyNormalizers[0].normalize(row[keyIndexes[0]]);
+    }
+    Object[] key = new Object[keyNormalizers.length];
+    for (int i = 0; i < key.length; i++) {
+      key[i] = keyNormalizers[i].normalize(row[keyIndexes[i]]);
+    }
+    return Arrays.asList(key);
+  }
+
+  @FunctionalInterface
+  interface KeyNormalizer {
+    Object normalize(Object value) throws HopValueException;
+  }
+
+  /** Stands for every value the key column's metadata considers null. */
+  private static final Object NULL_KEY =
+      new Object() {
+        @Override
+        public String toString() {
+          return "NULL_KEY";
+        }
+      };
+
+  /**
+   * A function that maps the values of a key column onto objects that are equal exactly when {@link
+   * IValueMeta#compare(Object, Object)} of that column returns 0, or null when the column's
+   * comparison cannot be expressed that way. Only the core value types qualify, and only by their
+   * exact class: a subclass could compare differently. Null handling follows the comparison: what
+   * {@link IValueMeta#isNull(Object)} calls null (an empty string, too) is one key.
+   */
+  static KeyNormalizer keyNormalizer(IValueMeta valueMeta) {
+    Class<?> type = valueMeta.getClass();
+    KeyNormalizer normalizer;
+    if (type == ValueMetaString.class) {
+      if (!valueMeta.isCollatorDisabled() || valueMeta.isCaseInsensitive()) {
+        return null; // a collator or case folding: equal is not equals()
+      }
+      boolean trim = valueMeta.isIgnoreWhitespace();
+      normalizer =
+          value -> {
+            String string = valueMeta.getString(value);
+            return trim ? string.trim() : string;
+          };
+    } else if (type == ValueMetaInteger.class) {
+      normalizer = valueMeta::getInteger;
+    } else if (type == ValueMetaNumber.class) {
+      normalizer = valueMeta::getNumber; // Double.equals() is Double.compare() == 0
+    } else if (type == ValueMetaBigNumber.class) {
+      normalizer = value -> valueMeta.getBigNumber(value).stripTrailingZeros();
+    } else if (type == ValueMetaBoolean.class) {
+      normalizer = valueMeta::getBoolean;
+    } else if (type == ValueMetaDate.class) {
+      normalizer = value -> valueMeta.getDate(value).getTime();
+    } else if (type == ValueMetaTimestamp.class) {
+      normalizer =
+          value -> {
+            Timestamp timestamp = (Timestamp) valueMeta.getDate(value);
+            return List.of(timestamp.getTime(), timestamp.getNanos());
+          };
+    } else if (type == ValueMetaBinary.class
+        && valueMeta.getStorageType() == IValueMeta.STORAGE_TYPE_NORMAL) {
+      normalizer = value -> ByteBuffer.wrap((byte[]) value);
+    } else {
+      return null;
+    }
+    return value -> valueMeta.isNull(value) ? NULL_KEY : normalizer.normalize(value);
+  }
+
+  /**
+   * Pre-computes the date ranges as longs when both columns are plain dates or both timestamps in
+   * normal storage, ascending: then comparing the longs is exactly what {@link #compareDateRange}
+   * does. Otherwise the indexed lookup compares the dates with their metadata.
+   */
+  private boolean preComputeDates() throws HopValueException {
+    IValueMeta fromMeta = rowMeta.getValueMeta(fromDateIndex);
+    IValueMeta toMeta = rowMeta.getValueMeta(toDateIndex);
+    Class<?> type = fromMeta.getClass();
+    if ((type != ValueMetaDate.class && type != ValueMetaTimestamp.class)
+        || toMeta.getClass() != type
+        || fromMeta.getStorageType() != IValueMeta.STORAGE_TYPE_NORMAL
+        || toMeta.getStorageType() != IValueMeta.STORAGE_TYPE_NORMAL
+        || fromMeta.isSortedDescending()
+        || toMeta.isSortedDescending()) {
+      return false;
+    }
+    timestampDates = type == ValueMetaTimestamp.class;
+    int size = rowCache.size();
+    long[] fm = new long[size];
+    int[] fn = new int[size];
+    boolean[] fnull = new boolean[size];
+    long[] tm = new long[size];
+    int[] tn = new int[size];
+    boolean[] tnull = new boolean[size];
+    for (int i = 0; i < size; i++) {
+      Object[] row = rowCache.get(i);
+      Date from = fromMeta.getDate(row[fromDateIndex]);
+      if (from == null) {
+        fnull[i] = true;
+      } else {
+        fm[i] = from.getTime();
+        fn[i] = nanosOf(from);
+      }
+      Date to = toMeta.getDate(row[toDateIndex]);
+      if (to == null) {
+        tnull[i] = true;
+      } else {
+        tm[i] = to.getTime();
+        tn[i] = nanosOf(to);
+      }
+    }
+    fromMillis = fm;
+    fromNanos = fn;
+    fromNull = fnull;
+    toMillis = tm;
+    toNanos = tn;
+    toNull = tnull;
+    return true;
   }
 
   private int compareNaturalKeys(Object[] row1, Object[] row2) {
@@ -403,8 +754,20 @@ public class DimensionCache implements Comparator<Object[]> {
         return cmp;
       }
 
-      // Then see if the start of the date range of o2 falls between the start and end of o2
-      //
+      return compareDateRange(o1, o2);
+    } catch (HopRuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new HopRuntimeException(e);
+    }
+  }
+
+  /**
+   * The date part of {@link #compare}: 0 when the lookup date (o2's start of the date range) falls
+   * in o1's range, otherwise the comparison of o1's start with the lookup date.
+   */
+  private int compareDateRange(Object[] o1, Object[] o2) {
+    try {
       IValueMeta fromDateMeta = rowMeta.getValueMeta(fromDateIndex);
       IValueMeta toDateMeta = rowMeta.getValueMeta(toDateIndex);
 
@@ -450,6 +813,7 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
+    clearIndex();
   }
 
   /**
@@ -464,6 +828,7 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public void setRowCache(List<Object[]> rowCache) {
     this.rowCache = rowCache;
+    clearIndex();
   }
 
   /**
@@ -478,6 +843,7 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public void setKeyIndexes(int[] keyIndexes) {
     this.keyIndexes = keyIndexes;
+    clearIndex();
   }
 
   /**
@@ -492,6 +858,7 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public void setFromDateIndex(int fromDateIndex) {
     this.fromDateIndex = fromDateIndex;
+    clearIndex();
   }
 
   /**
@@ -506,5 +873,6 @@ public class DimensionCache implements Comparator<Object[]> {
    */
   public void setToDateIndex(int toDateIndex) {
     this.toDateIndex = toDateIndex;
+    clearIndex();
   }
 }
