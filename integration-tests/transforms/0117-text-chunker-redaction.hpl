@@ -79,6 +79,14 @@ limitations under the License.
         <item>metadata</item>
         <item>{"name":"prod-env","variables":[&#10;{"name":"API_TOKEN","value":"tok-987654","description":""},&#10;{"name":"REGION","value":"eu-west-1","description":""}]}</item>
       </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"smtp","protocol":"SMTP","serverHost":"smtp.example.com","serverPort":"587",&#10;"username":"hop","password":"Encrypted 2be98afc86aa7f2e4cb79ce10df90acde"}</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"0001 UNIT","variableValues":[&#10;{"key":"DB_PASSWORD","value":"unit-test-s3cr3t"},&#10;{"key":"REGION","value":"eu-west-1"}]}</item>
+      </line>
     </data>
     <fields>
       <field>

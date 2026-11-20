@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.chunker.document.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +119,13 @@ public final class HopMetadataJsonParser implements DocumentParser {
                           0)));
       return;
     }
-    children.add(DocumentNode.leaf(humanizeKey(key), prettyJson(value), 0));
+    JsonNode body = value;
+    // A top-level value has no parent object for redactSecrets to check its name against.
+    if (value.isValueNode()
+        && SecretRedaction.REDACTED.equals(SecretRedaction.redact(key, value.asText()))) {
+      body = TextNode.valueOf(SecretRedaction.REDACTED);
+    }
+    children.add(DocumentNode.leaf(humanizeKey(key), prettyJson(body), 0));
   }
 
   private static boolean allValuesAreObjects(JsonNode object) {
@@ -213,13 +220,16 @@ public final class HopMetadataJsonParser implements DocumentParser {
 
   /**
    * True for a name/value entry whose name reads like a credential, such as {@code {"name":
-   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration. The value sits
-   * under {@code value}, so checking field names alone would keep it.
+   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration, or {@code {"key":
+   * "DB_PASSWORD", "value": "..."}} in a pipeline unit test. The value sits under {@code value}, so
+   * checking field names alone would keep it.
    */
   private static boolean isSecretEntry(ObjectNode object, List<String> fields) {
     for (String field : fields) {
       JsonNode value = object.get(field);
-      if (SecretRedaction.isEntryNameKey(field)
+      // "key" names unit test variables. It is not a shared entry name key: in transform XML
+      // <key> is a container (Insert/Update keys), not the name of a value.
+      if ((SecretRedaction.isEntryNameKey(field) || "key".equals(field))
           && value != null
           && value.isTextual()
           && SecretRedaction.isSecretName(value.asText())) {

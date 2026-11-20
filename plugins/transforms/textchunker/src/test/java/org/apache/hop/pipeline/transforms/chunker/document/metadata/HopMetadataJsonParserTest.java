@@ -151,4 +151,52 @@ class HopMetadataJsonParserTest {
     assertTrue(all.contains("API_TOKEN"), all);
     assertTrue(all.contains("eu-west-1"), all);
   }
+
+  @Test
+  void unitTestVariableValuesWithCredentialNamesAreRedacted() {
+    // Pipeline unit tests store their variables as key/value pairs.
+    String json =
+        """
+        {
+          "name": "0001 UNIT",
+          "variableValues": [
+            { "key": "DB_PASSWORD", "value": "unit-test-s3cr3t" },
+            { "key": "REGION", "value": "eu-west-1" }
+          ]
+        }
+        """;
+    String all =
+        new HopMetadataJsonParser()
+            .parse(json).flattenSections().stream()
+                .map(section -> String.join(" > ", section.getPath()) + " " + section.getBody())
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+    assertFalse(all.contains("unit-test-s3cr3t"), all);
+    assertTrue(all.contains("DB_PASSWORD"), all);
+    assertTrue(all.contains("eu-west-1"), all);
+  }
+
+  @Test
+  void topLevelCredentialValuesAreRedacted() {
+    // Flat connection metadata, such as a mail server connection, keeps its secrets at the top.
+    String json =
+        """
+        {
+          "name": "smtp",
+          "serverHost": "smtp.example.com",
+          "username": "hop",
+          "password": "Encrypted 2be98afc86aa7f2e4cb79ce10df90acde",
+          "accessToken": "ghp_realLookingToken123"
+        }
+        """;
+    String all =
+        new HopMetadataJsonParser()
+            .parse(json).flattenSections().stream()
+                .map(section -> String.join(" > ", section.getPath()) + " " + section.getBody())
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+    assertFalse(all.contains("2be98afc86aa"), all);
+    assertFalse(all.contains("ghp_realLookingToken123"), all);
+    assertTrue(all.contains("smtp.example.com"), all);
+  }
 }

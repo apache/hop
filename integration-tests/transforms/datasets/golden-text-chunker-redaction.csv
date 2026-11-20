@@ -1,10 +1,22 @@
 chunk_text
 "Overview
 
+Hop metadata '0001 UNIT'"
+"Overview
+
 Hop metadata 'prod-env'"
 "Overview
 
 Hop metadata 'prod-rest'"
+"Overview
+
+Hop metadata 'smtp'"
+"Password
+
+""**redacted**"""
+"Protocol
+
+""SMTP"""
 "Rest Connection
 
 {
@@ -12,6 +24,24 @@ Hop metadata 'prod-rest'"
   ""bearerToken"" : ""**redacted**"",
   ""proxyPassword"" : ""**redacted**""
 }"
+"Server Host
+
+""smtp.example.com"""
+"Server Port
+
+""587"""
+"Username
+
+""hop"""
+"Variable Values
+
+[ {
+  ""key"" : ""DB_PASSWORD"",
+  ""value"" : ""**redacted**""
+}, {
+  ""key"" : ""REGION"",
+  ""value"" : ""eu-west-1""
+} ]"
 "Variables
 
 [ {
