@@ -1392,8 +1392,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    * @return true if word is a reserved word on this database.
    */
   public boolean isReservedWord(String word) {
-    String[] reserved = getReservedWords();
-    return Const.indexOfString(word, reserved) >= 0;
+    return iDatabase.isReservedWord(word);
   }
 
   /**
@@ -1745,9 +1744,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
 
       // List of reserved words
       StringBuilder reserved = new StringBuilder();
-      if (getReservedWords() != null) {
-        for (int i = 0; i < getReservedWords().length; i++) {
-          reserved.append(i > 0 ? ", " : "").append(getReservedWords()[i]);
+      String[] reservedWords = getReservedWords();
+      if (reservedWords != null) {
+        for (int i = 0; i < reservedWords.length; i++) {
+          reserved.append(i > 0 ? ", " : "").append(reservedWords[i]);
         }
       }
       r = new RowMetaAndData();

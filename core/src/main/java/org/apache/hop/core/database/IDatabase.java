@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.validation.ColumnValueConstraints;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -519,9 +520,29 @@ public interface IDatabase extends Cloneable {
   Object clone();
 
   /**
+   * The reserved words of this database type.
+   *
+   * <p>{@link BaseDatabaseMeta} turns this list into a case-insensitive lookup the first time
+   * {@link #isReservedWord(String)} is called and keeps it for the lifetime of the instance (clones
+   * share it). An implementation whose list depends on instance state that changes after that point
+   * must override {@link #isReservedWord(String)} too, or call {@link
+   * BaseDatabaseMeta#clearReservedWordsCache()} when that state changes.
+   *
    * @return an array of reserved words for the database type...
    */
   String[] getReservedWords();
+
+  /**
+   * Checks whether a word is one of the {@link #getReservedWords() reserved words}, ignoring case
+   * the way {@link String#equalsIgnoreCase(String)} does. This is called for every identifier that
+   * is quoted, so implementations should not rebuild the list on each call.
+   *
+   * @param word the word to check, may be null
+   * @return true if the word is reserved on this database type
+   */
+  default boolean isReservedWord(String word) {
+    return Const.indexOfString(word, getReservedWords()) >= 0;
+  }
 
   /**
    * @return true if reserved words need to be double quoted ("password", "select", ...)
