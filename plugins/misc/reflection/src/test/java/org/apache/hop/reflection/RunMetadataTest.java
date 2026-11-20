@@ -115,6 +115,15 @@ class RunMetadataTest {
     assertEquals(2, provider.reads.get());
   }
 
+  /** A pipeline built in code, without a metadata provider, has no logging or probe objects. */
+  @Test
+  void aRunWithoutMetadataProviderHasNoObjects() throws Exception {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline(null, null);
+
+    assertEquals(0, RunMetadata.loadAll(pipeline, null, PipelineLog.class).size());
+    verify(pipeline, times(0)).addExecutionFinishedListener(any());
+  }
+
   @Test
   void aChangeIsSeenByTheNextRunNotByTheOneGoingOn() throws Exception {
     CountingMetadataProvider provider = new CountingMetadataProvider();
