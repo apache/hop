@@ -1,6 +1,9 @@
 chunk_text
 "Overview
 
+Hop metadata 'prod-env'"
+"Overview
+
 Hop metadata 'prod-rest'"
 "Rest Connection
 
@@ -9,6 +12,24 @@ Hop metadata 'prod-rest'"
   ""bearerToken"" : ""**redacted**"",
   ""proxyPassword"" : ""**redacted**""
 }"
+"Variables
+
+[ {
+  ""name"" : ""API_TOKEN"",
+  ""value"" : ""**redacted**"",
+  ""description"" : """"
+}, {
+  ""name"" : ""REGION"",
+  ""value"" : ""eu-west-1"",
+  ""description"" : """"
+} ]"
+"param-demo > Overview
+
+Hop pipeline 'param-demo'
+
+Parameters:
+- DB_PASSWORD: default=**redacted** — Database password
+- THRESHOLD: default=30"
 "secret-demo > Overview
 
 Hop pipeline 'secret-demo'"
@@ -22,3 +43,20 @@ transform:
     username: hop
     password: **redacted**
     lookupKeys: customer_id"
+"variables-demo > Action: Set variables (SET_VARIABLES)
+
+action:
+  name: Set variables
+  type: SET_VARIABLES
+  fields:
+    field:
+      variable_name: API_TOKEN
+      variable_value: **redacted**
+      variable_type: CURRENT_WORKFLOW
+    field:
+      variable_name: REGION
+      variable_value: eu-west-1
+      variable_type: CURRENT_WORKFLOW"
+"variables-demo > Overview
+
+Hop workflow 'variables-demo'"

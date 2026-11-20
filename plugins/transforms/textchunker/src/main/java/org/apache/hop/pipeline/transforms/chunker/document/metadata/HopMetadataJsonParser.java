@@ -190,10 +190,14 @@ public final class HopMetadataJsonParser implements DocumentParser {
       while (names.hasNext()) {
         fields.add(names.next());
       }
+      boolean secretEntry = isSecretEntry(object, fields);
       for (String field : fields) {
         JsonNode value = object.get(field);
         if (value != null && value.isValueNode()) {
           String redacted = SecretRedaction.redact(field, value.asText());
+          if (secretEntry && SecretRedaction.isEntryValueKey(field) && !value.asText().isEmpty()) {
+            redacted = SecretRedaction.REDACTED;
+          }
           if (SecretRedaction.REDACTED.equals(redacted)) {
             object.put(field, SecretRedaction.REDACTED);
           }
@@ -205,6 +209,24 @@ public final class HopMetadataJsonParser implements DocumentParser {
       node.forEach(HopMetadataJsonParser::redactSecrets);
     }
     return node;
+  }
+
+  /**
+   * True for a name/value entry whose name reads like a credential, such as {@code {"name":
+   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration. The value sits
+   * under {@code value}, so checking field names alone would keep it.
+   */
+  private static boolean isSecretEntry(ObjectNode object, List<String> fields) {
+    for (String field : fields) {
+      JsonNode value = object.get(field);
+      if (SecretRedaction.isEntryNameKey(field)
+          && value != null
+          && value.isTextual()
+          && SecretRedaction.isSecretName(value.asText())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static JsonNode parseRoot(String text) {

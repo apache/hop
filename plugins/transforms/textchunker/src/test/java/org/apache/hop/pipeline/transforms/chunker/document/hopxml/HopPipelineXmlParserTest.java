@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.hop.pipeline.transforms.chunker.document.DocumentNode;
 import org.junit.jupiter.api.Test;
 
@@ -116,5 +117,91 @@ class HopPipelineXmlParserTest {
 
     assertEquals(xml, root.getBody());
     assertTrue(root.getChildren().isEmpty());
+  }
+
+  @Test
+  void parameterDefaultsWithCredentialNamesAreRedacted() {
+    String xml =
+        """
+        <pipeline>
+          <info>
+            <name>secrets</name>
+            <parameters>
+              <parameter>
+                <name>DB_PASSWORD</name>
+                <default_value>s3cr3t</default_value>
+                <description>Database password</description>
+              </parameter>
+              <parameter>
+                <name>API_TOKEN</name>
+                <default_value>tok123</default_value>
+              </parameter>
+              <parameter>
+                <name>THRESHOLD</name>
+                <default_value>30</default_value>
+              </parameter>
+            </parameters>
+          </info>
+        </pipeline>
+        """;
+
+    String all = allSections(new HopPipelineXmlParser().parse(xml));
+
+    assertFalse(all.contains("s3cr3t"), all);
+    assertFalse(all.contains("tok123"), all);
+    // The parameter names and ordinary defaults stay: they are what makes the chunk findable.
+    assertTrue(all.contains("DB_PASSWORD"), all);
+    assertTrue(all.contains("API_TOKEN"), all);
+    assertTrue(all.contains("default=30"), all);
+  }
+
+  @Test
+  void transformNameValueEntriesWithCredentialNamesAreRedacted() {
+    String xml =
+        """
+        <pipeline>
+          <info><name>executor</name></info>
+          <transform>
+            <name>Run child</name>
+            <type>PipelineExecutor</type>
+            <parameters>
+              <variablemapping>
+                <variable>API_TOKEN</variable>
+                <field/>
+                <input>tok123</input>
+              </variablemapping>
+              <variablemapping>
+                <variable>REGION</variable>
+                <field/>
+                <input>eu-west-1</input>
+              </variablemapping>
+            </parameters>
+          </transform>
+          <transform>
+            <name>Constants</name>
+            <type>Constant</type>
+            <fields>
+              <field>
+                <name>client_secret</name>
+                <type>String</type>
+                <nullif>abc123</nullif>
+              </field>
+            </fields>
+          </transform>
+        </pipeline>
+        """;
+
+    String all = allSections(new HopPipelineXmlParser().parse(xml));
+
+    assertFalse(all.contains("tok123"), all);
+    assertFalse(all.contains("abc123"), all);
+    assertTrue(all.contains("API_TOKEN"), all);
+    assertTrue(all.contains("eu-west-1"), all);
+  }
+
+  private static String allSections(DocumentNode root) {
+    return root.flattenSections().stream()
+        .map(section -> section.breadcrumb() + " " + section.getBody())
+        .collect(Collectors.joining("\n"));
   }
 }

@@ -125,4 +125,30 @@ class HopMetadataJsonParserTest {
     assertFalse(all.contains("hunter2"), all);
     assertTrue(all.contains("https://api.example.com"), all);
   }
+
+  @Test
+  void variableValuesWithCredentialNamesAreRedacted() {
+    // Project configs, environment files and run configurations all store variables this way.
+    String json =
+        """
+        {
+          "name": "prod",
+          "variables": [
+            { "name": "API_TOKEN", "value": "tok123", "description": "" },
+            { "name": "DB_PASSWORD", "value": "s3cr3t", "description": "" },
+            { "name": "REGION", "value": "eu-west-1", "description": "" }
+          ]
+        }
+        """;
+    String all =
+        new HopMetadataJsonParser()
+            .parse(json).flattenSections().stream()
+                .map(section -> String.join(" > ", section.getPath()) + " " + section.getBody())
+                .collect(java.util.stream.Collectors.joining("\n"));
+
+    assertFalse(all.contains("tok123"), all);
+    assertFalse(all.contains("s3cr3t"), all);
+    assertTrue(all.contains("API_TOKEN"), all);
+    assertTrue(all.contains("eu-west-1"), all);
+  }
 }

@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.chunker.document;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Keeps credentials out of chunk text.
@@ -41,7 +42,26 @@ public final class SecretRedaction {
           "privatekey",
           "apikey");
 
+  /**
+   * Keys that hold the name of a name/value entry: a variable in a project, environment or run
+   * configuration ({@code name}), a pipeline executor mapping ({@code variable}) or a Set variables
+   * field ({@code variable_name}).
+   */
+  private static final Set<String> ENTRY_NAME_KEYS = Set.of("name", "variable", "variablename");
+
+  /**
+   * Keys that hold the value of such an entry: a variable or action parameter ({@code value}), a
+   * parameter default ({@code default_value}), a Set variables field ({@code variable_value}), a
+   * pipeline executor mapping ({@code input}) or an Add constants field ({@code nullif}).
+   */
+  private static final Set<String> ENTRY_VALUE_KEYS =
+      Set.of("value", "defaultvalue", "variablevalue", "input", "nullif");
+
   private SecretRedaction() {}
+
+  private static String normalise(String name) {
+    return name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+  }
 
   /**
    * True when a field or tag name reads like a credential. Names are normalised, so {@code
@@ -52,8 +72,22 @@ public final class SecretRedaction {
     if (name == null) {
       return false;
     }
-    String normalised = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+    String normalised = normalise(name);
     return SECRET_MARKERS.stream().anyMatch(normalised::contains);
+  }
+
+  /**
+   * True when {@code key} holds the name of a name/value entry, as in {@code {"name": "API_TOKEN",
+   * "value": "..."}}. The field holding the value is called {@code value}, so the entry's name has
+   * to be checked instead.
+   */
+  public static boolean isEntryNameKey(String key) {
+    return key != null && ENTRY_NAME_KEYS.contains(normalise(key));
+  }
+
+  /** True when {@code key} holds the value of a name/value entry. */
+  public static boolean isEntryValueKey(String key) {
+    return key != null && ENTRY_VALUE_KEYS.contains(normalise(key));
   }
 
   /** True for Hop's own encrypted form, whatever the field is called. */
