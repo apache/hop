@@ -45,6 +45,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
@@ -73,6 +74,7 @@ import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformPrepareOnce;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent;
@@ -344,6 +346,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                 ClassLoader prev = Thread.currentThread().getContextClassLoader();
                 try {
                   Thread.currentThread().setContextClassLoader(pluginCl);
+                  prepareTransformsOnce();
                   resultDataset = converter.createDataset(sparkSession);
                   // Generic transforms (outputs included) are lazy: run an action on every leaf,
                   // or only the branch of the last one runs. Spark file and lake table outputs
@@ -1396,6 +1399,27 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
     // No opinion for ordinary transforms — generic mapPartitions may still work
     return EngineCompatibility.unknown();
+  }
+
+  /**
+   * The once-per-run work of the transforms (truncate a table, create or change it ...), on the
+   * driver before the job starts, so the partitions don't each do it. Their names travel to the
+   * partitions in {@link Const#INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS}.
+   */
+  void prepareTransformsOnce() throws HopException {
+    List<String> prepared =
+        TransformPrepareOnce.prepareOnDriver(
+            pipelineMeta,
+            HopPipelineMetaToSparkConverter.collectActiveTransforms(pipelineMeta),
+            this,
+            metadataProvider,
+            new LoggingObject("spark-prepare-once"));
+    setVariable(
+        Const.INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS,
+        TransformPrepareOnce.preparedOnDriverValue(prepared));
+    if (!prepared.isEmpty()) {
+      logChannel.logBasic("Prepared on the driver, once for the whole run: " + prepared);
+    }
   }
 
   @Override

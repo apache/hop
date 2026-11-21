@@ -439,6 +439,12 @@ public abstract class Pipeline
    */
   @Getter @Setter protected boolean lockFreeRowSets;
 
+  /**
+   * Whether this pipeline does the once-per-run preparation of its transforms (see {@link
+   * TransformPrepareOnce}). Off for the per-partition pipelines of a distributed engine.
+   */
+  private boolean preparingTransformsOnce = true;
+
   public void setBufferDeadlockSpillHops(Set<SpillHop> bufferDeadlockSpillHops) {
     this.bufferDeadlockSpillHops =
         bufferDeadlockSpillHops == null ? Set.of() : Set.copyOf(bufferDeadlockSpillHops);
@@ -1312,6 +1318,17 @@ public abstract class Pipeline
     }
 
     log.snap(Metrics.METRIC_PIPELINE_INIT_STOP);
+
+    // Once-per-run work of the transforms (truncate a table, create it ...): on one copy, before
+    // any copy reads a row
+    try {
+      TransformPrepareOnce.prepare(this);
+    } catch (HopException e) {
+      log.logError(e.getMessage(), e);
+      disposeInitializedTransforms();
+      setFinished(true);
+      throw e;
+    }
 
     setReadyToStart(true);
   }
@@ -2612,6 +2629,22 @@ public abstract class Pipeline
    *
    * @param preparing true if the pipeline is preparing for execution, false otherwise
    */
+  /**
+   * @return false when this pipeline doesn't do the once-per-run preparation of its transforms: a
+   *     per-partition (per-bundle) pipeline of a distributed engine, whose driver did it
+   */
+  public boolean isPreparingTransformsOnce() {
+    return preparingTransformsOnce;
+  }
+
+  /**
+   * @param preparingTransformsOnce false for a per-partition (per-bundle) pipeline of a distributed
+   *     engine: it only flags the transforms its driver prepared (see {@link TransformPrepareOnce})
+   */
+  public void setPreparingTransformsOnce(boolean preparingTransformsOnce) {
+    this.preparingTransformsOnce = preparingTransformsOnce;
+  }
+
   public void setPreparing(boolean preparing) {
     status.updateAndGet(
         v -> preparing ? v | PREPARING.mask : (BIT_STATUS_SUM ^ PREPARING.mask) & v);

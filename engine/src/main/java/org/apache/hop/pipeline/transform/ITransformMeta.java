@@ -420,6 +420,19 @@ public interface ITransformMeta extends ILegacyXml {
   }
 
   /**
+   * Whether the transform has work to do once per pipeline run, before any of its copies,
+   * partitions or bundles reads a row: truncating a table, creating or changing it, ... When it
+   * returns true, the engine calls {@link ITransform#prepareOnce()} on one initialized instance and
+   * flags every copy with {@link ITransform#setPreparedOnce(boolean)}, so they skip that work.
+   *
+   * @param variables the variables of the transform
+   * @return true when {@link ITransform#prepareOnce()} has work to do
+   */
+  default boolean needsPrepareOnce(IVariables variables) {
+    return false;
+  }
+
+  /**
    * Whether this instance can produce output with no incoming hops. Used by pipeline Verify (a
    * comment on the transform), the add-transform dialog and palette ({@code pipeline source}
    * keyword), canvas tooltips, and documentation.
