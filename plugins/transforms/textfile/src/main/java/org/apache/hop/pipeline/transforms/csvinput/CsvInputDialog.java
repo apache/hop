@@ -729,7 +729,6 @@ public class CsvInputDialog extends BaseTransformDialog
         wFields,
         1,
         2,
-        3,
         4,
         5);
   }

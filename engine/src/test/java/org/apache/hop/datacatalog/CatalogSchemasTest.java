@@ -79,6 +79,16 @@ class CatalogSchemasTest {
   }
 
   @Test
+  void aDatasetWithoutFieldsIsAnError() {
+    SchemaCatalog.schema = CatalogAnswer.known(List.of());
+
+    HopException e =
+        assertThrows(
+            HopException.class, () -> CatalogSchemas.read(variables, provider, "catalog", DATASET));
+    assertTrue(e.getMessage().contains("no fields"), e.getMessage());
+  }
+
+  @Test
   void aCatalogThatCannotAnswerSaysWhy() {
     SchemaCatalog.schema = CatalogAnswer.unknown(CatalogAnswer.Reason.UNAUTHORIZED, "bad token");
 

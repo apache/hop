@@ -73,6 +73,27 @@ class CatalogFieldTypesTest {
   }
 
   @Test
+  void aTimeIsADateWhetherItComesFromTheNativeOrTheCatalogType() {
+    assertField(of("time", "TIME"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of(null, "TIME"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("time with time zone", "TIME"), IValueMeta.TYPE_DATE, -1, -1, null);
+  }
+
+  @Test
+  void aLengthTooLargeForAnIntIsNoLength() {
+    assertField(of("varchar(4294967295)", "STRING"), IValueMeta.TYPE_STRING, -1, -1, null);
+    assertField(of("decimal(99999999999, 2)", "NUMBER"), IValueMeta.TYPE_BIGNUMBER, -1, -1, null);
+  }
+
+  @Test
+  void onlyASingleBitIsABoolean() {
+    assertField(of("bit", "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
+    assertField(of("BIT(1)", "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
+    assertField(of("BIT(8)", "BYTES"), IValueMeta.TYPE_STRING, 8, -1, null);
+    assertField(of("bit(64)", "STRING"), IValueMeta.TYPE_STRING, 64, -1, null);
+  }
+
+  @Test
   void theTypesAHopLineageSinkWritesComeBackAsTheHopTypes() {
     assertField(of("string", "STRING"), IValueMeta.TYPE_STRING, -1, -1, null);
     assertField(of("int", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);

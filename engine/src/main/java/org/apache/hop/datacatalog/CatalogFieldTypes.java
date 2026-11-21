@@ -87,8 +87,8 @@ public final class CatalogFieldTypes {
       return null;
     }
     String typeName = matcher.group(1).trim();
-    int length = matcher.group(2) == null ? -1 : Integer.parseInt(matcher.group(2));
-    int scale = matcher.group(3) == null ? -1 : Integer.parseInt(matcher.group(3));
+    int length = number(matcher.group(2));
+    int scale = number(matcher.group(3));
     return switch (typeName) {
       case "varchar",
               "varchar2",
@@ -124,7 +124,12 @@ public final class CatalogFieldTypes {
               : withLength(new ValueMetaBigNumber(name), length, scale);
       case "double", "double precision", "float", "float4", "float8", "real", "binary_double" ->
           new ValueMetaNumber(name);
-      case "boolean", "bool", "bit" -> new ValueMetaBoolean(name);
+      case "boolean", "bool" -> new ValueMetaBoolean(name);
+        // bit(n) with n > 1 is a string of bits such as 10110000, not a flag
+      case "bit" ->
+          length > 1
+              ? withLength(new ValueMetaString(name), length, -1)
+              : new ValueMetaBoolean(name);
       case "date" -> new ValueMetaDate(name);
       case "datetime", "datetime2", "smalldatetime" -> new ValueMetaDate(name);
       case "time" -> new ValueMetaDate(name);
@@ -143,10 +148,26 @@ public final class CatalogFieldTypes {
       case "NUMBER" -> new ValueMetaNumber(name);
       case "BOOLEAN" -> new ValueMetaBoolean(name);
       case "DATE" -> new ValueMetaDate(name);
-      case "TIME" -> new ValueMetaTimestamp(name);
+        // DataHub's TimeType holds times and datetimes; a native time or datetime is a Date too
+      case "TIME" -> new ValueMetaDate(name);
       case "BYTES", "FIXED" -> new ValueMetaBinary(name);
       default -> new ValueMetaString(name);
     };
+  }
+
+  /**
+   * A length or scale, or -1 when there is none or it doesn't fit an int, as a MySQL LONGTEXT shown
+   * as {@code varchar(4294967295)}.
+   */
+  private static int number(String digits) {
+    if (digits == null) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(digits);
+    } catch (NumberFormatException e) {
+      return -1;
+    }
   }
 
   private static IValueMeta withLength(IValueMeta valueMeta, int length, int precision) {

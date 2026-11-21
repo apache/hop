@@ -3251,15 +3251,16 @@ public class TextFileInputDialog extends BaseTransformDialog
         wFields,
         1,
         2,
-        3,
         5,
         6);
   }
 
   /**
-   * The first file the transform reads, resolved the way lineage names it, so a folder with a
-   * wildcard gives the first matching file. Falls back to the first file row as entered when
-   * nothing matches yet.
+   * The file of the first file row, for the catalog to look up. A row without a wildcard is the
+   * file itself and needs no file system call. A row with a wildcard names a folder, so only that
+   * one folder is listed, without its subfolders, and the first matching file is taken, the way
+   * lineage names it. When that finds nothing or fails, the row as entered is used: the person can
+   * still change the dataset name in the catalog dialog.
    */
   private String firstFileForCatalog() {
     if (wFilenameList.getItemCount() <= 0) {
@@ -3267,10 +3268,26 @@ public class TextFileInputDialog extends BaseTransformDialog
     }
     String[] fileRecord = wFilenameList.getItem(0);
     String entered = fileRecord == null || fileRecord.length == 0 ? null : fileRecord[0];
-    TextFileInputMeta meta = new TextFileInputMeta();
-    getInfo(meta, true);
-    String[] files = meta.getFilePaths(variables);
-    return files.length > 0 ? files[0] : entered;
+    if (Utils.isEmpty(entered)) {
+      return null;
+    }
+    String mask = fileRecord.length > 1 ? fileRecord[1] : null;
+    if (Utils.isEmpty(mask)) {
+      return entered;
+    }
+    try {
+      InputFile firstRow = new InputFile();
+      firstRow.setFileName(entered);
+      firstRow.setFileMask(mask);
+      firstRow.setExcludeFileMask(fileRecord.length > 2 ? fileRecord[2] : null);
+      firstRow.setFileRequired(false);
+      firstRow.setIncludeSubFolders(false);
+      List<FileObject> files =
+          FileInputList.createFileList(variables, List.of(firstRow)).getFiles();
+      return files.isEmpty() ? entered : files.get(0).getName().getURI();
+    } catch (Exception e) {
+      return entered;
+    }
   }
 
   /** Sets the input width to minimal width... */

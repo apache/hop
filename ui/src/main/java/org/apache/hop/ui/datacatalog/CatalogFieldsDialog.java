@@ -18,7 +18,6 @@
 package org.apache.hop.ui.datacatalog;
 
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -34,6 +33,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormLayout;
@@ -48,9 +48,6 @@ import org.eclipse.swt.widgets.Shell;
 public class CatalogFieldsDialog {
 
   private static final Class<?> PKG = CatalogFieldsDialog.class;
-
-  /** The catalog picked last in this session, to start from the next time. */
-  private static String lastCatalogName;
 
   private final Shell parent;
   private final IVariables variables;
@@ -88,8 +85,6 @@ public class CatalogFieldsDialog {
    * Fills a field table with the fields of a dataset in a data catalog. The person picks the
    * catalog and dataset, and then whether to add the new fields, add all of them or replace the
    * table.
-   *
-   * @param formatColumn the column of the format, or -1 when the table has none
    */
   public static void getFields(
       Shell parent,
@@ -99,7 +94,6 @@ public class CatalogFieldsDialog {
       TableView table,
       int nameColumn,
       int typeColumn,
-      int formatColumn,
       int lengthColumn,
       int precisionColumn) {
     IRowMeta rowMeta = new CatalogFieldsDialog(parent, variables, metadataProvider, dataset).open();
@@ -115,12 +109,7 @@ public class CatalogFieldsDialog {
         lengthColumn,
         precisionColumn,
         true,
-        (item, valueMeta) -> {
-          if (formatColumn > 0 && valueMeta.isDate()) {
-            item.setText(formatColumn, StringUtils.defaultString(valueMeta.getConversionMask()));
-          }
-          return true;
-        });
+        null);
   }
 
   /** The fields of the dataset, or null when the dialog was cancelled. */
@@ -160,9 +149,13 @@ public class CatalogFieldsDialog {
           CatalogSchemas.read(
               variables, metadataProvider, source.getCatalogName(), source.dataset());
       fields = CatalogFieldTypes.toRowMeta(catalogFields);
-      lastCatalogName = source.getCatalogName();
+      LastCatalog lastCatalog = lastCatalog();
+      if (lastCatalog != null) {
+        lastCatalog.name = source.getCatalogName();
+      }
       shell.dispose();
-    } catch (HopException e) {
+    } catch (HopException | RuntimeException e) {
+      // A catalog plugin can fail in ways it doesn't wrap; show it and keep the dialog open
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "CatalogFieldsDialog.Error.Title"),
@@ -188,9 +181,25 @@ public class CatalogFieldsDialog {
 
   private static String defaultCatalogName(IHopMetadataProvider metadataProvider) {
     List<String> names = catalogNames(metadataProvider);
-    if (lastCatalogName != null && names.contains(lastCatalogName)) {
-      return lastCatalogName;
+    LastCatalog lastCatalog = lastCatalog();
+    String lastName = lastCatalog == null ? null : lastCatalog.name;
+    if (lastName != null && names.contains(lastName)) {
+      return lastName;
     }
     return names.isEmpty() ? null : names.get(0);
+  }
+
+  /**
+   * The catalog picked last in this Hop GUI session. Hop Web has a Hop GUI per browser session, so
+   * one user's choice is not another user's default. Null without a Hop GUI.
+   */
+  private static LastCatalog lastCatalog() {
+    HopGui hopGui = HopGui.peekInstance();
+    return hopGui == null ? null : hopGui.getSessionSingleton(LastCatalog.class, LastCatalog::new);
+  }
+
+  /** The catalog picked last in a session, to start from the next time. */
+  private static final class LastCatalog {
+    private volatile String name;
   }
 }

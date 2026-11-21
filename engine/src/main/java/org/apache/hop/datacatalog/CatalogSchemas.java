@@ -62,7 +62,14 @@ public final class CatalogSchemas {
                           BaseMessages.getString(
                               PKG, "CatalogSchemas.Error.NoSchemaSupport", resolvedName)));
       CatalogEntityId id = known(catalog.resolve(ref), resolvedName, ref);
-      return known(schemaCapability.schema(id), resolvedName, ref);
+      List<CatalogField> fields = known(schemaCapability.schema(id), resolvedName, ref);
+      if (fields == null || fields.isEmpty()) {
+        // Nothing to fill a field table with: say so rather than change nothing
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "CatalogSchemas.Error.NotFound", resolvedName, ref.describe()));
+      }
+      return fields;
     }
   }
 

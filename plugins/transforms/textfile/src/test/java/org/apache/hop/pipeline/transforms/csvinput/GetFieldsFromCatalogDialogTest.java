@@ -24,8 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.datacatalog.CatalogAnswer;
 import org.apache.hop.datacatalog.CatalogEntityId;
 import org.apache.hop.datacatalog.DataCatalog;
@@ -244,8 +246,8 @@ class GetFieldsFromCatalogDialogTest extends SwtBotTestBase {
   @Test
   void textFileInputLooksUpTheFirstFileAFolderWildcardMatches(@TempDir Path folder)
       throws Exception {
-    Files.writeString(folder.resolve("customers.csv"), "id;email;signed_up\n");
-    Files.writeString(folder.resolve("notes.txt"), "not read\n");
+    writeFile(folder.resolve("customers.csv").toString(), "id;email;signed_up\n");
+    writeFile(folder.resolve("notes.txt").toString(), "not read\n");
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.setDefault();
     InputFile file = new InputFile();
@@ -280,6 +282,12 @@ class GetFieldsFromCatalogDialogTest extends SwtBotTestBase {
     assertTrue(
         SchemaCatalog.asked.name().endsWith("/customers.csv"),
         "the dataset is the file the wildcard matches, not the folder: " + SchemaCatalog.asked);
+  }
+
+  private static void writeFile(String filename, String content) throws Exception {
+    try (OutputStream out = HopVfs.getOutputStream(filename, false)) {
+      out.write(content.getBytes(StandardCharsets.UTF_8));
+    }
   }
 
   /** Accepts the catalog and dataset the dialog starts with. */
