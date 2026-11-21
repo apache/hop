@@ -80,3 +80,7 @@ When working with cloud storage, be aware of the following:
 * The input directory must point to an actual folder, not a scheme root. For example, use `s3://my-bucket/my-folder` rather than `s3://` or `s3://my-bucket`.
 * Some metadata fields (`ishidden`, `isreadable`, `iswriteable`, `lastmodifiedtime`, `children`) may not be available for all cloud storage providers. When a value can't be determined, the field will be `null`. For example, `lastmodifiedtime` may not be available for virtual folders on S3 or MinIO.
 * The transform traverses the full folder tree recursively. On cloud storage with deeply nested or very large folder structures, this may result in a high number of API calls and slow performance.
+
+== Samples
+
+The samples project has `transforms/get-subfolder-names.hpl`, which lists the folders in the samples project folder and in its subfolders, with a row number.

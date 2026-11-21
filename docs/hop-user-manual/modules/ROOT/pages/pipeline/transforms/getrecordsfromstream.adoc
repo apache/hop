@@ -60,3 +60,7 @@ Options include:
 |Precision|For a field with the type of 'Number', enter the number of floating point digits.
 Otherwise, leave blank.
 |===
+
+== Samples
+
+The samples project has `transforms/get-records-from-stream.hpl`, which reads the rows that a parent workflow or pipeline passed to it as the result, in the same way as Get rows from result, so it returns no rows when you run it on its own.

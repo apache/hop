@@ -52,3 +52,8 @@ You can set a default for the timeout field with the xref:variables.adoc#_availa
 |Is system object fieldname|Output field containing boolean: is object a system object
 |Creation SQL fieldname|Output field containing create statement for object
 |===
+
+== Samples
+
+The samples project has `transforms/get-table-names.hpl`, which lists the tables and views of the `hop-samples` connection, with the object type, whether it is a system object and, for each table, its `CREATE TABLE` statement.
+Procedures and synonyms are switched on too, but the `hop-samples` database returns none.
