@@ -19,6 +19,7 @@ package org.apache.hop.marketplace.install;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -348,14 +349,17 @@ public class PluginInstaller {
           List<String> paths = collectRelativePaths(staged);
           // A receipt problem must not stop the other plugins from activating.
           InstallReceipt receipt = null;
+          boolean unreadable = false;
           try {
             receipt = readReceipt(hopHome, artifactId);
           } catch (HopException e) {
+            unreadable = true;
             log.logError(
                 "Could not read the install receipt of staged plugin "
                     + artifactId
-                    + "; activating it without updating the receipt",
+                    + "; activating it with a new receipt",
                 e);
+            moveUnreadableReceiptAside(artifactId);
           }
           Map<String, SharedFile> sharedFiles =
               activateStaged(
@@ -365,6 +369,15 @@ public class PluginInstaller {
                       : receipt.getVersion(),
                   paths,
                   receipt == null ? Map.of() : receipt.getSharedFiles());
+          if (unreadable) {
+            // Without a receipt the plugin could not be updated or uninstalled. The version, the
+            // repository and the previous version's files were only in the unreadable one.
+            receipt = new InstallReceipt();
+            receipt.setArtifactId(artifactId);
+            receipt.setInstalledAt(Instant.now().toString());
+            receipt.setPaths(paths);
+            receipt.setChecksums(checksums(staged, paths));
+          }
           if (receipt != null) {
             try {
               receipt.setPendingActivation(false);
@@ -387,6 +400,40 @@ public class PluginInstaller {
     } catch (IOException e) {
       throw new HopException("Failed to activate staged plugins", e);
     }
+  }
+
+  /**
+   * Keep an unreadable receipt for inspection, under a name that is no longer read as a receipt, so
+   * it does not block later installs and uninstalls of the plugin.
+   */
+  private void moveUnreadableReceiptAside(String artifactId) {
+    Path file = hopHome.resolve(RECEIPTS_DIR).resolve(artifactId + ".json");
+    Path aside = file.resolveSibling(artifactId + ".json.unreadable");
+    try {
+      Files.move(file, aside, StandardCopyOption.REPLACE_EXISTING);
+      log.logError("Moved the unreadable install receipt of " + artifactId + " to " + aside);
+    } catch (IOException e) {
+      log.logError("Could not move the unreadable install receipt " + file + " aside", e);
+    }
+  }
+
+  /** SHA-256 of the staged files, keyed by their relative path. */
+  private Map<String, String> checksums(Path stageRoot, List<String> paths) {
+    Map<String, String> checksums = new LinkedHashMap<>();
+    for (String relative : paths) {
+      Path file = stageRoot.resolve(relative);
+      if (!Files.isRegularFile(file)) {
+        continue;
+      }
+      MessageDigest digest = sha256();
+      try (InputStream in = new DigestInputStream(Files.newInputStream(file), digest)) {
+        in.transferTo(OutputStream.nullOutputStream());
+        checksums.put(relative, HexFormat.of().formatHex(digest.digest()));
+      } catch (IOException e) {
+        log.logError("Could not compute the checksum of staged file " + file, e);
+      }
+    }
+    return checksums;
   }
 
   /**
@@ -812,13 +859,25 @@ public class PluginInstaller {
   static String backupPath(String artifactId, String version, String installId, String relative) {
     return BACKUP_DIR
         + "/"
-        + artifactId
+        + pathSegment(artifactId)
         + "/"
-        + version
+        + pathSegment(version)
         + "/"
         + installId
         + "/"
         + normalizeRelative(relative);
+  }
+
+  /**
+   * The artifact id and version come from the command line or a receipt and are not validated, so
+   * they are reduced to one plain folder name before they go into a backup path.
+   */
+  static String pathSegment(String value) {
+    if (StringUtils.isBlank(value)) {
+      return "unknown";
+    }
+    String segment = value.replaceAll("[^A-Za-z0-9._+-]", "_");
+    return segment.matches("\\.+") ? segment.replace('.', '_') : segment;
   }
 
   /** A backup folder name no earlier install of this version used. */
@@ -827,7 +886,8 @@ public class PluginInstaller {
         DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS'Z'")
             .withZone(ZoneOffset.UTC)
             .format(Instant.now());
-    Path versionDir = hopHome.resolve(BACKUP_DIR).resolve(artifactId).resolve(version);
+    Path versionDir =
+        hopHome.resolve(BACKUP_DIR).resolve(pathSegment(artifactId)).resolve(pathSegment(version));
     String id = base;
     for (int i = 1; Files.exists(versionDir.resolve(id)); i++) {
       id = base + "-" + i;
@@ -872,7 +932,18 @@ public class PluginInstaller {
               + artifactId
               + ": "
               + relative);
-      backup = hopHome.resolve(backupRelative);
+      backup = hopHome.resolve(backupRelative).toAbsolutePath().normalize();
+      if (!backup.startsWith(backupRoot())) {
+        log.logError(
+            "Not backing up shared lib/core jar "
+                + relative
+                + " outside "
+                + BACKUP_DIR
+                + ": "
+                + backupRelative
+                + " — leaving existing file.");
+        return SharedFileAction.KEPT;
+      }
       try {
         Files.createDirectories(backup.getParent());
         Files.copy(to, backup, StandardCopyOption.REPLACE_EXISTING);
@@ -884,6 +955,7 @@ public class PluginInstaller {
                 + backup
                 + " — leaving existing file. "
                 + e.getMessage());
+        removeUnusedBackup(backup);
         return SharedFileAction.KEPT;
       }
     }
@@ -897,15 +969,35 @@ public class PluginInstaller {
               + " — leaving existing file. "
               + e.getMessage());
       if (backup != null) {
-        try {
-          Files.deleteIfExists(backup);
-        } catch (IOException deleteError) {
-          log.logError("Could not remove unused backup " + backup, deleteError);
-        }
+        removeUnusedBackup(backup);
       }
       return targetExists ? SharedFileAction.KEPT : null;
     }
     return targetExists ? SharedFileAction.REPLACED : SharedFileAction.CREATED;
+  }
+
+  private Path backupRoot() {
+    return hopHome.resolve(BACKUP_DIR).toAbsolutePath().normalize();
+  }
+
+  /** Remove a backup that was not used, and the folders made for it that are now empty. */
+  private void removeUnusedBackup(Path backup) {
+    Path root = backupRoot();
+    try {
+      Files.deleteIfExists(backup);
+      for (Path dir = backup.getParent();
+          dir != null && dir.startsWith(root) && !dir.equals(root) && Files.isDirectory(dir);
+          dir = dir.getParent()) {
+        try (var stream = Files.list(dir)) {
+          if (stream.findAny().isPresent()) {
+            break;
+          }
+        }
+        Files.delete(dir);
+      }
+    } catch (IOException e) {
+      log.logError("Could not remove unused backup " + backup, e);
+    }
   }
 
   /**
@@ -1026,6 +1118,10 @@ public class PluginInstaller {
   }
 
   private void writeReceipt(InstallReceipt receipt) throws HopException {
+    writeReceipt(hopHome, receipt);
+  }
+
+  static void writeReceipt(Path hopHome, InstallReceipt receipt) throws HopException {
     try {
       Path dir = hopHome.resolve(RECEIPTS_DIR);
       Files.createDirectories(dir);

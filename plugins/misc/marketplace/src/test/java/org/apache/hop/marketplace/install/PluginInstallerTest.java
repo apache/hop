@@ -1055,6 +1055,48 @@ class PluginInstallerTest {
   }
 
   @Test
+  void uninstallKeepsAnObsoleteFileThatCannotBeRemovedInTheReceipt() throws Exception {
+    Path hopHome = tempDir.resolve("hop-uninstall-locked");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      install(hopHome, server, "1.0.0");
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      install(hopHome, server, "2.0.0");
+
+      // The leftover is still in use: the rest of the plugin goes, the leftover stays listed.
+      PluginUninstaller uninstaller = new PluginUninstaller(new LogChannel("test"), hopHome);
+      assertDoesNotThrow(() -> uninstaller.uninstall(TEST_PLUGIN));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib")));
+      assertTrue(Files.isRegularFile(samples.resolve("sample.hpl")));
+      InstallReceipt left = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      for (String path : left.getPaths()) {
+        assertTrue(Files.isDirectory(hopHome.resolve(path)), path);
+      }
+      assertEquals(List.of("plugins/tech/test/samples/sample.hpl"), left.getObsoletePaths());
+
+      // Once the file is free, uninstalling again finishes the job.
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      uninstaller.uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+      assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
   void corruptReceiptOfAStagedPluginDoesNotStopActivation() throws Exception {
     HttpServer server =
         versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
@@ -1074,6 +1116,27 @@ class PluginInstallerTest {
 
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
       assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
+
+      // The unreadable receipt is kept aside and a new one lists the activated files.
+      assertEquals(
+          "{",
+          Files.readString(
+              hopHome
+                  .resolve(PluginInstaller.RECEIPTS_DIR)
+                  .resolve(TEST_PLUGIN + ".json.unreadable")));
+      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      assertEquals(TEST_PLUGIN, receipt.getArtifactId());
+      assertNull(receipt.getVersion());
+      assertFalse(receipt.isPendingActivation());
+      assertTrue(receipt.getPaths().contains("plugins/tech/test/plugin.jar"));
+      assertEquals(sha256("plugin-2"), receipt.getChecksums().get("plugins/tech/test/plugin.jar"));
+
+      // With a readable receipt the plugin can be updated and uninstalled again.
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      assertEquals("1.0.0", PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getVersion());
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
     } finally {
       server.stop(0);
     }
@@ -1289,6 +1352,57 @@ class PluginInstallerTest {
     } finally {
       Files.setPosixFilePermissions(backupDir, PosixFilePermissions.fromString("rwxr-xr-x"));
       server.stop(0);
+    }
+  }
+
+  @Test
+  void unusedBackupLeavesNoEmptyFoldersBehind() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    Path hopHome = tempDir.resolve("hop-unused-backup");
+    Path libCore = hopHome.resolve("lib/core");
+    Files.createDirectories(libCore);
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make the copy fail");
+    Files.writeString(libCore.resolve("shared.jar"), "old-shared-lib");
+    // The backup can be written, but the jar in lib/core cannot be replaced.
+    Files.setPosixFilePermissions(libCore, PosixFilePermissions.fromString("r-xr-xr-x"));
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      assumeFalse(Files.isWritable(libCore), "running as a user that ignores permissions");
+      install(hopHome, server, "1.0.0");
+      assertEquals(
+          InstallReceipt.SharedFileAction.KEPT,
+          sharedFile(hopHome, "lib/core/shared.jar").getAction());
+      assertEquals("old-shared-lib", Files.readString(libCore.resolve("shared.jar")));
+      Path backupDir = hopHome.resolve(PluginInstaller.BACKUP_DIR);
+      if (Files.isDirectory(backupDir)) {
+        try (var stream = Files.list(backupDir)) {
+          assertEquals(List.of(), stream.toList(), "no backup folders left behind");
+        }
+      }
+    } finally {
+      Files.setPosixFilePermissions(libCore, PosixFilePermissions.fromString("rwxr-xr-x"));
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void backupPathStaysUnderTheBackupFolder() {
+    assertEquals(
+        PluginInstaller.BACKUP_DIR + "/hop-test-plugin/2.20.0-SNAPSHOT/id/lib/core/x.jar",
+        PluginInstaller.backupPath("hop-test-plugin", "2.20.0-SNAPSHOT", "id", "lib/core/x.jar"));
+    Path root = tempDir.resolve(PluginInstaller.BACKUP_DIR).normalize();
+    for (String[] ids :
+        new String[][] {
+          {"..", ".."}, {"a/../../..", "1.0"}, {"a", "../../../../lib/core"}, {"a", "..\\..\\x"}
+        }) {
+      String backup = PluginInstaller.backupPath(ids[0], ids[1], "id", "lib/core/x.jar");
+      Path resolved = tempDir.resolve(backup).normalize();
+      assertTrue(resolved.startsWith(root), backup);
+      // <artifactId>/<version>/<installId>/lib/core/x.jar: one folder each for id and version
+      assertEquals(6, root.relativize(resolved).getNameCount(), backup);
     }
   }
 
