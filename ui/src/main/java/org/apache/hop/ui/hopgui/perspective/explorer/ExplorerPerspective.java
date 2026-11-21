@@ -481,6 +481,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                     .getDisplay()
                     .asyncExec(
                         () -> {
+                          // Hop GUI can be closing: the tree is then already disposed
+                          if (tree == null || tree.isDisposed()) {
+                            return;
+                          }
                           clearSearchFilters();
                           refresh();
                           applyRestoredState();
@@ -3000,8 +3004,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * @return The selected explorer file or null if nothing is selected
    */
   public ExplorerFile getSelectedFile() {
-    if (tree == null) {
-      // The perspective was never initialized, there's nothing to select
+    if (tree == null || tree.isDisposed()) {
+      // The perspective was never initialized or is closed, there's nothing to select
       return null;
     }
     TreeItem[] selection = tree.getSelection();
@@ -3019,6 +3023,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** All the files selected in the tree, in the order the tree shows them. */
   public List<ExplorerFile> getSelectedFiles() {
+    if (tree == null || tree.isDisposed()) {
+      return Collections.emptyList();
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null) {
       return Collections.emptyList();
