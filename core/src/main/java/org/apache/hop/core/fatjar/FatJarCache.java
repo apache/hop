@@ -52,8 +52,8 @@ import org.apache.hop.i18n.BaseMessages;
  * without hashing a few hundred megabytes again.
  *
  * <p>The cache folder is {@value #VARIABLE_CACHE_FOLDER} (variable, system property or environment
- * variable), or {@code hop-fat-jars} in the temporary folder. Jars of the same flavor that were not
- * used for {@link #RETENTION} are removed after a build.
+ * variable), or {@code .hop/fat-jars} in the user's home folder. Jars of the same flavor that were
+ * not used for {@link #RETENTION} are removed after a build.
  */
 public final class FatJarCache {
 
@@ -201,9 +201,18 @@ public final class FatJarCache {
       folder = System.getenv(VARIABLE_CACHE_FOLDER);
     }
     if (StringUtils.isBlank(folder)) {
-      return Paths.get(System.getProperty("java.io.tmpdir"), "hop-fat-jars");
+      return defaultCacheFolder();
     }
     return Paths.get(variables != null ? variables.resolve(folder) : folder);
+  }
+
+  /**
+   * {@code .hop/fat-jars} in the user's home folder. Per user, so on a shared machine such as an
+   * edge node one user's cache folder never blocks another user's build, and on disk rather than in
+   * a temporary folder that may be a tmpfs holding a few hundred megabytes in memory.
+   */
+  static Path defaultCacheFolder() {
+    return Paths.get(System.getProperty("user.home"), ".hop", "fat-jars");
   }
 
   /** Fingerprint of the flavor and the path, size and modification time of every input jar. */

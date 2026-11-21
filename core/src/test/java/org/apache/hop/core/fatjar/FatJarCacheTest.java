@@ -54,6 +54,15 @@ class FatJarCacheTest {
     HopLogStore.init();
   }
 
+  @Test
+  void theDefaultCacheFolderIsPerUser() {
+    Path home = Path.of(System.getProperty("user.home"));
+    assertEquals(home.resolve(".hop").resolve("fat-jars"), FatJarCache.defaultCacheFolder());
+    // A variable still wins
+    variables.setVariable(FatJarCache.VARIABLE_CACHE_FOLDER, cache.toString());
+    assertEquals(cache, FatJarCache.cacheFolder(variables));
+  }
+
   @BeforeEach
   void setUp() {
     cache = tempDir.resolve("cache");
