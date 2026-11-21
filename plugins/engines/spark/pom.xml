@@ -385,6 +385,20 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
+                    <!-- The artifacts a Spark distribution of this version ships: the native-provided
+                         fat jar leaves them out (NativeSparkFatJar), the cluster loads its own. -->
+                    <execution>
+                        <id>spark-dependency-tree</id>
+                        <goals>
+                            <goal>tree</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputFile>${project.build.directory}/spark-dependencies/spark-dependencies.txt</outputFile>
+                            <outputType>text</outputType>
+                            <scope>runtime</scope>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <!-- Spark ITs (*IT.java) start a local SparkSession against an in-memory H2,

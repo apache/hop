@@ -319,6 +319,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     fdFatJar.top = new FormAttachment(wlFatJar, 0, SWT.CENTER);
     fdFatJar.right = new FormAttachment(wbFatJarBrowse, -margin);
     wFatJar.setLayoutData(fdFatJar);
+    wFatJar.setToolTipText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.FatJar.Tooltip"));
 
     Label wlPipeline = new Label(wDeployComp, SWT.RIGHT);
     wlPipeline.setText(BaseMessages.getString(PKG, "ActionDatabricksJobRun.Pipeline.Label"));

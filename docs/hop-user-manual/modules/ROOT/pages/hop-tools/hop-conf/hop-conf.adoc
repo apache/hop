@@ -217,9 +217,11 @@ Run `hop-conf.sh -h` for the complete list of your installation.
 |`-sj`|`--standard-projects-folder=<standardProjectsFolder>`|The folder proposed when creating a project.
 |`-dc`|`--default-projects-folder=<defaultProjectConfigFile>`|The configuration filename for new projects.
 
-3+|*Beam and Spark*, when the Beam plugin is installed
-|`-fj`|`--generate-fat-jar=<fatJarFilename>`|Generate a fat jar with the given filename from your current Hop installation, for the Beam and Spark engines.
-|`-scv`|`--spark-client-version=<sparkClientVersion>`|The Spark client pack to embed in the fat jar: a version (folder `lib/spark-clients/<version>`), `native` or `native-provided`. When omitted, `HOP_SPARK_CLIENT_VERSION` or the default pack in `lib/spark-client` is used.
+3+|*Fat jars*, for the native Spark engine or the Beam engines
+|`-fj`|`--generate-fat-jar=<fatJarFilename>`|Generate a fat jar with the given filename from your current Hop installation. Needs the engine plugin of the chosen engine.
+|`-fje`|`--fat-jar-engine=<engine>`|The engine the fat jar is for. `spark`: the native Spark engine, without the jars a Spark distribution of the engine's Spark version ships (the cluster provides them), the Beam engine, and the SWT jars of all but one platform (plugin classes reference SWT, so its classes stay); this is the jar Databricks *Deploy & run* builds and caches itself, so a current one is copied from the cache. `beam`: the Beam engines, with the Spark client pack of the Beam Spark runner. Default: `beam`.
+|`-fjsr`|`--include-spark-runtime`|With `--fat-jar-engine=spark`: also embed Spark 4 and Scala, for a JVM without Spark that starts the Spark session itself. Not for `spark-submit` or a cluster.
+|`-scv`|`--spark-client-version=<sparkClientVersion>`|With `--fat-jar-engine=beam`: the Spark client pack of the Beam Spark runner (folder `lib/spark-clients/<version>`). When omitted, `HOP_SPARK_CLIENT_VERSION` or the default pack in `lib/spark-client` is used. The former values `native-provided` and `native` still select `--fat-jar-engine=spark`, without and with `--include-spark-runtime`.
 
 3+|*Graph database connections*
 ||`--graph-connection-test=<name>`|Test the graph database connection or Neo4j connection with the given name. See <<_graph_database_connections>>.

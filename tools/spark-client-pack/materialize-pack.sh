@@ -32,7 +32,7 @@
 #   HOP_SPARK_CLIENT_VERSION=3.4.4 ./hop-run.sh ...
 #
 # Native Spark 4 engine fat jar (no pack to materialise; uses plugins/engines/spark/lib):
-#   ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-spark4.jar --spark-client-version=native
+#   ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-spark4.jar --fat-jar-engine=spark --include-spark-runtime
 # Do not use "native" as a pack version argument to this script.
 
 set -euo pipefail

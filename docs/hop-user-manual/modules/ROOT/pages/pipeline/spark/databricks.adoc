@@ -621,7 +621,7 @@ During `HopEnvironment.init`, Hop registers VFS plugins. The **Google Storage** 
 ----
 ./hop-conf.sh \
   --generate-fat-jar=/path/to/hop-native-spark-submit.jar \
-  --spark-client-version=native-provided
+  --fat-jar-engine=spark
 ----
 
 . Create a **Native Spark** pipeline run configuration in project metadata (name is exported into `metadata.json`). Deploy & run passes that name as the third MainSpark argument.

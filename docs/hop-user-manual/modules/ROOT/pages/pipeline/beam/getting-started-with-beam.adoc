@@ -268,7 +268,7 @@ image:beam-getting-started-flushes-metric.png[Beam Flushes Metrics,width=75%]
 
 A fat jar is often used to package up all the code you need for a particular project.
 The Spark, Flink and Dataflow execution engines like it since it massively simplifies the Java classpath when executing pipelines.
-Apache Hop allows you to create a fat jar in the Hop GUI with the `Tools/Generate a Hop fat jar...` menu or using the following command:
+Apache Hop allows you to create a fat jar in the Hop GUI with the `Tools/Generate a Hop fat jar...` menu (choose *Apache Beam engines* if Hop asks for the engine) or using the following command:
 
 [source]
 ----

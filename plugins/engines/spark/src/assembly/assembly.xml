@@ -34,6 +34,11 @@
             <outputDirectory>plugins/engines/spark</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <!-- What a Spark distribution ships, for the native-provided fat jar -->
+            <source>${project.build.directory}/spark-dependencies/spark-dependencies.txt</source>
+            <outputDirectory>plugins/engines/spark</outputDirectory>
+        </file>
     </files>
     <dependencySets>
         <dependencySet>
