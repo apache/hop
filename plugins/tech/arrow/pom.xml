@@ -30,6 +30,8 @@
 
     <properties>
         <apache.arrow.version>19.0.0</apache.arrow.version>
+        <!-- Required plugin: static-schema ships its own jar in lib/core. -->
+        <hop.libcore.exclude1>org.apache.hop:hop-misc-static-schema</hop.libcore.exclude1>
     </properties>
 
     <dependencyManagement>
@@ -163,11 +165,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-misc-static-schema</artifactId>
-            <version>2.21.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <scope>provided</scope>
@@ -235,6 +232,12 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-misc-static-schema</artifactId>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

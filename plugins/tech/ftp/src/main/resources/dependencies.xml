@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,7 +16,9 @@
   ~ limitations under the License.
   ~
   -->
-
 <dependencies>
-    <folder>../sortrows</folder>
+    <!-- The FTP actions also handle SFTP through the SFTP connection metadata and client of the
+         SFTP plugin. They share its "sftp" class loader group, which only has those classes when
+         that plugin is installed. Naming its folder states the requirement. -->
+    <folder>../sftp</folder>
 </dependencies>
