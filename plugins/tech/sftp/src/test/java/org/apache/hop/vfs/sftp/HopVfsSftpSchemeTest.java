@@ -25,16 +25,15 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.Collections;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
-import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.AcceptAllPasswordAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.shell.UnknownCommandFactory;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -79,9 +78,11 @@ class HopVfsSftpSchemeTest {
     sshServer.setPasswordAuthenticator(AcceptAllPasswordAuthenticator.INSTANCE);
     sshServer.setFileSystemFactory(new VirtualFileSystemFactory(serverRoot));
     sshServer.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
-    // The SFTP client doesn't close the session when the FileObject is closed, and the server's
-    // 10 minute default idle timeout would hold the test open that long.
-    CoreModuleProperties.IDLE_TIMEOUT.set(sshServer, Duration.ofSeconds(5));
+    // The file system asks for the user id ("id -u") when it opens. With no command factory the
+    // server ignores that request without a word - JSch asks for no reply when there is no connect
+    // timeout - and the client waits for the command's output until the session is dropped. Like
+    // an SFTP-only server, answer every command with "unknown command" instead.
+    sshServer.setCommandFactory(UnknownCommandFactory.INSTANCE);
     sshServer.start();
   }
 
