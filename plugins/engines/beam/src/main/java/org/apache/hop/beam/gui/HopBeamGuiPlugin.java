@@ -340,7 +340,7 @@ public class HopBeamGuiPlugin {
    * marketplace keeps staged downloads and backed-up jars there ({@code plugins/.staging}, {@code
    * plugins/.marketplace}), and those must not end up in a fat jar next to the live ones.
    */
-  public static Collection<File> findPluginJars(File pluginsDir) {
+  static Collection<File> findPluginJars(File pluginsDir) {
     if (pluginsDir == null || !pluginsDir.isDirectory()) {
       return List.of();
     }

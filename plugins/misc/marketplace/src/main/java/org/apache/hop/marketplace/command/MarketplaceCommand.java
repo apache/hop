@@ -474,7 +474,9 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                 receipt.getGroupId(),
                 receipt.getArtifactId(),
                 receipt.getVersion(),
-                receipt.isPendingActivation() ? " (pending activation)" : "");
+                receipt.isUninstallPending()
+                    ? " (uninstall pending)"
+                    : receipt.isPendingActivation() ? " (pending activation)" : "");
           }
           if (!any) {
             System.out.println("No marketplace-installed plugins.");

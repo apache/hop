@@ -1082,16 +1082,121 @@ class PluginInstallerTest {
         assertTrue(Files.isDirectory(hopHome.resolve(path)), path);
       }
       assertEquals(List.of("plugins/tech/test/samples/sample.hpl"), left.getObsoletePaths());
+      // It no longer counts as an install of any version.
+      assertTrue(left.isUninstallPending());
+      assertNull(left.getVersion());
+      assertTrue(left.getChecksums().isEmpty());
+      assertTrue(left.getSharedFiles().isEmpty());
 
-      // Once the file is free, uninstalling again finishes the job.
+      // Once the file is free, the next install or apply finishes the uninstall.
       Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
-      uninstaller.uninstall(TEST_PLUGIN);
+      new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+          .activateAllPending();
       assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
       assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
     } finally {
       if (Files.isDirectory(samples)) {
         Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
       }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void reinstallAfterAnUnfinishedUninstallDownloadsAndRecordsItsOwnSharedFiles() throws Exception {
+    Path hopHome = tempDir.resolve("hop-reinstall-after-uninstall");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      install(hopHome, server, "1.0.0");
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      install(hopHome, server, "2.0.0");
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+
+      InstallReceipt receipt =
+          new PluginInstaller(
+                  new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+              .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+
+      assertFalse(receipt.isAlreadyPresent());
+      assertFalse(receipt.isUninstallPending());
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(Files.exists(samples));
+      // The jar left in lib/core matches: this install did not create or replace it.
+      InstallReceipt.SharedFile shared = sharedFile(hopHome, "lib/core/shared-2.0.jar");
+      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, shared.getAction());
+      assertNull(shared.getBackup());
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void uninstallOfAStagedPluginRemovesTheStagedFiles() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-uninstall-staged");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
+
+      // The next start does not bring the plugin back.
+      installer.activateAllPending();
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+      assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void unreadableReceiptReportsTheFilesTheStagedVersionDoesNotHave() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-unreadable-update");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), false);
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"), "{");
+
+      assertEquals(
+          List.of("plugins/tech/test/lib/dep-1.0.jar", "plugins/tech/test/samples/sample.hpl"),
+          installer.filesTheStagedVersionDoesNotHave(
+              TEST_PLUGIN,
+              List.of(
+                  "plugins/tech/test/plugin.jar",
+                  "plugins/tech/test/lib/dep-2.0.jar",
+                  "lib/core/shared-2.0.jar")));
+
+      // Reported, not removed: a plugin folder can hold files added by hand.
+      installer.activateAllPending();
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+    } finally {
       server.stop(0);
     }
   }

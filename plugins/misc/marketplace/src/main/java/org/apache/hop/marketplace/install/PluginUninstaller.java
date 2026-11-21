@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -98,6 +99,14 @@ public class PluginUninstaller {
 
     removeEmptyPluginDirectories(hopHome, dirs, log);
 
+    // A plugin that is still staged would otherwise be activated again at the next start.
+    Path staged = hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(artifactId);
+    try {
+      PluginInstaller.deleteRecursive(staged);
+    } catch (IOException e) {
+      throw new HopException("Failed to remove the staged files of " + artifactId, e);
+    }
+
     if (!leftovers.isEmpty()) {
       // The receipt now lists only what is left, the files and the plugin folders that hold
       // them, so the next uninstall, install or apply retries it.
@@ -108,7 +117,15 @@ public class PluginUninstaller {
         }
       }
       Collections.sort(remainingDirs);
+      // The plugin is gone: nothing may read this receipt as an install of some version, or
+      // reuse what it recorded about the shared lib/core jars.
       receipt.setArtifactId(artifactId);
+      receipt.setUninstallPending(true);
+      receipt.setPendingActivation(false);
+      receipt.setVersion(null);
+      receipt.setPreviousVersion(null);
+      receipt.setChecksums(new LinkedHashMap<>());
+      receipt.setSharedFiles(new LinkedHashMap<>());
       receipt.setPaths(remainingDirs);
       receipt.setObsoletePaths(leftovers);
       PluginInstaller.writeReceipt(hopHome, receipt);

@@ -34,6 +34,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -70,8 +71,9 @@ public class PluginInstaller {
   public static final String RECEIPTS_DIR = "plugins/.marketplace";
 
   /**
-   * Shared {@code lib/core} files an install replaced, under {@code <artifactId>/<version>/<path>}.
-   * The plugin scanner skips folders named {@code lib}, so the backed-up jars are not loaded.
+   * Shared {@code lib/core} files an install replaced, under {@code
+   * <artifactId>/<version>/<installId>/<path>}. The plugin scanner skips folders named {@code lib},
+   * so the backed-up jars are not loaded.
    */
   public static final String BACKUP_DIR = RECEIPTS_DIR + "/backup";
 
@@ -263,7 +265,7 @@ public class PluginInstaller {
    */
   private InstallReceipt satisfiedInstall(MavenCoordinates coordinates) throws HopException {
     InstallReceipt receipt = readReceipt(hopHome, coordinates.artifactId());
-    if (receipt == null || receipt.isPendingActivation()) {
+    if (receipt == null || receipt.isPendingActivation() || receipt.isUninstallPending()) {
       return null;
     }
     if (!coordinates.version().equals(receipt.getVersion())) {
@@ -360,6 +362,7 @@ public class PluginInstaller {
                     + "; activating it with a new receipt",
                 e);
             moveUnreadableReceiptAside(artifactId);
+            warnAboutFilesTheStagedVersionDoesNotHave(artifactId, paths);
           }
           Map<String, SharedFile> sharedFiles =
               activateStaged(
@@ -415,6 +418,68 @@ public class PluginInstaller {
     } catch (IOException e) {
       log.logError("Could not move the unreadable install receipt " + file + " aside", e);
     }
+  }
+
+  /**
+   * Without the receipt, the files of the version installed until now are unknown, so they cannot
+   * be removed. Plugin folders can also hold files people added by hand (JDBC drivers, for
+   * example), so nothing is removed by guessing: the files the staged version does not have are
+   * reported instead.
+   */
+  private void warnAboutFilesTheStagedVersionDoesNotHave(String artifactId, List<String> paths) {
+    List<String> unknown = filesTheStagedVersionDoesNotHave(artifactId, paths);
+    if (!unknown.isEmpty()) {
+      log.logError(
+          "The plugin folder of "
+              + artifactId
+              + " holds files the version being activated does not have. They may be files of"
+              + " the previous version, which could then load next to the new one: check and"
+              + " remove them by hand, or install the plugin again. "
+              + String.join(", ", unknown));
+    }
+  }
+
+  /**
+   * The files in the top-level plugin folders ({@code plugins/<type>/<name>}) of the staged paths
+   * that are not staged themselves and that no other receipt lists.
+   */
+  List<String> filesTheStagedVersionDoesNotHave(String artifactId, List<String> paths) {
+    Set<String> staged = new HashSet<>();
+    Set<String> pluginFolders = new LinkedHashSet<>();
+    for (String path : paths) {
+      String normalized = normalizeRelative(path);
+      staged.add(normalized);
+      String[] segments = normalized.split("/");
+      if (segments.length > 3 && segments[0].equals("plugins") && !segments[1].startsWith(".")) {
+        pluginFolders.add(String.join("/", segments[0], segments[1], segments[2]));
+      }
+    }
+    Set<String> otherReceiptPaths;
+    try {
+      otherReceiptPaths = pathsOfOtherReceipts(hopHome, artifactId, log);
+    } catch (HopException e) {
+      log.logError("Could not read the other marketplace install receipts", e);
+      otherReceiptPaths = Set.of();
+    }
+    List<String> unknown = new ArrayList<>();
+    for (String folder : pluginFolders) {
+      Path dir = hopHome.resolve(folder);
+      if (!Files.isDirectory(dir)) {
+        continue;
+      }
+      try (var stream = Files.walk(dir)) {
+        for (Path file : stream.filter(Files::isRegularFile).toList()) {
+          String relative = normalizeRelative(hopHome.relativize(file).toString());
+          if (!staged.contains(relative) && !otherReceiptPaths.contains(relative)) {
+            unknown.add(relative);
+          }
+        }
+      } catch (IOException e) {
+        log.logError("Could not list the plugin folder " + dir, e);
+      }
+    }
+    Collections.sort(unknown);
+    return unknown;
   }
 
   /** SHA-256 of the staged files, keyed by their relative path. */
@@ -696,6 +761,14 @@ public class PluginInstaller {
       return;
     }
     for (InstallReceipt receipt : receipts) {
+      if (receipt.isUninstallPending()) {
+        try {
+          new PluginUninstaller(log, hopHome).uninstall(receipt.getArtifactId());
+        } catch (HopException e) {
+          log.logError("Could not finish uninstalling " + receipt.getArtifactId(), e);
+        }
+        continue;
+      }
       if (receipt.isPendingActivation() || nullSafe(receipt.getObsoletePaths()).isEmpty()) {
         continue;
       }

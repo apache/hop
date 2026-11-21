@@ -70,6 +70,15 @@ public class InstallReceipt {
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private Map<String, SharedFile> sharedFiles = new LinkedHashMap<>();
 
+  /**
+   * Set when an uninstall could not remove every file. The receipt then only lists what is left
+   * ({@link #paths} holds the remaining folders, {@link #obsoletePaths} the remaining files), has
+   * no version, and does not count as an install. The next install, apply or uninstall removes the
+   * rest and deletes the receipt.
+   */
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  private boolean uninstallPending;
+
   /** Version this install replaced, or null for a first install. */
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private String previousVersion;

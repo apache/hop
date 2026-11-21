@@ -541,7 +541,7 @@ public class MarketplaceDialog extends Dialog {
         log.logError("Unable to read receipt for " + info.getArtifactId(), e);
       }
       String status;
-      if (onDisk && receipt != null) {
+      if (onDisk && receipt != null && !receipt.isUninstallPending()) {
         status =
             BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
                 + " ("
