@@ -65,6 +65,8 @@ rules:
     name: "Hardcoded Password or Secret in Transform"
     description: "Transforms must not store passwords, tokens or API keys in the project, encrypted or not; use a variable instead"
     parameters:
+      # Also every text field Hop stores as a password, whatever its name, such as sasKey.
+      passwordFields: true
       fieldPatterns:
         - "password"
         - "pwd"
@@ -80,6 +82,8 @@ rules:
         - "token"
         - "accessToken"
         - "authToken"
+        - "privateKey"
+        - "connectionString"
 
   SEC-003:
     type: custom
@@ -91,6 +95,8 @@ rules:
     name: "Hardcoded Password or Secret in Action"
     description: "Workflow actions must not store passwords, tokens or API keys in the project, encrypted or not; use a variable instead"
     parameters:
+      # Also every text field Hop stores as a password, whatever its name, such as sasKey.
+      passwordFields: true
       fieldPatterns:
         - "password"
         - "pwd"
@@ -106,6 +112,8 @@ rules:
         - "token"
         - "accessToken"
         - "authToken"
+        - "privateKey"
+        - "connectionString"
 
   # Reported on the transform, not the pipeline, so the finding is something you can click on.
   # A pipeline holding one transform and nothing else is not orphaned — there is nothing for it

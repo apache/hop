@@ -306,14 +306,14 @@ public final class YamlRulePackParser {
   }
 
   /**
-   * The {@code pack.overrides:} list of a pack shipped as a classpath resource, falling back to the
-   * YAML beside the plugin jar the same way {@link #loadRulesWithAdjacentFallback} does. A pack
-   * that cannot be read declares no overrides; loading its rules reports the error.
+   * The {@code pack:} block of a pack shipped as a classpath resource, falling back to the YAML
+   * beside the plugin jar the same way {@link #loadRulesWithAdjacentFallback} does. Null when the
+   * pack cannot be read; loading its rules reports the error.
    */
-  public static List<String> readOverridesWithAdjacentFallback(
+  public static PackMetadata readPackMetadataWithAdjacentFallback(
       String resourcePath, String packId, RulePackOwner owner, Class<?> anchor) {
     if (Utils.isEmpty(resourcePath)) {
-      return Collections.emptyList();
+      return null;
     }
     try {
       for (ClassLoader loader : classLoadersToTry(anchor)) {
@@ -322,20 +322,19 @@ public final class YamlRulePackParser {
         }
         try (InputStream inputStream = loader.getResourceAsStream(resourcePath)) {
           if (inputStream != null) {
-            return parsePackMetadata(readYaml(inputStream, resourcePath), packId, owner, 0)
-                .overrides();
+            return parsePackMetadata(readYaml(inputStream, resourcePath), packId, owner, 0);
           }
         }
       }
       File adjacent = findPackYamlAdjacentTo(anchor, resourcePath);
       if (adjacent != null) {
-        return readPackMetadata(adjacent, packId, owner, 0).overrides();
+        return readPackMetadata(adjacent, packId, owner, 0);
       }
     } catch (IOException | RuntimeException e) {
       LogChannel.GENERAL.logError(
-          "Failed to read the overrides of rule pack " + packId + ": " + e.getMessage());
+          "Failed to read the pack block of rule pack " + packId + ": " + e.getMessage());
     }
-    return Collections.emptyList();
+    return null;
   }
 
   private static ClassLoader[] classLoadersToTry(Class<?> anchor) {
@@ -506,7 +505,12 @@ public final class YamlRulePackParser {
     Map<String, Object> packSection = (Map<String, Object>) yamlData.get("pack");
     if (packSection == null) {
       return new PackMetadata(
-          defaultPackId, defaultPackId, defaultOwner, defaultPriority, Collections.emptyList());
+          defaultPackId,
+          defaultPackId,
+          defaultOwner,
+          defaultPriority,
+          Collections.emptyList(),
+          null);
     }
     String packId = stringValue(packSection.get("id"), defaultPackId);
     String displayName = stringValue(packSection.get("name"), packId);
@@ -524,7 +528,8 @@ public final class YamlRulePackParser {
         displayName,
         owner,
         intValue(packSection.get("priority"), defaultPriority),
-        stringListValue(packSection.get("overrides")));
+        stringListValue(packSection.get("overrides")),
+        stringValue(packSection.get("version"), null));
   }
 
   private static List<CustomLintRule> parseRulesSection(
@@ -917,7 +922,18 @@ public final class YamlRulePackParser {
       String displayName,
       RulePackOwner owner,
       int priority,
-      List<String> overrides) {
+      List<String> overrides,
+      String version) {
+
+    /** A pack block without a version, as before packs could declare one. */
+    public PackMetadata(
+        String packId,
+        String displayName,
+        RulePackOwner owner,
+        int priority,
+        List<String> overrides) {
+      this(packId, displayName, owner, priority, overrides, null);
+    }
 
     public boolean declaresOverrideOf(String ruleId) {
       return overrides.stream().anyMatch(id -> id.equalsIgnoreCase(ruleId));

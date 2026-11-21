@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.lint.LintRun;
 
 /**
  * Discovers rule packs from built-ins, classpath, ServiceLoader, sibling plugin folders, and
@@ -203,7 +204,13 @@ public class RulePackDiscovery {
     String fileName = yamlFile.getName();
     if ("hop-lint-core.yml".equals(fileName)) {
       return new FileYamlRulePack(
-          yamlFile, RulePackIds.HOP_CORE, "Apache Hop Core Lint Rules", RulePackOwner.APACHE, 100);
+          yamlFile,
+          RulePackIds.HOP_CORE,
+          "Apache Hop Core Lint Rules",
+          RulePackOwner.APACHE,
+          100,
+          List.of(),
+          LintRun.toolVersion());
     }
     // Any other discovered pack declares its own id/owner/priority in its YAML pack: block.
     // Defaults: pack id from the containing folder name, vendor-owned, priority 300.
@@ -218,7 +225,8 @@ public class RulePackDiscovery {
           metadata.displayName(),
           metadata.owner(),
           metadata.priority(),
-          metadata.overrides());
+          metadata.overrides(),
+          metadata.version());
     } catch (IOException | RuntimeException e) {
       // Loading the rules fails again, and the registry reports that with the pack's name. A YAML
       // error escaping from here stopped hop lint with only snakeyaml's line and column.

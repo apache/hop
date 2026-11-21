@@ -19,6 +19,7 @@ package org.apache.hop.lint.registry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,8 +35,10 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.lint.CustomLintRule;
+import org.apache.hop.lint.LintRun;
 import org.apache.hop.lint.RuleCombinator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class RuleRegistryTest {
 
@@ -524,6 +527,55 @@ public class RuleRegistryTest {
     CustomLintRule surviving = merged.get("DB-001");
     assertEquals("acme", surviving.getPackId());
     assertEquals("INFO", surviving.getSeverity());
+  }
+
+  /**
+   * A pack's version is recorded in the SARIF report, so a report shows which rules a run used.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9500">#9500</a>
+   */
+  @Test
+  public void aClasspathPackDeclaresItsVersion() {
+    IHopLintRulePack acme =
+        new AbstractYamlRulePack(
+            "acme",
+            "Acme Rules",
+            RulePackOwner.VENDOR,
+            500,
+            "org/apache/hop/lint/registry/test-override-pack.yml") {};
+
+    assertEquals("1.4.0", acme.getVersion());
+    assertEquals("1.4.0", EagerRulePack.of(acme).getVersion(), "kept when the jar is closed");
+  }
+
+  /** The core pack ships with Hop, so it has Hop's version. */
+  @Test
+  public void theCorePackHasHopsVersion() {
+    assertEquals(LintRun.toolVersion(), new HopCoreRulePack().getVersion());
+    assertTrue(
+        RuleRegistry.getInstance().getLoadedPacks().stream()
+            .anyMatch(
+                pack ->
+                    RulePackIds.HOP_CORE.equals(pack.id())
+                        && LintRun.toolVersion().equals(pack.version())),
+        "" + RuleRegistry.getInstance().getLoadedPacks());
+  }
+
+  /** A pack file states its version in its pack block; without one it has none. */
+  @Test
+  public void aPackFileDeclaresItsVersion(@TempDir Path folder) throws Exception {
+    Path versioned = folder.resolve("versioned.yml");
+    Files.writeString(versioned, "pack:\n  id: acme\n  version: \"2.0\"\nrules: {}\n");
+    Path plain = folder.resolve("plain.yml");
+    Files.writeString(plain, "pack:\n  id: acme\nrules: {}\n");
+
+    assertEquals(
+        "2.0",
+        YamlRulePackParser.readPackMetadata(versioned.toFile(), "x", RulePackOwner.VENDOR, 300)
+            .version());
+    assertNull(
+        YamlRulePackParser.readPackMetadata(plain.toFile(), "x", RulePackOwner.VENDOR, 300)
+            .version());
   }
 
   /** A classpath pack without an overrides: block declares none. */

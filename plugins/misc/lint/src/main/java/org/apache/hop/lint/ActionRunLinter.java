@@ -234,6 +234,7 @@ public class ActionRunLinter extends ActionBase implements IAction {
       run.setFailOn(failOn == null ? LintSeverity.FailOn.ERROR : failOn);
       run.setMaxWarnings(resolveMaxWarnings());
       run.setBaseline(readBaseline());
+      run.setBaselineName(resolve(baselineFile));
 
       IVariables lintVariables = new Variables();
       lintVariables.copyFrom(this);
@@ -373,7 +374,7 @@ public class ActionRunLinter extends ActionBase implements IAction {
     String report =
         format == LintReportFormat.TEXT
             ? LintReportWriter.renderText(outcome.getShown(), true)
-            : run.renderReport(outcome.getShown(), format);
+            : run.renderReport(outcome, format);
 
     FileObject fileObject = HopVfs.getFileObject(resolved, this);
     FileObject parent = fileObject.getParent();
