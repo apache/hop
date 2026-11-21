@@ -214,6 +214,65 @@ class ActionRunLinterTest {
     assertEquals(LintRun.toolVersion(), core.get("version").asText());
   }
 
+  private static JsonNode invocationProperties(Path sarif) throws Exception {
+    return new ObjectMapper()
+        .readTree(sarif.toFile())
+        .get("runs")
+        .get(0)
+        .get("invocations")
+        .get(0)
+        .get("properties");
+  }
+
+  /**
+   * The project's hop-lint.yml and a baseline are usually outside the folder linted. They were
+   * recorded with their absolute paths, so a report kept as evidence carried the developer's home
+   * folder or the CI workspace. hop lint and the action, given the baseline as a file: URL, record
+   * the same relative paths.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9500">#9500</a>
+   */
+  @Test
+  void sarifRecordsFilesOutsideTheTargetWithoutLocalPaths() throws Exception {
+    Path target = project.resolve("pipelines");
+    Path baseline = dir.resolve("baseline.json");
+    hopLint(new StringBuilder(), "--write-baseline", baseline.toString(), target.toString());
+
+    Path cliReport = dir.resolve("outside-cli.sarif");
+    hopLint(
+        new StringBuilder(),
+        "-f",
+        "SARIF",
+        "-o",
+        cliReport.toString(),
+        "--baseline",
+        baseline.toString(),
+        "--severity",
+        "WARNING",
+        "--max-warnings",
+        "5",
+        target.toString());
+    Path actionReport = dir.resolve("outside-action.sarif");
+    ActionRunLinter action = action(target);
+    action.setBaselineFile(baseline.toUri().toString());
+    action.setMinimumSeverity(LintSeverity.Level.WARNING);
+    action.setMaxWarnings("5");
+    action.setReportFile(actionReport.toString());
+    action.setReportFormat(LintReportFormat.SARIF);
+    action.execute(new Result(), 0);
+
+    JsonNode cli = invocationProperties(cliReport);
+    assertEquals("../hop-lint.yml", cli.get("configFile").asText());
+    assertEquals("../../baseline.json", cli.get("baseline").asText());
+    assertEquals("WARNING", cli.get("severity").asText());
+    assertEquals(5, cli.get("maxWarnings").asInt());
+    assertEquals(cli, invocationProperties(actionReport));
+    for (Path report : List.of(cliReport, actionReport)) {
+      String sarif = Files.readString(report);
+      assertFalse(sarif.contains(dir.toString()), report + " names a local folder: " + sarif);
+    }
+  }
+
   /** A run with nothing to report still says which rules it ran, and that it passed. */
   @Test
   void aCleanRunStillDeclaresItsRules() throws Exception {

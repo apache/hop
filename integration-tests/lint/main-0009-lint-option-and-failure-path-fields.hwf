@@ -171,6 +171,8 @@ expect("PostgreSQL connections with TLS in neither the options nor the URL", sou
 expect("every connection could be read", sources("SYSTEM-003"), [])
 expect("Output transforms", sources("OPT-003"), ["Write the file"])
 expect("workflows with actions that stop unhandled", sources("OPT-004"), ["failure-paths"])
+opt_messages = [m for rule in ["OPT-001", "OPT-002", "OPT-003", "OPT-004"] for m in messages(rule)]
+expect("no finding shows a connection URL", [m for m in opt_messages if "jdbc:" in m], [])
 opt004 = messages("OPT-004")
 expect("the finding names the action without a failure hop", len(opt004) == 1 and "[Check the input]" in opt004[0], True)
 

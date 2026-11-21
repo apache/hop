@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -98,12 +99,35 @@ public class HardcodedSecretRuleTest {
 
   @Test
   void reportsTheFieldsHopStoresAsPasswordsAndTheNewNamePatterns() {
-    List<String> reported = fieldsReportedFor(new StoredAsPasswordMeta());
+    List<String> reported =
+        fieldsReportedFor(
+            new StoredAsPasswordMeta(), Map.of(CustomLintRule.PARAMETER_PASSWORD_FIELDS, true));
 
     assertEquals(
         List.of("sasKey", "keyFilePass", "privateKey", "storageConnectionString"),
         reported,
         "a variable, an empty value and a plain setting are not findings");
+  }
+
+  /** Without passwordFields a rule reads names only, as every rule did before it existed. */
+  @Test
+  void aRuleWithoutPasswordFieldsReadsNamesOnly() {
+    assertEquals(
+        List.of("privateKey", "storageConnectionString"),
+        fieldsReportedFor(new StoredAsPasswordMeta()));
+  }
+
+  /**
+   * A project rule that narrows fieldPatterns on purpose reports what it did before, rather than
+   * every password field as well.
+   */
+  @Test
+  void aRuleThatNarrowsFieldPatternsKeepsItsFindings() {
+    assertEquals(
+        List.of("privateKey"),
+        fieldsReportedFor(
+            new StoredAsPasswordMeta(),
+            Map.of(CustomLintRule.PARAMETER_FIELD_PATTERNS, List.of("privateKey"))));
   }
 
   @Test
@@ -144,7 +168,13 @@ public class HardcodedSecretRuleTest {
   }
 
   private static List<String> fieldsReportedFor(ITransformMeta meta) {
+    return fieldsReportedFor(meta, Map.of());
+  }
+
+  private static List<String> fieldsReportedFor(
+      ITransformMeta meta, Map<String, Object> parameters) {
     CustomLintRule rule = new CustomLintRule();
+    rule.getAdditionalParameters().putAll(parameters);
     rule.setId("SEC-002");
     rule.setName("Hardcoded Password or Secret in Transform");
     rule.setSeverity("ERROR");

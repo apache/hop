@@ -112,14 +112,21 @@ public class RuleClause {
               PKG, "RuleClause.Problem.NotAWholeNumber", condition.name(), conditionValue);
         }
         break;
+      case HAS_OPTION:
+        if (value.contains("=")) {
+          return BaseMessages.getString(
+              PKG, "RuleClause.Problem.NotAnOptionName", condition.name(), conditionValue);
+        }
+        break;
       case OPTION_MATCHES:
         int equals = value.indexOf('=');
-        if (equals <= 0) {
+        if (equals <= 0 || value.substring(0, equals).isBlank()) {
           return BaseMessages.getString(
               PKG, "RuleClause.Problem.NotAnOptionPattern", condition.name(), conditionValue);
         }
         try {
-          Pattern.compile(value.substring(equals + 1));
+          // Trimmed as the executor reads it.
+          Pattern.compile(value.substring(equals + 1).trim());
         } catch (PatternSyntaxException e) {
           return BaseMessages.getString(
               PKG,

@@ -125,11 +125,17 @@ if [ $rc -ne 0 ]; then
 fi
 "$HOP_CLI" lint --list-rules "$PROJECT_DIR/run-linter/clean" &gt; "$RULE_LIST" 2&gt;/dev/null
 
-python3 - "$ACTION_REPORT" "$CLI_REPORT" "$RULE_LIST" &lt;&lt;'PY'
+# A configuration file outside the folder linted is recorded relative to it, not as a local path.
+CONFIG_REPORT="$PROJECT_DIR/output/sarif-clean-config.sarif"
+rm -f "$CONFIG_REPORT"
+"$HOP_CLI" lint "$PROJECT_DIR/run-linter/clean" --fail-on NONE --format sarif   --config "$PROJECT_DIR/files/run-linter-no-docs.yml" --output "$CONFIG_REPORT"
+
+python3 - "$ACTION_REPORT" "$CLI_REPORT" "$RULE_LIST" "$CONFIG_REPORT" "$PROJECT_DIR" &lt;&lt;'PY'
 import json
+import os
 import sys
 
-action_path, cli_path, rules_path = sys.argv[1:4]
+action_path, cli_path, rules_path, config_path, project_dir = sys.argv[1:6]
 failures = []
 
 
@@ -185,6 +191,20 @@ if invocations:
             core[0].get("version"),
             cli["tool"]["driver"].get("version"),
         )
+
+with open(config_path) as f:
+    config_text = f.read()
+config_run = json.loads(config_text)["runs"][0]
+expect(
+    "a --config file outside the folder linted",
+    config_run["invocations"][0]["properties"].get("configFile"),
+    "../../files/run-linter-no-docs.yml",
+)
+for label, path in [("action", action_path), ("hop lint", cli_path), ("--config", config_path)]:
+    with open(path) as f:
+        text = f.read()
+    leaked = [folder for folder in {project_dir, os.path.normpath(project_dir)} if folder in text]
+    expect("the " + label + " report names no local folder", leaked, [])
 
 expect("the action declares the same rules as hop lint", action["tool"], cli["tool"])
 expect("the action records the same run as hop lint", action.get("invocations"), cli.get("invocations"))

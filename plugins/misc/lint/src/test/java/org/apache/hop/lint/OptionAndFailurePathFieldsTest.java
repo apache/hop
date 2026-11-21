@@ -18,6 +18,7 @@
 package org.apache.hop.lint;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -188,6 +189,51 @@ class OptionAndFailurePathFieldsTest {
             .containsAll(List.of(RuleCondition.HAS_OPTION, RuleCondition.OPTION_MATCHES)));
   }
 
+  /** Hop appends neither an option without a value nor one stored for another database type. */
+  @Test
+  void optionsHopDoesNotUseDoNotCount() {
+    CustomLintRule matches =
+        rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.OPTION_MATCHES, TLS);
+    DatabaseMeta otherType = connection();
+    otherType.addExtraOption("MYSQL", "sslmode", "require");
+
+    assertEquals(1, lint(matches, otherType).size(), "stored for MySQL, not used for this type");
+    CustomLintRule has =
+        rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.HAS_OPTION, "sslmode");
+    assertEquals(1, lint(has, connection("sslmode", "")).size(), "no value");
+  }
+
+  /** The executor reads the value as the rule editor checked it. */
+  @Test
+  void optionMatchesTrimsTheNameAndThePattern() {
+    CustomLintRule rule =
+        rule(
+            RuleTarget.DATABASE_CONNECTION,
+            "attributes",
+            RuleCondition.OPTION_MATCHES,
+            " sslmode = require ");
+
+    assertTrue(lint(rule, connection("sslmode", "require")).isEmpty());
+  }
+
+  @Test
+  void hasOptionWithoutANameOrWithAValueIsAConfigurationError() {
+    for (String value : List.of("", "sslmode=require")) {
+      CustomLintRule rule =
+          rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.HAS_OPTION, value);
+
+      List<LintResult> results = lint(rule, connection("sslmode", "require"));
+
+      assertEquals(1, results.size(), "'" + value + "'");
+      assertEquals("ERROR", results.get(0).getSeverity());
+      assertTrue(
+          results.get(0).getMessage().contains("name of the option only"), results.toString());
+    }
+    assertNotNull(
+        new RuleClause("attributes", RuleCondition.HAS_OPTION, "sslmode=require")
+            .valueProblem(RuleTarget.DATABASE_CONNECTION, false));
+  }
+
   // ------------------------------------------------------------------ url
 
   /** The NONE type separates its options with ";", where PostgreSQL uses "?" and "&". */
@@ -202,6 +248,24 @@ class OptionAndFailurePathFieldsTest {
 
     assertTrue(lint(rule, connection("sslmode", "require")).isEmpty());
     assertEquals(1, lint(rule, connection()).size());
+  }
+
+  /** The URL carries the option values, so a finding never shows it, as for attributes. */
+  @Test
+  void aFindingDoesNotShowTheUrl() {
+    CustomLintRule rule =
+        rule(
+            RuleTarget.DATABASE_CONNECTION,
+            "url",
+            RuleCondition.MATCHES_PATTERN,
+            ".*sslmode=require.*");
+
+    List<LintResult> results = lint(rule, connection("sslmode", "disable", "password", "hunter2"));
+
+    assertEquals(1, results.size());
+    assertFalse(results.get(0).getMessage().contains("hunter2"), results.get(0).getMessage());
+    assertFalse(
+        results.get(0).getMessage().contains("sslmode=disable"), results.get(0).getMessage());
   }
 
   /** Variables and variable resolvers stay as written: linting must not reach a vault. */
@@ -265,37 +329,61 @@ class OptionAndFailurePathFieldsTest {
   // ------------------------------------------------------------------ actionsWithoutFailurePath
 
   /**
-   * Start leads to check, which goes on to load on success only. Load goes on to notify, and to
-   * alert on failure. Archive has only a disabled failure hop.
+   * An action that evaluates its result, as most do: its hops are followed on success or failure.
+   */
+  private static ActionMeta evaluating(String name) {
+    return new ActionMeta(
+        new ActionDummy(name) {
+          @Override
+          public boolean isEvaluation() {
+            return true;
+          }
+        });
+  }
+
+  private static WorkflowHopMeta hop(ActionMeta from, ActionMeta to, String kind) {
+    WorkflowHopMeta hop = new WorkflowHopMeta(from, to);
+    switch (kind) {
+      case "unconditional" -> hop.setUnconditional(true);
+      case "failure" -> hop.setEvaluation(false);
+      case "disabled failure" -> {
+        hop.setEvaluation(false);
+        hop.setEnabled(false);
+      }
+      default -> hop.setEvaluation(true);
+    }
+    return hop;
+  }
+
+  /**
+   * Check goes on to load on success only. Load goes on to notify on success, and to alert on
+   * failure. Notify goes on to archive unconditionally, which the engine follows on failure too.
+   * Archive goes on to cleanup on success and has only a disabled failure hop. Wait is a Dummy: it
+   * does not evaluate its result, so it follows only unconditional hops and has no failure to
+   * handle.
    */
   private static WorkflowMeta workflow() {
     WorkflowMeta workflow = new WorkflowMeta();
     ActionMeta start = new ActionMeta(new ActionStart("Start"));
-    ActionMeta check = new ActionMeta(new ActionDummy("check"));
-    ActionMeta load = new ActionMeta(new ActionDummy("load"));
-    ActionMeta notify = new ActionMeta(new ActionDummy("notify"));
-    ActionMeta alert = new ActionMeta(new ActionDummy("alert"));
-    ActionMeta archive = new ActionMeta(new ActionDummy("archive"));
-    for (ActionMeta action : List.of(start, check, load, notify, alert, archive)) {
+    ActionMeta check = evaluating("check");
+    ActionMeta load = evaluating("load");
+    ActionMeta notify = evaluating("notify");
+    ActionMeta alert = evaluating("alert");
+    ActionMeta archive = evaluating("archive");
+    ActionMeta cleanup = evaluating("cleanup");
+    ActionMeta wait = new ActionMeta(new ActionDummy("wait"));
+    for (ActionMeta action : List.of(start, check, load, notify, alert, archive, cleanup, wait)) {
       workflow.addAction(action);
     }
-    WorkflowHopMeta startToCheck = new WorkflowHopMeta(start, check);
-    startToCheck.setUnconditional(true);
-    workflow.addWorkflowHop(startToCheck);
-    workflow.addWorkflowHop(new WorkflowHopMeta(check, load));
-    WorkflowHopMeta loadToNotify = new WorkflowHopMeta(load, notify);
-    loadToNotify.setUnconditional(true);
-    workflow.addWorkflowHop(loadToNotify);
-    WorkflowHopMeta loadToAlert = new WorkflowHopMeta(load, alert);
-    loadToAlert.setEvaluation(false);
-    workflow.addWorkflowHop(loadToAlert);
-    WorkflowHopMeta notifyToArchive = new WorkflowHopMeta(notify, archive);
-    notifyToArchive.setUnconditional(true);
-    workflow.addWorkflowHop(notifyToArchive);
-    WorkflowHopMeta archiveToAlert = new WorkflowHopMeta(archive, alert);
-    archiveToAlert.setEvaluation(false);
-    archiveToAlert.setEnabled(false);
-    workflow.addWorkflowHop(archiveToAlert);
+    workflow.addWorkflowHop(hop(start, check, "unconditional"));
+    workflow.addWorkflowHop(hop(check, load, "success"));
+    workflow.addWorkflowHop(hop(load, notify, "success"));
+    workflow.addWorkflowHop(hop(load, alert, "failure"));
+    workflow.addWorkflowHop(hop(notify, archive, "unconditional"));
+    workflow.addWorkflowHop(hop(archive, cleanup, "success"));
+    workflow.addWorkflowHop(hop(archive, alert, "disabled failure"));
+    workflow.addWorkflowHop(hop(cleanup, wait, "unconditional"));
+    workflow.addWorkflowHop(hop(wait, alert, "success"));
     return workflow;
   }
 
@@ -312,22 +400,20 @@ class OptionAndFailurePathFieldsTest {
 
     assertEquals(1, results.size());
     String message = results.get(0).getMessage();
-    assertTrue(message.contains("[check, notify]"), message);
+    assertTrue(message.contains("[check, archive]"), message);
   }
 
   @Test
   void aWorkflowThatHandlesEveryFailureHasNone() {
     WorkflowMeta workflow = new WorkflowMeta();
     ActionMeta start = new ActionMeta(new ActionStart("Start"));
-    ActionMeta load = new ActionMeta(new ActionDummy("load"));
-    ActionMeta alert = new ActionMeta(new ActionDummy("alert"));
+    ActionMeta load = evaluating("load");
+    ActionMeta alert = evaluating("alert");
     workflow.addAction(start);
     workflow.addAction(load);
     workflow.addAction(alert);
-    workflow.addWorkflowHop(new WorkflowHopMeta(start, load));
-    WorkflowHopMeta onFailure = new WorkflowHopMeta(load, alert);
-    onFailure.setEvaluation(false);
-    workflow.addWorkflowHop(onFailure);
+    workflow.addWorkflowHop(hop(start, load, "unconditional"));
+    workflow.addWorkflowHop(hop(load, alert, "failure"));
     CustomLintRule rule =
         rule(
             RuleTarget.WORKFLOW,

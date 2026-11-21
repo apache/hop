@@ -67,6 +67,8 @@ public class CustomRuleExecutor {
   private static final String CONST_DESCRIPTION = "description";
   private static final String CONST_ERROR_EXTRACTING_FIELD = "Error extracting field ";
   private static final String CONST_CATEGORY = "category";
+  private static final String CONST_URL = "url";
+  private static final String EXTRA_OPTION_PREFIX = "EXTRA_OPTION_";
   private static final String CONST_ACTIONS_WITHOUT_FAILURE_PATH = "actionsWithoutFailurePath";
 
   private static final ILogChannel log = LogChannel.GENERAL;
@@ -192,7 +194,7 @@ public class CustomRuleExecutor {
           firstFieldValue = clauseValue;
         }
         if (evaluateCondition(
-            clause.getCondition(), clauseValue, clause.getConditionValue(), rule)) {
+            clause.getCondition(), clauseValue, clause.getConditionValue(), rule, hopObject)) {
           violated.add(
               clause.describe()
                   + " (actual: "
@@ -487,7 +489,7 @@ public class CustomRuleExecutor {
           case "attributes":
             // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
             return dbMeta.getAttributes();
-          case "url":
+          case CONST_URL:
             return connectionUrl(dbMeta);
           default:
             return connectionField(dbMeta, fieldName);
@@ -742,24 +744,22 @@ public class CustomRuleExecutor {
   }
 
   /**
-   * The enabled hops leaving this action that lead somewhere. A hop whose action name matches
-   * nothing loads with a null end, and is skipped rather than failing the field for the hops that
-   * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
-   * inner action.
-   */
-  /**
-   * The actions, other than Start, that lead somewhere but have no hop followed on failure: when
-   * one of them fails, the workflow stops there without handling it.
+   * The actions, other than Start, that lead on when they succeed but have no hop followed when
+   * they fail: when one of them fails, the workflow stops there without handling it.
+   *
+   * <p>As the engine runs a workflow: an unconditional hop is followed whatever the result, so an
+   * action with one carries on. An action that does not evaluate its result, such as Dummy, follows
+   * only its unconditional hops, so it has no failure to handle and is not listed.
    */
   private static List<String> actionsWithoutFailurePath(WorkflowMeta workflow) {
     List<String> names = new ArrayList<>();
     for (ActionMeta action : workflow.getActions()) {
-      if (action.isStart()) {
+      if (action.isStart() || !action.isEvaluation()) {
         continue;
       }
       List<WorkflowHopMeta> hops = outgoingHops(action, workflow);
       if (!hops.isEmpty()
-          && hops.stream().allMatch(hop -> hop.isUnconditional() || hop.isEvaluation())) {
+          && hops.stream().noneMatch(hop -> hop.isUnconditional() || !hop.isEvaluation())) {
         names.add(action.getName());
       }
     }
@@ -821,6 +821,12 @@ public class CustomRuleExecutor {
     }
   }
 
+  /**
+   * The enabled hops leaving this action that lead somewhere. A hop whose action name matches
+   * nothing loads with a null end, and is skipped rather than failing the field for the hops that
+   * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
+   * inner action.
+   */
   private static List<WorkflowHopMeta> outgoingHops(ActionMeta actionMeta, WorkflowMeta workflow) {
     List<WorkflowHopMeta> hops = new ArrayList<>();
     for (WorkflowHopMeta hop : workflow.getWorkflowHops()) {
@@ -1209,12 +1215,13 @@ public class CustomRuleExecutor {
         return results;
       }
 
-      List<String> fieldPatterns = getPasswordFieldPatterns(rule);
+      SecretFields secretFields =
+          new SecretFields(getPasswordFieldPatterns(rule), readsPasswordFields(rule));
       Map<String, Field> hardcoded = new LinkedHashMap<>();
       collectHardcodedSecrets(
           transformOrAction,
           "",
-          fieldPatterns,
+          secretFields,
           Collections.newSetFromMap(new IdentityHashMap<>()),
           0,
           hardcoded);
@@ -1282,6 +1289,26 @@ public class CustomRuleExecutor {
     return property != null && property.password();
   }
 
+  /**
+   * What a hardcoded-secret rule looks for: fields whose names end in one of the patterns, and,
+   * when the rule asks for it with {@code passwordFields: true}, every field Hop stores as a
+   * password.
+   */
+  private record SecretFields(List<String> patterns, boolean passwordFields) {}
+
+  /**
+   * Whether a rule reports the fields Hop stores as passwords whatever their names. Opt-in, so a
+   * project's own rule that narrows {@code fieldPatterns} on purpose reports what it did before;
+   * SEC-002 and SEC-003 in the core pack turn it on.
+   */
+  private static boolean readsPasswordFields(CustomLintRule rule) {
+    Object value =
+        rule.getAdditionalParameters() == null
+            ? null
+            : rule.getAdditionalParameters().get(CustomLintRule.PARAMETER_PASSWORD_FIELDS);
+    return value instanceof Boolean flag ? flag : "true".equalsIgnoreCase(String.valueOf(value));
+  }
+
   /** How deep {@link #collectHardcodedSecrets} follows settings nested in settings. */
   private static final int MAX_SECRET_DEPTH = 4;
 
@@ -1297,7 +1324,7 @@ public class CustomRuleExecutor {
   private static void collectHardcodedSecrets(
       Object holder,
       String path,
-      List<String> fieldPatterns,
+      SecretFields secretFields,
       Set<Object> visited,
       int depth,
       Map<String, Field> hardcoded) {
@@ -1309,8 +1336,8 @@ public class CustomRuleExecutor {
         continue;
       }
       try {
-        if (storedAsASecret(field)
-            || fieldPatterns.stream().anyMatch(pattern -> namesASecret(field, pattern))) {
+        if ((secretFields.passwordFields() && storedAsASecret(field))
+            || secretFields.patterns().stream().anyMatch(pattern -> namesASecret(field, pattern))) {
           field.setAccessible(true);
           Object value = field.get(holder);
           if (value != null && !Utils.isEmpty(value.toString()) && !isVariable(value.toString())) {
@@ -1325,15 +1352,15 @@ public class CustomRuleExecutor {
             int i = 0;
             for (Object element : collection) {
               walkInto(
-                  element, nestedPath + "[" + i++ + "].", fieldPatterns, visited, depth, hardcoded);
+                  element, nestedPath + "[" + i++ + "].", secretFields, visited, depth, hardcoded);
             }
           } else if (value instanceof Object[] array) {
             for (int i = 0; i < array.length; i++) {
               walkInto(
-                  array[i], nestedPath + "[" + i + "].", fieldPatterns, visited, depth, hardcoded);
+                  array[i], nestedPath + "[" + i + "].", secretFields, visited, depth, hardcoded);
             }
           } else {
-            walkInto(value, nestedPath + ".", fieldPatterns, visited, depth, hardcoded);
+            walkInto(value, nestedPath + ".", secretFields, visited, depth, hardcoded);
           }
         }
       } catch (Exception e) {
@@ -1346,7 +1373,7 @@ public class CustomRuleExecutor {
   private static void walkInto(
       Object value,
       String path,
-      List<String> fieldPatterns,
+      SecretFields secretFields,
       Set<Object> visited,
       int depth,
       Map<String, Field> hardcoded) {
@@ -1356,7 +1383,7 @@ public class CustomRuleExecutor {
         || value.getClass().getName().startsWith("java.")) {
       return;
     }
-    collectHardcodedSecrets(value, path, fieldPatterns, visited, depth + 1, hardcoded);
+    collectHardcodedSecrets(value, path, secretFields, visited, depth + 1, hardcoded);
   }
 
   /**
@@ -1373,6 +1400,13 @@ public class CustomRuleExecutor {
   private static boolean holdsASecret(CustomLintRule rule, Object hopObject, String fieldName) {
     if (Utils.isEmpty(fieldName)) {
       return false;
+    }
+    if (hopObject instanceof DatabaseMeta
+        && (CONST_URL.equals(fieldName) || "manualUrl".equals(fieldName))) {
+      // A connection URL carries the extra options with their values, a password among them as
+      // often as not, so it is never shown. The attributes show their names only, for the same
+      // reason.
+      return true;
     }
     if (storedAsPassword(hopObject, fieldName)) {
       return true;
@@ -1476,7 +1510,11 @@ public class CustomRuleExecutor {
 
   /** Evaluate a condition against a field value */
   private static boolean evaluateCondition(
-      RuleCondition condition, Object fieldValue, String conditionValue, CustomLintRule rule) {
+      RuleCondition condition,
+      Object fieldValue,
+      String conditionValue,
+      CustomLintRule rule,
+      Object hopObject) {
     if (fieldValue == null) {
       // An absent value is the strongest form of "missing", so the presence conditions must
       // fire on it. Hop returns null for an unset description, which is exactly the case
@@ -1607,16 +1645,25 @@ public class CustomRuleExecutor {
         }
 
       case HAS_OPTION:
-        if (conditionValue.isBlank()) {
-          log.logBasic("HAS_OPTION requires the name of an option in rule: " + rule.getName());
-          return false;
+        {
+          String name = conditionValue.trim();
+          if (name.isEmpty() || name.contains("=")) {
+            throw new IllegalStateException(
+                "Rule '"
+                    + rule.generateRuleId()
+                    + "' uses HAS_OPTION with '"
+                    + conditionValue
+                    + "'. Give the name of the option only, such as sslmode; OPTION_MATCHES"
+                    + " checks its value.");
+          }
+          return optionValue(optionsOf(fieldValue, condition, rule), name, hopObject) == null;
         }
-        return optionValue(optionsOf(fieldValue, condition, rule), conditionValue.trim()) == null;
 
       case OPTION_MATCHES:
         {
           int equals = conditionValue.indexOf('=');
-          if (equals <= 0) {
+          String name = equals < 0 ? "" : conditionValue.substring(0, equals).trim();
+          if (name.isEmpty()) {
             throw new IllegalStateException(
                 "Rule '"
                     + rule.generateRuleId()
@@ -1625,12 +1672,10 @@ public class CustomRuleExecutor {
                     + "'. Write the option and the pattern as name=regex, such as"
                     + " sslmode=(require|verify-full).");
           }
-          String value =
-              optionValue(
-                  optionsOf(fieldValue, condition, rule),
-                  conditionValue.substring(0, equals).trim());
-          return value == null
-              || !Pattern.compile(conditionValue.substring(equals + 1)).matcher(value).matches();
+          // Trimmed as the rule editor checks it: "sslmode = require" means require.
+          String regex = conditionValue.substring(equals + 1).trim();
+          String value = optionValue(optionsOf(fieldValue, condition, rule), name, hopObject);
+          return value == null || !Pattern.compile(regex).matcher(value).matches();
         }
 
       default:
@@ -1684,12 +1729,25 @@ public class CustomRuleExecutor {
    * its own name after a prefix: a connection stores its extra options as {@code
    * EXTRA_OPTION_POSTGRESQL.sslmode}, and a rule names it {@code sslmode}. Comparing the map's text
    * with a pattern instead broke on any value holding a comma or a brace.
+   *
+   * <p>As Hop builds a connection: an option stored for another database type, left from before the
+   * type was changed, and an option without a value are not used, so they do not count.
    */
-  private static String optionValue(Map<?, ?> options, String name) {
+  private static String optionValue(Map<?, ?> options, String name, Object hopObject) {
+    String ownPrefix =
+        hopObject instanceof DatabaseMeta databaseMeta
+            ? EXTRA_OPTION_PREFIX + databaseMeta.getPluginId() + "."
+            : null;
     for (Map.Entry<?, ?> entry : options.entrySet()) {
       String key = String.valueOf(entry.getKey());
+      if (ownPrefix != null && key.startsWith(EXTRA_OPTION_PREFIX) && !key.startsWith(ownPrefix)) {
+        continue;
+      }
       if (key.equals(name) || key.endsWith("." + name)) {
-        return entry.getValue() == null ? "" : String.valueOf(entry.getValue());
+        String value = entry.getValue() == null ? "" : String.valueOf(entry.getValue());
+        if (!value.isEmpty() && !DatabaseMeta.EMPTY_OPTIONS_STRING.equals(value)) {
+          return value;
+        }
       }
     }
     return null;

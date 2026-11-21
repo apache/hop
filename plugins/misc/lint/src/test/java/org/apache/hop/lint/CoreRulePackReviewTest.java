@@ -160,6 +160,12 @@ public class CoreRulePackReviewTest {
         coreRule("SEC-003").getAdditionalParameters().get(CustomLintRule.PARAMETER_FIELD_PATTERNS);
 
     assertEquals(transformPatterns, actionPatterns);
+    for (String id : List.of("SEC-002", "SEC-003")) {
+      assertEquals(
+          Boolean.TRUE,
+          coreRule(id).getAdditionalParameters().get(CustomLintRule.PARAMETER_PASSWORD_FIELDS),
+          id + " reports the fields Hop stores as passwords");
+    }
     assertTrue(
         transformPatterns instanceof List<?> list
             && list.containsAll(List.of("privateKey", "connectionString")),

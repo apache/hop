@@ -65,6 +65,8 @@ rules:
     name: "Hardcoded Password or Secret in Transform"
     description: "Transforms must not store passwords, tokens or API keys in the project, encrypted or not; use a variable instead"
     parameters:
+      # Also every text field Hop stores as a password, whatever its name, such as sasKey.
+      passwordFields: true
       fieldPatterns:
         - "password"
         - "pwd"
@@ -93,6 +95,8 @@ rules:
     name: "Hardcoded Password or Secret in Action"
     description: "Workflow actions must not store passwords, tokens or API keys in the project, encrypted or not; use a variable instead"
     parameters:
+      # Also every text field Hop stores as a password, whatever its name, such as sasKey.
+      passwordFields: true
       fieldPatterns:
         - "password"
         - "pwd"

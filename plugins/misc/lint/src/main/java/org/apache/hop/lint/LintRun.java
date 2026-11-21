@@ -19,12 +19,15 @@ package org.apache.hop.lint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -316,6 +319,53 @@ public class LintRun {
   }
 
   /**
+   * The report of a run's findings, without how the run was set up.
+   *
+   * @deprecated since 2.21; use {@link #renderReport(Outcome, LintReportFormat)}, which also writes
+   *     the run's rules and set-up to SARIF
+   */
+  @Deprecated(since = "2.21")
+  public String renderReport(List<LintResult> results, LintReportFormat format)
+      throws JsonProcessingException {
+    return LintReportWriter.render(format, results, toolVersion(), baseDirectory());
+  }
+
+  /**
+   * A configuration or baseline file as a report records it: relative to the lint target's folder,
+   * with {@code ../} where it lies outside it. A report is uploaded and kept, so it must not carry
+   * the absolute path of a developer's home folder or a CI workspace. A local {@code file:} URL, as
+   * the Run Linter action may be given, is read as the file it names; a remote VFS location is kept
+   * as written.
+   *
+   * @param name the file as given, relative to the working directory or absolute
+   * @param base the lint target's folder, or null
+   */
+  static String reportPath(String name, Path base) {
+    if (Utils.isEmpty(name)) {
+      return "";
+    }
+    Path path;
+    try {
+      if (name.regionMatches(true, 0, "file:", 0, 5)) {
+        path = Paths.get(URI.create(name));
+      } else if (name.matches("^[A-Za-z][A-Za-z0-9+.-]+://.*")) {
+        return name;
+      } else {
+        path = Paths.get(name);
+      }
+      path = path.toAbsolutePath().normalize();
+    } catch (Exception e) {
+      // Not a path we can place: the file name tells the reader which file without the folders.
+      int slash = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
+      return name.substring(slash + 1);
+    }
+    if (base == null || !Objects.equals(path.getRoot(), base.getRoot())) {
+      return path.getFileName() == null ? "" : path.getFileName().toString();
+    }
+    return base.relativize(path).toString().replace('\\', '/');
+  }
+
+  /**
    * How this run was set up and how it ended: the rules it evaluated, the packs they came from, and
    * the settings that decided the findings and the outcome.
    */
@@ -323,8 +373,7 @@ public class LintRun {
     Map<String, Object> configuration = new LinkedHashMap<>();
     if (outcome.getConfigFile() != null) {
       configuration.put(
-          "configFile",
-          LintReportWriter.relativise(outcome.getConfigFile().getAbsolutePath(), baseDirectory()));
+          "configFile", reportPath(outcome.getConfigFile().getAbsolutePath(), baseDirectory()));
     }
     // No filter reports everything, as INFO does: the Run Linter action defaults to INFO, hop lint
     // to no filter, and the two runs are the same.
@@ -337,9 +386,7 @@ public class LintRun {
     }
     configuration.put("includeMetadata", includeMetadata);
     if (baseline != null) {
-      configuration.put(
-          "baseline",
-          baselineName == null ? "" : LintReportWriter.relativise(baselineName, baseDirectory()));
+      configuration.put("baseline", reportPath(baselineName, baseDirectory()));
       configuration.put("baselineHidden", outcome.getBaselineHidden());
     }
     List<CustomLintRule> enabled =

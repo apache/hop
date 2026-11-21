@@ -338,7 +338,7 @@ public final class LintReportWriter {
     return "note";
   }
 
-  static String relativise(String fileName, Path baseDirectory) {
+  private static String relativise(String fileName, Path baseDirectory) {
     if (fileName == null) {
       return "";
     }

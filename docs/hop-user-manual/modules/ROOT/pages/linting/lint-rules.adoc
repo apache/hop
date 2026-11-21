@@ -92,12 +92,18 @@ A `DATABASE_CONNECTION` rule is narrowed by database type, the connection's plug
   ACME-DB-001:
     target: DATABASE_CONNECTION
     appliesTo: [POSTGRESQL]
-    targetField: attributes
-    condition: OPTION_MATCHES
-    conditionValue: "sslmode=(require|verify-ca|verify-full)"
+    allOf:
+      - targetField: attributes
+        condition: OPTION_MATCHES
+        conditionValue: "sslmode=(require|verify-ca|verify-full)"
+      - targetField: url
+        condition: MATCHES_PATTERN
+        conditionValue: ".*[?&]sslmode=(require|verify-ca|verify-full)(&.*)?"
     severity: ERROR
     name: "PostgreSQL Connection Without TLS"
 ----
+
+The rule reports a PostgreSQL connection that sets `sslmode` neither as an extra option nor in its manual URL.
 
 `rdbms`, the metadata key, still covers every connection.
 
@@ -142,6 +148,7 @@ A `DATABASE_CONNECTION` rule is narrowed by database type, the connection's plug
 |===
 
 The option conditions find an option by its own name, also when the map stores it under a prefix: a connection keeps its extra options as `EXTRA_OPTION_POSTGRESQL.sslmode`, and `sslmode` finds it.
+As when Hop builds the connection, an option without a value, or one stored for another database type, does not count.
 A value such as `+${PG_SSLMODE}+` is compared as written, so it does not match `require`.
 
 `conditionValue` is used as written: variables are not resolved in it.
@@ -188,7 +195,7 @@ The same goes for a condition that does not fit one of the fields the linter pro
 |The names of the transforms or actions that the enabled hops lead to
 
 |`actionsWithoutFailurePath`
-|The names of the workflow's actions, other than Start, that have an enabled hop leading on but none followed on failure. When one of them fails, the workflow stops there. Require it to be empty with `MAX_COLLECTION_SIZE` `0`
+|The names of the workflow's actions, other than Start, that lead on when they succeed but have neither a hop followed on failure nor an unconditional hop. When one of them fails, the workflow stops there. An action that does not evaluate its result, such as Dummy, follows only its unconditional hops and is not listed. Require it to be empty with `MAX_COLLECTION_SIZE` `0`
 
 |`category`
 |The transform's category in English, such as `Input`, `Output` or `Transform`, whatever language Hop runs in
@@ -200,7 +207,7 @@ The same goes for a condition that does not fit one of the fields the linter pro
 |The attributes of a database connection, including its extra options. A finding lists the attribute names, not their values
 
 |`url`
-|The JDBC URL Hop builds for a database connection: the manual URL when there is one, otherwise the type's URL with the extra options appended. Variables and variable resolvers are left as written
+|The JDBC URL Hop builds for a database connection: the manual URL when there is one, otherwise the type's URL with the extra options appended. Variables and variable resolvers are left as written. A finding never shows the URL, which carries the option values
 |===
 
 A database connection rule that names a field the connection does not have is reported as an error against the rule.
@@ -294,6 +301,9 @@ A few rules read extra settings from a `parameters:` block:
 
 |`fieldPatterns`
 |A `NO_HARDCODED` rule on `TRANSFORM` or `ACTION` whose `targetField` is `password`, `secret` or `credential`. The list of field name endings that hold a secret, replacing the default list
+
+|`passwordFields`
+|The same rules. `true` also reports every text field Hop stores as a password, whatever its name. Off unless the rule sets it; `SEC-002` and `SEC-003` do
 
 |`blockingTransforms`
 |`isBlockingTransform`. The transform plugin ids that count as blocking, replacing the default list
@@ -464,7 +474,7 @@ An orphaned transform does run: Hop starts every transform in a pipeline, connec
 A pipeline that deliberately runs two independent streams can accept the finding on that transform, see <<accept-on-transform>>.
 
 `SEC-002` and `SEC-003` look at every text field of the transform or action whose name ends in one of the rule's `fieldPatterns`, such as `password`, `token`, `privateKey` or `connectionString`.
-They also look at every text field Hop stores as a password, whatever its name, such as the Azure Event Hubs transforms' SAS key.
+With `passwordFields: true` they also look at every text field Hop stores as a password, whatever its name, such as the Azure Event Hubs transforms' SAS key.
 They also look inside the settings the transform or action stores in the file, such as the list of files PGP Decrypt Files decrypts, each with its own passphrase.
 `DB-001`, `SEC-002` and `SEC-003` count an `Encrypted` value as hardcoded.
 

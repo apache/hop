@@ -925,6 +925,16 @@ public final class YamlRulePackParser {
       List<String> overrides,
       String version) {
 
+    /** A pack block without a version, as before packs could declare one. */
+    public PackMetadata(
+        String packId,
+        String displayName,
+        RulePackOwner owner,
+        int priority,
+        List<String> overrides) {
+      this(packId, displayName, owner, priority, overrides, null);
+    }
+
     public boolean declaresOverrideOf(String ruleId) {
       return overrides.stream().anyMatch(id -> id.equalsIgnoreCase(ruleId));
     }

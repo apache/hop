@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>failure-paths</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Issue #9500: Check the input goes on to Load only on success; Load has a failure hop to Alert</description>
+  <description>Issue #9500: Check the input goes on to Load only on success. Load has a failure hop to Alert, Archive carries on unconditionally, and Wait is a Dummy, which follows unconditional hops only.</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -51,8 +51,9 @@ limitations under the License.
     <action>
       <name>Check the input</name>
       <description/>
-      <type>DUMMY</type>
+      <type>FILE_EXISTS</type>
       <attributes/>
+      <filename>/tmp/hop-lint-it-input</filename>
       <parallel>N</parallel>
       <xloc>240</xloc>
       <yloc>64</yloc>
@@ -61,8 +62,9 @@ limitations under the License.
     <action>
       <name>Load</name>
       <description/>
-      <type>DUMMY</type>
+      <type>FILE_EXISTS</type>
       <attributes/>
+      <filename>/tmp/hop-lint-it-load</filename>
       <parallel>N</parallel>
       <xloc>416</xloc>
       <yloc>64</yloc>
@@ -79,12 +81,33 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
+      <name>Archive</name>
+      <description/>
+      <type>FILE_EXISTS</type>
+      <attributes/>
+      <filename>/tmp/hop-lint-it-archive</filename>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Wait</name>
+      <description/>
+      <type>DUMMY</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>768</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>Done</name>
       <description/>
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>592</xloc>
+      <xloc>944</xloc>
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
@@ -106,7 +129,7 @@ limitations under the License.
     </hop>
     <hop>
       <from>Load</from>
-      <to>Done</to>
+      <to>Archive</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -116,6 +139,20 @@ limitations under the License.
       <to>Alert</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Archive</from>
+      <to>Wait</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Wait</from>
+      <to>Done</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
