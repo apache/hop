@@ -36,11 +36,38 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.analyticquery.AnalyticQueryMeta;
+import org.apache.hop.pipeline.transforms.append.AppendMeta;
+import org.apache.hop.pipeline.transforms.blockingtransform.BlockingTransformMeta;
+import org.apache.hop.pipeline.transforms.blockuntiltransformsfinish.BlockUntilTransformsFinishMeta;
+import org.apache.hop.pipeline.transforms.closure.ClosureGeneratorMeta;
+import org.apache.hop.pipeline.transforms.detectemptystream.DetectEmptyStreamMeta;
+import org.apache.hop.pipeline.transforms.detectlastrow.DetectLastRowMeta;
+import org.apache.hop.pipeline.transforms.drools.RulesAccumulatorMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
+import org.apache.hop.pipeline.transforms.fieldschangesequence.FieldsChangeSequenceMeta;
+import org.apache.hop.pipeline.transforms.filesfromresult.FilesFromResultMeta;
+import org.apache.hop.pipeline.transforms.filestoresult.FilesToResultMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
+import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
+import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerInputMeta;
 import org.apache.hop.pipeline.transforms.maskfields.MaskFieldsMeta;
+import org.apache.hop.pipeline.transforms.mergerows.MergeRowsMeta;
+import org.apache.hop.pipeline.transforms.metainject.MetaInjectMeta;
+import org.apache.hop.pipeline.transforms.multimapping.MultiMappingMeta;
+import org.apache.hop.pipeline.transforms.multimerge.MultiMergeJoinMeta;
+import org.apache.hop.pipeline.transforms.recordsfromstream.RecordsFromStreamMeta;
+import org.apache.hop.pipeline.transforms.repeatfields.RepeatFieldsMeta;
+import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
+import org.apache.hop.pipeline.transforms.rowstoresult.RowsToResultMeta;
+import org.apache.hop.pipeline.transforms.setvariable.SetVariableMeta;
+import org.apache.hop.pipeline.transforms.sortedmerge.SortedMergeMeta;
+import org.apache.hop.pipeline.transforms.sortedschemamerge.SortedSchemaMergeMeta;
+import org.apache.hop.pipeline.transforms.streamschemamerge.StreamSchemaMeta;
 import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
+import org.apache.hop.pipeline.transforms.xml.xmljoin.XmlJoinMeta;
+import org.apache.hop.reflection.probe.transform.PipelineDataProbeMeta;
 import org.apache.hop.spark.engines.SparkPipelineEngine;
 import org.apache.hop.spark.util.SparkConst;
 import org.junit.jupiter.api.Test;
@@ -103,6 +130,46 @@ class HopPipelineMetaToSparkConverterTest {
     assertTrue(engine.supports(sort).isSupported());
 
     assertEquals(EngineCompatibility.Verdict.UNKNOWN, engine.supports(null).getVerdict());
+  }
+
+  @Test
+  void supportsVerifiedTransformsAndKnowsNothingOfOthers() {
+    SparkPipelineEngine engine = new SparkPipelineEngine();
+
+    IPlugin calculator = mock(IPlugin.class);
+    when(calculator.getIds()).thenReturn(new String[] {"Calculator"});
+    assertTrue(engine.supports(calculator).isSupported());
+
+    // Needs an outside service: no test shows it works or not
+    IPlugin salesforce = mock(IPlugin.class);
+    when(salesforce.getIds()).thenReturn(new String[] {"SalesforceInput"});
+    assertEquals(EngineCompatibility.Verdict.UNKNOWN, engine.supports(salesforce).getVerdict());
+  }
+
+  @Test
+  void refusedTransformsSayWhy() {
+    SparkPipelineEngine engine = new SparkPipelineEngine();
+    Map<String, String> expected =
+        Map.of(
+            "RowsFromResult", "previous result",
+            "RowsToResult", "does not carry rows",
+            "SetVariable", "parent workflow",
+            "SortedMerge", "Sort rows");
+    for (Map.Entry<String, String> entry : expected.entrySet()) {
+      IPlugin plugin = mock(IPlugin.class);
+      when(plugin.getIds()).thenReturn(new String[] {entry.getKey()});
+      EngineCompatibility compatibility = engine.supports(plugin);
+      assertTrue(compatibility.isUnsupported(), entry.getKey());
+      assertTrue(compatibility.getReason().contains(entry.getValue()), entry.getKey());
+    }
+  }
+
+  @Test
+  void verifiedTransformsAreNeitherRefusedNorNative() {
+    for (String id : SparkVerifiedTransforms.PLUGIN_IDS) {
+      assertFalse(HopPipelineMetaToSparkConverter.HARD_BANNED_PLUGIN_IDS.containsKey(id), id);
+      assertFalse(HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id), id);
+    }
   }
 
   @Test
@@ -178,15 +245,38 @@ class HopPipelineMetaToSparkConverterTest {
   @Test
   void hardBannedTransformsExcludeNativeSparkOnAnnotation() {
     Map<String, Class<?>> bannedMetas =
-        Map.of(
-            SparkConst.GROUP_BY_PLUGIN_ID,
-            GroupByMeta.class,
-            SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
-            UniqueRowsByHashSetMeta.class,
-            SparkConst.JOIN_ROWS_PLUGIN_ID,
-            JoinRowsMeta.class,
-            SparkConst.MASK_FIELDS_PLUGIN_ID,
-            MaskFieldsMeta.class);
+        Map.ofEntries(
+            Map.entry(SparkConst.GROUP_BY_PLUGIN_ID, GroupByMeta.class),
+            Map.entry(SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID, UniqueRowsByHashSetMeta.class),
+            Map.entry(SparkConst.JOIN_ROWS_PLUGIN_ID, JoinRowsMeta.class),
+            Map.entry(SparkConst.MASK_FIELDS_PLUGIN_ID, MaskFieldsMeta.class),
+            Map.entry("BlockUntilTransformsFinish", BlockUntilTransformsFinishMeta.class),
+            Map.entry("ClosureGenerator", ClosureGeneratorMeta.class),
+            Map.entry("FieldsChangeSequence", FieldsChangeSequenceMeta.class),
+            Map.entry("FilesFromResult", FilesFromResultMeta.class),
+            Map.entry("FilesToResult", FilesToResultMeta.class),
+            Map.entry("MetaInject", MetaInjectMeta.class),
+            Map.entry("MultiMapping", MultiMappingMeta.class),
+            Map.entry("PipelineDataProbe", PipelineDataProbeMeta.class),
+            Map.entry("RecordsFromStream", RecordsFromStreamMeta.class),
+            Map.entry("RowsFromResult", RowsFromResultMeta.class),
+            Map.entry("RowsToResult", RowsToResultMeta.class),
+            Map.entry("RuleAccumulator", RulesAccumulatorMeta.class),
+            Map.entry("SetVariable", SetVariableMeta.class),
+            Map.entry("SortedMerge", SortedMergeMeta.class),
+            Map.entry("SortedSchemaMerge", SortedSchemaMergeMeta.class),
+            Map.entry("XMLJoin", XmlJoinMeta.class),
+            Map.entry("AnalyticQuery", AnalyticQueryMeta.class),
+            Map.entry("Append", AppendMeta.class),
+            Map.entry("BlockingTransform", BlockingTransformMeta.class),
+            Map.entry("DetectEmptyStream", DetectEmptyStreamMeta.class),
+            Map.entry("DetectLastRow", DetectLastRowMeta.class),
+            Map.entry("Injector", InjectorMeta.class),
+            Map.entry("KafkaConsumer", KafkaConsumerInputMeta.class),
+            Map.entry("MergeRows", MergeRowsMeta.class),
+            Map.entry("MultiwayMergeJoin", MultiMergeJoinMeta.class),
+            Map.entry("RepeatFields", RepeatFieldsMeta.class),
+            Map.entry("StreamSchema", StreamSchemaMeta.class));
 
     assertEquals(
         HopPipelineMetaToSparkConverter.HARD_BANNED_PLUGIN_IDS.keySet(),

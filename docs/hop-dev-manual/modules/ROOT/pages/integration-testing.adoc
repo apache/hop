@@ -102,7 +102,15 @@ cd integration-tests/scripts
 
 ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER=0077-merge-rows
 ./run-tests-docker.sh PROJECT_NAME=transforms TEST_FILTER='*0077*'
+
+# Run a project's tests on the native Spark engine instead of the local engine
+# (Spark local[4]: sources run as one partition, native shuffles spread the rows over 4).
+# The report is <project>-spark-native.
+
+./run-tests-docker.sh PROJECT_NAME=database HOP_IT_ENGINE=spark-native
 ----
++
+With `HOP_IT_ENGINE=spark-native`, `run-tests.sh` copies the project to a temporary folder and replaces its `local` pipeline run configuration, which the test workflows run their pipelines with, by `integration-tests/scripts/run-configurations/spark-native-local.json`. The project's own `local` becomes `hop-local`, which the suite driver keeps using. The tests and their checks stay the project's own, so a failure is a difference between the engines. Projects that choose their own engines (`spark*`, `beam*`) or have no plain `local` run configuration are skipped.
 +
 . Surefire Reports
 +

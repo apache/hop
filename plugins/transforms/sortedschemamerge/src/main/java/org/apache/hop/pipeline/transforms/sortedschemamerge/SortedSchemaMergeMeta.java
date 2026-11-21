@@ -46,7 +46,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::SortedSchemaMerge.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::SortedSchemaMerge.keyword",
-    documentationUrl = "/pipeline/transforms/sortedschemamerge.html")
+    documentationUrl = "/pipeline/transforms/sortedschemamerge.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 @Getter
 @Setter
 public class SortedSchemaMergeMeta

@@ -56,11 +56,15 @@ public final class RunMetadata {
    * @param engine the pipeline or workflow that starts
    * @param metadataProvider where to read the objects when the run does not have them yet
    * @param type the metadata type
-   * @return all objects of the type, read once per run; do not change the list or its objects
+   * @return all objects of the type, read once per run; do not change the list or its objects. A
+   *     run without a metadata provider, one built in code or a test, has none.
    */
   @SuppressWarnings("unchecked")
   public static <T extends IHopMetadata> List<T> loadAll(
       Object engine, IHopMetadataProvider metadataProvider, Class<T> type) throws HopException {
+    if (metadataProvider == null) {
+      return List.of();
+    }
     Map<Class<?>, List<?>> run = run(root(engine));
     List<?> objects = run.get(type);
     if (objects == null) {

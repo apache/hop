@@ -39,7 +39,9 @@ import org.w3c.dom.Node;
     description = "i18n::DetectEmptyStream.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::DetectEmptyStreamMeta.keyword",
-    documentationUrl = "/pipeline/transforms/detectemptystream.html")
+    documentationUrl = "/pipeline/transforms/detectemptystream.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class DetectEmptyStreamMeta
     extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static final Class<?> PKG = DetectEmptyStreamMeta.class;

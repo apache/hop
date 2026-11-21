@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Surefire report output transform writes a Maven Surefire (JUnit) XML report from test result rows, for a CI server such as Jenkins or GitLab.
-:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=maybe, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/surefirereport.svg[Surefire report output transform Icon, role="image-doc-icon"] Surefire report output
 

@@ -39,7 +39,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::FilesToResult.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::FilesToResultMeta.keyword",
-    documentationUrl = "/pipeline/transforms/filestoresult.html")
+    documentationUrl = "/pipeline/transforms/filestoresult.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class FilesToResultMeta extends BaseTransformMeta<FilesToResult, FilesToResultData> {
   private static final Class<?> PKG = FilesToResultMeta.class;
 

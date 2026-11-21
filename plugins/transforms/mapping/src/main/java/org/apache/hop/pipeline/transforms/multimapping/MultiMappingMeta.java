@@ -68,7 +68,9 @@ import org.apache.hop.resource.ResourceReference;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping",
     keywords = "i18n::MultiMappingMeta.keyword",
     documentationUrl = "/pipeline/transforms/multi-mapping.html",
-    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE},
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 @Getter
 @Setter
 public class MultiMappingMeta extends TransformWithMappingMeta<MultiMapping, MultiMappingData>

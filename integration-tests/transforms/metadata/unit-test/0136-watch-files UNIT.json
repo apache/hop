@@ -1,0 +1,53 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Watch files emits the existing files on its first scan and stops after its maximum run time",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "short_filename",
+          "data_set_field": "short_filename"
+        },
+        {
+          "transform_field": "event_type",
+          "data_set_field": "event_type"
+        },
+        {
+          "transform_field": "size",
+          "data_set_field": "size"
+        },
+        {
+          "transform_field": "is_directory",
+          "data_set_field": "is_directory"
+        },
+        {
+          "transform_field": "scheme",
+          "data_set_field": "scheme"
+        },
+        {
+          "transform_field": "watch_id",
+          "data_set_field": "watch_id"
+        }
+      ],
+      "field_order": [
+        "short_filename",
+        "event_type",
+        "size",
+        "is_directory",
+        "scheme",
+        "watch_id"
+      ],
+      "data_set_name": "golden-0136-watch-files",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0136-watch-files UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0136-watch-files.hpl"
+}

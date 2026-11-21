@@ -43,7 +43,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::FieldsChangeSequence.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FieldsChangeSequenceMeta.keyword",
-    documentationUrl = "/pipeline/transforms/addfieldschangesequence.html")
+    documentationUrl = "/pipeline/transforms/addfieldschangesequence.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class FieldsChangeSequenceMeta
     extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class;
