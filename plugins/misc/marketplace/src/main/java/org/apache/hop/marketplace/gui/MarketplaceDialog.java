@@ -45,6 +45,7 @@ import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -80,9 +81,6 @@ public class MarketplaceDialog extends Dialog {
       "MarketplaceDialog.Status.RestartHint";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
-
-  /** Quiet period after the last keystroke before the search box triggers a discovery call. */
-  private static final int SEARCH_DEBOUNCE_MS = 350;
 
   /** Why the plugin table is being reloaded, which decides how the wait is presented. */
   private enum RefreshReason {
@@ -265,6 +263,7 @@ public class MarketplaceDialog extends Dialog {
     wSearch = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSearch);
     wSearch.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Search.Placeholder"));
+    wSearch.setToolTipText(BaseMessages.getString(PKG, "MarketplaceDialog.Search.Tooltip"));
     FormData fdSearch = new FormData();
     fdSearch.left = new FormAttachment(wlSearch, PropsUi.getMargin());
     fdSearch.top = new FormAttachment(wlSearch, 0, SWT.CENTER);
@@ -572,7 +571,7 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     searchPending = true;
-    shell.getDisplay().timerExec(SEARCH_DEBOUNCE_MS, this::fireDebouncedSearch);
+    shell.getDisplay().timerExec(ConstUi.FILTER_DEBOUNCE_MS, this::fireDebouncedSearch);
   }
 
   private void fireDebouncedSearch() {
@@ -581,11 +580,11 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     long quietFor = System.currentTimeMillis() - searchRequestedAt;
-    if (quietFor < SEARCH_DEBOUNCE_MS) {
+    if (quietFor < ConstUi.FILTER_DEBOUNCE_MS) {
       // Still typing — check again once the remaining quiet period has elapsed.
       shell
           .getDisplay()
-          .timerExec((int) (SEARCH_DEBOUNCE_MS - quietFor), this::fireDebouncedSearch);
+          .timerExec((int) (ConstUi.FILTER_DEBOUNCE_MS - quietFor), this::fireDebouncedSearch);
       return;
     }
     searchPending = false;

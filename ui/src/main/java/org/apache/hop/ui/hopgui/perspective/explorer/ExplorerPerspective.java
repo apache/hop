@@ -359,7 +359,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private final ExplorerTreeModel treeModel = new ExplorerTreeModel();
 
   private final Runnable applyFilterRunnable = this::applyPendingFilter;
-  private static final int FILTER_DEBOUNCE_MS = 250;
 
   /** Last folder the user selected in the tree; used for scoped refresh. */
   private String lastSelectedFolderPath;
@@ -702,6 +701,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     //
     searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     searchText.setMessage(BaseMessages.getString(PKG, "ExplorerPerspective.Search.Placeholder"));
+    searchText.setToolTipText(BaseMessages.getString(PKG, "ExplorerPerspective.Search.Tooltip"));
     PropsUi.setLook(searchText);
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
@@ -4148,7 +4148,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     Display display = hopGui.getDisplay();
     display.timerExec(-1, applyFilterRunnable);
-    display.timerExec(FILTER_DEBOUNCE_MS, applyFilterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, applyFilterRunnable);
   }
 
   private void cancelScheduledFilterApply() {
