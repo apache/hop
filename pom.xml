@@ -202,6 +202,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
+        <!-- Also used where Hop resolves a library at runtime, see the MySQL driver download. -->
+        <protobuf-java.version>4.34.1</protobuf-java.version>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>

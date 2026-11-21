@@ -18,6 +18,8 @@
 package org.apache.hop.databases.mysql;
 
 import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.DatabaseMetaData;
@@ -28,6 +30,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,6 +66,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     classLoaderGroup = "mysql-db")
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  private static final String PROTOBUF_JAVA_VERSION = loadProtobufJavaVersion();
 
   /**
    * Everything except the vector rules, so that the dialects built on this one can take these
@@ -285,8 +290,33 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         .licenseUrl("https://github.com/mysql/mysql-connector-j/blob/release/9.x/LICENSE")
         .vendor("Oracle / MySQL")
         .vendorUrl("https://dev.mysql.com/downloads/connector/j/")
-        .excludes(List.of("com.google.protobuf:protobuf-java"))
+        // Connector/J needs protobuf-java for the X DevAPI. Download it at the version the rest of
+        // Hop uses, so it is the same jar another plugin may ship in lib/core.
+        .managedVersions(
+            PROTOBUF_JAVA_VERSION == null
+                ? List.of()
+                : List.of("com.google.protobuf:protobuf-java:" + PROTOBUF_JAVA_VERSION))
         .build();
+  }
+
+  /**
+   * The protobuf-java version Hop is built with, filled in by the build in
+   * driver-download.properties. Null when the resource is missing or was not filtered, and the
+   * driver download then uses the version Connector/J declares.
+   */
+  private static String loadProtobufJavaVersion() {
+    try (InputStream in =
+        MySqlDatabaseMeta.class.getResourceAsStream("driver-download.properties")) {
+      if (in == null) {
+        return null;
+      }
+      Properties properties = new Properties();
+      properties.load(in);
+      String version = properties.getProperty("protobuf-java.version");
+      return version == null || version.isBlank() || version.contains("${") ? null : version.trim();
+    } catch (IOException e) {
+      return null;
+    }
   }
 
   @Override

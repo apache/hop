@@ -121,7 +121,6 @@
         <parquet.version>1.18.1</parquet.version>
         <picocli-version>4.7.7</picocli-version>
         <poi.version>5.5.1</poi.version>
-        <protobuf-java.version>4.34.1</protobuf-java.version>
         <py4j.version>0.10.9.9</py4j.version>
         <re2j.version>1.8</re2j.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
@@ -158,6 +157,15 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-bom</artifactId>
                 <version>${log4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <!-- Every gRPC module at one version. The plugins that need gRPC (Beam, Google,
+                     Arrow Flight) each ship it to lib/core; this keeps their copies identical. -->
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
