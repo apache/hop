@@ -17,6 +17,7 @@
 package org.apache.hop.lint.registry;
 
 import java.util.List;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.lint.CustomLintRule;
 
 /** Base class for thin Java registrars that point at a YAML rule pack on the classpath. */
@@ -27,7 +28,11 @@ public abstract class AbstractYamlRulePack implements IHopLintRulePack {
   private final RulePackOwner owner;
   private final int priority;
   private final String resourcePath;
-  private List<String> overrides;
+
+  /** The YAML's pack block, read once; null until then. */
+  private YamlRulePackParser.PackMetadata metadata;
+
+  private boolean metadataRead;
 
   protected AbstractYamlRulePack(
       String packId, String displayName, RulePackOwner owner, int priority, String resourcePath) {
@@ -58,16 +63,33 @@ public abstract class AbstractYamlRulePack implements IHopLintRulePack {
     return priority;
   }
 
+  private synchronized YamlRulePackParser.PackMetadata packMetadata() {
+    if (!metadataRead) {
+      metadata =
+          YamlRulePackParser.readPackMetadataWithAdjacentFallback(
+              resourcePath, packId, owner, getClass());
+      metadataRead = true;
+    }
+    return metadata;
+  }
+
   /** The rules this pack replaces, as declared in the {@code overrides:} of its YAML pack block. */
   @Override
-  public synchronized List<String> getOverrides() {
-    if (overrides == null) {
-      overrides =
-          List.copyOf(
-              YamlRulePackParser.readOverridesWithAdjacentFallback(
-                  resourcePath, packId, owner, getClass()));
+  public List<String> getOverrides() {
+    YamlRulePackParser.PackMetadata pack = packMetadata();
+    return pack != null ? List.copyOf(pack.overrides()) : List.of();
+  }
+
+  /** The {@code version:} of its YAML pack block, or else the version of the jar it ships in. */
+  @Override
+  public String getVersion() {
+    YamlRulePackParser.PackMetadata pack = packMetadata();
+    if (pack != null && !Utils.isEmpty(pack.version())) {
+      return pack.version();
     }
-    return overrides;
+    return getClass().getPackage() != null
+        ? getClass().getPackage().getImplementationVersion()
+        : null;
   }
 
   @Override

@@ -138,6 +138,14 @@ hop lint --max-warnings 20 .
 `sarif` is the format GitHub code scanning, Azure DevOps and most review tooling read, so findings show up as annotations on the pull request.
 `json` is there for everything else.
 Both carry the tags a rule pack gives its rules; see xref:linting/lint-rules.adoc#tags[Tags and help links].
+
+A `sarif` report declares every rule the run evaluated, the same rules `--list-rules` shows as enabled, also those that found nothing.
+A rule missing from the report was switched off or not installed.
+`runs[0].invocations` records how the run went and how it was set up:
+
+* `executionSuccessful` is `true` when the run completed, with findings or without, and `exitCode` is what `hop lint` exits with.
+* `properties` holds the `hop-lint.yml` or `--config` file the rules were read with (`configFile`), `severity`, `failOn`, `maxWarnings`, `includeMetadata`, the `baseline` file with the number of findings it hid (`baselineHidden`), and `rulePacks`: the id, name, version and owner of each installed rule pack.
+
 Stdout carries only the report, in every format, so it can be piped or redirected.
 Hop's log lines and notes such as the baseline count go to stderr.
 

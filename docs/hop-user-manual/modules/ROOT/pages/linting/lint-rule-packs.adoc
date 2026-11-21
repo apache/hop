@@ -41,6 +41,7 @@ pack:
   name: ACME Standard Lint Rules
   owner: VENDOR
   priority: 200
+  version: "1.0.0"
 
 rules:
   ACME-001:
@@ -74,6 +75,9 @@ Give rules `tags` and a `helpUri` to carry your own category, owner or policy re
 
 |`overrides`
 |Rule ids from another pack that this pack deliberately replaces.
+
+|`version`
+|The pack's version, recorded in SARIF reports so a report shows which rules a run used. Quote it, so YAML does not read `1.10` as a number. A pack shipped in a jar that sets none takes the jar's version; Hop's core pack has Hop's version.
 |===
 
 == Rule ids and collisions
