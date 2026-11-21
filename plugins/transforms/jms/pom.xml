@@ -61,6 +61,12 @@
             <groupId>org.apache.artemis</groupId>
             <artifactId>artemis-jakarta-client</artifactId>
         </dependency>
+        <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
+        <dependency>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>asn-one</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
         <dependency>
             <groupId>commons-beanutils</groupId>

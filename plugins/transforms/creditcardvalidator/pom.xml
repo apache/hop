@@ -71,6 +71,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
         <dependency>
             <groupId>org.apache.commons</groupId>

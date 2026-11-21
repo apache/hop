@@ -66,6 +66,56 @@
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
+        <!-- Spark dependencies that other plugins share at the same version (netty, protobuf, zstd,
+             the Hadoop client, ZooKeeper, ...) go to lib/core, so there is one copy of each. The rest
+             of Spark stays in the plugin's lib/: Scala 2.13, Kryo, Parquet 1.16 and the like differ
+             from the versions other plugins use. So do hadoop-client-api and -runtime: they are the
+             shaded Hadoop client, with the same classes as the unshaded hadoop-common and
+             hadoop-shaded-guava other plugins put in lib/core, so they must not share a classpath.
+             aircompressor stays with them: its Hadoop codecs need the Hadoop classes, which a copy in
+             lib/core could not see. -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>com.esotericsoftware:minlog</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jdk8</include>
+                <include>com.github.luben:zstd-jni</include>
+                <include>com.google.protobuf:protobuf-java</include>
+                <include>com.ibm.icu:icu4j</include>
+                <include>com.ning:compress-lzf</include>
+                <include>com.thoughtworks.paranamer:paranamer</include>
+                <include>io.netty:*</include>
+                <include>com.google.flatbuffers:flatbuffers-java</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+                <include>javax.annotation:javax.annotation-api</include>
+                <include>net.sf.py4j:py4j</include>
+                <include>org.apache.commons:commons-crypto</include>
+                <include>org.apache.commons:commons-math3</include>
+                <include>org.apache.xbean:xbean-asm9-shaded</include>
+                <include>org.apache.yetus:audience-annotations</include>
+                <include>org.apache.zookeeper:zookeeper</include>
+                <include>org.apache.zookeeper:zookeeper-jute</include>
+                <include>org.fusesource.leveldbjni:leveldbjni-all</include>
+                <include>org.jspecify:jspecify</include>
+                <include>org.locationtech.jts:jts-core</include>
+                <include>org.threeten:threeten-extra</include>
+                <include>org.tukaani:xz</include>
+                <include>oro:oro</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+        <!-- The Google Cloud Storage client for Iceberg tables on GCS, in lib/core like the Google
+             plugin ships it. -->
+        <dependencySet>
+            <scope>provided</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <includes>
+                <include>com.google.cloud:google-cloud-storage</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
         <!-- Spark and transitive runtime jars for local[*] execution from Hop.
              Jackson core/databind/annotations MUST NOT be packaged here: HopURLClassLoader
              is child-first, and dual ObjectMapper classes (plugin lib vs Hop lib/core)
@@ -83,6 +133,31 @@
                 <exclude>com.fasterxml.jackson.core:jackson-core:jar</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-databind:jar</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-annotations:jar</exclude>
+                <!-- Shared with other plugins at the same version: shipped in lib/core below. -->
+                <exclude>com.esotericsoftware:minlog</exclude>
+                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jdk8</exclude>
+                <exclude>com.github.luben:zstd-jni</exclude>
+                <exclude>com.google.protobuf:protobuf-java</exclude>
+                <exclude>com.ibm.icu:icu4j</exclude>
+                <exclude>com.ning:compress-lzf</exclude>
+                <exclude>com.thoughtworks.paranamer:paranamer</exclude>
+                <exclude>io.netty:*</exclude>
+                <exclude>com.google.flatbuffers:flatbuffers-java</exclude>
+                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</exclude>
+                <exclude>javax.annotation:javax.annotation-api</exclude>
+                <exclude>net.sf.py4j:py4j</exclude>
+                <exclude>org.apache.commons:commons-crypto</exclude>
+                <exclude>org.apache.commons:commons-math3</exclude>
+                <exclude>org.apache.xbean:xbean-asm9-shaded</exclude>
+                <exclude>org.apache.yetus:audience-annotations</exclude>
+                <exclude>org.apache.zookeeper:zookeeper</exclude>
+                <exclude>org.apache.zookeeper:zookeeper-jute</exclude>
+                <exclude>org.fusesource.leveldbjni:leveldbjni-all</exclude>
+                <exclude>org.jspecify:jspecify</exclude>
+                <exclude>org.locationtech.jts:jts-core</exclude>
+                <exclude>org.threeten:threeten-extra</exclude>
+                <exclude>org.tukaani:xz</exclude>
+                <exclude>oro:oro</exclude>
                 <exclude>io.delta:*</exclude>
                 <exclude>org.apache.iceberg:*</exclude>
                 <exclude>io.unitycatalog:*</exclude>

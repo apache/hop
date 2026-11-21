@@ -30,6 +30,9 @@
 
     <properties>
         <hop.jdbc.driver1>com.amazon.redshift:redshift-jdbc42</hop.jdbc.driver1>
+        <!-- Required plugin: Redshift (and PostgreSQL through it) is installed with its own zip.
+             Shipping its jar here put the database plugins' classes in lib/core. -->
+        <hop.libcore.exclude1>org.apache.hop:hop-databases-redshift</hop.libcore.exclude1>
     </properties>
 
     <dependencyManagement>

@@ -58,8 +58,19 @@
             <version>8.5.19</version>
         </dependency>
         <dependency>
+            <groupId>com.squareup.moshi</groupId>
+            <artifactId>moshi</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio-jvm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
