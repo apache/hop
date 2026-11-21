@@ -74,6 +74,8 @@ This happens only in the dialog: the transform keeps the fields it was given, an
 
 The native type of a field gives its Hop type, length and precision: `VARCHAR(255)` is a String of length 255, `DECIMAL(10,2)` a BigNumber with length 10 and precision 2, `NUMERIC(10)` an Integer, `TIMESTAMP` a Timestamp, `TIME` a Date, `BIT` a Boolean and `BIT(8)` a String of length 8.
 A length too large for Hop, such as `varchar(4294967295)`, leaves the field without a length.
+Modifiers such as `UNSIGNED` don't change the type, except that a `BIGINT UNSIGNED` is a BigNumber, as when Hop reads it from a database.
+Dialect names such as `INT64`, `FLOAT64`, `TIMESTAMP_NTZ` and `DATETIMEOFFSET` are known too.
 A native type Hop doesn't know falls back to the catalog's own type, and to a String after that.
 A catalog has no formats, so a date gets none and uses Hop's default format, `yyyy/MM/dd HH:mm:ss.SSS`. That is what Hop writes to a file when the output has no format of its own; check it against the file.
 

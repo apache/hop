@@ -19,6 +19,7 @@ package org.apache.hop.datacatalog;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +57,13 @@ public final class CatalogFieldTypes {
   private static final Pattern NATIVE_TYPE =
       Pattern.compile("^\\s*([a-z][a-z0-9_ ]*)(?:\\(\\s*(\\d+)\\s*(?:,\\s*(-?\\d+)\\s*)?\\))?");
 
+  /** Modifiers that don't change the type: {@code INT UNSIGNED}, {@code INT(11) ZEROFILL}. */
+  private static final Pattern MODIFIERS = Pattern.compile("\\b(?:unsigned|signed|zerofill)\\b");
+
+  /** Integer types whose unsigned values can be larger than a Hop Integer holds. */
+  private static final Set<String> SIXTY_FOUR_BIT_INTEGERS =
+      Set.of("bigint", "int8", "bigserial", "int64");
+
   private CatalogFieldTypes() {}
 
   /** The Hop fields of a catalog schema, in its order. */
@@ -82,13 +90,32 @@ public final class CatalogFieldTypes {
     if (StringUtils.isBlank(nativeType)) {
       return null;
     }
-    Matcher matcher = NATIVE_TYPE.matcher(nativeType.toLowerCase(Locale.ROOT));
+    String lowerCase = nativeType.toLowerCase(Locale.ROOT);
+    // MySQL writes the modifier after the length: bigint(20) unsigned
+    boolean unsigned = lowerCase.matches(".*\\bunsigned\\b.*");
+    Matcher matcher =
+        NATIVE_TYPE.matcher(MODIFIERS.matcher(lowerCase).replaceAll(" ").replaceAll("\\s+", " "));
     if (!matcher.lookingAt()) {
       return null;
     }
     String typeName = matcher.group(1).trim();
     int length = number(matcher.group(2));
     int scale = number(matcher.group(3));
+    if (unsigned && SIXTY_FOUR_BIT_INTEGERS.contains(typeName)) {
+      // Up to 18446744073709551615 doesn't fit a Hop Integer; Hop reads it from a database the same
+      IValueMeta bigNumber = new ValueMetaBigNumber(name);
+      bigNumber.setPrecision(0);
+      return bigNumber;
+    }
+    IValueMeta valueMeta = fromTypeName(name, typeName, length, scale);
+    if (valueMeta == null && typeName.contains(" ")) {
+      // A dialect's spelling such as timestamp with local time zone: the first word is the type
+      valueMeta = fromTypeName(name, typeName.substring(0, typeName.indexOf(' ')), length, scale);
+    }
+    return valueMeta;
+  }
+
+  private static IValueMeta fromTypeName(String name, String typeName, int length, int scale) {
     return switch (typeName) {
       case "varchar",
               "varchar2",
@@ -103,7 +130,9 @@ public final class CatalogFieldTypes {
               "string",
               "clob",
               "nclob",
-              "uuid" ->
+              "uuid",
+              "long varchar",
+              "long nvarchar" ->
           withLength(new ValueMetaString(name), length, -1);
       case "int",
               "integer",
@@ -115,6 +144,7 @@ public final class CatalogFieldTypes {
               "int2",
               "int4",
               "int8",
+              "int64",
               "serial",
               "bigserial" ->
           new ValueMetaInteger(name);
@@ -122,7 +152,14 @@ public final class CatalogFieldTypes {
           length > 0 && length <= MAX_INTEGER_DIGITS && scale <= 0
               ? withLength(new ValueMetaInteger(name), length, 0)
               : withLength(new ValueMetaBigNumber(name), length, scale);
-      case "double", "double precision", "float", "float4", "float8", "real", "binary_double" ->
+      case "double",
+              "double precision",
+              "float",
+              "float4",
+              "float8",
+              "float64",
+              "real",
+              "binary_double" ->
           new ValueMetaNumber(name);
       case "boolean", "bool" -> new ValueMetaBoolean(name);
         // bit(n) with n > 1 is a string of bits such as 10110000, not a flag
@@ -130,12 +167,29 @@ public final class CatalogFieldTypes {
           length > 1
               ? withLength(new ValueMetaString(name), length, -1)
               : new ValueMetaBoolean(name);
+      case "bit varying", "varbit" -> withLength(new ValueMetaString(name), length, -1);
       case "date" -> new ValueMetaDate(name);
       case "datetime", "datetime2", "smalldatetime" -> new ValueMetaDate(name);
       case "time" -> new ValueMetaDate(name);
-      case "timestamp", "timestamptz", "timestamp with time zone", "timestamp without time zone" ->
+      case "timestamp",
+              "timestamptz",
+              "timestamp with time zone",
+              "timestamp without time zone",
+              "timestamp with local time zone",
+              "timestamp_ntz",
+              "timestamp_ltz",
+              "timestamp_tz",
+              "datetimeoffset" ->
           new ValueMetaTimestamp(name);
-      case "binary", "varbinary", "blob", "longblob", "bytea", "bytes", "raw" ->
+      case "binary",
+              "varbinary",
+              "blob",
+              "longblob",
+              "bytea",
+              "bytes",
+              "raw",
+              "long raw",
+              "long varbinary" ->
           new ValueMetaBinary(name);
       default -> null;
     };

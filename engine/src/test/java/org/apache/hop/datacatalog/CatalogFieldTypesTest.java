@@ -86,6 +86,37 @@ class CatalogFieldTypesTest {
   }
 
   @Test
+  void modifiersAndDialectAliasesKeepTheirType() {
+    assertField(of("int unsigned", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
+    assertField(of("INT(11) UNSIGNED ZEROFILL", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
+    assertField(of("smallint signed", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
+    assertField(of("int64", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
+    assertField(of("float64", "NUMBER"), IValueMeta.TYPE_NUMBER, -1, -1, null);
+    assertField(of("TIMESTAMP_NTZ(9)", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
+    assertField(of("timestamp_ltz", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
+    assertField(of("timestamp_tz", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
+    assertField(of("datetimeoffset(7)", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
+    assertField(
+        of("TIMESTAMP WITH LOCAL TIME ZONE", "TIME"), IValueMeta.TYPE_TIMESTAMP, -1, -1, null);
+  }
+
+  @Test
+  void anUnsignedBigintIsABigNumberAsWhenHopReadsItFromADatabase() {
+    assertField(of("bigint unsigned", "NUMBER"), IValueMeta.TYPE_BIGNUMBER, -1, 0, null);
+    assertField(of("bigint(20) unsigned", "NUMBER"), IValueMeta.TYPE_BIGNUMBER, -1, 0, null);
+    assertField(of("bigint signed", "NUMBER"), IValueMeta.TYPE_INTEGER, -1, 0, null);
+  }
+
+  @Test
+  void theFirstWordIsTheTypeOnlyWhenTheWholeNameIsUnknown() {
+    assertField(of("time with time zone", "TIME"), IValueMeta.TYPE_DATE, -1, -1, null);
+    assertField(of("varchar character set utf8", "STRING"), IValueMeta.TYPE_STRING, -1, -1, null);
+    assertField(of("long raw", "BYTES"), IValueMeta.TYPE_BINARY, -1, 0, null);
+    assertField(of("long varchar", "STRING"), IValueMeta.TYPE_STRING, -1, -1, null);
+    assertField(of("bit varying(12)", "STRING"), IValueMeta.TYPE_STRING, 12, -1, null);
+  }
+
+  @Test
   void onlyASingleBitIsABoolean() {
     assertField(of("bit", "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
     assertField(of("BIT(1)", "BOOLEAN"), IValueMeta.TYPE_BOOLEAN, -1, -1, null);
