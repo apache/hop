@@ -336,10 +336,6 @@ public class HopBeamGuiPlugin {
   }
 
   /**
-   * Whether a jar must be left out of a native Spark 4 fat jar (Beam Spark 3 / Scala 2.12 client
-   * noise). Public for unit tests.
-   */
-  /**
    * The jars under the plugins folder. Folders whose name starts with a dot are skipped: the
    * marketplace keeps staged downloads and backed-up jars there ({@code plugins/.staging}, {@code
    * plugins/.marketplace}), and those must not end up in a fat jar next to the live ones.
@@ -354,6 +350,10 @@ public class HopBeamGuiPlugin {
         FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   }
 
+  /**
+   * Whether a jar must be left out of a native Spark 4 fat jar (Beam Spark 3 / Scala 2.12 client
+   * noise). Public for unit tests.
+   */
   public static boolean isExcludedForNativeSparkFatJar(File jar) {
     if (jar == null) {
       return true;

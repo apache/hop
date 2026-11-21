@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.install;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -1549,6 +1550,29 @@ class PluginInstallerTest {
     new PluginInstaller(
             new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
         .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, version), true);
+  }
+
+  @Test
+  void stagedPluginWhoseReceiptHasNoVersionStillActivates() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-staged-no-version");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"),
+          "{\"artifactId\":\"hop-test-plugin\",\"pendingActivation\":true}");
+
+      assertDoesNotThrow(installer::activateAllPending);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).isPendingActivation());
+    } finally {
+      server.stop(0);
+    }
   }
 
   @Test

@@ -356,7 +356,9 @@ public class PluginInstaller {
           Map<String, SharedFile> sharedFiles =
               activateStaged(
                   artifactId,
-                  receipt == null ? "unknown" : receipt.getVersion(),
+                  receipt == null || StringUtils.isBlank(receipt.getVersion())
+                      ? "unknown"
+                      : receipt.getVersion(),
                   paths,
                   receipt == null ? Map.of() : receipt.getSharedFiles());
           if (receipt != null) {
