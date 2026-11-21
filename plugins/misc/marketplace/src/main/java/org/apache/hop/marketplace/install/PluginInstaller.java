@@ -25,13 +25,22 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -43,6 +52,8 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
+import org.apache.hop.marketplace.install.InstallReceipt.SharedFile;
+import org.apache.hop.marketplace.install.InstallReceipt.SharedFileAction;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
 import org.apache.hop.marketplace.resolve.MavenRepositoryClient;
 
@@ -56,6 +67,12 @@ public class PluginInstaller {
 
   public static final String STAGING_DIR = "plugins/.staging";
   public static final String RECEIPTS_DIR = "plugins/.marketplace";
+
+  /**
+   * Shared {@code lib/core} files an install replaced, under {@code <artifactId>/<version>/<path>}.
+   * The plugin scanner skips folders named {@code lib}, so the backed-up jars are not loaded.
+   */
+  public static final String BACKUP_DIR = RECEIPTS_DIR + "/backup";
 
   private final ILogChannel log;
   private final Path hopHome;
@@ -186,7 +203,8 @@ public class PluginInstaller {
       Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
       deleteRecursive(stageRoot);
       Files.createDirectories(stageRoot);
-      List<String> relativePaths = unzipAllowedEntries(zipFile, stageRoot);
+      Map<String, String> checksums = new LinkedHashMap<>();
+      List<String> relativePaths = unzipAllowedEntries(zipFile, stageRoot, checksums);
 
       // Read the receipt of the version installed now before the new receipt replaces it: the
       // files only that version has must go, or both versions end up on the classpath.
@@ -200,6 +218,9 @@ public class PluginInstaller {
       receipt.setRepositoryId(used.getId());
       receipt.setRepositoryUrl(used.normalizedUrl());
       receipt.setPaths(relativePaths);
+      receipt.setChecksums(checksums);
+      receipt.setPreviousVersion(previousVersion(previous, coordinates.version()));
+      receipt.setSharedFiles(sharedFilesFromEarlierInstalls(relativePaths, previous, coordinates));
       receipt.setObsoletePaths(
           obsoletePaths(
               previous,
@@ -210,7 +231,12 @@ public class PluginInstaller {
 
       if (activateImmediately) {
         progress.phase(IInstallListener.Phase.ACTIVATE, coordinates.artifactId());
-        activateStaged(coordinates.artifactId(), relativePaths);
+        receipt.setSharedFiles(
+            activateStaged(
+                coordinates.artifactId(),
+                coordinates.version(),
+                relativePaths,
+                receipt.getSharedFiles()));
         receipt.setPendingActivation(false);
         removeObsoleteFiles(receipt);
         writeReceipt(receipt);
@@ -316,22 +342,37 @@ public class PluginInstaller {
           }
           String artifactId = staged.getFileName().toString();
           List<String> paths = collectRelativePaths(staged);
-          activateStaged(artifactId, paths);
-          // The files are in place now; a receipt problem must not stop the other plugins.
+          // A receipt problem must not stop the other plugins from activating.
+          InstallReceipt receipt = null;
           try {
-            InstallReceipt receipt = readReceipt(hopHome, artifactId);
-            if (receipt != null) {
-              receipt.setPendingActivation(false);
-              removeObsoleteFiles(receipt);
-              writeReceipt(receipt);
-            }
+            receipt = readReceipt(hopHome, artifactId);
           } catch (HopException e) {
             log.logError(
-                "Activated staged plugin "
+                "Could not read the install receipt of staged plugin "
                     + artifactId
-                    + " but could not update its install receipt; files of a previous version"
-                    + " may remain",
+                    + "; activating it without updating the receipt",
                 e);
+          }
+          Map<String, SharedFile> sharedFiles =
+              activateStaged(
+                  artifactId,
+                  receipt == null ? "unknown" : receipt.getVersion(),
+                  paths,
+                  receipt == null ? Map.of() : receipt.getSharedFiles());
+          if (receipt != null) {
+            try {
+              receipt.setPendingActivation(false);
+              receipt.setSharedFiles(sharedFiles);
+              removeObsoleteFiles(receipt);
+              writeReceipt(receipt);
+            } catch (HopException e) {
+              log.logError(
+                  "Activated staged plugin "
+                      + artifactId
+                      + " but could not update its install receipt; files of a previous version"
+                      + " may remain",
+                  e);
+            }
           }
           deleteRecursive(staged);
           log.logBasic("Activated staged plugin: " + artifactId);
@@ -381,6 +422,132 @@ public class PluginInstaller {
       obsolete.add(normalized);
     }
     return obsolete;
+  }
+
+  /**
+   * The version an install replaces: the one installed now, or, when that one was staged and never
+   * activated or is the same version again, the version it replaced in turn.
+   */
+  static String previousVersion(InstallReceipt previous, String newVersion) {
+    if (previous == null) {
+      return null;
+    }
+    if (previous.isPendingActivation() || StringUtils.equals(previous.getVersion(), newVersion)) {
+      return previous.getPreviousVersion();
+    }
+    return previous.getVersion();
+  }
+
+  /**
+   * What earlier installs recorded about the new version's shared {@code lib/core} files, for
+   * activation to build on:
+   *
+   * <ul>
+   *   <li>whether the marketplace created a file, and where the client's own copy was backed up,
+   *       from the receipts of this and every other artifact;
+   *   <li>when the same version is installed again, what that install did, so a file it replaced
+   *       keeps pointing to its backup;
+   *   <li>the shared files the previous version created or replaced that this version no longer
+   *       ships, as {@link SharedFileAction#NOT_SHIPPED}, while they are on disk.
+   * </ul>
+   */
+  private Map<String, SharedFile> sharedFilesFromEarlierInstalls(
+      List<String> newPaths, InstallReceipt previous, MavenCoordinates coordinates)
+      throws HopException {
+    Map<String, SharedFile> previousFiles = new HashMap<>();
+    if (previous != null) {
+      for (Map.Entry<String, SharedFile> entry : nullSafe(previous.getSharedFiles()).entrySet()) {
+        if (entry.getValue() != null) {
+          previousFiles.put(normalizeRelative(entry.getKey()), entry.getValue());
+        }
+      }
+    }
+    boolean sameVersion =
+        previous != null
+            && !previous.isPendingActivation()
+            && coordinates.version().equals(previous.getVersion());
+    SharedFileHistory history = SharedFileHistory.of(readAllReceipts());
+
+    Map<String, SharedFile> seeded = new LinkedHashMap<>();
+    Set<String> shipped = new HashSet<>();
+    for (String path : newPaths) {
+      if (!isSharedCorePath(path) || path.endsWith("/")) {
+        continue;
+      }
+      String normalized = normalizeRelative(path);
+      shipped.add(normalized);
+      SharedFile earlier = previousFiles.get(normalized);
+      SharedFileAction action = null;
+      String backup = null;
+      if (sameVersion && earlier != null && isReusable(earlier.getAction())) {
+        action = earlier.getAction();
+        backup = earlier.getBackup();
+      }
+      boolean created = history.created(normalized);
+      String original = history.originalBackup(normalized);
+      if (action != null || created || original != null) {
+        seeded.put(path, new SharedFile(action, backup, created, original));
+      }
+    }
+    for (Map.Entry<String, SharedFile> entry : previousFiles.entrySet()) {
+      SharedFile earlier = entry.getValue();
+      String path = entry.getKey();
+      if (shipped.contains(path)
+          || !(earlier.isCreatedByMarketplace() || earlier.getOriginalBackup() != null)
+          || !Files.exists(activationTarget(path))) {
+        continue;
+      }
+      seeded.put(
+          path,
+          new SharedFile(
+              SharedFileAction.NOT_SHIPPED,
+              null,
+              earlier.isCreatedByMarketplace(),
+              earlier.getOriginalBackup()));
+    }
+    return seeded;
+  }
+
+  /**
+   * Whether a same-version reinstall that finds a file unchanged keeps what the earlier install
+   * recorded. Not {@link SharedFileAction#KEPT}: the file now matches the package.
+   */
+  private static boolean isReusable(SharedFileAction action) {
+    return action == SharedFileAction.CREATED
+        || action == SharedFileAction.REPLACED
+        || action == SharedFileAction.UNCHANGED;
+  }
+
+  /** Shared-file facts gathered from a set of receipts. */
+  private record SharedFileHistory(Set<String> createdPaths, Map<String, String> originals) {
+    static SharedFileHistory of(List<InstallReceipt> receipts) {
+      Set<String> created = new HashSet<>();
+      Map<String, String> originals = new HashMap<>();
+      for (InstallReceipt receipt : receipts) {
+        for (Map.Entry<String, SharedFile> entry : nullSafe(receipt.getSharedFiles()).entrySet()) {
+          SharedFile file = entry.getValue();
+          if (file == null) {
+            continue;
+          }
+          String path = normalizeRelative(entry.getKey());
+          if (file.isCreatedByMarketplace()) {
+            created.add(path);
+          }
+          if (file.getOriginalBackup() != null) {
+            originals.putIfAbsent(path, file.getOriginalBackup());
+          }
+        }
+      }
+      return new SharedFileHistory(created, originals);
+    }
+
+    boolean created(String path) {
+      return createdPaths.contains(path);
+    }
+
+    String originalBackup(String path) {
+      return originals.get(path);
+    }
   }
 
   /**
@@ -536,8 +703,29 @@ public class PluginInstaller {
     return list == null ? List.of() : list;
   }
 
-  private void activateStaged(String artifactId, List<String> relativePaths) throws HopException {
+  static <K, V> Map<K, V> nullSafe(Map<K, V> map) {
+    return map == null ? Map.of() : map;
+  }
+
+  /**
+   * Copy the staged files into place.
+   *
+   * @param earlierInstalls what earlier installs recorded about the shared files (see {@link
+   *     #sharedFilesFromEarlierInstalls})
+   * @return what activation did to each shared {@code lib/core} file
+   */
+  private Map<String, SharedFile> activateStaged(
+      String artifactId,
+      String version,
+      List<String> relativePaths,
+      Map<String, SharedFile> earlierInstalls)
+      throws HopException {
     Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(artifactId);
+    Map<String, SharedFile> sharedFiles = new LinkedHashMap<>();
+    // Read at activation, not when staging: another plugin activated in between may have created
+    // a shared file this one ships too.
+    SharedFileHistory history = SharedFileHistory.of(readAllReceipts());
+    String installId = newInstallId(artifactId, version);
     try {
       for (String relative : relativePaths) {
         Path from = stageRoot.resolve(relative);
@@ -547,7 +735,34 @@ public class PluginInstaller {
         } else if (Files.isRegularFile(from)) {
           Files.createDirectories(to.getParent());
           if (isSharedCorePath(relative)) {
-            activateSharedCoreJar(artifactId, relative, from, to);
+            String backup = backupPath(artifactId, version, installId, relative);
+            SharedFileAction action = activateSharedCoreJar(artifactId, relative, from, to, backup);
+            SharedFile earlier = nullSafe(earlierInstalls).get(relative);
+            if (action == SharedFileAction.UNCHANGED
+                && earlier != null
+                && isReusable(earlier.getAction())) {
+              // The same version again: the file is as that install left it.
+              action = earlier.getAction();
+              backup = earlier.getBackup();
+            } else if (action != SharedFileAction.REPLACED) {
+              backup = null;
+            }
+            if (action != null) {
+              String normalized = normalizeRelative(relative);
+              boolean created =
+                  action == SharedFileAction.CREATED
+                      || (earlier != null && earlier.isCreatedByMarketplace())
+                      || history.created(normalized);
+              String original =
+                  earlier != null && earlier.getOriginalBackup() != null
+                      ? earlier.getOriginalBackup()
+                      : history.originalBackup(normalized);
+              if (original == null && action == SharedFileAction.REPLACED && !created) {
+                // This install replaced the copy the client shipped with.
+                original = backup;
+              }
+              sharedFiles.put(relative, new SharedFile(action, backup, created, original));
+            }
           } else {
             Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
           }
@@ -556,6 +771,45 @@ public class PluginInstaller {
     } catch (IOException e) {
       throw new HopException("Failed to activate staged plugin " + artifactId, e);
     }
+    // Shared files an earlier version created or replaced and this one no longer ships
+    for (Map.Entry<String, SharedFile> entry : nullSafe(earlierInstalls).entrySet()) {
+      if (entry.getValue() != null
+          && entry.getValue().getAction() == SharedFileAction.NOT_SHIPPED
+          && !sharedFiles.containsKey(entry.getKey())) {
+        sharedFiles.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return sharedFiles;
+  }
+
+  /**
+   * Where an install of {@code artifactId:version} backs up the shared file it replaces: {@code
+   * <artifactId>/<version installed>/<installId>/<path>} under {@link #BACKUP_DIR}.
+   */
+  static String backupPath(String artifactId, String version, String installId, String relative) {
+    return BACKUP_DIR
+        + "/"
+        + artifactId
+        + "/"
+        + version
+        + "/"
+        + installId
+        + "/"
+        + normalizeRelative(relative);
+  }
+
+  /** A backup folder name no earlier install of this version used. */
+  private String newInstallId(String artifactId, String version) {
+    String base =
+        DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS'Z'")
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
+    Path versionDir = hopHome.resolve(BACKUP_DIR).resolve(artifactId).resolve(version);
+    String id = base;
+    for (int i = 1; Files.exists(versionDir.resolve(id)); i++) {
+      id = base + "-" + i;
+    }
+    return id;
   }
 
   /**
@@ -563,31 +817,52 @@ public class PluginInstaller {
    * copied. Existing jars that match the staged content are skipped. On Windows, existing jars are
    * never overwritten (the running JVM locks {@code lib/core/*} on the system classpath). On other
    * platforms, different content is replaced when possible; copy failures are logged and skipped so
-   * the rest of the plugin still activates.
+   * the rest of the plugin still activates. A jar that is replaced is first backed up to {@link
+   * #backupPath}; when that fails, the existing jar stays.
+   *
+   * @return what was done, or null when a missing jar could not be written
    */
-  private void activateSharedCoreJar(String artifactId, String relative, Path from, Path to)
+  private SharedFileAction activateSharedCoreJar(
+      String artifactId, String relative, Path from, Path to, String backupRelative)
       throws IOException {
     boolean targetExists = Files.isRegularFile(to);
     Long mismatch = targetExists ? Files.mismatch(from, to) : null;
+    boolean differs = targetExists && mismatch != null && mismatch != -1L;
 
     if (skipSharedCoreCopy(targetExists, mismatch, Const.isWindows())) {
-      if (targetExists && mismatch != null && mismatch != -1L) {
+      if (differs) {
         log.logBasic(
             "Leaving existing shared lib/core jar in place (Windows locks system classpath jars): "
                 + relative
                 + " from "
                 + artifactId
                 + ". Content differs from the package; stop Hop and replace manually if needed.");
+        return SharedFileAction.KEPT;
       }
-      return;
+      return SharedFileAction.UNCHANGED;
     }
 
-    if (targetExists && mismatch != null && mismatch != -1L) {
+    Path backup = null;
+    if (differs) {
       log.logBasic(
           "Replacing shared lib/core jar with different content from "
               + artifactId
               + ": "
               + relative);
+      backup = hopHome.resolve(backupRelative);
+      try {
+        Files.createDirectories(backup.getParent());
+        Files.copy(to, backup, StandardCopyOption.REPLACE_EXISTING);
+      } catch (IOException e) {
+        log.logError(
+            "Could not back up shared lib/core jar "
+                + relative
+                + " to "
+                + backup
+                + " — leaving existing file. "
+                + e.getMessage());
+        return SharedFileAction.KEPT;
+      }
     }
     try {
       Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
@@ -598,7 +873,16 @@ public class PluginInstaller {
               + relative
               + " — leaving existing file. "
               + e.getMessage());
+      if (backup != null) {
+        try {
+          Files.deleteIfExists(backup);
+        } catch (IOException deleteError) {
+          log.logError("Could not remove unused backup " + backup, deleteError);
+        }
+      }
+      return targetExists ? SharedFileAction.KEPT : null;
     }
+    return targetExists ? SharedFileAction.REPLACED : SharedFileAction.CREATED;
   }
 
   /**
@@ -668,7 +952,11 @@ public class PluginInstaller {
     return windows;
   }
 
-  private List<String> unzipAllowedEntries(Path zipFile, Path stageRoot)
+  /**
+   * @param checksums receives the SHA-256 of every file entry, keyed by its relative path
+   */
+  private List<String> unzipAllowedEntries(
+      Path zipFile, Path stageRoot, Map<String, String> checksums)
       throws IOException, HopException {
     List<String> paths = new ArrayList<>();
     try (ZipFile zip = new ZipFile(zipFile.toFile())) {
@@ -684,21 +972,34 @@ public class PluginInstaller {
         if (!resolved.startsWith(stageRoot)) {
           throw new HopException("Zip entry escapes target directory: " + name);
         }
+        String relative = stageRoot.relativize(resolved).toString().replace('\\', '/');
         if (entry.isDirectory()) {
           Files.createDirectories(resolved);
         } else {
           Files.createDirectories(resolved.getParent());
-          try (InputStream in = zip.getInputStream(entry)) {
+          MessageDigest digest = sha256();
+          try (InputStream in = new DigestInputStream(zip.getInputStream(entry), digest)) {
             Files.copy(in, resolved, StandardCopyOption.REPLACE_EXISTING);
           }
+          if (!relative.isBlank()) {
+            checksums.put(relative, HexFormat.of().formatHex(digest.digest()));
+          }
         }
-        String relative = stageRoot.relativize(resolved).toString().replace('\\', '/');
         if (!relative.isBlank()) {
           paths.add(relative);
         }
       }
     }
     return paths;
+  }
+
+  static MessageDigest sha256() {
+    try {
+      return MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      // Every Java platform is required to support SHA-256
+      throw new IllegalStateException(e);
+    }
   }
 
   private void writeReceipt(InstallReceipt receipt) throws HopException {
