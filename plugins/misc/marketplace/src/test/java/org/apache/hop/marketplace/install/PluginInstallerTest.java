@@ -1049,6 +1049,126 @@ class PluginInstallerTest {
   }
 
   @Test
+  void corruptReceiptOfAStagedPluginDoesNotStopActivation() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-corrupt-staged");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), false);
+      // Interrupted while writing the receipt: truncated JSON next to the staged files.
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"), "{");
+
+      installer.activateAllPending();
+
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void leftoverThatAnotherPluginInstalledSinceIsKept() throws Exception {
+    Path hopHome = tempDir.resolve("hop-leftover-claimed");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      assertEquals(
+          List.of("plugins/tech/test/samples/sample.hpl"),
+          PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getObsoletePaths());
+
+      // Another plugin installs the same file before the leftover is retried.
+      writeOtherReceipt(hopHome, "plugins/tech/test/samples/sample.hpl");
+
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertTrue(
+          Files.isRegularFile(samples.resolve("sample.hpl")),
+          "uninstall must not delete a leftover another plugin lists");
+
+      // The retry from activateAllPending keeps it as well, and drops it from the receipt.
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      Files.delete(hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-other-plugin.json"));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      writeOtherReceipt(hopHome, "plugins/tech/test/samples/sample.hpl");
+      installer.activateAllPending();
+      assertTrue(Files.isRegularFile(samples.resolve("sample.hpl")));
+      assertTrue(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getObsoletePaths().isEmpty());
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void obsoletePathThatIsTheCurrentFileUnderAnotherCaseIsKept() throws Exception {
+    Map<String, String> v1 = new LinkedHashMap<>();
+    v1.put("plugins/tech/Foo/a.jar", "a-1");
+    Map<String, String> v2 = new LinkedHashMap<>();
+    v2.put("plugins/tech/foo/a.jar", "a-2");
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", zip(v1), "2.0.0", zip(v2)));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-case");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+
+      // Stand-in for a case-insensitive file system: both spellings name one folder.
+      Path upper = hopHome.resolve("plugins/tech/Foo");
+      Path lower = hopHome.resolve("plugins/tech/foo");
+      Files.move(upper, lower);
+      try {
+        Files.createSymbolicLink(upper, lower.getFileName());
+      } catch (UnsupportedOperationException | IOException e) {
+        assumeTrue(false, "needs symbolic links: " + e.getMessage());
+      }
+
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      assertEquals("a-2", Files.readString(lower.resolve("a.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  private static void writeOtherReceipt(Path hopHome, String path) throws IOException {
+    InstallReceipt other = new InstallReceipt();
+    other.setArtifactId("hop-other-plugin");
+    other.setVersion("1.0.0");
+    other.setPaths(List.of(path));
+    HopJson.newMapper()
+        .writeValue(
+            hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-other-plugin.json").toFile(),
+            other);
+  }
+
+  @Test
   void obsoletePathsRules() {
     InstallReceipt previous = new InstallReceipt();
     previous.setPaths(

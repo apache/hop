@@ -201,7 +201,10 @@ public class PluginInstaller {
       receipt.setRepositoryUrl(used.normalizedUrl());
       receipt.setPaths(relativePaths);
       receipt.setObsoletePaths(
-          obsoletePaths(previous, relativePaths, pathsOfOtherReceipts(coordinates.artifactId())));
+          obsoletePaths(
+              previous,
+              relativePaths,
+              pathsOfOtherReceipts(hopHome, coordinates.artifactId(), log)));
       receipt.setPendingActivation(!activateImmediately);
       writeReceipt(receipt);
 
@@ -314,11 +317,21 @@ public class PluginInstaller {
           String artifactId = staged.getFileName().toString();
           List<String> paths = collectRelativePaths(staged);
           activateStaged(artifactId, paths);
-          InstallReceipt receipt = readReceipt(hopHome, artifactId);
-          if (receipt != null) {
-            receipt.setPendingActivation(false);
-            removeObsoleteFiles(receipt);
-            writeReceipt(receipt);
+          // The files are in place now; a receipt problem must not stop the other plugins.
+          try {
+            InstallReceipt receipt = readReceipt(hopHome, artifactId);
+            if (receipt != null) {
+              receipt.setPendingActivation(false);
+              removeObsoleteFiles(receipt);
+              writeReceipt(receipt);
+            }
+          } catch (HopException e) {
+            log.logError(
+                "Activated staged plugin "
+                    + artifactId
+                    + " but could not update its install receipt; files of a previous version"
+                    + " may remain",
+                e);
           }
           deleteRecursive(staged);
           log.logBasic("Activated staged plugin: " + artifactId);
@@ -373,19 +386,29 @@ public class PluginInstaller {
   /**
    * Delete the receipt's obsolete files and the plugin folders that leaves empty. A file that
    * cannot be deleted (in use, typically on Windows) stays in the receipt so a later install, apply
-   * or uninstall removes it.
+   * or uninstall removes it. A file that another receipt lists by now, or that is one of the
+   * current version's files under a differently cased name, is no longer obsolete and is kept.
    */
-  private void removeObsoleteFiles(InstallReceipt receipt) {
+  private void removeObsoleteFiles(InstallReceipt receipt) throws HopException {
+    if (nullSafe(receipt.getObsoletePaths()).isEmpty()) {
+      return;
+    }
+    Set<String> otherReceiptPaths = pathsOfOtherReceipts(hopHome, receipt.getArtifactId(), log);
     List<String> remaining = new ArrayList<>();
     Set<Path> dirs = new HashSet<>();
     Path home = hopHome.toAbsolutePath().normalize();
     for (String relative : nullSafe(receipt.getObsoletePaths())) {
-      if (StringUtils.isBlank(relative) || isSharedCorePath(relative)) {
+      if (StringUtils.isBlank(relative)
+          || isSharedCorePath(relative)
+          || otherReceiptPaths.contains(normalizeRelative(relative))) {
         continue;
       }
       Path path = hopHome.resolve(relative).toAbsolutePath().normalize();
       if (!path.startsWith(home)) {
         log.logError("Ignoring obsolete path outside the Hop installation: " + relative);
+        continue;
+      }
+      if (isCurrentFileUnderAnotherCase(receipt, relative, path)) {
         continue;
       }
       if (Files.isDirectory(path)) {
@@ -404,8 +427,8 @@ public class PluginInstaller {
                   + relative
                   + " of the previous version of "
                   + receipt.getArtifactId()
-                  + " (file in use?). It is removed by the next marketplace install, apply or"
-                  + " uninstall. "
+                  + " (file in use?). Close Hop and run 'hop marketplace install' or"
+                  + " 'hop marketplace apply', or uninstall the plugin, to remove it. "
                   + e.getMessage());
           remaining.add(relative);
         }
@@ -413,6 +436,32 @@ public class PluginInstaller {
     }
     PluginUninstaller.removeEmptyPluginDirectories(hopHome, dirs, log);
     receipt.setObsoletePaths(remaining);
+  }
+
+  /**
+   * On a case-insensitive file system, {@code plugins/tech/Foo/a.jar} of the previous version and
+   * {@code plugins/tech/foo/a.jar} of the current one are the same file.
+   */
+  private boolean isCurrentFileUnderAnotherCase(
+      InstallReceipt receipt, String relative, Path path) {
+    String normalized = normalizeRelative(relative);
+    for (String current : nullSafe(receipt.getPaths())) {
+      String currentNormalized = normalizeRelative(current);
+      if (!currentNormalized.equals(normalized) && currentNormalized.equalsIgnoreCase(normalized)) {
+        Path currentPath = hopHome.resolve(currentNormalized);
+        try {
+          if (Files.exists(path)
+              && Files.exists(currentPath)
+              && Files.isSameFile(path, currentPath)) {
+            return true;
+          }
+        } catch (IOException e) {
+          // Cannot tell: keep the file rather than risk deleting the current version's copy.
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /** Retry the obsolete files that earlier installs could not remove. */
@@ -425,17 +474,28 @@ public class PluginInstaller {
     }
   }
 
-  private Set<String> pathsOfOtherReceipts(String artifactId) throws HopException {
+  /** Paths (normalised) that the receipts of every other marketplace artifact list. */
+  static Set<String> pathsOfOtherReceipts(Path hopHome, String artifactId, ILogChannel log)
+      throws HopException {
     Set<String> paths = new HashSet<>();
-    for (InstallReceipt receipt : readAllReceipts()) {
-      if (!artifactId.equals(receipt.getArtifactId())) {
-        paths.addAll(nullSafe(receipt.getPaths()));
+    for (InstallReceipt receipt : readAllReceipts(hopHome, log)) {
+      if (!receipt.getArtifactId().equals(artifactId)) {
+        for (String path : nullSafe(receipt.getPaths())) {
+          if (StringUtils.isNotBlank(path)) {
+            paths.add(normalizeRelative(path));
+          }
+        }
       }
     }
     return paths;
   }
 
   private List<InstallReceipt> readAllReceipts() throws HopException {
+    return readAllReceipts(hopHome, log);
+  }
+
+  private static List<InstallReceipt> readAllReceipts(Path hopHome, ILogChannel log)
+      throws HopException {
     Path dir = hopHome.resolve(RECEIPTS_DIR);
     List<InstallReceipt> receipts = new ArrayList<>();
     if (!Files.isDirectory(dir)) {
@@ -464,7 +524,7 @@ public class PluginInstaller {
     return receipts;
   }
 
-  private static String normalizeRelative(String relative) {
+  static String normalizeRelative(String relative) {
     String normalized = relative.replace('\\', '/');
     while (normalized.endsWith("/")) {
       normalized = normalized.substring(0, normalized.length() - 1);

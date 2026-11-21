@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 
@@ -51,9 +52,19 @@ public class PluginUninstaller {
     }
 
     // Delete files deepest-first; leave shared lib/core jars (sticky, may be used by others).
-    // Files of a previous version that an update could not remove yet go too.
+    // Files of a previous version that an update could not remove yet go too, unless another
+    // marketplace artifact has installed the same file since.
     Set<String> paths = new LinkedHashSet<>(PluginInstaller.nullSafe(receipt.getPaths()));
-    paths.addAll(PluginInstaller.nullSafe(receipt.getObsoletePaths()));
+    if (!PluginInstaller.nullSafe(receipt.getObsoletePaths()).isEmpty()) {
+      Set<String> otherReceiptPaths =
+          PluginInstaller.pathsOfOtherReceipts(hopHome, artifactId, log);
+      for (String obsolete : receipt.getObsoletePaths()) {
+        if (StringUtils.isNotBlank(obsolete)
+            && !otherReceiptPaths.contains(PluginInstaller.normalizeRelative(obsolete))) {
+          paths.add(obsolete);
+        }
+      }
+    }
     Set<Path> dirs = new HashSet<>();
     for (String relative : paths) {
       if (PluginInstaller.isSharedCorePath(relative)) {
