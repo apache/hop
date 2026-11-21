@@ -80,6 +80,8 @@ rules:
         - "token"
         - "accessToken"
         - "authToken"
+        - "privateKey"
+        - "connectionString"
 
   SEC-003:
     type: custom
@@ -106,6 +108,8 @@ rules:
         - "token"
         - "accessToken"
         - "authToken"
+        - "privateKey"
+        - "connectionString"
 
   # Reported on the transform, not the pipeline, so the finding is something you can click on.
   # A pipeline holding one transform and nothing else is not orphaned — there is nothing for it

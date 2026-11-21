@@ -429,7 +429,8 @@ An orphaned transform does run: Hop starts every transform in a pipeline, connec
 `TRANS-002` warns that it runs as a stream of its own, which is rarely what was meant.
 A pipeline that deliberately runs two independent streams can accept the finding on that transform, see <<accept-on-transform>>.
 
-`SEC-002` and `SEC-003` look at every text field of the transform or action whose name ends in one of the rule's `fieldPatterns`, such as `password`, `token` or `passphrase`.
+`SEC-002` and `SEC-003` look at every text field of the transform or action whose name ends in one of the rule's `fieldPatterns`, such as `password`, `token`, `privateKey` or `connectionString`.
+They also look at every text field Hop stores as a password, whatever its name, such as the Azure Event Hubs transforms' SAS key.
 They also look inside the settings the transform or action stores in the file, such as the list of files PGP Decrypt Files decrypts, each with its own passphrase.
 `DB-001`, `SEC-002` and `SEC-003` count an `Encrypted` value as hardcoded.
 

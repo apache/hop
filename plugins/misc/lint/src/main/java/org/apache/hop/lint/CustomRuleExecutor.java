@@ -1166,6 +1166,20 @@ public class CustomRuleExecutor {
     return field.getName().toLowerCase().endsWith(pattern.trim().toLowerCase());
   }
 
+  /**
+   * Whether Hop stores this text field as a password ({@code @HopMetadataProperty password =
+   * true}), whatever it is called. No name pattern catches Event Hubs' {@code sasKey}, FTP Delete's
+   * {@code keyFilePass} or the AWS transforms' {@code awsKey}, and Hop encrypts all of them on
+   * save.
+   */
+  private static boolean storedAsASecret(Field field) {
+    if (!String.class.equals(field.getType()) || Modifier.isStatic(field.getModifiers())) {
+      return false;
+    }
+    HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+    return property != null && property.password();
+  }
+
   /** How deep {@link #collectHardcodedSecrets} follows settings nested in settings. */
   private static final int MAX_SECRET_DEPTH = 4;
 
@@ -1193,7 +1207,8 @@ public class CustomRuleExecutor {
         continue;
       }
       try {
-        if (fieldPatterns.stream().anyMatch(pattern -> namesASecret(field, pattern))) {
+        if (storedAsASecret(field)
+            || fieldPatterns.stream().anyMatch(pattern -> namesASecret(field, pattern))) {
           field.setAccessible(true);
           Object value = field.get(holder);
           if (value != null && !Utils.isEmpty(value.toString()) && !isVariable(value.toString())) {
@@ -1321,7 +1336,9 @@ public class CustomRuleExecutor {
           "passphrase",
           "token",
           "accessToken",
-          "authToken");
+          "authToken",
+          "privateKey",
+          "connectionString");
 
   /** Get password field patterns from rule parameters or return defaults */
   private static List<String> getPasswordFieldPatterns(CustomLintRule rule) {

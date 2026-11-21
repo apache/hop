@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -62,6 +63,47 @@ public class HardcodedSecretRuleTest {
     assertTrue(reported.contains("password"), "a plain password is the point of the rule");
     assertTrue(reported.contains("awsSessionToken"), "a session token is a credential");
     assertEquals(2, reported.size(), "unexpected findings: " + reported);
+  }
+
+  /**
+   * Stands in for transforms whose secrets no name pattern caught: Event Hubs' {@code sasKey}, FTP
+   * Delete's {@code keyFilePass}, Beam Snowflake's {@code privateKey} and the Event Hubs Listener's
+   * {@code storageConnectionString}.
+   *
+   * @see <a href="https://github.com/apache/hop/issues/9500">#9500</a>
+   */
+  public static class StoredAsPasswordMeta extends BaseTransformMeta {
+    @HopMetadataProperty(key = "sas_key", password = true)
+    private String sasKey = "c2FzLWtleQ==";
+
+    @HopMetadataProperty(key = "keyfilepass", password = true)
+    private String keyFilePass = "Encrypted 2be98afc86aa7f2e4cb79ce10df90acde";
+
+    @HopMetadataProperty(key = "private_key")
+    private String privateKey = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASC";
+
+    @HopMetadataProperty(key = "storage_connection_string")
+    private String storageConnectionString =
+        "DefaultEndpointsProtocol=https;AccountName=hop;AccountKey=a2V5";
+
+    @HopMetadataProperty(key = "proxy_sas_key", password = true)
+    private String proxySasKey = "${PROXY_SAS_KEY}";
+
+    @HopMetadataProperty(key = "empty_sas_key", password = true)
+    private String emptySasKey = "";
+
+    @HopMetadataProperty(key = "consumer_group_name")
+    private String consumerGroupName = "$Default";
+  }
+
+  @Test
+  void reportsTheFieldsHopStoresAsPasswordsAndTheNewNamePatterns() {
+    List<String> reported = fieldsReportedFor(new StoredAsPasswordMeta());
+
+    assertEquals(
+        List.of("sasKey", "keyFilePass", "privateKey", "storageConnectionString"),
+        reported,
+        "a variable, an empty value and a plain setting are not findings");
   }
 
   @Test
