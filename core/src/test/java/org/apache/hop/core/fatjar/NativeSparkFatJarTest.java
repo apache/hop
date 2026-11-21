@@ -140,6 +140,8 @@ class NativeSparkFatJarTest {
     assertFalse(selected.stream().anyMatch(f -> new File(f).getName().startsWith("beam-")));
   }
 
+  private static final File SPARK_LIB = new File("plugins/engines/spark/lib");
+
   private static final java.util.List<String> TREE =
       java.util.List.of(
           "org.apache.hop:hop-engines-spark:jar:2.21.0-SNAPSHOT",
@@ -149,6 +151,9 @@ class NativeSparkFatJarTest {
           "|  \\- commons-logging:commons-logging:jar:1.4.0:runtime",
           "+- org.apache.spark:spark-sql_2.13:jar:4.1.3:compile",
           "|  +- org.rocksdb:rocksdbjni:jar:9.8.4:compile",
+          "|  +- org.tukaani:xz:jar:1.10:compile",
+          "|  +- com.ibm.icu:icu4j:jar:77.1:compile",
+          "|  +- com.google.protobuf:protobuf-java:jar:4.29.3:compile",
           "|  \\- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.2.19.Final:compile",
           "|     \\- io.netty:netty-transport:jar:4.2.19.Final:compile",
           "\\- io.delta:delta-spark_4.1_2.13:jar:4.3.1:compile",
@@ -179,24 +184,34 @@ class NativeSparkFatJarTest {
     java.util.Set<String> artifacts = NativeSparkFatJar.parseDistributionArtifacts(TREE);
     assertTrue(
         NativeSparkFatJar.isSparkDistributionJar(
+            new File(SPARK_LIB, "rocksdbjni-8.3.2.jar"), artifacts));
+    assertTrue(
+        NativeSparkFatJar.isSparkDistributionJar(
+            new File(SPARK_LIB, "netty-transport-native-epoll-4.2.19.Final-linux-x86_64.jar"),
+            artifacts));
+    assertTrue(
+        NativeSparkFatJar.isSparkDistributionJar(
+            new File(SPARK_LIB, "slf4j-api-2.0.17.jar"), artifacts));
+    assertFalse(
+        NativeSparkFatJar.isSparkDistributionJar(
+            new File(SPARK_LIB, "netty-transport-sctp-4.2.19.Final.jar"), artifacts));
+    assertFalse(
+        NativeSparkFatJar.isSparkDistributionJar(
+            new File(SPARK_LIB, "hop-core-2.21.0.jar"), artifacts));
+    // Outside the engine's Spark runtime a matching name is not a copy of what the cluster has
+    assertFalse(
+        NativeSparkFatJar.isSparkDistributionJar(
             new File("lib/core/rocksdbjni-8.3.2.jar"), artifacts));
-    assertTrue(
-        NativeSparkFatJar.isSparkDistributionJar(
-            new File("netty-transport-native-epoll-4.2.19.Final-linux-x86_64.jar"), artifacts));
-    assertTrue(
-        NativeSparkFatJar.isSparkDistributionJar(new File("slf4j-api-2.0.17.jar"), artifacts));
     assertFalse(
         NativeSparkFatJar.isSparkDistributionJar(
-            new File("netty-transport-sctp-4.2.19.Final.jar"), artifacts));
-    assertFalse(
-        NativeSparkFatJar.isSparkDistributionJar(new File("hop-core-2.21.0.jar"), artifacts));
+            new File("plugins/transforms/script/lib/xz-25.0.4.jar"), artifacts));
     // The connectors stay even when a name would match
     assertFalse(
         NativeSparkFatJar.isSparkDistributionJar(
             new File("plugins/engines/spark/lib/delta/slf4j-api-2.0.20.jar"), artifacts));
     assertFalse(
         NativeSparkFatJar.isSparkDistributionJar(
-            new File("rocksdbjni-9.8.4.jar"), java.util.Set.of()));
+            new File(SPARK_LIB, "rocksdbjni-9.8.4.jar"), java.util.Set.of()));
   }
 
   @Test
@@ -205,6 +220,12 @@ class NativeSparkFatJarTest {
     String[] kept = {
       "lib/core/hop-core-2.21.0.jar",
       "lib/core/commons-csv-1.14.0.jar",
+      // Named like what Spark ships, but not in the engine's Spark runtime: GraalVM's shadowed
+      // copies relocate their classes and Spark shades protobuf, so the cluster has none of these
+      "lib/core/slf4j-api-2.0.17.jar",
+      "lib/core/protobuf-java-4.34.1.jar",
+      "plugins/transforms/script/lib/xz-25.0.4.jar",
+      "plugins/transforms/script/lib/icu4j-25.0.4.jar",
       "plugins/engines/spark/hop-engines-spark-2.21.0.jar",
       "plugins/engines/spark/lib/delta/delta-storage-4.3.1.jar",
       // SWT classes for the plugin classes that reference them: one platform is enough
@@ -212,7 +233,6 @@ class NativeSparkFatJarTest {
       "lib/core/org.eclipse.jface-3.40.0.jar"
     };
     String[] dropped = {
-      "lib/core/slf4j-api-2.0.17.jar",
       "lib/swt/osx/arm64/swt.jar",
       "lib/swt/win64/swt.jar",
       "plugins/engines/spark/lib/rocksdbjni-9.8.4.jar",

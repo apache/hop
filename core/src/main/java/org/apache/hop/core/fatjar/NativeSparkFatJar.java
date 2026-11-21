@@ -133,16 +133,17 @@ public final class NativeSparkFatJar {
   }
 
   /**
-   * A jar named after one of these artifacts: {@code <artifactId>-<version>[-classifier].jar}. The
-   * lakehouse connectors in the engine's lib/delta and lib/iceberg always stay: no Spark
-   * distribution ships them.
+   * A jar of the engine's Spark runtime ({@code plugins/engines/spark/lib}) named after one of
+   * these artifacts: {@code <artifactId>-<version>[-classifier].jar}.
+   *
+   * <p>Only that folder holds copies of what the cluster provides. A jar elsewhere stays even when
+   * its artifact id matches: GraalVM's shadowed {@code xz} and {@code icu4j} of the Script
+   * transform relocate their classes, and Spark shades the {@code protobuf-java} it uses, so the
+   * cluster provides none of their classes. The lakehouse connectors in the engine's {@code
+   * lib/delta} and {@code lib/iceberg} stay too: no Spark distribution ships them.
    */
   static boolean isSparkDistributionJar(File jar, Set<String> sparkArtifacts) {
-    if (sparkArtifacts.isEmpty()) {
-      return false;
-    }
-    String parent = jar.getParentFile() == null ? "" : jar.getParentFile().getName();
-    if ("delta".equals(parent) || "iceberg".equals(parent)) {
+    if (sparkArtifacts.isEmpty() || !isInSparkEngineLib(jar)) {
       return false;
     }
     String name = jar.getName();
@@ -152,6 +153,19 @@ public final class NativeSparkFatJar {
       }
     }
     return false;
+  }
+
+  /** Whether a jar sits directly in {@code plugins/engines/spark/lib}. */
+  static boolean isInSparkEngineLib(File jar) {
+    File lib = jar.getParentFile();
+    File spark = lib == null ? null : lib.getParentFile();
+    File engines = spark == null ? null : spark.getParentFile();
+    File plugins = engines == null ? null : engines.getParentFile();
+    return plugins != null
+        && "lib".equals(lib.getName())
+        && "spark".equals(spark.getName())
+        && "engines".equals(engines.getName())
+        && "plugins".equals(plugins.getName());
   }
 
   /**
