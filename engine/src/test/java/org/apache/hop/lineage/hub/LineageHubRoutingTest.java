@@ -52,6 +52,13 @@ class LineageHubRoutingTest {
   private static final LineageConfiguration LINEAGE_ON =
       LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of());
 
+  /**
+   * Room for every event a test queues in one go. {@link LineageHub#emit} drops an event when the
+   * queue is full, and on a busy machine the worker can fall behind a tight loop of emits.
+   */
+  private static final LineageConfiguration LINEAGE_OFF_LARGE_QUEUE =
+      LineageConfiguration.forTesting(false, 1000, 10, 50L, Set.of());
+
   /** The sinks the factory made, by URL. */
   private final Map<String, FakeLineageSink> started = new ConcurrentHashMap<>();
 
@@ -264,7 +271,8 @@ class LineageHubRoutingTest {
 
   @Test
   void anInterruptedRunStillLetsGoOfItsSinkAfterItsEvents() throws Exception {
-    LineageHub hub = hub(LINEAGE_OFF, List.of());
+    // A burst of events ahead of the release, so that it is queued behind a backlog of them
+    LineageHub hub = hub(LINEAGE_OFF_LARGE_QUEUE, List.of());
     String old = hub.useSink(target("marquez", "http://old:5000"));
     hub.emit(event("start", old));
     hub.flush();
