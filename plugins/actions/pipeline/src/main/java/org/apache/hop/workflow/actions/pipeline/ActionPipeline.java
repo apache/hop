@@ -585,6 +585,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           rootWorkflow = rootWorkflow.getParentWorkflow();
         }
 
+        if (parentWorkflow != null) {
+          parentWorkflow.registerActivePipeline(pipeline);
+        }
         try {
           // Start execution...
           //
@@ -623,6 +626,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
           logError(BaseMessages.getString(PKG, "ActionPipeline.Error.UnablePrepareExec"), e);
           result.setNrErrors(1);
+        } finally {
+          if (parentWorkflow != null) {
+            parentWorkflow.unregisterActivePipeline(pipeline);
+          }
         }
 
       } catch (Exception e) {
