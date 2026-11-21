@@ -20,9 +20,13 @@ package org.apache.hop.marketplace.install;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -51,43 +55,87 @@ public class PluginUninstaller {
               + "'. Only plugins installed via the marketplace can be uninstalled this way.");
     }
 
-    // Delete files deepest-first; leave shared lib/core jars (sticky, may be used by others).
-    // Files of a previous version that an update could not remove yet go too, unless another
-    // marketplace artifact has installed the same file since.
-    Set<String> paths = new LinkedHashSet<>(PluginInstaller.nullSafe(receipt.getPaths()));
+    // Leave shared lib/core jars in place (sticky, may be used by others). Files of a previous
+    // version that an update could not remove yet go too, unless another marketplace artifact has
+    // installed the same file since. Those are the files that were in use, so a failed delete is
+    // logged and kept in the receipt instead of stopping the uninstall half way.
+    Set<String> obsolete = new LinkedHashSet<>();
     if (!PluginInstaller.nullSafe(receipt.getObsoletePaths()).isEmpty()) {
       Set<String> otherReceiptPaths =
           PluginInstaller.pathsOfOtherReceipts(hopHome, artifactId, log);
-      for (String obsolete : receipt.getObsoletePaths()) {
-        if (StringUtils.isNotBlank(obsolete)
-            && !otherReceiptPaths.contains(PluginInstaller.normalizeRelative(obsolete))) {
-          paths.add(obsolete);
+      for (String path : receipt.getObsoletePaths()) {
+        if (StringUtils.isNotBlank(path)
+            && !otherReceiptPaths.contains(PluginInstaller.normalizeRelative(path))) {
+          obsolete.add(path);
         }
       }
     }
     Set<Path> dirs = new HashSet<>();
-    for (String relative : paths) {
-      if (PluginInstaller.isSharedCorePath(relative)) {
-        log.logBasic("Leaving shared lib/core path in place: " + relative);
+    List<String> leftovers = new ArrayList<>();
+    for (String relative : obsolete) {
+      try {
+        removePath(relative, dirs);
+      } catch (IOException e) {
+        log.logError(
+            "Could not remove "
+                + relative
+                + " of a previous version of "
+                + artifactId
+                + " (file in use?). Close Hop and uninstall the plugin again to remove it. "
+                + e.getMessage());
+        leftovers.add(relative);
+      }
+    }
+    for (String relative : PluginInstaller.nullSafe(receipt.getPaths())) {
+      if (obsolete.contains(relative)) {
         continue;
       }
-      Path path = hopHome.resolve(relative);
       try {
-        if (Files.isRegularFile(path)) {
-          Files.deleteIfExists(path);
-          Path parent = path.getParent();
-          if (parent != null) {
-            dirs.add(parent);
-          }
-        } else if (Files.isDirectory(path)) {
-          dirs.add(path);
-        }
+        removePath(relative, dirs);
       } catch (IOException e) {
-        throw new HopException("Failed to remove " + path, e);
+        throw new HopException("Failed to remove " + hopHome.resolve(relative), e);
       }
     }
 
     removeEmptyPluginDirectories(hopHome, dirs, log);
+
+    // A plugin that is still staged would otherwise be activated again at the next start.
+    Path staged = hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(artifactId);
+    try {
+      PluginInstaller.deleteRecursive(staged);
+    } catch (IOException e) {
+      throw new HopException("Failed to remove the staged files of " + artifactId, e);
+    }
+
+    if (!leftovers.isEmpty()) {
+      // The receipt now lists only what is left, the files and the plugin folders that hold
+      // them, so the next uninstall, install or apply retries it.
+      List<String> remainingDirs = new ArrayList<>();
+      for (Path dir : dirs) {
+        if (Files.isDirectory(dir)) {
+          remainingDirs.add(hopHome.relativize(dir).toString().replace('\\', '/'));
+        }
+      }
+      Collections.sort(remainingDirs);
+      // The plugin is gone: nothing may read this receipt as an install of some version, or
+      // reuse what it recorded about the shared lib/core jars.
+      receipt.setArtifactId(artifactId);
+      receipt.setUninstallPending(true);
+      receipt.setPendingActivation(false);
+      receipt.setVersion(null);
+      receipt.setPreviousVersion(null);
+      receipt.setChecksums(new LinkedHashMap<>());
+      receipt.setSharedFiles(new LinkedHashMap<>());
+      receipt.setPaths(remainingDirs);
+      receipt.setObsoletePaths(leftovers);
+      PluginInstaller.writeReceipt(hopHome, receipt);
+      log.logError(
+          "Uninstalled "
+              + artifactId
+              + " except for files of a previous version that could not be removed: "
+              + String.join(", ", leftovers));
+      return;
+    }
 
     Path receiptFile = hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(artifactId + ".json");
     try {
@@ -99,6 +147,27 @@ public class PluginUninstaller {
         "Uninstalled "
             + artifactId
             + ". Restart Hop so the plugin registry drops the removed classes.");
+  }
+
+  /** Delete one receipt path. Shared lib/core paths stay; folders go when they end up empty. */
+  private void removePath(String relative, Set<Path> dirs) throws IOException {
+    if (StringUtils.isBlank(relative)) {
+      return;
+    }
+    if (PluginInstaller.isSharedCorePath(relative)) {
+      log.logBasic("Leaving shared lib/core path in place: " + relative);
+      return;
+    }
+    Path path = hopHome.resolve(relative);
+    if (Files.isRegularFile(path)) {
+      Files.deleteIfExists(path);
+      Path parent = path.getParent();
+      if (parent != null) {
+        dirs.add(parent);
+      }
+    } else if (Files.isDirectory(path)) {
+      dirs.add(path);
+    }
   }
 
   /** Remove the given directories, deepest first, when they are empty and under plugins/. */

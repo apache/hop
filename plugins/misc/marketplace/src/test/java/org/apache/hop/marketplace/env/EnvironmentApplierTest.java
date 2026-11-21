@@ -264,6 +264,44 @@ class EnvironmentApplierTest {
     }
   }
 
+  @Test
+  void applyInstallsAPluginWhoseUninstallIsUnfinished() throws Exception {
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    serveZip(server, "2.0.0", "plugins/tech/test/lib/dep-2.0.jar");
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-apply-after-uninstall");
+      // What an uninstall leaves when a file of the previous version was in use.
+      Files.createDirectories(hopHome.resolve("plugins/tech/test/lib"));
+      Files.writeString(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar"), "1.0.0");
+      Files.createDirectories(hopHome.resolve(PluginInstaller.RECEIPTS_DIR));
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json"),
+          "{\"artifactId\":\"hop-test-plugin\",\"version\":\"2.0.0\","
+              + "\"uninstallPending\":true,\"paths\":[\"plugins/tech/test\"],"
+              + "\"obsoletePaths\":[\"plugins/tech/test/lib/dep-1.0.jar\"]}");
+      MarketplaceConfig config = new MarketplaceConfig();
+      config.getRepositories().clear();
+      config
+          .getRepositories()
+          .add(
+              new MarketplaceRepository(
+                  "local", "http://127.0.0.1:" + server.getAddress().getPort() + "/", true));
+      EnvironmentApplier applier = new EnvironmentApplier(new LogChannel("test"), hopHome, config);
+
+      assertEquals(1, applier.validate(specWithPlugin("2.0.0")).getMissingPlugins().size());
+
+      applier.apply(specWithPlugin("2.0.0"), false);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, "hop-test-plugin");
+      assertEquals("2.0.0", receipt.getVersion());
+      assertFalse(receipt.isUninstallPending());
+    } finally {
+      server.stop(0);
+    }
+  }
+
   private static HopInstallSpec specWithPlugin(String version) {
     HopInstallSpec env = new HopInstallSpec();
     HopInstallSpec.PluginRef ref = new HopInstallSpec.PluginRef();

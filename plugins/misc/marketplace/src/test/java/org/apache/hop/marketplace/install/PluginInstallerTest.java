@@ -20,6 +20,9 @@ package org.apache.hop.marketplace.install;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -37,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopException;
@@ -1050,6 +1055,153 @@ class PluginInstallerTest {
   }
 
   @Test
+  void uninstallKeepsAnObsoleteFileThatCannotBeRemovedInTheReceipt() throws Exception {
+    Path hopHome = tempDir.resolve("hop-uninstall-locked");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      install(hopHome, server, "1.0.0");
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      install(hopHome, server, "2.0.0");
+
+      // The leftover is still in use: the rest of the plugin goes, the leftover stays listed.
+      PluginUninstaller uninstaller = new PluginUninstaller(new LogChannel("test"), hopHome);
+      assertDoesNotThrow(() -> uninstaller.uninstall(TEST_PLUGIN));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib")));
+      assertTrue(Files.isRegularFile(samples.resolve("sample.hpl")));
+      InstallReceipt left = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      for (String path : left.getPaths()) {
+        assertTrue(Files.isDirectory(hopHome.resolve(path)), path);
+      }
+      assertEquals(List.of("plugins/tech/test/samples/sample.hpl"), left.getObsoletePaths());
+      // It no longer counts as an install of any version.
+      assertTrue(left.isUninstallPending());
+      assertNull(left.getVersion());
+      assertTrue(left.getChecksums().isEmpty());
+      assertTrue(left.getSharedFiles().isEmpty());
+
+      // Once the file is free, the next install or apply finishes the uninstall.
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+          .activateAllPending();
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+      assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void reinstallAfterAnUnfinishedUninstallDownloadsAndRecordsItsOwnSharedFiles() throws Exception {
+    Path hopHome = tempDir.resolve("hop-reinstall-after-uninstall");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      install(hopHome, server, "1.0.0");
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      install(hopHome, server, "2.0.0");
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+
+      InstallReceipt receipt =
+          new PluginInstaller(
+                  new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+              .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+
+      assertFalse(receipt.isAlreadyPresent());
+      assertFalse(receipt.isUninstallPending());
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(Files.exists(samples));
+      // The jar left in lib/core matches: this install did not create or replace it.
+      InstallReceipt.SharedFile shared = sharedFile(hopHome, "lib/core/shared-2.0.jar");
+      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, shared.getAction());
+      assertNull(shared.getBackup());
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void uninstallOfAStagedPluginRemovesTheStagedFiles() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-uninstall-staged");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
+
+      // The next start does not bring the plugin back.
+      installer.activateAllPending();
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+      assertNull(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void unreadableReceiptReportsTheFilesTheStagedVersionDoesNotHave() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-unreadable-update");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), false);
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"), "{");
+
+      assertEquals(
+          List.of("plugins/tech/test/lib/dep-1.0.jar", "plugins/tech/test/samples/sample.hpl"),
+          installer.filesTheStagedVersionDoesNotHave(
+              TEST_PLUGIN,
+              List.of(
+                  "plugins/tech/test/plugin.jar",
+                  "plugins/tech/test/lib/dep-2.0.jar",
+                  "lib/core/shared-2.0.jar")));
+
+      // Reported, not removed: a plugin folder can hold files added by hand.
+      installer.activateAllPending();
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
   void corruptReceiptOfAStagedPluginDoesNotStopActivation() throws Exception {
     HttpServer server =
         versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
@@ -1069,6 +1221,27 @@ class PluginInstallerTest {
 
       assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
       assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
+
+      // The unreadable receipt is kept aside and a new one lists the activated files.
+      assertEquals(
+          "{",
+          Files.readString(
+              hopHome
+                  .resolve(PluginInstaller.RECEIPTS_DIR)
+                  .resolve(TEST_PLUGIN + ".json.unreadable")));
+      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      assertEquals(TEST_PLUGIN, receipt.getArtifactId());
+      assertNull(receipt.getVersion());
+      assertFalse(receipt.isPendingActivation());
+      assertTrue(receipt.getPaths().contains("plugins/tech/test/plugin.jar"));
+      assertEquals(sha256("plugin-2"), receipt.getChecksums().get("plugins/tech/test/plugin.jar"));
+
+      // With a readable receipt the plugin can be updated and uninstalled again.
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      assertEquals("1.0.0", PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getVersion());
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
     } finally {
       server.stop(0);
     }
@@ -1167,6 +1340,458 @@ class PluginInstallerTest {
         .writeValue(
             hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-other-plugin.json").toFile(),
             other);
+  }
+
+  @Test
+  void receiptRecordsChecksumsAndThePreviousVersion() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-checksums");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      MavenCoordinates v2 = new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0");
+
+      InstallReceipt first =
+          installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      Map<String, String> expected = new LinkedHashMap<>();
+      expected.put("plugins/tech/test/plugin.jar", sha256("plugin-1"));
+      expected.put("plugins/tech/test/lib/dep-1.0.jar", sha256("dep-1.0"));
+      expected.put("plugins/tech/test/samples/sample.hpl", sha256("<pipeline/>"));
+      expected.put("lib/core/shared-1.0.jar", sha256("shared-1.0"));
+      assertEquals(expected, first.getChecksums(), "one checksum per file, none for folders");
+      assertNull(first.getPreviousVersion());
+      String json =
+          Files.readString(
+              hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"));
+      assertFalse(json.contains("previousVersion"), json);
+      assertEquals(expected, PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getChecksums());
+
+      assertEquals("1.0.0", installer.install(v2, true).getPreviousVersion());
+
+      // Installing 2.0.0 again (a file went missing) still replaced 1.0.0.
+      Files.delete(hopHome.resolve("plugins/tech/test/plugin.jar"));
+      assertEquals("1.0.0", installer.install(v2, true).getPreviousVersion());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void receiptRecordsWhatActivationDidToSharedJars() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      // Created by this install
+      Path fresh = tempDir.resolve("hop-shared-created");
+      Files.createDirectories(fresh.resolve("plugins"));
+      install(fresh, server, "1.0.0");
+      InstallReceipt.SharedFile created = sharedFile(fresh, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.CREATED, created.getAction());
+      assertTrue(created.isCreatedByMarketplace());
+      assertNull(created.getBackup());
+
+      // Shipped with the client, same content
+      Path shipped = tempDir.resolve("hop-shared-unchanged");
+      Files.createDirectories(shipped.resolve("lib/core"));
+      Files.writeString(shipped.resolve("lib/core/shared.jar"), "shared-lib");
+      install(shipped, server, "1.0.0");
+      InstallReceipt.SharedFile unchanged = sharedFile(shipped, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, unchanged.getAction());
+      assertFalse(unchanged.isCreatedByMarketplace());
+
+      // Shipped with the client, other content: backed up, then replaced
+      Path older = tempDir.resolve("hop-shared-replaced");
+      Files.createDirectories(older.resolve("lib/core"));
+      Files.writeString(older.resolve("lib/core/shared.jar"), "old-shared-lib");
+      install(older, server, "1.0.0");
+      InstallReceipt.SharedFile replaced = sharedFile(older, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.REPLACED, replaced.getAction());
+      assertFalse(replaced.isCreatedByMarketplace());
+      assertTrue(
+          replaced.getBackup().startsWith("plugins/.marketplace/backup/hop-test-plugin/1.0.0/"),
+          replaced.getBackup());
+      assertTrue(replaced.getBackup().endsWith("/lib/core/shared.jar"), replaced.getBackup());
+      assertEquals("old-shared-lib", Files.readString(older.resolve(replaced.getBackup())));
+      assertEquals(replaced.getBackup(), replaced.getOriginalBackup(), "the client's own copy");
+      assertEquals("shared-lib", Files.readString(older.resolve("lib/core/shared.jar")));
+
+      // Installing the same version again finds the jar unchanged but keeps what it replaced.
+      Files.delete(older.resolve("plugins/tech/test/plugin.jar"));
+      install(older, server, "1.0.0");
+      InstallReceipt.SharedFile again = sharedFile(older, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.REPLACED, again.getAction());
+      assertEquals(replaced.getBackup(), again.getBackup());
+      assertEquals("old-shared-lib", Files.readString(older.resolve(again.getBackup())));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void sharedJarThatCannotBeBackedUpIsKept() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    Path hopHome = tempDir.resolve("hop-shared-kept");
+    Files.createDirectories(hopHome.resolve("lib/core"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make the backup fail");
+    Files.writeString(hopHome.resolve("lib/core/shared.jar"), "old-shared-lib");
+    Path backupDir = hopHome.resolve(PluginInstaller.BACKUP_DIR);
+    Files.createDirectories(backupDir);
+    Files.setPosixFilePermissions(backupDir, PosixFilePermissions.fromString("r-xr-xr-x"));
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      assumeFalse(Files.isWritable(backupDir), "running as a user that ignores permissions");
+      install(hopHome, server, "1.0.0");
+      InstallReceipt.SharedFile kept = sharedFile(hopHome, "lib/core/shared.jar");
+      assertEquals(InstallReceipt.SharedFileAction.KEPT, kept.getAction());
+      assertNull(kept.getBackup());
+      assertEquals("old-shared-lib", Files.readString(hopHome.resolve("lib/core/shared.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+    } finally {
+      Files.setPosixFilePermissions(backupDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void unusedBackupLeavesNoEmptyFoldersBehind() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    Path hopHome = tempDir.resolve("hop-unused-backup");
+    Path libCore = hopHome.resolve("lib/core");
+    Files.createDirectories(libCore);
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make the copy fail");
+    Files.writeString(libCore.resolve("shared.jar"), "old-shared-lib");
+    // The backup can be written, but the jar in lib/core cannot be replaced.
+    Files.setPosixFilePermissions(libCore, PosixFilePermissions.fromString("r-xr-xr-x"));
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      assumeFalse(Files.isWritable(libCore), "running as a user that ignores permissions");
+      install(hopHome, server, "1.0.0");
+      assertEquals(
+          InstallReceipt.SharedFileAction.KEPT,
+          sharedFile(hopHome, "lib/core/shared.jar").getAction());
+      assertEquals("old-shared-lib", Files.readString(libCore.resolve("shared.jar")));
+      Path backupDir = hopHome.resolve(PluginInstaller.BACKUP_DIR);
+      if (Files.isDirectory(backupDir)) {
+        try (var stream = Files.list(backupDir)) {
+          assertEquals(List.of(), stream.toList(), "no backup folders left behind");
+        }
+      }
+    } finally {
+      Files.setPosixFilePermissions(libCore, PosixFilePermissions.fromString("rwxr-xr-x"));
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void backupPathStaysUnderTheBackupFolder() {
+    assertEquals(
+        PluginInstaller.BACKUP_DIR + "/hop-test-plugin/2.20.0-SNAPSHOT/id/lib/core/x.jar",
+        PluginInstaller.backupPath("hop-test-plugin", "2.20.0-SNAPSHOT", "id", "lib/core/x.jar"));
+    Path root = tempDir.resolve(PluginInstaller.BACKUP_DIR).normalize();
+    for (String[] ids :
+        new String[][] {
+          {"..", ".."}, {"a/../../..", "1.0"}, {"a", "../../../../lib/core"}, {"a", "..\\..\\x"}
+        }) {
+      String backup = PluginInstaller.backupPath(ids[0], ids[1], "id", "lib/core/x.jar");
+      Path resolved = tempDir.resolve(backup).normalize();
+      assertTrue(resolved.startsWith(root), backup);
+      // <artifactId>/<version>/<installId>/lib/core/x.jar: one folder each for id and version
+      assertEquals(6, root.relativize(resolved).getNameCount(), backup);
+    }
+  }
+
+  @Test
+  void createdByMarketplaceSurvivesUpdatesAndOtherPlugins() throws Exception {
+    Map<String, String> v1 = new LinkedHashMap<>();
+    v1.put("plugins/tech/test/plugin.jar", "plugin-1");
+    v1.put("lib/core/common.jar", "common");
+    Map<String, String> v2 = new LinkedHashMap<>(v1);
+    v2.put("plugins/tech/test/plugin.jar", "plugin-2");
+    Map<String, String> other = new LinkedHashMap<>();
+    other.put("plugins/tech/other/other.jar", "other");
+    other.put("lib/core/common.jar", "common");
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", zip(v1), "2.0.0", zip(v2)));
+    serve(server, "hop-other-plugin", "1.0.0", zip(other));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-created-flag");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+
+      InstallReceipt.SharedFile updated = sharedFile(hopHome, "lib/core/common.jar");
+      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, updated.getAction());
+      assertTrue(updated.isCreatedByMarketplace(), "1.0.0 created it");
+
+      installer.install(new MavenCoordinates("org.apache.hop", "hop-other-plugin", "1.0.0"), true);
+      InstallReceipt.SharedFile fromOther =
+          PluginInstaller.readReceipt(hopHome, "hop-other-plugin")
+              .getSharedFiles()
+              .get("lib/core/common.jar");
+      assertEquals(InstallReceipt.SharedFileAction.UNCHANGED, fromOther.getAction());
+      assertTrue(fromOther.isCreatedByMarketplace(), "another plugin created it");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void backupsAreNeverOverwrittenAndTheClientOriginalIsKept() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    Map<String, String> v1 = new LinkedHashMap<>();
+    v1.put("plugins/tech/test/plugin.jar", "plugin-1");
+    v1.put("lib/core/x.jar", "x-from-1");
+    Map<String, String> v2 = new LinkedHashMap<>();
+    v2.put("plugins/tech/test/plugin.jar", "plugin-2");
+    v2.put("lib/core/x.jar", "x-from-2");
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", zip(v1), "2.0.0", zip(v2)));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-downgrade");
+      Files.createDirectories(hopHome.resolve("lib/core"));
+      Files.writeString(hopHome.resolve("lib/core/x.jar"), "x-client");
+
+      install(hopHome, server, "1.0.0");
+      InstallReceipt.SharedFile first = sharedFile(hopHome, "lib/core/x.jar");
+      install(hopHome, server, "2.0.0");
+      InstallReceipt.SharedFile second = sharedFile(hopHome, "lib/core/x.jar");
+      install(hopHome, server, "1.0.0");
+      InstallReceipt.SharedFile third = sharedFile(hopHome, "lib/core/x.jar");
+
+      assertEquals(InstallReceipt.SharedFileAction.REPLACED, third.getAction());
+      assertNotEquals(first.getBackup(), third.getBackup(), "a backup folder per install");
+      assertEquals("x-client", Files.readString(hopHome.resolve(first.getBackup())));
+      assertEquals("x-from-1", Files.readString(hopHome.resolve(second.getBackup())));
+      assertEquals("x-from-2", Files.readString(hopHome.resolve(third.getBackup())));
+      assertEquals(first.getBackup(), third.getOriginalBackup());
+      assertFalse(third.isCreatedByMarketplace());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void keptJarIsRecordedUnchangedOnceItMatchesThePackage() throws Exception {
+    assumeFalse(Const.isWindows(), "Windows never replaces an existing lib/core jar");
+    Path hopHome = tempDir.resolve("hop-kept-then-fixed");
+    Files.createDirectories(hopHome.resolve("lib/core"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make the backup fail");
+    Files.writeString(hopHome.resolve("lib/core/shared.jar"), "old-shared-lib");
+    Path backupDir = hopHome.resolve(PluginInstaller.BACKUP_DIR);
+    Files.createDirectories(backupDir);
+    Files.setPosixFilePermissions(backupDir, PosixFilePermissions.fromString("r-xr-xr-x"));
+    HttpServer server = zipServer(buildPluginZip());
+    server.start();
+    try {
+      assumeFalse(Files.isWritable(backupDir), "running as a user that ignores permissions");
+      install(hopHome, server, "1.0.0");
+      assertEquals(
+          InstallReceipt.SharedFileAction.KEPT,
+          sharedFile(hopHome, "lib/core/shared.jar").getAction());
+
+      // The user replaces the jar by hand, then the same version is installed again.
+      Files.writeString(hopHome.resolve("lib/core/shared.jar"), "shared-lib");
+      Files.delete(hopHome.resolve("plugins/tech/test/plugin.jar"));
+      install(hopHome, server, "1.0.0");
+      assertEquals(
+          InstallReceipt.SharedFileAction.UNCHANGED,
+          sharedFile(hopHome, "lib/core/shared.jar").getAction());
+    } finally {
+      Files.setPosixFilePermissions(backupDir, PosixFilePermissions.fromString("rwxr-xr-x"));
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void sharedJarAnUpdateNoLongerShipsStaysInTheReceipt() throws Exception {
+    HttpServer server =
+        versionServer(
+            TEST_PLUGIN,
+            Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip(), "3.0.0", version3Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-not-shipped");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      install(hopHome, server, "1.0.0");
+      install(hopHome, server, "2.0.0");
+
+      InstallReceipt.SharedFile dropped = sharedFile(hopHome, "lib/core/shared-1.0.jar");
+      assertEquals(InstallReceipt.SharedFileAction.NOT_SHIPPED, dropped.getAction());
+      assertTrue(dropped.isCreatedByMarketplace());
+      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")), "sticky");
+
+      install(hopHome, server, "3.0.0");
+      assertEquals(
+          InstallReceipt.SharedFileAction.NOT_SHIPPED,
+          sharedFile(hopHome, "lib/core/shared-1.0.jar").getAction());
+      assertEquals(
+          InstallReceipt.SharedFileAction.NOT_SHIPPED,
+          sharedFile(hopHome, "lib/core/shared-2.0.jar").getAction());
+
+      // Once the file is gone, the next install drops the entry.
+      Files.delete(hopHome.resolve("lib/core/shared-1.0.jar"));
+      Files.delete(hopHome.resolve("plugins/tech/test/plugin.jar"));
+      install(hopHome, server, "3.0.0");
+      assertNull(sharedFile(hopHome, "lib/core/shared-1.0.jar"));
+      assertNotNull(sharedFile(hopHome, "lib/core/shared-2.0.jar"));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void stagedPluginsSharingAJarBothRecordThatTheMarketplaceCreatedIt() throws Exception {
+    Map<String, String> a = new LinkedHashMap<>();
+    a.put("plugins/tech/test/plugin.jar", "plugin-1");
+    a.put("lib/core/common.jar", "common");
+    Map<String, String> b = new LinkedHashMap<>();
+    b.put("plugins/tech/other/other.jar", "other");
+    b.put("lib/core/common.jar", "common");
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", zip(a)));
+    serve(server, "hop-other-plugin", "1.0.0", zip(b));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-staged-both");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+      installer.install(new MavenCoordinates("org.apache.hop", "hop-other-plugin", "1.0.0"), false);
+
+      installer.activateAllPending();
+
+      for (String artifactId : List.of(TEST_PLUGIN, "hop-other-plugin")) {
+        InstallReceipt.SharedFile common =
+            PluginInstaller.readReceipt(hopHome, artifactId)
+                .getSharedFiles()
+                .get("lib/core/common.jar");
+        assertTrue(common.isCreatedByMarketplace(), artifactId);
+      }
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void stagedInstallRecordsSharedJarsWhenActivated() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-staged-shared");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      InstallReceipt staged =
+          installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+      assertTrue(staged.getSharedFiles().isEmpty(), "nothing is activated yet");
+      assertEquals(4, staged.getChecksums().size());
+
+      installer.activateAllPending();
+
+      InstallReceipt.SharedFile shared = sharedFile(hopHome, "lib/core/shared-1.0.jar");
+      assertEquals(InstallReceipt.SharedFileAction.CREATED, shared.getAction());
+      assertTrue(shared.isCreatedByMarketplace());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void receiptWrittenByAnOlderVersionLoadsAndIsUpgradedOnUpdate() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-old-receipt");
+      Path receipts = hopHome.resolve(PluginInstaller.RECEIPTS_DIR);
+      Files.createDirectories(receipts);
+      Files.createDirectories(hopHome.resolve("plugins/tech/test/lib"));
+      Files.writeString(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar"), "dep-1.0");
+      // As written by Hop 2.20
+      Files.writeString(
+          receipts.resolve(TEST_PLUGIN + ".json"),
+          "{\"groupId\":\"org.apache.hop\",\"artifactId\":\"hop-test-plugin\","
+              + "\"version\":\"1.0.0\",\"installedAt\":\"2026-10-01T10:00:00Z\","
+              + "\"repositoryId\":\"local\",\"repositoryUrl\":\"http://localhost/\","
+              + "\"paths\":[\"plugins/tech/test\",\"plugins/tech/test/lib/dep-1.0.jar\"],"
+              + "\"pendingActivation\":false}");
+
+      InstallReceipt old = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      assertTrue(old.getChecksums().isEmpty());
+      assertTrue(old.getSharedFiles().isEmpty());
+      assertNull(old.getPreviousVersion());
+
+      InstallReceipt updated =
+          new PluginInstaller(
+                  new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+              .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      assertEquals("1.0.0", updated.getPreviousVersion());
+      assertEquals(sha256("plugin-2"), updated.getChecksums().get("plugins/tech/test/plugin.jar"));
+      assertEquals(
+          InstallReceipt.SharedFileAction.CREATED,
+          updated.getSharedFiles().get("lib/core/shared-2.0.jar").getAction());
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void previousVersionRules() {
+    assertNull(PluginInstaller.previousVersion(null, "2.0.0"));
+    InstallReceipt active = new InstallReceipt();
+    active.setVersion("1.0.0");
+    active.setPreviousVersion("0.9.0");
+    assertEquals("1.0.0", PluginInstaller.previousVersion(active, "2.0.0"));
+    assertEquals("0.9.0", PluginInstaller.previousVersion(active, "1.0.0"));
+    active.setPendingActivation(true);
+    assertEquals("0.9.0", PluginInstaller.previousVersion(active, "2.0.0"));
+  }
+
+  private static void install(Path hopHome, HttpServer server, String version) throws Exception {
+    new PluginInstaller(
+            new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()))
+        .install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, version), true);
+  }
+
+  @Test
+  void stagedPluginWhoseReceiptHasNoVersionStillActivates() throws Exception {
+    HttpServer server = versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-staged-no-version");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), false);
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"),
+          "{\"artifactId\":\"hop-test-plugin\",\"pendingActivation\":true}");
+
+      assertDoesNotThrow(installer::activateAllPending);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/plugin.jar")));
+      assertFalse(PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).isPendingActivation());
+    } finally {
+      server.stop(0);
+    }
   }
 
   @Test
@@ -1290,26 +1915,30 @@ class PluginInstallerTest {
       throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     for (Map.Entry<String, byte[]> entry : zipsByVersion.entrySet()) {
-      String version = entry.getKey();
-      byte[] zipBytes = entry.getValue();
-      server.createContext(
-          "/org/apache/hop/"
-              + artifactId
-              + "/"
-              + version
-              + "/"
-              + artifactId
-              + "-"
-              + version
-              + ".zip",
-          exchange -> {
-            exchange.getResponseHeaders().add("Content-Type", "application/zip");
-            exchange.sendResponseHeaders(200, zipBytes.length);
-            exchange.getResponseBody().write(zipBytes);
-            exchange.close();
-          });
+      serve(server, artifactId, entry.getKey(), entry.getValue());
     }
     return server;
+  }
+
+  private static void serve(HttpServer server, String artifactId, String version, byte[] zipBytes) {
+    server.createContext(
+        "/org/apache/hop/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".zip",
+        exchange -> {
+          exchange.getResponseHeaders().add("Content-Type", "application/zip");
+          exchange.sendResponseHeaders(200, zipBytes.length);
+          exchange.getResponseBody().write(zipBytes);
+          exchange.close();
+        });
+  }
+
+  private static String sha256(String content) {
+    return HexFormat.of()
+        .formatHex(PluginInstaller.sha256().digest(content.getBytes(StandardCharsets.UTF_8)));
+  }
+
+  private static InstallReceipt.SharedFile sharedFile(Path hopHome, String path)
+      throws HopException {
+    return PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getSharedFiles().get(path);
   }
 
   private static byte[] version1Zip() throws IOException {
