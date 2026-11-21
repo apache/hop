@@ -21,11 +21,15 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.ThreadUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.variables.IVariables;
@@ -115,6 +119,9 @@ public class ActionJoin extends ActionBase {
         if (completed) {
           result.setResult(success);
           result.setNrErrors(errors);
+          // One branch claims and starts the Join, so the Result we were given only holds that
+          // branch. Rebuild files and rows from every finished predecessor so nothing is dropped.
+          mergePredecessorResults(result, prevActions);
           break;
         }
       }
@@ -129,6 +136,38 @@ public class ActionJoin extends ActionBase {
     }
 
     return result;
+  }
+
+  /**
+   * Replace result files and rows with the union of every finished predecessor. Collect into local
+   * structures first so clearing the outgoing Result cannot empty a predecessor Result that happens
+   * to share the same lists. Unreachable predecessors are skipped. File paths are keyed so shared
+   * files inherited by parallel branches are not duplicated; rows are appended in predecessor
+   * order.
+   */
+  private void mergePredecessorResults(Result result, List<ActionMeta> prevActions) {
+    Map<String, ResultFile> mergedFiles = new ConcurrentHashMap<>();
+    List<RowMetaAndData> mergedRows = new ArrayList<>();
+
+    for (ActionMeta actionMeta : prevActions) {
+      Result actionResult = getFinishedActionResult(actionMeta);
+      if (actionResult == null) {
+        continue;
+      }
+
+      if (actionResult.getResultFiles() != null && !actionResult.getResultFiles().isEmpty()) {
+        mergedFiles.putAll(actionResult.getResultFiles());
+      }
+
+      if (actionResult.getRows() != null && !actionResult.getRows().isEmpty()) {
+        mergedRows.addAll(actionResult.getRows());
+      }
+    }
+
+    result.getResultFiles().clear();
+    result.getResultFiles().putAll(mergedFiles);
+    result.getRows().clear();
+    result.getRows().addAll(mergedRows);
   }
 
   @Override
