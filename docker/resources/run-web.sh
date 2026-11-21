@@ -341,6 +341,12 @@ install_jdbc_drivers
 # Download requested Marketplace plugins (HOP_PLUGINS_DOWNLOAD) before Tomcat starts.
 install_marketplace_plugins
 
+# Apply the plugin changes the marketplace could not make while Hop Web was running, before Tomcat
+# loads WEB-INF/lib and the plugins. The Hop scripts above do this as well; Tomcat does not.
+if [ -f "${DEPLOYMENT_PATH}/lib/apply-pending-changes.sh" ]; then
+  (cd "${DEPLOYMENT_PATH}" && sh lib/apply-pending-changes.sh "${HOP_PLUGIN_BASE_FOLDERS:-}")
+fi
+
 # if we have a /config/tomcat-users.xml file, copy it to the conf folder.
 if [ -f "/config/tomcat-users.xml" ]; then
     log "copying users file to /usr/local/tomcat/conf/"

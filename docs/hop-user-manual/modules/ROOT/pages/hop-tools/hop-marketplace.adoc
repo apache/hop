@@ -103,6 +103,21 @@ Uninstall removes the rest of the plugin in that case; run it again after closin
 The marketplace keeps an install receipt for each plugin in `plugins/.marketplace/`, with a SHA-256 checksum of every file it installed.
 When a plugin replaces a jar in `lib/core` that has other content, the old jar is first backed up to a new folder under `plugins/.marketplace/backup/<plugin>/<version>/`, where `<version>` is the version being installed.
 
+[[pending-changes]]
+=== Files in use
+
+Windows keeps the jars of a running Hop locked, so the marketplace cannot always replace or remove
+a file straight away. Such changes wait in `plugins/.marketplace/pending`, and the GUI and the CLI
+list them after the install. Every Hop launcher (`hop`, `hop-gui`, `hop-run`, ... and their `.bat`
+versions) and the Docker images make these changes before Java starts. A change that still fails,
+for example because another Hop is running from the same folder, stays in the list for the next
+start.
+
+Hop Web and Tomcat deployments without the Hop Docker image start without a Hop launcher. Run
+`sh lib/apply-pending-changes.sh "$HOP_PLUGIN_BASE_FOLDERS"` from the web application folder before
+Tomcat starts. On Windows, `lib\apply-pending-changes.cmd` reads `HOP_PLUGIN_BASE_FOLDERS` from the
+environment.
+
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
 

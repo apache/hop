@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRunnableWithProgress;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
@@ -42,6 +43,7 @@ import org.apache.hop.marketplace.env.EnvironmentApplier;
 import org.apache.hop.marketplace.env.HopInstallSpecFiles;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
+import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -81,6 +83,7 @@ public class MarketplaceDialog extends Dialog {
       "MarketplaceDialog.Status.RestartHint";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
+  private static final int MAX_PENDING_CHANGES_SHOWN = 15;
 
   /** Why the plugin table is being reloaded, which decides how the wait is presented. */
   private enum RefreshReason {
@@ -785,14 +788,15 @@ public class MarketplaceDialog extends Dialog {
                 ? "MarketplaceDialog.Install.Done.Header"
                 : "MarketplaceDialog.Install.Done.HeaderMultiple"));
     box.setMessage(
-        single
-            ? BaseMessages.getString(
-                PKG, "MarketplaceDialog.Install.Done.Message", outcome.installed().get(0))
-            : BaseMessages.getString(
-                PKG,
-                "MarketplaceDialog.Install.Done.MessageMultiple",
-                Integer.toString(outcome.installed().size()),
-                nameList(outcome.installed())));
+        (single
+                ? BaseMessages.getString(
+                    PKG, "MarketplaceDialog.Install.Done.Message", outcome.installed().get(0))
+                : BaseMessages.getString(
+                    PKG,
+                    "MarketplaceDialog.Install.Done.MessageMultiple",
+                    Integer.toString(outcome.installed().size()),
+                    nameList(outcome.installed())))
+            + pendingChangesNote(hopHome, log));
     box.open();
     wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
   }
@@ -1005,6 +1009,48 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
+    String pending = pendingChangesNote(hopHome, log);
+    if (!pending.isEmpty()) {
+      MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      box.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Pending.Header"));
+      box.setMessage(pending.strip());
+      box.open();
+    }
+  }
+
+  /**
+   * For a result message: the file changes Hop makes the next time it starts, because the files
+   * were in use. Empty when there are none.
+   */
+  static String pendingChangesNote(Path hopHome, ILogChannel log) {
+    if (hopHome == null) {
+      return "";
+    }
+    List<PendingChanges.PendingEffect> pending;
+    try {
+      pending = new PendingChanges(hopHome).effects();
+    } catch (HopException e) {
+      log.logError("Unable to read the pending marketplace changes", e);
+      return "";
+    }
+    if (pending.isEmpty()) {
+      return "";
+    }
+    int shown = Math.min(pending.size(), MAX_PENDING_CHANGES_SHOWN);
+    StringBuilder list = new StringBuilder();
+    for (PendingChanges.PendingEffect effect : pending.subList(0, shown)) {
+      list.append("\n- ")
+          .append(
+              BaseMessages.getString(
+                  PKG, "MarketplaceDialog.Pending." + effect.effect().getLabel(), effect.target()));
+    }
+    if (pending.size() > shown) {
+      list.append("\n")
+          .append(
+              BaseMessages.getString(
+                  PKG, "MarketplaceDialog.Pending.More", Integer.toString(pending.size() - shown)));
+    }
+    return "\n\n" + BaseMessages.getString(PKG, "MarketplaceDialog.Pending.Message") + list;
   }
 
   private void showUninstallError(List<String> artifactIds, Exception e) {

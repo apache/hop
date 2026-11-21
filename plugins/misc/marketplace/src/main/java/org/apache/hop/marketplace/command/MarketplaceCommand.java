@@ -50,6 +50,7 @@ import org.apache.hop.marketplace.env.HopInstallSpec;
 import org.apache.hop.marketplace.env.HopInstallSpecLoader;
 import org.apache.hop.marketplace.install.HopHome;
 import org.apache.hop.marketplace.install.InstallReceipt;
+import org.apache.hop.marketplace.install.PendingChanges;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
@@ -94,6 +95,24 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
     this.log = new LogChannel("Marketplace");
     // Wire nested subcommands (including marketplace repo *) with shared context
     wireSubcommands(cmd, log, variables);
+  }
+
+  /** The file changes left for the next Hop start because the files were in use, if any. */
+  static void printPendingChanges(Path hopHome, ILogChannel log) {
+    try {
+      List<String> pending = new PendingChanges(hopHome).describe();
+      if (pending.isEmpty()) {
+        return;
+      }
+      System.out.println("Some files are in use. Hop makes these changes the next time it starts:");
+      for (String line : pending) {
+        System.out.println("  " + line);
+      }
+    } catch (HopException e) {
+      if (log != null) {
+        log.logError("Unable to read the pending marketplace changes", e);
+      }
+    }
   }
 
   private static void wireSubcommands(
@@ -293,6 +312,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
                   + hopHome
                   + ". Restart Hop to load them.");
         }
+        printPendingChanges(hopHome, log);
         if (!failed.isEmpty()) {
           throw new CommandLine.ExecutionException(
               new CommandLine(this), "failed to install: " + String.join(", ", failed));
@@ -440,6 +460,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
         Path hopHome = HopHome.resolve();
         new PluginUninstaller(log, hopHome).uninstall(artifactId);
         System.out.println("Uninstalled " + artifactId + ". Restart Hop.");
+        printPendingChanges(hopHome, log);
       } catch (Exception e) {
         System.err.println(CONST_ERROR + e.getMessage());
         throw new CommandLine.ExecutionException(
@@ -648,6 +669,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
             "Install spec applied from "
                 + envPath
                 + ". Restart Hop (or re-run) so new plugins are loaded.");
+        printPendingChanges(hopHome, log);
       } catch (Exception e) {
         System.err.println(CONST_ERROR + e.getMessage());
         if (log != null) {
