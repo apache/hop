@@ -1,0 +1,57 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+
+:description: Experimental transform that reads a large SOQL query with Bulk API 2.0.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-marketplace: hop-tech-salesforce
+
+= image:transforms/icons/salesforcebulkinput.svg[Salesforce bulk input transform icon, role="image-doc-icon"] Salesforce bulk input
+
+== Description
+
+WARNING: This transform is experimental. The dialog and the saved pipeline may still change.
+
+Salesforce bulk input runs a SOQL query as a Bulk API 2.0 query job and reads the CSV result pages.
+Use it for a large extract.
+xref:pipeline/transforms/salesforceinput.adoc[Salesforce Input] remains the SOAP query, including module browse and the deleted-record filter.
+
+`Query all` includes deleted and archived rows.
+Bulk query does not support aggregates, `GROUP BY`, `OFFSET`, or `TYPEOF`.
+Primary-key chunking is automatic.
+An empty CSV field becomes a null.
+Dates are read as UTC timestamps in ISO-8601 form.
+
+The connection is the same xref:metadata-types/salesforce-connection.adoc[Salesforce connection] used by Salesforce bulk load.
+
+== Options
+
+* *Salesforce connection*. The connection metadata.
+* *Operation*. Query, or query all.
+* *SOQL*. The query text. Variables are resolved.
+* *Timeout* and *Poll interval*. Seconds to wait for the job, and how often to ask for its state.
+* *Maximum rows*. Stop after this many rows. 0 reads every row Salesforce returns.
+* *Job id field*. Optional output field for the Bulk API job id.
+
+Each output field name must match a column in the result, including case.
+The type is String, Integer, Number, BigNumber, Date, Timestamp, or Boolean.
+
+== Limits
+
+A query job can return up to 15 files of 1 GB.
+An org can run 10,000 query jobs and return 1 TB of query results per rolling 24 hours.
