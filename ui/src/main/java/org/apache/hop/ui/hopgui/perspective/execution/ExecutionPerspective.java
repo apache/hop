@@ -68,6 +68,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -111,6 +112,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -163,13 +165,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       "ExecutionPerspective-Toolbar-10700-TimeFilter";
   public static final String TOOLBAR_ITEM_CLEAR_FILTERS =
       "ExecutionPerspective-Toolbar-80000-ClearFilters";
-  public static final String TOOLBAR_ITEM_FILTER_TEXT =
-      "ExecutionPerspective-Toolbar-90000-FilterText";
 
   public static final String KEY_HELP = "Help";
   public static final String CONST_ERROR = "error";
   public static final String CONST_ERROR1 = "Error";
-  public static final String FILTER_NAME_DATE_ID = "name - date - ID";
+
+  /** Placeholder that older versions stored as the filter text, read back as no filter. */
+  private static final String FILTER_NAME_DATE_ID = "name - date - ID";
 
   /** Tree item data key for the empty-state "configure locations" placeholder. */
   public static final String CONFIGURE_LOCATIONS = "configure-locations";
@@ -206,6 +208,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private CTabFolder tabFolder;
   private Control toolBar;
   private GuiToolbarWidgets toolBarWidgets;
+  private Text searchText;
+
+  /** Debounced search action so we don't query the locations on every keystroke. */
+  private final Runnable filterRunnable = this::applySearchFilter;
+
+  /** True while the search text is set from code, so that it does not schedule a refresh. */
+  private boolean settingSearchText;
 
   private final List<IExecutionViewer> viewers = new ArrayList<>();
 
@@ -333,52 +342,54 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @Override
   public void clearSearchFilters() {
     filterText = "";
-    setFilterTextOnToolbar("");
+    setSearchText("");
     if (hopGui != null && hopGui.isActivePerspective(this)) {
       refresh();
     }
   }
 
-  /**
-   * Read the free-text filter from the toolbar into {@link #filterText}. Treats the placeholder
-   * label as empty. Does not modify the widget.
-   */
-  private void syncFilterTextFromToolbar() {
-    if (toolBarWidgets == null) {
+  /** Read the search filter from the search box into {@link #filterText}. */
+  private void syncFilterTextFromSearch() {
+    if (searchText == null || searchText.isDisposed()) {
       return;
     }
-    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
-    if (text == null) {
-      return;
-    }
-    String value = Const.NVL(text.getText(), "").trim();
-    if (FILTER_NAME_DATE_ID.equals(value)) {
-      value = "";
-    }
-    this.filterText = value;
+    String value = Const.NVL(searchText.getText(), "").trim();
+    // Not enough characters to search
+    this.filterText = value.length() < 3 ? "" : value;
   }
 
-  private void setFilterTextOnToolbar(String value) {
-    Text text = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
-    if (text != null) {
-      text.setText(Const.NVL(value, ""));
+  /** Set the search box text without scheduling a refresh. */
+  private void setSearchText(String value) {
+    if (searchText == null || searchText.isDisposed()) {
+      return;
+    }
+    settingSearchText = true;
+    try {
+      searchText.setText(Const.NVL(value, ""));
+    } finally {
+      settingSearchText = false;
     }
   }
 
-  private Text getToolbarText(String id) {
-    if (toolBarWidgets == null) {
-      return null;
+  /** Filter the tree on the search text, debounced so we don't refresh on every keystroke. */
+  private void scheduleSearchFilter() {
+    if (settingSearchText || searchText == null || searchText.isDisposed()) {
+      return;
     }
-    Control control = toolBarWidgets.getControlForMenu(id);
-    if (control instanceof Text text && !text.isDisposed()) {
-      return text;
+    Display display = searchText.getDisplay();
+    display.timerExec(-1, filterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, filterRunnable);
+  }
+
+  private void applySearchFilter() {
+    if (searchText == null || searchText.isDisposed()) {
+      return;
     }
-    // Desktop fallback: SEPARATOR ToolItem holding the Text
-    ToolItem item = toolBarWidgets.findToolItem(id);
-    if (item != null && !item.isDisposed() && item.getControl() instanceof Text text) {
-      return text;
+    String previous = Const.NVL(filterText, "");
+    syncFilterTextFromSearch();
+    if (!previous.equals(filterText)) {
+      refresh();
     }
-    return null;
   }
 
   private Combo getToolbarCombo(String id) {
@@ -404,15 +415,45 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTree(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
-
     // Create composite
     //
-    Composite composite = new Composite(parent, SWT.BORDER);
+    Composite treeComposite = new Composite(parent, SWT.NONE);
     FormLayout layout = new FormLayout();
     layout.marginWidth = 0;
     layout.marginHeight = 0;
-    composite.setLayout(layout);
+    treeComposite.setLayout(layout);
+
+    // Create search/filter text box
+    //
+    searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
+    searchText.setMessage(BaseMessages.getString(PKG, "ExecutionPerspective.Search.Placeholder"));
+    searchText.setToolTipText(BaseMessages.getString(PKG, "ExecutionPerspective.Search.Tooltip"));
+    PropsUi.setLook(searchText);
+    FormData searchFormData = new FormData();
+    searchFormData.left = new FormAttachment(0, 0);
+    searchFormData.top = new FormAttachment(0, 0);
+    searchFormData.right = new FormAttachment(100, 0);
+    searchText.setLayoutData(searchFormData);
+
+    // Filter once typing pauses, or right away on Enter.
+    searchText.addListener(SWT.Modify, e -> scheduleSearchFilter());
+    searchText.addListener(
+        SWT.DefaultSelection,
+        e -> {
+          searchText.getDisplay().timerExec(-1, filterRunnable);
+          applySearchFilter();
+        });
+
+    // Create a composite with toolbar and tree for the border
+    //
+    Composite composite = new Composite(treeComposite, SWT.BORDER);
+    composite.setLayout(new FormLayout());
+    FormData compositeFormData = new FormData();
+    compositeFormData.left = new FormAttachment(0, 0);
+    compositeFormData.top = new FormAttachment(searchText, PropsUi.getMargin());
+    compositeFormData.right = new FormAttachment(100, 0);
+    compositeFormData.bottom = new FormAttachment(100, 0);
+    composite.setLayoutData(compositeFormData);
 
     // Create toolbar
     //
@@ -429,21 +470,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     toolBar.setLayoutData(layoutData);
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
-
-    // Ensure Enter in the free-text filter applies the filter (GTK toolbar Text often does not
-    // fire DefaultSelection). GuiToolbarWidgets also wires this; keep a local handler as a
-    // fallback when the toolbar listener instance mapping is incomplete.
-    Text filterTextWidget = getToolbarText(TOOLBAR_ITEM_FILTER_TEXT);
-    if (filterTextWidget != null && !filterTextWidget.isDisposed()) {
-      filterTextWidget.addListener(
-          SWT.KeyDown,
-          event -> {
-            if (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR) {
-              selectTextFilter();
-              event.doit = false;
-            }
-          });
-    }
 
     tree = new Tree(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
@@ -907,7 +933,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     }
 
     // Always pick up whatever is currently in the filter box (including text typed without Enter).
-    syncFilterTextFromToolbar();
+    syncFilterTextFromSearch();
 
     Cursor busyCursor = getBusyCursor();
 
@@ -1203,24 +1229,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     this.onlyShowingFailed = false;
     this.filterText = "";
 
-    // Clear the box (empty, not the placeholder string as a real filter value).
-    // The filter box itself can be switched off in disabledGuiElements.xml while this button is
-    // not, in which case there is no box to clear.
-    setFilterTextOnToolbar("");
-
-    // Update the icon && apply the filter
-    updateGui();
-    refresh();
-  }
-
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_FILTER_TEXT,
-      toolTip = "i18n::ExecutionPerspective.ToolbarElement.FilterText.Tooltip",
-      type = GuiToolbarElementType.TEXT,
-      defaultText = FILTER_NAME_DATE_ID)
-  public void selectTextFilter() {
-    syncFilterTextFromToolbar();
+    // Clear the search box
+    setSearchText("");
 
     // Update the icon && apply the filter
     updateGui();
@@ -1986,8 +1996,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
       String activeKey = toolbarState.extractString(AUDIT_ACTIVE_TAB, "");
 
-      // Restore filter text onto the widget before updateGui/refresh (updateGui does not write it).
-      setFilterTextOnToolbar(filterText);
+      // Restore the search text before refresh(), which reads the filter from the search box.
+      setSearchText(filterText);
       updateGui();
       refresh();
 

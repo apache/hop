@@ -125,7 +125,6 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
   /** {@link TreeMemory} key for schema/catalog expand-collapse across filter and refresh. */
   public static final String TREE_MEMORY_KEY = "DatabaseWorkbench-Tree";
 
-  private static final int FILTER_DEBOUNCE_MS = 250;
   private static final String RIGHT_SASH_KEY = "database-workbench-right-sash";
 
   private final IDatabaseWorkbenchHost host;
@@ -171,6 +170,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
 
     searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     searchText.setMessage(BaseMessages.getString(PKG, "DatabasePerspective.Search.Placeholder"));
+    searchText.setToolTipText(BaseMessages.getString(PKG, "DatabasePerspective.Search.Tooltip"));
     PropsUi.setLook(searchText);
     searchText.setLayoutData(new FormDataBuilder().top().fullWidth().result());
     searchText.addListener(SWT.Modify, e -> scheduleFilterApply());
@@ -453,7 +453,7 @@ public class DatabaseWorkbench extends Composite implements TabClosable {
       return;
     }
     display.timerExec(-1, applyFilterRunnable);
-    display.timerExec(FILTER_DEBOUNCE_MS, applyFilterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, applyFilterRunnable);
   }
 
   private void cancelScheduledFilterApply() {
