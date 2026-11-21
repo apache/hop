@@ -18,6 +18,7 @@
 package org.apache.hop.mongo.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -251,6 +253,68 @@ class MongoDbConnectionTest {
 
     assertTrue(connStr.startsWith("mongodb+srv://"));
     assertTrue(!connStr.contains(":27017")); // Port should not be in SRV connection string
+  }
+
+  @Test
+  void testConnectionTestReportResolvesVariables() {
+    IVariables resolving = new Variables();
+    resolving.setVariable("MONGO_HOST", "db.example.com");
+    resolving.setVariable("MONGO_PORT", "27018");
+    resolving.setVariable("MONGO_DATABASE", "sales");
+    resolving.setVariable("MONGO_AUTH_DATABASE", "admin");
+    resolving.setVariable("MONGO_USER", "hop");
+    connection.setHostname("${MONGO_HOST}");
+    connection.setPort("${MONGO_PORT}");
+    connection.setDbName("${MONGO_DATABASE}");
+    connection.setAuthenticationDatabaseName("${MONGO_AUTH_DATABASE}");
+    connection.setAuthenticationUser("${MONGO_USER}");
+
+    String report = connection.getConnectionTestReport(resolving);
+
+    assertTrue(report.contains("Hostname:\tdb.example.com"), report);
+    assertTrue(report.contains("Port:\t27018"), report);
+    assertTrue(report.contains("Database name:\tsales"), report);
+    assertTrue(report.contains("Authentication database:\tadmin"), report);
+    assertTrue(report.contains("Username:\thop"), report);
+    assertTrue(report.contains("Url:\tmongodb://db.example.com:27018/sales"), report);
+  }
+
+  @Test
+  void testConnectionTestReportLeavesOutThePassword() {
+    connection.setHostname("localhost");
+    connection.setPort("27017");
+    connection.setDbName("testdb");
+    connection.setAuthenticationUser("hop");
+    connection.setAuthenticationPassword("s3cret-value");
+
+    String report = connection.getConnectionTestReport(variables);
+
+    assertFalse(report.contains("s3cret-value"), report);
+    assertTrue(report.contains("Url:\tmongodb://localhost:27017/testdb"), report);
+  }
+
+  @Test
+  void testConnectionTestReportSrvHasNoPort() {
+    connection.setConnectionType(MongoDbConnectionType.SRV);
+    connection.setHostname("cluster.mongodb.net");
+    connection.setPort("27017");
+    connection.setDbName("testdb");
+
+    String report = connection.getConnectionTestReport(variables);
+
+    assertFalse(report.contains("Port:"), report);
+    assertTrue(report.contains("Url:\tmongodb+srv://cluster.mongodb.net/testdb?ssl=true"), report);
+  }
+
+  @Test
+  void testConnectionTestReportSkipsEmptyAuthenticationSettings() {
+    connection.setHostname("localhost");
+    connection.setDbName("testdb");
+
+    String report = connection.getConnectionTestReport(variables);
+
+    assertFalse(report.contains("Authentication database:"), report);
+    assertFalse(report.contains("Username:"), report);
   }
 
   @Test

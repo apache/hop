@@ -1576,6 +1576,47 @@ class PluginInstallerTest {
   }
 
   @Test
+  void leftoverIsRetriedWithoutAStagingFolderAndAReceiptProblemDoesNotFailTheRun()
+      throws Exception {
+    Path hopHome = tempDir.resolve("hop-leftover-retry");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    Path receiptFile = hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json");
+    try {
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+
+      // The receipt cannot be rewritten: the retry logs it and the run carries on.
+      Files.setPosixFilePermissions(receiptFile, PosixFilePermissions.fromString("r--r--r--"));
+      PluginInstaller.deleteRecursive(hopHome.resolve(PluginInstaller.STAGING_DIR));
+      assertDoesNotThrow(installer::activateAllPending);
+      assertFalse(
+          Files.exists(samples.resolve("sample.hpl")),
+          "the leftover is retried even when there is no staging folder");
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      if (Files.exists(receiptFile)) {
+        Files.setPosixFilePermissions(receiptFile, PosixFilePermissions.fromString("rw-r--r--"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
   void obsoletePathsRules() {
     InstallReceipt previous = new InstallReceipt();
     previous.setPaths(

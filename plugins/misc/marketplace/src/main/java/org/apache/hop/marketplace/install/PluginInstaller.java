@@ -331,9 +331,13 @@ public class PluginInstaller {
   /** Activate all staged plugins (startup hook). */
   public void activateAllPending() throws HopException {
     Path staging = hopHome.resolve(STAGING_DIR);
-    if (!Files.isDirectory(staging)) {
-      return;
+    if (Files.isDirectory(staging)) {
+      activateStagedFolders(staging);
     }
+    removeLeftoverObsoleteFiles();
+  }
+
+  private void activateStagedFolders(Path staging) throws HopException {
     try {
       try (var stream = Files.list(staging)) {
         for (Path staged : stream.filter(Files::isDirectory).toList()) {
@@ -380,7 +384,6 @@ public class PluginInstaller {
           log.logBasic("Activated staged plugin: " + artifactId);
         }
       }
-      removeLeftoverObsoleteFiles();
     } catch (IOException e) {
       throw new HopException("Failed to activate staged plugins", e);
     }
@@ -633,12 +636,30 @@ public class PluginInstaller {
     return false;
   }
 
-  /** Retry the obsolete files that earlier installs could not remove. */
-  private void removeLeftoverObsoleteFiles() throws HopException {
-    for (InstallReceipt receipt : readAllReceipts()) {
-      if (!receipt.isPendingActivation() && !nullSafe(receipt.getObsoletePaths()).isEmpty()) {
+  /**
+   * Retry the obsolete files that earlier installs could not remove. Best effort: a problem with
+   * one receipt is logged and does not stop the install or apply that runs this.
+   */
+  private void removeLeftoverObsoleteFiles() {
+    List<InstallReceipt> receipts;
+    try {
+      receipts = readAllReceipts();
+    } catch (HopException e) {
+      log.logError("Could not read the marketplace install receipts to remove leftover files", e);
+      return;
+    }
+    for (InstallReceipt receipt : receipts) {
+      if (receipt.isPendingActivation() || nullSafe(receipt.getObsoletePaths()).isEmpty()) {
+        continue;
+      }
+      try {
         removeObsoleteFiles(receipt);
         writeReceipt(receipt);
+      } catch (HopException e) {
+        log.logError(
+            "Could not remove the leftover files of the previous version of "
+                + receipt.getArtifactId(),
+            e);
       }
     }
   }

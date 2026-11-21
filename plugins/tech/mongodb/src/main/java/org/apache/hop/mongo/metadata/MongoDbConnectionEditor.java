@@ -24,10 +24,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
@@ -48,6 +48,8 @@ import org.eclipse.swt.widgets.Label;
 
 public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     implements IMetadataEditor<MongoDbConnection> {
+
+  private static final Class<?> PKG = MongoDbConnectionEditor.class;
 
   public static final String PARENT_WIDGET_ID = "MongoDbConnectionEditor.Widgets.ParentId";
 
@@ -141,16 +143,31 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
   }
 
   public void test() {
+    MongoDbConnection meta = new MongoDbConnection();
+    String details = "";
     try {
-      MongoDbConnection meta = new MongoDbConnection();
       getWidgetsContent(meta);
-      meta.test(manager.getVariables(), LogChannel.UI);
-      MessageBox box = new MessageBox(parent.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-      box.setText("Success!");
-      box.setMessage("Connected successfully!");
-      box.open();
+      IVariables variables = manager.getVariables();
+      details = meta.getConnectionTestReport(variables);
+      meta.test(variables, LogChannel.UI);
+      new ShowMessageDialog(
+              parent.getShell(),
+              SWT.ICON_INFORMATION | SWT.OK,
+              BaseMessages.getString(PKG, "MongoMetadata.TestReport.Success.Title"),
+              BaseMessages.getString(PKG, "MongoMetadata.TestReport.ConnectionOk", meta.getName())
+                  + Const.CR
+                  + Const.CR
+                  + details)
+          .open();
     } catch (Exception e) {
-      new ErrorDialog(parent.getShell(), "Error", "We couldn't connect using this information", e);
+      new ErrorDialog(
+          parent.getShell(),
+          BaseMessages.getString(PKG, "MongoMetadata.TestReport.Error.Title"),
+          BaseMessages.getString(PKG, "MongoMetadata.TestReport.ConnectionError", meta.getName())
+              + Const.CR
+              + Const.CR
+              + details,
+          e);
     }
   }
 
