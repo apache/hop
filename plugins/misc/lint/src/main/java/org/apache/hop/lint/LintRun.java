@@ -349,7 +349,7 @@ public class LintRun {
       if (name.regionMatches(true, 0, "file:", 0, 5)) {
         path = Paths.get(URI.create(name));
       } else if (name.matches("^[A-Za-z][A-Za-z0-9+.-]+://.*")) {
-        return name;
+        return withoutCredentials(name);
       } else {
         path = Paths.get(name);
       }
@@ -363,6 +363,33 @@ public class LintRun {
       return path.getFileName() == null ? "" : path.getFileName().toString();
     }
     return base.relativize(path).toString().replace('\\', '/');
+  }
+
+  /**
+   * A remote location without what can carry a credential: the user and password before the host,
+   * the query and the fragment. The Run Linter action passes the location with its variables
+   * resolved, so {@code sftp://${USER}:${PASSWORD}@host/baseline.json} would otherwise put the
+   * password in a report that is uploaded and kept.
+   */
+  static String withoutCredentials(String url) {
+    // The user info first, ending where Commons VFS ends it, at the first '/' or '?': a '#' in a
+    // password must not be read as the start of the fragment and leave the user and part of it.
+    int authorityStart = url.indexOf("://") + 3;
+    int authorityEnd = authorityStart;
+    while (authorityEnd < url.length() && "/?".indexOf(url.charAt(authorityEnd)) < 0) {
+      authorityEnd++;
+    }
+    int at = url.lastIndexOf('@', authorityEnd - 1);
+    String location =
+        at >= authorityStart ? url.substring(0, authorityStart) + url.substring(at + 1) : url;
+    int cut = location.length();
+    for (char c : new char[] {'?', '#'}) {
+      int index = location.indexOf(c, authorityStart);
+      if (index >= 0 && index < cut) {
+        cut = index;
+      }
+    }
+    return location.substring(0, cut);
   }
 
   /**

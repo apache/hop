@@ -173,11 +173,12 @@ public final class LintReportWriter {
         String id = rule.generateRuleId();
         if (!ruleIndex.containsKey(id)) {
           ruleIndex.put(id, rules.size());
+          LintRuleDetails details = LintRuleDetails.of(rule);
           putRule(
               rules.addObject(),
               id,
-              Utils.isEmpty(rule.getName()) ? id : rule.getName(),
-              LintRuleDetails.of(rule),
+              shortDescription(id, null, details),
+              details,
               rule.getSeverity());
         }
       }
@@ -235,6 +236,12 @@ public final class LintReportWriter {
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root) + "\n";
   }
 
+  /**
+   * Declare a rule. A rule is described the same whether it is declared from the run's rules or
+   * from its findings, so two reports of one rule do not differ in how they describe it.
+   *
+   * @param severity the finding's severity, used when the details do not carry the rule's own
+   */
   private static void putRule(
       ObjectNode rule,
       String id,
@@ -253,7 +260,8 @@ public final class LintReportWriter {
     if (details.helpUri() != null && !details.helpUri().isBlank()) {
       rule.put("helpUri", details.helpUri());
     }
-    rule.putObject("defaultConfiguration").put("level", sarifLevel(severity));
+    rule.putObject("defaultConfiguration")
+        .put("level", sarifLevel(details.severity().isBlank() ? severity : details.severity()));
     if (details.hasTags()) {
       ObjectNode properties = rule.putObject("properties");
       // GitHub code scanning and Azure DevOps read tags as a flat list of strings, so a key with
@@ -317,15 +325,24 @@ public final class LintReportWriter {
   }
 
   /**
-   * A remark from Hop's own checks carries the transform or action it was reported on as its rule
-   * name, so the first one reported would describe the rule for every finding of it. Those take the
-   * name of the native rule that classified them, or the rule id.
+   * The rule's name, or its id when it has none.
+   *
+   * <p>A remark from Hop's own checks carries the transform or action it was reported on as its
+   * rule name, so the first one reported would describe the rule for every finding of it. Those
+   * take the name of the native rule that classified them, or the rule id.
+   *
+   * @param result the finding the rule is declared from, or null when declared from the rule
    */
   private static String shortDescription(String id, LintResult result, LintRuleDetails details) {
-    if (result.getOrigin() == LintResult.Origin.HOP_NATIVE) {
-      return details.name().isBlank() ? id : details.name();
+    if (!details.name().isBlank()) {
+      return details.name();
     }
-    return result.getRuleName() != null ? result.getRuleName() : id;
+    if (result != null
+        && result.getOrigin() != LintResult.Origin.HOP_NATIVE
+        && !Utils.isEmpty(result.getRuleName())) {
+      return result.getRuleName();
+    }
+    return id;
   }
 
   private static String sarifLevel(String severity) {

@@ -413,6 +413,47 @@ public class LintReportWriterTest {
     assertFalse(packs.get(1).has("version"), "a pack without a version gets none");
   }
 
+  /**
+   * A rule is declared from the run's rules when the run is passed, and from its findings when not.
+   * Both described it, but from different sources: a WARNING rule that could not run, which reports
+   * an ERROR, and a rule without a name came out differently, which tools comparing reports showed
+   * as a change.
+   */
+  @Test
+  void sarifDescribesARuleTheSameFromTheRunOrFromItsFindings() throws Exception {
+    CustomLintRule warning = enabledRule("OPT-002", "PostgreSQL without TLS", "WARNING");
+    CustomLintRule unnamed = enabledRule("OPT-003", "", "INFO");
+    List<LintResult> results =
+        List.of(
+            new LintResult(
+                    "OPT-002",
+                    "PostgreSQL without TLS",
+                    "ERROR",
+                    "Rule execution failed: the URL of connection 'CRM' cannot be built",
+                    PROJECT.resolve("metadata/rdbms/CRM.json").toString(),
+                    LintSourceRef.metadata("CRM"),
+                    LintResult.Origin.LINT)
+                .withRuleDetails(LintRuleDetails.of(warning)),
+            new LintResult(
+                    "OPT-003",
+                    "",
+                    "INFO",
+                    "No application name",
+                    PROJECT.resolve("metadata/rdbms/CRM.json").toString(),
+                    LintSourceRef.metadata("CRM"),
+                    LintResult.Origin.LINT)
+                .withRuleDetails(LintRuleDetails.of(unnamed)));
+    LintInvocation run =
+        new LintInvocation(true, 1, List.of(warning, unnamed), List.of(), Map.of());
+
+    JsonNode fromTheRun = sarifRun(results, run).get("tool").get("driver").get("rules");
+    JsonNode fromTheFindings = sarifRun(results, null).get("tool").get("driver").get("rules");
+
+    assertEquals(fromTheRun, fromTheFindings);
+    assertEquals("warning", fromTheRun.get(0).get("defaultConfiguration").get("level").asText());
+    assertEquals("OPT-003", fromTheRun.get(1).get("shortDescription").get("text").asText());
+  }
+
   /** Findings that do not come from one run, such as the GUI's, have no invocation to record. */
   @Test
   void sarifWithoutAnInvocationDeclaresTheFindingsRulesOnly() throws Exception {

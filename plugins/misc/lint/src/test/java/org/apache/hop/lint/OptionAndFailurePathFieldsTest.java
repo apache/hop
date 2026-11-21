@@ -23,10 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.NoneDatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -53,10 +60,29 @@ class OptionAndFailurePathFieldsTest {
 
   private static final String TLS = "sslmode=(require|verify-ca|verify-full)";
 
+  /** A type that extends another, as Redshift and Greenplum extend PostgreSQL. */
+  @DatabaseMetaPlugin(type = "LINT_CHILD", typeDescription = "Lint test: extends NONE")
+  public static class ChildOfNoneDatabaseMeta extends NoneDatabaseMeta {}
+
+  /** A type that cannot build a URL for the connection. */
+  @DatabaseMetaPlugin(type = "LINT_NO_URL", typeDescription = "Lint test: no URL")
+  public static class NoUrlDatabaseMeta extends NoneDatabaseMeta {
+    @Override
+    public String getURL(String hostname, String port, String databaseName)
+        throws HopDatabaseException {
+      throw new HopDatabaseException("no host given");
+    }
+  }
+
   @BeforeAll
   static void initHop() throws Exception {
     // The connection types, to append extra options to a URL.
     HopEnvironment.init();
+    for (Class<?> type : List.of(ChildOfNoneDatabaseMeta.class, NoUrlDatabaseMeta.class)) {
+      PluginRegistry.getInstance()
+          .registerPluginClass(type.getName(), DatabasePluginType.class, DatabaseMetaPlugin.class);
+    }
+    DatabaseMeta.clearDatabaseInterfacesMap();
   }
 
   @AfterEach
@@ -203,6 +229,30 @@ class OptionAndFailurePathFieldsTest {
     assertEquals(1, lint(has, connection("sslmode", "")).size(), "no value");
   }
 
+  /**
+   * Hop also puts an option stored for the type a connection's type extends in its URL: a
+   * PostgreSQL sslmode on a Redshift connection. The rule must see what Hop uses.
+   */
+  @Test
+  void anOptionOfTheTypeAConnectionExtendsCounts() throws Exception {
+    DatabaseMeta child = connection();
+    child.setDatabaseType("LINT_CHILD");
+    child.addExtraOption("NONE", "sslmode", "require");
+    CustomLintRule has =
+        rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.HAS_OPTION, "sslmode");
+    CustomLintRule matches =
+        rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.OPTION_MATCHES, TLS);
+
+    assertTrue(child.getURL(new Variables()).contains("sslmode=require"), "Hop uses it");
+    assertTrue(lint(has, child).isEmpty(), lint(has, child).toString());
+    assertTrue(lint(matches, child).isEmpty(), lint(matches, child).toString());
+
+    DatabaseMeta parent = connection();
+    parent.addExtraOption("LINT_CHILD", "sslmode", "require");
+    assertFalse(parent.getURL(new Variables()).contains("sslmode"), "Hop does not use it");
+    assertEquals(1, lint(has, parent).size(), "the child's option on the parent type");
+  }
+
   /** The executor reads the value as the rule editor checked it. */
   @Test
   void optionMatchesTrimsTheNameAndThePattern() {
@@ -266,6 +316,38 @@ class OptionAndFailurePathFieldsTest {
     assertFalse(results.get(0).getMessage().contains("hunter2"), results.get(0).getMessage());
     assertFalse(
         results.get(0).getMessage().contains("sslmode=disable"), results.get(0).getMessage());
+  }
+
+  /**
+   * A URL that cannot be built read as no URL, and a pattern rule passes no value: the TLS rule
+   * reported nothing for the connection. It is an error on the rule for that connection instead.
+   */
+  @Test
+  void aUrlThatCannotBeBuiltIsAnErrorNotAPass() {
+    DatabaseMeta databaseMeta = connection();
+    databaseMeta.setDatabaseType("LINT_NO_URL");
+    CustomLintRule url =
+        rule(
+            RuleTarget.DATABASE_CONNECTION,
+            "url",
+            RuleCondition.MATCHES_PATTERN,
+            ".*sslmode=require.*");
+
+    List<LintResult> results = lint(url, databaseMeta);
+
+    assertEquals(1, results.size());
+    assertEquals("ERROR", results.get(0).getSeverity());
+    assertTrue(results.get(0).getMessage().contains("cannot be built"), results.toString());
+
+    // The same as the second clause of an allOf rule, as OPT-002 in the integration tests.
+    CustomLintRule composed =
+        rule(RuleTarget.DATABASE_CONNECTION, "attributes", RuleCondition.HAS_OPTION, "sslmode");
+    composed.setAdditionalClauses(
+        new ArrayList<>(
+            List.of(new RuleClause("url", RuleCondition.MATCHES_PATTERN, ".*sslmode=require.*"))));
+    results = lint(composed, databaseMeta);
+    assertEquals(1, results.size());
+    assertEquals("ERROR", results.get(0).getSeverity());
   }
 
   /** Variables and variable resolvers stay as written: linting must not reach a vault. */

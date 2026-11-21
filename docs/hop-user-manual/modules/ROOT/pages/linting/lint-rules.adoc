@@ -148,7 +148,7 @@ The rule reports a PostgreSQL connection that sets `sslmode` neither as an extra
 |===
 
 The option conditions find an option by its own name, also when the map stores it under a prefix: a connection keeps its extra options as `EXTRA_OPTION_POSTGRESQL.sslmode`, and `sslmode` finds it.
-As when Hop builds the connection, an option without a value, or one stored for another database type, does not count.
+An option counts exactly when Hop puts it in the connection's URL. An option without a value, or one stored for another database type, does not count. Store an option under the connection's own type: Hop uses an option stored for the type a connection's type extends, such as a PostgreSQL option on a Redshift connection, only when the two types are loaded together, which is not the case in Hop GUI or `hop-run`. The rule follows what Hop does.
 A value such as `+${PG_SSLMODE}+` is compared as written, so it does not match `require`.
 
 `conditionValue` is used as written: variables are not resolved in it.
@@ -207,7 +207,7 @@ The same goes for a condition that does not fit one of the fields the linter pro
 |The attributes of a database connection, including its extra options. A finding lists the attribute names, not their values
 
 |`url`
-|The JDBC URL Hop builds for a database connection: the manual URL when there is one, otherwise the type's URL with the extra options appended. Variables and variable resolvers are left as written. A finding never shows the URL, which carries the option values
+|The JDBC URL Hop builds for a database connection: the manual URL when there is one, otherwise the type's URL with the extra options appended. Variables and variable resolvers are left as written. A finding never shows the URL, which carries the option values. When the type cannot build the URL, the rule reports an error for that connection
 |===
 
 A database connection rule that names a field the connection does not have is reported as an error against the rule.

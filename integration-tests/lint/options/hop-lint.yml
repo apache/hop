@@ -42,6 +42,30 @@ rules:
         conditionValue: ".*[?&]sslmode=(require|verify-ca|verify-full)(&.*)?"
     name: "PostgreSQL Connection Without TLS"
 
+  # Redshift extends PostgreSQL. A PostgreSQL option counts for a Redshift connection exactly when
+  # Hop puts it in the connection's URL, so OPT-005 and OPT-006 report the same connections.
+  OPT-005:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: DATABASE_CONNECTION
+    appliesTo: [REDSHIFT]
+    targetField: attributes
+    condition: OPTION_MATCHES
+    conditionValue: "sslmode=(require|verify-ca|verify-full)"
+    name: "Redshift Connection Without sslmode Option"
+
+  OPT-006:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: DATABASE_CONNECTION
+    appliesTo: [REDSHIFT]
+    targetField: url
+    condition: MATCHES_PATTERN
+    conditionValue: ".*[?&]sslmode=(require|verify-ca|verify-full)(&.*)?"
+    name: "Redshift URL Without sslmode"
+
   OPT-003:
     type: custom
     enabled: true

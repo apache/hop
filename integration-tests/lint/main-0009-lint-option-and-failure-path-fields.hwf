@@ -128,7 +128,10 @@ mkdir -p "$PROJECT_DIR/output"
 #
 # The connections are the project's own, PG_TLS, PG_PLAIN and PG_MANUAL among them: the linter
 # reads a connection file through the project's metadata. CRM, OPS and Vault are H2 connections,
-# which appliesTo: [POSTGRESQL] leaves alone.
+# which appliesTo: [POSTGRESQL] leaves alone. RS_TLS is a Redshift connection with its sslmode
+# stored as a PostgreSQL option, RS_PLAIN one without. Hop uses an option of the type a connection
+# extends only when it sees the two types as related, so the options rule (OPT-005) must report
+# the connections the URL rule (OPT-006) reports, whichever way that goes for RS_TLS.
 
 REPORT="$PROJECT_DIR/output/options-findings.json"
 CONNECTIONS_REPORT="$PROJECT_DIR/output/options-connections.json"
@@ -168,10 +171,12 @@ def expect(label, actual, expected):
 
 expect("PostgreSQL connections without sslmode in their options", sources("OPT-001"), ["PG_MANUAL", "PG_PLAIN"])
 expect("PostgreSQL connections with TLS in neither the options nor the URL", sources("OPT-002"), ["PG_PLAIN"])
+expect("Redshift connections without sslmode in the URL include RS_PLAIN", "RS_PLAIN" in sources("OPT-006"), True)
+expect("Redshift options and URL agree", sources("OPT-005"), sources("OPT-006"))
 expect("every connection could be read", sources("SYSTEM-003"), [])
 expect("Output transforms", sources("OPT-003"), ["Write the file"])
 expect("workflows with actions that stop unhandled", sources("OPT-004"), ["failure-paths"])
-opt_messages = [m for rule in ["OPT-001", "OPT-002", "OPT-003", "OPT-004"] for m in messages(rule)]
+opt_messages = [m for rule in ["OPT-001", "OPT-002", "OPT-003", "OPT-004", "OPT-005", "OPT-006"] for m in messages(rule)]
 expect("no finding shows a connection URL", [m for m in opt_messages if "jdbc:" in m], [])
 opt004 = messages("OPT-004")
 expect("the finding names the action without a failure hop", len(opt004) == 1 and "[Check the input]" in opt004[0], True)

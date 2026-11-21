@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -540,6 +542,9 @@ public class CustomRuleExecutor {
         // never heard of, including one from a third-party plugin.
         return extractFieldFromObject(hopObject, fieldName);
       }
+    } catch (FieldCannotBeReadException e) {
+      // Reported by executeRule() as a finding against the rule, not read as an empty value.
+      throw e;
     } catch (Exception e) {
       log.logError(
           CONST_ERROR_EXTRACTING_FIELD
@@ -768,8 +773,10 @@ public class CustomRuleExecutor {
 
   /**
    * The JDBC URL as Hop builds it for the connection, with its variables left unresolved: the
-   * manual URL when there is one, otherwise the type's URL with the extra options appended. Null
-   * when the database type cannot build one.
+   * manual URL when there is one, otherwise the type's URL with the extra options appended.
+   *
+   * @throws FieldCannotBeReadException when the database type cannot build one: a URL rule that
+   *     cannot read the URL must not pass the connection as if it had.
    */
   private static String connectionUrl(DatabaseMeta dbMeta) {
     // Left as written, variable resolvers included: building a URL must not reach a vault.
@@ -783,8 +790,12 @@ public class CustomRuleExecutor {
     try {
       return dbMeta.getURL(unresolved);
     } catch (Exception e) {
-      log.logDetailed("Unable to build the URL of connection " + dbMeta.getName() + ": " + e);
-      return null;
+      throw new FieldCannotBeReadException(
+          "the URL of connection '"
+              + dbMeta.getName()
+              + "' cannot be built: "
+              + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage().trim()),
+          e);
     }
   }
 
@@ -1730,20 +1741,29 @@ public class CustomRuleExecutor {
    * EXTRA_OPTION_POSTGRESQL.sslmode}, and a rule names it {@code sslmode}. Comparing the map's text
    * with a pattern instead broke on any value holding a comma or a brace.
    *
-   * <p>As Hop builds a connection: an option stored for another database type, left from before the
-   * type was changed, and an option without a value are not used, so they do not count.
+   * <p>A connection's extra options count as Hop puts them in its URL: an option stored for the
+   * connection's type, or for a type it extends when Hop sees the two as related. A Redshift
+   * connection uses a PostgreSQL option on a flat classpath, but not in Hop GUI or hop-run, where
+   * the Redshift plugin loads its own copy of the PostgreSQL type. One stored for another type,
+   * left from before the type was changed, and one without a value are not used, so they do not
+   * count.
    */
   private static String optionValue(Map<?, ?> options, String name, Object hopObject) {
-    String ownPrefix =
-        hopObject instanceof DatabaseMeta databaseMeta
-            ? EXTRA_OPTION_PREFIX + databaseMeta.getPluginId() + "."
-            : null;
     for (Map.Entry<?, ?> entry : options.entrySet()) {
       String key = String.valueOf(entry.getKey());
-      if (ownPrefix != null && key.startsWith(EXTRA_OPTION_PREFIX) && !key.startsWith(ownPrefix)) {
-        continue;
+      boolean named;
+      if (hopObject instanceof DatabaseMeta databaseMeta && key.startsWith(EXTRA_OPTION_PREFIX)) {
+        // Split as DatabaseMeta does: the type up to the first dot, the option after it.
+        int dot = key.indexOf('.', EXTRA_OPTION_PREFIX.length());
+        if (dot < 0
+            || !optionUsedBy(databaseMeta, key.substring(EXTRA_OPTION_PREFIX.length(), dot))) {
+          continue;
+        }
+        named = key.equals(name) || key.substring(dot + 1).equals(name);
+      } else {
+        named = key.equals(name) || key.endsWith("." + name);
       }
-      if (key.equals(name) || key.endsWith("." + name)) {
+      if (named) {
         String value = entry.getValue() == null ? "" : String.valueOf(entry.getValue());
         if (!value.isEmpty() && !DatabaseMeta.EMPTY_OPTIONS_STRING.equals(value)) {
           return value;
@@ -1751,6 +1771,41 @@ public class CustomRuleExecutor {
       }
     }
     return null;
+  }
+
+  /**
+   * Whether Hop appends an option stored for this database type to the connection's URL: the same
+   * type, or one the connection's type extends. The test {@code
+   * DatabaseMeta.databaseForBothDbInterfacesIsTheSame} makes, which is not public.
+   */
+  private static boolean optionUsedBy(DatabaseMeta databaseMeta, String typeCode) {
+    IDatabase connectionType = databaseMeta.getIDatabase();
+    if (connectionType == null || connectionType.getPluginId() == null) {
+      return false;
+    }
+    if (connectionType.getPluginId().equals(typeCode)) {
+      return true;
+    }
+    try {
+      IDatabase optionType = DatabaseMeta.getIDatabase(typeCode);
+      return optionType.getPluginId() != null
+          && (optionType.getPluginId().equals(connectionType.getPluginId())
+              || optionType.getClass().isAssignableFrom(connectionType.getClass()));
+    } catch (HopDatabaseException e) {
+      // A type that is not installed: Hop does not append its options either.
+      return false;
+    }
+  }
+
+  /**
+   * A field that exists but whose value cannot be worked out for this object, such as the URL of a
+   * connection its database type cannot build. It ends the rule for that object with an error,
+   * where an empty value would let a pattern rule pass it unchecked.
+   */
+  static final class FieldCannotBeReadException extends RuntimeException {
+    FieldCannotBeReadException(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 
   /** Helper method for numeric condition evaluation */

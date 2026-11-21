@@ -66,6 +66,30 @@ class LintRunReportPathTest {
         LintRun.reportPath("s3://lint/sales/baseline.json", TARGET));
   }
 
+  /**
+   * The Run Linter action resolves the baseline's variables, so a password given to it through a
+   * variable would be in the report.
+   */
+  @Test
+  void aRemoteLocationLosesItsCredentials() {
+    assertEquals(
+        "sftp://host/proj/baseline.json",
+        LintRun.reportPath("sftp://lint:s3cr3t@host/proj/baseline.json", TARGET));
+    assertEquals(
+        "sftp://host:2222/proj/baseline.json",
+        LintRun.reportPath("sftp://lint:p%40ss@host:2222/proj/baseline.json", TARGET));
+    assertEquals("https://host", LintRun.reportPath("https://token@host", TARGET));
+    assertEquals(
+        "sftp://host/baseline.json",
+        LintRun.reportPath("sftp://lint:pa#ss@host/baseline.json", TARGET));
+    assertEquals(
+        "https://host/baseline.json",
+        LintRun.reportPath("https://host/baseline.json?sig=abc&se=2027#x", TARGET));
+    assertEquals(
+        "s3://lint/sales@2026/baseline.json",
+        LintRun.reportPath("s3://lint/sales@2026/baseline.json", TARGET));
+  }
+
   /** hop lint records the baseline as typed, which is relative to the working directory. */
   @Test
   void aRelativeNameIsResolvedFromTheWorkingDirectory() {
