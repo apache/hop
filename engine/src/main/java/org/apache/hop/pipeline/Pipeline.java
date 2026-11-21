@@ -1413,19 +1413,18 @@ public abstract class Pipeline
                         + pipelineRunConfiguration.getName()
                         + "'");
               }
+            }
 
-              // If a transform fails with an error, we want to kill/stop the others
-              // too...
-              //
-              if (transform.getErrors() > 0) {
+            // If a transform fails with an error, we want to kill/stop the others
+            // too...
+            //
+            if (transform.getErrors() > 0) {
 
-                log.logMinimal(BaseMessages.getString(PKG, "Pipeline.Log.PipelineDetectedErrors"));
-                log.logMinimal(
-                    BaseMessages.getString(
-                        PKG, "Pipeline.Log.PipelineIsKillingTheOtherTransforms"));
+              log.logMinimal(BaseMessages.getString(PKG, "Pipeline.Log.PipelineDetectedErrors"));
+              log.logMinimal(
+                  BaseMessages.getString(PKG, "Pipeline.Log.PipelineIsKillingTheOtherTransforms"));
 
-                killAllNoWait();
-              }
+              killAllNoWait();
             }
           };
 
@@ -1921,7 +1920,7 @@ public abstract class Pipeline
       return;
     }
 
-    for (TransformMetaDataCombi sid : transforms) {
+    for (TransformMetaDataCombi sid : new ArrayList<>(transforms)) {
       ITransform transform = sid.transform;
 
       if (log.isDebug()) {
@@ -1985,7 +1984,8 @@ public abstract class Pipeline
     if (transforms == null) {
       return;
     }
-    transforms.stream().filter(this::isInputTransform).forEach(combi -> stopTransform(combi, true));
+    new ArrayList<>(transforms)
+        .stream().filter(this::isInputTransform).forEach(combi -> stopTransform(combi, true));
 
     fireExecutionStoppedListeners();
   }
@@ -1998,27 +1998,29 @@ public abstract class Pipeline
   /** Stops all transforms from running, and alerts any registered listeners. */
   @Override
   public void stopAll() {
-    if (isAlreadyStopped.get()) {
+    if (!isAlreadyStopped.compareAndSet(false, true)) {
       return;
     }
 
-    // A pipeline that never got as far as allocating its transforms can still be stopped: it just
-    // has nothing to stop. Bailing out here used to leave it without a terminal state.
-    if (transforms != null) {
-      transforms.forEach(combi -> stopTransform(combi, false));
+    try {
+      // A pipeline that never got as far as allocating its transforms can still be stopped: it just
+      // has nothing to stop. Bailing out here used to leave it without a terminal state.
+      if (transforms != null) {
+        // Do not hold the synchronized list monitor while calling transform code.
+        new ArrayList<>(transforms).forEach(combi -> stopTransform(combi, false));
+      }
+    } finally {
+      // A failing stop callback must not leave the pipeline without a terminal state or skip the
+      // stopped listeners: set them even when one of the transforms above throws.
+      setPaused(false);
+      setPreparing(false);
+      setInitializing(false);
+      setStopped(true);
+      if (debugController != null) {
+        debugController.cancelWaiters();
+      }
+      fireExecutionStoppedListeners();
     }
-
-    // if it is stopped it is not paused, nor is it still preparing or initializing
-    setPaused(false);
-    setPreparing(false);
-    setInitializing(false);
-    setStopped(true);
-    isAlreadyStopped.set(true);
-    if (debugController != null) {
-      debugController.cancelWaiters();
-    }
-
-    fireExecutionStoppedListeners();
   }
 
   public void stopTransform(TransformMetaDataCombi combi, boolean safeStop) {

@@ -3246,33 +3246,26 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#markStop()
    */
   @Override
-  public synchronized void markStop() {
-
-    // Only mark a transform as stopped once
-    //
-    if (!markStopped.get()) {
-      markStopped.set(true);
-
-      Calendar cal = Calendar.getInstance();
-      stopTime = cal.getTime();
-
-      // We're finally completely done with this transform.
-      //
+  public void markStop() {
+    synchronized (this) {
+      // Publish the terminal state once, but never call external listeners under this monitor.
+      // A listener can stop the pipeline and acquire another transform's monitor.
+      if (!markStopped.compareAndSet(false, true)) {
+        return;
+      }
+      stopTime = Calendar.getInstance().getTime();
       setRunning(false);
-
-      // Here we are completely done with the pipeline.
-      // Call all the attached listeners and notify the outside world that the transform has
-      // finished.
-      //
-      fireTransformFinishedListeners();
     }
+    fireTransformFinishedListeners();
   }
 
-  private synchronized void fireTransformFinishedListeners() {
+  private void fireTransformFinishedListeners() {
+    final List<ITransformFinishedListener> listeners;
     synchronized (transformFinishedListeners) {
-      for (ITransformFinishedListener transformListener : transformFinishedListeners) {
-        transformListener.transformFinished(pipeline, transformMeta, this);
-      }
+      listeners = new ArrayList<>(transformFinishedListeners);
+    }
+    for (ITransformFinishedListener transformListener : listeners) {
+      transformListener.transformFinished(pipeline, transformMeta, this);
     }
   }
 
