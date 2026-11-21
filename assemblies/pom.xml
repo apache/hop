@@ -41,6 +41,8 @@
 
     <properties>
         <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+        <!-- Aggregate zips repackage plugin zips that already carry their manifest -->
+        <hop.manifest.skip>true</hop.manifest.skip>
         <!-- Nothing under assemblies/ is deployed except hop-client and hop-web, which set this
              back to false and deploy a flattened POM that does not reference this parent. -->
         <maven.deploy.skip>true</maven.deploy.skip>

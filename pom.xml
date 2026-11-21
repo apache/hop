@@ -143,6 +143,7 @@
         <grpc.version>1.83.1</grpc.version>
         <hadoop.thirdparty.version>1.4.0</hadoop.thirdparty.version>
         <hadoop.version>3.4.2</hadoop.version>
+        <hop.manifest.skip>false</hop.manifest.skip>
         <icu4j.version>78.3</icu4j.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <jandex.version>3.6.0</jandex.version>
@@ -350,6 +351,13 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Built in this reactor (maven-plugin/): adds the plugin manifest to a plugin
+                     zip (profile "assembly", assemblies/client). -->
+                <plugin>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
@@ -478,6 +486,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Position anchor only: executions bound to the same phase run in POM order, and
+                 the assembly execution of profile "assembly" inherits this plugin's position. It
+                 keeps the zip being built BEFORE hop:manifest adds the plugin manifest to it at
+                 package. -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -778,6 +793,7 @@
                 <module>lib</module>
                 <module>lib-jdbc</module>
                 <module>lib-p2</module>
+                <module>maven-plugin</module>
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
@@ -856,6 +872,23 @@
                                     <descriptorSourceDirectory>${basedir}/src/assembly</descriptorSourceDirectory>
                                     <appendAssemblyId>${assembly_appendId}</appendAssemblyId>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Plugin manifest (plugin-manifest.json, see org.apache.hop.core.plugins.manifest):
+                         inspect the finished zip and add a manifest of every file it installs, with
+                         Maven coordinates, scope and sha256. Aggregate assemblies set
+                         hop.manifest.skip=true. -->
+                    <plugin>
+                        <groupId>org.apache.hop</groupId>
+                        <artifactId>hop-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>plugin-manifest</id>
+                                <goals>
+                                    <goal>manifest</goal>
+                                </goals>
+                                <phase>${assembly_package-phase}</phase>
                             </execution>
                         </executions>
                     </plugin>
