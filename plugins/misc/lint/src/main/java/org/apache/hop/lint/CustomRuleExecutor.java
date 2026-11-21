@@ -26,9 +26,12 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -38,6 +41,8 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.GlobalMessageUtil;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -61,6 +66,8 @@ public class CustomRuleExecutor {
   private static final String CONST_CREDENTIAL = "credential";
   private static final String CONST_DESCRIPTION = "description";
   private static final String CONST_ERROR_EXTRACTING_FIELD = "Error extracting field ";
+  private static final String CONST_CATEGORY = "category";
+  private static final String CONST_ACTIONS_WITHOUT_FAILURE_PATH = "actionsWithoutFailurePath";
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -144,7 +151,7 @@ public class CustomRuleExecutor {
       }
 
       // A rule may narrow itself to specific transform or action types.
-      if (!rule.appliesToPlugin(pluginIdOf(hopObject))) {
+      if (!appliesTo(rule, hopObject)) {
         return results;
       }
 
@@ -287,6 +294,20 @@ public class CustomRuleExecutor {
   }
 
   /**
+   * Whether a rule's {@code appliesTo} covers this object. A connection is narrowed by its database
+   * type, such as {@code POSTGRESQL}: compared with the metadata key alone, {@code appliesTo:
+   * [POSTGRESQL]} matched no connection at all, without a word. The key {@code rdbms} still matches
+   * every connection, as it did.
+   */
+  private static boolean appliesTo(CustomLintRule rule, Object hopObject) {
+    if (rule.appliesToPlugin(pluginIdOf(hopObject))) {
+      return true;
+    }
+    return hopObject instanceof DatabaseMeta databaseMeta
+        && rule.appliesToPlugin(databaseMeta.getPluginId());
+  }
+
+  /**
    * The plugin id of a transform or action, or null for anything else.
    *
    * <p>Only transforms and actions have a plugin type worth narrowing by; a pipeline, workflow or
@@ -422,6 +443,8 @@ public class CustomRuleExecutor {
             return workflow.getWorkflowHops().stream().anyMatch(hop -> !hop.isEnabled());
           case "hasOrphanedActions":
             return hasOrphanedActions(workflow);
+          case CONST_ACTIONS_WITHOUT_FAILURE_PATH:
+            return actionsWithoutFailurePath(workflow);
           case "noteCount":
             return workflow.getNotes().size();
           case "hasNotes":
@@ -464,6 +487,8 @@ public class CustomRuleExecutor {
           case "attributes":
             // The extra options are attributes too, stored as EXTRA_OPTION_<type>.<option>.
             return dbMeta.getAttributes();
+          case "url":
+            return connectionUrl(dbMeta);
           default:
             return connectionField(dbMeta, fieldName);
         }
@@ -569,7 +594,9 @@ public class CustomRuleExecutor {
           CONST_IS_ORPHANED,
           CONST_BOOLEAN,
           "isBlockingTransform",
-          CONST_BOOLEAN);
+          CONST_BOOLEAN,
+          CONST_CATEGORY,
+          CONST_STRING);
 
   /**
    * As {@link #TRANSFORM_FIELDS}, for actions. Keep in step with {@link #extractFieldFromAction}.
@@ -614,8 +641,7 @@ public class CustomRuleExecutor {
         case CONST_PLUGIN_ID:
           return transformMeta.getTransformPluginId();
         case "copies":
-          return transformMeta.getCopies(
-              org.apache.hop.core.variables.Variables.getADefaultVariableSpace());
+          return transformMeta.getCopies(Variables.getADefaultVariableSpace());
         case "distributes":
           return transformMeta.isDistributes();
         case CONST_ERROR_HANDLING:
@@ -648,6 +674,8 @@ public class CustomRuleExecutor {
               : null;
         case "isBlockingTransform":
           return isBlockingTransformPlugin(transformMeta.getTransformPluginId(), rule);
+        case CONST_CATEGORY:
+          return transformCategory(transformMeta.getTransform());
         default:
           // Try to get from the transform implementation
           Object transform = transformMeta.getTransform();
@@ -719,6 +747,80 @@ public class CustomRuleExecutor {
    * are fine. The ends are compared by identity: ActionMeta.equals throws for an action without its
    * inner action.
    */
+  /**
+   * The actions, other than Start, that lead somewhere but have no hop followed on failure: when
+   * one of them fails, the workflow stops there without handling it.
+   */
+  private static List<String> actionsWithoutFailurePath(WorkflowMeta workflow) {
+    List<String> names = new ArrayList<>();
+    for (ActionMeta action : workflow.getActions()) {
+      if (action.isStart()) {
+        continue;
+      }
+      List<WorkflowHopMeta> hops = outgoingHops(action, workflow);
+      if (!hops.isEmpty()
+          && hops.stream().allMatch(hop -> hop.isUnconditional() || hop.isEvaluation())) {
+        names.add(action.getName());
+      }
+    }
+    return names;
+  }
+
+  /**
+   * The JDBC URL as Hop builds it for the connection, with its variables left unresolved: the
+   * manual URL when there is one, otherwise the type's URL with the extra options appended. Null
+   * when the database type cannot build one.
+   */
+  private static String connectionUrl(DatabaseMeta dbMeta) {
+    // Left as written, variable resolvers included: building a URL must not reach a vault.
+    Variables unresolved =
+        new Variables() {
+          @Override
+          public synchronized String resolve(String text) {
+            return text;
+          }
+        };
+    try {
+      return dbMeta.getURL(unresolved);
+    } catch (Exception e) {
+      log.logDetailed("Unable to build the URL of connection " + dbMeta.getName() + ": " + e);
+      return null;
+    }
+  }
+
+  /**
+   * A transform's category in English, such as {@code Input} or {@code Output}, whatever language
+   * Hop runs in, so a rule reads the same everywhere. Null for a transform whose plugin is missing.
+   */
+  static String transformCategory(Object transform) {
+    if (transform == null) {
+      return null;
+    }
+    Transform annotation = transform.getClass().getAnnotation(Transform.class);
+    if (annotation == null || Utils.isEmpty(annotation.categoryDescription())) {
+      return null;
+    }
+    String category = annotation.categoryDescription();
+    if (!category.startsWith(Const.I18N_PREFIX)) {
+      return category;
+    }
+    String[] parts = category.split(":");
+    if (parts.length != 3) {
+      return category;
+    }
+    String i18nPackage =
+        Utils.isEmpty(parts[1]) ? transform.getClass().getPackage().getName() : parts[1];
+    try {
+      return GlobalMessageUtil.getBundle(
+              GlobalMessageUtil.FAILOVER_LOCALE,
+              i18nPackage + ".messages.messages",
+              transform.getClass())
+          .getString(parts[2]);
+    } catch (MissingResourceException e) {
+      return parts[2];
+    }
+  }
+
   private static List<WorkflowHopMeta> outgoingHops(ActionMeta actionMeta, WorkflowMeta workflow) {
     List<WorkflowHopMeta> hops = new ArrayList<>();
     for (WorkflowHopMeta hop : workflow.getWorkflowHops()) {
@@ -1380,6 +1482,10 @@ public class CustomRuleExecutor {
       // fire on it. Hop returns null for an unset description, which is exactly the case
       // "description NOT_EMPTY" exists to catch; treating null as passing made those rules
       // fire only on a description explicitly set to "".
+      if (condition == RuleCondition.HAS_OPTION || condition == RuleCondition.OPTION_MATCHES) {
+        // No options at all, so not the one the rule asks for.
+        return true;
+      }
       if (condition != RuleCondition.NOT_MATCHES_PATTERN) {
         return condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
       }
@@ -1500,6 +1606,33 @@ public class CustomRuleExecutor {
           return false;
         }
 
+      case HAS_OPTION:
+        if (conditionValue.isBlank()) {
+          log.logBasic("HAS_OPTION requires the name of an option in rule: " + rule.getName());
+          return false;
+        }
+        return optionValue(optionsOf(fieldValue, condition, rule), conditionValue.trim()) == null;
+
+      case OPTION_MATCHES:
+        {
+          int equals = conditionValue.indexOf('=');
+          if (equals <= 0) {
+            throw new IllegalStateException(
+                "Rule '"
+                    + rule.generateRuleId()
+                    + "' uses OPTION_MATCHES with '"
+                    + conditionValue
+                    + "'. Write the option and the pattern as name=regex, such as"
+                    + " sslmode=(require|verify-full).");
+          }
+          String value =
+              optionValue(
+                  optionsOf(fieldValue, condition, rule),
+                  conditionValue.substring(0, equals).trim());
+          return value == null
+              || !Pattern.compile(conditionValue.substring(equals + 1)).matcher(value).matches();
+        }
+
       default:
         // Returning false here would report the rule as passing, which is the worst
         // outcome: a rule that cannot run looks like a rule that found nothing. Fail
@@ -1527,6 +1660,39 @@ public class CustomRuleExecutor {
       return map.size();
     }
     return -1;
+  }
+
+  /**
+   * The map an option condition reads. Anything else is a mistake in the rule, reported as one
+   * rather than passed: a rule that cannot run must not look like a rule that found nothing.
+   */
+  private static Map<?, ?> optionsOf(Object value, RuleCondition condition, CustomLintRule rule) {
+    if (value instanceof Map<?, ?> map) {
+      return map;
+    }
+    throw new IllegalStateException(
+        "Rule '"
+            + rule.generateRuleId()
+            + "' uses "
+            + condition.name()
+            + " on a field that holds no options. It reads a map, such as a connection's"
+            + " attributes.");
+  }
+
+  /**
+   * The value of an option, or null when it is not set. The option is found by its full key or by
+   * its own name after a prefix: a connection stores its extra options as {@code
+   * EXTRA_OPTION_POSTGRESQL.sslmode}, and a rule names it {@code sslmode}. Comparing the map's text
+   * with a pattern instead broke on any value holding a comma or a brace.
+   */
+  private static String optionValue(Map<?, ?> options, String name) {
+    for (Map.Entry<?, ?> entry : options.entrySet()) {
+      String key = String.valueOf(entry.getKey());
+      if (key.equals(name) || key.endsWith("." + name)) {
+        return entry.getValue() == null ? "" : String.valueOf(entry.getValue());
+      }
+    }
+    return null;
   }
 
   /** Helper method for numeric condition evaluation */
