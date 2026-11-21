@@ -125,6 +125,15 @@ public final class FatJarGenerator {
         log.logBasic("Wrote native Spark fat jar " + target + " (from " + cached + ")");
       }
       case BEAM -> {
+        String version =
+            sparkClientVersion != null ? sparkClientVersion : sparkClientVersionFromEnvironment();
+        if (isNativeSparkToken(version)) {
+          log.logBasic(
+              "Ignoring Spark client version '"
+                  + version
+                  + "' for a Beam fat jar: it asks for a native Spark jar. Using the default Spark"
+                  + " client pack.");
+        }
         List<String> jars = beamJarFilenames(plugin, sparkClientVersion);
         log.logBasic("Found " + jars.size() + " jar files to combine into one fat jar file.");
         FatJarBuilder builder = new FatJarBuilder(log, variables, target, jars);
@@ -145,6 +154,15 @@ public final class FatJarGenerator {
       value = System.getenv("HOP_SPARK_CLIENT_VERSION");
     }
     return value == null || value.isBlank() ? null : value.trim();
+  }
+
+  /** The former {@code native} / {@code native-provided} Spark client versions. */
+  public static boolean isNativeSparkToken(String version) {
+    if (version == null) {
+      return false;
+    }
+    String v = version.trim();
+    return "native".equalsIgnoreCase(v) || "native-provided".equalsIgnoreCase(v);
   }
 
   @SuppressWarnings("unchecked")

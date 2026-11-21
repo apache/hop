@@ -17,7 +17,6 @@
 
 package org.apache.hop.config;
 
-import java.util.Locale;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +37,8 @@ import picocli.CommandLine;
 @Setter
 public class GenerateFatJarConfigPlugin implements IConfigOptions {
 
-  /** Former {@code --spark-client-version} tokens for a native Spark jar. */
+  /** Former {@code --spark-client-version} token for a native Spark jar with the Spark runtime. */
   static final String NATIVE = "native";
-
-  static final String NATIVE_PROVIDED = "native-provided";
 
   @CommandLine.Option(
       names = {"-fj", "--generate-fat-jar"},
@@ -127,10 +124,6 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
   }
 
   static boolean isNativeToken(String version) {
-    if (version == null) {
-      return false;
-    }
-    String v = version.trim().toLowerCase(Locale.ROOT);
-    return NATIVE.equals(v) || NATIVE_PROVIDED.equals(v);
+    return FatJarGenerator.isNativeSparkToken(version);
   }
 }

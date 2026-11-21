@@ -200,8 +200,19 @@ public final class BeamFatJar {
 
   private BeamFatJar() {}
 
-  /** Jar filenames for the generator; the argument is a Spark client pack version or null. */
+  /**
+   * Jar filenames of a Beam fat jar, for the generator; the argument is a Spark client pack version
+   * or null. The generator asks for a Beam jar, so the former {@code native} and {@code
+   * native-provided} tokens, still set in {@code HOP_SPARK_CLIENT_VERSION} by older setups, select
+   * the default Spark client pack instead of a native Spark jar without Beam.
+   */
   public static List<String> findJarFilenames(String sparkClientVersion) {
-    return findInstalledJarFilenames(resolveSparkClientVersion(sparkClientVersion));
+    return findInstalledJarFilenames(beamSparkClientVersion(sparkClientVersion));
+  }
+
+  /** The Spark client pack of a Beam jar: null, the default pack, for a native token. */
+  static String beamSparkClientVersion(String sparkClientVersion) {
+    String version = resolveSparkClientVersion(sparkClientVersion);
+    return isNativeSparkClientVersion(version) ? null : version;
   }
 }

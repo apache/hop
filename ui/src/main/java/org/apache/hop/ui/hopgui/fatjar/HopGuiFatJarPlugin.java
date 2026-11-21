@@ -103,7 +103,7 @@ public class HopGuiFatJarPlugin {
               monitor.setTaskName(
                   BaseMessages.getString(
                       PKG, "HopGuiFatJarPlugin.Progress.Message", selected.getDescription()));
-              // A Beam jar keeps honouring HOP_SPARK_CLIENT_VERSION for the Beam Spark runner
+              // A Beam jar keeps honouring the Spark client pack of HOP_SPARK_CLIENT_VERSION
               FatJarGenerator.generate(
                   hopGui.getLog(),
                   hopGui.getVariables(),

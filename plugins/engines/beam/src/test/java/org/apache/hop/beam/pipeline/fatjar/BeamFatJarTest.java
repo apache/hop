@@ -17,7 +17,9 @@
 
 package org.apache.hop.beam.pipeline.fatjar;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -35,5 +37,25 @@ class BeamFatJarTest {
     assertFalse(BeamFatJar.isNativeSparkClientVersion(null));
     assertFalse(BeamFatJar.isNativeSparkClientVersion(""));
     assertFalse(BeamFatJar.isNativeSparkClientVersion("3.5.8"));
+  }
+
+  @Test
+  void aBeamJarIgnoresTheFormerNativeTokens() {
+    String before = System.getProperty("HOP_SPARK_CLIENT_VERSION");
+    try {
+      // Older setups set HOP_SPARK_CLIENT_VERSION=native-provided for a native Spark jar
+      System.setProperty("HOP_SPARK_CLIENT_VERSION", "native-provided");
+      assertNull(BeamFatJar.beamSparkClientVersion(null));
+      assertNull(BeamFatJar.beamSparkClientVersion("native"));
+      assertEquals("3.5.8", BeamFatJar.beamSparkClientVersion("3.5.8"));
+      System.setProperty("HOP_SPARK_CLIENT_VERSION", "3.4.4");
+      assertEquals("3.4.4", BeamFatJar.beamSparkClientVersion(null));
+    } finally {
+      if (before == null) {
+        System.clearProperty("HOP_SPARK_CLIENT_VERSION");
+      } else {
+        System.setProperty("HOP_SPARK_CLIENT_VERSION", before);
+      }
+    }
   }
 }
