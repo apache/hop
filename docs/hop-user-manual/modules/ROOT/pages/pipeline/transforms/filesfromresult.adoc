@@ -48,3 +48,7 @@ Every time a file gets processed, used or created in a pipeline or a workflow, t
 |comment|String|Read by text file input
 |timestamp|Date|2006-06-23 12:34:56
 |===
+
+== Samples
+
+The samples project has `transforms/get-files-from-result.hpl`, which reads the result files that a parent workflow or pipeline passed to it, so it returns no rows when you run it on its own.

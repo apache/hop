@@ -165,3 +165,7 @@ See also Launching several copies of a transform. | `copy of transform`
 |Previous action log text| | `previous result log text`
 
 |===
+
+== Samples
+
+The samples project has `transforms/get-system-info-basic.hpl`, which gets the system date (variable and fixed), the JVM maximum and total memory, the IP address, the host names and the number of available processors.

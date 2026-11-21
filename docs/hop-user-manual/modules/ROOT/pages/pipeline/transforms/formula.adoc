@@ -3058,3 +3058,13 @@ Portable Constraints: The result of this function may change across locales. If 
 |expression|result|comment
 |UPPER("Habc7") |"HABC7"|Lowercase converted to upper case, other characters just copied to result.
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/formula-basic-computations.hpl`, which computes a percentage, a sum with a subtraction, and a mix of multiplication, division and powers from four numbers in a Data grid.
+* `transforms/formula-datetime.hpl`, which computes today, tomorrow, the days and the working days since 17 December 2021, the year and month of today, and the minute, second and month of the current time, with the month written over the field `one`.
+* `transforms/formula-information.hpl`, which uses `ISEVEN`, `ISODD` and `DOLLAR`.
+* `transforms/formula-logical.hpl`, which uses `AND`, `OR`, `NOT`, `IF`, `TRUE` and `FALSE`, and compares the fields of a Data grid.
+* `transforms/formula-variables.hpl`, which uses pipeline parameters in formulas: as a value, as the function name, as the whole formula, and as a whole formula that names fields.

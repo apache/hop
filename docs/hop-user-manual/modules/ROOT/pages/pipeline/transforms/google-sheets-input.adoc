@@ -80,3 +80,7 @@ See xref:concepts.adoc#data-types[Data types].
 |Trim type|How to trim whitespace from the cell text before conversion: none, left, right, or both.
 |===
 
+== Samples
+
+The samples project has `transforms/google-sheets-input.hpl`, which reads three columns from the worksheet `Sheet1` of a Google spreadsheet.
+Put a Google service account key in `client_secret.json` in the project folder, and set the spreadsheet key to a spreadsheet that this account can read, before you run it.
