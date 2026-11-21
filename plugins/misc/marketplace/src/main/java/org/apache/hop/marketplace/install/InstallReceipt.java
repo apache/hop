@@ -18,6 +18,7 @@
 package org.apache.hop.marketplace.install;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -39,6 +40,14 @@ public class InstallReceipt {
 
   private List<String> paths = new ArrayList<>();
   private boolean pendingActivation;
+
+  /**
+   * Files a previous version installed that this version does not have, and that are still on disk
+   * because they have not been removed yet (pending activation, or the file was in use). Omitted
+   * from the receipt when empty.
+   */
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<String> obsoletePaths = new ArrayList<>();
 
   /** Set when {@code install} returned this receipt without downloading again. Not persisted. */
   @JsonIgnore private boolean alreadyPresent;

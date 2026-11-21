@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.ByteArrayOutputStream;
@@ -31,17 +33,20 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.command.MarketplaceCommand;
@@ -837,6 +842,236 @@ class PluginInstallerTest {
     }
   }
 
+  @Test
+  void updateRemovesFilesOnlyThePreviousVersionHad() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-update");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+
+      InstallReceipt receipt =
+          installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+
+      Path pluginFolder = hopHome.resolve("plugins/tech/test");
+      assertEquals("plugin-2", Files.readString(pluginFolder.resolve("plugin.jar")));
+      assertTrue(Files.isRegularFile(pluginFolder.resolve("lib/dep-2.0.jar")));
+      assertFalse(
+          Files.exists(pluginFolder.resolve("lib/dep-1.0.jar")),
+          "the jar only version 1 had must not stay on the plugin classpath");
+      assertFalse(
+          Files.exists(pluginFolder.resolve("samples")),
+          "a folder only version 1 had is removed once it is empty");
+      // Shared lib/core jars stay sticky on update as on uninstall (#9614)
+      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-1.0.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("lib/core/shared-2.0.jar")));
+
+      assertEquals("2.0.0", receipt.getVersion());
+      assertTrue(receipt.getObsoletePaths().isEmpty());
+      String receiptJson =
+          Files.readString(
+              hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(TEST_PLUGIN + ".json"));
+      assertFalse(receiptJson.contains("obsoletePaths"), receiptJson);
+
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(pluginFolder), "uninstall after an update leaves nothing behind");
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void updateThroughTheInstallCommandRemovesTheOldJar() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path hopHome = tempDir.resolve("hop-command-update");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    String originalUserDir = System.getProperty("user.dir");
+    String originalFolders = System.getProperty("HOP_PLUGIN_BASE_FOLDERS");
+    try {
+      System.setProperty("user.dir", hopHome.toAbsolutePath().toString());
+      System.clearProperty("HOP_PLUGIN_BASE_FOLDERS");
+      String url = localUrl(server.getAddress().getPort());
+      withIsolatedMarketplaceConfig(
+          () -> {
+            for (String version : List.of("1.0.0", "2.0.0")) {
+              MarketplaceCommand.InstallCommand cmd = new MarketplaceCommand.InstallCommand();
+              new CommandLine(cmd)
+                  .parseArgs("--repo-url", url, "org.apache.hop:" + TEST_PLUGIN + ":" + version);
+              cmd.run();
+            }
+          });
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+    } finally {
+      if (originalUserDir != null) {
+        System.setProperty("user.dir", originalUserDir);
+      }
+      if (originalFolders != null) {
+        System.setProperty("HOP_PLUGIN_BASE_FOLDERS", originalFolders);
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void stagedUpdateRemovesOldFilesWhenActivated() throws Exception {
+    HttpServer server =
+        versionServer(
+            TEST_PLUGIN,
+            Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip(), "3.0.0", version3Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-staged");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      Path lib = hopHome.resolve("plugins/tech/test/lib");
+
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      // Stage two updates in a row without activating: version 1's files are the ones on disk.
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), false);
+      InstallReceipt staged =
+          installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "3.0.0"), false);
+      assertTrue(staged.isPendingActivation());
+      assertTrue(staged.getObsoletePaths().contains("plugins/tech/test/lib/dep-1.0.jar"));
+      assertTrue(
+          Files.isRegularFile(lib.resolve("dep-1.0.jar")), "nothing changes before activation");
+
+      installer.activateAllPending();
+
+      assertTrue(Files.isRegularFile(lib.resolve("dep-3.0.jar")));
+      assertFalse(Files.exists(lib.resolve("dep-1.0.jar")));
+      assertFalse(Files.exists(lib.resolve("dep-2.0.jar")), "version 2 was never activated");
+      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, TEST_PLUGIN);
+      assertEquals("3.0.0", receipt.getVersion());
+      assertFalse(receipt.isPendingActivation());
+      assertTrue(receipt.getObsoletePaths().isEmpty());
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void updateKeepsFilesThatAnotherReceiptLists() throws Exception {
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    try {
+      Path hopHome = tempDir.resolve("hop-shared-path");
+      Files.createDirectories(hopHome.resolve("plugins"));
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+
+      // Another marketplace artifact that ships the same file
+      InstallReceipt other = new InstallReceipt();
+      other.setArtifactId("hop-other-plugin");
+      other.setVersion("1.0.0");
+      other.setPaths(List.of("plugins/tech/test/lib/dep-1.0.jar"));
+      HopJson.newMapper()
+          .writeValue(
+              hopHome
+                  .resolve(PluginInstaller.RECEIPTS_DIR)
+                  .resolve("hop-other-plugin.json")
+                  .toFile(),
+              other);
+
+      // An unreadable receipt of yet another plugin does not stop the update.
+      Files.writeString(
+          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-broken-plugin.json"), "{");
+
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0"), true);
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
+      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
+    } finally {
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void obsoleteFileThatCannotBeRemovedIsRetriedAndUninstalled() throws Exception {
+    Path hopHome = tempDir.resolve("hop-locked");
+    Files.createDirectories(hopHome.resolve("plugins"));
+    assumeTrue(
+        Files.getFileStore(hopHome).supportsFileAttributeView("posix"),
+        "needs POSIX permissions to make a delete fail");
+    HttpServer server =
+        versionServer(TEST_PLUGIN, Map.of("1.0.0", version1Zip(), "2.0.0", version2Zip()));
+    server.start();
+    Path samples = hopHome.resolve("plugins/tech/test/samples");
+    try {
+      PluginInstaller installer =
+          new PluginInstaller(
+              new LogChannel("test"), hopHome, localRepoConfig(server.getAddress().getPort()));
+      MavenCoordinates v2 = new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "2.0.0");
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+
+      // Stand-in for a jar Windows keeps locked: a file in a read-only folder cannot be deleted.
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      assumeFalse(Files.isWritable(samples), "running as a user that ignores permissions");
+      InstallReceipt receipt = installer.install(v2, true);
+      assertEquals(List.of("plugins/tech/test/samples/sample.hpl"), receipt.getObsoletePaths());
+      assertEquals(
+          List.of("plugins/tech/test/samples/sample.hpl"),
+          PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getObsoletePaths());
+
+      // Installing the same version again retries the removal without downloading.
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      InstallReceipt again = installer.install(v2, true);
+      assertTrue(again.isAlreadyPresent());
+      assertTrue(again.getObsoletePaths().isEmpty());
+      assertFalse(Files.exists(samples));
+
+      // Uninstall removes a leftover as well.
+      installer.install(new MavenCoordinates("org.apache.hop", TEST_PLUGIN, "1.0.0"), true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("r-xr-xr-x"));
+      installer.install(v2, true);
+      Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      new PluginUninstaller(new LogChannel("test"), hopHome).uninstall(TEST_PLUGIN);
+      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test")));
+    } finally {
+      if (Files.isDirectory(samples)) {
+        Files.setPosixFilePermissions(samples, PosixFilePermissions.fromString("rwxr-xr-x"));
+      }
+      server.stop(0);
+    }
+  }
+
+  @Test
+  void obsoletePathsRules() {
+    InstallReceipt previous = new InstallReceipt();
+    previous.setPaths(
+        List.of(
+            "plugins/tech/test",
+            "plugins/tech/test/plugin.jar",
+            "plugins/tech/test/lib/dep-1.0.jar",
+            "plugins/tech/test/lib/shared-with-other.jar",
+            "lib/core/shared-1.0.jar"));
+    previous.setObsoletePaths(List.of("plugins/tech/test/lib/dep-0.9.jar"));
+
+    List<String> obsolete =
+        PluginInstaller.obsoletePaths(
+            previous,
+            List.of("plugins/tech/test/", "plugins\\tech\\test\\plugin.jar"),
+            Set.of("plugins/tech/test/lib/shared-with-other.jar"));
+
+    assertEquals(
+        List.of("plugins/tech/test/lib/dep-1.0.jar", "plugins/tech/test/lib/dep-0.9.jar"),
+        obsolete);
+    assertTrue(PluginInstaller.obsoletePaths(null, List.of("a"), Set.of()).isEmpty());
+  }
+
   private static String localUrl(int port) {
     return "http://127.0.0.1:" + port + "/";
   }
@@ -882,6 +1117,77 @@ class PluginInstallerTest {
       zos.putNextEntry(new ZipEntry("lib/core/shared.jar"));
       zos.write("shared-lib".getBytes(StandardCharsets.UTF_8));
       zos.closeEntry();
+    }
+    return bos.toByteArray();
+  }
+
+  private static final String TEST_PLUGIN = "hop-test-plugin";
+
+  /** Serves one zip per version of {@code org.apache.hop:<artifactId>}. */
+  private static HttpServer versionServer(String artifactId, Map<String, byte[]> zipsByVersion)
+      throws IOException {
+    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+    for (Map.Entry<String, byte[]> entry : zipsByVersion.entrySet()) {
+      String version = entry.getKey();
+      byte[] zipBytes = entry.getValue();
+      server.createContext(
+          "/org/apache/hop/"
+              + artifactId
+              + "/"
+              + version
+              + "/"
+              + artifactId
+              + "-"
+              + version
+              + ".zip",
+          exchange -> {
+            exchange.getResponseHeaders().add("Content-Type", "application/zip");
+            exchange.sendResponseHeaders(200, zipBytes.length);
+            exchange.getResponseBody().write(zipBytes);
+            exchange.close();
+          });
+    }
+    return server;
+  }
+
+  private static byte[] version1Zip() throws IOException {
+    Map<String, String> entries = new LinkedHashMap<>();
+    entries.put("plugins/tech/test/", null);
+    entries.put("plugins/tech/test/plugin.jar", "plugin-1");
+    entries.put("plugins/tech/test/lib/dep-1.0.jar", "dep-1.0");
+    entries.put("plugins/tech/test/samples/", null);
+    entries.put("plugins/tech/test/samples/sample.hpl", "<pipeline/>");
+    entries.put("lib/core/shared-1.0.jar", "shared-1.0");
+    return zip(entries);
+  }
+
+  private static byte[] version2Zip() throws IOException {
+    Map<String, String> entries = new LinkedHashMap<>();
+    entries.put("plugins/tech/test/", null);
+    entries.put("plugins/tech/test/plugin.jar", "plugin-2");
+    entries.put("plugins/tech/test/lib/dep-2.0.jar", "dep-2.0");
+    entries.put("lib/core/shared-2.0.jar", "shared-2.0");
+    return zip(entries);
+  }
+
+  private static byte[] version3Zip() throws IOException {
+    Map<String, String> entries = new LinkedHashMap<>();
+    entries.put("plugins/tech/test/plugin.jar", "plugin-3");
+    entries.put("plugins/tech/test/lib/dep-3.0.jar", "dep-3.0");
+    return zip(entries);
+  }
+
+  /** Builds a zip; a null value makes a directory entry. */
+  private static byte[] zip(Map<String, String> entries) throws IOException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try (ZipOutputStream zos = new ZipOutputStream(bos)) {
+      for (Map.Entry<String, String> entry : entries.entrySet()) {
+        zos.putNextEntry(new ZipEntry(entry.getKey()));
+        if (entry.getValue() != null) {
+          zos.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
+        }
+        zos.closeEntry();
+      }
     }
     return bos.toByteArray();
   }

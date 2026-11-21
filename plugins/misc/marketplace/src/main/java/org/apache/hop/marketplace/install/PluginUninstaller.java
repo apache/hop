@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -49,9 +50,12 @@ public class PluginUninstaller {
               + "'. Only plugins installed via the marketplace can be uninstalled this way.");
     }
 
-    // Delete files deepest-first; leave shared lib/core jars (sticky, may be used by others)
+    // Delete files deepest-first; leave shared lib/core jars (sticky, may be used by others).
+    // Files of a previous version that an update could not remove yet go too.
+    Set<String> paths = new LinkedHashSet<>(PluginInstaller.nullSafe(receipt.getPaths()));
+    paths.addAll(PluginInstaller.nullSafe(receipt.getObsoletePaths()));
     Set<Path> dirs = new HashSet<>();
-    for (String relative : receipt.getPaths()) {
+    for (String relative : paths) {
       if (PluginInstaller.isSharedCorePath(relative)) {
         log.logBasic("Leaving shared lib/core path in place: " + relative);
         continue;
@@ -72,19 +76,7 @@ public class PluginUninstaller {
       }
     }
 
-    // Remove empty plugin directories under plugins/
-    dirs.stream()
-        .sorted(Comparator.comparingInt(p -> -p.getNameCount()))
-        .forEach(
-            dir -> {
-              try {
-                if (Files.isDirectory(dir) && isEmpty(dir) && isUnderPlugins(dir)) {
-                  Files.deleteIfExists(dir);
-                }
-              } catch (IOException e) {
-                log.logError("Could not remove directory " + dir, e);
-              }
-            });
+    removeEmptyPluginDirectories(hopHome, dirs, log);
 
     Path receiptFile = hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve(artifactId + ".json");
     try {
@@ -98,9 +90,23 @@ public class PluginUninstaller {
             + ". Restart Hop so the plugin registry drops the removed classes.");
   }
 
-  private boolean isUnderPlugins(Path dir) {
+  /** Remove the given directories, deepest first, when they are empty and under plugins/. */
+  static void removeEmptyPluginDirectories(Path hopHome, Set<Path> dirs, ILogChannel log) {
     Path plugins = hopHome.resolve("plugins").toAbsolutePath().normalize();
-    return dir.toAbsolutePath().normalize().startsWith(plugins);
+    dirs.stream()
+        .sorted(Comparator.comparingInt(p -> -p.getNameCount()))
+        .forEach(
+            dir -> {
+              try {
+                if (Files.isDirectory(dir)
+                    && isEmpty(dir)
+                    && dir.toAbsolutePath().normalize().startsWith(plugins)) {
+                  Files.deleteIfExists(dir);
+                }
+              } catch (IOException e) {
+                log.logError("Could not remove directory " + dir, e);
+              }
+            });
   }
 
   private static boolean isEmpty(Path dir) throws IOException {
