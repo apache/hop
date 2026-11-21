@@ -95,6 +95,9 @@ From the Hop install directory:
 
 After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
+Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
+Shared jars in `lib/core` stay in place.
+
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
 
