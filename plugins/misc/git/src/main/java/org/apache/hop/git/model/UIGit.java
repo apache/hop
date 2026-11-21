@@ -128,6 +128,19 @@ public class UIGit extends VCS {
       CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED =
           "Authentication is required but no CredentialsProvider has been registered";
   public static final String CONST_NOT_AUTHORIZED = "not authorized";
+
+  /**
+   * The end of what JGit reports for an HTTP 403. Some servers answer 403 rather than 401 to
+   * credentials they refuse, GitLab after a few failed attempts for example.
+   */
+  public static final String CONST_NOT_PERMITTED = " not permitted on ";
+
+  /**
+   * What JGit reports for an HTTP 401 without an authentication challenge. Gitea answers that to
+   * the credentials it refuses: the challenge only comes with the first, anonymous, request.
+   */
+  public static final String CONST_AUTHENTICATION_NOT_SUPPORTED = "authentication not supported";
+
   public static final String CONST_DIALOG_ERROR = "Dialog.Error";
   public static final String CONST_MERGE_FAILED_HEADER = "UIGit.Dialog.MergeFailed.Header";
   public static final String CONST_MERGE_FAILED_LOCAL_CHANGES =
@@ -282,7 +295,7 @@ public class UIGit extends VCS {
     try {
       StoredConfig config = git.getRepository().getConfig();
       RemoteConfig remoteConfig = new RemoteConfig(config, Constants.DEFAULT_REMOTE_NAME);
-      return remoteConfig.getURIs().iterator().next().toString();
+      return remoteConfig.getURIs().getFirst().toString();
     } catch (Exception e) {
       return "";
     }
@@ -299,7 +312,7 @@ public class UIGit extends VCS {
       cmd.setUri(uri);
       cmd.call();
     } catch (URISyntaxException e) {
-      if (value.equals("")) {
+      if (value.isEmpty()) {
         removeRemote();
       } else {
         showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -845,20 +858,13 @@ public class UIGit extends VCS {
     try {
       git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
     } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+      if (isAuthenticationFailure(e)) {
+        boolean refused = forgetCredentials();
         if (!promptForCredentials) {
           throw new HopException("There was an error doing a git fetch", e);
         }
-        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
-          new ErrorDialog(
-              HopGui.getInstance().getShell(),
-              "Git Error",
-              "Error Authenticating to Git service",
-              e);
+        if (refused) {
+          showAuthenticationError(e);
         }
         if (promptUsernamePassword()) {
           return fetch(true);
@@ -901,17 +907,9 @@ public class UIGit extends VCS {
       return mergeBranch(
           getPullBranch(repository, branch, branchConfig, remote), MergeStrategy.RECURSIVE);
     } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
-        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
-          new ErrorDialog(
-              HopGui.getInstance().getShell(),
-              "Git Error",
-              "Error Authenticating to Git service",
-              e);
+      if (isAuthenticationFailure(e)) {
+        if (forgetCredentials()) {
+          showAuthenticationError(e);
         }
         if (promptUsernamePassword()) {
           return pull();
@@ -993,7 +991,7 @@ public class UIGit extends VCS {
       names = getTags();
       esd =
           getEnterSelectionDialog(
-              names.toArray(new String[names.size()]), "Select Tag", "Select the tag to push...");
+              names.toArray(new String[0]), "Select Tag", "Select the tag to push...");
       name = esd.open();
       if (name == null) {
         return false;
@@ -1179,11 +1177,8 @@ public class UIGit extends VCS {
       Iterable<PushResult> resultIterable = cmd.call();
       return processPushResult(resultIterable, reportSuccess);
     } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
+      if (isAuthenticationFailure(e)) {
+        forgetCredentials();
         if (promptUsernamePassword()) {
           return push(remote, refSpecs, reportSuccess);
         }
@@ -1307,22 +1302,20 @@ public class UIGit extends VCS {
       return loader.openStream();
     } catch (MissingObjectException e) {
       throw new HopException(
-          "Unable to find file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId + "", e);
+          "Unable to find file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId, e);
     } catch (IncorrectObjectTypeException e) {
       throw new HopException(
           "Incorrect object type error for file '"
               + normalizedFile
               + CONST_FOR_COMMIT_ID
-              + commitId
-              + "",
+              + commitId,
           e);
     } catch (CorruptObjectException e) {
       throw new HopException(
-          "Corrupt object error for file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId + "",
-          e);
+          "Corrupt object error for file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId, e);
     } catch (IOException e) {
       throw new HopException(
-          "Error reading git file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId + "", e);
+          "Error reading git file '" + normalizedFile + CONST_FOR_COMMIT_ID + commitId, e);
     }
   }
 
@@ -1712,28 +1705,28 @@ public class UIGit extends VCS {
    */
   private String getMergeFailureMessage(String value, MergeResult result) {
     String currentBranch = getBranch();
-    switch (result.getMergeStatus()) {
-      case FAILED:
-        return getLocalChangesMessage(
-            value,
-            currentBranch,
-            result.getFailingPaths() == null ? null : result.getFailingPaths().keySet(),
-            result);
-      case CHECKOUT_CONFLICT:
-        return getLocalChangesMessage(value, currentBranch, result.getCheckoutConflicts(), result);
-      case CONFLICTING:
-        return BaseMessages.getString(
-            PKG,
-            "UIGit.Dialog.MergeFailed.Conflicting.Message",
-            value,
-            currentBranch,
-            getPathList(result.getConflicts() == null ? Set.of() : result.getConflicts().keySet()));
-      case ABORTED:
-        return BaseMessages.getString(
-            PKG, "UIGit.Dialog.MergeFailed.Aborted.Message", value, currentBranch);
-      default:
-        return getGenericMessage(value, currentBranch, result);
-    }
+    return switch (result.getMergeStatus()) {
+      case FAILED ->
+          getLocalChangesMessage(
+              value,
+              currentBranch,
+              result.getFailingPaths() == null ? null : result.getFailingPaths().keySet(),
+              result);
+      case CHECKOUT_CONFLICT ->
+          getLocalChangesMessage(value, currentBranch, result.getCheckoutConflicts(), result);
+      case CONFLICTING ->
+          BaseMessages.getString(
+              PKG,
+              "UIGit.Dialog.MergeFailed.Conflicting.Message",
+              value,
+              currentBranch,
+              getPathList(
+                  result.getConflicts() == null ? Set.of() : result.getConflicts().keySet()));
+      case ABORTED ->
+          BaseMessages.getString(
+              PKG, "UIGit.Dialog.MergeFailed.Aborted.Message", value, currentBranch);
+      default -> getGenericMessage(value, currentBranch, result);
+    };
   }
 
   /**
@@ -1957,6 +1950,43 @@ public class UIGit extends VCS {
     credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
   }
 
+  /**
+   * Whether a transport failure is the remote asking for credentials or refusing the ones it got.
+   *
+   * <p>A 401 without a challenge only counts when credentials were sent. Without credentials it is
+   * a server JGit can't authenticate to, and asking for a username and password would not help.
+   */
+  boolean isAuthenticationFailure(TransportException e) {
+    String message = e.getMessage();
+    return message != null
+        && (message.contains(
+                CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
+            || message.contains(CONST_NOT_AUTHORIZED)
+            || message.contains(CONST_NOT_PERMITTED)
+            || (credentialsProvider != null
+                && message.contains(CONST_AUTHENTICATION_NOT_SUPPORTED)));
+  }
+
+  /**
+   * Forgets the credentials, after the remote refused them. Kept, they would be sent again by every
+   * later operation, and a remote that answers 403 to them would never ask for others: only a
+   * restart of Hop would clear them.
+   *
+   * @return true if there were credentials to forget, the remote refused them
+   */
+  @VisibleForTesting
+  boolean forgetCredentials() {
+    boolean hadCredentials = credentialsProvider != null;
+    credentialsProvider = null;
+    return hadCredentials;
+  }
+
+  @VisibleForTesting
+  void showAuthenticationError(TransportException e) {
+    new ErrorDialog(
+        HopGui.getInstance().getShell(), "Git Error", "Error Authenticating to Git service", e);
+  }
+
   // Safe: the stack trace goes to the local stderr only, never to a remote client
   @SuppressWarnings("java:S4507")
   public RevCommit resolve(String commitId) {
@@ -2025,7 +2055,7 @@ public class UIGit extends VCS {
 
   /**
    * The untracked files of a status that git itself doesn't ignore: what a git clean removes. JGit
-   * also reports the files that only a case insensitive ignore rule matches as untracked.
+   * also reports the files that only a case-insensitive ignore rule matches as untracked.
    */
   private Set<String> getUntrackedNotIgnored(Status status) {
     Set<String> untracked = new HashSet<>(status.getUntracked());
@@ -2035,7 +2065,7 @@ public class UIGit extends VCS {
 
   /**
    * The files JGit reports as untracked but git itself ignores. JGit matches ignore rules case
-   * sensitively whatever core.ignorecase says, so on a case insensitive file system a rule like
+   * sensitively whatever core.ignorecase says, so on a case-insensitive file system a rule like
    * "output/" leaves everything in a folder named "Output" untracked. Empty for repositories that
    * are matched case sensitively, where JGit and git agree.
    */
