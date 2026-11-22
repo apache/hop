@@ -99,6 +99,9 @@ public enum HopMetadataPropertyType {
   // MAIL
   MAIL_SERVER_CONNECTION,
 
+  // ORCHESTRATION
+  AIRFLOW_CONNECTION,
+
   // GIT
   GIT_CONNECTION,
 

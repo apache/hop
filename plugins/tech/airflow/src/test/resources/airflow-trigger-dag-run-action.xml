@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<action>
+    <name>Trigger Airflow DAG run</name>
+    <description/>
+    <type>AIRFLOW_TRIGGER_DAG_RUN</type>
+    <connection>airflow</connection>
+    <dag_id>daily_load</dag_id>
+    <dag_run_id>hop-${RUN_ID}</dag_run_id>
+    <logical_date>2026-11-21T10:00:00+01:00</logical_date>
+    <conf_json>{"count": 3}</conf_json>
+    <conf>
+        <entry>
+            <name>greeting</name>
+            <value>hello</value>
+        </entry>
+        <entry>
+            <name>source</name>
+            <value>${SOURCE}</value>
+        </entry>
+    </conf>
+    <wait_for_completion>N</wait_for_completion>
+    <poll_interval_seconds>5</poll_interval_seconds>
+    <timeout_seconds>600</timeout_seconds>
+    <dag_run_id_variable>RUN</dag_run_id_variable>
+    <state_variable>STATE</state_variable>
+</action>
