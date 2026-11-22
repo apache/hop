@@ -335,7 +335,12 @@ public class NeoConnectionUtils {
     }
     log.logDetailed("Creating index or constraint : " + cypher);
     try {
-      connection.execute(cypher, Map.of());
+      // In a write transaction where the database allows it: the driver retries it when it
+      // deadlocks with the same statement of another copy or Spark partition
+      connection.executeSchemaStatement(
+          cypher,
+          dialect.isSupportingSchemaChangesInTransactions()
+              && connection.isSupportingTransactions());
     } catch (HopException e) {
       if (!dialect.isExistingOrMissingIndexError(e)) {
         throw e;

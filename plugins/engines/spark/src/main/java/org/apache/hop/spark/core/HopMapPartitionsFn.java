@@ -413,6 +413,9 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               pipelineMeta, variables, new LoggingObject("apache-spark-transform"));
       pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipeline.setMetadataProvider(metadataProvider);
+      // The driver did the once-per-run work (truncate, create table ...) before the job: this
+      // partition only flags the transforms it prepared (Internal.Pipeline.PreparedOnceTransforms)
+      pipeline.setPreparingTransformsOnce(false);
       pipeline
           .getPipelineRunConfiguration()
           .setName("spark-transform-local (" + transformName + ")");

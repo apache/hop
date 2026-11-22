@@ -34,6 +34,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
@@ -225,5 +226,20 @@ class TableOutputMetaTest {
           .append(testObject.getFieldDatabase(), another.getFieldDatabase())
           .isEquals();
     }
+  }
+
+  @Test
+  void needsPrepareOnceForATruncateOrTableChanges() {
+    TableOutputMeta meta = new TableOutputMeta();
+    Variables variables = new Variables();
+    assertFalse(meta.needsPrepareOnce(variables));
+    meta.setTruncateTable(true);
+    assertTrue(meta.needsPrepareOnce(variables));
+    meta.setOnlyWhenHaveRows(true);
+    assertFalse(meta.needsPrepareOnce(variables), "only truncated once rows arrive");
+    meta.setAutoUpdateTableStructure(true);
+    assertTrue(meta.needsPrepareOnce(variables));
+    meta.setTableNameInField(true);
+    assertFalse(meta.needsPrepareOnce(variables), "every copy can have its own table");
   }
 }
