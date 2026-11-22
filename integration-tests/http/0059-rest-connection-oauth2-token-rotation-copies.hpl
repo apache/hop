@@ -21,7 +21,7 @@ limitations under the License.
   <info>
     <name>0059-rest-connection-oauth2-token-rotation-copies</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>OAuth 2 token rotation with four copies of the REST transform (issue #9550). The API stops accepting token-1 after a couple of requests, while the other copies still have requests in flight with it. All copies must share the one new token: all 20 rows end with status 200, and the token endpoint fails a third token request, which is what a copy fetching a token of its own would send.</description>
+    <description>OAuth 2 token rotation with four copies of the REST transform (issue #9550). The API accepts token-1 for rows 1 and 2 only, so the copies sending row 3 and later get a 401 while other copies still have requests in flight with token-1. All copies must share the one new token: all 20 rows end with status 200, and the token endpoint fails a third token request, which is what a copy fetching a token of its own would send.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -42,6 +42,11 @@ limitations under the License.
   <order>
     <hop>
       <from>20 rows</from>
+      <to>row number</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>row number</from>
       <to>REST via OAuth 2 connection</to>
       <enabled>Y</enabled>
     </hop>
@@ -86,6 +91,30 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
+    <name>row number</name>
+    <type>Sequence</type>
+    <description>Sent as the X-Row header: the API accepts token-1 for rows 1 and 2 only.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <use_counter>Y</use_counter>
+    <use_database>N</use_database>
+    <increment_by>1</increment_by>
+    <max_value>999999999</max_value>
+    <seqname>SEQ_</seqname>
+    <start_at>1</start_at>
+    <valuename>row</valuename>
+    <attributes/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>REST via OAuth 2 connection</name>
     <type>Rest</type>
     <description>Four copies, so several requests carry the rejected token at the same time.</description>
@@ -102,6 +131,10 @@ limitations under the License.
     <connection_name>oauth2-token-rotation-copies</connection_name>
     <dynamicMethod>N</dynamicMethod>
     <headers>
+      <header>
+        <field>row</field>
+        <name>X-Row</name>
+      </header>
     </headers>
     <httpLogin/>
     <httpPassword>Encrypted </httpPassword>

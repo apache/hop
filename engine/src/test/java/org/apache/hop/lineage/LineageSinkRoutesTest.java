@@ -215,6 +215,16 @@ class LineageSinkRoutesTest {
   }
 
   @Test
+  void theResultsOfAUnitTestRunAreReportedToItsSinks() {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline("marquez", null);
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "Y");
+
+    assertTrue(LineageSinkRoutes.isUnitTestReported(pipeline, hub));
+    assertTrue(LineageSinkRoutes.ofRun(pipeline, hub).isEmpty(), "while its run lineage is not");
+    assertFalse(LineageSinkRoutes.isUnitTestReported(pipeline(null, null), hub));
+  }
+
+  @Test
   void aRunKeepsTheSinksItStartedWith() {
     IPipelineEngine<PipelineMeta> pipeline = pipeline("marquez", null);
     Set<String> first = LineageSinkRoutes.of(pipeline, hub);
