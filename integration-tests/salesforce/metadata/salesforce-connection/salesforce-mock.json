@@ -1,0 +1,8 @@
+{
+  "name": "salesforce-mock",
+  "authentication_type": "OAUTH",
+  "oauth_client_id": "integration-test",
+  "oauth_access_token": "test-token",
+  "oauth_instance_url": "http://salesforce_mock:8080",
+  "oauth_api_version": "64.0"
+}
