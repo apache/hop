@@ -137,3 +137,8 @@ Hop will generate one if you don't specify one yourself.
 |Image|The name of as added image.
 |Content ID (field)|The content ID of an added image.
 |===
+
+== Samples
+
+The samples project has `transforms/mail.hpl`, which sends one email with the recipient, the subject, the message and the sender taken from the fields of a Data grid.
+Create a mail server connection named `sample-mail` before you run it.

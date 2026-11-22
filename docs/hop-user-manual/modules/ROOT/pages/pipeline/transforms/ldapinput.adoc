@@ -97,3 +97,7 @@ This is either a dot or a comma.
 |Repeat|If LDAP returns no value for an attribute, use the value from the previous row
 |Get fields|Gets the result fields
 |===
+
+== Samples
+
+The samples project has `transforms/ldap-input.hpl`, which reads the `dn` of the entries one level below `dc=example,dc=org` from an LDAP server on `localhost`, port 389.

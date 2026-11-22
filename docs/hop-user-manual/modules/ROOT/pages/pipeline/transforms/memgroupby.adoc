@@ -69,3 +69,10 @@ This can be useful if you want to count the number of rows. Without this option 
 - Concatenate distinct values separated by <Value>: specify the separator in the Value column (This supports hexadecimals)
 
 |===
+
+== Samples
+
+The samples project has:
+
+* `loops/child-loops-get-rows-from-result.hpl`, which counts the distinct `random_string` values of the rows it gets from `loops/child-generate-1000-rows.hpl`.
+* `transforms/memory-group-by.hpl`, which counts the employees per department of a Data grid: 3 in engineering, 2 in sales and 1 in marketing.

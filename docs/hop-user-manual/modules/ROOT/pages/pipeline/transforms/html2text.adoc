@@ -48,3 +48,7 @@ A row that cannot be converted stops the transform. When the transform has error
 To convert rows on several threads, give the transform more copies: each copy converts the rows it gets on a thread of its own.
 
 NOTE: Before Hop 2.21, the transform had a *Use Parallelism* option that converted rows on a thread pool shared by the whole JVM. That option is gone: a transform that had it on converts its rows on one thread per copy now. Set the number of copies to use more threads.
+
+== Samples
+
+The samples project has `transforms/html2text.hpl`, which cleans an HTML document from a Data grid with the Basic safelist and then extracts its text, also extracts the text without cleaning it first, and writes both results to CSV files.
