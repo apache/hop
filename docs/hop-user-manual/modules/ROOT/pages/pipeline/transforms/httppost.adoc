@@ -97,3 +97,7 @@ Query parameters are specified in the URL and can be used in any HTTP method.
 |Value|The value to map to the parameter.
 |===
 
+== Samples
+
+The samples project has `transforms/http-post.hpl`, which sends a POST request to `https://hop.apache.org/` for one row from a Data grid, and adds the response as `result` and the HTTP status code as `status_code`.
+It needs network access.

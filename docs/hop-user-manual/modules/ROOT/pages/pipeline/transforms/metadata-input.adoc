@@ -34,3 +34,7 @@ You can specify the field names of the information you need, or not.
 You can also specify one or more type filters to limit the output of the transform.
 
 For example, you can select filter 'rdbms' to only see the relational database connection metadata in the output.
+
+== Samples
+
+The samples project has `transforms/metadata-input.hpl`, which returns one row for each metadata object of the samples project, with its type, name and JSON.

@@ -49,3 +49,7 @@ This is important for data sources that allow for table names with periods in th
 |Update Fields|Allows you to specify all fields in the table you want to insert/update including the keys.
 Avoid updates on certain fields by specifying N in the update column.
 |===
+
+== Samples
+
+The samples project has `transforms/insertupdate-basic.hpl`, which writes 7 rows from a Data grid to the table `INSERTUPDATE` of the `hop-samples` connection, with `id` as the key: 5 rows are inserted, and the 2 rows with an `id` that is already in the table update `col_bool` and `col_string`, but not `col_date`.

@@ -29,3 +29,10 @@ The data entering this transform will be streamed to the parent pipeline.
 
 A child used from xref:pipeline/transforms/simple-mapping.adoc[Simple Mapping] must contain exactly one Mapping output.
 A child used from xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] may contain zero or more Mapping output transforms.
+
+== Samples
+
+The samples project has:
+
+* `transforms/simple-mapping-child.hpl`, whose Mapping output returns the full name in `name`; `transforms/simple-mapping-parent.hpl` gets it back as `resultName`.
+* `transforms/multi-mapping-child.hpl`, the same mapping, which `transforms/multi-mapping-parent.hpl` runs and gets `resultName` back from.

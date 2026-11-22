@@ -65,3 +65,7 @@ That engine runs the previous transforms first, so all the rows of the other str
 |Main transform to read from|The main stream: the transform from which to read most of the data. The rows of the other transforms are cached or spooled to disk, the rows of this transform are not. When left empty, the first input stream is the main stream.
 |The Condition(s)|You can enter a complex condition to limit the number of output row.
 |===
+
+== Samples
+
+The samples project has `transforms/join-rows.hpl`, which joins two Data grids with the values `a`, `b` and `c` into their 9 combinations, and joins two other Data grids with the condition `field1 = field2` and `field1 = a` into one row.

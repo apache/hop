@@ -101,3 +101,8 @@ The LDAP Output transform supports the following operation types:
 |Get fields|
 |Edit mapping|
 |===
+
+== Samples
+
+The samples project has `transforms/ldap-output.hpl`, which renames the entry `cn=alice,dc=example,dc=org` to `cn=alice-new,dc=example,dc=org` on an LDAP server on `localhost`, port 389.
+Set the variables `LDAP_USERNAME` and `LDAP_PASSWORD` before you run it.
