@@ -18,7 +18,7 @@ limitations under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Watch Files continuously emits stable file changes with persistent state and reconciliation.
-:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/watchfiles.svg[Watch Files transform Icon, role="image-doc-icon"] Watch Files
 

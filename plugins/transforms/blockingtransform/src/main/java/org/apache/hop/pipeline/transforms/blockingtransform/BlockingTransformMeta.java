@@ -43,7 +43,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::BlockingTransform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::BlockingTransformMeta.keyword",
-    documentationUrl = "/pipeline/transforms/blockingtransform.html")
+    documentationUrl = "/pipeline/transforms/blockingtransform.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class BlockingTransformMeta
     extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 

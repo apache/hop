@@ -1,0 +1,7 @@
+sourcePipelineName,sourceTransformName,sourceTransformCopy,rowNr,fieldName,fieldType,value
+0138-pipeline-data-probe-source,probed,0,1,id,Integer,1
+0138-pipeline-data-probe-source,probed,0,1,name,String,one
+0138-pipeline-data-probe-source,probed,0,2,id,Integer,2
+0138-pipeline-data-probe-source,probed,0,2,name,String,two
+0138-pipeline-data-probe-source,probed,0,3,id,Integer,3
+0138-pipeline-data-probe-source,probed,0,3,name,String,three

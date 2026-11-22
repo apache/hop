@@ -1,0 +1,11 @@
+{
+  "dataProbeLocations": [
+    {
+      "sourcePipelineFilename": "${PROJECT_HOME}/0138-pipeline-data-probe-source.hpl",
+      "sourceTransformName": "probed"
+    }
+  ],
+  "name": "0138-pipeline-data-probe",
+  "pipelineFilename": "${PROJECT_HOME}/0138-pipeline-data-probe-probe.hpl",
+  "enabled": true
+}

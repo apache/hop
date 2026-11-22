@@ -47,7 +47,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline",
     keywords = "i18n::InjectorMeta.keyword",
-    documentationUrl = "/pipeline/transforms/injector.html")
+    documentationUrl = "/pipeline/transforms/injector.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class InjectorMeta extends BaseTransformMeta<Injector, InjectorData> {
 
   private static final Class<?> PKG = InjectorMeta.class;

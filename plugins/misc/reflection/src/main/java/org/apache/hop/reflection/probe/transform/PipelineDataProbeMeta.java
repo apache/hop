@@ -36,7 +36,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/pipeline-data-probe.html",
     image = "probe.svg",
-    keywords = "i18n::PipelineDataProbeMeta.keyword")
+    keywords = "i18n::PipelineDataProbeMeta.keyword",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class PipelineDataProbeMeta
     extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
 
