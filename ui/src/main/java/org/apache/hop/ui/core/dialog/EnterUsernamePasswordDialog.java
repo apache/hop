@@ -73,14 +73,14 @@ public class EnterUsernamePasswordDialog extends Dialog {
 
     shell.setLayout(formLayout);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
-    shell.setText("Username/Password");
+    shell.setText(BaseMessages.getString(PKG, "EnterUsernamePasswordDialog.Title"));
 
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
     // The Username line...
     Label wlUsername = new Label(shell, SWT.RIGHT);
-    wlUsername.setText("Username:");
+    wlUsername.setText(BaseMessages.getString(PKG, "EnterUsernamePasswordDialog.Username.Label"));
     PropsUi.setLook(wlUsername);
     FormData fdlUsername = new FormData();
     fdlUsername.left = new FormAttachment(0, 0);
@@ -98,7 +98,7 @@ public class EnterUsernamePasswordDialog extends Dialog {
 
     // The Password line...
     Label wlPassword = new Label(shell, SWT.RIGHT);
-    wlPassword.setText("Password:");
+    wlPassword.setText(BaseMessages.getString(PKG, "EnterUsernamePasswordDialog.Password.Label"));
     PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment(0, 0);
