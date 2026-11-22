@@ -42,6 +42,7 @@ import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -93,6 +94,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -218,6 +220,10 @@ public class GitPerspective implements IHopPerspective {
   private Control wDiff; // Can be Text (web) or DiffStyledTextComp (desktop)
   private Control wDiffStyled; // Declared as Control (not DiffStyledTextComp) so works in hop web
   private Text wSearchText;
+
+  /** Debounced search action so we don't reload the history on every keystroke. */
+  private final Runnable searchRunnable = this::search;
+
   private Text wDiffText;
   // private GuiToolbarWidgets refToolBarWidgets;
   private GuiToolbarWidgets fileToolBarWidgets;
@@ -374,12 +380,13 @@ public class GitPerspective implements IHopPerspective {
     // Create search/filter text box
     wSearchText = new Text(composite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     wSearchText.setMessage(BaseMessages.getString(PKG, "GitPerspective.Search.Placeholder"));
+    wSearchText.setToolTipText(BaseMessages.getString(PKG, "GitPerspective.Search.Tooltip"));
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
     searchFormData.top = new FormAttachment(0, 0);
     searchFormData.right = new FormAttachment(100, 0);
     wSearchText.setLayoutData(searchFormData);
-    wSearchText.addListener(SWT.Modify, event -> search());
+    wSearchText.addListener(SWT.Modify, event -> scheduleSearch());
     PropsUi.setLook(wSearchText);
 
     // Create a composite with toolbar and tree for the border
@@ -2080,6 +2087,16 @@ public class GitPerspective implements IHopPerspective {
             plotRenderer.paintCommit(event, commit);
           }
         });
+  }
+
+  /** Filter the history on the search text once typing pauses. */
+  private void scheduleSearch() {
+    if (wSearchText == null || wSearchText.isDisposed()) {
+      return;
+    }
+    Display display = wSearchText.getDisplay();
+    display.timerExec(-1, searchRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, searchRunnable);
   }
 
   private void search() {

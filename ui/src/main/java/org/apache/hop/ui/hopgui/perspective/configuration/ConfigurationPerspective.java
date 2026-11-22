@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -60,6 +61,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -112,6 +114,10 @@ public class ConfigurationPerspective implements IHopPerspective {
   private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
   private Text searchBox;
+
+  /** Debounced search action so we don't search all the settings on every keystroke. */
+  private final Runnable filterRunnable = this::applySearchFilter;
+
   private static ConfigurationPerspective instance;
 
   public ConfigurationPerspective() {
@@ -217,8 +223,10 @@ public class ConfigurationPerspective implements IHopPerspective {
         new Text(treeComposite, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
     PropsUi.setLook(searchBox);
     searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
+    searchBox.setToolTipText(
+        BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Tooltip"));
     searchBox.setLayoutData(new FormDataBuilder().top().fullWidth().result());
-    searchBox.addListener(SWT.Modify, e -> filterSettings(searchBox.getText()));
+    searchBox.addListener(SWT.Modify, e -> scheduleSearchFilter());
 
     categoryTree = new Tree(treeComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
     categoryTree.setLayoutData(
@@ -480,6 +488,23 @@ public class ConfigurationPerspective implements IHopPerspective {
         applyHighlightingToCurrentTab();
       }
     }
+  }
+
+  /** Search the settings once typing pauses. */
+  private void scheduleSearchFilter() {
+    if (searchBox == null || searchBox.isDisposed()) {
+      return;
+    }
+    Display display = searchBox.getDisplay();
+    display.timerExec(-1, filterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, filterRunnable);
+  }
+
+  private void applySearchFilter() {
+    if (searchBox == null || searchBox.isDisposed()) {
+      return;
+    }
+    filterSettings(searchBox.getText());
   }
 
   private void filterSettings(String searchText) {
