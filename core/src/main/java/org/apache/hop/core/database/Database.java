@@ -1687,28 +1687,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * updated and deleted rows together and lands in the update counter.
    */
   private void countAffectedRows(Result result, String sql, int count) {
-    if (count <= 0) {
-      return;
-    }
-    String verb = SqlQueryClassifier.statementVerb(sql);
-    if (verb == null) {
-      return;
-    }
-    switch (verb) {
-      case "INSERT" -> result.setNrLinesOutput(count);
-      case "UPDATE", "MERGE", "UPSERT", "REPLACE" -> result.setNrLinesUpdated(count);
-      case "DELETE" -> result.setNrLinesDeleted(count);
-      default -> {
-        // Databases that update or delete through another statement, like ClickHouse with
-        // ALTER TABLE ... UPDATE / DELETE
-        String upperSql = sql.toUpperCase();
-        if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
-          result.setNrLinesUpdated(count);
-        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
-          result.setNrLinesDeleted(count);
-        }
-      }
-    }
+    SqlQueryClassifier.affectedRows(sql, databaseMeta).addTo(result, count);
   }
 
   /**

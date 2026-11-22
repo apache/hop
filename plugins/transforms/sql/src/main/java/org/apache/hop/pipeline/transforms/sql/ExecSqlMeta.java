@@ -72,6 +72,7 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "EXEC_SQL_DIALOG_OPTIONS";
   public static final String WIDGET_CONNECTION = "CONNECTION";
+  public static final String WIDGET_COMMIT_SIZE = "COMMIT_SIZE";
   public static final String WIDGET_INSERT_FIELD = "INSERT_FIELD";
   public static final String WIDGET_UPDATE_FIELD = "UPDATE_FIELD";
   public static final String WIDGET_DELETE_FIELD = "DELETE_FIELD";
@@ -99,6 +100,26 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
       injectionKeyDescription = "ExecSqlMeta.Injection.CONNECTIONNAME",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
+
+  /**
+   * Commit after this many rows when the SQL is executed for each row. Empty or 0 keeps the
+   * connection in auto-commit mode, so every row is committed on its own. Variables are allowed.
+   */
+  @GuiWidgetElement(
+      id = WIDGET_COMMIT_SIZE,
+      order = "0150",
+      type = GuiElementType.TEXT,
+      label = "i18n::ExecSqlMeta.CommitSize.Label",
+      toolTip = "i18n::ExecSqlMeta.CommitSize.Tooltip",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      group = GROUP_GENERAL,
+      groupOrder = "10",
+      groupType = GuiWidgetGroupType.TABS)
+  @HopMetadataProperty(
+      key = "commit_size",
+      injectionKeyDescription = "ExecSqlMeta.Injection.COMMIT_SIZE",
+      injectionKey = "COMMIT_SIZE")
+  private String commitSize;
 
   @GuiWidgetElement(
       id = WIDGET_INSERT_FIELD,
@@ -253,6 +274,27 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   @Override
   public String getMainInputRequirementHint() {
     return BaseMessages.getString(PKG, "ExecSqlDialog.EachRow.Label");
+  }
+
+  /**
+   * The commit size to use when the SQL is executed for each row.
+   *
+   * @param variables to resolve a variable in the commit size with
+   * @return the number of rows per transaction, or 0 for auto-commit (empty, 0 or negative)
+   * @throws HopException if the commit size is not a number
+   */
+  public int resolveCommitSize(IVariables variables) throws HopException {
+    String resolved = variables.resolve(Const.NVL(commitSize, "")).trim();
+    if (Utils.isEmpty(resolved)) {
+      return 0;
+    }
+    String expanded = Const.expandIntegerString(resolved);
+    try {
+      return Math.max(0, Integer.parseInt(expanded != null ? expanded : resolved));
+    } catch (NumberFormatException e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ExecSqlMeta.Exception.InvalidCommitSize", resolved), e);
+    }
   }
 
   /**
