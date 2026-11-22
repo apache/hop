@@ -80,6 +80,19 @@ public final class LineageSinkRoutes {
     return of(pipeline, LineageHub.getInstance());
   }
 
+  /**
+   * Whether the results of the unit test a pipeline run runs are observed: lineage is enabled with
+   * variables, or the run has sinks for its results ({@link #ofUnitTest}). {@link
+   * #isEnabled(IPipelineEngine)} is false for such a run, which reports no lineage of its own.
+   */
+  public static boolean isUnitTestReported(IPipelineEngine<PipelineMeta> pipeline) {
+    return isUnitTestReported(pipeline, LineageHub.getInstance());
+  }
+
+  static boolean isUnitTestReported(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {
+    return hub.isEnabled() || !of(pipeline, hub).isEmpty();
+  }
+
   static boolean isUnitTestRun(IPipelineEngine<PipelineMeta> pipeline) {
     return pipeline != null && "Y".equalsIgnoreCase(pipeline.getVariable(VAR_RUN_UNIT_TEST));
   }
