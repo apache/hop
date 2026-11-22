@@ -236,6 +236,19 @@ public class Const {
           "Set to 'Y' to start a pipeline that has main hops into transforms that do not consume input. Verify still reports an error. Default N fails init and stops on leftover input.")
   public static final String HOP_ALLOW_UNCONSUMED_MAIN_INPUT = "HOP_ALLOW_UNCONSUMED_MAIN_INPUT";
 
+  /**
+   * Run a workflow once, even when its Start action repeats it. A scheduler outside Hop (for
+   * example Apache Airflow) sets it as a system property: it starts the workflow on the Start
+   * action's schedule itself. System scope: Hop copies the default of an application variable over
+   * a system property, so an application variable could not be set this way.
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "N",
+      description =
+          "Set to 'Y' to run a workflow once, even when its Start action repeats it on a schedule. The Start action then does not wait either. For schedulers outside Hop, such as Apache Airflow.")
+  public static final String HOP_IGNORE_START_REPEAT = "HOP_IGNORE_START_REPEAT";
+
   /** The operating system the hop platform runs on */
   @Variable(
       scope = VariableScope.SYSTEM,

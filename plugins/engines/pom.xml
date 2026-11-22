@@ -30,6 +30,8 @@
     <name>Hop Plugins Engines</name>
 
     <modules>
+        <module>airflow</module>
+        <module>airflow-launcher</module>
         <module>beam</module>
         <module>replay</module>
         <module>single-threaded</module>
