@@ -113,8 +113,8 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <connection>hop-samples</connection>
-    <tablename>PUBLIC.DBLOOKUP</tablename>
-    <schemaname/>
+    <tablename>DBLOOKUP</tablename>
+    <schemaname>PUBLIC</schemaname>
     <istablenameInfield>N</istablenameInfield>
     <tablenamefield/>
     <columnnamefield>column_name</columnnamefield>
