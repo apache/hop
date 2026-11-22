@@ -26,6 +26,10 @@ import java.util.Set;
  * their documentation page says "Native Spark=yes". A transform that is neither here, nor refused
  * ({@link HopPipelineMetaToSparkConverter#HARD_BANNED_PLUGIN_IDS}), nor handled natively ({@link
  * HopPipelineMetaToSparkConverter#EXPLICIT_HANDLER_PLUGIN_IDS}) may work, but no test shows it.
+ *
+ * <p>Add sequence, Sample rows and Reservoir sampling are not listed: the integration test baseline
+ * ran them on one partition only, and on several partitions they give other rows (Add sequence
+ * repeats its values per partition, Sample rows samples each partition).
  */
 public final class SparkVerifiedTransforms {
 
@@ -139,18 +143,15 @@ public final class SparkVerifiedTransforms {
           "RedisOutput",
           "RegexEval",
           "ReplaceString",
-          "ReservoirSampling",
           "Rest",
           "RowGenerator",
           "RuleExecutor",
           "SFTPPut",
           "SQLFileOutput",
           "SSH",
-          "SampleRows",
           "SchemaMapping",
           "ScriptValueMod",
           "SelectValues",
-          "Sequence",
           "SetValueConstant",
           "SetValueField",
           "SimpleMapping",
