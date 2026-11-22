@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- A small DAG with a play button: start a DAG run -->
+  <g stroke="#1F7A8C" stroke-width="6" fill="none" stroke-linecap="round">
+    <path d="M26 46 L52 22"/>
+    <path d="M26 46 L52 70"/>
+    <path d="M52 22 L78 46"/>
+    <path d="M52 70 L78 46"/>
+  </g>
+  <circle cx="24" cy="46" r="12" fill="#1F7A8C"/>
+  <circle cx="52" cy="20" r="12" fill="#2BA3B8"/>
+  <circle cx="52" cy="72" r="12" fill="#2BA3B8"/>
+  <circle cx="80" cy="46" r="12" fill="#1F7A8C"/>
+  <circle cx="90" cy="92" r="30" fill="#E8730C"/>
+  <path d="M80 76 L106 92 L80 108 Z" fill="#FFFFFF"/>
+</svg>

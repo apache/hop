@@ -1,0 +1,15 @@
+{
+  "variables" : [ {
+    "name" : "AIRFLOW_URL",
+    "value" : "http://airflow:8080",
+    "description" : "The Airflow API server (service name in the docker compose file)"
+  }, {
+    "name" : "AIRFLOW_USER",
+    "value" : "admin",
+    "description" : "The Airflow user of the simple auth manager"
+  }, {
+    "name" : "AIRFLOW_PASSWORD",
+    "value" : "admin",
+    "description" : "The password of that user"
+  } ]
+}
