@@ -51,24 +51,6 @@ final class PopupMenuPlacement {
    */
   private static final int MENU_CHROME = 8;
 
-  /**
-   * Padding Windows adds to {@code SM_CYMENU} for one row of a themed popup, in points. A row
-   * measures 22 pixels at 100% where the metric says 20.
-   */
-  private static final int WINDOWS_ROW_PADDING = 2;
-
-  /** Height of a separator in a themed Windows popup, in points. */
-  private static final int WINDOWS_SEPARATOR = 9;
-
-  /**
-   * What Windows adds around the image of a row, in points. A row with an 18 pixel image measures
-   * 24 pixels at 100%.
-   */
-  private static final int WINDOWS_IMAGE_PADDING = 6;
-
-  /** Room around the image of a row on the other platforms, in points. */
-  private static final int IMAGE_PADDING = 2;
-
   private PopupMenuPlacement() {}
 
   /**
@@ -109,11 +91,6 @@ final class PopupMenuPlacement {
    * reports the row height in pixels at the monitor DPI; other platforms use the menu font. The
    * frame around the items is in points on every platform, because the font path is already in
    * points and must not be scaled a second time.
-   *
-   * <p>Rows are measured one by one: a row with an image taller than the text is taller than a row
-   * without one, so a single height for the whole menu is off by an amount that depends on how many
-   * rows carry an image. The images {@link GuiMenuWidgets} loads when the menu is shown are loaded
-   * here, because they are not on the items yet and the menu is about to open anyway.
    */
   static int heightOf(Menu menu, Monitor monitor) {
     if (menu == null || menu.isDisposed()) {
@@ -123,11 +100,9 @@ final class PopupMenuPlacement {
     if (items.length == 0) {
       return 0;
     }
-    int textRowPoints = rowHeight(menu, monitor);
-    int imagePadding = OsHelper.isWindows() ? WINDOWS_IMAGE_PADDING : IMAGE_PADDING;
-    int rowsPoints = 0;
     int rows = 0;
     int separators = 0;
+    int tallestImage = 0;
     for (MenuItem item : items) {
       if (item.isDisposed()) {
         continue;
@@ -137,34 +112,33 @@ final class PopupMenuPlacement {
         continue;
       }
       rows++;
-      int rowPoints = textRowPoints;
-      Image image = GuiMenuWidgets.getImage(item);
+      Image image = item.getImage();
       if (image != null && !image.isDisposed()) {
-        rowPoints = Math.max(rowPoints, image.getBounds().height + imagePadding);
+        tallestImage = Math.max(tallestImage, image.getBounds().height);
       }
-      rowsPoints += rowPoints;
     }
     if (rows == 0 && separators == 0) {
       return 0;
     }
-    // An estimate that is too short pushes the bottom of a long menu past the work area. Windows
-    // then flips the menu around the point and it opens a full menu height too high.
-    int separatorPoints = OsHelper.isWindows() ? WINDOWS_SEPARATOR : Math.max(6, textRowPoints / 3);
-    return rowsPoints + separators * separatorPoints + MENU_CHROME;
+    int rowPoints = rowHeight(menu, monitor, tallestImage);
+    int separatorPoints = Math.max(6, rowPoints / 3);
+    return rows * rowPoints + separators * separatorPoints + MENU_CHROME;
   }
 
-  /** Height of a row without an image, in points. */
-  private static int rowHeight(Menu menu, Monitor monitor) {
+  private static int rowHeight(Menu menu, Monitor monitor, int tallestImage) {
     int rowPoints = -1;
     if (OsHelper.isWindows() && monitor != null) {
       int zoom = monitor.getZoom();
       int rowPixels = windowsRowPixels(zoom);
       if (rowPixels > 0) {
-        rowPoints = pixelsToPoints(rowPixels, zoom) + WINDOWS_ROW_PADDING;
+        rowPoints = pixelsToPoints(rowPixels, zoom);
       }
     }
     if (rowPoints <= 0) {
       rowPoints = textHeight(menu) + 8;
+    }
+    if (tallestImage > 0) {
+      rowPoints = Math.max(rowPoints, tallestImage + 2);
     }
     return rowPoints;
   }

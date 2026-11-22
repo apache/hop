@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Teradata Bulkloader transform supports fastloading data into a Teradata database using the fastload command line tool.
 
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/terafast.svg[Teradata Bulk Loader transform Icon, role="image-doc-icon"] Teradata Bulk Loader
 

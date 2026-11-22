@@ -29,7 +29,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.graph.CypherGraphDialect;
-import org.apache.hop.core.graph.IGraphConnection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -940,46 +939,12 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       return;
     }
 
-    // The engine created the indexes of the fixed labels before the run (see prepareOnce): only
-    // the labels of the first row's label fields are left
-    boolean fixedLabels = !isPreparedOnce();
-    createIndexForNode(data.connection, meta.getNodeFromField(), rowMeta, rowData, fixedLabels);
-    createIndexForNode(data.connection, meta.getNodeToField(), rowMeta, rowData, fixedLabels);
-  }
-
-  /**
-   * Creates the indexes on the primary properties of the fixed labels once for the whole run,
-   * before any copy, Spark partition or Beam bundle writes a row. Otherwise every Spark partition,
-   * all of them copy 0, creates the same constraints at the same time. Labels taken from a field
-   * are only known once the first row arrives.
-   */
-  @Override
-  public void prepareOnce() throws HopException {
-    IGraphConnection connection = data.graphConnection.connect(getLogChannel(), this);
-    try (connection) {
-      createIndexForNode(connection, meta.getNodeFromField(), null, null, true);
-      createIndexForNode(connection, meta.getNodeToField(), null, null, true);
-    }
-  }
-
-  /**
-   * @return true if the node has a fixed label and a primary property: an index to create before
-   *     the first row
-   */
-  static boolean hasFixedLabelIndex(NodeField node) {
-    return node != null
-        && node.getLabels() != null
-        && node.getProperties() != null
-        && node.getLabels().stream().anyMatch(l -> !Utils.isEmpty(l.getLabel()))
-        && node.getProperties().stream().anyMatch(PropertyField::isPropertyPrimary);
+    createIndexForNode(data, meta.getNodeFromField(), rowMeta, rowData);
+    createIndexForNode(data, meta.getNodeToField(), rowMeta, rowData);
   }
 
   private void createIndexForNode(
-      IGraphConnection connection,
-      NodeField theNode,
-      IRowMeta rowMeta,
-      Object[] rowData,
-      boolean fixedLabels)
+      Neo4JOutputData data, NodeField theNode, IRowMeta rowMeta, Object[] rowData)
       throws HopException {
 
     // Which labels to index?
@@ -987,10 +952,10 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     Set<String> labels = new HashSet<>();
 
     for (LabelField labelField : theNode.getLabels()) {
-      if (fixedLabels && !Utils.isEmpty(labelField.getLabel())) {
+      if (!Utils.isEmpty(labelField.getLabel())) {
         labels.add(labelField.getLabel());
       }
-      if (rowMeta != null && !Utils.isEmpty(labelField.getLabelField())) {
+      if (!Utils.isEmpty(labelField.getLabelField())) {
         String label = rowMeta.getString(rowData, labelField.getLabelField(), null);
         if (StringUtils.isNotEmpty(label)) {
           labels.add(label);
@@ -1014,7 +979,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       if (label != null && !primaryProperties.isEmpty()) {
         NeoConnectionUtils.createNodeIndex(
-            getLogChannel(), connection, Collections.singletonList(label), primaryProperties);
+            getLogChannel(), data.connection, Collections.singletonList(label), primaryProperties);
       }
     }
   }

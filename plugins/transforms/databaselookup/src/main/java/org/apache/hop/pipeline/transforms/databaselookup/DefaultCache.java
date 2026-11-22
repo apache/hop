@@ -17,10 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.TimedRow;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -38,16 +41,7 @@ public class DefaultCache implements DatabaseLookupData.ICache {
   }
 
   private final DatabaseLookupData data;
-
-  /** Keys in insertion order: the oldest entry is evicted first when a cache size is set. */
-  private final LinkedHashMap<RowMetaAndData, Object[]> map;
-
-  /**
-   * Reused to probe the map, so a lookup allocates no key. It is never stored: hashCode() and
-   * equals() of {@link RowMetaAndData} only read the row meta and data it holds at that moment. The
-   * cache belongs to one transform copy, whose lookups are serialized.
-   */
-  private final RowMetaAndData probe = new RowMetaAndData();
+  private final LinkedHashMap<RowMetaAndData, TimedRow> map;
 
   DefaultCache(DatabaseLookupData data, int capacity) {
     this.data = data;
@@ -59,17 +53,17 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     if (data.allEquals) {
       // only do the map lookup when all equals otherwise conditions >, <, <> will give wrong
       // results
-      probe.setRowMeta(data.lookupMeta);
-      probe.setData(lookupRow);
-      return map.get(probe);
+      TimedRow timedRow = map.get(new RowMetaAndData(data.lookupMeta, lookupRow));
+      if (timedRow != null) {
+        return timedRow.getRow();
+      }
     } else { // special handling of conditions <,>, <> etc.
       if (!data.hasDBCondition) { // e.g. LIKE not handled by this routine, yet
         //  find an alternative way to look up the data based on the condition.
         // Not all conditions are "=" so we are going to have to evaluate row by row
         // A sorted list or index might be a good solution here...
         //
-        for (Map.Entry<RowMetaAndData, Object[]> entry : map.entrySet()) {
-          RowMetaAndData key = entry.getKey();
+        for (RowMetaAndData key : map.keySet()) {
           // Now verify that the key is matching our conditions...
           //
           boolean match = true;
@@ -126,7 +120,10 @@ public class DefaultCache implements DatabaseLookupData.ICache {
             lookupIndex++;
           }
           if (match) {
-            return entry.getValue();
+            TimedRow timedRow = map.get(key);
+            if (timedRow != null) {
+              return timedRow.getRow();
+            }
           }
         }
       }
@@ -146,17 +143,45 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     // * Additionally, if using the load all data feature, re-inserting would reverse the order
     // * specified in the transform.
     // */
-    map.put(rowMetaAndData, add);
+    map.put(rowMetaAndData, new TimedRow(add));
 
-    // Limit the cache to the cache size by evicting the oldest entries. When all data is loaded
-    // into the cache there is no limit: a cache size set before load-all was switched on must not
-    // throw out rows that will never be read again.
-    int cacheSize = meta.getCacheSize();
-    if (!meta.isLoadingAllDataInCache() && cacheSize > 0 && map.size() > cacheSize) {
-      Iterator<RowMetaAndData> eldest = map.keySet().iterator();
-      while (map.size() > cacheSize && eldest.hasNext()) {
-        eldest.next();
-        eldest.remove();
+    // See if we have to limit the cache_size.
+    // Sample 10% of the rows in the cache.
+    // Remove everything below the second lowest date.
+    // That should on average remove more than 10% of the entries
+    // It's not exact science, but it will be faster than the old algorithm
+
+    // 2009-02-01: If you had previously set a cache size and then turned on load all,
+    // this
+    // method would throw out entries if the previous cache size wasn't big enough.
+    if (!meta.isLoadingAllDataInCache()
+        && meta.getCacheSize() > 0
+        && map.size() > meta.getCacheSize()) {
+      List<RowMetaAndData> keys = new ArrayList<>(map.keySet());
+      List<Date> samples = new ArrayList<>();
+      int incr = keys.size() / 10;
+      if (incr == 0) {
+        incr = 1;
+      }
+      for (int k = 0; k < keys.size(); k += incr) {
+        RowMetaAndData key = keys.get(k);
+        TimedRow timedRow = map.get(key);
+        samples.add(timedRow.getLogDate());
+      }
+
+      Collections.sort(samples);
+
+      if (samples.size() > 1) {
+        Date smallest = samples.get(1);
+
+        // Everything below the smallest date goes away...
+        for (RowMetaAndData key : keys) {
+          TimedRow timedRow = map.get(key);
+
+          if (timedRow.getLogDate().compareTo(smallest) < 0) {
+            map.remove(key);
+          }
+        }
       }
     }
   }

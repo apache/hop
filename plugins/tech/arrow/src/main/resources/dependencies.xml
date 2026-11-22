@@ -17,6 +17,7 @@
   -->
 
 <dependencies>
+    <folder>../../misc/static-schema</folder>
     <libs>
         <folder>../../../lib/core</folder>
         <wildcard>grpc-.*\.jar</wildcard>

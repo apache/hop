@@ -151,20 +151,6 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
   }
 
   /**
-   * The indexes of the model's nodes are created once per run, not in every copy or partition (see
-   * {@link GraphOutput#prepareOnce()}).
-   */
-  @Override
-  public boolean needsPrepareOnce(IVariables variables) {
-    return creatingIndexes
-        && !returningGraph
-        && connectionName != null
-        && !connectionName.isEmpty()
-        && model != null
-        && !model.isEmpty();
-  }
-
-  /**
    * Gets connectionName
    *
    * @return value of connectionName

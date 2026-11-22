@@ -45,9 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::RowsFromResult.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
     keywords = "i18n::RowsFromResultMeta.keyword",
-    documentationUrl = "/pipeline/transforms/getrowsfromresult.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/getrowsfromresult.html")
 @Getter
 @Setter
 public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFromResultData> {

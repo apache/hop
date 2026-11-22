@@ -101,8 +101,6 @@ Each option here controls one confirmation pop-up. Turning one off does not chan
 
 |Show copy or distribute dialog when drawing a hop|Ask whether rows should be copied to, or distributed round-robin over, the following transforms when a second hop is drawn out of a transform.|yes
 
-|Ask to name a transform or action after the file picked in its dialog|In the Pipeline Executor and Workflow Executor transforms, and the Pipeline and Workflow actions, ask whether the transform or action should take the name of the file picked with *Browse*. Nothing is asked when it already has that name. With this off, the name is left as it is.|yes
-
 |Show confirmation when splitting hops|Ask before splitting a hop when a transform or action is dropped onto it. With this off, the hop is split without asking. Hops that a dropped item would split are drawn in bold.|yes
 
 |Show confirmation to save file when starting pipeline or workflow|Ask whether to save a changed file before running it. With this off, the file is saved automatically on every run.|yes

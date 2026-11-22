@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Call DB Procedure transform calls a database procedure or function and returns a scalar value, output parameters, or result rows.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/dbproc.svg[Call DB procedure transform Icon, role="image-doc-icon"] Call DB procedure
 

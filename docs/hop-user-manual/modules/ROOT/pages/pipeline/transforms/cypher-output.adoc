@@ -80,8 +80,6 @@ separator and enclosure settings.
 |creates unique field constraints for all Primary properties in the nodes to make sure performance stays good when dealing with merges and lookup of nodes for relationships.
 **NOTE:** Please consider only using this when doing prototyping and testing.
 It's better to put the index creation statements explicitly in a Graph script action to make sure you never forget it even when moving to a new database.
-The indexes of fixed labels are created once per run, before any row is written: on the native Spark and Beam engines on the driver, so the partitions or bundles don't create the same constraints at the same time.
-The indexes of labels taken from a field are created on the first row.
 
 |Array separator
 |comma (`,`)

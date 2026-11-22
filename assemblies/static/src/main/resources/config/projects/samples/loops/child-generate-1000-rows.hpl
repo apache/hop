@@ -65,7 +65,7 @@ limitations under the License.
     </hop>
     <hop>
       <from>generate random strings</from>
-      <to>child-loops-get-rows-from-result.hpl</to>
+      <to>loops-get-rows-from-result.hpl</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -117,7 +117,7 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>child-loops-get-rows-from-result.hpl</name>
+    <name>loops-get-rows-from-result.hpl</name>
     <type>PipelineExecutor</type>
     <description/>
     <distribute>Y</distribute>
@@ -128,7 +128,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <run_configuration>local</run_configuration>
-    <filename>${PROJECT_HOME}/loops/child-loops-get-rows-from-result.hpl</filename>
+    <filename>${PROJECT_HOME}/loops/loops-get-rows-from-result.hpl</filename>
     <filenameInField>N</filenameInField>
     <filenameField/>
     <group_size>100</group_size>

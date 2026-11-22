@@ -43,17 +43,7 @@ public enum RuleCondition {
   // Collection conditions
   NOT_EMPTY_COLLECTION("Collection Not Empty", "Collection must contain at least one item", false),
   MAX_COLLECTION_SIZE("Maximum Collection Size", "Collection size must not exceed maximum", true),
-  MIN_COLLECTION_SIZE("Minimum Collection Size", "Collection size must meet minimum", true),
-
-  // Option conditions, for a map of options such as a connection's attributes. An option is found
-  // by its own name too when the map stores it under a prefix: sslmode matches
-  // EXTRA_OPTION_POSTGRESQL.sslmode.
-  HAS_OPTION("Has Option", "Options must include the one named, such as sslmode", true),
-  OPTION_MATCHES(
-      "Option Matches",
-      "Option must be set to a value matching the pattern, written name=regex, such as"
-          + " sslmode=(require|verify-ca|verify-full)",
-      true);
+  MIN_COLLECTION_SIZE("Minimum Collection Size", "Collection size must meet minimum", true);
 
   // NO_DISABLED_ITEMS, NO_DEFAULT_NAMES, HAS_DESCRIPTION and VALID_CONNECTIONS used to sit here.
   // None was ever implemented: they fell through to the default branch and silently reported

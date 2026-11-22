@@ -72,7 +72,6 @@ public class PropsUi extends Props {
   private double nativeZoomFactor;
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING =
       "ShowCopyOrDistributeWarning";
-  private static final String STRING_ASK_TO_RENAME_FROM_FILENAME = "AskToRenameFromFilename";
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
   private static final String SHOW_CANVAS_TOOL_TIP_PREFIX = "ShowCanvasToolTip";
   private static final String RESOLVE_VARIABLES_IN_TOOLTIPS = "ResolveVariablesInToolTips";
@@ -1171,18 +1170,6 @@ public class PropsUi extends Props {
 
   public void setShowCopyOrDistributeWarning(boolean show) {
     setProperty(STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING, show ? YES : NO);
-  }
-
-  /**
-   * True (the default) to offer, after a file is picked in a transform or action dialog, to give
-   * the transform or action the name of that file.
-   */
-  public boolean isAskingToRenameFromFilename() {
-    return YES.equalsIgnoreCase(getProperty(STRING_ASK_TO_RENAME_FROM_FILENAME, YES));
-  }
-
-  public void setAskingToRenameFromFilename(boolean ask) {
-    setProperty(STRING_ASK_TO_RENAME_FROM_FILENAME, ask ? YES : NO);
   }
 
   public void setDialogSize(Shell shell, String styleProperty) {

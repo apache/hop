@@ -559,14 +559,6 @@ public class Const {
   public static final String INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR =
       INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
 
-  /**
-   * The transforms whose once-per-run preparation the engine already did on its driver, one name
-   * per line. The native Spark and Beam engines set it; their per-partition (per-bundle) pipelines
-   * mark those transforms as prepared.
-   */
-  public static final String INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS =
-      INTERNAL_VARIABLE_PREFIX + ".Pipeline.PreparedOnceTransforms";
-
   public static final String INTERNAL_VARIABLE_ACTION_ID = INTERNAL_VARIABLE_PREFIX + ".Action.ID";
 
   /** The Hop server name as configured in hop-server.xml */

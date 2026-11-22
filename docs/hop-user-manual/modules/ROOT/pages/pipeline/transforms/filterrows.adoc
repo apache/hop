@@ -40,9 +40,9 @@ Remember that all transforms are executed in parallel, so both true and false pa
 
 The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as “select field1, field2, +${myvar}+ as field3 from table1”, then in the filter row condition you can say field1 = field3. Alternatively, you can use a ‘Get Variables’ transform to set parameters in fields. There are various SQL query statements that will always return results using IF EXISTS or IS NULL for example if you always require field(s) and results to be returned.
 
-The samples project has examples, see <<Samples>>.
+An example is found in the samples project called “filter-rows-basic.hpl”.
 
-If you cannot select the field you would like because it does not exist yet because of metadata injection, see <<MDI Example>>.
+If you cannot select the field you would like because it does not exist yet because of metadata injection, see this doc: https://hop.apache.org//manual/latest/pipeline/transforms/filterrows.html#_mdi_example and the example in the samples project: metadata-injection/filter-rows-mdi-parent.hpl.
 
 Essentially, to use an MDI field that is not selectable yet (say in a Filter rows transform), you can setup a transform with a similar field and with a similar condition. Then open the pipeline in a text editor and update the field name to the MDI field name that does not exist yet.
 
@@ -110,7 +110,7 @@ To filter special characters like explicit EOF (e.g. from old cobol files) Use a
 All fields of this transform support metadata injection.
 You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
 
-If you cannot select the field you would like because it does not exist yet because of metadata injection, see <<MDI Example>>.
+If you cannot select the field you would like because it does not exist yet because of metadata injection, see this doc: https://hop.apache.org//manual/latest/pipeline/transforms/filterrows.html#_mdi_example and this example in the samples project: metadata-injection/filter-rows-mdi-parent.hpl.
 
 Essentially, to use an MDI field that is not selectable yet (say in a Filter rows transform), you can setup a transform with a similar field and with a similar condition. Then open the pipeline in a text editor and update the field name to the MDI field name that does not exist yet.
 
@@ -130,20 +130,15 @@ This sample transform gives you all the information, such as the values for the 
 Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 3. Find the <condition> element and its nested elements and modify it accordingly to use it in your MDI scenario.
 
-== Samples
+== Sample
+The samples project demonstrates some concepts in file "filter-rows-basic.hpl".
 
-The samples project has:
-
-* `transforms/filter-rows-basic.hpl`, which checks 10 rows from a Data grid against `(id < 5 OR group = GR03) AND NOT desc = d`: one Filter rows sends the 5 matching rows to one Dummy and the other 5 to another, and the second one only passes on the 5 matching rows.
-* `metadata-injection/filter-rows-mdi-parent.hpl`, which injects the condition shown under <<MDI Example>> into the Filter rows of `metadata-injection/filter-rows-mdi-child.hpl`, which reads `files/customers-100.txt`.
-* `loops/child-check-set-counter-value.hpl`, which the *repeat pipeline* action of `loops/repeat-action.hwf` runs again and again: while `${COUNTER}` is 10 or less it adds 1 to it, and when it is higher it sets `${END_LOOP}`, which ends the repeat.
-* `pipelines/read-transactions.hpl`, which uses the sheet row number to split the header row of each Excel file from its data rows.
 
 == MDI Example
 
 The example filter condition below injects the following filter conditions into a Filter Rows transform.
 
-The full example pipelines are listed under <<Samples>>.
+The full example pipelines are available in the samples project as `metadata-injection/filter-rows-mdi-parent.hpl` and `metadata-injection/filter-rows-mdi-child.hpl`
 
 [source, shell]
 ----

@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Wait for selected transforms to finish and output their metrics as rows.
-:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=no, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/transformsmetrics.svg[Output transform metrics Icon, role="image-doc-icon"] Output transform metrics
 

@@ -187,7 +187,3 @@ Second file:
 ----
 
 As you can see when turning compatibility mode on, each field will be handles as a separate object.
-
-== Samples
-
-The samples project has `transforms/json-output.hpl`, which writes the title, the author and the year of 2 books from a Data grid to `output/json-output_0.json`, in the JSON block `books`.

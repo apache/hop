@@ -108,7 +108,3 @@ Copies and partitions of one pipeline share one runtime, so a remembered value s
 == Related
 
 * xref:metadata-types/masking-pattern.adoc[Masking pattern]
-
-== Samples
-
-The samples project has `transforms/mask-fields-sequence.hpl`, which replaces the 3 names of a Data grid with the masking pattern `First name`: the two different names become `first-name-1` and `first-name-2`, and the name that comes back gets `first-name-1` again.

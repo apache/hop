@@ -18,9 +18,43 @@
       }
     },
     {
-      "name": "copies token endpoint: second token, after token-1 was rejected",
+      "name": "copies api: token-1, first use",
       "scenarioName": "token-rotation-copies",
       "requiredScenarioState": "issued-1",
+      "newScenarioState": "used-1",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/copies/items",
+        "headers": { "Authorization": { "equalTo": "Bearer token-1" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "token": "token-1" }
+      }
+    },
+    {
+      "name": "copies api: token-1, second use",
+      "scenarioName": "token-rotation-copies",
+      "requiredScenarioState": "used-1",
+      "newScenarioState": "used-2",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/copies/items",
+        "headers": { "Authorization": { "equalTo": "Bearer token-1" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "token": "token-1" }
+      }
+    },
+    {
+      "name": "copies token endpoint: second token, only after token-1 stopped being accepted",
+      "scenarioName": "token-rotation-copies",
+      "requiredScenarioState": "used-2",
       "newScenarioState": "issued-2",
       "priority": 1,
       "request": {
@@ -35,24 +69,7 @@
       }
     },
     {
-      "name": "copies api: token-1 is accepted for rows 1 and 2 only",
-      "priority": 1,
-      "request": {
-        "method": "GET",
-        "urlPath": "/copies/items",
-        "headers": {
-          "Authorization": { "equalTo": "Bearer token-1" },
-          "X-Row": { "matches": "[12]" }
-        }
-      },
-      "response": {
-        "status": 200,
-        "headers": { "Content-Type": "application/json" },
-        "jsonBody": { "token": "token-1" }
-      }
-    },
-    {
-      "name": "copies api: token-2 is accepted for every row",
+      "name": "copies api: token-2 is accepted in every state",
       "priority": 2,
       "request": {
         "method": "GET",
@@ -66,7 +83,7 @@
       }
     },
     {
-      "name": "copies api: anything else, including token-1 from row 3 on, is rejected",
+      "name": "copies api: anything else, including token-1 from its third use on, is rejected",
       "priority": 10,
       "request": { "method": "GET", "urlPath": "/copies/items" },
       "response": {

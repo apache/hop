@@ -58,9 +58,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     description = "i18n::XmlJoin.description",
     categoryDescription = "i18n::XmlJoin.category",
     keywords = "i18n::XmlJoinMeta.keyword",
-    documentationUrl = "/pipeline/transforms/xmljoin.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/xmljoin.html")
 @GuiPlugin
 public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class;

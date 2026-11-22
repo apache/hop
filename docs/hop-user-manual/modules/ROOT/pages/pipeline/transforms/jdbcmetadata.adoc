@@ -73,7 +73,3 @@ This tab allows you to control how the output metadata is added to the outputstr
 *Output Fields:* This grid is automatically filled with the appropriate fields as you select a particular metadata method on the Method and Arguments tab. Use this gridview to remove or rename output fields.
 
 *Get fields:* use this button to refill the grid. This will re-add any removed fields, but preserve any renamed fields.
-
-== Samples
-
-The samples project has `transforms/get-jdbc-metadata.hpl`, which calls the JDBC method `getCatalogs` on the `hop-samples` connection and returns its one catalog.

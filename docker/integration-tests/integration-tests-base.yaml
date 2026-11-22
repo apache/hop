@@ -46,7 +46,4 @@ services:
       # Seconds a single hop-run may take before the watchdog in run-tests.sh dumps its JVM
       # threads and kills it. 0 disables the watchdog.
       - HOP_IT_TIMEOUT=${HOP_IT_TIMEOUT:-3600}
-      # spark-native runs the project's tests with its "local" run configuration replaced by
-      # the native Spark engine on local[4] (see run-tests.sh).
-      - HOP_IT_ENGINE=${HOP_IT_ENGINE:-}
     command: [ "bash", "-c", "/files/scripts/run-tests.sh ${PROJECT_NAME}" ]

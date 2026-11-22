@@ -49,18 +49,6 @@ public class DatabaseLookupData extends BaseTransformData implements ITransformD
   public String[] returnTrimTypes;
   public List<Integer> trimIndexes;
 
-  /** Per lookup-row slot: the index of the stream field that feeds it (built on first lookup). */
-  int[] lookupSourceIndexes;
-
-  /** Per lookup-row slot: whether the stream value has to be converted to the key type. */
-  boolean[] lookupConversion;
-
-  /** Reused lookup row: copied whenever it is kept, e.g. as a cache key. */
-  Object[] lookupRowBuffer;
-
-  /** "No lookup found in schema.table", with the variables resolved once. */
-  String lookupFailurePrefix;
-
   public DatabaseLookupData() {
     super();
 

@@ -56,9 +56,6 @@ public class RuleTargetFields {
   private static final String CONST_CREDENTIAL = "credential";
   private static final String CONST_API_KEY = "apiKey";
   private static final String CONST_TOKEN = "token";
-  private static final String CONST_URL = "url";
-  private static final String CONST_CATEGORY = "category";
-  private static final String CONST_ACTIONS_WITHOUT_FAILURE_PATH = "actionsWithoutFailurePath";
 
   private static final Map<RuleTarget, List<String>> TARGET_FIELDS = new HashMap<>();
 
@@ -105,7 +102,6 @@ public class RuleTargetFields {
             "hops",
             CONST_HAS_DISABLED_HOPS,
             CONST_HAS_ORPHANED_ACTIONS,
-            CONST_ACTIONS_WITHOUT_FAILURE_PATH,
             CONST_NOTE_COUNT,
             CONST_HAS_NOTES,
             CONST_IS_REFERENCED));
@@ -125,8 +121,7 @@ public class RuleTargetFields {
             "servername",
             "dataTablespace",
             "indexTablespace",
-            CONST_ATTRIBUTES,
-            CONST_URL));
+            CONST_ATTRIBUTES));
 
     // Transform fields
     TARGET_FIELDS.put(
@@ -142,7 +137,6 @@ public class RuleTargetFields {
             "isDummy",
             CONST_IS_ORPHANED,
             "isBlockingTransform",
-            CONST_CATEGORY,
             CONST_HAS_DEFAULT_NAME,
             CONST_PASSWORD,
             CONST_SECRET,
@@ -215,12 +209,6 @@ public class RuleTargetFields {
         return "Database type, the plugin id such as POSTGRESQL";
       case CONST_ATTRIBUTES:
         return "Connection attributes, extra options included";
-      case CONST_URL:
-        return "The JDBC URL as Hop builds it, extra options included, variables unresolved";
-      case CONST_CATEGORY:
-        return "The transform's category in English, such as Input or Output";
-      case CONST_ACTIONS_WITHOUT_FAILURE_PATH:
-        return "Names of the actions, other than Start, that lead on but have no failure hop";
       case CONST_ERROR_HANDLING:
         return "Whether errors go to an error hop (transform) or a failure hop (action)";
       case CONST_TARGET_TRANSFORMS:
@@ -247,10 +235,8 @@ public class RuleTargetFields {
     COUNT,
     /** True or false. */
     FLAG,
-    /** A list, such as {@code targetTransforms}. */
+    /** A list or a map, such as {@code targetTransforms} or a connection's {@code attributes}. */
     LIST,
-    /** A map of options, such as a connection's {@code attributes}. */
-    MAP,
     /** Text, or null when not set. A connection's {@code port} is text. */
     TEXT
   }
@@ -286,12 +272,9 @@ public class RuleTargetFields {
             CONST_EVALUATION)) {
       VALUE_KINDS.put(field, ValueKind.FLAG);
     }
-    for (String field :
-        List.of(
-            CONST_TARGET_TRANSFORMS, CONST_TARGET_ACTIONS, CONST_ACTIONS_WITHOUT_FAILURE_PATH)) {
+    for (String field : List.of(CONST_TARGET_TRANSFORMS, CONST_TARGET_ACTIONS, CONST_ATTRIBUTES)) {
       VALUE_KINDS.put(field, ValueKind.LIST);
     }
-    VALUE_KINDS.put(CONST_ATTRIBUTES, ValueKind.MAP);
     for (String field :
         List.of(
             "name",
@@ -310,9 +293,7 @@ public class RuleTargetFields {
             "fromTransform",
             "toTransform",
             "fromAction",
-            "toAction",
-            CONST_URL,
-            CONST_CATEGORY)) {
+            "toAction")) {
       VALUE_KINDS.put(field, ValueKind.TEXT);
     }
   }
@@ -353,19 +334,11 @@ public class RuleTargetFields {
         || field.equals("hops")
         || field.equals(CONST_PARAMETERS)
         || field.equals(CONST_VARIABLES)
+        || field.equals(CONST_ATTRIBUTES)
         || field.equals(CONST_TARGET_TRANSFORMS)
-        || field.equals(CONST_TARGET_ACTIONS)
-        || field.equals(CONST_ACTIONS_WITHOUT_FAILURE_PATH)) {
+        || field.equals(CONST_TARGET_ACTIONS)) {
       // Collection fields
       return Arrays.asList(
-          RuleCondition.NOT_EMPTY_COLLECTION,
-          RuleCondition.MAX_COLLECTION_SIZE,
-          RuleCondition.MIN_COLLECTION_SIZE);
-    } else if (field.equals(CONST_ATTRIBUTES)) {
-      // A map of options
-      return Arrays.asList(
-          RuleCondition.HAS_OPTION,
-          RuleCondition.OPTION_MATCHES,
           RuleCondition.NOT_EMPTY_COLLECTION,
           RuleCondition.MAX_COLLECTION_SIZE,
           RuleCondition.MIN_COLLECTION_SIZE);

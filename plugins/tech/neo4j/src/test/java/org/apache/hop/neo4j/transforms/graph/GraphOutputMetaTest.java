@@ -18,14 +18,11 @@
 package org.apache.hop.neo4j.transforms.graph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -73,26 +70,5 @@ class GraphOutputMetaTest {
     for (int i = 0; i < meta.getRelationshipMappings().size(); i++) {
       assertEquals(meta.getRelationshipMappings().get(i), meta2.getRelationshipMappings().get(i));
     }
-  }
-
-  /** The indexes of the model's nodes are created once per run, not in every Spark partition. */
-  @Test
-  void testIndexesArePreparedOncePerRun() {
-    GraphOutputMeta meta = new GraphOutputMeta();
-    meta.setDefault();
-    meta.setConnectionName("graph");
-    meta.setModel("model");
-    Variables variables = new Variables();
-    assertFalse(meta.needsPrepareOnce(variables), "no indexes to create");
-
-    meta.setCreatingIndexes(true);
-    assertTrue(meta.needsPrepareOnce(variables));
-
-    meta.setReturningGraph(true);
-    assertFalse(meta.needsPrepareOnce(variables), "writes nothing to the graph database");
-
-    meta.setReturningGraph(false);
-    meta.setModel("");
-    assertFalse(meta.needsPrepareOnce(variables), "no model to take the nodes from");
   }
 }

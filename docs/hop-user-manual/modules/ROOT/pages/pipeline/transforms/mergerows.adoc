@@ -102,7 +102,3 @@ If you specify a field name for the differences in JSON, you will changes appear
 
 * xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — using this transform (or a stored hash key) as a Change Data Capture approach
 * xref:pipeline/transforms/synchronizeaftermerge.adoc[Synchronize after merge]
-
-== Samples
-
-The samples project has `transforms/merge-rows-diff.hpl`, which compares 3 reference rows with 3 new rows on `id`, and flags them `identical`, `changed`, `deleted` and `new`.

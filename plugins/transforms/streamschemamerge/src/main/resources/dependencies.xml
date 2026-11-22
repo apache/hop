@@ -16,24 +16,6 @@
   ~
   -->
 
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>hop-tech-airflow</id>
-    <formats>
-        <format>zip</format>
-    </formats>
-    <baseDirectory>.</baseDirectory>
-    <files>
-        <file>
-            <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>${hop.plugin.libdir}</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-    </files>
-
-
-    <componentDescriptors>
-        <componentDescriptor>${maven.multiModuleProjectDirectory}/assemblies/shared/hop-plugin-libs.xml</componentDescriptor>
-    </componentDescriptors>
-</assembly>
+<dependencies>
+    <folder>../sortrows</folder>
+</dependencies>

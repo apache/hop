@@ -20,7 +20,6 @@ package org.apache.hop.core.plugins;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -39,7 +38,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -90,15 +88,6 @@ public class PluginRegistry {
       new HashMap<>();
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
-  /**
-   * Incremented whenever a plugin is registered, replaced or removed, or the registry is reset. A
-   * cache of what the registry answers (see {@link org.apache.hop.core.row.value.ValueMetaFactory})
-   * compares it to know when it is out of date, which also covers a {@link #reset()} that drops
-   * every listener.
-   */
-  private final AtomicLong changeCount = new AtomicLong();
-
   private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 5;
 
   /** Initialize the registry, keep private to keep this a singleton */
@@ -115,18 +104,9 @@ public class PluginRegistry {
     lock.writeLock().lock();
     try {
       pluginMap.computeIfAbsent(pluginType, k -> new TreeSet<>(Plugin.nullStringComparator));
-      changeCount.incrementAndGet();
     } finally {
       lock.writeLock().unlock();
     }
-  }
-
-  /**
-   * @return a number that changes whenever the registered plugins (or how their classes load)
-   *     change; equal values mean nothing changed in between
-   */
-  public long getChangeCount() {
-    return changeCount.get();
   }
 
   // Safe: the stack trace goes to the local stderr only, never to a remote client
@@ -164,7 +144,6 @@ public class PluginRegistry {
       if (plugin.getPluginDirectory() != null) {
         folderBasedClassLoaderMap.remove(plugin.getPluginDirectory().toString());
       }
-      changeCount.incrementAndGet();
     } finally {
       lock.writeLock().unlock();
       Set<IPluginTypeListener> listeners = this.listeners.get(pluginType);
@@ -183,7 +162,6 @@ public class PluginRegistry {
     lock.writeLock().lock();
     try {
       parentClassloaderPatternMap.put(plugin, patterns);
-      changeCount.incrementAndGet();
     } finally {
       lock.writeLock().unlock();
     }
@@ -208,7 +186,6 @@ public class PluginRegistry {
         list.add(plugin);
         changed = true;
       }
-      changeCount.incrementAndGet();
     } finally {
       lock.writeLock().unlock();
       Set<IPluginTypeListener> listeners = this.listeners.get(pluginType);
@@ -524,37 +501,6 @@ public class PluginRegistry {
                 PKG, "PluginRegistry.RuntimeError.UnExpectedErrorLoadingClass.PLUGINREGISTRY007"),
             e);
       }
-    }
-  }
-
-  /**
-   * Creates an instance through a no-argument constructor of a class {@link #loadClass(IPlugin,
-   * Class)} loaded before, reporting a failure exactly as {@link #loadClass(IPlugin, Class)} does.
-   *
-   * @param constructor the constructor to call
-   * @return the new instance
-   * @throws HopPluginException when the instance cannot be created
-   */
-  @SuppressWarnings("java:S1148") // the stack trace is printed as loadClass prints it
-  public static <T> T newInstance(Constructor<? extends T> constructor) throws HopPluginException {
-    try {
-      return constructor.newInstance();
-    } catch (InstantiationException e) {
-      throw new HopPluginException(
-          BaseMessages.getString(
-              PKG, "PluginRegistry.RuntimeError.UnableToInstantiateClass.PLUGINREGISTRY004"),
-          e);
-    } catch (IllegalAccessException e) {
-      throw new HopPluginException(
-          BaseMessages.getString(
-              PKG, "PluginRegistry.RuntimeError.IllegalAccessToClass.PLUGINREGISTRY005"),
-          e);
-    } catch (Throwable e) {
-      e.printStackTrace();
-      throw new HopPluginException(
-          BaseMessages.getString(
-              PKG, "PluginRegistry.RuntimeError.UnExpectedErrorLoadingClass.PLUGINREGISTRY007"),
-          e);
     }
   }
 
@@ -1122,7 +1068,6 @@ public class PluginRegistry {
       parentClassloaderPatternMap.clear();
       listeners.clear();
       JarCache.getInstance().clear();
-      changeCount.incrementAndGet();
     } finally {
       lock.writeLock().unlock();
     }

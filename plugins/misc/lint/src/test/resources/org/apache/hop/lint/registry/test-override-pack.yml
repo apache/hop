@@ -21,7 +21,6 @@ pack:
   name: Acme Rules
   owner: VENDOR
   priority: 500
-  version: "1.4.0"
   overrides:
     - DB-001
 

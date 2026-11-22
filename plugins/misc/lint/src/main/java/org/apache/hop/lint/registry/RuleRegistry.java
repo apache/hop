@@ -74,9 +74,6 @@ public class RuleRegistry {
    */
   private volatile List<String> packErrors = List.of();
 
-  /** The packs that loaded, recorded with {@link #packRules}, in the order they were merged. */
-  private volatile List<RulePackInfo> loadedPacks = List.of();
-
   private RuleRegistry() {
     this(new RulePackDiscovery());
   }
@@ -101,13 +98,9 @@ public class RuleRegistry {
       }
       Map<String, CustomLintRule> loaded = new LinkedHashMap<>();
       List<String> errors = new ArrayList<>();
-      List<RulePackInfo> packs = new ArrayList<>();
       for (IHopLintRulePack pack : packDiscovery.discoverAll()) {
         try {
           mergePack(loaded, pack);
-          packs.add(
-              new RulePackInfo(
-                  pack.getPackId(), pack.getDisplayName(), pack.getVersion(), pack.getOwner()));
           LogChannel.GENERAL.logDetailed(
               "Loaded rule pack "
                   + pack.getPackId()
@@ -122,16 +115,9 @@ public class RuleRegistry {
         }
       }
       packErrors = List.copyOf(errors);
-      loadedPacks = List.copyOf(packs);
       packRules = loaded;
       return loaded;
     }
-  }
-
-  /** The installed packs that loaded, whose rules a run can use. */
-  public List<RulePackInfo> getLoadedPacks() {
-    loadPackRules();
-    return loadedPacks;
   }
 
   /** Why each installed pack that could not be loaded failed, empty when all of them loaded. */

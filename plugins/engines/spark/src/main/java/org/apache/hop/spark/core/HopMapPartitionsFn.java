@@ -43,8 +43,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.vfs.HopVfsNamespace;
-import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -413,9 +411,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
               pipelineMeta, variables, new LoggingObject("apache-spark-transform"));
       pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
       pipeline.setMetadataProvider(metadataProvider);
-      // The driver did the once-per-run work (truncate, create table ...) before the job: this
-      // partition only flags the transforms it prepared (Internal.Pipeline.PreparedOnceTransforms)
-      pipeline.setPreparingTransformsOnce(false);
       pipeline
           .getPipelineRunConfiguration()
           .setName("spark-transform-local (" + transformName + ")");
@@ -747,11 +742,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
             }
           };
       rows.onFinish(finish);
-      // The transform resolves its files while Spark pulls the rows, on a task thread Spark reuses
-      // across runs. That thread carries the VFS namespace of whichever run created it - closed
-      // once a later run reuses the session, and never there on an executor of a cluster. Bind the
-      // mini-pipeline's own namespace, the one holding this run's named connections, instead.
-      rows.inNamespace(HopVfsNamespaces.resolve(pipeline));
       TaskContext taskContext = TaskContext.get();
       if (taskContext != null) {
         taskContext.addTaskCompletionListener(
@@ -1124,9 +1114,6 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
     private boolean finished;
     private boolean exhausted;
 
-    /** The namespace the transform resolves its files in, bound for as long as it works. */
-    private HopVfsNamespace vfsNamespace;
-
     PartitionIterator(
         IRowMeta outputRowMeta,
         boolean multiTarget,
@@ -1152,21 +1139,8 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
       this.finish = finish;
     }
 
-    void inNamespace(HopVfsNamespace vfsNamespace) {
-      this.vfsNamespace = vfsNamespace;
-    }
-
     @Override
     public boolean hasNext() {
-      HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
-      try {
-        return advance();
-      } finally {
-        HopVfsNamespaces.restoreThread(previous);
-      }
-    }
-
-    private boolean advance() {
       try {
         while (pending.isEmpty() && !exhausted) {
           if (step()) {
@@ -1218,13 +1192,10 @@ public class HopMapPartitionsFn implements MapPartitionsFunction<Row, Row>, Seri
 
     /** Task-completion hook: release the mini-pipeline even when Spark stopped pulling early. */
     void finishQuietly() {
-      HopVfsNamespace previous = HopVfsNamespaces.bindThread(vfsNamespace);
       try {
         runFinish();
       } catch (Exception e) {
         LogChannel.GENERAL.logError("Error finishing Hop transform partition (non-fatal)", e);
-      } finally {
-        HopVfsNamespaces.restoreThread(previous);
       }
     }
   }

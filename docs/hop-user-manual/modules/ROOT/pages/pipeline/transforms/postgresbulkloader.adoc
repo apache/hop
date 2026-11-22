@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The PostgreSQL bulk loader transform streams data from Hop to PostgreSQL, using COPY DATA FROM STDIN into the database.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/PGBulkLoader.svg[PostgreSQL bulk loader transform Icon, role="image-doc-icon"] PostgreSQL bulk loader
 

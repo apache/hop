@@ -55,10 +55,3 @@ The "Generate Random Value" transform generates random numbers, integers, string
 - `Random Message Authentication Code (HmacSHA1)`
 
 |===
-
-== Samples
-
-The samples project has:
-
-* `transforms/generate-random-value.hpl`, which adds a random number, integer, string and UUID to each of 10 generated rows.
-* `loops/child-generate-1000-rows.hpl`, which adds a random string to 1,000 generated rows and passes them to `loops/child-loops-get-rows-from-result.hpl` in groups of 100.

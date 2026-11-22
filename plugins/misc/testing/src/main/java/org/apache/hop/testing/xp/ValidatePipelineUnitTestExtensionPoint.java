@@ -158,8 +158,7 @@ public class ValidatePipelineUnitTestExtensionPoint
       String why,
       ILogChannel log) {
     try {
-      // Not isEnabled(): that is false for a unit test run, which reports only its results
-      if (LineageSinkRoutes.isUnitTestReported(pipeline)) {
+      if (LineageSinkRoutes.isEnabled(pipeline)) {
         reportToLineage(pipeline, unitTest, results, why);
       }
     } catch (Exception e) {

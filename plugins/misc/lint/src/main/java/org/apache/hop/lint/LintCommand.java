@@ -159,9 +159,6 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
       description = "Print the effective rule set, with the pack each rule came from, and exit")
   private boolean listRules;
 
-  /** How the last run was set up and how it ended, for the SARIF report; null before a run. */
-  private LintInvocation invocation;
-
   @Option(
       names = "--list-fields",
       paramLabel = "<plugin-id>",
@@ -379,12 +376,9 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
           (targetFile.isFile() ? "Linting file: " : "Linting directory: ") + targetPath);
     }
 
-    run.setBaselineName(baselineFile);
-
     IVariables variables = variables();
     LintRun.Outcome outcome =
         run.execute(resolveMetadataProvider(targetFile, variables), variables);
-    invocation = run.invocation(outcome);
 
     if (run.getBaseline() != null) {
       printBaselineNote(outcome.getBaselineHidden(), outcome.getBaselineStale());
@@ -1031,8 +1025,7 @@ public class LintCommand implements Callable<Integer>, IHopCommand, IHasHopMetad
         report = LintReportWriter.renderText(results, !quiet);
       } else {
         report =
-            LintReportWriter.render(
-                format, results, LintRun.toolVersion(), reportBaseDirectory(), invocation);
+            LintReportWriter.render(format, results, LintRun.toolVersion(), reportBaseDirectory());
       }
     } catch (Exception e) {
       System.err.println("Error rendering the " + format.getId() + " report: " + e.getMessage());

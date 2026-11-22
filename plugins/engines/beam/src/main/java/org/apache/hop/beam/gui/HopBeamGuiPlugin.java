@@ -22,13 +22,11 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
@@ -257,7 +255,10 @@ public class HopBeamGuiPlugin {
       jarFiles.addAll(FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
     }
 
-    jarFiles.addAll(findPluginJars(new File("plugins")));
+    File pluginsDir = new File("plugins");
+    if (pluginsDir.isDirectory()) {
+      jarFiles.addAll(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, true));
+    }
 
     // If we are in the hop-web Docker container, we need to import the Hop main JARs too for
     // Dataflow (and for other runners probably too)
@@ -333,21 +334,6 @@ public class HopBeamGuiPlugin {
   public static boolean isNativeProvidedSparkClientVersion(String version) {
     return StringUtils.isNotBlank(version)
         && SPARK_CLIENT_VERSION_NATIVE_PROVIDED.equalsIgnoreCase(version.trim());
-  }
-
-  /**
-   * The jars under the plugins folder. Folders whose name starts with a dot are skipped: the
-   * marketplace keeps staged downloads and backed-up jars there ({@code plugins/.staging}, {@code
-   * plugins/.marketplace}), and those must not end up in a fat jar next to the live ones.
-   */
-  static Collection<File> findPluginJars(File pluginsDir) {
-    if (pluginsDir == null || !pluginsDir.isDirectory()) {
-      return List.of();
-    }
-    return FileUtils.listFiles(
-        pluginsDir,
-        FileFilterUtils.suffixFileFilter(".jar"),
-        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   }
 
   /**

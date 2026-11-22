@@ -61,9 +61,3 @@ Options include:
 Otherwise, leave blank.
 |===
 
-== Samples
-
-The samples project has:
-
-* `transforms/get-rows-from-result.hpl`, which reads the rows that a parent workflow or pipeline passed to it as the result, so it returns no rows when you run it on its own.
-* `loops/child-loops-get-rows-from-result.hpl`, which counts the distinct `random_string` values of the rows it gets from `loops/child-generate-1000-rows.hpl` and writes the count to the log.

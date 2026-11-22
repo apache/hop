@@ -91,106 +91,19 @@ public class HopPipelineMetaToSparkConverter {
           SparkConst.TABLE_INPUT_PLUGIN_ID);
 
   /**
-   * Plugin ids that must not run as partition-local Hop mini-pipelines, with the reason shown to
-   * the user: they give wrong rows or none on the native Spark engine. Keep in lockstep with {@link
-   * org.apache.hop.spark.engines.SparkPipelineEngine#supports} and the "Native Spark=no" mark on
-   * the transform's documentation page.
+   * Plugin ids that must not run as partition-local Hop mini-pipelines. Keep in lockstep with
+   * {@link org.apache.hop.spark.engines.SparkPipelineEngine#supports}.
    */
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
-      Map.ofEntries(
-          Map.entry(
-              SparkConst.GROUP_BY_PLUGIN_ID,
-              "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on the Local engine."),
-          Map.entry(
-              SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
-              "Unique Rows By Hashset is not supported on the native Spark engine. Every partition would keep its own hash set, so duplicates spread over different partitions would survive. Use Unique Rows (native Spark distinct) or Memory Group By instead."),
-          Map.entry(
-              SparkConst.JOIN_ROWS_PLUGIN_ID,
-              "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead."),
-          Map.entry(
-              SparkConst.MASK_FIELDS_PLUGIN_ID,
-              "Mask fields is not supported on the native Spark engine. Every partition keeps its own mapping and sequence, so the same source value would not stay the same token."),
-          Map.entry(
-              "BlockUntilTransformsFinish",
-              "Block until transforms finish is not supported on the native Spark engine. It waits for other transforms of the same Hop pipeline, but a Spark partition only runs the transforms of its own stage, so the transforms it waits for are never found."),
-          Map.entry(
-              "ClosureGenerator",
-              "Closure generator is not supported on the native Spark engine. It needs every parent-child row in one place, and on Spark every partition only sees its own rows."),
-          Map.entry(
-              "FieldsChangeSequence",
-              "Add value fields changing sequence is not supported on the native Spark engine. Its counter restarts in every partition, so the sequence is wrong once the rows are spread over partitions."),
-          Map.entry(
-              "FilesFromResult",
-              "Get files from result is not supported on the native Spark engine. The files of the previous result are not passed to the Spark partitions, so it reads no files."),
-          Map.entry(
-              "FilesToResult",
-              "Set files in result is not supported on the native Spark engine. The result of a Spark run does not carry files, so the workflow or pipeline executor would receive none."),
-          Map.entry(
-              "MetaInject",
-              "Metadata injection is not supported on the native Spark engine. It reads the rows to inject from other transforms of the same Hop pipeline, which a Spark partition doesn't have."),
-          Map.entry(
-              "MultiMapping",
-              "Mapping (multiple inputs/outputs) is not supported on the native Spark engine. Its inputs and outputs exchange rows with other transforms of the Hop pipeline, and on Spark the pipeline hangs."),
-          Map.entry(
-              "PipelineDataProbe",
-              "Pipeline data probe is not supported on the native Spark engine. Probes attach to transforms of Hop's own pipeline engine, so a Spark run sends no rows to the probe."),
-          Map.entry(
-              "RecordsFromStream",
-              "Get records from stream is not supported on the native Spark engine. The rows a pipeline executor passes are not handed to the Spark partitions, so it reads no rows."),
-          Map.entry(
-              "RowsFromResult",
-              "Get rows from result is not supported on the native Spark engine. The rows of the previous result are not passed to the Spark partitions, so it reads no rows."),
-          Map.entry(
-              "RowsToResult",
-              "Copy rows to result is not supported on the native Spark engine. The result of a Spark run does not carry rows, so the workflow or pipeline executor would receive none."),
-          Map.entry(
-              "RuleAccumulator",
-              "Rules accumulator is not supported on the native Spark engine. It evaluates the rules over all the rows it collects, and on Spark every partition evaluates only its own rows."),
-          Map.entry(
-              "SetVariable",
-              "Set variables is not supported on the native Spark engine. It would set the variables in a Spark partition, and the parent workflow or pipeline never sees them."),
-          Map.entry(
-              "SortedMerge",
-              "Sorted merge is not supported on the native Spark engine. It merges sorted input streams in one place, which Spark partitions don't give it. Use Sort rows (native Spark sort) on the combined rows instead."),
-          Map.entry(
-              "SortedSchemaMerge",
-              "Sorted schema merge is not supported on the native Spark engine. It merges sorted input streams in one place, which Spark partitions don't give it. Use Sort rows (native Spark sort) on the combined rows instead."),
-          Map.entry(
-              "XMLJoin",
-              "XML join is not supported on the native Spark engine. It reads the target XML from another transform's stream, which a Spark partition doesn't have."),
-          Map.entry(
-              "AnalyticQuery",
-              "Analytic query is not supported on the native Spark engine. Its LAG and LEAD read the rows before and after in one ordered stream, and every Spark partition only has its own rows."),
-          Map.entry(
-              "Append",
-              "Append streams is not supported on the native Spark engine. It outputs every row of the head stream before those of the tail stream, an order Spark partitions don't keep."),
-          Map.entry(
-              "BlockingTransform",
-              "Blocking transform is not supported on the native Spark engine. It waits for every input row, or passes only the last one, and every Spark partition only has its own rows."),
-          Map.entry(
-              "DetectEmptyStream",
-              "Detect empty stream is not supported on the native Spark engine. Every Spark partition without rows would report an empty stream."),
-          Map.entry(
-              "DetectLastRow",
-              "Identify last row in a stream is not supported on the native Spark engine. Every Spark partition would mark its own last row."),
-          Map.entry(
-              "Injector",
-              "Injector is not supported on the native Spark engine. It receives the rows an application hands to Hop's own pipeline engine."),
-          Map.entry(
-              "KafkaConsumer",
-              "Kafka consumer is not supported on the native Spark engine, which has no support for unbounded streams. Use the Beam Kafka transforms on a Beam engine instead."),
-          Map.entry(
-              "MergeRows",
-              "Merge rows (diff) is not supported on the native Spark engine. It compares two sorted streams row by row in one place, which Spark partitions don't give it."),
-          Map.entry(
-              "MultiwayMergeJoin",
-              "Multiway merge join is not supported on the native Spark engine. It joins sorted streams row by row in one place, which Spark partitions don't give it. Use Merge join (native Spark join) instead."),
-          Map.entry(
-              "RepeatFields",
-              "Repeat fields is not supported on the native Spark engine. It copies values from the rows before it in one ordered stream, and every Spark partition only has its own rows."),
-          Map.entry(
-              "StreamSchema",
-              "Stream schema merge is not supported on the native Spark engine. When Spark combines inputs with different layouts, rows go missing."));
+      Map.of(
+          SparkConst.GROUP_BY_PLUGIN_ID,
+          "Group By is not supported on the native Spark engine. Use Memory Group By (native Spark shuffle) instead, or run on the Local engine.",
+          SparkConst.UNIQUE_ROWS_BY_HASH_SET_PLUGIN_ID,
+          "Unique Rows By Hashset is not supported on the native Spark engine. Every partition would keep its own hash set, so duplicates spread over different partitions would survive. Use Unique Rows (native Spark distinct) or Memory Group By instead.",
+          SparkConst.JOIN_ROWS_PLUGIN_ID,
+          "Join Rows is not supported on the native Spark engine. A cartesian product needs every row of every input in one place, but every partition would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use Merge Join on that field instead.",
+          SparkConst.MASK_FIELDS_PLUGIN_ID,
+          "Mask fields is not supported on the native Spark engine. Every partition keeps its own mapping and sequence, so the same source value would not stay the same token.");
 
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;

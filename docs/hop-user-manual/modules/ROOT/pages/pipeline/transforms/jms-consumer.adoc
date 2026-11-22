@@ -99,8 +99,3 @@ NOTE: Acknowledging after `putRow` guarantees the row was *handed to* the next t
 == Message bodies
 
 Only `TextMessage` bodies are read. Any other message type still produces a row with its identifiers, destination, timestamp and properties, but the body field is left null rather than guessing at an encoding.
-
-== Samples
-
-The samples project has `transforms/jms-consumer.hpl`, which reads up to 10 messages from the queue `sample-queue`, and stops earlier when no message comes within 1 second.
-Create a JMS connection named `sample-jms` before you run it.

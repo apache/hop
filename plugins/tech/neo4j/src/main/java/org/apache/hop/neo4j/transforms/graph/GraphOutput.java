@@ -493,7 +493,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       }
 
       // See if we need to create indexes...
-      if (!meta.isReturningGraph() && meta.isCreatingIndexes() && !isPreparedOnce()) {
+      if (!meta.isReturningGraph() && meta.isCreatingIndexes()) {
         createNodePropertyIndexes(meta, data);
       }
 
@@ -555,25 +555,16 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     if (getCopy() > 0) {
       return;
     }
-    createNodeIndexes(meta, data);
-  }
 
-  /**
-   * Creates the indexes on the primary properties of the model's nodes once for the whole run,
-   * before any copy, Spark partition or Beam bundle writes a row. Otherwise every Spark partition,
-   * all of them copy 0, creates the same constraints at the same time.
-   */
-  @Override
-  public void prepareOnce() throws HopException {
-    createNodeIndexes(meta, data);
-  }
-
-  private void createNodeIndexes(GraphOutputMeta meta, GraphOutputData data) throws HopException {
     Map<GraphNode, List<String>> nodePropertiesMap = new HashMap<>();
 
     for (int f = 0; f < meta.getFieldModelMappings().size(); f++) {
       FieldModelMapping fieldModelMapping = meta.getFieldModelMappings().get(f);
       if (fieldModelMapping.getTargetType() == ModelTargetType.Node) {
+        // We pre-calculated the field indexes
+        //
+        int index = data.fieldIndexes[f];
+
         // Determine the target property and type
         //
         GraphNode node = data.graphModel.findNode(fieldModelMapping.getTargetName());

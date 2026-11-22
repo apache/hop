@@ -36,7 +36,6 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -154,22 +153,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private Statement selStmt;
   private PreparedStatement pstmt;
-
-  /**
-   * The statement {@link #openQueryKeepingStatement} prepared, with what it was prepared for. While
-   * {@link #pstmt} is still this statement and the same query is asked for with parameters of the
-   * same types, it is executed again instead of being prepared again.
-   */
-  private KeptQuery keptQuery;
-
-  private record KeptQuery(
-      PreparedStatement statement,
-      String sql,
-      int[] parameterTypes,
-      int fetchMode,
-      boolean lazyConversion,
-      int rowLimit,
-      int queryTimeoutSeconds) {}
 
   /**
    * The statement {@link #execStatement(String, IRowMeta, Object[])} or {@link
@@ -675,7 +658,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public synchronized void disconnect() {
     openQueryStatement = null;
     openQueryRowMeta = null;
-    keptQuery = null;
     if (connection == null) {
       dbmd = null;
       return; // Nothing to do...
@@ -1928,93 +1910,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     return res;
   }
 
-  /**
-   * Opens a parameterised query like {@link #openQuery(String, IRowMeta, Object[], int, boolean)},
-   * but keeps the prepared statement for the next call. When the next call asks for the same SQL,
-   * with parameters of the same types and the same fetch mode, lazy conversion, row limit and query
-   * timeout, the statement is executed again with the new parameter values instead of being
-   * prepared again. The row layout is derived from the result set every time, as {@link
-   * #openQuery(String, IRowMeta, Object[], int, boolean)} does. Anything else closes the kept
-   * statement and prepares a new one.
-   *
-   * <p>For a caller that runs one query per input row, such as Table input with "Execute for each
-   * input row". Between two executions close only the result set; {@link #closeQuery(ResultSet)}
-   * closes the kept statement as well. A failing execution closes it too.
-   *
-   * @return the result set, as from {@link #openQuery(String, IRowMeta, Object[], int, boolean)}
-   */
-  public ResultSet openQueryKeepingStatement(
-      String sql, IRowMeta params, Object[] data, int fetchMode, boolean lazyConversion)
-      throws HopDatabaseException {
-    if (params == null) {
-      // A query without parameters is not prepared at all.
-      closeKeptQuery();
-      return openQuery(sql, null, null, fetchMode, lazyConversion);
-    }
-    int[] parameterTypes = new int[params.size()];
-    for (int i = 0; i < parameterTypes.length; i++) {
-      parameterTypes[i] = params.getValueMeta(i).getType();
-    }
-    KeptQuery kept = keptQuery;
-    if (kept != null
-        && pstmt != null
-        && pstmt == kept.statement()
-        && kept.sql().equals(sql)
-        && Arrays.equals(kept.parameterTypes(), parameterTypes)
-        && kept.fetchMode() == fetchMode
-        && kept.lazyConversion() == lazyConversion
-        && kept.rowLimit() == rowlimit
-        && kept.queryTimeoutSeconds() == statementQueryTimeoutSeconds) {
-      try {
-        log.snap(Metrics.METRIC_DATABASE_OPEN_QUERY_START, databaseMeta.getName());
-        log.snap(Metrics.METRIC_DATABASE_SQL_VALUES_START, databaseMeta.getName());
-        setValues(params, data);
-        log.snap(Metrics.METRIC_DATABASE_SQL_VALUES_STOP, databaseMeta.getName());
-        log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName());
-        ResultSet res = pstmt.executeQuery();
-        log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_STOP, databaseMeta.getName());
-        // As openQuery does: see the comment there.
-        rowMeta = getRowInfo(res.getMetaData(), databaseMeta.isMySqlVariant(), lazyConversion);
-        return res;
-      } catch (SQLException ex) {
-        closeKeptQuery();
-        throw new HopDatabaseException("An error occurred executing SQL: " + Const.CR + sql, ex);
-      } catch (Exception e) {
-        closeKeptQuery();
-        throw new HopDatabaseException("An error occurred executing SQL:" + Const.CR + sql, e);
-      } finally {
-        log.snap(Metrics.METRIC_DATABASE_OPEN_QUERY_STOP, databaseMeta.getName());
-      }
-    }
-
-    closeKeptQuery();
-    ResultSet res = openQuery(sql, params, data, fetchMode, lazyConversion);
-    keptQuery =
-        new KeptQuery(
-            pstmt,
-            sql,
-            parameterTypes,
-            fetchMode,
-            lazyConversion,
-            rowlimit,
-            statementQueryTimeoutSeconds);
-    return res;
-  }
-
-  /** Closes the statement {@link #openQueryKeepingStatement} kept, if it is still open. */
-  private void closeKeptQuery() {
-    KeptQuery kept = keptQuery;
-    keptQuery = null;
-    if (kept != null && kept.statement() == pstmt && pstmt != null) {
-      try {
-        pstmt.close();
-      } catch (SQLException e) {
-        log.logError("Unable to close the kept query statement", e);
-      }
-      pstmt = null;
-    }
-  }
-
   private boolean canWeSetFetchSize(Statement statement) throws SQLException {
     return databaseMeta.isFetchSizeSupported()
         // Deprecated path. Which drivers accept a fetch size is a capability, and the two named
@@ -2715,7 +2610,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public void closeQuery(ResultSet res) throws HopDatabaseException {
     // close everything involved in the query!
-    keptQuery = null;
     try {
       if (res != null) {
         res.close();

@@ -55,9 +55,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     description = "i18n::MergeRows.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MergeRowsMeta.keyword",
-    documentationUrl = "/pipeline/transforms/mergerows.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/mergerows.html")
 public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   private static final Class<?> PKG = MergeRowsMeta.class;
 

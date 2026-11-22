@@ -17,7 +17,6 @@
 package org.apache.hop.marketplace.notifications;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,8 +63,8 @@ public class MarketplaceNotificationProviderTest {
     assertEquals("HubSpot 2026.10 is available", notification.getTitle());
     assertTrue(notification.getMessage().contains("2026.09"));
     assertTrue(notification.getMessage().contains("Putki Marketplace"));
-    // Installing the new version replaces the old one, so there is no need to uninstall first.
-    assertFalse(notification.getMessage().toLowerCase().contains("uninstall"));
+    // The marketplace overlays rather than replaces, so the advice has to say uninstall first.
+    assertTrue(notification.getMessage().toLowerCase().contains("uninstall"));
     assertEquals(NotificationCategory.PLUGIN, notification.getCategory());
     assertEquals("2026.10", notification.getVersion());
     assertEquals("https://example.com", notification.getLink());

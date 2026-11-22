@@ -40,9 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::ClosureGenerator.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ClosureGeneratorMeta.keyword",
-    documentationUrl = "/pipeline/transforms/closure.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/closure.html")
 public class ClosureGeneratorMeta
     extends BaseTransformMeta<ClosureGenerator, ClosureGeneratorData> {
 

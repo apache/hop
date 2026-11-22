@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,12 +49,6 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
   private static final Class<?> PKG = DatabaseLookupMeta.class;
 
-  /**
-   * Cached for a key that the database does not have, when such a row is dropped or sent to the
-   * error stream (a miss that falls back to the default values caches those values instead).
-   */
-  static final Object[] NOT_FOUND = new Object[0];
-
   public DatabaseLookup(
       TransformMeta transformMeta,
       DatabaseLookupMeta meta,
@@ -77,21 +70,46 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   synchronized Object[] lookupValues(IRowMeta inputRowMeta, Object[] row) throws HopException {
     Object[] outputRow = RowDataUtil.resizeArray(row, data.outputRowMeta.size());
 
-    Object[] lookupRow = buildLookupRow(inputRowMeta, row);
+    Object[] lookupRow = new Object[data.lookupMeta.size()];
+    int lookupIndex = 0;
+
+    for (int i = 0; i < meta.getLookup().getKeyFields().size(); i++) {
+      if (data.keynrs[i] >= 0) {
+        IValueMeta input = inputRowMeta.getValueMeta(data.keynrs[i]);
+        IValueMeta value = data.lookupMeta.getValueMeta(lookupIndex);
+        lookupRow[lookupIndex] = row[data.keynrs[i]];
+
+        // Try to convert type if needed
+        if (input.getType() != value.getType()
+            || IValueMeta.STORAGE_TYPE_BINARY_STRING == input.getStorageType()) {
+          lookupRow[lookupIndex] = value.convertData(input, lookupRow[lookupIndex]);
+          value.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        }
+        lookupIndex++;
+      }
+      if (data.keynrs2[i] >= 0) {
+        IValueMeta input = inputRowMeta.getValueMeta(data.keynrs2[i]);
+        IValueMeta value = data.lookupMeta.getValueMeta(lookupIndex);
+        lookupRow[lookupIndex] = row[data.keynrs2[i]];
+
+        // Try to convert type if needed
+        if (input.getType() != value.getType()
+            || IValueMeta.STORAGE_TYPE_BINARY_STRING == input.getStorageType()) {
+          lookupRow[lookupIndex] = value.convertData(input, lookupRow[lookupIndex]);
+          value.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        }
+        lookupIndex++;
+      }
+    }
 
     Object[] add;
     boolean cacheNow = false;
     boolean cacheHit = false;
-    boolean knownMiss = false;
 
     // First, check if we looked up before
     if (meta.isCached()) {
       add = data.cache.getRowFromCache(data.lookupMeta, lookupRow);
-      if (add == NOT_FOUND) {
-        // looked up before and found nothing: no need to ask the database again
-        knownMiss = true;
-        add = null;
-      } else if (add != null) {
+      if (add != null) {
         cacheHit = true;
       }
     } else {
@@ -99,7 +117,6 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     }
 
     if (add == null
-        && !knownMiss
         && (!(meta.isCached() && meta.isLoadingAllDataInCache()) || data.hasDBCondition)) {
       // do not go to the
       // database when all rows
@@ -118,23 +135,11 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       cacheNow = true;
     }
 
-    // Store in cache if we need to!
-    // If we already loaded all data into the cache, storing more makes no sense.
-    //
-    boolean storeInCache =
-        meta.isCached() && cacheNow && !meta.isLoadingAllDataInCache() && data.allEquals;
-
     if (add == null) { // nothing was found, unknown code: add default values
       if (meta.getLookup().isEatingRowOnLookupFailure()) {
-        if (storeInCache) {
-          data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow.clone(), NOT_FOUND);
-        }
         return null;
       }
       if (getTransformMeta().isDoingErrorHandling()) {
-        if (storeInCache) {
-          data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow.clone(), NOT_FOUND);
-        }
         putError(
             getInputRowMeta(),
             row,
@@ -159,13 +164,6 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
           add[i] = null;
         }
       }
-
-      if (storeInCache) {
-        // A cache hit is trimmed (see below) while this first miss is not: keep it that way.
-        Object[] cached = add.clone();
-        trimReturnValues(cached);
-        data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow.clone(), cached);
-      }
     } else {
       if (isRowLevel()) {
         logRowlevel(
@@ -173,13 +171,21 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
                 + Arrays.toString(add));
       }
 
-      // Only trim and verify the data types if the data comes from the DB, NOT when we have a
-      // cache hit: rows go into the cache trimmed (and converted, when they came from a lookup
-      // query), so there is nothing left to do for them.
-      if (!cacheHit) {
-        // Trim the fields if required
-        trimReturnValues(add);
+      // Trim the fields if required
+      for (int i : data.trimIndexes) {
+        IValueMeta expected = data.returnMeta.getValueMeta(i);
+        add[i] =
+            expected.convertDataFromString(
+                (String) add[i],
+                expected,
+                "",
+                "",
+                ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
+      }
 
+      // Only verify the data types if the data comes from the DB, NOT when we have a cache hit
+      // In that case, we already know the data type is OK.
+      if (!cacheHit) {
         incrementLinesInput();
 
         // The assumption here is that the types are in the same order
@@ -196,11 +202,14 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
             add[i] = expected.convertData(returned, add[i]);
           }
         }
-
-        if (storeInCache) {
-          data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow.clone(), add);
-        }
       }
+    }
+
+    // Store in cache if we need to!
+    // If we already loaded all data into the cache, storing more makes no sense.
+    //
+    if (meta.isCached() && cacheNow && !meta.isLoadingAllDataInCache() && data.allEquals) {
+      data.cache.storeRowInCache(meta, data.lookupMeta, lookupRow, add);
     }
 
     for (int i = 0; i < data.returnMeta.size(); i++) {
@@ -208,70 +217,6 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     }
 
     return outputRow;
-  }
-
-  /**
-   * Fills the (reused) lookup row from the stream row, converting each key to the type of its table
-   * column where needed. The returned array is only valid until the next call: copy it to keep it.
-   */
-  private Object[] buildLookupRow(IRowMeta inputRowMeta, Object[] row) throws HopValueException {
-    if (data.lookupSourceIndexes == null) {
-      prepareLookupRow(inputRowMeta);
-    }
-    int[] sources = data.lookupSourceIndexes;
-    boolean[] conversion = data.lookupConversion;
-    Object[] lookupRow = data.lookupRowBuffer;
-
-    for (int i = 0; i < sources.length; i++) {
-      Object value = row[sources[i]];
-      if (conversion[i]) {
-        IValueMeta valueMeta = data.lookupMeta.getValueMeta(i);
-        value = valueMeta.convertData(inputRowMeta.getValueMeta(sources[i]), value);
-        valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-      }
-      lookupRow[i] = value;
-    }
-    return lookupRow;
-  }
-
-  /** Works out once which stream field feeds each lookup slot and whether it needs converting. */
-  private void prepareLookupRow(IRowMeta inputRowMeta) {
-    List<Integer> sources = new ArrayList<>();
-    for (int i = 0; i < meta.getLookup().getKeyFields().size(); i++) {
-      if (data.keynrs[i] >= 0) {
-        sources.add(data.keynrs[i]);
-      }
-      if (data.keynrs2[i] >= 0) {
-        sources.add(data.keynrs2[i]);
-      }
-    }
-    int[] indexes = new int[sources.size()];
-    boolean[] conversion = new boolean[sources.size()];
-    for (int i = 0; i < indexes.length; i++) {
-      indexes[i] = sources.get(i);
-      IValueMeta input = inputRowMeta.getValueMeta(indexes[i]);
-      IValueMeta value = data.lookupMeta.getValueMeta(i);
-      conversion[i] =
-          input.getType() != value.getType()
-              || IValueMeta.STORAGE_TYPE_BINARY_STRING == input.getStorageType();
-    }
-    data.lookupConversion = conversion;
-    data.lookupRowBuffer = new Object[data.lookupMeta.size()];
-    data.lookupSourceIndexes = indexes;
-  }
-
-  /** Trims the string return values that have a trim type set, in place. */
-  private void trimReturnValues(Object[] values) throws HopValueException {
-    for (int i : data.trimIndexes) {
-      IValueMeta expected = data.returnMeta.getValueMeta(i);
-      values[i] =
-          expected.convertDataFromString(
-              (String) values[i],
-              expected,
-              "",
-              "",
-              ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
-    }
   }
 
   // visible for testing purposes
@@ -334,20 +279,17 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
    * filter on, so it has to read the same in every locale.
    */
   private String buildLookupFailureDescription(Object[] lookupRow) {
-    if (data.lookupFailurePrefix == null) {
-      StringBuilder prefix = new StringBuilder("No lookup found");
-      String table = resolve(meta.getTableName());
-      if (!Utils.isEmpty(table)) {
-        prefix.append(" in ");
-        String schema = resolve(meta.getSchemaName());
-        if (!Utils.isEmpty(schema)) {
-          prefix.append(schema).append('.');
-        }
-        prefix.append(table);
+    StringBuilder description = new StringBuilder("No lookup found");
+
+    String table = resolve(meta.getTableName());
+    if (!Utils.isEmpty(table)) {
+      description.append(" in ");
+      String schema = resolve(meta.getSchemaName());
+      if (!Utils.isEmpty(schema)) {
+        description.append(schema).append('.');
       }
-      data.lookupFailurePrefix = prefix.toString();
+      description.append(table);
     }
-    StringBuilder description = new StringBuilder(data.lookupFailurePrefix);
 
     if (!data.lookupMeta.isEmpty()) {
       description.append(" for ");
@@ -626,18 +568,15 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
         sql += " ORDER BY " + lookup.getOrderByClause();
       }
 
-      // Now that we have the SQL constructed, stream the rows into the cache: holding the whole
-      // result as a list next to the cache would need twice the memory of the table.
+      // Now that we have the SQL constructed, let's store the rows...
       //
-      ResultSet resultSet = db.openQuery(sql);
-      try {
+      List<Object[]> rows = db.getRows(sql, 0);
+      if (!Utils.isEmpty(rows)) {
         if (data.allEquals) {
-          putToDefaultCache(db, resultSet);
+          putToDefaultCache(db, rows);
         } else {
-          putToReadOnlyCache(db, resultSet);
+          putToReadOnlyCache(db, rows);
         }
-      } finally {
-        db.closeQuery(resultSet);
       }
     } catch (Exception e) {
       throw new HopException(e);
@@ -648,24 +587,25 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     }
   }
 
-  private void putToDefaultCache(Database db, ResultSet resultSet) throws HopException {
+  private void putToDefaultCache(Database db, List<Object[]> rows) {
     final int keysAmount = meta.getLookup().getKeyFields().size();
-    final int valuesAmount = data.returnMeta.size();
-
-    // All keys share one row meta: the cache only reads it.
-    IRowMeta keyMeta = copyValueMetasFrom(db.getReturnRowMeta(), keysAmount).clone();
+    IRowMeta prototype = copyValueMetasFrom(db.getReturnRowMeta(), keysAmount);
 
     // Copy the data into 2 parts: key and value...
     //
-    Object[] row;
-    while ((row = db.getRow(resultSet)) != null) {
+    for (Object[] row : rows) {
+      int index = 0;
+      // not sure it is efficient to re-create the same on every row,
+      // but this was done earlier, so I'm keeping this behaviour
+      IRowMeta keyMeta = prototype.clone();
       Object[] keyData = new Object[keysAmount];
-      System.arraycopy(row, 0, keyData, 0, keysAmount);
-
-      Object[] valueData = new Object[valuesAmount];
-      System.arraycopy(row, keysAmount, valueData, 0, valuesAmount);
-      trimCachedReturnValues(valueData);
-
+      for (int i = 0; i < keysAmount; i++) {
+        keyData[i] = row[index++];
+      }
+      Object[] valueData = new Object[data.returnMeta.size()];
+      for (int i = 0; i < data.returnMeta.size(); i++) {
+        valueData[i] = row[index++];
+      }
       // Store the data...
       //
       data.cache.storeRowInCache(meta, keyMeta, keyData, valueData);
@@ -676,66 +616,36 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   private IRowMeta copyValueMetasFrom(IRowMeta source, int n) {
     RowMeta result = new RowMeta();
     for (int i = 0; i < n; i++) {
+      // don't need cloning here,
+      // because value metas will be cloned during iterating through rows
       result.addValueMeta(source.getValueMeta(i));
     }
     return result;
   }
 
-  private void putToReadOnlyCache(Database db, ResultSet resultSet) throws HopException {
+  private void putToReadOnlyCache(Database db, List<Object[]> rows) {
+    ReadAllCache.Builder cacheBuilder = new ReadAllCache.Builder(data, rows.size());
+
+    // all keys have the same row meta,
+    // it is useless to re-create it each time
+    IRowMeta returnRowMeta = db.getReturnRowMeta();
+    cacheBuilder.setKeysMeta(returnRowMeta.clone());
+
     final int keysAmount = meta.getLookup().getKeyFields().size();
-    final int valuesAmount = data.returnMeta.size();
-
-    List<Object[]> keys = new ArrayList<>();
-    List<Object[]> values = new ArrayList<>();
-
     // Copy the data into 2 parts: key and value...
     //
-    Object[] row;
-    while ((row = db.getRow(resultSet)) != null) {
+    final int valuesAmount = data.returnMeta.size();
+    for (Object[] row : rows) {
       Object[] keyData = new Object[keysAmount];
       System.arraycopy(row, 0, keyData, 0, keysAmount);
 
       Object[] valueData = new Object[valuesAmount];
       System.arraycopy(row, keysAmount, valueData, 0, valuesAmount);
-      trimCachedReturnValues(valueData);
 
-      keys.add(keyData);
-      values.add(valueData);
+      cacheBuilder.add(keyData, valueData);
       incrementLinesInput();
     }
-    if (keys.isEmpty()) {
-      // nothing to index: keep the (empty) default cache
-      return;
-    }
-
-    ReadAllCache.Builder cacheBuilder = new ReadAllCache.Builder(data, keys.size());
-
-    // all keys have the same row meta,
-    // it is useless to re-create it each time
-    cacheBuilder.setKeysMeta(db.getReturnRowMeta().clone());
-    for (int i = 0; i < keys.size(); i++) {
-      cacheBuilder.add(keys.get(i), values.get(i));
-    }
     data.cache = cacheBuilder.build();
-  }
-
-  /**
-   * Trims a row going into the load-all cache, so a cache hit has nothing left to do. Only string
-   * values are trimmed: the trim settings apply to string return values.
-   */
-  private void trimCachedReturnValues(Object[] values) throws HopValueException {
-    for (int i : data.trimIndexes) {
-      if (values[i] == null || values[i] instanceof String) {
-        IValueMeta expected = data.returnMeta.getValueMeta(i);
-        values[i] =
-            expected.convertDataFromString(
-                (String) values[i],
-                expected,
-                "",
-                "",
-                ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
-      }
-    }
   }
 
   /** Stop the running query */

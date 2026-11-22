@@ -1,4 +1,0 @@
-Type,PipelineName,TransformName,DatabaseName,DatabaseTable,TableField,FieldName,FieldOrigin,SQL,Remark
-Truncate,0017-database-lookup-populate,dblu_uuid,${java.io.tmpdir}/dblu-test,dblu_uuid,,,,,Truncate of table
-Write,0017-database-lookup-populate,dblu_uuid,${java.io.tmpdir}/dblu-test,dblu_uuid,id,id,id,,Type = Integer
-Write,0017-database-lookup-populate,dblu_uuid,${java.io.tmpdir}/dblu-test,dblu_uuid,uuid,uuid,uuid,,Type = String(36)

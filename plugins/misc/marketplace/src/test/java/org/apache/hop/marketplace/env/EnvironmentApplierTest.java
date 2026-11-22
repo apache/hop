@@ -22,15 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.sun.net.httpserver.HttpServer;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -232,105 +225,5 @@ class EnvironmentApplierTest {
         new EnvironmentApplier(new LogChannel("test"), tempDir, configuredWithPrivateRepository())
             .configFromEnv(new HopInstallSpec());
     assertEquals("operator", config.primaryRepository().getUsername());
-  }
-
-  @Test
-  void applyWithAChangedVersionRemovesThePreviousVersionsFiles() throws Exception {
-    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-    serveZip(server, "1.0.0", "plugins/tech/test/lib/dep-1.0.jar");
-    serveZip(server, "2.0.0", "plugins/tech/test/lib/dep-2.0.jar");
-    server.start();
-    try {
-      Path hopHome = tempDir.resolve("hop-apply");
-      Files.createDirectories(hopHome.resolve("plugins"));
-      MarketplaceConfig config = new MarketplaceConfig();
-      config.getRepositories().clear();
-      config
-          .getRepositories()
-          .add(
-              new MarketplaceRepository(
-                  "local", "http://127.0.0.1:" + server.getAddress().getPort() + "/", true));
-      EnvironmentApplier applier = new EnvironmentApplier(new LogChannel("test"), hopHome, config);
-
-      applier.apply(specWithPlugin("1.0.0"), false);
-      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
-
-      applier.apply(specWithPlugin("2.0.0"), false);
-      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
-      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
-      assertEquals("2.0.0", PluginInstaller.readReceipt(hopHome, "hop-test-plugin").getVersion());
-    } finally {
-      server.stop(0);
-    }
-  }
-
-  @Test
-  void applyInstallsAPluginWhoseUninstallIsUnfinished() throws Exception {
-    HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
-    serveZip(server, "2.0.0", "plugins/tech/test/lib/dep-2.0.jar");
-    server.start();
-    try {
-      Path hopHome = tempDir.resolve("hop-apply-after-uninstall");
-      // What an uninstall leaves when a file of the previous version was in use.
-      Files.createDirectories(hopHome.resolve("plugins/tech/test/lib"));
-      Files.writeString(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar"), "1.0.0");
-      Files.createDirectories(hopHome.resolve(PluginInstaller.RECEIPTS_DIR));
-      Files.writeString(
-          hopHome.resolve(PluginInstaller.RECEIPTS_DIR).resolve("hop-test-plugin.json"),
-          "{\"artifactId\":\"hop-test-plugin\",\"version\":\"2.0.0\","
-              + "\"uninstallPending\":true,\"paths\":[\"plugins/tech/test\"],"
-              + "\"obsoletePaths\":[\"plugins/tech/test/lib/dep-1.0.jar\"]}");
-      MarketplaceConfig config = new MarketplaceConfig();
-      config.getRepositories().clear();
-      config
-          .getRepositories()
-          .add(
-              new MarketplaceRepository(
-                  "local", "http://127.0.0.1:" + server.getAddress().getPort() + "/", true));
-      EnvironmentApplier applier = new EnvironmentApplier(new LogChannel("test"), hopHome, config);
-
-      assertEquals(1, applier.validate(specWithPlugin("2.0.0")).getMissingPlugins().size());
-
-      applier.apply(specWithPlugin("2.0.0"), false);
-      assertTrue(Files.isRegularFile(hopHome.resolve("plugins/tech/test/lib/dep-2.0.jar")));
-      assertFalse(Files.exists(hopHome.resolve("plugins/tech/test/lib/dep-1.0.jar")));
-      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, "hop-test-plugin");
-      assertEquals("2.0.0", receipt.getVersion());
-      assertFalse(receipt.isUninstallPending());
-    } finally {
-      server.stop(0);
-    }
-  }
-
-  private static HopInstallSpec specWithPlugin(String version) {
-    HopInstallSpec env = new HopInstallSpec();
-    HopInstallSpec.PluginRef ref = new HopInstallSpec.PluginRef();
-    ref.setGroupId("org.apache.hop");
-    ref.setArtifactId("hop-test-plugin");
-    ref.setVersion(version);
-    env.getPlugins().add(ref);
-    return env;
-  }
-
-  /** Serves a plugin zip with plugin.jar and one versioned dependency jar. */
-  private static void serveZip(HttpServer server, String version, String dependencyJar)
-      throws IOException {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    try (ZipOutputStream zos = new ZipOutputStream(bos)) {
-      for (String entry : new String[] {"plugins/tech/test/plugin.jar", dependencyJar}) {
-        zos.putNextEntry(new ZipEntry(entry));
-        zos.write(version.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-      }
-    }
-    byte[] zipBytes = bos.toByteArray();
-    server.createContext(
-        "/org/apache/hop/hop-test-plugin/" + version + "/hop-test-plugin-" + version + ".zip",
-        exchange -> {
-          exchange.getResponseHeaders().add("Content-Type", "application/zip");
-          exchange.sendResponseHeaders(200, zipBytes.length);
-          exchange.getResponseBody().write(zipBytes);
-          exchange.close();
-        });
   }
 }

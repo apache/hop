@@ -20,20 +20,14 @@ package org.apache.hop.core.row.value;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.plugins.IClassLoadingPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,143 +44,14 @@ public class ValueMetaFactory {
 
   public static PluginRegistry pluginRegistry = PluginRegistry.getInstance();
 
-  /**
-   * What the plugin registry answers about value types, kept until the registry changes. Every
-   * column of every result set asks for a value type, and asking the registry costs a scan over the
-   * plugins and a class lookup each time.
-   */
-  private static volatile Snapshot snapshot;
-
-  /**
-   * One immutable picture of the value type plugins, taken at one {@link
-   * PluginRegistry#getChangeCount()}. Only the constructors are filled in lazily, as each type is
-   * first created.
-   */
-  private static final class Snapshot {
-    private final PluginRegistry registry;
-    private final long changeCount;
-
-    /** As {@link PluginRegistry#getPlugin(Class, String)} finds them: the first plugin wins. */
-    private final Map<Integer, IPlugin> pluginsById = new HashMap<>();
-
-    /** The name of the first plugin whose main id is the type. */
-    private final Map<Integer, String> namesById = new HashMap<>();
-
-    /** The main id of the first plugin with that name, matched ignoring case. */
-    private final Map<String, String> idsByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-    private final List<IPlugin> plugins;
-
-    /**
-     * The no-argument constructor of each type's class, taken from a class the registry loaded, so
-     * through the plugin's own class loader, with the class name it was loaded for. Only filled in
-     * lazily, as each type is first created.
-     */
-    private final Map<Integer, KnownConstructor> constructors = new ConcurrentHashMap<>();
-
-    private Snapshot(PluginRegistry registry, long changeCount) {
-      this.registry = registry;
-      this.changeCount = changeCount;
-      this.plugins = List.copyOf(registry.getPlugins(ValueMetaPluginType.class));
-      for (IPlugin plugin : plugins) {
-        String[] ids = plugin.getIds();
-        for (String id : ids) {
-          Integer type = asTypeId(id);
-          if (type != null) {
-            pluginsById.putIfAbsent(type, plugin);
-          }
-        }
-        Integer mainType = asTypeId(ids[0]);
-        if (mainType != null) {
-          namesById.putIfAbsent(mainType, plugin.getName());
-        }
-        if (plugin.getName() != null) {
-          idsByName.putIfAbsent(plugin.getName(), ids[0]);
-        }
-      }
-    }
-
-    /** The id as the int it stands for, or null when no int prints as that exact id. */
-    private static Integer asTypeId(String id) {
-      if (id == null) {
-        return null;
-      }
-      try {
-        int type = Integer.parseInt(id);
-        return Integer.toString(type).equals(id) ? type : null;
-      } catch (NumberFormatException e) {
-        return null;
-      }
-    }
-
-    private IValueMeta newValueMeta(int type) throws HopPluginException {
-      IPlugin plugin = pluginsById.get(type);
-      if (plugin == null) {
-        throw new HopPluginException("Unable to locate value meta plugin of type (id) " + type);
-      }
-      // A plugin that loads its own classes, or whose class comes from a class factory (no class
-      // name in its class map), is asked every time: it may hand out something other than a fresh
-      // instance of one class. The class map is read on every call, so a class merged into the
-      // plugin later is picked up as the registry would.
-      String className =
-          plugin instanceof IClassLoadingPlugin ? null : plugin.getClassMap().get(IValueMeta.class);
-      if (className != null) {
-        KnownConstructor known = constructors.get(type);
-        if (known != null && known.className().equals(className)) {
-          return PluginRegistry.newInstance(known.constructor());
-        }
-      }
-      IValueMeta valueMeta = registry.loadClass(plugin, IValueMeta.class);
-      if (className != null && className.equals(valueMeta.getClass().getName())) {
-        try {
-          Constructor<? extends IValueMeta> loaded = valueMeta.getClass().getDeclaredConstructor();
-          if (loaded.canAccess(null)) {
-            constructors.put(type, new KnownConstructor(className, loaded));
-          }
-        } catch (NoSuchMethodException | SecurityException e) {
-          // Not reachable for a class the registry just instantiated; keep loading it each time.
-        }
-      }
-      return valueMeta;
-    }
-  }
-
-  /** A constructor of a value meta class, and the class name the plugin mapped it from. */
-  private record KnownConstructor(
-      String className, Constructor<? extends IValueMeta> constructor) {}
-
-  /**
-   * @return the current snapshot, or null when {@link #pluginRegistry} is not the real registry (a
-   *     test double), which is then asked every time as before
-   */
-  private static Snapshot snapshot() {
-    PluginRegistry registry = pluginRegistry;
-    if (registry != PluginRegistry.getInstance()) {
-      return null;
-    }
-    // Read the change count before the plugins: a change in between makes the next call rebuild.
-    long changeCount = registry.getChangeCount();
-    Snapshot current = snapshot;
-    if (current == null || current.registry != registry || current.changeCount != changeCount) {
-      current = new Snapshot(registry, changeCount);
-      snapshot = current;
-    }
-    return current;
-  }
-
   public static IValueMeta createValueMeta(String name, int type, int length, int precision)
       throws HopPluginException {
-    IValueMeta valueMeta;
-    Snapshot current = snapshot();
-    if (current != null) {
-      valueMeta = current.newValueMeta(type);
-    } else {
-      IPlugin plugin = pluginRegistry.getPlugin(ValueMetaPluginType.class, String.valueOf(type));
-      if (plugin == null) {
-        throw new HopPluginException("Unable to locate value meta plugin of type (id) " + type);
-      }
-      valueMeta = pluginRegistry.loadClass(plugin, IValueMeta.class);
+    IPlugin stringPlugin =
+        pluginRegistry.getPlugin(ValueMetaPluginType.class, String.valueOf(type));
+    if (stringPlugin == null) {
+      throw new HopPluginException("Unable to locate value meta plugin of type (id) " + type);
     }
+    IValueMeta valueMeta = pluginRegistry.loadClass(stringPlugin, IValueMeta.class);
     valueMeta.setName(name);
     valueMeta.setLength(length, precision);
     return valueMeta;
@@ -308,15 +173,8 @@ public class ValueMetaFactory {
   }
 
   public static String[] getValueMetaNames() {
-    Snapshot current = snapshot();
-    if (current != null) {
-      return valueMetaNames(current.plugins);
-    }
-    return valueMetaNames(pluginRegistry.getPlugins(ValueMetaPluginType.class));
-  }
-
-  private static String[] valueMetaNames(List<IPlugin> plugins) {
     List<String> strings = new ArrayList<>();
+    List<IPlugin> plugins = pluginRegistry.getPlugins(ValueMetaPluginType.class);
     for (IPlugin plugin : plugins) {
       int id = Integer.parseInt(plugin.getIds()[0]);
       if (id > 0 && id != IValueMeta.TYPE_SERIALIZABLE) {
@@ -327,15 +185,8 @@ public class ValueMetaFactory {
   }
 
   public static String[] getAllValueMetaNames() {
-    Snapshot current = snapshot();
-    if (current != null) {
-      return allValueMetaNames(current.plugins);
-    }
-    return allValueMetaNames(pluginRegistry.getPlugins(ValueMetaPluginType.class));
-  }
-
-  private static String[] allValueMetaNames(List<IPlugin> plugins) {
     List<String> strings = new ArrayList<>();
+    List<IPlugin> plugins = pluginRegistry.getPlugins(ValueMetaPluginType.class);
     for (IPlugin plugin : plugins) {
       String id = plugin.getIds()[0];
       if (!("0".equals(id))) {
@@ -346,10 +197,6 @@ public class ValueMetaFactory {
   }
 
   public static String getValueMetaName(int type) {
-    Snapshot current = snapshot();
-    if (current != null) {
-      return current.namesById.getOrDefault(type, "-");
-    }
     for (IPlugin plugin : pluginRegistry.getPlugins(ValueMetaPluginType.class)) {
       if (Integer.toString(type).equals(plugin.getIds()[0])) {
         return plugin.getName();
@@ -359,11 +206,6 @@ public class ValueMetaFactory {
   }
 
   public static int getIdForValueMeta(String valueMetaName) {
-    Snapshot current = snapshot();
-    if (current != null) {
-      String id = valueMetaName == null ? null : current.idsByName.get(valueMetaName);
-      return id == null ? IValueMeta.TYPE_NONE : Integer.parseInt(id);
-    }
     for (IPlugin plugin : pluginRegistry.getPlugins(ValueMetaPluginType.class)) {
       if (valueMetaName != null && valueMetaName.equalsIgnoreCase(plugin.getName())) {
         return Integer.parseInt(plugin.getIds()[0]);

@@ -19,15 +19,9 @@ package org.apache.hop.lint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -35,7 +29,6 @@ import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.lint.registry.EffectiveRuleSet;
 import org.apache.hop.lint.registry.LintConfigurationException;
 import org.apache.hop.lint.registry.RuleRegistry;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -75,9 +68,6 @@ public class LintRun {
   /** The findings already accepted, or null. */
   private LintBaseline baseline;
 
-  /** Where {@link #baseline} was read from, for the report; null without a baseline. */
-  private String baselineName;
-
   /** What a run found, and whether that fails it. */
   @Getter
   public static class Outcome {
@@ -96,23 +86,13 @@ public class LintRun {
     /** Whether the warnings exceeded the maximum. */
     private final boolean failedOnWarnings;
 
-    /** The rules the run evaluated, after the project's hop-lint.yml. */
-    private final EffectiveRuleSet ruleSet;
-
-    /** The hop-lint.yml the rules were read with, or null when there was none. */
-    private final File configFile;
-
     Outcome(
         List<LintResult> results,
         List<LintResult> shown,
         int baselineHidden,
         int baselineStale,
         boolean failedOnSeverity,
-        boolean failedOnWarnings,
-        EffectiveRuleSet ruleSet,
-        File configFile) {
-      this.ruleSet = ruleSet;
-      this.configFile = configFile;
+        boolean failedOnWarnings) {
       this.results = results;
       this.shown = shown;
       this.baselineHidden = baselineHidden;
@@ -160,14 +140,6 @@ public class LintRun {
     }
 
     List<LintResult> all = lint(linter, metadataProvider, variables);
-    File usedConfigFile =
-        configFile != null
-            ? configFile
-            : RuleRegistry.getInstance()
-                .findProjectYaml(
-                    target,
-                    variables == null ? null : variables.getVariable("PROJECT_HOME"),
-                    false);
 
     List<LintResult> results = all;
     int hidden = 0;
@@ -187,9 +159,7 @@ public class LintRun {
         hidden,
         stale,
         meetsFailOn(results, failOn),
-        maxWarnings >= 0 && warnings > maxWarnings,
-        linter.getEffectiveRuleSet(),
-        usedConfigFile);
+        maxWarnings >= 0 && warnings > maxWarnings);
   }
 
   private List<LintResult> lint(
@@ -308,126 +278,10 @@ public class LintRun {
     return directory != null ? directory.toPath().toAbsolutePath().normalize() : null;
   }
 
-  /**
-   * The report of a run in the given format, as {@code hop lint} writes it: the findings shown, and
-   * in SARIF how the run was set up.
-   */
-  public String renderReport(Outcome outcome, LintReportFormat format)
-      throws JsonProcessingException {
-    return LintReportWriter.render(
-        format, outcome.getShown(), toolVersion(), baseDirectory(), invocation(outcome));
-  }
-
-  /**
-   * The report of a run's findings, without how the run was set up.
-   *
-   * @deprecated since 2.21; use {@link #renderReport(Outcome, LintReportFormat)}, which also writes
-   *     the run's rules and set-up to SARIF
-   */
-  @Deprecated(since = "2.21")
+  /** The report in the given format, as {@code hop lint} writes it. */
   public String renderReport(List<LintResult> results, LintReportFormat format)
       throws JsonProcessingException {
     return LintReportWriter.render(format, results, toolVersion(), baseDirectory());
-  }
-
-  /**
-   * A configuration or baseline file as a report records it: relative to the lint target's folder,
-   * with {@code ../} where it lies outside it. A report is uploaded and kept, so it must not carry
-   * the absolute path of a developer's home folder or a CI workspace. A local {@code file:} URL, as
-   * the Run Linter action may be given, is read as the file it names; a remote VFS location is kept
-   * as written.
-   *
-   * @param name the file as given, relative to the working directory or absolute
-   * @param base the lint target's folder, or null
-   */
-  static String reportPath(String name, Path base) {
-    if (Utils.isEmpty(name)) {
-      return "";
-    }
-    Path path;
-    try {
-      if (name.regionMatches(true, 0, "file:", 0, 5)) {
-        path = Paths.get(URI.create(name));
-      } else if (name.matches("^[A-Za-z][A-Za-z0-9+.-]+://.*")) {
-        return withoutCredentials(name);
-      } else {
-        path = Paths.get(name);
-      }
-      path = path.toAbsolutePath().normalize();
-    } catch (Exception e) {
-      // Not a path we can place: the file name tells the reader which file without the folders.
-      int slash = Math.max(name.lastIndexOf('/'), name.lastIndexOf('\\'));
-      return name.substring(slash + 1);
-    }
-    if (base == null || !Objects.equals(path.getRoot(), base.getRoot())) {
-      return path.getFileName() == null ? "" : path.getFileName().toString();
-    }
-    return base.relativize(path).toString().replace('\\', '/');
-  }
-
-  /**
-   * A remote location without what can carry a credential: the user and password before the host,
-   * the query and the fragment. The Run Linter action passes the location with its variables
-   * resolved, so {@code sftp://${USER}:${PASSWORD}@host/baseline.json} would otherwise put the
-   * password in a report that is uploaded and kept.
-   */
-  static String withoutCredentials(String url) {
-    // The user info first, ending where Commons VFS ends it, at the first '/' or '?': a '#' in a
-    // password must not be read as the start of the fragment and leave the user and part of it.
-    int authorityStart = url.indexOf("://") + 3;
-    int authorityEnd = authorityStart;
-    while (authorityEnd < url.length() && "/?".indexOf(url.charAt(authorityEnd)) < 0) {
-      authorityEnd++;
-    }
-    int at = url.lastIndexOf('@', authorityEnd - 1);
-    String location =
-        at >= authorityStart ? url.substring(0, authorityStart) + url.substring(at + 1) : url;
-    int cut = location.length();
-    for (char c : new char[] {'?', '#'}) {
-      int index = location.indexOf(c, authorityStart);
-      if (index >= 0 && index < cut) {
-        cut = index;
-      }
-    }
-    return location.substring(0, cut);
-  }
-
-  /**
-   * How this run was set up and how it ended: the rules it evaluated, the packs they came from, and
-   * the settings that decided the findings and the outcome.
-   */
-  public LintInvocation invocation(Outcome outcome) {
-    Map<String, Object> configuration = new LinkedHashMap<>();
-    if (outcome.getConfigFile() != null) {
-      configuration.put(
-          "configFile", reportPath(outcome.getConfigFile().getAbsolutePath(), baseDirectory()));
-    }
-    // No filter reports everything, as INFO does: the Run Linter action defaults to INFO, hop lint
-    // to no filter, and the two runs are the same.
-    configuration.put(
-        "severity",
-        severityFilter == null ? LintSeverity.Level.INFO.name() : severityFilter.name());
-    configuration.put("failOn", failOn == null ? LintSeverity.FailOn.NONE.name() : failOn.name());
-    if (maxWarnings >= 0) {
-      configuration.put("maxWarnings", maxWarnings);
-    }
-    configuration.put("includeMetadata", includeMetadata);
-    if (baseline != null) {
-      configuration.put("baseline", reportPath(baselineName, baseDirectory()));
-      configuration.put("baselineHidden", outcome.getBaselineHidden());
-    }
-    List<CustomLintRule> enabled =
-        outcome.getRuleSet() == null
-            ? List.of()
-            : outcome.getRuleSet().getEnabledRules().stream()
-                .sorted(Comparator.comparing(CustomLintRule::generateRuleId))
-                .toList();
-    return new LintInvocation(
-        true,
-        outcome.isFailed() ? 1 : 0,
-        enabled,
-        RuleRegistry.getInstance().getLoadedPacks(),
-        configuration);
   }
 
   /** The Hop version, as {@code hop --version} and {@code hop lint --version} print it. */

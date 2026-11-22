@@ -34,10 +34,3 @@ A child used from xref:pipeline/transforms/multi-mapping.adoc[Multi Mapping] may
 
 The fields described in this transform are those that you want to refer to in this pipeline.
 When you use the mapping you can map input to these field names to arrive at a re-usable part of a pipeline.
-
-== Samples
-
-The samples project has:
-
-* `transforms/simple-mapping-child.hpl`, whose Mapping input receives `firstName` and `lastName`; `transforms/simple-mapping-parent.hpl` runs it for 4 names.
-* `transforms/multi-mapping-child.hpl`, the same mapping, which `transforms/multi-mapping-parent.hpl` runs for 4 names.

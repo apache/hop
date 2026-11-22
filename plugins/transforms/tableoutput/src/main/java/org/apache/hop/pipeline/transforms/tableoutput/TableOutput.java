@@ -79,7 +79,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if (r == null) { // no more input to be expected...
-      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows() && !isPreparedOnce()) {
+      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
         truncateTable();
       }
       // The end of the rows: write what is still buffered and say so, as processRow() must. A
@@ -92,14 +92,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (first) {
       first = false;
-      // The engine did the truncate and table changes before the run (see prepareOnce), unless
-      // the table is only truncated once rows arrive
-      if (meta.isTruncateTable() && (!isPreparedOnce() || meta.isOnlyWhenHaveRows())) {
+      if (meta.isTruncateTable()) {
         truncateTable();
       }
 
       // Handle automatic table structure updates
-      if (meta.isAutoUpdateTableStructure() && !isPreparedOnce()) {
+      if (meta.isAutoUpdateTableStructure()) {
         updateTableStructure();
 
         // Clear prepared statement cache after DDL changes
@@ -781,24 +779,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       }
     }
     return false;
-  }
-
-  /**
-   * Truncate the table and update its structure once for the whole run, before any copy, Spark
-   * partition or Beam bundle writes a row: otherwise every one of them would, and they would
-   * truncate each other's rows or change the table at the same time.
-   */
-  @Override
-  public void prepareOnce() throws HopException {
-    if (meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
-      truncateTable();
-    }
-    if (meta.isAutoUpdateTableStructure()) {
-      updateTableStructure();
-      if (data.preparedStatements != null) {
-        data.preparedStatements.clear();
-      }
-    }
   }
 
   void truncateTable() throws HopDatabaseException {

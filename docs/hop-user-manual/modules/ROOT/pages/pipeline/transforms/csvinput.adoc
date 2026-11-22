@@ -71,9 +71,6 @@ WARNING: For technical reasons, parallel reading of CSV files is only supported 
 |Preview button|Click to preview the data coming from the target file.
 |Get Fields button|Click to return a list of fields from the target file based on the current settings (i.e. Delimiter, Enclosure, etc.).
 All fields identified will be added to the Fields Table.
-|Get fields from data catalog button|Shown when the project has a xref:metadata-types/data-catalog.adoc[Data Catalog].
-Fills the Fields Table with the fields a data catalog, such as DataHub, has for the file: names, types, lengths and precisions. Dates get no format, so they use Hop's default format: check it against the file.
-See xref:metadata-types/data-catalog.adoc#_get_fields_from_a_data_catalog[Get fields from a data catalog].
 |===
 
 == Samples

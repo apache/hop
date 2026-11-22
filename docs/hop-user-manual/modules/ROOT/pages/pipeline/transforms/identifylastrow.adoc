@@ -34,7 +34,3 @@ The Identify Last Row In A Stream pipeline transform generates a Boolean field f
 |Result fieldname|Defines the field to use to mark the last row of a stream.
 It generates a Boolean field filled with true for the last row, and falseotherwise.
 |===
-
-== Samples
-
-The samples project has `transforms/identify-last-row-basic.hpl`, which sets the field `is_last` to `Y` for the last of 5 rows from a Data grid, and to `N` for the others.

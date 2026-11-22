@@ -90,7 +90,3 @@ The fields returned by this transform are
 * mask
 * decimal_symbol
 * grouping_symbol
-
-== Samples
-
-The samples project has `transforms/file-metadata.hpl`, which detects the charset, the delimiter and the header line of `files/file-metadata.txt`, and returns one row per field with its name, type and length.

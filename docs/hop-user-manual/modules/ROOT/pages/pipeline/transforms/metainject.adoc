@@ -34,7 +34,11 @@ E.g. Use Case: If you have 10 different CSV file definitions and don't want to c
 
 Basically, the ETL Metadata Injection transform overrules the default behavior for the named pipeline. Not all incoming streams need to have the same layout. It is perfectly OK to provide input to the metadata injection transform from different streams with different layouts.
 
-The samples project has examples, see <<Samples>>.
+*Sample files:*
+
+* *Configure MDI:* read-and-inject-metadata.hpl
+
+* *Read and fill in Template:* read-file-template.hpl
 
 xref:pipeline/metadata-injection.adoc[Read more on metadata injection]
 
@@ -124,11 +128,3 @@ This replaces the legacy *Allow empty stream to run the resulting pipeline* chec
 * Enter a pipeline filename in "Optional target file (hpl after injection)" so that a file will be generated after injection. This pipeline will contain all the properties after injection and can be viewed and executed for testing.
 
 For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
-
-== Samples
-
-The samples project has:
-
-* `metadata-injection/process-files-with-mdi.hpl`, which reads the layout of `files/person-info-${PRM_TYPE}.csv` with File metadata and injects it into `metadata-injection/process-files-with-mdi-template.hpl`, which appends the names, the email, the zip code and the country to `output/unified-person-data.csv`.
-Run it with `PRM_TYPE` set to 1 and then to 2: the two files have different layouts.
-* `metadata-injection/read-and-inject-metadata.hpl`, which reads the layout of `files/customers-100.txt` with File metadata and injects it into `metadata-injection/read-file-template.hpl`, which counts the distinct zip codes per state.

@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -237,30 +236,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
     }
   }
 
-  /**
-   * Creates the table, its HNSW index and the mapped columns once for the whole run, before any
-   * copy, Spark partition or Beam bundle writes a row. Otherwise every one of them runs the DDL,
-   * and they race each other creating the same table. The DDL commits on its own, as on the first
-   * row.
-   */
-  @Override
-  public void prepareOnce() throws HopException {
-    Database database =
-        PgVectorDatabase.connect(this, this, getMetadataProvider(), meta.getConnection());
-    try {
-      database.setCommit(0);
-      VectorDistanceMetric indexMetric =
-          meta.getIndexMetric() != null ? meta.getIndexMetric() : VectorDistanceMetric.COSINE;
-      PgVectorDatabase.ensureSchema(
-          database,
-          meta,
-          resolve(meta.getSchemaName()),
-          resolve(meta.getTableName()),
-          indexMetric,
-          Const.toInt(resolve(meta.getEmbeddingDimensions()), 768));
-    } finally {
-      database.disconnect();
-    }
+  private boolean hasColumnMappings() {
+    return meta.getColumnMappings() != null && !meta.getColumnMappings().isEmpty();
   }
 
   private boolean shouldDeleteDocument(String documentId) {
@@ -357,9 +334,8 @@ public class PgVectorUpsert extends BaseTransform<PgVectorUpsertMeta, PgVectorUp
   void prepareSchemaAndCommitMode(String schemaName, String tableName) throws HopException {
     boolean sharedConnection = !Utils.isEmpty(data.database.getConnectionGroup());
     // The HNSW index and the mapped-column ALTERs are independent options, so they have to run on
-    // an existing table too, not only when this transform creates one. Not when the engine ran
-    // them before the run (see prepareOnce).
-    if (meta.hasSchemaDdl() && !isPreparedOnce()) {
+    // an existing table too, not only when this transform creates one.
+    if (meta.isCreateTableIfMissing() || meta.isCreateHnswIndex() || hasColumnMappings()) {
       if (!sharedConnection) {
         data.database.setCommit(0);
       }

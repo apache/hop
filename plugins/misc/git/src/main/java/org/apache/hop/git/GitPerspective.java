@@ -42,7 +42,6 @@ import org.apache.hop.git.model.UIGit;
 import org.apache.hop.git.model.VCS;
 import org.apache.hop.git.util.FileTypeUtils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -94,7 +93,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -145,6 +143,16 @@ public class GitPerspective implements IHopPerspective {
       "GitPerspective-RefContextMenu-100500-Rename";
   public static final String REF_CONTEXT_MENU_DELETE =
       "GitPerspective-RefContextMenu-100600-Deelete";
+
+  /** The menu of the Remote node of the references tree. */
+  public static final String GUI_PLUGIN_REMOTE_CONTEXT_MENU_PARENT_ID =
+      "GitPerspective-RemoteContextMenu";
+
+  public static final String REMOTE_CONTEXT_MENU_EDIT =
+      "GitPerspective-RemoteContextMenu-10000-Edit";
+
+  /** Data of the Remote node of the references tree, to recognize it. */
+  private static final String REMOTE_TREE_NODE = "GitPerspective-RemoteTreeNode";
 
   public static final String GUI_PLUGIN_HISTORY_CONTEXT_MENU_PARENT_ID =
       "GitPerspective-HistoryContextMenu";
@@ -220,16 +228,14 @@ public class GitPerspective implements IHopPerspective {
   private Control wDiff; // Can be Text (web) or DiffStyledTextComp (desktop)
   private Control wDiffStyled; // Declared as Control (not DiffStyledTextComp) so works in hop web
   private Text wSearchText;
-
-  /** Debounced search action so we don't reload the history on every keystroke. */
-  private final Runnable searchRunnable = this::search;
-
   private Text wDiffText;
   // private GuiToolbarWidgets refToolBarWidgets;
   private GuiToolbarWidgets fileToolBarWidgets;
   private GuiToolbarWidgets historyToolBarWidgets;
   private GuiMenuWidgets fileMenuWidgets;
   private GuiMenuWidgets refMenuWidgets;
+  private GuiMenuWidgets remoteMenuWidgets;
+  private Menu remoteMenu;
   private GuiMenuWidgets historyMenuWidgets;
 
   private SwtCommitRenderer plotRenderer;
@@ -380,13 +386,12 @@ public class GitPerspective implements IHopPerspective {
     // Create search/filter text box
     wSearchText = new Text(composite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     wSearchText.setMessage(BaseMessages.getString(PKG, "GitPerspective.Search.Placeholder"));
-    wSearchText.setToolTipText(BaseMessages.getString(PKG, "GitPerspective.Search.Tooltip"));
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
     searchFormData.top = new FormAttachment(0, 0);
     searchFormData.right = new FormAttachment(100, 0);
     wSearchText.setLayoutData(searchFormData);
-    wSearchText.addListener(SWT.Modify, event -> scheduleSearch());
+    wSearchText.addListener(SWT.Modify, event -> search());
     PropsUi.setLook(wSearchText);
 
     // Create a composite with toolbar and tree for the border
@@ -428,9 +433,22 @@ public class GitPerspective implements IHopPerspective {
     refMenuWidgets.registerGuiPluginObject(this);
     refMenuWidgets.createMenuWidgets(GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID, getShell(), menu);
     wRefTree.setMenu(menu);
+
+    // The Remote node has a menu of its own, to add or edit the remote
+    remoteMenu = new Menu(wRefTree);
+    remoteMenuWidgets = new GuiMenuWidgets();
+    remoteMenuWidgets.registerGuiPluginObject(this);
+    remoteMenuWidgets.createMenuWidgets(
+        GUI_PLUGIN_REMOTE_CONTEXT_MENU_PARENT_ID, getShell(), remoteMenu);
+
     wRefTree.addListener(
         SWT.MenuDetect,
         event -> {
+          if (isRemoteNodeSelected()) {
+            event.doit = false;
+            showRemoteMenu(event.x, event.y);
+            return;
+          }
           Ref ref = getSelectedReference();
           if (ref == null) {
             event.doit = false;
@@ -647,6 +665,73 @@ public class GitPerspective implements IHopPerspective {
     if (fileToolBarWidgets != null) {
       fileToolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_FILE_SHOW_TEXT_DIFF, visualDiffEnabled);
     }
+  }
+
+  private boolean isRemoteNodeSelected() {
+    if (wRefTree == null || wRefTree.isDisposed() || wRefTree.getSelectionCount() != 1) {
+      return false;
+    }
+    return REMOTE_TREE_NODE.equals(wRefTree.getSelection()[0].getData());
+  }
+
+  /**
+   * Shows the menu of the Remote node: add the remote when there is none yet, edit it otherwise.
+   */
+  private void showRemoteMenu(int x, int y) {
+    UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+    if (uiGit == null || remoteMenu == null || remoteMenu.isDisposed()) {
+      return;
+    }
+    MenuItem menuItem = remoteMenuWidgets.findMenuItem(REMOTE_CONTEXT_MENU_EDIT);
+    if (menuItem != null) {
+      menuItem.setText(
+          BaseMessages.getString(
+              PKG,
+              uiGit.hasRemote()
+                  ? "GitPerspective.Menu.EditRemote.Text"
+                  : "GitPerspective.Menu.AddRemote.Text"));
+    }
+    remoteMenu.setLocation(x, y);
+    remoteMenu.setVisible(true);
+  }
+
+  /** Add the remote of the repository when it has none yet, or edit it. */
+  @GuiMenuElement(
+      root = GUI_PLUGIN_REMOTE_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_REMOTE_CONTEXT_MENU_PARENT_ID,
+      id = REMOTE_CONTEXT_MENU_EDIT,
+      label = "i18n::GitPerspective.Menu.EditRemote.Text",
+      image = "ui/images/edit.svg")
+  public void editRemote() {
+    if (!isInitialized()) {
+      return;
+    }
+    UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+    if (uiGit == null) {
+      return;
+    }
+    boolean hasRemote = uiGit.hasRemote();
+    RemoteDialog dialog =
+        new RemoteDialog(
+            getShell(),
+            hopGui.getVariables(),
+            hopGui.getMetadataProvider(),
+            hasRemote ? uiGit.getRemote() : null,
+            hasRemote ? uiGit.getRemoteGitConnection() : null);
+    if (!dialog.open()) {
+      return;
+    }
+    try {
+      uiGit.setRemoteUrl(dialog.getUrl());
+      uiGit.setRemoteGitConnection(dialog.getGitConnection());
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.Remote.Error.Header"),
+          BaseMessages.getString(PKG, "GitPerspective.Dialog.Remote.Error.Save"),
+          e);
+    }
+    refresh(false);
   }
 
   public Ref getSelectedReference() {
@@ -2089,16 +2174,6 @@ public class GitPerspective implements IHopPerspective {
         });
   }
 
-  /** Filter the history on the search text once typing pauses. */
-  private void scheduleSearch() {
-    if (wSearchText == null || wSearchText.isDisposed()) {
-      return;
-    }
-    Display display = wSearchText.getDisplay();
-    display.timerExec(-1, searchRunnable);
-    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, searchRunnable);
-  }
-
   private void search() {
     if (wSearchText == null || wSearchText.isDisposed()) {
       return;
@@ -2246,6 +2321,7 @@ public class GitPerspective implements IHopPerspective {
       TreeItem remoteItem = new TreeItem(wRefTree, SWT.NONE);
       remoteItem.setText(BaseMessages.getString(PKG, "GitPerspective.Ref.Remote.Label"));
       remoteItem.setImage(GitResource.getInstance().getRemoteImage());
+      remoteItem.setData(REMOTE_TREE_NODE);
       for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call()) {
         if (ref.isSymbolic()) continue;
         TreeItem item = new TreeItem(remoteItem, SWT.NONE);

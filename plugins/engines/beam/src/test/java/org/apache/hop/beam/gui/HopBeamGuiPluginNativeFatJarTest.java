@@ -17,13 +17,10 @@
 
 package org.apache.hop.beam.gui;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -123,26 +120,6 @@ class HopBeamGuiPluginNativeFatJarTest {
     assertTrue(pluginJar.getParentFile().mkdirs());
     assertTrue(pluginJar.createNewFile());
     assertFalse(HopBeamGuiPlugin.isExcludedForNativeSparkFatJar(pluginJar));
-  }
-
-  @Test
-  void pluginJarsSkipMarketplaceStagingAndBackups() throws Exception {
-    File plugins = new File(tempDir, "plugins");
-    File live = touch(plugins, "tech/test/lib/x.jar");
-    File pluginJar = touch(plugins, "tech/test/hop-test.jar");
-    touch(plugins, ".marketplace/backup/hop-test/1.0.0/20261121T100000Z/lib/core/x.jar");
-    touch(plugins, ".staging/hop-test/plugins/tech/test/hop-test.jar");
-    touch(plugins, "tech/test/readme.txt");
-
-    assertEquals(Set.of(live, pluginJar), new HashSet<>(HopBeamGuiPlugin.findPluginJars(plugins)));
-    assertTrue(HopBeamGuiPlugin.findPluginJars(new File(tempDir, "missing")).isEmpty());
-  }
-
-  private static File touch(File base, String path) throws Exception {
-    File file = new File(base, path);
-    file.getParentFile().mkdirs();
-    assertTrue(file.createNewFile());
-    return file;
   }
 
   private static boolean excluded(String basename) {

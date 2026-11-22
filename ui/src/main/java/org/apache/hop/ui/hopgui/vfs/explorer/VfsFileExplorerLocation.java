@@ -147,6 +147,9 @@ public class VfsFileExplorerLocation extends Composite {
   /** The largest file a Hop Web user can upload into a folder. */
   private static final long BROWSER_UPLOAD_LIMIT = 512L * 1024 * 1024;
 
+  /** Typing in the filter waits this long before the table is filled again. */
+  private static final int FILTER_DELAY_MS = 250;
+
   private final VfsFileExplorer explorer;
   private final IVariables variables;
   private final Runnable delayedRefill = this::refillTableIfAlive;
@@ -298,14 +301,13 @@ public class VfsFileExplorerLocation extends Composite {
     detailsRow.setLayoutData(new FormDataBuilder().top().fullWidth().result());
     filterText = new Text(detailsRow, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     filterText.setMessage(BaseMessages.getString(PKG, "VfsFileExplorer.Filter.Placeholder"));
-    filterText.setToolTipText(BaseMessages.getString(PKG, "VfsFileExplorer.Filter.Tooltip"));
     PropsUi.setLook(filterText, PropsUi.WIDGET_STYLE_TOOLBAR);
     filterText.setLayoutData(new FormDataBuilder().right().top().width(220).result());
     filterText.addListener(
         SWT.Modify,
         e -> {
           getDisplay().timerExec(-1, delayedRefill);
-          getDisplay().timerExec(ConstUi.FILTER_DEBOUNCE_MS, delayedRefill);
+          getDisplay().timerExec(FILTER_DELAY_MS, delayedRefill);
         });
     IToolbarContainer detailsBar =
         ToolbarFacade.createToolbarContainer(detailsRow, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);

@@ -103,12 +103,6 @@ public class ConstUi {
   /** the default canvas refresh interval for running pipelines */
   public static final int INTERVAL_MS_PIPELINE_CANVAS_REFRESH = 1000;
 
-  /**
-   * Delay in milliseconds after the last keystroke before the text of a search box is applied in a
-   * perspective or a dialog, so that the list is not filtered again on every keystroke.
-   */
-  public static final int FILTER_DEBOUNCE_MS = 400;
-
   /** margin between points of controls */
   public static final int SMALL_MARGIN = 5;
 

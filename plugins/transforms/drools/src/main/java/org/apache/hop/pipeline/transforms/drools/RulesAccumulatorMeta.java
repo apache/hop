@@ -38,9 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::RulesAccumulator.Description",
     categoryDescription = "i18n::Rules.Category",
     keywords = "i18n::RulesAccumulator.keyword",
-    documentationUrl = "/pipeline/transforms/rulesaccumulator.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/rulesaccumulator.html")
 public class RulesAccumulatorMeta
     extends BaseTransformMeta<RulesAccumulator, RulesAccumulatorData> {
   private static final Class<?> PKG = Rules.class; // for i18n purposes

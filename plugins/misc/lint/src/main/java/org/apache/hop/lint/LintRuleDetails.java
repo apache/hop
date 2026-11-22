@@ -33,28 +33,16 @@ import java.util.Map;
  * @param description the rule's description, empty when it has none
  * @param helpUri where to read more about the rule, or null
  * @param tags the rule's tags, each key holding one or more values
- * @param severity the severity the rule is configured with, empty when not known. A finding can
- *     have another, such as the error reported when the rule cannot run.
  */
 public record LintRuleDetails(
-    String name,
-    String description,
-    String helpUri,
-    Map<String, List<String>> tags,
-    String severity) {
+    String name, String description, String helpUri, Map<String, List<String>> tags) {
 
-  public static final LintRuleDetails NONE = new LintRuleDetails("", "", null, Map.of(), "");
+  public static final LintRuleDetails NONE = new LintRuleDetails("", "", null, Map.of());
 
   public LintRuleDetails {
     name = name != null ? name : "";
     description = description != null ? description : "";
     tags = copyOf(tags);
-    severity = severity != null ? severity : "";
-  }
-
-  public LintRuleDetails(
-      String name, String description, String helpUri, Map<String, List<String>> tags) {
-    this(name, description, helpUri, tags, "");
   }
 
   public LintRuleDetails(String description, String helpUri, Map<String, List<String>> tags) {
@@ -67,11 +55,7 @@ public record LintRuleDetails(
       return NONE;
     }
     return new LintRuleDetails(
-        rule.getName(),
-        rule.getDescription(),
-        rule.getHelpUri(),
-        rule.getTags(),
-        rule.getSeverity());
+        rule.getName(), rule.getDescription(), rule.getHelpUri(), rule.getTags());
   }
 
   /**

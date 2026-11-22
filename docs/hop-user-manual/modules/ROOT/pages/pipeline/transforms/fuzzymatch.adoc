@@ -132,10 +132,3 @@ You can also specify the list of additional fields to retrieve from the lookup s
 |===
 
 If no lookup value falls within the configured minimum and maximal range, the transform still forwards the main stream row with empty match and measure fields.
-
-== Samples
-
-The samples project has:
-
-* `transforms/fuzzy-match-rename.hpl`, which looks up the `name` of a row in the `new_name` field of a second Data grid with Jaro-Winkler, and returns the lookup fields `new_id` and `new_name` as `user_id` and `user_name`, and `new_address` under its own name.
-* `transforms/fuzzy-match-soundex.hpl`, which matches 14 names to 12 reference names by how they sound (Soundex), for example `Ay See Dee Ci` to `AC/DC`; `Hole` and `Hour` get no match.

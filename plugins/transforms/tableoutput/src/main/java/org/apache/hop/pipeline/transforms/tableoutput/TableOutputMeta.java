@@ -188,18 +188,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       injectionKeyDescription = "TableOutputMeta.Injection.AutoUpdateTableStructure.Field")
   private boolean autoUpdateTableStructure;
 
-  /**
-   * Truncating the table and updating its structure happen once per run, not in every copy or
-   * partition (see {@link TableOutput#prepareOnce()}). Not when the table name comes from a field
-   * or the rows are partitioned over several databases: every copy then has its own table.
-   */
-  @Override
-  public boolean needsPrepareOnce(IVariables variables) {
-    return !partitioningEnabled
-        && !tableNameInField
-        && ((truncateTable && !onlyWhenHaveRows) || autoUpdateTableStructure);
-  }
-
   /** Always drop and recreate table when auto-updating structure */
   @HopMetadataProperty(
       key = "always_drop_and_recreate",

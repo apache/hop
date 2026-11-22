@@ -393,29 +393,6 @@ public interface ITransform extends IVariables, IHasLogChannel, IEngineComponent
   void batchComplete() throws HopException;
 
   /**
-   * The work this transform does once per pipeline run (see {@link
-   * ITransformMeta#needsPrepareOnce(IVariables)}). The engine calls it on one instance, after
-   * {@link #init()} and before any row is read, with the input row metadata set to the fields the
-   * previous transforms declare. Several copies, Spark partitions or Beam bundles then don't each
-   * do it, and don't race each other doing it.
-   *
-   * @throws HopException when the preparation fails: the pipeline doesn't start
-   */
-  default void prepareOnce() throws HopException {}
-
-  /**
-   * @return true when the engine did this transform's once-per-run preparation already: skip it
-   */
-  default boolean isPreparedOnce() {
-    return false;
-  }
-
-  /**
-   * @param preparedOnce true when the engine did this transform's once-per-run preparation
-   */
-  default void setPreparedOnce(boolean preparedOnce) {}
-
-  /**
    * When running in a Beam context this signals the transform that a new bundle was started. File
    * writing transforms might want to create new files here.
    *

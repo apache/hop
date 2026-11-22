@@ -25,8 +25,6 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.lint.registry.RulePackInfo;
 
 /**
  * Renders lint results in machine-readable formats so a CI job can act on them.
@@ -49,25 +47,11 @@ public final class LintReportWriter {
   public static String render(
       LintReportFormat format, List<LintResult> results, String toolVersion, Path baseDirectory)
       throws JsonProcessingException {
-    return render(format, results, toolVersion, baseDirectory, null);
-  }
-
-  /**
-   * @param invocation how the run was set up, which SARIF records next to the findings; null when
-   *     the report covers findings that do not come from one run
-   */
-  public static String render(
-      LintReportFormat format,
-      List<LintResult> results,
-      String toolVersion,
-      Path baseDirectory,
-      LintInvocation invocation)
-      throws JsonProcessingException {
     switch (format) {
       case JSON:
         return renderJson(results, baseDirectory);
       case SARIF:
-        return renderSarif(results, toolVersion, baseDirectory, invocation);
+        return renderSarif(results, toolVersion, baseDirectory);
       case TEXT:
       default:
         return renderText(results, true);
@@ -148,7 +132,7 @@ public final class LintReportWriter {
   // --------------------------------------------------------------- sarif
 
   private static String renderSarif(
-      List<LintResult> results, String toolVersion, Path baseDirectory, LintInvocation invocation)
+      List<LintResult> results, String toolVersion, Path baseDirectory)
       throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode root = mapper.createObjectNode();
@@ -163,35 +147,11 @@ public final class LintReportWriter {
       driver.put("version", toolVersion);
     }
 
-    // SARIF wants each rule declared once, then referenced by index from every result. Every rule
-    // the run evaluated is declared, so a rule that found nothing reads differently from one that
-    // was switched off or not installed.
-    Map<String, Integer> ruleIndex = new LinkedHashMap<>();
-    ArrayNode rules = driver.putArray("rules");
-    if (invocation != null) {
-      for (CustomLintRule rule : invocation.enabledRules()) {
-        String id = rule.generateRuleId();
-        if (!ruleIndex.containsKey(id)) {
-          ruleIndex.put(id, rules.size());
-          LintRuleDetails details = LintRuleDetails.of(rule);
-          putRule(
-              rules.addObject(),
-              id,
-              shortDescription(id, null, details),
-              details,
-              rule.getSeverity());
-        }
-      }
-    }
-
-    // Then the ids only the findings carry, such as the error codes of Hop's own checks. Each is
+    // SARIF wants each rule declared once, then referenced by index from every result. The rule is
     // described by the first finding of that id which carries the rule's details, so a finding
     // without them, such as a remark checked without the native rules, cannot hide the tags.
     Map<String, LintResult> describing = new LinkedHashMap<>();
     for (LintResult result : results) {
-      if (ruleIndex.containsKey(result.getRuleId())) {
-        continue;
-      }
       LintResult current = describing.get(result.getRuleId());
       if (current == null
           || (LintRuleDetails.NONE.equals(current.getRuleDetails())
@@ -199,21 +159,35 @@ public final class LintReportWriter {
         describing.put(result.getRuleId(), result);
       }
     }
+    Map<String, Integer> ruleIndex = new LinkedHashMap<>();
+    ArrayNode rules = driver.putArray("rules");
     describing.forEach(
         (id, result) -> {
           ruleIndex.put(id, rules.size());
+          ObjectNode rule = rules.addObject();
+          rule.put("id", id);
+          // The id is the only stable per-rule name available: Hop's own verify remarks all share
+          // one rule id while carrying the transform name as their result name, so using that
+          // here would label the rule after whichever transform happened to be reported first.
+          rule.put("name", id);
           LintRuleDetails details = result.getRuleDetails();
-          putRule(
-              rules.addObject(),
-              id,
-              shortDescription(id, result, details),
-              details,
-              result.getSeverity());
+          rule.putObject("shortDescription").put("text", shortDescription(id, result, details));
+          if (!details.description().isBlank()) {
+            rule.putObject("fullDescription").put("text", details.description());
+          }
+          if (details.helpUri() != null && !details.helpUri().isBlank()) {
+            rule.put("helpUri", details.helpUri());
+          }
+          rule.putObject("defaultConfiguration").put("level", sarifLevel(result.getSeverity()));
+          if (details.hasTags()) {
+            ObjectNode properties = rule.putObject("properties");
+            // GitHub code scanning and Azure DevOps read tags as a flat list of strings, so a
+            // key with several values becomes several key:value entries.
+            ArrayNode flat = properties.putArray("tags");
+            LintRuleDetails.flatTags(details.tags()).forEach(flat::add);
+            putTags(properties.putObject("hopTags"), details);
+          }
         });
-
-    if (invocation != null) {
-      putInvocation(run.putArray("invocations").addObject(), invocation, mapper);
-    }
 
     ArrayNode sarifResults = run.putArray("results");
     for (LintResult result : results) {
@@ -234,68 +208,6 @@ public final class LintReportWriter {
     }
 
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root) + "\n";
-  }
-
-  /**
-   * Declare a rule. A rule is described the same whether it is declared from the run's rules or
-   * from its findings, so two reports of one rule do not differ in how they describe it.
-   *
-   * @param severity the finding's severity, used when the details do not carry the rule's own
-   */
-  private static void putRule(
-      ObjectNode rule,
-      String id,
-      String shortDescription,
-      LintRuleDetails details,
-      String severity) {
-    rule.put("id", id);
-    // The id is the only stable per-rule name available: Hop's own verify remarks all share one
-    // rule id while carrying the transform name as their result name, so using that here would
-    // label the rule after whichever transform happened to be reported first.
-    rule.put("name", id);
-    rule.putObject("shortDescription").put("text", shortDescription);
-    if (!details.description().isBlank()) {
-      rule.putObject("fullDescription").put("text", details.description());
-    }
-    if (details.helpUri() != null && !details.helpUri().isBlank()) {
-      rule.put("helpUri", details.helpUri());
-    }
-    rule.putObject("defaultConfiguration")
-        .put("level", sarifLevel(details.severity().isBlank() ? severity : details.severity()));
-    if (details.hasTags()) {
-      ObjectNode properties = rule.putObject("properties");
-      // GitHub code scanning and Azure DevOps read tags as a flat list of strings, so a key with
-      // several values becomes several key:value entries.
-      ArrayNode flat = properties.putArray("tags");
-      LintRuleDetails.flatTags(details.tags()).forEach(flat::add);
-      putTags(properties.putObject("hopTags"), details);
-    }
-  }
-
-  /**
-   * The run's outcome and set-up. SARIF has no fields of its own for a linter's configuration, so
-   * that goes in the invocation's property bag.
-   */
-  private static void putInvocation(
-      ObjectNode target, LintInvocation invocation, ObjectMapper mapper) {
-    target.put("executionSuccessful", invocation.executionSuccessful());
-    target.put("exitCode", invocation.exitCode());
-    ObjectNode properties = target.putObject("properties");
-    invocation
-        .configuration()
-        .forEach((key, value) -> properties.set(key, mapper.valueToTree(value)));
-    ArrayNode packs = properties.putArray("rulePacks");
-    for (RulePackInfo pack : invocation.rulePacks()) {
-      ObjectNode entry = packs.addObject();
-      entry.put("id", pack.id());
-      entry.put("name", pack.name());
-      if (!Utils.isEmpty(pack.version())) {
-        entry.put("version", pack.version());
-      }
-      if (pack.owner() != null) {
-        entry.put("owner", pack.owner().name());
-      }
-    }
   }
 
   /**
@@ -325,24 +237,15 @@ public final class LintReportWriter {
   }
 
   /**
-   * The rule's name, or its id when it has none.
-   *
-   * <p>A remark from Hop's own checks carries the transform or action it was reported on as its
-   * rule name, so the first one reported would describe the rule for every finding of it. Those
-   * take the name of the native rule that classified them, or the rule id.
-   *
-   * @param result the finding the rule is declared from, or null when declared from the rule
+   * A remark from Hop's own checks carries the transform or action it was reported on as its rule
+   * name, so the first one reported would describe the rule for every finding of it. Those take the
+   * name of the native rule that classified them, or the rule id.
    */
   private static String shortDescription(String id, LintResult result, LintRuleDetails details) {
-    if (!details.name().isBlank()) {
-      return details.name();
+    if (result.getOrigin() == LintResult.Origin.HOP_NATIVE) {
+      return details.name().isBlank() ? id : details.name();
     }
-    if (result != null
-        && result.getOrigin() != LintResult.Origin.HOP_NATIVE
-        && !Utils.isEmpty(result.getRuleName())) {
-      return result.getRuleName();
-    }
-    return id;
+    return result.getRuleName() != null ? result.getRuleName() : id;
   }
 
   private static String sarifLevel(String severity) {

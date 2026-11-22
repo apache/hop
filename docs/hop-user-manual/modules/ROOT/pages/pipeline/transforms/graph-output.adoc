@@ -49,8 +49,6 @@ These will not merge on these nodes, nor will it create or update relationships 
 * Make sure that every node primary key has an index.
 Use the provided button in the graph model editor to generate the Graph index and Graph constraint actions which will handle this for you.
 
-With *Create indexes*, the indexes are created once per run, before any row is written: on the native Spark and Beam engines on the driver, before the job starts, so the partitions or bundles don't create the same constraints at the same time.
-
 == Notable options
 
 |===

@@ -53,7 +53,3 @@ Before producing this output the transform reads and discards (or eats) all inpu
 |Field for origin|The name of the field containing field's origin
 
 |===
-
-== Samples
-
-The samples project has `transforms/metadata-structure-of-stream.hpl`, which describes the 2 fields of a Data grid: their position, name, type, length, precision, format and origin.

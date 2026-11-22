@@ -322,45 +322,6 @@ run_hop_with_watchdog() {
   return $?
 }
 
-# Copy a project for HOP_IT_ENGINE=spark-native (see the project loop) and set
-# SPARK_NATIVE_PROJECT to the copy. Projects that choose their engines themselves (Spark, Beam)
-# are skipped.
-use_spark_native_copy() {
-  local source="$1"
-  local name
-  name=$(basename "${source}")
-  case "${name}" in
-  spark* | beam*)
-    echo "Skipping ${name}: HOP_IT_ENGINE=spark-native leaves projects that pick their own engine alone"
-    return 1
-    ;;
-  esac
-  if [ -f "${source}/metadata/pipeline-run-configuration/hop-local.json" ] \
-    || [ ! -f "${source}/metadata/pipeline-run-configuration/local.json" ]; then
-    echo "Skipping ${name}: HOP_IT_ENGINE=spark-native needs a plain \"local\" run configuration"
-    return 1
-  fi
-  local root="${TMP_FOLDER}/spark-native"
-  SPARK_NATIVE_PROJECT="${root}/${name}"
-  rm -rf "${SPARK_NATIVE_PROJECT}"
-  mkdir -p "${root}"
-  cp -a "${source%/}" "${SPARK_NATIVE_PROJECT}"
-  rm -rf "${SPARK_NATIVE_PROJECT}/output"
-  # Projects point at the shared licence header one folder up
-  cp "${CURRENT_DIR}/../asf-header.txt" "${root}/" 2>/dev/null || true
-  local configs="${SPARK_NATIVE_PROJECT}/metadata/pipeline-run-configuration"
-  sed 's/"name"[[:space:]]*:[[:space:]]*"local"/"name": "hop-local"/' "${configs}/local.json" \
-    >"${configs}/hop-local.json"
-  cp "${CURRENT_DIR}/run-configurations/spark-native-local.json" "${configs}/local.json"
-  return 0
-}
-
-# The native Spark engine runs in the hop-run JVM: more heap than the default 2 GB, and no Spark
-# UI (its Jersey servlet clashes with Hop's)
-if [ "${HOP_IT_ENGINE}" = "spark-native" ]; then
-  export HOP_OPTIONS="${HOP_OPTIONS:--Xmx4g} -Dspark.ui.enabled=false"
-fi
-
 # Set up a temporary folder
 export TMP_FOLDER=/tmp/hop-it-$$
 rm -rf "${TMP_FOLDER}"
@@ -421,19 +382,6 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       failures_counter=0
 
       PROJECT_NAME=$(basename "$d")
-
-      # HOP_IT_ENGINE=spark-native runs the project's tests on the native Spark engine: a copy of
-      # the project in which the "local" run configuration, which the workflows run their
-      # pipelines with, is Spark local[4] with every source spread over 4 partitions. The
-      # project's own "local" becomes "hop-local", which the suite driver keeps using. The tests
-      # and their checks are the project's own; the report is <project>-spark-native.
-      if [ "${HOP_IT_ENGINE}" = "spark-native" ]; then
-        if ! use_spark_native_copy "$d"; then
-          continue
-        fi
-        d="${SPARK_NATIVE_PROJECT}"
-        PROJECT_NAME="${PROJECT_NAME}-spark-native"
-      fi
 
       echo ${SPACER}
       echo "Starting Tests in project: ${PROJECT_NAME}"

@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The XML Join transform adds xml tags from one stream into a leading XML structure from a second stream.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/XJN.svg[XML Join transform Icon, role="image-doc-icon"] XML Join
 

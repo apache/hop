@@ -100,10 +100,3 @@ Here are the available aggregation methods :
 - Concatenate distinct values separated by <Value>: specify the separator in the Value column (This supports xref::variables.adoc#_hexadecimal_values[hexadecimals])
 - Moving average (last N rows) (all rows option only!): computes the rolling average over the last N events. Specify the window size N in the Value column (e.g. 5) and the sequencing field in the Order field column (input data must be pre-sorted).
 |===
-
-== Samples
-
-The samples project has:
-
-* `pipelines/read-transactions.hpl`, which groups the JSON lines of the data rows by Excel file and joins them with commas, so that a script can put them in one JSON array per file.
-* `transforms/group-by-median-and-percentile.hpl`, which computes the median, the average and the 90th, 75th, 50th and 25th percentiles of 15 values for 10 groups, once with Group by and once with Memory group by.

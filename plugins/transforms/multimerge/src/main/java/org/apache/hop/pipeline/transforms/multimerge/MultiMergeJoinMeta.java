@@ -53,9 +53,7 @@ import org.w3c.dom.Node;
     description = "i18n::MultiwayMergeJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MultiMergeJoinMeta.keyword",
-    documentationUrl = "/pipeline/transforms/multimerge.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/multimerge.html")
 @Getter
 @Setter
 public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiMergeJoinData> {

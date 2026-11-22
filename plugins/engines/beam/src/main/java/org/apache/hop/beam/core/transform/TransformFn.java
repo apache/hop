@@ -349,8 +349,6 @@ public class TransformFn extends TransformBaseFn {
     pipeline.setLogLevel(
         context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
     pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
-    // The engine did the once-per-run work before the job: only flag the prepared transforms
-    pipeline.setPreparingTransformsOnce(false);
 
     // Change the name to make the logging less confusing.
     //

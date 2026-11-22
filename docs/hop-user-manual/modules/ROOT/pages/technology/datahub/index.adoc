@@ -302,10 +302,7 @@ The plugin also adds DataHub as a type of xref:metadata-types/data-catalog.adoc[
 workflows can read what DataHub knows about a dataset. The
 xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses it to check, before a
 workflow goes on, that datasets exist in DataHub, aren't deprecated, changed recently enough and
-passed their assertions.
-xref:pipeline/transforms/maskfields.adoc[Mask fields] uses it to mask the fields DataHub tags as
-personal data, and CSV file input and Text file input can fill their fields from the schema DataHub
-has for a file. The
+passed their assertions. The
 xref:hop-gui/perspective-ai-advisor.adoc#data-catalog-context[AI Assistant] uses it to include the
 descriptions, owners, tags, glossary terms and deprecation of a pipeline's datasets in its questions.
 

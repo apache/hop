@@ -44,7 +44,6 @@ import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.DatabaseTreeNode;
@@ -138,6 +137,8 @@ public class DatabaseExplorerDialog extends Dialog {
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Views.Label");
   private static final String STRING_SYNONYMS =
       BaseMessages.getString(PKG, "DatabaseExplorerDialog.Synonyms.Label");
+
+  private static final int FILTER_DEBOUNCE_MS = 250;
 
   /** Debounced search action so we don't rebuild the tree on every keystroke. */
   private final Runnable filterRunnable = this::updateTree;
@@ -239,7 +240,6 @@ public class DatabaseExplorerDialog extends Dialog {
     // Create search/filter text box at the top left
     wSearch = new Text(shell, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
     wSearch.setMessage(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Search.Placeholder"));
-    wSearch.setToolTipText(BaseMessages.getString(PKG, "DatabaseExplorerDialog.Search.Tooltip"));
     wSearch.setLayoutData(FormDataBuilder.builder().top().left().right(searchBar, -margin).build());
     wSearch.setData(BaseDialog.NO_DEFAULT_HANDLER, "Nop");
     wSearch.addListener(SWT.Modify, e -> filterTree());
@@ -410,7 +410,7 @@ public class DatabaseExplorerDialog extends Dialog {
     if (shell == null || shell.isDisposed()) {
       return;
     }
-    shell.getDisplay().timerExec(ConstUi.FILTER_DEBOUNCE_MS, filterRunnable);
+    shell.getDisplay().timerExec(FILTER_DEBOUNCE_MS, filterRunnable);
   }
 
   /** Update tree when refresh or filter changed */

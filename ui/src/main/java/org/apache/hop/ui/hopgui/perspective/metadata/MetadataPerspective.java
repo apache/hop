@@ -234,6 +234,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
   /** Icon for the "Unknown" category and the metadata elements we can't load. */
   private static final String IMAGE_UNKNOWN = "ui/images/warning.svg";
 
+  private static final int FILTER_DEBOUNCE_MS = 250;
+
   private static MetadataPerspective instance;
 
   private HopGui hopGui;
@@ -407,7 +409,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     //
     searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     searchText.setMessage(BaseMessages.getString(PKG, "MetadataPerspective.Search.Placeholder"));
-    searchText.setToolTipText(BaseMessages.getString(PKG, "MetadataPerspective.Search.Tooltip"));
     PropsUi.setLook(searchText);
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
@@ -3343,7 +3344,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
     }
     Display display = searchText.getDisplay();
     display.timerExec(-1, filterRunnable);
-    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, filterRunnable);
+    display.timerExec(FILTER_DEBOUNCE_MS, filterRunnable);
   }
 
   private void applyFilter() {

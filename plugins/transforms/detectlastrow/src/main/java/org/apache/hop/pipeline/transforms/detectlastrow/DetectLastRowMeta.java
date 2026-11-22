@@ -42,9 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::DetectLastRow.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::DetectLastRowMeta.keyword",
-    documentationUrl = "/pipeline/transforms/identifylastrow.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/identifylastrow.html")
 public class DetectLastRowMeta extends BaseTransformMeta<DetectLastRow, DetectLastRowData> {
   private static final Class<?> PKG = DetectLastRowMeta.class;
 

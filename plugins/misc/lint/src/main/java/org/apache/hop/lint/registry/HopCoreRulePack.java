@@ -16,8 +16,6 @@
  */
 package org.apache.hop.lint.registry;
 
-import org.apache.hop.lint.LintRun;
-
 @LintRulePack(
     packId = RulePackIds.HOP_CORE,
     displayName = "Apache Hop Core Lint Rules",
@@ -33,11 +31,5 @@ public class HopCoreRulePack extends AbstractYamlRulePack {
         RulePackOwner.APACHE,
         100,
         "hop-lint-core.yml");
-  }
-
-  /** The core pack ships with Hop, so its version is Hop's. */
-  @Override
-  public String getVersion() {
-    return LintRun.toolVersion();
   }
 }

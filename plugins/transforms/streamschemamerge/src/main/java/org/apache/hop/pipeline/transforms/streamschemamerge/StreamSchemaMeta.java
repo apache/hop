@@ -47,9 +47,7 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
     description = "i18n::StreamSchemaTransform.TooltipDesc",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::StreamSchemaMeta.keyword",
-    documentationUrl = "/pipeline/transforms/streamschemamerge.html",
-    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
-    excludedEngines = {"SparkPipelineEngine"})
+    documentationUrl = "/pipeline/transforms/streamschemamerge.html")
 @Getter
 @Setter
 public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSchemaData> {

@@ -16,7 +16,6 @@
  */
 package org.apache.hop.vfs.sftp.provider;
 
-import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
@@ -159,7 +158,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    */
   private int executeCommand(final String command, final StringBuilder output)
       throws JSchException, IOException {
-    final ChannelExec channel = (ChannelExec) openChannel("exec");
+    final ChannelExec channel = (ChannelExec) getSession().openChannel("exec");
     try {
       channel.setCommand(command);
       channel.setInputStream(null);
@@ -213,7 +212,7 @@ public class SftpFileSystem extends AbstractFileSystem {
       }
 
       if (channel == null) {
-        channel = (ChannelSftp) openChannel("sftp");
+        channel = (ChannelSftp) getSession().openChannel("sftp");
         channel.connect(DurationUtils.toMillisInt(connectTimeout));
         final Boolean userDirIsRoot =
             SftpFileSystemConfigBuilder.getInstance().getUserDirIsRoot(getFileSystemOptions());
@@ -304,49 +303,6 @@ public class SftpFileSystem extends AbstractFileSystem {
                   (GenericFileName) getRootName(), getFileSystemOptions());
         }
       }
-    }
-    return session;
-  }
-
-  /**
-   * Opens a channel of the given type on the session.
-   *
-   * <p>JSch gives no channel, instead of throwing, when the session is being disconnected: a server
-   * that drops an idle session, say, while {@link Session#isConnected()} still says it is up. The
-   * session is then replaced once, and the channel opened on the new one.
-   *
-   * @param type The channel type, {@code "sftp"} or {@code "exec"}.
-   * @return The channel, never null.
-   * @throws JSchException if JSch cannot open the channel.
-   * @throws FileSystemException if the new session cannot be created or gives no channel either.
-   */
-  private Channel openChannel(final String type) throws JSchException, FileSystemException {
-    final Session current = getSession();
-    final Channel channel = current.openChannel(type);
-    if (channel != null) {
-      return channel;
-    }
-    LOG.debug("The SFTP session is going down, opening a new one for an " + type + " channel");
-    final Channel retried = replaceSession(current).openChannel(type);
-    if (retried == null) {
-      throw new FileSystemException(
-          "vfs.provider.sftp/connect.error", getRootName().getFriendlyURI());
-    }
-    return retried;
-  }
-
-  /**
-   * Replaces a session that is going down, unless another thread already did.
-   *
-   * @param goingDown The session that gave no channel.
-   * @return The session to use now.
-   * @throws FileSystemException if a session cannot be created.
-   */
-  private synchronized Session replaceSession(final Session goingDown) throws FileSystemException {
-    if (session == goingDown) {
-      doCloseCommunicationLink();
-      session =
-          SftpFileProvider.createSession((GenericFileName) getRootName(), getFileSystemOptions());
     }
     return session;
   }

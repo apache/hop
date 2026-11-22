@@ -367,15 +367,3 @@ json.sourceProperties.properties.push({"key": "exampleUsingInputField", "values"
 
 var myBodyJson = JSON.stringify(json);
 ----
-
-== Samples
-
-The samples project has:
-
-* `pipelines/read-transactions.hpl`, which builds a JSON line for each data row of an Excel file with the labels of its header row, and puts the lines of each file in a JSON array.
-* `transforms/javascript-create-xml-with-e4x.hpl`, which builds a `person` XML element with E4X for each of 2 rows from a Data grid.
-* `transforms/javascript-cross-convert-between-julian-dates-and-iso-dates.hpl`, which converts 6 ISO dates (`yyyy-MM-dd`) to JD Edwards Julian dates (`CYYDDD`) and 6 Julian dates back to ISO dates, and flags the leap years.
-* `transforms/javascript-dynamic-fields.hpl`, which reads the field names and the values of 3 rows in a script, and writes them as a header line and 3 data lines to a CSV file.
-* `transforms/javascript-field-name-with-spaces.hpl`, which reads the field `field name with spaces` with `this["field name with spaces"]`.
-* `transforms/javascript-get-environment-variable.hpl`, which reads the environment variable `PATH` into a field.
-* `transforms/javascript-sum-over-all-rows.hpl`, which uses a start, a transform and an end script to add up the values 1 to 10 of a Data grid, and returns only the total, 55.

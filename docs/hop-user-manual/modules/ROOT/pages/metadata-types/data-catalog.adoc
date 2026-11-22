@@ -28,7 +28,6 @@ The catalog stays the owner of that metadata. Hop only reads it.
 The xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses a Data Catalog to check datasets before a workflow goes on.
 The xref:pipeline/transforms/maskfields.adoc[Mask fields] transform can use one to mask the fields that carry a tag or glossary term, such as `PII`.
 The xref:hop-gui/perspective-ai-advisor.adoc#data-catalog-context[AI Assistant] can include what a Data Catalog says about the tables and files of a pipeline (descriptions, owners, tags, glossary terms, deprecation) in its questions.
-xref:pipeline/transforms/csvinput.adoc[CSV file input] and xref:pipeline/transforms/textfileinput.adoc[Text file input] can fill their fields from one.
 
 This metadata type is experimental: its options and what the catalog types can answer may still change.
 
@@ -63,21 +62,6 @@ A connection without a host, such as an embedded database or a connection with a
 * A file: its path or URL, after the variables in it are resolved.
 * A catalog id: the id the catalog itself uses, for example a DataHub URN.
 Use it for a dataset that Hop doesn't read or write itself.
-
-== Get fields from a data catalog
-
-When the project has a Data Catalog, the CSV file input and Text file input dialogs have a *Get fields from data catalog* button.
-It asks for the Data Catalog and the dataset, which starts as the file of the transform, reads the fields the catalog has for it and fills the field table, after asking whether to add the new fields, add all of them or replace the table.
-A file that a Hop pipeline wrote with the DataHub lineage plugin enabled has its fields in DataHub, so the pipeline that reads it can start from them.
-
-This happens only in the dialog: the transform keeps the fields it was given, and nothing is read from the catalog when the pipeline runs, so a change in the catalog never changes a run.
-
-The native type of a field gives its Hop type, length and precision: `VARCHAR(255)` is a String of length 255, `DECIMAL(10,2)` a BigNumber with length 10 and precision 2, `NUMERIC(10)` an Integer, `TIMESTAMP` a Timestamp, `TIME` a Date, `BIT` a Boolean and `BIT(8)` a String of length 8.
-A length too large for Hop, such as `varchar(4294967295)`, leaves the field without a length.
-Modifiers such as `UNSIGNED` don't change the type, except that a `BIGINT UNSIGNED` is a BigNumber, as when Hop reads it from a database.
-Dialect names such as `INT64`, `FLOAT64`, `TIMESTAMP_NTZ` and `DATETIMEOFFSET` are known too.
-A native type Hop doesn't know falls back to the catalog's own type, and to a String after that.
-A catalog has no formats, so a date gets none and uses Hop's default format, `yyyy/MM/dd HH:mm:ss.SSS`. That is what Hop writes to a file when the output has no format of its own; check it against the file.
 
 == DataHub
 

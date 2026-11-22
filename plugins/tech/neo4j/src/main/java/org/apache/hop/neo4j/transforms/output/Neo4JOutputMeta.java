@@ -122,19 +122,6 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     arrayEnclosure = ""; // Default: no enclosure
   }
 
-  /**
-   * The indexes of the fixed labels are created once per run, not in every copy or partition (see
-   * {@link Neo4JOutput#prepareOnce()}).
-   */
-  @Override
-  public boolean needsPrepareOnce(IVariables variables) {
-    return creatingIndexes
-        && !returningGraph
-        && StringUtils.isNotEmpty(connection)
-        && (Neo4JOutput.hasFixedLabelIndex(nodeFromField)
-            || Neo4JOutput.hasFixedLabelIndex(nodeToField));
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,

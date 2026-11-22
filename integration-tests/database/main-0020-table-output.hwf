@@ -312,102 +312,6 @@ CREATE TABLE public.table_output
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
-    <action>
-      <name>0020-table-output-rows-from-result-source.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0020-table-output-rows-from-result-source.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>656</xloc>
-      <yloc>336</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0020-table-output-rows-from-result.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0020-table-output-rows-from-result.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <xloc>856</xloc>
-      <yloc>336</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>check 1000 rows from result</name>
-      <description/>
-      <type>EVAL_TABLE_CONTENT</type>
-      <attributes/>
-      <connection>unit-test-db</connection>
-      <schemaname/>
-      <tablename>table_output</tablename>
-      <success_condition>rows_count_equal</success_condition>
-      <limit>1000</limit>
-      <is_custom_sql>N</is_custom_sql>
-      <is_usevars>N</is_usevars>
-      <custom_sql/>
-      <add_rows_result>N</add_rows_result>
-      <clear_result_rows>Y</clear_result_rows>
-      <parallel>N</parallel>
-      <xloc>1056</xloc>
-      <yloc>336</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>check no values in the wrong column</name>
-      <description/>
-      <type>EVAL_TABLE_CONTENT</type>
-      <attributes/>
-      <connection>unit-test-db</connection>
-      <schemaname/>
-      <tablename>table_output</tablename>
-      <success_condition>rows_count_equal</success_condition>
-      <limit>0</limit>
-      <is_custom_sql>Y</is_custom_sql>
-      <is_usevars>N</is_usevars>
-      <custom_sql>SELECT * FROM public.table_output WHERE "key" IS DISTINCT FROM 'the key' OR value IS DISTINCT FROM 'the value'</custom_sql>
-      <add_rows_result>N</add_rows_result>
-      <clear_result_rows>Y</clear_result_rows>
-      <parallel>N</parallel>
-      <xloc>1256</xloc>
-      <yloc>336</yloc>
-      <attributes_hac/>
-    </action>
   </actions>
   <hops>
     <hop>
@@ -483,34 +387,6 @@ CREATE TABLE public.table_output
     <hop>
       <from>0020-table-output-table-in-field.hpl</from>
       <to>check 10K rows 4</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>check 10K rows 4</from>
-      <to>0020-table-output-rows-from-result-source.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0020-table-output-rows-from-result-source.hpl</from>
-      <to>0020-table-output-rows-from-result.hpl</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>0020-table-output-rows-from-result.hpl</from>
-      <to>check 1000 rows from result</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>check 1000 rows from result</from>
-      <to>check no values in the wrong column</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

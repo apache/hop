@@ -45,7 +45,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
@@ -57,8 +56,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfsNamespace;
-import org.apache.hop.core.vfs.HopVfsNamespaces;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionBuilder;
 import org.apache.hop.execution.ExecutionData;
@@ -76,7 +73,6 @@ import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.TransformPrepareOnce;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent;
@@ -96,7 +92,6 @@ import org.apache.hop.spark.core.SparkTransformMetricsAccumulator;
 import org.apache.hop.spark.execution.SparkTransformExecutionSampling;
 import org.apache.hop.spark.fs.HopWindowsLocalFileSystem;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
-import org.apache.hop.spark.pipeline.SparkVerifiedTransforms;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
 import org.apache.hop.spark.table.LakeSessionPlan;
 import org.apache.hop.spark.util.SparkConst;
@@ -200,12 +195,6 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private Timer executionInfoTimer;
   private volatile boolean executionInfoClosed;
 
-  /** The VFS namespace of this run, when its metadata is not the process metadata. */
-  private volatile HopVfsNamespace vfsNamespace;
-
-  /** The metadata the namespace was taken for, to let go of it by the same key. */
-  private IHopMetadataProvider vfsNamespaceProvider;
-
   /** Stable log channel IDs per transform name + copy for execution info / GUI. */
   private final Map<String, String> componentLogChannelIds = new ConcurrentHashMap<>();
 
@@ -243,11 +232,6 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   @SuppressWarnings("javabugs:S2259") // the run configuration is set before the engine is prepared
   @Override
   public void prepareExecution() throws HopException {
-    // Like the local engine: resolve the named VFS connections of this run's metadata (a project's
-    // MinIO, S3, ... connections) in a namespace of their own, not in the process wide manager.
-    vfsNamespaceProvider = metadataProvider;
-    vfsNamespace =
-        HopVfsNamespaces.acquire(this, vfsNamespaceProvider, "pipeline " + pipelineMeta.getName());
     try {
       executionStartDate = new Date();
       status = ComponentExecutionStatus.STATUS_INIT;
@@ -299,7 +283,6 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       setErrors(getErrors() + 1);
       setPaused(false);
       setPreparing(false);
-      releaseVfsNamespace();
       throw new HopException("Error preparing Spark pipeline", e);
     } finally {
       setPreparing(false);
@@ -308,14 +291,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   @Override
   public void startThreads() throws HopException {
-    HopVfsNamespace previousNamespace = null;
-    boolean sparkThreadStarted = false;
     ClassLoader pluginCl = getClass().getClassLoader();
     ClassLoader previousCl = Thread.currentThread().getContextClassLoader();
     try {
       // Spark 4 resolves classic.SparkSession via the context classloader / plugin CL
       Thread.currentThread().setContextClassLoader(pluginCl);
-      previousNamespace = HopVfsNamespaces.bindThread(vfsNamespace);
 
       setRunning(true);
       setReadyToStart(false);
@@ -362,10 +342,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
           new Thread(
               () -> {
                 ClassLoader prev = Thread.currentThread().getContextClassLoader();
-                HopVfsNamespaces.bindThread(vfsNamespace);
                 try {
                   Thread.currentThread().setContextClassLoader(pluginCl);
-                  prepareTransformsOnce();
                   resultDataset = converter.createDataset(sparkSession);
                   // Generic transforms (outputs included) are lazy: run an action on every leaf,
                   // or only the branch of the last one runs. Spark file and lake table outputs
@@ -417,13 +395,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   } catch (HopException ex) {
                     logChannel.logError("Error firing finished listeners", ex);
                   }
-                  releaseVfsNamespace();
                 }
               },
               "hop-spark-pipeline");
       sparkThread.setContextClassLoader(pluginCl);
       sparkThread.start();
-      sparkThreadStarted = true;
 
       // Live progress for the Hop Metrics grid (same cadence as Beam)
       metricsRefreshTimer = new Timer("hop-spark-metrics-refresh", true);
@@ -451,15 +427,9 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       setStopped(true);
       setErrors(getErrors() + 1);
       ExecutorUtil.cleanup(metricsRefreshTimer);
-      if (!sparkThreadStarted) {
-        // Nothing will finish this run and let go of the namespace: no wrong master or unreachable
-        // cluster may leak a file system manager on a server. A started thread releases it itself.
-        releaseVfsNamespace();
-      }
       throw new HopException("Unexpected error starting Spark pipeline", e);
     } finally {
       Thread.currentThread().setContextClassLoader(previousCl);
-      HopVfsNamespaces.restoreThread(previousNamespace);
     }
   }
 
@@ -1361,18 +1331,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     }
   }
 
-  /** Let go of the VFS namespace of this run, once and by the key it was taken with. */
-  private synchronized void releaseVfsNamespace() {
-    if (vfsNamespace != null) {
-      HopVfsNamespaces.release(vfsNamespaceProvider);
-      vfsNamespace = null;
-      vfsNamespaceProvider = null;
-    }
-  }
-
   @Override
   public void cleanup() {
-    releaseVfsNamespace();
     ExecutorUtil.cleanup(metricsRefreshTimer);
     ExecutorUtil.cleanup(executionInfoTimer);
     if (sparkSession != null && metricsListener != null) {
@@ -1429,35 +1389,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         if (ban != null) {
           return EngineCompatibility.unsupported(ban);
         }
-        if (HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)
-            || SparkVerifiedTransforms.PLUGIN_IDS.contains(id)) {
+        if (HopPipelineMetaToSparkConverter.EXPLICIT_HANDLER_PLUGIN_IDS.contains(id)) {
           return EngineCompatibility.supported();
         }
       }
     }
-    // Not verified either way: generic mapPartitions may still work
+    // No opinion for ordinary transforms — generic mapPartitions may still work
     return EngineCompatibility.unknown();
-  }
-
-  /**
-   * The once-per-run work of the transforms (truncate a table, create or change it ...), on the
-   * driver before the job starts, so the partitions don't each do it. Their names travel to the
-   * partitions in {@link Const#INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS}.
-   */
-  void prepareTransformsOnce() throws HopException {
-    List<String> prepared =
-        TransformPrepareOnce.prepareOnDriver(
-            pipelineMeta,
-            HopPipelineMetaToSparkConverter.collectActiveTransforms(pipelineMeta),
-            this,
-            metadataProvider,
-            new LoggingObject("spark-prepare-once"));
-    setVariable(
-        Const.INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS,
-        TransformPrepareOnce.preparedOnDriverValue(prepared));
-    if (!prepared.isEmpty()) {
-      logChannel.logBasic("Prepared on the driver, once for the whole run: " + prepared);
-    }
   }
 
   @Override

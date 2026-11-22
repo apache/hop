@@ -29,25 +29,40 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.sun.net.httpserver.HttpServer;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.git.model.revision.ObjectRevision;
+import org.apache.hop.git.provider.GitConnection;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -56,6 +71,7 @@ import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
 import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.junit.RepositoryTestCase;
@@ -68,8 +84,10 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -79,12 +97,18 @@ import org.mockito.ArgumentCaptor;
 public class UIGitTest extends RepositoryTestCase {
   private Git git;
   private UIGit uiGit;
+  private final Map<String, GitConnection> gitConnections = new HashMap<>();
+  private CredentialsProvider netRcFile;
   Repository db2;
 
   /** UIGit logs what it can't read to the Hop log, which needs the log store. */
   @BeforeClass
-  public static void setUpLogStore() {
+  public static void setUpLogStore() throws Exception {
     HopLogStore.init();
+    // Git connections decrypt their passwords
+    if (!HopClientEnvironment.isInitialized()) {
+      HopClientEnvironment.init();
+    }
   }
 
   @Override
@@ -94,6 +118,11 @@ public class UIGitTest extends RepositoryTestCase {
     git = new Git(db);
     uiGit = spy(new UIGit());
     doNothing().when(uiGit).showMessageBox(anyString(), anyString());
+    doNothing().when(uiGit).showAuthenticationError(any());
+    // Neither the metadata nor the .netrc file of whoever runs the tests are read
+    gitConnections.clear();
+    netRcFile = GitCredentialsTest.netRc(null, null);
+    uiGit.setCredentials(new GitCredentials(gitConnections::get, Variables::new, () -> netRcFile));
     uiGit.setGit(git);
     uiGit.setDirectory(git.getRepository().getDirectory().getParent());
 
@@ -1782,5 +1811,362 @@ public class UIGitTest extends RepositoryTestCase {
     writeTrashFile("Test.txt", "Hello world");
     git.add().addFilepattern("Test.txt").call();
     return git.commit().setMessage("initial commit").call();
+  }
+
+  @Test
+  public void testPushAsksAgainAfterRefusedCredentials() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      initialCommit();
+      List<String[]> answers = answerPrompts(new String[] {"bad", "bad"}, null);
+
+      // The first password is refused, the user cancels the second prompt
+      assertFalse(uiGit.push());
+      assertTrue(answers.isEmpty());
+
+      // The next push asks again, and gets past the authentication with the right password
+      answerPrompts(new String[] {"good", "pw"});
+      HopException e = assertThrows(HopException.class, () -> uiGit.push());
+      assertTrue(e.getCause().getMessage(), e.getCause().getMessage().contains("not found"));
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testPushFailsAfterCredentialsForbidden() throws Exception {
+    // A 403 may be an account without the rights for the push: asking again would not help
+    try (AuthServer server = new AuthServer(403)) {
+      server.addAsOrigin(git);
+      initialCommit();
+      List<String[]> answers = answerPrompts(new String[] {"bad", "bad"});
+
+      HopException refused = assertThrows(HopException.class, () -> uiGit.push());
+      assertTrue(refused.getMessage(), refused.getMessage().contains("rights"));
+      assertTrue(answers.isEmpty());
+
+      // The refused credentials are not sent again: the next push asks for others
+      answerPrompts(new String[] {"good", "pw"});
+      server.authorizations.clear();
+      HopException e = assertThrows(HopException.class, () -> uiGit.push());
+      assertTrue(e.getCause().getMessage(), e.getCause().getMessage().contains("not found"));
+      assertFalse(server.authorizations.contains(AuthServer.BAD));
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testFetchAsksAgainAfterCredentialsForbidden() throws Exception {
+    try (AuthServer server = new AuthServer(403)) {
+      server.addAsOrigin(git);
+      uiGit.setCredential("bad", "bad");
+      answerPrompts(new String[] {"good", "pw"});
+
+      HopException refused = assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(refused.getMessage(), refused.getMessage().contains("rights"));
+      verify(uiGit, never()).promptUsernamePassword();
+
+      // The good credentials get past the authentication, to a repository the server doesn't know
+      assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testTheUserIsAskedThreeTimesAtMost() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      List<String[]> answers =
+          answerPrompts(
+              new String[] {"bad", "bad"},
+              new String[] {"bad", "bad"},
+              new String[] {"bad", "bad"});
+
+      HopException e = assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(e.getMessage(), e.getMessage().contains("3 times"));
+      assertTrue(answers.isEmpty());
+      verify(uiGit, times(3)).promptUsernamePassword();
+    }
+  }
+
+  @Test
+  public void testAutomaticFetchKeepsTheCredentials() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      uiGit.setCredential("bad", "bad");
+
+      // From the timer thread: no prompt, and credentials the user may be replacing are kept
+      assertThrows(HopException.class, () -> uiGit.fetch(false));
+      verify(uiGit, never()).promptUsernamePassword();
+      verify(uiGit, never()).showAuthenticationError(any());
+      assertTrue(uiGit.hasCredentials());
+    }
+  }
+
+  @Test
+  public void testCloneAsksAgainAfterRefusedCredentials() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      uiGit.setCredential("bad", "bad");
+      answerPrompts(new String[] {"good", "pw"});
+
+      // The good credentials get past the authentication, to a repository the server doesn't know
+      assertFalse(uiGit.cloneRepo(createTempFile().getPath(), server.url()));
+      verify(uiGit).showAuthenticationError(any());
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testCloneWithATokenDoesNotAsk() throws Exception {
+    try (AuthServer server = new AuthServer(403)) {
+      uiGit.setCredential("good", "pw");
+      CredentialsProvider token = new UsernamePasswordCredentialsProvider("bad", "bad");
+
+      assertFalse(uiGit.cloneRepo(createTempFile().getPath(), server.url(), token, 0));
+      verify(uiGit, never()).promptUsernamePassword();
+      // The credentials of the user were not involved: they are kept
+      assertTrue(uiGit.hasCredentials());
+    }
+  }
+
+  @Test
+  public void testSetRemoteUrlAddsTheRemoteThenChangesIt() throws Exception {
+    assertFalse(uiGit.hasRemote());
+
+    uiGit.setRemoteUrl(" https://example.com/first.git ");
+    assertTrue(uiGit.hasRemote());
+    assertEquals("https://example.com/first.git", uiGit.getRemote());
+
+    uiGit.setRemoteUrl("git@example.com:second.git");
+    assertEquals("git@example.com:second.git", uiGit.getRemote());
+    // Changing the URL keeps the fetch refspec of the remote
+    assertEquals(
+        1,
+        new RemoteConfig(db.getConfig(), Constants.DEFAULT_REMOTE_NAME).getFetchRefSpecs().size());
+  }
+
+  @Test
+  public void testSetRemoteUrlRefusesAnEmptyUrl() {
+    assertThrows(HopException.class, () -> uiGit.setRemoteUrl("  "));
+    assertFalse(uiGit.hasRemote());
+  }
+
+  @Test
+  public void testRemoteGitConnectionIsKeptInTheRepositoryConfiguration() throws Exception {
+    uiGit.setRemoteUrl("https://example.com/repo.git");
+    assertNull(uiGit.getRemoteGitConnection());
+
+    uiGit.setRemoteGitConnection(" my-gitea ");
+    assertEquals("my-gitea", uiGit.getRemoteGitConnection());
+    // Saved in .git/config, next to the remote
+    db.getConfig().load();
+    assertEquals(
+        "my-gitea",
+        db.getConfig()
+            .getString(
+                ConfigConstants.CONFIG_REMOTE_SECTION,
+                Constants.DEFAULT_REMOTE_NAME,
+                UIGit.CONFIG_KEY_GIT_CONNECTION));
+
+    // Changing the URL keeps the association
+    uiGit.setRemoteUrl("https://example.com/other.git");
+    assertEquals("my-gitea", uiGit.getRemoteGitConnection());
+
+    uiGit.setRemoteGitConnection(null);
+    assertNull(uiGit.getRemoteGitConnection());
+  }
+
+  @Test
+  public void testTheGitConnectionOfTheRemoteIsUsed() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      associateGitConnection("good", "pw");
+
+      // The good credentials get past the authentication, to a repository the server doesn't know
+      assertThrows(HopException.class, () -> uiGit.fetch());
+      verify(uiGit, never()).promptUsernamePassword();
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testARefusedGitConnectionIsAnError() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      associateGitConnection("bad", "bad");
+      // Neither the .netrc file nor the user replace the Git connection
+      netRcFile = GitCredentialsTest.netRc("good", "pw");
+
+      HopException e = assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(e.getMessage(), e.getMessage().contains("Git connection 'my-gitea'"));
+      verify(uiGit, never()).promptUsernamePassword();
+      assertFalse(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testAMissingGitConnectionIsAnError() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      uiGit.setRemoteGitConnection("deleted");
+
+      HopException e = assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(e.getMessage(), e.getMessage().contains("doesn't exist"));
+      assertTrue(server.authorizations.isEmpty());
+    }
+  }
+
+  @Test
+  public void testTheNetRcFileIsUsedWithoutGitConnection() throws Exception {
+    try (AuthServer server = new AuthServer(401)) {
+      server.addAsOrigin(git);
+      netRcFile = GitCredentialsTest.netRc("good", "pw");
+
+      assertThrows(HopException.class, () -> uiGit.fetch());
+      verify(uiGit, never()).promptUsernamePassword();
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testTheUserIsAskedWhenTheNetRcFileIsRefused() throws Exception {
+    try (AuthServer server = new AuthServer(403)) {
+      server.addAsOrigin(git);
+      netRcFile = GitCredentialsTest.netRc("bad", "bad");
+      answerPrompts(new String[] {"good", "pw"});
+
+      assertThrows(HopException.class, () -> uiGit.fetch());
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+      // Without an error: the .netrc file is only a convenience
+      verify(uiGit, never()).showAuthenticationError(any());
+
+      // The refused .netrc file is not read again, the credentials of the user are kept
+      server.authorizations.clear();
+      assertThrows(HopException.class, () -> uiGit.fetch());
+      assertFalse(server.authorizations.contains(AuthServer.BAD));
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  /** Associates a Git connection using basic authentication with the remote. */
+  private void associateGitConnection(String username, String password) throws Exception {
+    GitConnection connection = GitCredentialsTest.basicConnection("my-gitea", username, password);
+    gitConnections.put(connection.getName(), connection);
+    uiGit.setRemoteGitConnection(connection.getName());
+  }
+
+  /**
+   * Answers the credentials prompts in order, null for a cancelled prompt.
+   *
+   * @return the answers not given yet
+   */
+  private List<String[]> answerPrompts(String[]... answers) {
+    List<String[]> remaining = new ArrayList<>(Arrays.asList(answers));
+    doAnswer(
+            invocation -> {
+              String[] answer = remaining.remove(0);
+              if (answer == null) {
+                return false;
+              }
+              uiGit.setCredential(answer[0], answer[1]);
+              return true;
+            })
+        .when(uiGit)
+        .promptUsernamePassword();
+    return remaining;
+  }
+
+  @Test
+  public void testPushAsksAgainAfterCredentialsRefusedWithoutChallenge() throws Exception {
+    // Gitea answers a 401 without an authentication challenge to the credentials it refuses
+    try (AuthServer server = new AuthServer(401, false)) {
+      server.addAsOrigin(git);
+      initialCommit();
+      List<String[]> answers = answerPrompts(new String[] {"bad", "bad"}, null);
+
+      assertFalse(uiGit.push());
+      assertTrue(answers.isEmpty());
+
+      answerPrompts(new String[] {"good", "pw"});
+      HopException e = assertThrows(HopException.class, () -> uiGit.push());
+      assertTrue(e.getCause().getMessage(), e.getCause().getMessage().contains("not found"));
+      assertTrue(server.authorizations.contains(AuthServer.GOOD));
+    }
+  }
+
+  @Test
+  public void testAuthenticationNotSupportedOnlyCountsWithCredentials() {
+    TransportException e =
+        new TransportException("https://example.com/repo.git: authentication not supported");
+
+    // Without credentials the server is one JGit can't authenticate to: asking would not help
+    assertFalse(uiGit.isAuthenticationFailure(e, null));
+
+    assertTrue(
+        uiGit.isAuthenticationFailure(e, new UsernamePasswordCredentialsProvider("bad", "bad")));
+  }
+
+  /**
+   * A Git HTTP server that only accepts good:pw, and then knows no repository. It asks for basic
+   * authentication, and answers the given status to other credentials.
+   */
+  private static class AuthServer implements AutoCloseable {
+    static final String GOOD = basic("good", "pw");
+    static final String BAD = basic("bad", "bad");
+
+    final List<String> authorizations = Collections.synchronizedList(new ArrayList<>());
+    private final HttpServer server;
+
+    AuthServer(int refusedStatus) throws IOException {
+      this(refusedStatus, refusedStatus == 401);
+    }
+
+    /**
+     * @param challengeRefused whether the answer to refused credentials asks for basic
+     *     authentication again
+     */
+    AuthServer(int refusedStatus, boolean challengeRefused) throws IOException {
+      server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+      server.createContext(
+          "/",
+          exchange -> {
+            String authorization = exchange.getRequestHeaders().getFirst("Authorization");
+            if (authorization != null) {
+              authorizations.add(authorization);
+            }
+            if (GOOD.equals(authorization)) {
+              exchange.sendResponseHeaders(404, -1);
+            } else {
+              if (authorization == null || challengeRefused) {
+                exchange.getResponseHeaders().add("WWW-Authenticate", "Basic realm=\"git\"");
+              }
+              exchange.sendResponseHeaders(authorization == null ? 401 : refusedStatus, -1);
+            }
+            exchange.close();
+          });
+      server.start();
+    }
+
+    String url() {
+      return "http://"
+          + server.getAddress().getHostString()
+          + ":"
+          + server.getAddress().getPort()
+          + "/repo.git";
+    }
+
+    void addAsOrigin(Git git) throws Exception {
+      git.remoteAdd().setName(Constants.DEFAULT_REMOTE_NAME).setUri(new URIish(url())).call();
+    }
+
+    private static String basic(String username, String password) {
+      return "Basic "
+          + Base64.getEncoder()
+              .encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void close() {
+      server.stop(0);
+    }
   }
 }

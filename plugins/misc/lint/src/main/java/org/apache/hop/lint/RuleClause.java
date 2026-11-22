@@ -112,30 +112,6 @@ public class RuleClause {
               PKG, "RuleClause.Problem.NotAWholeNumber", condition.name(), conditionValue);
         }
         break;
-      case HAS_OPTION:
-        if (value.contains("=")) {
-          return BaseMessages.getString(
-              PKG, "RuleClause.Problem.NotAnOptionName", condition.name(), conditionValue);
-        }
-        break;
-      case OPTION_MATCHES:
-        int equals = value.indexOf('=');
-        if (equals <= 0 || value.substring(0, equals).isBlank()) {
-          return BaseMessages.getString(
-              PKG, "RuleClause.Problem.NotAnOptionPattern", condition.name(), conditionValue);
-        }
-        try {
-          // Trimmed as the executor reads it.
-          Pattern.compile(value.substring(equals + 1).trim());
-        } catch (PatternSyntaxException e) {
-          return BaseMessages.getString(
-              PKG,
-              "RuleClause.Problem.InvalidPattern",
-              condition.name(),
-              conditionValue,
-              e.getDescription());
-        }
-        break;
       case MATCHES_PATTERN, NOT_MATCHES_PATTERN:
         try {
           Pattern.compile(conditionValue);
@@ -172,20 +148,13 @@ public class RuleClause {
         condition == RuleCondition.NOT_EMPTY_COLLECTION
             || condition == RuleCondition.MAX_COLLECTION_SIZE
             || condition == RuleCondition.MIN_COLLECTION_SIZE;
-    // The option conditions read a map of options and nothing else.
-    boolean option =
-        condition == RuleCondition.HAS_OPTION || condition == RuleCondition.OPTION_MATCHES;
     return switch (kind) {
         // A count is always there, and never reads as empty.
       case COUNT ->
-          collection
-              || option
-              || condition == RuleCondition.NOT_NULL
-              || condition == RuleCondition.NOT_EMPTY;
-      case FLAG -> numeric || collection || option;
-      case LIST -> numeric || option;
-      case MAP -> numeric;
-      case TEXT -> collection || option;
+          collection || condition == RuleCondition.NOT_NULL || condition == RuleCondition.NOT_EMPTY;
+      case FLAG -> numeric || collection;
+      case LIST -> numeric;
+      case TEXT -> collection;
     };
   }
 

@@ -56,14 +56,4 @@ public interface IHopLintRulePack {
   default List<String> getOverrides() {
     return Collections.emptyList();
   }
-
-  /**
-   * The pack's version, as reports record which rules a run used, or null when it has none.
-   *
-   * <p>Declared in the pack's YAML as {@code pack: version: "1.4.0"}. A pack shipped in a jar that
-   * declares none reports the jar's version.
-   */
-  default String getVersion() {
-    return null;
-  }
 }

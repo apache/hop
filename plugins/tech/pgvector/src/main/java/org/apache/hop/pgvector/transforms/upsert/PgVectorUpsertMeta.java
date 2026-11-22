@@ -291,25 +291,6 @@ public class PgVectorUpsertMeta extends BaseTransformMeta<PgVectorUpsert, PgVect
     columnMappings = new ArrayList<>();
   }
 
-  /**
-   * @return true when the transform runs schema DDL: it creates the table, its HNSW index or the
-   *     mapped columns
-   */
-  public boolean hasSchemaDdl() {
-    return createTableIfMissing
-        || createHnswIndex
-        || (columnMappings != null && !columnMappings.isEmpty());
-  }
-
-  /**
-   * The schema DDL runs once per run, not in every copy or partition (see {@link
-   * PgVectorUpsert#prepareOnce()}).
-   */
-  @Override
-  public boolean needsPrepareOnce(IVariables variables) {
-    return hasSchemaDdl() && !Utils.isEmpty(connection);
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;

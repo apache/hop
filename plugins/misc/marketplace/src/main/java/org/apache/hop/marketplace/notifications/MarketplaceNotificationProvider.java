@@ -176,6 +176,8 @@ public class MarketplaceNotificationProvider implements INotificationProvider {
     notification.setId(available.getArtifactId() + "-" + availableVersion);
     notification.setTitle(
         BaseMessages.getString(PKG, "MarketplaceNotifications.Title", name, availableVersion));
+    // The marketplace installs over an existing version rather than replacing it, which leaves
+    // both jars on the plugin classpath. Until that is fixed, say what actually has to be done.
     notification.setMessage(
         BaseMessages.getString(
             PKG,

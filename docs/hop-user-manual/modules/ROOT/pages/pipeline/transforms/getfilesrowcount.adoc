@@ -61,7 +61,3 @@ The Get Files Row Count transform counts the number of rows in a file or set of 
 |Files Count fieldname|The name of the field to store the output file count in.
 |Add filename to result|Whether the file names are included as a field in the output.
 |===
-
-== Samples
-
-The samples project has `transforms/get-files-rows-count.hpl`, which counts the 4 lines of `files/get-files-rows-count.csv`, the header line included, and the number of files it read.
