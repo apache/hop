@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 /**
  * Collects the bytes of one COPY row so that it reaches the copy stream in a single write. Text is
- * encoded in the client encoding; when that encoding stores ASCII as ASCII, characters below 0x80
- * are copied directly instead of through {@link String#getBytes(Charset)}.
+ * encoded in the given charset (UTF-8 for the COPY); when it stores ASCII as ASCII, characters
+ * below 0x80 are copied directly instead of through {@link String#getBytes(Charset)}.
  */
 final class PGCopyRowBuffer {
   private final Charset charset;
