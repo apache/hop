@@ -62,7 +62,7 @@ image:beam/beam-flink-run-config.png[Apache Beam - Flink run configuration, widt
 
 == From Hop GUI
 
-TIP: Running Hop pipelines on embedded Flink through Hop Gui will work just fine but is intended for testing purposes and won't show in your Flink dashboard. You can leave the default Flink master to `[local]` to run the embedded Flink engine from Hop Gui.
+TIP: To try a pipeline on Flink without a cluster, set the Flink master to `[local]`: Hop Gui then runs it on an embedded Flink engine, without a fat jar. It's meant for testing and doesn't show in your Flink dashboard. A master of `[collection]` doesn't run a Flink job at all, so use it only as a quick check.
 
 Set your Flink master to your cluster's master. For embedded Flink, `[local]` will do.
 
