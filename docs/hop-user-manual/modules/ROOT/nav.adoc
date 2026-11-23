@@ -380,6 +380,7 @@ under the License.
 *** xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Native Remote]
 *** xref:workflow/workflow-run-configurations/native-load-balancing-workflow-engine.adoc[Native Load-balancing]
 *** xref:workflow/workflow-run-configurations/replay-workflow-engine.adoc[Replay]
+*** xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow]
 ** xref:workflow/actions.adoc[Actions]
 //::=START AUTO GENERATED LINKS ACTIONS
 *** xref:workflow/actions/abort.adoc[Abort workflow]

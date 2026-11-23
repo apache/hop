@@ -28,9 +28,42 @@
     <artifactId>hop-tech-airflow</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Technology Airflow</name>
-    <description>Apache Airflow connection and the Trigger Airflow DAG run action</description>
+    <description>Apache Airflow connection, the Trigger Airflow DAG run action and running workflows as Airflow DAGs</description>
+
+    <properties>
+        <!-- The launcher is unpacked in launcher/ by the assembly, never put on Hop's class path -->
+        <hop.libcore.exclude1>org.apache.hop:hop-tech-airflow-launcher</hop.libcore.exclude1>
+    </properties>
 
     <dependencies>
+        <!-- The plugin uses only the launcher's constants, which the compiler copies: Hop never
+             loads the launcher or the Airflow SDK. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-airflow-launcher</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- The launcher with its libraries, which the assembly unpacks in launcher/ -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-airflow-launcher</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- WireMock for the Airflow REST API client tests -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>

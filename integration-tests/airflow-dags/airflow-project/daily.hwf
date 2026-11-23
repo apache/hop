@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>daily</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Scheduled daily at 06:30 by its Start action</description>
+  <description>Its Start action repeats daily at 06:30. Log follows the Start action and Also, so the workflow runs as one task</description>
   <parameters>
   </parameters>
   <actions>
@@ -40,6 +40,19 @@ limitations under the License.
       <yloc>64</yloc>
     </action>
     <action>
+      <name>Also</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>Before the second Log</logmessage>
+      <logsubject>spike</logsubject>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>Log</name>
       <type>WRITE_TO_LOG</type>
       <loglevel>Basic</loglevel>
@@ -52,5 +65,7 @@ limitations under the License.
   </actions>
   <hops>
     <hop><from>Start</from><to>Log</to><enabled>Y</enabled><evaluation>Y</evaluation><unconditional>Y</unconditional></hop>
+    <hop><from>Start</from><to>Also</to><enabled>Y</enabled><evaluation>Y</evaluation><unconditional>Y</unconditional></hop>
+    <hop><from>Also</from><to>Log</to><enabled>Y</enabled><evaluation>Y</evaluation><unconditional>N</unconditional></hop>
   </hops>
 </workflow>

@@ -18,6 +18,8 @@
 # Airflow runs the workflows of integration-tests/airflow-dags/airflow-project as DAGs. At start
 # the container makes that project a DAG bundle with hop airflow-bundle, from the Hop client of
 # this build. The test workflows trigger the DAGs over the REST API and check the outcome.
+# Bundle hopgui is the folder the Airflow run configuration of the tests publishes to
+# (integration-tests/airflow-dags/gui-bundle).
 services:
   integration_test_airflow_dags:
     extends:
@@ -51,15 +53,19 @@ services:
       AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
       AIRFLOW__DAG_PROCESSOR__DAG_BUNDLE_CONFIG_LIST: >-
         [{"name": "dags-folder", "classpath": "airflow.dag_processing.bundles.local.LocalDagBundle", "kwargs": {}},
-         {"name": "hopit", "classpath": "airflow.dag_processing.bundles.local.LocalDagBundle", "kwargs": {"path": "/opt/airflow/hop-bundle"}}]
+         {"name": "hopit", "classpath": "airflow.dag_processing.bundles.local.LocalDagBundle", "kwargs": {"path": "/opt/airflow/hop-bundle"}},
+         {"name": "hopgui", "classpath": "airflow.dag_processing.bundles.local.LocalDagBundle", "kwargs": {"path": "/opt/airflow/hop-it/gui-bundle"}}]
+      # Find the bundle the run configuration publishes soon after the first publish
+      AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "10"
       AIRFLOW__SDK__COORDINATORS: >-
         {"java": {"classpath": "airflow.sdk.coordinators.java.JavaCoordinator",
                   "kwargs": {"java_executable": "/opt/java/openjdk/bin/java",
                              "jvm_args": ["-Xmx1g", "--add-opens","java.xml/jdk.xml.internal=ALL-UNNAMED","--add-opens","java.base/java.lang=ALL-UNNAMED","--add-opens","java.base/java.lang.invoke=ALL-UNNAMED","--add-opens","java.base/java.lang.reflect=ALL-UNNAMED","--add-opens","java.base/java.io=ALL-UNNAMED","--add-opens","java.base/java.net=ALL-UNNAMED","--add-opens","java.base/java.nio=ALL-UNNAMED","--add-opens","java.base/java.util=ALL-UNNAMED","--add-opens","java.base/java.util.concurrent=ALL-UNNAMED","--add-opens","java.base/java.util.concurrent.atomic=ALL-UNNAMED","--add-opens","java.base/sun.nio.ch=ALL-UNNAMED","--add-opens","java.base/sun.nio.cs=ALL-UNNAMED","--add-opens","java.base/sun.security.action=ALL-UNNAMED","--add-opens","java.base/sun.util.calendar=ALL-UNNAMED","--add-exports","java.base/sun.nio.ch=ALL-UNNAMED"]}}}
       AIRFLOW__SDK__QUEUE_TO_COORDINATOR: '{"java": "java"}'
-      AIRFLOW__SDK__DAG_BUNDLE_TO_COORDINATOR: '{"hopit": "java"}'
+      AIRFLOW__SDK__DAG_BUNDLE_TO_COORDINATOR: '{"hopit": "java", "hopgui": "java"}'
     volumes:
       - ./../../integration-tests/airflow-dags/airflow-project:/opt/airflow/hop-project:ro
+      - ./../../integration-tests/airflow-dags:/opt/airflow/hop-it:ro
     healthcheck:
       # Up, and the DAGs of the Hop bundle listed
       test: curl --fail -s http://localhost:8080/api/v2/monitor/health && airflow dags list 2>/dev/null | grep -q hopit__slow

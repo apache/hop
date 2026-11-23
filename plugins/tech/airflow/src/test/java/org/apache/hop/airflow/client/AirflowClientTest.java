@@ -23,11 +23,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.patch;
+import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -223,7 +227,7 @@ class AirflowClientTest {
   @Test
   void listsTheTasksInAState() throws Exception {
     server.stubFor(
-        get(urlEqualTo("/api/v2/dags/my_dag/dagRuns/r1/taskInstances"))
+        get(urlPathEqualTo("/api/v2/dags/my_dag/dagRuns/r1/taskInstances"))
             .willReturn(
                 aResponse()
                     .withBody(
@@ -318,5 +322,174 @@ class AirflowClientTest {
                 + "\"msg\":\"Field required\"}]}"));
     assertEquals("Bad Gateway", AirflowClient.errorDetail("Bad Gateway"));
     assertEquals("(no details)", AirflowClient.errorDetail(""));
+  }
+
+  @Test
+  void findsADagOrNothingWhenAirflowDoesNotKnowIt() throws Exception {
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/known/details"))
+            .willReturn(
+                aResponse()
+                    .withBody("{\"dag_id\":\"known\",\"is_paused\":true,\"doc_md\":\"doc\"}")));
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/unknown/details"))
+            .willReturn(
+                aResponse()
+                    .withStatus(404)
+                    .withBody("{\"detail\":\"The Dag with ID: `unknown` was not found\"}")));
+
+    AirflowClient client = client(AirflowAuthenticationType.NONE, null);
+    assertEquals(new AirflowDag("known", true, "doc"), client.findDag("known"));
+    assertNull(client.findDag("unknown"));
+  }
+
+  @Test
+  void unpausesOnlyThePausedFlag() throws Exception {
+    server.stubFor(
+        patch(urlEqualTo("/api/v2/dags/my_dag?update_mask=is_paused"))
+            .withRequestBody(equalToJson("{\"is_paused\":false}"))
+            .willReturn(aResponse().withBody("{\"dag_id\":\"my_dag\",\"is_paused\":false}")));
+
+    client(AirflowAuthenticationType.NONE, null).setDagPaused("my_dag", false);
+
+    server.verify(1, patchRequestedFor(urlEqualTo("/api/v2/dags/my_dag?update_mask=is_paused")));
+  }
+
+  @Test
+  void setsTheStateOfADagRun() throws Exception {
+    String path = "/api/v2/dags/my_dag/dagRuns/manual__2026-11-22T13%3A57%3A20%2B00%3A00";
+    server.stubFor(
+        patch(urlEqualTo(path))
+            .withRequestBody(equalToJson("{\"state\":\"failed\"}"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"my_dag\",\"dag_run_id\":\"manual__2026-11-22T13:57:20+00:00\","
+                            + "\"state\":\"failed\"}")));
+
+    AirflowDagRun run =
+        client(AirflowAuthenticationType.NONE, null)
+            .setDagRunState("my_dag", "manual__2026-11-22T13:57:20+00:00", "failed");
+
+    assertTrue(run.isFailed());
+  }
+
+  @Test
+  void findsATaskInstanceOrNothingBeforeTheSchedulerCreatesIt() throws Exception {
+    server.stubFor(
+        get(urlPathEqualTo("/api/v2/dags/my_dag/dagRuns/r1/taskInstances"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"task_instances\":[{\"task_id\":\"run_workflow\",\"state\":\"running\","
+                            + "\"try_number\":2,\"map_index\":-1}],\"total_entries\":1}")));
+    server.stubFor(
+        get(urlPathEqualTo("/api/v2/dags/my_dag/dagRuns/r2/taskInstances"))
+            .willReturn(aResponse().withBody("{\"task_instances\":[],\"total_entries\":0}")));
+
+    AirflowClient client = client(AirflowAuthenticationType.NONE, null);
+    assertEquals(
+        new AirflowTaskInstance("run_workflow", "running", 2, null, null),
+        client.findTaskInstance("my_dag", "r1", "run_workflow"));
+    assertNull(client.findTaskInstance("my_dag", "r2", "run_workflow"));
+  }
+
+  /** Airflow returns at most 100 task instances per page by default. */
+  @Test
+  void readsEveryPageOfTaskInstances() throws Exception {
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/my_dag/dagRuns/r1/taskInstances?limit=100&offset=0"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"task_instances\":[{\"task_id\":\"b\",\"state\":\"success\","
+                            + "\"try_number\":1,\"start_date\":\"2026-11-23T10:00:05Z\"}],"
+                            + "\"total_entries\":2}")));
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/my_dag/dagRuns/r1/taskInstances?limit=100&offset=1"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"task_instances\":[{\"task_id\":\"a\",\"state\":\"success\","
+                            + "\"try_number\":1,\"start_date\":\"2026-11-23T10:00:01Z\"}],"
+                            + "\"total_entries\":2}")));
+
+    List<AirflowTaskInstance> instances =
+        client(AirflowAuthenticationType.NONE, null).getTaskInstances("my_dag", "r1");
+
+    assertEquals(List.of("a", "b"), instances.stream().map(AirflowTaskInstance::taskId).toList());
+  }
+
+  @Test
+  void readsTheTaskLogWithoutTheFileGroupAndContinuesWithTheToken() throws Exception {
+    String path = "/api/v2/dags/my_dag/dagRuns/r1/taskInstances/run_workflow/logs/1";
+    server.stubFor(
+        get(urlEqualTo(path))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"content\":["
+                            + "{\"event\":\"::group::Log message source details\"},"
+                            + "{\"event\":\"/opt/airflow/logs/dag_id=my_dag/attempt=1.log\"},"
+                            + "{\"event\":\"::endgroup::\"},"
+                            + "{\"timestamp\":\"2026-11-22T13:56:57Z\",\"event\":\"2026/11/22 13:56:57 - hello"
+                            + " - Starting action [Greet]\",\"level\":\"info\",\"logger\":\"task.stdout\"},"
+                            + "{\"timestamp\":\"2026-11-22T13:56:58Z\",\"event\":\"Task failed\","
+                            + "\"level\":\"error\",\"logger\":\"airflow.sdk\"},"
+                            + "{\"event\":\"Error executing task\",\"level\":\"error\","
+                            + "\"logger\":\"org.apache.airflow.sdk.execution.TaskRunner\","
+                            + "\"error\":\"java.lang.IllegalStateException: [Mail] does not run\"}],"
+                            + "\"continuation_token\":\"tok/1+\"}")));
+    server.stubFor(
+        get(urlEqualTo(path + "?token=tok%2F1%2B"))
+            .willReturn(aResponse().withBody("{\"content\":[],\"continuation_token\":null}")));
+
+    AirflowClient client = client(AirflowAuthenticationType.NONE, null);
+    AirflowTaskLog log = client.getTaskLog("my_dag", "r1", "run_workflow", 1, null);
+    assertEquals(
+        List.of(
+            "2026/11/22 13:56:57 - hello - Starting action [Greet]",
+            "[error] airflow.sdk: Task failed",
+            "[error] org.apache.airflow.sdk.execution.TaskRunner: Error executing task:"
+                + " java.lang.IllegalStateException: [Mail] does not run"),
+        log.lines());
+    assertEquals("tok/1+", log.continuationToken());
+
+    AirflowTaskLog next = client.getTaskLog("my_dag", "r1", "run_workflow", 1, "tok/1+");
+    assertTrue(next.lines().isEmpty());
+    assertNull(next.continuationToken());
+  }
+
+  @Test
+  void readsAnXComValueOrNothingWhenTheTaskPushedNone() throws Exception {
+    String path = "/api/v2/dags/my_dag/dagRuns/r1/taskInstances/run_workflow/xcomEntries/";
+    server.stubFor(
+        get(urlEqualTo(path + "return_value"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"key\":\"return_value\",\"value\":{\"success\":true,"
+                            + "\"counters\":{\"errors\":0}}}")));
+    server.stubFor(
+        get(urlEqualTo(path + "other"))
+            .willReturn(aResponse().withStatus(404).withBody("{\"detail\":\"not found\"}")));
+
+    AirflowClient client = client(AirflowAuthenticationType.NONE, null);
+    Object value = client.findXComValue("my_dag", "r1", "run_workflow", "return_value");
+    assertTrue(value instanceof Map<?, ?> map && Boolean.TRUE.equals(map.get("success")));
+    assertNull(client.findXComValue("my_dag", "r1", "run_workflow", "other"));
+  }
+
+  @Test
+  void stillFailsOnOtherErrorsWhereNotFoundIsAllowed() {
+    server.stubFor(
+        get(urlEqualTo("/api/v2/dags/broken/details"))
+            .willReturn(aResponse().withStatus(500).withBody("{\"detail\":\"boom\"}")));
+
+    HopException error =
+        assertThrows(
+            HopException.class,
+            () -> client(AirflowAuthenticationType.NONE, null).findDag("broken"));
+    assertTrue(error.getMessage().contains("HTTP 500"));
   }
 }

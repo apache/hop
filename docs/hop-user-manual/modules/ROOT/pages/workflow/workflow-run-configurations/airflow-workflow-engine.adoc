@@ -1,0 +1,89 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[AirflowWorkflowEngine]]
+:imagesdir: ../assets/images
+:description: The Apache Airflow run configuration runs a workflow as an Airflow DAG and follows the run in Hop GUI.
+
+= Apache Airflow Workflow Engine
+
+The Apache Airflow run configuration runs a workflow on Airflow from Hop GUI or `hop run`:
+
+. It publishes the project as a DAG bundle, as xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle] with `--target` does.
+. It waits until Airflow shows the DAG of the workflow as it was just published, and unpauses it when it is paused.
+Airflow reads a changed file again every 30 seconds by default (`min_file_process_interval`).
+. It starts a DAG run. The workflow's parameters become the run conf.
+. It follows the run until it ends: the logs of the tasks appear in the log of the workflow, and the canvas shows which actions run and how they ended.
+. Stopping the workflow in Hop GUI fails the DAG run, which makes Airflow stop the running tasks.
+
+The result of the workflow is the outcome of the run in Airflow, with the counters of the task that ended last: as in Hop, each action passes them on to the next.
+Each action of the workflow is a task in Airflow: see xref:hop-tools/hop-airflow-bundle.adoc#_tasks[Tasks].
+
+Airflow must already read the bundle folder as a DAG bundle, and its workers must have Hop and a Java coordinator: see xref:hop-tools/hop-airflow-bundle.adoc#_set_up_airflow[Set up Airflow].
+The run configuration publishes the files of the project as they are saved, so save the workflow before you run it.
+
+This page describes the options that are specific to the Airflow workflow engine. These options extend the general xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[workflow run configuration options].
+
+== Options
+
+[options="header",cols="1,3"]
+|===
+|Option|Description
+
+|Airflow connection
+|The xref:metadata-types/airflow-connection.adoc[Airflow connection] to run the workflow on.
+
+|DAG bundle folder
+|The folder to publish the project to, and that Airflow reads as a local DAG bundle: a shared folder or a volume of the Airflow containers.
+Publishing replaces what an earlier publish left there.
+Leave it empty to write the stub into the project folder itself, for an Airflow that reads the project folder.
+
+|Hop on the workers
+|Where Hop is installed on the Airflow workers.
+Default: `/opt/hop`, as in the Hop container image.
+
+|Run configuration on the workers
+|The workflow run configuration the workers run the workflow with.
+Default: `local`.
+
+|Environment files
+|Configuration files of the project to use on the workers, relative to the project folder and separated by `;`.
+
+|DAG id prefix
+|The start of every DAG id.
+Default: the project name followed by two underscores.
+
+|Unpause a paused DAG?
+|Airflow can pause new DAGs, and a run of a paused DAG stays queued.
+With this option the DAG is unpaused before the run starts; without it the workflow fails without starting a run.
+
+|Wait for a new DAG (seconds)
+|How long to wait for Airflow to show the DAG of a workflow that was not published before.
+Airflow parses the stub again every `min_file_process_interval` seconds (30 by default), and finds a stub in a new bundle folder after `refresh_interval` seconds (300 by default).
+Default: 120.
+
+|Check every (seconds)
+|How often Hop asks Airflow for the state and the log of the run.
+Default: 5.
+|===
+
+== Notes
+
+* The log level of the run in Hop becomes the log level on the workers.
+The canvas follows the actions through the lines Hop writes at the `Basic` level and higher, in English.
+* Every publish replaces the bundle, and with it the DAGs of all workflows of the project.
+For a bundle that is shared with others, use `hop airflow-bundle` and a Git DAG bundle instead.
+* Clearing a task in Airflow runs its action again, with the result and variables of the tasks before it.

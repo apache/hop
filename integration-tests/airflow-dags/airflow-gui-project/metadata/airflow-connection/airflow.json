@@ -1,0 +1,11 @@
+{
+  "name" : "airflow",
+  "description" : "The Airflow 3 container of the integration tests",
+  "url" : "http://airflow:8080",
+  "connect_timeout_seconds" : "10",
+  "request_timeout_seconds" : "60",
+  "authentication_type" : "USERNAME_PASSWORD",
+  "username" : "admin",
+  "password" : "admin",
+  "token" : ""
+}

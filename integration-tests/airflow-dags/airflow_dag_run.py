@@ -74,8 +74,10 @@ def main():
     parser.add_argument("--conf", default="{}", help="the run conf, as a JSON object")
     parser.add_argument("--expect", choices=["success", "failed"], default="success")
     parser.add_argument("--log-contains", action="append", default=[])
-    parser.add_argument("--xcom", action="append", default=[], help="KEY=VALUE in the return value")
-    parser.add_argument("--schedule", help="the expected cron schedule of the DAG")
+    parser.add_argument("--xcom", action="append", default=[], help="KEY=VALUE in the outcome of the task")
+    parser.add_argument("--xcom-task", help="the task whose outcome --xcom checks; default: run_workflow, or the last task to end")
+    parser.add_argument("--task-state", action="append", default=[], help="TASK=STATE of one task of the run")
+    parser.add_argument("--schedule", help="the expected cron schedule of the DAG, or None")
     parser.add_argument("--stop-after", type=int, help="mark the run failed this many seconds after the task starts")
     parser.add_argument("--timeout", type=int, default=300)
     args = parser.parse_args()
@@ -92,7 +94,7 @@ def main():
 
     details = wait("DAG " + args.dag, dag_listed, args.timeout)
     if args.schedule is not None:
-        schedule = details.get("timetable_summary")
+        schedule = str(details.get("timetable_summary"))
         print("Schedule of %s: %s" % (args.dag, schedule), flush=True)
         if schedule != args.schedule:
             fail("schedule %r, expected %r" % (schedule, args.schedule))
@@ -106,25 +108,28 @@ def main():
         fail("trigger: HTTP %s %s" % (s, b))
     print("Started DAG run %s of %s" % (run_id, args.dag), flush=True)
     run_path = "/api/v2/dags/%s/dagRuns/%s" % (dag, urllib.parse.quote(run_id, safe=""))
-    task_path = run_path + "/taskInstances/run_workflow"
+    tasks_path = run_path + "/taskInstances"
+
+    def task_instances():
+        s, b = call(args.url, "GET", tasks_path + "?limit=1000", token)
+        instances = b.get("task_instances", []) if s == 200 and isinstance(b, dict) else []
+        return sorted(instances, key=lambda t: t.get("start_date") or "~")
 
     if args.stop_after is not None:
         def task_running():
-            s, b = call(args.url, "GET", task_path, token)
-            return s == 200 and b.get("state") == "running"
+            return any(t.get("state") == "running" for t in task_instances())
 
-        wait("the task to run", task_running, args.timeout)
+        wait("a task to run", task_running, args.timeout)
         time.sleep(args.stop_after)
         s, b = call(args.url, "PATCH", run_path, token, {"state": "failed"})
         if s != 200:
             fail("stop: HTTP %s %s" % (s, b))
         print("Marked the run failed", flush=True)
 
-        def task_ended():
-            s, b = call(args.url, "GET", task_path, token)
-            return s == 200 and b.get("state") not in ("running", "queued", "scheduled", None)
+        def tasks_ended():
+            return all(t.get("state") not in ("running", "queued", "scheduled") for t in task_instances())
 
-        wait("the task to end", task_ended, 60, 1)
+        wait("the tasks to end", tasks_ended, 60, 1)
 
     def run_finished():
         s, b = call(args.url, "GET", run_path, token)
@@ -132,14 +137,36 @@ def main():
 
     state = wait("the run to finish", run_finished, args.timeout)
     print("DAG run %s: %s" % (run_id, state), flush=True)
+    instances = task_instances()
+    print("Tasks: " + ", ".join("%s=%s" % (t["task_id"], t.get("state")) for t in instances), flush=True)
     if state != args.expect:
         fail("state %s, expected %s" % (state, args.expect))
 
+    states = {t["task_id"]: t.get("state") for t in instances}
+    for check in args.task_state:
+        task, expected = check.split("=", 1)
+        if task not in states:
+            fail("the run has no task %s" % task)
+        if states[task] != expected:
+            fail("task %s is %s, expected %s" % (task, states[task], expected))
+        print("Task %s: %s" % (task, expected), flush=True)
+
     if args.log_contains:
         def task_log():
-            s, b = call(args.url, "GET", task_path + "/logs/1?full_content=true", token)
-            content = b.get("content", []) if isinstance(b, dict) else []
-            return "\n".join(e.get("event", "") if isinstance(e, dict) else str(e) for e in content)
+            parts = []
+            for t in task_instances():
+                if (t.get("try_number") or 0) < 1:
+                    continue
+                path = "%s/%s/logs/%d?full_content=true" % (
+                    tasks_path, urllib.parse.quote(t["task_id"], safe=""), t["try_number"])
+                s, b = call(args.url, "GET", path, token)
+                content = b.get("content", []) if isinstance(b, dict) else []
+                # The Java SDK puts the exception of a failed task in a field of its own
+                parts.extend(
+                    (e.get("event", "") + (": " + str(e["error"]) if e.get("error") else ""))
+                    if isinstance(e, dict) else str(e)
+                    for e in content)
+            return "\n".join(parts)
 
         # The last lines of a stopped task can reach the log a little after the run has ended.
         deadline = time.time() + 30
@@ -150,23 +177,35 @@ def main():
         for text in args.log_contains:
             if text not in log:
                 print(log[-3000:], flush=True)
-                fail("the task log does not contain %r" % text)
-            print("Task log contains %r" % text, flush=True)
+                fail("the task logs do not contain %r" % text)
+            print("Task logs contain %r" % text, flush=True)
 
     if args.xcom:
-        s, b = call(args.url, "GET", task_path + "/xcomEntries/return_value", token)
-        value = b.get("value") if s == 200 else None
-        if isinstance(value, str):
-            value = json.loads(value)
+        task = args.xcom_task
+        if task is None:
+            ended = [t["task_id"] for t in instances if t.get("end_date")]
+            task = "run_workflow" if "run_workflow" in states else (
+                max((t for t in instances if t.get("end_date")), key=lambda t: t["end_date"])["task_id"] if ended else None)
+        if task is None:
+            fail("no task has ended")
+        value = None
+        for key in ("hop_outcome", "return_value"):
+            s, b = call(args.url, "GET", "%s/%s/xcomEntries/%s" % (
+                tasks_path, urllib.parse.quote(task, safe=""), key), token)
+            value = b.get("value") if s == 200 else None
+            if isinstance(value, str):
+                value = json.loads(value)
+            if isinstance(value, dict):
+                break
         if not isinstance(value, dict):
-            fail("no return value: HTTP %s %s" % (s, b))
+            fail("no outcome for task %s: HTTP %s %s" % (task, s, b))
         for check in args.xcom:
             key, expected = check.split("=", 1)
             actual = value.get(key)
             actual = json.dumps(actual) if isinstance(actual, (bool, int, float)) else str(actual)
             if actual != expected:
-                fail("return value %s is %r, expected %r" % (key, actual, expected))
-            print("Return value %s = %s" % (key, actual), flush=True)
+                fail("outcome %s of task %s is %r, expected %r" % (key, task, actual, expected))
+            print("Outcome %s of task %s = %s" % (key, task, actual), flush=True)
 
 
 if __name__ == "__main__":

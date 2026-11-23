@@ -23,7 +23,7 @@ under the License.
 == Overview
 
 `hop airflow-bundle` lets Apache Airflow run the workflows of a Hop project.
-Every workflow of the project becomes a DAG with one task, `run_workflow`, that runs the workflow as `hop run` would.
+Every workflow of the project becomes a DAG with one task per action: see <<_tasks,Tasks>>.
 
 The command writes a small stub jar, `hop-airflow.jar`, at the root of the project.
 The stub holds no code: it tells Airflow's Java coordinator to start the Hop installation on the worker.
@@ -34,7 +34,10 @@ Commit it with the project; Airflow reads the repository with a Git DAG bundle.
 * *Folder*: with `--target`, the project is copied to that folder and the stub is written there.
 Airflow reads the folder with a local DAG bundle.
 Hidden files and folders, such as `.git`, are not copied.
-The folder must be empty or hold an earlier bundle, which is replaced as a whole.
+The folder must be empty or hold a bundle written there before, which is replaced as a whole.
+Hop marks such a folder with a hidden file, `.hop-airflow-bundle`, and leaves any other folder alone.
+
+To publish a folder bundle and run a workflow on Airflow from Hop GUI, use the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration].
 
 This was tested with Airflow 3.4.0 and its Java SDK 1.0.0, which Airflow calls experimental.
 
@@ -92,26 +95,74 @@ Otherwise the DAGs can fail to load: Airflow then reports an import error, and t
 `etl/load.hwf` in project `sales` becomes `sales__etl__load`.
 * *Tags*: `hop` and the project name.
 * *Description*: the description of the workflow.
-* *Schedule*: when the xref:workflow/actions/start.adoc[Start] action repeats the workflow, its schedule becomes the DAG's schedule:
-+
-[options="header",cols="1,2"]
-|===
-|Start action |DAG schedule
-|Daily at 06:30 |`30 6 * * *`
-|Weekly, Monday at 06:30 |`30 6 * * 1`
-|Monthly, day 15 at 06:30 |`30 6 15 * *`
-|Every 15 minutes |`*/15 * * * *`
-|Every 6 hours (360 minutes) |`0 */6 * * *`
-|===
-+
-An interval that does not divide an hour or a day, an interval with seconds, and values with variables give a DAG without a schedule.
-Airflow then starts the workflow, and Hop runs it once: the launcher sets `HOP_IGNORE_START_REPEAT` to `Y`, so the Start action does not wait or repeat.
+* *Schedule*: none.
+Start the DAGs from Airflow, through its REST API, with the xref:workflow/actions/airflow-trigger-dag-run.adoc[Trigger Airflow DAG run] action, or with the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration].
+The schedule of the xref:workflow/actions/start.adoc[Start] action is not used: a Start action that repeats runs the workflow once.
 * *Run conf*: each key of the DAG run's conf becomes a parameter, or a variable when the workflow does not declare it, as with `hop run -p`.
 Text is passed as it is, including commas; numbers, lists and objects are passed as JSON.
 The Java SDK cannot declare DAG params, so the trigger form in Airflow shows no fields: pass the values as JSON.
-* *Result*: the task's return value (XCom) holds the outcome of the run, including `success`, `exitCode`, `name`, `executionId`, `startDate`, `endDate`, the counters, and `error` when the run failed.
-A failed run fails the task, with the error of the run in the task log.
-* *Stop*: marking the DAG run failed stops the workflow as the Stop button in Hop GUI does.
+* *Result*: every task keeps the outcome of its run in XCom `hop_outcome`, including `success`, `exitCode`, `name`, `executionId`, `startDate`, `endDate`, the counters, and `error` when the run failed.
+Apart from conditions (see below), the return value of the task holds the same outcome.
+* *Stop*: marking the DAG run failed stops the running actions as the Stop button in Hop GUI does.
+
+[[_tasks]]
+=== Tasks
+
+Each action that the Start action leads to becomes a task, with the name of the action as its task id.
+Characters that Airflow does not allow in a task id become `_`.
+The hops become the dependencies between the tasks:
+
+[options="header",cols="2,3"]
+|===
+|In the workflow |In Airflow
+|A success hop |The next task runs when the task before it succeeded.
+A task fails when the result of its action is false.
+|A failure hop |The next task runs when the task before it failed (`one_failed`).
+|An unconditional hop |The next task runs either way (`none_skipped`).
+|An action with both success and failure hops leaving it |The task is a condition: it succeeds, and Airflow skips the side its result does not take.
+A failure that the workflow handles leaves the DAG run successful, as the workflow is in Hop.
+Its return value is the result of the action, `true` or `false`.
+|Several hops that lead to one action |The task runs once, when the first of those hops is followed (`one_success`).
+In Hop, the action runs each time one of them is.
+|A xref:workflow/actions/join.adoc[Join] action |The task waits for all the tasks before it, as the Join does in Hop (`none_failed_min_one_success`).
+It fails when an action with a success hop into the Join ended false, as the Join does in Hop.
+It does not start Hop.
+|===
+
+Where several hops lead to one action, and where a side of a condition has more than one action, the hops go through gates: tasks called after the action before them, such as `Load__else`, that pass its result and variables on.
+A gate whose hop is not followed is skipped.
+
+When a task before a failure or unconditional hop did not run, because a task before that failed, the workflow stops there in Hop.
+Airflow still runs the next task: that task then fails without running its action, and says why in its log.
+
+Hops that Hop never follows are left out: disabled hops, and success or failure hops that leave a Start or Dummy action.
+
+Each task runs its action in a new JVM, which takes a few seconds to start Hop.
+What an action passes on to the next ones in Hop is passed on through XCom:
+
+* the result of the action: its rows, files and counters.
+As in Hop, the actions after an action that runs the next actions in parallel get its result without the rows.
+* the variables set so far.
+Where branches meet, each variable keeps the value that was set last.
+
+Airflow keeps XCom in its database: a task that would pass on more than 1 MB fails.
+Pass large results on through a file or a table instead.
+
+[WARNING]
+====
+Everyone who can see the DAG runs in Airflow can read what goes through XCom and the run conf, as plain text: the result rows, the variables that actions set during the run, and the parameter values.
+Keep passwords and other secrets out of them: put them in the environment files of the workers, or let a pipeline read them where it needs them.
+====
+
+Parallel branches run in parallel in Airflow, also when their action does not run the next actions in parallel in Hop.
+
+A workflow runs as one task, `run_workflow`, when its hops don't fit Airflow:
+
+* a hop that leads back to an earlier action, such as a loop that waits and checks again.
+* an action that the Start action leads to, and another action as well.
+* no Start action, or more than one.
+
+The DAG processor's log says why.
 
 == Set up Airflow
 

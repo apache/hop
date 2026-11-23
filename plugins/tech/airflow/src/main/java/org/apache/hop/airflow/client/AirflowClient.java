@@ -26,6 +26,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -200,6 +201,176 @@ public class AirflowClient {
     return taskIds;
   }
 
+  /**
+   * @return the DAG, or null when Airflow does not know it (yet)
+   */
+  public AirflowDag findDag(String dagId) throws HopException {
+    JSONObject dag = getJsonOrNull(API_PATH + "/dags/" + encode(dagId) + "/details");
+    if (dag == null) {
+      return null;
+    }
+    Object docMd = dag.get("doc_md");
+    return new AirflowDag(
+        dagId, Boolean.TRUE.equals(dag.get("is_paused")), docMd == null ? null : docMd.toString());
+  }
+
+  @SuppressWarnings("unchecked")
+  public void setDagPaused(String dagId, boolean paused) throws HopException {
+    JSONObject body = new JSONObject();
+    body.put("is_paused", paused);
+    sendJson(
+        "PATCH",
+        API_PATH + "/dags/" + encode(dagId) + "?update_mask=is_paused",
+        body.toJSONString());
+  }
+
+  /**
+   * Sets the state of a DAG run. Setting a running DAG run to failed makes Airflow stop its running
+   * tasks.
+   */
+  @SuppressWarnings("unchecked")
+  public AirflowDagRun setDagRunState(String dagId, String dagRunId, String state)
+      throws HopException {
+    JSONObject body = new JSONObject();
+    body.put("state", state);
+    String path = API_PATH + "/dags/" + encode(dagId) + "/dagRuns/" + encode(dagRunId);
+    return toDagRun(sendJson("PATCH", path, body.toJSONString()), dagId, "PATCH", path);
+  }
+
+  /**
+   * @return the task instance of a DAG run, or null when Airflow has not created it yet
+   */
+  public AirflowTaskInstance findTaskInstance(String dagId, String dagRunId, String taskId)
+      throws HopException {
+    for (AirflowTaskInstance instance : getTaskInstances(dagId, dagRunId)) {
+      if (taskId.equals(instance.taskId())) {
+        return instance;
+      }
+    }
+    return null;
+  }
+
+  /** The task instances of a DAG run, in the order they started; those not started come last. */
+  public List<AirflowTaskInstance> getTaskInstances(String dagId, String dagRunId)
+      throws HopException {
+    List<AirflowTaskInstance> instances = new ArrayList<>();
+    // Airflow returns at most [api] maximum_page_limit (100 by default) per page
+    for (int offset = 0; ; ) {
+      JSONObject response =
+          getJson(
+              API_PATH
+                  + "/dags/"
+                  + encode(dagId)
+                  + "/dagRuns/"
+                  + encode(dagRunId)
+                  + "/taskInstances?limit=100&offset="
+                  + offset);
+      int page = 0;
+      if (response.get("task_instances") instanceof JSONArray array) {
+        for (Object item : array) {
+          if (item instanceof JSONObject instance) {
+            page++;
+            Object state = instance.get("state");
+            Object startDate = instance.get("start_date");
+            Object endDate = instance.get("end_date");
+            instances.add(
+                new AirflowTaskInstance(
+                    String.valueOf(instance.get("task_id")),
+                    state == null ? null : state.toString(),
+                    Const.toInt(String.valueOf(instance.get("try_number")), 0),
+                    startDate == null ? null : startDate.toString(),
+                    endDate == null ? null : endDate.toString()));
+          }
+        }
+      }
+      offset += page;
+      long total = Const.toLong(String.valueOf(response.get("total_entries")), offset);
+      if (page == 0 || offset >= total) {
+        break;
+      }
+    }
+    instances.sort(
+        Comparator.comparing(
+            AirflowTaskInstance::startDate, Comparator.nullsLast(Comparator.naturalOrder())));
+    return instances;
+  }
+
+  /**
+   * Reads the log of a task try. Pass the continuation token of the previous call to get only the
+   * lines written since.
+   *
+   * @param continuationToken the token of the previous call, or null for the whole log
+   */
+  public AirflowTaskLog getTaskLog(
+      String dagId, String dagRunId, String taskId, int tryNumber, String continuationToken)
+      throws HopException {
+    String path =
+        API_PATH
+            + "/dags/"
+            + encode(dagId)
+            + "/dagRuns/"
+            + encode(dagRunId)
+            + "/taskInstances/"
+            + encode(taskId)
+            + "/logs/"
+            + tryNumber;
+    if (StringUtils.isNotEmpty(continuationToken)) {
+      path += "?token=" + encode(continuationToken);
+    }
+    JSONObject response = getJson(path);
+    List<String> lines = new ArrayList<>();
+    if (response.get("content") instanceof JSONArray content) {
+      boolean inGroup = false;
+      for (Object item : content) {
+        if (!(item instanceof JSONObject line)) {
+          continue;
+        }
+        String event = String.valueOf(line.get("event"));
+        // Airflow opens the log with a group that names the log file
+        if (event.startsWith("::group::")) {
+          inGroup = true;
+        } else if (event.startsWith("::endgroup::")) {
+          inGroup = false;
+        } else if (!inGroup) {
+          lines.add(logLine(line, event));
+        }
+      }
+    }
+    Object token = response.get("continuation_token");
+    return new AirflowTaskLog(lines, token == null ? null : token.toString());
+  }
+
+  /** Hop's own lines as they are, Airflow's with their level and logger. */
+  private static String logLine(JSONObject line, String event) {
+    Object logger = line.get("logger");
+    if (logger == null || "task.stdout".equals(logger)) {
+      return event;
+    }
+    String text = "[" + line.get("level") + "] " + logger + ": " + event;
+    // The Java SDK puts the exception of a failed task in a field of its own
+    Object error = line.get("error");
+    return error == null ? text : text + ": " + error;
+  }
+
+  /**
+   * @return the value of an XCom of a task, or null when the task pushed none under that key
+   */
+  public Object findXComValue(String dagId, String dagRunId, String taskId, String key)
+      throws HopException {
+    JSONObject entry =
+        getJsonOrNull(
+            API_PATH
+                + "/dags/"
+                + encode(dagId)
+                + "/dagRuns/"
+                + encode(dagRunId)
+                + "/taskInstances/"
+                + encode(taskId)
+                + "/xcomEntries/"
+                + encode(key));
+    return entry == null ? null : entry.get("value");
+  }
+
   private static AirflowDagRun toDagRun(JSONObject run, String dagId, String method, String path)
       throws HopException {
     Object runDagId = run.get("dag_id");
@@ -224,12 +395,22 @@ public class AirflowClient {
     return sendJson("GET", path, null);
   }
 
+  /** Like {@link #getJson(String)}, but null when Airflow answers 404. */
+  private JSONObject getJsonOrNull(String path) throws HopException {
+    HttpResponse<String> response = send("GET", path, null, true, true);
+    if (response.statusCode() == 404) {
+      return null;
+    }
+    return parseObject(response.body(), "GET", path);
+  }
+
   private JSONObject sendJson(String method, String path, String body) throws HopException {
-    HttpResponse<String> response = send(method, path, body, true);
+    HttpResponse<String> response = send(method, path, body, true, false);
     return parseObject(response.body(), method, path);
   }
 
-  private HttpResponse<String> send(String method, String path, String body, boolean retryOn401)
+  private HttpResponse<String> send(
+      String method, String path, String body, boolean retryOn401, boolean notFoundAllowed)
       throws HopException {
     if (authenticationType == AirflowAuthenticationType.USERNAME_PASSWORD && accessToken == null) {
       accessToken = requestToken();
@@ -253,9 +434,12 @@ public class AirflowClient {
         && retryOn401
         && authenticationType == AirflowAuthenticationType.USERNAME_PASSWORD) {
       accessToken = null;
-      return send(method, path, body, false);
+      return send(method, path, body, false, notFoundAllowed);
     }
     checkRedirect(response, method, path);
+    if (notFoundAllowed && response.statusCode() == 404) {
+      return response;
+    }
     if (response.statusCode() < 200 || response.statusCode() >= 300) {
       throw new HopException(
           "Airflow answered HTTP "
