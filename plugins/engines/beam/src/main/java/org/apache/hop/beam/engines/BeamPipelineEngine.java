@@ -127,6 +127,13 @@ public abstract class BeamPipelineEngine extends Variables
   protected boolean finished;
   protected boolean stopped;
   protected boolean paused;
+
+  /**
+   * Set when the run starts and cleared once PipelineCompleted has fired, so waitUntilFinished()
+   * does not return while the finished listeners and extension points are still running.
+   */
+  protected volatile boolean completionPending;
+
   protected boolean hasHaltedComponents;
   protected boolean preview;
   protected int errors;
@@ -356,6 +363,7 @@ public abstract class BeamPipelineEngine extends Variables
       //
       Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
+      completionPending = true;
       setRunning(true);
       setReadyToStart(false);
 
@@ -697,7 +705,7 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void waitUntilFinished() {
-    while ((running || paused || readyToStart) && !(stopped || finished)) {
+    while ((running || paused || readyToStart || completionPending) && !(stopped || finished)) {
       try {
         Thread.sleep(100);
       } catch (Exception e) {
@@ -1075,35 +1083,39 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
-    ExtensionPointHandler.callExtensionPoint(
-        logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
 
-    synchronized (executionFinishedListeners) {
-      for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
-          executionFinishedListeners) {
-        listener.finished(this);
+      synchronized (executionFinishedListeners) {
+        for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+            executionFinishedListeners) {
+          listener.finished(this);
+        }
       }
+
+      // Make sure we capture this moment in time correctly.
+      //
+      setRunning(false);
+      status = ComponentExecutionStatus.STATUS_FINISHED;
+      if (getErrors() > 0) {
+        statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+      } else {
+        statusDescription = Pipeline.STRING_FINISHED;
+      }
+      executionEndDate = new Date();
+
+      // Now the status and everything else is set correctly. We've completed the pipeline.
+      //
+      pipelineCompleted();
+
+      // Also call an extension point in case plugins want to play along
+      //
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
+    } finally {
+      completionPending = false;
     }
-
-    // Make sure we capture this moment in time correctly.
-    //
-    setRunning(false);
-    status = ComponentExecutionStatus.STATUS_FINISHED;
-    if (getErrors() > 0) {
-      statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
-    } else {
-      statusDescription = Pipeline.STRING_FINISHED;
-    }
-    executionEndDate = new Date();
-
-    // Now the status and everything else is set correctly. We've completed the pipeline.
-    //
-    pipelineCompleted();
-
-    // Also call an extension point in case plugins want to play along
-    //
-    ExtensionPointHandler.callExtensionPoint(
-        logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
   /**
