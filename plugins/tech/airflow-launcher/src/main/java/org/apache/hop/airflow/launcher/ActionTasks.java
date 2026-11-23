@@ -69,8 +69,10 @@ public final class ActionTasks {
   public static final String JOIN = "JOIN";
 
   /**
-   * Actions that don't evaluate their result: Hop follows only the unconditional hops that leave
-   * them.
+   * The actions of Hop that don't evaluate their result: Hop follows only the unconditional hops
+   * that leave them. Only for a stub that does not list them ({@link
+   * HopAirflowBundle#ATTRIBUTE_NOT_EVALUATING_ACTIONS}); the plugin writes the list from the plugin
+   * registry, so actions of other plugins are in it too.
    */
   static final Set<String> NOT_EVALUATING = Set.of("SPECIAL", "DUMMY", "SnowflakeWarehouseManager");
 
@@ -154,6 +156,18 @@ public final class ActionTasks {
    *     split into tasks, with the reason in {@code reasons}
    */
   public static List<ActionTask> of(Element actions, Element hops, List<String> reasons) {
+    return of(actions, hops, reasons, NOT_EVALUATING);
+  }
+
+  /**
+   * @param actions the {@code actions} element of the workflow
+   * @param hops the {@code hops} element of the workflow
+   * @param notEvaluating the plugin ids of the actions that don't evaluate their result
+   * @return the tasks, each after the tasks before it, or an empty list when the workflow can't be
+   *     split into tasks, with the reason in {@code reasons}
+   */
+  public static List<ActionTask> of(
+      Element actions, Element hops, List<String> reasons, Set<String> notEvaluating) {
     Map<String, String> types = new LinkedHashMap<>();
     List<String> starts = new ArrayList<>();
     Set<String> parallel = new HashSet<>();
@@ -184,7 +198,7 @@ public final class ActionTasks {
       if (!types.containsKey(from) || !types.containsKey(to)) {
         continue;
       }
-      if (NOT_EVALUATING.contains(types.get(from)) && kind(hop) != HopKind.ALWAYS) {
+      if (notEvaluating.contains(types.get(from)) && kind(hop) != HopKind.ALWAYS) {
         // Never followed
         continue;
       }

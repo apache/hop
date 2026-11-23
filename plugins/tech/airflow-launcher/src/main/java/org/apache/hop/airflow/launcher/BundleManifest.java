@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -40,6 +42,7 @@ import org.apache.airflow.sdk.Server;
  * @param workflowPatterns glob patterns of the workflows that become DAGs; empty for all
  * @param environmentFiles environment configuration files, relative to the project
  * @param dagIdPrefix the start of every DAG id
+ * @param notEvaluatingActions the plugin ids of the actions that don't evaluate their result
  */
 public record BundleManifest(
     Path folder,
@@ -50,7 +53,32 @@ public record BundleManifest(
     String logLevel,
     List<String> workflowPatterns,
     List<String> environmentFiles,
-    String dagIdPrefix) {
+    String dagIdPrefix,
+    Set<String> notEvaluatingActions) {
+
+  /** A stub without a list of the actions that don't evaluate their result. */
+  public BundleManifest(
+      Path folder,
+      String schemaVersion,
+      String hopVersion,
+      String projectName,
+      String runConfiguration,
+      String logLevel,
+      List<String> workflowPatterns,
+      List<String> environmentFiles,
+      String dagIdPrefix) {
+    this(
+        folder,
+        schemaVersion,
+        hopVersion,
+        projectName,
+        runConfiguration,
+        logLevel,
+        workflowPatterns,
+        environmentFiles,
+        dagIdPrefix,
+        ActionTasks.NOT_EVALUATING);
+  }
 
   /** Points to the stub jar or the project folder, instead of looking on the class path. */
   public static final String PROPERTY_BUNDLE = "hop.airflow.bundle";
@@ -84,11 +112,14 @@ public record BundleManifest(
             + classPath);
   }
 
-  private static boolean hasProjectName(Path jar) throws IOException {
+  /** False for a jar that can't be read, such as a corrupt file: it is not the stub. */
+  private static boolean hasProjectName(Path jar) {
     try (JarFile jarFile = new JarFile(jar.toFile())) {
       Manifest manifest = jarFile.getManifest();
       return manifest != null
           && manifest.getMainAttributes().getValue(HopAirflowBundle.ATTRIBUTE_PROJECT_NAME) != null;
+    } catch (IOException e) {
+      return false;
     }
   }
 
@@ -123,7 +154,20 @@ public record BundleManifest(
         split(value(attributes, HopAirflowBundle.ATTRIBUTE_WORKFLOWS, ""), ","),
         split(value(attributes, HopAirflowBundle.ATTRIBUTE_ENVIRONMENT_FILES, ""), ";"),
         value(
-            attributes, HopAirflowBundle.ATTRIBUTE_DAG_ID_PREFIX, defaultDagIdPrefix(projectName)));
+            attributes, HopAirflowBundle.ATTRIBUTE_DAG_ID_PREFIX, defaultDagIdPrefix(projectName)),
+        notEvaluatingActions(attributes));
+  }
+
+  /** The list in the stub, or Hop's own actions that don't evaluate for a stub without one. */
+  private static Set<String> notEvaluatingActions(Attributes attributes) {
+    String value = attributes.getValue(HopAirflowBundle.ATTRIBUTE_NOT_EVALUATING_ACTIONS);
+    if (value == null) {
+      return ActionTasks.NOT_EVALUATING;
+    }
+    Set<String> types = new LinkedHashSet<>(split(value, ","));
+    // The Start action never evaluates: the stub can't make its hops conditional
+    types.add("SPECIAL");
+    return Set.copyOf(types);
   }
 
   /** The project name, with the characters Airflow does not allow in a DAG id replaced. */

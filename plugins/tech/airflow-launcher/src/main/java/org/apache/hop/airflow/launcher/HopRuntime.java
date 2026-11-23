@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -48,6 +49,20 @@ final class HopRuntime {
           "HOP_PASSWORD_ENCODER_PLUGIN",
           "HOP_AES_ENCODER_KEY",
           "HOP_AES_ENCODER_KEY_FILE");
+
+  /**
+   * Folders, or comma separated lists of folders, that the hop script reads relative to the Hop
+   * installation: it starts Java there. This JVM runs where Airflow starts the task.
+   */
+  private static final List<String> FOLDERS =
+      List.of(
+          "HOP_CONFIG_FOLDER",
+          "HOP_AUDIT_FOLDER",
+          "HOP_SHARED_JDBC_FOLDERS",
+          "HOP_PLUGIN_BASE_FOLDERS");
+
+  /** A URL such as s3://bucket or file:///opt/hop; not a Windows drive such as C:. */
+  private static final Pattern URL = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]+:.*");
 
   private final Path hopHome;
   private final ClassLoader classLoader;
@@ -106,6 +121,12 @@ final class HopRuntime {
         System.setProperty(name, value);
       }
     }
+    for (String name : FOLDERS) {
+      String value = System.getProperty(name);
+      if (value != null) {
+        System.setProperty(name, resolveFolders(hopHome, value));
+      }
+    }
     setDefault("HOP_PLUGIN_BASE_FOLDERS", hopHome.resolve("plugins").toString());
     setDefault("HOP_SHARED_JDBC_FOLDERS", hopHome.resolve("lib/jdbc").toString());
     setDefault("HOP_CONFIG_FOLDER", hopHome.resolve("config").toString());
@@ -117,6 +138,23 @@ final class HopRuntime {
     System.setProperty("java.awt.headless", "true");
     // Airflow decides when a DAG runs: a Start action that repeats runs the workflow once.
     System.setProperty("HOP_IGNORE_START_REPEAT", "Y");
+  }
+
+  /**
+   * Each relative folder of a comma separated list, resolved against the Hop installation as the
+   * hop script does; absolute folders and URLs stay as they are.
+   */
+  static String resolveFolders(Path hopHome, String folders) {
+    List<String> resolved = new ArrayList<>();
+    for (String folder : folders.split(",", -1)) {
+      String trimmed = folder.trim();
+      if (trimmed.isEmpty() || URL.matcher(trimmed).matches() || Path.of(trimmed).isAbsolute()) {
+        resolved.add(trimmed);
+      } else {
+        resolved.add(hopHome.resolve(trimmed).normalize().toString());
+      }
+    }
+    return String.join(",", resolved);
   }
 
   private static void setDefault(String name, String value) {

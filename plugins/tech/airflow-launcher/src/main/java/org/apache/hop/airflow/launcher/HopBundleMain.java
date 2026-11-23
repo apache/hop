@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.IntConsumer;
 import org.apache.airflow.sdk.Bundle;
 import org.apache.airflow.sdk.ConditionRef;
 import org.apache.airflow.sdk.CoordinatorServer;
@@ -50,7 +51,37 @@ public final class HopBundleMain {
 
   private HopBundleMain() {}
 
-  public static void main(String[] args) throws Exception {
+  /** What {@link #main(String[])} serves. */
+  @FunctionalInterface
+  interface Served {
+    void serve() throws Exception;
+  }
+
+  public static void main(String[] args) {
+    exitWhenServed(() -> serve(args), System::exit);
+  }
+
+  /**
+   * The SDK returns once the coordinator has the outcome, but does not end the JVM, and Hop runs in
+   * this JVM without the {@code System.exit} of the hop script. A thread that Hop or a plugin
+   * leaves running (a connection pool, a timer) would keep the task running until Airflow's {@code
+   * task_success_overtime} kills it. Exit as {@code hop run} does: 0, or 1 when serving failed.
+   */
+  static void exitWhenServed(Served served, IntConsumer exit) {
+    int exitCode = 0;
+    try {
+      served.serve();
+    } catch (Throwable e) {
+      // As the JVM reports an exception thrown from main: Airflow shows it
+      e.printStackTrace();
+      exitCode = 1;
+    }
+    System.out.flush();
+    System.err.flush();
+    exit.accept(exitCode);
+  }
+
+  private static void serve(String[] args) throws Exception {
     long start = System.currentTimeMillis();
     BundleManifest manifest = BundleManifest.locate();
     manifest.checkSchemaVersion(BundleManifest.sdkSchemaVersion());
@@ -58,7 +89,10 @@ public final class HopBundleMain {
 
     List<HopWorkflowFile> workflows =
         HopWorkflowFile.scan(
-            manifest.folder(), manifest.workflowPatterns(), manifest.dagIdPrefix());
+            manifest.folder(),
+            manifest.workflowPatterns(),
+            manifest.dagIdPrefix(),
+            manifest.notEvaluatingActions());
     Bundle dags = new Bundle();
     Map<String, HopWorkflowFile> listed = new LinkedHashMap<>();
     for (HopWorkflowFile workflow : workflows) {

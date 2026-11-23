@@ -25,7 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.ktor.network.sockets.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import org.apache.airflow.sdk.CoordinatorServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -85,5 +88,40 @@ class HopBundleMainTest {
     Map<String, Object> outcome = RunWorkflowTask.outcome(folder.resolve("missing.json"), 2);
 
     assertEquals(Map.of("exitCode", 2, "success", false), outcome);
+  }
+
+  /**
+   * The SDK returns once the outcome is sent, but a thread that Hop or a plugin leaves running
+   * would keep the task JVM alive: the launcher exits itself.
+   */
+  @Test
+  void exitsOnceServedEvenWithAThreadLeftRunning() throws Exception {
+    CountDownLatch release = new CountDownLatch(1);
+    Thread leftRunning =
+        new Thread(
+            () -> {
+              try {
+                release.await();
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+              }
+            });
+    List<Integer> exits = new ArrayList<>();
+    try {
+      HopBundleMain.exitWhenServed(leftRunning::start, exits::add);
+
+      assertTrue(leftRunning.isAlive());
+      assertFalse(leftRunning.isDaemon());
+      assertEquals(List.of(0), exits);
+
+      HopBundleMain.exitWhenServed(
+          () -> {
+            throw new IllegalStateException("Two workflows would both become DAG x");
+          },
+          exits::add);
+      assertEquals(List.of(0, 1), exits);
+    } finally {
+      release.countDown();
+    }
   }
 }

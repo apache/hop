@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -233,6 +234,50 @@ class AirflowBundleWriterTest {
     // Only the workflows that become DAGs count
     writer.setWorkflowPatterns(List.of("main.hwf", "etl/**"));
     writer.write();
+  }
+
+  /** A publish that fails must leave the folder Airflow reads as it was. */
+  @Test
+  void checksEverythingBeforeItReplacesTheBundle() throws Exception {
+    Path target = temp.resolve("dags/sales");
+    AirflowBundleWriter writer = writer();
+    writer.setTargetFolder(target.toString());
+    writer.write();
+    Files.writeString(project.resolve("added.hwf"), "<workflow/>");
+
+    writer.setDagIdPrefix("my prefix");
+    assertThrows(HopException.class, writer::write);
+    writer.setDagIdPrefix(null);
+    writer.setWorkerHopHome("opt/hop");
+    assertThrows(HopException.class, writer::write);
+
+    assertFalse(Files.exists(target.resolve("added.hwf")));
+  }
+
+  /** VFS keeps a '%' in a name encoded; the launcher reads the plain name. */
+  @Test
+  void checksTheDagIdsOfTheFileNamesTheLauncherReads() throws Exception {
+    Files.writeString(project.resolve("100%.hwf"), "<workflow/>");
+    Files.writeString(project.resolve("100_.hwf"), "<workflow/>");
+    AirflowBundleWriter writer = writer();
+    writer.setTargetFolder(temp.resolve("bundle").toString());
+
+    HopException e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("100%.hwf"), e.getMessage());
+    assertTrue(e.getMessage().contains("sales__100_:"), e.getMessage());
+  }
+
+  @Test
+  void listsTheActionsThatDoNotEvaluate() throws Exception {
+    AirflowBundleWriter writer = writer();
+    writer.setNotEvaluatingActions(List.of("DUMMY", "ExternalPing"));
+
+    writer.write();
+
+    assertEquals(
+        Set.of("SPECIAL", "DUMMY", "ExternalPing"),
+        BundleManifest.read(project.resolve(HopAirflowBundle.STUB_FILE_NAME))
+            .notEvaluatingActions());
   }
 
   @Test

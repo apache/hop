@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.hop.airflow.bundle.AirflowBundleWriter;
@@ -412,6 +413,105 @@ class AirflowWorkflowEngineTest {
 
     assertTrue(e.getMessage().contains("Stopped"), e.getMessage());
     server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  /**
+   * A Stop while Airflow starts the run found no run to fail: the run is failed once it is known,
+   * instead of going on in Airflow while Hop GUI shows the workflow as stopped.
+   */
+  @Test
+  void failsTheRunWhenStoppedWhileItStarts() throws Exception {
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}")));
+    server.stubFor(
+        post(urlEqualTo(DAG + "/dagRuns"))
+            .willReturn(
+                aResponse()
+                    .withFixedDelay(1500)
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"dag_run_id\":\"r1\",\"state\":\"queued\"}")));
+    server.stubFor(
+        patch(urlEqualTo(RUN))
+            .withRequestBody(equalToJson("{\"state\":\"failed\"}"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"dag_run_id\":\"r1\",\"state\":\"failed\"}")));
+    AirflowWorkflowEngine engine = engine();
+    CountDownLatch triggering = new CountDownLatch(1);
+    server.addMockServiceRequestListener(
+        (request, response) -> {
+          if ("POST".equals(request.getMethod().getName())) {
+            triggering.countDown();
+          }
+        });
+    CompletableFuture<Void> submit =
+        CompletableFuture.runAsync(
+            () -> {
+              try {
+                engine.submitToRemoteServer();
+              } catch (HopException e) {
+                throw new IllegalStateException(e);
+              }
+            });
+    // The listener runs once the response is ready, before its delay: the trigger is in flight
+    assertTrue(triggering.await(10, TimeUnit.SECONDS));
+    engine.stopExecution();
+    submit.get(10, TimeUnit.SECONDS);
+
+    assertEquals("r1", engine.getContainerId());
+    server.verify(1, patchRequestedFor(urlEqualTo(RUN)));
+  }
+
+  /** The launcher reads the plain file name: the DAG id must not hold VFS's '%25'. */
+  @Test
+  void namesTheDagAfterTheDecodedFileName() throws Exception {
+    Files.writeString(project.resolve("flows/100%.hwf"), "<workflow/>");
+    String dag = "/api/v2/dags/demo__flows__100_";
+    server.stubFor(
+        get(urlEqualTo(dag + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__100_\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}")));
+    server.stubFor(
+        post(urlEqualTo(dag + "/dagRuns"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__100_\",\"dag_run_id\":\"r1\",\"state\":\"queued\"}")));
+    AirflowWorkflowEngine engine = engine();
+    // As Hop GUI keeps a file it opened: a URL, with the '%' encoded
+    engine.getWorkflowMeta().setFilename(project.resolve("flows").toUri() + "100%25.hwf");
+
+    engine.submitToRemoteServer();
+
+    assertEquals("r1", engine.getContainerId());
+    server.verify(1, postRequestedFor(urlEqualTo(dag + "/dagRuns")));
+  }
+
+  @Test
+  void usesTheFileNameOfTheWorkflowInTheDagId() throws Exception {
+    assertEquals(
+        "flows/load #1.hwf",
+        AirflowWorkflowEngine.relativeWorkflowPath(
+            project.toString(), project.resolve("flows/load #1.hwf").toString()));
+    assertEquals(
+        "flows/load #1.hwf",
+        AirflowWorkflowEngine.relativeWorkflowPath(
+            project.toString(), project.resolve("flows").toUri() + "load%20%231.hwf"));
+    assertEquals(
+        "flows/100%.hwf",
+        AirflowWorkflowEngine.relativeWorkflowPath(
+            project.toString(), project.resolve("flows").toUri() + "100%25.hwf"));
   }
 
   /** A proxy that answers 503 once must not end the follow-up of a run that goes on. */

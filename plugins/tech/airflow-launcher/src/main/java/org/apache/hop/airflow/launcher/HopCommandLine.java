@@ -133,6 +133,7 @@ public final class HopCommandLine {
             || HopAirflowBundle.CONF_WORKFLOW_VERSION.equals(entry.getKey())) {
           continue;
         }
+        checkConfKey(entry.getKey());
         // hop run removes the quotes again, so a value that starts and ends with one keeps it.
         args.add("--parameters");
         args.add(entry.getKey() + "=\"" + text(entry.getValue()) + "\"");
@@ -143,6 +144,21 @@ public final class HopCommandLine {
     args.add("--result-json");
     args.add(resultFile.toString());
     return args;
+  }
+
+  /**
+   * hop run splits a parameter at the first {@code =} and the parameters at the separator: a key
+   * with either would set another parameter, or another value.
+   */
+  static void checkConfKey(String key) {
+    if (key.contains("=") || key.contains(PARAMETER_SEPARATOR)) {
+      throw new IllegalArgumentException(
+          "DAG run conf key '"
+              + key.replace(PARAMETER_SEPARATOR, "\\u001F")
+              + "' can't become a Hop parameter: it contains "
+              + (key.contains("=") ? "'='" : "the unit separator (U+001F)")
+              + ". Use a key without it.");
+    }
   }
 
   /** Text stays as it is; numbers, booleans, lists and objects become JSON. */

@@ -101,6 +101,7 @@ The schedule of the xref:workflow/actions/start.adoc[Start] action is not used: 
 * *Run conf*: each key of the DAG run's conf becomes a parameter, or a variable when the workflow does not declare it, as with `hop run -p`.
 Key `hop_workflow_version` is the exception: the Apache Airflow run configuration sets it to the version of the workflow it published, and the tasks of a run fail when the bundle holds another version.
 Text is passed as it is, including commas; numbers, lists and objects are passed as JSON.
+A key with `=` fails the task: `hop run` would split it in the wrong place.
 The Java SDK cannot declare DAG params, so the trigger form in Airflow shows no fields: pass the values as JSON.
 * *Result*: every task keeps the outcome of its run in XCom `hop_outcome`, including `success`, `exitCode`, `name`, `executionId`, `startDate`, `endDate`, the counters, and `error` when the run failed.
 Apart from conditions (see below), the return value of the task holds the same outcome.
@@ -137,7 +138,8 @@ A gate whose hop is not followed is skipped.
 When a task before a failure or unconditional hop did not run, because a task before that failed, the workflow stops there in Hop.
 Airflow still runs the next task: that task then fails without running its action, and says why in its log.
 
-Hops that Hop never follows are left out: disabled hops, and success or failure hops that leave a Start or Dummy action.
+Hops that Hop never follows are left out: disabled hops, and success or failure hops that leave an action that does not evaluate its result, such as Start or Dummy.
+`hop airflow-bundle` lists those actions in the stub, from the plugins of the Hop installation that writes it: write the stub with the same plugins as the workers.
 
 Each task runs its action in a new JVM, which takes a few seconds to start Hop.
 What an action passes on to the next ones in Hop is passed on through XCom:
@@ -173,6 +175,7 @@ The DAG processor's log says why.
 The workers that run the Hop tasks need Java 21 and a Hop installation, at `/opt/hop` unless you used `--worker-hop-home`.
 The workers do not need a Hop configuration for the project: the project of the bundle is registered in memory for each run.
 `HOP_CONFIG_FOLDER`, `HOP_SHARED_JDBC_FOLDERS`, `HOP_PLUGIN_BASE_FOLDERS`, `HOP_AUDIT_FOLDER` and the password encoder variables are used when they are set on the worker, as the `hop` script does.
+Relative folders in them are relative to the Hop installation, as with the `hop` script.
 
 === The Java coordinator
 

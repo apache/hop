@@ -64,6 +64,14 @@ public final class HopAirflowBundle {
   /** The start of every DAG id. Default: the project name and two underscores. */
   public static final String ATTRIBUTE_DAG_ID_PREFIX = "Hop-Dag-Id-Prefix";
 
+  /**
+   * Comma separated plugin ids of the actions that don't evaluate their result ({@code
+   * IAction.isEvaluation()} is false): Hop follows only the unconditional hops that leave them. The
+   * Airflow plugin writes the list from the plugin registry of the Hop that writes the stub.
+   * Default, for a stub without it: the actions of Hop itself that don't evaluate their result.
+   */
+  public static final String ATTRIBUTE_NOT_EVALUATING_ACTIONS = "Hop-Not-Evaluating-Actions";
+
   public static final String DEFAULT_RUN_CONFIGURATION = "local";
   public static final String DEFAULT_LOG_LEVEL = "Basic";
 

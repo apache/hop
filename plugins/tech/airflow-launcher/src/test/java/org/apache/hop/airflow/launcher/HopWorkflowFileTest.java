@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -75,6 +76,34 @@ class HopWorkflowFileTest {
 
     assertEquals("p__broken", workflow.dagId());
     assertTrue(workflow.description().startsWith("Hop could not read"), workflow.description());
+  }
+
+  /** The stub lists the actions that don't evaluate, from the plugins of the Hop that wrote it. */
+  @Test
+  void neverFollowsAConditionalHopFromAnActionTheStubListsAsNotEvaluating() throws Exception {
+    Path file = project.resolve("external.hwf");
+    Files.writeString(
+        file,
+        "<workflow><name>w</name><actions>"
+            + "<action><name>Start</name><type>SPECIAL</type></action>"
+            + "<action><name>Ping</name><type>ExternalPing</type></action>"
+            + "<action><name>Next</name><type>WRITE_TO_LOG</type></action>"
+            + "</actions><hops>"
+            + "<hop><from>Start</from><to>Ping</to><enabled>Y</enabled><evaluation>Y</evaluation>"
+            + "<unconditional>Y</unconditional></hop>"
+            + "<hop><from>Ping</from><to>Next</to><enabled>Y</enabled><evaluation>Y</evaluation>"
+            + "<unconditional>N</unconditional></hop>"
+            + "</hops></workflow>");
+
+    HopWorkflowFile listed =
+        HopWorkflowFile.scan(project, List.of(), "p__", Set.of("SPECIAL", "ExternalPing")).get(0);
+    assertEquals(
+        List.of("Ping"), listed.tasks().stream().map(ActionTasks.ActionTask::taskId).toList());
+
+    HopWorkflowFile evaluating = HopWorkflowFile.read(file, "external.hwf", "p__");
+    assertEquals(
+        List.of("Ping", "Next"),
+        evaluating.tasks().stream().map(ActionTasks.ActionTask::taskId).toList());
   }
 
   @Test

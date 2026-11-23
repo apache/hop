@@ -33,6 +33,7 @@ import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -83,6 +84,18 @@ public record HopWorkflowFile(
    */
   public static List<HopWorkflowFile> scan(Path project, List<String> patterns, String dagIdPrefix)
       throws IOException {
+    return scan(project, patterns, dagIdPrefix, ActionTasks.NOT_EVALUATING);
+  }
+
+  /**
+   * The workflows of the project that match one of the patterns, or all of them without patterns.
+   * Hidden folders such as .git are skipped.
+   *
+   * @param notEvaluating the plugin ids of the actions that don't evaluate their result
+   */
+  public static List<HopWorkflowFile> scan(
+      Path project, List<String> patterns, String dagIdPrefix, Set<String> notEvaluating)
+      throws IOException {
     List<PathMatcher> matchers = new ArrayList<>();
     for (String pattern : patterns) {
       matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + pattern));
@@ -111,12 +124,17 @@ public record HopWorkflowFile(
     List<HopWorkflowFile> workflows = new ArrayList<>();
     for (Path file : files.stream().sorted().toList()) {
       String relative = project.relativize(file).toString().replace('\\', '/');
-      workflows.add(read(file, relative, dagIdPrefix));
+      workflows.add(read(file, relative, dagIdPrefix, notEvaluating));
     }
     return workflows;
   }
 
   static HopWorkflowFile read(Path file, String relative, String dagIdPrefix) {
+    return read(file, relative, dagIdPrefix, ActionTasks.NOT_EVALUATING);
+  }
+
+  static HopWorkflowFile read(
+      Path file, String relative, String dagIdPrefix, Set<String> notEvaluating) {
     String description;
     String version = null;
     List<ActionTasks.ActionTask> tasks = List.of();
@@ -131,7 +149,7 @@ public record HopWorkflowFile(
       Element root = document.getDocumentElement();
       description = text(root, "description");
       Element actions = child(root, "actions");
-      tasks = ActionTasks.of(actions, child(root, "hops"), reasons);
+      tasks = ActionTasks.of(actions, child(root, "hops"), reasons, notEvaluating);
     } catch (Exception e) {
       description = "Hop could not read this workflow: " + e.getMessage();
       reasons.add(description);

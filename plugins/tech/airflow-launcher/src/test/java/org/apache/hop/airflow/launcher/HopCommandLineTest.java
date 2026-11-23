@@ -19,6 +19,7 @@ package org.apache.hop.airflow.launcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -175,6 +176,25 @@ class HopCommandLineTest {
             "--parameters-separator",
             HopCommandLine.PARAMETER_SEPARATOR),
         args.subList(first, first + 12));
+  }
+
+  /** hop run splits at the first '=' and at the separator: {"a=b": "x"} would set a to b="x". */
+  @Test
+  void refusesAConfKeyHopWouldSplit() {
+    for (String key : List.of("a=b", "a" + HopCommandLine.PARAMETER_SEPARATOR + "b")) {
+      IllegalArgumentException e =
+          assertThrows(
+              IllegalArgumentException.class,
+              () ->
+                  HopCommandLine.build(
+                      bundle(FOLDER, List.of()),
+                      WORKFLOW,
+                      null,
+                      Map.of(key, "x"),
+                      RESULT,
+                      List.of()));
+      assertTrue(e.getMessage().contains("DAG run conf key"), e.getMessage());
+    }
   }
 
   @Test

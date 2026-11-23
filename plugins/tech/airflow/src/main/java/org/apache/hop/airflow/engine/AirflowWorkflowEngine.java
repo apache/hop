@@ -87,6 +87,9 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   private AirflowActionLog actionLog;
   private String publishedVersion;
 
+  /** Makes a Stop and the start of the DAG run see each other: see {@link #stopExecution()}. */
+  private final Object stopLock = new Object();
+
   /** How far the log of each task has been read. */
   private final Map<String, TaskLog> taskLogs = new LinkedHashMap<>();
 
@@ -142,7 +145,11 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     // Stop can come while the DAG is unpaused: never start a run after it
     checkNotStopped();
     AirflowDagRun run = client.triggerDagRun(dagId, null, null, parameters());
-    containerId = run.dagRunId();
+    boolean stoppedDuringTrigger;
+    synchronized (stopLock) {
+      containerId = run.dagRunId();
+      stoppedDuringTrigger = stopped;
+    }
     running = true;
     active = true;
     statusDescription = run.state();
@@ -153,6 +160,10 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
             dagId,
             containerId,
             client.getBaseUrl() + "/dags/" + dagId + "/runs/" + containerId));
+    if (stoppedDuringTrigger) {
+      // Stop found no run to fail yet: fail it now, and follow it until Airflow ends it
+      failDagRun();
+    }
   }
 
   private void checkNotStopped() throws HopException {
@@ -190,7 +201,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
               PKG, "AirflowWorkflowEngine.Error.OutsideProject", filename, projectHome));
     }
     try {
-      return project.getName().getRelativeName(file.getName());
+      return AirflowDagIds.relativePath(project, file);
     } catch (Exception e) {
       throw new HopException(e);
     }
@@ -234,7 +245,8 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
    */
   static String workflowVersion(String bundleFolder, String relativePath) throws HopException {
     try (InputStream in =
-        HopVfs.getInputStream(HopVfs.getFileObject(bundleFolder).resolveFile(relativePath))) {
+        HopVfs.getInputStream(
+            HopVfs.getFileObject(bundleFolder).resolveFile(AirflowDagIds.encode(relativePath)))) {
       byte[] hash = MessageDigest.getInstance("SHA-256").digest(in.readAllBytes());
       return HexFormat.of().formatHex(hash).substring(0, HopAirflowBundle.VERSION_LENGTH);
     } catch (Exception e) {
@@ -502,18 +514,27 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   /** Fails the DAG run: Airflow then stops the task, and the workflow with it. */
   @Override
   public void stopExecution() {
-    stopped = true;
+    String runId;
+    synchronized (stopLock) {
+      // A trigger in flight sets the run id after this and fails the run itself
+      stopped = true;
+      runId = containerId;
+    }
     try {
-      if (client != null && containerId != null && !finished) {
-        client.setDagRunState(dagId, containerId, AirflowDagRun.STATE_FAILED);
-        logChannel.logBasic(
-            BaseMessages.getString(PKG, "AirflowWorkflowEngine.Log.Stopped", dagId, containerId));
+      if (runId != null && !finished) {
+        failDagRun();
       }
       fireExecutionStoppedListeners();
     } catch (HopException e) {
       logChannel.logError(
-          BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.Stop", dagId, containerId), e);
+          BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.Stop", dagId, runId), e);
     }
+  }
+
+  private void failDagRun() throws HopException {
+    client.setDagRunState(dagId, containerId, AirflowDagRun.STATE_FAILED);
+    logChannel.logBasic(
+        BaseMessages.getString(PKG, "AirflowWorkflowEngine.Log.Stopped", dagId, containerId));
   }
 
   private long pollMillis() {

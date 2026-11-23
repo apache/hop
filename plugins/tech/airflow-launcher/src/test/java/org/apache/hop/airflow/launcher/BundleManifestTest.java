@@ -21,11 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -98,6 +100,45 @@ class BundleManifestTest {
     assertEquals(List.of("main-*.hwf", "etl/**.hwf"), bundle.workflowPatterns());
     assertEquals(List.of("env/prod.json", "env/secrets.json"), bundle.environmentFiles());
     assertEquals("hop_", bundle.dagIdPrefix());
+  }
+
+  @Test
+  void readsTheActionsThatDoNotEvaluate() throws Exception {
+    Path stub =
+        writeStub(
+            folder,
+            HopAirflowBundle.ATTRIBUTE_PROJECT_NAME,
+            "p",
+            HopAirflowBundle.ATTRIBUTE_NOT_EVALUATING_ACTIONS,
+            "DUMMY,ExternalPing");
+    assertEquals(
+        Set.of("SPECIAL", "DUMMY", "ExternalPing"),
+        BundleManifest.read(stub).notEvaluatingActions());
+
+    // A stub without the list: Hop's own
+    Path older = writeStub(folder, HopAirflowBundle.ATTRIBUTE_PROJECT_NAME, "p");
+    assertEquals(ActionTasks.NOT_EVALUATING, BundleManifest.read(older).notEvaluatingActions());
+  }
+
+  /** A jar on the class path that can't be opened is not the stub, and must not hide it. */
+  @Test
+  void skipsAJarItCannotOpenOnTheClassPath() throws Exception {
+    Path broken = folder.resolve("broken.jar");
+    Files.writeString(broken, "not a zip file");
+    Path stubFolder = Files.createDirectories(folder.resolve("bundle"));
+    Path stub = writeStub(stubFolder, HopAirflowBundle.ATTRIBUTE_PROJECT_NAME, "p");
+    String previousBundle = System.getProperty(BundleManifest.PROPERTY_BUNDLE);
+    String previousClassPath = System.getProperty("java.class.path");
+    System.clearProperty(BundleManifest.PROPERTY_BUNDLE);
+    System.setProperty("java.class.path", broken + File.pathSeparator + stub);
+    try {
+      assertEquals("p", BundleManifest.locate().projectName());
+    } finally {
+      System.setProperty("java.class.path", previousClassPath);
+      if (previousBundle != null) {
+        System.setProperty(BundleManifest.PROPERTY_BUNDLE, previousBundle);
+      }
+    }
   }
 
   @Test

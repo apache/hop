@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -48,7 +49,11 @@ import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.airflow.engine.AirflowDagIds;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.workflow.action.IAction;
 
 /**
  * Writes a Hop DAG bundle: the stub jar Airflow needs to list and run the workflows of a project.
@@ -85,6 +90,12 @@ public class AirflowBundleWriter {
   private String schemaVersion;
 
   /**
+   * The plugin ids of the actions that don't evaluate their result; read from the plugin registry
+   * when null.
+   */
+  private List<String> notEvaluatingActions;
+
+  /**
    * What was written.
    *
    * @param bundleFolder the folder Airflow should read
@@ -108,6 +119,8 @@ public class AirflowBundleWriter {
       checkEnvironmentFiles(project);
       checkDagIds(project);
       String schema = schemaVersion != null ? schemaVersion : installedSchemaVersion();
+      // Every check before the copy: a publish that fails leaves the bundle as it was
+      Manifest manifest = manifest(schema);
 
       FileObject bundle = project;
       boolean copied = false;
@@ -122,7 +135,7 @@ public class AirflowBundleWriter {
 
       FileObject stub = bundle.resolveFile(HopAirflowBundle.STUB_FILE_NAME);
       try (OutputStream out = HopVfs.getOutputStream(stub, false);
-          JarOutputStream jar = new JarOutputStream(out, manifest(schema))) {
+          JarOutputStream jar = new JarOutputStream(out, manifest)) {
         jar.flush();
       }
       return new Result(HopVfs.getFilename(bundle), HopVfs.getFilename(stub), copied);
@@ -155,6 +168,12 @@ public class AirflowBundleWriter {
       attributes.putValue(
           HopAirflowBundle.ATTRIBUTE_ENVIRONMENT_FILES, String.join(";", environmentFiles));
     }
+    List<String> notEvaluating =
+        notEvaluatingActions != null ? notEvaluatingActions : registeredNotEvaluatingActions();
+    if (notEvaluating != null) {
+      attributes.putValue(
+          HopAirflowBundle.ATTRIBUTE_NOT_EVALUATING_ACTIONS, String.join(",", notEvaluating));
+    }
     if (StringUtils.isNotBlank(dagIdPrefix)) {
       if (!dagIdPrefix.matches("[A-Za-z0-9_.-]+")) {
         throw new HopException(
@@ -165,6 +184,32 @@ public class AirflowBundleWriter {
       attributes.putValue(HopAirflowBundle.ATTRIBUTE_DAG_ID_PREFIX, dagIdPrefix);
     }
     return manifest;
+  }
+
+  /**
+   * The actions whose {@link IAction#isEvaluation()} is false: Hop follows only the unconditional
+   * hops that leave them, and so must the DAG. The launcher can't ask Hop, so the stub lists them.
+   * An action Hop can't load is left out: it can't run on the workers either.
+   *
+   * @return the plugin ids, or null without action plugins: the launcher then uses its own list
+   */
+  static List<String> registeredNotEvaluatingActions() {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    List<IPlugin> plugins = registry.getPlugins(ActionPluginType.class);
+    if (plugins.isEmpty()) {
+      return null;
+    }
+    TreeSet<String> ids = new TreeSet<>();
+    for (IPlugin plugin : plugins) {
+      try {
+        if (!registry.loadClass(plugin, IAction.class).isEvaluation()) {
+          ids.addAll(Arrays.asList(plugin.getIds()));
+        }
+      } catch (Exception | LinkageError e) {
+        // Not loadable here
+      }
+    }
+    return new ArrayList<>(ids);
   }
 
   /** The launcher in the Hop installation of the workers, as a URL relative to the stub. */
@@ -201,7 +246,7 @@ public class AirflowBundleWriter {
     }
     List<String> relativePaths = new ArrayList<>();
     for (FileObject file : files) {
-      relativePaths.add(project.getName().getRelativeName(file.getName()));
+      relativePaths.add(AirflowDagIds.relativePath(project, file));
     }
     relativePaths.sort(null);
     for (String relative : relativePaths) {
