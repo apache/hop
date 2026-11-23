@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0018-whole-stream-transforms</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Transforms that need all the rows of their input, on the Beam Direct runner: every one of them sees the whole stream and its end once, as on the local engine.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/23 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/23 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>customers (unique-states)</from>
+      <to>unique states</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>unique states</from>
+      <to>unique-states</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers (last-row)</from>
+      <to>last row only</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>last row only</from>
+      <to>last-row</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers (detect-last)</from>
+      <to>flag the last row</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>flag the last row</from>
+      <to>detect-last</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers (sample)</from>
+      <to>rows 1 to 10</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>rows 1 to 10</from>
+      <to>sample</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers (reservoir)</from>
+      <to>10 random rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>10 random rows</from>
+      <to>reservoir</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers (empty-stream)</from>
+      <to>no rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>detect an empty stream</from>
+      <to>mark the row</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no rows</from>
+      <to>detect an empty stream</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>mark the row</from>
+      <to>empty-stream</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>customers (unique-states)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>unique states</name>
+    <type>UniqueRowsByHashSet</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <store_values>Y</store_values>
+    <reject_duplicate_row>N</reject_duplicate_row>
+    <fields>
+      <field>
+        <name>stateCode</name>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>unique-states</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>unique-states</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers (last-row)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>last row only</name>
+    <type>BlockingTransform</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cache_size>5000</cache_size>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <pass_all_rows>N</pass_all_rows>
+    <prefix>block</prefix>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>last-row</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>last-row</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers (detect-last)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>flag the last row</name>
+    <type>DetectLastRow</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <resultfieldname>isLast</resultfieldname>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>detect-last</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>detect-last</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>304</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers (sample)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>rows 1 to 10</name>
+    <type>SampleRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <linesrange>1..10</linesrange>
+    <linenumfield/>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sample</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>sample</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>416</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers (reservoir)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>10 random rows</name>
+    <type>ReservoirSampling</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <reservoir_sampling>
+      <sample_size>10</sample_size>
+      <seed>1</seed>
+    </reservoir_sampling>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>reservoir</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>reservoir</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>customers (empty-stream)</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+        </conditions>
+        <function>&lt;</function>
+        <leftvalue>id</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>0</precision>
+          <type>Integer</type>
+          <text>0</text>
+          <mask>#</mask>
+        </value>
+      </condition>
+    </compare>
+    <send_true_to/>
+    <send_false_to/>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>detect an empty stream</name>
+    <type>DetectEmptyStream</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>mark the row</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <set_empty_string>N</set_empty_string>
+        <length>-1</length>
+        <name>marker</name>
+        <precision>-1</precision>
+        <type>String</type>
+        <nullif>empty</nullif>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>552</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>empty-stream</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>empty-stream</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0018/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>640</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -1769,8 +1769,6 @@ public abstract class BeamPipelineEngine extends Variables
    *   <li>Plugin id on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_PLUGIN_IDS}
    *       list → UNSUPPORTED with the canonical user-facing reason. This path does not load the
    *       transform class.
-   *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
-   *       list → UNSUPPORTED with the canonical user-facing reason.
    *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
    *       SUPPORTED.
    *   <li>Meta class implements {@link IBeamPipelineTransformHandler} → SUPPORTED (the
@@ -1811,11 +1809,6 @@ public abstract class BeamPipelineEngine extends Variables
       }
     }
     if (mainType != null) {
-      String banReason =
-          HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);
-      if (banReason != null) {
-        return EngineCompatibility.unsupported(banReason);
-      }
       if (IBeamPipelineTransformHandler.class.isAssignableFrom(mainType)) {
         return EngineCompatibility.supported();
       }

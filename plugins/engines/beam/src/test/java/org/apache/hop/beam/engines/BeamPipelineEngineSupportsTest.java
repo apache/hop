@@ -18,6 +18,7 @@
 package org.apache.hop.beam.engines;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.lenient;
@@ -30,12 +31,9 @@ import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.plugins.EngineCompatibility;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
-import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
-import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
-import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
-import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Verifies that {@code BeamPipelineEngine.supports} returns the same verdict the converter would
@@ -47,29 +45,60 @@ class BeamPipelineEngineSupportsTest {
   private final BeamDirectPipelineEngine engine = new BeamDirectPipelineEngine();
 
   @Test
-  void groupByMetaIsHardBanned() {
-    EngineCompatibility verdict = engine.supports(pluginWithMainType(GroupByMeta.class));
-    assertTrue(verdict.isUnsupported(), "GroupByMeta should be UNSUPPORTED");
+  void uniqueRowsIsHardBanned() {
+    EngineCompatibility verdict = engine.supports(pluginWithIdAndMainType("Unique", Object.class));
+    assertTrue(verdict.isUnsupported(), "Unique rows should be UNSUPPORTED");
     assertNotNull(verdict.getReason(), "reason should be set");
     assertEquals(
-        HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(GroupByMeta.class),
+        HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get("Unique"),
         verdict.getReason(),
         "reason should match the canonical ban message");
   }
 
-  @Test
-  void uniqueRowsMetaIsHardBanned() {
-    assertTrue(engine.supports(pluginWithMainType(UniqueRowsMeta.class)).isUnsupported());
+  /**
+   * The bans go by plugin id: in an installed Hop the meta class of a transform comes from its own
+   * plugin class loader, so a ban by class never matched and these transforms ran with wrong
+   * results.
+   */
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "Unique",
+        "SortRows",
+        "JoinRows",
+        "AnalyticQuery",
+        "FieldsChangeSequence",
+        "RepeatFields",
+        "Flattener",
+        "SortedMerge",
+        "MergeRows",
+        "MultiwayMergeJoin"
+      })
+  void transformsThatNeedOrderedRowsAreHardBanned(String pluginId) {
+    EngineCompatibility verdict = engine.supports(pluginWithIdAndMainType(pluginId, Object.class));
+    assertTrue(verdict.isUnsupported(), pluginId + " should be UNSUPPORTED");
+    assertTrue(verdict.getReason().contains("not supported on Beam"), verdict.getReason());
   }
 
-  @Test
-  void sortRowsMetaIsHardBanned() {
-    assertTrue(engine.supports(pluginWithMainType(SortRowsMeta.class)).isUnsupported());
-  }
-
-  @Test
-  void uniqueRowsByHashSetMetaIsHardBanned() {
-    assertTrue(engine.supports(pluginWithMainType(UniqueRowsByHashSetMeta.class)).isUnsupported());
+  /**
+   * Transforms that need all their rows at once run on Beam, with the whole stream. So does Group
+   * by without group fields: with group fields the converter refuses it, which depends on the
+   * transform's settings, not on its plugin.
+   */
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "GroupBy",
+        "UniqueRowsByHashSet",
+        "BlockingTransform",
+        "DetectEmptyStream",
+        "DetectLastRow",
+        "ReservoirSampling",
+        "SampleRows"
+      })
+  void wholeStreamTransformsAreNotBanned(String pluginId) {
+    EngineCompatibility verdict = engine.supports(pluginWithIdAndMainType(pluginId, Object.class));
+    assertFalse(verdict.isUnsupported(), pluginId + " should run on Beam");
   }
 
   @Test
@@ -83,15 +112,6 @@ class BeamPipelineEngineSupportsTest {
     assertEquals(
         HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_PLUGIN_IDS.get(
             BeamConst.STRING_MASK_FIELDS_PLUGIN_ID),
-        verdict.getReason());
-  }
-
-  @Test
-  void joinRowsMetaIsHardBanned() {
-    EngineCompatibility verdict = engine.supports(pluginWithMainType(JoinRowsMeta.class));
-    assertTrue(verdict.isUnsupported(), "JoinRowsMeta should be UNSUPPORTED");
-    assertEquals(
-        HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(JoinRowsMeta.class),
         verdict.getReason());
   }
 
