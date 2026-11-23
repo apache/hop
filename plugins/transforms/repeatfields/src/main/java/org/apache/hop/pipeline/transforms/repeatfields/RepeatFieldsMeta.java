@@ -42,7 +42,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::RepeatFields.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::RepeatFields.keyword",
-    documentationUrl = "/pipeline/transforms/repeatfields.html")
+    documentationUrl = "/pipeline/transforms/repeatfields.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 @Getter
 @Setter
 public class RepeatFieldsMeta extends BaseTransformMeta<RepeatFields, RepeatFieldsData> {

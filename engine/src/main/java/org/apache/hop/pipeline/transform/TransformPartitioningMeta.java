@@ -46,12 +46,10 @@ public class TransformPartitioningMeta implements Cloneable {
   public static final int PARTITIONING_METHOD_MIRROR = 1;
   public static final int PARTITIONING_METHOD_SPECIAL = 2;
 
-  public static final String[] methodCodes =
-      new String[] {
-        "none", "Mirror",
-      };
-  public static final String[] methodDescriptions =
-      new String[] {"None", "Mirror to all partitions"};
+  public static final String[] methodCodes = {
+    "none", "Mirror",
+  };
+  public static final String[] methodDescriptions = {"None", "Mirror to all partitions"};
 
   private int methodType;
 

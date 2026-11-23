@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.chunker.document.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +119,14 @@ public final class HopMetadataJsonParser implements DocumentParser {
                           0)));
       return;
     }
-    children.add(DocumentNode.leaf(humanizeKey(key), prettyJson(value), 0));
+    JsonNode body = value;
+    // A top-level value has no parent object for redactSecrets to check its name against.
+    if (value.isValueNode()
+        && !value.isBoolean()
+        && SecretRedaction.REDACTED.equals(SecretRedaction.redact(key, value.asText()))) {
+      body = TextNode.valueOf(SecretRedaction.REDACTED);
+    }
+    children.add(DocumentNode.leaf(humanizeKey(key), prettyJson(body), 0));
   }
 
   private static boolean allValuesAreObjects(JsonNode object) {
@@ -190,13 +198,24 @@ public final class HopMetadataJsonParser implements DocumentParser {
       while (names.hasNext()) {
         fields.add(names.next());
       }
+      boolean secretEntry = isSecretEntry(object, fields);
       for (String field : fields) {
         JsonNode value = object.get(field);
-        if (value != null && value.isValueNode()) {
-          String redacted = SecretRedaction.redact(field, value.asText());
+        // null and true/false say whether something is set, not what it is.
+        if (value == null || value.isNull() || value.isBoolean()) {
+          continue;
+        }
+        boolean entryValue = secretEntry && SecretRedaction.isEntryValueKey(field);
+        if (value.isValueNode()) {
+          String text = value.asText();
+          String redacted =
+              entryValue ? SecretRedaction.redactValue(text) : SecretRedaction.redact(field, text);
           if (SecretRedaction.REDACTED.equals(redacted)) {
             object.put(field, SecretRedaction.REDACTED);
           }
+        } else if (entryValue && !value.isEmpty()) {
+          // A list or object under a secret entry has no names of its own to check.
+          object.put(field, SecretRedaction.REDACTED);
         } else {
           redactSecrets(value);
         }
@@ -205,6 +224,26 @@ public final class HopMetadataJsonParser implements DocumentParser {
       node.forEach(HopMetadataJsonParser::redactSecrets);
     }
     return node;
+  }
+
+  /**
+   * True for a name/value entry whose name reads like a credential, such as {@code {"name":
+   * "API_TOKEN", "value": "..."}} in a project, environment or run configuration, {@code {"name":
+   * "Authorization", "value": "..."}} in a REST connection's headers, or {@code {"key":
+   * "DB_PASSWORD", "value": "..."}} in a pipeline unit test. The value sits under {@code value}, so
+   * checking field names alone would keep it.
+   */
+  private static boolean isSecretEntry(ObjectNode object, List<String> fields) {
+    for (String field : fields) {
+      JsonNode value = object.get(field);
+      if (("name".equals(field) || "key".equals(field))
+          && value != null
+          && value.isTextual()
+          && SecretRedaction.isSecretEntryName(value.asText())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static JsonNode parseRoot(String text) {

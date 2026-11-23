@@ -1,0 +1,5 @@
+fn,uid,vcard_filename
+Ann Alpha,field-a-1,a.vcf
+Cid Alpha,field-a-2,a.vcf
+Bob Beta,field-b-1,b.vcf
+Dee Beta,field-b-2,b.vcf

@@ -1,0 +1,10 @@
+case,doc,result
+ISO-8859-1 encoding,<root/>,"<?xml version=""1.0"" encoding=""ISO-8859-1""?><root><item>é &#8364;</item></root>"
+UTF-8 encoding,<root/>,"<?xml version=""1.0"" encoding=""UTF-8""?><root><item>é €</item></root>"
+blank encoding,<root/>,"<?xml version=""1.0"" encoding=""UTF-8""?><root><item>é €</item></root>"
+complex join,"<orders><order id=""1""><lines/></order><order id=""2""><lines/></order></orders>","<orders><order id=""1""><lines><line sku=""A""/></lines></order><order id=""2""><lines><line sku=""B""/><line sku=""C""/></lines></order></orders>"
+"complex join, XPath per row",<a><b/><c/></a>,<a><b><y/></b><c><x/></c></a>
+keep null values,"<root><keep a=""1""/><drop/><parent><child/></parent><text>t</text></root>","<root><keep a=""1""/><drop/><parent><child/></parent><text>t</text><item><name>x</name><empty/></item><item/></root>"
+no source rows,<root><a>text</a></root>,<root><a>text</a></root>
+omit null values,"<root><keep a=""1""/><drop/><parent><child/></parent><text>t</text></root>","<root><keep a=""1""/><text>t</text><item><name>x</name></item></root>"
+simple join,<orders><list/></orders>,"<orders><list><order id=""1""/><order id=""2""/><order id=""3""/></list></orders>"

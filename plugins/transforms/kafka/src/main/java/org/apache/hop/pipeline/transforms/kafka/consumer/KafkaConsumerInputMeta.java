@@ -60,12 +60,16 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::KafkaConsumerInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaconsumer.html",
-    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
+    actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE},
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 @Getter
 @Setter
 public class KafkaConsumerInputMeta
     extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
     implements Cloneable {
+  private static final String CONST_KAFKA_CONSUMER_INPUT_META_CHECK_RESULT_NA_N =
+      "KafkaConsumerInputMeta.CheckResult.NaN";
 
   private static final Class<?> PKG = KafkaConsumerInputMeta.class;
 
@@ -390,7 +394,8 @@ public class KafkaConsumerInputMeta
       remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Duration"),
+              BaseMessages.getString(
+                  PKG, CONST_KAFKA_CONSUMER_INPUT_META_CHECK_RESULT_NA_N, "Duration"),
               transformMeta));
     }
 
@@ -404,7 +409,7 @@ public class KafkaConsumerInputMeta
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
-                  PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Number of records"),
+                  PKG, CONST_KAFKA_CONSUMER_INPUT_META_CHECK_RESULT_NA_N, "Number of records"),
               transformMeta));
     }
 
@@ -424,7 +429,7 @@ public class KafkaConsumerInputMeta
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max idle time"),
+                    PKG, CONST_KAFKA_CONSUMER_INPUT_META_CHECK_RESULT_NA_N, "Max idle time"),
                 transformMeta));
       }
     }
@@ -446,7 +451,7 @@ public class KafkaConsumerInputMeta
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "KafkaConsumerInputMeta.CheckResult.NaN", "Max consume duration"),
+                    PKG, CONST_KAFKA_CONSUMER_INPUT_META_CHECK_RESULT_NA_N, "Max consume duration"),
                 transformMeta));
       }
     }

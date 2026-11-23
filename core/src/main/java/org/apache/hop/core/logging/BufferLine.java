@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BufferLine {
   private static AtomicInteger sequence = new AtomicInteger(0);
 
-  private int nr;
-  private HopLoggingEvent event;
+  private final int nr;
+  private final HopLoggingEvent event;
 
   public BufferLine(HopLoggingEvent event) {
     this.event = event;

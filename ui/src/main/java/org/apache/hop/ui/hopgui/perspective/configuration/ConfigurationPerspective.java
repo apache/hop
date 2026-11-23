@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.search.SearchMatcher;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
@@ -60,6 +61,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -79,6 +81,7 @@ import org.eclipse.swt.widgets.TreeItem;
     name = "i18n::ConfigurationPerspective.Name",
     description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective {
+  private static final String CONST_NOTIFICATIONS = "Notifications";
 
   private static final Class<?> PKG = ConfigurationPerspective.class;
   public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
@@ -101,16 +104,20 @@ public class ConfigurationPerspective implements IHopPerspective {
   private Tree categoryTree;
 
   /** Category name -> the panel control (reparented from CTabItem). */
-  private Map<String, Control> categoryTabs = new HashMap<>();
+  private final Map<String, Control> categoryTabs = new HashMap<>();
 
   private String currentCategoryName;
   private boolean tabsBuilt;
-  private List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
-  private List<Control> highlightedControls = new ArrayList<>();
+  private final List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
+  private final List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
   private SearchMatcher searchMatcher = new SearchMatcher("", false, false, true);
   private Color highlightColor; // Custom neutral highlight color
   private Text searchBox;
+
+  /** Debounced search action so we don't search all the settings on every keystroke. */
+  private final Runnable filterRunnable = this::applySearchFilter;
+
   private static ConfigurationPerspective instance;
 
   public ConfigurationPerspective() {
@@ -216,8 +223,10 @@ public class ConfigurationPerspective implements IHopPerspective {
         new Text(treeComposite, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
     PropsUi.setLook(searchBox);
     searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
+    searchBox.setToolTipText(
+        BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Tooltip"));
     searchBox.setLayoutData(new FormDataBuilder().top().fullWidth().result());
-    searchBox.addListener(SWT.Modify, e -> filterSettings(searchBox.getText()));
+    searchBox.addListener(SWT.Modify, e -> scheduleSearchFilter());
 
     categoryTree = new Tree(treeComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
     categoryTree.setLayoutData(
@@ -479,6 +488,23 @@ public class ConfigurationPerspective implements IHopPerspective {
         applyHighlightingToCurrentTab();
       }
     }
+  }
+
+  /** Search the settings once typing pauses. */
+  private void scheduleSearchFilter() {
+    if (searchBox == null || searchBox.isDisposed()) {
+      return;
+    }
+    Display display = searchBox.getDisplay();
+    display.timerExec(-1, filterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, filterRunnable);
+  }
+
+  private void applySearchFilter() {
+    if (searchBox == null || searchBox.isDisposed()) {
+      return;
+    }
+    filterSettings(searchBox.getText());
   }
 
   private void filterSettings(String searchText) {
@@ -935,10 +961,10 @@ public class ConfigurationPerspective implements IHopPerspective {
       return;
     }
     buildSettingTabs();
-    Control notificationsPanel = categoryTabs.get("Notifications");
+    Control notificationsPanel = categoryTabs.get(CONST_NOTIFICATIONS);
     if (notificationsPanel != null && !notificationsPanel.isDisposed()) {
-      showCategory("Notifications", true);
-      syncTreeSelectionToTab("Notifications");
+      showCategory(CONST_NOTIFICATIONS, true);
+      syncTreeSelectionToTab(CONST_NOTIFICATIONS);
     }
   }
 

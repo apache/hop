@@ -24,6 +24,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageActionStartListener;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -46,8 +47,13 @@ public class LineageHubWorkflowFinishXp implements IExtensionPoint<IWorkflowEngi
             ? RunLifecyclePhase.FAILED
             : RunLifecyclePhase.FINISHED;
     LineageRunLifecycleEmitter.emitWorkflow(workflow, phase, null);
+    // After its last event: the sinks it reported to can be let go of once that is delivered.
+    LineageSinkRoutes.release(workflow);
     // A top-level run waits for delivery. A nested run only waits once the queue fills up: that
     // keeps a run per row from dropping events, without a full drain after every row.
+    if (!LineageSinkRoutes.isEnabled(workflow)) {
+      return;
+    }
     if (LineageRunLifecycleEmitter.isTopLevel(workflow)) {
       LineageHub.getInstance().flushQuietly();
     } else {

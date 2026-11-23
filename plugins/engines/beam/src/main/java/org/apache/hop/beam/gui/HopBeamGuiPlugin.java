@@ -22,11 +22,13 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.engines.dataflow.BeamDataFlowPipelineEngine;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
@@ -57,6 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
 public class HopBeamGuiPlugin {
+  private static final String CONST_SPARK = "spark-";
 
   public static final Class<?> PKG = HopBeamGuiPlugin.class; // i18n
 
@@ -254,10 +257,7 @@ public class HopBeamGuiPlugin {
       jarFiles.addAll(FileUtils.listFiles(libSwtFiles, new String[] {"jar"}, true));
     }
 
-    File pluginsDir = new File("plugins");
-    if (pluginsDir.isDirectory()) {
-      jarFiles.addAll(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, true));
-    }
+    jarFiles.addAll(findPluginJars(new File("plugins")));
 
     // If we are in the hop-web Docker container, we need to import the Hop main JARs too for
     // Dataflow (and for other runners probably too)
@@ -297,7 +297,7 @@ public class HopBeamGuiPlugin {
               String n = f.getName();
               // Spark distribution jars are named spark-*.jar; Beam's runner is
               // beam-runners-spark-*
-              if (!n.startsWith("spark-") || !n.endsWith(".jar")) {
+              if (!n.startsWith(CONST_SPARK) || !n.endsWith(".jar")) {
                 return false;
               }
               try {
@@ -336,6 +336,21 @@ public class HopBeamGuiPlugin {
   }
 
   /**
+   * The jars under the plugins folder. Folders whose name starts with a dot are skipped: the
+   * marketplace keeps staged downloads and backed-up jars there ({@code plugins/.staging}, {@code
+   * plugins/.marketplace}), and those must not end up in a fat jar next to the live ones.
+   */
+  static Collection<File> findPluginJars(File pluginsDir) {
+    if (pluginsDir == null || !pluginsDir.isDirectory()) {
+      return List.of();
+    }
+    return FileUtils.listFiles(
+        pluginsDir,
+        FileFilterUtils.suffixFileFilter(".jar"),
+        FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
+  }
+
+  /**
    * Whether a jar must be left out of a native Spark 4 fat jar (Beam Spark 3 / Scala 2.12 client
    * noise). Public for unit tests.
    */
@@ -359,7 +374,7 @@ public class HopBeamGuiPlugin {
     }
 
     // Spark 3 / Scala 2.12 artifacts (basename patterns)
-    if (name.startsWith("spark-") && name.contains("_2.12-")) {
+    if (name.startsWith(CONST_SPARK) && name.contains("_2.12-")) {
       return true;
     }
     if (name.startsWith("scala-library-2.12")) {
@@ -387,7 +402,7 @@ public class HopBeamGuiPlugin {
     }
 
     // All Spark distribution modules
-    if (name.startsWith("spark-")) {
+    if (name.startsWith(CONST_SPARK)) {
       return true;
     }
 
@@ -488,7 +503,7 @@ public class HopBeamGuiPlugin {
         // Versioned packs own all spark-* jars; drop Beam's spark fragments from the plugin /
         // lib/beam
         if (versionedPack
-            && child.getName().startsWith("spark-")
+            && child.getName().startsWith(CONST_SPARK)
             && parent != null
             && isBeamSdkJarFolder(parent)) {
           continue;

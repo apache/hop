@@ -29,8 +29,8 @@ import org.apache.hop.workflow.action.ActionMeta;
 
 public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
 
-  private String location;
-  private WorkflowMeta workflowMeta;
+  private final String location;
+  private final WorkflowMeta workflowMeta;
 
   public HopGuiWorkflowSearchable(String location, WorkflowMeta workflowMeta) {
     this.location = location;

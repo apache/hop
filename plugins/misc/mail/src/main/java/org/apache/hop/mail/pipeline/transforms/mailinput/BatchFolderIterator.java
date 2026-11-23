@@ -26,15 +26,15 @@ public class BatchFolderIterator implements Iterator<Message> {
 
   private static final int SIZE_ERR = -1;
 
-  private int start;
-  private int end;
+  private final int start;
+  private final int end;
 
-  private int batchSize;
+  private final int batchSize;
 
   private int batchFirst;
   private int batchLast;
 
-  private Folder folder;
+  private final Folder folder;
 
   private Message[] messages;
   private int buffIndex;

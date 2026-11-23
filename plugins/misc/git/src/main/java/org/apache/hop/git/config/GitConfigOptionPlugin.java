@@ -32,7 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Button;
@@ -49,7 +49,7 @@ import picocli.CommandLine;
     )
 @Getter
 @Setter
-public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
   protected static final Class<?> PKG = GitConfigOptionPlugin.class;
 
   private static final String WIDGET_ID_GIT_ENABLE = "10000-git-enable-plugin";
@@ -172,8 +172,7 @@ public class GitConfigOptionPlugin implements IConfigOptions, IGuiPluginComposit
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

@@ -28,7 +28,7 @@ public class LongValidator implements IActionValidator {
 
   public static final LongValidator INSTANCE = new LongValidator();
 
-  private String VALIDATOR_NAME = "long";
+  private final String VALIDATOR_NAME = "long";
 
   @Override
   public String getName() {

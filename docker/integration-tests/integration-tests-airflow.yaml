@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_airflow:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      airflow:
+        condition: service_healthy
+    links:
+      - airflow
+  # Airflow 3 standalone: API server, scheduler, DAG processor and triggerer in one container,
+  # with SQLite and the LocalExecutor. The simple auth manager rewrites its passwords file at start-up,
+  # so the file is written inside the container instead of being mounted read-only.
+  airflow:
+    image: apache/airflow:3.4.0
+    command:
+      - bash
+      - -c
+      - |
+        echo '{"admin": "admin"}' > /opt/airflow/passwords.json && exec airflow standalone
+    ports:
+      - "8080"
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+      - AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS=admin:admin
+      - AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE=/opt/airflow/passwords.json
+    volumes:
+      - ./resource/airflow/dags:/opt/airflow/dags:ro
+    healthcheck:
+      # Healthy once the API answers and the test DAGs are parsed.
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8080/api/v2/monitor/health && airflow dags list | grep -q hop_it_slow" ]
+      interval: 10s
+      timeout: 60s
+      retries: 30
+      start_period: 30s

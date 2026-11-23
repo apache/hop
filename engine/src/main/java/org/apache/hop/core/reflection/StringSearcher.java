@@ -31,10 +31,9 @@ import org.apache.hop.core.plugins.TransformPluginType;
 public class StringSearcher {
   private static final String LOCAL_PACKAGE = "org.apache.hop";
 
-  private static final String[] JAVA_PACKAGES =
-      new String[] {
-        "java.util",
-      };
+  private static final String[] JAVA_PACKAGES = {
+    "java.util",
+  };
 
   private static List<String> transformPluginPackages;
   private static List<String> jobEntryPluginPackages;

@@ -30,6 +30,7 @@ public class FileYamlRulePack implements IHopLintRulePack {
   private final RulePackOwner owner;
   private final int priority;
   private final List<String> overrides;
+  private final String version;
 
   public FileYamlRulePack(
       File file, String packId, String displayName, RulePackOwner owner, int priority) {
@@ -43,6 +44,18 @@ public class FileYamlRulePack implements IHopLintRulePack {
       RulePackOwner owner,
       int priority,
       List<String> overrides) {
+    this(file, packId, displayName, owner, priority, overrides, null);
+  }
+
+  public FileYamlRulePack(
+      File file,
+      String packId,
+      String displayName,
+      RulePackOwner owner,
+      int priority,
+      List<String> overrides,
+      String version) {
+    this.version = version;
     this.file = file;
     this.packId = packId;
     this.displayName = displayName;
@@ -54,6 +67,11 @@ public class FileYamlRulePack implements IHopLintRulePack {
   @Override
   public List<String> getOverrides() {
     return overrides;
+  }
+
+  @Override
+  public String getVersion() {
+    return version;
   }
 
   @Override

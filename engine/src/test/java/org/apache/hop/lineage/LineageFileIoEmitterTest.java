@@ -407,6 +407,7 @@ class LineageFileIoEmitterTest {
     }
 
     verify(hub, never()).emit(Mockito.any());
-    Mockito.verifyNoInteractions(tr, source);
+    // Only asked for its run, to see whether that has a lineage sink of its own.
+    Mockito.verifyNoInteractions(source);
   }
 }

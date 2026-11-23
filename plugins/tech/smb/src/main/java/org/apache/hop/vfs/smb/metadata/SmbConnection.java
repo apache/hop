@@ -35,7 +35,7 @@ import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.vfs.smb.SmbAuthType;
@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.MessageBox;
     supportsGlobalReplace = true,
     classLoaderGroup = "vfs-smb")
 public class SmbConnection extends HopMetadataBase
-    implements Serializable, IHopMetadata, IVfsBrowseLocation, IGuiPluginCompositeWidgetsListener {
+    implements Serializable, IHopMetadata, IVfsBrowseLocation, IGuiPluginModelWidgetsListener {
 
   private static final long serialVersionUID = 1L;
 
@@ -317,8 +317,7 @@ public class SmbConnection extends HopMetadataBase
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     hideCredentialsWhenGuest(compositeWidgets);
   }
 

@@ -77,32 +77,30 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
   public static final String HTTP_METHOD_PATCH = "PATCH";
 
-  public static final String[] APPLICATION_TYPES =
-      new String[] {
-        APPLICATION_TYPE_TEXT_PLAIN,
-        APPLICATION_TYPE_XML,
-        APPLICATION_TYPE_JSON,
-        APPLICATION_TYPE_OCTET_STREAM,
-        APPLICATION_TYPE_XHTML,
-        APPLICATION_TYPE_FORM_URLENCODED,
-        APPLICATION_TYPE_ATOM_XML,
-        APPLICATION_TYPE_SVG_XML,
-        APPLICATION_TYPE_TEXT_XML
-      };
+  public static final String[] APPLICATION_TYPES = {
+    APPLICATION_TYPE_TEXT_PLAIN,
+    APPLICATION_TYPE_XML,
+    APPLICATION_TYPE_JSON,
+    APPLICATION_TYPE_OCTET_STREAM,
+    APPLICATION_TYPE_XHTML,
+    APPLICATION_TYPE_FORM_URLENCODED,
+    APPLICATION_TYPE_ATOM_XML,
+    APPLICATION_TYPE_SVG_XML,
+    APPLICATION_TYPE_TEXT_XML
+  };
 
   @HopMetadataProperty(key = "applicationType", injectionKey = "APPLICATION_TYPE")
   private String applicationType;
 
-  public static final String[] HTTP_METHODS =
-      new String[] {
-        HTTP_METHOD_GET,
-        HTTP_METHOD_POST,
-        HTTP_METHOD_PUT,
-        HTTP_METHOD_DELETE,
-        HTTP_METHOD_HEAD,
-        HTTP_METHOD_OPTIONS,
-        HTTP_METHOD_PATCH
-      };
+  public static final String[] HTTP_METHODS = {
+    HTTP_METHOD_GET,
+    HTTP_METHOD_POST,
+    HTTP_METHOD_PUT,
+    HTTP_METHOD_DELETE,
+    HTTP_METHOD_HEAD,
+    HTTP_METHOD_OPTIONS,
+    HTTP_METHOD_PATCH
+  };
 
   /**
    * Well-known methods that never carry a request body. Any other method — including a custom verb

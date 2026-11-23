@@ -25,6 +25,8 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class CreditCardVerifier {
   private static final Class<?> PKG = CreditCardValidatorMeta.class;
+  private static final String CONST_CREDIT_CARD_VALIDATOR_LOG_CARD_NOT_VALID =
+      "CreditCardValidator.Log.CardNotValid";
 
   public static final int INVALID = -1;
   public static final int VISA = 0;
@@ -113,7 +115,7 @@ public class CreditCardVerifier {
       if (luhnValidate(cardNumber)) {
         ri.CardValid = true;
       } else {
-        ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+        ri.UnValidMsg = BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_LOG_CARD_NOT_VALID);
       }
     }
 
@@ -140,19 +142,19 @@ public class CreditCardVerifier {
       if (luhnValidate(digits)) {
         ri.CardValid = true;
       } else {
-        ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+        ri.UnValidMsg = BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_LOG_CARD_NOT_VALID);
       }
       return ri;
     }
 
     BinDatabase.BinRecord record = binDatabase.lookup(digits);
     if (record == null) {
-      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+      ri.UnValidMsg = BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_LOG_CARD_NOT_VALID);
       return ri;
     }
 
     if (!CardScheme.isValidLength(digits, digits.length())) {
-      ri.UnValidMsg = BaseMessages.getString(PKG, "CreditCardValidator.Log.CardNotValid");
+      ri.UnValidMsg = BaseMessages.getString(PKG, CONST_CREDIT_CARD_VALIDATOR_LOG_CARD_NOT_VALID);
       return ri;
     }
 

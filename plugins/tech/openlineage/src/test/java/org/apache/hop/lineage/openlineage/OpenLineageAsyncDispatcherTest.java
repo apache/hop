@@ -440,6 +440,42 @@ class OpenLineageAsyncDispatcherTest {
     dispatcher.close();
   }
 
+  // What the status pages show: the counts, and the last error in the emitter's words.
+  @Test
+  void theLastErrorAndTheLastDeliveryAreKept() throws Exception {
+    AtomicInteger attempts = new AtomicInteger();
+    OpenLineageEmitter failsOnce =
+        new OpenLineageEmitter() {
+          @Override
+          public Result emit(RunEvent event) {
+            return attempts.incrementAndGet() > 1 ? Result.SENT : Result.RETRY;
+          }
+
+          @Override
+          public String lastError() {
+            return "HTTP 401 from http://collector";
+          }
+
+          @Override
+          public void close() {}
+        };
+    OpenLineageAsyncDispatcher dispatcher =
+        new OpenLineageAsyncDispatcher(
+            10, OverflowPolicy.DROP, failsOnce, new LogChannel("health"), 0, 50, spool(), 100);
+    assertEquals(0, dispatcher.getLastErrorMillis());
+
+    dispatcher.enqueueAll(List.of(event()));
+
+    awaitTrue(
+        "the event should be sent on the second attempt", () -> dispatcher.getSentCount() == 1);
+    assertEquals("HTTP 401 from http://collector", dispatcher.getLastError());
+    assertTrue(dispatcher.getLastErrorMillis() > 0);
+    assertTrue(dispatcher.getLastSentMillis() >= dispatcher.getLastErrorMillis());
+    assertEquals(1, dispatcher.getFailedCount());
+    assertEquals(0, dispatcher.getWaitingCount());
+    dispatcher.close();
+  }
+
   // A run's START that fails must not be overtaken by its COMPLETE: a collector would leave the run
   // RUNNING or record the wrong end. With or without a spool.
   @Test

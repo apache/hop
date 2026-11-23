@@ -51,6 +51,8 @@ import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 
 /** Custom OutputStream that enables chunked uploads into S3 using AWS SDK v2. */
 public class S3CommonPipedOutputStream extends PipedOutputStream {
+  private static final String CONST_ERROR_S3_MULTI_PART_EXCEPTION_CAUGHT =
+      "ERROR.S3MultiPart.ExceptionCaught";
 
   private static final Class<?> PKG = S3CommonPipedOutputStream.class;
 
@@ -137,7 +139,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
     try {
       if (Boolean.FALSE.equals(result.get(UPLOAD_RESULT_WAIT_SECONDS, TimeUnit.SECONDS))) {
         return new IOException(
-            BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught")
+            BaseMessages.getString(PKG, CONST_ERROR_S3_MULTI_PART_EXCEPTION_CAUGHT)
                 + " ("
                 + bucketId
                 + "/"
@@ -165,7 +167,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
         Boolean ok = result.get();
         if (ok != null && !ok) {
           throw new IOException(
-              BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught")
+              BaseMessages.getString(PKG, CONST_ERROR_S3_MULTI_PART_EXCEPTION_CAUGHT)
                   + " ("
                   + bucketId
                   + "/"
@@ -273,7 +275,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
         returnVal = false;
       } catch (Exception e) {
         LogChannel.GENERAL.logError(
-            BaseMessages.getString(PKG, "ERROR.S3MultiPart.ExceptionCaught"), e);
+            BaseMessages.getString(PKG, CONST_ERROR_S3_MULTI_PART_EXCEPTION_CAUGHT), e);
         if (uploadId != null) {
           try {
             s3.abortMultipartUpload(

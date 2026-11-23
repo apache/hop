@@ -53,8 +53,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionPGPEncryptFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Filetype.All")
+  };
   public static final String CONST_ACTION_PGPENCRYPT_FILES_BROWSE_FILES_LABEL =
       "ActionPGPEncryptFiles.BrowseFiles.Label";
   public static final String CONST_OVERWRITE_FILE = "overwrite_file";
@@ -496,39 +497,37 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     fdbeSourceFileFolder.top = new FormAttachment(wbdSourceFileFolder, margin);
     wbeSourceFileFolder.setLayoutData(fdbeSourceFileFolder);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Action.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionPGPEncryptFiles.ActionType.getDescriptions(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.UserID.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.LocalUser.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Passphrase.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Action.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ActionPGPEncryptFiles.ActionType.getDescriptions(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.UserID.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.LocalUser.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.Passphrase.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.DestinationFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     columnInfos[1].setToolTip(
         BaseMessages.getString(PKG, "ActionPGPEncryptFiles.Fields.SourceFileFolder.Tooltip"));

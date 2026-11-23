@@ -31,6 +31,7 @@
     <modules>
         <module>age</module>
         <module>ai</module>
+        <module>airflow</module>
         <module>arrow</module>
         <module>avro</module>
         <module>aws</module>
@@ -49,6 +50,7 @@
         <module>gremlin</module>
         <module>hadoop</module>
         <module>lakehouse</module>
+        <module>microsoft365</module>
         <module>minio</module>
         <module>mongodb</module>
         <module>neo4j</module>

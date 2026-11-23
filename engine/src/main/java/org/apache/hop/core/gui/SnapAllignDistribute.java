@@ -21,11 +21,11 @@ import java.util.List;
 import org.apache.hop.core.IAddUndoPosition;
 
 public class SnapAllignDistribute {
-  private List<? extends IGuiPosition> elements;
-  private IAddUndoPosition addUndoPositionInterface;
-  private int[] indices;
-  private IRedrawable redrawable;
-  private IUndo undoInterface;
+  private final List<? extends IGuiPosition> elements;
+  private final IAddUndoPosition addUndoPositionInterface;
+  private final int[] indices;
+  private final IRedrawable redrawable;
+  private final IUndo undoInterface;
 
   public SnapAllignDistribute(
       IUndo undoInterface,

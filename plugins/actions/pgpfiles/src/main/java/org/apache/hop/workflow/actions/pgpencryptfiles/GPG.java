@@ -38,16 +38,20 @@ import org.apache.hop.i18n.BaseMessages;
 
 /** This defines a GnuPG wrapper class. */
 public class GPG {
+  private static final String CONST_BATCH = "--batch";
+  private static final String CONST_SIGN = "--sign";
+  private static final String CONST_OUTPUT = "--output";
+  private static final String CONST_ENCRYPT = "--encrypt";
 
   private static final Class<?> PKG = ActionPGPEncryptFiles.class;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   /** Options prepended when GnuPG reads the data to process from stdin instead of a file. */
-  private static final List<String> GNU_PG_COMMAND = List.of("--batch", "--armor");
+  private static final List<String> GNU_PG_COMMAND = List.of(CONST_BATCH, "--armor");
 
   /** Options prepended to the file based operations. */
-  private static final List<String> BATCH_YES = List.of("--batch", "--yes");
+  private static final List<String> BATCH_YES = List.of(CONST_BATCH, "--yes");
 
   /**
    * Ends GnuPG's option parsing. Everything after it is a file operand, so a name that starts with
@@ -302,7 +306,7 @@ public class GPG {
     List<String> args = new ArrayList<>();
     addPassPhraseFromStdin(args);
     addLocalUser(args, localUser);
-    args.add("--sign");
+    args.add(CONST_SIGN);
     args.add(END_OF_OPTIONS);
     args.add(filename);
     return args;
@@ -351,7 +355,7 @@ public class GPG {
       if (withPassPhrase) {
         addPassPhraseFromStdin(args);
       }
-      args.add("--output");
+      args.add(CONST_OUTPUT);
       args.add(decryptedFilename);
       args.add("--decrypt");
       args.add(END_OF_OPTIONS);
@@ -399,9 +403,9 @@ public class GPG {
         args.add("-a");
       }
       addRecipient(args, userID);
-      args.add("--output");
+      args.add(CONST_OUTPUT);
       args.add(cryptedFilename);
-      args.add("--encrypt");
+      args.add(CONST_ENCRYPT);
       args.add(END_OF_OPTIONS);
       args.add(filename);
 
@@ -523,10 +527,10 @@ public class GPG {
       if (withPassPhrase) {
         addPassPhraseFromStdin(args);
       }
-      args.add("--output");
+      args.add(CONST_OUTPUT);
       args.add(cryptedFilename);
-      args.add("--encrypt");
-      args.add("--sign");
+      args.add(CONST_ENCRYPT);
+      args.add(CONST_SIGN);
       args.add(END_OF_OPTIONS);
       args.add(filename);
 
@@ -578,9 +582,9 @@ public class GPG {
       if (withPassPhrase) {
         addPassPhraseFromStdin(args);
       }
-      args.add("--output");
+      args.add(CONST_OUTPUT);
       args.add(signedFilename);
-      args.add(asciiMode ? "--clearsign" : "--sign");
+      args.add(asciiMode ? "--clearsign" : CONST_SIGN);
       args.add(END_OF_OPTIONS);
       args.add(filename);
 
@@ -650,7 +654,7 @@ public class GPG {
    */
   public void verifySignature(String filename) throws HopException {
 
-    execGnuPG(List.of("--batch", "--verify", END_OF_OPTIONS, filename), null, true);
+    execGnuPG(List.of(CONST_BATCH, "--verify", END_OF_OPTIONS, filename), null, true);
   }
 
   /**
@@ -663,7 +667,7 @@ public class GPG {
   public void verifyDetachedSignature(String signatureFilename, String originalFilename)
       throws HopException {
     execGnuPG(
-        List.of("--batch", "--verify", END_OF_OPTIONS, signatureFilename, originalFilename),
+        List.of(CONST_BATCH, "--verify", END_OF_OPTIONS, signatureFilename, originalFilename),
         null,
         true);
   }
@@ -692,7 +696,7 @@ public class GPG {
   public String encrypt(String plainText, String keyID) throws HopException {
     List<String> args = new ArrayList<>();
     addRecipient(args, keyID);
-    args.add("--encrypt");
+    args.add(CONST_ENCRYPT);
 
     return execGnuPG(args, plainText, false);
   }

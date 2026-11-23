@@ -29,7 +29,6 @@
     <name>Hop Engine</name>
 
     <properties>
-        <assembly_package-phase>none</assembly_package-phase>
         <commons-validator.version>1.11.0</commons-validator.version>
         <mina.core.version>2.2.9</mina.core.version>
     </properties>
@@ -289,20 +288,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>assemblies</id>
-            <activation>
-                <property>
-                    <name>assemblies</name>
-                    <value>!false</value>
-                </property>
-            </activation>
-            <properties>
-                <assembly_package-phase>package</assembly_package-phase>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

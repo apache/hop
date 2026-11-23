@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.xml.xmljoin;
 import java.io.StringReader;
 import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMSource;
@@ -67,7 +68,11 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
   @Override
   public boolean processRow() throws HopException {
 
-    XPath xpath = XPathFactory.newInstance().newXPath();
+    // Created once per copy: creating an XPathFactory scans the classpath.
+    if (data.xpath == null) {
+      data.xpath = XPathFactory.newInstance().newXPath();
+    }
+    XPath xpath = data.xpath;
 
     // if first row we do some initializing and process the first row of the target XML Transform
     if (first) {
@@ -112,20 +117,20 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       }
 
       // get target xml
+      String targetField =
+          requiredOption(
+              meta.getTargetXmlField(), "XmlJoin.CheckResult.TargetXMLFieldNotSpecified");
       IRowMeta targetStreamRowMeta = data.targetRowSet.getRowMeta();
       String[] targetStreamFieldNames = targetStreamRowMeta.getFieldNames();
       for (int i = 0; i < targetStreamFieldNames.length; i++) {
-        if (variables.resolve(meta.getTargetXmlField()).equals(targetStreamFieldNames[i])) {
+        if (targetField.equals(targetStreamFieldNames[i])) {
           targetFieldId = i;
         }
       }
       // Throw exception if target field has not been found
       if (targetFieldId == -1) {
         throw new HopException(
-            BaseMessages.getString(
-                PKG,
-                CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                variables.resolve(meta.getTargetXmlField())));
+            BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, targetField));
       }
 
       IRowMeta sourceStreamRowMeta =
@@ -147,7 +152,8 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
 
       InputSource inputSource = new InputSource(new StringReader(strTarget));
 
-      data.xPathStatement = variables.resolve(meta.getTargetXPath());
+      data.xPathStatement =
+          requiredOption(meta.getTargetXPath(), "XmlJoin.CheckResult.TargetXPathNotSpecified");
       try {
         DocumentBuilder builder =
             XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
@@ -197,37 +203,36 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
         // assume failure
         // get the column of the join xml set
         // get target xml
+        String sourceField =
+            requiredOption(
+                meta.getSourceXmlField(), "XmlJoin.CheckResult.SourceXMLFieldNotSpecified");
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (variables.resolve(meta.getSourceXmlField()).equals(sourceFieldNames[i])) {
+          if (sourceField.equals(sourceFieldNames[i])) {
             data.iSourceXMLField = i;
           }
         }
         // Throw exception if source xml field has not been found
         if (data.iSourceXMLField == -1) {
           throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                  variables.resolve(meta.getSourceXmlField())));
+              BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, sourceField));
         }
       }
 
       if (meta.isComplexJoin() && data.iCompareFieldID == -1) {
         // get the column of the compare value
+        String compareField =
+            requiredOption(meta.getJoinCompareField(), "XmlJoin.Exception.KeyFieldNotSpecified");
         String[] sourceFieldNames = data.sourceRowSet.getRowMeta().getFieldNames();
         for (int i = 0; i < sourceFieldNames.length; i++) {
-          if (variables.resolve(meta.getJoinCompareField()).equals(sourceFieldNames[i])) {
+          if (compareField.equals(sourceFieldNames[i])) {
             data.iCompareFieldID = i;
           }
         }
         // Throw exception if source xml field has not been found
         if (data.iCompareFieldID == -1) {
           throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND,
-                  variables.resolve(meta.getJoinCompareField())));
+              BaseMessages.getString(PKG, CONST_XML_JOIN_EXCEPTION_FIELD_NOT_FOUND, compareField));
         }
       }
 
@@ -235,9 +240,8 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
       String strJoinXML = (String) rJoinSource[data.iSourceXMLField];
 
       try {
-        DocumentBuilder builder =
-            XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
-        Document joinDocument = builder.parse(new InputSource(new StringReader(strJoinXML)));
+        Document joinDocument =
+            getSourceDocumentBuilder().parse(new InputSource(new StringReader(strJoinXML)));
 
         Node node = data.targetDom.importNode(joinDocument.getDocumentElement(), true);
 
@@ -259,6 +263,33 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> {
     }
 
     return true;
+  }
+
+  /**
+   * An option with its variables resolved. An option left empty, null or an empty string, is
+   * reported by name rather than looked up as a field or evaluated.
+   */
+  private String requiredOption(String option, String notSpecifiedKey) throws HopException {
+    String resolved = variables.resolve(option);
+    if (Utils.isEmpty(resolved)) {
+      throw new HopException(BaseMessages.getString(PKG, notSpecifiedKey));
+    }
+    return resolved;
+  }
+
+  /**
+   * The parser for the source XML fragments, one per copy. Creating the secure factory scans the
+   * classpath for every security feature it sets, so it is not done per row. reset() returns the
+   * builder to the state the factory gave it, security features included.
+   */
+  private DocumentBuilder getSourceDocumentBuilder() throws ParserConfigurationException {
+    if (data.sourceDocumentBuilder == null) {
+      data.sourceDocumentBuilder =
+          XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
+    } else {
+      data.sourceDocumentBuilder.reset();
+    }
+    return data.sourceDocumentBuilder;
   }
 
   @Override

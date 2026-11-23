@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 
 public class TimestampFn extends DoFn<HopRow, HopRow> {
 
-  private String transformName;
-  private String rowMetaJson;
-  private String fieldName;
+  private final String transformName;
+  private final String rowMetaJson;
+  private final String fieldName;
   private final boolean getTimestamp;
 
   private transient Counter readCounter;

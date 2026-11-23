@@ -51,6 +51,7 @@ import org.w3c.dom.Node;
 @Setter
 public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
   private static final Class<?> PKG = JaninoMeta.class;
+  private static final String CONST_FORMULA = "formula";
 
   /** Default matches Janino bytecode default ({@code UnitCompiler#getDefaultTargetVersion()}). */
   public static final int JAVA_TARGET_VERSION_DEFAULT = 6;
@@ -198,11 +199,11 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
 
   @Override
   public void convertLegacyXml(Node node) throws HopException {
-    int nrCalcs = XmlHandler.countNodes(node, "formula");
+    int nrCalcs = XmlHandler.countNodes(node, CONST_FORMULA);
     for (int i = 0; i < nrCalcs; i++) {
-      Node calcnode = XmlHandler.getSubNodeByNr(node, "formula", i);
+      Node calcnode = XmlHandler.getSubNodeByNr(node, CONST_FORMULA, i);
       if (calcnode != null) {
-        String expression = XmlHandler.getTagValue(calcnode, "formula");
+        String expression = XmlHandler.getTagValue(calcnode, CONST_FORMULA);
         if (expression != null && i < functions.size()) {
           JaninoMetaFunction fn = functions.get(i);
           if (Utils.isEmpty(fn.getFormula())) {

@@ -62,6 +62,8 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class ActionColumnsExistDialog extends ActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class;
+  private static final String CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE =
+      "ActionColumnsExist.ConnectionError.DialogMessage";
   private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -190,13 +192,12 @@ public class ActionColumnsExistDialog extends ActionDialog {
 
     final int FieldsRows = rows;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionColumnsExist.Fields.Column"));
@@ -234,7 +235,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     if (StringUtils.isEmpty(databaseName)) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
       return;
@@ -253,7 +254,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
     }
@@ -331,7 +332,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
       return;
@@ -378,7 +379,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
     }
@@ -391,7 +392,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
       return;
@@ -437,7 +438,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-          BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
+          BaseMessages.getString(PKG, CONST_ACTION_COLUMNS_EXIST_CONNECTION_ERROR_DIALOG_MESSAGE));
       mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
     }

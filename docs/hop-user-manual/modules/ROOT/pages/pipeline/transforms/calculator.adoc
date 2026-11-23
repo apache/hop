@@ -231,3 +231,10 @@ In short: we convert to the required metadata type when we land the data somewhe
 *A*: You might notice that if you multiply an Integer and Number, the result is always rounded.
 That is because Calculator takes data type of the left hand size of the multiplication (A) as the driver for the calculation.
 As such, if you want more precision, you should put field B on the left hand side or change the data type to Number and all will be well.
+
+== Samples
+
+The samples project has:
+
+* `transforms/calculator-basic.hpl`, which subtracts, adds, multiplies and divides two numbers from a Data grid.
+* `transforms/calculator-jde-julian.hpl`, which converts dates to JD Edwards Julian dates (CYYDDD) and back.

@@ -52,6 +52,7 @@ import org.apache.hop.projects.project.ProjectConfig;
  * Helper class for in-memory Hop configuration and dynamic project and environment registration.
  */
 public class ProjectsConfigHelper {
+  private static final String CONST_METADATA_JSON = "metadata.json";
 
   private static final String[] CONFIG_CANDIDATES = ProjectConfig.CONFIG_FILENAME_CANDIDATES;
 
@@ -270,7 +271,7 @@ public class ProjectsConfigHelper {
             return homeUri;
           }
         }
-        if (rootObj.resolveFile("metadata.json").exists()) {
+        if (rootObj.resolveFile(CONST_METADATA_JSON).exists()) {
           return homeUri;
         }
 
@@ -292,7 +293,7 @@ public class ProjectsConfigHelper {
                   return child.getName().getURI();
                 }
               }
-              if (child.resolveFile("metadata.json").exists()) {
+              if (child.resolveFile(CONST_METADATA_JSON).exists()) {
                 return child.getName().getURI();
               }
             }
@@ -322,7 +323,7 @@ public class ProjectsConfigHelper {
         for (FileObject child : children) {
           if (child.getType() == FileType.FOLDER) {
             String detectedConfig = detectConfigFilename(child.getName().getURI(), variables);
-            if (detectedConfig != null || child.resolveFile("metadata.json").exists()) {
+            if (detectedConfig != null || child.resolveFile(CONST_METADATA_JSON).exists()) {
               String name = child.getName().getBaseName();
               String configFilename =
                   (detectedConfig != null)
@@ -606,7 +607,7 @@ public class ProjectsConfigHelper {
       if (metadataDir.exists() && metadataDir.getType() == FileType.FOLDER) {
         return false;
       }
-      FileObject metadataJson = homeObj.resolveFile("metadata.json");
+      FileObject metadataJson = homeObj.resolveFile(CONST_METADATA_JSON);
       FileObject variablesJson = homeObj.resolveFile("variables.json");
       return (metadataJson.exists() && metadataJson.isFile())
           || (variablesJson.exists() && variablesJson.isFile());
@@ -648,7 +649,7 @@ public class ProjectsConfigHelper {
       }
 
       if (loadMetadata && metadataProvider != null) {
-        FileObject metadataJsonObj = projectHomeObj.resolveFile("metadata.json");
+        FileObject metadataJsonObj = projectHomeObj.resolveFile(CONST_METADATA_JSON);
         if (metadataJsonObj.exists() && metadataJsonObj.isFile()) {
           try (InputStream in = HopVfs.getInputStream(metadataJsonObj)) {
             String json = IOUtils.toString(in, StandardCharsets.UTF_8);

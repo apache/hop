@@ -35,9 +35,15 @@ public class CustomLintRule {
   /** The transform plugin ids {@code isBlockingTransform} counts, replacing the default list. */
   public static final String PARAMETER_BLOCKING_TRANSFORMS = "blockingTransforms";
 
+  /**
+   * Whether a hardcoded-secret rule also reports every field Hop stores as a password, whatever its
+   * name. Off unless the rule sets it, as SEC-002 and SEC-003 do.
+   */
+  public static final String PARAMETER_PASSWORD_FIELDS = "passwordFields";
+
   /** Every parameter the linter reads. A rule pack or hop-lint.yml naming another is warned. */
   public static final Set<String> PARAMETERS =
-      Set.of(PARAMETER_FIELD_PATTERNS, PARAMETER_BLOCKING_TRANSFORMS);
+      Set.of(PARAMETER_FIELD_PATTERNS, PARAMETER_BLOCKING_TRANSFORMS, PARAMETER_PASSWORD_FIELDS);
 
   private String id;
   private String name;

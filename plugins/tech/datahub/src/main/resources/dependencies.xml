@@ -17,8 +17,10 @@
   -->
 
 <!-- The openlineage plugin jar and its libraries. A dependency folder's lib/ subfolder is not
-     searched on its own (JarCache skips folders named lib), so it is listed as well. -->
+     searched on its own (JarCache skips folders named lib), so it is listed as well. The
+     documentation plugin (hop doc) writes the documentation the publisher can include. -->
 <dependencies>
     <folder>../openlineage</folder>
     <folder>../openlineage/lib</folder>
+    <folder>../../misc/documentation</folder>
 </dependencies>

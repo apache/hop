@@ -109,10 +109,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   public static final String CONST_SET_VALUE = "setValue()";
   public static final String CONST_SNIPPITS_CATEGORY = "Snippits Category";
 
-  private static final String[] JAVA_TARGET_VERSION_ITEMS =
-      new String[] {
-        "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
-      };
+  private static final String[] JAVA_TARGET_VERSION_ITEMS = {
+    "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
+  };
 
   private ModifyListener lsMod;
 
@@ -157,7 +156,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private String strActiveScript;
 
-  private UserDefinedJavaClassMeta input;
+  private final UserDefinedJavaClassMeta input;
   private UserDefinedJavaClassCodeSnippets snippitsHelper;
   private final GuiResource guiResource = GuiResource.getInstance();
 
@@ -567,25 +566,24 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     final int fieldsRows = input.getFields().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Filename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Filename"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
@@ -638,22 +636,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     wlFields.setLayoutData(fdlFields);
 
     final int nrRows = input.getInfoTransformDefinitions().size();
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformTag"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformName"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              prevTransformNames),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformDescription"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformTag"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformName"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          prevTransformNames),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformDescription"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wInfoTransforms =
         new TableView(
@@ -705,22 +701,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     wlFields.setLayoutData(fdlFields);
 
     final int nrRows = input.getTargetTransformDefinitions().size();
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformTag"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformName"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              nextTransformNames),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformDescription"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformTag"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformName"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          nextTransformNames),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.TransformDescription"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     wTargetTransforms =
         new TableView(
@@ -772,22 +766,20 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     wlFields.setLayoutData(fdlFields);
 
     final int nrRows = input.getUsageParameters().size();
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterTag"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterValue"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterDescription"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterTag"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterValue"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.ColumnInfo.ParameterDescription"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[1].setUsingVariables(true);
 
     wParameters =

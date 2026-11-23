@@ -29,11 +29,12 @@
     <folder>../../transforms/switchcase</folder>
     <folder>../../transforms/calculator</folder>
     <folder>../../transforms/selectvalues</folder>
-    <folder>../../transforms/dummy</folder>
     <folder>../../transforms/rowgenerator</folder>
     <folder>../../transforms/streamlookup</folder>
     <folder>../../transforms/stringoperations</folder>
     <!-- Classic I/O for POC lookups (often single-threaded sources; writers use Transform.ID) -->
+    <folder>../../../lib/jdbc</folder>
+    <folder>../../transforms/tableinput</folder>
     <folder>../../transforms/textfile</folder>
     <folder>../../transforms/getfilenames</folder>
     <folder>../../transforms/excel</folder>

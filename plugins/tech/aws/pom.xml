@@ -30,6 +30,9 @@
 
     <properties>
         <hop.jdbc.driver1>com.amazon.redshift:redshift-jdbc42</hop.jdbc.driver1>
+        <!-- Required plugin: Redshift (and PostgreSQL through it) is installed with its own zip.
+             Shipping its jar here put the database plugins' classes in lib/core. -->
+        <hop.libcore.exclude1>org.apache.hop:hop-databases-redshift</hop.libcore.exclude1>
     </properties>
 
     <dependencyManagement>
@@ -62,6 +65,47 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- the netty classes the bundled libraries use. hop-core used to bring them through gRPC; ship them in lib/core like the rest of the netty jars, versions from hop-libs (netty-bom). -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-base</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!--
             The bulk loader can inherit the AWS credentials configured on the Redshift connection.
@@ -127,6 +171,33 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>sqs</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--
+            Needed so an S3 Connection (and the other AWS clients in this plugin) can use an
+            IAM Identity Center (SSO) profile through the AWS SDK default credential chain or
+            a named AWS profile (~/.aws/config). provided-scope jars are packed into hop/lib/core.
+        -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sso</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ssooidc</artifactId>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>

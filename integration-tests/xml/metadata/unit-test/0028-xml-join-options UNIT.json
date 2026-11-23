@@ -1,0 +1,36 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "case",
+          "data_set_field": "case"
+        },
+        {
+          "transform_field": "doc",
+          "data_set_field": "doc"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "case"
+      ],
+      "transform_name": "results",
+      "data_set_name": "golden-xml-join-options"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0028-xml-join-options UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0028-xml-join-options.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -1,0 +1,1397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0028-xml-join-options</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Issue #9515: every XML Join option end to end - simple and complex joins, XPath and comparison field from variables, empty streams, encodings and the XML header, and omitting null values. The unit test compares the 'results' rows with a golden data set.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <parameters>
+      <parameter>
+        <name>XML_JOIN_XPATH</name>
+        <default_value>//order[@id='?']/lines</default_value>
+        <description>XPath of the complex join, '?' is replaced by the comparison field</description>
+      </parameter>
+      <parameter>
+        <name>XML_JOIN_COMPARE_FIELD</name>
+        <default_value>orderId</default_value>
+        <description>Comparison field of the complex join</description>
+      </parameter>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/16 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/16 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname/>
+      <fontsize>-1</fontsize>
+      <height>50</height>
+      <xloc>96</xloc>
+      <yloc>16</yloc>
+      <note>Each target data grid carries a 'case' field, so every join writes the same row layout (case, doc, result) into 'results'.
+'no target rows' must not write a row.</note>
+      <width>620</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>simple join: target</from>
+      <to>simple join: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>simple join: source</from>
+      <to>simple join: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>simple join: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join: target</from>
+      <to>complex join: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join: source</from>
+      <to>complex join: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join, XPath per row: target</from>
+      <to>complex join, XPath per row: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join, XPath per row: source</from>
+      <to>complex join, XPath per row: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>complex join, XPath per row: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no source rows: target</from>
+      <to>no source rows: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no source rows: source</from>
+      <to>no source rows: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no source rows: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no target rows: target</from>
+      <to>no target rows: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no target rows: source</from>
+      <to>no target rows: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>no target rows: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>blank encoding: target</from>
+      <to>blank encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>blank encoding: source</from>
+      <to>blank encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>blank encoding: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ISO-8859-1 encoding: target</from>
+      <to>ISO-8859-1 encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ISO-8859-1 encoding: source</from>
+      <to>ISO-8859-1 encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ISO-8859-1 encoding: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>UTF-8 encoding: target</from>
+      <to>UTF-8 encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>UTF-8 encoding: source</from>
+      <to>UTF-8 encoding: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>UTF-8 encoding: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>omit null values: target</from>
+      <to>omit null values: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>omit null values: source</from>
+      <to>omit null values: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>omit null values: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep null values: target</from>
+      <to>keep null values: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep null values: source</from>
+      <to>keep null values: XML join</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep null values: XML join</from>
+      <to>results</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>simple join: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>simple join</item>
+        <item>&lt;orders&gt;&lt;list/&gt;&lt;/orders&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>simple join: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;order id="1"/&gt;</item>
+        <item>a</item>
+      </line>
+      <line>
+        <item>&lt;order id="2"/&gt;</item>
+        <item>b</item>
+      </line>
+      <line>
+        <item>&lt;order id="3"/&gt;</item>
+        <item>c</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>sourceOnly</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>simple join: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>simple join: source</sourceXmlTransform>
+    <targetXPath>//list</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>simple join: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>120</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>complex join</item>
+        <item>&lt;orders&gt;&lt;order id="1"&gt;&lt;lines/&gt;&lt;/order&gt;&lt;order id="2"&gt;&lt;lines/&gt;&lt;/order&gt;&lt;/orders&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>2</item>
+        <item>&lt;line sku="B"/&gt;</item>
+      </line>
+      <line>
+        <item>1</item>
+        <item>&lt;line sku="A"/&gt;</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>&lt;line sku="C"/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>orderId</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>${XML_JOIN_COMPARE_FIELD}</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>complex join: source</sourceXmlTransform>
+    <targetXPath>${XML_JOIN_XPATH}</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>complex join: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>248</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join, XPath per row: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>complex join, XPath per row</item>
+        <item>&lt;a&gt;&lt;b/&gt;&lt;c/&gt;&lt;/a&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join, XPath per row: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>/a/c</item>
+        <item>&lt;x/&gt;</item>
+      </line>
+      <line>
+        <item>/a/b</item>
+        <item>&lt;y/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>path</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>xml</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>complex join, XPath per row: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>path</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>xml</sourceXmlField>
+    <sourceXmlTransform>complex join, XPath per row: source</sourceXmlTransform>
+    <targetXPath>?</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>complex join, XPath per row: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>376</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no source rows: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>no source rows</item>
+        <item>&lt;root&gt;&lt;a&gt;text&lt;/a&gt;&lt;/root&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>480</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no source rows: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>528</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no source rows: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>no source rows: source</sourceXmlTransform>
+    <targetXPath>//a</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>no source rows: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>504</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no target rows: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>608</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no target rows: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;x/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>no target rows: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>no target rows: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>no target rows: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>632</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>blank encoding: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>blank encoding</item>
+        <item>&lt;root/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>736</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>blank encoding: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;item&gt;é €&lt;/item&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>784</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>blank encoding: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding/>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>N</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>blank encoding: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>blank encoding: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>760</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ISO-8859-1 encoding: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>ISO-8859-1 encoding</item>
+        <item>&lt;root/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>864</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ISO-8859-1 encoding: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;item&gt;é €&lt;/item&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>912</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ISO-8859-1 encoding: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>ISO-8859-1</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>N</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>ISO-8859-1 encoding: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>ISO-8859-1 encoding: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>888</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>UTF-8 encoding: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>UTF-8 encoding</item>
+        <item>&lt;root/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>992</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>UTF-8 encoding: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;item&gt;é €&lt;/item&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>1040</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>UTF-8 encoding: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>N</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>UTF-8 encoding: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>UTF-8 encoding: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>1016</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>omit null values: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>omit null values</item>
+        <item>&lt;root&gt;&lt;keep a="1"/&gt;&lt;drop/&gt;&lt;parent&gt;&lt;child/&gt;&lt;/parent&gt;&lt;text&gt;t&lt;/text&gt;&lt;/root&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>1120</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>omit null values: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;item&gt;&lt;name&gt;x&lt;/name&gt;&lt;empty/&gt;&lt;/item&gt;</item>
+      </line>
+      <line>
+        <item>&lt;item/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>1168</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>omit null values: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>Y</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>omit null values: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>omit null values: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>1144</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep null values: target</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>keep null values</item>
+        <item>&lt;root&gt;&lt;keep a="1"/&gt;&lt;drop/&gt;&lt;parent&gt;&lt;child/&gt;&lt;/parent&gt;&lt;text&gt;t&lt;/text&gt;&lt;/root&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>case</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>1248</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep null values: source</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;item&gt;&lt;name&gt;x&lt;/name&gt;&lt;empty/&gt;&lt;/item&gt;</item>
+      </line>
+      <line>
+        <item>&lt;item/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>1296</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep null values: XML join</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField/>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>keep null values: source</sourceXmlTransform>
+    <targetXPath>/root</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>keep null values: target</targetXmlTransform>
+    <valueXmlField>result</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>1272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>results</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>768</xloc>
+      <yloc>736</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

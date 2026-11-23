@@ -84,7 +84,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -104,7 +104,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -122,7 +122,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -141,7 +141,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -169,7 +169,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(0, result.getNrErrors());
     assertEquals(2, result.getNrLinesWritten());
     assertEquals(0, result.getEntryNr());
@@ -196,7 +196,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -224,7 +224,7 @@ class ActionColumnsExistTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     assertEquals(1, result.getNrLinesWritten());
     assertEquals(1, result.getEntryNr());

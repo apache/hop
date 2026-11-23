@@ -50,6 +50,14 @@ import org.eclipse.swt.widgets.Display;
 /** How do we handle a markdown file in the file explorer perspective? */
 @GuiPlugin(name = "Markdown file type handler")
 public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
+  private static final String CONST_TABLE = "table {\n";
+  private static final String CONST_TH_TD = "th, td {\n";
+  private static final String CONST_TH = "th {\n";
+  private static final String CONST_BACKGROUND_COLOR_F8FAFC = "  background-color: #f8fafc;\n";
+  private static final String CONST_BODY = "body {\n";
+  private static final String CONST_H1_H2_H3_H4_H5_H6 = "h1, h2, h3, h4, h5, h6 {\n";
+  private static final String CONST_PRE_CODE = "pre, code {\n";
+  private static final String CONST_BLOCKQUOTE = "blockquote {\n";
 
   private static final Class<?> PKG = MarkDownExplorerFileType.class;
 
@@ -321,7 +329,7 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     // Wrap the content with styled CSS, supporting dark mode if configured
     StringBuilder html = new StringBuilder();
     html.append("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n");
-    html.append("body {\n");
+    html.append(CONST_BODY);
     html.append(
         "  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;\n");
     html.append("  line-height: 1.625;\n");
@@ -329,7 +337,7 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     html.append("  max-width: 800px;\n");
     html.append("  padding: 0 20px;\n");
     html.append("}\n");
-    html.append("h1, h2, h3, h4, h5, h6 {\n");
+    html.append(CONST_H1_H2_H3_H4_H5_H6);
     html.append("  font-weight: 600;\n");
     html.append("}\n");
     html.append("h1 {\n");
@@ -349,7 +357,7 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     html.append("a:hover {\n");
     html.append("  text-decoration: underline;\n");
     html.append("}\n");
-    html.append("pre, code {\n");
+    html.append(CONST_PRE_CODE);
     html.append("  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;\n");
     html.append("  font-size: 0.9em;\n");
     html.append("  border-radius: 6px;\n");
@@ -367,13 +375,13 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     html.append("  border-radius: 0;\n");
     html.append("  border: none;\n");
     html.append("}\n");
-    html.append("blockquote {\n");
+    html.append(CONST_BLOCKQUOTE);
     html.append("  margin: 1.5em 0;\n");
     html.append("  padding: 0.5em 1em;\n");
     html.append("  border-left-width: 4px;\n");
     html.append("  border-left-style: solid;\n");
     html.append("}\n");
-    html.append("table {\n");
+    html.append(CONST_TABLE);
     html.append("  width: 100%;\n");
     html.append("  margin: 1.5em 0;\n");
     html.append("  border-collapse: collapse;\n");
@@ -381,21 +389,21 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
     html.append("  overflow: hidden;\n");
     html.append("  font-size: 0.95em;\n");
     html.append("}\n");
-    html.append("th, td {\n");
+    html.append(CONST_TH_TD);
     html.append("  padding: 0.6em 0.85em;\n");
     html.append("  border: 1px solid;\n");
     html.append("  text-align: left;\n");
     html.append("}\n");
-    html.append("th {\n");
+    html.append(CONST_TH);
     html.append("  font-weight: 600;\n");
     html.append("}\n");
 
     if (PropsUi.getInstance().isDarkMode()) {
-      html.append("body {\n");
+      html.append(CONST_BODY);
       html.append("  background-color: #0b0f19;\n");
       html.append("  color: #94a3b8;\n");
       html.append("}\n");
-      html.append("h1, h2, h3, h4, h5, h6 {\n");
+      html.append(CONST_H1_H2_H3_H4_H5_H6);
       html.append("  color: #f8fafc;\n");
       html.append("}\n");
       html.append("h1, h2 {\n");
@@ -404,23 +412,23 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append("a {\n");
       html.append("  color: #38bdf8;\n");
       html.append("}\n");
-      html.append("pre, code {\n");
+      html.append(CONST_PRE_CODE);
       html.append("  background-color: #1e293b;\n");
       html.append("  border: 1px solid #334155;\n");
       html.append("  color: #e2e8f0;\n");
       html.append("}\n");
-      html.append("blockquote {\n");
+      html.append(CONST_BLOCKQUOTE);
       html.append("  border-left-color: #475569;\n");
       html.append("  color: #94a3b8;\n");
       html.append("  background-color: #0f172a;\n");
       html.append("}\n");
-      html.append("table {\n");
+      html.append(CONST_TABLE);
       html.append("  background-color: #0f172a;\n");
       html.append("}\n");
-      html.append("th, td {\n");
+      html.append(CONST_TH_TD);
       html.append("  border-color: #334155;\n");
       html.append("}\n");
-      html.append("th {\n");
+      html.append(CONST_TH);
       html.append("  background-color: #1e293b;\n");
       html.append("  color: #f8fafc;\n");
       html.append("}\n");
@@ -428,11 +436,11 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append("  background-color: #111827;\n");
       html.append("}\n");
     } else {
-      html.append("body {\n");
-      html.append("  background-color: #f8fafc;\n");
+      html.append(CONST_BODY);
+      html.append(CONST_BACKGROUND_COLOR_F8FAFC);
       html.append("  color: #334155;\n");
       html.append("}\n");
-      html.append("h1, h2, h3, h4, h5, h6 {\n");
+      html.append(CONST_H1_H2_H3_H4_H5_H6);
       html.append("  color: #0f172a;\n");
       html.append("}\n");
       html.append("h1, h2 {\n");
@@ -441,28 +449,28 @@ public class MarkDownExplorerFileTypeHandler extends BaseTextExplorerFileTypeHan
       html.append("a {\n");
       html.append("  color: #2563eb;\n");
       html.append("}\n");
-      html.append("pre, code {\n");
+      html.append(CONST_PRE_CODE);
       html.append("  background-color: #f1f5f9;\n");
       html.append("  border: 1px solid #e2e8f0;\n");
       html.append("  color: #334155;\n");
       html.append("}\n");
-      html.append("blockquote {\n");
+      html.append(CONST_BLOCKQUOTE);
       html.append("  border-left-color: #cbd5e1;\n");
       html.append("  color: #64748b;\n");
-      html.append("  background-color: #f8fafc;\n");
+      html.append(CONST_BACKGROUND_COLOR_F8FAFC);
       html.append("}\n");
-      html.append("table {\n");
+      html.append(CONST_TABLE);
       html.append("  background-color: #ffffff;\n");
       html.append("}\n");
-      html.append("th, td {\n");
+      html.append(CONST_TH_TD);
       html.append("  border-color: #e2e8f0;\n");
       html.append("}\n");
-      html.append("th {\n");
+      html.append(CONST_TH);
       html.append("  background-color: #f1f5f9;\n");
       html.append("  color: #0f172a;\n");
       html.append("}\n");
       html.append("tbody tr:nth-child(even) {\n");
-      html.append("  background-color: #f8fafc;\n");
+      html.append(CONST_BACKGROUND_COLOR_F8FAFC);
       html.append("}\n");
     }
     html.append("</style>\n</head>\n<body>\n");

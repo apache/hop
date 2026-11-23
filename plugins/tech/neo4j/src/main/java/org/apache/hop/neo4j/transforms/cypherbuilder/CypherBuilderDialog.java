@@ -113,9 +113,9 @@ public class CypherBuilderDialog extends BaseTransformDialog {
   // The cypher tab
   private Text wCypher;
 
-  private CypherBuilderMeta input;
+  private final CypherBuilderMeta input;
 
-  private CypherBuilderMeta copy;
+  private final CypherBuilderMeta copy;
 
   private boolean warningShown;
 
@@ -279,13 +279,12 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
     // Table: parameter and field
     //
-    ColumnInfo[] parameterColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Input field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
-          new ColumnInfo(
-              "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-        };
+    ColumnInfo[] parameterColumns = {
+      new ColumnInfo("Parameter", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Input field", ColumnInfo.COLUMN_TYPE_CCOMBO, fieldNames, false),
+      new ColumnInfo(
+          "Graph type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+    };
 
     Label wlParameters = new Label(wParametersComp, SWT.LEFT);
     wlParameters.setText("Parameters: (NOTE that parameters for labels are not supported)");
@@ -778,14 +777,13 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
     // Table view with 1 column, change listeners modifying operation.labels
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Labels.Column.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Labels.Column.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false)
+    };
     TableView wLabels =
         new TableView(
             variables,
@@ -861,19 +859,18 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     // Table view with 2 columns(property name and parameter), change listeners modifying
     // operation.labels
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false,
+          false),
+    };
 
     // List of parameters:
     columns[1].setComboValues(copy.getParameterNames());
@@ -927,27 +924,24 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     // Table view with 2 columns(property name and parameter), change listeners modifying
     // operation.labels
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false,
+          false),
+    };
 
     // List of parameters:
     columns[2].setComboValues(copy.getParameterNames());
@@ -1010,32 +1004,29 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     // Table view with 2 columns(property name and parameter), change listeners modifying
     // operation.labels
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Alias"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Descending"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"N", "Y"},
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Alias"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Descending"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {"N", "Y"},
+          false),
+    };
 
     TableView wProperties =
         new TableView(
@@ -1096,51 +1087,45 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     // Table view with columns: alias, name, expression, parameter, rename.
     // Change listeners are modifying the operation.
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Alias"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Property"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Expression"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Rename"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.NeoType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphPropertyDataType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.HopType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Alias"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Property"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Expression"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.Rename"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.NeoType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphPropertyDataType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Column.HopType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+    };
 
     TableView wReturnValues =
         new TableView(
@@ -1204,32 +1189,29 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     // Table view with property columns: alias, name, parameter, expression.
     // Adds change listeners modifying the operation.
     //
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Alias"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "CypherBuilderDialog.Operation.Properties.Column.Parameter"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[0],
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Alias"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_NAME),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Column.Parameter"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[0],
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, CONST_CYPHER_BUILDER_DIALOG_OPERATION_PROPERTIES_COLUMN_EXPRESSION),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columns[2].setComboValues(copy.getParameterNames());
 
     TableView wProperties =

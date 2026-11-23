@@ -39,3 +39,7 @@ The transform outputs a boolean flag field, indicating whether a file exists or 
 |Include file type|Include the file type in a field.
 |File type field|The name of the field that will contain the file type as a String: "file", "folder", "imaginary"
 |===
+
+== Samples
+
+The samples project has `transforms/file-exists-basic.hpl`, which checks whether `files/customers-100.txt` exists, adds the result and the file type, and writes the row to the log through *log exists* or *log does not exist*.

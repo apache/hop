@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -93,6 +94,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
+  private static final String CONST_TABLE_WIDGET = "TABLE widget '";
   public static final String CONST_PARENT_ID = ", parent ID: ";
   public static final String NONE_DATABASE_META = "NoneDatabaseMeta";
   private static final Class<?> PKG = GuiCompositeWidgets.class;
@@ -500,7 +502,7 @@ public class GuiCompositeWidgets {
   private static final class WidgetGroup {
     private final String label;
     private String order;
-    private String image;
+    private final String image;
     private Image extraImage;
     private final List<GuiElements> elements = new ArrayList<>();
     private final List<Consumer<Composite>> extras = new ArrayList<>();
@@ -752,7 +754,7 @@ public class GuiCompositeWidgets {
       // A grid with no columns was rejected while scanning. Leave the row out.
       if (elementType == GuiElementType.TABLE && !hasTableColumns(guiElements)) {
         LogChannel.UI.logError(
-            "TABLE widget '" + guiElements.getId() + "' has no columns and is not shown");
+            CONST_TABLE_WIDGET + guiElements.getId() + "' has no columns and is not shown");
         return lastControl;
       }
 
@@ -1993,6 +1995,46 @@ public class GuiCompositeWidgets {
     this.compositeWidgetsListener = listener;
   }
 
+  /**
+   * The widgets listener of a source object: the object itself when it implements {@link
+   * IGuiPluginCompositeWidgetsListener}, or one that passes the calls on when it implements {@link
+   * IGuiPluginModelWidgetsListener}, which model classes use to stay free of SWT.
+   *
+   * @param source the object the widgets show, or null
+   * @return its listener, or empty when it doesn't listen to its widgets
+   */
+  public static Optional<IGuiPluginCompositeWidgetsListener> listenerOf(Object source) {
+    if (source instanceof IGuiPluginCompositeWidgetsListener listener) {
+      return Optional.of(listener);
+    }
+    if (source instanceof IGuiPluginModelWidgetsListener model) {
+      return Optional.of(
+          new IGuiPluginCompositeWidgetsListener() {
+            @Override
+            public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+              model.widgetsCreated(compositeWidgets);
+            }
+
+            @Override
+            public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+              model.widgetsPopulated(compositeWidgets);
+            }
+
+            @Override
+            public void widgetModified(
+                GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+              model.widgetModified(compositeWidgets, widgetId);
+            }
+
+            @Override
+            public void persistContents(GuiCompositeWidgets compositeWidgets) {
+              model.persistContents(compositeWidgets);
+            }
+          });
+    }
+    return Optional.empty();
+  }
+
   public void enableWidgets(Object sourceData, String parentGuiElementId, boolean enabled) {
     GuiRegistry registry = GuiRegistry.getInstance();
     GuiElements guiElements =
@@ -2187,7 +2229,7 @@ public class GuiCompositeWidgets {
     } else {
       if (raw != null) {
         LogChannel.UI.logError(
-            "TABLE widget '" + guiElements.getId() + "' is not a List and is shown empty");
+            CONST_TABLE_WIDGET + guiElements.getId() + "' is not a List and is shown empty");
       }
       values = List.of();
     }
@@ -2268,7 +2310,7 @@ public class GuiCompositeWidgets {
       constructor = rowClass.getConstructor();
     } catch (NoSuchMethodException e) {
       LogChannel.UI.logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + guiElements.getId()
               + "' row class "
               + rowClass.getName()
@@ -2310,7 +2352,7 @@ public class GuiCompositeWidgets {
       }
     } else if (raw != null) {
       LogChannel.UI.logError(
-          "TABLE widget '" + guiElements.getId() + "' is not a List, replacing the value");
+          CONST_TABLE_WIDGET + guiElements.getId() + "' is not a List, replacing the value");
     }
     writeList(sourceData, guiElements, built);
   }

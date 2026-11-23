@@ -24,7 +24,7 @@ public enum WindowTriggerType {
   RepeatedlyForeverAfterWatermarkPastEndOfWindow(
       "Repeatedly forever: after watermark, past the end of the window");
 
-  private String description;
+  private final String description;
 
   WindowTriggerType(String description) {
     this.description = description;

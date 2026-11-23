@@ -404,19 +404,18 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     // Now add a tableview with the 2 columns to specify: input and output
     // fields for the source and target transforms.
     //
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.column.Variable"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.column.ValueOrField"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.column.Variable"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SimpleMappingDialog.Parameters.column.ValueOrField"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     colinfo[1].setUsingVariables(true);
 
     final TableView wMappingParameters =
@@ -566,11 +565,10 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     fdbEnterMapping.right = new FormAttachment(100);
     wbEnterMapping.setLayoutData(fdbEnterMapping);
 
-    ColumnInfo[] colinfo =
-        new ColumnInfo[] {
-          new ColumnInfo(sourceColumnLabel, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo(targetColumnLabel, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-        };
+    ColumnInfo[] colinfo = {
+      new ColumnInfo(sourceColumnLabel, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+      new ColumnInfo(targetColumnLabel, ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+    };
     final TableView wFieldMappings =
         new TableView(
             variables,

@@ -396,9 +396,8 @@ public class MetadataManager<T extends IHopMetadata> {
     // Create the dialog class editor...
     // Always pass the shell, the metadata and the object to edit...
     //
-    Class<?>[] constructorArguments =
-        new Class<?>[] {Shell.class, IHopMetadataProvider.class, managedClass};
-    Object[] constructorParameters = new Object[] {hopGui.getShell(), metadataProvider, object};
+    Class<?>[] constructorArguments = {Shell.class, IHopMetadataProvider.class, managedClass};
+    Object[] constructorParameters = {hopGui.getShell(), metadataProvider, object};
 
     Class<IMetadataDialog> dialogClass;
     try {
@@ -609,8 +608,7 @@ public class MetadataManager<T extends IHopMetadata> {
     //
     try {
 
-      Class<?>[] constructorArguments =
-          new Class<?>[] {HopGui.class, MetadataManager.class, metadata.getClass()};
+      Class<?>[] constructorArguments = {HopGui.class, MetadataManager.class, metadata.getClass()};
 
       Constructor<MetadataEditor<T>> constructor;
       constructor = editorClass.getDeclaredConstructor(constructorArguments);

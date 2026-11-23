@@ -22,7 +22,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 
 public class CompositeFileErrorHandler implements IFileErrorHandler {
-  private List<IFileErrorHandler> handlers;
+  private final List<IFileErrorHandler> handlers;
 
   public CompositeFileErrorHandler(List<IFileErrorHandler> handlers) {
     super();

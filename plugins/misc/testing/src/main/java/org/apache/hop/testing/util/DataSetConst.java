@@ -49,6 +49,7 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.UnitTestResult;
+import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.xp.RowCollection;
 
 public class DataSetConst {
@@ -74,6 +75,12 @@ public class DataSetConst {
 
   public static final String ROW_COLLECTION_MAP = "RowCollectionMap";
   public static final String UNIT_TEST_RESULTS = "UnitTestResults";
+
+  /**
+   * The pipeline a unit test run was made from, before it was changed for the test (golden data
+   * transforms replaced, a copy without a file name): what the test's results are about.
+   */
+  public static final String UNIT_TEST_ORIGINAL_PIPELINE = "UNIT_TEST_ORIGINAL_PIPELINE";
 
   public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
@@ -106,12 +113,11 @@ public class DataSetConst {
    */
   public static final double NUMERIC_COMPARE_EPSILON = 0.000001d;
 
-  private static final String[] tweakDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.BYPASS_TRANSFORM.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.Tweak.REMOVE_TRANSFORM.Desc"),
-      };
+  private static final String[] tweakDesc = {
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.NONE.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.BYPASS_TRANSFORM.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.Tweak.REMOVE_TRANSFORM.Desc"),
+  };
 
   /**
    * Legacy stored codes. Dialogs show the translated label and write this code back. Any other type
@@ -121,11 +127,10 @@ public class DataSetConst {
 
   public static final String TEST_TYPE_UNIT_TEST = "UNIT_TEST";
 
-  private static final String[] testTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "DataSetConst.TestType.DEVELOPMENT.Desc"),
-        BaseMessages.getString(PKG, "DataSetConst.TestType.UNIT_TEST.Desc"),
-      };
+  private static final String[] testTypeDesc = {
+    BaseMessages.getString(PKG, "DataSetConst.TestType.DEVELOPMENT.Desc"),
+    BaseMessages.getString(PKG, "DataSetConst.TestType.UNIT_TEST.Desc"),
+  };
 
   /**
    * Validate the execution results of a pipeline against the golden data sets of a unit test.
@@ -747,5 +752,17 @@ public class DataSetConst {
 
   public static String[] getTweakDescriptions() {
     return tweakDesc;
+  }
+
+  /**
+   * The unit test active for the pipeline in Hop GUI, or null. Outside Hop GUI and Hop Web there is
+   * none, and this answers without loading TestingGuiPlugin, which needs SWT to load: code that
+   * also runs in hop-run, hop-server or on a Spark executor asks here.
+   */
+  public static PipelineUnitTest getActiveUnitTest(PipelineMeta pipelineMeta) {
+    if (!Const.isGuiRuntime()) {
+      return null;
+    }
+    return TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
   }
 }

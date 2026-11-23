@@ -20,12 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,5 +156,86 @@ class XmlJoinMetaGetFieldsTest {
     assertEquals("b", strings[0]);
     assertEquals("c", strings[1]);
     assertEquals("result xml field name", strings[2]);
+  }
+
+  /**
+   * The previous fields are merged in the order of the hops: with the source's hop first, a field
+   * both streams have keeps the source's type, and the fields come in the source's order. The
+   * transform writes the target's row, so that is what it declares.
+   */
+  @Test
+  void testGetFieldsGiveTheTargetRowWhateverTheOrderOfThePreviousFields() throws Exception {
+    RowMeta source = new RowMeta();
+    source.addValueMeta(new ValueMetaInteger("c"));
+    source.addValueMeta(new ValueMetaString("a"));
+    RowMeta target = new RowMeta();
+    target.addValueMeta(new ValueMetaString("a"));
+    target.addValueMeta(new ValueMetaString("c"));
+    // As PipelineMeta merges the fields of the previous transforms, the source's first
+    RowMeta rowMeta = source.clone();
+    xmlJoinMeta.setValueXmlField("xml");
+
+    xmlJoinMeta.getFields(
+        rowMeta, "join", new IRowMeta[] {target, source}, null, new Variables(), null);
+
+    assertEquals(List.of("a", "c", "xml"), List.of(rowMeta.getFieldNames()));
+    assertEquals(IValueMeta.TYPE_STRING, rowMeta.getValueMeta(1).getType());
+  }
+
+  /**
+   * At design time Hop gives an empty row for the target stream: the info streams of the XML join
+   * have no transform set. The fields are those of the target transform, found by name, plus the
+   * XML field, whatever the order of the hops.
+   */
+  @Test
+  void testGetFieldsAtDesignTimeGiveTheTargetRow() throws Exception {
+    PipelineMeta designTime = new PipelineMeta();
+    TransformMeta target =
+        new TransformMeta(
+            "Fields",
+            "target",
+            new DeclaresFields(new ValueMetaString("a"), new ValueMetaString("xml")));
+    TransformMeta source =
+        new TransformMeta("Fields", "source", new DeclaresFields(new ValueMetaInteger("b")));
+    xmlJoinMeta.setTargetXmlTransform("target");
+    xmlJoinMeta.setSourceXmlTransform("source");
+    xmlJoinMeta.setTargetXmlField("xml");
+    xmlJoinMeta.setValueXmlField("out");
+    TransformMeta join = new TransformMeta("XMLJoin", "join", xmlJoinMeta);
+    designTime.addTransform(target);
+    designTime.addTransform(source);
+    designTime.addTransform(join);
+    // The source's hop first: its fields come first in the merged previous fields
+    designTime.addPipelineHop(new PipelineHopMeta(source, join));
+    designTime.addPipelineHop(new PipelineHopMeta(target, join));
+    xmlJoinMeta.searchInfoAndTargetTransforms(designTime.getTransforms());
+
+    IRowMeta fields = designTime.getTransformFields(new Variables(), join);
+
+    assertEquals(List.of("a", "xml", "out"), List.of(fields.getFieldNames()));
+  }
+
+  /** A transform that only declares the fields it is given. */
+  private static class DeclaresFields extends BaseTransformMeta {
+    private final IValueMeta[] fields;
+
+    DeclaresFields(IValueMeta... fields) {
+      this.fields = fields;
+    }
+
+    @Override
+    public void getFields(
+        IRowMeta row,
+        String name,
+        IRowMeta[] info,
+        TransformMeta nextTransform,
+        IVariables variables,
+        IHopMetadataProvider metadataProvider) {
+      for (IValueMeta field : fields) {
+        IValueMeta copy = field.clone();
+        copy.setOrigin(name);
+        row.addValueMeta(copy);
+      }
+    }
   }
 }

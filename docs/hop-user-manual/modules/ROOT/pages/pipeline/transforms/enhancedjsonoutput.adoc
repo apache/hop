@@ -173,3 +173,7 @@ The sample writes this value.
 ----
 {"results":[{"campo1":"C","details":[{"campo2":"B","campo3":"7"},{"campo2":"F","campo3":"5"},{"campo2":"F","campo3":"6"},{"campo2":"V","campo3":"6"}]},{"campo1":"B","details":[{"campo2":"C","campo3":"1"},{"campo2":"C","campo3":"2"},{"campo2":"D","campo3":"4"}]},{"campo1":"A","details":[{"campo2":"B","campo3":"1"},{"campo2":"B","campo3":"2"}]}]}
 ----
+
+== Samples
+
+The samples project has `transforms/json-output-generate-nested-structure.hpl`: a first Enhanced JSON output groups the `field2` and `field3` values of nine rows by `field1`, and a second one puts those groups as `details` in a single `results` JSON value.

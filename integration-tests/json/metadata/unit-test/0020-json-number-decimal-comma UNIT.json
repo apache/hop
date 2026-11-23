@@ -1,0 +1,49 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-json-number-decimal-comma-normalize",
+      "transform_name": "Validate normalize"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "amount",
+          "data_set_field": "amount"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-json-number-decimal-comma-input",
+      "transform_name": "Validate input"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0020-json-number-decimal-comma UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0020-json-number-decimal-comma.hpl"
+}

@@ -1,0 +1,5 @@
+column_name,result
+id,Y
+description,Y
+order,Y
+not_there,N

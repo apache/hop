@@ -22,13 +22,13 @@ public class Selector {
 
   private static final String OPEN_BRACKET = "(";
 
-  private String columnName;
+  private final String columnName;
 
-  private String alias;
+  private final String alias;
 
-  private CqlFunctions function;
+  private final CqlFunctions function;
 
-  private boolean isFunction;
+  private final boolean isFunction;
 
   /**
    * @param columnName

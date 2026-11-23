@@ -38,6 +38,13 @@ public class ScriptData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
+
+  /** The Hop type of each output field, resolved on the first row. */
+  public int[] fieldTypes;
+
+  /** Runs a Groovy row script directly; null for other languages, which use the engine. */
+  GroovyRowScript groovyRowScript;
+
   public boolean hasPreviousTransforms;
 
   /** */

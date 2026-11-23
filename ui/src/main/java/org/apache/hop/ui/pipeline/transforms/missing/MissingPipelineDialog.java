@@ -48,9 +48,9 @@ public class MissingPipelineDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MissingPipelineDialog.class;
 
-  private Shell shellParent;
+  private final Shell shellParent;
   private List<Missing> missingPipeline;
-  private int mode;
+  private final int mode;
   private String transformResult;
 
   public static final int MISSING_PIPELINE_TRANSFORMS = 1;

@@ -146,7 +146,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private String transformName;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   @Getter @Setter private String containerId;
 
@@ -3980,6 +3980,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void initBeforeStart() throws HopTransformException {
     // Do nothing
+  }
+
+  /** True when the engine did the once-per-run preparation of this transform. */
+  private boolean preparedOnce;
+
+  @Override
+  public boolean isPreparedOnce() {
+    return preparedOnce;
+  }
+
+  @Override
+  public void setPreparedOnce(boolean preparedOnce) {
+    this.preparedOnce = preparedOnce;
   }
 
   @Override

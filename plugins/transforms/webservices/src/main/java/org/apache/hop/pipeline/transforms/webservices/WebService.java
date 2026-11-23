@@ -105,13 +105,13 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
   private int nbRowProcess;
 
-  private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+  private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-  private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-  private DecimalFormat decFormat = new DecimalFormat("00");
+  private final DecimalFormat decFormat = new DecimalFormat("00");
 
   private Date dateRef;
 

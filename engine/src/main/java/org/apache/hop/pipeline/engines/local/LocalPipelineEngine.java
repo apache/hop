@@ -70,6 +70,7 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
     name = "Hop local pipeline engine",
     description = "Executes your pipeline locally in a multi-threaded fashion")
 public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
+  private static final String CONST_NON_FATAL = " (non-fatal)";
 
   private PipelineEngineCapabilities engineCapabilities = new LocalPipelineEngineCapabilities();
 
@@ -401,7 +402,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     } catch (Throwable e) {
       log.logError(
           "Unable to register the failed pipeline at the execution information location"
-              + " (non-fatal)",
+              + CONST_NON_FATAL,
           e);
       executionInfoLocation = null;
     }
@@ -601,7 +602,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                   log.logError(
                       "Warning: unable to register execution data at location "
                           + executionInfoLocation.getName()
-                          + " (non-fatal)",
+                          + CONST_NON_FATAL,
                       e);
                 }
               }
@@ -612,7 +613,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
                 log.logError(
                     "Warning: unable to register execution state at location "
                         + executionInfoLocation.getName()
-                        + " (non-fatal)",
+                        + CONST_NON_FATAL,
                     e);
               }
             }

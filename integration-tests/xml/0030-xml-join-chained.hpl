@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0030-xml-join-chained</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Issue #9515: one export document built by a chain of XML Joins. Every join reads the document the join before it wrote, and the last row carries the result of every join. The unit test compares the 'result' row with a golden data set.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/17 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/17 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname/>
+      <fontsize>-1</fontsize>
+      <height>140</height>
+      <xloc>464</xloc>
+      <yloc>320</yloc>
+      <note>A chain of XML Joins, each one adds to the document the join before it wrote:
+1. add customers: under one node, the root has a namespace prefix: /*[name()='shop:export']/customers
+2. add customer C4: the source is the output of another XML Join (build customer C4)
+3. add orders: by key on an attribute, String key, two orders for C1
+4. add lines: by key on a child element, Integer key, also lines for the order of C4
+5. add discounts: by key on a prefixed attribute: @*[name()='shop:sku']
+6. add shipments: the key field holds the XPath, later rows go under a shipment an earlier row added
+7. add note: under one node by position, with the XML header and omit null values (drops the empty orders of C3)
+The XPath statements in 1, 3, 4, 7 are the ones a click in the dialog's target document writes.</note>
+      <width>760</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>C4 customer document</from>
+      <to>build customer C4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>C4 orders</from>
+      <to>build customer C4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>export document</from>
+      <to>add customers</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>customers</from>
+      <to>add customers</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add customers</from>
+      <to>add customer C4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>build customer C4</from>
+      <to>add customer C4</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add customer C4</from>
+      <to>add orders</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>orders</from>
+      <to>add orders</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add orders</from>
+      <to>add lines</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>lines</from>
+      <to>add lines</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add lines</from>
+      <to>add discounts</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>discounts</from>
+      <to>add discounts</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add discounts</from>
+      <to>add shipments</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>shipments</from>
+      <to>add shipments</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add shipments</from>
+      <to>add note</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>note</from>
+      <to>add note</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>add note</from>
+      <to>result</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+
+  <transform>
+    <name>export document</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;shop:export xmlns:shop="urn:example:shop" day="2026-11-17"&gt;&lt;customers/&gt;&lt;/shop:export&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>doc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>customers</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;customer id="C1"&gt;&lt;name&gt;Ada &amp;amp; Co&lt;/name&gt;&lt;orders/&gt;&lt;/customer&gt;</item>
+      </line>
+      <line>
+        <item>&lt;customer id="C2"&gt;&lt;name&gt;Zoë&lt;/name&gt;&lt;orders/&gt;&lt;/customer&gt;</item>
+      </line>
+      <line>
+        <item>&lt;customer id="C3"&gt;&lt;name&gt;Grace&lt;/name&gt;&lt;orders/&gt;&lt;/customer&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>customer</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>C4 customer document</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;customer id="C4"&gt;&lt;name&gt;Linus&lt;/name&gt;&lt;orders/&gt;&lt;/customer&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>customerDoc</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>C4 orders</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;order&gt;&lt;number&gt;1004&lt;/number&gt;&lt;lines/&gt;&lt;/order&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>order</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>432</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>orders</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>C1</item>
+        <item>&lt;order&gt;&lt;number&gt;1001&lt;/number&gt;&lt;lines/&gt;&lt;/order&gt;</item>
+      </line>
+      <line>
+        <item>C2</item>
+        <item>&lt;order&gt;&lt;number&gt;1002&lt;/number&gt;&lt;lines/&gt;&lt;/order&gt;</item>
+      </line>
+      <line>
+        <item>C1</item>
+        <item>&lt;order&gt;&lt;number&gt;1003&lt;/number&gt;&lt;lines/&gt;&lt;/order&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>customerId</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>order</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>lines</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>1001</item>
+        <item>&lt;line shop:sku="A-1" qty="2"/&gt;</item>
+      </line>
+      <line>
+        <item>1002</item>
+        <item>&lt;line shop:sku="A-1" qty="5"/&gt;</item>
+      </line>
+      <line>
+        <item>1001</item>
+        <item>&lt;line shop:sku="B-7" qty="1"/&gt;</item>
+      </line>
+      <line>
+        <item>1003</item>
+        <item>&lt;line shop:sku="C-3" qty="1"/&gt;</item>
+      </line>
+      <line>
+        <item>1004</item>
+        <item>&lt;line shop:sku="D-9" qty="3"/&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>orderNumber</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>line</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>discounts</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>B-7</item>
+        <item>&lt;discount percent="10"/&gt;</item>
+      </line>
+      <line>
+        <item>D-9</item>
+        <item>&lt;discount percent="25"&gt;&lt;reason&gt;2 &amp;lt; 3&lt;/reason&gt;&lt;/discount&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>sku</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>discount</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>992</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>shipments</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>/*[name()='shop:export']/customers/customer/orders/order[number='1001']</item>
+        <item>&lt;shipment id="S1"&gt;&lt;parcels/&gt;&lt;/shipment&gt;</item>
+      </line>
+      <line>
+        <item>//shipment[@id='S1']/parcels</item>
+        <item>&lt;parcel kg="2.5"/&gt;</item>
+      </line>
+      <line>
+        <item>//shipment[@id='S1']/parcels</item>
+        <item>&lt;parcel kg="0.4"/&gt;</item>
+      </line>
+      <line>
+        <item>//order[number='1004']</item>
+        <item>&lt;shipment id="S2"&gt;&lt;parcels&gt;&lt;parcel kg="1"/&gt;&lt;/parcels&gt;&lt;/shipment&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>path</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>shipment</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1168</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>note</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;note&gt;deliver after 18:00 &amp;amp; ring twice&lt;/note&gt;</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>note</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1344</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>build customer C4</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField></joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>order</sourceXmlField>
+    <sourceXmlTransform>C4 orders</sourceXmlTransform>
+    <targetXPath>/customer/orders</targetXPath>
+    <targetXmlField>customerDoc</targetXmlField>
+    <targetXmlTransform>C4 customer document</targetXmlTransform>
+    <valueXmlField>customerXml</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>384</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add customers</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField></joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>customer</sourceXmlField>
+    <sourceXmlTransform>customers</sourceXmlTransform>
+    <targetXPath>/*[name()='shop:export']/customers</targetXPath>
+    <targetXmlField>doc</targetXmlField>
+    <targetXmlTransform>export document</targetXmlTransform>
+    <valueXmlField>xmlCustomers</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add customer C4</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField></joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>customerXml</sourceXmlField>
+    <sourceXmlTransform>build customer C4</sourceXmlTransform>
+    <targetXPath>/*[name()='shop:export']/customers</targetXPath>
+    <targetXmlField>xmlCustomers</targetXmlField>
+    <targetXmlTransform>add customers</targetXmlTransform>
+    <valueXmlField>xmlCustomerC4</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add orders</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>customerId</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>order</sourceXmlField>
+    <sourceXmlTransform>orders</sourceXmlTransform>
+    <targetXPath>/*[name()='shop:export']/customers/customer[@id='?']/orders</targetXPath>
+    <targetXmlField>xmlCustomerC4</targetXmlField>
+    <targetXmlTransform>add customer C4</targetXmlTransform>
+    <valueXmlField>xmlOrders</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add lines</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>orderNumber</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>line</sourceXmlField>
+    <sourceXmlTransform>lines</sourceXmlTransform>
+    <targetXPath>/*[name()='shop:export']/customers/customer/orders/order[number='?']/lines</targetXPath>
+    <targetXmlField>xmlOrders</targetXmlField>
+    <targetXmlTransform>add orders</targetXmlTransform>
+    <valueXmlField>xmlLines</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add discounts</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>sku</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>discount</sourceXmlField>
+    <sourceXmlTransform>discounts</sourceXmlTransform>
+    <targetXPath>//line[@*[name()='shop:sku']='?']</targetXPath>
+    <targetXmlField>xmlLines</targetXmlField>
+    <targetXmlTransform>add lines</targetXmlTransform>
+    <valueXmlField>xmlDiscounts</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>992</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add shipments</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>Y</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField>path</joinCompareField>
+    <omitNullValues>N</omitNullValues>
+    <omitXmlHeader>Y</omitXmlHeader>
+    <sourceXmlField>shipment</sourceXmlField>
+    <sourceXmlTransform>shipments</sourceXmlTransform>
+    <targetXPath>?</targetXPath>
+    <targetXmlField>xmlDiscounts</targetXmlField>
+    <targetXmlTransform>add discounts</targetXmlTransform>
+    <valueXmlField>xmlShipments</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>1168</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>add note</name>
+    <type>XMLJoin</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <complexJoin>N</complexJoin>
+    <encoding>UTF-8</encoding>
+    <joinCompareField></joinCompareField>
+    <omitNullValues>Y</omitNullValues>
+    <omitXmlHeader>N</omitXmlHeader>
+    <sourceXmlField>note</sourceXmlField>
+    <sourceXmlTransform>note</sourceXmlTransform>
+    <targetXPath>/*[name()='shop:export']/customers/customer[2]</targetXPath>
+    <targetXmlField>xmlShipments</targetXmlField>
+    <targetXmlTransform>add shipments</targetXmlTransform>
+    <valueXmlField>xmlExport</valueXmlField>
+    <attributes/>
+    <GUI>
+      <xloc>1344</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>result</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1520</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -17,12 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -83,5 +91,25 @@ class UniqueRowsMetaTest {
       return testObject.getName().equals(actualObject.getName())
           && testObject.isCaseInsensitive() == actualObject.isCaseInsensitive();
     }
+  }
+
+  /** A duplicate goes to the error hop with its count when the transform counts. */
+  @Test
+  void testErrorRowFieldsHoldTheCount() throws Exception {
+    UniqueRowsMeta meta = new UniqueRowsMeta();
+    meta.setCountField("n");
+    IRowMeta row = new RowMeta();
+    row.addValueMeta(new ValueMetaString("code"));
+
+    meta.setCountRows(false);
+    IRowMeta withoutCount = row.clone();
+    meta.getErrorRowFields(withoutCount, "unique", new Variables(), null);
+    assertEquals(List.of("code"), List.of(withoutCount.getFieldNames()));
+
+    meta.setCountRows(true);
+    IRowMeta withCount = row.clone();
+    meta.getErrorRowFields(withCount, "unique", new Variables(), null);
+    assertEquals(List.of("code", "n"), List.of(withCount.getFieldNames()));
+    assertEquals(IValueMeta.TYPE_INTEGER, withCount.getValueMeta(1).getType());
   }
 }

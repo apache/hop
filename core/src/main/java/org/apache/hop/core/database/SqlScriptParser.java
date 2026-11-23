@@ -36,7 +36,7 @@ public class SqlScriptParser {
     STRING
   }
 
-  private boolean usingBackslashAsEscapeCharForQuotation;
+  private final boolean usingBackslashAsEscapeCharForQuotation;
 
   /**
    * @param usingBackslashAsEscapeCharForQuotation use backslash as escape char for quotation (\')

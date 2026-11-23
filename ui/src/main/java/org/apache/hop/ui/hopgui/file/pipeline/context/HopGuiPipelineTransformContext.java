@@ -48,7 +48,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
   private TransformMeta transformMeta;
   private HopGuiPipelineGraph pipelineGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiPipelineTransformContext> lambdaBuilder;
+  private final GuiActionLambdaBuilder<HopGuiPipelineTransformContext> lambdaBuilder;
 
   public HopGuiPipelineTransformContext(
       PipelineMeta pipelineMeta,

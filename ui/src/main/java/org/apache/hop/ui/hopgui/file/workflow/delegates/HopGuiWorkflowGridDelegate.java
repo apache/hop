@@ -52,7 +52,7 @@ public class HopGuiWorkflowGridDelegate {
 
   private static final Class<?> PKG = HopGuiWorkflowGridDelegate.class;
 
-  private HopGui hopGui;
+  private final HopGui hopGui;
 
   public static final long REFRESH_TIME = 100L;
   public static final long UPDATE_TIME_VIEW = 1000L;
@@ -70,7 +70,7 @@ public class HopGuiWorkflowGridDelegate {
   /** Column index for Bytes written */
   private static final int COL_BYTES_WRITTEN = 9;
 
-  private HopGuiWorkflowGraph workflowGraph;
+  private final HopGuiWorkflowGraph workflowGraph;
   private CTabItem workflowGridTab;
   private Tree wTree;
 

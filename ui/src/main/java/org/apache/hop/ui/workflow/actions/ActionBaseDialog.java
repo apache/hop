@@ -28,8 +28,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.NameFromFilenamePrompt;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -504,21 +503,20 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     final int parameterRows = getParameterCount();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.Parameter.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.ColumnName.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionPipeline.Parameters.Value.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.Parameter.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.ColumnName.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionPipeline.Parameters.Value.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[2].setUsingVariables(true);
 
     wParameters =
@@ -633,22 +631,9 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wAppendLogfile.setEnabled(wSetLogfile.getSelection());
   }
 
+  /** Offer to give the action the name of the file that was just picked. */
   protected void replaceNameWithBaseFilename(String filename) {
-    // Ask to set the name to the base filename...
-    //
-    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-    box.setText("Change name?");
-    box.setMessage("Do you want to change the name of the action to match the filename?");
-    int answer = box.open();
-    if ((answer & SWT.YES) != 0) {
-      try {
-        String baseName = HopVfs.getFileObject(variables.resolve(filename)).getName().getBaseName();
-        wName.setText(baseName);
-      } catch (Exception e) {
-        new ErrorDialog(
-            shell, "Error", "Error extracting name from filename '" + filename + "'", e);
-      }
-    }
+    NameFromFilenamePrompt.askToReplaceName(shell, variables, filename, wName, true);
   }
 
   private void openReferencedFile() {

@@ -58,10 +58,10 @@ public class EnterOrderedListDialog extends Dialog {
 
   public static final int LARGE_MARGIN = 15;
 
-  private String[] input;
+  private final String[] input;
   private String[] retval;
 
-  private Stack<String> selection = new Stack<>();
+  private final Stack<String> selection = new Stack<>();
 
   private Shell shell;
   private List wListSource;
@@ -284,7 +284,7 @@ public class EnterOrderedListDialog extends Dialog {
         shell, new Button[] {wOK, wCancel}, PropsUi.getMargin(), null);
 
     // Drag & Drop for steps
-    Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};
+    Transfer[] ttypes = {TextTransfer.getInstance()};
 
     DragSource ddSource = new DragSource(wListSource, DND.DROP_MOVE | DND.DROP_COPY);
     ddSource.setTransfer(ttypes);

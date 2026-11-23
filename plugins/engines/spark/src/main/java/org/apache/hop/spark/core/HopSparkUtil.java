@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Document;
@@ -85,5 +86,26 @@ public final class HopSparkUtil {
         XmlHandlerCache.getInstance().clear();
       }
     }
+  }
+
+  /**
+   * Loads a detached copy of the transform metadata from the transform's XML snapshot and resolves
+   * its info/target transforms against the pipeline. The live {@link TransformMeta#getTransform()}
+   * instance is never mutated.
+   *
+   * @param meta empty target instance to load into
+   * @param transformMeta the transform whose metadata snapshot is loaded
+   * @param metadataProvider metadata provider used by {@code loadXml}
+   * @param pipelineMeta pipeline the transform belongs to (for info/target resolution)
+   */
+  public static void loadTransformMetadata(
+      ITransformMeta meta,
+      TransformMeta transformMeta,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta)
+      throws HopException {
+    loadTransformMetadataFromXml(
+        transformMeta.getName(), meta, transformMeta.getXml(), metadataProvider);
+    meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
   }
 }

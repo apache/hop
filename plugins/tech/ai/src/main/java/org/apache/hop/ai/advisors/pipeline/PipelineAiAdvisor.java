@@ -19,6 +19,7 @@ package org.apache.hop.ai.advisors.pipeline;
 
 import java.util.List;
 import org.apache.hop.ai.advisor.AiAdvisorInclusion;
+import org.apache.hop.ai.advisor.AiAdvisorInclusionChoice;
 import org.apache.hop.ai.advisor.AiAdvisorLocations;
 import org.apache.hop.ai.advisor.AiAdvisorPlugin;
 import org.apache.hop.ai.advisor.AiAdvisorPrompt;
@@ -28,6 +29,7 @@ import org.apache.hop.ai.advisor.AiProposal;
 import org.apache.hop.ai.advisor.AiProposalValidation;
 import org.apache.hop.ai.advisor.IAiAdvisor;
 import org.apache.hop.ai.advisors.AiAdvisorInclusions;
+import org.apache.hop.ai.engine.AiAdvisorCatalogContext;
 import org.apache.hop.ai.engine.AiAdvisorEngine;
 import org.apache.hop.ai.engine.AiProposalNormalizer;
 import org.apache.hop.ai.engine.AiProposalPreview;
@@ -124,7 +126,25 @@ public class PipelineAiAdvisor implements IAiAdvisor {
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Metadata"),
             false,
             BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Metadata.Tooltip"),
-            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Metadata.Summary")));
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.Metadata.Summary")),
+        new AiAdvisorInclusion(
+            AiAdvisorInclusions.DATA_CATALOG,
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.DataCatalog"),
+            false,
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.DataCatalog.Tooltip"),
+            BaseMessages.getString(PKG, "PipelineAiAdvisor.Inclusion.DataCatalog.Summary"),
+            true,
+            false));
+  }
+
+  @Override
+  public List<AiAdvisorInclusionChoice> listInclusionChoices(
+      String inclusionId, AiAdvisorRequest request) {
+    if (AiAdvisorInclusions.DATA_CATALOG.equals(inclusionId)) {
+      return AiAdvisorCatalogContext.choices(
+          request == null ? null : request.getMetadataProvider());
+    }
+    return List.of();
   }
 
   @Override

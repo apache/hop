@@ -43,12 +43,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class StructuredExtractDialog extends BaseTransformDialog {
+  private static final String CONST_STRING = "String";
 
   private static final Class<?> PKG = StructuredExtractMeta.class;
 
   /** Types a language model can actually return, so the grid cannot offer one that will fail. */
   private static final String[] SUPPORTED_TYPES = {
-    "String", "Integer", "Number", "BigNumber", "Boolean", "Date", "Timestamp"
+    CONST_STRING, "Integer", "Number", "BigNumber", "Boolean", "Date", "Timestamp"
   };
 
   private final StructuredExtractMeta input;
@@ -118,31 +119,30 @@ public class StructuredExtractDialog extends BaseTransformDialog {
   }
 
   private void addFieldsTable(Composite parent) {
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              SUPPORTED_TYPES,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Description"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Required"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"Y", "N"},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.AllowedValues"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          SUPPORTED_TYPES,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Description"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.Required"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {"Y", "N"},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "StructuredExtractDialog.Fields.Column.AllowedValues"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
 
     int rows = input.getFields() != null ? input.getFields().size() : 0;
     wFields =
@@ -220,7 +220,7 @@ public class StructuredExtractDialog extends BaseTransformDialog {
     for (StructuredExtractField field : input.getFields()) {
       TableItem item = new TableItem(wFields.table, SWT.NONE);
       item.setText(1, Const.NVL(field.getName(), ""));
-      item.setText(2, Const.NVL(field.getType(), "String"));
+      item.setText(2, Const.NVL(field.getType(), CONST_STRING));
       item.setText(3, Const.NVL(field.getDescription(), ""));
       item.setText(4, field.isRequired() ? "Y" : "N");
       item.setText(5, Const.NVL(field.getAllowedValues(), ""));
@@ -255,7 +255,7 @@ public class StructuredExtractDialog extends BaseTransformDialog {
   /** A blank type column means String, which is what an unfilled row most likely wants. */
   private static String defaultedType(String type) {
     if (Utils.isEmpty(type)) {
-      return "String";
+      return CONST_STRING;
     }
     return ValueMetaFactory.getValueMetaName(ValueMetaFactory.getIdForValueMeta(type.trim()));
   }

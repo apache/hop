@@ -53,6 +53,9 @@ public class ReplayWorkflowRunConfiguration extends LocalWorkflowRunConfiguratio
 
   public ReplayWorkflowRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("Replay");
+    setEnginePluginName("Hop replay workflow engine");
   }
 
   public ReplayWorkflowRunConfiguration(ReplayWorkflowRunConfiguration config) {

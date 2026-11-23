@@ -52,8 +52,8 @@ import org.w3c.dom.NodeList;
  */
 public class RssNotificationProvider implements INotificationProvider {
   private String feedUrl;
-  private String providerId;
-  private String providerName;
+  private final String providerId;
+  private final String providerName;
   private boolean enabled = true;
   private long pollInterval = 3600000; // 1 hour default
   private String username;

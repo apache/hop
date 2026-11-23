@@ -72,6 +72,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 public class VCardOutputDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final String CONST_V_CARD_OUTPUT_DIALOG_GET_FIELDS_DIALOG_TITLE =
+      "VCardOutputDialog.GetFields.DialogTitle";
 
   private static final Class<?> PKG = VCardOutputDialog.class;
   private final VCardOutputMeta input;
@@ -704,7 +706,7 @@ public class VCardOutputDialog extends BaseTransformDialog implements ITransform
       if (row == null || row.isEmpty()) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.NoInput"));
-        mb.setText(BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.DialogTitle"));
+        mb.setText(BaseMessages.getString(PKG, CONST_V_CARD_OUTPUT_DIALOG_GET_FIELDS_DIALOG_TITLE));
         mb.open();
         return;
       }
@@ -713,7 +715,7 @@ public class VCardOutputDialog extends BaseTransformDialog implements ITransform
       if (mappings.isEmpty()) {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.NoMatches"));
-        mb.setText(BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.DialogTitle"));
+        mb.setText(BaseMessages.getString(PKG, CONST_V_CARD_OUTPUT_DIALOG_GET_FIELDS_DIALOG_TITLE));
         mb.open();
         return;
       }
@@ -723,7 +725,7 @@ public class VCardOutputDialog extends BaseTransformDialog implements ITransform
     } catch (HopException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.DialogTitle"),
+          BaseMessages.getString(PKG, CONST_V_CARD_OUTPUT_DIALOG_GET_FIELDS_DIALOG_TITLE),
           BaseMessages.getString(PKG, "VCardOutputDialog.GetFields.Failed", e.getMessage()),
           e);
     }

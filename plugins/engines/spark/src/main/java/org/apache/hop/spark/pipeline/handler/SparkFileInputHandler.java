@@ -66,6 +66,7 @@ import org.apache.spark.sql.types.StructType;
  * names.
  */
 public class SparkFileInputHandler extends SparkBaseTransformHandler {
+  private static final String CONST_SPARK_FILE_INPUT = "Spark File Input '";
 
   /** Common Hop/Spark date masks used when a field has no format set. */
   private static final String[] DEFAULT_DATE_FORMATS = {
@@ -116,11 +117,11 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     String path = SparkPathDialect.toSparkUri(resolved, runConfiguration);
     if (StringUtils.isEmpty(path)) {
       throw new HopException(
-          "Spark File Input '" + transformMeta.getName() + "' has no file path configured");
+          CONST_SPARK_FILE_INPUT + transformMeta.getName() + "' has no file path configured");
     }
     if (log != null && StringUtils.isNotEmpty(resolved) && !resolved.trim().equals(path)) {
       log.logBasic(
-          "Spark File Input '"
+          CONST_SPARK_FILE_INPUT
               + transformMeta.getName()
               + "' path scheme map: '"
               + resolved
@@ -255,7 +256,7 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
       } else {
         if (log != null) {
           log.logError(
-              "Spark File Input '"
+              CONST_SPARK_FILE_INPUT
                   + transformName
                   + "': no file column at position "
                   + i
@@ -269,11 +270,11 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     }
     if (projected.isEmpty()) {
       throw new HopException(
-          "Spark File Input '" + transformName + "' field list produced no output columns");
+          CONST_SPARK_FILE_INPUT + transformName + "' field list produced no output columns");
     }
     if (log != null) {
       log.logBasic(
-          "Spark File Input '"
+          CONST_SPARK_FILE_INPUT
               + transformName
               + "': mapped "
               + Math.min(i, columns.length)
@@ -320,7 +321,7 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
 
     if (!missing.isEmpty() && log != null) {
       log.logError(
-          "Spark File Input '"
+          CONST_SPARK_FILE_INPUT
               + transformName
               + "': field(s) not found in file header "
               + Arrays.toString(source.columns())
@@ -330,14 +331,14 @@ public class SparkFileInputHandler extends SparkBaseTransformHandler {
     }
     if (!unused.isEmpty() && log != null) {
       log.logBasic(
-          "Spark File Input '"
+          CONST_SPARK_FILE_INPUT
               + transformName
               + "': file column(s) not in field list (dropped): "
               + unused);
     }
     if (projected.isEmpty()) {
       throw new HopException(
-          "Spark File Input '" + transformName + "' field list produced no output columns");
+          CONST_SPARK_FILE_INPUT + transformName + "' field list produced no output columns");
     }
 
     return source.select(projected.toArray(new Column[0]));

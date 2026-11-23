@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Azure Event Hubs writer transform allows you to write messages (events) to Event Hubs on the Microsoft Azure cloud platform.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/azure.svg[Azure Event Hubs writer Icon, role="image-doc-icon"] Azure Event Hubs writer
 
@@ -38,3 +38,7 @@ This needs to be a policy with the "Send" claim enabled.
 * Message field: the field containing the message to use as the events.
 Please note you can use a transform like JSON Output or "Java Script" to assemble the message.
 
+== Samples
+
+The samples project has `transforms/azure-event-hubs-writer.hpl`, which sends one event per row of a Data grid to an event hub.
+Fill in the Event Hubs connection settings and choose `id` or `name` as the Message field before you run it.

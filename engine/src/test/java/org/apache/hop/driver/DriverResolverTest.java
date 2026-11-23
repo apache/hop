@@ -18,11 +18,14 @@
 package org.apache.hop.driver;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.Exclusion;
 import org.junit.jupiter.api.Test;
 
@@ -74,5 +77,34 @@ class DriverResolverTest {
             Arrays.asList("  ", null, "com.example:a", "", "com.example:b"));
 
     assertEquals(2, exclusions.size());
+  }
+
+  @Test
+  void managedVersionsAreParsed() throws HopException {
+    List<Dependency> managed =
+        DriverResolver.toManagedDependencies(List.of("com.google.protobuf:protobuf-java:4.34.1"));
+
+    assertEquals(1, managed.size());
+    assertEquals("com.google.protobuf", managed.get(0).getArtifact().getGroupId());
+    assertEquals("protobuf-java", managed.get(0).getArtifact().getArtifactId());
+    assertEquals("4.34.1", managed.get(0).getArtifact().getVersion());
+    assertEquals("jar", managed.get(0).getArtifact().getExtension());
+  }
+
+  @Test
+  void nullEmptyAndBlankManagedVersionsProduceNothing() throws HopException {
+    assertTrue(DriverResolver.toManagedDependencies(null).isEmpty());
+    assertTrue(DriverResolver.toManagedDependencies(List.of()).isEmpty());
+    assertTrue(DriverResolver.toManagedDependencies(Arrays.asList(" ", null)).isEmpty());
+  }
+
+  @Test
+  void aManagedVersionWithoutVersionIsRejected() {
+    assertThrows(
+        HopException.class,
+        () -> DriverResolver.toManagedDependencies(List.of("com.google.protobuf:protobuf-java")));
+    assertThrows(
+        HopException.class,
+        () -> DriverResolver.toManagedDependencies(List.of("com.google.protobuf:protobuf-java: ")));
   }
 }

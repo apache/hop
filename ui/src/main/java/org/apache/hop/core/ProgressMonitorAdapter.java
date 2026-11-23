@@ -18,7 +18,7 @@
 package org.apache.hop.core;
 
 public class ProgressMonitorAdapter implements IProgressMonitor {
-  private IProgressMonitor monitor;
+  private final IProgressMonitor monitor;
 
   public ProgressMonitorAdapter(IProgressMonitor monitor) {
     this.monitor = monitor;

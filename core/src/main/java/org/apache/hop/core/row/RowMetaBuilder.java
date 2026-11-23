@@ -26,7 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 
 public class RowMetaBuilder {
 
-  private RowMeta rowMeta;
+  private final RowMeta rowMeta;
 
   public RowMetaBuilder() {
     this.rowMeta = new RowMeta();

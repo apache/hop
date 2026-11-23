@@ -111,7 +111,7 @@ var COBJ = java.time.temporal;
 var JULIAN_DATE_OUTPUT = (convertDate.getYear() - 2000 + 100) * 1000 + COBJ.ChronoUnit.DAYS.between(java.time.LocalDate.of(convertDate.getYear(), 1, 1), convertDate.plusDays(1));
 
 // Take a JDE Julian date CYYDDD and convert it to a standard ISO date (yyyy-MM-dd)
-var ISO_DATE_OUTPUT = new Date(Date.UTC(1900+Math.floor(JULIAN_DATE_INPUT/1000), 0, JULIAN_DATE_INPUT % 1000+1));
+var ISO_DATE_OUTPUT = new Date(1900+Math.floor(JULIAN_DATE_INPUT/1000), 0, JULIAN_DATE_INPUT % 1000);
 </jsScript_script>
       </jsScript>
     </jsScripts>

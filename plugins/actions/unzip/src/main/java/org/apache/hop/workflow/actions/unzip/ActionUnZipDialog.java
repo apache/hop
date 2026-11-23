@@ -51,12 +51,11 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionUnZipDialog extends ActionDialog {
   private static final Class<?> PKG = ActionUnZip.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionUnZip.Filetype.Zip"),
-        BaseMessages.getString(PKG, "ActionUnZip.Filetype.Jar"),
-        BaseMessages.getString(PKG, "ActionUnZip.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionUnZip.Filetype.Zip"),
+    BaseMessages.getString(PKG, "ActionUnZip.Filetype.Jar"),
+    BaseMessages.getString(PKG, "ActionUnZip.Filetype.All")
+  };
   public static final String CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL =
       "ActionUnZip.BrowseFolders.Label";
 

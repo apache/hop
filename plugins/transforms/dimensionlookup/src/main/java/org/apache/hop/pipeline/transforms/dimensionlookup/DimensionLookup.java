@@ -457,6 +457,15 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       if (isDetailed()) {
         logDetailed("Sorting of cached rows finished.");
       }
+      // Look the natural key up in a hash index instead of binary-searching all rows.
+      //
+      boolean indexed = data.preloadCache.buildIndex();
+      if (isDetailed()) {
+        logDetailed(
+            indexed
+                ? "Indexed the cached rows by natural key."
+                : "The natural key cannot be indexed, the cached rows are binary-searched.");
+      }
 
       // Also see what indexes to take to populate the lookup row...
       // We only ever compare indexes and the lookup date in the cache, the rest is not needed...
@@ -536,6 +545,39 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     };
   }
 
+  /**
+   * The row to look up in the pre-load cache: the natural key converted to the types of the
+   * dimension table's key columns, and the lookup date on the date-from index, converted to the
+   * date-from column's type. The cache compares (and indexes) keys in the table's types, so the
+   * stream's key is converted once here, whatever type the stream carries it as.
+   */
+  static Object[] assemblePreloadLookupRow(
+      IRowMeta rowMeta,
+      Object[] row,
+      List<Integer> preloadIndexes,
+      DimensionCache preloadCache,
+      IValueMeta lookupDateMeta,
+      Date valueDate)
+      throws HopValueException {
+    IRowMeta preloadRowMeta = preloadCache.getRowMeta();
+    Object[] lookupRow = new Object[preloadRowMeta.size()];
+    int[] keyIndexes = preloadCache.getKeyIndexes();
+    for (int i = 0; i < preloadIndexes.size(); i++) {
+      int from = preloadIndexes.get(i); // Input row index
+      int to = keyIndexes[i]; // Lookup row index
+      IValueMeta fromValueMeta = rowMeta.getValueMeta(from);
+      IValueMeta toValueMeta = preloadRowMeta.getValueMeta(to);
+      lookupRow[to] = toValueMeta.convertData(fromValueMeta, row[from]);
+    }
+
+    // Also set the lookup date for the date-range comparison in the cache
+    //
+    int fromDateIndex = preloadCache.getFromDateIndex();
+    lookupRow[fromDateIndex] =
+        preloadRowMeta.getValueMeta(fromDateIndex).convertData(lookupDateMeta, valueDate);
+    return lookupRow;
+  }
+
   private Object[] lookupValues(IRowMeta rowMeta, Object[] row) throws HopException {
     DLFields f = meta.getFields();
 
@@ -559,41 +601,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       data.returnRowMeta = data.preloadCache.getRowMeta();
       lookupRowMeta = preloadRowMeta;
-      lookupRow = new Object[preloadRowMeta.size()];
-
-      // Assemble the lookup row, convert data if needed...
-      //
-      for (int i = 0; i < data.preloadIndexes.size(); i++) {
-        int from = data.preloadIndexes.get(i); // Input row index
-        int to = data.preloadCache.getKeyIndexes()[i]; // Lookup row index
-
-        // From data type...
-        //
-        IValueMeta fromValueMeta = rowMeta.getValueMeta(from);
-
-        // to date type...
-        //
-        IValueMeta toValueMeta = data.preloadCache.getRowMeta().getValueMeta(to);
-
-        // From value:
-        //
-        Object fromData = row[from];
-
-        // To value:
-        //
-        Object toData = toValueMeta.convertData(fromValueMeta, fromData);
-
-        // Set the key in the row...
-        //
-        lookupRow[to] = toData;
-      }
-
-      // Also set the lookup date for the date-range comparison in the cache
-      //
-      IValueMeta preloadFromDateMeta =
-          data.preloadCache.getRowMeta().getValueMeta(data.preloadFromDateIndex);
-      lookupRow[data.preloadFromDateIndex] =
-          preloadFromDateMeta.convertData(lookupDateMeta, valueDate);
+      lookupRow =
+          assemblePreloadLookupRow(
+              rowMeta, row, data.preloadIndexes, data.preloadCache, lookupDateMeta, valueDate);
 
       // Look up the row in the pre-load cache...
       //
@@ -1999,7 +2009,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     //
     IRowMeta paramsMeta = new RowMeta();
     paramsMeta.addValueMeta(data.tkFieldType);
-    Object[] paramsData = new Object[] {data.notFoundTk};
+    Object[] paramsData = {data.notFoundTk};
 
     DLFields f = meta.getFields();
 

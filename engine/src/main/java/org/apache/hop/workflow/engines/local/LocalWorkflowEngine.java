@@ -60,6 +60,7 @@ import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
     name = "Hop local workflow engine",
     description = "Executes your workflow locally")
 public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<WorkflowMeta> {
+  private static final String CONST_NON_FATAL = " (non-fatal)";
 
   /**
    * Must stay in sync with {@code org.apache.hop.spark.util.SparkConst#VAR_TRANSFORM_OWNER_ID}.
@@ -415,7 +416,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
               log.logError(
                   "Warning: unable to register execution state at location "
                       + executionInfoLocation.getName()
-                      + " (non-fatal)",
+                      + CONST_NON_FATAL,
                   e);
             }
           }
@@ -490,7 +491,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
         log.logError(
             "Error registering execution data before action "
                 + actionMeta.getName()
-                + " (non-fatal)",
+                + CONST_NON_FATAL,
             e);
       }
     }
@@ -510,7 +511,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
         log.logError(
             "Error registering execution data after action "
                 + actionMeta.getName()
-                + " (non-fatal)",
+                + CONST_NON_FATAL,
             e);
       }
     }

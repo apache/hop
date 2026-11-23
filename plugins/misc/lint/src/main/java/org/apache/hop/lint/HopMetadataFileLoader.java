@@ -50,6 +50,7 @@ import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
  * this class knowing about them.
  */
 public final class HopMetadataFileLoader {
+  private static final String CONST_METADATA = "/metadata/";
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
@@ -62,7 +63,7 @@ public final class HopMetadataFileLoader {
     // Normalise separators first: on Windows these paths arrive with backslashes, and matching
     // only "/metadata/" made every metadata rule silently no-op there.
     String lower = path.toLowerCase().replace('\\', '/');
-    return lower.contains("/metadata/") && lower.endsWith(".json");
+    return lower.contains(CONST_METADATA) && lower.endsWith(".json");
   }
 
   /**
@@ -76,11 +77,11 @@ public final class HopMetadataFileLoader {
       return null;
     }
     String normalised = path.replace('\\', '/');
-    int marker = normalised.toLowerCase().lastIndexOf("/metadata/");
+    int marker = normalised.toLowerCase().lastIndexOf(CONST_METADATA);
     if (marker < 0) {
       return null;
     }
-    String rest = normalised.substring(marker + "/metadata/".length());
+    String rest = normalised.substring(marker + CONST_METADATA.length());
     int slash = rest.indexOf('/');
     // Needs a folder between metadata/ and the file: metadata/foo.json has no type.
     return slash > 0 ? rest.substring(0, slash) : null;

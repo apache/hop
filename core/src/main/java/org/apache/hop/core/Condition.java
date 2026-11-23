@@ -74,8 +74,9 @@ public class Condition implements Cloneable {
 
   private static final String CONST_OR_NOT = "OR NOT";
   private static final String CONST_AND_NOT = "AND NOT";
-  public static final String[] operators =
-      new String[] {"-", "OR", "AND", "NOT", CONST_OR_NOT, CONST_AND_NOT, "XOR"};
+  public static final String[] operators = {
+    "-", "OR", "AND", "NOT", CONST_OR_NOT, CONST_AND_NOT, "XOR"
+  };
   public static final int OPERATOR_NONE = 0;
   public static final int OPERATOR_OR = 1;
   public static final int OPERATOR_AND = 2;
@@ -84,24 +85,23 @@ public class Condition implements Cloneable {
   public static final int OPERATOR_AND_NOT = 5;
   public static final int OPERATOR_XOR = 6;
 
-  public static final String[] functions =
-      new String[] {
-        "=",
-        "<>",
-        "<",
-        "<=",
-        ">",
-        ">=",
-        "REGEXP",
-        "IS NULL",
-        "IS NOT NULL",
-        "IN LIST",
-        "CONTAINS",
-        "STARTS WITH",
-        "ENDS WITH",
-        "LIKE",
-        "TRUE"
-      };
+  public static final String[] functions = {
+    "=",
+    "<>",
+    "<",
+    "<=",
+    ">",
+    ">=",
+    "REGEXP",
+    "IS NULL",
+    "IS NOT NULL",
+    "IN LIST",
+    "CONTAINS",
+    "STARTS WITH",
+    "ENDS WITH",
+    "LIKE",
+    "TRUE"
+  };
 
   public static final int FUNC_EQUAL = 0;
   public static final int FUNC_NOT_EQUAL = 1;

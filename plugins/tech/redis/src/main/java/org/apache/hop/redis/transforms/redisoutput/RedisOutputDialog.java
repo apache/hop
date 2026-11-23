@@ -403,48 +403,47 @@ public class RedisOutputDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(0, 0);
     wlStreamFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.StreamField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.DataStructure"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisDataStructure.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.Key"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.KeyCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.HashKey"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.HashKeyCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.ValueCodec"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              RedisCodecType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RedisOutputDialog.Column.TtlSeconds"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.StreamField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.DataStructure"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisDataStructure.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.Key"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.KeyCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.HashKey"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.HashKeyCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.ValueCodec"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          RedisCodecType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RedisOutputDialog.Column.TtlSeconds"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     columns[7].setUsingVariables(true);
 
     int fieldRows =

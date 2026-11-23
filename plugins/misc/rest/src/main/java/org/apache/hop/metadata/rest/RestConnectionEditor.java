@@ -17,7 +17,9 @@
 
 package org.apache.hop.metadata.rest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -36,9 +38,11 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -58,6 +62,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /**
@@ -140,6 +145,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wProxyPassword;
   private TextVar wNonProxyHosts;
 
+  private TableView wHeaders;
+
   private ComboVar wPaginationType;
   private TextVar wPageParamName;
   private TextVar wOffsetParamName;
@@ -149,9 +156,15 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wCursorXPath;
   private TextVar wNextPageUrlJsonPath;
   private TextVar wNextPageUrlXPath;
+  private TextVar wFirstPageNumber;
+  private TextVar wPageSizeParamName;
+  private TextVar wItemsJsonPath;
+  private TextVar wItemsXPath;
+  private TextVar wTotalCountJsonPath;
+  private TextVar wTotalCountXPath;
 
-  private int middle;
-  private int margin;
+  private final int middle;
+  private final int margin;
   private IVariables variables;
   Control lastControl;
 
@@ -595,6 +608,19 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
 
+    CTabItem wHeadersTabItem = new CTabItem(wTabFolder, SWT.NONE);
+    wHeadersTabItem.setFont(GuiResource.getInstance().getFontDefault());
+    wHeadersTabItem.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Headers.Title"));
+
+    Composite wHeadersInner = new Composite(wTabFolder, SWT.NONE);
+    FormLayout headersLayout = new FormLayout();
+    headersLayout.marginWidth = PropsUi.getFormMargin();
+    headersLayout.marginHeight = PropsUi.getFormMargin();
+    wHeadersInner.setLayout(headersLayout);
+    PropsUi.setLook(wHeadersInner);
+    buildHeadersWidgets(wHeadersInner);
+    wHeadersTabItem.setControl(wHeadersInner);
+
     CTabItem wAdvancedTabItem = new CTabItem(wTabFolder, SWT.NONE);
     wAdvancedTabItem.setFont(GuiResource.getInstance().getFontDefault());
     wAdvancedTabItem.setText(
@@ -614,14 +640,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wPaginationTabItem.setText(
         BaseMessages.getString(PKG, "RestConnectionEditor.Tab.Pagination.Title"));
 
-    Composite wPagInner = new Composite(wTabFolder, SWT.NONE);
+    // Scrolled: with the items and total count rows the tab no longer fits a small editor.
+    // Vertical only: the info text wraps, so the height depends on the width it gets.
+    ScrolledComposite wsPag = new ScrolledComposite(wTabFolder, SWT.V_SCROLL);
+    Composite wPagInner = new Composite(wsPag, SWT.NONE);
     FormLayout pagLayout = new FormLayout();
     pagLayout.marginWidth = PropsUi.getFormMargin();
     pagLayout.marginHeight = PropsUi.getFormMargin();
     wPagInner.setLayout(pagLayout);
     PropsUi.setLook(wPagInner);
     buildPaginationWidgets(wPagInner);
-    wPaginationTabItem.setControl(wPagInner);
+    wsPag.setContent(wPagInner);
+    wsPag.setExpandHorizontal(true);
+    wsPag.setExpandVertical(true);
+    wsPag.addListener(
+        SWT.Resize,
+        e -> wsPag.setMinHeight(wPagInner.computeSize(wsPag.getClientArea().width, SWT.DEFAULT).y));
+    wPaginationTabItem.setControl(wsPag);
 
     wTabFolder.setSelection(wConnectionTabItem);
 
@@ -661,9 +696,58 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wCursorJsonPath,
       wCursorXPath,
       wNextPageUrlJsonPath,
-      wNextPageUrlXPath
+      wNextPageUrlXPath,
+      wFirstPageNumber,
+      wPageSizeParamName,
+      wItemsJsonPath,
+      wItemsXPath,
+      wTotalCountJsonPath,
+      wTotalCountXPath
     };
     enableControls(controls);
+  }
+
+  /** Builds the table of headers sent on every request (issue #9551) on the Headers tab. */
+  private void buildHeadersWidgets(Composite p) {
+    Label wlInfo = new Label(p, SWT.LEFT | SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdlInfo = new FormData();
+    fdlInfo.left = new FormAttachment(0, 0);
+    fdlInfo.right = new FormAttachment(100, 0);
+    fdlInfo.top = new FormAttachment(0, margin);
+    wlInfo.setLayoutData(fdlInfo);
+
+    ColumnInfo nameColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Column.Name"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    nameColumn.setUsingVariables(true);
+    ColumnInfo valueColumn =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "RestConnectionEditor.Headers.Column.Value"),
+            ColumnInfo.COLUMN_TYPE_TEXT,
+            false,
+            false);
+    valueColumn.setUsingVariables(true);
+
+    wHeaders =
+        new TableView(
+            variables,
+            p,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            new ColumnInfo[] {nameColumn, valueColumn},
+            1,
+            e -> markChangedIfUserEdit(),
+            PropsUi.getInstance());
+    FormData fdHeaders = new FormData();
+    fdHeaders.left = new FormAttachment(0, 0);
+    fdHeaders.right = new FormAttachment(100, 0);
+    fdHeaders.top = new FormAttachment(wlInfo, margin);
+    fdHeaders.bottom = new FormAttachment(100, -margin);
+    wHeaders.setLayoutData(fdHeaders);
   }
 
   /** Builds the timeout and proxy settings on the dedicated Advanced tab. */
@@ -820,6 +904,22 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wPageParamName.setLayoutData(fdP);
     lastControl = wPageParamName;
 
+    wFirstPageNumber =
+        addPaginationTextRow(
+            p,
+            lastControl,
+            "RestConnectionEditor.Pagination.FirstPage.Label",
+            "RestConnectionEditor.Pagination.FirstPage.Tooltip");
+    lastControl = wFirstPageNumber;
+
+    wPageSizeParamName =
+        addPaginationTextRow(
+            p,
+            lastControl,
+            "RestConnectionEditor.Pagination.PageSizeParam.Label",
+            "RestConnectionEditor.Pagination.PageSizeParam.Tooltip");
+    lastControl = wPageSizeParamName;
+
     Label wlOff = new Label(p, SWT.RIGHT);
     wlOff.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Pagination.OffsetParam.Label"));
     PropsUi.setLook(wlOff);
@@ -948,8 +1048,58 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdNx.left = new FormAttachment(middle, margin);
     fdNx.right = new FormAttachment(100, -margin);
     wNextPageUrlXPath.setLayoutData(fdNx);
+    lastControl = wNextPageUrlXPath;
+
+    wItemsJsonPath =
+        addPaginationTextRow(
+            p,
+            lastControl,
+            "RestConnectionEditor.Pagination.ItemsJson.Label",
+            "RestConnectionEditor.Pagination.ItemsJson.Tooltip");
+    wItemsXPath =
+        addPaginationTextRow(
+            p,
+            wItemsJsonPath,
+            "RestConnectionEditor.Pagination.ItemsXPath.Label",
+            "RestConnectionEditor.Pagination.ItemsXPath.Tooltip");
+    wTotalCountJsonPath =
+        addPaginationTextRow(
+            p,
+            wItemsXPath,
+            "RestConnectionEditor.Pagination.TotalCountJson.Label",
+            "RestConnectionEditor.Pagination.TotalCountJson.Tooltip");
+    wTotalCountXPath =
+        addPaginationTextRow(
+            p,
+            wTotalCountJsonPath,
+            "RestConnectionEditor.Pagination.TotalCountXPath.Label",
+            "RestConnectionEditor.Pagination.TotalCountXPath.Tooltip");
 
     refreshPaginationSensitiveFields();
+  }
+
+  /** One label and text field below {@code above} on the Pagination tab. */
+  private TextVar addPaginationTextRow(
+      Composite p, Control above, String labelKey, String toolTipKey) {
+    Label label = new Label(p, SWT.RIGHT);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+    label.setToolTipText(BaseMessages.getString(PKG, toolTipKey));
+    PropsUi.setLook(label);
+    FormData fdLabel = new FormData();
+    fdLabel.top = new FormAttachment(above, margin);
+    fdLabel.left = new FormAttachment(0, margin);
+    fdLabel.right = new FormAttachment(middle, -margin);
+    label.setLayoutData(fdLabel);
+
+    TextVar text = new TextVar(variables, p, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(text);
+    text.setToolTipText(label.getToolTipText());
+    FormData fdText = new FormData();
+    fdText.top = new FormAttachment(label, 0, SWT.CENTER);
+    fdText.left = new FormAttachment(middle, margin);
+    fdText.right = new FormAttachment(100, -margin);
+    text.setLayoutData(fdText);
+    return text;
   }
 
   private void refreshPaginationSensitiveFields() {
@@ -972,16 +1122,26 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             || headerCursor;
     boolean offset = RestPaginationType.OFFSET_LIMIT.equals(t);
     boolean cursor = RestPaginationType.CURSOR.equals(t) || bodyCursor || headerCursor;
+    boolean page = RestPaginationType.PAGE_NUMBER.equals(t);
     boolean limitBatch = offset || bodyCursor || headerCursor;
+    // The modes that stop on an empty page, and so can use an items path or a total count.
+    boolean itemsStop = offset || page || RestPaginationType.CURSOR.equals(t);
 
     wPageParamName.setEnabled(pageOrCursor);
     wOffsetParamName.setEnabled(offset);
     wLimitParamName.setEnabled(limitBatch);
-    wDefaultLimit.setEnabled(limitBatch);
+    // The default batch size is also the page size that PAGE_NUMBER sends.
+    wDefaultLimit.setEnabled(limitBatch || page);
     wCursorJsonPath.setEnabled(cursor);
     wCursorXPath.setEnabled(cursor);
     wNextPageUrlJsonPath.setEnabled(bodyNextUrl);
     wNextPageUrlXPath.setEnabled(bodyNextUrl);
+    wFirstPageNumber.setEnabled(page);
+    wPageSizeParamName.setEnabled(page);
+    wItemsJsonPath.setEnabled(itemsStop);
+    wItemsXPath.setEnabled(itemsStop);
+    wTotalCountJsonPath.setEnabled(itemsStop);
+    wTotalCountXPath.setEnabled(itemsStop);
   }
 
   private static int parseUnsignedIntSafe(String text) {
@@ -1512,6 +1672,21 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wProxyPassword.setText(Const.NVL(metadata.getProxyPassword(), ""));
       wNonProxyHosts.setText(Const.NVL(metadata.getNonProxyHosts(), ""));
 
+      wHeaders.removeAll();
+      if (metadata.getHeaders() != null) {
+        for (RestConnectionHeader header : metadata.getHeaders()) {
+          if (header == null) {
+            continue;
+          }
+          TableItem item = new TableItem(wHeaders.table, SWT.NONE);
+          item.setText(1, Const.NVL(header.getName(), ""));
+          item.setText(2, Const.NVL(header.getValue(), ""));
+        }
+      }
+      wHeaders.removeEmptyRows();
+      wHeaders.setRowNums();
+      wHeaders.optimizeTableView();
+
       if (StringUtils.isEmpty(metadata.getAuthType())
           || CERTIFICATE.equals(metadata.getAuthType())) {
         metadata.setAuthType(NO_AUTH);
@@ -1581,6 +1756,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wCursorXPath.setText(Const.NVL(metadata.getCursorXPath(), ""));
       wNextPageUrlJsonPath.setText(Const.NVL(metadata.getNextPageUrlJsonPath(), ""));
       wNextPageUrlXPath.setText(Const.NVL(metadata.getNextPageUrlXPath(), ""));
+      wFirstPageNumber.setText(Const.NVL(metadata.getFirstPageNumber(), ""));
+      wPageSizeParamName.setText(Const.NVL(metadata.getPageSizeParamName(), ""));
+      wItemsJsonPath.setText(Const.NVL(metadata.getItemsJsonPath(), ""));
+      wItemsXPath.setText(Const.NVL(metadata.getItemsXPath(), ""));
+      wTotalCountJsonPath.setText(Const.NVL(metadata.getTotalCountJsonPath(), ""));
+      wTotalCountXPath.setText(Const.NVL(metadata.getTotalCountXPath(), ""));
 
       refreshPaginationSensitiveFields();
     } finally {
@@ -1613,6 +1794,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setProxyUsername(wProxyUsername.getText());
     connection.setProxyPassword(wProxyPassword.getText());
     connection.setNonProxyHosts(wNonProxyHosts.getText());
+
+    List<RestConnectionHeader> headers = new ArrayList<>();
+    for (TableItem item : wHeaders.getNonEmptyItems()) {
+      headers.add(new RestConnectionHeader(item.getText(1), item.getText(2)));
+    }
+    connection.setHeaders(headers);
 
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals(BASIC)) {
@@ -1659,6 +1846,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setCursorXPath(wCursorXPath.getText());
     connection.setNextPageUrlJsonPath(wNextPageUrlJsonPath.getText());
     connection.setNextPageUrlXPath(wNextPageUrlXPath.getText());
+    connection.setFirstPageNumber(wFirstPageNumber.getText());
+    connection.setPageSizeParamName(wPageSizeParamName.getText());
+    connection.setItemsJsonPath(wItemsJsonPath.getText());
+    connection.setItemsXPath(wItemsXPath.getText());
+    connection.setTotalCountJsonPath(wTotalCountJsonPath.getText());
+    connection.setTotalCountXPath(wTotalCountXPath.getText());
   }
 
   @Override

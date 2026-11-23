@@ -1,0 +1,16 @@
+{
+  "catalog": {
+    "datahub": {
+      "url": "http://127.0.0.1:${DATAHUB_STUB_PORT}",
+      "token": "it-token",
+      "environment": "prod",
+      "connectTimeoutMs": "5000",
+      "readTimeoutMs": "10000",
+      "trustStorePath": "",
+      "trustStorePassword": "",
+      "trustStoreType": ""
+    }
+  },
+  "name": "datahub-stub",
+  "description": "The DataHub GraphQL stub started by 0001-start-datahub-stub.sh"
+}

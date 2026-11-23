@@ -58,8 +58,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionMoveFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionMoveFiles.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+  };
   public static final String CONST_OVERWRITE_FILE = "overwrite_file";
   public static final String CONST_UNIQUE_NAME = "unique_name";
 
@@ -292,21 +293,20 @@ public class ActionMoveFilesDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wSettings, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.DestinationFileFolder.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionMoveFiles.Fields.SourceFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionMoveFiles.Fields.DestinationFileFolder.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionMoveFiles.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     columnInfos[0].setUsingVariables(true);
     columnInfos[0].setToolTip(

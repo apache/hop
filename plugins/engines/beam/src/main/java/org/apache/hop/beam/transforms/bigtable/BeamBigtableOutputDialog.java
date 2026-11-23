@@ -175,24 +175,23 @@ public class BeamBigtableOutputDialog extends BaseTransformDialog {
     wlColumns.setLayoutData(fdlColumns);
     lastControl = wlColumns;
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.Family"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.SourceField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              sourceFields,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.Family"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableOutputDialog.Column.SourceField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          sourceFields,
+          false)
+    };
 
     wColumns =
         new TableView(

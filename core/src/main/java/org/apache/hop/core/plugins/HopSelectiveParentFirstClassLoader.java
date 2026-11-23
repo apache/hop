@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class HopSelectiveParentFirstClassLoader extends HopURLClassLoader {
-  private List<Pattern> patterns = new ArrayList<>();
+  private final List<Pattern> patterns = new ArrayList<>();
 
   public HopSelectiveParentFirstClassLoader(URL[] url, ClassLoader classLoader, String[] patterns) {
     super(url, classLoader);

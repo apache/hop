@@ -415,46 +415,35 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     wGet.addListener(SWT.Selection, e -> getSpreadsheetFields());
 
     // Fields
-    ColumnInfo[] columnInformation =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "System.Column.TrimType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc)
-        };
+    ColumnInfo[] columnInformation = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Name"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Format"), ColumnInfo.COLUMN_TYPE_FORMAT, 2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Length"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Decimal"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.Group"), ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "System.Column.TrimType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.trimTypeDesc)
+    };
     columnInformation[0].setToolTip(BaseMessages.getString(PKG, "System.Column.Name.Tooltip"));
     columnInformation[1].setToolTip(BaseMessages.getString(PKG, "System.Column.Type.Tooltip"));
     columnInformation[2].setToolTip(BaseMessages.getString(PKG, "System.Column.Format.Tooltip"));

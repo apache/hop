@@ -28,6 +28,9 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
  * {@link Permission} for RBAC checks.
  */
 public final class ActionPermissionMapper {
+  private static final String CONST_PAUSE = "pause";
+  private static final String CONST_RESUME = "resume";
+  private static final String CONST_FILESAVE = "filesave";
 
   private ActionPermissionMapper() {
     // utility
@@ -81,7 +84,7 @@ public final class ActionPermissionMapper {
           || blob.contains("execute")
           || blob.contains("preview")
           || blob.contains("debug")) {
-        if (blob.contains("stop") || blob.contains("pause") || blob.contains("resume")) {
+        if (blob.contains("stop") || blob.contains(CONST_PAUSE) || blob.contains(CONST_RESUME)) {
           return Optional.of(Permission.RUN_STOP);
         }
         return Optional.of(Permission.RUN_EXECUTE);
@@ -128,15 +131,15 @@ public final class ActionPermissionMapper {
     String name = methodName.toLowerCase(Locale.ROOT);
 
     // Save
-    if (name.contains("saveas") || name.equals("filesaveas") || name.contains("filesave")) {
+    if (name.contains("saveas") || name.equals("filesaveas") || name.contains(CONST_FILESAVE)) {
       return Optional.of(Permission.FILE_SAVE);
     }
-    if (name.contains("menusave") || name.endsWith("filesave") || name.equals("menufilesave")) {
+    if (name.contains("menusave") || name.endsWith(CONST_FILESAVE) || name.equals("menufilesave")) {
       return Optional.of(Permission.FILE_SAVE);
     }
     if (name.contains("save") && !name.contains("guard")) {
       // menuFileSave, menuFileSaveAs, fileSave, ...
-      if (name.contains("filesave") || name.contains("menusave") || name.equals("save")) {
+      if (name.contains(CONST_FILESAVE) || name.contains("menusave") || name.equals("save")) {
         return Optional.of(Permission.FILE_SAVE);
       }
     }
@@ -149,7 +152,7 @@ public final class ActionPermissionMapper {
         || name.contains("execute")
         || name.contains("preview")
         || name.contains("debug")) {
-      if (name.contains("stop") || name.contains("pause") || name.contains("resume")) {
+      if (name.contains("stop") || name.contains(CONST_PAUSE) || name.contains(CONST_RESUME)) {
         return Optional.of(Permission.RUN_STOP);
       }
       return Optional.of(Permission.RUN_EXECUTE);
@@ -158,8 +161,8 @@ public final class ActionPermissionMapper {
         || name.contains("runpause")
         || name.contains("runresume")
         || name.equals("stop")
-        || name.equals("pause")
-        || name.equals("resume")) {
+        || name.equals(CONST_PAUSE)
+        || name.equals(CONST_RESUME)) {
       return Optional.of(Permission.RUN_STOP);
     }
 

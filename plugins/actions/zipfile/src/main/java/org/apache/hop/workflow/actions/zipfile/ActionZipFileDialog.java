@@ -53,11 +53,10 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionZipFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionZipFile.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionZipFile.Filetype.Zip"),
-        BaseMessages.getString(PKG, "ActionZipFile.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionZipFile.Filetype.Zip"),
+    BaseMessages.getString(PKG, "ActionZipFile.Filetype.All")
+  };
 
   private Button wCreateParentFolder;
 

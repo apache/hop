@@ -28,9 +28,9 @@ import org.apache.parquet.schema.MessageType;
 public class ParquetRowConverter extends GroupConverter {
 
   private final MessageType messageType;
-  private RowMetaAndData group;
-  private IRowMeta rowMeta;
-  private List<ParquetField> fields;
+  private final RowMetaAndData group;
+  private final IRowMeta rowMeta;
+  private final List<ParquetField> fields;
 
   public ParquetRowConverter(MessageType messageType, IRowMeta rowMeta, List<ParquetField> fields) {
     this.messageType = messageType;

@@ -30,7 +30,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
 
-  private IHopFileType emptyFileType;
+  private final IHopFileType emptyFileType;
 
   public EmptyHopFileTypeHandler() {
     emptyFileType = new EmptyFileType();

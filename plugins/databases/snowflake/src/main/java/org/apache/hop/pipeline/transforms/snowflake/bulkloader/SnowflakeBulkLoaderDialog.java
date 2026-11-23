@@ -84,28 +84,25 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
       SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
   /** The descriptions for the location type drop down */
-  private static final String[] LOCATION_TYPE_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.User"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.Table"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.InternalStage")
-      };
+  private static final String[] LOCATION_TYPE_COMBO = {
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.User"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.Table"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.LocationType.InternalStage")
+  };
 
   /** The descriptions for the on error drop down */
-  private static final String[] ON_ERROR_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.Continue"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.SkipFile"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.SkipFilePercent"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.Abort")
-      };
+  private static final String[] ON_ERROR_COMBO = {
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.Continue"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.SkipFile"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.SkipFilePercent"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.OnError.Abort")
+  };
 
   /** The descriptions for the data type drop down */
-  private static final String[] DATA_TYPE_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.DataType.CSV"),
-        BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.DataType.JSON")
-      };
+  private static final String[] DATA_TYPE_COMBO = {
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.DataType.CSV"),
+    BaseMessages.getString(PKG, "SnowflakeBulkLoad.Dialog.DataType.JSON")
+  };
 
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
@@ -236,7 +233,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
    * End Fields tab
    * ************************************************/
 
-  private SnowflakeBulkLoaderMeta input;
+  private final SnowflakeBulkLoaderMeta input;
 
   private Link wDevelopedBy;
   private FormData fdDevelopedBy;
@@ -246,7 +243,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
   private Display display;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public SnowflakeBulkLoaderDialog(
       Shell parent,

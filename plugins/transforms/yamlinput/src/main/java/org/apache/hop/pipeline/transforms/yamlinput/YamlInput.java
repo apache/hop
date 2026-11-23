@@ -430,6 +430,13 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         try {
           IValueMeta valueMeta = ValueMetaFactory.createValueMeta(fieldName, field.getType());
           valueMeta.setTrimType(field.getTrimType());
+          // The field's format, as getFields() declares it: text in the YAML is converted with it
+          valueMeta.setLength(field.getLength());
+          valueMeta.setPrecision(field.getPrecision());
+          valueMeta.setConversionMask(field.getFormat());
+          valueMeta.setDecimalSymbol(field.getDecimalSymbol());
+          valueMeta.setGroupingSymbol(field.getGroupSymbol());
+          valueMeta.setCurrencySymbol(field.getCurrencySymbol());
           data.rowMeta.addValueMeta(valueMeta);
         } catch (Exception e) {
           logError("Unable to create value meta", e);

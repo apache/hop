@@ -46,3 +46,7 @@ You can also give a variable: when it is set, its value (Y or N) decides whether
 Spool files are read back only once, so a low level is usually best.
 A new transform uses 1 - Fastest. A transform saved before this option existed keeps 6 - Standard, the level it always used.
 |===
+
+== Samples
+
+The samples project has `transforms/blockingtransform-basic.hpl`, which generates 100,000 random UUIDs and passes them on only after the last one has arrived.

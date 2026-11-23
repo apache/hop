@@ -83,6 +83,12 @@ public class ExcelInputData extends BaseTransformData implements ITransformData 
 
   public IRowMeta conversionRowMeta;
 
+  /** Per field and cell type: the metadata to convert such a cell to the type of the field. */
+  IValueMeta[][] sourceMetas;
+
+  /** Per field: its Hop type, -1 when not looked up yet. */
+  int[] fieldTypes;
+
   public String[] sheetNames;
   public int[] startColumn;
   public int[] startRow;

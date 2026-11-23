@@ -41,6 +41,12 @@ public class JoinRowsData extends BaseTransformData implements ITransformData {
   public IRowSet[] rs;
   public List<Object[]>[] cache;
 
+  /**
+   * Per stream: does it have fields whose values can be changed in place (Binary, Serializable)? A
+   * row from the cache of such a stream is cloned before it goes into an output row.
+   */
+  public boolean[] cloneCachedRow;
+
   public boolean caching;
 
   public OutputStream[] fileOutputStream;

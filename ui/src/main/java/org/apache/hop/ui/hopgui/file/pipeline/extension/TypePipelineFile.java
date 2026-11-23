@@ -22,7 +22,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 
 public class TypePipelineFile implements ITypeFilename {
 
-  private HopPipelineFileType fileType;
+  private final HopPipelineFileType fileType;
 
   public TypePipelineFile() {
     fileType = new HopPipelineFileType();

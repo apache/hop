@@ -29,6 +29,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.server.HopServerMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -118,6 +119,158 @@ class SerializableMetadataProviderTest {
     //
     SerializableMetadataProvider roundTripped = new SerializableMetadataProvider(target.toJson());
     assertNotNull(roundTripped.getSerializer(HopServerMeta.class).load("server1"));
+  }
+
+  @Test
+  void testEmptyUnknownTypesDoNotRequirePlugins() throws Exception {
+    final var json =
+        """
+        {
+          "salesforceconnection": [],
+          "server": [{"name": "server1", "hostname": "localhost"}],
+          "neo4j-connection": []
+        }
+        """;
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            assertEquals("server", key, "Empty types must not require a registered plugin");
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    final var server = provider.getSerializer(HopServerMeta.class).load("server1");
+    assertNotNull(server);
+    assertEquals("localhost", server.getHostname());
+  }
+
+  @Test
+  void testUnavailableNeo4jConnectionWithManualUrlsIsSkipped() throws Exception {
+    // Shape from integration-tests/neo4j/metadata/neo4j-connection/Test.json.
+    final var json =
+        """
+        {
+          "neo4j-connection": [
+            {
+              "server": "${NEO_HOSTNAME}",
+              "browserPort": "7474",
+              "databaseName": "",
+              "manualUrls": [],
+              "automaticVariable": "",
+              "usingEncryption": false,
+              "routing": true,
+              "name": "Test",
+              "username": "${NEO_USERNAME}"
+            }
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    assertServerAfterUnavailableConnection(json, "neo4j-connection");
+  }
+
+  @Test
+  void testUnavailableGraphDatabaseConnectionWithManualUrlsIsSkipped() throws Exception {
+    // Shape from plugins/tech/neo4j/src/main/samples/metadata/
+    // graph-database-connection/demo-neo4j.json.
+    final var json =
+        """
+        {
+          "graph-database-connection": [
+            {
+              "graphDatabase": {
+                "NEO4J": {
+                  "databaseName": "",
+                  "manualUrls": [],
+                  "automaticVariable": "",
+                  "server": "${NEO4J_HOSTNAME}",
+                  "boltPort": "${NEO4J_PORT}",
+                  "automatic": true,
+                  "protocol": "neo4j",
+                  "routing": false,
+                  "usingEncryption": false
+                }
+              },
+              "name": "demo-neo4j"
+            }
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    assertServerAfterUnavailableConnection(json, "graph-database-connection");
+  }
+
+  /**
+   * An object of an installed type that refers to a plugin this Hop doesn't have is left out; the
+   * objects around it still load.
+   */
+  @Test
+  void testObjectThatCannotBeBuiltIsSkipped() throws Exception {
+    final var json =
+        """
+        {
+          "pipeline-run-configuration": [
+            {"name": "before", "engineRunConfiguration": {"Local": {}}},
+            {"name": "unavailable", "engineRunConfiguration": {"NotInstalledEngine": {}}},
+            {"name": "after", "engineRunConfiguration": {"Local": {}}}
+          ],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+
+    final var provider = new SerializableMetadataProvider(json);
+
+    final var runConfigurations = provider.getSerializer(PipelineRunConfiguration.class);
+    assertEquals(
+        List.of("after", "before"), runConfigurations.listObjectNames().stream().sorted().toList());
+    assertNotNull(runConfigurations.load("before").getEngineRunConfiguration());
+    assertNotNull(provider.getSerializer(HopServerMeta.class).load("server1"));
+  }
+
+  /** A type no plugin provides is skipped without looking up its class, which logs an error. */
+  @Test
+  void testUnknownTypeWithObjectsIsSkippedWithoutLookup() throws Exception {
+    final var json =
+        """
+        {
+          "not-installed-type": [{"name": "x", "nested": [1, 2]}],
+          "server": [{"name": "server1", "hostname": "localhost"}]
+        }
+        """;
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            assertEquals("server", key, "A type no plugin provides must not be looked up");
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    assertNotNull(provider.getSerializer(HopServerMeta.class).load("server1"));
+  }
+
+  private void assertServerAfterUnavailableConnection(
+      final String json, final String unavailableKey) throws Exception {
+    final var provider =
+        new SerializableMetadataProvider(json) {
+          @Override
+          public <T extends IHopMetadata> Class<T> getMetadataClassForKey(final String key)
+              throws HopException {
+            if (unavailableKey.equals(key)) {
+              throw new HopException("Metadata plugin is not installed: " + key);
+            }
+            return super.getMetadataClassForKey(key);
+          }
+        };
+
+    final var server = provider.getSerializer(HopServerMeta.class).load("server1");
+    assertNotNull(server);
+    assertEquals("localhost", server.getHostname());
   }
 
   /** Delegates everything but throws when one specific object is loaded. */

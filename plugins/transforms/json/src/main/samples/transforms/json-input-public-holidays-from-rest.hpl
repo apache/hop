@@ -304,7 +304,7 @@ Check your 2-character country code to run this sample pipeline for your country
         <name>date</name>
         <path>$.*.date</path>
         <type>Date</type>
-        <format>YYYY-mm-dd</format>
+        <format>yyyy-MM-dd</format>
         <currency/>
         <decimal/>
         <group/>

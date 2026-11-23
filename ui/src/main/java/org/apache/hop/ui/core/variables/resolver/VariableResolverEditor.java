@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
@@ -220,7 +221,7 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
     wResolverType.addListener(SWT.Modify, event -> changeResolverType());
   }
 
-  private AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingConnectionType = new AtomicBoolean(false);
 
   private void changeResolverType() {
     if (busyChangingConnectionType.get()) {
@@ -264,9 +265,9 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
 
   /**
    * The composite has a single listener slot, which this editor needs for its own change tracking.
-   * Resolver plugins that implement {@link IGuiPluginCompositeWidgetsListener} -- to enable, hide
-   * or otherwise adjust their own widgets -- are forwarded to from here; without this their
-   * callbacks would never fire.
+   * Resolver plugins that implement {@link IGuiPluginModelWidgetsListener} (or {@link
+   * IGuiPluginCompositeWidgetsListener}) -- to enable, hide or otherwise adjust their own widgets
+   * -- are forwarded to from here; without this their callbacks would never fire.
    */
   private IGuiPluginCompositeWidgetsListener createWidgetsListener() {
     return new GuiCompositeWidgetsAdapter() {
@@ -301,9 +302,7 @@ public class VariableResolverEditor extends MetadataEditor<VariableResolver> {
     if (resolver == null) {
       return Optional.empty();
     }
-    return resolver.getIResolver() instanceof IGuiPluginCompositeWidgetsListener listener
-        ? Optional.of(listener)
-        : Optional.empty();
+    return GuiCompositeWidgets.listenerOf(resolver.getIResolver());
   }
 
   private void enableFields() {

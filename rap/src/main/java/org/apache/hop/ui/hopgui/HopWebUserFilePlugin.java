@@ -73,6 +73,8 @@ import org.w3c.dom.Node;
 /** Hop Web menu actions for opening and saving files on the user's computer. */
 @GuiPlugin(name = "Hop Web user files")
 public class HopWebUserFilePlugin {
+  private static final String CONST_HOP_GUI_FILE_BROWSER_ERROR_IMPORT_KETTLE =
+      "HopGui.FileBrowser.Error.ImportKettle";
 
   private static final Class<?> PKG = HopWebUserFilePlugin.class;
 
@@ -301,11 +303,11 @@ public class HopWebUserFilePlugin {
 
                 @Override
                 public void error(Exception exception) {
-                  showError("HopGui.FileBrowser.Error.ImportKettle", exception);
+                  showError(CONST_HOP_GUI_FILE_BROWSER_ERROR_IMPORT_KETTLE, exception);
                 }
               });
     } catch (Exception e) {
-      showError("HopGui.FileBrowser.Error.ImportKettle", e);
+      showError(CONST_HOP_GUI_FILE_BROWSER_ERROR_IMPORT_KETTLE, e);
     }
   }
 
@@ -407,7 +409,7 @@ public class HopWebUserFilePlugin {
           new Class<?>[] {String.class},
           sourceFolder.toString());
     } catch (Exception e) {
-      showError("HopGui.FileBrowser.Error.ImportKettle", e);
+      showError(CONST_HOP_GUI_FILE_BROWSER_ERROR_IMPORT_KETTLE, e);
     } finally {
       if (extractionDirectory != null) {
         deleteTree(extractionDirectory);

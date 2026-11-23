@@ -33,6 +33,18 @@
         <calcite.version>1.42.0</calcite.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.calcite</groupId>
@@ -177,6 +189,12 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- protobuf-java, which avatica-core uses. hop-core used to bring it through gRPC; ship it in lib/core. (checker-qual, also gone from lib/core, is only used for annotations.) -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

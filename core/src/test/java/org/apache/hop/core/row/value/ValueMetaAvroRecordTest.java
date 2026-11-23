@@ -21,6 +21,7 @@ package org.apache.hop.core.row.value;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,8 +34,11 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.TestUtil;
 import org.json.simple.JSONObject;
@@ -184,7 +188,12 @@ class ValueMetaAvroRecordTest {
                 + "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]},"
                 + "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]},\"precision\":-1,\"name\":"
                 + "\"test\",\"length\":-1,\"conversionMask\":null,\"type\":20}");
-    assertEquals(valueNode, expectJsonNode);
+    // The base class adds the field's formatting settings, which depend on the default locale:
+    // check the schema and the basics only.
+    expectJsonNode
+        .fieldNames()
+        .forEachRemaining(
+            field -> assertEquals(expectJsonNode.get(field), valueNode.get(field), field));
 
     // Read it back...
     //
@@ -260,6 +269,200 @@ class ValueMetaAvroRecordTest {
     assertEquals("hop", loaded[0]);
     verifyGenericRecords(genericRecord, (GenericRecord) loaded[1]);
     assertEquals(5L, loaded[2]);
+  }
+
+  /** By default the text is only the data: a field with a schema reads it back. */
+  @Test
+  void aRecordComesBackFromItsTextWithTheFieldsSchema() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", genericRecord.getSchema());
+    String text = valueMeta.getString(genericRecord);
+    assertEquals(genericRecord.toString(), text);
+
+    Object back = valueMeta.convertData(new ValueMetaString("text"), text);
+
+    assertEquals(genericRecord.getSchema(), ((GenericRecord) back).getSchema());
+    verifyGenericRecords(genericRecord, (GenericRecord) back);
+  }
+
+  /** Only the data and no schema on the field: nothing to read it with. */
+  @Test
+  void textWithoutASchemaNeedsTheFieldsSchema() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    String text = genericRecord.toString();
+
+    ValueMetaAvroRecord withoutSchema = new ValueMetaAvroRecord("test");
+    HopValueException thrown =
+        assertThrows(
+            HopValueException.class,
+            () -> withoutSchema.convertData(new ValueMetaString("text"), text));
+    assertTrue(thrown.getMessage().contains("schema"), thrown.getMessage());
+  }
+
+  /** With HOP_AVRO_RECORD_STRING_WITH_SCHEMA=Y the text carries the schema: no schema needed. */
+  @Test
+  void textWithItsSchemaComesBackWithoutOne() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    String text;
+    System.setProperty(Const.HOP_AVRO_RECORD_STRING_WITH_SCHEMA, "Y");
+    try {
+      text = new ValueMetaAvroRecord("test", genericRecord.getSchema()).getString(genericRecord);
+    } finally {
+      System.clearProperty(Const.HOP_AVRO_RECORD_STRING_WITH_SCHEMA);
+    }
+    assertTrue(text.startsWith("{ \"schema\" : "), text);
+
+    Object back = new ValueMetaAvroRecord("test").convertData(new ValueMetaString("text"), text);
+
+    assertEquals(genericRecord.getSchema(), ((GenericRecord) back).getSchema());
+    verifyGenericRecords(genericRecord, (GenericRecord) back);
+  }
+
+  /** The schema and data helpers round trip, also for a nullable (union) field. */
+  @Test
+  void schemaAndDataTextRoundTrips() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+
+    GenericRecord back =
+        ValueMetaAvroRecord.convertStringToGenericRecord(
+            ValueMetaAvroRecord.convertGenericRecordToString(genericRecord));
+
+    verifyGenericRecords(genericRecord, back);
+  }
+
+  /** Schema and data text as earlier versions wrote it, the data as toString() gives it. */
+  @Test
+  void schemaAndDataTextWithPlainDataIsRead() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    String text =
+        "{ \"schema\" : " + genericRecord.getSchema() + ", \"data\" : " + genericRecord + " }";
+
+    GenericRecord back = ValueMetaAvroRecord.convertStringToGenericRecord(text);
+
+    verifyGenericRecords(genericRecord, back);
+  }
+
+  /**
+   * toString() doesn't say which record of a union a value is: the reader must not take a record
+   * whose fields are all optional for an object with other keys.
+   */
+  @Test
+  void aUnionOfRecordsReadsBackAsTheRightRecord() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"Outer\",\"fields\":[{\"name\":\"two\",\"type\":["
+                    + "{\"type\":\"record\",\"name\":\"A\",\"fields\":[{\"name\":\"a\","
+                    + "\"type\":[\"null\",\"string\"],\"default\":null}]},"
+                    + "{\"type\":\"record\",\"name\":\"B\",\"fields\":[{\"name\":\"b\","
+                    + "\"type\":\"string\"}]}]}]}");
+    Schema recordB = schema.getField("two").schema().getTypes().get(1);
+    GenericRecord b = new GenericData.Record(recordB);
+    b.put("b", "bee");
+    GenericRecord outer = new GenericData.Record(schema);
+    outer.put("two", b);
+
+    GenericRecord back = ValueMetaAvroRecord.convertStringToGenericRecord(outer.toString(), schema);
+
+    GenericRecord two = (GenericRecord) back.get("two");
+    assertEquals("B", two.getSchema().getName());
+    assertEquals("bee", two.get("b").toString());
+  }
+
+  /** A fixed value, as toString() writes it ([1, 2, 3, -6]) and as Avro's JSON encoding does. */
+  @Test
+  void aFixedValueReadsBackFromBothTexts() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"R\",\"fields\":[{\"name\":\"hash\",\"type\":"
+                    + "{\"type\":\"fixed\",\"name\":\"Hash\",\"size\":4}}]}");
+    GenericRecord original = new GenericData.Record(schema);
+    original.put(
+        "hash", new GenericData.Fixed(schema.getField("hash").schema(), new byte[] {1, 2, 3, -6}));
+
+    GenericRecord fromPlain =
+        ValueMetaAvroRecord.convertStringToGenericRecord(original.toString(), schema);
+    GenericRecord fromEncoded =
+        ValueMetaAvroRecord.convertStringToGenericRecord(
+            ValueMetaAvroRecord.convertGenericRecordToString(original));
+
+    assertEquals(original, fromPlain);
+    assertEquals(original, fromEncoded);
+  }
+
+  /** NaN and the infinities are written as text by toString() and by Avro's JSON encoding. */
+  @Test
+  void nanAndInfinityReadBackFromBothTexts() throws Exception {
+    Schema schema =
+        new Schema.Parser()
+            .parse(
+                "{\"type\":\"record\",\"name\":\"R\",\"fields\":["
+                    + "{\"name\":\"d\",\"type\":\"double\"},"
+                    + "{\"name\":\"f\",\"type\":\"float\"},"
+                    + "{\"name\":\"n\",\"type\":[\"null\",\"double\"]}]}");
+    GenericRecord original = new GenericData.Record(schema);
+    original.put("d", Double.NaN);
+    original.put("f", Float.NEGATIVE_INFINITY);
+    original.put("n", Double.POSITIVE_INFINITY);
+
+    GenericRecord fromPlain =
+        ValueMetaAvroRecord.convertStringToGenericRecord(original.toString(), schema);
+    GenericRecord fromEncoded =
+        ValueMetaAvroRecord.convertStringToGenericRecord(
+            ValueMetaAvroRecord.convertGenericRecordToString(original));
+
+    for (GenericRecord back : new GenericRecord[] {fromPlain, fromEncoded}) {
+      assertTrue(Double.isNaN((Double) back.get("d")));
+      assertEquals(Float.NEGATIVE_INFINITY, back.get("f"));
+      assertEquals(Double.POSITIVE_INFINITY, back.get("n"));
+    }
+  }
+
+  /** Text file input, CSV input and the like read an Avro record field this way. */
+  @Test
+  void aRecordIsReadFromText() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", genericRecord.getSchema());
+    String text = valueMeta.getString(genericRecord);
+
+    Object read =
+        valueMeta.convertDataFromString(
+            text, new ValueMetaString("text"), null, null, IValueMeta.TRIM_TYPE_NONE);
+
+    verifyGenericRecords(genericRecord, (GenericRecord) read);
+  }
+
+  @Test
+  void aRecordIsCopied() throws Exception {
+    GenericRecord genericRecord = generateGenericRecord();
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", genericRecord.getSchema());
+
+    Object copy =
+        valueMeta.convertData(
+            new ValueMetaAvroRecord("other", genericRecord.getSchema()), genericRecord);
+
+    assertNotSame(genericRecord, copy);
+    verifyGenericRecords(genericRecord, (GenericRecord) copy);
+  }
+
+  @Test
+  void emptyTextIsNoRecord() throws Exception {
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
+
+    assertNull(valueMeta.convertData(new ValueMetaString("text"), ""));
+    assertNull(valueMeta.convertData(new ValueMetaString("text"), null));
+  }
+
+  @Test
+  void textThatIsNoRecordOrAnotherTypeIsAnError() {
+    ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
+
+    assertThrows(
+        HopValueException.class,
+        () -> valueMeta.convertData(new ValueMetaString("text"), "not json"));
+    assertThrows(
+        HopValueException.class, () -> valueMeta.convertData(new ValueMetaInteger("n"), 1L));
   }
 
   private GenericRecord generateGenericRecord() {

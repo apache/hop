@@ -59,7 +59,8 @@ neither the tasks nor what they read and write.
 |A run of any of these
 |A *run* (DataProcessInstance) named `<name> <time>`, for example `nightly/Load orders
 2026-10-18T07:34Z`, with its start, its end, its outcome (success or failure) and the run that
-started it. A run whose end Hop never reported, such as an action that stopped with an error, is
+started it. A transform's run lists its row counts (`linesInput`, `linesOutput`, `linesUpdated`,
+`linesRejected`, ...) in its properties, a pipeline's run the totals of its transforms. A run whose end Hop never reported, such as an action that stopped with an error, is
 ended as failed when the sink shuts down.
 
 |A pipeline or workflow run by a workflow action, or a pipeline run by a transform of another
@@ -71,10 +72,30 @@ transform.
 |File, table
 |A *dataset*, named the way DataHub's own sources name it: a table on its database platform
 (`postgres`, `mssql`, …) with its qualified name, an object as `bucket/key` on `s3`, `gcs` or `abs`,
-a local file as its path on `file`.
+a local file as its path on `file`. A table on a database server with a platform instance is named
+with it, see <<Database platform instances>>.
 
 |Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
 |Column-level lineage, on the task and on the dataset.
+
+|SQL a transform ran (Table Input, Execute SQL), expressions it calculated fields with (Formula, Calculator)
+|The SQL is the task's *transformation logic*, when the run ran exactly one statement; a run that
+ran none, or several, leaves it empty. DataHub only takes SQL there, so a Formula's or Calculator's expressions are *properties* of the task instead:
+`logic.<field>` with the expression, such as `logic.total` = `[price] * [qty]`, or
+`MULTIPLY(total, rate)` for a calculation.
+
+|A file or table a run wrote
+|An *operation* on the dataset when the run succeeds: `INSERT`, `UPDATE` or `DELETE`, or `CREATE`,
+`DROP` or `ALTER` for a dataset created, deleted, moved or renamed, with the number of rows when Hop
+knows them (see xref:technology/openlineage/index.adoc#_row_counts[Row counts]). A pipeline reports
+one operation per dataset when it completes, with the rows of all the transforms and copies that
+wrote it; an action reports the files it wrote when it completes. DataHub shows when a dataset last
+changed from its operations, and the freshness check of a
+xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action reads them, so a dataset that
+only Hop writes has a freshness too. A failed or stopped run reports no operation: a half-written table
+doesn't look up to date. Neither does a run that inserted, updated or deleted no rows; a table
+truncated or a file rewritten with nothing written was emptied, and gets a `DELETE` without a row
+count.
 
 |A file copied or moved (Copy files, Move files)
 |The copy is linked to its own source as a `COPY` upstream, so copying several files does not pair
@@ -87,6 +108,9 @@ not every input paired with every output.
 
 == Enabling the sink
 
+The simplest way is a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type DataHub, selected in a pipeline or workflow run configuration. It writes to the DataHub of a DataHub xref:metadata-types/data-catalog.adoc[Data Catalog], with its URL, token and environment, so Hop reads from the same DataHub it writes to. The runs of that configuration report their lineage to it, and no variables are needed.
+
+The sink can also be configured with variables, for every run of a Hop process.
 The lineage hub is off by default. Enable it and select the DataHub sink with these variables, as
 environment variables or in the Hop configuration (_Tools_ > _Edit config variables_):
 
@@ -121,6 +145,7 @@ its URL, which stops lineage delivery for every sink.
 |`HOP_LINEAGE_DATAHUB_TOKEN` |_(empty)_ |DataHub personal access token, sent as a bearer token. It can be stored encrypted, as `hop-encrypt` writes it (`Encrypted …`).
 |`HOP_LINEAGE_DATAHUB_ENV` |`PROD` |DataHub environment of the datasets, pipelines and tasks. Use the value the other sources that describe the same datasets use, or their lineage does not join up.
 |`HOP_LINEAGE_DATAHUB_PLATFORM_INSTANCE` |_(empty)_ |Keeps the pipelines of several Hop installations, or of projects with the same folder layout, apart in one DataHub: their ids are prefixed with it (`emea.flows/nightly.hwf`).
+|`HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES` |_(empty)_ |The platform instances of database servers, as `<namespace>=<instance>` pairs separated by commas, such as `postgres://db.example.com:5432=warehouse`; see <<Database platform instances>>. A sink of a xref:metadata-types/lineage-sink.adoc[Lineage Sink] takes them from its data catalog instead.
 |`HOP_LINEAGE_DATAHUB_DATASET_SCHEMA` |`missing` |When a dataset's schema is written; see <<Dataset schemas>>. `missing`, `always` or `never`.
 |`HOP_LINEAGE_DATAHUB_LIFECYCLE` |`N` |`Y` deprecates datasets a run deletes or moves; see <<Deleted and moved datasets>>.
 |`HOP_LINEAGE_DATAHUB_ACTOR` |`urn:li:corpuser:datahub` |The DataHub user named as the creator of runs and deprecations.
@@ -130,6 +155,23 @@ its URL, which stops lineage delivery for every sink.
 |`HOP_LINEAGE_DATAHUB_MAX_RETRIES`, `…_RETRY_BACKOFF_MS`, `…_CONNECT_TIMEOUT_MS`, `…_READ_TIMEOUT_MS`, `…_BUFFER_SIZE`, `…_OVERFLOW_POLICY`, `…_ENQUEUE_TIMEOUT_MS`, `…_SHUTDOWN_DRAIN_MS`, `…_METRICS_INTERVAL_MS` |as OpenLineage |Delivery settings, with the meaning and defaults of their xref:technology/openlineage/index.adoc[OpenLineage] counterparts.
 |`HOP_LINEAGE_DATAHUB_TRUSTSTORE_PATH`, `…_TRUSTSTORE_PASSWORD`, `…_KEYSTORE_TYPE` |_(empty)_, `PKCS12` |Trust store for a GMS with a certificate the JVM does not trust.
 |===
+
+== Database platform instances
+
+A DataHub ingestion source can have a `platform_instance`, to keep apart two database servers that
+hold databases and tables of the same name. Its tables are then named with it:
+`warehouse.sales.public.orders` instead of `sales.public.orders`. For Hop's lineage to land on those
+datasets, give the server the same instance in Hop: list its connection and the instance under
+*Database platform instances* in the DataHub xref:metadata-types/data-catalog.adoc[Data Catalog].
+
+A table on that server is then named `<instance>.<database>.<schema>.<table>` and shows under its
+instance, by the sink of a Lineage Sink that uses the catalog, by
+<<Publishing a project without running it,publishing>>, and when Hop reads the catalog
+(Check data catalog, Mask fields, the AI Assistant). Without instances, nothing changes. The
+instance belongs to the server (host and port): every connection to it, and every database on it,
+gets the same one. A sink configured with variables takes them from
+`HOP_LINEAGE_DATAHUB_DATABASE_INSTANCES`, with the namespace Hop gives the server
+(`postgres://db.example.com:5432`, the host in lower case and the port).
 
 == Durability
 
@@ -183,11 +225,93 @@ Run a pipeline and open DataHub: the pipeline is listed under the *Apache Hop* p
 on its *Tasks* tab and its runs on the *Runs* tab of each task. The *Lineage* tab of a dataset the
 pipeline wrote shows the tasks and datasets upstream of it.
 
+*Tools* > *Lineage sinks* in Hop GUI, and the status page of a Hop Server, show what the sink sent, what waits and the last error; see xref:metadata-types/lineage-sink.adoc#_sink_health[Sink health].
+
 The sink logs one line when it starts:
 
 ----
 DataHub lineage sink initialized: gms=http://localhost:8080, env=PROD, dataset schemas=missing, lifecycle=off, spool=off
 ----
+
+== Unit test results
+
+A xref:pipeline/pipeline-unit-testing.adoc[pipeline unit test] that runs with lineage, for example from the *Run pipeline unit tests* action in a workflow whose run configuration selects a DataHub lineage sink, reports each golden data set as an assertion run in DataHub: passed or failed, with what the comparison found, or an error when the rows could not be compared, for example because the golden data set could not be read.
+The test's run itself, of a changed copy of the pipeline, is not reported to a lineage sink selected in a run configuration; a sink configured with `HOP_LINEAGE_*` variables gets it, as it gets every run.
+
+The assertion is on the tables and files the tested transform writes, as its metadata declares them: a test usually replaces that transform, so it is about what the transform would write. DataHub shows it on the dataset's *Quality* tab, and the xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action can check it before a workflow reads the dataset.
+
+DataHub only takes assertions on datasets: a test of a transform that writes no table or file is not sent.
+
+== Publishing a project without running it
+
+The xref:workflow/actions/publishtodatahub.adoc[Publish to DataHub] action, or `hop datahub-publish` on the command line, publishes a project's pipelines and workflows to DataHub without running them: their tasks, the tables and files they declare, and the layouts of those files as dataset schemas.
+It writes through a xref:metadata-types/lineage-sink.adoc[Lineage Sink] of type DataHub, so the pipelines, tasks and datasets are the ones the runs report to.
+
+[source,bash]
+----
+hop datahub-publish -j my-project -e prod -s prod-datahub
+hop datahub-publish -j my-project -s prod-datahub -f '${PROJECT_HOME}/flows'
+hop datahub-publish -j my-project -s prod-datahub -d -ip
+----
+
+[options="header", cols="1,3"]
+|===
+|Option|Description
+
+|`-s`, `--sink`
+|The lineage sink of type DataHub to publish to. Required.
+
+|`-f`, `--folder`
+|The folder with the pipelines and workflows, with its subfolders. The default is the project's home folder.
+
+|`-d`, `--include-documentation`
+|Also publish the documentation of each pipeline and workflow as a DataHub document. Needs DataHub 1.7 or later. See <<_documentation>>.
+
+|`-ip`, `--include-parameters`
+|With `-d`: list the parameters of each pipeline and workflow, with their default values, in its document, as `hop doc -ip` does.
+
+|`-in`, `--include-notes`
+|With `-d`: add the text of the notes of each pipeline and workflow to its document, as `hop doc -in` does.
+
+|`-j`, `-e`
+|The project and environment, as for `hop doc`.
+|===
+
+The command exits with 1 when a file can't be read or DataHub didn't accept everything.
+
+[[_documentation]]
+=== Documentation
+
+With `-d`, or *Include documentation* in the action, each pipeline and workflow also becomes a DataHub document.
+The document holds what xref:hop-tools/hop-doc.adoc[hop doc] writes for the file: its description and extended description, its file name relative to the published folder, and when it was last changed.
+Its parameters, with their default values, and the text of its notes are only added when asked for (`-ip`, `-in`, or *Include parameters* and *Include notes* in the action), as with `hop doc`: they end up in a catalog that more people read than the project.
+The image of the graph is left out: DataHub shows the tasks itself.
+
+* The document is related to the pipeline or workflow and to each of its tasks, so it appears on their pages in DataHub.
+* The documents of a project sit under one document named `Hop project <name>`.
+* Publishing again updates the same documents.
+
+Documents need DataHub 1.7 or later. Earlier versions, such as 1.0, have no documents and refuse them.
+The documents are sent after every pipeline and workflow is delivered, and the first one alone: when DataHub doesn't take it, the others are not sent, and the publication fails with that reason. The pipelines, tasks and datasets are published all the same.
+Leave the option off for those versions.
+A document stays in DataHub when its pipeline or workflow is deleted.
+
+== Reading from DataHub
+
+The plugin also adds DataHub as a type of xref:metadata-types/data-catalog.adoc[Data Catalog], so
+workflows can read what DataHub knows about a dataset. The
+xref:workflow/actions/checkdatacatalog.adoc[Check data catalog] action uses it to check, before a
+workflow goes on, that datasets exist in DataHub, aren't deprecated, changed recently enough and
+passed their assertions.
+xref:pipeline/transforms/maskfields.adoc[Mask fields] uses it to mask the fields DataHub tags as
+personal data, and CSV file input and Text file input can fill their fields from the schema DataHub
+has for a file. The
+xref:hop-gui/perspective-ai-advisor.adoc#data-catalog-context[AI Assistant] uses it to include the
+descriptions, owners, tags, glossary terms and deprecation of a pipeline's datasets in its questions.
+
+A Data Catalog has its own URL and token: it doesn't use the `HOP_LINEAGE_DATAHUB_*` variables. Give
+it the same environment as `HOP_LINEAGE_DATAHUB_ENV`, so a table resolves to the dataset the sink
+writes for it. Its token only needs the privilege to view the datasets and their assertions.
 
 == Limitations
 

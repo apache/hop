@@ -169,3 +169,7 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Uri field|The field used to store the XML document's  source URL. 
 |Root uri field|The field used to store the XML document's namespace URL, taken from the root element
 |===
+
+== Samples
+
+The samples project has `transforms/get-data-from-xml.hpl`, which reads the category, language, title, author, year and price of the three books in the XML of a Data grid field, with the XML of each `book` element in the field `element`.

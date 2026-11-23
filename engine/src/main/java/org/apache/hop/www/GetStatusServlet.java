@@ -38,10 +38,14 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.hub.LineageSinkStatus;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "status", name = "Get the status of the server")
 public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -645,6 +649,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         out.println("Unable to display server status. See server log for details.");
         out.println("</pre>");
       }
+
+      printLineageSinks(out, useLightTheme ? "h3" : "div", tableBorder, LineageHub.getInstance());
 
       out.println("<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">");
       htmlClass = useLightTheme ? "h3" : "div";
@@ -1298,5 +1304,94 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         + CONST_SINGLE_QUOTE
         + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedWorkflowRowIndex ).innerHTML"
         + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedWorkflowRowIndex ).innerHTML";
+  }
+
+  /**
+   * The lineage sinks of this server and how their delivery is going, when lineage is enabled or a
+   * run selected a sink. Error texts come from the backends, so every value is escaped.
+   */
+  static void printLineageSinks(
+      PrintWriter out, String headingTag, int tableBorder, LineageHub hub) {
+    List<LineageSinkStatus> sinks = hub.sinkStatus();
+    if (sinks.isEmpty() && !hub.isEnabled()) {
+      return;
+    }
+    out.println("<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">");
+    out.println(
+        "<div><"
+            + headingTag
+            + " class=\"workspaceHeading\">"
+            + BaseMessages.getString(PKG, "GetStatusServlet.LineageSinks.Title")
+            + "</"
+            + headingTag
+            + "></div>");
+    out.println(
+        "<p>"
+            + Encode.forHtml(
+                BaseMessages.getString(
+                    PKG,
+                    "GetStatusServlet.LineageSinks.Hub",
+                    String.valueOf(hub.getQueuedEventCount()),
+                    String.valueOf(hub.getDroppedEventCount())))
+            + "</p>");
+    out.println("<table class=\"hop-table\" border=\"" + tableBorder + "\"><tr>");
+    for (String column :
+        new String[] {
+          "Sink",
+          "Type",
+          "ConfiguredWith",
+          "Sent",
+          "Failed",
+          "Rejected",
+          "Dropped",
+          "Waiting",
+          "OnDisk",
+          "LastSent",
+          "LastError"
+        }) {
+      out.print(
+          "<th class=\"cellTableHeader\">"
+              + BaseMessages.getString(PKG, "GetStatusServlet.LineageSinks." + column)
+              + "</th>");
+    }
+    out.println("</tr>");
+    for (LineageSinkStatus sink : sinks) {
+      LineageSinkHealth health = sink.health();
+      String lastError = sink.startError();
+      long lastErrorMillis = 0;
+      if (lastError == null && health != null) {
+        lastError = health.lastError();
+        lastErrorMillis = health.lastErrorMillis();
+      }
+      String[] cells = {
+        sink.name(),
+        sink.type(),
+        BaseMessages.getString(
+            PKG,
+            sink.fromRunConfiguration()
+                ? "GetStatusServlet.LineageSinks.RunConfiguration"
+                : "GetStatusServlet.LineageSinks.Variables"),
+        health == null ? "" : String.valueOf(health.sent()),
+        health == null ? "" : String.valueOf(health.failed()),
+        health == null ? "" : String.valueOf(health.rejected()),
+        health == null ? "" : String.valueOf(health.dropped()),
+        health == null ? "" : String.valueOf(health.waiting()),
+        health == null || health.spooled() < 0 ? "" : String.valueOf(health.spooled()),
+        health == null || health.lastSentMillis() <= 0
+            ? ""
+            : XmlHandler.date2string(new Date(health.lastSentMillis())),
+        lastError == null
+            ? ""
+            : (lastErrorMillis > 0 ? XmlHandler.date2string(new Date(lastErrorMillis)) + " " : "")
+                + lastError,
+      };
+      out.print("<tr>");
+      for (String cell : cells) {
+        out.print("<td class=\"cellTableCell\">" + Encode.forHtml(Const.NVL(cell, "")) + "</td>");
+      }
+      out.println("</tr>");
+    }
+    out.println("</table>");
+    out.println("</div>");
   }
 }

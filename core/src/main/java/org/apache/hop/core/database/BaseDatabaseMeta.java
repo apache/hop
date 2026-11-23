@@ -858,6 +858,31 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * Case-insensitive lookup over {@link #getReservedWords()}, built on first use. Most dialects
+   * return a freshly allocated array of several hundred words from getReservedWords(), and quoting
+   * checks every identifier, so the lookup is kept instead of rebuilt. Clones share it.
+   */
+  private transient volatile ReservedWords reservedWordsLookup;
+
+  @Override
+  public boolean isReservedWord(String word) {
+    ReservedWords lookup = reservedWordsLookup;
+    if (lookup == null) {
+      lookup = ReservedWords.of(getReservedWords());
+      reservedWordsLookup = lookup;
+    }
+    return lookup.contains(word);
+  }
+
+  /**
+   * Forget the cached reserved-word lookup. A dialect whose {@link #getReservedWords()} depends on
+   * state that changes calls this when that state changes.
+   */
+  public void clearReservedWordsCache() {
+    reservedWordsLookup = null;
+  }
+
+  /**
    * @return true if reserved words need to be double quoted ("password", "select", ...)
    */
   @Override

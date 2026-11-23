@@ -47,20 +47,20 @@ public class LoopNodesImportProgressDialog {
   public static final String CONST_GET_XMLDATE_LOOP_NODES_IMPORT_PROGRESS_DIALOG_TASK_FETCH_NODES =
       "GetXMLDateLoopNodesImportProgressDialog.Task.FetchNodes";
 
-  private Shell shell;
+  private final Shell shell;
 
   private String[] xpaths;
 
   private String filename;
   private String xml;
   private String url;
-  private String encoding;
+  private final String encoding;
 
-  private ArrayList<String> listpath;
+  private final ArrayList<String> listpath;
 
   private int nr;
 
-  private PdOption option;
+  private final PdOption option;
 
   /**
    * Creates a new dialog that will handle the wait while we're finding out loop nodes for an XML

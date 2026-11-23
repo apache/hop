@@ -34,8 +34,8 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
 
   private HopGui hopGui;
   private HopGuiSearchLocation location;
-  private List<ISearchable> searchables;
-  private Iterator<ISearchable> searchableIterator;
+  private final List<ISearchable> searchables;
+  private final Iterator<ISearchable> searchableIterator;
 
   public HopGuiSearchLocationIterator(HopGui hopGui, HopGuiSearchLocation location)
       throws HopException {

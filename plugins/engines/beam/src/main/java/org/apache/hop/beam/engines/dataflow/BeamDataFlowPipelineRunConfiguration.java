@@ -212,6 +212,9 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
 
   public BeamDataFlowPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("BeamDataFlowPipelineEngine");
+    setEnginePluginName("Beam DataFlow pipeline engine");
     this.gcpAppName = "Hop";
     this.gcpUsingPublicIps = true;
   }

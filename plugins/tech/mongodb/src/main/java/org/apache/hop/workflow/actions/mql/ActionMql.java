@@ -59,6 +59,7 @@ import org.bson.json.JsonReader;
     actionTransformTypes = {ActionTransformType.NOSQL})
 public class ActionMql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionMql.class;
+  private static final String CONST_ERRMSG = "errmsg";
 
   @HopMetadataProperty(key = "mql")
   private String mql;
@@ -312,7 +313,7 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
               Integer.toString(nrCommands),
               Integer.toString(writeErrors.size()),
               String.valueOf(first.get("code")),
-              first.getString("errmsg")));
+              first.getString(CONST_ERRMSG)));
     }
     // The bulkWrite command counts its errors in nErrors, the errors are in its cursor
     //
@@ -326,7 +327,7 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
               Integer.toString(nrCommands),
               nErrors.toString(),
               first == null ? "?" : String.valueOf(first.get("code")),
-              first == null ? "" : first.getString("errmsg")));
+              first == null ? "" : first.getString(CONST_ERRMSG)));
     }
     Document writeConcernError = reply.get("writeConcernError", Document.class);
     if (writeConcernError != null) {
@@ -337,7 +338,7 @@ public class ActionMql extends ActionBase implements Cloneable, IAction {
               Integer.toString(commandNr),
               Integer.toString(nrCommands),
               String.valueOf(writeConcernError.get("code")),
-              writeConcernError.getString("errmsg")));
+              writeConcernError.getString(CONST_ERRMSG)));
     }
   }
 

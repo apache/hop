@@ -32,6 +32,8 @@ import org.apache.hop.core.exception.HopException;
  * with backticks.
  */
 public class CypherGraphDialect implements IGraphDialect {
+  private static final String CONST_IF_NOT_EXISTS_FOR = " IF NOT EXISTS FOR ";
+  private static final String CONST_ON = " ON (";
 
   /**
    * The dialect of graph databases which don't tell theirs: Cypher with the syntax of Neo4j 5,
@@ -197,9 +199,9 @@ public class CypherGraphDialect implements IGraphDialect {
     }
     return "CREATE INDEX "
         + (StringUtils.isEmpty(index.name()) ? "" : quoteIdentifier(index.name()))
-        + " IF NOT EXISTS FOR "
+        + CONST_IF_NOT_EXISTS_FOR
         + pattern(index.objectType(), index.objectName(), "n")
-        + " ON ("
+        + CONST_ON
         + propertyList("n", index.properties())
         + ")";
   }
@@ -235,7 +237,7 @@ public class CypherGraphDialect implements IGraphDialect {
     }
     return "CREATE VECTOR INDEX "
         + quoteIdentifier(index.name())
-        + " IF NOT EXISTS FOR "
+        + CONST_IF_NOT_EXISTS_FOR
         + pattern(index.objectType(), index.objectName(), "n")
         + " ON (n."
         + quoteIdentifier(property)
@@ -372,7 +374,7 @@ public class CypherGraphDialect implements IGraphDialect {
     String statement =
         "CREATE CONSTRAINT "
             + quoteIdentifier(constraint.name())
-            + " IF NOT EXISTS FOR "
+            + CONST_IF_NOT_EXISTS_FOR
             + pattern(constraint.objectType(), constraint.objectName(), variable)
             + " REQUIRE ";
     String list = propertyList(variable, properties);
@@ -420,7 +422,7 @@ public class CypherGraphDialect implements IGraphDialect {
     }
     return "CREATE INDEX IF NOT EXISTS FOR "
         + pattern(GraphObjectType.NODE, label, "n")
-        + " ON ("
+        + CONST_ON
         + propertyList("n", keyProperties)
         + ")";
   }
@@ -430,9 +432,9 @@ public class CypherGraphDialect implements IGraphDialect {
       String indexName, String label, List<String> properties) {
     return "CREATE INDEX "
         + quoteIdentifier(indexName)
-        + " IF NOT EXISTS FOR "
+        + CONST_IF_NOT_EXISTS_FOR
         + pattern(GraphObjectType.NODE, label, "n")
-        + " ON ("
+        + CONST_ON
         + propertyList("n", properties)
         + ")";
   }

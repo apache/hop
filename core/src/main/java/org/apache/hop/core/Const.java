@@ -559,6 +559,14 @@ public class Const {
   public static final String INTERNAL_VARIABLE_TRANSFORM_BUNDLE_NR =
       INTERNAL_VARIABLE_PREFIX + ".Transform.BundleNr";
 
+  /**
+   * The transforms whose once-per-run preparation the engine already did on its driver, one name
+   * per line. The native Spark and Beam engines set it; their per-partition (per-bundle) pipelines
+   * mark those transforms as prepared.
+   */
+  public static final String INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS =
+      INTERNAL_VARIABLE_PREFIX + ".Pipeline.PreparedOnceTransforms";
+
   public static final String INTERNAL_VARIABLE_ACTION_ID = INTERNAL_VARIABLE_PREFIX + ".Action.ID";
 
   /** The Hop server name as configured in hop-server.xml */
@@ -638,6 +646,19 @@ public class Const {
           "NULL vs Empty String. If this setting is set to 'Y', an empty string and null are different. Otherwise they are not")
   public static final String HOP_EMPTY_STRING_DIFFERS_FROM_NULL =
       "HOP_EMPTY_STRING_DIFFERS_FROM_NULL";
+
+  /**
+   * Write an Avro record as text with its schema, so the text can be converted back to a record
+   * without one.
+   */
+  @Variable(
+      value = "N",
+      description =
+          "Set this variable to Y to write an Avro record as text with its schema and its data in"
+              + " Avro's JSON encoding, so the text converts back to the record without a schema."
+              + " With N only the data is written")
+  public static final String HOP_AVRO_RECORD_STRING_WITH_SCHEMA =
+      "HOP_AVRO_RECORD_STRING_WITH_SCHEMA";
 
   /**
    * System wide flag to allow non-strict string to number conversion for backward compatibility. If
@@ -2002,6 +2023,15 @@ public class Const {
    */
   public static String getHopPlatformRuntime() {
     return System.getProperty(HOP_PLATFORM_RUNTIME);
+  }
+
+  /**
+   * Whether this process runs Hop GUI or Hop Web, as {@link #HOP_PLATFORM_RUNTIME} tells. Code
+   * outside the GUI asks this before it touches a GUI class: without SWT, as in hop-run, hop-server
+   * or a Spark executor, merely loading one (HopGui for example) fails with a NoClassDefFoundError.
+   */
+  public static boolean isGuiRuntime() {
+    return "GUI".equalsIgnoreCase(getHopPlatformRuntime());
   }
 
   /**

@@ -192,25 +192,24 @@ public class SparkFileInputDialog extends BaseTransformDialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Name"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Name"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SparkFileInputDialog.Column.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     wFields =
         new TableView(
             variables,

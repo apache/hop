@@ -20,6 +20,7 @@ package org.apache.hop.lineage.datahub;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** Dataset URNs have to be the ones DataHub's own sources give the same data. */
@@ -58,6 +59,23 @@ class DataHubUrnsTest {
     assertEquals(
         "urn:li:dataset:(urn:li:dataPlatform:mssql,sales.dbo.orders,DEV)",
         DataHubUrns.datasetForOpenLineage("sqlserver://db:1433", "sales.dbo.orders", "DEV"));
+  }
+
+  // As DataHub's SQL sources with a platform_instance name the tables they ingest
+  @Test
+  void aTableOnAServerWithAnInstanceIsNamedWithIt() {
+    Map<String, String> instances = Map.of("postgres://db:5432", "warehouse");
+    assertEquals(
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,warehouse.analytics.public.orders,PROD)",
+        DataHubUrns.datasetForOpenLineage(
+            "postgres://db:5432", "analytics.public.orders", "PROD", instances));
+    assertEquals(
+        "urn:li:dataset:(urn:li:dataPlatform:postgres,analytics.public.orders,PROD)",
+        DataHubUrns.datasetForOpenLineage(
+            "postgres://other:5432", "analytics.public.orders", "PROD", instances));
+    assertEquals(
+        "urn:li:dataPlatformInstance:(urn:li:dataPlatform:postgres,warehouse)",
+        DataHubUrns.dataPlatformInstance("urn:li:dataPlatform:postgres", "warehouse"));
   }
 
   // A pipeline is its file in the project; outside a project the file as it is, and without a

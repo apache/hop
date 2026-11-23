@@ -107,16 +107,16 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
 
   private Button wDoMapping;
 
-  private RedshiftBulkLoaderMeta input;
+  private final RedshiftBulkLoaderMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciFields;
 
   private static final String AWS_INHERIT = "Inherit from connection";
   private static final String AWS_CREDENTIALS = "Credentials";
   private static final String AWS_IAM_ROLE = "IAM Role";
-  private String[] awsAuthOptions = new String[] {AWS_INHERIT, AWS_CREDENTIALS, AWS_IAM_ROLE};
+  private final String[] awsAuthOptions = {AWS_INHERIT, AWS_CREDENTIALS, AWS_IAM_ROLE};
 
   private Label wlAwsAuthType;
   private ComboVar wAwsAuthType;
@@ -130,7 +130,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog {
   private TextVar wAwsIamRole;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   /** Constructor. */
   public RedshiftBulkLoaderDialog(

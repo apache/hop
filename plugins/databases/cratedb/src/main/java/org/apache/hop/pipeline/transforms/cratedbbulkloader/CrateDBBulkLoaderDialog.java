@@ -111,9 +111,9 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
 
   private Button wDoMapping;
 
-  private CrateDBBulkLoaderMeta input;
+  private final CrateDBBulkLoaderMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciFields;
 
@@ -131,7 +131,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
   private TextVar wHttpPassword;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private Label wlHttpLogin;
   private Label wlHttpPassword;

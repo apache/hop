@@ -19,9 +19,12 @@ package org.apache.hop.pipeline.transforms.calculator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.lineage.api.IDeclaresTransformLogic.FieldLogic;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.Test;
 
@@ -79,5 +82,31 @@ class CalculatorMetaTest {
     rtn.setValueType(valueTypes[Math.abs(rand.nextInt(valueTypes.length))]);
     rtn.setRemovedFromResult(rand.nextBoolean());
     return rtn;
+  }
+
+  @Test
+  void eachCalculationIsItsCodeAndItsFields() {
+    CalculatorMeta meta = new CalculatorMeta();
+    meta.getFunctions().add(function("tax", CalculationType.MULTIPLY, "total", "rate", null));
+    meta.getFunctions().add(function("one", CalculationType.CONSTANT, "1", "", ""));
+    meta.getFunctions().add(function("skipped", CalculationType.NONE, "a", null, null));
+    meta.getFunctions().add(function("", CalculationType.CONSTANT, "2", null, null));
+
+    assertEquals(
+        List.of(
+            new FieldLogic("tax", "calculator", "MULTIPLY(total, rate)"),
+            new FieldLogic("one", "calculator", "CONSTANT(1)")),
+        meta.transformLogic(new Variables()));
+  }
+
+  private static CalculatorMetaFunction function(
+      String field, CalculationType type, String a, String b, String c) {
+    CalculatorMetaFunction function = new CalculatorMetaFunction();
+    function.setFieldName(field);
+    function.setCalcType(type);
+    function.setFieldA(a);
+    function.setFieldB(b);
+    function.setFieldC(c);
+    return function;
   }
 }

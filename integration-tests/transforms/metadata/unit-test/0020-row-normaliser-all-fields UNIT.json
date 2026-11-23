@@ -1,0 +1,30 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "column",
+          "data_set_field": "column"
+        },
+        {
+          "transform_field": "content",
+          "data_set_field": "content"
+        }
+      ],
+      "field_order": [],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-normaliser-all-fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0020-row-normaliser-all-fields UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0020-row-normaliser-all-fields.hpl",
+  "test_type": "UNIT_TEST"
+}

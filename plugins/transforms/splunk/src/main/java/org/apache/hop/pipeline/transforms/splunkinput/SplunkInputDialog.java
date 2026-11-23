@@ -160,18 +160,17 @@ public class SplunkInputDialog extends BaseTransformDialog {
 
     // Table: return field name and type
     //
-    ColumnInfo[] returnColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Splunk name", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo(
-              "Return type",
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames(),
-              false),
-          new ColumnInfo("Length", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Format", ColumnInfo.COLUMN_TYPE_TEXT, false),
-        };
+    ColumnInfo[] returnColumns = {
+      new ColumnInfo("Field name", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Splunk name", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          "Return type",
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames(),
+          false),
+      new ColumnInfo("Length", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Format", ColumnInfo.COLUMN_TYPE_TEXT, false),
+    };
 
     Label wlReturns = new Label(wComposite, SWT.LEFT);
     wlReturns.setText("Returns");

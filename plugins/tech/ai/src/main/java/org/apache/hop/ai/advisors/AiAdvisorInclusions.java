@@ -26,5 +26,8 @@ public final class AiAdvisorInclusions {
   public static final String LOGS = "logs";
   public static final String METADATA = "metadata";
 
+  /** What the picked data catalog says about the tables and files the pipeline touches. */
+  public static final String DATA_CATALOG = "datacatalog";
+
   private AiAdvisorInclusions() {}
 }

@@ -20,7 +20,10 @@ package org.apache.hop.pipeline.transforms.sortedmerge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -168,6 +172,43 @@ class SortedMergeMetaTest {
         new Variables(),
         null);
     return remarks;
+  }
+
+  /** An input sorted descending on a field the merge sorts ascending: Verify pipeline warns. */
+  @Test
+  void checkWarnsWhenAnInputIsSortedDescendingOnAnAscendingMergeField() throws Exception {
+    SortedMergeMeta meta = new SortedMergeMeta();
+    meta.getMergeFields().add(new MergeField("key", true));
+    TransformMeta transformMeta = mock(TransformMeta.class);
+    TransformMeta sort = new TransformMeta();
+    sort.setName("Sort descending");
+    IRowMeta sortedDescending = stringMeta("key");
+    sortedDescending.getValueMeta(0).setSortedDescending(true);
+    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
+    when(pipelineMeta.findPreviousTransforms(transformMeta)).thenReturn(List.of(sort));
+    when(pipelineMeta.getTransformFields(any(IVariables.class), eq(sort)))
+        .thenReturn(sortedDescending);
+
+    List<ICheckResult> remarks = new ArrayList<>();
+    meta.check(
+        remarks,
+        pipelineMeta,
+        transformMeta,
+        stringMeta("key"),
+        new String[] {"Sort descending"},
+        new String[0],
+        null,
+        new Variables(),
+        null);
+
+    assertTrue(
+        remarks.stream()
+            .anyMatch(
+                r ->
+                    r.getType() == ICheckResult.TYPE_RESULT_WARNING
+                        && r.getText().contains("Sort descending")
+                        && r.getText().contains("set Ascending to N for key")),
+        remarks.toString());
   }
 
   private static IRowMeta stringMeta(String... names) {

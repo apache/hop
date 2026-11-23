@@ -37,7 +37,11 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Call a stored procedure in a database. Uses the hop-samples connection, an in-memory H2 database. Set the procedure name before running.</note>
+      <note>Call a database function for each row.
+The hop-samples connection is an in-memory H2 database,
+and LENGTH is one of its built-in functions.
+To call a stored procedure of your own,
+change the connection and the procedure name.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
       <width>400</width>
@@ -96,7 +100,7 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>128</xloc>
-      <yloc>160</yloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
 <transform>
@@ -111,7 +115,7 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <connection>hop-samples</connection>
-    <procedure>addCount</procedure>
+    <procedure>LENGTH</procedure>
     <lookup>
       <arg>
         <name>value</name>
@@ -120,14 +124,14 @@ limitations under the License.
       </arg>
     </lookup>
     <result>
-      <name>count</name>
+      <name>length</name>
       <type>Integer</type>
     </result>
     <auto_commit>Y</auto_commit>
     <attributes/>
     <GUI>
       <xloc>352</xloc>
-      <yloc>96</yloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

@@ -69,6 +69,14 @@ public class DriverDownload {
   @Builder.Default private final List<String> companionCoordinates = List.of();
 
   /**
+   * Versions to use for the driver's transitive dependencies, as {@code
+   * groupId:artifactId:version}. Use this to download a dependency at the version the rest of Hop
+   * uses instead of the one the driver declares, so that it matches a copy another plugin ships in
+   * lib/core. An artifact not in the driver's dependency tree is not added.
+   */
+  @Builder.Default private final List<String> managedVersions = List.of();
+
+  /**
    * Optional extra Maven repository base URL to resolve this driver from, for drivers that are not
    * on Maven Central (e.g. MonetDB on Clojars). It is searched in addition to Maven Central / the
    * user-supplied repository. Null means Maven Central only.

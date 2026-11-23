@@ -30,12 +30,16 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.RestConnectionHeader;
+import org.apache.hop.metadata.rest.client.RestOAuth2TokenProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.jupiter.api.AfterEach;
@@ -60,6 +64,15 @@ class ActionHttpConnectionTest {
   private HttpServer server;
   private final AtomicReference<String> authorization = new AtomicReference<>();
   private final AtomicReference<String> requestPath = new AtomicReference<>();
+  private final AtomicReference<String> userHeader = new AtomicReference<>();
+
+  /** The Authorization header of every request, in order. */
+  private final List<String> authorizations = new CopyOnWriteArrayList<>();
+
+  /** When set, the server rejects "Bearer token-1" with a 401, as if the provider revoked it. */
+  private volatile boolean rejectToken1;
+
+  private final AtomicInteger tokensIssued = new AtomicInteger();
 
   @BeforeAll
   static void setupBeforeClass() throws Exception {
@@ -73,10 +86,28 @@ class ActionHttpConnectionTest {
         "/",
         exchange -> {
           List<String> auth = exchange.getRequestHeaders().get("Authorization");
-          authorization.set(auth == null ? null : auth.get(0));
+          authorization.set(auth == null ? null : auth.getFirst());
           requestPath.set(exchange.getRequestURI().getPath());
+          userHeader.set(exchange.getRequestHeaders().getFirst("x-as-user-email"));
+          authorizations.add(auth == null ? "-" : auth.getFirst());
 
+          int status = rejectToken1 && "Bearer token-1".equals(authorization.get()) ? 401 : 200;
           byte[] body = PAYLOAD.getBytes(UTF_8);
+          exchange.sendResponseHeaders(status, body.length);
+          try (OutputStream os = exchange.getResponseBody()) {
+            os.write(body);
+          }
+          exchange.close();
+        });
+    server.createContext(
+        "/token",
+        exchange -> {
+          exchange.getRequestBody().readAllBytes();
+          byte[] body =
+              ("{\"access_token\":\"token-"
+                      + tokensIssued.incrementAndGet()
+                      + "\",\"token_type\":\"Bearer\",\"expires_in\":3600}")
+                  .getBytes(UTF_8);
           exchange.sendResponseHeaders(200, body.length);
           try (OutputStream os = exchange.getResponseBody()) {
             os.write(body);
@@ -91,6 +122,76 @@ class ActionHttpConnectionTest {
     server.stop(0);
     authorization.set(null);
     requestPath.set(null);
+    userHeader.set(null);
+    RestOAuth2TokenProvider.clearCache();
+  }
+
+  @Test
+  void aRejectedOAuth2TokenIsReplacedAndTheRequestSentOnceMore() throws Exception {
+    // Issue #9550: the renewal is in the connection's client, so the HTTP action gets it too.
+    rejectToken1 = true;
+    File target = File.createTempFile("tokenrenewal", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(oauth2Provider(), target);
+    action.setUrl("v1/items");
+
+    assertTrue(action.execute(new Result(), 0).isResult());
+    assertEquals(List.of("Bearer token-1", "Bearer token-2"), authorizations);
+    assertEquals(PAYLOAD, FileUtils.readFileToString(target, UTF_8));
+  }
+
+  private MemoryMetadataProvider oauth2Provider() throws Exception {
+    String baseUrl = "http://localhost:" + server.getAddress().getPort();
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    RestConnection connection = new RestConnection();
+    connection.setName("test-connection");
+    connection.setBaseUrl(baseUrl);
+    connection.setAuthType(RestConnection.OAUTH2);
+    connection.setOauth2TokenUrl(baseUrl + "/token");
+    connection.setOauth2ClientId("hop-action-http");
+    connection.setOauth2ClientSecret("secret");
+    provider.getSerializer(RestConnection.class).save(connection);
+    return provider;
+  }
+
+  @Test
+  void theConnectionsStaticHeadersAreSent() throws Exception {
+    // Issue #9551.
+    File target = File.createTempFile("staticheaders", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(connectionWithUserHeader(), target);
+    action.setUrl("v1/items");
+
+    assertTrue(action.execute(new Result(), 0).isResult());
+    assertEquals("hop@example.com", userHeader.get());
+  }
+
+  @Test
+  void aHeaderSetOnTheActionWinsOverTheConnectionsStaticHeader() throws Exception {
+    File target = File.createTempFile("staticheadersoverride", ".tmp");
+    target.deleteOnExit();
+
+    ActionHttp action = action(connectionWithUserHeader(), target);
+    action.setUrl("v1/items");
+    ActionHttp.Header header = new ActionHttp.Header();
+    header.setHeaderName("X-As-User-Email");
+    header.setHeaderValue("action@example.com");
+    action.setHeaders(List.of(header));
+
+    assertTrue(action.execute(new Result(), 0).isResult());
+    assertEquals("action@example.com", userHeader.get());
+  }
+
+  private MemoryMetadataProvider connectionWithUserHeader() throws Exception {
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    RestConnection connection = new RestConnection();
+    connection.setName("test-connection");
+    connection.setBaseUrl("http://localhost:" + server.getAddress().getPort());
+    connection.setHeaders(List.of(new RestConnectionHeader("x-as-user-email", "hop@example.com")));
+    provider.getSerializer(RestConnection.class).save(connection);
+    return provider;
   }
 
   @Test
@@ -103,7 +204,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("/v1/items", requestPath.get());
     assertEquals(PAYLOAD, FileUtils.readFileToString(target, UTF_8));
   }
@@ -118,7 +219,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals(
         "Basic " + Base64.getEncoder().encodeToString((USER + ":" + PASSWORD).getBytes(UTF_8)),
         authorization.get());
@@ -136,7 +237,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     assertEquals("/elsewhere", requestPath.get());
     assertNull(authorization.get(), "the connection credentials went to another host");
   }
@@ -156,7 +257,7 @@ class ActionHttpConnectionTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 

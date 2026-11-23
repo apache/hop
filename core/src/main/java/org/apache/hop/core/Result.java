@@ -98,7 +98,7 @@ public class Result implements Cloneable {
   /** The number of files retrieved. */
   private long nrFilesRetrieved;
 
-  /** The result of the workflow or pipeline, true if successful, false otherwise. */
+  /** True when the workflow or pipeline execution succeeded. */
   private boolean result;
 
   /** The entry number. */
@@ -107,7 +107,10 @@ public class Result implements Cloneable {
   /** The exit status. */
   private int exitStatus;
 
-  /** The rows resulting from the pipeline or workflow execution */
+  /**
+   * Rows produced by the workflow or pipeline. A later action can read them to post-process the
+   * previous execution.
+   */
   private List<RowMetaAndData> rows;
 
   /** The result files. */
@@ -288,18 +291,6 @@ public class Result implements Cloneable {
         + ", exit_status="
         + exitStatus
         + (stopped ? " (Stopped)" : ", result=" + result);
-  }
-
-  /**
-   * Returns the resulting rowset from the workflow or pipeline. For example, Result rows are used
-   * in workflows where entries wish to receive the results of previous executions of workflows or
-   * pipelines. The Result rows can be used to do many kinds of pipeline or workflow
-   * post-processing.
-   *
-   * @return a List of rows associated with the result of execution of a workflow or pipeline
-   */
-  public List<RowMetaAndData> getRows() {
-    return rows;
   }
 
   /**
@@ -616,35 +607,22 @@ public class Result implements Cloneable {
     nrErrors += incr;
   }
 
-  public long getBytesReadThisAction() {
-    return bytesReadThisAction;
-  }
-
-  public void setBytesReadThisAction(long bytesReadThisAction) {
-    this.bytesReadThisAction = bytesReadThisAction;
-  }
-
-  public long getBytesWrittenThisAction() {
-    return bytesWrittenThisAction;
-  }
-
-  public void setBytesWrittenThisAction(long bytesWrittenThisAction) {
-    this.bytesWrittenThisAction = bytesWrittenThisAction;
-  }
-
-  @Deprecated(since = "2.16")
   /**
    * Returns whether the pipeline or workflow was successful.
    *
+   * @return true if the execution was successful, false otherwise
    * @deprecated Use {@link #isResult()} instead. This method remains for backward compatibility and
    *     will be removed in a future release.
    */
+  @Deprecated(since = "2.16")
   public boolean getResult() {
-    return result;
+    return isResult();
   }
 
   /**
    * Returns whether the pipeline or workflow execution was successful.
+   *
+   * <p>Written out: Lombok does not generate isResult() while the deprecated getResult() exists.
    *
    * @return true if the execution was successful, false otherwise
    */

@@ -36,9 +36,53 @@
         <module>plugins</module>
         <module>static</module>
         <module>web</module>
+        <module>web-war</module>
     </modules>
 
     <properties>
         <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+        <!-- Nothing under assemblies/ is deployed except hop-client and hop-web, which set this
+             back to false and deploy a flattened POM that does not reference this parent. -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- For the assemblies that are deployed (hop-client, hop-web). Their dependencies
+                     are build inputs for the assembly descriptors, not a classpath for consumers:
+                     several are never published, and neither is this parent POM. Deploy a POM
+                     without parent, dependencies, profiles or build so the zip or war resolves
+                     on its own. A module opts in by declaring the plugin. -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten-maven-plugin.version}</version>
+                    <configuration>
+                        <flattenMode>ossrh</flattenMode>
+                        <outputDirectory>${project.build.directory}</outputDirectory>
+                        <!-- Flatten skips pom packaging unless told otherwise. -->
+                        <updatePomFile>true</updatePomFile>
+                        <pomElements>
+                            <dependencies>remove</dependencies>
+                            <dependencyManagement>remove</dependencyManagement>
+                            <profiles>remove</profiles>
+                            <build>remove</build>
+                            <repositories>remove</repositories>
+                            <pluginRepositories>remove</pluginRepositories>
+                        </pomElements>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>flatten</id>
+                            <goals>
+                                <goal>flatten</goal>
+                            </goals>
+                            <phase>process-resources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

@@ -17,6 +17,7 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -97,6 +98,97 @@ class HopGuiPipelineGraphOutputDataTest extends GraphCanvasTestBase {
           assertTrue(scene.source.isSelected(), "viewing the rows keeps the selection");
           assertIdle(scene.graph);
         });
+  }
+
+  /**
+   * Every window runs its own event loop, so the rows of a second transform open from inside the
+   * first one's loop. That must be a new window, not another click on the open one, and the first
+   * window must stay up.
+   */
+  @Test
+  void rowsOfASecondTransformOpenWhileTheFirstWindowIsUp() {
+    onCanvas(
+        scene -> {
+          Shell first = openRows(scene, scene.source);
+          assertNotNull(first, "the first badge opens its rows");
+          assertEquals(scene.transformRowsTitle, titleOf(first));
+
+          Shell second = openRows(scene, scene.target);
+          assertNotNull(second, "a second badge opens a second window while the first is up");
+          assertEquals(rowsTitle(TARGET_TRANSFORM), titleOf(second));
+          assertFalse(first.isDisposed(), "opening the second window leaves the first one up");
+
+          // Newest first, so each nested loop can return to the one below it.
+          closeShell(scene.bot, second);
+          closeShell(scene.bot, first);
+          assertIdle(scene.graph);
+          assertTrue(swallowed.isEmpty(), "the canvas must not throw, but got " + swallowed);
+        });
+  }
+
+  @Test
+  void closingAWindowFreesItsBadgeWhileAnotherWindowIsUp() {
+    onCanvas(
+        scene -> {
+          Shell first = openRows(scene, scene.source);
+          assertNotNull(first, "the first badge opens its rows");
+          Shell second = openRows(scene, scene.target);
+          assertNotNull(second, "the second badge opens its rows");
+
+          // Close the first window while the second one is still up.
+          closeShell(scene.bot, first);
+
+          Shell reopened = openRows(scene, scene.source);
+          assertNotNull(
+              reopened, "closing a window must free its badge while another window is still up");
+          assertEquals(scene.transformRowsTitle, titleOf(reopened));
+
+          // Newest first, so each nested loop can return to the one below it.
+          closeShell(scene.bot, reopened);
+          closeShell(scene.bot, second);
+          assertIdle(scene.graph);
+          assertTrue(swallowed.isEmpty(), "the canvas must not throw, but got " + swallowed);
+        });
+  }
+
+  /** The canvas stays usable while a window is up: a transform can still be dragged. */
+  @Test
+  void draggingATransformWorksWhileAWindowIsOpen() {
+    onCanvas(
+        scene -> {
+          Shell rows = openRows(scene, scene.target);
+          assertNotNull(rows, "the badge opens its rows");
+
+          Point before = scene.locationOf(scene.source);
+          Point icon = scene.icon(scene.source);
+          Point drop = new Point(icon.x, icon.y + DRAG_Y);
+
+          fire(scene.canvas, SWT.MouseDown, scene.scale, icon, 1, SWT.NONE);
+          fire(scene.canvas, SWT.MouseMove, scene.scale, drop, 0, SWT.BUTTON1);
+          List<String> dialogs = release(scene, drop);
+
+          assertTrue(dialogs.isEmpty(), "the release of the drag opens no window");
+          assertFalse(rows.isDisposed(), "the open window stays up during the drag");
+          assertTrue(
+              scene.locationOf(scene.source).y - before.y > 100,
+              "the transform moves while the rows of another one are on screen");
+
+          closeShell(scene.bot, rows);
+          assertIdle(scene.graph);
+          assertTrue(swallowed.isEmpty(), "the canvas must not throw, but got " + swallowed);
+        });
+  }
+
+  /**
+   * Clicks a badge without waiting - the release opens a window and a nested event loop - and
+   * returns the window it opened.
+   */
+  private Shell openRows(Scene scene, TransformMeta transform) {
+    Set<Shell> before = openShells();
+    Point badge = scene.outputBadge(transform);
+    fireAsync(scene.canvas, SWT.MouseDown, scene.scale, badge, 1, SWT.NONE);
+    fireAsync(scene.canvas, SWT.MouseUp, scene.scale, badge, 1, SWT.BUTTON1);
+    return awaitNewShell(scene.bot, before);
   }
 
   @Test
@@ -208,11 +300,14 @@ class HopGuiPipelineGraphOutputDataTest extends GraphCanvasTestBase {
     idle.put("iconDragStartScreen", null);
     idle.put("iconDragCommitted", false);
     idle.put("outputDataPressed", false);
-    idle.put("showingOutputRows", false);
     idle.put("avoidContextDialog", false);
     idle.put("lastButton", 0);
     idle.put("clickedPipelineHop", null);
     assertGraphState(graph, idle);
+    assertEquals(
+        Set.of(),
+        privateField(graph, "openOutputRowsBuffers"),
+        "a closed output-rows window must not stay marked as open");
   }
 
   private void onCanvas(Consumer<Scene> test) {

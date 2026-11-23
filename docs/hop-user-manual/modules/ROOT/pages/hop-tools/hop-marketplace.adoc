@@ -95,6 +95,14 @@ From the Hop install directory:
 
 After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
+Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
+Shared jars in `lib/core` stay in place.
+A file of the previous version that is still in use (Windows locks loaded jars) stays listed in the receipt and is removed by the next install, apply, or uninstall.
+Uninstall removes the rest of the plugin in that case; run it again after closing Hop to remove that file.
+
+The marketplace keeps an install receipt for each plugin in `plugins/.marketplace/`, with a SHA-256 checksum of every file it installed.
+When a plugin replaces a jar in `lib/core` that has other content, the old jar is first backed up to a new folder under `plugins/.marketplace/backup/<plugin>/<version>/`, where `<version>` is the version being installed.
+
 Coordinates for `install`: `artifactId`, `artifactId:version`, or `groupId:artifactId:version`.
 Optional `--repo <id>` forces a single repository (skips the fallback chain).
 

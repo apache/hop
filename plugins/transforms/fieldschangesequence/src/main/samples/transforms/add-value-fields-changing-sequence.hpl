@@ -137,7 +137,7 @@ limitations under the License.
     </partitioning>
     <calculation>
       <calc_type>CONSTANT</calc_type>
-      <field_a>10.0</field_a>
+      <field_a>10</field_a>
       <field_name>ten</field_name>
       <remove>Y</remove>
       <value_length>-1</value_length>

@@ -47,8 +47,9 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionWaitForFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionWaitForFile.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionWaitForFile.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionWaitForFile.Filetype.All")
+  };
 
   private TextVar wFilename;
 

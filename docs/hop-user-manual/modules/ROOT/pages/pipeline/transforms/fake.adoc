@@ -398,3 +398,7 @@ For instance, we could generate some random Pokémon data.
 - en-US
 - nl
 - ...
+
+== Samples
+
+The samples project has `transforms/fake-data-generate-person-record.hpl`, which generates 1,000 fake person records: a name, a birthday, a blood group, a credit card number, a cell phone number, a favourite book, a workplace, a programming language, a digit and a random number.

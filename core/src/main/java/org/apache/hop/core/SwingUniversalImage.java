@@ -30,7 +30,7 @@ import org.apache.batik.ext.awt.RenderingHintsKeyExt;
  */
 public abstract class SwingUniversalImage {
 
-  private Map<String, BufferedImage> cache = new TreeMap<>();
+  private final Map<String, BufferedImage> cache = new TreeMap<>();
 
   public abstract boolean isBitmap();
 

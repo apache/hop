@@ -34,8 +34,11 @@ import java.util.regex.Pattern;
 
 /** Local operator actions. Every mutation holds the same lifetime lock as the source. */
 public class WatchFilesStateManager {
+  private static final String CONST_JSON_COMMIT = ".json.commit";
+  private static final String CONST_JSON = ".json";
+  private static final String CONST_JSON_TMP = ".json.tmp";
   private static final List<String> SUFFIXES =
-      List.of(".json", ".json.tmp", ".json.bak", ".json.commit");
+      List.of(CONST_JSON, CONST_JSON_TMP, ".json.bak", CONST_JSON_COMMIT);
   private final Path directory;
   private final String watchId;
   private final int maximum;
@@ -58,7 +61,7 @@ public class WatchFilesStateManager {
       Map<String, FileState> state = store.load();
       if (state == null)
         return "No checkpoint. The next start follows First start without saved state.";
-      JsonNode header = new ObjectMapper().readTree(Files.readAllBytes(file(".json")));
+      JsonNode header = new ObjectMapper().readTree(Files.readAllBytes(file(CONST_JSON)));
       return "Stopped source\nWatch ID: "
           + watchId
           + "\nSchema: "
@@ -131,19 +134,19 @@ public class WatchFilesStateManager {
       // an invalid main checkpoint merely to discover that its backup is also invalid.
       Path scratch = Files.createTempDirectory(directory, watchId + ".restore-");
       try {
-        Files.copy(source, scratch.resolve(watchId + ".json"));
+        Files.copy(source, scratch.resolve(watchId + CONST_JSON));
         try (JsonFileStateStore candidate =
             new JsonFileStateStore(scratch, watchId, null, null, maximum)) {
           candidate.load();
         }
         Path history = archive(directory, watchId);
-        copyForced(scratch.resolve(watchId + ".json"), file(".json.tmp"));
+        copyForced(scratch.resolve(watchId + CONST_JSON), file(CONST_JSON_TMP));
         // Keep durable intent until replacement and forcing have completed, including on
         // filesystems
         // without atomic rename. A crash remains recoverable from the validated original backup.
         try (FileChannel marker =
             FileChannel.open(
-                file(".json.commit"),
+                file(CONST_JSON_COMMIT),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE,
                 StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -152,20 +155,20 @@ public class WatchFilesStateManager {
         forceDirectory(directory);
         try {
           Files.move(
-              file(".json.tmp"),
-              file(".json"),
+              file(CONST_JSON_TMP),
+              file(CONST_JSON),
               StandardCopyOption.ATOMIC_MOVE,
               StandardCopyOption.REPLACE_EXISTING);
         } catch (AtomicMoveNotSupportedException e) {
-          Files.move(file(".json.tmp"), file(".json"), StandardCopyOption.REPLACE_EXISTING);
+          Files.move(file(CONST_JSON_TMP), file(CONST_JSON), StandardCopyOption.REPLACE_EXISTING);
         }
-        force(file(".json"));
+        force(file(CONST_JSON));
         forceDirectory(directory);
-        Files.delete(file(".json.commit"));
+        Files.delete(file(CONST_JSON_COMMIT));
         forceDirectory(directory);
         return history;
       } finally {
-        Files.deleteIfExists(scratch.resolve(watchId + ".json"));
+        Files.deleteIfExists(scratch.resolve(watchId + CONST_JSON));
         Files.deleteIfExists(scratch.resolve(watchId + ".lock"));
         Files.delete(scratch);
       }

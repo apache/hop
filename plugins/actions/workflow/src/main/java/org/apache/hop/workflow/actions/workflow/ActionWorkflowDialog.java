@@ -64,12 +64,11 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
   private Label wlWaitTimeout;
   private TextVar wWaitTimeout;
 
-  private static final String[] FILE_FILTERLOGNAMES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.TXT"),
-        BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.LOG"),
-        BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.All")
-      };
+  private static final String[] FILE_FILTERLOGNAMES = {
+    BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.TXT"),
+    BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.LOG"),
+    BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.All")
+  };
 
   public ActionWorkflowDialog(
       Shell parent, ActionWorkflow action, WorkflowMeta workflowMeta, IVariables variables) {

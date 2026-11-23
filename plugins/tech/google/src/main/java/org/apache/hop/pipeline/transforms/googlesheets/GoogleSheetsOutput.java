@@ -42,6 +42,7 @@ import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateSheetPropertiesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +57,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GoogleSheetsOutput
     extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
+  private static final String CONST_WORKSHEET = "worksheet: ";
+  private static final String CONST_IN_SPREADSHEET = " in spreadsheet: ";
+  private static final String CONST_TRY_AGAIN_LATER_DETAILS = ". Try again later. Details: ";
+  private static final String CONST_GOOGLE_API_ERROR_HTTP = "Google API error (HTTP ";
 
   private String spreadsheetID;
   private NetHttpTransport httpTransport;
@@ -75,6 +80,15 @@ public class GoogleSheetsOutput
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  /**
+   * Creates the HTTP transport for the Google APIs, with variables resolved in the proxy host and
+   * port.
+   */
+  private NetHttpTransport newHttpTransport() throws GeneralSecurityException, IOException {
+    return GoogleSheetsConnectionFactory.newTransport(
+        resolve(meta.getProxyHost()), resolve(meta.getProxyPort()));
+  }
+
   /** Initialize and do work where other transforms need to wait for... */
   @Override
   public boolean init() {
@@ -87,9 +101,7 @@ public class GoogleSheetsOutput
 
       // Check if file exists
       try {
-        httpTransport =
-            GoogleSheetsConnectionFactory.newTransport(
-                resolve(meta.getProxyHost()), resolve(meta.getProxyPort()));
+        httpTransport = newHttpTransport();
         jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
@@ -310,9 +322,9 @@ public class GoogleSheetsOutput
         // 429/503 under resource limits - never report these as "file does not exist"
         logResourceLimitOrApiError(
             e,
-            "worksheet: "
+            CONST_WORKSHEET
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet: "
+                + CONST_IN_SPREADSHEET
                 + resolve(meta.getSpreadsheetKey()));
         return false;
       } catch (Exception e) {
@@ -321,9 +333,9 @@ public class GoogleSheetsOutput
         if (httpEx != null) {
           logResourceLimitOrApiError(
               httpEx,
-              "worksheet: "
+              CONST_WORKSHEET
                   + resolve(meta.getWorksheetId())
-                  + " in spreadsheet: "
+                  + CONST_IN_SPREADSHEET
                   + resolve(meta.getSpreadsheetKey()));
         } else {
           logError(
@@ -376,7 +388,7 @@ public class GoogleSheetsOutput
       logError(
           "Google API temporarily unavailable (503) for "
               + context
-              + ". Try again later. Details: "
+              + CONST_TRY_AGAIN_LATER_DETAILS
               + e.getMessage(),
           e);
     } else if (statusCode == 404) {
@@ -388,7 +400,7 @@ public class GoogleSheetsOutput
           e);
     } else {
       logError(
-          "Google API error (HTTP "
+          CONST_GOOGLE_API_ERROR_HTTP
               + statusCode
               + ") for "
               + context
@@ -532,8 +544,7 @@ public class GoogleSheetsOutput
                 "Clearing range" + range + " in Spreadsheet :" + resolve(meta.getSpreadsheetKey()));
           }
           // Creating service
-          httpTransport =
-              GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          httpTransport = newHttpTransport();
           JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =
@@ -641,9 +652,9 @@ public class GoogleSheetsOutput
       }
     } catch (HttpResponseException e) {
       String context =
-          "worksheet: "
+          CONST_WORKSHEET
               + resolve(meta.getWorksheetId())
-              + " in spreadsheet: "
+              + CONST_IN_SPREADSHEET
               + resolve(meta.getSpreadsheetKey());
       int statusCode = e.getStatusCode();
       String msg;
@@ -657,13 +668,13 @@ public class GoogleSheetsOutput
         msg =
             "Google API temporarily unavailable (503) while writing to "
                 + context
-                + ". Try again later. Details: "
+                + CONST_TRY_AGAIN_LATER_DETAILS
                 + e.getMessage();
       } else if (statusCode == 403) {
         msg = "Access denied (403) while writing to " + context + ". Details: " + e.getMessage();
       } else {
         msg =
-            "Google API error (HTTP "
+            CONST_GOOGLE_API_ERROR_HTTP
                 + statusCode
                 + ") while writing to "
                 + context
@@ -675,9 +686,9 @@ public class GoogleSheetsOutput
       HttpResponseException httpEx = findHttpResponseException(e);
       if (httpEx != null) {
         String context =
-            "worksheet: "
+            CONST_WORKSHEET
                 + resolve(meta.getWorksheetId())
-                + " in spreadsheet: "
+                + CONST_IN_SPREADSHEET
                 + resolve(meta.getSpreadsheetKey());
         int statusCode = httpEx.getStatusCode();
         String msg;
@@ -691,11 +702,11 @@ public class GoogleSheetsOutput
           msg =
               "Google API temporarily unavailable (503) while writing to "
                   + context
-                  + ". Try again later. Details: "
+                  + CONST_TRY_AGAIN_LATER_DETAILS
                   + httpEx.getMessage();
         } else {
           msg =
-              "Google API error (HTTP "
+              CONST_GOOGLE_API_ERROR_HTTP
                   + statusCode
                   + ") while writing to "
                   + context

@@ -46,7 +46,7 @@ public class EnterPrintDialog extends Dialog {
   private static final Class<?> PKG = EnterPrintDialog.class;
 
   private int retval;
-  private Image image;
+  private final Image image;
 
   private Canvas wCanvas;
 
@@ -65,7 +65,7 @@ public class EnterPrintDialog extends Dialog {
   private Text wBottom;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
   public int nrcols;
   public int nrrows;

@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -31,6 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.IDeclaresTransformLogic;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -48,7 +50,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/calculator.html")
 @Getter
 @Setter
-public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData> {
+public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData>
+    implements IDeclaresTransformLogic {
 
   private static final Class<?> PKG = CalculatorMeta.class;
 
@@ -169,5 +172,36 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  /**
+   * Each calculation as its code and the fields (or, for a constant, the value) it works on, such
+   * as {@code ADD(price, tax)}.
+   */
+  @Override
+  public List<FieldLogic> transformLogic(IVariables variables) {
+    List<FieldLogic> logic = new ArrayList<>();
+    for (CalculatorMetaFunction function : functions) {
+      if (Utils.isEmpty(function.getFieldName())
+          || function.getCalcType() == null
+          || function.getCalcType() == CalculationType.NONE) {
+        continue;
+      }
+      List<String> arguments =
+          new ArrayList<>(
+              List.of(
+                  Const.NVL(function.getFieldA(), ""),
+                  Const.NVL(function.getFieldB(), ""),
+                  Const.NVL(function.getFieldC(), "")));
+      while (!arguments.isEmpty() && arguments.get(arguments.size() - 1).isEmpty()) {
+        arguments.remove(arguments.size() - 1);
+      }
+      logic.add(
+          new FieldLogic(
+              function.getFieldName(),
+              "calculator",
+              function.getCalcType().getCode() + "(" + String.join(", ", arguments) + ")"));
+    }
+    return logic;
   }
 }

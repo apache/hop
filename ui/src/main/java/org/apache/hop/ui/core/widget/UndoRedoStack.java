@@ -22,11 +22,11 @@ public class UndoRedoStack {
   public static final int DELETE = 0;
   public static final int INSERT = 1;
 
-  private String strNewText;
-  private String strReplacedText;
-  private int iCursorPosition;
-  private int iEventLength;
-  private int iType;
+  private final String strNewText;
+  private final String strReplacedText;
+  private final int iCursorPosition;
+  private final int iEventLength;
+  private final int iType;
 
   public UndoRedoStack(
       int iCursorPosition, String strNewText, String strReplacedText, int iEventLength, int iType) {

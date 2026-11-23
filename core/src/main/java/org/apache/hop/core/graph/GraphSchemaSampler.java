@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
  * whatever their label.
  */
 public final class GraphSchemaSampler {
+  private static final String CONST_PROPERTIES = "properties";
 
   private GraphSchemaSampler() {}
 
@@ -100,7 +101,7 @@ public final class GraphSchemaSampler {
       for (Map<String, Object> row :
           connection.execute(getNodeSampleStatement(null, sampleSize), Map.of())) {
         for (String label : toStrings(row.get("labels"))) {
-          builder.addSampledNode(label, toMap(row.get("properties")));
+          builder.addSampledNode(label, toMap(row.get(CONST_PROPERTIES)));
         }
       }
     } else {
@@ -108,7 +109,7 @@ public final class GraphSchemaSampler {
         builder.addElement(GraphObjectType.NODE, label);
         for (Map<String, Object> row :
             connection.execute(getNodeSampleStatement(quote.apply(label), sampleSize), Map.of())) {
-          builder.addSampledNode(label, toMap(row.get("properties")));
+          builder.addSampledNode(label, toMap(row.get(CONST_PROPERTIES)));
         }
       }
     }
@@ -136,7 +137,7 @@ public final class GraphSchemaSampler {
         type,
         toStrings(row.get("startLabels")),
         toStrings(row.get("endLabels")),
-        toMap(row.get("properties")));
+        toMap(row.get(CONST_PROPERTIES)));
   }
 
   /** A returned list of names as strings, a single value as a list of one. */

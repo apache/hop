@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-pipeline-executor-children-log.csv",
+  "name": "golden-pipeline-executor-children-log",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "pipelineName",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "loggingPhase",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

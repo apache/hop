@@ -54,3 +54,7 @@ The conversion rules are:
 * each segment in the edifact message is converted to a tag, using the segment name as the tag name.
 * each field within a segment is represented by an "element" tag
 * each value within a field is represented by an "value" tag
+
+== Samples
+
+The samples project has `transforms/edi-to-xml.hpl`, which loads `files/edi-to-xml.txt` into a field and converts that EDI message to XML in the field `xml`.

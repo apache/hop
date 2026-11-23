@@ -29,7 +29,7 @@ public enum Comparator {
   IS_NULL("IS NULL"),
   IS_NOT_NULL("IS NOT NULL");
 
-  private String value;
+  private final String value;
 
   private Comparator(String value) {
     this.value = value;

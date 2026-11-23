@@ -36,7 +36,9 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
     description = "i18n::RecordsFromStream.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::RecordsFromStreamMeta.keyword",
-    documentationUrl = "/pipeline/transforms/getrecordsfromstream.html")
+    documentationUrl = "/pipeline/transforms/getrecordsfromstream.html",
+    // Must match SparkConst.PLUGIN_ID — do not import engines-spark from transform modules.
+    excludedEngines = {"SparkPipelineEngine"})
 public class RecordsFromStreamMeta extends RowsFromResultMeta {
 
   public RecordsFromStreamMeta() {

@@ -45,8 +45,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoOperation;
-import org.apache.hop.lineage.model.FileIoPathSyntax;
-import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -687,16 +685,18 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
         List<Integer> enclosures = null;
         boolean writeEnclosures = false;
 
-        if (v.isString()) {
-          // Quoting stays tied to the Right pad fields checkbox. isPaddingFields() is also true
-          // for saved transforms that never selected that checkbox, and using it here would drop
-          // enclosures from existing files.
-          if (meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
-            writeEnclosures = true;
-          } else if (!meta.isEnclosureFixDisabled()
-              && containsSeparatorOrEnclosure(str, data.binarySeparator, data.binaryEnclosure)) {
-            writeEnclosures = true;
-          }
+        // Forced enclosure stays a String-only option. isPaddingFields() is also true for saved
+        // transforms that never selected that checkbox, and using it here would drop enclosures
+        // from existing files.
+        if (v.isString() && meta.isEnclosureForced() && !meta.getFileSettings().isPadded()) {
+          writeEnclosures = true;
+        } else if ((v.isString() || v.getType() == IValueMeta.TYPE_VECTOR)
+            && !meta.isEnclosureFixDisabled()
+            && containsSeparatorOrEnclosure(str, data.binarySeparator, data.binaryEnclosure)) {
+          // Quote String and Vector when the rendered text embeds the separator or enclosure.
+          // Vector's canonical form [0.1,0.2,0.3] needs this for a comma-separated round trip.
+          // Other types (JSON, Binary, Number, Date) keep their previous unquoted output.
+          writeEnclosures = true;
         }
 
         if (writeEnclosures) {
@@ -901,44 +901,7 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
    * full transform output row.
    */
   private FileIoContentSchema writtenFileContentSchema() {
-    List<FileIoTabularColumn> cols = new ArrayList<>();
-    if (meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()) {
-      for (TextFileField f : meta.getOutputFields()) {
-        String typeDesc = f.getTypeDesc();
-        if (data.outputRowMeta != null) {
-          IValueMeta v = data.outputRowMeta.searchValueMeta(f.getName());
-          if (v != null) {
-            typeDesc = v.getTypeDesc();
-          }
-        }
-        cols.add(
-            new FileIoTabularColumn(
-                f.getName(),
-                typeDesc,
-                f.getLength(),
-                f.getPrecision(),
-                null,
-                FileIoPathSyntax.NONE,
-                false));
-      }
-    } else if (data.outputRowMeta != null) {
-      for (int i = 0; i < data.outputRowMeta.size(); i++) {
-        IValueMeta v = data.outputRowMeta.getValueMeta(i);
-        cols.add(
-            new FileIoTabularColumn(
-                v.getName(),
-                v.getTypeDesc(),
-                v.getLength(),
-                v.getPrecision(),
-                null,
-                FileIoPathSyntax.DELIMITED,
-                false));
-      }
-    }
-    if (cols.isEmpty()) {
-      return null;
-    }
-    return new FileIoContentSchema("delimited", cols, List.of());
+    return meta.writtenContentSchema(data.outputRowMeta);
   }
 
   /** Flushes the given stream and adds its written byte count to dataVolumeOut. */

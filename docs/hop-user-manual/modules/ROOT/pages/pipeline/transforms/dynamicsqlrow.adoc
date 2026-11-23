@@ -43,3 +43,7 @@ The lookup values returned by the transform are added as new fields onto the str
 |Template SQL|In Hop meta and data are separate so you have to specify the meta part in template SQL (field name and type).
 I mean any statement that returns the same row structure.
 |===
+
+== Samples
+
+The samples project has `transforms/dynamic-sql-row.hpl`, which finds the tables with an `ID` column in the `PUBLIC` schema of the `hop-samples` connection, builds a query for each table in a JavaScript transform, and writes each table name and id to the log.

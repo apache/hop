@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Google Sheets output transform writes data to a Google Sheets worksheets.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/google-sheets-output.svg[Google Sheets output transform Icon, role="image-doc-icon"] Google Sheets output
 
@@ -69,3 +69,7 @@ Click the `Test Connection` button to verify your specified JSON credential key 
 |Domain Wide Permission|Enables to share with your whole domain (if configured in Google Drive).
 |===
 
+== Samples
+
+The samples project has `transforms/google-sheets-output.hpl`, which writes the `id` and `name` of two rows from a Data grid to the worksheet `Sheet2` of a Google spreadsheet.
+Put a Google service account key in `client_secret.json` in the project folder, and set the spreadsheet key to a spreadsheet that this account can edit, before you run it.

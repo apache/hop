@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.ToolItem;
 
 public class TreeToolbar extends Composite {
 
-  private PropsUi props = PropsUi.getInstance();
-  private Text selectionFilter;
-  private ToolItem expandAll;
-  private ToolItem collapseAll;
+  private final PropsUi props = PropsUi.getInstance();
+  private final Text selectionFilter;
+  private final ToolItem expandAll;
+  private final ToolItem collapseAll;
 
   public TreeToolbar(Composite composite, int i) {
     super(composite, i);

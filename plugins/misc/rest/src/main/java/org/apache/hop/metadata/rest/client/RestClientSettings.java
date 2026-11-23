@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.rest.client;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.net.ssl.SSLContext;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +33,9 @@ import lombok.Setter;
  * needs to know which source it came from.
  *
  * <p>Values that vary per request (URL, method, headers, query and matrix parameters, body) are
- * deliberately absent: they belong to the request, not to the client.
+ * deliberately absent: they belong to the request, not to the client. The one exception is {@code
+ * staticHeaders}: headers a connection sends on every request are configuration, like the
+ * credentials, rather than request data.
  */
 @Getter
 @Setter
@@ -99,6 +103,13 @@ public class RestClientSettings {
 
   /** Plain-text API key: decrypt before setting this. */
   private String apiKeyHeaderValue;
+
+  /**
+   * Headers sent on every request made through a REST connection, resolved and decrypted (issue
+   * #9551). Applied by {@link RestAuthenticator} under the same origin rule as the credentials, and
+   * only where the request does not already carry a header with the same name.
+   */
+  private Map<String, String> staticHeaders = new LinkedHashMap<>();
 
   // ---------------------------------------------------------------- OAuth 2 (issue #6595)
 

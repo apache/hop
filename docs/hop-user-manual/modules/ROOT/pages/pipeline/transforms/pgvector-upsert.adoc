@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Upsert text chunks and their embeddings into a PostgreSQL table that uses the pgvector extension.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 :page-marketplace: hop-tech-pgvector
 
 = image:transforms/icons/vector-store.svg[pgvector upsert transform Icon, role="image-doc-icon"] pgvector upsert
@@ -77,6 +77,9 @@ When *Delete document before upsert* is enabled, the pending batch is committed 
 To delete each document only once, the transform remembers the document IDs it has deleted, one entry per distinct ID for the length of the run. Above one million distinct documents in a single run it stops with an error rather than forgetting an ID, because deleting the same document twice would take with it the chunks the run had already written for it. Load very large corpora in batches, or turn the option off and clear the table yourself.
 
 Schema changes run with autocommit on, before the first row is written. A table or index created here therefore survives a failure later in the load, and an index does not hold its locks for the length of it.
+
+The schema changes run once per run, before any row is written: on the native Spark and Beam engines on the driver, before the job starts, so the partitions or bundles don't create the same table at the same time.
+In a transactional pipeline they wait for the first row, so they stay inside the transaction.
 
 The *Embedding dimensions* option only applies when the table is created by this transform. Changing it afterwards does not alter an existing table.
 

@@ -638,7 +638,7 @@ public abstract class HopImportBase implements IHopImport {
   public static String projectHome(
       ILogChannel log, IVariables variables, String projectName, String fallback)
       throws HopException {
-    Object[] objects = new Object[] {projectName, fallback};
+    Object[] objects = {projectName, fallback};
     ExtensionPointHandler.callExtensionPoint(
         log, variables, HopExtensionPoint.ProjectHome.id, objects);
     return (String) objects[1];

@@ -40,9 +40,9 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionDebugLevelDialog extends Dialog {
   private static final Class<?> PKG = ActionDebugLevelDialog.class;
 
-  private ActionDebugLevel input;
-  private ActionDebugLevel debugLevel;
-  private IVariables variables;
+  private final ActionDebugLevel input;
+  private final ActionDebugLevel debugLevel;
+  private final IVariables variables;
 
   private Shell shell;
 
@@ -54,7 +54,7 @@ public class ActionDebugLevelDialog extends Dialog {
   private Button wLoggingRows;
   private Button wLoggingFiles;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private boolean ok;
 

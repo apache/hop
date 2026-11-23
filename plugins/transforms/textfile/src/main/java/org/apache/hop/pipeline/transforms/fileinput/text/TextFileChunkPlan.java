@@ -55,6 +55,8 @@ import org.apache.hop.pipeline.transforms.fileinput.text.TextFileRecordSplitter.
  * TextFileRecordSplitter}).
  */
 public final class TextFileChunkPlan {
+  private static final String CONST_READING = "Reading ";
+  private static final String CONST_BYTES = " bytes";
 
   public static final long DEFAULT_CHUNK_SIZE = 128L * 1024 * 1024;
 
@@ -289,7 +291,7 @@ public final class TextFileChunkPlan {
         }
         if (!HopVfs.supportsRangeRead(file)) {
           log.logBasic(
-              "Reading "
+              CONST_READING
                   + file.getName().getFriendlyURI()
                   + " in one piece: its storage can't start reading in the middle of a file");
           chunks.add(TextFileChunk.whole(file, size, passThruRow));
@@ -298,7 +300,10 @@ public final class TextFileChunkPlan {
         Prologue prologue = Prologue.probe(file, header, headerLines, encoding, records);
         if (prologue.reason() != null) {
           log.logBasic(
-              "Reading " + file.getName().getFriendlyURI() + " in one piece: " + prologue.reason());
+              CONST_READING
+                  + file.getName().getFriendlyURI()
+                  + " in one piece: "
+                  + prologue.reason());
           chunks.add(TextFileChunk.whole(file, size, passThruRow));
           continue;
         }
@@ -353,13 +358,13 @@ public final class TextFileChunkPlan {
     }
     if (log.isDetailed()) {
       log.logDetailed(
-          "Reading "
+          CONST_READING
               + files.size()
               + " file(s) in "
               + chunks.size()
               + " chunk(s) of up to "
               + split
-              + " bytes");
+              + CONST_BYTES);
     }
     return new TextFileChunkPlan(chunks);
   }
@@ -433,7 +438,7 @@ public final class TextFileChunkPlan {
                 TextFileRecordSplitter.headerEnd(
                     file, dataStart, lineFeed, records, headerLines, MAX_PROLOGUE);
             if (dataStart < 0) {
-              return unsplittable("its header lines are longer than " + MAX_PROLOGUE + " bytes");
+              return unsplittable("its header lines are longer than " + MAX_PROLOGUE + CONST_BYTES);
             }
           }
         } else if (header && headerLines > 0) {
@@ -441,7 +446,7 @@ public final class TextFileChunkPlan {
           byte[] unit = new byte[lineFeed.length];
           while (found < headerLines) {
             if (dataStart > MAX_PROLOGUE) {
-              return unsplittable("its header lines are longer than " + MAX_PROLOGUE + " bytes");
+              return unsplittable("its header lines are longer than " + MAX_PROLOGUE + CONST_BYTES);
             }
             int read = in.readNBytes(unit, 0, unit.length);
             if (read < unit.length) {

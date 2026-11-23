@@ -63,7 +63,7 @@ public class BeamKinesisConsumeMeta extends BaseTransformMeta<BeamKinesisConsume
   @HopMetadataProperty(key = "secret_key", password = true)
   private String secretKey;
 
-  @HopMetadataProperty(key = "stream_name", password = true)
+  @HopMetadataProperty(key = "stream_name", stringEncoder = KinesisStreamNameEncoder.class)
   private String streamName;
 
   @HopMetadataProperty(key = "unique_id_field")

@@ -41,7 +41,7 @@ import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
 import org.apache.hop.vfs.gs.metadatatype.GoogleStorageMetadataType;
 
 public class GoogleStorageFileProvider extends AbstractOriginatingFileProvider {
-  private FileSystemOptions newFileSystemOptions = new FileSystemOptions();
+  private final FileSystemOptions newFileSystemOptions = new FileSystemOptions();
 
   /** Why {@link #tryApplicationDefaultCredentials()} last came back empty-handed. */
   private String applicationDefaultProblem;

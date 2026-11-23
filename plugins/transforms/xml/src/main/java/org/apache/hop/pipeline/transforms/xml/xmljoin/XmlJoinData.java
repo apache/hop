@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.xpath.XPath;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -44,6 +46,12 @@ public class XmlJoinData extends BaseTransformData implements ITransformData {
 
   public int iSourceXMLField = -1;
   public int iCompareFieldID = -1;
+
+  /** Created on the first row, reused for every row of this copy. */
+  public XPath xpath;
+
+  /** Parses the source XML fragments; created on the first source row, reused afterwards. */
+  public DocumentBuilder sourceDocumentBuilder;
 
   /** */
   public XmlJoinData() {

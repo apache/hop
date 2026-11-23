@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
  * variables.
  */
 public class TextVar extends Composite {
+  private static final String CONST_TEXT_VAR_TOOLTIP_NAMING_SCHEME = "TextVar.tooltip.NamingScheme";
   protected static Class<?> PKG = TextVar.class;
 
   protected String toolTipText;
@@ -274,13 +275,15 @@ public class TextVar extends Composite {
       wNamingImage = new Label(this, SWT.NONE);
       PropsUi.setLook(wNamingImage);
       wNamingImage.setImage(GuiResource.getInstance().getImageNamingMini());
-      wNamingImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme"));
+      wNamingImage.setToolTipText(
+          BaseMessages.getString(PKG, CONST_TEXT_VAR_TOOLTIP_NAMING_SCHEME));
       FormData fdlNaming = new FormData();
       fdlNaming.top = new FormAttachment(0, 0);
       wNamingImage.setLayoutData(fdlNaming);
       TextWidgetShortcutKeyAdapter.attachIndicatorClick(wNamingImage, this::buildShortcutContext);
     } else if (wNamingImage != null && !wNamingImage.isDisposed()) {
-      wNamingImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme"));
+      wNamingImage.setToolTipText(
+          BaseMessages.getString(PKG, CONST_TEXT_VAR_TOOLTIP_NAMING_SCHEME));
     }
     relayoutTextField();
     updateNamingTooltip();
@@ -325,7 +328,7 @@ public class TextVar extends Composite {
     if (wText == null || wText.isDisposed() || Utils.isEmpty(namingSchemeType)) {
       return;
     }
-    String namingTip = BaseMessages.getString(PKG, "TextVar.tooltip.NamingScheme");
+    String namingTip = BaseMessages.getString(PKG, CONST_TEXT_VAR_TOOLTIP_NAMING_SCHEME);
     if (Utils.isEmpty(toolTipText)) {
       setToolTipText(namingTip);
     }

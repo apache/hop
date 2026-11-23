@@ -28,7 +28,7 @@ public class DelayTimer implements Runnable {
   private int delayInMiliseconds;
   private boolean stopped;
 
-  private List<IDelayListener> delayListeners;
+  private final List<IDelayListener> delayListeners;
 
   /** Default prolonger should not prolong delay. */
   private Callable<Boolean> prolonger = () -> false;

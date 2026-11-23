@@ -69,6 +69,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class BeamSnowflakeOutputMeta
     extends BaseTransformMeta<BeamSnowflakeOutput, BeamSnowflakeOutputData>
     implements IBeamPipelineTransformHandler {
+  private static final String CONST_APPEND = "APPEND";
+  private static final String CONST_CREATE_NEVER = "CREATE_NEVER";
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "BEAMSNOWFLAKEOUTPUT_OPTIONS";
   private static final String CONNECTION = "i18n::BeamSnowflake.Connection.Group";
   private static final String STAGING = "i18n::BeamSnowflake.Staging.Group";
@@ -271,7 +273,7 @@ public class BeamSnowflakeOutputMeta
       groupType = GuiWidgetGroupType.TABS,
       group = WRITE,
       groupOrder = "0300")
-  private String writeDisposition = "APPEND";
+  private String writeDisposition = CONST_APPEND;
 
   @HopMetadataProperty(key = "create_disposition")
   @GuiWidgetElement(
@@ -285,15 +287,15 @@ public class BeamSnowflakeOutputMeta
       groupType = GuiWidgetGroupType.TABS,
       group = WRITE,
       groupOrder = "0300")
-  private String createDisposition = "CREATE_NEVER";
+  private String createDisposition = CONST_CREATE_NEVER;
 
   public List<String> getWriteDispositions(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return List.of("APPEND", "TRUNCATE", "EMPTY");
+    return List.of(CONST_APPEND, "TRUNCATE", "EMPTY");
   }
 
   public List<String> getCreateDispositions(
       ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return List.of("CREATE_NEVER", "CREATE_IF_NEEDED");
+    return List.of(CONST_CREATE_NEVER, "CREATE_IF_NEEDED");
   }
 
   public SnowflakeSpec spec(IVariables variables) throws HopException {
@@ -354,7 +356,7 @@ public class BeamSnowflakeOutputMeta
   }
 
   private WriteDisposition writeDisposition(IVariables variables) throws HopException {
-    String value = blank(variables, writeDisposition, "APPEND");
+    String value = blank(variables, writeDisposition, CONST_APPEND);
     try {
       return WriteDisposition.valueOf(value);
     } catch (IllegalArgumentException e) {
@@ -363,7 +365,7 @@ public class BeamSnowflakeOutputMeta
   }
 
   private CreateDisposition createDisposition(IVariables variables) throws HopException {
-    String value = blank(variables, createDisposition, "CREATE_NEVER");
+    String value = blank(variables, createDisposition, CONST_CREATE_NEVER);
     try {
       return CreateDisposition.valueOf(value);
     } catch (IllegalArgumentException e) {

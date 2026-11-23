@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Azure Event Hubs listener transform listens indefinitely to an Event Hub on the Microsoft Azure cloud platform.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/azure.svg[Azure Event Hubs listener Icon, role="image-doc-icon"] Azure Event Hubs listener
 
@@ -77,3 +77,8 @@ It receives the following fields:
 * sequenceNumber (Integer)
 * host (String)
 * enqueuedTime (Timestamp)
+
+== Samples
+
+The samples project has `transforms/azure-event-hubs-listener.hpl`, which listens for messages with the `$Default` consumer group.
+Fill in the Event Hubs connection settings before you run it.

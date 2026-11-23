@@ -106,10 +106,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
   private static final String CONST_BROWSE_FOR_DIR = "System.Tooltip.BrowseForDir";
   private static final String CONST_BROWSE_TO_DIR = "System.Tooltip.VariableToDir";
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
+  };
 
   private CTabFolder wTabFolder;
 
@@ -530,8 +529,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
             BaseMessages.getString(PKG, "ExcelInputDialog.IsRegex.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {
-              BaseMessages.getString(PKG, "System.Combo.No"),
-              BaseMessages.getString(PKG, "System.Combo.Yes")
+              BaseMessages.getString(PKG, CONST_COMBO_NO),
+              BaseMessages.getString(PKG, CONST_COMBO_YES)
             },
             true);
 
@@ -818,47 +817,46 @@ public class ExcelInputDialog extends BaseTransformDialog {
     int fieldsWidth = 600;
     int fieldsHeight = 150;
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Type.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Length.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Precision.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.TrimType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              IValueMeta.TrimType.getDescriptions()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_COMBO_YES),
-              BaseMessages.getString(PKG, CONST_COMBO_NO)),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Currency.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Decimal.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Grouping.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT)
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Type.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Length.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Precision.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.TrimType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          IValueMeta.TrimType.getDescriptions()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_COMBO_YES),
+          BaseMessages.getString(PKG, CONST_COMBO_NO)),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Format.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Currency.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Decimal.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ExcelInputDialog.Grouping.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT)
+    };
 
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colinf[5].setToolTip(BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Tooltip"));
@@ -1189,8 +1187,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
       item.setText(
           4,
           sheet.isRegex()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No"));
+              ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_COMBO_NO));
     }
     wSheetNameList.optimizeTableView();
 
@@ -1267,7 +1265,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
       sheet.setStartRow(Const.toInt(item.getText(2), 0));
       sheet.setStartColumn(Const.toInt(item.getText(3), 0));
       sheet.setRegex(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
+          BaseMessages.getString(PKG, CONST_COMBO_YES).equalsIgnoreCase(item.getText(4)));
       meta.getSheets().add(sheet);
     }
 

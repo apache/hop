@@ -153,33 +153,32 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdlFields.right = new FormAttachment(100, 0);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldFormat"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldLength"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldPrecision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldFormat"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldLength"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "FileDefinitionDialog.Fields.Column.FieldPrecision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columnInfos[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =

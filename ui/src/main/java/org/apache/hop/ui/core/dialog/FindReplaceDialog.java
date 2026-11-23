@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Text;
  */
 public class FindReplaceDialog extends Dialog {
   private static final Class<?> PKG = FindReplaceDialog.class;
+  private static final String CONST_FIND_REPLACE_DIALOG_STATUS_EMPTY_FIND =
+      "FindReplaceDialog.Status.EmptyFind";
 
   private static String lastFind = "";
   private static String lastReplace = "";
@@ -219,7 +221,7 @@ public class FindReplaceDialog extends Dialog {
     }
     String query = wFind.getText();
     if (StringUtils.isEmpty(query)) {
-      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.EmptyFind"));
+      setStatus(BaseMessages.getString(PKG, CONST_FIND_REPLACE_DIALOG_STATUS_EMPTY_FIND));
       return;
     }
     rememberOptions();
@@ -236,7 +238,7 @@ public class FindReplaceDialog extends Dialog {
     }
     String query = wFind.getText();
     if (StringUtils.isEmpty(query)) {
-      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.EmptyFind"));
+      setStatus(BaseMessages.getString(PKG, CONST_FIND_REPLACE_DIALOG_STATUS_EMPTY_FIND));
       return;
     }
     rememberOptions();
@@ -255,7 +257,7 @@ public class FindReplaceDialog extends Dialog {
     }
     String query = wFind.getText();
     if (StringUtils.isEmpty(query)) {
-      setStatus(BaseMessages.getString(PKG, "FindReplaceDialog.Status.EmptyFind"));
+      setStatus(BaseMessages.getString(PKG, CONST_FIND_REPLACE_DIALOG_STATUS_EMPTY_FIND));
       return;
     }
     rememberOptions();

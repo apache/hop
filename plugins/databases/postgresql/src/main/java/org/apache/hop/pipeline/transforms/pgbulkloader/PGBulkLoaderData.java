@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import java.io.OutputStream;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.FastValueFormatter;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.util.StreamLogger;
@@ -51,6 +53,23 @@ public class PGBulkLoaderData extends BaseTransformData implements ITransformDat
 
   public IValueMeta dateMeta;
   public IValueMeta dateTimeMeta;
+
+  /** The row layout the encoding state below was worked out for. */
+  IRowMeta encodedRowMeta;
+
+  /** One COPY row, written to the stream in one go. */
+  PGCopyRowBuffer rowBuffer;
+
+  /** Reused to render numbers and dates. */
+  StringBuilder scratch;
+
+  /** The enclosure as text, and doubled to escape it inside a string. */
+  String quoteString;
+
+  String doubledQuoteString;
+
+  /** Per mapped field: formats its dates without SimpleDateFormat, or null. */
+  FastValueFormatter[] dateFormatters;
 
   /** Default constructor. */
   public PGBulkLoaderData() {

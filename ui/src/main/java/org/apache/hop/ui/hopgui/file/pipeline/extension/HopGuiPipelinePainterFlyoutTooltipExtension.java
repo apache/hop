@@ -24,9 +24,9 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public class HopGuiPipelinePainterFlyoutTooltipExtension {
 
-  private AreaOwner areaOwner;
-  private HopGuiPipelineGraph pipelineGraph;
-  private Point point;
+  private final AreaOwner areaOwner;
+  private final HopGuiPipelineGraph pipelineGraph;
+  private final Point point;
 
   public static final String DET_RUN = "DET_RUN";
   public static final String DET_INSPECT = "DET_INSPECT";

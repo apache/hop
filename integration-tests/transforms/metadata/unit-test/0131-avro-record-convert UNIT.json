@@ -1,0 +1,32 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "text_out",
+          "data_set_field": "text_out"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-0131-avro-record-convert",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0131-avro-record-convert UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0131-avro-record-convert.hpl"
+}

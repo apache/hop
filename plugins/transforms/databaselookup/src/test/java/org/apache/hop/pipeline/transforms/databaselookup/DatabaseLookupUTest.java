@@ -49,7 +49,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.HopEnvironment;
@@ -322,8 +321,9 @@ class DatabaseLookupUTest {
 
   private DatabaseLookupData getCreatedData(boolean allEquals) throws Exception {
     Database db = mock(Database.class);
-    when(db.getRows(anyString(), anyInt()))
-        .thenReturn(Collections.singletonList(new Object[] {1L}));
+    ResultSet resultSet = mock(ResultSet.class);
+    when(db.openQuery(anyString())).thenReturn(resultSet);
+    when(db.getRow(resultSet)).thenReturn(new Object[] {1L}, (Object[]) null);
 
     RowMeta returnRowMeta = new RowMeta();
     returnRowMeta.addValueMeta(new ValueMetaInteger());
@@ -384,8 +384,9 @@ class DatabaseLookupUTest {
   @Test
   void createsReadDefaultCache_AndUsesOnlyNeededFieldsFromMeta() throws Exception {
     Database db = mock(Database.class);
-    when(db.getRows(anyString(), anyInt()))
-        .thenReturn(Arrays.asList(new Object[] {1L}, new Object[] {2L}));
+    ResultSet resultSet = mock(ResultSet.class);
+    when(db.openQuery(anyString())).thenReturn(resultSet);
+    when(db.getRow(resultSet)).thenReturn(new Object[] {1L}, new Object[] {2L}, null);
 
     RowMeta returnRowMeta = new RowMeta();
     returnRowMeta.addValueMeta(new ValueMetaInteger());

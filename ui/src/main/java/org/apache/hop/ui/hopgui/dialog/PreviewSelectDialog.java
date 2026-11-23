@@ -46,12 +46,12 @@ public class PreviewSelectDialog extends Dialog {
   private TableView wFields;
 
   private Shell shell;
-  private PipelineMeta pipelineMeta;
+  private final PipelineMeta pipelineMeta;
 
   public String[] previewTransforms;
   public int[] previewSizes;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   public PreviewSelectDialog(Shell parent, int style, PipelineMeta pipelineMeta) {
     super(parent, style);

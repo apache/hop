@@ -29,6 +29,10 @@ import org.apache.hop.i18n.BaseMessages;
  * session; desktop uses an in-process overlay for simulation.
  */
 public abstract class HopWebPrivilegeFacade {
+  private static final String CONST_HOP_GUI_TOOLBAR_PRIVILEGE_FULL =
+      "HopGui.Toolbar.Privilege.Full";
+  private static final String CONST_HOP_GUI_TOOLBAR_PRIVILEGE_ROLE =
+      "HopGui.Toolbar.Privilege.Role.";
 
   private static final Class<?> PKG = HopGui.class;
   private static final HopWebPrivilegeFacade IMPL;
@@ -72,13 +76,13 @@ public abstract class HopWebPrivilegeFacade {
     if (label == null) {
       return HopSecurityPrivilegeMode.MODE_FULL;
     }
-    String full = BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full");
+    String full = BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_FULL);
     if (label.equals(full) || label.toLowerCase().contains("full")) {
       return HopSecurityPrivilegeMode.MODE_FULL;
     }
     for (HopRole role : HopRole.values()) {
       String roleLabel =
-          BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Role." + role.name());
+          BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_ROLE + role.name());
       if (label.equals(roleLabel) || label.equalsIgnoreCase(role.getId())) {
         return role.getId();
       }
@@ -90,19 +94,19 @@ public abstract class HopWebPrivilegeFacade {
   public static String modeIdToLabel(String modeId) {
     HopRole role = HopSecurityPrivilegeMode.parseModeRole(modeId);
     if (role == null) {
-      return BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full");
+      return BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_FULL);
     }
-    return BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Role." + role.name());
+    return BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_ROLE + role.name());
   }
 
   /** Shared label list from a base context (used by RAP and desktop impls). */
   protected static String[] buildComboLabels(HopSecurityContext base) {
     List<String> labels = new ArrayList<>();
-    labels.add(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Full"));
+    labels.add(BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_FULL));
     for (HopRole role : HopSecurityPrivilegeMode.assumableRoles(base)) {
       // Skip listing ADMIN as a separate "downgrade" when base is already only admin — still useful
       // for unrestricted simulation
-      labels.add(BaseMessages.getString(PKG, "HopGui.Toolbar.Privilege.Role." + role.name()));
+      labels.add(BaseMessages.getString(PKG, CONST_HOP_GUI_TOOLBAR_PRIVILEGE_ROLE + role.name()));
     }
     return labels.toArray(new String[0]);
   }

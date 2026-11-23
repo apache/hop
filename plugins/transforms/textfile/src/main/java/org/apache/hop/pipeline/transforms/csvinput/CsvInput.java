@@ -39,15 +39,12 @@ import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.LineageFileIoEmitter;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoOperation;
-import org.apache.hop.lineage.model.FileIoPathSyntax;
-import org.apache.hop.lineage.model.FileIoTabularColumn;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -917,22 +914,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
   }
 
   private FileIoContentSchema csvReadContentSchema() {
-    if (meta.getInputFields() == null || meta.getInputFields().isEmpty()) {
-      return null;
-    }
-    List<FileIoTabularColumn> cols = new ArrayList<>();
-    for (CsvInputField f : meta.getInputFields()) {
-      cols.add(
-          new FileIoTabularColumn(
-              f.getName(),
-              ValueMetaFactory.getValueMetaName(f.getType()),
-              f.getLength(),
-              f.getPrecision(),
-              null,
-              FileIoPathSyntax.DELIMITED,
-              false));
-    }
-    return new FileIoContentSchema("csv", cols, List.of());
+    return meta.readContentSchema();
   }
 
   @Override

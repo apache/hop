@@ -45,6 +45,8 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
  * stays parked. Try-steps rewind input cursors afterwards and leave output in the trial buffer.
  */
 public class DebugController {
+  private static final String CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED =
+      "DebugController.Detail.PipelineStopped";
 
   private static final Class<?> PKG = DebugController.class;
 
@@ -252,7 +254,7 @@ public class DebugController {
           }
           if (isStopped(transform)) {
             activity = Activity.STOPPED;
-            detail = text("DebugController.Detail.PipelineStopped");
+            detail = text(CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED);
             break;
           }
           if (hasFinished(transform)) {
@@ -280,7 +282,7 @@ public class DebugController {
           } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             activity = Activity.STOPPED;
-            detail = text("DebugController.Detail.PipelineStopped");
+            detail = text(CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED);
             break;
           }
         }
@@ -421,7 +423,8 @@ public class DebugController {
     }
     pause();
     if (isStopped(target)) {
-      return result(target, Activity.STOPPED, 0, 0, text("DebugController.Detail.PipelineStopped"));
+      return result(
+          target, Activity.STOPPED, 0, 0, text(CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED));
     }
     if (arrived) {
       return result(target, Activity.STEPPED, 0, 0, text("DebugController.Detail.InputArrived"));
@@ -769,7 +772,7 @@ public class DebugController {
         Activity.STOPPED,
         requested,
         completedRows,
-        text("DebugController.Detail.PipelineStopped"));
+        text(CONST_DEBUG_CONTROLLER_DETAIL_PIPELINE_STOPPED));
   }
 
   private StepResult finished(ITransform transform, int requested, int completedRows) {

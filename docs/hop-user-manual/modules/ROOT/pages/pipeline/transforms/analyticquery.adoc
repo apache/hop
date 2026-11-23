@@ -108,4 +108,9 @@ bbb , 6 , 5
 
 Thus, by grouping (provided the input is sorted according to your grouping), you can be assured that lead or lag operations will not return row values outside of the defined group.
 
+== Samples
 
+The samples project has:
+
+* `transforms/analyticquery-basic.hpl`, which adds the previous and the next `desc` (LAG and LEAD) to each row.
+* `transforms/analyticquery-grouped.hpl`, which does the same within each `id`.

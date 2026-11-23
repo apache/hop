@@ -74,6 +74,7 @@ import org.apache.kafka.connect.source.SourceConnector;
 public class BeamDebeziumInputMeta
     extends BaseTransformMeta<BeamDebeziumInput, BeamDebeziumInputData>
     implements IBeamPipelineTransformHandler {
+  private static final String CONST_POSTGRE_SQL = "PostgreSQL";
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "BEAM_DEBEZIUM_INPUT_OPTIONS";
 
   @HopMetadataProperty(key = "connector")
@@ -88,7 +89,7 @@ public class BeamDebeziumInputMeta
       groupType = GuiWidgetGroupType.TABS,
       group = "i18n::BeamDebeziumInput.Connection.Group",
       groupOrder = "0100")
-  private String connector = "PostgreSQL";
+  private String connector = CONST_POSTGRE_SQL;
 
   @HopMetadataProperty(key = "connector_class")
   @GuiWidgetElement(
@@ -234,7 +235,7 @@ public class BeamDebeziumInputMeta
   }
 
   public List<String> getConnectorNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
-    return List.of("PostgreSQL", "Custom");
+    return List.of(CONST_POSTGRE_SQL, "Custom");
   }
 
   public DebeziumIO.ConnectorConfiguration buildConnectorConfiguration(IVariables variables)
@@ -248,14 +249,14 @@ public class BeamDebeziumInputMeta
     positive(variables, pollingTimeoutMs, "Polling timeout", true, Long.MAX_VALUE);
     Map<String, String> properties = resolveProperties(variables);
     String selected = require(variables, connector, "Connector");
-    if (!"PostgreSQL".equals(selected) && !"Custom".equals(selected)) {
+    if (!CONST_POSTGRE_SQL.equals(selected) && !"Custom".equals(selected)) {
       throw new HopException("Select PostgreSQL or Custom as the Debezium connector");
     }
-    if ("PostgreSQL".equals(selected) && !properties.containsKey("database.dbname")) {
+    if (CONST_POSTGRE_SQL.equals(selected) && !properties.containsKey("database.dbname")) {
       throw new HopException("PostgreSQL connector properties require database.dbname");
     }
     String className =
-        "PostgreSQL".equals(selected)
+        CONST_POSTGRE_SQL.equals(selected)
             ? "io.debezium.connector.postgresql.PostgresConnector"
             : require(variables, connectorClass, "Custom connector class");
     try {

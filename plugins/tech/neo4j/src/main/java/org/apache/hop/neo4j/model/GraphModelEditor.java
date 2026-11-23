@@ -97,7 +97,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
   private CTabFolder wTabs;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   // Model fields
   private Text wModelDescription;
@@ -126,7 +126,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
   private GraphNode activeNode;
   private GraphRelationship activeRelationship;
 
-  private Point mouseDownPoint;
+  private final Point mouseDownPoint;
   private Canvas wCanvas;
   private Label wlNodeName;
   private Label wlNodeDescription;
@@ -623,10 +623,9 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
     // Labels
     //
-    ColumnInfo[] labelColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Labels", ColumnInfo.COLUMN_TYPE_TEXT, false),
-        };
+    ColumnInfo[] labelColumns = {
+      new ColumnInfo("Labels", ColumnInfo.COLUMN_TYPE_TEXT, false),
+    };
     ModifyListener labelModifyListener = modifyEvent -> getNodeLabelsFromView();
     wNodeLabels =
         new TableView(
@@ -655,18 +654,16 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdlNodeProperties.top = new FormAttachment(wNodeLabels, margin);
     wlNodeProperties.setLayoutData(fdlNodeProperties);
 
-    ColumnInfo[] propertyColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo(
-              "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-          new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo(
-              "Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo("Unique?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo("Indexed?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-        };
+    ColumnInfo[] propertyColumns = {
+      new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+      new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Unique?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Indexed?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+    };
     ModifyListener propertyModifyListener = modifyEvent -> getNodePropertiesFromView();
     wNodeProperties =
         new TableView(
@@ -1160,18 +1157,16 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     fdlRelProperties.top = new FormAttachment(wRelTarget, margin);
     wlRelProperties.setLayoutData(fdlRelProperties);
 
-    ColumnInfo[] propertyColumns =
-        new ColumnInfo[] {
-          new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo(
-              "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
-          new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo(
-              "Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo("Unique?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-          new ColumnInfo("Indexed?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
-        };
+    ColumnInfo[] propertyColumns = {
+      new ColumnInfo("Property key", ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo(
+          "Property Type", ColumnInfo.COLUMN_TYPE_CCOMBO, GraphPropertyType.getNames(), false),
+      new ColumnInfo(CONST_DESCRIPTION, ColumnInfo.COLUMN_TYPE_TEXT, false),
+      new ColumnInfo("Primary?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Mandatory?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Unique?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+      new ColumnInfo("Indexed?", ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {"Y", "N"}, false),
+    };
     ModifyListener propertyModifyListener = modifyEvent -> getRelationshipPropertiesFromView();
     wRelProperties =
         new TableView(
@@ -1595,7 +1590,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     return new Point(node.getPresentation().getX(), node.getPresentation().getY());
   }
 
-  private Random random = new Random();
+  private final Random random = new Random();
 
   private java.util.List<Point> generateRandomPoints(Rectangle bounds, int size) {
     java.util.List<Point> points = new ArrayList<>();

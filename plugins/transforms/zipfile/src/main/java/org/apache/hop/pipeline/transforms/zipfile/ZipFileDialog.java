@@ -17,11 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
+import org.apache.hop.core.compress.gzip.GzipCompressionLevel;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -71,6 +73,8 @@ public class ZipFileDialog extends BaseTransformDialog {
 
   private Label wlMoveToFolderField;
   private CCombo wMoveToFolderField;
+
+  private CCombo wCompressionLevel;
 
   private boolean gotPreviousFields = false;
 
@@ -374,6 +378,31 @@ public class ZipFileDialog extends BaseTransformDialog {
           }
         });
 
+    // How hard to compress the entries
+    Label wlCompressionLevel = new Label(wContent, SWT.RIGHT);
+    wlCompressionLevel.setText(BaseMessages.getString(PKG, "ZipFileDialog.CompressionLevel.Label"));
+    wlCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "ZipFileDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wlCompressionLevel);
+    FormData fdlCompressionLevel = new FormData();
+    fdlCompressionLevel.left = new FormAttachment(0, 0);
+    fdlCompressionLevel.right = new FormAttachment(middle, -margin);
+    fdlCompressionLevel.top = new FormAttachment(wMoveToFolderField, margin);
+    wlCompressionLevel.setLayoutData(fdlCompressionLevel);
+
+    wCompressionLevel = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
+    wCompressionLevel.setItems(
+        IEnumHasCodeAndDescription.getDescriptions(GzipCompressionLevel.class));
+    wCompressionLevel.setToolTipText(
+        BaseMessages.getString(PKG, "ZipFileDialog.CompressionLevel.Tooltip"));
+    PropsUi.setLook(wCompressionLevel);
+    wCompressionLevel.addModifyListener(lsMod);
+    FormData fdCompressionLevel = new FormData();
+    fdCompressionLevel.left = new FormAttachment(middle, 0);
+    fdCompressionLevel.top = new FormAttachment(wMoveToFolderField, margin);
+    fdCompressionLevel.right = new FormAttachment(100, -margin);
+    wCompressionLevel.setLayoutData(fdCompressionLevel);
+
     wContent.pack();
     Rectangle bounds = wContent.getBounds();
     sc.setContent(wContent);
@@ -417,6 +446,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     wOverwriteZipEntry.setSelection(input.isOverwriteZipEntry());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     wKeepFolders.setSelection(input.isKeepSourceFolder());
+    wCompressionLevel.select(input.compressionLevelOrNotStored().getIndex());
   }
 
   private void cancel() {
@@ -441,6 +471,11 @@ public class ZipFileDialog extends BaseTransformDialog {
     input.setCreateParentFolder(wCreateParentFolder.getSelection());
     input.setKeepSourceFolder(wKeepFolders.getSelection());
     input.setOperationType(ZipFileMeta.getOperationTypeByDesc(wOperation.getText()));
+    input.setCompressionLevel(
+        IEnumHasCodeAndDescription.lookupDescription(
+            GzipCompressionLevel.class,
+            wCompressionLevel.getText(),
+            ZipFileMeta.COMPRESSION_LEVEL_NOT_STORED));
     input.setMoveToFolderField(wMoveToFolderField.getText());
     transformName = wTransformName.getText(); // return value
 

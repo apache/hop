@@ -36,6 +36,11 @@ public class HopWebServletContextListener extends RWTServletContextListener {
   @SuppressWarnings("java:S4507")
   @Override
   public void contextInitialized(ServletContextEvent event) {
+    // Before anything loads Const: it reads HOP_CONFIG_FOLDER once, when the class loads.
+    for (String applied : HopWebDefaults.apply(event.getServletContext())) {
+      logger.info(applied);
+    }
+
     /*
      *  The following lines are from HopGui.main
      *  because they are application-wide context.

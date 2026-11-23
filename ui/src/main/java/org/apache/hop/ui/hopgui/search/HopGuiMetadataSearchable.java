@@ -29,8 +29,8 @@ import org.apache.hop.ui.hopgui.HopGui;
 
 public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
 
-  private IHopMetadataProvider metadataProvider;
-  private IHopMetadataSerializer<IHopMetadata> serializer;
+  private final IHopMetadataProvider metadataProvider;
+  private final IHopMetadataSerializer<IHopMetadata> serializer;
   private IHopMetadata searchableObject;
   private Class<IHopMetadata> managedClass;
 

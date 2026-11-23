@@ -139,69 +139,68 @@ public class TransformFieldsDialog extends Dialog {
 
     final int FieldsRows = input.size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Fieldname"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Type"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.ConversionMask"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Origin"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.StorageType"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Group"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.TrimType"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Comments"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Fieldname"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Type"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.ConversionMask"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Origin"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.StorageType"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Decimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Group"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.TrimType"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "TransformFieldsDialog.TableCol.Comments"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
+    };
 
     wFields =
         new TableView(

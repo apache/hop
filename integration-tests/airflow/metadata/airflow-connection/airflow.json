@@ -1,0 +1,11 @@
+{
+  "name" : "airflow",
+  "description" : "The Airflow 3 container of the integration tests",
+  "url" : "${AIRFLOW_URL}",
+  "connect_timeout_seconds" : "10",
+  "request_timeout_seconds" : "60",
+  "authentication_type" : "USERNAME_PASSWORD",
+  "username" : "${AIRFLOW_USER}",
+  "password" : "${AIRFLOW_PASSWORD}",
+  "token" : ""
+}

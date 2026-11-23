@@ -45,20 +45,17 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>${lettuce.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>provided</scope>
         </dependency>
+        <!-- the netty classes the bundled libraries use. hop-core used to bring them through gRPC; ship them in lib/core like the rest of the netty jars, versions from hop-libs (netty-bom). -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!-- Lettuce needs the Netty DNS resolver; lib/core ships it, so it is not bundled here. -->
         <dependency>
@@ -72,8 +69,18 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients.authentication</groupId>
+            <artifactId>redis-authx-core</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -33,21 +33,20 @@ public class XsdType {
   public static final String BINARY = "base64Binary";
   public static final String DECIMAL = "decimal";
 
-  public static final String[] TYPES =
-      new String[] {
-        STRING,
-        INTEGER,
-        INTEGER_DESC,
-        SHORT,
-        BOOLEAN,
-        DATE,
-        TIME,
-        DATE_TIME,
-        DOUBLE,
-        FLOAT,
-        BINARY,
-        DECIMAL,
-      };
+  public static final String[] TYPES = {
+    STRING,
+    INTEGER,
+    INTEGER_DESC,
+    SHORT,
+    BOOLEAN,
+    DATE,
+    TIME,
+    DATE_TIME,
+    DOUBLE,
+    FLOAT,
+    BINARY,
+    DECIMAL,
+  };
 
   public static int xsdTypeToHopType(String aXsdType) {
     int vRet = IValueMeta.TYPE_NONE;

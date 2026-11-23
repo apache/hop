@@ -26,7 +26,7 @@ public enum LogStatus {
   RUNNING("running"),
   PAUSED("paused");
 
-  private String status;
+  private final String status;
 
   private LogStatus(String status) {
     this.status = status;

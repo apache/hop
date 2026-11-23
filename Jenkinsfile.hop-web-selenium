@@ -102,10 +102,9 @@ pipeline {
                 // fast-build: no tests, rat, spotless, checkstyle or javadoc - the main build covers
                 // those. Only the assemblies the Web image is made of are needed here.
                 sh "mvn $MAVEN_PARAMS -Pfast-build clean install"
-                sh "unzip -qo ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
-                // Same as the main job: the marketplace-only plugins go into the image too
-                sh "./tools/install-wave1-plugins.sh ./assemblies/client/target/hop"
-                sh "unzip -qo ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
+                // Same as the main job: the marketplace-only plugins go into the image too.
+                // The rest of the image comes from assemblies/web-war/target as built.
+                sh "./tools/install-wave1-plugins.sh ./assemblies/web-war/target/optional"
             }
         }
         stage('Build Hop Web image') {
@@ -134,7 +133,7 @@ pipeline {
                     def imageArgs = params.BUILD_IMAGE != false
                         ? "-Dhopweb.image=${CI_IMAGE} -Dhopweb.pull=false"
                         : "-Dhopweb.image=${HOP_WEB_IMAGE}"
-                    sh "mvn -f web-tests/pom.xml -B -e clean test ${imageArgs}"
+                    sh "mvn -f web-tests/pom.xml -B -e clean test -Dwebtest ${imageArgs}"
                 }
             }
             post {

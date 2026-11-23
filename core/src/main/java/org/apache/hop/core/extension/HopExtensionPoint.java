@@ -222,9 +222,9 @@ public enum HopExtensionPoint {
 
   public String id;
 
-  private String description;
+  private final String description;
 
-  private Class<?> providedClass;
+  private final Class<?> providedClass;
 
   HopExtensionPoint(String description) {
     this.id = name();

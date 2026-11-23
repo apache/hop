@@ -55,6 +55,8 @@ import org.eclipse.swt.widgets.Shell;
 /** Dialog for {@link ActionDatabricksJobRun}. */
 public class ActionDatabricksJobRunDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDatabricksJobRun.class;
+  private static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
+  private static final String CONST_SYSTEM_FILE_TYPE_ALL_FILES = "System.FileType.AllFiles";
 
   private ActionDatabricksJobRun action;
   private boolean changed;
@@ -303,7 +305,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wlFatJar.setLayoutData(fdlFatJar);
     wbFatJarBrowse = new Button(wDeployComp, SWT.PUSH);
     PropsUi.setLook(wbFatJarBrowse);
-    wbFatJarBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbFatJarBrowse.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbFatJar = new FormData();
     fdbFatJar.right = new FormAttachment(100, 0);
     fdbFatJar.top = new FormAttachment(wlFatJar, 0, SWT.CENTER);
@@ -336,7 +338,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wbPipelineOpen.addListener(SWT.Selection, e -> openPipeline());
     wbPipelineBrowse = new Button(wDeployComp, SWT.PUSH);
     PropsUi.setLook(wbPipelineBrowse);
-    wbPipelineBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbPipelineBrowse.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbPipelineBrowse = new FormData();
     fdbPipelineBrowse.right = new FormAttachment(wbPipelineOpen, -margin);
     fdbPipelineBrowse.top = new FormAttachment(wlPipeline, 0, SWT.CENTER);
@@ -427,7 +429,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wlProjectPackage.setLayoutData(fdlProjectPackage);
     wbProjectPackageBrowse = new Button(wPackageComp, SWT.PUSH);
     PropsUi.setLook(wbProjectPackageBrowse);
-    wbProjectPackageBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbProjectPackageBrowse.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbProjectPackage = new FormData();
     fdbProjectPackage.right = new FormAttachment(100, 0);
     fdbProjectPackage.top = new FormAttachment(wlProjectPackage, 0, SWT.CENTER);
@@ -455,7 +457,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
     wlEnvConfig.setLayoutData(fdlEnvConfig);
     wbEnvironmentConfigBrowse = new Button(wPackageComp, SWT.PUSH);
     PropsUi.setLook(wbEnvironmentConfigBrowse);
-    wbEnvironmentConfigBrowse.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbEnvironmentConfigBrowse.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbEnvConfig = new FormData();
     fdbEnvConfig.right = new FormAttachment(100, 0);
     fdbEnvConfig.top = new FormAttachment(wlEnvConfig, 0, SWT.CENTER);
@@ -757,7 +759,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
         new String[] {"*.jar;*.JAR", "*"},
         new String[] {
           BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Jar"),
-          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+          BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
         },
         true);
   }
@@ -781,7 +783,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
         new String[] {"*.zip;*.ZIP", "*"},
         new String[] {
           BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Zip"),
-          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+          BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
         },
         true);
   }
@@ -794,7 +796,7 @@ public class ActionDatabricksJobRunDialog extends ActionDialog {
         new String[] {"*.json;*.JSON", "*"},
         new String[] {
           BaseMessages.getString(PKG, "ActionDatabricksJobRun.FileType.Json"),
-          BaseMessages.getString(PKG, "System.FileType.AllFiles")
+          BaseMessages.getString(PKG, CONST_SYSTEM_FILE_TYPE_ALL_FILES)
         },
         true);
   }

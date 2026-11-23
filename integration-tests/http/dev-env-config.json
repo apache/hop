@@ -16,6 +16,11 @@
       "description": "hostname of the paginating API used by the pagination tests"
     },
     {
+      "name": "OAUTH_HOSTNAME",
+      "value": "oauth",
+      "description": "WireMock OAuth 2 server and API (port 8080) used by the token rotation test"
+    },
+    {
       "name": "SSE_HOSTNAME",
       "value": "httpsse",
       "description": "go-httpbin instance, used for the Server-Sent Events tests"

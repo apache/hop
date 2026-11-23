@@ -42,8 +42,9 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionDeleteFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteFile.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "ActionDeleteFile.Filetype.All")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionDeleteFile.Filetype.All")
+  };
 
   private TextVar wFilename;
 

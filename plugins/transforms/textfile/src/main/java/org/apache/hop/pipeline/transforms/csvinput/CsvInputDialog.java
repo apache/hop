@@ -39,6 +39,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.datacatalog.CatalogDataset;
+import org.apache.hop.datacatalog.CatalogDatasetType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -67,10 +69,12 @@ import org.apache.hop.ui.core.widget.NamingSchemeColumnApplierRegistry;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.datacatalog.CatalogFieldsDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog.ButtonBarBuilder;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
@@ -128,6 +132,7 @@ public class CsvInputDialog extends BaseTransformDialog
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
   private MetaSelectionLine wNamingScheme;
   private Button wIgnoreFields;
+  private Button wGetFromCatalog;
 
   public CsvInputDialog(
       Shell parent, IVariables variables, CsvInputMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -139,12 +144,14 @@ public class CsvInputDialog extends BaseTransformDialog
   public String open() {
     createShell(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
 
-    buildButtonBar()
-        .ok(e -> ok())
-        .get(e -> getFields())
-        .preview(e -> preview())
-        .cancel(e -> cancel())
-        .build();
+    ButtonBarBuilder buttonBar = buildButtonBar().ok(e -> ok()).get(e -> getFields());
+    if (CatalogFieldsDialog.isAvailable(metadataProvider)) {
+      buttonBar.custom(
+          BaseMessages.getString(PKG, "CsvInputDialog.GetFieldsFromCatalog.Button"),
+          e -> getFieldsFromCatalog(),
+          button -> wGetFromCatalog = button);
+    }
+    buttonBar.preview(e -> preview()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
@@ -569,46 +576,45 @@ public class CsvInputDialog extends BaseTransformDialog
     wPreview.setEnabled(!isReceivingInput);
 
     // Fields
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.NameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.TypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.FormatColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              2),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.LengthColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.PrecisionColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.CurrencyColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.DecimalColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.GroupColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "CsvInputDialog.TrimTypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.NameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.TypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.FormatColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          2),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.LengthColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.PrecisionColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.CurrencyColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.DecimalColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.GroupColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "CsvInputDialog.TrimTypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.trimTypeDesc),
+    };
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =
@@ -709,6 +715,24 @@ public class CsvInputDialog extends BaseTransformDialog
     return transformName;
   }
 
+  /** Fills the fields from the schema a data catalog has for the file. */
+  private void getFieldsFromCatalog() {
+    if (wIgnoreFields.getSelection()) {
+      return;
+    }
+    String filename = wFilename == null || wFilename.isDisposed() ? null : wFilename.getText();
+    CatalogFieldsDialog.getFields(
+        shell,
+        variables,
+        metadataProvider,
+        new CatalogDataset(CatalogDatasetType.FILE, null, null, filename),
+        wFields,
+        1,
+        2,
+        4,
+        5);
+  }
+
   private void fillFieldsLayoutFromSchema() {
     fillFieldsLayoutFromSchema(true);
   }
@@ -797,6 +821,9 @@ public class CsvInputDialog extends BaseTransformDialog
     }
     wFields.setEnabled(!wIgnoreFields.getSelection());
     wGet.setEnabled(!wIgnoreFields.getSelection());
+    if (wGetFromCatalog != null) {
+      wGetFromCatalog.setEnabled(!wIgnoreFields.getSelection());
+    }
   }
 
   private void setEncodings() {

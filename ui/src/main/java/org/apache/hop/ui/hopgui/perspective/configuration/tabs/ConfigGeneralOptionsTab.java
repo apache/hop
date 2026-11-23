@@ -75,6 +75,7 @@ public class ConfigGeneralOptionsTab {
   private Button wAutoSave;
   private Button wAutoSplit;
   private Button wCopyDistribute;
+  private Button wRenameFromFilename;
   private Button wExitWarning;
   private Button wToolTip;
   private Button wResolveVarsInTips;
@@ -118,6 +119,7 @@ public class ConfigGeneralOptionsTab {
       wReloadFileOnChange.setSelection(props.isReloadingFilesOnChange());
       wAutoSave.setSelection(!props.getAutoSave()); // Inverted logic
       wCopyDistribute.setSelection(props.showCopyOrDistributeWarning());
+      wRenameFromFilename.setSelection(props.isAskingToRenameFromFilename());
       wExitWarning.setSelection(props.showExitWarning());
       wAutoSplit.setSelection(!props.getAutoSplit()); // Inverted logic
       wToolTip.setSelection(props.showToolTips());
@@ -392,6 +394,17 @@ public class ConfigGeneralOptionsTab {
             margin);
     lastConfirmControl = wAutoSave;
 
+    // Offer to name a transform or action after the file picked in its dialog
+    wRenameFromFilename =
+        createCheckbox(
+            confirmationContent,
+            "EnterOptionsDialog.RenameFromFilename.Label",
+            "EnterOptionsDialog.RenameFromFilename.Tooltip",
+            props.isAskingToRenameFromFilename(),
+            lastConfirmControl,
+            margin);
+    lastConfirmControl = wRenameFromFilename;
+
     // Reset button - enables all confirmation dialogs
     Control[] resetButtonControls =
         createButton(
@@ -407,6 +420,7 @@ public class ConfigGeneralOptionsTab {
           // Enable all confirmation checkboxes
           wExitWarning.setSelection(true);
           wCopyDistribute.setSelection(true);
+          wRenameFromFilename.setSelection(true);
           wAutoSplit.setSelection(true);
           wAutoSave.setSelection(true);
 
@@ -868,6 +882,7 @@ public class ConfigGeneralOptionsTab {
         !wAutoSplit
             .getSelection()); // Inverted: checkbox is "show confirmation", property is "auto split"
     props.setShowCopyOrDistributeWarning(wCopyDistribute.getSelection());
+    props.setAskingToRenameFromFilename(wRenameFromFilename.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
     props.setResolveVariablesInToolTips(wResolveVarsInTips.getSelection());

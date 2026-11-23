@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Configure launcher environment variables for Hop. */
 public class SetupDialog extends Dialog {
+  private static final String CONST_SETUP_DIALOG_ERROR_HEADER = "SetupDialog.Error.Header";
 
   private static final Class<?> PKG = SetupGuiPlugin.class;
 
@@ -510,7 +511,7 @@ public class SetupDialog extends Dialog {
           && wShellRc.getSelection()
           && !HopEnvironmentDefaults.supportsShellRc(paths)) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        box.setText(BaseMessages.getString(PKG, "SetupDialog.Error.Header"));
+        box.setText(BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER));
         box.setMessage(BaseMessages.getString(PKG, "SetupDialog.FishShell"));
         box.open();
         return;
@@ -518,7 +519,7 @@ public class SetupDialog extends Dialog {
       HopEnvironmentSpec spec = toSpec(dryRun);
       if (spec.variables().values().stream().allMatch(StringUtils::isBlank)) {
         MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-        box.setText(BaseMessages.getString(PKG, "SetupDialog.Error.Header"));
+        box.setText(BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER));
         box.setMessage(BaseMessages.getString(PKG, "SetupDialog.NoVariables"));
         box.open();
         return;
@@ -557,8 +558,8 @@ public class SetupDialog extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
-          BaseMessages.getString(PKG, "SetupDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
+          BaseMessages.getString(PKG, CONST_SETUP_DIALOG_ERROR_HEADER),
           e);
     }
   }

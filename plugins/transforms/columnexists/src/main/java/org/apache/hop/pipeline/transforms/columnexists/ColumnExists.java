@@ -94,16 +94,9 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
                 BaseMessages.getString(PKG, PKG_COULD_NOT_FIND_FIELD, meta.getTablenamefield()));
           }
         }
-      } else {
-        if (!Utils.isEmpty(data.schemaname)) {
-          data.tableName =
-              data.db
-                  .getDatabaseMeta()
-                  .getQuotedSchemaTableCombination(this, data.schemaname, data.tableName);
-        } else {
-          data.tableName = data.db.getDatabaseMeta().quoteField(data.tableName);
-        }
       }
+      // A fixed table name stays as it is: Database.checkColumnExists() quotes it and combines it
+      // with the schema. Combining it here as well would check SCHEMA."SCHEMA.TABLE".
 
       // cache the position of the column field
       if (data.indexOfColumnname < 0) {

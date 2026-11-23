@@ -70,10 +70,9 @@ public class LoadFileInputDialog extends BaseTransformDialog {
   private static final String CONST_COMBO_NO = "System.Combo.No";
   private static final String CONST_COMBO_YES = "System.Combo.Yes";
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
-      };
+  private static final String[] YES_NO_COMBO = {
+    BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
+  };
 
   private CTabFolder wTabFolder;
 
@@ -129,8 +128,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
 
   private boolean gotPreviousFields = false;
 
-  protected static final int[] dateLengths =
-      new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
+  protected static final int[] dateLengths = {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
   private TextVar wShortFileFieldName;
   private TextVar wPathFieldName;
@@ -760,60 +758,59 @@ public class LoadFileInputDialog extends BaseTransformDialog {
 
     final int nrFieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Element.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              LoadFileInputField.ElementType.getDescriptions(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Type.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Format.Column"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Length.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Precision.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Currency.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Decimal.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Group.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.TrimType.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.getTrimTypeDescriptions(),
-              true),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Repeat.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_COMBO_NO)
-              },
-              true),
-        };
+    ColumnInfo[] columnInfos = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Element.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          LoadFileInputField.ElementType.getDescriptions(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Type.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Format.Column"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          3),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Length.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Precision.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Currency.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Decimal.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Group.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.TrimType.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.getTrimTypeDescriptions(),
+          true),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Repeat.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_COMBO_YES),
+            BaseMessages.getString(PKG, CONST_COMBO_NO)
+          },
+          true),
+    };
 
     columnInfos[0].setUsingVariables(true);
     columnInfos[0].setToolTip(

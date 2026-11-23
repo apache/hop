@@ -36,6 +36,14 @@
         {
           "transform_field": "statistics",
           "data_set_field": "statistics"
+        },
+        {
+          "transform_field": "release-date",
+          "data_set_field": "release-date"
+        },
+        {
+          "transform_field": "incubating",
+          "data_set_field": "incubating"
         }
       ],
       "field_order": [

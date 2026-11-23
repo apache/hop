@@ -192,6 +192,19 @@ import org.eclipse.swt.widgets.TreeItem;
     description = "i18n::ExplorerPerspective.GuiPlugin.Description")
 @SuppressWarnings("java:S1104")
 public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileDropReceiver {
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_HEADER =
+      "ExplorerPerspective.Error.CreateFile.Header";
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_MESSAGE =
+      "ExplorerPerspective.Error.CreateFile.Message";
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_HEADER =
+      "ExplorerPerspective.Error.InvalidFileName.Header";
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_MESSAGE =
+      "ExplorerPerspective.Error.InvalidFileName.Message";
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_HEADER =
+      "ExplorerPerspective.Error.TreeRefresh.Header";
+  private static final String CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_MESSAGE =
+      "ExplorerPerspective.Error.TreeRefresh.Message";
+  private static final String CONST_OPEN_FILE = "Open file";
 
   public static final Class<?> PKG = ExplorerPerspective.class; // i18n
 
@@ -346,7 +359,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private final ExplorerTreeModel treeModel = new ExplorerTreeModel();
 
   private final Runnable applyFilterRunnable = this::applyPendingFilter;
-  private static final int FILTER_DEBOUNCE_MS = 250;
 
   /** Last folder the user selected in the tree; used for scoped refresh. */
   private String lastSelectedFolderPath;
@@ -468,6 +480,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                     .getDisplay()
                     .asyncExec(
                         () -> {
+                          // Hop GUI can be closing: the tree is then already disposed
+                          if (tree == null || tree.isDisposed()) {
+                            return;
+                          }
                           clearSearchFilters();
                           refresh();
                           applyRestoredState();
@@ -689,6 +705,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     //
     searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     searchText.setMessage(BaseMessages.getString(PKG, "ExplorerPerspective.Search.Placeholder"));
+    searchText.setToolTipText(BaseMessages.getString(PKG, "ExplorerPerspective.Search.Tooltip"));
     PropsUi.setLook(searchText);
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
@@ -2987,8 +3004,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    * @return The selected explorer file or null if nothing is selected
    */
   public ExplorerFile getSelectedFile() {
-    if (tree == null) {
-      // The perspective was never initialized, there's nothing to select
+    if (tree == null || tree.isDisposed()) {
+      // The perspective was never initialized or is closed, there's nothing to select
       return null;
     }
     TreeItem[] selection = tree.getSelection();
@@ -3006,6 +3023,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   /** All the files selected in the tree, in the order the tree shows them. */
   public List<ExplorerFile> getSelectedFiles() {
+    if (tree == null || tree.isDisposed()) {
+      return Collections.emptyList();
+    }
     TreeItem[] selection = tree.getSelection();
     if (selection == null) {
       return Collections.emptyList();
@@ -3521,8 +3541,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", path),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_HEADER),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_MESSAGE, path),
           e);
       return true;
     }
@@ -3552,10 +3572,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
       MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setText(
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_HEADER));
       box.setMessage(
           BaseMessages.getString(
-              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_MESSAGE, typedName));
       box.open();
       return;
     }
@@ -3564,10 +3585,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     String filename = ExplorerCreateUtils.childPath(folder, fileName);
     if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
       MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setText(
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_HEADER));
       box.setMessage(
           BaseMessages.getString(
-              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_MESSAGE, typedName));
       box.open();
       return;
     }
@@ -3584,8 +3606,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_HEADER),
+          BaseMessages.getString(
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_MESSAGE, filename),
           e);
     }
   }
@@ -3613,10 +3636,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     if (!ExplorerCreateUtils.isSimpleFileName(typedName)) {
       MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setText(
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_HEADER));
       box.setMessage(
           BaseMessages.getString(
-              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_MESSAGE, typedName));
       box.open();
       return;
     }
@@ -3625,10 +3649,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     String filename = ExplorerCreateUtils.childPath(folder, fileName);
     if (!ExplorerCreateUtils.resolvesInsideFolder(folder, filename)) {
       MessageBox box = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.InvalidFileName.Header"));
+      box.setText(
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_HEADER));
       box.setMessage(
           BaseMessages.getString(
-              PKG, "ExplorerPerspective.Error.InvalidFileName.Message", typedName));
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_INVALID_FILE_NAME_MESSAGE, typedName));
       box.open();
       return;
     }
@@ -3646,8 +3671,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_HEADER),
+          BaseMessages.getString(
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_MESSAGE, filename),
           e);
     }
   }
@@ -3687,8 +3713,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFile.Message", filename),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_HEADER),
+          BaseMessages.getString(
+              PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_CREATE_FILE_MESSAGE, filename),
           e);
     }
   }
@@ -4128,7 +4155,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     }
     Display display = hopGui.getDisplay();
     display.timerExec(-1, applyFilterRunnable);
-    display.timerExec(FILTER_DEBOUNCE_MS, applyFilterRunnable);
+    display.timerExec(ConstUi.FILTER_DEBOUNCE_MS, applyFilterRunnable);
   }
 
   private void cancelScheduledFilterApply() {
@@ -4205,8 +4232,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_HEADER),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_MESSAGE),
           e);
     }
     updateSelection();
@@ -4403,8 +4430,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_HEADER),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_MESSAGE),
           e);
     }
     updateSelection();
@@ -4626,8 +4653,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Header"),
-          BaseMessages.getString(PKG, "ExplorerPerspective.Error.TreeRefresh.Message"),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_HEADER),
+          BaseMessages.getString(PKG, CONST_EXPLORER_PERSPECTIVE_ERROR_TREE_REFRESH_MESSAGE),
           e);
     }
     updateSelection();
@@ -5346,12 +5373,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       try {
         Object subject = typeHandler.getSubject();
         if (subject instanceof PipelineMeta pipelineMeta) {
-          searchables.add(new HopGuiPipelineSearchable("Open file", pipelineMeta));
+          searchables.add(new HopGuiPipelineSearchable(CONST_OPEN_FILE, pipelineMeta));
         } else if (subject instanceof WorkflowMeta workflowMeta) {
-          searchables.add(new HopGuiWorkflowSearchable("Open file", workflowMeta));
+          searchables.add(new HopGuiWorkflowSearchable(CONST_OPEN_FILE, workflowMeta));
         } else {
           ISearchable searchable =
-              typeHandler.createSearchable("Open file", hopGui.getMetadataProvider());
+              typeHandler.createSearchable(CONST_OPEN_FILE, hopGui.getMetadataProvider());
           if (searchable != null) {
             searchables.add(searchable);
           }

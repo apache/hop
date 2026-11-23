@@ -215,7 +215,9 @@ public class SortedMergeDialog extends BaseTransformDialog {
             -1,
             -1,
             (tableItem, v) -> {
-              tableItem.setText(2, "Y");
+              // Merge in the order the previous transform gives, as far as it says so (Sort rows
+              // does): a field sorted descending there is merged descending here
+              tableItem.setText(2, v.isSortedDescending() ? "N" : "Y");
               return true;
             });
       }

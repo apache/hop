@@ -496,6 +496,8 @@ public class TransformBatchTransform extends TransformTransform {
           pipeline.setLogLevel(
               context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
           pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
+          // The engine did the once-per-run work before the job: only flag the prepared transforms
+          pipeline.setPreparingTransformsOnce(false);
           pipeline
               .getPipelineRunConfiguration()
               .setName("beam-batch-transform-local (" + transformName + ")");

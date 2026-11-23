@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
 
-  private String rowMetaJson;
-  private int fieldIndex;
-  private String transformName;
+  private final String rowMetaJson;
+  private final int fieldIndex;
+  private final String transformName;
 
   private static final Logger LOG = LoggerFactory.getLogger(PublishMessagesFn.class);
   private final Counter numErrors = Metrics.counter("main", "BeamPublishTransformErrors");

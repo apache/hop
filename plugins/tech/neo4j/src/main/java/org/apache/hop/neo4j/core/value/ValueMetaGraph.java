@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.core.value;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
@@ -210,6 +211,34 @@ public class ValueMetaGraph extends ValueMetaBase {
               + toStringMeta()
               + "]");
     }
+  }
+
+  /**
+   * A graph from another value: a graph is copied, text is read as the JSON {@link #getString}
+   * writes. An engine that moves rows between machines as text (native Spark) gets its graph back
+   * this way.
+   */
+  @Override
+  public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
+    if (data2 == null) {
+      return null;
+    }
+    if (meta2 != null && meta2.getType() == TYPE_GRAPH) {
+      return new GraphData((GraphData) data2);
+    }
+    if (meta2 != null && meta2.isString()) {
+      String json = meta2.getString(data2);
+      if (json == null || json.isEmpty()) {
+        return null;
+      }
+      try {
+        return new GraphData(json);
+      } catch (Exception e) {
+        throw new HopValueException(
+            toString() + " : unable to read a graph from text '" + json + "'", e);
+      }
+    }
+    throw new HopValueException(toString() + " : unable to convert " + meta2 + " data to a graph");
   }
 
   @Override

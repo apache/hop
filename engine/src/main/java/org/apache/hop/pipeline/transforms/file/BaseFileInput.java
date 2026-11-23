@@ -42,12 +42,10 @@ public class BaseFileInput implements Cloneable {
 
   public static final String YES = "Y";
 
-  protected static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-  protected static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  protected static final String[] RequiredFilesCode = {"N", "Y"};
+  protected static final String[] RequiredFilesDesc = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   @HopMetadataProperty(
       key = "file",

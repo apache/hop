@@ -29,10 +29,24 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Standardize Phone Number</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
+            <!-- Shared with the Fake data plugin: shipped in lib/core, not in this plugin's lib/. -->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

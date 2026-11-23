@@ -50,9 +50,9 @@ import org.eclipse.swt.widgets.Shell;
 public class HopGuiWorkflowActionDelegate {
   private static final Class<?> PKG = HopGui.class;
 
-  private HopGui hopGui;
-  private HopGuiWorkflowGraph workflowGraph;
-  private Map<String, IActionDialog> dialogs = new HashMap<>();
+  private final HopGui hopGui;
+  private final HopGuiWorkflowGraph workflowGraph;
+  private final Map<String, IActionDialog> dialogs = new HashMap<>();
 
   public HopGuiWorkflowActionDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;
@@ -200,8 +200,7 @@ public class HopGuiWorkflowActionDelegate {
 
   public IActionDialog getActionDialog(IAction action, WorkflowMeta workflowMeta) {
 
-    Object[] arguments =
-        new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
+    Object[] arguments = {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
 
     if (action instanceof MissingAction) {
       return new MissingActionDialog(

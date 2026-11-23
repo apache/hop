@@ -355,7 +355,6 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       if ((answer & SWT.YES) != 0) {
         LocalPipelineRunConfiguration localPipelineRunConfiguration =
             new LocalPipelineRunConfiguration();
-        localPipelineRunConfiguration.setEnginePluginId("Local");
         PipelineRunConfiguration local =
             new PipelineRunConfiguration(
                 "local",
