@@ -195,6 +195,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta rowMeta;
 
+  /** The layouts of the statements {@link #getLookup} executed, see {@link LookupRowMetaCache}. */
+  private final LookupRowMetaCache lookupRowMetas = new LookupRowMetaCache();
+
   /**
    * The result row metadata derived by {@link #openQuery(PreparedStatement, IRowMeta, Object[])},
    * cached together with the prepared statement it was derived from. A prepared statement always
@@ -676,6 +679,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     openQueryStatement = null;
     openQueryRowMeta = null;
     keptQuery = null;
+    lookupRowMetas.clear();
     if (connection == null) {
       dbmd = null;
       return; // Nothing to do...
@@ -789,6 +793,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @throws HopDatabaseException in case there is an error during connection close.
    */
   public synchronized void closeConnectionOnly() throws HopDatabaseException {
+    lookupRowMetas.clear();
     try {
       if (connection != null) {
         connection.close();
@@ -1051,10 +1056,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       openQueryStatement = null;
       openQueryRowMeta = null;
     }
+    lookupRowMetas.forget(ps);
   }
 
   public void closeInsert() throws HopDatabaseException {
     if (prepStatementInsert != null) {
+      lookupRowMetas.forget(prepStatementInsert);
       try {
         prepStatementInsert.close();
         prepStatementInsert = null;
@@ -1066,6 +1073,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public void closeUpdate() throws HopDatabaseException {
     if (prepStatementUpdate != null) {
+      lookupRowMetas.forget(prepStatementUpdate);
       try {
         prepStatementUpdate.close();
         prepStatementUpdate = null;
@@ -3094,6 +3102,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (log.isDetailed()) {
           log.logDetailed("Setting preparedStatement to [" + sql + "]");
         }
+        // The statement this replaces may come back from the driver for this SQL: forget its
+        // layout.
+        lookupRowMetas.forget(prepStatementLookup);
         prepStatementLookup = connection.prepareStatement(databaseMeta.stripCR(sql));
         if (!checkForMultipleResults && databaseMeta.supportsSetMaxRows()) {
           prepStatementLookup.setMaxRows(1); // alywas get only 1 line back!
@@ -3338,9 +3349,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public Object[] getLookup(PreparedStatement ps) throws HopDatabaseException {
-    // we assume this is external PreparedStatement and we may need to re-create rowMeta
-    // so we just reset it to null and it will be re-created on processRow call
-    rowMeta = null;
     return getLookup(ps, false);
   }
 
@@ -3353,11 +3361,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       PreparedStatement ps, boolean failOnMultipleResults, boolean lazyConversion)
       throws HopDatabaseException {
     ResultSet res = null;
+    // The layout reported afterwards is that of this lookup, or none when it fails.
+    rowMeta = null;
     try {
       log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_START, databaseMeta.getName());
       res = ps.executeQuery();
 
-      Object[] ret = getRow(res, lazyConversion);
+      rowMeta = getLookupRowMeta(ps, res, lazyConversion);
+      Object[] ret = getRow(res, null, rowMeta);
 
       if (failOnMultipleResults && ret != null && res.next()) {
         // if the previous row was null, there's no reason to try res.next()
@@ -3381,6 +3392,28 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_STOP, databaseMeta.getName());
       }
     }
+  }
+
+  /**
+   * The layout of the rows a lookup statement returns: derived from the result set of this very
+   * statement, with this lazy conversion flag, and reused while the statement answers the same
+   * columns (#9679).
+   */
+  private IRowMeta getLookupRowMeta(PreparedStatement ps, ResultSet res, boolean lazyConversion)
+      throws HopDatabaseException, SQLException {
+    ResultSetMetaData rsmd;
+    try {
+      rsmd = res.getMetaData();
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Unable to retrieve metadata from resultset", e);
+    }
+    IRowMeta cached = lookupRowMetas.get(ps, lazyConversion, rsmd);
+    if (cached != null) {
+      return cached;
+    }
+    IRowMeta derived = getRowInfo(rsmd, false, lazyConversion);
+    lookupRowMetas.put(ps, lazyConversion, rsmd, derived);
+    return derived;
   }
 
   public DatabaseMetaData getDatabaseMetaData() throws HopDatabaseException {

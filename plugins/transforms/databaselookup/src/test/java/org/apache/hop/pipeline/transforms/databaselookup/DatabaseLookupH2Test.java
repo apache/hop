@@ -350,6 +350,62 @@ class DatabaseLookupH2Test {
     assertEquals("No lookup found in CUSTOMER for id=99", h2.errors.get(1).description());
   }
 
+  /**
+   * The uncached lookup converts what the table returns to the configured return type, using the
+   * layout the database reports for the lookup ({@code getReturnRowMeta()}).
+   */
+  @Test
+  void uncachedLookupConvertsEachReturnedTypeToTheConfiguredType() throws Exception {
+    DatabaseLookupMeta meta = new DatabaseLookupMeta();
+    meta.getLookup().setTableName("CUSTOMER");
+    meta.getLookup().getKeyFields().add(new KeyField("id", "", "=", "ID"));
+    String none = ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE);
+    meta.getLookup().getReturnValues().add(new ReturnValue("CODE", "code", "", "String", none));
+    meta.getLookup().getReturnValues().add(new ReturnValue("BIRTH", "birth", "", "Date", none));
+    meta.getLookup().getReturnValues().add(new ReturnValue("SCORE", "score", "", "Number", none));
+    meta.getLookup().getReturnValues().add(new ReturnValue("SCORE", "text", "", "String", none));
+
+    List<Object[]> out =
+        h2.run(meta, input(new ValueMetaInteger("id")), rows(1L, 2L, 1L, 3L), false);
+
+    assertEquals(
+        List.of(
+            row(1L, "ABC", date(2020, 1, 15), 1.5, "1.5"),
+            row(2L, "def", date(2021, 6, 30), 2.5, "2.5"),
+            row(1L, "ABC", date(2020, 1, 15), 1.5, "1.5"),
+            row(3L, "Ghi", null, 3.5, "3.5")),
+        values(out, 5));
+    verify(h2.mainDatabase(), times(4)).getLookup(anyBoolean());
+  }
+
+  @Test
+  void uncachedLookupFailingOnMultipleResultsSendsTheRowToTheErrorStream() throws Exception {
+    DatabaseLookupMeta meta = meta(false, false, new KeyField("id", "", "=", "ID"));
+    meta.getLookup().setFailingOnMultipleResults(true);
+
+    List<Object[]> out = h2.run(meta, input(new ValueMetaInteger("id")), rows(1L, 5L, 2L), true);
+
+    assertEquals(List.of(row(1L, "Gold", "Paris"), row(2L, "Silver", "Berlin")), values(out, 3));
+    assertEquals(1, h2.errors.size());
+    assertEquals(5L, h2.errors.get(0).row()[0]);
+    assertTrue(
+        h2.errors.get(0).description().contains("Only 1 row was expected"),
+        h2.errors.get(0).description());
+  }
+
+  @Test
+  void uncachedLookupWithOrderByReturnsTheFirstOrderedRow() throws Exception {
+    DatabaseLookupMeta meta = meta(false, false, new KeyField("id", "", "=", "ID"));
+    meta.getLookup().setOrderByClause("CODE DESC");
+    List<Object[]> out = h2.run(meta, input(new ValueMetaInteger("id")), rows(5L), false);
+    assertEquals(List.of(row(5L, "Second", "B")), values(out, 3));
+
+    h2.output.clear();
+    meta.getLookup().setOrderByClause("CODE ASC");
+    out = h2.run(meta, input(new ValueMetaInteger("id")), rows(5L), false);
+    assertEquals(List.of(row(5L, "First", "A")), values(out, 3));
+  }
+
   @Test
   void uncachedLookupConvertsKeyTypeAndAppliesDefaults() throws Exception {
     List<Object[]> out =

@@ -256,13 +256,25 @@ class DatabaseTest {
     assertNull(spec.getParameterReferences().get(0));
   }
 
+  /** One DECIMAL column, mapped through a dialect without type rules of its own. */
+  private void lookupReturnsOneDecimalColumn() throws SQLException {
+    when(ps.executeQuery()).thenReturn(rs);
+    when(rs.getMetaData()).thenReturn(rsMetaData);
+    when(rsMetaData.getColumnCount()).thenReturn(1);
+    when(rsMetaData.getColumnName(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnType(1)).thenReturn(Types.DECIMAL);
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+  }
+
   /**
-   * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
-   * every call. That may bring performance penalty depends on jdbc driver implementation. For some
-   * drivers that penalty can be huge (postgres).
+   * When using getLookup calls there is no need to derive the row layout from the result set
+   * metadata for every call. That may bring performance penalty depends on jdbc driver
+   * implementation. For some drivers that penalty can be huge (postgres).
    *
    * <p>During the execution calling getLookup() method we changing usually only lookup where clause
-   * which will not impact return row structure.
+   * which will not impact return row structure. The layout is derived once (the display size is
+   * only read to derive it), and only the plain column properties are compared afterwards.
    */
   @Test
   void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
@@ -270,10 +282,7 @@ class DatabaseTest {
             nullable(IVariables.class), nullable(String.class), nullable(String.class)))
         .thenReturn("a");
     when(meta.quoteField(any())).thenReturn("a");
-    when(ps.executeQuery()).thenReturn(rs);
-    when(rs.getMetaData()).thenReturn(rsMetaData);
-    when(rsMetaData.getColumnCount()).thenReturn(0);
-    when(ps.getMetaData()).thenReturn(rsMetaData);
+    lookupReturnsOneDecimalColumn();
     Database db = new Database(log, variables, meta);
     Connection conn = mock(Connection.class);
     when(conn.prepareStatement(any())).thenReturn(ps);
@@ -284,23 +293,27 @@ class DatabaseTest {
     for (int i = 0; i < 10; i++) {
       db.getLookup();
     }
-    verify(rsMetaData, times(1)).getColumnCount();
+    verify(rsMetaData, times(1)).getColumnDisplaySize(1);
+    assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
   }
 
   /**
-   * Test that for every PreparedStatement passed into lookup signature we do reset and re-create
-   * row meta.
+   * A PreparedStatement passed into lookup gets the layout derived from its own result set, once
+   * per statement.
    */
   @Test
   void testGetLookupCallPSpassed() throws SQLException, HopDatabaseException {
-    when(ps.executeQuery()).thenReturn(rs);
-    when(rs.getMetaData()).thenReturn(rsMetaData);
-    when(rsMetaData.getColumnCount()).thenReturn(0);
-    when(ps.getMetaData()).thenReturn(rsMetaData);
+    lookupReturnsOneDecimalColumn();
 
     Database db = new Database(log, variables, meta);
     db.getLookup(ps);
-    verify(rsMetaData, times(1)).getColumnCount();
+    db.getLookup(ps);
+    verify(rsMetaData, times(1)).getColumnDisplaySize(1);
+
+    PreparedStatement other = mock(PreparedStatement.class);
+    when(other.executeQuery()).thenReturn(rs);
+    db.getLookup(other);
+    verify(rsMetaData, times(2)).getColumnDisplaySize(1);
   }
 
   /**
