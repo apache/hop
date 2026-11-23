@@ -83,6 +83,15 @@ public final class HopCommandLine {
     args.add("--project-locations");
     args.add(String.join(",", locations));
     if (!bundle.environmentFiles().isEmpty()) {
+      // --environments reads name=project:files, and takes "c:" for a drive, "file:" and "zip:"
+      // for a URL
+      requireNo(project, ":", "project name");
+      if (project.length() == 1 || List.of("file", "zip").contains(project.toLowerCase())) {
+        throw new IllegalArgumentException(
+            "Hop cannot pass on the environment files of project '"
+                + project
+                + "': the name reads as a drive letter or a URL scheme");
+      }
       StringJoiner files = new StringJoiner(";");
       for (String file : bundle.environmentFiles()) {
         String path = bundle.folder().resolve(file).toString();

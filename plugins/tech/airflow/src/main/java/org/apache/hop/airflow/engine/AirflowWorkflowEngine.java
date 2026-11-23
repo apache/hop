@@ -48,6 +48,8 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.engine.WorkflowEnginePlugin;
 import org.apache.hop.workflow.engines.remote.RemoteWorkflowEngine;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * Runs a workflow as an Airflow DAG: publishes the project as a DAG bundle, starts a run of the
@@ -72,6 +74,9 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   static final String TASK_ID = "run_workflow";
 
   static final String XCOM_KEY = "return_value";
+
+  /** Failed status polls in a row before the engine stops following a DAG run. */
+  static final int MAX_FAILED_POLLS = 5;
 
   /** The XCom key of a task's outcome; a condition's return value is its decision. */
   static final String OUTCOME_XCOM_KEY = "hop_outcome";
@@ -121,8 +126,10 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     actionLog = new AirflowActionLog(workflowMeta.getName());
 
     String bundleFolder = publish(projectName, projectHome);
+    checkNotStopped();
     publishedVersion = workflowVersion(bundleFolder, relativePath);
     AirflowDag dag = waitForDag(publishedVersion);
+    checkNotStopped();
     if (dag.paused()) {
       if (!config.isUnpausingDag()) {
         throw new HopException(
@@ -132,6 +139,8 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       logChannel.logBasic(BaseMessages.getString(PKG, "AirflowWorkflowEngine.Log.Unpaused", dagId));
     }
 
+    // Stop can come while the DAG is unpaused: never start a run after it
+    checkNotStopped();
     AirflowDagRun run = client.triggerDagRun(dagId, null, null, parameters());
     containerId = run.dagRunId();
     running = true;
@@ -144,6 +153,13 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
             dagId,
             containerId,
             client.getBaseUrl() + "/dags/" + dagId + "/runs/" + containerId));
+  }
+
+  private void checkNotStopped() throws HopException {
+    if (stopped) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "AirflowWorkflowEngine.Error.StoppedBeforeStart", dagId));
+    }
   }
 
   private AirflowConnection loadConnection() throws HopException {
@@ -297,9 +313,23 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
 
   @Override
   public void monitorRemoteWorkflowUntilFinished() {
+    int failedPolls = 0;
     try {
       while (!finished) {
-        getWorkflowStatus();
+        try {
+          getWorkflowStatus();
+          failedPolls = 0;
+        } catch (HopException e) {
+          // A proxy that answers 503 once, or a token that expires, must not end the follow-up
+          // while the DAG run goes on in Airflow
+          failedPolls++;
+          if (failedPolls >= MAX_FAILED_POLLS) {
+            throw e;
+          }
+          logChannel.logBasic(
+              BaseMessages.getString(
+                  PKG, "AirflowWorkflowEngine.Log.PollFailed", failedPolls, e.getMessage()));
+        }
         if (!finished) {
           sleep(pollMillis());
         }
@@ -424,6 +454,10 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       if (value == null) {
         value = client.findXComValue(dagId, containerId, task.taskId(), XCOM_KEY);
       }
+      if (value instanceof String text) {
+        // An XCom backend can hand the value back as JSON text
+        value = parseJson(text);
+      }
       if (!(value instanceof Map<?, ?> map)) {
         continue;
       }
@@ -451,6 +485,14 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     logChannel.logBasic(
         BaseMessages.getString(PKG, "AirflowWorkflowEngine.Log.Finished", dagId, run.state()));
     return outcome;
+  }
+
+  private static Object parseJson(String text) {
+    try {
+      return new JSONParser().parse(text);
+    } catch (ParseException e) {
+      return null;
+    }
   }
 
   private static long counter(Map<?, ?> counters, String key) {

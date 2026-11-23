@@ -30,6 +30,12 @@ import java.util.function.Function;
  */
 public final class TaskState {
 
+  /**
+   * Whether Hop ran the action of a task: false when it failed before, for example on a missing
+   * action or a bad run configuration. Not set for a task that runs the whole workflow.
+   */
+  public static final String ACTION_RAN = "actionRan";
+
   /** The key of the state in a task's outcome. */
   public static final String KEY = "state";
 
@@ -151,14 +157,22 @@ public final class TaskState {
       return;
     }
     for (ActionTasks.Upstream upstream : task.upstreams()) {
-      if (outcomes.apply(upstream.taskId()) == null
-          && !joinEndedFalse(tasks.get(upstream.taskId()), tasks, outcomes)) {
+      Object outcome = outcomes.apply(upstream.taskId());
+      if (outcome == null && !joinEndedFalse(tasks.get(upstream.taskId()), tasks, outcomes)) {
         throw new IllegalStateException(
             "["
                 + task.actionName()
                 + "] does not run: task "
                 + upstream.taskId()
                 + " before it did not run, because a task before that failed");
+      }
+      if (outcome instanceof Map<?, ?> map && Boolean.FALSE.equals(map.get(ACTION_RAN))) {
+        throw new IllegalStateException(
+            "["
+                + task.actionName()
+                + "] does not run: Hop could not run the action of task "
+                + upstream.taskId()
+                + " before it");
       }
     }
   }

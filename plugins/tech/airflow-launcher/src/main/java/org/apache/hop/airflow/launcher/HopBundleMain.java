@@ -60,7 +60,20 @@ public final class HopBundleMain {
         HopWorkflowFile.scan(
             manifest.folder(), manifest.workflowPatterns(), manifest.dagIdPrefix());
     Bundle dags = new Bundle();
+    Map<String, HopWorkflowFile> listed = new LinkedHashMap<>();
     for (HopWorkflowFile workflow : workflows) {
+      HopWorkflowFile other = listed.putIfAbsent(workflow.dagId(), workflow);
+      if (other != null) {
+        // Airflow then shows an import error with this message
+        throw new IllegalStateException(
+            "Workflows "
+                + other.relativePath()
+                + " and "
+                + workflow.relativePath()
+                + " would both become DAG "
+                + workflow.dagId()
+                + ": rename one of them");
+      }
       WORKFLOWS.put(workflow.dagId(), workflow);
       DagDef dag =
           new DagDef(workflow.dagId())

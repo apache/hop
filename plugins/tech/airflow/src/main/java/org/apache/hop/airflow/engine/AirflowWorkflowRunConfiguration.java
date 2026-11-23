@@ -24,6 +24,7 @@ import org.apache.hop.airflow.metadata.AirflowConnection;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.GuiWidgetGroupType;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -35,6 +36,9 @@ import org.apache.hop.workflow.engines.empty.EmptyWorkflowRunConfiguration;
 @Setter
 public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration {
 
+  /** One box: the fields scroll inside it, above the dialog's buttons. */
+  private static final String GROUP = "i18n::AirflowWorkflowRunConfiguration.Group.Airflow";
+
   public static final String DEFAULT_DAG_WAIT_SECONDS = "120";
   public static final String DEFAULT_POLL_SECONDS = "5";
 
@@ -42,6 +46,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "connection",
       order = "010",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.METADATA,
       metadata = AirflowConnection.class,
       label = "i18n::AirflowWorkflowRunConfiguration.Connection.Label",
@@ -55,6 +61,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "bundleFolder",
       order = "020",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.FOLDER,
       label = "i18n::AirflowWorkflowRunConfiguration.BundleFolder.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.BundleFolder.Tooltip")
@@ -65,6 +73,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "workerHopHome",
       order = "030",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.WorkerHopHome.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.WorkerHopHome.Tooltip")
@@ -75,6 +85,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "workerRunConfiguration",
       order = "040",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.WorkerRunConfiguration.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.WorkerRunConfiguration.Tooltip")
@@ -85,6 +97,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "environmentFiles",
       order = "050",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.EnvironmentFiles.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.EnvironmentFiles.Tooltip")
@@ -95,6 +109,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "dagIdPrefix",
       order = "060",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.DagIdPrefix.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.DagIdPrefix.Tooltip")
@@ -105,6 +121,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "unpausingDag",
       order = "070",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.CHECKBOX,
       label = "i18n::AirflowWorkflowRunConfiguration.UnpausingDag.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.UnpausingDag.Tooltip")
@@ -115,6 +133,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "dagWaitSeconds",
       order = "080",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.DagWaitSeconds.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.DagWaitSeconds.Tooltip")
@@ -125,6 +145,8 @@ public class AirflowWorkflowRunConfiguration extends EmptyWorkflowRunConfigurati
       id = "pollSeconds",
       order = "090",
       parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      groupType = GuiWidgetGroupType.BOXES,
+      group = GROUP,
       type = GuiElementType.TEXT,
       label = "i18n::AirflowWorkflowRunConfiguration.PollSeconds.Label",
       toolTip = "i18n::AirflowWorkflowRunConfiguration.PollSeconds.Tooltip")

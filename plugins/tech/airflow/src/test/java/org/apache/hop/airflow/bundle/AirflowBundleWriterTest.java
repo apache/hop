@@ -33,6 +33,7 @@ import java.util.jar.Manifest;
 import org.apache.hop.airflow.launcher.BundleManifest;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVfs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -188,13 +189,50 @@ class AirflowBundleWriterTest {
   }
 
   @Test
-  void checksTheEnvironmentFiles() {
+  void checksTheEnvironmentFiles() throws Exception {
     AirflowBundleWriter writer = writer();
     writer.setEnvironmentFiles(List.of("env/missing.json"));
     assertThrows(HopException.class, writer::write);
 
     writer.setEnvironmentFiles(List.of("/etc/passwd"));
     assertThrows(HopException.class, writer::write);
+
+    // A file outside the project is not copied into the bundle
+    Files.writeString(temp.resolve("shared.json"), "{}");
+    writer.setEnvironmentFiles(List.of("../shared.json"));
+    HopException e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("../shared.json"), e.getMessage());
+
+    writer.setEnvironmentFiles(List.of("env/prod.json"));
+    writer.setTargetFolder(temp.resolve("bundle").toString());
+    writer.write();
+  }
+
+  /** --environments on the workers reads "x:" as a drive and "file:" as a URL. */
+  @Test
+  void refusesAProjectNameTheWorkersCannotPassEnvironmentFilesFor() {
+    for (String name : List.of("x", "file", "a:b")) {
+      AirflowBundleWriter writer = writer();
+      writer.setProjectName(name);
+      writer.setEnvironmentFiles(List.of("env/prod.json"));
+      assertThrows(HopException.class, writer::write, name);
+    }
+  }
+
+  @Test
+  void refusesWorkflowsThatWouldGetTheSameDagId() throws Exception {
+    Files.createDirectories(project.resolve("etl"));
+    Files.writeString(project.resolve("etl/load.hwf"), "<workflow/>");
+    Files.writeString(project.resolve("etl__load.hwf"), "<workflow/>");
+    AirflowBundleWriter writer = writer();
+    writer.setTargetFolder(temp.resolve("bundle").toString());
+
+    HopException e = assertThrows(HopException.class, writer::write);
+    assertTrue(e.getMessage().contains("sales__etl__load"), e.getMessage());
+
+    // Only the workflows that become DAGs count
+    writer.setWorkflowPatterns(List.of("main.hwf", "etl/**"));
+    writer.write();
   }
 
   @Test
@@ -215,9 +253,10 @@ class AirflowBundleWriterTest {
       jar.flush();
     }
 
-    assertEquals("2026-10-30", AirflowBundleWriter.schemaVersionOf(sdkJar.toFile()));
+    assertEquals(
+        "2026-10-30", AirflowBundleWriter.schemaVersionOf(HopVfs.getFileObject(sdkJar.toString())));
     assertEquals(
         BundleManifest.schemaVersionOf(sdkJar),
-        AirflowBundleWriter.schemaVersionOf(sdkJar.toFile()));
+        AirflowBundleWriter.schemaVersionOf(HopVfs.getFileObject(sdkJar.toString())));
   }
 }

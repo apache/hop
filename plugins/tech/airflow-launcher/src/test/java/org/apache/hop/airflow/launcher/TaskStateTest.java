@@ -253,4 +253,22 @@ class TaskStateTest {
     assertEquals(1, state.get(TaskState.JOIN_ERRORS));
     assertEquals(Map.of("X", "1"), state.get(TaskState.VARIABLES));
   }
+
+  /** Hop crashed before the action (a missing action, a bad run configuration): not a result. */
+  @Test
+  void failsATaskAfterAFailureHopWhenHopCouldNotRunTheActionBefore() {
+    task("Load");
+    ActionTask mail =
+        task("Mail", Role.ACTION, "one_failed", new Upstream("Load", HopKind.FAILURE, false));
+    Map<String, Object> crashed = new LinkedHashMap<>();
+    crashed.put("success", false);
+    crashed.put(TaskState.ACTION_RAN, false);
+    outcomes.put("Load", crashed);
+
+    IllegalStateException e =
+        assertThrows(
+            IllegalStateException.class,
+            () -> TaskState.checkTheTaskBeforeRan(mail, tasks, outcomes::get));
+    assertTrue(e.getMessage().contains("could not run"), e.getMessage());
+  }
 }

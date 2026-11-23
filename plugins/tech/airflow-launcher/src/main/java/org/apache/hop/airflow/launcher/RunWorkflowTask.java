@@ -117,25 +117,23 @@ public class RunWorkflowTask implements Task {
 
       Map<String, Object> outcome = outcome(resultFile, exitCode);
       if (task != null) {
-        // hop airflow-action exits on the result of the action
-        outcome.put("success", exitCode == 0);
-      }
-      if (stateOut != null && Files.isRegularFile(stateOut) && Files.size(stateOut) > 0) {
-        if (Files.size(stateOut) > TaskState.MAX_BYTES) {
-          outcome.put("success", false);
-          outcome.put("error", "The state of the action is larger than " + TaskState.MAX_BYTES);
-          client.setXCom(TaskState.OUTCOME_KEY, outcome);
-          throw new IllegalStateException(
-              "Action ["
-                  + task.actionName()
-                  + "] passes on "
-                  + Files.size(stateOut)
-                  + " bytes of result rows, files and variables, more than the "
-                  + TaskState.MAX_BYTES
-                  + " that fit in an Airflow XCom. Pass less to the next action, for example by"
-                  + " writing the rows to a file or a table.");
+        // hop airflow-action exits on the result of the action, and writes the state only when it
+        // ran the action: without one, Hop failed before (no such action, a bad run
+        // configuration, an unreadable state)
+        boolean ran = Files.isRegularFile(stateOut) && Files.size(stateOut) > 0;
+        outcome.put("success", ran && exitCode == 0);
+        outcome.put(TaskState.ACTION_RAN, ran);
+        if (ran) {
+          try {
+            addState(outcome, stateOut, task);
+          } catch (Exception e) {
+            // Keep an outcome, so a failure hop after this task can still run
+            outcome.put("success", false);
+            outcome.put("error", e.getMessage());
+            client.setXCom(TaskState.OUTCOME_KEY, outcome);
+            throw e;
+          }
         }
-        outcome.put(TaskState.KEY, JSON.readValue(stateOut.toFile(), Map.class));
       }
       client.setXCom(TaskState.OUTCOME_KEY, outcome);
       return outcome;
@@ -148,6 +146,24 @@ public class RunWorkflowTask implements Task {
         Files.deleteIfExists(stateOut);
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void addState(
+      Map<String, Object> outcome, Path stateOut, ActionTasks.ActionTask task) throws Exception {
+    long size = Files.size(stateOut);
+    if (size > TaskState.MAX_BYTES) {
+      throw new IllegalStateException(
+          "Action ["
+              + task.actionName()
+              + "] passes on "
+              + size
+              + " bytes of result rows, files and variables, more than the "
+              + TaskState.MAX_BYTES
+              + " that fit in an Airflow XCom. Pass less to the next action, for example by"
+              + " writing the rows to a file or a table.");
+    }
+    outcome.put(TaskState.KEY, JSON.readValue(stateOut.toFile(), Map.class));
   }
 
   /** The outcome other tasks of this DAG run kept, by task id; null for a task without one. */

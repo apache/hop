@@ -119,11 +119,15 @@ class AirflowWorkflowEngineTest {
     server.stop();
   }
 
+  /** Runs while the engine publishes the bundle, for example a Stop from Hop GUI. */
+  private Runnable whilePublishing = () -> {};
+
   private AirflowWorkflowEngine engine() throws Exception {
     AirflowWorkflowEngine engine =
         new AirflowWorkflowEngine() {
           @Override
           protected AirflowBundleWriter newBundleWriter() {
+            whilePublishing.run();
             AirflowBundleWriter writer = new AirflowBundleWriter();
             writer.setSchemaVersion("2026-10-30");
             return writer;
@@ -388,6 +392,87 @@ class AirflowWorkflowEngineTest {
 
     assertTrue(e.getMessage().contains("earlier version"), e.getMessage());
     server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  @Test
+  void startsNoRunWhenStoppedWhilePublishing() throws Exception {
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}")));
+    stubTrigger();
+    AirflowWorkflowEngine engine = engine();
+    whilePublishing = engine::stopExecution;
+
+    HopException e = assertThrows(HopException.class, engine::submitToRemoteServer);
+
+    assertTrue(e.getMessage().contains("Stopped"), e.getMessage());
+    server.verify(0, postRequestedFor(urlEqualTo(DAG + "/dagRuns")));
+  }
+
+  /** A proxy that answers 503 once must not end the follow-up of a run that goes on. */
+  @Test
+  void keepsFollowingTheRunAfterAFailedPoll() throws Exception {
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}")));
+    stubTrigger();
+    server.stubFor(
+        get(urlEqualTo(RUN))
+            .inScenario("poll")
+            .whenScenarioStateIs(Scenario.STARTED)
+            .willReturn(aResponse().withStatus(503).withBody("Service Unavailable"))
+            .willSetStateTo("up"));
+    server.stubFor(
+        get(urlEqualTo(RUN))
+            .inScenario("poll")
+            .whenScenarioStateIs("up")
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"dag_run_id\":\"r1\",\"state\":\"success\"}")));
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    stubOutcome("{\"success\":true}");
+
+    Result result = engine().startExecution();
+
+    assertTrue(result.isResult());
+    server.verify(2, getRequestedFor(urlEqualTo(RUN)));
+  }
+
+  @Test
+  void readsAnOutcomeThatArrivesAsJsonText() throws Exception {
+    server.stubFor(
+        get(urlEqualTo(DAG + "/details"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"dag_id\":\"demo__flows__hello\",\"is_paused\":false,\"doc_md\":\""
+                            + DOC
+                            + "\"}")));
+    stubTrigger();
+    stubRunStates("success");
+    stubTask("success", "Starting action [Start]", "Finished action [Start] (result=[true])");
+    server.stubFor(
+        get(urlEqualTo(TASK + "/xcomEntries/return_value"))
+            .willReturn(
+                aResponse()
+                    .withBody(
+                        "{\"key\":\"return_value\",\"value\":"
+                            + "\"{\\\"success\\\":true,\\\"counters\\\":{\\\"read\\\":7}}\"}")));
+
+    Result result = engine().startExecution();
+
+    assertEquals(7, result.getNrLinesRead());
   }
 
   @Test

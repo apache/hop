@@ -17,6 +17,7 @@
 
 package org.apache.hop.airflow.launcher;
 
+import java.util.Map;
 import org.apache.airflow.sdk.Client;
 import org.apache.airflow.sdk.ConditionTask;
 import org.apache.airflow.sdk.Context;
@@ -30,7 +31,14 @@ public class RunActionCondition implements ConditionTask {
 
   @Override
   public boolean decide(Context context, Client client) throws Exception {
-    Object exitCode = RunWorkflowTask.run(context, client).get("exitCode");
-    return exitCode instanceof Number number && number.intValue() == 0;
+    Map<String, Object> outcome = RunWorkflowTask.run(context, client);
+    if (!Boolean.TRUE.equals(outcome.get(TaskState.ACTION_RAN))) {
+      // Not a false result: Hop could not run the action, so neither side may run
+      throw new IllegalStateException(
+          "Hop could not run the action of task "
+              + context.ti.taskId
+              + (outcome.get("error") == null ? "" : ": " + outcome.get("error")));
+    }
+    return Boolean.TRUE.equals(outcome.get("success"));
   }
 }

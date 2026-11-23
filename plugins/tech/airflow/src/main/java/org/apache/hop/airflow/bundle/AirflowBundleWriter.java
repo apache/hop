@@ -17,17 +17,24 @@
 
 package org.apache.hop.airflow.bundle;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import lombok.Getter;
@@ -36,7 +43,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.Selectors;
+import org.apache.hop.airflow.engine.AirflowDagIds;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
@@ -97,6 +106,7 @@ public class AirflowBundleWriter {
         throw new HopException("The project folder " + projectHome + " does not exist");
       }
       checkEnvironmentFiles(project);
+      checkDagIds(project);
       String schema = schemaVersion != null ? schemaVersion : installedSchemaVersion();
 
       FileObject bundle = project;
@@ -175,11 +185,87 @@ public class AirflowBundleWriter {
     }
   }
 
+  /**
+   * Two workflows whose paths only differ in characters a DAG id cannot hold, such as {@code a
+   * b.hwf} and {@code a_b.hwf}, would get the same DAG id.
+   */
+  private void checkDagIds(FileObject project) throws IOException, HopException {
+    List<PathMatcher> matchers = new ArrayList<>();
+    for (String pattern : workflowPatterns) {
+      matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + pattern));
+    }
+    Map<String, String> workflows = new LinkedHashMap<>();
+    FileObject[] files = project.findFiles(new WorkflowSelector(project));
+    if (files == null) {
+      return;
+    }
+    List<String> relativePaths = new ArrayList<>();
+    for (FileObject file : files) {
+      relativePaths.add(project.getName().getRelativeName(file.getName()));
+    }
+    relativePaths.sort(null);
+    for (String relative : relativePaths) {
+      if (!matchers.isEmpty() && matchers.stream().noneMatch(m -> m.matches(Path.of(relative)))) {
+        continue;
+      }
+      String dagId = AirflowDagIds.dagId(dagIdPrefix, projectName, relative);
+      String other = workflows.putIfAbsent(dagId, relative);
+      if (other != null) {
+        throw new HopException(
+            "Workflows "
+                + other
+                + " and "
+                + relative
+                + " would both become DAG "
+                + dagId
+                + ": rename one of them");
+      }
+    }
+  }
+
+  /** The workflows of a project, outside hidden folders such as .git. */
+  private static final class WorkflowSelector implements FileSelector {
+    private final FileObject project;
+
+    WorkflowSelector(FileObject project) {
+      this.project = project;
+    }
+
+    @Override
+    public boolean includeFile(FileSelectInfo info) {
+      return info.getFile().getName().getBaseName().endsWith(".hwf");
+    }
+
+    @Override
+    public boolean traverseDescendents(FileSelectInfo info) {
+      FileObject folder = info.getFile();
+      return sameFolder(folder, project) || !folder.getName().getBaseName().startsWith(".");
+    }
+  }
+
   private void checkEnvironmentFiles(FileObject project) throws IOException, HopException {
+    if (!environmentFiles.isEmpty()
+        && (projectName.contains(":")
+            || projectName.length() == 1
+            || List.of("file", "zip").contains(projectName.toLowerCase()))) {
+      // The workers pass the files on as name=project:files, which reads "c:" as a drive and
+      // "file:" or "zip:" as a URL
+      throw new HopException(
+          "Hop cannot pass the environment files of project '"
+              + projectName
+              + "' on to the workers: use a project name of two or more characters, without a"
+              + " colon, other than 'file' or 'zip'");
+    }
     for (String file : environmentFiles) {
+      FileObject resolved = StringUtils.isBlank(file) ? null : project.resolveFile(file);
+      // Only files in the project are copied into the bundle
+      boolean inProject =
+          resolved != null
+              && project.getName().isDescendent(resolved.getName(), NameScope.DESCENDENT);
       if (StringUtils.containsAny(file, ",;")
           || file.startsWith("/")
-          || !project.resolveFile(file).isFile()) {
+          || !inProject
+          || !resolved.isFile()) {
         throw new HopException(
             "Environment files must be files in the project, given relative to it, without a comma"
                 + " or a semicolon: '"
@@ -285,44 +371,65 @@ public class AirflowBundleWriter {
    * Airflow uses it to talk to the launcher, so it must match the workers' installation.
    */
   static String installedSchemaVersion() throws HopException {
-    File launcherLib;
+    FileObject launcherLib;
     try {
-      File pluginJar =
-          new File(
+      FileObject pluginJar =
+          HopVfs.getFileObject(
               AirflowBundleWriter.class
                   .getProtectionDomain()
                   .getCodeSource()
                   .getLocation()
-                  .toURI());
-      launcherLib = new File(pluginJar.getParentFile(), "launcher/lib");
+                  .toURI()
+                  .toString());
+      launcherLib = pluginJar.getParent().resolveFile("launcher/lib");
     } catch (Exception e) {
       throw new HopException("Unable to find the Airflow plugin folder", e);
     }
-    File[] sdkJars =
-        launcherLib.listFiles(
-            (folder, name) -> name.startsWith("airflow-sdk-") && name.endsWith(".jar"));
-    if (sdkJars == null || sdkJars.length != 1) {
+    List<FileObject> sdkJars = new ArrayList<>();
+    try {
+      if (launcherLib.isFolder()) {
+        for (FileObject child : launcherLib.getChildren()) {
+          String name = child.getName().getBaseName();
+          if (name.startsWith("airflow-sdk-") && name.endsWith(".jar")) {
+            sdkJars.add(child);
+          }
+        }
+      }
+    } catch (IOException e) {
+      throw new HopException("Unable to list " + HopVfs.getFilename(launcherLib), e);
+    }
+    if (sdkJars.size() != 1) {
       throw new HopException(
           "Expected one Airflow SDK jar in "
-              + launcherLib
+              + HopVfs.getFilename(launcherLib)
               + ": the Airflow launcher is not installed with this plugin");
     }
-    return schemaVersionOf(sdkJars[0]);
+    return schemaVersionOf(sdkJars.get(0));
   }
 
-  static String schemaVersionOf(File sdkJar) throws HopException {
-    try (JarFile jar = new JarFile(sdkJar)) {
+  static String schemaVersionOf(FileObject sdkJar) throws HopException {
+    String name = HopVfs.getFilename(sdkJar);
+    try (InputStream in = HopVfs.getInputStream(sdkJar);
+        JarInputStream jar = new JarInputStream(in)) {
       Manifest manifest = jar.getManifest();
+      // JarInputStream only finds a manifest among the first entries
+      for (JarEntry entry = jar.getNextJarEntry();
+          manifest == null && entry != null;
+          entry = jar.getNextJarEntry()) {
+        if (JarFile.MANIFEST_NAME.equalsIgnoreCase(entry.getName())) {
+          manifest = new Manifest(jar);
+        }
+      }
       String version =
           manifest == null
               ? null
               : manifest.getMainAttributes().getValue(HopAirflowBundle.ATTRIBUTE_SCHEMA_VERSION);
       if (StringUtils.isBlank(version)) {
-        throw new HopException(sdkJar + " has no " + HopAirflowBundle.ATTRIBUTE_SCHEMA_VERSION);
+        throw new HopException(name + " has no " + HopAirflowBundle.ATTRIBUTE_SCHEMA_VERSION);
       }
       return version.trim();
     } catch (IOException e) {
-      throw new HopException("Unable to read " + sdkJar, e);
+      throw new HopException("Unable to read " + name, e);
     }
   }
 }

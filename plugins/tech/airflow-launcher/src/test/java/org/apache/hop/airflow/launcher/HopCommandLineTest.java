@@ -185,4 +185,33 @@ class HopCommandLineTest {
         IllegalArgumentException.class,
         () -> HopCommandLine.build(bundle, WORKFLOW, null, Map.of(), RESULT, List.of()));
   }
+
+  /** --environments reads name=project:files, and takes "c:" for a drive and "file:" for a URL. */
+  @Test
+  void refusesAProjectNameHopWouldReadWrongWithEnvironmentFiles() {
+    for (String project : List.of("x", "file", "Zip", "a:b")) {
+      BundleManifest bundle =
+          new BundleManifest(
+              FOLDER,
+              "2026-10-30",
+              "",
+              project,
+              "local",
+              "Basic",
+              List.of(),
+              List.of("env.json"),
+              "s__");
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> HopCommandLine.build(bundle, WORKFLOW, null, Map.of(), RESULT, List.of()),
+          project);
+    }
+    // Without environment files the name is not split
+    BundleManifest bundle =
+        new BundleManifest(
+            FOLDER, "2026-10-30", "", "x", "local", "Basic", List.of(), List.of(), "s__");
+    assertEquals(
+        "x=" + FOLDER,
+        HopCommandLine.build(bundle, WORKFLOW, null, Map.of(), RESULT, List.of()).get(1));
+  }
 }
