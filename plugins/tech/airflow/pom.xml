@@ -50,20 +50,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- The launcher with its libraries, which the assembly unpacks in launcher/ -->
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-tech-airflow-launcher</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- WireMock for the Airflow REST API client tests -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
@@ -73,4 +59,33 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- The launcher with its libraries, which the assembly unpacks in launcher/. Only when the
+             module zips are built, as the root pom's assembly profile: with -Dmodule.zips=false
+             the launcher builds no zip either. -->
+        <profile>
+            <id>launcher-zip</id>
+            <activation>
+                <property>
+                    <name>module.zips</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-airflow-launcher</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
