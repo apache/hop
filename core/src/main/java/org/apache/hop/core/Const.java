@@ -212,6 +212,17 @@ public class Const {
   public static final String HOP_DATABASE_SOCKET_TIMEOUT = "HOP_DATABASE_SOCKET_TIMEOUT";
 
   /**
+   * Set to LEGACY to handle a failed batch of database writes the way Hop always did, on every
+   * connection, also where the database's behaviour with failed batches has been validated. Empty
+   * (the default) follows each connection's setting.
+   */
+  @Variable(
+      value = "",
+      description =
+          "Set to LEGACY to handle a failed batch of database writes the way Hop always did, on every connection, also where the database's behaviour with failed batches has been validated. Empty (the default) follows each connection's setting.")
+  public static final String HOP_DATABASE_BATCH_RECOVERY = "HOP_DATABASE_BATCH_RECOVERY";
+
+  /**
    * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
    * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
    * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code

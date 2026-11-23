@@ -1418,6 +1418,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           isBatchUpdate = true;
           debug = "insertRow executeBatch commit";
           ps.executeBatch();
+          // The batch ran; a failure from here on is not a batch failure and has no counts.
+          isBatchUpdate = false;
           commit();
           ps.clearBatch();
         } else {
@@ -1519,6 +1521,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             // our responsibility.
             isBatchUpdate = true;
             ps.executeBatch();
+            // The batch ran; a failure from here on is not a batch failure and has no counts.
+            isBatchUpdate = false;
             commit();
             ps.clearBatch();
           } else {

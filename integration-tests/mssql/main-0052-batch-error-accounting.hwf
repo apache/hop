@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0052-batch-error-accounting</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Table Output with batch updates and an error hop on SQL Server 2022. Twelve rows at commit size 5, three of them violating the primary key: one in the middle of the first commit window, one at the first position of the second and one at the end of the final partial batch. SQL Server carries on past a failing statement in a batch, so the good rows around each failure have to be reported as written and only the refused ones as rejects. Asserts that exactly the three bad rows reach the error stream and that the nine good rows are in the table and on the main output, each exactly once. Same contract as oracle/main-0006-batch-error-accounting.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/10/11 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/10/11 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DROP TABLE IF EXISTS HOP_BATCH_ERR_TARGET;
+DROP TABLE IF EXISTS HOP_BATCH_ERR_WRITTEN;
+DROP TABLE IF EXISTS HOP_BATCH_ERR_REJECTS;
+CREATE TABLE HOP_BATCH_ERR_TARGET (ID BIGINT NOT NULL PRIMARY KEY, LABEL VARCHAR(20));
+CREATE TABLE HOP_BATCH_ERR_WRITTEN (ID BIGINT, LABEL VARCHAR(20));
+CREATE TABLE HOP_BATCH_ERR_REJECTS (ID BIGINT, LABEL VARCHAR(20), ERR_DESC NVARCHAR(MAX));
+INSERT INTO HOP_BATCH_ERR_TARGET (ID, LABEL) VALUES (9000, 'seed');
+INSERT INTO HOP_BATCH_ERR_TARGET (ID, LABEL) VALUES (9001, 'seed');
+INSERT INTO HOP_BATCH_ERR_TARGET (ID, LABEL) VALUES (9002, 'seed');</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0052-batch-error-accounting.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0052-batch-error-accounting.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>every row on exactly one stream</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>SET NOCOUNT ON;
+DECLARE @n BIGINT;
+DECLARE @msg NVARCHAR(400);
+
+-- Twelve rows went in; twelve rows have to come out on exactly one of the two streams.
+SELECT @n = COUNT(*) FROM (SELECT ID FROM HOP_BATCH_ERR_WRITTEN UNION ALL SELECT ID FROM HOP_BATCH_ERR_REJECTS) s;
+IF @n &lt;&gt; 12
+BEGIN
+  SET @msg = CONCAT('rows on the main output plus rows on the error stream: got ', @n, ', expected 12');
+  THROW 51000, @msg, 1;
+END;
+
+-- Only the three rows the database refused are rejects. A driver that rolls back or abandons
+-- the rest of the batch must not take the good rows of that commit window down with it.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_REJECTS;
+IF @n &lt;&gt; 3
+BEGIN
+  SET @msg = CONCAT('rows on the error stream: got ', @n, ', expected 3');
+  THROW 51001, @msg, 1;
+END;
+
+-- The rejects are exactly the bad rows: middle of window 1, first of window 2, last of the final partial batch.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_REJECTS WHERE ID IN (9000, 9001, 9002);
+IF @n &lt;&gt; 3
+BEGIN
+  SET @msg = CONCAT('rejected rows that are the bad rows: got ', @n, ', expected 3');
+  THROW 51002, @msg, 1;
+END;
+
+-- All nine good rows are reported on the main output.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_WRITTEN;
+IF @n &lt;&gt; 9
+BEGIN
+  SET @msg = CONCAT('rows on the main output: got ', @n, ', expected 9');
+  THROW 51003, @msg, 1;
+END;
+
+-- Every row is reported exactly once. A retry that re-sent a row the database had already
+-- applied, or reported it twice, would show up here.
+SELECT @n = COUNT(*) FROM (SELECT ID FROM HOP_BATCH_ERR_WRITTEN GROUP BY ID HAVING COUNT(*) &gt; 1) d;
+IF @n &lt;&gt; 0
+BEGIN
+  SET @msg = CONCAT('rows reported on the main output more than once: got ', @n, ', expected 0');
+  THROW 51004, @msg, 1;
+END;
+
+-- Rows behind a failure were retried, not reported as never attempted, and every reject carries a message.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_REJECTS WHERE ERR_DESC IS NULL OR ERR_DESC LIKE '%not sent to the database%';
+IF @n &lt;&gt; 0
+BEGIN
+  SET @msg = CONCAT('rejected rows without a database error message: got ', @n, ', expected 0');
+  THROW 51005, @msg, 1;
+END;
+
+-- What the database holds: the three seed rows plus the nine good rows.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_TARGET;
+IF @n &lt;&gt; 12
+BEGIN
+  SET @msg = CONCAT('rows in the target table (3 seeded + 9 written): got ', @n, ', expected 12');
+  THROW 51006, @msg, 1;
+END;
+
+-- Every good input row is in the table with the label it was sent with.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_TARGET WHERE ID IN (0, 1, 3, 4, 6, 7, 8, 9, 10) AND LABEL = CONCAT('r', ID);
+IF @n &lt;&gt; 9
+BEGIN
+  SET @msg = CONCAT('good input rows present in the target table: got ', @n, ', expected 9');
+  THROW 51007, @msg, 1;
+END;
+
+-- No row was reported as written while it is absent from the table.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_WRITTEN w WHERE NOT EXISTS (SELECT 1 FROM HOP_BATCH_ERR_TARGET x WHERE x.ID = w.ID AND x.LABEL = w.LABEL);
+IF @n &lt;&gt; 0
+BEGIN
+  SET @msg = CONCAT('rows reported as written that are not in the table: got ', @n, ', expected 0');
+  THROW 51008, @msg, 1;
+END;
+
+-- The seed rows were not overwritten by the rejected rows.
+SELECT @n = COUNT(*) FROM HOP_BATCH_ERR_TARGET WHERE ID IN (9000, 9001, 9002) AND LABEL = 'seed';
+IF @n &lt;&gt; 3
+BEGIN
+  SET @msg = CONCAT('seed rows left untouched: got ', @n, ', expected 3');
+  THROW 51009, @msg, 1;
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>mssql-2022</connection>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>0052-batch-error-accounting.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0052-batch-error-accounting.hpl</from>
+      <to>every row on exactly one stream</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

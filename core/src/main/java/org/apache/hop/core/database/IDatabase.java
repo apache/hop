@@ -924,6 +924,37 @@ public interface IDatabase extends Cloneable {
   boolean IsSupportsErrorHandlingOnBatchUpdates();
 
   /**
+   * What this database's JDBC driver does with a batch when one of its rows fails. Transforms use
+   * it, through {@link org.apache.hop.core.database.batch.BatchSupport}, to keep batching with an
+   * error hop attached and still route every row correctly.
+   *
+   * <p>Declare a value only after measuring it against a real server with {@link
+   * org.apache.hop.core.database.batch.BatchContractProbe}. Leave it null when it hasn't been
+   * measured: a failed batch is then handled the way it always was.
+   *
+   * @return the contract, or null if this dialect does not declare one
+   */
+  default org.apache.hop.core.database.batch.BatchFailureContract getBatchFailureContract() {
+    return null;
+  }
+
+  /**
+   * Which row of a failed batch the driver says caused the failure, when it says so. Drivers that
+   * lose the whole batch on a failure (PostgreSQL) often name the failing entry in the exception
+   * message. With that index, recovery re-runs the rows before it in one batch instead of searching
+   * for the failing row, which saves most of the round trips.
+   *
+   * <p>The answer is used as a hint only: the named row is run on its own before it is rejected,
+   * and a wrong index falls back to the slower search. Return -1 when the failure doesn't say.
+   *
+   * @param failure what {@code executeBatch()} threw
+   * @return the zero-based index of the failing entry within that batch, or -1 if unknown
+   */
+  default int getFailedBatchEntry(java.sql.SQLException failure) {
+    return -1;
+  }
+
+  /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
    * @param schemaTable the schema-table name to insert into

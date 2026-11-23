@@ -19,15 +19,22 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.IRowBatch;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -86,6 +93,43 @@ public class TableOutputData extends BaseTransformData implements ITransformData
   public Map<String, Integer> commitCounterMap;
 
   public int commitSize;
+
+  /** How a failed batch is handled on this connection, see {@link BatchSupport}. */
+  public BatchSupport batchSupport;
+
+  /**
+   * True when the connection's batch failure contract has been validated and batches are written
+   * through {@link RecoverableBatch}; false keeps the batch handling Table output always had.
+   */
+  public boolean recoveredBatches;
+
+  /**
+   * A row on its way through a recovered batch: what happened to it once its batch has run, so it
+   * can be passed on in input order. Rows of several tables (table name in a field, partitioning)
+   * sit in different batches that are committed at different times.
+   */
+  public static final class PendingRow {
+    public final Object[] row;
+    public final IRowMeta rowMeta;
+    public boolean settled;
+    public boolean written;
+    public String message;
+    public String errorCode;
+
+    public PendingRow(Object[] row, IRowMeta rowMeta) {
+      this.row = row;
+      this.rowMeta = rowMeta;
+    }
+  }
+
+  /** Every row of the recovered batches, in input order, until it is passed on. */
+  public final Deque<PendingRow> pendingRows = new ArrayDeque<>();
+
+  /** The pending row of each output row in a recovered batch, by identity. */
+  public final Map<Object[], PendingRow> pendingByRow = new IdentityHashMap<>();
+
+  /** The recovered batch of each table, by table name, when {@link #recoveredBatches} is on. */
+  public Map<String, IRowBatch> batches = new LinkedHashMap<>();
 
   public TableOutputData() {
     super();
