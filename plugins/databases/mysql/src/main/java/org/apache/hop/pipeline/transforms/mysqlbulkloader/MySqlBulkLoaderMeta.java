@@ -403,8 +403,9 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
               databaseMeta.getQuotedSchemaTableCombination(
                   variables, realSchemaName, realTableName);
 
-          // Check if this table exists...
-          if (db.checkTableExists(realSchemaName, schemaTable)) {
+          // Check if this table exists. checkTableExists takes the bare table name: it quotes the
+          // table and combines it with the schema itself.
+          if (db.checkTableExists(realSchemaName, realTableName)) {
             return db.getTableFields(schemaTable);
           } else {
             throw new HopException(
