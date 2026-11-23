@@ -1,0 +1,36 @@
+{
+  "engineRunConfiguration": {
+    "BeamFlinkPipelineEngine": {
+      "streamingHopTransformsBufferSize": "",
+      "flinkObjectReuse": "",
+      "flinkMaxBundleSize": "",
+      "flinkCheckpointingMode": "",
+      "flinkExternalizedCheckpointsEnabled": "",
+      "flinkCheckpointingInterval": "",
+      "flinkShutdownSourcesAfterIdleMs": "",
+      "flinkCheckpointTimeoutMillis": "",
+      "flinkFailingOnCheckpointingErrors": "",
+      "flinkAutoWatermarkInterval": "",
+      "fatJar": "",
+      "flinkMaxBundleTimeMills": "",
+      "transformPluginClasses": "",
+      "xpPluginClasses": "",
+      "flinkNumberOfExecutionRetries": "",
+      "flinkParallelism": "2",
+      "flinkDisableMetrics": "",
+      "userAgent": "Hop",
+      "pluginsToStage": "",
+      "flinkRetainExternalizedCheckpointsOnCancellation": "",
+      "flinkExecutionModeForBatch": "",
+      "tempLocation": "file:///tmp",
+      "flinkMinPauseBetweenCheckpoints": "",
+      "flinkMaster": "[local]",
+      "flinkExecutionRetryDelay": "",
+      "streamingHopTransformsFlushInterval": "",
+      "flinkLatencyTrackingInterval": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "flink-local",
+  "description": "Runs your pipelines on embedded Flink, in the Hop JVM"
+}
