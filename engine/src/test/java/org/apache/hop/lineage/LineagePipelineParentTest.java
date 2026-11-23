@@ -182,6 +182,38 @@ class LineagePipelineParentTest {
         built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_TRANSFORM_NAME));
   }
 
+  // The Execute tests transform starts its unit tests as their logging parent, without setting a
+  // parent pipeline: the test run is still a child of that transform's run.
+  @Test
+  void unitTestRunByTheExecuteTestsTransformNamesThatTransform() {
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> testRun = mock(IPipelineEngine.class);
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> parentPipeline = mock(IPipelineEngine.class);
+    BaseTransform<?, ?> executeTests = mock(BaseTransform.class);
+    ILogChannel executeTestsLog = mock(ILogChannel.class);
+    PipelineMeta parentMeta = new PipelineMeta();
+    parentMeta.setName("run-tests");
+    when(testRun.getParent()).thenReturn(executeTests);
+    when(executeTests.getPipeline()).thenReturn(parentPipeline);
+    when(executeTests.getTransformName()).thenReturn("Execute tests");
+    when(executeTests.getLogChannel()).thenReturn(executeTestsLog);
+    when(executeTestsLog.getLogChannelId()).thenReturn("execute-tests-run-id");
+    when(parentPipeline.getPipelineMeta()).thenReturn(parentMeta);
+
+    LineageContext.Builder ctx = context();
+    LineageRunLifecycleEmitter.fillPipelineParentFields(ctx, testRun);
+    LineageContext built = ctx.build();
+
+    assertEquals(
+        "run-tests/Execute tests",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));
+    assertEquals(
+        "execute-tests-run-id",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
+    assertFalse(LineageRunLifecycleEmitter.isTopLevel(testRun));
+  }
+
   // A Workflow Executor is the logging parent of the workflow it runs: same shape.
   @Test
   void workflowRunByATransformNamesThatTransform() {

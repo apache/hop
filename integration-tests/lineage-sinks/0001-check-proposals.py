@@ -34,6 +34,11 @@ PUBLISHED_FILES = ("publish/customers.csv", "/data/published/published-customers
 # and nothing else about the run, which runs a changed copy of the pipeline
 UNIT_TESTED_FILE = "unit-tested.csv"
 UNIT_TESTED_PIPELINE = "0006-lineage-sink-unit-tested"
+# The same test run by the Execute tests transform of 0008: its result is an assertion as well
+EXECUTE_TESTS_UNIT_TEST = "lineage-sinks-unit-test-execute-tests"
+# A workflow the Workflow executor of a tested pipeline starts belongs to the unit test run: neither
+# it nor the file it writes is reported
+UNIT_TEST_CHILD = ("0007-lineage-sink-unit-test-child-workflow", "unit-test-child-workflow.txt")
 # The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
 LOGIC = (
     (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
@@ -50,11 +55,23 @@ def proposals(path):
         return [json.loads(line) for line in log if line.strip()]
 
 
+def unit_test_assertions(kept, unit_test):
+    """The assertions of a unit test, by its name in the assertion's properties."""
+    return {
+        p["entityUrn"]
+        for p in kept
+        if p["aspectName"] == "assertionInfo"
+        and p["value"].get("customProperties", {}).get("hopUnitTest") == unit_test
+    }
+
+
 def everything_arrived(kept):
     """Whether every run and publication the workflow made has reached the stand-in."""
     expected = (REPORTED, PUBLISHED_FLOW) + INHERITED
-    return all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected) and any(
-        p["aspectName"] == "assertionRunEvent" for p in kept
+    return (
+        all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected)
+        and any(p["aspectName"] == "assertionRunEvent" for p in kept)
+        and unit_test_assertions(kept, EXECUTE_TESTS_UNIT_TEST)
     )
 
 
@@ -136,6 +153,18 @@ def main(path):
     unit_test_runs = sorted({p["entityUrn"] for p in kept if UNIT_TESTED_PIPELINE in (p["entityUrn"] or "")})
     if unit_test_runs:
         problems.append(f"the unit test run reported its own lineage: {unit_test_runs}")
+    executed = unit_test_assertions(kept, EXECUTE_TESTS_UNIT_TEST)
+    executed_runs = [
+        p for p in kept if p["aspectName"] == "assertionRunEvent" and p["entityUrn"] in executed
+    ]
+    if not executed_runs:
+        problems.append(f"no assertion run of {EXECUTE_TESTS_UNIT_TEST}, run by the Execute tests transform")
+    elif executed_runs[-1]["value"].get("result", {}).get("type") != "SUCCESS":
+        problems.append(f"the Execute tests assertion did not pass: {executed_runs[-1]['value']}")
+    for name in UNIT_TEST_CHILD:
+        leaked = sorted({p["entityUrn"] for p in kept if name in (p["entityUrn"] or "")})
+        if leaked:
+            problems.append(f"{name} was reported, but a unit test run started it: {leaked}")
     # What a transform calculates its fields with: a Formula that ran, a Calculator published
     for flow, task, field, expression in LOGIC:
         infos = [
@@ -175,7 +204,7 @@ def main(path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit test is an assertion, transforms show their expressions, and a table is named with the platform instance of its server")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit tests are assertions (from Run pipeline unit tests and Execute tests) without the runs they start, transforms show their expressions, and a table is named with the platform instance of its server")
     return 0
 
 

@@ -56,6 +56,7 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -123,6 +124,8 @@ class LineageSinkRoutesTest {
     when(workflow.getMetadataProvider()).thenReturn(metadata);
     when(workflow.resolve(anyString()))
         .thenAnswer(i -> variables.resolve((String) i.getArgument(0)));
+    when(workflow.getVariable(anyString()))
+        .thenAnswer(i -> variables.getVariable(i.getArgument(0)));
     return workflow;
   }
 
@@ -212,6 +215,40 @@ class LineageSinkRoutesTest {
 
     variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "N");
     assertEquals(LineageSinkRoutes.of(pipeline, hub), LineageSinkRoutes.ofRun(pipeline, hub));
+  }
+
+  // A Workflow executor in the tested pipeline runs its workflow with the test run's variables
+  @Test
+  void aWorkflowAUnitTestRunStartedReportsNoRunLineage() {
+    IPipelineEngine<PipelineMeta> testRun = pipeline("marquez", null);
+    IWorkflowEngine<WorkflowMeta> workflow = workflow(null);
+    when(workflow.getParentPipeline()).thenReturn(testRun);
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "Y");
+
+    assertEquals(Set.of(), LineageSinkRoutes.ofRun(workflow, hub), "not the test run's sinks");
+    assertEquals(
+        Set.of(key("marquez", "http://marquez:5000")),
+        LineageSinkRoutes.of(workflow, hub),
+        "held all the same, to be released when it ends");
+
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "N");
+    assertEquals(LineageSinkRoutes.of(workflow, hub), LineageSinkRoutes.ofRun(workflow, hub));
+  }
+
+  // The Execute tests transform is the logging parent of its unit test runs, not their parent
+  // pipeline: the results go to the sinks of the pipeline that runs the transform.
+  @Test
+  void theResultsOfAUnitTestTheExecuteTestsTransformRanGoToItsPipelinesSinks() {
+    IPipelineEngine<PipelineMeta> runTests = pipeline("datahub", null);
+    BaseTransform<?, ?> executeTests = mock(BaseTransform.class);
+    when(executeTests.getPipeline()).thenReturn(runTests);
+    IPipelineEngine<PipelineMeta> testRun = pipeline(null, null);
+    when(testRun.getParent()).thenReturn(executeTests);
+    variables.setVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST, "Y");
+
+    assertEquals(Set.of(key("datahub", "http://datahub:8080")), LineageSinkRoutes.of(testRun, hub));
+    assertTrue(LineageSinkRoutes.isUnitTestReported(testRun, hub));
+    assertEquals(Set.of(), LineageSinkRoutes.ofRun(testRun, hub), "while its run lineage is not");
   }
 
   @Test

@@ -1,0 +1,14 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [],
+  "input_data_sets": [],
+  "name": "lineage-sinks-unit-test-executor",
+  "description": "Runs 0007-lineage-sink-unit-tested-executor, whose Workflow executor starts a workflow that writes a file",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0007-lineage-sink-unit-tested-executor.hpl",
+  "test_type": "UNIT_TEST"
+}

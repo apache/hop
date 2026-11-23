@@ -120,7 +120,7 @@ public final class LineageRunLifecycleEmitter {
    */
   static void fillPipelineParentFields(
       LineageContext.Builder ctx, IPipelineEngine<PipelineMeta> pipeline) {
-    IPipelineEngine<PipelineMeta> parentPipeline = pipeline.getParentPipeline();
+    IPipelineEngine<PipelineMeta> parentPipeline = parentPipelineOf(pipeline);
     if (parentPipeline != null) {
       fillPipelineParentFields(ctx, parentPipeline, pipeline.getParent());
       return;
@@ -188,17 +188,33 @@ public final class LineageRunLifecycleEmitter {
   }
 
   /**
-   * Whether a pipeline is a top-level run: not a sub-pipeline, not started by a workflow action.
-   * Only a top-level run always waits for the lineage hub to drain when it completes. A nested run
-   * (a Pipeline Executor row, a mapping, a Pipeline action) waits only once the queue is filling up
-   * ({@link LineageHub#flushIfBacklogged()}): a full drain after every nested run would sit on the
-   * path of every caller waiting for it, and no drain at all would let the queue overflow.
+   * Whether a pipeline is a top-level run: not a sub-pipeline, not started by a transform or a
+   * workflow action. Only a top-level run always waits for the lineage hub to drain when it
+   * completes. A nested run (a Pipeline Executor row, a mapping, a Pipeline action) waits only once
+   * the queue is filling up ({@link LineageHub#flushIfBacklogged()}): a full drain after every
+   * nested run would sit on the path of every caller waiting for it, and no drain at all would let
+   * the queue overflow.
    */
   public static boolean isTopLevel(IPipelineEngine<PipelineMeta> pipeline) {
     return pipeline != null
-        && pipeline.getParentPipeline() == null
+        && parentPipelineOf(pipeline) == null
         && pipeline.getParentWorkflow() == null
         && !(pipeline.getParent() instanceof IAction);
+  }
+
+  /**
+   * The pipeline whose run started this one: its parent pipeline, or the pipeline of the transform
+   * that started it without naming a parent pipeline, such as the unit tests the Execute tests
+   * transform runs. Null for a run no pipeline started.
+   */
+  static IPipelineEngine<PipelineMeta> parentPipelineOf(IPipelineEngine<PipelineMeta> pipeline) {
+    if (pipeline == null) {
+      return null;
+    }
+    if (pipeline.getParentPipeline() != null) {
+      return pipeline.getParentPipeline();
+    }
+    return pipeline.getParent() instanceof ITransform transform ? transform.getPipeline() : null;
   }
 
   /** Whether a workflow is a top-level run; see {@link #isTopLevel(IPipelineEngine)}. */

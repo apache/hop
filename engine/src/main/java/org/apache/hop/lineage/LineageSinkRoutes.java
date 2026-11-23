@@ -93,13 +93,28 @@ public final class LineageSinkRoutes {
     return hub.isEnabled() || !of(pipeline, hub).isEmpty();
   }
 
-  static boolean isUnitTestRun(IPipelineEngine<PipelineMeta> pipeline) {
-    return pipeline != null && "Y".equalsIgnoreCase(pipeline.getVariable(VAR_RUN_UNIT_TEST));
+  /**
+   * Whether a run is a unit test run, or was started by one: the runs a unit test run starts (a
+   * Pipeline executor's or Workflow executor's run, a mapping, the runs of an action in such a
+   * workflow) take its variables, {@link #VAR_RUN_UNIT_TEST} included.
+   */
+  static boolean isUnitTestRun(IVariables run) {
+    return run != null && "Y".equalsIgnoreCase(run.getVariable(VAR_RUN_UNIT_TEST));
   }
 
-  /** The keys of the sinks a workflow run reports to; empty when there are none. */
+  /**
+   * The keys of the sinks a workflow run reports to; empty when there are none, or when a unit test
+   * run started it: its lineage is not a run of the pipelines and files it touches, any more than
+   * the unit test run's own (see {@link #of(IPipelineEngine)}).
+   */
   public static Set<String> of(IWorkflowEngine<WorkflowMeta> workflow) {
-    return of(workflow, LineageHub.getInstance());
+    return ofRun(workflow, LineageHub.getInstance());
+  }
+
+  static Set<String> ofRun(IWorkflowEngine<WorkflowMeta> workflow, LineageHub hub) {
+    // Held now, so they are released when the run ends, like the sinks of any run
+    Set<String> sinks = of(workflow, hub);
+    return isUnitTestRun(workflow) ? Set.of() : sinks;
   }
 
   /**
@@ -216,8 +231,10 @@ public final class LineageSinkRoutes {
   }
 
   private static Set<String> parentSinks(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {
-    if (pipeline.getParentPipeline() != null) {
-      return of(pipeline.getParentPipeline(), hub);
+    IPipelineEngine<PipelineMeta> parentPipeline =
+        LineageRunLifecycleEmitter.parentPipelineOf(pipeline);
+    if (parentPipeline != null) {
+      return of(parentPipeline, hub);
     }
     if (pipeline.getParentWorkflow() != null) {
       return of(pipeline.getParentWorkflow(), hub);
