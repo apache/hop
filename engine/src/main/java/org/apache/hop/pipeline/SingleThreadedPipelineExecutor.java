@@ -338,8 +338,8 @@ public class SingleThreadedPipelineExecutor {
   }
 
   /**
-   * Completes the batch of rows, for a caller that turned off {@link
-   * #setBatchCompleteAfterIteration(boolean)}: once the portion of rows is complete, such as at the
+   * Completes the batch of rows, for a caller that turned off {@code
+   * setBatchCompleteAfterIteration(boolean)}: once the portion of rows is complete, such as at the
    * end of a Beam bundle. Every transform that is not done gets {@link
    * org.apache.hop.pipeline.transform.ITransform#batchComplete()}, in order. A transform after one
    * that writes rows there (Sort rows) first reads those rows. A transform without rows waiting is
