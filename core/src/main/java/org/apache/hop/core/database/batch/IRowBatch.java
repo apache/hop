@@ -23,7 +23,7 @@ import org.apache.hop.core.exception.HopException;
 
 /**
  * A batch of rows a transform writes through one statement: a {@link RecoverableBatch} on a one-row
- * statement, or a {@link MultiRowBatch} that writes several rows per statement. Both give every row
+ * statement, or a multi-row batch that writes several rows per statement. Both give every row
  * exactly one verdict, once, in the order the rows were added, through an {@link
  * IBatchRowListener}.
  */
