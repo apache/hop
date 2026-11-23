@@ -407,7 +407,13 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
 
       try {
         if (!meta.isAutoCommit()) {
-          data.db.commit();
+          // A failed or stopped run must not commit what the procedures did before it stopped,
+          // the same rule as every other database transform.
+          if (getErrors() == 0 && !isStopped()) {
+            data.db.commit();
+          } else {
+            data.db.rollback();
+          }
         }
       } catch (HopDatabaseException e) {
         logError(BaseMessages.getString(PKG, "DBProc.Log.CommitError") + e.getMessage());
