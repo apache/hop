@@ -25,13 +25,13 @@ public enum EncodingType {
   DOUBLE_BIG_ENDIAN(2, 0xFEFF, 0x000d, 0x000a),
   DOUBLE_LITTLE_ENDIAN(2, 0xFFFE, 0x0d00, 0x0a00);
 
-  private int length;
+  private final int length;
 
   /** Byte Order Mark (BOM): http://en.wikipedia.org/wiki/Byte_Order_Mark */
-  private int bom;
+  private final int bom;
 
-  private int carriageReturnChar;
-  private int lineFeedChar;
+  private final int carriageReturnChar;
+  private final int lineFeedChar;
 
   /**
    * @param length

@@ -37,16 +37,31 @@
             <includes>
                 <include>org.apache.hop:hop-assemblies-static:zip</include>
                 <include>org.apache.hop:hop-assemblies-plugins:zip</include>
-                <include>org.apache.hop:hop-core:zip</include>
-                <include>org.apache.hop:hop-engine:zip</include>
-                <include>org.apache.hop:hop-ui:zip</include>
                 <include>org.apache.hop:hop-engines-beam:zip</include>
-                <include>org.apache.hop:hop-ui-rcp:zip</include>
             </includes>
             <unpack>true</unpack>
             <outputDirectory>.</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+
+        <!-- hop-core, hop-engine, hop-ui and hop-ui-rcp with their runtime dependencies.
+             The SWT natives go to lib/swt below, one per platform. -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-core:jar</include>
+                <include>org.apache.hop:hop-engine:jar</include>
+                <include>org.apache.hop:hop-ui:jar</include>
+                <include>org.apache.hop:hop-ui-rcp:jar</include>
+            </includes>
+            <excludes>
+                <exclude>org.eclipse.platform:org.eclipse.swt*</exclude>
+            </excludes>
+            <scope>runtime</scope>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
 
         <!-- swt -->

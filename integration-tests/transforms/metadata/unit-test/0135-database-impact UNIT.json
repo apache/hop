@@ -1,0 +1,73 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Database impact input lists the tables and fields a pipeline reads and writes",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "PipelineName",
+          "data_set_field": "PipelineName"
+        },
+        {
+          "transform_field": "TransformName",
+          "data_set_field": "TransformName"
+        },
+        {
+          "transform_field": "DatabaseName",
+          "data_set_field": "DatabaseName"
+        },
+        {
+          "transform_field": "DatabaseTable",
+          "data_set_field": "DatabaseTable"
+        },
+        {
+          "transform_field": "TableField",
+          "data_set_field": "TableField"
+        },
+        {
+          "transform_field": "FieldName",
+          "data_set_field": "FieldName"
+        },
+        {
+          "transform_field": "FieldOrigin",
+          "data_set_field": "FieldOrigin"
+        },
+        {
+          "transform_field": "SQL",
+          "data_set_field": "SQL"
+        },
+        {
+          "transform_field": "Remark",
+          "data_set_field": "Remark"
+        }
+      ],
+      "field_order": [
+        "Type",
+        "PipelineName",
+        "TransformName",
+        "DatabaseName",
+        "DatabaseTable",
+        "TableField",
+        "FieldName",
+        "FieldOrigin",
+        "SQL",
+        "Remark"
+      ],
+      "data_set_name": "golden-0135-database-impact",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0135-database-impact UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0135-database-impact.hpl"
+}

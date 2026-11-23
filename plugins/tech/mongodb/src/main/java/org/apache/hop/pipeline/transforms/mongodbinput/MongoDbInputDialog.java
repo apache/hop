@@ -372,37 +372,36 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         });
 
     // fields stuff
-    final ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_NAME"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_PATH"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_TYPE"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_INDEXED"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_ARRAYINFO"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_PERCENTAGE"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_DISPARATE_TYPES"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    final ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_NAME"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_PATH"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_TYPE"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.FIELD_INDEXED"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_ARRAYINFO"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_PERCENTAGE"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MongoDbInputDialog.Fields.SAMPLE_DISPARATE_TYPES"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     colinf[2].setComboValues(ValueMetaFactory.getAllValueMetaNames());

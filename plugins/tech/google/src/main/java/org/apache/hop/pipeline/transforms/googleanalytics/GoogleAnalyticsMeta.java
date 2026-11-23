@@ -41,8 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "pipeline/transforms/google-analytics.html")
 public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, GoogleAnalyticsData> {
 
-  public static final String[] TYPE_SAMPLING_LEVEL_CODE =
-      new String[] {"DEFAULT", "FASTER", "HIGHER_PRECISION"};
+  public static final String[] TYPE_SAMPLING_LEVEL_CODE = {"DEFAULT", "FASTER", "HIGHER_PRECISION"};
   public static final String FIELD_TYPE_DIMENSION = "Dimension";
   public static final String FIELD_TYPE_METRIC = "Metric";
   public static final String FIELD_TYPE_DATA_SOURCE_PROPERTY = "Data Source Property";

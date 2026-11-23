@@ -32,6 +32,7 @@
     <modules>
         <module>abort</module>
         <module>addresultfilenames</module>
+        <module>checkdatacatalog</module>
         <module>checkdbconnection</module>
         <module>checkfilelocked</module>
         <module>columnsexist</module>

@@ -73,7 +73,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       "Neo4JOutputDialog.GetFields.Button";
   public static final String CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE = "Neo4JOutputDialog.PropType";
 
-  private Neo4JOutputMeta input;
+  private final Neo4JOutputMeta input;
 
   private NeoConnectionSelectionLine wConnection;
   private Label wlBatchSize;
@@ -379,18 +379,17 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
         (!input.getNodeFromField().getLabels().isEmpty()
             ? input.getNodeFromField().getLabels().size()
             : 10);
-    ColumnInfo[] fromLabelInf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.FromLabelsTable.FromFields"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.FromLabelsTable.FromValues"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] fromLabelInf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FromLabelsTable.FromFields"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FromLabelsTable.FromValues"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     fromLabelInf[1].setUsingVariables(true);
     wFromLabelGrid =
         new TableView(
@@ -440,29 +439,28 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
         (input.getNodeFromField().getProperties() != null
             ? input.getNodeFromField().getProperties().size()
             : 10);
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.FromFieldsTable.FromPropFields"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.FromFieldsTable.FromPropFieldsName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphPropertyType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.PropPrimary"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"Y", "N"},
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FromFieldsTable.FromPropFields"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.FromFieldsTable.FromPropFieldsName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphPropertyType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.PropPrimary"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {"Y", "N"},
+          false),
+    };
     wFromPropsGrid =
         new TableView(
             Variables.getADefaultVariableSpace(),
@@ -548,18 +546,17 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
         (input.getNodeToField().getLabels() != null
             ? input.getNodeToField().getLabels().size()
             : 10);
-    ColumnInfo[] toLabelInf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.ToLabelsTable.ToFields"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.ToLabelsTable.ToValues"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] toLabelInf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ToLabelsTable.ToFields"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ToLabelsTable.ToValues"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     toLabelInf[1].setUsingVariables(true);
 
     wToLabelGrid =
@@ -609,28 +606,27 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
         (input.getNodeToField().getProperties() != null
             ? input.getNodeToField().getProperties().size()
             : 10);
-    ColumnInfo[] toColinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.ToFieldsTable.ToFields"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.ToFieldsTable.ToFieldsName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphPropertyType.getNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.PropPrimary"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"Y", "N"},
-              false),
-        };
+    ColumnInfo[] toColinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ToFieldsTable.ToFields"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ToFieldsTable.ToFieldsName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphPropertyType.getNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.PropPrimary"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {"Y", "N"},
+          false),
+    };
 
     wToPropsGrid =
         new TableView(
@@ -741,23 +737,22 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wlRelProps.setLayoutData(fdlRelProps);
 
     final int relPropsRows = (input.getRelProps() != null ? input.getRelProps().size() : 10);
-    ColumnInfo[] relPropsInf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.RelPropsTable.PropertiesField"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              fieldNames,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "Neo4JOutputDialog.RelPropsTable.PropertiesFieldName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              GraphPropertyType.getNames(),
-              false),
-        };
+    ColumnInfo[] relPropsInf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.RelPropsTable.PropertiesField"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          fieldNames,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.RelPropsTable.PropertiesFieldName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_NEO_4_JOUTPUT_DIALOG_PROP_TYPE),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          GraphPropertyType.getNames(),
+          false),
+    };
     wRelPropsGrid =
         new TableView(
             Variables.getADefaultVariableSpace(),

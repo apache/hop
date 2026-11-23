@@ -18,9 +18,12 @@
 package org.apache.hop.pipeline.transforms.maskfields;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -61,8 +64,7 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     data.lease = lease;
     try {
       List<Binding> bindings = new ArrayList<>();
-      Map<String, MaskingPattern> patterns = new LinkedHashMap<>();
-      String transformName = getTransformMeta() == null ? "" : getTransformMeta().getName();
+      data.patterns = new LinkedHashMap<>();
       if (meta.getFields() != null) {
         for (MaskField field : meta.getFields()) {
           if (field == null
@@ -70,26 +72,17 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
               || StringUtils.isEmpty(field.getPatternName())) {
             continue;
           }
-          MaskingPattern pattern = patterns.get(field.getPatternName());
-          if (pattern == null) {
-            pattern = loadRequired(field.getPatternName());
-            patterns.put(field.getPatternName(), pattern);
-          }
-          long start = parseStart(pattern);
-          // Check the hash secret before the mapping table is opened.
-          MaskingKey key = MaskingKey.forPattern(pattern, this);
-          IMaskingStore store = storeFor(pattern, lease);
-          bindings.add(
-              new Binding(
-                  field.getFieldName(),
-                  pattern,
-                  resolve(pattern.getPrefix()),
-                  resolve(pattern.getSuffix()),
-                  start,
-                  store,
-                  sharedSequence(lease, transformName, field, pattern, start),
-                  key));
+          bindings.add(bind(field));
         }
+      }
+      data.catalogFields =
+          meta.activeTagRules().isEmpty()
+              ? Map.of()
+              : new CatalogFieldResolver(this, getLogChannel(), meta, getMetadataProvider())
+                  .resolve();
+      for (CatalogFieldResolver.Match match : data.catalogFields.values()) {
+        // A missing pattern fails now, not at the first row
+        pattern(match.patternName());
       }
       data.engine = new MaskingEngine(bindings);
       IPipelineEngine<PipelineMeta> pipeline = getPipeline();
@@ -114,6 +107,7 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
     }
     if (data.outputRowMeta == null) {
       data.outputRowMeta = getInputRowMeta().clone();
+      bindCatalogFields(data.outputRowMeta);
       validateTypes(data.outputRowMeta);
     }
     try {
@@ -159,6 +153,72 @@ public class MaskFields extends BaseTransform<MaskFieldsMeta, MaskFieldsData> {
       data.lease = null;
     }
     super.dispose();
+  }
+
+  /** One field and its pattern, ready to mask. */
+  private Binding bind(MaskField field) throws HopException {
+    MaskingPattern pattern = pattern(field.getPatternName());
+    long start = parseStart(pattern);
+    // Check the hash secret before the mapping table is opened.
+    MaskingKey key = MaskingKey.forPattern(pattern, this);
+    IMaskingStore store = storeFor(pattern, data.lease);
+    String transformName = getTransformMeta() == null ? "" : getTransformMeta().getName();
+    return new Binding(
+        field.getFieldName(),
+        pattern,
+        resolve(pattern.getPrefix()),
+        resolve(pattern.getSuffix()),
+        start,
+        store,
+        sharedSequence(data.lease, transformName, field, pattern, start),
+        key);
+  }
+
+  private MaskingPattern pattern(String name) throws HopException {
+    MaskingPattern pattern = data.patterns.get(name);
+    if (pattern == null) {
+      pattern = loadRequired(name);
+      data.patterns.put(name, pattern);
+    }
+    return pattern;
+  }
+
+  /**
+   * Masks the incoming fields the data catalog labels with a tag or term of this transform. Done at
+   * the first row, from the fields that really arrive: a field that only shows up at run time is
+   * masked too. A field with a row of its own keeps the pattern of that row.
+   */
+  private void bindCatalogFields(IRowMeta rowMeta) throws HopException {
+    if (data.catalogFields.isEmpty()) {
+      return;
+    }
+    Set<String> explicit = new HashSet<>();
+    for (Binding binding : data.engine.getBindings()) {
+      explicit.add(binding.fieldName.toLowerCase(Locale.ROOT));
+    }
+    Set<String> arrived = new HashSet<>();
+    for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
+      String key = valueMeta.getName().toLowerCase(Locale.ROOT);
+      arrived.add(key);
+      CatalogFieldResolver.Match match = data.catalogFields.get(key);
+      if (match == null || explicit.contains(key)) {
+        continue;
+      }
+      data.engine.getBindings().add(bind(new MaskField(valueMeta.getName(), match.patternName())));
+      logBasic(
+          BaseMessages.getString(
+              PKG,
+              "MaskFields.Log.CatalogField",
+              valueMeta.getName(),
+              match.patternName(),
+              match.label()));
+    }
+    for (CatalogFieldResolver.Match match : data.catalogFields.values()) {
+      if (!arrived.contains(match.fieldName().toLowerCase(Locale.ROOT))) {
+        logDetailed(
+            BaseMessages.getString(PKG, "MaskFields.Log.CatalogFieldAbsent", match.fieldName()));
+      }
+    }
   }
 
   private MaskingPattern loadRequired(String name) throws HopException {

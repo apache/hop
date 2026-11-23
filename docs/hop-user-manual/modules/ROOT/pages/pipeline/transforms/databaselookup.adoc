@@ -90,3 +90,6 @@ Note that this problem does not occur when using the cache, if "load all data fr
 Indeed, the first lookup for 'ab' would find no entry in the cache, call the database (which is smart enough to handle the trailing whitespace problem), get the correct result, and store it in the java cache under the 'ab' key.
 Thus, the next lookup for 'ab' will find the appropriate result in the cache :)
 
+== Samples
+
+The samples project has `transforms/databaselookup.hpl`, which looks up the description of ids 1 to 10 in the `DBLOOKUP` table of the `hop-samples` connection.

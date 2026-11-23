@@ -45,6 +45,8 @@ import org.eclipse.swt.widgets.TableItem;
 
 public class TransformsMetricsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TransformsMetricsMeta.class;
+  private static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
+  private static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private final TransformsMetricsMeta input;
   private GuiCompositeWidgets widgets;
@@ -113,11 +115,10 @@ public class TransformsMetricsDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(0, 0);
     wlFields.setLayoutData(fdlFields);
 
-    String[] yesNo =
-        new String[] {
-          BaseMessages.getString(PKG, "System.Combo.No"),
-          BaseMessages.getString(PKG, "System.Combo.Yes")
-        };
+    String[] yesNo = {
+      BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
+      BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+    };
 
     ColumnInfo[] colinf = new ColumnInfo[3];
     colinf[0] =
@@ -186,7 +187,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog {
       ti.setText(0, "" + (i + 1));
       ti.setText(1, previousTransforms[i]);
       ti.setText(2, "0");
-      ti.setText(3, BaseMessages.getString(PKG, "System.Combo.No"));
+      ti.setText(3, BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -209,8 +210,8 @@ public class TransformsMetricsDialog extends BaseTransformDialog {
         ti.setText(
             3,
             metricTransform.isRequired()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
+                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
       }
     }
     wFields.removeEmptyRows();
@@ -237,7 +238,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog {
     } else {
       input.getMetricTransforms().clear();
     }
-    String yes = BaseMessages.getString(PKG, "System.Combo.Yes");
+    String yes = BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES);
     for (TableItem item : wFields.getNonEmptyItems()) {
       String name = item.getText(1);
       if (Utils.isEmpty(name)) {

@@ -163,24 +163,23 @@ public class BeamBigtableInputDialog extends BaseTransformDialog {
     wlColumns.setLayoutData(fdlColumns);
     lastControl = wlColumns;
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Qualifier"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.TargetName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Qualifier"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "BeamBigtableInputDialog.Column.TargetName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
+    };
     columns[0].setUsingVariables(false);
     columns[1].setUsingVariables(false);
     columns[2].setUsingVariables(false);

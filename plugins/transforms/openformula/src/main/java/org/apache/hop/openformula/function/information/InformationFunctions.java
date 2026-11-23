@@ -35,6 +35,10 @@ import org.apache.hop.openformula.typing.ExtendedComparator;
 import org.apache.hop.openformula.typing.TypedValue;
 
 public final class InformationFunctions {
+  private static final String CONST_VALUE = "value";
+  private static final String CONST_VALUES_OR_RANGES_TO_COUNT = "Values or ranges to count";
+  private static final String CONST_VALUE_TO_CHECK = "Value to check";
+
   private InformationFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -58,8 +62,8 @@ public final class InformationFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values or ranges to count")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES_OR_RANGES_TO_COUNT)));
     registry.registerFunction(
         new CountAFunction(),
         new FunctionDescription(
@@ -69,8 +73,8 @@ public final class InformationFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values or ranges to count")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES_OR_RANGES_TO_COUNT)));
     registry.registerFunction(
         new CountBlankFunction(),
         new FunctionDescription(
@@ -80,8 +84,8 @@ public final class InformationFunctions {
             DataType.NUMBER,
             1,
             true,
-            List.of("value"),
-            List.of("Values or ranges to count")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUES_OR_RANGES_TO_COUNT)));
     registry.registerFunction(
         new ErrorFunction(),
         new FunctionDescription(
@@ -124,8 +128,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsErrFunction(),
         new FunctionDescription(
@@ -135,8 +139,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsErrorFunction(),
         new FunctionDescription(
@@ -146,8 +150,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsEvenFunction(),
         new FunctionDescription(
@@ -168,8 +172,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsNaFunction(),
         new FunctionDescription(
@@ -179,8 +183,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsNonTextFunction(),
         new FunctionDescription(
@@ -190,8 +194,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsNumberFunction(),
         new FunctionDescription(
@@ -201,8 +205,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new IsOddFunction(),
         new FunctionDescription(
@@ -223,7 +227,7 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
+            List.of(CONST_VALUE),
             List.of("Expression to check")));
     registry.registerFunction(
         new IsTextFunction(),
@@ -234,8 +238,8 @@ public final class InformationFunctions {
             DataType.LOGICAL,
             1,
             false,
-            List.of("value"),
-            List.of("Value to check")));
+            List.of(CONST_VALUE),
+            List.of(CONST_VALUE_TO_CHECK)));
     registry.registerFunction(
         new LookupFunction(),
         new FunctionDescription(

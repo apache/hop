@@ -1142,7 +1142,7 @@ public class XmlHandler {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         GZIPInputStream gzip = new GZIPInputStream(bais);
         BufferedInputStream bi = new BufferedInputStream(gzip);
-        byte[] result = new byte[] {};
+        byte[] result = {};
 
         byte[] extra = new byte[1000000];
         int nrExtra = bi.read(extra);

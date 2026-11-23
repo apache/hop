@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Map;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -85,6 +86,9 @@ class TableOutputTest {
     tableOutputData.tableName = "sas";
     tableOutputData.preparedStatements = mock(Map.class);
     tableOutputData.commitCounterMap = mock(Map.class);
+    // The end of the rows flushes what is buffered: nothing here
+    tableOutputData.batchBuffer = new ArrayList<>();
+    tableOutputData.batchBindBuffer = new ArrayList<>();
 
     pipelineMeta = mock(PipelineMeta.class);
     doReturn(transformMeta).when(pipelineMeta).findTransform(anyString());
@@ -107,6 +111,32 @@ class TableOutputTest {
     doReturn(false).when(tableOutputSpy).isRowLevel();
     doReturn(false).when(tableOutputSpy).isDebug();
     doNothing().when(tableOutputSpy).logDetailed(anyString());
+  }
+
+  /**
+   * A single-threaded run calls batchComplete() after every iteration. The transforms after this
+   * one still read the rows that follow, so only the end of the run closes the output: otherwise a
+   * transform reading an error hop or the output stops after the first quiet iteration.
+   */
+  @Test
+  void flushingABatchLeavesTheOutputOpenUntilTheEndOfTheRun() throws Exception {
+    tableOutputSpy.batchComplete();
+    verify(tableOutputSpy, never()).setOutputDone();
+
+    tableOutputSpy.dispose();
+    verify(tableOutputSpy, times(1)).setOutputDone();
+  }
+
+  /**
+   * At the end of its rows the transform writes what it still holds and closes its output, as
+   * processRow() must: a single-threaded run disposes the transforms only once all are done.
+   */
+  @Test
+  void theEndOfTheRowsClosesTheOutput() throws Exception {
+    doReturn(null).when(tableOutputSpy).getRow();
+
+    assertFalse(tableOutputSpy.processRow());
+    verify(tableOutputSpy, times(1)).setOutputDone();
   }
 
   @Test
@@ -190,6 +220,71 @@ class TableOutputTest {
 
     assertTrue(result);
     verify(tableOutputSpy, never()).truncateTable();
+  }
+
+  @Test
+  void prepareOnceTruncatesAndUpdatesTheTable() throws Exception {
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(true);
+    doNothing().when(tableOutputSpy).updateTableStructure();
+
+    tableOutputSpy.prepareOnce();
+
+    verify(tableOutputSpy, times(1)).truncateTable();
+    verify(tableOutputSpy, times(1)).updateTableStructure();
+  }
+
+  @Test
+  void prepareOnceLeavesATruncateOnlyWhenRowsArriveToTheFirstRow() throws Exception {
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
+    when(tableOutputMeta.isOnlyWhenHaveRows()).thenReturn(true);
+
+    tableOutputSpy.prepareOnce();
+
+    verify(tableOutputSpy, never()).truncateTable();
+  }
+
+  @Test
+  void aPreparedTransformDoesNotTruncateOrUpdateOnTheFirstRow() throws Exception {
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
+    when(tableOutputMeta.isAutoUpdateTableStructure()).thenReturn(true);
+    tableOutputSpy.setPreparedOnce(true);
+    Object[] row = {};
+    doReturn(row).when(tableOutputSpy).getRow();
+
+    try {
+      tableOutputSpy.processRow();
+    } catch (NullPointerException npe) {
+      // not everything is set up to process an entire row, but we don't need that for this test
+    }
+    verify(tableOutputSpy, never()).truncateTable();
+    verify(tableOutputSpy, never()).updateTableStructure();
+  }
+
+  @Test
+  void aPreparedTransformDoesNotTruncateWithoutRows() throws Exception {
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
+    tableOutputSpy.setPreparedOnce(true);
+    doReturn(null).when(tableOutputSpy).getRow();
+
+    assertFalse(tableOutputSpy.processRow());
+    verify(tableOutputSpy, never()).truncateTable();
+  }
+
+  @Test
+  void aPreparedTransformStillTruncatesOnlyWhenRowsArrive() throws Exception {
+    when(tableOutputMeta.isTruncateTable()).thenReturn(true);
+    when(tableOutputMeta.isOnlyWhenHaveRows()).thenReturn(true);
+    tableOutputSpy.setPreparedOnce(true);
+    Object[] row = {};
+    doReturn(row).when(tableOutputSpy).getRow();
+
+    try {
+      tableOutputSpy.processRow();
+    } catch (NullPointerException npe) {
+      // not everything is set up to process an entire row, but we don't need that for this test
+    }
+    verify(tableOutputSpy, times(1)).truncateTable();
   }
 
   @Test

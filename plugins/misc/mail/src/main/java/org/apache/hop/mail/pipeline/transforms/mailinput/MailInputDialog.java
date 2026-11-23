@@ -1206,18 +1206,17 @@ public class MailInputDialog extends BaseTransformDialog {
 
     final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailInputdialog.FieldsTable.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailInputdialog.FieldsTable.Column.Column"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              MailInputField.ColumnDesc,
-              true),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MailInputdialog.FieldsTable.Name.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "MailInputdialog.FieldsTable.Column.Column"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          MailInputField.ColumnDesc,
+          true),
+    };
 
     colinf[0].setUsingVariables(true);
     colinf[0].setToolTip(

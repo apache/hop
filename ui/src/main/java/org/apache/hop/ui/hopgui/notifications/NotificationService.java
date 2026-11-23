@@ -48,6 +48,7 @@ import org.apache.hop.ui.hopgui.notifications.config.NotificationSourceConfig;
 
 /** Service for managing notifications */
 public class NotificationService {
+  private static final String CONST_NOTIFICATION_S = " notification(s)";
   private static NotificationService fallback;
 
   private static final ISingletonProvider PROVIDER = loadProvider();
@@ -1106,7 +1107,7 @@ public class NotificationService {
           }
         }
         log.logDetailed(
-            "Loaded persisted read state for " + persistedReadState.size() + " notification(s)");
+            "Loaded persisted read state for " + persistedReadState.size() + CONST_NOTIFICATION_S);
       }
     } catch (Exception e) {
       log.logError("Error loading persisted notification read state", e);
@@ -1128,7 +1129,8 @@ public class NotificationService {
         readStateMap.put(entry.getKey(), String.valueOf(entry.getValue()));
       }
       auditManager.saveMap(namespace, AUDIT_TYPE_READ_STATE, readStateMap);
-      log.logDetailed("Saved persisted read state for " + readStateMap.size() + " notification(s)");
+      log.logDetailed(
+          "Saved persisted read state for " + readStateMap.size() + CONST_NOTIFICATION_S);
     } catch (Exception e) {
       log.logError("Error saving persisted notification read state", e);
     }
@@ -1164,7 +1166,7 @@ public class NotificationService {
         log.logDetailed(
             "Loaded persisted removed state for "
                 + persistedRemovedIds.size()
-                + " notification(s)");
+                + CONST_NOTIFICATION_S);
       }
     } catch (Exception e) {
       log.logError("Error loading persisted notification removed state", e);
@@ -1186,7 +1188,7 @@ public class NotificationService {
       }
       auditManager.saveMap(namespace, AUDIT_TYPE_REMOVED_IDS, removedMap);
       log.logDetailed(
-          "Saved persisted removed state for " + removedMap.size() + " notification(s)");
+          "Saved persisted removed state for " + removedMap.size() + CONST_NOTIFICATION_S);
     } catch (Exception e) {
       log.logError("Error saving persisted notification removed state", e);
     }

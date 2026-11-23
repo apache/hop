@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.streamlookup;
 
 public class KeyValue {
-  private Object[] key;
-  private Object[] value;
+  private final Object[] key;
+  private final Object[] value;
 
   public KeyValue(Object[] key, Object[] value) {
     this.key = key;

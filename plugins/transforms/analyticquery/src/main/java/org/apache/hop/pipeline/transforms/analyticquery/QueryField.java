@@ -29,7 +29,7 @@ public class QueryField {
     LEAD(BaseMessages.getString(PKG, "AnalyticQueryMeta.TypeGroupLongDesc.LEAD")),
     LAG(BaseMessages.getString(PKG, "AnalyticQueryMeta.TypeGroupLongDesc.LAG"));
 
-    private String description;
+    private final String description;
 
     AggregateType(String description) {
       this.description = description;

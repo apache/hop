@@ -39,6 +39,11 @@ import org.apache.hop.openformula.typing.DataType;
 import org.apache.hop.openformula.typing.TypedValue;
 
 public final class TextFunctions {
+  private static final String CONST_START_NUM = "start_num";
+  private static final String CONST_NUM_CHARS = "num_chars";
+  private static final String CONST_SOURCE_TEXT = "Source text";
+  private static final String CONST_NUMBER_OF_CHARACTERS = "Number of characters";
+
   private TextFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -128,7 +133,7 @@ public final class TextFunctions {
             DataType.NUMBER,
             2,
             false,
-            List.of("find_text", "within_text", "start_num"),
+            List.of("find_text", "within_text", CONST_START_NUM),
             List.of("Text to find", "Text to search", "Starting position (1-based)")));
     registry.registerFunction(
         new FixedFunction(),
@@ -150,8 +155,8 @@ public final class TextFunctions {
             DataType.TEXT,
             1,
             false,
-            List.of("text", "num_chars"),
-            List.of("Source text", "Number of characters")));
+            List.of("text", CONST_NUM_CHARS),
+            List.of(CONST_SOURCE_TEXT, CONST_NUMBER_OF_CHARACTERS)));
     registry.registerFunction(
         new LenFunction(),
         new FunctionDescription(
@@ -162,7 +167,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new LowerFunction(),
         new FunctionDescription(
@@ -173,7 +178,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new MessageFunction(),
         new FunctionDescription(
@@ -194,8 +199,8 @@ public final class TextFunctions {
             DataType.TEXT,
             3,
             false,
-            List.of("text", "start_num", "num_chars"),
-            List.of("Source text", "Start position (1-based)", "Number of characters")));
+            List.of("text", CONST_START_NUM, CONST_NUM_CHARS),
+            List.of(CONST_SOURCE_TEXT, "Start position (1-based)", CONST_NUMBER_OF_CHARACTERS)));
     registry.registerFunction(
         new ProperFunction(),
         new FunctionDescription(
@@ -206,7 +211,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new ReplaceFunction(),
         new FunctionDescription(
@@ -216,8 +221,8 @@ public final class TextFunctions {
             DataType.TEXT,
             4,
             false,
-            List.of("old_text", "start_num", "num_chars", "new_text"),
-            List.of("Source text", "Start position", "Length", "Replacement text")));
+            List.of("old_text", CONST_START_NUM, CONST_NUM_CHARS, "new_text"),
+            List.of(CONST_SOURCE_TEXT, "Start position", "Length", "Replacement text")));
     registry.registerFunction(
         new ReptFunction(),
         new FunctionDescription(
@@ -228,7 +233,7 @@ public final class TextFunctions {
             2,
             false,
             List.of("text", "count"),
-            List.of("Source text", "Number of repetitions")));
+            List.of(CONST_SOURCE_TEXT, "Number of repetitions")));
     registry.registerFunction(
         new RightFunction(),
         new FunctionDescription(
@@ -238,8 +243,8 @@ public final class TextFunctions {
             DataType.TEXT,
             1,
             false,
-            List.of("text", "num_chars"),
-            List.of("Source text", "Number of characters")));
+            List.of("text", CONST_NUM_CHARS),
+            List.of(CONST_SOURCE_TEXT, CONST_NUMBER_OF_CHARACTERS)));
     registry.registerFunction(
         new SearchFunction(),
         new FunctionDescription(
@@ -249,7 +254,7 @@ public final class TextFunctions {
             DataType.NUMBER,
             2,
             false,
-            List.of("find_text", "within_text", "start_num"),
+            List.of("find_text", "within_text", CONST_START_NUM),
             List.of("Search pattern", "Text to search", "Start position (1-based)")));
     registry.registerFunction(
         new StringCountFunction(),
@@ -261,7 +266,7 @@ public final class TextFunctions {
             2,
             false,
             List.of("text", "search_str"),
-            List.of("Source text", "Substring to count")));
+            List.of(CONST_SOURCE_TEXT, "Substring to count")));
     registry.registerFunction(
         new SubstituteFunction(),
         new FunctionDescription(
@@ -272,7 +277,7 @@ public final class TextFunctions {
             3,
             false,
             List.of("text", "old_text", "new_text", "instance_num"),
-            List.of("Source text", "Old substring", "New substring", "Occurrence (optional)")));
+            List.of(CONST_SOURCE_TEXT, "Old substring", "New substring", "Occurrence (optional)")));
     registry.registerFunction(
         new TFunction(),
         new FunctionDescription(
@@ -305,7 +310,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new UnicharFunction(),
         new FunctionDescription(
@@ -327,7 +332,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new UpperFunction(),
         new FunctionDescription(
@@ -338,7 +343,7 @@ public final class TextFunctions {
             1,
             false,
             List.of("text"),
-            List.of("Source text")));
+            List.of(CONST_SOURCE_TEXT)));
     registry.registerFunction(
         new URLBuilderFunction(),
         new FunctionDescription(

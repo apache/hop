@@ -45,6 +45,7 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
   private final ILogChannel log;
   private final AtomicLong successCount = new AtomicLong();
   private final AtomicLong failureCount = new AtomicLong();
+  private volatile String lastError;
 
   public OpenLineageHttpClient(OpenLineageSinkConfig config, ILogChannel log) {
     this.collectorUri = URI.create(config.getCollectorUrl());
@@ -105,7 +106,7 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
   @Override
   public Result emit(RunEvent event) {
     int attempts = Math.max(1, maxRetries + 1);
-    OpenLineageClientException lastError = null;
+    OpenLineageClientException lastException = null;
     int status = -1;
     int attempt = 0;
     for (; attempt < attempts; attempt++) {
@@ -114,7 +115,7 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
         successCount.incrementAndGet();
         return Result.SENT;
       } catch (OpenLineageClientException e) {
-        lastError = e;
+        lastException = e;
         status = statusOf(e);
         if (!OpenLineageEmitter.isTransient(status)) {
           break; // a 4xx: the same request would get the same answer
@@ -126,6 +127,11 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
     }
     failureCount.incrementAndGet();
     Result result = OpenLineageEmitter.failureOf(status);
+    lastError =
+        (status > 0 ? "HTTP " + status : "No answer")
+            + " from "
+            + collectorUri
+            + (lastException == null ? "" : ": " + lastException.getMessage());
     log.logError(
         "Failed to POST OpenLineage event to "
             + collectorUri
@@ -135,8 +141,13 @@ public final class OpenLineageHttpClient implements OpenLineageEmitter {
             + (result == Result.REJECTED
                 ? "; the collector refused it, it will not be resent"
                 : ""),
-        lastError);
+        lastException);
     return result;
+  }
+
+  @Override
+  public String lastError() {
+    return lastError;
   }
 
   /** The HTTP status of a failed emit, or {@code -1} when there was no response at all. */

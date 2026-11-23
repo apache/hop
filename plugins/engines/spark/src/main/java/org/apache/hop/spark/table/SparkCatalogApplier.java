@@ -31,6 +31,7 @@ import org.apache.spark.sql.SparkSession;
  * hop-run builders and active sessions.
  */
 public final class SparkCatalogApplier {
+  private static final String CONST_TYPE = ".type";
 
   private SparkCatalogApplier() {}
 
@@ -77,7 +78,7 @@ public final class SparkCatalogApplier {
     switch (type) {
       case LakeCatalog.TYPE_HADOOP -> {
         conf.put(prefix, impl);
-        conf.put(prefix + ".type", "hadoop");
+        conf.put(prefix + CONST_TYPE, "hadoop");
         String warehouse = resolve(variables, catalog.getWarehouse());
         if (StringUtils.isEmpty(warehouse)) {
           throw new HopException(
@@ -87,7 +88,7 @@ public final class SparkCatalogApplier {
       }
       case LakeCatalog.TYPE_REST -> {
         conf.put(prefix, impl);
-        conf.put(prefix + ".type", "rest");
+        conf.put(prefix + CONST_TYPE, "rest");
         String uri = resolve(variables, catalog.getUri());
         if (StringUtils.isEmpty(uri)) {
           throw new HopException(
@@ -107,7 +108,7 @@ public final class SparkCatalogApplier {
         if (StringUtils.isNotEmpty(impl)) {
           conf.put(prefix, impl);
         }
-        conf.put(prefix + ".type", type);
+        conf.put(prefix + CONST_TYPE, type);
       }
       default ->
           throw new HopException(

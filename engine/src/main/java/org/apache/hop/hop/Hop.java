@@ -18,6 +18,7 @@
 package org.apache.hop.hop;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,8 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.metadata.util.SharedMetadata;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.Model.OptionSpec;
 
 @Getter
 @Setter
@@ -255,10 +258,41 @@ public class Hop {
     for (IPlugin configPlugin : configPlugins) {
       // Load only the plugins of the "run" category
       if (category.equals(configPlugin.getCategory())) {
-        IConfigOptions configOptions =
-            PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
-        cmd.addMixin(configPlugin.getIds()[0], configOptions);
+        // One plugin that can't be loaded or mixed in must not take the whole command line down.
+        // Skip it: its options are unavailable, every other plugin keeps working.
+        //
+        try {
+          IConfigOptions configOptions =
+              PluginRegistry.getInstance().loadClass(configPlugin, IConfigOptions.class);
+          addMixin(cmd, configPlugin.getIds()[0], configOptions);
+        } catch (Exception | LinkageError e) {
+          LogChannel.GENERAL.logError(
+              "Configuration plugin '"
+                  + configPlugin.getIds()[0]
+                  + "' is skipped, its command line options are not available: "
+                  + e.getMessage(),
+              e);
+        }
       }
     }
+  }
+
+  /**
+   * Picocli registers a mixin before it adds the mixin's options, so an option name that is already
+   * taken would leave a half-added mixin behind. Check the names first, then add.
+   */
+  private static void addMixin(CommandLine cmd, String name, IConfigOptions configOptions)
+      throws HopPluginException {
+    CommandSpec mixin = CommandSpec.forAnnotatedObject(configOptions, cmd.getFactory());
+    Map<String, OptionSpec> existingOptions = cmd.getCommandSpec().optionsMap();
+    for (OptionSpec option : mixin.options()) {
+      for (String optionName : option.names()) {
+        if (existingOptions.containsKey(optionName)) {
+          throw new HopPluginException(
+              "option '" + optionName + "' is already declared by another plugin or the command");
+        }
+      }
+    }
+    cmd.getCommandSpec().addMixin(name, mixin);
   }
 }

@@ -45,6 +45,7 @@ import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
 import org.apache.hop.marketplace.install.PluginUninstaller;
 import org.apache.hop.marketplace.resolve.MavenCoordinates;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -74,11 +75,12 @@ import org.eclipse.swt.widgets.Text;
 
 /** Tools → Marketplace dialog: list optional plugins and install/uninstall from a Maven repo. */
 public class MarketplaceDialog extends Dialog {
+  private static final String CONST_MARKETPLACE_DIALOG_ERROR_HEADER =
+      "MarketplaceDialog.Error.Header";
+  private static final String CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT =
+      "MarketplaceDialog.Status.RestartHint";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
-
-  /** Quiet period after the last keystroke before the search box triggers a discovery call. */
-  private static final int SEARCH_DEBOUNCE_MS = 350;
 
   /** Why the plugin table is being reloaded, which decides how the wait is presented. */
   private enum RefreshReason {
@@ -143,7 +145,7 @@ public class MarketplaceDialog extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           parent,
-          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "MarketplaceDialog.Error.ResolveHome"),
           e);
       return;
@@ -160,7 +162,7 @@ public class MarketplaceDialog extends Dialog {
     // Status (shared across tabs)
     wStatus = new Label(shell, SWT.LEFT);
     PropsUi.setLook(wStatus);
-    wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+    wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
     FormData fdStatus = new FormData();
     fdStatus.left = new FormAttachment(0, 0);
     fdStatus.right = new FormAttachment(100, 0);
@@ -261,6 +263,7 @@ public class MarketplaceDialog extends Dialog {
     wSearch = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSearch);
     wSearch.setMessage(BaseMessages.getString(PKG, "MarketplaceDialog.Search.Placeholder"));
+    wSearch.setToolTipText(BaseMessages.getString(PKG, "MarketplaceDialog.Search.Tooltip"));
     FormData fdSearch = new FormData();
     fdSearch.left = new FormAttachment(wlSearch, PropsUi.getMargin());
     fdSearch.top = new FormAttachment(wlSearch, 0, SWT.CENTER);
@@ -467,7 +470,7 @@ public class MarketplaceDialog extends Dialog {
     } catch (InvocationTargetException e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "MarketplaceDialog.Refresh.Error"),
           e.getCause() == null ? e : e.getCause());
       return;
@@ -508,7 +511,8 @@ public class MarketplaceDialog extends Dialog {
                     populateTable(result);
                     if (showSearching && !wStatus.isDisposed()) {
                       wStatus.setText(
-                          BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+                          BaseMessages.getString(
+                              PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
                     }
                   });
             },
@@ -536,7 +540,7 @@ public class MarketplaceDialog extends Dialog {
         log.logError("Unable to read receipt for " + info.getArtifactId(), e);
       }
       String status;
-      if (onDisk && receipt != null) {
+      if (onDisk && receipt != null && !receipt.isUninstallPending()) {
         status =
             BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
                 + " ("
@@ -567,7 +571,7 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     searchPending = true;
-    shell.getDisplay().timerExec(SEARCH_DEBOUNCE_MS, this::fireDebouncedSearch);
+    shell.getDisplay().timerExec(ConstUi.FILTER_DEBOUNCE_MS, this::fireDebouncedSearch);
   }
 
   private void fireDebouncedSearch() {
@@ -576,11 +580,11 @@ public class MarketplaceDialog extends Dialog {
       return;
     }
     long quietFor = System.currentTimeMillis() - searchRequestedAt;
-    if (quietFor < SEARCH_DEBOUNCE_MS) {
+    if (quietFor < ConstUi.FILTER_DEBOUNCE_MS) {
       // Still typing — check again once the remaining quiet period has elapsed.
       shell
           .getDisplay()
-          .timerExec((int) (SEARCH_DEBOUNCE_MS - quietFor), this::fireDebouncedSearch);
+          .timerExec((int) (ConstUi.FILTER_DEBOUNCE_MS - quietFor), this::fireDebouncedSearch);
       return;
     }
     searchPending = false;
@@ -616,7 +620,7 @@ public class MarketplaceDialog extends Dialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "MarketplaceDialog.ReposDirty.Reload.Error"),
           e);
       return false;
@@ -764,7 +768,7 @@ public class MarketplaceDialog extends Dialog {
     refreshTable(RefreshReason.AFTER_CHANGE);
     if (!outcome.failures().isEmpty()) {
       showInstallFailures(outcome);
-      wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+      wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
       return;
     }
     if (outcome.cancelled()) {
@@ -790,7 +794,7 @@ public class MarketplaceDialog extends Dialog {
                 Integer.toString(outcome.installed().size()),
                 nameList(outcome.installed())));
     box.open();
-    wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+    wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
   }
 
   private String installingStatus(List<InstallRequest> requests) {
@@ -808,7 +812,7 @@ public class MarketplaceDialog extends Dialog {
         e instanceof InvocationTargetException ite && ite.getCause() != null ? ite.getCause() : e;
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
         BaseMessages.getString(
             PKG,
             "MarketplaceDialog.Install.Error",
@@ -847,7 +851,7 @@ public class MarketplaceDialog extends Dialog {
     Exception first = outcome.failures().values().iterator().next();
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
         header + Const.CR + Const.CR + detail,
         first);
   }
@@ -1000,13 +1004,13 @@ public class MarketplaceDialog extends Dialog {
       showUninstallError(failed, firstFailure);
       return;
     }
-    wStatus.setText(BaseMessages.getString(PKG, "MarketplaceDialog.Status.RestartHint"));
+    wStatus.setText(BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT));
   }
 
   private void showUninstallError(List<String> artifactIds, Exception e) {
     new ErrorDialog(
         shell,
-        BaseMessages.getString(PKG, "MarketplaceDialog.Error.Header"),
+        BaseMessages.getString(PKG, CONST_MARKETPLACE_DIALOG_ERROR_HEADER),
         BaseMessages.getString(
             PKG, "MarketplaceDialog.Uninstall.Error", String.join(", ", artifactIds)),
         e);

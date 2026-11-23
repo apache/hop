@@ -295,7 +295,8 @@ public final class HopXmlSupport {
       if (name.isEmpty()) {
         continue;
       }
-      String defaultValue = directChildText(parameter, "default_value");
+      String defaultValue =
+          SecretRedaction.redactEntryValue(name, directChildText(parameter, "default_value"));
       String description = directChildText(parameter, "description");
       sb.append("- ").append(name).append(": default=").append(defaultValue);
       if (!description.isEmpty()) {
@@ -330,7 +331,7 @@ public final class HopXmlSupport {
 
   public static String serializeConfig(Element element, int maxChars) {
     StringBuilder sb = new StringBuilder();
-    serializeElement(element, sb, 0, 4);
+    serializeElement(element, sb, 0, 4, false);
     String text = sb.toString().strip();
     if (text.length() > maxChars) {
       return text.substring(0, maxChars) + "\n...";
@@ -338,7 +339,13 @@ public final class HopXmlSupport {
     return text;
   }
 
-  private static void serializeElement(Element element, StringBuilder sb, int depth, int maxDepth) {
+  /**
+   * @param secretEntryValue true when the element is the value of a name/value entry whose name
+   *     reads like a credential, for example the {@code <value>} next to {@code
+   *     <name>DB_PASSWORD</name>}
+   */
+  private static void serializeElement(
+      Element element, StringBuilder sb, int depth, int maxDepth, boolean secretEntryValue) {
     if (depth > maxDepth || SKIP_TAGS.contains(element.getTagName())) {
       return;
     }
@@ -356,6 +363,9 @@ public final class HopXmlSupport {
     }
 
     String text = SecretRedaction.redact(tag, textOnly.toString().trim());
+    if (secretEntryValue) {
+      text = SecretRedaction.redactValue(text);
+    }
     if (childElements.isEmpty()) {
       if (!text.isEmpty() && !SKIP_TAGS.contains(tag)) {
         indent(sb, depth).append(tag).append(": ").append(text).append('\n');
@@ -363,9 +373,11 @@ public final class HopXmlSupport {
       return;
     }
 
+    // The root is the transform or action itself: its <name> is not the name of an entry.
+    boolean secretEntry = depth > 0 && isSecretEntry(tag, childElements);
     if (childElements.size() == 1 && text.isEmpty()) {
       indent(sb, depth).append(tag).append(":\n");
-      serializeElement(childElements.get(0), sb, depth + 1, maxDepth);
+      serializeElement(childElements.get(0), sb, depth + 1, maxDepth, secretEntryValue);
       return;
     }
 
@@ -374,8 +386,30 @@ public final class HopXmlSupport {
       indent(sb, depth + 1).append(text).append('\n');
     }
     for (Element child : childElements) {
-      serializeElement(child, sb, depth + 1, maxDepth);
+      boolean childIsSecretValue =
+          secretEntryValue || (secretEntry && SecretRedaction.isEntryValueKey(child.getTagName()));
+      serializeElement(child, sb, depth + 1, maxDepth, childIsSecretValue);
     }
+  }
+
+  /**
+   * True for a name/value entry whose name reads like a credential: a {@code <parameter>} named by
+   * its {@code <name>}, a pipeline executor mapping named by {@code <variable>} or a Set variables
+   * field named by {@code <variable_name>}. Field definitions have a {@code <name>} too, but they
+   * are not entries: a field called {@code token_count} keeps its settings.
+   */
+  private static boolean isSecretEntry(String tag, List<Element> childElements) {
+    for (Element child : childElements) {
+      String childTag = child.getTagName();
+      boolean namesEntry =
+          "variable".equals(childTag)
+              || "variable_name".equals(childTag)
+              || ("name".equals(childTag) && "parameter".equals(tag));
+      if (namesEntry && SecretRedaction.isSecretEntryName(child.getTextContent())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static StringBuilder indent(StringBuilder sb, int depth) {

@@ -42,6 +42,7 @@ import org.bson.Document;
  * incoming fields.
  */
 public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDeleteData> {
+  private static final String CONST_UNKNOWN = "unknown";
 
   private static final Class<?> PKG = MongoDbDelete.class;
 
@@ -207,9 +208,9 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
         return true;
       } catch (Exception e) {
-        String hostname = data.connection != null ? data.connection.getHostname() : "unknown";
-        String port = data.connection != null ? data.connection.getPort() : "unknown";
-        String dbName = data.connection != null ? data.connection.getDbName() : "unknown";
+        String hostname = data.connection != null ? data.connection.getHostname() : CONST_UNKNOWN;
+        String port = data.connection != null ? data.connection.getPort() : CONST_UNKNOWN;
+        String dbName = data.connection != null ? data.connection.getDbName() : CONST_UNKNOWN;
         logError(
             BaseMessages.getString(
                 PKG,

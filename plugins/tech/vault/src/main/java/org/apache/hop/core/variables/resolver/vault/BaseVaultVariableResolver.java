@@ -52,7 +52,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.widgets.Combo;
@@ -62,7 +62,8 @@ import org.eclipse.swt.widgets.Text;
 @Getter
 @Setter
 public abstract class BaseVaultVariableResolver
-    implements IVariableResolver, IGuiPluginCompositeWidgetsListener {
+    implements IVariableResolver, IGuiPluginModelWidgetsListener {
+  private static final String CONST_AUTH = "auth/";
 
   static final String ID_VAULT_ADDRESS = "vaultAddress";
   static final String ID_AUTHENTICATION_TYPE = "authenticationType";
@@ -435,7 +436,7 @@ public abstract class BaseVaultVariableResolver
   }
 
   private static final String DEFAULT_KUBERNETES_LOGIN_PATH =
-      "auth/" + DEFAULT_KUBERNETES_AUTH_MOUNT;
+      CONST_AUTH + DEFAULT_KUBERNETES_AUTH_MOUNT;
 
   protected String loadServiceAccountJwt(IVariables variables) throws HopException {
     String jwt = variables.resolve(kubernetesJwt);
@@ -459,10 +460,10 @@ public abstract class BaseVaultVariableResolver
       return DEFAULT_KUBERNETES_LOGIN_PATH;
     }
     String trimmed = mount.trim();
-    if (trimmed.startsWith("auth/")) {
+    if (trimmed.startsWith(CONST_AUTH)) {
       return trimmed;
     }
-    return "auth/" + trimmed;
+    return CONST_AUTH + trimmed;
   }
 
   VaultAuthType parseAuthType(String actualAuthType) throws HopException {
@@ -714,8 +715,7 @@ public abstract class BaseVaultVariableResolver
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     if (ID_AUTHENTICATION_TYPE.equals(widgetId)) {
       hideFieldsThatDoNotApply(compositeWidgets);
     }
@@ -785,7 +785,7 @@ public abstract class BaseVaultVariableResolver
     }
   }
 
-  private static String comboText(Control control) {
+  private static String comboText(Object control) {
     if (control instanceof Combo combo) {
       return combo.getText();
     }

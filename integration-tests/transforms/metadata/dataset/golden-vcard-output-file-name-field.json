@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-vcard-output-file-name-field.csv",
+  "name": "golden-vcard-output-file-name-field",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "fn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "uid",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "vcard_filename",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
 /** Represents a map of all named complex types in the WSDL. */
 public final class WsdlComplexTypes implements java.io.Serializable {
   @Serial private static final long serialVersionUID = 1L;
-  private HashMap<String, ComplexType> complexTypes = new HashMap<>();
+  private final HashMap<String, ComplexType> complexTypes = new HashMap<>();
 
   /**
    * Create a new instance, parse the WSDL file for named complex types.

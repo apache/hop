@@ -52,6 +52,9 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
 
   public LocalWorkflowRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("Local");
+    setEnginePluginName("Hop local workflow engine");
     safeModeEnabled = false;
   }
 

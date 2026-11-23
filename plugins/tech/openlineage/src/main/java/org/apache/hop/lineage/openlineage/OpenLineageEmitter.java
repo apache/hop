@@ -88,6 +88,15 @@ public interface OpenLineageEmitter extends AutoCloseable {
     return results;
   }
 
+  /**
+   * What went wrong the last time an event could not be delivered, for the sink's health: the HTTP
+   * status and the backend's answer, or why there was none. Null when nothing went wrong yet, or
+   * the emitter doesn't say.
+   */
+  default String lastError() {
+    return null;
+  }
+
   @Override
   void close();
 }

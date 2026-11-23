@@ -19,6 +19,7 @@ package org.apache.hop.ui.pipeline.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
@@ -35,7 +36,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.DialogBoxWithButtons;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.NameFromFilenamePrompt;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -1477,23 +1478,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     DialogBoxWithButtons provide(Shell shell, int existingFields, int newFields);
   }
 
+  /** Offer to give the transform the name of the file that was just picked. */
   protected void replaceNameWithBaseFilename(String filename) {
-    // Ask to set the name to the base filename...
-    //
-    MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-    box.setText("Change name?");
-    box.setMessage("Do you want to change the name of the action to match the filename?");
-    int answer = box.open();
-    if ((answer & SWT.YES) != 0) {
-      try {
-        String baseName =
-            HopVfs.getFileObject(variables.resolve(filename), variables).getName().getBaseName();
-        wTransformName.setText(baseName);
-      } catch (Exception e) {
-        new ErrorDialog(
-            shell, "Error", "Error extracting name from filename '" + filename + "'", e);
-      }
-    }
+    NameFromFilenamePrompt.askToReplaceName(shell, variables, filename, wTransformName, false);
   }
 
   /**
@@ -1604,11 +1591,27 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
      *
      * @param buttonName the name the button should get
      * @param listener the listener to invoke when the button is clicked
-     * @return the created button
+     * @return this builder
      */
     public ButtonBarBuilder custom(String buttonName, Listener listener) {
+      return custom(buttonName, listener, null);
+    }
+
+    /**
+     * Adds a custom button with the specified name and listener, and hands the button to the
+     * dialog, for example to enable or disable it later.
+     *
+     * @param buttonName the name the button should get
+     * @param listener the listener to invoke when the button is clicked
+     * @param created receives the created button, or null
+     * @return this builder
+     */
+    public ButtonBarBuilder custom(String buttonName, Listener listener, Consumer<Button> created) {
       Button button = createButton(buttonName, listener);
       buttons.add(button);
+      if (created != null) {
+        created.accept(button);
+      }
       return this;
     }
 

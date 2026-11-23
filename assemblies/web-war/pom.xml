@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies</artifactId>
+        <version>2.21.0-SNAPSHOT</version>
+    </parent>
+
+    <!--
+      Hop Web for a plain servlet container (Tomcat 10.1 or later):
+
+        hop-web-<version>.war          the web app: the RAP front end from hop-assemblies-web
+                                       plus the client's lib/core in WEB-INF/lib, the start
+                                       scripts and config. Deploy it as webapps/ROOT.war.
+        hop-web-<version>-plugins.zip  plugins/ and jdbc-drivers/, unzipped into CATALINA_BASE.
+                                       Hop Web finds them there when HOP_PLUGIN_BASE_FOLDERS and
+                                       HOP_SHARED_JDBC_FOLDERS are not set (HopWebDefaults).
+
+      The same layout is left unpacked in target/webapp and target/tomcat, and the Docker
+      images are built from those folders.
+    -->
+    <artifactId>hop-web</artifactId>
+    <packaging>pom</packaging>
+    <name>Hop Web</name>
+
+    <properties>
+        <hop-web.client.dir>${project.build.directory}/client</hop-web.client.dir>
+        <hop-web.tomcat.dir>${project.build.directory}/tomcat</hop-web.tomcat.dir>
+        <hop-web.webapp.dir>${project.build.directory}/webapp</hop-web.webapp.dir>
+        <!-- Published to Maven Central next to hop-client, with a flattened POM. -->
+        <maven.deploy.skip>false</maven.deploy.skip>
+    </properties>
+
+    <!-- Build inputs only. Both are unpacked as they are, so none of their dependencies are
+         wanted. -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-assemblies-web</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-client</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-web-and-client</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- Unpack every time, so the replacements below always start from
+                                 the original files, even without a clean. -->
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.hop</groupId>
+                                    <artifactId>hop-assemblies-web</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>war</type>
+                                    <outputDirectory>${hop-web.webapp.dir}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.hop</groupId>
+                                    <artifactId>hop-client</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <includes>hop/config/**,hop/lib/core/**,hop/lib/jdbc/**,hop/plugins/**</includes>
+                                    <outputDirectory>${hop-web.client.dir}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>lay-out-hop-web</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <!-- The client's configuration replaces the web app's reduced one:
+                                     the samples of the plugin assemblies (transforms/, actions/,
+                                     datasets/ ...) are only there. First, so the hop-config.json
+                                     rewrite below applies to the copied file. -->
+                                <copy overwrite="true" todir="${hop-web.webapp.dir}/config">
+                                    <fileset dir="${hop-web.client.dir}/hop/config"></fileset>
+                                </copy>
+                                <!-- hop-ui-rcp is the desktop UI fragment. Its GuiPlugins fail on
+                                     RAP with NoClassDefFoundError for SWT-only types. -->
+                                <copy todir="${hop-web.webapp.dir}/WEB-INF/lib">
+                                    <fileset dir="${hop-web.client.dir}/hop/lib/core" excludes="hop-ui-rcp-*.jar"></fileset>
+                                </copy>
+                                <copy todir="${hop-web.tomcat.dir}/plugins">
+                                    <fileset dir="${hop-web.client.dir}/hop/plugins"></fileset>
+                                </copy>
+                                <copy todir="${hop-web.tomcat.dir}/jdbc-drivers">
+                                    <fileset dir="${hop-web.client.dir}/hop/lib/jdbc"></fileset>
+                                </copy>
+                                <!-- Not part of the war or the zip. The images install the
+                                     marketplace-optional plugins here with
+                                     tools/install-wave1-plugins.sh, and docker/web.Dockerfile
+                                     copies these folders, so they must exist even when empty. -->
+                                <mkdir dir="${project.build.directory}/optional/config"></mkdir>
+                                <mkdir dir="${project.build.directory}/optional/plugins"></mkdir>
+                                <mkdir dir="${project.build.directory}/optional/lib/core"></mkdir>
+                                <mkdir dir="${project.build.directory}/optional/lib/jdbc"></mkdir>
+                                <!-- The scripts run from the web app folder: Hop is in WEB-INF/lib
+                                     and the servlet API in the container's lib folder. -->
+                                <replace dir="${hop-web.webapp.dir}" includes="hop,*.sh" token="lib/core/*" value="../../lib/*:WEB-INF/lib/*:lib/core/*"></replace>
+                                <replace dir="${hop-web.webapp.dir}" includes="*.bat" token="lib\core\*" value="..\..\lib\*;WEB-INF\lib\*;lib\core\*"></replace>
+                                <!-- Hop Web finds plugins/ and jdbc-drivers/ in CATALINA_BASE by
+                                     itself (HopWebDefaults); give the tools the same defaults,
+                                     relative to webapps/ROOT like the classpath above.
+                                     Every literal ${ is written ${hop-web.dollar}{: written out, it
+                                     would be expanded at build time from the environment of
+                                     whoever runs the build. -->
+                                <property name="hop-web.dollar" value="$"></property>
+                                <replace dir="${hop-web.webapp.dir}" includes="hop,*.sh" token="if [ -n &quot;${hop-web.dollar}{HOP_PLUGIN_BASE_FOLDERS}&quot; ]; then" value="if [ -z &quot;$HOP_PLUGIN_BASE_FOLDERS&quot; ]; then HOP_PLUGIN_BASE_FOLDERS=../../plugins; fi; if [ -n &quot;${hop-web.dollar}{HOP_PLUGIN_BASE_FOLDERS}&quot; ]; then"></replace>
+                                <replace dir="${hop-web.webapp.dir}" includes="hop,*.sh" token="if [ -n &quot;${hop-web.dollar}{HOP_SHARED_JDBC_FOLDERS}&quot; ]; then" value="if [ -z &quot;$HOP_SHARED_JDBC_FOLDERS&quot; ]; then HOP_SHARED_JDBC_FOLDERS=../../jdbc-drivers; fi; if [ -n &quot;${hop-web.dollar}{HOP_SHARED_JDBC_FOLDERS}&quot; ]; then"></replace>
+                                <!-- And the configuration folder: hop-config.json refers to it as
+                                     ${HOP_CONFIG_FOLDER}, so the variable has to be set. -->
+                                <replace dir="${hop-web.webapp.dir}" includes="hop,*.sh" token="if [ -n &quot;${hop-web.dollar}{HOP_CONFIG_FOLDER}&quot; ]; then" value="if [ -z &quot;$HOP_CONFIG_FOLDER&quot; ]; then HOP_CONFIG_FOLDER=&quot;$PWD/config&quot;; fi; if [ -n &quot;${hop-web.dollar}{HOP_CONFIG_FOLDER}&quot; ]; then"></replace>
+                                <replace dir="${hop-web.webapp.dir}" includes="*.bat">
+                                    <replacetoken>if not "%HOP_CONFIG_FOLDER%"=="" (</replacetoken>
+                                    <replacevalue>if "%HOP_CONFIG_FOLDER%"=="" set "HOP_CONFIG_FOLDER=%CD%\config"
+if not "%HOP_CONFIG_FOLDER%"=="" (</replacevalue>
+                                </replace>
+                                <replace dir="${hop-web.webapp.dir}" includes="*.bat">
+                                    <replacetoken>if not "%HOP_PLUGIN_BASE_FOLDERS%"=="" (</replacetoken>
+                                    <replacevalue>if "%HOP_PLUGIN_BASE_FOLDERS%"=="" set "HOP_PLUGIN_BASE_FOLDERS=..\..\plugins"
+if not "%HOP_PLUGIN_BASE_FOLDERS%"=="" (</replacevalue>
+                                </replace>
+                                <replace dir="${hop-web.webapp.dir}" includes="*.bat">
+                                    <replacetoken>if not "%HOP_SHARED_JDBC_FOLDERS%"=="" (</replacetoken>
+                                    <replacevalue>if "%HOP_SHARED_JDBC_FOLDERS%"=="" set "HOP_SHARED_JDBC_FOLDERS=..\..\jdbc-drivers"
+if not "%HOP_SHARED_JDBC_FOLDERS%"=="" (</replacevalue>
+                                </replace>
+                                <!-- Projects live in the configuration folder, wherever that is. -->
+                                <replace file="${hop-web.webapp.dir}/config/hop-config.json" token="config/projects" value="${hop-web.dollar}{HOP_CONFIG_FOLDER}/projects"></replace>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>plugins</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/plugins.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>true</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>war</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/war.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

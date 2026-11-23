@@ -153,7 +153,7 @@ public class DiagramExportDialog extends Dialog {
       widgets.getWidgetsContents(model, DiagramExportDialogModel.GUI_PLUGIN_ELEMENT_PARENT_ID);
       IDiagramExporter<?> exporter = model.getSelectedExporter();
       String extension = exporter != null ? exporter.getFileExtension() : "svg";
-      String[] filterExtensions = new String[] {"*." + extension};
+      String[] filterExtensions = {"*." + extension};
       String[] filterNames = exporter != null ? exporter.getFileFilterNames() : new String[0];
       if (filterNames == null || filterNames.length == 0) {
         filterNames =

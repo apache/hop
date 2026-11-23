@@ -86,6 +86,7 @@ import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformPrepareOnce;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent;
@@ -262,6 +263,15 @@ public abstract class BeamPipelineEngine extends Variables
       startExecutionInfoTimer();
 
       // The execution info timer is stopped in pipelineCompleted()
+
+      // The once-per-run work of the transforms (truncate a table, create it ...), here before the
+      // job, so the bundles don't each do it; they flag the prepared transforms
+      List<String> preparedOnce =
+          TransformPrepareOnce.prepareOnDriver(
+              pipelineMeta, this, metadataProvider, new LoggingObject("beam-prepare-once"));
+      setVariable(
+          Const.INTERNAL_VARIABLE_PIPELINE_PREPARED_ONCE_TRANSFORMS,
+          TransformPrepareOnce.preparedOnDriverValue(preparedOnce));
 
       converter =
           new HopPipelineMetaToBeamPipelineConverter(

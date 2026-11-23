@@ -41,6 +41,7 @@ import org.apache.hop.vfs.hdfs.metadata.HdfsMeta;
 /** Probes the live editor model for the HDFS connection Test buttons. */
 public final class HdfsConnectionTester {
   private static final Class<?> PKG = HdfsTransport.class;
+  private static final String CONST_GETFILESTATUS = "GETFILESTATUS";
 
   private HdfsConnectionTester() {}
 
@@ -115,7 +116,7 @@ public final class HdfsConnectionTester {
         try {
           status = client.getFileStatus(path);
         } catch (Exception e) {
-          throw failed(succeeded, "GETFILESTATUS", path, e);
+          throw failed(succeeded, CONST_GETFILESTATUS, path, e);
         }
         succeeded.add(
             BaseMessages.getString(
@@ -252,7 +253,7 @@ public final class HdfsConnectionTester {
   }
 
   private static String hintFor(String step, String detail, Throwable cause) {
-    if ("GETFILESTATUS".equals(step) && HdfsWebHdfsClient.isStandbyNameNode(cause)) {
+    if (CONST_GETFILESTATUS.equals(step) && HdfsWebHdfsClient.isStandbyNameNode(cause)) {
       return BaseMessages.getString(PKG, "Hdfs.Test.Hint.Standby");
     }
     return switch (step) {
@@ -260,7 +261,7 @@ public final class HdfsConnectionTester {
       case "Kerberos" -> BaseMessages.getString(PKG, "Hdfs.Test.Hint.Kerberos");
       case "SPNEGO" ->
           BaseMessages.getString(PKG, "Hdfs.Test.Hint.Spnego", Const.NVL(detail, "HTTP@host"));
-      case "GETFILESTATUS" -> BaseMessages.getString(PKG, "Hdfs.Test.Hint.Get");
+      case CONST_GETFILESTATUS -> BaseMessages.getString(PKG, "Hdfs.Test.Hint.Get");
       default -> null;
     };
   }

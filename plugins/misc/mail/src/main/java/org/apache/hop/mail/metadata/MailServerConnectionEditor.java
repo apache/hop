@@ -126,7 +126,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     wConnectionProtocol.setLayoutData(fdConnectionProtocol);
     lastControl = wConnectionProtocol;
 
-    String[] protocols = new String[] {"SMTP", "IMAP", "POP3", "MBOX"};
+    String[] protocols = {"SMTP", "IMAP", "POP3", "MBOX"};
     wConnectionProtocol.setItems(protocols);
     wConnectionProtocol.select(1);
 

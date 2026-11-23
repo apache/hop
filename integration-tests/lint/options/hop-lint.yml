@@ -1,0 +1,87 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Issue #9500: rules that read connection options, the URL, a transform's category and the actions
+# a workflow does not follow on failure.
+rules:
+  OPT-001:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: DATABASE_CONNECTION
+    appliesTo: [POSTGRESQL]
+    targetField: attributes
+    condition: OPTION_MATCHES
+    conditionValue: "sslmode=(require|verify-ca|verify-full)"
+    name: "PostgreSQL Connection Without sslmode Option"
+
+  OPT-002:
+    type: custom
+    enabled: true
+    severity: ERROR
+    target: DATABASE_CONNECTION
+    appliesTo: [POSTGRESQL]
+    allOf:
+      - targetField: attributes
+        condition: OPTION_MATCHES
+        conditionValue: "sslmode=(require|verify-ca|verify-full)"
+      - targetField: url
+        condition: MATCHES_PATTERN
+        conditionValue: ".*[?&]sslmode=(require|verify-ca|verify-full)(&.*)?"
+    name: "PostgreSQL Connection Without TLS"
+
+  # Redshift extends PostgreSQL. A PostgreSQL option counts for a Redshift connection exactly when
+  # Hop puts it in the connection's URL, so OPT-005 and OPT-006 report the same connections.
+  OPT-005:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: DATABASE_CONNECTION
+    appliesTo: [REDSHIFT]
+    targetField: attributes
+    condition: OPTION_MATCHES
+    conditionValue: "sslmode=(require|verify-ca|verify-full)"
+    name: "Redshift Connection Without sslmode Option"
+
+  OPT-006:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: DATABASE_CONNECTION
+    appliesTo: [REDSHIFT]
+    targetField: url
+    condition: MATCHES_PATTERN
+    conditionValue: ".*[?&]sslmode=(require|verify-ca|verify-full)(&.*)?"
+    name: "Redshift URL Without sslmode"
+
+  OPT-003:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: TRANSFORM
+    targetField: category
+    condition: NOT_MATCHES_PATTERN
+    conditionValue: "Output"
+    name: "Output Transform in a Staging Pipeline"
+
+  OPT-004:
+    type: custom
+    enabled: true
+    severity: WARNING
+    target: WORKFLOW
+    targetField: actionsWithoutFailurePath
+    condition: MAX_COLLECTION_SIZE
+    conditionValue: "0"
+    name: "Action Without a Failure Path"

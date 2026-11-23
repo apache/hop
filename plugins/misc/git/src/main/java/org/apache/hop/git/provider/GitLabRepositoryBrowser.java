@@ -24,6 +24,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 class GitLabRepositoryBrowser implements GitRepositoryBrowser {
+  private static final String CONST_PAGE = "&page=";
 
   private static final String PROVIDER = "GitLab";
   private static final String ACCEPT = "application/json";
@@ -102,7 +103,7 @@ class GitLabRepositoryBrowser implements GitRepositoryBrowser {
           .append(GitApiHttp.urlEncode(organization.getSlug()))
           .append("/projects?order_by=last_activity_at&sort=desc&per_page=")
           .append(PAGE_SIZE)
-          .append("&page=")
+          .append(CONST_PAGE)
           .append(page);
     } else {
       url.append(base)
@@ -110,7 +111,7 @@ class GitLabRepositoryBrowser implements GitRepositoryBrowser {
           .append(GitApiHttp.urlEncode(organization.getSlug()))
           .append("/projects?include_subgroups=true&order_by=last_activity_at&sort=desc&per_page=")
           .append(PAGE_SIZE)
-          .append("&page=")
+          .append(CONST_PAGE)
           .append(page);
     }
 
@@ -138,7 +139,7 @@ class GitLabRepositoryBrowser implements GitRepositoryBrowser {
               + projectId
               + "/repository/branches?per_page="
               + PAGE_SIZE
-              + "&page="
+              + CONST_PAGE
               + page;
       GitApiHttp.ApiResponse response = gitlabGetPaged(url, auth);
       JSONArray array = GitApiHttp.parseArray(response.getBody(), PROVIDER);

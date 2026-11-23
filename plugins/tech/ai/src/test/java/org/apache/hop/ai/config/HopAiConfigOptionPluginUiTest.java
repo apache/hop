@@ -104,7 +104,7 @@ class HopAiConfigOptionPluginUiTest extends SwtBotTestBase {
         bot -> {
           onUi(
               () -> {
-                HopAiConfigOptionPlugin.reloadProviders(widgets.get(), projectA);
+                HopAiConfigOptionWidgets.reloadProviders(widgets.get(), projectA);
                 return null;
               });
           MetaSelectionLine<?> line = providerLine(widgets.get());
@@ -114,7 +114,7 @@ class HopAiConfigOptionPluginUiTest extends SwtBotTestBase {
           // Another project is opened: its providers are listed, and the name it lacks is noted.
           onUi(
               () -> {
-                HopAiConfigOptionPlugin.reloadProviders(widgets.get(), projectB);
+                HopAiConfigOptionWidgets.reloadProviders(widgets.get(), projectB);
                 return null;
               });
           assertEquals(0, onUi(line::getItemCount));
@@ -127,7 +127,7 @@ class HopAiConfigOptionPluginUiTest extends SwtBotTestBase {
 
           onUi(
               () -> {
-                HopAiConfigOptionPlugin.reloadProviders(widgets.get(), projectA);
+                HopAiConfigOptionWidgets.reloadProviders(widgets.get(), projectA);
                 return null;
               });
           assertFalse(onUi(() -> warning(widgets.get()).isVisible()));

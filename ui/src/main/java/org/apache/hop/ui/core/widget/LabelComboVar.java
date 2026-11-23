@@ -34,8 +34,8 @@ import org.eclipse.swt.widgets.Label;
 public class LabelComboVar extends Composite {
   private static final PropsUi props = PropsUi.getInstance();
 
-  private Label wLabel;
-  private ComboVar wCombo;
+  private final Label wLabel;
+  private final ComboVar wCombo;
 
   public LabelComboVar(
       IVariables variables, Composite composite, String labelText, String toolTipText) {

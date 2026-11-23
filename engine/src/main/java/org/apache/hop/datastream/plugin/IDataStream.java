@@ -22,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.datastream.metadata.DataStreamMeta;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -153,7 +154,20 @@ public interface IDataStream extends Cloneable {
         throw new HopException(
             "Object provided needs to be of class " + IDataStream.class.getName());
       }
-      return dataStream.getPluginId();
+      // An object created in code may not have its id yet: the registry knows it by its class
+      String pluginId = dataStream.getPluginId();
+      if (Utils.isEmpty(pluginId)) {
+        IPlugin plugin = PluginRegistry.getInstance().getPlugin(DataStreamPluginType.class, object);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to determine the plugin id of data stream class "
+                  + object.getClass().getName());
+        }
+        pluginId = plugin.getIds()[0];
+        dataStream.setPluginId(pluginId);
+        dataStream.setPluginName(plugin.getName());
+      }
+      return pluginId;
     }
   }
 }

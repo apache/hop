@@ -59,7 +59,7 @@ class ActionTableExistsTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("No database connection is defined"));
   }
@@ -80,7 +80,7 @@ class ActionTableExistsTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(action).logError(contains("mysql-does-not-exist"));
   }
@@ -107,7 +107,7 @@ class ActionTableExistsTest {
                 when(db.checkTableExists(any(), eq("present_table"))).thenReturn(true))) {
       Result result = action.execute(new Result(), 0);
 
-      assertTrue(result.getResult());
+      assertTrue(result.isResult());
       assertEquals(0, result.getNrErrors());
       assertEquals(1, databases.constructed().size());
     }
@@ -135,7 +135,7 @@ class ActionTableExistsTest {
                 when(db.checkTableExists(any(), eq("missing_table"))).thenReturn(false))) {
       Result result = action.execute(new Result(), 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(0, result.getNrErrors());
       assertEquals(1, databases.constructed().size());
     }

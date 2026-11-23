@@ -73,6 +73,7 @@ import org.apache.hop.spark.core.SparkExecutionDataAccumulator;
 @Getter
 @Setter
 public class SparkTransformExecutionSampling {
+  private static final String CONST_SPARK_SAMPLING_INACTIVE_FOR = "Spark sampling inactive for '";
 
   private final String transformName;
   private final String parentLogChannelId;
@@ -126,7 +127,7 @@ public class SparkTransformExecutionSampling {
 
     if (StringUtils.isEmpty(runConfigName) || metadataProvider == null) {
       LogChannel.GENERAL.logDebug(
-          "Spark sampling inactive for '"
+          CONST_SPARK_SAMPLING_INACTIVE_FOR
               + transformName
               + "': runConfigName or metadataProvider missing");
       return;
@@ -136,7 +137,7 @@ public class SparkTransformExecutionSampling {
         metadataProvider.getSerializer(PipelineRunConfiguration.class).load(runConfigName);
     if (runConf == null) {
       LogChannel.GENERAL.logBasic(
-          "Spark sampling inactive for '"
+          CONST_SPARK_SAMPLING_INACTIVE_FOR
               + transformName
               + "': run configuration '"
               + runConfigName
@@ -147,7 +148,7 @@ public class SparkTransformExecutionSampling {
     String locationName = runConf.getExecutionInfoLocationName();
     if (StringUtils.isEmpty(locationName)) {
       LogChannel.GENERAL.logDebug(
-          "Spark sampling inactive for '"
+          CONST_SPARK_SAMPLING_INACTIVE_FOR
               + transformName
               + "': no execution info location on run configuration '"
               + runConfigName
@@ -159,7 +160,7 @@ public class SparkTransformExecutionSampling {
         metadataProvider.getSerializer(ExecutionInfoLocation.class).load(locationName);
     if (location == null) {
       LogChannel.GENERAL.logBasic(
-          "Spark sampling inactive for '"
+          CONST_SPARK_SAMPLING_INACTIVE_FOR
               + transformName
               + "': execution info location '"
               + locationName
@@ -207,7 +208,7 @@ public class SparkTransformExecutionSampling {
 
     if (dataSamplers.isEmpty()) {
       LogChannel.GENERAL.logBasic(
-          "Spark sampling inactive for '"
+          CONST_SPARK_SAMPLING_INACTIVE_FOR
               + transformName
               + "': no data samplers (profile='"
               + Const.NVL(profileName, "")

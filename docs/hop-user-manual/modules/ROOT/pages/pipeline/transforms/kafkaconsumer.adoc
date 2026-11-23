@@ -230,3 +230,8 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 == See also
 
 * xref:how-to-guides/cdc-log-sniffing.adoc[CDC: log sniffing] — consuming Debezium, GoldenGate, or similar change events from a Kafka topic
+
+== Samples
+
+The samples project has `transforms/kafka-consumer-read-pokemon-data.hpl`, which reads messages from the topic `${KAFKA_TOPIC}` in batches of 1000 messages or 1 second, and passes each batch to `transforms/kafka-consumer-read-pokemon-data-child.hpl`, which reads the user ID, the Pokémon name and location, and the detection date from the JSON of each message.
+Set the variables `KAFKA_SERVER`, `KAFKA_TOPIC` and `KAFKA_CLIENT_ID` before you run it.

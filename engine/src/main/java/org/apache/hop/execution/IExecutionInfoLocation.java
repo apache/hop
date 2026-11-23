@@ -25,6 +25,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.metadata.api.HopMetadataObject;
@@ -302,7 +303,12 @@ public interface IExecutionInfoLocation extends Cloneable {
     public Object createObject(String id, Object parentObject) throws HopException {
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin plugin = registry.findPluginWithId(ExecutionInfoLocationPluginType.class, id);
-      return registry.loadClass(plugin);
+      IExecutionInfoLocation location = registry.loadClass(plugin, IExecutionInfoLocation.class);
+      // The ID is the key the location is stored under, not always a field of its own: without
+      // it the location can't be saved again
+      location.setPluginId(plugin.getIds()[0]);
+      location.setPluginName(plugin.getName());
+      return location;
     }
 
     @Override
@@ -313,7 +319,22 @@ public interface IExecutionInfoLocation extends Cloneable {
                 + object.getClass().getName()
                 + "'");
       }
-      return ((IExecutionInfoLocation) object).getPluginId();
+      IExecutionInfoLocation location = (IExecutionInfoLocation) object;
+      // An object created in code may not have its id yet: the registry knows it by its class
+      String pluginId = location.getPluginId();
+      if (Utils.isEmpty(pluginId)) {
+        IPlugin plugin =
+            PluginRegistry.getInstance().getPlugin(ExecutionInfoLocationPluginType.class, object);
+        if (plugin == null) {
+          throw new HopException(
+              "Unable to determine the plugin id of execution information location class "
+                  + object.getClass().getName());
+        }
+        pluginId = plugin.getIds()[0];
+        location.setPluginId(pluginId);
+        location.setPluginName(plugin.getName());
+      }
+      return pluginId;
     }
   }
 }

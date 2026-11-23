@@ -43,17 +43,15 @@ public abstract class BaseFileInputMeta<
     extends BaseTransformMeta<Main, Data> {
   private static final Class<?> PKG = BaseFileInputMeta.class;
 
-  public static final String[] REQUIRED_FILES_CODE = new String[] {"N", "Y"};
+  public static final String[] REQUIRED_FILES_CODE = {"N", "Y"};
 
   public static final String NO = "N";
 
   public static final String YES = "Y";
 
-  public static final String[] REQUIRED_FILES_DESC =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
+  public static final String[] REQUIRED_FILES_DESC = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
 
   protected abstract I getFileInput();
 

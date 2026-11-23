@@ -35,14 +35,14 @@ import software.amazon.awssdk.services.sqs.model.SqsException;
 public class AwsSqsReader {
 
   private SqsClient sqsClient;
-  private SqsReaderMeta meta;
-  private String awsKey;
-  private String awsRegion;
-  private String awsKeySecret;
-  private BaseTransform baseTransform;
-  private PipelineMeta pipelineMeta;
-  private String awsCredChain;
-  private String deleteMessage;
+  private final SqsReaderMeta meta;
+  private final String awsKey;
+  private final String awsRegion;
+  private final String awsKeySecret;
+  private final BaseTransform baseTransform;
+  private final PipelineMeta pipelineMeta;
+  private final String awsCredChain;
+  private final String deleteMessage;
 
   public AwsSqsReader(SqsReaderMeta transformMeta, PipelineMeta t, BaseTransform bst) {
 

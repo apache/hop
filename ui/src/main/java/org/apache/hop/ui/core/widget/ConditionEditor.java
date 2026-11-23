@@ -91,19 +91,19 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   public static final String CONST_CONDITION_EDITOR_ERROR = "ConditionEditor.Error";
 
   protected Canvas widget;
-  private Shell shell;
-  private Display display;
+  private final Shell shell;
+  private final Display display;
   private Condition activeCondition;
-  private Color bg;
-  private Color white;
-  private Color black;
-  private Color red;
-  private Color green;
-  private Color blue;
-  private Color gray;
-  private Font fixed;
+  private final Color bg;
+  private final Color white;
+  private final Color black;
+  private final Color red;
+  private final Color green;
+  private final Color blue;
+  private final Color gray;
+  private final Font fixed;
 
-  private Image imageAdd;
+  private final Image imageAdd;
 
   private Rectangle sizeNot;
   private Rectangle sizeWidget;
@@ -130,18 +130,18 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   private int previousArea;
   private int previousAreaNr;
 
-  private ArrayList<Condition> parents;
-  private IRowMeta fields;
-  private IVariables variables;
+  private final ArrayList<Condition> parents;
+  private final IRowMeta fields;
+  private final IVariables variables;
 
   private int maxFieldLength;
 
-  private ScrollBar sbVertical;
-  private ScrollBar sbHorizontal;
+  private final ScrollBar sbVertical;
+  private final ScrollBar sbHorizontal;
   private int offsetx;
   private int offsety;
 
-  private ArrayList<ModifyListener> modListeners;
+  private final ArrayList<ModifyListener> modListeners;
 
   private String messageString;
   private Menu mPop;

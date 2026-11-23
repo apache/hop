@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -45,6 +47,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -73,6 +76,8 @@ import org.apache.hop.metadata.rest.client.RestOAuth2Grant;
 // It is optional to disable SSL/TLS
 @SuppressWarnings({"java:S5527", "java:S4830", "java:S4423"})
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
+
+  private static final Class<?> PKG = RestConnection.class;
   public static final String BASIC = "Basic";
   public static final String API_KEY = "API Key";
   public static final String BEARER = "Bearer";
@@ -136,6 +141,13 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    */
   @HopMetadataProperty(key = "non_proxy_hosts")
   private String nonProxyHosts;
+
+  /**
+   * Headers sent on every request made through this connection, the connection test included (issue
+   * #9551). A header with the same name set on the request itself wins.
+   */
+  @HopMetadataProperty(key = "headers")
+  private List<RestConnectionHeader> headers = new ArrayList<>();
 
   @HopMetadataProperty(key = "auth_type")
   private String authType;
@@ -261,6 +273,49 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   @HopMetadataProperty(key = "next_page_url_x_path")
   private String nextPageUrlXPath;
 
+  /**
+   * Number of the first page requested with {@link RestPaginationType#PAGE_NUMBER}, for APIs that
+   * count pages from zero. Empty means 1, which is what page-number paging has always started at. A
+   * String so it can hold a variable.
+   */
+  @HopMetadataProperty(key = "first_page_number")
+  private String firstPageNumber;
+
+  /**
+   * Query parameter that carries the page size with {@link RestPaginationType#PAGE_NUMBER}, sent
+   * with {@link #defaultLimit} as its value. A key of its own rather than {@link #limitParamName}:
+   * the editor keeps the fields of other paging types, so a page-number connection can still hold a
+   * limit parameter from an earlier offset/limit setup, and reusing it would make such a connection
+   * start sending a parameter it never sent before. Empty sends no page size.
+   */
+  @HopMetadataProperty(key = "page_size_param_name")
+  private String pageSizeParamName;
+
+  /**
+   * JsonPath to the items in a page. When set, a page where it finds nothing ends {@link
+   * RestPaginationType#PAGE_NUMBER}, {@link RestPaginationType#OFFSET_LIMIT} and {@link
+   * RestPaginationType#CURSOR} paging, also when the response body itself is not empty (an envelope
+   * such as {@code {"count":87,"list":[]}}). Empty keeps the old rule: the result split path, or
+   * else an empty body.
+   */
+  @HopMetadataProperty(key = "items_json_path")
+  private String itemsJsonPath;
+
+  /** XPath to the items in a page, the XML counterpart of {@link #itemsJsonPath}. */
+  @HopMetadataProperty(key = "items_x_path")
+  private String itemsXPath;
+
+  /**
+   * JsonPath to the total number of items the API will return, for example {@code $.count}. Paging
+   * stops once that many items were read, rather than after one more, empty, page.
+   */
+  @HopMetadataProperty(key = "total_count_json_path")
+  private String totalCountJsonPath;
+
+  /** XPath to the total number of items, the XML counterpart of {@link #totalCountJsonPath}. */
+  @HopMetadataProperty(key = "total_count_x_path")
+  private String totalCountXPath;
+
   public RestConnection(IVariables variables) {
     this.variables = variables;
   }
@@ -301,6 +356,8 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
       settings.setProxyPassword(Encr.decryptPasswordOptionallyEncrypted(resolve(proxyPassword)));
       settings.setNonProxyHosts(resolve(nonProxyHosts));
     }
+
+    settings.setStaticHeaders(resolveStaticHeaders());
 
     // Configure SSL if needed (client cert, trust store, or ignore SSL)
     if (needsSslConfiguration()) {
@@ -360,8 +417,29 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     return settings;
   }
 
+  /** The static headers with their names and values resolved; nameless rows are skipped. */
+  private Map<String, String> resolveStaticHeaders() {
+    Map<String, String> resolved = new LinkedHashMap<>();
+    if (headers == null) {
+      return resolved;
+    }
+    for (RestConnectionHeader header : headers) {
+      if (header == null) {
+        continue;
+      }
+      String headerName = resolve(header.getName());
+      if (Utils.isEmpty(headerName) || Utils.isEmpty(headerName.trim())) {
+        continue;
+      }
+      resolved.put(
+          headerName.trim(),
+          Const.NVL(Encr.decryptPasswordOptionallyEncrypted(resolve(header.getValue())), ""));
+    }
+    return resolved;
+  }
+
   /**
-   * Applies this connection's authentication to the headers of one request.
+   * Applies this connection's authentication and static headers to the headers of one request.
    *
    * <p>The credentials are scoped to {@code url} rather than to the connection's base URL: this is
    * a one-shot call against an explicitly named URL, so asking for it is consent to authenticate
@@ -369,9 +447,12 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
    * URL that changes underneath it.
    */
   public void applyAuthentication(Map<String, String> headers, String url) throws HopException {
-    RestClientSettings settings = createClientSettings();
-    settings.setAuthOrigin(url);
-    new RestAuthenticator(settings).applyRequestHeaders(headers, url);
+    urlScopedAuthenticator(createClientSettings(), url).applyRequestHeaders(headers, url);
+  }
+
+  /** An authenticator for one request to an explicitly named URL: see applyAuthentication(). */
+  private static RestAuthenticator urlScopedAuthenticator(RestClientSettings settings, String url) {
+    return new RestAuthenticator(settings, url);
   }
 
   /** Backwards compatibility with early versions of this metadata type. */
@@ -407,27 +488,38 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
         && authType.trim().equalsIgnoreCase(canonicalLabel.trim());
   }
 
-  /** Performs a GET against the URL with this connection's authentication, returning the body. */
+  /**
+   * Performs a GET against the URL with this connection's authentication and static headers,
+   * returning the body. An OAuth 2 token the server rejects with a 401 is replaced and the request
+   * sent once more (issue #9550).
+   */
   public String getResponse(String url) throws HopException {
     RestClientSettings settings = createClientSettings();
-    Map<String, String> headers = new LinkedHashMap<>();
-    applyAuthentication(headers, url);
-
+    RestAuthenticator authenticator = urlScopedAuthenticator(settings, url);
     HttpUriRequestBase request = new HttpUriRequestBase("GET", URI.create(url));
-    headers.forEach(request::addHeader);
+    authenticator.applyTo(request, url);
 
-    try (CloseableHttpClient httpClient = RestClientFactory.createClient(settings)) {
+    try (CloseableHttpClient httpClient =
+        RestClientFactory.createClient(settings, authenticator, getLog())) {
       return httpClient.execute(
           request,
           response -> {
             if (response.getCode() != HttpStatus.SC_OK) {
-              throw new IOException("Error connecting to " + url + ": " + response.getCode());
+              String hint =
+                  response.getCode() == HttpStatus.SC_UNAUTHORIZED
+                      ? authenticator.unauthorizedHint()
+                      : null;
+              String message =
+                  BaseMessages.getString(
+                      PKG, "RestConnection.Error.Status", url, String.valueOf(response.getCode()));
+              throw new IOException(hint == null ? message : message + " " + hint);
             }
             HttpEntity entity = response.getEntity();
             return entity == null ? "" : EntityUtils.toString(entity);
           });
     } catch (Exception e) {
-      throw new HopException("Error connecting to " + url, e);
+      throw new HopException(
+          BaseMessages.getString(PKG, "RestConnection.Error.Connecting", url), e);
     }
   }
 

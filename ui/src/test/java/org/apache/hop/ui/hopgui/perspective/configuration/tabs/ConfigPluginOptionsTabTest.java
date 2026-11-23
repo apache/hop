@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -45,6 +46,18 @@ class ConfigPluginOptionsTabTest {
     InOrder order = inOrder(widgets, plugin);
     order.verify(widgets).setWidgetsListener(plugin);
     order.verify(plugin).widgetsPopulated(widgets);
+  }
+
+  /** Plugins without SWT in their signatures listen through IGuiPluginModelWidgetsListener. */
+  @Test
+  void aModelListenerIsToldItsWidgetsAreFilled() {
+    GuiCompositeWidgets widgets = mock(GuiCompositeWidgets.class);
+    IGuiPluginModelWidgetsListener plugin = mock(IGuiPluginModelWidgetsListener.class);
+
+    ConfigPluginOptionsTab.attachWidgetsListener(widgets, plugin);
+
+    verify(widgets).setWidgetsListener(any());
+    verify(plugin).widgetsPopulated(widgets);
   }
 
   @Test

@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -53,6 +55,12 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   /** The name of the location to send execution information to */
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_LOCATION)
   private String executionInfoLocationName;
+
+  /** The name of the lineage sink the runs report their lineage to, besides the default ones. */
+  @Getter
+  @Setter
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.LINEAGE_SINK)
+  private String lineageSinkName;
 
   @HopMetadataProperty private List<DescribedVariable> configurationVariables;
 
@@ -92,6 +100,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
     this.name = runConfiguration.name;
     this.description = runConfiguration.description;
     this.executionInfoLocationName = runConfiguration.executionInfoLocationName;
+    this.lineageSinkName = runConfiguration.lineageSinkName;
     this.configurationVariables.addAll(runConfiguration.getConfigurationVariables());
     if (runConfiguration.getEngineRunConfiguration() != null) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();

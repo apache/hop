@@ -57,7 +57,7 @@ Use environment variables or Hop variables (for example `+${PROJECT_HOME}+`) in 
 |No Auth|—|No authentication headers are generated. Useful for public endpoints or when a downstream transform sets headers manually.
 |API Key|Authorization header name, Authorization prefix (optional), Authorization value|Adds a header such as `Authorization: Bearer <token>` or any other custom header. Prefix is concatenated with the value when present.
 |Basic|Username, Password, Preemptive|Sends HTTP Basic credentials. Passwords can be stored encrypted. See **Preemptive authentication** below.
-|Bearer|Bearer token|Adds an `Authorization: Bearer <token>` header automatically.
+|Bearer|Bearer token|Adds an `Authorization: Bearer <token>` header automatically. Hop cannot renew a fixed token: when the server rejects it with a `401`, Hop logs a hint to use **OAuth 2** for tokens that expire.
 |OAuth 2|Token URL, Grant type, Client ID, Client secret, Refresh token, Scope|Fetches an access token from the token endpoint and sends it as a Bearer header. See **OAuth 2** below.
 |===
 
@@ -129,7 +129,24 @@ A code is pasted rather than captured by a local listener: Hop cannot assume it 
 
 Hop refreshes 30 seconds before the `expires_in` the server reported, to absorb clock skew; if the server reports no expiry, the token is treated as lasting five minutes.
 
+**A rejected token is replaced once.** A server can stop accepting a token before its expiry time: it was revoked, rotated, or replaced because another client asked for a new one. When a request carrying a token Hop fetched gets a `401`, Hop drops that token, fetches a new one and sends the request once more. A second `401` is reported as usual, and Hop does not renew that new token again on later requests: the server objects to something a new token does not fix, such as a missing permission or scope. When fetching the new token fails, Hop logs the error and the request keeps its `401`. This applies to every request made through the connection: the REST client transform (also while paging or streaming), the HTTP client and HTTP POST transforms, the HTTP action and the connection test. A request whose body cannot be read a second time, such as a file the HTTP action uploads, is not sent again; it keeps its `401`, and the next request gets a new token. An `Authorization` header that the transform or an input row sets itself is never replaced. When several copies get the `401` at the same time, only the first fetches a new token; the others use it.
+
 The token request goes out through the same client as the API call, so it uses the connection's proxy, TLS settings and timeouts.
+
+== Headers
+
+The **Headers** tab lists headers that go out on every request made through the connection, including the connection test. Use it for headers an API needs on every call, for example the `x-as-user-email` header some APIs require next to an OAuth 2 client-credentials token.
+
+[options="header"]
+|===
+|Option |Description
+|Header name|The name of the header. Supports variables.
+|Value|The value of the header. Supports variables, for example `+${API_USER_EMAIL}+`. Values are stored encrypted in the connection file, like the connection's passwords and secrets.
+|===
+
+A header with the same name set on the transform or action, or by an input row, wins. A default the transform only adds when nothing else set the header does not: a static `Accept` replaces the REST client's default `Accept`, and a static `Content-Type` replaces HTTP POST's default `text/xml` (a content type picked on the transform still wins). So does the header of the authentication type: a static `Authorization` header is not sent when the connection already authenticates. Like the credentials, the headers are only sent to the host of the base URL when one is set, so a request to another host, for example a URL taken from an input field, goes out without them.
+
+The headers are sent by the REST client, HTTP client and HTTP POST transforms and by the HTTP action when they use the connection.
 
 == Advanced
 
@@ -162,12 +179,46 @@ Pagination is configured on the connection; the REST client reads these settings
 |Pagination strategy|How Hop obtains the next page. See the strategies below. Default is `NONE`.
 |Page / cursor parameter name|Query parameter name for `PAGE_NUMBER` or `CURSOR` (for example `page`, `cursor`), body field name for `BODY_CURSOR`, or request header name for `HEADER_CURSOR`. Ignored by `OFFSET_LIMIT`, `LINK_HEADER` and `BODY_NEXT_URL`.
 |Offset query parameter name|Query parameter for the starting index in `OFFSET_LIMIT` paging. Defaults to `offset` when blank.
-|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank.
-|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100).
+|First page number|The page number `PAGE_NUMBER` starts at. Leave empty for `1`. Use `0` for an API that counts pages from zero. Supports variables.
+|Page size parameter name|Query parameter that carries the page size with `PAGE_NUMBER` (for example `pageSize`). The value is the default batch size. Leave empty to send no page size, which is what page-number paging always did.
+|Limit / batch size parameter name|Parameter for the batch size, used by `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. Defaults to `limit` when blank. Not used by `PAGE_NUMBER`, which has its own page size parameter name.
+|Default batch size|Page size sent with `OFFSET_LIMIT`, `BODY_CURSOR` and `HEADER_CURSOR`. When `0`, Hop falls back to an internal default (100). `PAGE_NUMBER` sends it as the page size, only when the page size parameter name is filled in as well.
 |Cursor JsonPath|JsonPath expression against a JSON response body to read the next cursor token, for every cursor strategy.
 |Cursor XPath|XPath expression against an XML response body to read the next cursor token, for every cursor strategy.
 |Next page URL JsonPath|JsonPath expression that reads the next page URL out of a JSON response body (`BODY_NEXT_URL`).
 |Next page URL XPath|XPath expression that reads the next page URL out of an XML response body (`BODY_NEXT_URL`).
+|Items JsonPath / XPath|Where the items are in a page, for example `$.list` or `/envelope/list/item`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: a page where this finds nothing ends paging. Leave empty to keep the default rule. See **When paging stops** below. When both paths are set, an XML response uses the XPath and any other response the JsonPath; the same goes for the total count paths. An XPath is only used with an XML application type; otherwise the transform logs that it is not used.
+|Total count JsonPath / XPath|Where the API reports the total number of items, for example `$.count` or `/envelope/count`. Used by `PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR`: paging stops once that many items were read, so the last, empty, page is never requested. The items are counted with the items path, so the total count is only used together with an items path; without one, the transform logs that the total count is not used. It does not count the rows of the result split path, because a split path can give more than one row per item. A page where the count cannot be read, or is not a whole number, is logged and paging goes on until a page has no items.
+|===
+
+=== When paging stops
+
+`PAGE_NUMBER`, `OFFSET_LIMIT` and `CURSOR` request pages until one comes back empty. What counts as empty:
+
+. When **Items JsonPath** (or **Items XPath**) is set: a page where it finds no items.
+. Otherwise, when the REST client transform has a result split path: a page where the split path finds nothing.
+. Otherwise: a page with an empty response body.
+
+Many APIs wrap their items in an envelope that is never empty, for example `{"page":3,"pageSize":20,"count":46,"list":[]}`. Without an items path or a split path, Hop keeps requesting pages until the transform's maximum number of page requests is reached. Set the items path to `$.list` for such an API, also when the transform has no split path because it wants one row per page. The items path decides when paging stops; the split path still decides how a page is split into rows.
+
+A JsonPath to an array, such as `$.list`, counts the elements of that array. An XPath counts the nodes it selects, so select the items themselves, for example `/envelope/list/item`. An XPath to the element around the items, such as `/envelope/list`, still ends paging on the empty `<list/>` of the last page, but counts every page as one item, so a total count cannot stop paging early with it.
+
+When the transform also has a split path, the two should point at the same items. If the items path finds items in a page where the split path gives no rows, or finds nothing in a first page where the split path does give rows, the transform logs both paths once.
+
+A non-2xx response always ends the loop, and the transform's maximum number of page requests (256 by default) is a safeguard for every strategy.
+
+Example for an API that counts pages from zero and takes a page size (`GET /workflows?page=0&pageSize=100`):
+
+[options="header"]
+|===
+|Option |Value
+|Pagination strategy|`PAGE_NUMBER`
+|Page / cursor parameter name|`page`
+|First page number|`0`
+|Page size parameter name|`pageSize`
+|Default batch size|`100`
+|Items JsonPath|`$.list`
+|Total count JsonPath|`$.count`
 |===
 
 === Pagination strategies
@@ -178,7 +229,7 @@ Pagination is configured on the connection; the REST client reads these settings
 |`NONE`|No pagination metadata is applied. Use this for single-request APIs.
 |`LINK_HEADER`|Follows the RFC 5988 `Link` response header: Hop requests the bracketed URI whose `rel` relation includes `next`. GitHub, Shopify, and similar APIs use this style. Hop stops when no `next` link is present or when the same URL would be requested again (cycle guard).
 |`OFFSET_LIMIT`|Adds offset/limit (or custom-named) query parameters. After each successful non-empty page, the offset increases by the batch size. An empty page ends the loop.
-|`PAGE_NUMBER`|Adds a page query parameter starting at `1` and increments it after each successful non-empty page. An empty page ends the loop.
+|`PAGE_NUMBER`|Adds a page query parameter starting at the first page number (`1` by default) and increments it after each successful non-empty page. When the page size parameter name and the default batch size are both filled in, the page size is sent as well. An empty page ends the loop.
 |`CURSOR`|Adds a cursor query parameter on follow-up requests. The token is extracted from the previous response with JsonPath (JSON) or XPath (XML). An empty page or missing next token ends the loop.
 |`BODY_CURSOR`|Merges the cursor and batch size into the request body of a `POST`, `PUT` or `PATCH` (JSON or form url-encoded, following the application type). On a `GET` they are sent as query parameters instead, because HTTP clients do not send a `GET` body. The loop ends when the next cursor is empty — not when a page is empty, since APIs of this shape (Slack, for example) can return sparse pages while still advertising a next cursor.
 |`HEADER_CURSOR`|Sends the cursor as a request header rather than a parameter. The next token is read from the body as with `CURSOR`, and an empty token ends the loop.

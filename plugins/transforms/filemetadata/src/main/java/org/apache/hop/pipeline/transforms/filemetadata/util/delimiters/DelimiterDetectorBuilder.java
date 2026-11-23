@@ -24,8 +24,8 @@ import org.apache.hop.core.logging.ILogChannel;
 
 public class DelimiterDetectorBuilder {
 
-  private ArrayList<Character> delimiterCandidates = new ArrayList<>(5);
-  private ArrayList<Character> enclosureCandidates = new ArrayList<>(5);
+  private final ArrayList<Character> delimiterCandidates = new ArrayList<>(5);
+  private final ArrayList<Character> enclosureCandidates = new ArrayList<>(5);
   private BufferedReader input = null;
   private ILogChannel log;
 

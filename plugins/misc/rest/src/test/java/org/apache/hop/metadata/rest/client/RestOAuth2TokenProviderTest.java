@@ -237,6 +237,33 @@ class RestOAuth2TokenProviderTest {
   }
 
   @Test
+  void invalidatingTheRejectedTokenForcesAFreshOne() throws Exception {
+    RestClientSettings settings = clientCredentials();
+    assertEquals("token-1", RestOAuth2TokenProvider.getAccessToken(settings));
+
+    RestOAuth2TokenProvider.invalidate(settings, "token-1");
+
+    assertEquals("token-2", RestOAuth2TokenProvider.getAccessToken(settings));
+    assertEquals(2, issued.get());
+  }
+
+  @Test
+  void aTokenAnotherCopyAlreadyReplacedIsNotThrownAwayAgain() throws Exception {
+    // Issue #9550: two copies get a 401 on token-1. The first replaces it with token-2; the second
+    // must then reuse token-2, not drop it and fetch token-3 - a provider that revokes the previous
+    // token on every issue would otherwise knock the first copy offline again.
+    RestClientSettings settings = clientCredentials();
+    assertEquals("token-1", RestOAuth2TokenProvider.getAccessToken(settings));
+
+    RestOAuth2TokenProvider.invalidate(settings, "token-1"); // first copy
+    assertEquals("token-2", RestOAuth2TokenProvider.getAccessToken(settings));
+    RestOAuth2TokenProvider.invalidate(settings, "token-1"); // second copy, late
+
+    assertEquals("token-2", RestOAuth2TokenProvider.getAccessToken(settings));
+    assertEquals(2, issued.get());
+  }
+
+  @Test
   void theReasonAnEndpointRefusedIsInTheMessage() {
     statusCode = 401;
     errorBody = "{\"error\":\"invalid_client\"}";

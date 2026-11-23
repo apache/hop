@@ -39,6 +39,7 @@ import org.apache.hop.marketplace.resolve.MavenCoordinates;
  * embedded in the repository definition enriches live results; it is not a cache.
  */
 public final class PluginDiscovery {
+  private static final String CONST_AUTO_DISCOVERED = "auto-discovered";
 
   private PluginDiscovery() {}
 
@@ -376,7 +377,7 @@ public final class PluginDiscovery {
       }
       if (StringUtils.isNotBlank(m.getDescription())
           && (StringUtils.isBlank(info.getDescription())
-              || "auto-discovered".equals(info.getCategory())
+              || CONST_AUTO_DISCOVERED.equals(info.getCategory())
               || looksLikeMavenPath(info.getDescription()))) {
         if (!looksLikeMavenPath(m.getDescription())) {
           info.setDescription(m.getDescription());
@@ -385,9 +386,9 @@ public final class PluginDiscovery {
       // Prefer human category from YAML over Nexus auto-discovered
       if (StringUtils.isNotBlank(m.getCategory())
           && (StringUtils.isBlank(info.getCategory())
-              || "auto-discovered".equalsIgnoreCase(info.getCategory())
-              || !"auto-discovered".equalsIgnoreCase(m.getCategory()))) {
-        if (!"auto-discovered".equalsIgnoreCase(m.getCategory())
+              || CONST_AUTO_DISCOVERED.equalsIgnoreCase(info.getCategory())
+              || !CONST_AUTO_DISCOVERED.equalsIgnoreCase(m.getCategory()))) {
+        if (!CONST_AUTO_DISCOVERED.equalsIgnoreCase(m.getCategory())
             || StringUtils.isBlank(info.getCategory())) {
           info.setCategory(m.getCategory());
         }

@@ -60,7 +60,7 @@ public final class Wsdl implements java.io.Serializable {
   private final Definition wsdlDefinition;
   private final Service service;
   private final WsdlTypes wsdlTypes;
-  private HashMap<String, WsdlOperation> operationHashMap;
+  private final HashMap<String, WsdlOperation> operationHashMap;
 
   /**
    * Loads and parses the specified WSDL file.

@@ -68,6 +68,7 @@ for ARGUMENT in "$@"; do
   SPARK_BASE_URL) SPARK_BASE_URL=${VALUE} ;;
   HOP_SPARK_CLIENT_VERSION) HOP_SPARK_CLIENT_VERSION=${VALUE} ;;
   INCLUDE_DISABLED) INCLUDE_DISABLED=${VALUE} ;;
+  HOP_IT_ENGINE) HOP_IT_ENGINE=${VALUE} ;;
   *) ;;
   esac
 
@@ -89,6 +90,8 @@ fi
 export SPARK_VERSION HADOOP_VERSION SPARK_BASE_URL
 # The compose files hand this to the test container: run-tests.sh honours disabled.txt too.
 export INCLUDE_DISABLED
+# spark-native: run every project's tests on the native Spark engine (see run-tests.sh)
+export HOP_IT_ENGINE="${HOP_IT_ENGINE:-}"
 # Watchdog for a hop-run that never returns (see run-tests.sh). Exported so the value reaches the
 # test container through the compose files; 0 disables it.
 export HOP_IT_TIMEOUT="${HOP_IT_TIMEOUT:-3600}"

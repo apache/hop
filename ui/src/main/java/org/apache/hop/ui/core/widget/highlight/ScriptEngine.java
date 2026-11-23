@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget.highlight;
 
 import java.util.List;
 
+@SuppressWarnings("java:S1192") // keyword lists read as literals, as in each language reference
 public enum ScriptEngine {
   PYTHON(
       List.of(

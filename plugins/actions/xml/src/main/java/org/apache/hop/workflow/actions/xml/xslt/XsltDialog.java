@@ -65,18 +65,16 @@ public class XsltDialog extends ActionDialog {
     "media-type"
   };
 
-  private static final String[] FILETYPES_XML =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xml"),
-        BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
-      };
+  private static final String[] FILETYPES_XML = {
+    BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xml"),
+    BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
+  };
 
-  private static final String[] FILETYPES_XSL =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xsl"),
-        BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xslt"),
-        BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
-      };
+  private static final String[] FILETYPES_XSL = {
+    BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xsl"),
+    BaseMessages.getString(PKG, "ActionXSLT.Filetype.Xslt"),
+    BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
+  };
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private Label wlxmlFilename;
@@ -443,18 +441,17 @@ public class XsltDialog extends ActionDialog {
 
     final int OutputPropertiesRows = action.getOutputPropertyList().size();
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Name"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {""},
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Name"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {""},
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     colinf[0].setComboValues(OUTPUT_PROPERTIES);
     colinf[1].setUsingVariables(true);
 

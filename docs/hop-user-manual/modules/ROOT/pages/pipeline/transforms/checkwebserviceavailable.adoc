@@ -43,3 +43,7 @@ The value is depending on the quality of service of this URL and experiences.
 |Result fieldname|If it connects within the given timeout and data can be read, it returns 'true' as a boolean result value, otherwise 'false'
 |===
 
+== Samples
+
+The samples project has `transforms/check-if-webservice-is-available.hpl`, which checks `https://httpbin.org/get` for 10 generated rows and writes to the log whether the web service is available.
+It needs internet access.

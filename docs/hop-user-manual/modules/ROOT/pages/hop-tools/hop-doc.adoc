@@ -115,3 +115,5 @@ With `--generate-html`, each `.md` file gets an `.html` file next to it, includi
 With `--remove-markdown` as well, only the HTML files, the images and the styles remain.
 
 Files that are already in the target folder stay, so remove the old documentation first when files were renamed or deleted in the project.
+
+To publish these pages to DataHub as documents next to the pipelines and workflows they describe, use `hop datahub-publish -d`; see xref:technology/datahub/index.adoc#_documentation[DataHub documentation].

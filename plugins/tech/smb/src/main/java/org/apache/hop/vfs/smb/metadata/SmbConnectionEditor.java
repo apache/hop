@@ -118,7 +118,7 @@ public class SmbConnectionEditor extends MetadataEditor<SmbConnection> {
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
             setChanged();
-            metadata.widgetModified(compositeWidgets, changedWidget, widgetId);
+            metadata.widgetModified(compositeWidgets, widgetId);
           }
 
           @Override

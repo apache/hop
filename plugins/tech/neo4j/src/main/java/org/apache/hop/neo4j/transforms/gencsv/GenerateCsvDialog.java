@@ -53,7 +53,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
   private TextVar wFilenameField;
   private TextVar wFileTypeField;
 
-  private GenerateCsvMeta input;
+  private final GenerateCsvMeta input;
 
   public GenerateCsvDialog(
       Shell parent,
@@ -98,7 +98,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
-    String[] fieldnames = new String[] {};
+    String[] fieldnames = {};
     try {
       fieldnames = pipelineMeta.getPrevTransformFields(variables, transformMeta).getFieldNames();
     } catch (HopTransformException e) {

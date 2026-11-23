@@ -46,7 +46,7 @@ public class InjectorDialog extends BaseTransformDialog {
 
   private TableView wFields;
 
-  private InjectorMeta input;
+  private final InjectorMeta input;
 
   public InjectorDialog(
       Shell parent, IVariables variables, InjectorMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -102,25 +102,24 @@ public class InjectorDialog extends BaseTransformDialog {
 
     final int nrFieldsRows = input.getInjectorFields().size();
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Fieldname"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Fieldname"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "InjectorDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     columns[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
 
     wFields =

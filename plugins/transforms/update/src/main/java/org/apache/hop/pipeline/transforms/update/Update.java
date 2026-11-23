@@ -44,6 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Update data in a database table, does NOT ever perform an insert. */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
+  private static final String CONST_UPD002 = "UPD002";
   public static final String CONST_IS_NULL = "IS NULL";
   public static final String CONST_UPDATE_EXCEPTION_FIELD_REQUIRED =
       "Update.Exception.FieldRequired";
@@ -558,7 +559,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           if (exceptionNr < exceptions.size()) {
             rowMessage = exceptions.get(exceptionNr++).toString();
           }
-          buffer.get(from + i).fail(rowMessage, null, "UPD002");
+          buffer.get(from + i).fail(rowMessage, null, CONST_UPD002);
         }
       }
       from += counted;
@@ -568,13 +569,13 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
       if (counts == null) {
         for (int i = from; i < size; i++) {
-          buffer.get(i).fail(message, null, "UPD002");
+          buffer.get(i).fail(message, null, CONST_UPD002);
         }
         break;
       }
 
       // The driver stopped here: this is the row it refused.
-      buffer.get(from).fail(message, null, "UPD002");
+      buffer.get(from).fail(message, null, CONST_UPD002);
       from++;
       if (from >= size) {
         break;

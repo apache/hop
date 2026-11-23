@@ -34,13 +34,13 @@ public class LogChannelFileWriter {
   private boolean appending;
   private int pollingInterval;
 
-  private AtomicBoolean active;
-  private AtomicBoolean finished;
+  private final AtomicBoolean active;
+  private final AtomicBoolean finished;
 
   private HopException exception;
   protected OutputStream logFileOutputStream;
 
-  private LogChannelFileWriterBuffer buffer;
+  private final LogChannelFileWriterBuffer buffer;
 
   /**
    * Create a new log channel file writer

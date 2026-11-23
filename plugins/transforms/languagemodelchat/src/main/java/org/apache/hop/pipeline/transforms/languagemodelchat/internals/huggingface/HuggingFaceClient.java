@@ -100,9 +100,9 @@ public class HuggingFaceClient {
   }
 
   public static class TextGenerationRequest {
-    private String inputs;
-    private Parameters parameters;
-    private Options options;
+    private final String inputs;
+    private final Parameters parameters;
+    private final Options options;
 
     public TextGenerationRequest(String inputs, Parameters parameters, Options options) {
       this.inputs = inputs;
@@ -112,7 +112,7 @@ public class HuggingFaceClient {
   }
 
   public static class Parameters {
-    private Double temperature;
+    private final Double temperature;
 
     @Json(name = "max_new_tokens")
     private Integer maxNewTokens;

@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Shell;
 /** Dropdown panel for displaying notifications */
 public class NotificationPanel implements INotificationListener {
   private static final Class<?> PKG = NotificationPanel.class;
+  private static final String CONST_PRIORITY_BAR = "priorityBar";
 
   /** How many notifications the panel draws before it stops and says how many are left. */
   private static final int MAX_RENDERED_NOTIFICATIONS = 100;
@@ -84,7 +85,7 @@ public class NotificationPanel implements INotificationListener {
   }
 
   private Shell shell;
-  private Shell parentShell;
+  private final Shell parentShell;
   private ScrolledComposite scrolledComposite;
   private Composite contentComposite;
   private boolean isVisible = false;
@@ -555,7 +556,7 @@ public class NotificationPanel implements INotificationListener {
     // Priority indicator (colored bar on the left)
     Composite priorityBar = new Composite(composite, SWT.NONE);
     priorityBar.setLayout(null);
-    priorityBar.setData("type", "priorityBar"); // Mark for later updates
+    priorityBar.setData("type", CONST_PRIORITY_BAR); // Mark for later updates
     FormData fdPriorityBar = new FormData();
     fdPriorityBar.left = new FormAttachment(0, 0);
     fdPriorityBar.top = new FormAttachment(0, 0);
@@ -779,7 +780,7 @@ public class NotificationPanel implements INotificationListener {
     for (Control child : children) {
       if (child instanceof Composite) {
         Object type = child.getData("type");
-        if ("priorityBar".equals(type)) {
+        if (CONST_PRIORITY_BAR.equals(type)) {
           updatePriorityBar((Composite) child, notification, guiResource);
         }
       }
@@ -828,7 +829,7 @@ public class NotificationPanel implements INotificationListener {
     }
     // Don't attach to the priority bar or source indicator (they're just visual indicators)
     Object type = control.getData("type");
-    if (!"priorityBar".equals(type) && !"sourceIndicator".equals(type)) {
+    if (!CONST_PRIORITY_BAR.equals(type) && !"sourceIndicator".equals(type)) {
       // Only attach to leaf controls (Labels, etc.) to avoid duplicate events
       // The composite already has the listener, so we don't need to attach to child composites
       if (!(control instanceof Composite)) {

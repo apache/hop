@@ -31,6 +31,10 @@ import org.yaml.snakeyaml.Yaml;
 
 /** Writes project hop-lint.yml without duplicating entire vendor/Apache rule packs. */
 public final class ProjectLintYamlExporter {
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_ENABLED = "enabled";
+  private static final String CONST_SEVERITY = "severity";
+  private static final String CONST_CONDITION_VALUE = "conditionValue";
 
   private ProjectLintYamlExporter() {}
 
@@ -187,14 +191,14 @@ public final class ProjectLintYamlExporter {
       CustomLintRule desired, CustomLintRule packDefault) {
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
     if (desired.isEnabled() != packDefault.isEnabled()) {
-      ruleConfig.put("enabled", desired.isEnabled());
+      ruleConfig.put(CONST_ENABLED, desired.isEnabled());
     }
     if (!Objects.equals(desired.getSeverity(), packDefault.getSeverity())) {
-      ruleConfig.put("severity", desired.getSeverity());
+      ruleConfig.put(CONST_SEVERITY, desired.getSeverity());
     }
     if (!sameText(desired.getConditionValue(), packDefault.getConditionValue())
         && desired.getConditionValue() != null) {
-      ruleConfig.put("conditionValue", desired.getConditionValue());
+      ruleConfig.put(CONST_CONDITION_VALUE, desired.getConditionValue());
     }
     if (!Objects.equals(desired.getAdditionalParameters(), packDefault.getAdditionalParameters())
         && !desired.getAdditionalParameters().isEmpty()) {
@@ -212,7 +216,7 @@ public final class ProjectLintYamlExporter {
     if (!sameText(desired.getDescription(), packDefault.getDescription())) {
       // An empty value is how a project clears the pack's description.
       ruleConfig.put(
-          "description", desired.getDescription() != null ? desired.getDescription() : "");
+          CONST_DESCRIPTION, desired.getDescription() != null ? desired.getDescription() : "");
     }
     Map<String, Object> tags = tagOverrides(desired.getTags(), packDefault.getTags());
     if (!tags.isEmpty()) {
@@ -252,8 +256,8 @@ public final class ProjectLintYamlExporter {
       return toFullNativeRuleMap(rule);
     }
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
-    ruleConfig.put("enabled", rule.isEnabled());
-    ruleConfig.put("severity", rule.getSeverity());
+    ruleConfig.put(CONST_ENABLED, rule.isEnabled());
+    ruleConfig.put(CONST_SEVERITY, rule.getSeverity());
     ruleConfig.put("type", "custom");
     ruleConfig.put("target", rule.getTarget().name());
     if (rule.isComposed()) {
@@ -265,7 +269,7 @@ public final class ProjectLintYamlExporter {
         entry.put("targetField", clause.getTargetField());
         entry.put("condition", clause.getCondition().name());
         if (clause.getConditionValue() != null && !clause.getConditionValue().isEmpty()) {
-          entry.put("conditionValue", clause.getConditionValue());
+          entry.put(CONST_CONDITION_VALUE, clause.getConditionValue());
         }
         clauses.add(entry);
       }
@@ -275,11 +279,11 @@ public final class ProjectLintYamlExporter {
       ruleConfig.put("condition", rule.getCondition().name());
       // Left out when there is none, as in a composed rule's clauses.
       if (rule.getConditionValue() != null && !rule.getConditionValue().isEmpty()) {
-        ruleConfig.put("conditionValue", rule.getConditionValue());
+        ruleConfig.put(CONST_CONDITION_VALUE, rule.getConditionValue());
       }
     }
     ruleConfig.put("name", rule.getName());
-    ruleConfig.put("description", rule.getDescription());
+    ruleConfig.put(CONST_DESCRIPTION, rule.getDescription());
     if (!rule.getAppliesTo().isEmpty()) {
       // Omitted when empty so an unrestricted rule round-trips to the same YAML it came from.
       ruleConfig.put("appliesTo", new ArrayList<>(rule.getAppliesTo()));
@@ -317,8 +321,8 @@ public final class ProjectLintYamlExporter {
   private static Map<String, Object> toFullNativeRuleMap(CustomLintRule rule) {
     Map<String, Object> ruleConfig = new LinkedHashMap<>();
     ruleConfig.put("type", rule.getType());
-    ruleConfig.put("enabled", rule.isEnabled());
-    ruleConfig.put("severity", rule.getSeverity());
+    ruleConfig.put(CONST_ENABLED, rule.isEnabled());
+    ruleConfig.put(CONST_SEVERITY, rule.getSeverity());
     if (!rule.getAppliesTo().isEmpty()) {
       ruleConfig.put("appliesTo", new ArrayList<>(rule.getAppliesTo()));
     }
@@ -326,7 +330,7 @@ public final class ProjectLintYamlExporter {
       ruleConfig.put("messageKey", rule.getMessageKey());
     }
     ruleConfig.put("name", rule.getName());
-    ruleConfig.put("description", rule.getDescription());
+    ruleConfig.put(CONST_DESCRIPTION, rule.getDescription());
     putDocumentation(ruleConfig, rule);
     return ruleConfig;
   }

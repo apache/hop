@@ -33,7 +33,7 @@ public class DelimiterDetector {
   private long maxBadHeaderLines = 30;
   private long maxBadFooterLines = 30;
 
-  private ArrayList<DetectionResult> potentialResults = new ArrayList<>(4);
+  private final ArrayList<DetectionResult> potentialResults = new ArrayList<>(4);
   private ILogChannel log;
   private long rowLimit;
 
@@ -54,7 +54,7 @@ public class DelimiterDetector {
 
   public class DetectionResult {
 
-    private ArrayDeque<LineResult> lineResults = new ArrayDeque<>(8);
+    private final ArrayDeque<LineResult> lineResults = new ArrayDeque<>(8);
 
     private Character delimiter = null;
     private Character enclosure = null;

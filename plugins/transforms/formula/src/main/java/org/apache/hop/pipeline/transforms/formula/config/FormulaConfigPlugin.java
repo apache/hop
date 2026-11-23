@@ -31,11 +31,10 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 /**
@@ -46,7 +45,7 @@ import picocli.CommandLine;
 @Setter
 @ConfigPlugin(id = "FormulaConfigPlugin", description = "Formula transform options")
 @GuiPlugin(description = "i18n::FormulaConfigPlugin.Name")
-public class FormulaConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class FormulaConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final Class<?> PKG = FormulaConfigPlugin.class;
 
@@ -105,8 +104,7 @@ public class FormulaConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

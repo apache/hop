@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.StringUtil;
 
 class GitApiHttp {
+  private static final String CONST_AUTHORIZATION = "Authorization";
 
   static final String USER_AGENT = "Apache-Hop-GitInput";
 
@@ -283,14 +284,14 @@ class GitApiHttp {
           Base64.getEncoder()
               .encodeToString(
                   (auth.getUsername() + ":" + auth.getPassword()).getBytes(StandardCharsets.UTF_8));
-      builder.header("Authorization", "Basic " + credentials);
+      builder.header(CONST_AUTHORIZATION, "Basic " + credentials);
     } else if (auth.isTokenBased()) {
       if (authStyle == GitProvider.AuthStyle.GITLAB_PRIVATE_TOKEN) {
         builder.header("PRIVATE-TOKEN", auth.getToken());
       } else if (authStyle == GitProvider.AuthStyle.TOKEN_HEADER) {
-        builder.header("Authorization", "token " + auth.getToken());
+        builder.header(CONST_AUTHORIZATION, "token " + auth.getToken());
       } else if (authStyle == GitProvider.AuthStyle.BEARER) {
-        builder.header("Authorization", "Bearer " + auth.getToken());
+        builder.header(CONST_AUTHORIZATION, "Bearer " + auth.getToken());
       }
     }
   }

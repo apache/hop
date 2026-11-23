@@ -24,11 +24,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.metadata.ILineageSinkConfiguration;
 import org.apache.hop.lineage.model.HttpLineagePayload;
 import org.apache.hop.lineage.model.LineageEvent;
 import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.plugin.LineageSinkPlugin;
 import org.apache.hop.lineage.spi.ILineageSink;
+import org.apache.hop.lineage.spi.LineageSinkHealth;
 
 /**
  * Hop lineage sink that maps neutral {@link LineageEvent} batches to OpenLineage JSON and POSTs
@@ -105,6 +107,41 @@ public class OpenLineageLineageSink implements ILineageSink {
         + (config.isParentRunsEnabled() ? "on" : "off")
         + ", file dataset naming="
         + (config.isFileSpecNaming() ? "spec" : "legacy");
+  }
+
+  /**
+   * Waits until the events handed over so far are delivered, at most {@code timeoutMs}. It stops
+   * waiting as soon as a delivery fails: see {@link #health()} for what went wrong.
+   */
+  public void awaitDelivery(long timeoutMs) throws InterruptedException {
+    OpenLineageAsyncDispatcher current = dispatcher;
+    if (current != null) {
+      current.awaitDrain(timeoutMs);
+    }
+  }
+
+  @Override
+  public LineageSinkHealth health() {
+    OpenLineageAsyncDispatcher current = dispatcher;
+    if (current == null) {
+      return null;
+    }
+    OpenLineageSpool currentSpool = spool;
+    return new LineageSinkHealth(
+        current.getSentCount(),
+        current.getFailedCount(),
+        current.getRejectedCount(),
+        current.getDroppedCount(),
+        current.getWaitingCount(),
+        currentSpool == null ? -1 : currentSpool.getStoredCount(),
+        current.getLastSentMillis(),
+        current.getLastErrorMillis(),
+        current.getLastError());
+  }
+
+  @Override
+  public ILineageSinkConfiguration newConfiguration() {
+    return new OpenLineageSinkConfiguration();
   }
 
   @Override

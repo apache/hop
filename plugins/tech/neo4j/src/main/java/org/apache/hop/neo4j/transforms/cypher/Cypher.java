@@ -49,6 +49,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.ServiceUnavailableException;
 
 public class Cypher extends BaseTransform<CypherMeta, CypherData> {
+  private static final String CONST_WITH_ERROR = " with error : ";
 
   public Cypher(
       TransformMeta transformMeta,
@@ -520,7 +521,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
    * batches, like CALL { ... } IN TRANSACTIONS, keeps the batches committed before the error.
    */
   private void logAutoCommitRetry(int attempt, Exception e) {
-    logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+    logBasic("Retrying after attempt #" + (attempt + 1) + CONST_WITH_ERROR + e.getMessage());
     if (!meta.isReadOnly()) {
       logBasic(
           "Warning: the statement runs in an auto-commit transaction. Batches it committed before"
@@ -567,7 +568,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
             logBasic(
                 "Retrying transaction after attempt #"
                     + (attempt + 1)
-                    + " with error : "
+                    + CONST_WITH_ERROR
                     + e.getMessage());
           }
         }
@@ -669,7 +670,7 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
         if (attempt + 1 >= data.attempts) {
           throw e;
         }
-        logBasic("Retrying after attempt #" + (attempt + 1) + " with error : " + e.getMessage());
+        logBasic("Retrying after attempt #" + (attempt + 1) + CONST_WITH_ERROR + e.getMessage());
       }
     }
   }

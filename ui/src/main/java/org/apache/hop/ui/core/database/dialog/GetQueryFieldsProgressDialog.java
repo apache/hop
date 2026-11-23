@@ -37,9 +37,9 @@ public class GetQueryFieldsProgressDialog {
   private static final Class<?> PKG = GetQueryFieldsProgressDialog.class;
   private final IVariables variables;
 
-  private Shell shell;
-  private DatabaseMeta databaseMeta;
-  private String sql;
+  private final Shell shell;
+  private final DatabaseMeta databaseMeta;
+  private final String sql;
   private IRowMeta result;
 
   private Database db;

@@ -24,6 +24,12 @@
 		<schema_name />
 	</partitioning>
 	<typefield>type</typefield>
+	<valuefield>content</valuefield>
+	<keys>
+		<key>
+			<name>id</name>
+		</key>
+	</keys>
 	<fields>
 		<field>
 			<name>fieldA</name>

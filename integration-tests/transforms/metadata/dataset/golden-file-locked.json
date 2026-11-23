@@ -1,0 +1,23 @@
+{
+  "base_filename": "golden-file-locked.csv",
+  "name": "golden-file-locked",
+  "description": "The lock indicator of files and a folder that nobody holds, and of a file that does not exist.",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "locked",
+      "field_format": ""
+    }
+  ]
+}

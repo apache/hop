@@ -37,10 +37,9 @@ public class MinioFileProvider extends AbstractOriginatingFileProvider {
 
   private static final FileSystemOptions defaultOptions = new FileSystemOptions();
 
-  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-      new UserAuthenticationData.Type[] {
-        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
-      };
+  public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES = {
+    UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+  };
   public static final int DEFAULT_ENDPOINT_PORT = 9000;
 
   public static FileSystemOptions getDefaultFileSystemOptions() {

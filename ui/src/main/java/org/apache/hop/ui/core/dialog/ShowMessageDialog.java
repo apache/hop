@@ -56,20 +56,20 @@ public class ShowMessageDialog extends Dialog {
     buttonTextByFlagDefaults.put(SWT.NO, BaseMessages.getString(PKG, "System.Button.No"));
   }
 
-  private String title;
-  private String message;
+  private final String title;
+  private final String message;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
-  private int style;
+  private final int style;
   private final Map<Integer, String> buttonTextByFlag;
 
   private int returnValue;
 
-  private Shell parent;
+  private final Shell parent;
 
-  private boolean scroll;
+  private final boolean scroll;
   private boolean hasIcon;
 
   /** Timeout of the dialog in seconds */

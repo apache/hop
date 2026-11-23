@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 
 public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String, String>> {
 
-  private String rowMetaJson;
-  private String transformName;
-  private int keyIndex;
-  private int valueIndex;
+  private final String rowMetaJson;
+  private final String transformName;
+  private final int keyIndex;
+  private final int valueIndex;
 
   private static final Logger LOG = LoggerFactory.getLogger(HopRowToKVStringStringFn.class);
   private final Counter numErrors = Metrics.counter("main", "BeamSubscribeTransformErrors");

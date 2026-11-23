@@ -928,7 +928,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           Double[] latencies = new Double[latenciesList.size()];
           latencies = latenciesList.toArray(latencies);
           int index = (int) Math.ceil((percentileValue / 100) * latencies.length);
-          ag = latencies[index - 1];
+          // No values in the group (all null, or no rows at all): no percentile. The 0th
+          // percentile is the smallest value.
+          ag = latencies.length == 0 ? null : latencies[Math.max(index, 1) - 1];
           break;
         case Aggregation.TYPE_GROUP_COUNT_ANY, Aggregation.TYPE_GROUP_COUNT_ALL:
           ag = data.counts[i];

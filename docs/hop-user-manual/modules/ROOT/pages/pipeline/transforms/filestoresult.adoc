@@ -42,3 +42,7 @@ WARNING: the Files To Result is available for historical reasons. Check the xref
 |Filename field|Field that contains the filenames of the files to copy.
 |Type of file to|Select the type of file to set in results.
 |===
+
+== Samples
+
+The samples project has `transforms/set-files-in-result.hpl`, which adds `sample-file.txt` from a Data grid to the result files of the pipeline, for a parent workflow to pick up.

@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolItem;
 
 public class SvgLabelFacadeImpl extends SvgLabelFacade {
+  private static final String CONST_VAR_EL_DOCUMENT_GET_ELEMENT_BY_ID =
+      "var el = document.getElementById('";
 
   /**
    * The enabled / shaded state the client was last told about, kept on the label. The toolbars are
@@ -125,7 +127,7 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
     }
     // Check if element exists before setting opacity to avoid JS errors
     exec(
-        "var el = document.getElementById('",
+        CONST_VAR_EL_DOCUMENT_GET_ELEMENT_BY_ID,
         id,
         "'); if (el) { el.style.opacity=",
         opacity,
@@ -149,7 +151,7 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
     }
     // Check if element exists before setting background to avoid JS errors
     exec(
-        "var el = document.getElementById('",
+        CONST_VAR_EL_DOCUMENT_GET_ELEMENT_BY_ID,
         id,
         "'); if (el) { el.style.background=",
         color,
@@ -170,7 +172,7 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
       // Update the img src via JavaScript so the icon updates without replacing label markup
       // (setText with new markup may not re-render in RWT)
       String escaped = src.replace("\\", "\\\\").replace("'", "\\'");
-      exec("var el = document.getElementById('", id, "'); if (el) { el.src='", escaped, "'; }");
+      exec(CONST_VAR_EL_DOCUMENT_GET_ELEMENT_BY_ID, id, "'); if (el) { el.src='", escaped, "'; }");
     } catch (Exception e) {
       System.err.println(
           "Error updating image source for tool-item "

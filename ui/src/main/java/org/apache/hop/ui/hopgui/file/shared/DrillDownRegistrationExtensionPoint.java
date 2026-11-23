@@ -41,7 +41,7 @@ public class DrillDownRegistrationExtensionPoint
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline)
       throws HopException {
-    if (pipeline == null || !"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+    if (pipeline == null || !Const.isGuiRuntime()) {
       return;
     }
     DrillDownGuiPlugin.registerRunningPipeline(pipeline.getLogChannelId(), pipeline);

@@ -92,3 +92,10 @@ This is *not* a row group.
 |TrimType|Type trim this field before processing: select either none, left, right, or both (left and right).
 |===
 
+== Samples
+
+The samples project has:
+
+* `transforms/get-variables-basic.hpl`, which gets a file name built on `${PROJECT_HOME}`, the Java version, `${HOP_CONFIG_FOLDER}`, `${HOP_PLATFORM_OS}`, `${user.home}` and `${user.dir}`, and writes them to the log.
+* `pipelines/pipeline-with-parameter.hpl`, which gets the value of its parameter `PRM_EXAMPLE` and of the variable `ENV_VARIABLE`, and writes them to the log.
+* `loops/child-check-set-counter-value.hpl`, which gets `${COUNTER}` as an integer each time the *repeat pipeline* action of `loops/repeat-action.hwf` runs it.

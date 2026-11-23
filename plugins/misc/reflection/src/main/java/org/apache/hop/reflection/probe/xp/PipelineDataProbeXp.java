@@ -31,8 +31,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
@@ -41,6 +39,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.reflection.RunMetadata;
 import org.apache.hop.reflection.pipeline.xp.PipelineStartLoggingXp;
 import org.apache.hop.reflection.probe.meta.DataProbeLocation;
 import org.apache.hop.reflection.probe.meta.PipelineProbe;
@@ -50,13 +49,18 @@ import org.apache.hop.reflection.probe.transform.PipelineDataProbe;
     id = "PipelineDataProbeXp",
     extensionPointId = "PipelineStartThreads",
     description = "Before the start of a pipeline, after init, attach the data probes needed")
-public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
+public class PipelineDataProbeXp implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   public static final String PIPELINE_DATA_PROBE_FLAG = "PipelineDataProbeActive";
 
   @Override
-  public void callExtensionPoint(ILogChannel log, IVariables variables, Pipeline pipeline)
+  public void callExtensionPoint(
+      ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> engine)
       throws HopException {
+    // Works on the transforms of Hop's own pipeline engine: Spark, Beam ... have none
+    if (!(engine instanceof Pipeline pipeline)) {
+      return;
+    }
 
     // Prevent recursive data probing of the pipeline
     //
@@ -64,10 +68,8 @@ public class PipelineDataProbeXp implements IExtensionPoint<Pipeline> {
       return;
     }
 
-    IHopMetadataProvider metadataProvider = pipeline.getMetadataProvider();
-    IHopMetadataSerializer<PipelineProbe> serializer =
-        metadataProvider.getSerializer(PipelineProbe.class);
-    List<PipelineProbe> pipelineDataProbes = serializer.loadAll();
+    List<PipelineProbe> pipelineDataProbes =
+        RunMetadata.loadAll(pipeline, pipeline.getMetadataProvider(), PipelineProbe.class);
 
     for (PipelineProbe pipelineProbe : pipelineDataProbes) {
       handlePipelineProbe(log, pipelineProbe, pipeline, variables);

@@ -47,7 +47,7 @@ public class LintResultsPanel extends Composite implements LintResultsManager.Li
 
   private static final ILogChannel log = LogChannel.GENERAL;
 
-  private LintResultsManager resultsManager;
+  private final LintResultsManager resultsManager;
 
   /**
    * Kept from the start: results arrive on lint threads, and asking a panel that has just been

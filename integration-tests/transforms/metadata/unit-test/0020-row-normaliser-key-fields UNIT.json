@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Region",
+          "data_set_field": "Region"
+        },
+        {
+          "transform_field": "Year",
+          "data_set_field": "Year"
+        },
+        {
+          "transform_field": "Month",
+          "data_set_field": "Month"
+        },
+        {
+          "transform_field": "Sales",
+          "data_set_field": "Sales"
+        }
+      ],
+      "field_order": [],
+      "transform_name": "Verify",
+      "data_set_name": "golden-row-normaliser-key-fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0020-row-normaliser-key-fields UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0020-row-normaliser-key-fields.hpl",
+  "test_type": "UNIT_TEST"
+}

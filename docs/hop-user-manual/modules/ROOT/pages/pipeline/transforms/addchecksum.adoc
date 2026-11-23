@@ -65,3 +65,9 @@ Note: You can use the "Get Fields" button to insert all input fields from previo
 * xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots] — storing an MD5 or SHA hash of a row and comparing it on the next run
 * xref:pipeline/transforms/combinationlookup.adoc[Combination lookup/update] — store this hash code on a junk dimension, or let that transform read a hash you calculated here
 
+== Samples
+
+The samples project has:
+
+* `transforms/add-a-checksum-CRC32.hpl`, which adds a CRC32 checksum of three fields to the rows of a Data grid.
+* `transforms/add-a-checksum-SHA-512.hpl`, which adds a hexadecimal SHA-512 checksum of the same three fields.

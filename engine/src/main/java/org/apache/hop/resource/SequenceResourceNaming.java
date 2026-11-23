@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class SequenceResourceNaming extends SimpleResourceNaming {
 
-  private Map<String, Integer> sequenceMap;
+  private final Map<String, Integer> sequenceMap;
 
   public SequenceResourceNaming() {
     sequenceMap = new Hashtable<>();

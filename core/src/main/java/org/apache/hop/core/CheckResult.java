@@ -37,7 +37,7 @@ public class CheckResult implements ICheckResult {
 
   // MB - Support both JobEntry and Transform Checking
   // 6/26/07
-  private ICheckResultSource sourceMeta;
+  private final ICheckResultSource sourceMeta;
 
   private String errorCode;
 

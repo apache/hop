@@ -40,7 +40,7 @@ public class PoiWorkbook implements IKWorkbook {
 
   private Workbook workbook;
   private String filename;
-  private String encoding;
+  private final String encoding;
   private IVariables variables;
 
   private POIFSFileSystem poifs;

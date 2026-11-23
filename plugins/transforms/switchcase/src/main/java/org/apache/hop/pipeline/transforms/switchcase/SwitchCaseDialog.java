@@ -229,18 +229,17 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     fdlValues.right = new FormAttachment(middle, 0);
     wlValues.setLayoutData(fdlValues);
 
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SwitchCaseDialog.ColumnInfo.Value"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SwitchCaseDialog.ColumnInfo.TargetTransform"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              nextTransformNames,
-              false),
-        };
+    ColumnInfo[] colinf = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SwitchCaseDialog.ColumnInfo.Value"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SwitchCaseDialog.ColumnInfo.TargetTransform"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          nextTransformNames,
+          false),
+    };
 
     wValues =
         new TableView(

@@ -120,6 +120,30 @@ limitations under the License.
         <group/>
       </field>
       <field>
+        <name>release-date</name>
+        <path>release-date</path>
+        <type>Date</type>
+        <length>-1</length>
+        <format>yyyy-MM-dd</format>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
+        <name>incubating</name>
+        <path>incubating</path>
+        <type>Boolean</type>
+        <length>-1</length>
+        <format/>
+        <trim_type>none</trim_type>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+      </field>
+      <field>
         <name>used-apache-projects</name>
         <path>used-apache-projects</path>
         <type>String</type>

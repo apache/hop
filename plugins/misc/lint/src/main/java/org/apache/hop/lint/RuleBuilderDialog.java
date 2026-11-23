@@ -63,8 +63,8 @@ public class RuleBuilderDialog extends Dialog {
   private static final Pattern RULE_ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_.-]*");
 
   private Shell shell;
-  private Shell parent;
-  private CustomLintRule rule;
+  private final Shell parent;
+  private final CustomLintRule rule;
   private boolean ok = false;
 
   // UI components

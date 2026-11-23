@@ -344,6 +344,23 @@ public interface ITransformMeta extends ILegacyXml {
   boolean supportsErrorHandling();
 
   /**
+   * The fields of the rows this transform sends to its error hop, before the error fields. They are
+   * the input fields, which this method receives; a transform that sends other values with an error
+   * row, a count for example, adds or changes them here.
+   *
+   * @param rowMeta the input fields, to change into the fields of an error row
+   * @param name the name of the transform, the origin of a field it adds
+   * @param variables the variables to resolve settings with
+   * @param metadataProvider the metadata the transform can refer to
+   * @throws HopTransformException when the fields can't be worked out
+   */
+  default void getErrorRowFields(
+      IRowMeta rowMeta, String name, IVariables variables, IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    // An error row holds the input row
+  }
+
+  /**
    * @return true if this transform supports multi-copies execution. By default return true.
    */
   boolean supportsMultiCopyExecution();
@@ -400,6 +417,19 @@ public interface ITransformMeta extends ILegacyXml {
    */
   default boolean consumesMainInput() {
     return true;
+  }
+
+  /**
+   * Whether the transform has work to do once per pipeline run, before any of its copies,
+   * partitions or bundles reads a row: truncating a table, creating or changing it, ... When it
+   * returns true, the engine calls {@link ITransform#prepareOnce()} on one initialized instance and
+   * flags every copy with {@link ITransform#setPreparedOnce(boolean)}, so they skip that work.
+   *
+   * @param variables the variables of the transform
+   * @return true when {@link ITransform#prepareOnce()} has work to do
+   */
+  default boolean needsPrepareOnce(IVariables variables) {
+    return false;
   }
 
   /**

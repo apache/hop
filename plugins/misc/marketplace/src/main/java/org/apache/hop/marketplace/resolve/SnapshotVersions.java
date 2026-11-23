@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * 1.0.0-SNAPSHOT/}).
  */
 public final class SnapshotVersions {
+  private static final String CONST_SNAPSHOT = "-SNAPSHOT";
 
   /** Unique timestamped SNAPSHOT: {@code base-yyyyMMdd.HHmmss-buildNumber}. */
   private static final Pattern UNIQUE_SNAPSHOT = Pattern.compile("^(.*)-(\\d{8}\\.\\d{6})-(\\d+)$");
@@ -39,7 +40,7 @@ public final class SnapshotVersions {
     if (StringUtils.isBlank(version)) {
       return false;
     }
-    return version.endsWith("-SNAPSHOT") || isUniqueSnapshot(version);
+    return version.endsWith(CONST_SNAPSHOT) || isUniqueSnapshot(version);
   }
 
   /** True for {@code 1.0.0-20260721.105615-1} style unique versions. */
@@ -56,12 +57,12 @@ public final class SnapshotVersions {
       return version;
     }
     String v = version.trim();
-    if (v.endsWith("-SNAPSHOT")) {
+    if (v.endsWith(CONST_SNAPSHOT)) {
       return v;
     }
     Matcher m = UNIQUE_SNAPSHOT.matcher(v);
     if (m.matches()) {
-      return m.group(1) + "-SNAPSHOT";
+      return m.group(1) + CONST_SNAPSHOT;
     }
     return v;
   }

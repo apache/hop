@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
@@ -44,8 +44,7 @@ import picocli.CommandLine;
     description = "Validate referenced database connections when saving a file",
     category = ConfigPlugin.CATEGORY_CONFIG)
 @GuiPlugin(description = "i18n::FileValidationConfigPlugin.Description")
-public class FileValidationConfigPlugin
-    implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class FileValidationConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   public static final String KEY_VALIDATE_DB_CONNECTIONS_ON_SAVE = "ValidateDbConnectionsOnSave";
 
@@ -110,8 +109,7 @@ public class FileValidationConfigPlugin
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

@@ -260,7 +260,7 @@ public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDataba
       boolean useAutoIncrement,
       String pk,
       boolean semicolon) {
-    return "ALTER TABLE "
+    return CONST_ALTER_TABLE
         + tableName
         + " MODIFY "
         + getColumnDefinition(

@@ -23,12 +23,14 @@ import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataCategory;
@@ -56,6 +58,8 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapperFactory;
 @Getter
 @Setter
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
+
+  private static final Class<?> PKG = MongoDbConnection.class;
 
   public static final String WIDGET_ID_CONNECTION_TYPE = "09900-connection-type";
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";
@@ -290,6 +294,41 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     } finally {
       wrapper.dispose();
     }
+  }
+
+  /**
+   * Describes the settings a connection test uses, with variables resolved: host, port, database,
+   * authentication database, user name and the connection URL. The password is never included, and
+   * the URL is the one built without credentials.
+   *
+   * @param variables the variables to resolve the settings with
+   * @return one line per setting
+   */
+  public String getConnectionTestReport(IVariables variables) {
+    StringBuilder report = new StringBuilder();
+    appendReportLine(report, "MongoMetadata.TestReport.Hostname", variables.resolve(hostname));
+    if (connectionType != MongoDbConnectionType.SRV) {
+      appendReportLine(report, "MongoMetadata.TestReport.Port", variables.resolve(port));
+    }
+    appendReportLine(report, "MongoMetadata.TestReport.DbName", variables.resolve(dbName));
+    String authDatabase = variables.resolve(authenticationDatabaseName);
+    if (StringUtils.isNotEmpty(authDatabase)) {
+      appendReportLine(report, "MongoMetadata.TestReport.AuthDatabaseName", authDatabase);
+    }
+    String user = variables.resolve(authenticationUser);
+    if (StringUtils.isNotEmpty(user)) {
+      appendReportLine(report, "MongoMetadata.TestReport.Username", user);
+    }
+    appendReportLine(report, "MongoMetadata.TestReport.Url", buildCleanConnectionString(variables));
+    return report.toString();
+  }
+
+  private static void appendReportLine(StringBuilder report, String labelKey, String value) {
+    report
+        .append(BaseMessages.getString(PKG, labelKey))
+        .append('\t')
+        .append(Const.NVL(value, ""))
+        .append(Const.CR);
   }
 
   public MongoClientWrapper createWrapper(IVariables variables, ILogChannel log)

@@ -1,0 +1,4 @@
+table_name,column_name,result
+ce_table,id,Y
+ce_table,not_there,N
+missing_table,id,N

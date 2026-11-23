@@ -50,12 +50,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 public class HopGuiPipelineHopDelegate {
+  private static final String CONST_HOP_GUI_LAYOUT_CHECK_TITLE = "HopGui.LayoutCheck.Title";
+  private static final String CONST_HOP_GUI_LAYOUT_CHECK_ERROR = "HopGui.LayoutCheck.Error";
 
   private static final Class<?> PKG = HopGui.class;
 
-  private HopGui hopGui;
-  private HopGuiPipelineGraph pipelineGraph;
-  private PropsUi props;
+  private final HopGui hopGui;
+  private final HopGuiPipelineGraph pipelineGraph;
+  private final PropsUi props;
 
   public HopGuiPipelineHopDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
@@ -354,13 +356,13 @@ public class HopGuiPipelineHopDelegate {
 
     if (prevTransforms.isEmpty()) {
       MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "HopGui.LayoutCheck.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "HopGui.LayoutCheck.NoInputs"));
       box.open();
       return;
     } else if (prevTransforms.size() == 1) {
       MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "HopGui.LayoutCheck.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_TITLE));
       box.setMessage(
           BaseMessages.getString(
               PKG, "HopGui.LayoutCheck.OneInput", prevTransforms.get(0).getName()));
@@ -377,7 +379,7 @@ public class HopGuiPipelineHopDelegate {
       } catch (HopException e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "HopGui.LayoutCheck.Error"),
+            BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_ERROR),
             BaseMessages.getString(PKG, "HopGui.LayoutCheck.ErrorGettingRowLayout", prev.getName()),
             e);
         errorOccurred = true;
@@ -399,7 +401,7 @@ public class HopGuiPipelineHopDelegate {
 
     if (allIdentical) {
       MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-      box.setText(BaseMessages.getString(PKG, "HopGui.LayoutCheck.Title"));
+      box.setText(BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_TITLE));
       box.setMessage(BaseMessages.getString(PKG, "HopGui.LayoutCheck.Identical"));
       box.open();
     } else {
@@ -575,14 +577,14 @@ public class HopGuiPipelineHopDelegate {
           } else {
             new ErrorDialog(
                 shell,
-                BaseMessages.getString(PKG, "HopGui.LayoutCheck.Error"),
+                BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_ERROR),
                 BaseMessages.getString(PKG, "HopGui.LayoutCheck.Dialog.StreamSchemaPluginNotFound"),
                 new HopException("Plugin not found"));
           }
         } catch (Exception e) {
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "HopGui.LayoutCheck.Error"),
+              BaseMessages.getString(PKG, CONST_HOP_GUI_LAYOUT_CHECK_ERROR),
               BaseMessages.getString(PKG, "HopGui.LayoutCheck.Dialog.ReplaceDummyError"),
               e);
         }

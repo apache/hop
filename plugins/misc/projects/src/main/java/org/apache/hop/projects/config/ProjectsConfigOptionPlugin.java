@@ -37,7 +37,7 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -57,8 +57,7 @@ import picocli.CommandLine;
     )
 @Getter
 @Setter
-public class ProjectsConfigOptionPlugin
-    implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class ProjectsConfigOptionPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   protected static final Class<?> PKG = ProjectsConfigOptionPlugin.class;
 
@@ -339,8 +338,7 @@ public class ProjectsConfigOptionPlugin
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

@@ -30,11 +30,14 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.metadata.rest.RestConnection;
+import org.apache.hop.metadata.rest.client.RestOAuth2TokenProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -63,6 +66,14 @@ class HttpConnectionTest {
   private final AtomicReference<String> authorization = new AtomicReference<>();
   private final AtomicReference<String> requestPath = new AtomicReference<>();
 
+  /** The Authorization header of every request, in order. */
+  private final List<String> authorizations = new CopyOnWriteArrayList<>();
+
+  /** When set, the server rejects "Bearer token-1" with a 401, as if the provider revoked it. */
+  private volatile boolean rejectToken1;
+
+  private final AtomicInteger tokensIssued = new AtomicInteger();
+
   @BeforeAll
   static void setupBeforeClass() throws Exception {
     HopClientEnvironment.init();
@@ -72,15 +83,32 @@ class HttpConnectionTest {
   void startServer() throws IOException {
     server = HttpServer.create(new InetSocketAddress("localhost", 0), 10);
     server.createContext("/", this::respond);
+    server.createContext("/token", this::issueToken);
     server.start();
   }
 
   private void respond(HttpExchange exchange) throws IOException {
     List<String> auth = exchange.getRequestHeaders().get("Authorization");
     authorization.set(auth == null ? null : auth.get(0));
+    authorizations.add(auth == null ? "-" : auth.get(0));
     requestPath.set(exchange.getRequestURI().getPath());
 
+    int status = rejectToken1 && "Bearer token-1".equals(authorization.get()) ? 401 : 200;
     byte[] body = PAYLOAD.getBytes(UTF_8);
+    exchange.sendResponseHeaders(status, body.length);
+    try (OutputStream os = exchange.getResponseBody()) {
+      os.write(body);
+    }
+    exchange.close();
+  }
+
+  private void issueToken(HttpExchange exchange) throws IOException {
+    exchange.getRequestBody().readAllBytes();
+    byte[] body =
+        ("{\"access_token\":\"token-"
+                + tokensIssued.incrementAndGet()
+                + "\",\"token_type\":\"Bearer\",\"expires_in\":3600}")
+            .getBytes(UTF_8);
     exchange.sendResponseHeaders(200, body.length);
     try (OutputStream os = exchange.getResponseBody()) {
       os.write(body);
@@ -93,6 +121,36 @@ class HttpConnectionTest {
     server.stop(0);
     authorization.set(null);
     requestPath.set(null);
+    RestOAuth2TokenProvider.clearCache();
+  }
+
+  @Test
+  void aRejectedOAuth2TokenIsReplacedAndTheRequestSentOnceMore() throws Exception {
+    // Issue #9550: the renewal is in the connection's client, so the HTTP client gets it too.
+    rejectToken1 = true;
+    HttpMeta meta = meta("v1/items");
+    Http http = transform(meta, oauth2Provider());
+
+    assertTrue(http.init());
+    Object[] result = http.callHttpService(new RowMeta(), new Object[0]);
+
+    assertEquals(PAYLOAD, result[0]);
+    assertEquals(List.of("Bearer token-1", "Bearer token-2"), authorizations);
+    http.dispose();
+  }
+
+  private MemoryMetadataProvider oauth2Provider() throws Exception {
+    String baseUrl = "http://localhost:" + server.getAddress().getPort();
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+    RestConnection connection = new RestConnection();
+    connection.setName(CONNECTION);
+    connection.setBaseUrl(baseUrl);
+    connection.setAuthType(RestConnection.OAUTH2);
+    connection.setOauth2TokenUrl(baseUrl + "/token");
+    connection.setOauth2ClientId("hop-http");
+    connection.setOauth2ClientSecret("secret");
+    provider.getSerializer(RestConnection.class).save(connection);
+    return provider;
   }
 
   @Test

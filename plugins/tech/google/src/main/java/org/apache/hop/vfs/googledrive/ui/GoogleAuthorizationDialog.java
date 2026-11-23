@@ -52,7 +52,7 @@ public class GoogleAuthorizationDialog extends Dialog {
   protected Display display;
 
   private static final int OPTIONS = SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM;
-  private VerificationCodeReceiver receiver;
+  private final VerificationCodeReceiver receiver;
 
   public GoogleAuthorizationDialog(Shell shell, VerificationCodeReceiver receiver) {
     super(shell);

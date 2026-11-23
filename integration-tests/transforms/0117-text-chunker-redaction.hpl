@@ -21,8 +21,9 @@ limitations under the License.
   <info>
     <name>0117-text-chunker-redaction</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Credentials in Hop XML and metadata JSON must not reach chunk text, which is
-      normally sent to an embedding model.</description>
+    <description>Credentials in Hop XML and metadata JSON, including parameter defaults and
+      name/value variables, must not reach chunk text, which is normally sent to an embedding
+      model.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -65,6 +66,38 @@ limitations under the License.
       <line>
         <item>metadata</item>
         <item>{"name":"prod-rest","restConnection":{"baseUrl":"https://api.example.com",&#10;"bearerToken":"tok-abcdef123456","proxyPassword":"hunter2"}}</item>
+      </line>
+      <line>
+        <item>pipeline</item>
+        <item>&lt;pipeline&gt;&lt;info&gt;&lt;name&gt;param-demo&lt;/name&gt;&lt;parameters&gt;&#10;&lt;parameter&gt;&lt;name&gt;DB_PASSWORD&lt;/name&gt;&lt;default_value&gt;s3cr3t&lt;/default_value&gt;&lt;description&gt;Database password&lt;/description&gt;&lt;/parameter&gt;&#10;&lt;parameter&gt;&lt;name&gt;THRESHOLD&lt;/name&gt;&lt;default_value&gt;30&lt;/default_value&gt;&lt;description/&gt;&lt;/parameter&gt;&#10;&lt;/parameters&gt;&lt;/info&gt;&lt;/pipeline&gt;</item>
+      </line>
+      <line>
+        <item>workflow</item>
+        <item>&lt;workflow&gt;&lt;name&gt;variables-demo&lt;/name&gt;&lt;parameters/&gt;&lt;actions&gt;&#10;&lt;action&gt;&lt;name&gt;Set variables&lt;/name&gt;&lt;type&gt;SET_VARIABLES&lt;/type&gt;&lt;fields&gt;&#10;&lt;field&gt;&lt;variable_name&gt;API_TOKEN&lt;/variable_name&gt;&lt;variable_value&gt;tok123&lt;/variable_value&gt;&lt;variable_type&gt;CURRENT_WORKFLOW&lt;/variable_type&gt;&lt;/field&gt;&#10;&lt;field&gt;&lt;variable_name&gt;REGION&lt;/variable_name&gt;&lt;variable_value&gt;eu-west-1&lt;/variable_value&gt;&lt;variable_type&gt;CURRENT_WORKFLOW&lt;/variable_type&gt;&lt;/field&gt;&#10;&lt;/fields&gt;&lt;/action&gt;&lt;/actions&gt;&lt;/workflow&gt;</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"prod-env","variables":[&#10;{"name":"API_TOKEN","value":"tok-987654","description":""},&#10;{"name":"REGION","value":"eu-west-1","description":""}]}</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"smtp","protocol":"SMTP","serverHost":"smtp.example.com","serverPort":"587",&#10;"username":"hop","password":"Encrypted 2be98afc86aa7f2e4cb79ce10df90acde"}</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"0001 UNIT","variableValues":[&#10;{"key":"DB_PASSWORD","value":"unit-test-s3cr3t"},&#10;{"key":"REGION","value":"eu-west-1"}]}</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"openai","baseUrl":"https://api.example.com","auth_type":"API_KEY",&#10;"auth_header_name":"X-API-Key","auth_header_value":"sk-live-123",&#10;"headers":[{"name":"Authorization","value":"Bearer abc"},{"name":"Accept","value":"application/json"}]}</item>
+      </line>
+      <line>
+        <item>metadata</item>
+        <item>{"name":"prod-lists","variables":[&#10;{"name":"API_TOKENS","value":["tok-1","tok-2"]},&#10;{"name":"DB_PASSWORD","value":"${VAULT_DB_PASSWORD}"}]}</item>
+      </line>
+      <line>
+        <item>pipeline</item>
+        <item>&lt;pipeline&gt;&lt;info&gt;&lt;name&gt;reference-demo&lt;/name&gt;&lt;parameters&gt;&#10;&lt;parameter&gt;&lt;name&gt;DB_PASSWORD&lt;/name&gt;&lt;default_value&gt;${PROD_DB_PASSWORD}&lt;/default_value&gt;&lt;description/&gt;&lt;/parameter&gt;&#10;&lt;/parameters&gt;&lt;/info&gt;&#10;&lt;transform&gt;&lt;name&gt;Generate rows&lt;/name&gt;&lt;type&gt;RowGenerator&lt;/type&gt;&lt;fields&gt;&#10;&lt;field&gt;&lt;name&gt;token_count&lt;/name&gt;&lt;type&gt;Integer&lt;/type&gt;&lt;nullif&gt;4096&lt;/nullif&gt;&lt;/field&gt;&#10;&lt;/fields&gt;&lt;/transform&gt;&lt;/pipeline&gt;</item>
       </line>
     </data>
     <fields>

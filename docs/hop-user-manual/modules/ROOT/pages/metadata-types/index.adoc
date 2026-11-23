@@ -36,10 +36,12 @@ By default, Hop contains the following metadata types:
 
 
 * xref:metadata-types/ai-provider.adoc[AI Provider]: Named language-model endpoint (credentials and model) used by the AI Assistant and optionally by Language Model Chat
+* xref:metadata-types/airflow-connection.adoc[Airflow Connection]: The URL and credentials of an Apache Airflow 3 REST API, used by the Trigger Airflow DAG run action
 * xref:hop-server/async-web-service.adoc[Asynchronous Web Service]: Execute and query a workflow asynchronously through a web service.
 * xref:metadata-types/azure-authentication.adoc[Azure Connection]: An Azure Blob Storage connection type.
 * xref:metadata-types/beam-file-definition.adoc[Beam File Definition]: Describes a file layout in a Beam Pipeline
 * xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]: Describes a connection to a Cassandra cluster
+* xref:metadata-types/data-catalog.adoc[Data Catalog]: A data catalog, such as DataHub, that Hop reads dataset metadata from: whether a dataset exists, is deprecated, changed recently and passed its assertions.
 * xref:metadata-types/data-set.adoc[Data Set]: This defines a data set, a static pre-defined collection of rows
 xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can be used for Inter Process Communication (IPC) or fast data serialization.
 * xref:metadata-types/databricks-connection.adoc[Databricks Connection]: Workspace connection for the Databricks Jobs / REST API (PAT); not the JDBC SQL warehouse connection
@@ -54,8 +56,10 @@ xref:metadata-types/data-stream/data-stream.adoc[Data Stream]: A Data Stream can
 * xref:metadata-types/hdfs-connection.adoc[HDFS Connection]: Named HDFS access via HttpFS, Knox or WebHDFS (no Hadoop client JARs)
 * xref:metadata-types/hop-server.adoc[Hop Server]: Defines a Hop Server
 * xref:metadata-types/mongodb-connection.adoc[MongoDB Connection]: Describes a MongoDB connection
+* xref:metadata-types/lineage-sink.adoc[Lineage Sink]: A place, such as an OpenLineage collector or DataHub, that runs report their lineage to
 * xref:metadata-types/mail-server-connection.adoc[Mail Server Connection]: Describes a mail server connection
 * xref:metadata-types/masking-pattern.adoc[Masking Pattern]: A reusable rule for replacing personal data in a field
+* xref:metadata-types/sharepoint-connection.adoc[SharePoint Connection]: Named VFS access to the document libraries of the SharePoint sites of a Microsoft 365
 * xref:metadata-types/minio-connection.adoc[Minio (S3) Connection]: Connect to one or more S3 endpoints using a Minio client
 * xref:metadata-types/naming-scheme.adoc[Naming Scheme]: Reusable rules to normalize Hop field names, database identifiers, and file or folder names
 * xref:metadata-types/webdav-connection.adoc[WebDAV Connection]: Named WebDAV or WebDAV-over-HTTPS endpoint used as a VFS scheme in file paths

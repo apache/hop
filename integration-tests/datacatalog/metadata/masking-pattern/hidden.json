@@ -1,0 +1,6 @@
+{
+  "name": "hidden",
+  "description": "Sets the value to null",
+  "valueSource": "SET_NULL",
+  "storage": "NONE"
+}

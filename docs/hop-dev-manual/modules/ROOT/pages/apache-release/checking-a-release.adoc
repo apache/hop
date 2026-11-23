@@ -177,6 +177,19 @@ export NEXUS_REPO_URL='https://repository.apache.org/content/repositories/orgapa
 Do not use prune on a partial install. Restart Hop after install. Drop the staging
 repository if this was only a dry-run validation.
 
+== Client zip (Nexus staging)
+
+The client is also staged in Nexus, and the release manager copies that same file to
+dist.apache.org. Check that the two match:
+
+[source,bash]
+----
+curl -s https://repository.apache.org/content/repositories/orgapachehop-XXXX/org/apache/hop/hop-client/X.XX/hop-client-X.XX.zip | sha512sum
+cat apache-hop-client-X.XX.zip.sha512
+----
+
+Both should print the same checksum.
+
 == Extra checks
 
 You can also check for unwanted binary files on the checked out tag (note: this requires the .git folder to still be present)

@@ -18,6 +18,8 @@
 package org.apache.hop.workflow.config;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -50,6 +52,12 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
   @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_LOCATION)
   private String executionInfoLocationName;
 
+  /** The name of the lineage sink the runs report their lineage to, besides the default ones. */
+  @Getter
+  @Setter
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.LINEAGE_SINK)
+  private String lineageSinkName;
+
   @HopMetadataProperty protected boolean defaultSelection;
 
   public WorkflowRunConfiguration() {}
@@ -72,6 +80,7 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
     this.name = c.name;
     this.description = c.description;
     this.executionInfoLocationName = c.executionInfoLocationName;
+    this.lineageSinkName = c.lineageSinkName;
     if (c.engineRunConfiguration != null) {
       this.engineRunConfiguration = c.engineRunConfiguration.clone();
     }

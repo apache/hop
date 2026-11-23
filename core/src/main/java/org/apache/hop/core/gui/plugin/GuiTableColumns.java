@@ -41,6 +41,9 @@ import org.apache.hop.core.util.StringUtil;
  * left without columns; startup keeps going.
  */
 class GuiTableColumns extends BaseGuiElements {
+  private static final String CONST_TABLE_WIDGET = "TABLE widget '";
+  private static final String CONST_ON = "' on ";
+  private static final String CONST_SKIPPING_GUI_TABLE_COLUMN_ON = "Skipping @GuiTableColumn on ";
 
   private static final GuiTableColumns INSTANCE = new GuiTableColumns();
 
@@ -73,7 +76,7 @@ class GuiTableColumns extends BaseGuiElements {
     target.setTableColumns(columns);
     if (columns.isEmpty()) {
       logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + target.getId()
               + "' has no @GuiTableColumn fields on "
               + rowClass.getName());
@@ -83,9 +86,9 @@ class GuiTableColumns extends BaseGuiElements {
   private Class<?> rowClass(GuiElements target, Field field) {
     if (!List.class.isAssignableFrom(field.getType())) {
       logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + target.getId()
-              + "' on "
+              + CONST_ON
               + field.getDeclaringClass().getName()
               + "."
               + field.getName()
@@ -96,9 +99,9 @@ class GuiTableColumns extends BaseGuiElements {
     Type generic = field.getGenericType();
     if (!(generic instanceof ParameterizedType parameterized)) {
       logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + target.getId()
-              + "' on "
+              + CONST_ON
               + field.getName()
               + " uses a raw List. Declare List<Row>.");
       return null;
@@ -107,9 +110,9 @@ class GuiTableColumns extends BaseGuiElements {
     Class<?> rowClass = classArgument(parameterized.getActualTypeArguments()[0]);
     if (rowClass == null) {
       logError(
-          "TABLE widget '"
+          CONST_TABLE_WIDGET
               + target.getId()
-              + "' on "
+              + CONST_ON
               + field.getName()
               + " must be a List of a concrete row class");
     }
@@ -154,7 +157,7 @@ class GuiTableColumns extends BaseGuiElements {
         }
         if (!ids.add(column.getId())) {
           logError(
-              "Skipping @GuiTableColumn on "
+              CONST_SKIPPING_GUI_TABLE_COLUMN_ON
                   + field.getDeclaringClass().getSimpleName()
                   + "."
                   + field.getName()
@@ -237,26 +240,29 @@ class GuiTableColumns extends BaseGuiElements {
     switch (annotation.type()) {
       case TEXT:
         if (fieldType != String.class) {
-          logError("Skipping @GuiTableColumn on " + where + ": TEXT columns must be String");
+          logError(CONST_SKIPPING_GUI_TABLE_COLUMN_ON + where + ": TEXT columns must be String");
           return false;
         }
         return true;
       case COMBO:
         if (fieldType != String.class && !fieldType.isEnum()) {
           logError(
-              "Skipping @GuiTableColumn on " + where + ": COMBO columns must be String or an enum");
+              CONST_SKIPPING_GUI_TABLE_COLUMN_ON
+                  + where
+                  + ": COMBO columns must be String or an enum");
           return false;
         }
         return true;
       case CHECKBOX:
         if (fieldType != boolean.class && fieldType != Boolean.class) {
-          logError("Skipping @GuiTableColumn on " + where + ": CHECKBOX columns must be boolean");
+          logError(
+              CONST_SKIPPING_GUI_TABLE_COLUMN_ON + where + ": CHECKBOX columns must be boolean");
           return false;
         }
         return true;
       default:
         logError(
-            "Skipping @GuiTableColumn on "
+            CONST_SKIPPING_GUI_TABLE_COLUMN_ON
                 + where
                 + ": unsupported column type "
                 + annotation.type());

@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 public interface ICsvInputAwareTransformDialog {
 
   default String[] getFieldNames(final ICsvInputAwareMeta meta) {
-    String[] fieldNames = new String[] {};
+    String[] fieldNames = {};
     final InputStream inputStream = getInputStream(meta);
     final InputStreamReader reader = getReader(meta, inputStream);
     try {
@@ -59,7 +59,7 @@ public interface ICsvInputAwareTransformDialog {
   default String[] getFieldNamesImpl(final InputStreamReader reader, final ICsvInputAwareMeta meta)
       throws HopException {
 
-    String[] fieldNames = new String[] {};
+    String[] fieldNames = {};
     if (reader == null || meta == null) {
       logError(BaseMessages.getString("Dialog.ErrorGettingFields.Message"));
       return fieldNames;

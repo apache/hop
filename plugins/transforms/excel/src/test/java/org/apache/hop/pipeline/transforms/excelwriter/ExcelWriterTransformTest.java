@@ -47,6 +47,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
@@ -57,6 +58,8 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.utils.TestUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -400,6 +403,34 @@ class ExcelWriterTransformTest {
     doReturn(Boolean.FALSE).when(vmi).getBoolean(any());
 
     testBaseXlsx(vmi, vObj, false, false);
+  }
+
+  /**
+   * After a CSV file input with lazy conversion, an empty field is an empty byte array: not null,
+   * but it converts to null. The cell stays empty.
+   */
+  @Test
+  void testValueNumberEmptyAndLazilyConverted() throws Exception {
+    testBaseXlsx(lazilyConverted(new ValueMetaNumber("value_number")), new byte[0], false, false);
+    assertBlankCell();
+  }
+
+  @Test
+  void testValueBooleanEmptyAndLazilyConverted() throws Exception {
+    testBaseXlsx(lazilyConverted(new ValueMetaBoolean("value_bool")), new byte[0], false, false);
+    assertBlankCell();
+  }
+
+  private static IValueMeta lazilyConverted(IValueMeta valueMeta) {
+    // As CSV file input reads it: the text of the file, converted when needed
+    valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
+    valueMeta.setStorageMetadata(new ValueMetaString(valueMeta.getName()));
+    return valueMeta;
+  }
+
+  private void assertBlankCell() {
+    Cell cell = dataMock.currentWorkbookDefinition.getSheet().getRow(1).getCell(0);
+    assertTrue(cell == null || cell.getCellType() == CellType.BLANK, String.valueOf(cell));
   }
 
   @Test

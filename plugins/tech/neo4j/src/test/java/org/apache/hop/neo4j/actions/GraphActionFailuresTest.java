@@ -112,8 +112,8 @@ class GraphActionFailuresTest {
   /** The accepting database runs valid updates, so the failures above come from the validation. */
   @Test
   void acceptingDatabaseRunsValidUpdates() throws Exception {
-    assertTrue(index(ACCEPTING, rangeIndex()).execute(new Result(), 0).getResult());
-    assertTrue(constraint(ACCEPTING, uniqueConstraint()).execute(new Result(), 0).getResult());
+    assertTrue(index(ACCEPTING, rangeIndex()).execute(new Result(), 0).isResult());
+    assertTrue(constraint(ACCEPTING, uniqueConstraint()).execute(new Result(), 0).isResult());
     assertEquals(2, statements.size(), statements.toString());
   }
 
@@ -141,7 +141,7 @@ class GraphActionFailuresTest {
 
   private static void assertFalseWithOneError(ActionBase action) throws HopException {
     Result result = action.execute(new Result(), 0);
-    assertFalse(result.getResult(), action.getName() + " is true");
+    assertFalse(result.isResult(), action.getName() + " is true");
     assertEquals(1, result.getNrErrors(), action.getName());
   }
 
@@ -149,7 +149,7 @@ class GraphActionFailuresTest {
     Result previous = new Result();
     previous.setNrErrors(2);
     Result result = action.execute(previous, 0);
-    assertFalse(result.getResult(), action.getName() + " is true");
+    assertFalse(result.isResult(), action.getName() + " is true");
     assertEquals(3, result.getNrErrors(), action.getName());
   }
 

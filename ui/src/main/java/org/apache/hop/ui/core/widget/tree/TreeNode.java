@@ -29,13 +29,13 @@ import org.eclipse.swt.graphics.Image;
 public class TreeNode {
   private String label;
   private Image image;
-  private List<TreeNode> children = new ArrayList<>();
+  private final List<TreeNode> children = new ArrayList<>();
   private Font font;
   private Color foreground;
   private Color background;
   private boolean expanded = false;
   private boolean hidden = false;
-  private Map<String, Object> data = new HashMap<>();
+  private final Map<String, Object> data = new HashMap<>();
   private int index = -1;
 
   public TreeNode() {}

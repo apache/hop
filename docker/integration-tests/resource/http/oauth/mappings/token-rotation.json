@@ -1,0 +1,106 @@
+{
+  "mappings": [
+    {
+      "name": "token endpoint: first token",
+      "scenarioName": "token-rotation",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "issued-1",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/token",
+        "bodyPatterns": [{ "contains": "grant_type=client_credentials" }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "access_token": "token-1", "token_type": "Bearer", "expires_in": 3600 }
+      }
+    },
+    {
+      "name": "api: token-1, first use",
+      "scenarioName": "token-rotation",
+      "requiredScenarioState": "issued-1",
+      "newScenarioState": "used-1",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/workflows",
+        "headers": { "Authorization": { "equalTo": "Bearer token-1" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "token": "token-1" }
+      }
+    },
+    {
+      "name": "api: token-1, second use",
+      "scenarioName": "token-rotation",
+      "requiredScenarioState": "used-1",
+      "newScenarioState": "used-2",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/workflows",
+        "headers": { "Authorization": { "equalTo": "Bearer token-1" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "token": "token-1" }
+      }
+    },
+    {
+      "name": "token endpoint: second token, only after token-1 was rejected",
+      "scenarioName": "token-rotation",
+      "requiredScenarioState": "used-2",
+      "newScenarioState": "issued-2",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/token",
+        "bodyPatterns": [{ "contains": "grant_type=client_credentials" }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "access_token": "token-2", "token_type": "Bearer", "expires_in": 3600 }
+      }
+    },
+    {
+      "name": "api: token-2 is accepted from then on",
+      "priority": 2,
+      "request": {
+        "method": "GET",
+        "urlPath": "/workflows",
+        "headers": { "Authorization": { "equalTo": "Bearer token-2" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "token": "token-2" }
+      }
+    },
+    {
+      "name": "api: anything else, including token-1 after its second use, is rejected",
+      "priority": 10,
+      "request": { "method": "GET", "urlPath": "/workflows" },
+      "response": {
+        "status": 401,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "invalid_token" }
+      }
+    },
+    {
+      "name": "token endpoint: any other token request is a failure of the test",
+      "priority": 10,
+      "request": { "method": "POST", "urlPath": "/token" },
+      "response": {
+        "status": 400,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "invalid_request", "error_description": "unexpected token request" }
+      }
+    }
+  ]
+}

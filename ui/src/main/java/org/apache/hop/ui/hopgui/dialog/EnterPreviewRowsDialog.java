@@ -55,10 +55,10 @@ public class EnterPreviewRowsDialog extends Dialog {
   private List wTransformList;
 
   private Shell shell;
-  private java.util.List<String> transformNames;
-  private java.util.List<IRowMeta> rowMetas;
-  private java.util.List<java.util.List<Object[]>> rowDatas;
-  private PropsUi props;
+  private final java.util.List<String> transformNames;
+  private final java.util.List<IRowMeta> rowMetas;
+  private final java.util.List<java.util.List<Object[]>> rowDatas;
+  private final PropsUi props;
 
   public EnterPreviewRowsDialog(
       Shell parent,

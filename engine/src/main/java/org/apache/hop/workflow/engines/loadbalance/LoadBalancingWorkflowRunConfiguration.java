@@ -242,6 +242,9 @@ public class LoadBalancingWorkflowRunConfiguration extends EmptyWorkflowRunConfi
 
   public LoadBalancingWorkflowRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("LoadBalancing");
+    setEnginePluginName("Hop load-balancing workflow engine");
     this.servers = new ArrayList<>();
     this.algorithm = LoadBalancingAlgorithm.EVEN_LOAD.getDescription();
     this.maxRetries = "2";

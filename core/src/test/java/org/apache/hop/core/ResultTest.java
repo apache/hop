@@ -90,7 +90,7 @@ class ResultTest {
     Result result = resultWith(row(rowMeta, 1L, "a", payload), row(rowMeta, 2L, "b", null));
 
     Result clone = result.clone();
-    result.getRows().get(0).getData()[1] = "changed";
+    result.getRows().getFirst().getData()[1] = "changed";
     payload[0] = 9;
     rowMeta.getValueMeta(1).setName("renamed");
     rowMeta.addValueMeta(new ValueMetaString("extra"));
@@ -99,8 +99,8 @@ class ResultTest {
       assertEquals(
           List.of("id", "name", "payload"), List.of(clonedRow.getRowMeta().getFieldNames()));
     }
-    assertEquals("a", clone.getRows().get(0).getData()[1]);
-    assertArrayEquals(new byte[] {1, 2, 3}, (byte[]) clone.getRows().get(0).getData()[2]);
+    assertEquals("a", clone.getRows().getFirst().getData()[1]);
+    assertArrayEquals(new byte[] {1, 2, 3}, (byte[]) clone.getRows().getFirst().getData()[2]);
   }
 
   @Test
@@ -112,7 +112,7 @@ class ResultTest {
 
     List<RowMetaAndData> clonedRows = result.clone().getRows();
 
-    IRowMeta clonedMeta = clonedRows.get(0).getRowMeta();
+    IRowMeta clonedMeta = clonedRows.getFirst().getRowMeta();
     assertNotSame(shared, clonedMeta);
     for (RowMetaAndData row : clonedRows) {
       assertSame(clonedMeta, row.getRowMeta());
@@ -216,6 +216,32 @@ class ResultTest {
       total.add(child);
     }
     assertEquals(Result.MAX_FAILURES, total.getFailures().size());
-    assertSame(first, total.getFailures().get(0));
+    assertSame(first, total.getFailures().getFirst());
+  }
+
+  @Test
+  void isResultReadsTheSuccessFlag() throws Exception {
+    Result result = new Result();
+    assertFalse(result.isResult());
+
+    result.setResult(true);
+    assertTrue(result.isResult());
+
+    Result clone = result.clone();
+    Result lightClone = result.lightClone();
+    result.setResult(false);
+    assertTrue(clone.isResult());
+    assertTrue(lightClone.isResult());
+    assertFalse(result.isResult());
+
+    Result fromXml = new Result(XmlHandler.loadXmlString(result.getXml(), Result.XML_TAG));
+    assertFalse(fromXml.isResult());
+
+    result.setResult(true);
+    fromXml = new Result(XmlHandler.loadXmlString(result.getXml(), Result.XML_TAG));
+    assertTrue(fromXml.isResult());
+
+    String json = new ObjectMapper().writeValueAsString(result);
+    assertTrue(json.contains("\"result\":true"), json);
   }
 }

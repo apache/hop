@@ -1,0 +1,4 @@
+id,text_out
+1,"{""relationships"":[{""property_set"":null,""sourceNodeId"":""n1"",""id"":""r1"",""label"":""KNOWS"",""targetNodeId"":""n2"",""properties"":[{""id"":""since"",""type"":""Integer"",""value"":1843}]}],""nodes"":[{""property_set"":null,""id"":""n1"",""properties"":[{""id"":""name"",""type"":""String"",""value"":""Ada"",""primary"":true}],""labels"":[""Person""]},{""property_set"":null,""id"":""n2"",""properties"":[{""id"":""name"",""type"":""String"",""value"":""Grace"",""primary"":true}],""labels"":[""Person""]}],""source_transform"":null,""source_pipeline"":null}"
+2,"{""relationships"":[],""nodes"":[{""property_set"":null,""id"":""n9"",""properties"":[],""labels"":[""Thing""]}],""source_transform"":null,""source_pipeline"":null}"
+3,

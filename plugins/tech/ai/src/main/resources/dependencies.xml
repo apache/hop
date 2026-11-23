@@ -18,8 +18,11 @@
   -->
 <dependencies>
     <!-- Language Model Chat ships the langchain4j libraries this plugin's model factories are
-         built on. They were already reached through the shared hop-ai class loader group, but only
-         once that plugin happened to be asked for. Naming the folder here puts them on the loader
-         from the start, which is what a transform needs on its very first row. -->
+         built on, and its own jar holds LanguageModelChatMeta, which AiChatFactory uses. They were
+         already reached through the shared hop-ai class loader group, but only once that plugin
+         happened to be asked for, and only when it is installed. Naming the folder and its lib/
+         (a folder line skips lib/) puts both on the loader from the start and states the
+         requirement. -->
+    <folder>../../transforms/languagemodelchat</folder>
     <folder>../../transforms/languagemodelchat/lib</folder>
 </dependencies>

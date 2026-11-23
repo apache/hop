@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-0129-sorted-merge-descending.csv",
+  "name": "golden-0129-sorted-merge-descending",
+  "description": "Six ids merged descending, numbered in the order they come out",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "nr",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "id",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

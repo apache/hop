@@ -49,8 +49,8 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
   private Map<Class<?>, String> classMap;
   private List<String> libraries;
   private String errorHelpFile;
-  private Class<?> mainType;
-  private URL pluginFolder;
+  private final Class<?> mainType;
+  private final URL pluginFolder;
   private String documentationUrl;
   private String casesUrl;
   private String forumUrl;

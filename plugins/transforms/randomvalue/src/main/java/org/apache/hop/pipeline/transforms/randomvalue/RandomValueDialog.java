@@ -93,17 +93,16 @@ public class RandomValueDialog extends BaseTransformDialog {
 
     final int nrRows = input.getFields().size();
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RandomValueDialog.NameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RandomValueDialog.TypeColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false)
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RandomValueDialog.NameColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "RandomValueDialog.TypeColumn.Column"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false)
+    };
     columns[0].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     columns[1].setSelectionAdapter(
         new SelectionAdapter() {

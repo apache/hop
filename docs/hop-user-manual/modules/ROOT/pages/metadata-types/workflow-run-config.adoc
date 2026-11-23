@@ -42,6 +42,7 @@ None/All actions
 |Name|the name to use for this workflow run configuration
 |Description|the description to use for this workflow run configuration
 |Execution information location|The xref:metadata-types/execution-information-location.adoc[] to use with this workflow run configuration.
+|Lineage sink|Optionally, the xref:metadata-types/lineage-sink.adoc[Lineage Sink] the workflows run with this configuration report their lineage to, and the runs they start too.
 |Workflow engine type|Hop local, remote, load-balancing, or replay workflow engine
 |Safe mode|(default: false) In safe mode, Hop performs a number of data type and other validation before starting the workflow execution.
 |===

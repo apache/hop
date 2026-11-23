@@ -334,21 +334,19 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
       LogChannel.UI.logError("Error getting list of databases", e);
       dbNames = Collections.emptyList();
     }
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.OriginalDb"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              dbNames.toArray(new String[0]),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.ReplacementDb"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              dbNames.toArray(new String[0]),
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.OriginalDb"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          dbNames.toArray(new String[0]),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.ReplacementDb"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          dbNames.toArray(new String[0]),
+          false),
+    };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
 
@@ -396,19 +394,18 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlVariableValues.top = new FormAttachment(0, 0);
     wlVariableValues.setLayoutData(fdlVariableValues);
 
-    ColumnInfo[] varValColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestDialog.VariableValues.ColumnInfo.VariableName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(
-                  PKG, "PipelineUnitTestDialog.VariableValues.ColumnInfo.VariableValue"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] varValColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "PipelineUnitTestDialog.VariableValues.ColumnInfo.VariableName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(
+              PKG, "PipelineUnitTestDialog.VariableValues.ColumnInfo.VariableValue"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     varValColumns[0].setUsingVariables(true);
     varValColumns[1].setUsingVariables(true);
 
@@ -455,18 +452,17 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlTweaks.top = new FormAttachment(0, 0);
     wlTweaks.setLayoutData(fdlTweaks);
 
-    ColumnInfo[] tweakColumns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineUnitTestDialog.Tweaks.ColumnInfo.Tweak"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              DataSetConst.getTweakDescriptions(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "PipelineUnitTestDialog.Tweaks.ColumnInfo.TransformName"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] tweakColumns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineUnitTestDialog.Tweaks.ColumnInfo.Tweak"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          DataSetConst.getTweakDescriptions(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineUnitTestDialog.Tweaks.ColumnInfo.TransformName"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
     tweakColumns[1].setUsingVariables(true);
 
     wTweaks =

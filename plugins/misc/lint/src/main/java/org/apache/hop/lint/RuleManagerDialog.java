@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 /** Dialog for viewing pack rules and managing project-local lint rules. */
 public class RuleManagerDialog extends Dialog {
+  private static final String CONST_NO_SELECTION = "No Selection";
 
   private static final Class<?> PKG = RuleManagerDialog.class; // for i18n purposes
 
@@ -56,8 +57,8 @@ public class RuleManagerDialog extends Dialog {
   private static final ILogChannel log = LogChannel.GENERAL;
 
   private Shell shell;
-  private Shell parent;
-  private List<CustomLintRule> rules;
+  private final Shell parent;
+  private final List<CustomLintRule> rules;
   private Table rulesTable;
   private Button editButton;
   private Button deleteButton;
@@ -474,7 +475,7 @@ public class RuleManagerDialog extends Dialog {
   private void editRule() {
     CustomLintRule rule = getSelectedRule();
     if (rule == null) {
-      showMessage("No Selection", "Please select a rule to edit.");
+      showMessage(CONST_NO_SELECTION, "Please select a rule to edit.");
       return;
     }
     // Pack rules are editable too. The pack file itself is never touched: the change is written to
@@ -521,7 +522,7 @@ public class RuleManagerDialog extends Dialog {
   private void deleteRule() {
     CustomLintRule rule = getSelectedRule();
     if (rule == null) {
-      showMessage("No Selection", "Please select a rule to delete.");
+      showMessage(CONST_NO_SELECTION, "Please select a rule to delete.");
       return;
     }
     if (!rule.isProjectEditable()) {
@@ -570,7 +571,7 @@ public class RuleManagerDialog extends Dialog {
   private void toggleRule() {
     CustomLintRule rule = getSelectedRule();
     if (rule == null) {
-      showMessage("No Selection", "Please select a rule to toggle.");
+      showMessage(CONST_NO_SELECTION, "Please select a rule to toggle.");
       return;
     }
 

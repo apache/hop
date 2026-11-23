@@ -61,6 +61,8 @@ import org.eclipse.swt.widgets.Text;
  * tab). Import/Export shareable hop-marketplace-repo YAML definitions from this panel.
  */
 public class MarketplaceRepositoriesPanel {
+  private static final String CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER =
+      "ManageRepositoriesDialog.Error.Header";
 
   private static final Class<?> PKG = MarketplaceGuiPlugin.class;
 
@@ -246,7 +248,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Save"),
           e);
       return false;
@@ -328,7 +330,7 @@ public class MarketplaceRepositoriesPanel {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+            BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
             e.getMessage(),
             e);
       }
@@ -885,7 +887,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           e.getMessage(),
           e);
     }
@@ -913,7 +915,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "ManageRepositoriesDialog.Import.Error"),
           e);
     }
@@ -955,7 +957,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "ManageRepositoriesDialog.ImportUrl.Error"),
           e);
     }
@@ -1079,7 +1081,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           BaseMessages.getString(PKG, "ManageRepositoriesDialog.Export.Error"),
           e);
     }
@@ -1101,7 +1103,7 @@ public class MarketplaceRepositoriesPanel {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "ManageRepositoriesDialog.Error.Header"),
+          BaseMessages.getString(PKG, CONST_MANAGE_REPOSITORIES_DIALOG_ERROR_HEADER),
           e.getMessage(),
           e);
     }

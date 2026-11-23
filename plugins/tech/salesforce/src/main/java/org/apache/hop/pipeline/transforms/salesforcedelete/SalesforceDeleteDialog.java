@@ -60,7 +60,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
 
   private static final Class<?> PKG = SalesforceDeleteMeta.class;
 
-  private SalesforceDeleteMeta input;
+  private final SalesforceDeleteMeta input;
 
   private Group wConnectionGroup;
   private LabelTextVar wUserName;

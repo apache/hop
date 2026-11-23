@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Execute unit tests transform fetches and executes the available unit tests for the current project.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/executetests.svg[Execute unit tests transform Icon, role="image-doc-icon"] Execute unit tests
 
@@ -41,3 +41,7 @@ This option is only available when the transform receives input.
 |Error output field name|error status (Y or N)
 |Comment output field name|the comment or error message returned by the test
 |===
+
+== Samples
+
+The samples project has `transforms/execute-unit-tests.hpl`, which runs the unit test `run-pipeline-tests-unit` and returns one row for the check against its golden data set and one for the test as a whole.

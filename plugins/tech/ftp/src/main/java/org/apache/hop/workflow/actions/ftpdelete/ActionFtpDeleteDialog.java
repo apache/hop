@@ -129,11 +129,10 @@ public class ActionFtpDeleteDialog extends ActionDialog {
   private SftpClient sftpclient = null;
   private String pwdFolder = null;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionFtpDelete.Filetype.Pem"),
-        BaseMessages.getString(PKG, "ActionFtpDelete.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionFtpDelete.Filetype.Pem"),
+    BaseMessages.getString(PKG, "ActionFtpDelete.Filetype.All")
+  };
 
   public ActionFtpDeleteDialog(
       Shell parent, ActionFtpDelete action, WorkflowMeta workflowMeta, IVariables variables) {

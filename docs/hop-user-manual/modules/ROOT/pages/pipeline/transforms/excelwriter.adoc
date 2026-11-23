@@ -178,3 +178,7 @@ Known differences:
 * *Sheet protection* — Uses ODF `table:protected` with SHA-1 password hash (LibreOffice Calc compatible). The *protected by user* field is not used for `.ods`.
 * *Streaming* — The *Stream XLSX data* option applies to `.xlsx` only.
 * *Sheet names* — The 31-character Excel sheet name limit is not enforced for `.ods`.
+
+== Samples
+
+The samples project has `transforms/microsoft-excel-writer.hpl`, which writes two books from a Data grid to the `Books` sheet of `output/microsoft-excel-writer.xlsx`.

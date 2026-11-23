@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -32,6 +33,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
+import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.util.UnitTestUtil;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -99,7 +101,7 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
                 this.logError(
                     "Error in validating test data set '"
                         + testResult.getDataSetName()
-                        + " : "
+                        + "' : "
                         + testResult.getComment());
                 errorCount++;
               }
@@ -107,16 +109,18 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
             if (errorCount > 0) {
               this.logError(
                   "There were test result evaluation errors in pipeline unit test '"
-                      + test.getName());
+                      + test.getName()
+                      + "'");
               success.set(false);
             }
           },
           (test1, pipelineMeta, e) -> {
             if (test == null) {
-              this.logError("Unable to load unit test for '" + testName, e);
+              this.logError("Unable to load unit test for '" + testName.getTestName() + "'", e);
             } else {
               this.logError(
-                  "There was an exception executing pipeline unit test '" + test.getName(), e);
+                  "There was an exception executing pipeline unit test '" + test.getName() + "'",
+                  e);
             }
             success.set(false);
           });
@@ -160,21 +164,19 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     RunPipelineTestsField testName = testNames.get(index);
     PipelineUnitTest test = testSerializer.load(testName.getTestName());
     if (test == null) {
-      throw new HopException("Unit test '" + testName + "' could not be found");
+      throw new HopException("Unit test '" + testName.getTestName() + "' could not be found");
     }
 
-    variables.setVariable(
-        org.apache.hop.testing.util.DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
+    variables.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
     try {
-      if ("GUI".equalsIgnoreCase(org.apache.hop.core.Const.getHopPlatformRuntime())) {
+      if (Const.isGuiRuntime()) {
         Class<?> hopGuiClass = Class.forName("org.apache.hop.ui.hopgui.HopGui");
         Object hopGuiInstance = hopGuiClass.getMethod("getInstance").invoke(null);
         if (hopGuiInstance != null) {
           IVariables guiVariables =
               (IVariables) hopGuiClass.getMethod("getVariables").invoke(hopGuiInstance);
           if (guiVariables != null) {
-            guiVariables.setVariable(
-                org.apache.hop.testing.util.DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
+            guiVariables.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, test.getName());
           }
         }
       }

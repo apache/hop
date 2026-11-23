@@ -127,7 +127,14 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         if (data.rowDataInputMapper != null) {
           data.rowDataInputMapper.finished();
         }
-        data.mappingPipeline.waitUntilFinished();
+        if (data.executor != null) {
+          // A single-threaded mapping only runs when it is driven: nothing else finishes it
+          while (data.executor.oneIteration() && !isStopped()) {
+            // Keep driving iterations until all transforms in the sub-pipeline are done
+          }
+        } else {
+          data.mappingPipeline.waitUntilFinished();
+        }
         setOutputDone();
         return false;
       }

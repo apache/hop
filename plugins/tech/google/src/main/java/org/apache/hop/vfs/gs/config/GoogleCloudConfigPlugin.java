@@ -31,7 +31,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
@@ -50,7 +50,7 @@ import picocli.CommandLine;
 @GuiPlugin(
     description = "i18n::GoogleCloudPlugin.GuiPlugin.Description" // Tab label in options dialog
     )
-public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final String WIDGET_ID_GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY_FILE =
       "10000-google-cloud-service-account-key-file";
@@ -379,8 +379,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

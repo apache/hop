@@ -35,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -146,6 +147,12 @@ class PipelineExecutionLifecycleTest {
       }
       setOutputDone();
       return false;
+    }
+
+    @Override
+    public void batchComplete() throws HopException {
+      visit("batch");
+      super.batchComplete();
     }
 
     @Override
@@ -528,6 +535,34 @@ class PipelineExecutionLifecycleTest {
     when(plugin.loadClass(IExtensionPoint.class)).thenReturn(callback);
     ExtensionPointMap.getInstance().addExtensionPoint(plugin);
     return plugin;
+  }
+
+  @Test
+  void singleThreadedDrainsFinishedInputWithoutFlushingTwiceUnderActivation() throws Exception {
+    final var recorder = new Recorder();
+    final var probe = new ProbeMeta();
+    final var pipeline = pipeline(probe, 1);
+    pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+      pipeline.prepareExecution();
+      pipeline.startThreads();
+      // A finished RowProducer has no rows left, but the transform still has buffered work.
+      final var input = new BlockingRowSet(10);
+      input.setDone();
+      pipeline.getTransforms().getFirst().transform.addRowSetToInputRowSets(input);
+      final var executor = new SingleThreadedPipelineExecutor(pipeline);
+      try {
+        assertFalse(executor.oneIteration());
+        assertNull(ExecutionLifecycle.current(), "Iteration must restore the caller's context");
+      } finally {
+        executor.dispose();
+      }
+      pipeline.waitUntilFinished();
+      verifyVisits(probe, recorder, pipeline);
+      assertEquals(3, probe.visits.stream().filter(v -> v.phase().equals("run")).count());
+      assertEquals(0, probe.visits.stream().filter(v -> v.phase().equals("batch")).count());
+      assertNull(ExecutionLifecycle.current());
+    }
   }
 
   @Test

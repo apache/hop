@@ -349,6 +349,8 @@ public class TransformFn extends TransformBaseFn {
     pipeline.setLogLevel(
         context.getPipelineOptions().as(HopPipelineExecutionOptions.class).getLogLevel());
     pipeline.setMetadataProvider(pipelineMeta.getMetadataProvider());
+    // The engine did the once-per-run work before the job: only flag the prepared transforms
+    pipeline.setPreparingTransformsOnce(false);
 
     // Change the name to make the logging less confusing.
     //
@@ -588,7 +590,7 @@ public class TransformFn extends TransformBaseFn {
 
   private class TransformProcessContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.ProcessContext context;
+    private final DoFn.ProcessContext context;
 
     public TransformProcessContext(DoFn.ProcessContext processContext) {
       this.context = processContext;
@@ -606,8 +608,8 @@ public class TransformFn extends TransformBaseFn {
 
   private class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
 
-    private DoFn.FinishBundleContext context;
-    private BoundedWindow batchWindow;
+    private final DoFn.FinishBundleContext context;
+    private final BoundedWindow batchWindow;
 
     public TransformFinishBundleContext(
         DoFn.FinishBundleContext context, BoundedWindow batchWindow) {

@@ -61,3 +61,8 @@ Rows are passed through unchanged, so the transform can sit in the middle of a p
 
 * The body field is read as a string using its Hop value metadata, so a non-string field is converted with the conversion mask configured on it.
 * A missing body or correlation id field fails the transform on the first row with the field name it looked for, rather than sending empty messages.
+
+== Samples
+
+The samples project has `transforms/jms-producer.hpl`, which sends the text `hello from Hop` from a Data grid to the queue `sample-queue`.
+Create a JMS connection named `sample-jms` before you run it.

@@ -56,6 +56,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     supportedEngines = {"Local"},
     documentationUrl = "/pipeline/transforms/watchfiles.html")
 public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData> {
+  private static final String CONST_60000 = "60000";
+  private static final String CONST_COMPARE_WITH_STATE = "COMPARE_WITH_STATE";
+  private static final String CONST_MINUTES = "MINUTES";
+  private static final String CONST_INITIAL_SCAN = "initialScan";
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "WATCH_FILES_OPTIONS";
   public static final String REPLAY_GUI_PARENT_ID = "WATCH_FILES_REPROCESS";
 
@@ -230,7 +234,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
       groupType = GuiWidgetGroupType.TABS,
       group = "i18n::WatchFilesMeta.Group.Advanced",
       groupOrder = "02")
-  private String reconciliationInterval = "60000";
+  private String reconciliationInterval = CONST_60000;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -336,7 +340,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
       groupOrder = "01",
       comboValuesMethod = "initialScanValues",
       variables = false)
-  private String initialScan = "COMPARE_WITH_STATE";
+  private String initialScan = CONST_COMPARE_WITH_STATE;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -362,7 +366,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
       groupType = GuiWidgetGroupType.TABS,
       group = "i18n::WatchFilesMeta.Group.Advanced",
       groupOrder = "02")
-  private String diagnosticsInterval = "60000";
+  private String diagnosticsInterval = CONST_60000;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -416,7 +420,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
       groupOrder = "01",
       comboValuesMethod = "maximumRunTimeUnitValues",
       variables = false)
-  private String maximumRunTimeUnit = "MINUTES";
+  private String maximumRunTimeUnit = CONST_MINUTES;
 
   public List<String> maximumRunTimeUnitValues(
       org.apache.hop.core.logging.ILogChannel log, IHopMetadataProvider provider) {
@@ -429,7 +433,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
     try {
       long multiplier =
           switch (maximumRunTimeUnit) {
-            case "MINUTES" -> 60000L;
+            case CONST_MINUTES -> 60000L;
             case "HOURS" -> 3600000L;
             default -> throw new IllegalArgumentException("Unknown runtime unit.");
           };
@@ -462,15 +466,16 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
 
   public List<String> initialScanValues(
       org.apache.hop.core.logging.ILogChannel log, IHopMetadataProvider provider) {
-    return guiValues("initialScan");
+    return guiValues(CONST_INITIAL_SCAN);
   }
 
   private static List<String> optionValues(String setting) {
     return switch (setting) {
       case "strategy" -> List.of("AUTO", "NATIVE", "POLLING");
-      case "maximumRunTimeUnit" -> List.of("MINUTES", "HOURS");
+      case "maximumRunTimeUnit" -> List.of(CONST_MINUTES, "HOURS");
       case "patternSyntax" -> List.of("WILDCARD", "REGEXP");
-      case "initialScan" -> List.of("EMIT_EXISTING", "IGNORE_EXISTING", "COMPARE_WITH_STATE");
+      case CONST_INITIAL_SCAN ->
+          List.of("EMIT_EXISTING", "IGNORE_EXISTING", CONST_COMPARE_WITH_STATE);
       default -> throw new IllegalArgumentException(setting);
     };
   }
@@ -484,7 +489,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
 
   static String optionLabel(String setting, String value) {
     if (value == null || !optionValues(setting).contains(value)) return value;
-    if ("initialScan".equals(setting) && "COMPARE_WITH_STATE".equals(value)) {
+    if (CONST_INITIAL_SCAN.equals(setting) && CONST_COMPARE_WITH_STATE.equals(value)) {
       value = "IGNORE_EXISTING";
     }
     return BaseMessages.getString(WatchFilesMeta.class, "WatchFilesMeta." + setting + "." + value);
@@ -528,7 +533,7 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
     modified = true;
     deleted = false;
     pollingInterval = "5000";
-    reconciliationInterval = "60000";
+    reconciliationInterval = CONST_60000;
     eventCapacity = "4096";
     maximumEntries = "100000";
     waitUntilStable = true;
@@ -537,13 +542,13 @@ public class WatchFilesMeta extends BaseTransformMeta<WatchFiles, WatchFilesData
     stabilityInterval = "1000";
     stateDirectory =
         java.nio.file.Path.of(System.getProperty("user.home"), ".hop", "watch-files").toString();
-    initialScan = "COMPARE_WITH_STATE";
+    initialScan = CONST_COMPARE_WITH_STATE;
     checkpointInterval = "5000";
-    diagnosticsInterval = "60000";
+    diagnosticsInterval = CONST_60000;
     slowOperationThreshold = "30000";
     replayFilter = ".*";
     maximumRunTime = "";
-    maximumRunTimeUnit = "MINUTES";
+    maximumRunTimeUnit = CONST_MINUTES;
   }
 
   public void validate(IVariables variables) {

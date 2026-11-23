@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
  * use a different fence override {@link IAiAdvisor#parseResponse(String)}.
  */
 public final class AiProposalParser {
+  private static final String CONST_MEDIUM = "MEDIUM";
 
   private static final Pattern PROPOSAL_BLOCK =
       Pattern.compile("```hop_proposals\\s*([\\s\\S]*?)```", Pattern.CASE_INSENSITIVE);
@@ -126,7 +127,7 @@ public final class AiProposalParser {
     String id = node.path("id").asText("");
     proposal.setId(Utils.isEmpty(id) ? null : id);
     proposal.setDescription(node.path("description").asText(""));
-    proposal.setRiskLevel(parseRisk(node.path("riskLevel").asText("MEDIUM")));
+    proposal.setRiskLevel(parseRisk(node.path("riskLevel").asText(CONST_MEDIUM)));
     proposal.setType(typeValue.trim());
     JsonNode parameters = node.path("parameters");
     if (parameters.isObject()) {
@@ -164,12 +165,12 @@ public final class AiProposalParser {
 
   private static String parseRisk(String value) {
     if (Utils.isEmpty(value)) {
-      return "MEDIUM";
+      return CONST_MEDIUM;
     }
     String normalized = value.trim().toUpperCase();
-    if ("LOW".equals(normalized) || "MEDIUM".equals(normalized) || "HIGH".equals(normalized)) {
+    if ("LOW".equals(normalized) || CONST_MEDIUM.equals(normalized) || "HIGH".equals(normalized)) {
       return normalized;
     }
-    return "MEDIUM";
+    return CONST_MEDIUM;
   }
 }

@@ -42,3 +42,7 @@ Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
 
 For guidance on preventing deadlocks when using the Merge Join transform, refer to this how-to guide: 
 **xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks]**
+
+== Samples
+
+The samples project has `transforms/merge-join-basic.hpl`, which joins two Data grids on `id` with an inner, a left outer, a right outer and a full outer join, which return 5, 7, 8 and 10 rows.

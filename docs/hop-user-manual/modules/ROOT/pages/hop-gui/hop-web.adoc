@@ -50,6 +50,92 @@ You'll feel right at home!
 
 image:hop-web.png[Hop Web,width="90%"]
 
+[[hop-web-tomcat]]
+== Running Hop Web on your own Tomcat
+
+Each release publishes Hop Web for a servlet container to Maven Central, as `org.apache.hop:hop-web`:
+
+[cols="1,3"]
+|===
+|File |Contents
+
+|`hop-web-<version>.war`
+|The web application: Hop with its libraries, the configuration folder with the `default` and `samples` projects, and the Hop tools (`hop-conf.sh`, `hop-run.sh` and the others).
+
+|`hop-web-<version>-plugins.zip`
+|The `plugins` and `jdbc-drivers` folders, and Hop's license files in `hop-licenses`.
+|===
+
+Both are at `https://repo1.maven.org/maven2/org/apache/hop/hop-web/<version>/`.
+A Hop build leaves them in `assemblies/web-war/target`.
+
+You need Java {java-version} and Tomcat 10.1 or later.
+
+. Copy the war to `$CATALINA_BASE/webapps/ROOT.war`.
+Hop Web has to be the `ROOT` web application: the interface is at `/ui`, and the Hop tools look for Tomcat's libraries in `../../lib`.
+. Unzip the plugins zip into `$CATALINA_BASE`. That creates `$CATALINA_BASE/plugins` and `$CATALINA_BASE/jdbc-drivers`.
+. Start Tomcat and open http://localhost:8080/ui.
+
+[source,bash]
+----
+cp hop-web-<version>.war "$CATALINA_BASE/webapps/ROOT.war"
+unzip hop-web-<version>-plugins.zip -d "$CATALINA_BASE"
+"$CATALINA_HOME/bin/startup.sh"
+----
+
+Tomcat has to unpack the war, which it does by default (`unpackWARs="true"` on the `Host`): Hop reads its configuration and runs its tools from the web application folder.
+
+The xref:hop-tools/index.adoc[Hop tools] are in `$CATALINA_BASE/webapps/ROOT`.
+Tomcat does not keep file permissions when it unpacks a war, so make them executable once after each deployment:
+
+[source,bash]
+----
+chmod +x "$CATALINA_BASE"/webapps/ROOT/hop "$CATALINA_BASE"/webapps/ROOT/*.sh
+----
+
+The tools use the same folders as Hop Web: `config` in the web application, `plugins` and `jdbc-drivers` two levels up.
+
+=== Folders
+
+Without further settings, Hop Web uses these folders:
+
+[cols="1,2"]
+|===
+|Setting |Default
+
+|`HOP_CONFIG_FOLDER`
+|`$CATALINA_BASE/webapps/ROOT/config`
+
+|`HOP_PLUGIN_BASE_FOLDERS`
+|`$CATALINA_BASE/plugins`
+
+|`HOP_SHARED_JDBC_FOLDERS`
+|`$CATALINA_BASE/jdbc-drivers`
+|===
+
+To use another folder, set a Java system property or an environment variable with the same name, for example in `$CATALINA_BASE/bin/setenv.sh`.
+A system property wins over an environment variable.
+`HOP_PLUGIN_BASE_FOLDERS` and `HOP_SHARED_JDBC_FOLDERS` take a comma-separated list, so you can add your own folders next to the default ones.
+
+Tomcat replaces `webapps/ROOT` when you deploy a new war, and the configuration folder with it.
+Set `HOP_CONFIG_FOLDER` to a folder outside Tomcat for anything you want to keep, and copy `webapps/ROOT/config` there first: its `hop-config.json` registers the `default` and `samples` projects under `+${HOP_CONFIG_FOLDER}/projects+`.
+
+The other settings of the `apache/hop-web` image work the same way, for example `HOP_AUDIT_FOLDER`, `HOP_AES_ENCODER_KEY`, `HOP_LOG_LEVEL` and `HOP_PASSWORD_ENCODER_PLUGIN`:
+
+[source,bash]
+----
+# $CATALINA_BASE/bin/setenv.sh
+CATALINA_OPTS="$CATALINA_OPTS -DHOP_CONFIG_FOLDER=/srv/hop/config -DHOP_AUDIT_FOLDER=/srv/hop/audit"
+----
+
+=== Marketplace plugins and fonts
+
+The plugins zip has the same plugins as the Hop client.
+To add a marketplace plugin, unzip its zip into a scratch folder, copy its `plugins` folder into `$CATALINA_BASE/plugins` and the jars in its `lib/core` folder, if it has one, into `webapps/ROOT/WEB-INF/lib`.
+
+Hop Web draws the pipeline and workflow canvas on the server.
+Install a font with Chinese, Japanese and Korean characters on the server, such as Noto CJK, if names use those scripts; without one they are measured and laid out too narrow.
+
 == Working with server files and browser files
 
 The *File* menu opens and saves files on the Hop server or its configured virtual file systems.
@@ -155,7 +241,7 @@ Hop Web talks to the browser in JSON, and the pipeline canvas and the transform 
 gzip shrinks these responses four to five times, which keeps the interface responsive on slower links.
 
 The `apache/hop-web` image enables compression on its Tomcat connector; its `conf/server.xml` is `docker/resources/server.xml` in the Hop source tree.
-If you deploy `hop.war` on your own Tomcat, add it to the HTTP connector in `conf/server.xml`; `image/svg+xml` is not in Tomcat's default list:
+If you deploy Hop Web on your own Tomcat (see <<hop-web-tomcat>>), add it to the HTTP connector in `conf/server.xml`; `image/svg+xml` is not in Tomcat's default list:
 
 [source,xml]
 ----

@@ -159,7 +159,7 @@ class ActionPGPEncryptFilesSignTest {
     Result result = sign.execute(new Result(), 0);
 
     assertEquals(0, result.getNrErrors(), "signing must not report errors");
-    assertTrue(result.getResult(), "signing must succeed");
+    assertTrue(result.isResult(), "signing must succeed");
     assertTrue(Files.exists(signed), "the signed file must be written");
     assertTrue(
         Files.readString(signed).startsWith("-----BEGIN PGP SIGNED MESSAGE-----"),
@@ -173,7 +173,7 @@ class ActionPGPEncryptFilesSignTest {
     Result verified = verify.execute(new Result(), 0);
 
     assertEquals(0, verified.getNrErrors(), "verifying the signature must not report errors");
-    assertTrue(verified.getResult(), "the signature must verify against the signing key");
+    assertTrue(verified.isResult(), "the signature must verify against the signing key");
   }
 
   @Test
@@ -192,7 +192,7 @@ class ActionPGPEncryptFilesSignTest {
     Result sealedResult = seal.execute(new Result(), 0);
 
     assertEquals(0, sealedResult.getNrErrors(), "sign and encrypt must not report errors");
-    assertTrue(sealedResult.getResult(), "sign and encrypt must succeed");
+    assertTrue(sealedResult.isResult(), "sign and encrypt must succeed");
     assertTrue(
         Files.readString(sealed).startsWith("-----BEGIN PGP MESSAGE-----"),
         "the output must be an encrypted message");
@@ -210,7 +210,7 @@ class ActionPGPEncryptFilesSignTest {
     Result openedResult = decrypt.execute(new Result(), 0);
 
     assertEquals(0, openedResult.getNrErrors(), "decrypting must not report errors");
-    assertTrue(openedResult.getResult(), "decrypting must succeed");
+    assertTrue(openedResult.isResult(), "decrypting must succeed");
     assertEquals(PLAIN_TEXT, Files.readString(opened), "the round trip must preserve the content");
   }
 
@@ -252,7 +252,7 @@ class ActionPGPEncryptFilesSignTest {
     Result result = action.execute(new Result(), 0);
 
     assertEquals(0, result.getNrErrors(), "signing must not report errors");
-    assertTrue(result.getResult(), "signing must succeed");
+    assertTrue(result.isResult(), "signing must succeed");
 
     // Only meaningful while the two differ: were gpg's default the key this row names, the
     // assertion below would hold whether or not the User ID had been promoted to the signing key.
@@ -300,7 +300,7 @@ class ActionPGPEncryptFilesSignTest {
     Result result = seal.execute(new Result(), 0);
 
     assertEquals(0, result.getNrErrors(), "sign and encrypt must not report errors");
-    assertTrue(result.getResult(), "sign and encrypt must succeed");
+    assertTrue(result.isResult(), "sign and encrypt must succeed");
 
     // Decrypting reports the signature as well, so one run shows both halves of the choice.
     String report = gpg("--decrypt", sealed.toString());
@@ -324,7 +324,7 @@ class ActionPGPEncryptFilesSignTest {
     Result result = action.execute(new Result(), 0);
 
     assertEquals(0, result.getNrErrors(), "signing with " + localUser + " must not report errors");
-    assertTrue(result.getResult(), "signing with " + localUser + " must succeed");
+    assertTrue(result.isResult(), "signing with " + localUser + " must succeed");
     return signed;
   }
 
@@ -368,7 +368,7 @@ class ActionPGPEncryptFilesSignTest {
       Result result = sign.execute(new Result(), 0);
 
       assertEquals(0, result.getNrErrors(), "signing must not report errors for: " + name);
-      assertTrue(result.getResult(), "signing must succeed for: " + name);
+      assertTrue(result.isResult(), "signing must succeed for: " + name);
       assertTrue(Files.exists(signed), "the signed file must be written for: " + name);
       assertTrue(
           Files.readString(signed).startsWith("-----BEGIN PGP SIGNED MESSAGE-----"),

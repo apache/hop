@@ -104,13 +104,14 @@ WORKDIR /build
 
 # Copy pre-built artifacts from context (must exist!)
 COPY ./assemblies/client/target/hop-client-*.zip /build/assemblies/client/target/
-COPY ./assemblies/web/target/hop.war /build/assemblies/web/target/
+COPY ./assemblies/web-war/target/hop-web-*.war /build/assemblies/web-war/target/
+COPY ./assemblies/web-war/target/hop-web-*-plugins.zip /build/assemblies/web-war/target/
 COPY ./assemblies/plugins/target/hop-assemblies-*.zip /build/assemblies/plugins/target/
 COPY ./docker/resources/ /build/docker/resources/
 
 # builder-fast produces the same artifacts as builder-full:
 # - /build/assemblies/client/target/hop-client-*.zip
-# - /build/assemblies/web/target/hop.war
+# - /build/assemblies/web-war/target/hop-web-*.war and hop-web-*-plugins.zip
 # - /build/assemblies/plugins/target/hop-assemblies-*.zip
 # - /build/docker/resources/*
 #
@@ -172,13 +173,15 @@ RUN echo "=== Extracting assemblies ===" && \
     else \
         echo "ERROR: Client assembly not found" && exit 1; \
     fi && \
-    # Unzip web assembly
-    if [ -f assemblies/web/target/hop.war ]; then \
-        cd assemblies/web/target && \
-        unzip -q hop.war -d webapp && \
+    # Unzip Hop Web: the war and the plugins zip from assemblies/web-war
+    if ls assemblies/web-war/target/hop-web-*-plugins.zip 1> /dev/null 2>&1; then \
+        cd assemblies/web-war/target && \
+        rm -rf webapp tomcat && \
+        unzip -q "$(ls hop-web-*.war | head -1)" -d webapp && \
+        unzip -q "$(ls hop-web-*-plugins.zip | head -1)" -d tomcat && \
         cd /build; \
     else \
-        echo "WARNING: Web assembly not found, skipping"; \
+        echo "WARNING: Hop Web assembly not found, skipping"; \
     fi && \
     # Unzip plugins assembly
     if [ -d assemblies/plugins/target ] && ls assemblies/plugins/target/hop-assemblies-*.zip 1> /dev/null 2>&1; then \
@@ -211,7 +214,9 @@ RUN if [ "${INCLUDE_OPTIONAL_PLUGINS}" = "true" ]; then \
         echo "Hop version: ${HOP_VERSION}" && \
         export HOP_VERSION && \
         export HOP_PLUGIN_ZIP_DIR=/build/optional-plugin-zips && \
-        bash /build/tools/install-wave1-plugins.sh /build/assemblies/client/target/hop; \
+        bash /build/tools/install-wave1-plugins.sh /build/assemblies/client/target/hop && \
+        mkdir -p /build/assemblies/web-war/target/optional && \
+        bash /build/tools/install-wave1-plugins.sh /build/assemblies/web-war/target/optional; \
     else \
         echo "=== Skipping marketplace-optional plugins (INCLUDE_OPTIONAL_PLUGINS=false) ==="; \
     fi
@@ -238,15 +243,18 @@ RUN if [ "${SKIP_FAT_JAR}" = "false" ]; then \
     fi
 
 # Step 3: Prepare optimized directory structures for final images
-RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
-    cp -r /build/assemblies/web/target/webapp/* /build/hop-web-prepared/webapps/ROOT/ && \
-    cp -r /build/assemblies/client/target/hop/config /build/hop-web-prepared/webapps/ROOT/ && \
-    cp -r /build/assemblies/client/target/hop/plugins /build/hop-web-prepared/ && \
-    cp -r /build/assemblies/client/target/hop/lib/jdbc/ /build/hop-web-prepared/jdbc-drivers && \
-    # Beam SDKs unpack under lib/core when the marketplace Beam plugin is installed (#7721/#7722).
-    # Legacy plugins/engines/beam/lib-beam is no longer produced; do not require it (apache/hop#7748).
-    cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
-    rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
+# Hop Web is the war plus the plugins zip from assemblies/web-war, and the optional plugins when
+# step 1b installed them: their plugins next to the others, their lib/core jars (the Beam SDKs,
+# for one) in WEB-INF/lib, their JDBC drivers and their sample projects.
+RUN OPTIONAL=/build/assemblies/web-war/target/optional && \
+    mkdir -p /build/hop-web-prepared/webapps/ROOT \
+             "${OPTIONAL}/config" "${OPTIONAL}/plugins" "${OPTIONAL}/lib/core" "${OPTIONAL}/lib/jdbc" && \
+    cp -r /build/assemblies/web-war/target/webapp/. /build/hop-web-prepared/webapps/ROOT/ && \
+    cp -r /build/assemblies/web-war/target/tomcat/. /build/hop-web-prepared/ && \
+    cp -r "${OPTIONAL}/plugins/." /build/hop-web-prepared/plugins/ && \
+    cp -r "${OPTIONAL}/lib/core/." /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
+    cp -r "${OPTIONAL}/lib/jdbc/." /build/hop-web-prepared/jdbc-drivers/ && \
+    cp -r "${OPTIONAL}/config/." /build/hop-web-prepared/webapps/ROOT/config/ && \
     cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
     chmod +x /build/hop-web-prepared/run-web.sh && \
     # Tomcat configuration with response compression (see the comments in the file)
@@ -254,20 +262,7 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp /build/docker/resources/server.xml /build/hop-web-prepared/conf/server.xml
 
 # Make scripts executable
-RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
-
-    # Fix hop-config.json
-RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' /build/hop-web-prepared/webapps/ROOT/config/hop-config.json
-
-# Set the correct classpath for hop scripts. hop (no suffix) is the marketplace entrypoint.
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-run.sh
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-conf.sh
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-search.sh
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-encrypt.sh
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-import.sh
-RUN sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' /build/hop-web-prepared/webapps/ROOT/hop-search.sh
-
+RUN chmod +x /build/hop-web-prepared/webapps/ROOT/hop /build/hop-web-prepared/webapps/ROOT/*.sh
 
 # Prepare Hop Client directory structure
 RUN mkdir -p /build/hop-client-prepared && \

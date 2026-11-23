@@ -1,0 +1,92 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+:documentationPath: /vfs/
+:language: en_US
+:description: Apache Hop supports reading from and writing to Microsoft SharePoint document libraries from almost anywhere in the platform through Apache VFS
+
+= Microsoft SharePoint VFS
+
+== Scheme
+
+There is no fixed scheme.
+Every xref:metadata-types/sharepoint-connection.adoc[SharePoint Connection] registers a scheme with its own name, so a connection named `m365` gives you:
+
+`**m365://**`
+
+The credentials are stored in the connection, never in the path.
+
+== Configuration
+
+Create a xref:metadata-types/sharepoint-connection.adoc[SharePoint Connection] in the metadata perspective.
+The application it signs in with needs the Microsoft Graph application permission `Sites.Read.All` to read files, or `Sites.ReadWrite.All` to also write them.
+
+== Usage and testing
+
+The path follows the address of the site in SharePoint: `sites` or `teams`, the site, the document library, then the path of the file or folder in that library.
+
+`+m365:///sites/<site>/<library>/<folder>/<file>+` +
+`+m365:///teams/<site>/<library>/<folder>/<file>+`
+
+[options="header",cols="2,3"]
+|===
+|Path|What it is
+|`+m365:///+`|Two fixed folders, `sites` and `teams`
+|`+m365:///sites+`|The SharePoint sites whose address is under `/sites`
+|`+m365:///teams+`|The SharePoint sites whose address is under `/teams`
+|`+m365:///sites/Finance+`|The document libraries of the site `Finance`
+|`+m365:///sites/Finance/Documents+`|The root folder of the library `Documents`
+|`+m365:///sites/Finance/Documents/reports/2026/daily.csv+`|A file in that library
+|===
+
+* The beginning of the path is what follows the host in the address of the site: `+m365:///sites/Finance+` for `+https://contoso.sharepoint.com/sites/Finance+`, `+m365:///teams/Communication+` for `+https://contoso.sharepoint.com/teams/Communication+`.
+A site under `/sites` and a site under `/teams` can have the same name, they are two different paths.
+* The library is the name of the document library.
+The default library of a site is named `Documents` on an English tenant, even though its URL says `Shared Documents`.
+* Site and library names are not case-sensitive.
+* With the permission `Sites.Selected` the folders `sites` and `teams` are empty, because the application can not list the sites. Enter the full path of a site it was granted, such as `+m365:///sites/Finance+`.
+* The root site of the tenant and subsites are not reachable.
+
+You can browse the sites, libraries and files in the xref:hop-gui/vfs-file-explorer.adoc[VFS File Explorer] or in any file dialog.
+
+== Microsoft Teams channels
+
+The files of a Microsoft Teams team are stored in a SharePoint site, so they are reached with the same paths.
+Where the files of a channel are depends on the type of the channel.
+
+[options="header",cols="1,2,3"]
+|===
+|Channel|Site|Path
+|Standard|The site of the team|`+m365:///sites/<team>/Documents/<channel>/<file>+`
+|Private or shared|A site of its own, usually named `<team>-<channel>`|`+m365:///sites/<team>-<channel>/Documents/<channel>/<file>+`
+|===
+
+* A channel is a folder of the library `Documents`, never a site or a library by itself.
+The folder of the default channel is named `General`.
+* The name of the site of a team is not always the name of the team.
+To find the exact names, open the *Files* tab of the channel in Teams and choose *Open in SharePoint*: the path starts with what follows the host in the URL, `/sites/<site>` or `/teams/<site>`, and the folder is what follows `Shared Documents/`.
+* The site of a team is under `/sites` on most tenants and under `/teams` on some, use the one of the URL.
+* With the permission `Sites.Selected`, the site of a private or shared channel has to be granted to the application separately from the site of the team.
+
+== Limitations
+
+* Sites and document libraries can be listed but not created, renamed or deleted.
+* Appending to a file is not supported.
+* A file or folder can only be renamed or moved inside its document library.
+Moving it to another library or site copies the content and deletes the original.
+* A file is buffered in a local temporary file while it is written and is sent to SharePoint when it is closed.
+Files larger than 4 MB are sent in slices through an upload session.

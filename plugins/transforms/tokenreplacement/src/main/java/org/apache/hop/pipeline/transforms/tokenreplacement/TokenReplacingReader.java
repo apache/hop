@@ -30,15 +30,15 @@ import org.apache.hop.core.util.Utils;
  */
 public class TokenReplacingReader extends Reader {
 
-  private String tokenStartMarker;
-  private String tokenEndMarker;
-  private char[] tokenStartMarkerChars;
-  private char[] tokenEndMarkerChars;
-  private char[] tmpTokenStartMarkerChars;
-  private char[] tmpTokenEndMarkerChars;
-  private PushbackReader pushbackReader;
-  private TokenResolver tokenResolver;
-  private StringBuilder tokenBuffer = new StringBuilder();
+  private final String tokenStartMarker;
+  private final String tokenEndMarker;
+  private final char[] tokenStartMarkerChars;
+  private final char[] tokenEndMarkerChars;
+  private final char[] tmpTokenStartMarkerChars;
+  private final char[] tmpTokenEndMarkerChars;
+  private final PushbackReader pushbackReader;
+  private final TokenResolver tokenResolver;
+  private final StringBuilder tokenBuffer = new StringBuilder();
   private String resolvedToken = null;
   private int resolvedTokenIndex = 0;
 

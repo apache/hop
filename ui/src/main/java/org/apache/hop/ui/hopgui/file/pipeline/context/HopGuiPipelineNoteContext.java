@@ -36,7 +36,7 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
   private NotePadMeta notePadMeta;
   private HopGuiPipelineGraph pipelineGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiPipelineNoteContext> lambdaBuilder;
+  private final GuiActionLambdaBuilder<HopGuiPipelineNoteContext> lambdaBuilder;
 
   public HopGuiPipelineNoteContext(
       PipelineMeta pipelineMeta,

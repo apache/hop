@@ -19,8 +19,10 @@ package org.apache.hop.lineage.context;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 
 /**
@@ -108,6 +110,15 @@ public final class LineageContext {
    */
   private final Map<String, String> attributes;
 
+  /**
+   * The keys of the lineage sinks, besides the ones every event goes to, that this event is for:
+   * the sinks selected in the run configurations of the run and of the runs that started it. The
+   * hub routes on it; it is not part of what the event says, so it is left out of {@link #equals}.
+   *
+   * <p>Returned set is unmodifiable and never null.
+   */
+  private final Set<String> sinks;
+
   private LineageContext(Builder b) {
     this.subjectType = Objects.requireNonNull(b.subjectType, "subjectType");
     this.logChannelId = b.logChannelId;
@@ -122,6 +133,10 @@ public final class LineageContext {
         b.attributes.isEmpty()
             ? Collections.emptyMap()
             : Collections.unmodifiableMap(new LinkedHashMap<>(b.attributes));
+    this.sinks =
+        b.sinks.isEmpty()
+            ? Collections.emptySet()
+            : Collections.unmodifiableSet(new LinkedHashSet<>(b.sinks));
   }
 
   /** Creates a new builder with subject type defaulting to {@link LineageSubjectType#OTHER}. */
@@ -211,6 +226,7 @@ public final class LineageContext {
     private String hopFilename;
     private String hopFilenamePortableKey;
     private final Map<String, String> attributes = new LinkedHashMap<>();
+    private final Set<String> sinks = new LinkedHashSet<>();
 
     /**
      * Sets the subject type. Must be non-null; fails fast with {@link NullPointerException} rather
@@ -276,6 +292,14 @@ public final class LineageContext {
     public Builder putAttribute(String key, String value) {
       if (key != null && value != null) {
         attributes.put(key, value);
+      }
+      return this;
+    }
+
+    /** Adds the keys of the lineage sinks this event is for; see {@code sinks}. */
+    public Builder sinks(Set<String> sinkKeys) {
+      if (sinkKeys != null) {
+        sinks.addAll(sinkKeys);
       }
       return this;
     }

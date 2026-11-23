@@ -38,3 +38,7 @@ NOTE: this transform is mainly available for historical reasons. There are newer
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |===
+
+== Samples
+
+The samples project has `transforms/copy-rows-to-result.hpl`, which copies the two rows of a Data grid to the result of the pipeline, for a parent workflow or pipeline to pick up.

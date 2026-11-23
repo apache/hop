@@ -18,9 +18,9 @@
 package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 
 public class HttpImportMetrics {
-  private int rows;
-  private int bytes;
-  private int duration;
+  private final int rows;
+  private final int bytes;
+  private final int duration;
 
   public HttpImportMetrics(int rows, int bytes, int duration) {
     this.rows = rows;

@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 
 public class NativeDirectoryDialog implements IDirectoryDialog {
 
-  private DirectoryDialog dialog;
+  private final DirectoryDialog dialog;
 
   public NativeDirectoryDialog(DirectoryDialog dialog) {
     this.dialog = dialog;

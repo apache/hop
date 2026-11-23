@@ -82,6 +82,32 @@ Locations are free-form strings, not a closed enum.
 GUI entry points are separate toolbar / context-action plugins that call `HopGui.openAiAdvisorSession`.
 The full pattern — location ids, the open-session request, inclusions, proposals, classloading and a worked Data Vault-style example — is on xref:ai-advisor-plugins.adoc[AI advisor plugins].
 
+== Data catalog
+
+A data catalog plugin is one kind of catalog behind the *Data Catalog* metadata type (`data-catalog`): DataHub, and later others.
+Hop reads dataset metadata from it; writing to a catalog stays with the lineage sinks.
+The API is experimental.
+
+Annotation:: `@DataCatalogPlugin`, together with `@GuiPlugin` for the options
+Implement:: `IDataCatalog`, plus the `ICatalogCapability` interfaces for what the catalog can answer: `IDeprecationCapability`, `IFreshnessCapability`, `IAssertionCapability`, `ISchemaCapability`
+Plugin type:: `DataCatalogPluginType`, id `DATA_CATALOGS`
+Examples:: `plugins/tech/datahub` (`DataHubDataCatalog`)
+
+The plugin class holds the configuration as `@HopMetadataProperty` fields, with `@GuiWidgetElement(parentId = DataCatalog.GUI_PLUGIN_ELEMENT_PARENT_ID)` for the editor.
+`DataCatalog.connect(variables, metadataProvider)` returns an initialized copy; close it when done.
+The editor's *Test* button calls `ping()`, so a plugin doesn't add a test button of its own.
+
+Every question returns a `CatalogAnswer`: `Known`, `NotFound`, or `Unknown` with a reason (unreachable, unauthorized, timeout, not supported, ...).
+A catalog that can't answer is a normal outcome, not an exception; the caller decides what it means.
+`capability(Class)` finds a capability; by default that is the plugin class itself when it implements the interface.
+
+A dataset is a `DatasetRef`.
+Build it with `DatasetRef.ofTable(...)` or `ofFile(...)`: those give a table or a file the OpenLineage namespace and name that lineage gives it, so `resolve()` finds the dataset lineage wrote.
+`ofCatalogId(...)` names a dataset by the catalog's own id.
+A transform or action that lets the user pick a dataset stores a `CatalogDataset` (type, connection, schema, name) and calls `toRef(variables, metadataProvider)`, which also reports a dataset that can't be named.
+`CatalogSchemas.read(...)` reads the fields of such a dataset and throws a `HopException` that says why when the catalog can't give them; `CatalogFieldTypes.toRowMeta(...)` turns them into Hop fields.
+A transform dialog with a field table gets the *Get fields from data catalog* button with `CatalogFieldsDialog.getFields(...)` from the `ui` module, shown when `CatalogFieldsDialog.isAvailable(metadataProvider)`.
+
 == Configuration options
 
 A configuration plugin adds options to an *existing* Hop command line tool, and — with one extra annotation — a tab in the GUI options dialog.

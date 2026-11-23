@@ -62,3 +62,7 @@ TIP: You can use a xref:pipeline/transforms/getfilenames.adoc[Get File Names] tr
 |Remark|String
 
 |===
+
+== Samples
+
+The samples project has `transforms/database-impact.hpl`, which lists the database impact of `transforms/tableoutput-basic.hpl`: a truncate of the `tableoutput_basic` table and a write for each of its four fields.

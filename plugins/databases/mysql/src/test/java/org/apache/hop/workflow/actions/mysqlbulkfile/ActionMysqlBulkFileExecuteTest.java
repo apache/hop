@@ -97,7 +97,7 @@ class ActionMysqlBulkFileExecuteTest {
     try (MockedConstruction<Database> databases = mockConstruction(Database.class)) {
       Result result = action.execute(new Result(), 0);
 
-      assertFalse(result.getResult());
+      assertFalse(result.isResult());
       assertEquals(1, result.getNrErrors());
       assertTrue(databases.constructed().isEmpty());
     }
@@ -112,7 +112,7 @@ class ActionMysqlBulkFileExecuteTest {
     try (MockedConstruction<Database> databases = mockConstruction(Database.class)) {
       Result result = action.execute(new Result(), 0);
 
-      assertTrue(result.getResult());
+      assertTrue(result.isResult());
       assertEquals(0, result.getNrErrors());
       assertTrue(databases.constructed().isEmpty());
     }
@@ -128,7 +128,7 @@ class ActionMysqlBulkFileExecuteTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
   }
 
@@ -141,7 +141,7 @@ class ActionMysqlBulkFileExecuteTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertFalse(result.getResult());
+    assertFalse(result.isResult());
     assertEquals(1, result.getNrErrors());
     verify(workflowMeta, never()).findDatabase(anyString(), any());
   }
@@ -182,9 +182,9 @@ class ActionMysqlBulkFileExecuteTest {
             })) {
       Result result = action.execute(new Result(), 0);
 
-      assertTrue(result.getResult());
+      assertTrue(result.isResult());
       ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
-      verify(databases.constructed().get(0)).prepareSql(sql.capture());
+      verify(databases.constructed().getFirst()).prepareSql(sql.capture());
       return sql.getValue();
     }
   }

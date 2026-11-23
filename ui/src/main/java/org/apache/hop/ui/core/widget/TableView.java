@@ -206,7 +206,7 @@ public class TableView extends Composite {
   private boolean shortenDisplayedValues;
 
   /** Layout of the table itself, kept so the web footnote can be inserted underneath it later. */
-  private FormData fdTable;
+  private final FormData fdTable;
 
   /** Hop Web only, and only for grids that shorten values: see {@link #addWebNewlineHint()}. */
   private Label webNewlineHint;
@@ -2030,7 +2030,7 @@ public class TableView extends Composite {
         preservedCellValues[i] = (String[][]) items[i].getData(CELL_VALUES_KEY);
       }
 
-      final int[] sortIndex = new int[] {sortField + 2};
+      final int[] sortIndex = {sortField + 2};
 
       // Sort indices so each row stays paired with its preserved widget data.
       Integer[] order = new Integer[v.size()];

@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Add Fields Changing Sequence transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
 
 = image:transforms/icons/fieldschangesequence.svg[Add value fields changing sequence Icon, role="image-doc-icon"] Add value fields changing sequence
 
@@ -36,3 +36,7 @@ Here are the options for the transform:
 * Increment by: the value to increase at each row in the same group
 * Init sequence if value of following fields change: you can specify a list of fields here.
 If a value in one or more of these fields changes compared to the previous rows, the sequence will be reset to the start value.
+
+== Samples
+
+The samples project has `transforms/add-value-fields-changing-sequence.hpl`: a Calculator divides a counter from 1 to 100 by 10, and the transform starts `change_counter` at 1 again each time that result changes, so every 10 rows.

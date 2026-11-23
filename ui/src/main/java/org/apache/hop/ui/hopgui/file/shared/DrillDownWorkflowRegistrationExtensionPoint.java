@@ -41,7 +41,7 @@ public class DrillDownWorkflowRegistrationExtensionPoint
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
-    if (workflow == null || !"GUI".equalsIgnoreCase(Const.getHopPlatformRuntime())) {
+    if (workflow == null || !Const.isGuiRuntime()) {
       return;
     }
     DrillDownGuiPlugin.registerRunningWorkflow(workflow.getLogChannelId(), workflow);

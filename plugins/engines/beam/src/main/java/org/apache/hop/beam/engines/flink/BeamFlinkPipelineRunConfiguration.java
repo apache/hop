@@ -213,6 +213,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
   public BeamFlinkPipelineRunConfiguration() {
     super();
+    // The engine it configures: needed to save it, also when it isn't created from metadata
+    setEnginePluginId("BeamFlinkPipelineEngine");
+    setEnginePluginName("Beam Flink pipeline engine");
     this.tempLocation = "file://" + System.getProperty("java.io.tmpdir");
     // Batch pipelines can deadlock with Flink's default PIPELINED mode; see FLINK-10672.
     this.flinkExecutionModeForBatch = ExecutionMode.BATCH_FORCED.name();

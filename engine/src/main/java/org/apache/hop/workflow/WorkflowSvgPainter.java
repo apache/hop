@@ -17,36 +17,41 @@
 
 package org.apache.hop.workflow;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.SvgExportCanvas;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.workflow.action.ActionMeta;
 
 public class WorkflowSvgPainter {
 
-  public static final String generateWorkflowSvg(
+  public static String generateWorkflowSvg(
       WorkflowMeta workflowMeta, float magnification, IVariables variables) throws HopException {
     try {
-      Point maximum = workflowMeta.getMaximum();
-      maximum.multiply(magnification);
+      float mag = magnification > 0f ? magnification : 1f;
+      int margin = SvgExportCanvas.MARGIN;
 
       HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
-
-      SvgGc gc = new SvgGc(graphics2D, new Point(maximum.x, maximum.y), 32, 0, 0);
+      Point area = new Point(1, 1);
+      SvgGc gc = new SvgGc(graphics2D, area, SvgExportCanvas.ICON_SIZE, 0, 0);
       WorkflowPainter workflowPainter =
           new WorkflowPainter(
               gc,
               variables,
               workflowMeta,
-              maximum,
+              area,
               new DPoint(0, 0),
               null,
               null,
               new ArrayList<>(),
-              32,
+              SvgExportCanvas.ICON_SIZE,
               1,
               0,
               "Arial",
@@ -54,13 +59,31 @@ public class WorkflowSvgPainter {
               1.0d,
               false,
               null);
-      workflowPainter.setMagnification(magnification);
+      workflowPainter.setMagnification(mag);
+
+      SvgExportCanvas.Bounds bounds = new SvgExportCanvas.Bounds();
+      for (ActionMeta action : workflowMeta.getActions()) {
+        SvgExportCanvas.includeNode(
+            bounds,
+            gc,
+            action.getLocation(),
+            action.getName(),
+            action.getAction() != null && !Utils.isEmpty(action.getDescription()),
+            SvgExportCanvas.ICON_SIZE);
+      }
+      for (NotePadMeta note : workflowMeta.getNotes()) {
+        SvgExportCanvas.includeNote(
+            bounds, note.getLocation(), workflowPainter.getNoteDrawnSize(note));
+      }
+
+      Point canvas = SvgExportCanvas.canvasSize(bounds, mag, margin);
+      area.x = canvas.x;
+      area.y = canvas.y;
+      graphics2D.setSVGCanvasSize(new Dimension(canvas.x, canvas.y));
+      workflowPainter.setOffset(SvgExportCanvas.offsetFor(bounds, mag, margin));
       workflowPainter.drawWorkflow();
 
-      // convert to SVG XML
-      //
       return graphics2D.toXml();
-
     } catch (Exception e) {
       throw new HopException("Unable to generate SVG for workflow " + workflowMeta.getName(), e);
     }

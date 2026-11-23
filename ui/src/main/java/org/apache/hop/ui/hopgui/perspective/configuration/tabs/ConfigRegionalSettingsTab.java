@@ -98,7 +98,7 @@ public class ConfigRegionalSettingsTab {
     CTabItem wRegionalTab = new CTabItem(wTabFolder, SWT.NONE);
     wRegionalTab.setFont(GuiResource.getInstance().getFontDefault());
     wRegionalTab.setText(BaseMessages.getString(PKG, "ConfigRegionalSettingsTab.Title"));
-    wRegionalTab.setImage(GuiResource.getInstance().getImageOptions());
+    wRegionalTab.setImage(GuiResource.getInstance().getImageGlobe());
 
     ScrolledComposite sRegionalComp =
         new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);

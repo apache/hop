@@ -111,6 +111,7 @@
         <commonmark.version>0.30.1</commonmark.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
+        <flatten-maven-plugin.version>1.8.0</flatten-maven-plugin.version>
         <gib.buildUpstream>always</gib.buildUpstream>
         <!-- Build the upstreams of every impacted module, not only of the directly changed
              ones. With the default (changed), a REST change selects hop-tech-opensearch as
@@ -134,7 +135,8 @@
              downstream and then cannot resolve org.eclipse.tm4e.core:jar:${project.version}
              from any repository. buildUpstreamMode=impacted covers this too; the
              forced build keeps it independent of that setting. -->
-        <gib.forceBuildModules>org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
+        <!-- The BOM must be regenerated and checked when any library module changes. -->
+        <gib.forceBuildModules>hop-bom,org.eclipse.tm4e.core,org.eclipse.swtbot.swt.finder</gib.forceBuildModules>
         <gib.referenceBranch>refs/remotes/origin/main</gib.referenceBranch>
         <gib.skipTestsForUpstreamModules>true</gib.skipTestsForUpstreamModules>
         <google-auth.version>1.46.0</google-auth.version>
@@ -200,6 +202,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <proto-google-common-protos.version>2.70.0</proto-google-common-protos.version>
+        <!-- Also used where Hop resolves a library at runtime, see the MySQL driver download. -->
+        <protobuf-java.version>4.34.1</protobuf-java.version>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
@@ -366,7 +370,7 @@
                          committed and checked by CI on every merge, so a release has nothing to
                          regenerate. Leaving it on would either do nothing or quietly put
                          unreviewed documentation changes into the release commit. -->
-                    <arguments>-P=-assemblies -Dconfig-doc=false -DskipTests</arguments>
+                    <arguments>-Dconfig-doc=false -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
@@ -768,6 +772,7 @@
                 </property>
             </activation>
             <modules>
+                <module>bom</module>
                 <module>core</module>
                 <module>engine</module>
                 <module>lib</module>
@@ -809,14 +814,16 @@
                 <module>config-doc</module>
             </modules>
         </profile>
-        <!-- Selenium tests that drive Hop Web in a container. Opt-in: they need Docker
-             and take minutes, so they stay out of the normal build. Run them with
-             mvn -Pwebtest -pl web-tests test -->
+        <!-- Selenium tests that drive Hop Web in a container. The module is always in the
+             reactor so that version bumps and releases update it with the rest of Hop; its
+             tests are skipped unless asked for, because they need Docker and take minutes.
+             Run them with mvn -Dwebtest -pl web-tests test (see web-tests/pom.xml). -->
         <profile>
-            <id>webtest</id>
+            <id>web-tests</id>
             <activation>
                 <property>
-                    <name>webtest</name>
+                    <name>web-tests</name>
+                    <value>!false</value>
                 </property>
             </activation>
             <modules>
@@ -1069,7 +1076,7 @@
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
                             <!-- Comma-separated Ant patterns (single excludes element). -->
-                            <excludes>**/hop-assemblies*/**,hop-core/**/*.zip,hop-engine/**/*.zip,hop-ui/**/*.zip,hop-ui-rap/**/*.zip,hop-ui-rcp/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
+                            <excludes>**/hop-assemblies*/**,hop-ui-rap/**/*.zip,**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>

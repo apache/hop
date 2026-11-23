@@ -58,6 +58,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
@@ -105,6 +106,26 @@ public class ValueMetaBase implements IValueMeta {
   private static final String CONST_STORAGE_META = "storage-meta";
   private static final String CONST_LENGTH = "length";
   private static final String CONST_PRECISION = "precision";
+
+  // Keys of the field settings in the JSON form of the metadata (storeMetaInJson)
+  private static final String JSON_ORIGIN = "origin";
+  private static final String JSON_COMMENTS = "comments";
+  private static final String JSON_DECIMAL_SYMBOL = "decimalSymbol";
+  private static final String JSON_GROUPING_SYMBOL = "groupingSymbol";
+  private static final String JSON_CURRENCY_SYMBOL = "currencySymbol";
+  private static final String JSON_ROUNDING_TYPE = "roundingType";
+  private static final String JSON_TRIM_TYPE = "trimType";
+  private static final String JSON_DATE_FORMAT_LENIENT = "dateFormatLenient";
+  private static final String JSON_DATE_FORMAT_LOCALE = "dateFormatLocale";
+  private static final String JSON_DATE_FORMAT_TIME_ZONE = "dateFormatTimeZone";
+  private static final String JSON_LENIENT_STRING_TO_NUMBER = "lenientStringToNumber";
+  private static final String JSON_STRING_ENCODING = "stringEncoding";
+  private static final String JSON_CASE_INSENSITIVE = "caseInsensitive";
+  private static final String JSON_COLLATOR_DISABLED = "collatorDisabled";
+  private static final String JSON_COLLATOR_LOCALE = "collatorLocale";
+  private static final String JSON_COLLATOR_STRENGTH = "collatorStrength";
+  private static final String JSON_SORTED_DESCENDING = "sortedDescending";
+  private static final String JSON_OUTPUT_PADDING = "outputPaddingEnabled";
   private static final String CONST_COLLATOR_STRENGTH = "collator_strength";
   private static final String CONST_FALSE = "false";
   private static final String CONST_CANNOT_CONVERT =
@@ -164,6 +185,21 @@ public class ValueMetaBase implements IValueMeta {
   public static final String XML_DATA_TAG = "value-data";
 
   public static final String COMPATIBLE_DATE_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * Counts every {@link #setName(String)} call that changes a non-empty name. RowMeta uses it to
+   * know when its name index can be trusted without rescanning: as long as the count is unchanged
+   * no named value meta anywhere was renamed. Naming a value meta that had no name yet (as {@code
+   * ValueMetaFactory.createValueMeta(name, type)} does) does not count.
+   */
+  private static final AtomicLong NAME_CHANGES = new AtomicLong();
+
+  /**
+   * @return the number of times a value meta with a non-empty name was renamed so far
+   */
+  public static long getNameChanges() {
+    return NAME_CHANGES.get();
+  }
 
   @HopMetadataProperty(key = "name")
   protected String name;
@@ -292,7 +328,17 @@ public class ValueMetaBase implements IValueMeta {
     this(name, IValueMeta.TYPE_NONE, -1, -1);
   }
 
-  protected ValueMetaBase(String name, int type) {
+  /**
+   * Creates value metadata for components compiled against the legacy public constructor.
+   *
+   * @param name the field name
+   * @param type the value type
+   * @deprecated Retained for binary compatibility. Use {@link
+   *     ValueMetaFactory#createValueMeta(String, int)} for type-specific value metadata in new
+   *     code.
+   */
+  @Deprecated(since = "2.21")
+  public ValueMetaBase(String name, int type) {
     this(name, type, -1, -1);
   }
 
@@ -329,9 +375,7 @@ public class ValueMetaBase implements IValueMeta {
     this.dateFormatTimeZone = TimeZone.getDefault();
     this.identicalFormat = true;
     this.bigNumberFormatting = true;
-    this.lenientStringToNumber =
-        convertStringToBoolean(
-            Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
+    this.lenientStringToNumber = defaultLenientStringToNumber();
     this.emptyStringAndNullAreDifferent =
         convertStringToBoolean(
             Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
@@ -543,84 +587,83 @@ public class ValueMetaBase implements IValueMeta {
         emptyStringAndNullAreDifferent);
   }
 
-  public static final String[] SINGLE_BYTE_ENCODINGS =
-      new String[] {
-        "ISO8859_1",
-        "Cp1252",
-        "ASCII",
-        "Cp037",
-        "Cp273",
-        "Cp277",
-        "Cp278",
-        "Cp280",
-        "Cp284",
-        "Cp285",
-        "Cp297",
-        "Cp420",
-        "Cp424",
-        "Cp437",
-        "Cp500",
-        "Cp737",
-        "Cp775",
-        "Cp850",
-        "Cp852",
-        "Cp855",
-        "Cp856",
-        "Cp857",
-        "Cp858",
-        "Cp860",
-        "Cp861",
-        "Cp862",
-        "Cp863",
-        "Cp865",
-        "Cp866",
-        "Cp869",
-        "Cp870",
-        "Cp871",
-        "Cp875",
-        "Cp918",
-        "Cp921",
-        "Cp922",
-        "Cp1140",
-        "Cp1141",
-        "Cp1142",
-        "Cp1143",
-        "Cp1144",
-        "Cp1145",
-        "Cp1146",
-        "Cp1147",
-        "Cp1148",
-        "Cp1149",
-        "Cp1250",
-        "Cp1251",
-        "Cp1253",
-        "Cp1254",
-        "Cp1255",
-        "Cp1257",
-        "ISO8859_2",
-        "ISO8859_3",
-        "ISO8859_5",
-        "ISO8859_5",
-        "ISO8859_6",
-        "ISO8859_7",
-        "ISO8859_8",
-        "ISO8859_9",
-        "ISO8859_13",
-        "ISO8859_15",
-        "ISO8859_15_FDIS",
-        "MacCentralEurope",
-        "MacCroatian",
-        "MacCyrillic",
-        "MacDingbat",
-        "MacGreek",
-        "MacHebrew",
-        "MacIceland",
-        "MacRoman",
-        "MacRomania",
-        "MacSymbol",
-        "MacTurkish",
-        "MacUkraine",
-      };
+  public static final String[] SINGLE_BYTE_ENCODINGS = {
+    "ISO8859_1",
+    "Cp1252",
+    "ASCII",
+    "Cp037",
+    "Cp273",
+    "Cp277",
+    "Cp278",
+    "Cp280",
+    "Cp284",
+    "Cp285",
+    "Cp297",
+    "Cp420",
+    "Cp424",
+    "Cp437",
+    "Cp500",
+    "Cp737",
+    "Cp775",
+    "Cp850",
+    "Cp852",
+    "Cp855",
+    "Cp856",
+    "Cp857",
+    "Cp858",
+    "Cp860",
+    "Cp861",
+    "Cp862",
+    "Cp863",
+    "Cp865",
+    "Cp866",
+    "Cp869",
+    "Cp870",
+    "Cp871",
+    "Cp875",
+    "Cp918",
+    "Cp921",
+    "Cp922",
+    "Cp1140",
+    "Cp1141",
+    "Cp1142",
+    "Cp1143",
+    "Cp1144",
+    "Cp1145",
+    "Cp1146",
+    "Cp1147",
+    "Cp1148",
+    "Cp1149",
+    "Cp1250",
+    "Cp1251",
+    "Cp1253",
+    "Cp1254",
+    "Cp1255",
+    "Cp1257",
+    "ISO8859_2",
+    "ISO8859_3",
+    "ISO8859_5",
+    "ISO8859_5",
+    "ISO8859_6",
+    "ISO8859_7",
+    "ISO8859_8",
+    "ISO8859_9",
+    "ISO8859_13",
+    "ISO8859_15",
+    "ISO8859_15_FDIS",
+    "MacCentralEurope",
+    "MacCroatian",
+    "MacCyrillic",
+    "MacDingbat",
+    "MacGreek",
+    "MacHebrew",
+    "MacIceland",
+    "MacRoman",
+    "MacRomania",
+    "MacSymbol",
+    "MacTurkish",
+    "MacUkraine",
+  };
 
   protected void setDefaultConversionMask() {
     // Set some sensible default mask on the numbers
@@ -767,7 +810,11 @@ public class ValueMetaBase implements IValueMeta {
    */
   @Override
   public void setName(String name) {
+    String previous = this.name;
     this.name = name;
+    if (previous != null && !previous.isEmpty() && !previous.equals(name)) {
+      NAME_CHANGES.incrementAndGet();
+    }
   }
 
   /**
@@ -6068,6 +6115,48 @@ public class ValueMetaBase implements IValueMeta {
     jValue.put(CONST_LENGTH, getLength());
     jValue.put(CONST_PRECISION, getPrecision());
     jValue.put("conversionMask", getConversionMask());
+    // The rest of the field's settings: where it comes from and how its values are written, read
+    // and compared.
+    jValue.put(JSON_ORIGIN, getOrigin());
+    jValue.put(JSON_COMMENTS, getComments());
+    jValue.put(JSON_ROUNDING_TYPE, getRoundingType());
+    jValue.put(JSON_TRIM_TYPE, (long) getTrimType());
+    jValue.put(JSON_DATE_FORMAT_LENIENT, isDateFormatLenient());
+    jValue.put(JSON_STRING_ENCODING, getStringEncoding());
+    jValue.put(JSON_CASE_INSENSITIVE, isCaseInsensitive());
+    jValue.put(JSON_COLLATOR_DISABLED, isCollatorDisabled());
+    jValue.put(JSON_COLLATOR_STRENGTH, (long) getCollatorStrength());
+
+    // The settings below start out as the regional settings of the JVM that creates the field.
+    // JSON row metadata is read on another machine (the Beam and Spark workers), which must use
+    // its own regional settings for a field nobody configured. So only a value that differs from
+    // this JVM's default is written: one somebody set. A setting deliberately equal to this
+    // JVM's default can't be told apart and is left to the reader as well.
+    putIfNotDefault(
+        jValue, JSON_DECIMAL_SYMBOL, getDecimalSymbol(), "" + Const.getDefaultDecimalSeparator());
+    putIfNotDefault(
+        jValue,
+        JSON_GROUPING_SYMBOL,
+        getGroupingSymbol(),
+        "" + Const.getDefaultGroupingSeparator());
+    putIfNotDefault(
+        jValue, JSON_CURRENCY_SYMBOL, getCurrencySymbol(), Const.getDefaultCurrencySymbol());
+    Locale formatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    if (getDateFormatLocale() != null && !getDateFormatLocale().equals(formatLocale)) {
+      jValue.put(JSON_DATE_FORMAT_LOCALE, getDateFormatLocale().toLanguageTag());
+    }
+    if (getDateFormatTimeZone() != null
+        && !getDateFormatTimeZone().getID().equals(TimeZone.getDefault().getID())) {
+      jValue.put(JSON_DATE_FORMAT_TIME_ZONE, getDateFormatTimeZone().getID());
+    }
+    if (getCollatorLocale() != null && !getCollatorLocale().equals(formatLocale)) {
+      jValue.put(JSON_COLLATOR_LOCALE, getCollatorLocale().toLanguageTag());
+    }
+    if (isLenientStringToNumber() != defaultLenientStringToNumber()) {
+      jValue.put(JSON_LENIENT_STRING_TO_NUMBER, isLenientStringToNumber());
+    }
+    jValue.put(JSON_SORTED_DESCENDING, isSortedDescending());
+    jValue.put(JSON_OUTPUT_PADDING, isOutputPaddingEnabled());
   }
 
   @Override
@@ -6078,6 +6167,76 @@ public class ValueMetaBase implements IValueMeta {
     setPrecision((int) precision);
     String conversionMask = (String) jValue.get("conversionMask");
     setConversionMask(conversionMask);
+
+    // JSON written by older versions has none of the keys below: the defaults stay.
+    //
+    if (jValue.containsKey(JSON_ORIGIN)) {
+      setOrigin((String) jValue.get(JSON_ORIGIN));
+    }
+    if (jValue.containsKey(JSON_COMMENTS)) {
+      setComments((String) jValue.get(JSON_COMMENTS));
+    }
+    if (jValue.containsKey(JSON_DECIMAL_SYMBOL)) {
+      setDecimalSymbol((String) jValue.get(JSON_DECIMAL_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_GROUPING_SYMBOL)) {
+      setGroupingSymbol((String) jValue.get(JSON_GROUPING_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_CURRENCY_SYMBOL)) {
+      setCurrencySymbol((String) jValue.get(JSON_CURRENCY_SYMBOL));
+    }
+    if (jValue.containsKey(JSON_ROUNDING_TYPE)) {
+      setRoundingType((String) jValue.get(JSON_ROUNDING_TYPE));
+    }
+    if (jValue.get(JSON_TRIM_TYPE) instanceof Long trim) {
+      setTrimType(trim.intValue());
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LENIENT) instanceof Boolean lenient) {
+      setDateFormatLenient(lenient);
+    }
+    if (jValue.get(JSON_DATE_FORMAT_LOCALE) instanceof String locale) {
+      setDateFormatLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_DATE_FORMAT_TIME_ZONE) instanceof String timeZone) {
+      setDateFormatTimeZone(TimeZone.getTimeZone(timeZone));
+    }
+    if (jValue.get(JSON_LENIENT_STRING_TO_NUMBER) instanceof Boolean lenient) {
+      setLenientStringToNumber(lenient);
+    }
+    if (jValue.containsKey(JSON_STRING_ENCODING)) {
+      setStringEncoding((String) jValue.get(JSON_STRING_ENCODING));
+    }
+    if (jValue.get(JSON_CASE_INSENSITIVE) instanceof Boolean caseInsensitive) {
+      setCaseInsensitive(caseInsensitive);
+    }
+    if (jValue.get(JSON_COLLATOR_DISABLED) instanceof Boolean collatorOff) {
+      setCollatorDisabled(collatorOff);
+    }
+    // The locale creates the collator, the strength is set on it: locale first.
+    if (jValue.get(JSON_COLLATOR_LOCALE) instanceof String locale) {
+      setCollatorLocale(Locale.forLanguageTag(locale));
+    }
+    if (jValue.get(JSON_COLLATOR_STRENGTH) instanceof Long strength) {
+      setCollatorStrength(strength.intValue());
+    }
+    if (jValue.get(JSON_SORTED_DESCENDING) instanceof Boolean descending) {
+      setSortedDescending(descending);
+    }
+    if (jValue.get(JSON_OUTPUT_PADDING) instanceof Boolean padding) {
+      setOutputPaddingEnabled(padding);
+    }
+  }
+
+  private static void putIfNotDefault(
+      JSONObject jValue, String key, String value, String jvmDefault) {
+    if (!Objects.equals(value, jvmDefault)) {
+      jValue.put(key, value);
+    }
+  }
+
+  private static boolean defaultLenientStringToNumber() {
+    return convertStringToBoolean(
+        Const.NVL(System.getProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N"), "N"));
   }
 
   public static final class TrimTypeCodeConverter implements IIntCodeConverter {

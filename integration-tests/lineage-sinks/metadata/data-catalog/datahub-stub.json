@@ -1,0 +1,22 @@
+{
+  "catalog": {
+    "datahub": {
+      "url": "http://127.0.0.1:${DATAHUB_STUB_PORT}",
+      "token": "it-token",
+      "environment": "dev",
+      "connectTimeoutMs": "5000",
+      "readTimeoutMs": "10000",
+      "trustStorePath": "",
+      "trustStorePassword": "",
+      "trustStoreType": "",
+      "databaseInstances": [
+        {
+          "connection": "warehouse",
+          "platformInstance": "warehouse"
+        }
+      ]
+    }
+  },
+  "name": "datahub-stub",
+  "description": "The DataHub stand-in started by 0001-start-datahub-stub.sh"
+}

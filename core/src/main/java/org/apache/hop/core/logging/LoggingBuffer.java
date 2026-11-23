@@ -34,16 +34,16 @@ import org.apache.hop.core.Const;
 public class LoggingBuffer {
   @Getter @Setter private String name;
 
-  private List<BufferLine> buffer;
-  private ReadWriteLock lock = new ReentrantReadWriteLock();
+  private final List<BufferLine> buffer;
+  private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   private int bufferSize;
 
   @Getter @Setter private HopLogLayout layout;
 
-  private List<IHopLoggingEventListener> eventListeners;
+  private final List<IHopLoggingEventListener> eventListeners;
 
-  private LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
+  private final LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
   public LoggingBuffer(int bufferSize) {
     this.bufferSize = bufferSize;

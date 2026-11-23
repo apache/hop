@@ -39,6 +39,7 @@ import org.apache.hop.lint.RuleConfig;
  * Discovers rule packs, merges them in priority order, and applies project hop-lint.yml overlays.
  */
 public class RuleRegistry {
+  private static final String CONST_RULE_PACK = "Rule pack '";
 
   private static final RuleRegistry INSTANCE = new RuleRegistry();
 
@@ -73,6 +74,9 @@ public class RuleRegistry {
    */
   private volatile List<String> packErrors = List.of();
 
+  /** The packs that loaded, recorded with {@link #packRules}, in the order they were merged. */
+  private volatile List<RulePackInfo> loadedPacks = List.of();
+
   private RuleRegistry() {
     this(new RulePackDiscovery());
   }
@@ -97,9 +101,13 @@ public class RuleRegistry {
       }
       Map<String, CustomLintRule> loaded = new LinkedHashMap<>();
       List<String> errors = new ArrayList<>();
+      List<RulePackInfo> packs = new ArrayList<>();
       for (IHopLintRulePack pack : packDiscovery.discoverAll()) {
         try {
           mergePack(loaded, pack);
+          packs.add(
+              new RulePackInfo(
+                  pack.getPackId(), pack.getDisplayName(), pack.getVersion(), pack.getOwner()));
           LogChannel.GENERAL.logDetailed(
               "Loaded rule pack "
                   + pack.getPackId()
@@ -108,15 +116,22 @@ public class RuleRegistry {
                   + ")");
         } catch (Exception e) {
           String error =
-              "Rule pack '" + pack.getPackId() + "' could not be loaded: " + messagesOf(e);
+              CONST_RULE_PACK + pack.getPackId() + "' could not be loaded: " + messagesOf(e);
           errors.add(error);
           LogChannel.GENERAL.logError(error, e);
         }
       }
       packErrors = List.copyOf(errors);
+      loadedPacks = List.copyOf(packs);
       packRules = loaded;
       return loaded;
     }
+  }
+
+  /** The installed packs that loaded, whose rules a run can use. */
+  public List<RulePackInfo> getLoadedPacks() {
+    loadPackRules();
+    return loadedPacks;
   }
 
   /** Why each installed pack that could not be loaded failed, empty when all of them loaded. */
@@ -163,7 +178,7 @@ public class RuleRegistry {
 
       if (foreignCollision && !declaresOverride(pack, ruleId)) {
         LogChannel.GENERAL.logError(
-            "Rule pack '"
+            CONST_RULE_PACK
                 + pack.getPackId()
                 + "' defines rule '"
                 + ruleId
@@ -175,7 +190,7 @@ public class RuleRegistry {
       }
       if (foreignCollision) {
         LogChannel.GENERAL.logBasic(
-            "Rule pack '"
+            CONST_RULE_PACK
                 + pack.getPackId()
                 + "' overrides rule '"
                 + ruleId

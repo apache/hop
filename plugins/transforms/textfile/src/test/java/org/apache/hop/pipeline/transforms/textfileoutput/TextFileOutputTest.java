@@ -45,6 +45,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
@@ -838,6 +839,115 @@ class TextFileOutputTest {
     assertEquals("abc       ", writeStringField("abc", 10, true, true));
     assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, false, false));
     assertEquals("abcdefghij", writeStringField("abcdefghijklmnop", 10, true, true));
+  }
+
+  @Test
+  void enclosesVectorWhenValueContainsSeparator() throws Exception {
+    // Vector's canonical form embeds commas; quoting is required for CSV round trip (#9286).
+    assertEquals(
+        "a,\"[0.1,0.2,0.3]\"",
+        writeIdAndRenderedField(",", IValueMeta.TYPE_VECTOR, "[0.1,0.2,0.3]", false));
+  }
+
+  @Test
+  void doesNotEncloseVectorWhenSeparatorIsAbsentFromValue() throws Exception {
+    assertEquals(
+        "a;[0.1,0.2,0.3]",
+        writeIdAndRenderedField(";", IValueMeta.TYPE_VECTOR, "[0.1,0.2,0.3]", false));
+  }
+
+  @Test
+  void enclosureFixDisabledSkipsQuotingVectorWithSeparator() throws Exception {
+    assertEquals(
+        "a,[0.1,0.2,0.3]",
+        writeIdAndRenderedField(",", IValueMeta.TYPE_VECTOR, "[0.1,0.2,0.3]", true));
+  }
+
+  @Test
+  void stillEnclosesStringWhenValueContainsSeparator() throws Exception {
+    assertEquals(
+        "a,\"hello,world\"",
+        writeIdAndRenderedField(",", IValueMeta.TYPE_STRING, "hello,world", false));
+  }
+
+  @Test
+  void doesNotEncloseNumberWhenFormattedValueContainsSeparator() throws Exception {
+    // Number/Date/JSON/Binary must keep pre-#9286 output (no auto-quote on separator).
+    assertEquals(
+        "a,1,234.50", writeIdAndRenderedField(",", IValueMeta.TYPE_NUMBER, "1,234.50", false));
+  }
+
+  @Test
+  void doesNotEncloseDateWhenFormattedValueContainsSeparator() throws Exception {
+    assertEquals(
+        "a,Jan 1, 1970", writeIdAndRenderedField(",", IValueMeta.TYPE_DATE, "Jan 1, 1970", false));
+  }
+
+  @Test
+  void doesNotEncloseJsonWhenValueContainsEnclosure() throws Exception {
+    assertEquals(
+        "a;{\"a\" : 1}", writeIdAndRenderedField(";", IValueMeta.TYPE_JSON, "{\"a\" : 1}", false));
+  }
+
+  @Test
+  void doesNotEncloseBinaryWhenValueContainsEnclosure() throws Exception {
+    assertEquals(
+        "a;bin\"ary", writeIdAndRenderedField(";", IValueMeta.TYPE_BINARY, "bin\"ary", false));
+  }
+
+  /**
+   * Writes {@code id} as a String and a second field whose value meta reports {@code fieldType} and
+   * whose {@code getBinaryString} returns {@code rendered} — the write path Vector (and others)
+   * take once formatting is done.
+   */
+  private String writeIdAndRenderedField(
+      String separator, int fieldType, String rendered, boolean enclosureFixDisabled)
+      throws Exception {
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    meta.setEncoding(Const.UTF_8);
+    meta.setSeparator(separator);
+    meta.setEnclosure("\"");
+    meta.setEnclosureForced(false);
+    meta.setEnclosureFixDisabled(enclosureFixDisabled);
+    meta.getFileSettings().setDoNotPadFields(false);
+    meta.getFileSettings().setPadded(false);
+
+    TextFileOutputData data = new TextFileOutputData();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    data.writer = baos;
+    data.binarySeparator = separator.getBytes(StandardCharsets.UTF_8);
+    data.binaryEnclosure = "\"".getBytes(StandardCharsets.UTF_8);
+    data.binaryNewline = "\n".getBytes(StandardCharsets.UTF_8);
+
+    IValueMeta renderedMeta =
+        new ValueMetaBase("field", fieldType) {
+          @Override
+          public byte[] getBinaryString(Object object) {
+            return object == null ? null : object.toString().getBytes(StandardCharsets.UTF_8);
+          }
+
+          @Override
+          public boolean isNull(Object object) {
+            return object == null;
+          }
+        };
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("id"));
+    rowMeta.addValueMeta(renderedMeta);
+
+    TextFileOutput transform =
+        new TextFileOutput(
+            transformMockHelper.transformMeta,
+            meta,
+            data,
+            0,
+            transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline);
+    transform.writeRow(rowMeta, new Object[] {"a", rendered});
+    String written = baos.toString(StandardCharsets.UTF_8);
+    assertTrue(written.endsWith("\n"), written);
+    return written.substring(0, written.length() - 1);
   }
 
   private String writeStringField(String value, int length, boolean doNotPad, boolean rightPad)

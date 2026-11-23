@@ -78,3 +78,8 @@ Use a Row generator transform generating e.g. 1 empty row and link that with a h
 
 *A*: No, it just calls an URL with arguments.
 Future transforms may provide SOAP functionality, Work is underway on a WebService transform supporting WSDL.
+
+== Samples
+
+The samples project has `transforms/http-client.hpl`, which calls `https://hop.apache.org/` for one row from a Data grid, and adds the response as `result` and the HTTP status code as `status_code`.
+It needs network access.

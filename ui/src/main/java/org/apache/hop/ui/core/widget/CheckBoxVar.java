@@ -43,9 +43,9 @@ public class CheckBoxVar extends Composite {
 
   private static final PropsUi props = PropsUi.getInstance();
 
-  private Button wBox;
+  private final Button wBox;
 
-  private TextVar wText;
+  private final TextVar wText;
 
   public CheckBoxVar(IVariables variables, Composite composite, int flags) {
     this(variables, composite, flags, null);

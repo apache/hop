@@ -63,7 +63,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
    */
   private RowMetaAndData readAllParameterRows() throws HopException {
     IRowMeta parametersMeta = new RowMeta();
-    Object[] parametersData = new Object[] {};
+    Object[] parametersData = {};
 
     Object[] rowData = getRow();
     while (rowData != null) {
@@ -208,7 +208,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       if (nextRow == null) {
         done = true;
       } else {
-        closePreviousQuery();
+        closePreviousResult();
 
         boolean success = doQuery(getInputRowMeta(), nextRow);
         if (!success) {
@@ -234,6 +234,27 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     if (data.db != null) {
       data.db.closeQuery(data.rs);
     }
+    data.keepingStatement = false;
+  }
+
+  /**
+   * Before the query for the next input row: when the previous one kept its prepared statement,
+   * only its result set is closed so the statement can be executed again; otherwise everything is
+   * closed as before.
+   */
+  private void closePreviousResult() throws HopDatabaseException {
+    if (!data.keepingStatement) {
+      closePreviousQuery();
+      return;
+    }
+    if (data.rs != null) {
+      try {
+        data.rs.close();
+      } catch (SQLException e) {
+        throw new HopDatabaseException("Couldn't close the result set of the previous query", e);
+      }
+      data.rs = null;
+    }
   }
 
   private String resolveSql() throws HopException {
@@ -244,6 +265,18 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     return sql;
   }
 
+  /**
+   * Applies the partitioning slice (when configured) to the user SQL: the query becomes {@code
+   * (sql) hop_part WHERE <slice>} so this transform copy reads only its own range. Returns the
+   * original SQL when partitioning is not configured.
+   */
+  private String applyPartitionSlice(String sql) throws HopException {
+    if (data.partitionSlice == null) {
+      return sql;
+    }
+    return data.partitionSlice.buildQuery(TableInputPartitioning.trimSql(sql));
+  }
+
   private boolean doQuery(IRowMeta parametersMeta, Object[] parameters) throws HopException {
     boolean success = true;
 
@@ -251,6 +284,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     String sql;
     try {
       sql = resolveSql();
+      sql = applyPartitionSlice(sql);
     } catch (HopException e) {
       logError("Could not get SQL: " + e.getMessage());
       setErrors(1);
@@ -278,6 +312,13 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     try {
       if (boundMeta == null || boundMeta.isEmpty()) {
         data.rs = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false);
+      } else if (meta.isExecuteEachInputRow()) {
+        // The same SQL runs once per input row: keep the prepared statement and only bind the
+        // next row's parameters.
+        data.keepingStatement = true;
+        data.rs =
+            data.db.openQueryKeepingStatement(
+                sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       } else {
         data.rs = data.db.openQuery(sql, boundMeta, boundData, ResultSet.FETCH_FORWARD, false);
       }
@@ -478,6 +519,71 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
 
       data.db = new Database(this, this, databaseMeta);
       data.db.setQueryLimit(Const.toIntExpanded(resolve(meta.getRowLimit()), 0));
+
+      // Parallel (partitioned) read: when all four jdbc_partition_* properties are set, this copy
+      // reads only its own range of the partition column (Spark-compatible slices). The number of
+      // transform copies should match jdbc_num_partitions; extra copies read an empty range.
+      if (TableInputPartitioning.isPartitioningRequested(meta)
+          && !TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
+        logError(
+            "Incomplete or invalid JDBC partition configuration: all four options are required.");
+        return false;
+      }
+      boolean fullRead = true;
+      if (TableInputPartitioning.isPartitioningConfigured(meta, variables)) {
+        int copies = getTransformMeta() != null ? getTransformMeta().getCopies(this) : 1;
+        int configured = TableInputPartitioning.resolveNumPartitions(meta, variables);
+        // A single copy reads the whole result without any partition predicate, matching the
+        // classic non-partitioned behavior (the GUI dialog preview also runs a single copy).
+        // Multiple copies are only restricted when there are fewer copies than configured
+        // partitions (extra copies read empty ranges).
+        if (copies == 1) {
+          try {
+            // Validate bounds even though no predicate is applied (single reader).
+            TableInputPartitioning.resolveSlice(meta, variables, databaseMeta, 0);
+          } catch (IllegalArgumentException e) {
+            logError("Invalid JDBC partition configuration: " + e.getMessage());
+            return false;
+          }
+          if (isDetailed()) {
+            logDetailed(
+                "JDBC partitioning configured but a single copy reads the whole result ("
+                    + configured
+                    + " partitions configured)");
+          }
+        } else {
+          fullRead = false;
+          if (copies < configured) {
+            logError(
+                "Table Input requires at least "
+                    + configured
+                    + " copies for the configured JDBC partitions; got "
+                    + copies);
+            return false;
+          }
+        }
+      }
+      if (TableInputPartitioning.isPartitioningConfigured(meta, variables) && !fullRead) {
+        try {
+          data.partitionSlice =
+              TableInputPartitioning.resolveSlice(meta, variables, databaseMeta, getCopy());
+          if (data.partitionSlice != null) {
+            if (isDetailed()) {
+              int copies = getTransformMeta() != null ? getTransformMeta().getCopies(this) : 1;
+              logDetailed(
+                  BaseMessages.getString(
+                      PKG,
+                      "TableInput.Log.PartitionedReadEnabled",
+                      Integer.toString(getCopy()),
+                      Integer.toString(copies),
+                      String.valueOf(data.partitionSlice.getWhereClause())));
+            }
+          }
+        } catch (IllegalArgumentException e) {
+          logError("Invalid JDBC partition configuration: " + e.getMessage());
+          return false;
+        }
+      }
       // Statement timeout is for transform dialog / pipeline preview only (Hop GUI sets preview).
       // Normal pipeline runs use JDBC driver default (0 = no explicit timeout on the statement).
       if (getPipeline() != null && getPipeline().isPreview()) {

@@ -32,7 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     legacyKeys = {"GoogleStorageConnectionDefinition"},
     name = "i18n::GoogleStorageMetadataType.Name",
     description = "i18n::GoogleStorageMetadataType.Description",
-    image = "ui/images/authentication.svg",
+    image = "google-storage.svg",
     category = HopMetadataCategory.FILE_STORAGE,
     documentationUrl = "/metadata-types/google-storage-authentication.html",
     hopMetadataPropertyType = HopMetadataPropertyType.VFS_GCP_CONNECTION,

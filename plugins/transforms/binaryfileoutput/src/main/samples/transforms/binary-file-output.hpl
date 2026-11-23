@@ -63,6 +63,11 @@ limitations under the License.
       <to>load binary file</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>load binary file</from>
+      <to>binary file output</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
 <transform>
     <name>get filenames</name>

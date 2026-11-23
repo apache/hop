@@ -22,7 +22,7 @@ import java.util.List;
 
 public class TextFormatter {
 
-  private List<FormatRule> rules = new ArrayList<>();
+  private final List<FormatRule> rules = new ArrayList<>();
   public static TextFormatter instance;
 
   public TextFormatter() {

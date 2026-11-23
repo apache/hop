@@ -61,12 +61,11 @@ import org.eclipse.swt.widgets.Shell;
 public class ActionMssqlBulkLoadDialog extends ActionDialog {
   private static final Class<?> PKG = ActionMssqlBulkLoad.class;
 
-  private static final String[] FILETYPES =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Text"),
-        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Csv"),
-        BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.All")
-      };
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Text"),
+    BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.Csv"),
+    BaseMessages.getString(PKG, "ActionMssqlBulkLoad.Filetype.All")
+  };
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
 
   private MetaSelectionLine<DatabaseMeta> wConnection;

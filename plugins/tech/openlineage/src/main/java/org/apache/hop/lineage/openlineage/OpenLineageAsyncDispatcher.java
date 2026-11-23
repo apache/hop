@@ -125,6 +125,9 @@ final class OpenLineageAsyncDispatcher implements AutoCloseable {
   private final AtomicLong sentCount = new AtomicLong();
   private final AtomicLong failedCount = new AtomicLong();
   private final AtomicLong rejectedCount = new AtomicLong();
+  private volatile long lastSentMillis;
+  private volatile long lastErrorMillis;
+  private volatile String lastError;
   private final AtomicBoolean running = new AtomicBoolean(true);
   private final Thread worker;
 
@@ -324,6 +327,30 @@ final class OpenLineageAsyncDispatcher implements AutoCloseable {
               + bufferSize
               + " full). Further drops are counted and reported on shutdown.");
     }
+  }
+
+  /** Remembers an error for the sink's health, in the emitter's words when it has them. */
+  private void noteError(String fallback) {
+    String reason = emitter.lastError();
+    lastError = reason == null ? fallback : reason;
+    lastErrorMillis = System.currentTimeMillis();
+  }
+
+  /** Events handed over and not delivered yet: queued, or taken off the queue and waiting. */
+  long getWaitingCount() {
+    return (long) queue.size() + pending.size();
+  }
+
+  long getLastSentMillis() {
+    return lastSentMillis;
+  }
+
+  long getLastErrorMillis() {
+    return lastErrorMillis;
+  }
+
+  String getLastError() {
+    return lastError;
   }
 
   long getDroppedCount() {
@@ -536,7 +563,9 @@ final class OpenLineageAsyncDispatcher implements AutoCloseable {
   private void settle(Pending delivered, OpenLineageEmitter.Result result) {
     if (result == OpenLineageEmitter.Result.SENT) {
       sentCount.incrementAndGet();
+      lastSentMillis = System.currentTimeMillis();
     } else {
+      noteError("The collector refused an event");
       // Refused for what it is: resending can only fail the same way, and keeping it would hold up
       // every event behind it.
       rejectedCount.incrementAndGet();
@@ -556,6 +585,7 @@ final class OpenLineageAsyncDispatcher implements AutoCloseable {
         Math.min(maxRetryPauseMs, FIRST_RETRY_PAUSE_MS << Math.min(failuresInARow - 1, 16));
     retryAtMs = System.currentTimeMillis() + pause;
     failedCount.incrementAndGet();
+    noteError("Delivery failed");
     if (failuresInARow == 1) {
       log.logError(
           "Lineage delivery failed; "

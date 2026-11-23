@@ -1,0 +1,74 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "column_name",
+          "data_set_field": "column_name"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "column_name",
+        "result"
+      ],
+      "data_set_name": "golden-column-exists-fixed-table-schema",
+      "transform_name": "fixed table with schema result"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "table_name",
+          "data_set_field": "table_name"
+        },
+        {
+          "transform_field": "column_name",
+          "data_set_field": "column_name"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "table_name",
+        "column_name",
+        "result"
+      ],
+      "data_set_name": "golden-column-exists-table-field-schema",
+      "transform_name": "table from field with schema result"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "column_name",
+          "data_set_field": "column_name"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "column_name",
+        "result"
+      ],
+      "data_set_name": "golden-column-exists-fixed-table-no-schema",
+      "transform_name": "fixed table without schema result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0051-column-exists-schema UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0051-column-exists-schema.hpl",
+  "test_type": "UNIT_TEST"
+}

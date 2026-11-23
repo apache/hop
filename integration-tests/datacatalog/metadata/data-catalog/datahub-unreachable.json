@@ -1,0 +1,13 @@
+{
+  "catalog": {
+    "datahub": {
+      "url": "http://127.0.0.1:1",
+      "token": "it-token",
+      "environment": "PROD",
+      "connectTimeoutMs": "2000",
+      "readTimeoutMs": "2000"
+    }
+  },
+  "name": "datahub-unreachable",
+  "description": "A DataHub nothing listens on"
+}

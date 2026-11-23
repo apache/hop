@@ -65,7 +65,7 @@ public class EnvironmentApplier {
       String version = StringUtils.isNotBlank(ref.getVersion()) ? ref.getVersion() : defaultVersion;
       InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, ref.getArtifactId());
       boolean onDisk = isPluginOnDisk(ref.getArtifactId());
-      if (!onDisk && receipt == null) {
+      if ((!onDisk && receipt == null) || (receipt != null && receipt.isUninstallPending())) {
         drift.getMissingPlugins().add(groupId + ":" + ref.getArtifactId() + ":" + version);
         continue;
       }
@@ -144,7 +144,10 @@ public class EnvironmentApplier {
           receipt != null
               && StringUtils.isNotBlank(version)
               && !version.equals(receipt.getVersion());
-      boolean needsInstall = (!onDisk && receipt == null) || versionMismatch;
+      boolean needsInstall =
+          (!onDisk && receipt == null)
+              || versionMismatch
+              || (receipt != null && receipt.isUninstallPending());
       if (needsInstall) {
         MavenCoordinates coords = new MavenCoordinates(groupId, ref.getArtifactId(), version);
         log.logBasic("Applying install spec: installing " + coords.gav());
@@ -318,7 +321,8 @@ public class EnvironmentApplier {
     }
     // fallback: any receipt counts as installed for non-catalog plugins
     try {
-      return PluginInstaller.readReceipt(hopHome, artifactId) != null;
+      InstallReceipt receipt = PluginInstaller.readReceipt(hopHome, artifactId);
+      return receipt != null && !receipt.isUninstallPending();
     } catch (HopException e) {
       return false;
     }

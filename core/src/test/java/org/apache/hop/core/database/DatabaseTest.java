@@ -744,6 +744,51 @@ class DatabaseTest {
   }
 
   @Test
+  void listsTablesAndViewsWithTheNamesOfGetTablenamesAndGetViews() throws Exception {
+    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+    when(databaseMeta.getQuotedSchemaTableCombination(any(), any(), anyString()))
+        .thenAnswer(
+            invocation -> {
+              String schema = invocation.getArgument(1);
+              String name = "\"" + invocation.getArgument(2) + "\"";
+              return schema == null ? name : "\"" + schema + "\"." + name;
+            });
+    Database db = spy(new Database(log, variables, databaseMeta));
+    List<DatabaseObjectName> objects =
+        List.of(
+            new DatabaseObjectName("hop", "sales", "Orders"),
+            new DatabaseObjectName("hop", "public", "customers"),
+            new DatabaseObjectName("other", "public", "customers"));
+    doReturn(objects).when(db).getTableObjectNames(nullable(String.class), any());
+    doReturn(objects).when(db).getViewObjectNames(nullable(String.class));
+
+    List<ListedDatabaseObject> tables = db.getListedTables(null, false, null);
+    assertEquals(
+        List.of("\"customers\"", "\"customers\"", "\"Orders\""),
+        tables.stream().map(ListedDatabaseObject::outputName).toList());
+    assertEquals(new DatabaseObjectName("hop", "public", "customers"), tables.get(0).object());
+    assertEquals(new DatabaseObjectName("other", "public", "customers"), tables.get(1).object());
+    assertEquals(
+        List.of("\"public\".\"customers\"", "\"public\".\"customers\"", "\"sales\".\"Orders\""),
+        db.getListedTables(null, true, null).stream()
+            .map(ListedDatabaseObject::outputName)
+            .toList());
+    assertEquals(
+        List.of("customers", "customers", "Orders"),
+        db.getListedViews(null, false).stream().map(ListedDatabaseObject::outputName).toList());
+
+    // The same schema and name in two catalogs is one name in the plain lists
+    assertEquals(List.of("\"customers\"", "\"Orders\""), List.of(db.getTablenames(null, false)));
+    assertEquals(
+        List.of("\"public\".\"customers\"", "\"sales\".\"Orders\""),
+        List.of(db.getTablenames(null, true)));
+    assertEquals(List.of("customers", "Orders"), List.of(db.getViews(null, false)));
+    assertEquals(
+        List.of("\"public\".\"customers\"", "\"sales\".\"Orders\""),
+        List.of(db.getViews(null, true)));
+  }
+
+  @Test
   void testCheckTableExistsNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
@@ -1334,5 +1379,58 @@ class DatabaseTest {
     assertEquals(2, catalogs.length);
     assertEquals("catalogA", catalogs[0]);
     assertEquals("catalogB", catalogs[1]);
+  }
+
+  private Database existenceDatabase() {
+    DatabaseMeta databaseMeta = new DatabaseMeta();
+    databaseMeta.setIDatabase(new NoneDatabaseMeta());
+    Database db = new Database(log, variables, databaseMeta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  /**
+   * Table exists and Column exists ask once per row. The answer is whether the dialect's query
+   * runs; deriving row metadata from it (11 columns on PostgreSQL) was most of the cost.
+   */
+  @Test
+  void testCheckTableAndColumnExistsOnlyRunTheQuery() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(rs);
+    when(statement.executeQuery("SELECT amount FROM orders")).thenReturn(rs);
+
+    assertTrue(db.checkTableExists(null, "orders"));
+    assertTrue(db.checkColumnExists(null, "orders", "amount"));
+
+    verify(rs, never()).getMetaData();
+    verify(rs, times(2)).next();
+    verify(rs, times(2)).close();
+    verify(statement, times(2)).close();
+  }
+
+  @Test
+  void testCheckTableExistsIsFalseWhenTheQueryFailsAndClosesTheStatement() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery(anyString())).thenThrow(new SQLException("no such table"));
+
+    assertFalse(db.checkTableExists(null, "missing"));
+    assertFalse(db.checkColumnExists(null, "missing", "amount"));
+
+    verify(statement, times(2)).close();
+  }
+
+  @Test
+  void testCheckTableExistsIsFalseWhenReadingTheFirstRowFails() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery(anyString())).thenReturn(rs);
+    when(rs.next()).thenThrow(new SQLException("broken"));
+
+    assertFalse(db.checkTableExists(null, "orders"));
   }
 }

@@ -152,7 +152,21 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             ClassInfo classInfo = instance.target().asClass();
             String className = classInfo.name().toString();
 
-            Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
+            // A plugin whose class does not load, for instance a GUI class on an install
+            // without hop-ui, is skipped: it must not stop Hop from starting.
+            Class<?> clazz;
+            try {
+              clazz = this.getClass().getClassLoader().loadClass(className);
+            } catch (LinkageError e) {
+              LogChannel.GENERAL.logError(
+                  "Plugin class "
+                      + className
+                      + " in "
+                      + jarFile
+                      + " cannot be loaded and is skipped",
+                  e);
+              continue;
+            }
 
             if (clazz == null) {
               throw new HopPluginException("Unable to load class: " + className);
@@ -619,8 +633,8 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
               parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
           File dependenciesFolder = new File(dependenciesFolderName);
           if (dependenciesFolder.exists()) {
-            // Now get the jar files in this dependency folder
-            // This includes the possible lib/ folder dependencies in there
+            // Now get the jar files in this dependency folder. A lib/ folder in there is not
+            // included: name it as a folder of its own.
             //
             for (File libFile : jarCache.findJarFiles(dependenciesFolder)) {
               urls.add(libFile.toURI().toURL());
@@ -765,8 +779,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         T annotation = clazz.getAnnotation(pluginClass);
 
         handlePluginAnnotation(clazz, annotation, libraries, false, pluginClassFile.getFolder());
-      } catch (Exception e) {
-        // Ignore for now, don't know if it's even possible.
+      } catch (Exception | LinkageError e) {
+        // A class that does not load (a missing dependency, a GUI class on an install without
+        // hop-ui) skips this plugin, not the whole plugin type.
         LogChannel.GENERAL.logError(
             "Unexpected error registering jar plugin file: " + pluginClassFile.getJarFile(), e);
       }

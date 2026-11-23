@@ -76,8 +76,8 @@ public class HopGuiWorkflowLogDelegate {
       "ToolbarIcon-10090-LogFilterCaseSensitive";
   public static final String TOOLBAR_ICON_LOG_FILTER_EXCLUDE = "ToolbarIcon-10100-LogFilterExclude";
 
-  private HopGui hopGui;
-  private HopGuiWorkflowGraph workflowGraph;
+  private final HopGui hopGui;
+  private final HopGuiWorkflowGraph workflowGraph;
 
   /**
    * Exposed, as the pipeline log delegate already exposes its own, so a plugin can bring the

@@ -1,0 +1,139 @@
+{
+  "mappings": [
+    {
+      "name": "paging token endpoint: first token",
+      "scenarioName": "token-rejected-while-paging",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "issued-A",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/paging/token",
+        "bodyPatterns": [{ "contains": "grant_type=client_credentials" }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "access_token": "token-A", "token_type": "Bearer", "expires_in": 3600 }
+      }
+    },
+    {
+      "name": "paging api: page 1 with token-A",
+      "scenarioName": "token-rejected-while-paging",
+      "requiredScenarioState": "issued-A",
+      "newScenarioState": "page-1-served",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/paging/items",
+        "queryParameters": { "page": { "equalTo": "1" } },
+        "headers": { "Authorization": { "equalTo": "Bearer token-A" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "items": [{ "id": 1 }, { "id": 2 }] }
+      }
+    },
+    {
+      "name": "paging api: token-A rejected on page 2",
+      "scenarioName": "token-rejected-while-paging",
+      "requiredScenarioState": "page-1-served",
+      "newScenarioState": "token-A-rejected",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/paging/items",
+        "queryParameters": { "page": { "equalTo": "2" } },
+        "headers": { "Authorization": { "equalTo": "Bearer token-A" } }
+      },
+      "response": {
+        "status": 401,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "invalid_token" }
+      }
+    },
+    {
+      "name": "paging token endpoint: second token, only after token-A was rejected",
+      "scenarioName": "token-rejected-while-paging",
+      "requiredScenarioState": "token-A-rejected",
+      "newScenarioState": "issued-B",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/paging/token",
+        "bodyPatterns": [{ "contains": "grant_type=client_credentials" }]
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "access_token": "token-B", "token_type": "Bearer", "expires_in": 3600 }
+      }
+    },
+    {
+      "name": "paging api: page 2 with token-B",
+      "priority": 2,
+      "request": {
+        "method": "GET",
+        "urlPath": "/paging/items",
+        "queryParameters": { "page": { "equalTo": "2" } },
+        "headers": { "Authorization": { "equalTo": "Bearer token-B" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "items": [{ "id": 3 }, { "id": 4 }] }
+      }
+    },
+    {
+      "name": "paging api: page 3 with token-B",
+      "priority": 2,
+      "request": {
+        "method": "GET",
+        "urlPath": "/paging/items",
+        "queryParameters": { "page": { "equalTo": "3" } },
+        "headers": { "Authorization": { "equalTo": "Bearer token-B" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "items": [{ "id": 5 }, { "id": 6 }] }
+      }
+    },
+    {
+      "name": "paging api: past the last page with token-B",
+      "priority": 2,
+      "request": {
+        "method": "GET",
+        "urlPath": "/paging/items",
+        "queryParameters": { "page": { "equalTo": "4" } },
+        "headers": { "Authorization": { "equalTo": "Bearer token-B" } }
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "items": [] }
+      }
+    },
+    {
+      "name": "paging api: anything else, including token-A after page 1, is rejected",
+      "priority": 10,
+      "request": { "method": "GET", "urlPath": "/paging/items" },
+      "response": {
+        "status": 401,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "invalid_token" }
+      }
+    },
+    {
+      "name": "paging token endpoint: any other token request is a failure of the test",
+      "priority": 10,
+      "request": { "method": "POST", "urlPath": "/paging/token" },
+      "response": {
+        "status": 400,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": { "error": "invalid_request", "error_description": "unexpected token request" }
+      }
+    }
+  ]
+}

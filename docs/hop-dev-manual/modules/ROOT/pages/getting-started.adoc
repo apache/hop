@@ -58,7 +58,9 @@ Three modules carry almost all of the framework â€” `core`, `engine` and `ui` â€
 |Turns all of the above into the client, server and web distributions.
 |===
 
-Also in the repository, outside the reactor: `integration-tests` and `web-tests` (see xref:integration-testing.adoc[Integration tests]), `docker` and `helm` for container images, `tools` for build and release helper scripts, and `docs` for the three manuals.
+`web-tests` is in the reactor as well, but its Selenium tests for Hop Web only run with `-Dwebtest`.
+
+Also in the repository, outside the reactor: `integration-tests` (see xref:integration-testing.adoc[Integration tests]), `docker` and `helm` for container images, `tools` for build and release helper scripts, and `docs` for the three manuals.
 
 == Core
 

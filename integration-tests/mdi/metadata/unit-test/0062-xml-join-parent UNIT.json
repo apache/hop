@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "doc",
+          "data_set_field": "doc"
+        },
+        {
+          "transform_field": "xml_result",
+          "data_set_field": "xml_result"
+        }
+      ],
+      "field_order": [
+        "doc"
+      ],
+      "transform_name": "Verify",
+      "data_set_name": "golden-xml-join-parent"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0062-xml-join-parent UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0062-xml-join-parent.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -17,6 +17,7 @@
 package org.apache.hop.pgvector.transforms.upsert;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -89,6 +90,25 @@ class PgVectorUpsertMetaTest {
   }
 
   /** clone() has to deep-copy the mapping list, or edits leak between the dialog and the model. */
+  @Test
+  void runsTheSchemaDdlOncePerRunOnlyWhenThereIsSome() {
+    PgVectorUpsertMeta meta = new PgVectorUpsertMeta();
+    meta.setDefault();
+    meta.setConnection("pgvector-local");
+    Variables variables = new Variables();
+    assertTrue(meta.needsPrepareOnce(variables), "creates the table and the HNSW index");
+
+    meta.setCreateTableIfMissing(false);
+    meta.setCreateHnswIndex(false);
+    assertFalse(meta.needsPrepareOnce(variables), "no DDL at all");
+
+    meta.setColumnMappings(new ArrayList<>(List.of(new PgVectorColumnMapping("url", "src"))));
+    assertTrue(meta.needsPrepareOnce(variables), "the mapped columns are added to the table");
+
+    meta.setConnection("");
+    assertFalse(meta.needsPrepareOnce(variables), "no connection to run it on");
+  }
+
   @Test
   void cloneDeepCopiesTheColumnMappings() {
     PgVectorUpsertMeta original = new PgVectorUpsertMeta();

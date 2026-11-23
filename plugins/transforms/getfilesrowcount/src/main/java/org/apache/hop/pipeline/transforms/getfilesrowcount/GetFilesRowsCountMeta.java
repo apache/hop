@@ -54,12 +54,10 @@ public class GetFilesRowsCountMeta
     extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class;
 
-  public static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
+  public static final String[] RequiredFilesDesc = {
+    BaseMessages.getString(PKG, "System.Combo.No"), BaseMessages.getString(PKG, "System.Combo.Yes")
+  };
+  public static final String[] RequiredFilesCode = {"N", "Y"};
   private static final String YES = "Y";
 
   @HopMetadataProperty(key = "file")

@@ -96,7 +96,7 @@ public class CypherScript extends ActionBase implements IAction {
       nrExecuted = 0;
     }
 
-    if (result.getResult()) {
+    if (result.isResult()) {
       if (isBasic()) {
         logBasic("Neo4j script executed " + nrExecuted + " statements without error");
       }
@@ -148,7 +148,7 @@ public class CypherScript extends ActionBase implements IAction {
    * also when closing the connection fails after a failed statement.
    */
   private static void fail(Result result) {
-    if (result.getResult()) {
+    if (result.isResult()) {
       result.setResult(false);
       result.increaseErrors(1L);
     }

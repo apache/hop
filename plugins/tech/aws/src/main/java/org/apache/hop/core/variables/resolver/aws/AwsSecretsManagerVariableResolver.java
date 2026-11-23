@@ -45,7 +45,7 @@ import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -85,7 +85,8 @@ import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundExce
     documentationUrl =
         "/metadata-types/variable-resolver/aws-secrets-manager-variable-resolver.html")
 public class AwsSecretsManagerVariableResolver
-    implements IVariableResolver, IGuiPluginCompositeWidgetsListener {
+    implements IVariableResolver, IGuiPluginModelWidgetsListener {
+  private static final String CONST_SECRET = "Secret '";
 
   private static final String DEFAULT_VERSION_STAGE = "AWSCURRENT";
 
@@ -281,7 +282,7 @@ public class AwsSecretsManagerVariableResolver
     // friendlier than looking up a secret that was never meant.
     if ("arn".equals(secretName) || secretName.startsWith("arn:")) {
       log.logError(
-          "Secret '"
+          CONST_SECRET
               + secretName
               + "' looks like an ARN. Variable resolver expressions are split on ':', so an ARN "
               + "cannot be used here. Use the name of the secret and, when the names share a "
@@ -318,7 +319,7 @@ public class AwsSecretsManagerVariableResolver
       }
       return value;
     } catch (ResourceNotFoundException e) {
-      log.logError("Secret '" + secretId + "' was not found in AWS Secrets Manager", e);
+      log.logError(CONST_SECRET + secretId + "' was not found in AWS Secrets Manager", e);
       return null;
     } catch (Exception e) {
       log.logError("Error looking up secret '" + secretId + "' in AWS Secrets Manager", e);
@@ -336,10 +337,10 @@ public class AwsSecretsManagerVariableResolver
     }
     if (response.secretBinary() != null) {
       log.logDetailed(
-          "Secret '" + secretId + "' holds a binary value, returning it base64 encoded.");
+          CONST_SECRET + secretId + "' holds a binary value, returning it base64 encoded.");
       return Base64.getEncoder().encodeToString(response.secretBinary().asByteArray());
     }
-    log.logError("Secret '" + secretId + "' holds neither a string nor a binary value");
+    log.logError(CONST_SECRET + secretId + "' holds neither a string nor a binary value");
     return null;
   }
 
@@ -545,8 +546,7 @@ public class AwsSecretsManagerVariableResolver
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     if (ID_AUTHENTICATION_TYPE.equals(widgetId)) {
       hideFieldsThatDoNotApply(compositeWidgets);
     }

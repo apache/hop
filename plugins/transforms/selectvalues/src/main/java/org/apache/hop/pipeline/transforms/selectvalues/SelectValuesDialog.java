@@ -347,81 +347,80 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
     final int MetaRows = input.getSelectOption().getMeta().size();
 
-    ColumnInfo[] colmeta =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING)
-              },
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Renameto"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Type"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getAllValueMetaNames(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Length"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Precision"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Label"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Format"),
-              ColumnInfo.COLUMN_TYPE_FORMAT,
-              3),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateLenient"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatLocale"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              EnvUtil.getLocaleList()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatTimeZone"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              EnvUtil.getTimeZones()),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Encoding"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              getCharsets(),
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Decimal"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Grouping"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Currency"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RoundingType"),
-              ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.roundingTypeDesc),
-        };
+    ColumnInfo[] colmeta = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_FIELDNAME),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          new String[] {
+            BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING)
+          },
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Renameto"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Type"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaFactory.getAllValueMetaNames(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Length"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Precision"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Label"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Format"),
+          ColumnInfo.COLUMN_TYPE_FORMAT,
+          3),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateLenient"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatLocale"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          EnvUtil.getLocaleList()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatTimeZone"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          EnvUtil.getTimeZones()),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Encoding"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          getCharsets(),
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Decimal"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Grouping"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Currency"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RoundingType"),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          ValueMetaBase.roundingTypeDesc),
+    };
     colmeta[1].setNamingSchemeType(NamingSchemeTypes.HOP_FIELD);
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));

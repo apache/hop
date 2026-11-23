@@ -50,8 +50,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class ActionCheckFilesLockedDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCheckFilesLocked.class;
 
-  private static final String[] FILETYPES =
-      new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")};
+  private static final String[] FILETYPES = {
+    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+  };
 
   private Button wIncludeSubfolders;
 
@@ -156,17 +157,16 @@ public class ActionCheckFilesLockedDialog extends ActionDialog {
     fdlFields.top = new FormAttachment(wSettings, margin);
     wlFields.setLayoutData(fdlFields);
 
-    ColumnInfo[] fileFields =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Argument.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Wildcard.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] fileFields = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Argument.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT_BUTTON,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Wildcard.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     fileFields[0].setUsingVariables(true);
     fileFields[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Column"));

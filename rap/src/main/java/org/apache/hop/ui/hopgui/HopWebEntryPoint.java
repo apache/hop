@@ -117,7 +117,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
 
   @Override
   protected void createContents(Composite parent) {
-    // So drill-down and other GUI checks can use Const.getHopPlatformRuntime() from any thread
+    // So drill-down and other GUI checks can use Const.isGuiRuntime() from any thread
     System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
 
     String path = null;

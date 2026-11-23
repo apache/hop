@@ -59,12 +59,12 @@ public enum SelectValuesAttr implements IHopAttribute {
    * IValueMeta.TYPE_STRING, META),
    */
 
-  private String xmlCode;
-  private String repCode;
-  private String description;
-  private String tooltip;
-  private int type;
-  private SelectValuesAttr parent;
+  private final String xmlCode;
+  private final String repCode;
+  private final String description;
+  private final String tooltip;
+  private final int type;
+  private final SelectValuesAttr parent;
 
   /**
    * @param xmlCode

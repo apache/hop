@@ -43,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class SynchronizeAfterMerge
     extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
+  private static final String CONST_SUYNC002 = "SUYNC002";
 
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class;
   public static final String CONST_IS_NULL = "IS NULL";
@@ -446,7 +447,7 @@ public class SynchronizeAfterMerge
           processBatchException(errorMessage, updateCounts, exceptionsList);
         } else {
           // Simply add this row to the error row
-          putError(data.inputRowMeta, row, 1L, errorMessage, null, "SUYNC002");
+          putError(data.inputRowMeta, row, 1L, errorMessage, null, CONST_SUYNC002);
         }
       } else {
         if (!lineSkipped) {
@@ -600,7 +601,7 @@ public class SynchronizeAfterMerge
           exMessage = exceptions.get(errNr).toString();
           errNr++;
         }
-        putError(data.outputRowMeta, row, 1L, exMessage, null, "SUYNC002");
+        putError(data.outputRowMeta, row, 1L, exMessage, null, CONST_SUYNC002);
       }
     }
 
@@ -610,7 +611,7 @@ public class SynchronizeAfterMerge
     for (int i = counted; i < bufferSize; i++) {
       Object[] row = data.batchBuffer.get(i);
       if (i == counted && updateCounts != null) {
-        putError(data.outputRowMeta, row, 1L, errorMessage, null, "SUYNC002");
+        putError(data.outputRowMeta, row, 1L, errorMessage, null, CONST_SUYNC002);
       } else {
         putError(
             data.outputRowMeta,

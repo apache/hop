@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Binary File Output transform writes a binary field to a file. The filename is taken from an input field so each row can write a different file.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/binaryfileoutput.svg[Binary File Output transform Icon, role="image-doc-icon"] Binary File Output
 
@@ -54,3 +54,7 @@ TIP: Prefer this transform over xref:pipeline/transforms/textfileoutput.adoc[Tex
 * An empty binary value (`0` bytes) writes an empty file.
 * No character encoding is applied: bytes are written exactly as stored in the field.
 * Supports transform error handling so failed rows can be routed without stopping the pipeline.
+
+== Samples
+
+The samples project has `transforms/binary-file-output.hpl`, which loads `files/binary-file-output.bin` into a binary field and writes it to `output/binary-file-output.bin`.

@@ -78,7 +78,7 @@ public final class LineageTransformSchemaEmitter {
     // again (the SQL of a Table Input on SQL Server, for example). Don't do that for events that
     // the hub would drop anyway. See #9036.
     //
-    if (!LineageHub.getInstance().isEnabled()) {
+    if (!LineageSinkRoutes.isEnabled(combi.transform)) {
       return;
     }
     LineageContext ctxRuntime = buildRuntimeTransformSchemaContext(combi);

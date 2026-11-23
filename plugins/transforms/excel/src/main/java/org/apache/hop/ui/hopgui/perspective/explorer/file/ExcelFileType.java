@@ -41,9 +41,9 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
     image = "excel.svg")
 public class ExcelFileType implements IHopFileType {
 
-  private static final String[] EXTENSIONS = new String[] {"*.xls", "*.xlsx"};
-  private static final String[] FILTER_EXTENSIONS = new String[] {"*.xls;*.xlsx"};
-  private static final String[] FILTER_NAMES = new String[] {"Excel files"};
+  private static final String[] EXTENSIONS = {"*.xls", "*.xlsx"};
+  private static final String[] FILTER_EXTENSIONS = {"*.xls;*.xlsx"};
+  private static final String[] FILTER_NAMES = {"Excel files"};
 
   @Override
   public String getName() {

@@ -51,3 +51,7 @@ The Abort transform features the following logging options:
 | Abort message       | The message to put in the log upon aborting. If not filled in a default message will be used.
 | Always log rows     | Always log the rows processed by the Abort transform. This allows the rows to be logged although the log level of the pipeline would normally not do it. This way you can always see in the log which rows caused the pipeline to abort.
 |===
+
+== Samples
+
+The samples project has `transforms/abort-basic.hpl`: a Filter rows transform sends the row with `id` 4 to Abort, which stops the pipeline with an error.

@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 
 @XmlRootElement
 public class TransformStatus {
+  private static final String CONST_DATA_VOLUME_IN = "dataVolumeIn";
   public static final String XML_TAG = "transform_status";
   private static final String CONST_SAMPLES = "samples";
 
@@ -220,7 +221,7 @@ public class TransformStatus {
         xml.append(XmlHandler.addTagValue("dataVolume", dataVolume, false));
       }
       if (dataVolumeIn != null) {
-        xml.append(XmlHandler.addTagValue("dataVolumeIn", dataVolumeIn, false));
+        xml.append(XmlHandler.addTagValue(CONST_DATA_VOLUME_IN, dataVolumeIn, false));
       }
       if (dataVolumeOut != null) {
         xml.append(XmlHandler.addTagValue("dataVolumeOut", dataVolumeOut, false));
@@ -272,7 +273,7 @@ public class TransformStatus {
     linesRejected = Long.parseLong(XmlHandler.getTagValue(node, "linesRejected"));
     String dataVolumeStr = XmlHandler.getTagValue(node, "dataVolume");
     if (dataVolumeStr == null || dataVolumeStr.isEmpty()) {
-      dataVolumeStr = XmlHandler.getTagValue(node, "dataVolumeIn");
+      dataVolumeStr = XmlHandler.getTagValue(node, CONST_DATA_VOLUME_IN);
     }
     dataVolume =
         (dataVolumeStr != null && !dataVolumeStr.isEmpty()) ? Long.parseLong(dataVolumeStr) : null;
@@ -280,7 +281,7 @@ public class TransformStatus {
     // for stream
     String dataVolumeInStr =
         (dataVolumeStr != null && !dataVolumeStr.isEmpty())
-            ? XmlHandler.getTagValue(node, "dataVolumeIn")
+            ? XmlHandler.getTagValue(node, CONST_DATA_VOLUME_IN)
             : XmlHandler.getTagValue(node, "volumeIn");
     dataVolumeIn =
         (dataVolumeInStr != null && !dataVolumeInStr.isEmpty())

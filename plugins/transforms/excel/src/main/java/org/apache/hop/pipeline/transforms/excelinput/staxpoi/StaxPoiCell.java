@@ -22,9 +22,9 @@ import org.apache.hop.core.spreadsheet.KCellType;
 
 public class StaxPoiCell implements IKCell {
 
-  private KCellType type;
-  private Object value;
-  private int row;
+  private final KCellType type;
+  private final Object value;
+  private final int row;
 
   public StaxPoiCell(String value, int row) {
     this.value = value;

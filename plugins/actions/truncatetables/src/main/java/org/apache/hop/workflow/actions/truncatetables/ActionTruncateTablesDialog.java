@@ -58,6 +58,7 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class ActionTruncateTablesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class;
+  private static final String CONST_SYSTEM_DIALOG_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private Button wbTable;
 
@@ -167,17 +168,16 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     int nrRows = action.getItems() == null ? 1 : action.getItems().size();
     final int nrFieldsRows = nrRows;
 
-    ColumnInfo[] columns =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Schema.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
+    ColumnInfo[] columns = {
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Schema.Label"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false),
+    };
 
     columns[0].setUsingVariables(true);
     columns[0].setToolTip(BaseMessages.getString(PKG, "ActionTruncateTables.Fields.Table.Tooltip"));
@@ -309,7 +309,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     String connectionName = wConnection.getText();
     if (Utils.isEmpty(connectionName)) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.setMessage(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
       mb.open();
       return;
@@ -318,7 +318,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(connectionName, variables);
     if (databaseMeta == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE));
       mb.setMessage(BaseMessages.getString(PKG, "ActionTruncateTables.NoDbConnection"));
       mb.open();
       return;
@@ -377,7 +377,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     } catch (Exception e) {
       new ErrorDialog(
           shell,
-          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, CONST_SYSTEM_DIALOG_ERROR_TITLE),
           BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"),
           e);
     }

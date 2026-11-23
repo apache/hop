@@ -88,19 +88,18 @@ public class DrawInputDataSetOnTransformExtensionPoint
     int arrowSize = textExtent.y;
     Point point = new Point(x - textExtent.x - arrowSize - 2, y + (iconSize - textExtent.y) / 2);
 
-    int[] arrow =
-        new int[] {
-          point.x,
-          point.y,
-          point.x + textExtent.x,
-          point.y,
-          point.x + textExtent.x + arrowSize,
-          point.y + textExtent.y / 2,
-          point.x + textExtent.x,
-          point.y + textExtent.y,
-          point.x,
-          point.y + textExtent.y
-        };
+    int[] arrow = {
+      point.x,
+      point.y,
+      point.x + textExtent.x,
+      point.y,
+      point.x + textExtent.x + arrowSize,
+      point.y + textExtent.y / 2,
+      point.x + textExtent.x,
+      point.y + textExtent.y,
+      point.x,
+      point.y + textExtent.y
+    };
 
     gc.fillPolygon(arrow);
     gc.drawPolygon(arrow);

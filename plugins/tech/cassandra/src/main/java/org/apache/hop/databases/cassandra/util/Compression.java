@@ -21,7 +21,7 @@ public enum Compression {
   NONE(0),
   GZIP(1);
 
-  private int value;
+  private final int value;
 
   Compression(int value) {
     this.value = value;

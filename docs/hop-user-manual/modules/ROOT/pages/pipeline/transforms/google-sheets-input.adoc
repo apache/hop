@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Google Sheets input transform reads data from a Google Sheets worksheets.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/google-sheets-input.svg[Google Sheets input transform Icon, role="image-doc-icon"] Google Sheets input
 
@@ -80,3 +80,7 @@ See xref:concepts.adoc#data-types[Data types].
 |Trim type|How to trim whitespace from the cell text before conversion: none, left, right, or both.
 |===
 
+== Samples
+
+The samples project has `transforms/google-sheets-input.hpl`, which reads three columns from the worksheet `Sheet1` of a Google spreadsheet.
+Put a Google service account key in `client_secret.json` in the project folder, and set the spreadsheet key to a spreadsheet that this account can read, before you run it.

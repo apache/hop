@@ -72,6 +72,8 @@ import org.eclipse.swt.widgets.Label;
  */
 @GuiPlugin
 public class ConfigSecurityTab {
+  private static final String CONST_CONFIG_SECURITY_TAB_ERROR_TITLE =
+      "ConfigSecurityTab.Error.Title";
 
   private static final Class<?> PKG = ConfigSecurityTab.class;
 
@@ -182,7 +184,7 @@ public class ConfigSecurityTab {
       } catch (Exception e) {
         new ErrorDialog(
             HopGui.getInstance().getShell(),
-            BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Title"),
+            BaseMessages.getString(PKG, CONST_CONFIG_SECURITY_TAB_ERROR_TITLE),
             "Unable to create security sub-tab "
                 + tabItem.getId()
                 + " via "
@@ -233,7 +235,7 @@ public class ConfigSecurityTab {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Title"),
+          BaseMessages.getString(PKG, CONST_CONFIG_SECURITY_TAB_ERROR_TITLE),
           BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Reload"),
           e);
     }
@@ -243,7 +245,7 @@ public class ConfigSecurityTab {
     try {
       if (!HopSecurity.allows(Permission.SECURITY_MANAGE)) {
         MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_WARNING | SWT.OK);
-        box.setText(BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Title"));
+        box.setText(BaseMessages.getString(PKG, CONST_CONFIG_SECURITY_TAB_ERROR_TITLE));
         box.setMessage(BaseMessages.getString(PKG, "ConfigSecurityTab.NoPermission.Message"));
         box.open();
         return;
@@ -274,7 +276,7 @@ public class ConfigSecurityTab {
     } catch (Exception e) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
-          BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Title"),
+          BaseMessages.getString(PKG, CONST_CONFIG_SECURITY_TAB_ERROR_TITLE),
           BaseMessages.getString(PKG, "ConfigSecurityTab.Error.Save"),
           e);
     }

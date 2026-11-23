@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestTweak;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
+import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
     id = "DrawTweakOnTransformExtensionPoint",
@@ -40,7 +40,7 @@ public class DrawTweakOnTransformExtensionPoint
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, PipelinePainterExtension ext) throws HopException {
     TransformMeta transformMeta = ext.transformMeta;
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(ext.pipelineMeta);
+    PipelineUnitTest unitTest = DataSetConst.getActiveUnitTest(ext.pipelineMeta);
     if (unitTest == null) {
       return;
     }
@@ -106,23 +106,22 @@ public class DrawTweakOnTransformExtensionPoint
     //                 | /
     //                 E/
     //
-    int[] arrow =
-        new int[] {
-          x,
-          y + aH / 3, // A
-          x + 5 * aW / 8,
-          y + aH / 3, // B
-          x + 5 * aW / 8,
-          y, // C
-          x + aW,
-          y + aH / 2, // D
-          x + 5 * aW / 8,
-          y + aH, // E
-          x + 5 * aW / 8,
-          y + 2 * aH / 3, // F
-          x,
-          y + 2 * aH / 3, // G
-        };
+    int[] arrow = {
+      x,
+      y + aH / 3, // A
+      x + 5 * aW / 8,
+      y + aH / 3, // B
+      x + 5 * aW / 8,
+      y, // C
+      x + aW,
+      y + aH / 2, // D
+      x + 5 * aW / 8,
+      y + aH, // E
+      x + 5 * aW / 8,
+      y + 2 * aH / 3, // F
+      x,
+      y + 2 * aH / 3, // G
+    };
     gc.fillPolygon(arrow);
   }
 }

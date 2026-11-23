@@ -49,6 +49,14 @@ import java.util.Set;
  * the elements when they all have the same one, like List&lt;String&gt;.
  */
 public class GraphSchemaBuilder {
+  private static final String CONST_BOOLEAN = "Boolean";
+  private static final String CONST_INTEGER = "Integer";
+  private static final String CONST_FLOAT = "Float";
+  private static final String CONST_DURATION = "Duration";
+  private static final String CONST_VECTOR = "Vector";
+  private static final String CONST_LIST = "List<";
+  private static final String CONST_POINT = "Point";
+  private static final String CONST_ARRAY = "Array";
 
   private record Key(GraphObjectType type, String name) {}
 
@@ -244,17 +252,17 @@ public class GraphSchemaBuilder {
       return "String";
     }
     if (value instanceof Boolean) {
-      return "Boolean";
+      return CONST_BOOLEAN;
     }
     if (value instanceof Long
         || value instanceof Integer
         || value instanceof Short
         || value instanceof Byte
         || value instanceof BigInteger) {
-      return "Integer";
+      return CONST_INTEGER;
     }
     if (value instanceof Double || value instanceof Float || value instanceof BigDecimal) {
-      return "Float";
+      return CONST_FLOAT;
     }
     if (value instanceof LocalDate) {
       return "Date";
@@ -275,10 +283,10 @@ public class GraphSchemaBuilder {
       return "Time";
     }
     if (value instanceof TemporalAmount) {
-      return "Duration";
+      return CONST_DURATION;
     }
     if (value instanceof float[] || value instanceof double[]) {
-      return "Vector";
+      return CONST_VECTOR;
     }
     if (value instanceof byte[]) {
       return "ByteArray";
@@ -299,17 +307,17 @@ public class GraphSchemaBuilder {
           elementTypes.add(typeName(element));
         }
       }
-      return elementTypes.size() == 1 ? "List<" + elementTypes.iterator().next() + ">" : "List";
+      return elementTypes.size() == 1 ? CONST_LIST + elementTypes.iterator().next() + ">" : "List";
     }
     String className = value.getClass().getSimpleName();
-    if (className.contains("Vector")) {
-      return "Vector";
+    if (className.contains(CONST_VECTOR)) {
+      return CONST_VECTOR;
     }
-    if (className.contains("Point")) {
-      return "Point";
+    if (className.contains(CONST_POINT)) {
+      return CONST_POINT;
     }
-    if (className.contains("Duration")) {
-      return "Duration";
+    if (className.contains(CONST_DURATION)) {
+      return CONST_DURATION;
     }
     return className;
   }
@@ -330,32 +338,36 @@ public class GraphSchemaBuilder {
     }
     if (name.startsWith("LIST<") && name.endsWith(">")) {
       String elementType = name.substring("LIST<".length(), name.length() - 1);
-      return "ANY".equals(elementType) ? "List" : "List<" + normalizeTypeName(elementType) + ">";
+      return "ANY".equals(elementType) ? "List" : CONST_LIST + normalizeTypeName(elementType) + ">";
     }
-    if (name.endsWith("Array") && name.length() > "Array".length() && !"ByteArray".equals(name)) {
-      return "List<" + normalizeTypeName(name.substring(0, name.length() - "Array".length())) + ">";
+    if (name.endsWith(CONST_ARRAY)
+        && name.length() > CONST_ARRAY.length()
+        && !"ByteArray".equals(name)) {
+      return CONST_LIST
+          + normalizeTypeName(name.substring(0, name.length() - CONST_ARRAY.length()))
+          + ">";
     }
     if (name.startsWith("List[") && name.endsWith("]")) {
       String elementType = name.substring("List[".length(), name.length() - 1);
-      return "Any".equals(elementType) ? "List" : "List<" + normalizeTypeName(elementType) + ">";
+      return "Any".equals(elementType) ? "List" : CONST_LIST + normalizeTypeName(elementType) + ">";
     }
     return switch (name) {
-      case "Long", "Int", "Integer" -> "Integer";
-      case "Double", "Float" -> "Float";
-      case "Bool", "Boolean" -> "Boolean";
+      case "Long", "Int", CONST_INTEGER -> CONST_INTEGER;
+      case "Double", CONST_FLOAT -> CONST_FLOAT;
+      case "Bool", CONST_BOOLEAN -> CONST_BOOLEAN;
       case "ZonedDateTime", "ZONED DATETIME" -> "DateTime";
       case "STRING" -> "String";
-      case "INTEGER" -> "Integer";
-      case "FLOAT" -> "Float";
-      case "BOOLEAN" -> "Boolean";
+      case "INTEGER" -> CONST_INTEGER;
+      case "FLOAT" -> CONST_FLOAT;
+      case "BOOLEAN" -> CONST_BOOLEAN;
       case "DATE" -> "Date";
       case "LOCAL DATETIME" -> "LocalDateTime";
       case "ZONED TIME" -> "Time";
       case "LOCAL TIME" -> "LocalTime";
-      case "DURATION" -> "Duration";
-      case "POINT" -> "Point";
+      case "DURATION" -> CONST_DURATION;
+      case "POINT" -> CONST_POINT;
       case "MAP" -> "Map";
-      default -> name.startsWith("VECTOR") ? "Vector" : name;
+      default -> name.startsWith("VECTOR") ? CONST_VECTOR : name;
     };
   }
 }

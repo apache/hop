@@ -37,6 +37,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Output rows to Properties file and create a file. */
 public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class;
+  private static final String CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD =
+      "PropertyOutput.Log.ErrorFindingField";
 
   public PropertyOutput(
       TransformMeta transformMeta,
@@ -85,6 +87,16 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         }
       }
 
+      if (propKey == null) {
+        // A properties file has no way to write a key that is not there
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "PropertyOutput.Error.NullKey", meta.getKeyField()));
+      }
+      if (propValue == null) {
+        // Properties take no null value: a missing value is written as an empty one (key=)
+        propValue = "";
+      }
+
       if (!data.keySet.contains(propKey)) {
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Key", propKey));
@@ -122,9 +134,11 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
     if (data.indexOfKeyField < 0) {
       // The field is unreachable !
       logError(
-          BaseMessages.getString(PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+          BaseMessages.getString(
+              PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
       throw new HopException(
-          BaseMessages.getString(PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+          BaseMessages.getString(
+              PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
     }
 
     // Let's take the index of Key field ...
@@ -133,10 +147,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
       // The field is unreachable !
       logError(
           BaseMessages.getString(
-              PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+              PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
       throw new HopException(
           BaseMessages.getString(
-              PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+              PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
     }
 
     if (meta.isFileNameInField()) {
@@ -151,10 +165,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         // The field is unreachable !
         logError(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
         throw new HopException(
             BaseMessages.getString(
-                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
       }
     } else {
       // Let's check for filename...

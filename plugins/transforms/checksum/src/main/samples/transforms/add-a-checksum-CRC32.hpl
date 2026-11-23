@@ -39,7 +39,7 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Add Checksum -- CR - 232 Algorithm</note>
+      <note>Add Checksum -- CRC32 Algorithm</note>
       <xloc>596</xloc>
       <yloc>60</yloc>
       <width>208</width>
@@ -77,7 +77,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <checksumtype>SHA-512</checksumtype>
+    <checksumtype>CRC32</checksumtype>
     <resultfieldName>checksum</resultfieldName>
     <resultType>hexadecimal</resultType>
     <fields>

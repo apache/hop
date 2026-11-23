@@ -30,6 +30,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -67,13 +68,14 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   private static final Class<?> PKG = WorkflowRunConfigurationEditor.class;
 
-  private WorkflowRunConfiguration runConfiguration;
-  private WorkflowRunConfiguration workingConfiguration;
+  private final WorkflowRunConfiguration runConfiguration;
+  private final WorkflowRunConfiguration workingConfiguration;
 
   private TextVar wName;
   private Text wDescription;
   private Button wDefault;
   private MetaSelectionLine<ExecutionInfoLocation> wExecutionInfoLocation;
+  private MetaSelectionLine<LineageSink> wLineageSink;
   private ComboVar wPluginType;
 
   private Composite wPluginSpecificComp;
@@ -82,7 +84,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   private Map<String, IWorkflowEngineRunConfiguration> metaMap;
 
-  private Listener modifyListener = e -> setChanged();
+  private final Listener modifyListener = e -> setChanged();
 
   /**
    * @param manager The metadata manager
@@ -210,6 +212,26 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     wExecutionInfoLocation.setLayoutData(fdExecutionInfoLocation);
     lastControl = wExecutionInfoLocation;
 
+    // Which lineage sink do the runs report their lineage to?
+    //
+    wLineageSink =
+        new MetaSelectionLine<>(
+            manager.getVariables(),
+            manager.getMetadataProvider(),
+            LineageSink.class,
+            parent,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.LineageSink"),
+            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.toolTip.LineageSink"),
+            false,
+            true);
+    FormData fdLineageSink = new FormData();
+    fdLineageSink.top = new FormAttachment(lastControl, margin);
+    fdLineageSink.left = new FormAttachment(0, 0);
+    fdLineageSink.right = new FormAttachment(100, 0);
+    wLineageSink.setLayoutData(fdLineageSink);
+    lastControl = wLineageSink;
+
     // What's the type of engine?
     //
     Label wlPluginType = new Label(parent, SWT.RIGHT);
@@ -261,6 +283,8 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     wPluginType.addListener(SWT.Modify, e -> changeConnectionType());
     wExecutionInfoLocation.getComboWidget().addListener(SWT.Modify, modifyListener);
     wExecutionInfoLocation.getComboWidget().addListener(SWT.Selection, modifyListener);
+    wLineageSink.getComboWidget().addListener(SWT.Modify, modifyListener);
+    wLineageSink.getComboWidget().addListener(SWT.Selection, modifyListener);
   }
 
   private void addGuiCompositeWidgets() {
@@ -301,7 +325,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     }
   }
 
-  private AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
+  private final AtomicBoolean busyChangingPluginType = new AtomicBoolean(false);
 
   private void changeConnectionType() {
 
@@ -352,6 +376,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
   public void refreshOnDialogActivate() {
     try {
       wExecutionInfoLocation.fillItems();
+      wLineageSink.fillItems();
       if (loadBalancingWidgets != null) {
         loadBalancingWidgets.refreshServerNames();
       }
@@ -374,6 +399,12 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     }
     wExecutionInfoLocation.setText(
         Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
+    try {
+      wLineageSink.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error getting the list of lineage sinks", e);
+    }
+    wLineageSink.setText(Const.NVL(workingConfiguration.getLineageSinkName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));
@@ -400,6 +431,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     meta.setDescription(wDescription.getText());
     meta.setDefaultSelection(wDefault.getSelection());
     meta.setExecutionInfoLocationName(wExecutionInfoLocation.getText());
+    meta.setLineageSinkName(wLineageSink.getText());
 
     // Get the plugin specific information from the widgets on the screen
     //

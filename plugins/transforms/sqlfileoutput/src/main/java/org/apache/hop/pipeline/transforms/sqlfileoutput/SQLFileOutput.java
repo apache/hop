@@ -41,6 +41,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class;
 
+  /** Bytes collected before a write reaches the file: one statement is around 100-500. */
+  private static final int OUTPUT_BUFFER_SIZE = 65_536;
+
   String schemaTable;
   String schemaName;
   String tableName;
@@ -148,15 +151,22 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
           }
         }
 
-        sql =
-            data.db.getSqlOutput(
-                    schemaName, tableName, data.insertRowMeta, insertRowData, meta.getDateFormat())
-                + ";";
+        // The quoted table and column names and the date formatters are worked out once.
+        if (data.insertTemplate == null) {
+          data.insertTemplate =
+              data.db.getSqlOutputTemplate(
+                  schemaName, tableName, data.insertRowMeta, meta.getDateFormat());
+        }
+        StringBuilder statement = data.statementBuffer;
+        statement.setLength(0);
+        data.insertTemplate.appendSql(statement, insertRowData);
+        statement.append(';');
 
         // Do we start a new line for this statement ?
         if (meta.isStartNewLine()) {
-          sql = sql + Const.CR;
+          statement.append(Const.CR);
         }
+        sql = statement.toString();
       }
       if (isRowLevel()) {
         logRowlevel(BaseMessages.getString(PKG, "SQLFileOutputLog.OutputSQL", sql));
@@ -164,7 +174,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
       try {
         // Write to file
-        data.writer.write(sql.toCharArray());
+        data.writer.write(sql);
       } catch (Exception e) {
         throw new HopTransformException(e.getMessage());
       }
@@ -231,23 +241,20 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
               HopVfs.getOutputStream(filename, meta.getFile().isFileAppended(), variables));
       outputStream = data.fos;
 
-      if (isDetailed()) {
-        logDetailed("Opening output stream in default encoding");
-      }
-      data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
-
       if (!Utils.isEmpty(meta.getEncoding())) {
         if (isBasic()) {
           logDetailed("Opening output stream in encoding: " + meta.getEncoding());
         }
         data.writer =
             new OutputStreamWriter(
-                new BufferedOutputStream(outputStream, 5000), resolve(meta.getEncoding()));
+                new BufferedOutputStream(outputStream, OUTPUT_BUFFER_SIZE),
+                resolve(meta.getEncoding()));
       } else {
         if (isBasic()) {
           logDetailed("Opening output stream in default encoding");
         }
-        data.writer = new OutputStreamWriter(new BufferedOutputStream(outputStream, 5000));
+        data.writer =
+            new OutputStreamWriter(new BufferedOutputStream(outputStream, OUTPUT_BUFFER_SIZE));
       }
 
       if (isDetailed()) {

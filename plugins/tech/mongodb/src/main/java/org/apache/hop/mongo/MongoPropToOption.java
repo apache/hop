@@ -29,7 +29,7 @@ import org.bson.Document;
 class MongoPropToOption {
   private static final Class<?> PKG = MongoPropToOption.class;
 
-  private MongoUtilLogger log;
+  private final MongoUtilLogger log;
 
   MongoPropToOption(MongoUtilLogger log) {
     this.log = log;

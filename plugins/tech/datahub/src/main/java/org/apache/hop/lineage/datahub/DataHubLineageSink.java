@@ -21,6 +21,7 @@ import java.util.Locale;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.metadata.ILineageSinkConfiguration;
 import org.apache.hop.lineage.openlineage.OpenLineageEmitter;
 import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
 import org.apache.hop.lineage.openlineage.OpenLineageLineageSink;
@@ -33,8 +34,9 @@ import org.apache.hop.lineage.plugin.LineageSinkPlugin;
  *
  * <p>It shares the OpenLineage sink's mapping, asynchronous queue and spool, and writes the mapped
  * events to DataHub's metadata API instead of posting them to an OpenLineage collector; see {@link
- * DataHubEmitter} for why, and {@link DataHubTranslator} for the model. Enable it with {@code
- * HOP_LINEAGE_ENABLED=Y}, {@code HOP_LINEAGE_SINK_IDS=datahub} and {@code HOP_LINEAGE_DATAHUB_URL}.
+ * DataHubEmitter} for why, and {@link DataHubTranslator} for the model. Select it as a lineage sink
+ * in a run configuration, or enable it with {@code HOP_LINEAGE_ENABLED=Y}, {@code
+ * HOP_LINEAGE_SINK_IDS=datahub} and {@code HOP_LINEAGE_DATAHUB_URL}.
  */
 @LineageSinkPlugin(
     id = "datahub",
@@ -43,6 +45,18 @@ import org.apache.hop.lineage.plugin.LineageSinkPlugin;
 public class DataHubLineageSink extends OpenLineageLineageSink {
 
   private DataHubSinkConfig dataHubConfig;
+
+  /** See {@link DataHubTranslator#setDefinitionsOnly(boolean)}; set before {@link #init}. */
+  private boolean definitionsOnly;
+
+  void setDefinitionsOnly(boolean definitionsOnly) {
+    this.definitionsOnly = definitionsOnly;
+  }
+
+  @Override
+  public ILineageSinkConfiguration newConfiguration() {
+    return new DataHubSinkConfiguration();
+  }
 
   @Override
   protected String sinkName() {
@@ -81,8 +95,10 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
   @Override
   protected OpenLineageEmitter createEmitter(OpenLineageSinkConfig config, ILogChannel log)
       throws HopException {
+    DataHubTranslator translator = new DataHubTranslator(dataHubConfig);
+    translator.setDefinitionsOnly(definitionsOnly);
     return new DataHubEmitter(
-        new DataHubTranslator(dataHubConfig),
+        translator,
         new DataHubClient(dataHubConfig.getGmsUrl(), dataHubConfig.getToken(), config),
         dataHubConfig.getSchemaPolicy(),
         dataHubConfig.getActor(),
@@ -100,6 +116,10 @@ public class DataHubLineageSink extends OpenLineageLineageSink {
         + (dataHubConfig.getPlatformInstance() == null
             ? ""
             : ", platform instance=" + dataHubConfig.getPlatformInstance())
+        + (dataHubConfig.getDatabaseInstances().isEmpty()
+            ? ""
+            : ", database instances="
+                + DataHubDatabaseInstances.format(dataHubConfig.getDatabaseInstances()))
         + ", dataset schemas="
         + dataHubConfig.getSchemaPolicy().name().toLowerCase(Locale.ROOT)
         + ", lifecycle="

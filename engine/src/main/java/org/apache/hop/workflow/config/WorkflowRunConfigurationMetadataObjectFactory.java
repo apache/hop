@@ -21,6 +21,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -65,6 +66,14 @@ public class WorkflowRunConfigurationMetadataObjectFactory implements IHopMetada
           "Object provided needs to be of class "
               + IWorkflowEngineRunConfiguration.class.getName());
     }
-    return ((IWorkflowEngineRunConfiguration) object).getEnginePluginId();
+    String pluginId = ((IWorkflowEngineRunConfiguration) object).getEnginePluginId();
+    if (Utils.isEmpty(pluginId)) {
+      // Written without it, the run configuration can't be read back
+      throw new HopException(
+          "The workflow engine run configuration of class "
+              + object.getClass().getName()
+              + " has no engine plugin id");
+    }
+    return pluginId;
   }
 }

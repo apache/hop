@@ -63,7 +63,7 @@ class ActionSetVariablesBlankValueTest {
   @Test
   void blankValueFromDialogSetsAnEmptyVariable() throws Exception {
     ActionSetVariables action = new ActionSetVariables();
-    action.setVariableDefinitions(definitions(""));
+    action.setVariableDefinitions(definitions());
 
     assertVariablesAre("", run(action));
   }
@@ -77,7 +77,7 @@ class ActionSetVariablesBlankValueTest {
   void blankValueSurvivesSaveAndReload() throws Exception {
     ActionSetVariables edited = new ActionSetVariables();
     edited.setName("set");
-    edited.setVariableDefinitions(definitions(""));
+    edited.setVariableDefinitions(definitions());
 
     ActionSetVariables reloaded = loadAction("<action>" + edited.getXml() + "</action>");
 
@@ -89,10 +89,10 @@ class ActionSetVariablesBlankValueTest {
     assertVariablesAre("new", run(loadAction(actionXml("<variable_value>new</variable_value>"))));
   }
 
-  private static List<VariableDefinition> definitions(String value) {
+  private static List<VariableDefinition> definitions() {
     return List.of(
-        new VariableDefinition(WORKFLOW_VAR, value, VariableType.CURRENT_WORKFLOW),
-        new VariableDefinition(JVM_VAR, value, VariableType.JVM));
+        new VariableDefinition(WORKFLOW_VAR, "", VariableType.CURRENT_WORKFLOW),
+        new VariableDefinition(JVM_VAR, "", VariableType.JVM));
   }
 
   private static String actionXml(String valueXml) {
@@ -130,7 +130,7 @@ class ActionSetVariablesBlankValueTest {
 
     Result result = action.execute(new Result(), 0);
 
-    assertTrue(result.getResult());
+    assertTrue(result.isResult());
     return workflow;
   }
 

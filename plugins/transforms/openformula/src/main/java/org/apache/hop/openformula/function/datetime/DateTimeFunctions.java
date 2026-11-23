@@ -38,6 +38,9 @@ import org.apache.hop.openformula.util.DateUtil;
 import org.apache.hop.openformula.util.NumberUtil;
 
 public final class DateTimeFunctions {
+  private static final String CONST_DATE_OR_SERIAL_VALUE = "Date or serial value";
+  private static final String CONST_TIME_OR_DATE_VALUE = "Time or date value";
+
   private DateTimeFunctions() {}
 
   public static void registerAll(DefaultFunctionRegistry registry) {
@@ -95,7 +98,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date"),
-            List.of("Date or serial value")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE)));
     registry.registerFunction(
         new DaysFunction(),
         new FunctionDescription(
@@ -117,7 +120,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("time"),
-            List.of("Time or date value")));
+            List.of(CONST_TIME_OR_DATE_VALUE)));
     registry.registerFunction(
         new MinuteFunction(),
         new FunctionDescription(
@@ -128,7 +131,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("time"),
-            List.of("Time or date value")));
+            List.of(CONST_TIME_OR_DATE_VALUE)));
     registry.registerFunction(
         new MonthFunction(),
         new FunctionDescription(
@@ -139,7 +142,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date"),
-            List.of("Date or serial value")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE)));
     registry.registerFunction(
         new MonthEndFunction(),
         new FunctionDescription(
@@ -150,7 +153,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date"),
-            List.of("Date or serial value")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE)));
     registry.registerFunction(
         new NowFunction(),
         new FunctionDescription(
@@ -172,7 +175,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date"),
-            List.of("Date or serial value")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE)));
     registry.registerFunction(
         new SecondFunction(),
         new FunctionDescription(
@@ -183,7 +186,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("time"),
-            List.of("Time or date value")));
+            List.of(CONST_TIME_OR_DATE_VALUE)));
     registry.registerFunction(
         new TimeFunction(),
         new FunctionDescription(
@@ -227,7 +230,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date", "type"),
-            List.of("Date or serial value", "Return type (1=Sun..Sat, 2=Mon..Sun, 3=0..6)")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE, "Return type (1=Sun..Sat, 2=Mon..Sun, 3=0..6)")));
     registry.registerFunction(
         new YearFunction(),
         new FunctionDescription(
@@ -238,7 +241,7 @@ public final class DateTimeFunctions {
             1,
             false,
             List.of("date"),
-            List.of("Date or serial value")));
+            List.of(CONST_DATE_OR_SERIAL_VALUE)));
     registry.registerFunction(
         new YesterdayFunction(),
         new FunctionDescription(

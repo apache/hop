@@ -1095,8 +1095,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   /** Helper class providing pattern restrictions for file names to be zipped */
   public static class ZipJobEntryPatternFileSelector implements FileSelector {
 
-    private Pattern pattern;
-    private Pattern patternExclude;
+    private final Pattern pattern;
+    private final Pattern patternExclude;
 
     public ZipJobEntryPatternFileSelector(Pattern pattern, Pattern patternExclude) {
       this.pattern = pattern;

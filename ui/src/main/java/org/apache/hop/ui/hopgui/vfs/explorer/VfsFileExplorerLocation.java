@@ -99,6 +99,9 @@ import org.eclipse.swt.widgets.Widget;
  */
 @GuiPlugin
 public class VfsFileExplorerLocation extends Composite {
+  private static final String CONST_VFS_FILE_EXPLORER_OPERATION_COPYING =
+      "VfsFileExplorer.Operation.Copying";
+  private static final String CONST_UI_IMAGES_COPY_SVG = "ui/images/copy.svg";
 
   public static final Class<?> PKG = VfsFileExplorer.class;
 
@@ -143,9 +146,6 @@ public class VfsFileExplorerLocation extends Composite {
 
   /** The largest file a Hop Web user can upload into a folder. */
   private static final long BROWSER_UPLOAD_LIMIT = 512L * 1024 * 1024;
-
-  /** Typing in the filter waits this long before the table is filled again. */
-  private static final int FILTER_DELAY_MS = 250;
 
   private final VfsFileExplorer explorer;
   private final IVariables variables;
@@ -298,13 +298,14 @@ public class VfsFileExplorerLocation extends Composite {
     detailsRow.setLayoutData(new FormDataBuilder().top().fullWidth().result());
     filterText = new Text(detailsRow, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
     filterText.setMessage(BaseMessages.getString(PKG, "VfsFileExplorer.Filter.Placeholder"));
+    filterText.setToolTipText(BaseMessages.getString(PKG, "VfsFileExplorer.Filter.Tooltip"));
     PropsUi.setLook(filterText, PropsUi.WIDGET_STYLE_TOOLBAR);
     filterText.setLayoutData(new FormDataBuilder().right().top().width(220).result());
     filterText.addListener(
         SWT.Modify,
         e -> {
           getDisplay().timerExec(-1, delayedRefill);
-          getDisplay().timerExec(FILTER_DELAY_MS, delayedRefill);
+          getDisplay().timerExec(ConstUi.FILTER_DEBOUNCE_MS, delayedRefill);
         });
     IToolbarContainer detailsBar =
         ToolbarFacade.createToolbarContainer(detailsRow, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
@@ -491,7 +492,7 @@ public class VfsFileExplorerLocation extends Composite {
         String key =
             mode == VfsFileTransfer.Mode.MOVE
                 ? "VfsFileExplorer.Operation.Moving"
-                : "VfsFileExplorer.Operation.Copying";
+                : CONST_VFS_FILE_EXPLORER_OPERATION_COPYING;
         copyIntoFolder(
             target, entries, mode, BaseMessages.getString(PKG, key, entries.get(0).getName()));
       }
@@ -1080,7 +1081,7 @@ public class VfsFileExplorerLocation extends Composite {
     String sourceUri = row.getUri();
     String sourceName = row.getName();
     runChange(
-        BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying", sourceName),
+        BaseMessages.getString(PKG, CONST_VFS_FILE_EXPLORER_OPERATION_COPYING, sourceName),
         destination,
         operation -> {
           FileObject source = HopVfs.getFileObject(sourceUri, variables);
@@ -1151,7 +1152,7 @@ public class VfsFileExplorerLocation extends Composite {
     String description =
         files.size() == 1
             ? BaseMessages.getString(
-                PKG, "VfsFileExplorer.Operation.Copying", files.get(0).getName())
+                PKG, CONST_VFS_FILE_EXPLORER_OPERATION_COPYING, files.get(0).getName())
             : BaseMessages.getString(PKG, "VfsFileExplorer.Operation.Copying.Many", files.size());
     copyIntoFolder(destination, files, VfsFileTransfer.Mode.COPY, description);
   }
@@ -1833,7 +1834,9 @@ public class VfsFileExplorerLocation extends Composite {
       child.setText(row.getName());
       child.setImage(folderImage);
       child.setData(new FolderNode(row.getUri(), row.getName()));
-      new TreeItem(child, SWT.NONE);
+      // Shown while the folder is listed, the listing replaces it with the sub-folders
+      new TreeItem(child, SWT.NONE)
+          .setText(BaseMessages.getString(PKG, "VfsFileExplorer.Tree.Loading"));
     }
   }
 
@@ -2092,7 +2095,7 @@ public class VfsFileExplorerLocation extends Composite {
     String operationKey =
         mode == VfsFileTransfer.Mode.MOVE
             ? "VfsFileExplorer.Operation.Moving"
-            : "VfsFileExplorer.Operation.Copying";
+            : CONST_VFS_FILE_EXPLORER_OPERATION_COPYING;
     copyIntoFolder(
         destinationUri,
         entries,
@@ -2317,7 +2320,11 @@ public class VfsFileExplorerLocation extends Composite {
     boolean canWrite = canWrite();
     Menu menu = new Menu(tree);
     menuItem(
-        menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFolders);
+        menu,
+        "VfsFileExplorer.Menu.Copy",
+        CONST_UI_IMAGES_COPY_SVG,
+        any,
+        this::copySelectedFolders);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Cut",
@@ -2389,7 +2396,8 @@ public class VfsFileExplorerLocation extends Composite {
         file != null && HopVfsFileDialog.getArchiveScheme(file.getName()) != null,
         this::drillInto);
     new MenuItem(menu, SWT.SEPARATOR);
-    menuItem(menu, "VfsFileExplorer.Menu.Copy", "ui/images/copy.svg", any, this::copySelectedFiles);
+    menuItem(
+        menu, "VfsFileExplorer.Menu.Copy", CONST_UI_IMAGES_COPY_SVG, any, this::copySelectedFiles);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.Cut",
@@ -2428,14 +2436,14 @@ public class VfsFileExplorerLocation extends Composite {
     menuItem(
         menu,
         "VfsFileExplorer.Menu.CopyPath",
-        "ui/images/copy.svg",
+        CONST_UI_IMAGES_COPY_SVG,
         !uris.isEmpty(),
         () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, uris)));
     List<String> relative = relativeToProject(uris);
     menuItem(
         menu,
         "VfsFileExplorer.Menu.CopyProjectPath",
-        "ui/images/copy.svg",
+        CONST_UI_IMAGES_COPY_SVG,
         relative != null,
         () -> GuiResource.getInstance().toClipboard(String.join(Const.CR, relative)));
   }

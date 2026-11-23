@@ -30,7 +30,6 @@
     <name>Hop GUI (RCP fragment)</name>
 
     <properties>
-        <assembly_package-phase>none</assembly_package-phase>
         <jface.text.version>3.31.100</jface.text.version>
     </properties>
 
@@ -98,19 +97,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>assemblies</id>
-            <activation>
-                <property>
-                    <name>assemblies</name>
-                    <value>!false</value>
-                </property>
-            </activation>
-            <properties>
-                <assembly_package-phase>package</assembly_package-phase>
-            </properties>
-        </profile>
-    </profiles>
 </project>

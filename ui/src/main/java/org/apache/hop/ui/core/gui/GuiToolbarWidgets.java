@@ -74,13 +74,15 @@ import org.eclipse.swt.widgets.ToolItem;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetRegistrar {
+  private static final String CONST_UNIQUE_ID = "uniqueId";
+  private static final String CONST_PROPS = "props";
 
   public static final String CONST_TOOLBAR_ITEM_WITH_ID = "toolbar item with id '";
 
-  private Map<String, GuiToolbarItem> guiToolBarMap;
+  private final Map<String, GuiToolbarItem> guiToolBarMap;
   @Getter private Map<String, Control> widgetsMap;
-  private Map<String, ToolItem> toolItemMap;
-  private Map<String, Label> textLabelMap; // For web/RWT: stores text labels separately
+  private final Map<String, ToolItem> toolItemMap;
+  private final Map<String, Label> textLabelMap; // For web/RWT: stores text labels separately
   private List<String> removeToolItems;
   private Color itemBackgroundColor;
 
@@ -444,10 +446,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     imageLabel.setData("org.eclipse.rap.rwt.customVariant", "toolbarIcon");
     SvgLabelFacade.setData(uniqueId, imageLabel, imageFilename, size);
     composite.setData("iconSize", size);
-    composite.setData("uniqueId", uniqueId);
+    composite.setData(CONST_UNIQUE_ID, uniqueId);
     // Copy props to composite so client script (svg-label.js) has props.id when event.widget is the
     // composite
-    composite.setData("props", imageLabel.getData("props"));
+    composite.setData(CONST_PROPS, imageLabel.getData(CONST_PROPS));
 
     GridData imageData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
     imageData.widthHint = size;
@@ -708,10 +710,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     // Store so setToolbarItemImage() can update the icon when toggling state (e.g. show/hide
     // selected)
     composite.setData("iconSize", size);
-    composite.setData("uniqueId", uniqueId);
+    composite.setData(CONST_UNIQUE_ID, uniqueId);
     // Copy props to composite so client script (svg-label.js) has props.id when event.widget is the
     // composite
-    composite.setData("props", imageLabel.getData("props"));
+    composite.setData(CONST_PROPS, imageLabel.getData(CONST_PROPS));
 
     GridData imageData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
     imageData.widthHint = size;
@@ -1018,7 +1020,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
         && !composite.isDisposed()) {
       Control[] children = composite.getChildren();
       if (children.length > 0 && children[0] instanceof Label imageLabel) {
-        String uniqueId = (String) composite.getData("uniqueId");
+        String uniqueId = (String) composite.getData(CONST_UNIQUE_ID);
         if (uniqueId != null) {
           SvgLabelFacade.updateImageSource(uniqueId, imageLabel, imagePath);
         }

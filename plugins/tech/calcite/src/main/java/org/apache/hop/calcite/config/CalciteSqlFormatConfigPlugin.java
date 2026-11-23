@@ -32,10 +32,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.gui.IGuiPluginModelWidgetsListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.tabs.ConfigPluginOptionsTab;
-import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 /**
@@ -52,7 +51,7 @@ import picocli.CommandLine;
     configClass = CalciteSqlFormatConfig.class)
 @GuiPlugin(description = "i18n::CalciteSqlFormatConfigPlugin.Name")
 public class CalciteSqlFormatConfigPlugin
-    implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
+    implements IConfigOptions, IGuiPluginModelWidgetsListener {
 
   private static final Class<?> PKG = CalciteSqlFormatConfigPlugin.class;
 
@@ -362,8 +361,7 @@ public class CalciteSqlFormatConfigPlugin
   }
 
   @Override
-  public void widgetModified(
-      GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
+  public void widgetModified(GuiCompositeWidgets compositeWidgets, String widgetId) {
     persistContents(compositeWidgets);
   }
 

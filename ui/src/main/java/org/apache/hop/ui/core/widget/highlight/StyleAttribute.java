@@ -23,10 +23,10 @@ import org.eclipse.swt.graphics.Color;
 public class StyleAttribute {
 
   /** Foreground color */
-  private Color foreground;
+  private final Color foreground;
 
   /** The font style */
-  private int style;
+  private final int style;
 
   /** Cached hash code. */
   private int hash;

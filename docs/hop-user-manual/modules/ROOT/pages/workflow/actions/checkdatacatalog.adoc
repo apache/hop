@@ -1,0 +1,105 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /workflow/actions/
+:language: en_US
+:description: The Check data catalog action checks datasets in a data catalog such as DataHub before a workflow goes on.
+
+= Check data catalog
+
+== Description
+
+The `Check data catalog` action asks a xref:metadata-types/data-catalog.adoc[Data Catalog], such as DataHub, about one or more datasets, and fails when one of them doesn't pass:
+
+* the catalog doesn't have the dataset;
+* the dataset is deprecated;
+* its data last changed longer ago than a maximum age;
+* the latest run of one of the catalog's assertions on it failed.
+
+Put it in front of the work that reads the datasets, and follow the failure hop to stop, wait or alert instead of loading from a source that isn't ready.
+The checks themselves stay in the catalog: the action only reads their outcome.
+
+This action is experimental.
+
+== Options
+
+=== Options tab
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
+
+|Action name
+|The name of the workflow action.
+
+|Data catalog
+|The xref:metadata-types/data-catalog.adoc[Data Catalog] to ask.
+
+|Fail when a dataset is deprecated
+|Fail when the catalog marks a dataset as deprecated. On by default.
+
+|Maximum age of the data
+|Fail when the data of a dataset last changed longer ago than this.
+Leave it empty not to check the age. A variable is allowed.
+
+|Unit of the maximum age
+|Minutes, hours or days. Hours by default.
+
+|Fail when an assertion failed
+|Fail when the latest run of an assertion on a dataset failed, or could not be evaluated.
+An assertion that hasn't run yet is not counted. On by default.
+
+|When the catalog can't answer
+|What to do when the catalog can't be reached, refuses the token, can't answer a check, or knows nothing to answer it with (for example no change of the data is known, while a maximum age is set):
+*Fail the check* (the default) or *Skip the check and log it*.
+|===
+
+=== Datasets tab
+
+One row per dataset.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Column|Description
+
+|Type
+|*Table*, *File* or *Catalog id*.
+
+|Connection
+|The relational connection of a table.
+
+|Schema
+|The schema of a table. Leave it empty for the preferred schema of the connection.
+
+|Table, file or id
+|The table, the file name, or the id of the dataset in the catalog, for example a DataHub URN.
+|===
+
+A table and a file are named the way the lineage plugins name them; see xref:metadata-types/data-catalog.adoc#_how_datasets_are_found[How datasets are found].
+
+== Result
+
+What this action passes on to the next action. See xref:workflow/action-results.adoc[Action results] for how results travel through a workflow.
+
+[options="header", width="90%", cols="1,3"]
+|===
+|Result|Value
+|True|Every dataset passed the checks, with 0 errors. A success hop is followed. With *Skip the check and log it*, a check the catalog could not answer doesn't count: the log says how many checks were skipped, also when every dataset passed.
+|False, 0 errors|At least one dataset failed a check, or the workflow was stopped while the action ran. The log has a line for every dataset that failed, with the reason. A failure hop is followed.
+|False, 1 error|The action could not check: no data catalog is selected or it doesn't exist, the catalog can't be prepared (for example a DataHub catalog without a URL), there are no datasets, a dataset has no name, the connection of a table doesn't exist or has no host (use a catalog id for such a table), a file name can't be read, or the maximum age is not a whole number above 0. A failure hop is followed.
+|Result files|Passed on unchanged.
+|Result rows|Passed on unchanged.
+|===

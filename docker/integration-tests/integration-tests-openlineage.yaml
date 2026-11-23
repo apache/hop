@@ -25,13 +25,16 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      datahub:
+        condition: service_healthy
     links:
       - marquez
       - postgres
+      - datahub
     environment:
       # Enable the in-engine lineage hub and select the OpenLineage sink.
       - HOP_LINEAGE_ENABLED=Y
-      - HOP_LINEAGE_SINK_IDS=openlineage
+      - HOP_LINEAGE_SINK_IDS=openlineage,datahub
       - HOP_LINEAGE_OPENLINEAGE_URL=http://marquez:5000/api/v1/lineage
       - HOP_LINEAGE_OPENLINEAGE_NAMESPACE=hop
       # Parse Table Input / Execute SQL statements to recover their source/target tables.
@@ -41,6 +44,8 @@ services:
       # capacity instead, and allow a slow (emulated) Marquez plenty of time to catch up.
       - HOP_LINEAGE_OPENLINEAGE_OVERFLOW_POLICY=BLOCK
       - HOP_LINEAGE_OPENLINEAGE_ENQUEUE_TIMEOUT_MS=60000
+      # A stand-in for DataHub that keeps what the DataHub sink writes, for the row count checks
+      - HOP_LINEAGE_DATAHUB_URL=http://datahub:8080
 
   # "Warehouse" Postgres that the test pipelines read from and write to. Its host:port
   # ("postgres":5432) is what the warehouse dataset namespace is keyed on
@@ -54,6 +59,20 @@ services:
   # empty and the script is skipped, leaving these tests to read whatever the previous project
   # left behind (integration-tests/dbt drops and recreates public.orders_source with its own
   # columns).
+  datahub:
+    image: python:3.12-alpine
+    environment:
+      PORT: "8080"
+    volumes:
+      - ./resource/datahub/datahub-ingest-stub.py:/datahub-ingest-stub.py:ro
+    command: [ "python", "/datahub-ingest-stub.py" ]
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')" ]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+      start_period: 2s
+
   postgres:
     image: postgres:14
     environment:

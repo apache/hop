@@ -36,6 +36,7 @@ final class EagerRulePack implements IHopLintRulePack {
   private final int priority;
   private final List<CustomLintRule> rules;
   private final List<String> overrides;
+  private final String version;
 
   /** Why the rules could not be read, or null when they were. */
   private final RuntimeException loadFailure;
@@ -47,7 +48,9 @@ final class EagerRulePack implements IHopLintRulePack {
       int priority,
       List<CustomLintRule> rules,
       List<String> overrides,
+      String version,
       RuntimeException loadFailure) {
+    this.version = version;
     this.packId = packId;
     this.displayName = displayName;
     this.owner = owner;
@@ -76,6 +79,7 @@ final class EagerRulePack implements IHopLintRulePack {
         pack.getPriority(),
         loaded,
         pack.getOverrides(),
+        pack.getVersion(),
         failure);
   }
 
@@ -110,5 +114,11 @@ final class EagerRulePack implements IHopLintRulePack {
   @Override
   public List<String> getOverrides() {
     return overrides;
+  }
+
+  /** Read with the rules, while the jar it may come from is still open. */
+  @Override
+  public String getVersion() {
+    return version;
   }
 }

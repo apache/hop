@@ -18,12 +18,8 @@
 
 package org.apache.hop.documentation;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -108,16 +104,7 @@ public class WorkflowDocDelegate extends DocDelegate {
         .append(Const.CR)
         .append(Const.CR);
 
-    if (builder.isIncludingNotes() && !workflowMeta.getNotes().isEmpty()) {
-      content.append("## Notes : ").append(Const.CR).append(Const.CR);
-
-      List<NotePadMeta> notes = new ArrayList<>(workflowMeta.getNotes());
-      notes.sort(Comparator.comparing(NotePadMeta::getNote));
-      for (NotePadMeta note : notes) {
-        content.append(note.getNote()).append(Const.CR);
-      }
-      content.append(Const.CR);
-    }
+    addNotes(workflowMeta.getNotes(), content);
 
     // Now that we have the content, we can save the file.
     //

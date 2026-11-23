@@ -654,7 +654,7 @@ public class CombinationLookupMeta
             // OK, now get the create index statement...
             //
             if (!Utils.isEmpty(technicalKeyField)) {
-              String[] techKeyArr = new String[] {technicalKeyField};
+              String[] techKeyArr = {technicalKeyField};
               if (!db.checkIndexExists(schemaTable, techKeyArr)) {
                 String indexname = "idx_" + tableName + "_pk";
                 crUniqIndex =
@@ -771,7 +771,7 @@ public class CombinationLookupMeta
   public void convertLegacyXml(Node transformNode) throws HopException {
     // Facilitating the Kettle importer. (issue 7003)
     //
-    Node sequenceNode = XmlHandler.getSubNode(transformNode, "sequence");
+    Node sequenceNode = XmlHandler.getSubNode(transformNode, CREATION_METHOD_SEQUENCE);
     String sequenceName = XmlHandler.getNodeValue(sequenceNode);
     if (StringUtils.isNotEmpty(sequenceName)) {
       this.fields.setSequenceFrom(sequenceName);

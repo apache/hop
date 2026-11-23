@@ -51,6 +51,22 @@ public class PipelineEngineFactory {
       T pipelineMeta)
       throws HopException {
 
+    return createPipelineEngine(
+        parentVariables,
+        loadRunConfiguration(runConfigurationName, metadataProvider),
+        metadataProvider,
+        pipelineMeta);
+  }
+
+  /**
+   * Loads a pipeline run configuration from the metadata.
+   *
+   * @param runConfigurationName the name of the run configuration
+   * @return the run configuration, never null
+   * @throws HopException when the name is empty or the run configuration can't be loaded or found
+   */
+  public static PipelineRunConfiguration loadRunConfiguration(
+      String runConfigurationName, IHopMetadataProvider metadataProvider) throws HopException {
     if (StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException("Please specify a run configuration to execute the pipeline with");
     }
@@ -69,6 +85,26 @@ public class PipelineEngineFactory {
               + "' in metadata provider: "
               + metadataProvider.getDescription());
     }
+    return pipelineRunConfiguration;
+  }
+
+  /**
+   * Creates a pipeline engine for a run configuration that is loaded already, see {@link
+   * #loadRunConfiguration}. A caller that starts the same pipeline many times can load the run
+   * configuration once and pass a copy of it for every execution.
+   *
+   * @param parentVariables The parent variables to inherit from
+   * @param pipelineRunConfiguration The run configuration to use. The engine keeps it and the
+   *     parent variables are applied to it: do not share one object between engines.
+   * @param metadataProvider the metadata of the new engine
+   * @param pipelineMeta the pipeline to run
+   */
+  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine(
+      IVariables parentVariables,
+      PipelineRunConfiguration pipelineRunConfiguration,
+      IHopMetadataProvider metadataProvider,
+      T pipelineMeta)
+      throws HopException {
 
     // Apply the variables from the run configuration
     //

@@ -22,7 +22,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
 public class ComponentSelectionListener extends SelectionAdapter {
-  private BaseTransformMeta input;
+  private final BaseTransformMeta input;
 
   public ComponentSelectionListener(BaseTransformMeta input) {
     this.input = input;

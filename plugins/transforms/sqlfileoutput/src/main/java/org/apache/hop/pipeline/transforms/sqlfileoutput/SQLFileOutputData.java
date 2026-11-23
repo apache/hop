@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.SqlInsertTemplate;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -50,6 +51,12 @@ public class SQLFileOutputData extends BaseTransformData implements ITransformDa
   public IRowMeta insertRowMeta;
 
   public int[] fieldIndexes;
+
+  /** Renders the INSERT statements; the quoted names are worked out on the first row. */
+  public SqlInsertTemplate insertTemplate;
+
+  /** Reused for every statement. */
+  public final StringBuilder statementBuffer = new StringBuilder(256);
 
   public SQLFileOutputData() {
     super();
