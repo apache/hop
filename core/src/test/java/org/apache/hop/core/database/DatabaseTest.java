@@ -1380,4 +1380,57 @@ class DatabaseTest {
     assertEquals("catalogA", catalogs[0]);
     assertEquals("catalogB", catalogs[1]);
   }
+
+  private Database existenceDatabase() {
+    DatabaseMeta databaseMeta = new DatabaseMeta();
+    databaseMeta.setIDatabase(new NoneDatabaseMeta());
+    Database db = new Database(log, variables, databaseMeta);
+    db.setConnection(conn);
+    return db;
+  }
+
+  /**
+   * Table exists and Column exists ask once per row. The answer is whether the dialect's query
+   * runs; deriving row metadata from it (11 columns on PostgreSQL) was most of the cost.
+   */
+  @Test
+  void testCheckTableAndColumnExistsOnlyRunTheQuery() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(rs);
+    when(statement.executeQuery("SELECT amount FROM orders")).thenReturn(rs);
+
+    assertTrue(db.checkTableExists(null, "orders"));
+    assertTrue(db.checkColumnExists(null, "orders", "amount"));
+
+    verify(rs, never()).getMetaData();
+    verify(rs, times(2)).next();
+    verify(rs, times(2)).close();
+    verify(statement, times(2)).close();
+  }
+
+  @Test
+  void testCheckTableExistsIsFalseWhenTheQueryFailsAndClosesTheStatement() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery(anyString())).thenThrow(new SQLException("no such table"));
+
+    assertFalse(db.checkTableExists(null, "missing"));
+    assertFalse(db.checkColumnExists(null, "missing", "amount"));
+
+    verify(statement, times(2)).close();
+  }
+
+  @Test
+  void testCheckTableExistsIsFalseWhenReadingTheFirstRowFails() throws Exception {
+    Database db = existenceDatabase();
+    Statement statement = mock(Statement.class);
+    when(conn.createStatement()).thenReturn(statement);
+    when(statement.executeQuery(anyString())).thenReturn(rs);
+    when(rs.next()).thenThrow(new SQLException("broken"));
+
+    assertFalse(db.checkTableExists(null, "orders"));
+  }
 }
