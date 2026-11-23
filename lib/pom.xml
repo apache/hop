@@ -471,6 +471,22 @@
                 <artifactId>auth</artifactId>
                 <version>${aws-java-sdk.version}</version>
             </dependency>
+            <!--
+                DefaultCredentialsProvider and ProfileCredentialsProvider only load IAM Identity
+                Center (SSO) profiles when these two modules are on the classpath. They are not
+                transitive of s3, auth or sts, so they have to be declared to land in lib/core
+                with the rest of the AWS SDK.
+            -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>sso</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>ssooidc</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>sns</artifactId>

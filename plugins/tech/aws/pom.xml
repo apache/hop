@@ -179,6 +179,33 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+            Needed so an S3 Connection (and the other AWS clients in this plugin) can use an
+            IAM Identity Center (SSO) profile through the AWS SDK default credential chain or
+            a named AWS profile (~/.aws/config). provided-scope jars are packed into hop/lib/core.
+        -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sso</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ssooidc</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
