@@ -117,6 +117,13 @@
                             </systemPropertyVariables>
                         </configuration>
                     </execution>
+                    <!-- No @Tag("uitest") classes here; the SWT UI tests run in the regular build.
+                         The inherited execution would still fork a JVM with the root argLine,
+                         which breaks when the workspace path contains spaces. -->
+                    <execution>
+                        <id>ui-test</id>
+                        <phase>none</phase>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
