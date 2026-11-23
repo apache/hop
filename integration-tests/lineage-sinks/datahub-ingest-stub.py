@@ -22,7 +22,10 @@ one JSON line per proposal (entity URN, aspect, the Authorization header) to the
 on the command line, with the value of assertion, document and task info aspects, so a test can check which
 runs reported their lineage here.
 
-Usage: python3 -I datahub-ingest-stub.py <port> <proposal log>
+It is also an OpenLineage collector (POST /api/v1/lineage): it writes one JSON line per run event
+(event type, run id, job name, whether it carries a unit test result) to the OpenLineage log.
+
+Usage: python3 -I datahub-ingest-stub.py <port> <proposal log> <OpenLineage log>
 """
 
 import json
@@ -62,6 +65,20 @@ class Handler(BaseHTTPRequestHandler):
                         line["value"] = json.loads(proposal.get("aspect", {}).get("value", "{}"))
                     log.write(json.dumps(line) + "\n")
             self.reply(200, {"value": []})
+        elif url.path.endswith("/api/v1/lineage"):
+            # An OpenLineage collector: one JSON line per run event, to the second log
+            events = body if isinstance(body, list) else [body]
+            with LOCK, open(OPENLINEAGE_LOG, "a", encoding="utf-8") as log:
+                for event in events:
+                    run = event.get("run") or {}
+                    line = {
+                        "eventType": event.get("eventType"),
+                        "runId": run.get("runId"),
+                        "job": (event.get("job") or {}).get("name"),
+                        "unitTest": "hopUnitTest" in (run.get("facets") or {}),
+                    }
+                    log.write(json.dumps(line) + "\n")
+            self.reply(201, {})
         elif url.path.endswith("/api/graphql"):
             # As DataHub answers for entities it doesn't have: one entry per URN asked about, with
             # nothing in it, so the sink writes the schemas Hop knows.
@@ -84,4 +101,5 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     LOG = sys.argv[2]
+    OPENLINEAGE_LOG = sys.argv[3]
     ThreadingHTTPServer(("127.0.0.1", int(sys.argv[1])), Handler).serve_forever()

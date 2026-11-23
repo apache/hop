@@ -35,6 +35,8 @@ import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.lineage.model.RelationalIoLineagePayload;
 import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.lineage.model.RelationalTable;
+import org.apache.hop.lineage.model.RunLifecycleLineagePayload;
+import org.apache.hop.lineage.model.RunLifecyclePhase;
 import org.apache.hop.lineage.model.UnitTestLineagePayload;
 import org.junit.jupiter.api.Test;
 
@@ -56,10 +58,32 @@ class OpenLineageUnitTestTest {
     return LineageEvent.of(LineageEventKind.UNIT_TEST, ctx, payload);
   }
 
+  /**
+   * The start of the tested pipeline's run, which a sink set by the HOP_LINEAGE_* variables gets.
+   */
+  private static LineageEvent pipelineStarted() {
+    LineageContext ctx =
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.PIPELINE)
+            .pipelineName("orders")
+            .logChannelId(PIPELINE_RUN)
+            .build();
+    return LineageEvent.of(
+        LineageEventKind.RUN_LIFECYCLE,
+        ctx,
+        new RunLifecycleLineagePayload(RunLifecyclePhase.STARTED, null));
+  }
+
+  private static UnitTestLineagePayload passed() {
+    return new UnitTestLineagePayload(
+        "orders-test", "golden", UnitTestLineagePayload.Result.PASSED, null, List.of());
+  }
+
   @Test
   void theResultAndTheDatasetsItVouchesForAreOnTheTransformsRun() {
     OpenLineageEventMapper mapper =
         OpenLineageEventMapper.builder("hop", "https://hop.apache.org").transformJobs(true).build();
+    mapper.toRunEvents(pipelineStarted());
     UnitTestLineagePayload payload =
         new UnitTestLineagePayload(
             "orders-test",
@@ -135,5 +159,64 @@ class OpenLineageUnitTestTest {
                 .get(OpenLineageEventMapper.UNIT_TEST_FACET));
     assertEquals(false, facet.path("passed").asBoolean(true));
     assertEquals(true, facet.path("error").asBoolean(false), "not compared: " + facet);
+  }
+
+  /**
+   * A sink selected in a run configuration gets the results of a unit test run but not its start
+   * and end: the result ends the run, which Marquez would list as running for good otherwise.
+   */
+  @Test
+  void withoutTheRunsOwnEventsTheResultEndsThePipelinesRun() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+
+    List<RunEvent> events = mapper.toRunEvents(unitTest(passed()));
+
+    assertEquals(1, events.size());
+    RunEvent event = events.get(0);
+    assertEquals(RunEvent.EventType.COMPLETE, event.getEventType());
+    assertEquals(UUID.fromString(PIPELINE_RUN), event.getRun().getRunId());
+    assertEquals("orders", event.getJob().getName());
+  }
+
+  @Test
+  void withoutTheRunsOwnEventsTheResultEndsTheTransformsRun() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").transformJobs(true).build();
+
+    List<RunEvent> events = mapper.toRunEvents(unitTest(passed()));
+
+    assertEquals(1, events.size());
+    assertEquals(RunEvent.EventType.COMPLETE, events.get(0).getEventType());
+    assertEquals(UUID.fromString(TRANSFORM_RUN), events.get(0).getRun().getRunId());
+  }
+
+  @Test
+  void withTheRunsOwnEventsTheResultLeavesTheEndToThem() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+    mapper.toRunEvents(pipelineStarted());
+
+    List<RunEvent> events = mapper.toRunEvents(unitTest(passed()));
+
+    assertEquals(1, events.size());
+    assertEquals(RunEvent.EventType.OTHER, events.get(0).getEventType());
+    assertEquals(UUID.fromString(PIPELINE_RUN), events.get(0).getRun().getRunId());
+  }
+
+  @Test
+  void eachSinkOnlyKnowsTheRunsThatReachedIt() {
+    OpenLineageEventMapper variablesSink =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+    OpenLineageEventMapper runConfigurationSink =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+    variablesSink.toRunEvents(pipelineStarted());
+
+    assertEquals(
+        RunEvent.EventType.OTHER,
+        variablesSink.toRunEvents(unitTest(passed())).get(0).getEventType());
+    assertEquals(
+        RunEvent.EventType.COMPLETE,
+        runConfigurationSink.toRunEvents(unitTest(passed())).get(0).getEventType());
   }
 }

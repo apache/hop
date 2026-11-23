@@ -28,8 +28,9 @@
 #   lineage is not enabled with variables in this project.
 
 LOG=/tmp/lineage-sinks-proposals.log
+OPENLINEAGE_LOG=/tmp/lineage-sinks-openlineage.log
 
-python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}"
+python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}" "${OPENLINEAGE_LOG}"
 RESULT=$?
 
 if [ -f /tmp/lineage-sinks-stub.pid ]; then

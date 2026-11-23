@@ -251,6 +251,15 @@ public final class OpenLineageEventMapper {
           Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
 
   /**
+   * The pipeline runs whose start or end reached this mapper, so a unit test result can tell
+   * whether its run gets an end here. A lineage sink selected in a run configuration gets the
+   * results of a unit test run, but not that run's own events.
+   */
+  private final Set<String> pipelineRunsWithLifecycle =
+      Collections.synchronizedSet(
+          Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
+
+  /**
    * With {@link Builder#abortOpenRuns}, the start of every run that has not reported its end yet,
    * so the runs still open when the sink shuts down can be ended; see {@link #flushObservations}.
    */
@@ -464,6 +473,15 @@ public final class OpenLineageEventMapper {
       return List.of();
     }
     LineageContext ctx = event.getContext();
+    if (ctx != null) {
+      String pipelineRun =
+          ctx.getSubjectType() == LineageSubjectType.PIPELINE
+              ? ctx.getLogChannelId()
+              : pipelineLogChannelId(ctx);
+      if (!Utils.isEmpty(pipelineRun)) {
+        pipelineRunsWithLifecycle.add(pipelineRun);
+      }
+    }
     if (!isTerminal(eventType)) {
       if (abortOpenRuns && eventType == EventType.START) {
         openRuns.put(runKey(resolveJobName(ctx), resolveRunId(ctx, event.getEventId())), event);
@@ -757,7 +775,11 @@ public final class OpenLineageEventMapper {
     return observe(event, inputs, outputs, null);
   }
 
-  /** A unit test result as an {@code OTHER} event of the tested transform's run. */
+  /**
+   * A unit test result as an {@code OTHER} event of the tested transform's run. When the run's own
+   * start and end don't come to this mapper, the result is a {@code COMPLETE} event instead: an
+   * {@code OTHER} event alone would leave the run open for good, Marquez lists it as running.
+   */
   private Optional<RunEvent> mapUnitTest(LineageEvent event) {
     if (!(event.getPayload() instanceof UnitTestLineagePayload test)) {
       return Optional.empty();
@@ -808,9 +830,12 @@ public final class OpenLineageEventMapper {
     String jobName = perTransform ? resolveJobName(ctx) : resolveFileIoJobName(ctx);
     JobIdentity identity = perTransform ? JobIdentity.of(ctx) : JobIdentity.ioOwner(ctx);
     ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    String pipelineRun = pipelineLogChannelId(ctx);
+    boolean runEndsElsewhere =
+        Utils.isEmpty(pipelineRun) || pipelineRunsWithLifecycle.contains(pipelineRun);
     return Optional.of(
         ol.newRunEventBuilder()
-            .eventType(EventType.OTHER)
+            .eventType(runEndsElsewhere ? EventType.OTHER : EventType.COMPLETE)
             .eventTime(eventTime)
             .run(runNode(runId, eventTime, null, Map.of(UNIT_TEST_FACET, facet)))
             .job(job(jobName, identity, null))
