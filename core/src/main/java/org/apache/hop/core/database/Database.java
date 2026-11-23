@@ -2135,12 +2135,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
       // Just try to read from the table.
       String sql = databaseMeta.getSqlTableExists(tableName);
-      try {
-        getOneRow(sql);
-        return true;
-      } catch (HopDatabaseException e) {
-        return false;
-      }
+      return existenceProbeSucceeds(sql);
     } catch (Exception e) {
       throw new HopDatabaseException(
           "Unable to check if table ["
@@ -2149,6 +2144,50 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
               + databaseMeta.getName()
               + "]",
           e);
+    }
+  }
+
+  /**
+   * Runs the dialect's table or column existence query and reports whether it could be executed and
+   * its first row read. Any failure doing so means the object is not there, as it did when this was
+   * a full {@link #getOneRow(String)}. Only the answer matters, so no row metadata is derived from
+   * the result, at most one row is fetched, and the statement is closed even when the query fails:
+   * Table exists and Column exists ask this once per row.
+   *
+   * <p>A failing query is still a failing query: on a database that aborts the transaction on an
+   * error (PostgreSQL without auto-commit) it does so, exactly as before.
+   */
+  private boolean existenceProbeSucceeds(String sql) {
+    Statement statement = null;
+    try {
+      statement = connection.createStatement();
+      if (databaseMeta.supportsSetMaxRows()) {
+        try {
+          statement.setMaxRows(1);
+        } catch (SQLException e) {
+          // Only an optimisation: read the first row of whatever comes back.
+        }
+      }
+      applyStatementQueryTimeout(statement);
+      try (ResultSet resultSet = statement.executeQuery(databaseMeta.stripCR(sql))) {
+        resultSet.next();
+      }
+      return true;
+    } catch (Exception e) {
+      // Any failure running the query means the object is not there, as with getOneRow, which
+      // wrapped every exception of the query in a HopDatabaseException.
+      if (log.isDebug()) {
+        log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
+      }
+      return false;
+    } finally {
+      if (statement != null) {
+        try {
+          statement.close();
+        } catch (SQLException e) {
+          log.logError("Unable to close the existence check statement", e);
+        }
+      }
     }
   }
 
@@ -2211,13 +2250,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       // Just try to read from the table.
       String sql = databaseMeta.getSqlColumnExists(columnName, tableName);
-
-      try {
-        getOneRow(sql);
-        return true;
-      } catch (HopDatabaseException e) {
-        return false;
-      }
+      return existenceProbeSucceeds(sql);
     } catch (Exception e) {
       throw new HopDatabaseException(
           "Unable to check if column ["
