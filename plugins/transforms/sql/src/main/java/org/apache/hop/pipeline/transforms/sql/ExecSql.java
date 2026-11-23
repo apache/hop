@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.sql;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -140,17 +141,18 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
       }
 
       if (!meta.isParams()) {
-        // We need to replace question marks by string value
-        data.markerPositions = new ArrayList<>();
-        int len = data.sql.length();
-        int pos = len - 1;
-        while (pos >= 0) {
-          if (data.sql.charAt(pos) == '?') {
-            data.markerPositions.add(pos); // save the
-          }
-          // marker
-          // position
-          pos--;
+        // We replace the '?' markers by the argument values, last marker first so the earlier
+        // positions stay valid. A '?' in a literal, quoted identifier or comment is not a marker.
+        data.markerPositions =
+            new ArrayList<>(data.db.getSqlParameterSpec(data.sql).getMarkerPositions());
+        Collections.reverse(data.markerPositions);
+        if (data.markerPositions.size() > data.argumentIndexes.length) {
+          throw new HopTransformException(
+              BaseMessages.getString(
+                  PKG,
+                  "ExecSql.Exception.MoreMarkersThanArguments",
+                  data.markerPositions.size(),
+                  data.argumentIndexes.length));
         }
       }
     }

@@ -53,6 +53,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.hop.core.DbCache;
@@ -254,6 +255,61 @@ class DatabaseTest {
     assertEquals(sql, spec.getPreparedSql());
     assertEquals(1, spec.getParameterCount());
     assertNull(spec.getParameterReferences().get(0));
+  }
+
+  @Test
+  void parseSqlParameterSpecReportsMarkerPositionsOutsideLiteralsAndComments() {
+    String sql =
+        "INSERT INTO \"q?\" VALUES (?, 'what?', `b?`, $$ ? $$, ?) -- why?\n"
+            + "/* or? */ AND x = ?{name} AND y ?| z AND w = ?";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(4, spec.getParameterCount());
+    List<Integer> positions = spec.getMarkerPositions();
+    assertEquals(3, positions.size());
+    for (int position : positions) {
+      assertEquals('?', sql.charAt(position));
+    }
+    assertEquals(sql.indexOf("(?") + 1, (int) positions.get(0));
+    assertEquals(sql.indexOf("?) --"), (int) positions.get(1));
+    assertEquals(sql.lastIndexOf('?'), (int) positions.get(2));
+  }
+
+  @Test
+  void parseSqlParameterSpecHasNoMarkerPositionsWithoutMarkers() {
+    assertTrue(
+        Database.parseSqlParameterSpec("SELECT 'a?' FROM t -- b?").getMarkerPositions().isEmpty());
+    assertTrue(Database.parseSqlParameterSpec(null).getMarkerPositions().isEmpty());
+    assertTrue(
+        new Database.SqlParameterSpec("?", Collections.singletonList(null))
+            .getMarkerPositions()
+            .isEmpty());
+  }
+
+  @Test
+  void parseSqlParameterSpecDoesNotStartADollarQuoteInsideAnIdentifier() {
+    // Oracle style identifiers: SYS$A$B must not open a $A$ dollar quote that hides the marker
+    String sql = "SELECT * FROM SYS$A$B WHERE V$X = ? AND w = $tag$ ? $tag$";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(List.of(sql.indexOf('?')), spec.getMarkerPositions());
+  }
+
+  @Test
+  void getSqlParameterSpecUsesBracketIdentifierRulesForBracketQuotingDialects() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.getStartQuote()).thenReturn("[");
+    when(iDatabase.getEndQuote()).thenReturn("]");
+
+    Database db = new Database(log, variables, meta);
+    String sql = "UPDATE [a?b] SET c = ? WHERE d = ?";
+
+    assertEquals(
+        List.of(sql.indexOf("= ?") + 2, sql.lastIndexOf('?')),
+        db.getSqlParameterSpec(sql).getMarkerPositions());
+    assertEquals(3, Database.parseSqlParameterSpec(sql).getMarkerPositions().size());
   }
 
   /**

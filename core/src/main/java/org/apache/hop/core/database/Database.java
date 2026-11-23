@@ -3818,10 +3818,26 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public static final class SqlParameterSpec {
     private final String preparedSql;
     private final List<String> parameterReferences;
+    private final List<Integer> markerPositions;
 
     public SqlParameterSpec(String preparedSql, List<String> parameterReferences) {
+      this(preparedSql, parameterReferences, List.of());
+    }
+
+    public SqlParameterSpec(
+        String preparedSql, List<String> parameterReferences, List<Integer> markerPositions) {
       this.preparedSql = preparedSql;
       this.parameterReferences = Collections.unmodifiableList(new ArrayList<>(parameterReferences));
+      this.markerPositions = List.copyOf(markerPositions);
+    }
+
+    /**
+     * Offsets in the source SQL (not the prepared SQL) of the positional '?' markers, in ascending
+     * order. Question marks in literals, quoted identifiers, comments and PostgreSQL JSONB
+     * operators are not markers, and neither are ?{name} references.
+     */
+    public List<Integer> getMarkerPositions() {
+      return markerPositions;
     }
 
     public String getPreparedSql() {
@@ -3862,6 +3878,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     String sql = Const.NVL(sourceSql, "");
     StringBuilder preparedSql = new StringBuilder(sql.length());
     List<String> parameterReferences = new ArrayList<>();
+    List<Integer> markerPositions = new ArrayList<>();
 
     int index = 0;
     while (index < sql.length()) {
@@ -3965,6 +3982,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
 
         parameterReferences.add(null);
+        markerPositions.add(index);
         preparedSql.append(c);
         index++;
         continue;
@@ -3974,7 +3992,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       index++;
     }
 
-    return new SqlParameterSpec(preparedSql.toString(), parameterReferences);
+    return new SqlParameterSpec(preparedSql.toString(), parameterReferences, markerPositions);
   }
 
   private static int consumeQuotedSection(
@@ -4013,6 +4031,13 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static String getDollarQuoteTag(String sql, int startIndex) {
     if (sql.charAt(startIndex) != '$') {
       return null;
+    }
+    // A '$' inside an identifier (Oracle V$SESSION, SYS$A$B) does not start a dollar quote
+    if (startIndex > 0) {
+      char previous = sql.charAt(startIndex - 1);
+      if (Character.isLetterOrDigit(previous) || previous == '_' || previous == '$') {
+        return null;
+      }
     }
     int cursor = startIndex + 1;
     while (cursor < sql.length()) {
@@ -4053,7 +4078,19 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public int countParameters(String sql) {
-    return parseSqlParameterSpec(sql, supportsBracketQuotedIdentifiers()).getParameterCount();
+    return getSqlParameterSpec(sql).getParameterCount();
+  }
+
+  /**
+   * Parse SQL for parameter markers with the quoting rules of this connection's dialect: like
+   * {@link #parseSqlParameterSpec(String)}, plus [identifier] sections for dialects that quote
+   * identifiers with brackets.
+   *
+   * @param sql the SQL text to parse
+   * @return the parsed parameter information
+   */
+  public SqlParameterSpec getSqlParameterSpec(String sql) {
+    return parseSqlParameterSpec(sql, supportsBracketQuotedIdentifiers());
   }
 
   private boolean supportsBracketQuotedIdentifiers() {
