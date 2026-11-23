@@ -254,7 +254,10 @@ class AirflowWorkflowEngineTest {
         1,
         postRequestedFor(urlEqualTo(DAG + "/dagRuns"))
             .withRequestBody(
-                equalToJson("{\"logical_date\":null,\"conf\":{\"PRM_DAY\":\"2026-11-22\"}}")));
+                equalToJson(
+                    "{\"logical_date\":null,\"conf\":{\"hop_workflow_version\":\""
+                        + sha("<workflow/>")
+                        + "\",\"PRM_DAY\":\"2026-11-22\"}}")));
     Map<String, Boolean> actions =
         engine.getActionResults().stream()
             .collect(Collectors.toMap(ActionResult::getActionName, r -> r.getResult().isResult()));

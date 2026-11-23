@@ -135,8 +135,12 @@ class AirflowBundleWriterTest {
     writer.setTargetFolder(target.toString());
     writer.write();
     Files.writeString(target.resolve("removed.hwf"), "<workflow/>");
+    Files.createDirectories(target.resolve("old/folder"));
+    Files.writeString(target.resolve("old/folder/gone.hpl"), "<pipeline/>");
 
     writer.write();
+
+    assertFalse(Files.exists(target.resolve("old")));
 
     assertFalse(Files.exists(target.resolve("removed.hwf")));
     assertTrue(Files.isRegularFile(target.resolve("main.hwf")));

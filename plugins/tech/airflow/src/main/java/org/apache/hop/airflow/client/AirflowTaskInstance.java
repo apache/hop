@@ -17,11 +17,37 @@
 
 package org.apache.hop.airflow.client;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+
 /**
  * A task instance of a DAG run. The state is null until the scheduler sets one.
  *
- * @param startDate when it started (ISO 8601, so it sorts as text), or null
+ * @param startDate when it started (ISO 8601), or null
  * @param endDate when it ended, or null
  */
 public record AirflowTaskInstance(
-    String taskId, String state, int tryNumber, String startDate, String endDate) {}
+    String taskId, String state, int tryNumber, String startDate, String endDate) {
+
+  /** When it started, or null. */
+  public Instant started() {
+    return instant(startDate);
+  }
+
+  /** When it ended, or null. */
+  public Instant ended() {
+    return instant(endDate);
+  }
+
+  private static Instant instant(String date) {
+    if (date == null || date.isBlank()) {
+      return null;
+    }
+    try {
+      return OffsetDateTime.parse(date).toInstant();
+    } catch (DateTimeParseException e) {
+      return null;
+    }
+  }
+}

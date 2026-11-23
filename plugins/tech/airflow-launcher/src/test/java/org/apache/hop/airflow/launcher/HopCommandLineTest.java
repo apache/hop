@@ -153,10 +153,12 @@ class HopCommandLineTest {
     conf.put("LIST", List.of("a", "b"));
     conf.put("EMPTY", null);
     conf.put(" ", "ignored");
+    conf.put(HopAirflowBundle.CONF_WORKFLOW_VERSION, "0123456789ab");
 
     List<String> args =
         HopCommandLine.build(bundle(FOLDER, List.of()), WORKFLOW, null, conf, RESULT, List.of());
 
+    assertEquals(-1, String.join(" ", args).indexOf(HopAirflowBundle.CONF_WORKFLOW_VERSION));
     int first = args.indexOf("--parameters");
     assertEquals(
         List.of(

@@ -99,6 +99,7 @@ Otherwise the DAGs can fail to load: Airflow then reports an import error, and t
 Start the DAGs from Airflow, through its REST API, with the xref:workflow/actions/airflow-trigger-dag-run.adoc[Trigger Airflow DAG run] action, or with the xref:workflow/workflow-run-configurations/airflow-workflow-engine.adoc[Apache Airflow run configuration].
 The schedule of the xref:workflow/actions/start.adoc[Start] action is not used: a Start action that repeats runs the workflow once.
 * *Run conf*: each key of the DAG run's conf becomes a parameter, or a variable when the workflow does not declare it, as with `hop run -p`.
+Key `hop_workflow_version` is the exception: the Apache Airflow run configuration sets it to the version of the workflow it published, and the tasks of a run fail when the bundle holds another version.
 Text is passed as it is, including commas; numbers, lists and objects are passed as JSON.
 The Java SDK cannot declare DAG params, so the trigger form in Airflow shows no fields: pass the values as JSON.
 * *Result*: every task keeps the outcome of its run in XCom `hop_outcome`, including `success`, `exitCode`, `name`, `executionId`, `startDate`, `endDate`, the counters, and `error` when the run failed.
@@ -125,7 +126,8 @@ Its return value is the result of the action, `true` or `false`.
 |Several hops that lead to one action |The task runs once, when the first of those hops is followed (`one_success`).
 In Hop, the action runs each time one of them is.
 |A xref:workflow/actions/join.adoc[Join] action |The task waits for all the tasks before it, as the Join does in Hop (`none_failed_min_one_success`).
-It fails when an action with a success hop into the Join ended false, as the Join does in Hop.
+It fails when an action with a success hop into the Join ended false, or did not run because an action before it ended false, as the Join does in Hop.
+Its failure hops are followed then, also when Airflow did not run the Join because a task before it failed.
 It does not start Hop.
 |===
 

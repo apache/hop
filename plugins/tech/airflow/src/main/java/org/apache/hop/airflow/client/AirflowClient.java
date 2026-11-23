@@ -291,7 +291,7 @@ public class AirflowClient {
     }
     instances.sort(
         Comparator.comparing(
-            AirflowTaskInstance::startDate, Comparator.nullsLast(Comparator.naturalOrder())));
+            AirflowTaskInstance::started, Comparator.nullsLast(Comparator.naturalOrder())));
     return instances;
   }
 

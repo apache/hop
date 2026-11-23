@@ -19,6 +19,7 @@ package org.apache.hop.airflow.engine;
 
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HexFormat;
@@ -79,6 +80,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   private AirflowClient client;
   private String dagId;
   private AirflowActionLog actionLog;
+  private String publishedVersion;
 
   /** How far the log of each task has been read. */
   private final Map<String, TaskLog> taskLogs = new LinkedHashMap<>();
@@ -119,7 +121,8 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     actionLog = new AirflowActionLog(workflowMeta.getName());
 
     String bundleFolder = publish(projectName, projectHome);
-    AirflowDag dag = waitForDag(workflowVersion(bundleFolder, relativePath));
+    publishedVersion = workflowVersion(bundleFolder, relativePath);
+    AirflowDag dag = waitForDag(publishedVersion);
     if (dag.paused()) {
       if (!config.isUnpausingDag()) {
         throw new HopException(
@@ -281,6 +284,8 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
   /** The workflow parameters become the DAG run conf, which the launcher passes on to Hop. */
   private Map<String, Object> parameters() {
     Map<String, Object> conf = new LinkedHashMap<>();
+    // Tasks of another version of the workflow fail instead of running it
+    conf.put(HopAirflowBundle.CONF_WORKFLOW_VERSION, publishedVersion);
     for (String parameter : listParameters()) {
       String value = getVariable(parameter);
       if (value != null) {
@@ -410,7 +415,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
    */
   private Result outcome(AirflowDagRun run) throws HopException {
     Result outcome = new Result();
-    String lastEnd = null;
+    Instant lastEnd = null;
     for (AirflowTaskInstance task : client.getTaskInstances(dagId, containerId)) {
       if (task.tryNumber() < 1 || !isEnded(task.state())) {
         continue;
@@ -425,9 +430,9 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
       if (map.get("error") != null) {
         logChannel.logError(String.valueOf(map.get("error")));
       }
-      String end = StringUtils.defaultString(task.endDate());
+      Instant end = task.ended() == null ? Instant.EPOCH : task.ended();
       if (map.get("counters") instanceof Map<?, ?> counters
-          && (lastEnd == null || end.compareTo(lastEnd) >= 0)) {
+          && (lastEnd == null || !end.isBefore(lastEnd))) {
         lastEnd = end;
         outcome.setNrErrors(counter(counters, "errors"));
         outcome.setNrLinesRead(counter(counters, "read"));

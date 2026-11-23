@@ -169,11 +169,11 @@ class TaskStateTest {
     IllegalStateException e =
         assertThrows(
             IllegalStateException.class,
-            () -> TaskState.checkTheTaskBeforeRan(mail, outcomes::get));
+            () -> TaskState.checkTheTaskBeforeRan(mail, tasks, outcomes::get));
     assertTrue(e.getMessage().contains("Transform"), e.getMessage());
 
     outcome("Transform", false, "<result/>", Map.of());
-    TaskState.checkTheTaskBeforeRan(mail, outcomes::get);
+    TaskState.checkTheTaskBeforeRan(mail, tasks, outcomes::get);
   }
 
   @Test
@@ -181,7 +181,7 @@ class TaskStateTest {
     task("Load");
     ActionTask next = task("Next", new Upstream("Load", HopKind.SUCCESS, false));
 
-    TaskState.checkTheTaskBeforeRan(next, outcomes::get);
+    TaskState.checkTheTaskBeforeRan(next, tasks, outcomes::get);
   }
 
   @Test
@@ -203,5 +203,54 @@ class TaskStateTest {
 
     outcome("A", false, "<a/>", Map.of());
     assertFalse(TaskState.joinResult(join, tasks, outcomes::get));
+  }
+
+  /** C ends false, so P on its success hop never runs: in Hop the Join after P ends false. */
+  @Test
+  void failsAJoinAfterABranchThatAFalseActionDidNotTake() {
+    task("C", Role.CONDITION, "all_success");
+    task("P", new Upstream("C", HopKind.SUCCESS, false));
+    task("H", new Upstream("C", HopKind.FAILURE, false));
+    ActionTask join =
+        task(
+            "Join",
+            Role.JOIN,
+            "none_failed_min_one_success",
+            new Upstream("P", HopKind.SUCCESS, false),
+            new Upstream("H", HopKind.SUCCESS, false));
+    outcome("C", false, "<c/>", Map.of());
+    outcome("H", true, "<h/>", Map.of());
+
+    assertEquals(1, TaskState.joinErrors(join, tasks, outcomes::get));
+
+    // C true: H was never meant to run
+    outcomes.remove("H");
+    outcome("C", true, "<c/>", Map.of());
+    outcome("P", true, "<p/>", Map.of());
+    assertEquals(0, TaskState.joinErrors(join, tasks, outcomes::get));
+  }
+
+  /** Airflow does not run a Join after a failed task; in Hop it ends false and follows failure. */
+  @Test
+  void followsTheFailureHopOfAJoinThatAirflowDidNotRun() {
+    task("Load");
+    task("Other");
+    task(
+        "Join",
+        Role.JOIN,
+        "none_failed_min_one_success",
+        new Upstream("Load", HopKind.SUCCESS, false),
+        new Upstream("Other", HopKind.SUCCESS, false));
+    ActionTask mail =
+        task("Mail", Role.ACTION, "one_failed", new Upstream("Join", HopKind.FAILURE, false));
+    outcome("Load", false, "<load/>", Map.of());
+    outcome("Other", true, "<other/>", Map.of("X", value("1", 5)));
+
+    TaskState.checkTheTaskBeforeRan(mail, tasks, outcomes::get);
+    Map<String, Object> state = before(mail);
+
+    assertEquals("<other/>", state.get(TaskState.RESULT));
+    assertEquals(1, state.get(TaskState.JOIN_ERRORS));
+    assertEquals(Map.of("X", "1"), state.get(TaskState.VARIABLES));
   }
 }

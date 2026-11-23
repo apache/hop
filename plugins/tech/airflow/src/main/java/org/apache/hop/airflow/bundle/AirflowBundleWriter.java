@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.Selectors;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
@@ -197,31 +199,47 @@ public class AirflowBundleWriter {
       if (!target.isFolder()) {
         throw new HopException(HopVfs.getFilename(target) + " is not a folder");
       }
-      FileObject[] children = target.getChildren();
-      if (children.length > 0) {
-        // Only a folder this writer filled: a project with a committed stub has a stub too
-        if (!target.resolveFile(BUNDLE_MARKER).exists()) {
-          throw new HopException(
-              HopVfs.getFilename(target)
-                  + " is not empty and is not a DAG bundle that Hop copied there (it holds no "
-                  + BUNDLE_MARKER
-                  + "): choose an empty folder or an earlier DAG bundle");
-        }
-        // An earlier bundle: start again, so that removed workflows do not stay DAGs
-        for (FileObject child : children) {
-          child.deleteAll();
-        }
+      // Only a folder this writer filled: a project with a committed stub has a stub too
+      if (target.getChildren().length > 0 && !target.resolveFile(BUNDLE_MARKER).exists()) {
+        throw new HopException(
+            HopVfs.getFilename(target)
+                + " is not empty and is not a DAG bundle that Hop copied there (it holds no "
+                + BUNDLE_MARKER
+                + "): choose an empty folder or an earlier DAG bundle");
       }
     }
     target.createFolder();
-    target.copyFrom(project, new ProjectSelector(project, target));
+    // The marker first, so a copy that fails half way leaves a folder Hop may replace again
     try (OutputStream out = HopVfs.getOutputStream(target.resolveFile(BUNDLE_MARKER), false)) {
       out.write(
           ("A copy of Hop project "
                   + HopVfs.getFilename(project)
-                  + ", written by hop"
-                  + " airflow-bundle. Every publish replaces everything in this folder.\n")
+                  + ", written by hop airflow-bundle. Every publish replaces everything in this"
+                  + " folder.\n")
               .getBytes(StandardCharsets.UTF_8));
+    }
+    // Replace the files in place, then remove what the project no longer has: DAG runs that
+    // read the bundle meanwhile never find it empty
+    target.copyFrom(project, new ProjectSelector(project, target));
+    removeLeftovers(project, target);
+  }
+
+  /** Removes what an earlier publish left in the bundle and the project no longer holds. */
+  private static void removeLeftovers(FileObject project, FileObject target) throws IOException {
+    for (FileObject file : target.findFiles(Selectors.EXCLUDE_SELF)) {
+      if (!file.exists()) {
+        // In a folder removed before
+        continue;
+      }
+      String relative = target.getName().getRelativeName(file.getName());
+      if (BUNDLE_MARKER.equals(relative) || HopAirflowBundle.STUB_FILE_NAME.equals(relative)) {
+        continue;
+      }
+      FileObject source = project.resolveFile(relative);
+      boolean hidden = Arrays.stream(relative.split("/")).anyMatch(part -> part.startsWith("."));
+      if (hidden || !source.exists() || source.isFolder() != file.isFolder()) {
+        file.deleteAll();
+      }
     }
   }
 

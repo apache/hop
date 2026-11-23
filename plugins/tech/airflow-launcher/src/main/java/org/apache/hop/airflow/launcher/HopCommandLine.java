@@ -119,7 +119,9 @@ public final class HopCommandLine {
     }
     if (conf != null && !conf.isEmpty()) {
       for (Map.Entry<String, Object> entry : conf.entrySet()) {
-        if (entry.getKey() == null || entry.getKey().isBlank()) {
+        if (entry.getKey() == null
+            || entry.getKey().isBlank()
+            || HopAirflowBundle.CONF_WORKFLOW_VERSION.equals(entry.getKey())) {
           continue;
         }
         // hop run removes the quotes again, so a value that starts and ends with one keeps it.

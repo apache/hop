@@ -45,6 +45,12 @@ public final class TaskState {
   /** The next action gets the result without its rows, as a parallel branch does in Hop. */
   static final String WITHOUT_ROWS = "without_rows";
 
+  /**
+   * The result of a Join that ended false: the next action gets the result with result false and
+   * this many errors, as Hop's Join passes it on.
+   */
+  static final String JOIN_ERRORS = "join_errors";
+
   /** When each variable was set, in milliseconds since the epoch. */
   static final String VARIABLE_TIMES = "variable_times";
 
@@ -57,14 +63,15 @@ public final class TaskState {
   private TaskState() {}
 
   /**
-   * The result of a Join, as Hop's Join works it out: false when an action before it ended false
-   * and its hop into the Join is a success hop. Airflow only runs the Join when no task before it
-   * failed, so this only finds a condition whose success side, a gate, was skipped.
+   * The errors of a Join, as Hop's Join counts them: one for each action with a success hop into
+   * the Join that ended false, or that did not run because an action before it ended false on a
+   * success hop towards it. The Join's result is false when there is one.
    */
-  public static boolean joinResult(
+  public static int joinErrors(
       ActionTasks.ActionTask join,
       Map<String, ActionTasks.ActionTask> tasks,
       Function<String, Object> outcomes) {
+    int errors = 0;
     for (ActionTasks.Upstream upstream : join.upstreams()) {
       ActionTasks.Upstream hop = upstream;
       ActionTasks.ActionTask before = tasks.get(upstream.taskId());
@@ -72,12 +79,62 @@ public final class TaskState {
         hop = before.upstreams().get(0);
       }
       if (hop.kind() == ActionTasks.HopKind.SUCCESS
-          && outcomes.apply(hop.taskId()) instanceof Map<?, ?> outcome
-          && !Boolean.TRUE.equals(outcome.get("success"))) {
-        return false;
+          && endedFalse(hop.taskId(), tasks, outcomes, new HashSet<>())) {
+        errors++;
       }
     }
-    return true;
+    return errors;
+  }
+
+  /** See {@link #joinErrors}. */
+  public static boolean joinResult(
+      ActionTasks.ActionTask join,
+      Map<String, ActionTasks.ActionTask> tasks,
+      Function<String, Object> outcomes) {
+    return joinErrors(join, tasks, outcomes) == 0;
+  }
+
+  /**
+   * Whether a task ended false, or did not run because a task before it ended false on a success
+   * hop towards it.
+   */
+  private static boolean endedFalse(
+      String taskId,
+      Map<String, ActionTasks.ActionTask> tasks,
+      Function<String, Object> outcomes,
+      Set<String> seen) {
+    if (!seen.add(taskId)) {
+      return false;
+    }
+    if (outcomes.apply(taskId) instanceof Map<?, ?> outcome) {
+      return !Boolean.TRUE.equals(outcome.get("success"));
+    }
+    ActionTasks.ActionTask task = tasks.get(taskId);
+    if (task == null) {
+      return false;
+    }
+    for (ActionTasks.Upstream before : task.upstreams()) {
+      if (outcomes.apply(before.taskId()) instanceof Map<?, ?> outcome) {
+        if (before.kind() == ActionTasks.HopKind.SUCCESS
+            && !Boolean.TRUE.equals(outcome.get("success"))) {
+          return true;
+        }
+      } else if (endedFalse(before.taskId(), tasks, outcomes, seen)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** A Join that Airflow did not run because a task before it failed: in Hop it ends false. */
+  private static boolean joinEndedFalse(
+      ActionTasks.ActionTask task,
+      Map<String, ActionTasks.ActionTask> tasks,
+      Function<String, Object> outcomes) {
+    return task != null
+        && task.role() == ActionTasks.Role.JOIN
+        && outcomes.apply(task.taskId()) == null
+        && joinErrors(task, tasks, outcomes) > 0;
   }
 
   /**
@@ -87,12 +144,15 @@ public final class TaskState {
    * @throws IllegalStateException when a task before it left no outcome
    */
   public static void checkTheTaskBeforeRan(
-      ActionTasks.ActionTask task, Function<String, Object> outcomes) {
+      ActionTasks.ActionTask task,
+      Map<String, ActionTasks.ActionTask> tasks,
+      Function<String, Object> outcomes) {
     if (!task.needsTheTaskBeforeToHaveRun()) {
       return;
     }
     for (ActionTasks.Upstream upstream : task.upstreams()) {
-      if (outcomes.apply(upstream.taskId()) == null) {
+      if (outcomes.apply(upstream.taskId()) == null
+          && !joinEndedFalse(tasks.get(upstream.taskId()), tasks, outcomes)) {
         throw new IllegalStateException(
             "["
                 + task.actionName()
@@ -120,8 +180,8 @@ public final class TaskState {
       Function<String, Object> outcomes) {
     Map<String, Object> variables = new LinkedHashMap<>();
     Map<String, Long> times = new LinkedHashMap<>();
-    // The result XML, and whether to pass it on without the rows
-    Object[] result = new Object[2];
+    // The result XML, whether to pass it on without the rows, and the errors of a false Join
+    Object[] result = new Object[3];
     collect(task, tasks, outcomes, variables, times, result, new HashSet<>());
     if (variables.isEmpty() && result[0] == null) {
       return null;
@@ -131,6 +191,9 @@ public final class TaskState {
       state.put(RESULT, result[0]);
       if (Boolean.TRUE.equals(result[1])) {
         state.put(WITHOUT_ROWS, true);
+      }
+      if (result[2] != null) {
+        state.put(JOIN_ERRORS, result[2]);
       }
     }
     state.put(VARIABLES, variables);
@@ -155,7 +218,11 @@ public final class TaskState {
       if (state == null) {
         ActionTasks.ActionTask before = tasks.get(upstream.taskId());
         if (before != null) {
+          boolean falseJoin = result[0] == null && joinEndedFalse(before, tasks, outcomes);
           collect(before, tasks, outcomes, variables, times, result, seen);
+          if (falseJoin && result[0] != null) {
+            result[2] = joinErrors(before, tasks, outcomes);
+          }
         }
         continue;
       }
@@ -173,6 +240,7 @@ public final class TaskState {
       if (result[0] == null && state.get(RESULT) != null && matches(upstream.kind(), outcome)) {
         result[0] = state.get(RESULT);
         result[1] = upstream.withoutRows() || Boolean.TRUE.equals(state.get(WITHOUT_ROWS));
+        result[2] = state.get(JOIN_ERRORS);
       }
     }
   }

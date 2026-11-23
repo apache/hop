@@ -35,6 +35,7 @@ import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.run.HopCommandRun;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -64,6 +65,12 @@ public class AirflowActionCommand extends HopCommandRun {
   public static final String STATE_RESULT = "result";
 
   public static final String STATE_VARIABLES = "variables";
+
+  /**
+   * The action follows a Join that ended false: it gets the result with result false and this many
+   * errors, as Hop's Join passes it on.
+   */
+  public static final String STATE_JOIN_ERRORS = "join_errors";
 
   /** The action gets the result without the rows, as a parallel branch does in Hop. */
   public static final String STATE_WITHOUT_ROWS = "without_rows";
@@ -96,6 +103,9 @@ public class AirflowActionCommand extends HopCommandRun {
 
   private final Map<String, String> variablesAtStart = new HashMap<>();
 
+  /** No enabled hop leaves the action: the workflow ends with it. */
+  private boolean lastAction;
+
   @Override
   protected void beforeWorkflowStart(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {
     if (StringUtils.isEmpty(startActionName)) {
@@ -107,9 +117,12 @@ public class AirflowActionCommand extends HopCommandRun {
     }
     // Without hops leaving it, the workflow ends after this action
     WorkflowMeta workflowMeta = workflow.getWorkflowMeta();
+    lastAction = true;
     for (int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i--) {
-      ActionMeta from = workflowMeta.getWorkflowHop(i).getFromAction();
+      WorkflowHopMeta hop = workflowMeta.getWorkflowHop(i);
+      ActionMeta from = hop.getFromAction();
       if (from != null && action.getName().equals(from.getName())) {
+        lastAction &= !hop.isEnabled();
         workflowMeta.removeWorkflowHop(i);
       }
     }
@@ -144,6 +157,10 @@ public class AirflowActionCommand extends HopCommandRun {
         if (Boolean.TRUE.equals(state.get(STATE_WITHOUT_ROWS))) {
           previous = previous.lightClone();
         }
+        if (state.get(STATE_JOIN_ERRORS) instanceof Number joinErrors) {
+          previous.setResult(false);
+          previous.setNrErrors(joinErrors.longValue());
+        }
         // As Hop does before it runs the next action
         if (action.getAction().resetErrorsBeforeExecution()) {
           previous.setNrErrors(0);
@@ -167,7 +184,8 @@ public class AirflowActionCommand extends HopCommandRun {
         actionResult = entry.getResult();
       }
     }
-    if (actionResult != null) {
+    // The last action of the workflow ends it as hop run would: errors it keeps make the run fail
+    if (actionResult != null && !lastAction) {
       setFinishedWithoutError(actionResult.isResult());
     }
     if (StringUtils.isEmpty(stateOut)) {

@@ -74,6 +74,12 @@ public final class HopAirflowBundle {
    */
   public static final String DAG_DOC_VERSION = "Workflow version: ";
 
+  /**
+   * The key of the run conf that holds the version of the workflow the run was started for. The
+   * Apache Airflow run configuration sets it; it is not passed on to Hop as a parameter.
+   */
+  public static final String CONF_WORKFLOW_VERSION = "hop_workflow_version";
+
   /** How many hex digits of the SHA-256 make the version of a workflow. */
   public static final int VERSION_LENGTH = 12;
 

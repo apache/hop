@@ -37,21 +37,28 @@ public class PassOnTask implements Task {
       throw new IllegalStateException(
           "No Join or gate for task " + context.ti.taskId + " of DAG " + context.ti.dagId);
     }
-    TaskState.checkTheTaskBeforeRan(task, RunWorkflowTask.outcomes(client));
+    TaskState.checkTheTaskBeforeRan(task, workflow.tasksById(), RunWorkflowTask.outcomes(client));
     // stdout: Airflow shows a task's stderr as errors
     System.out.println(
         task.role() == ActionTasks.Role.JOIN
             ? "Join [" + task.actionName() + "]: the actions before it are done"
             : "The hop after [" + task.actionName() + "] is followed");
-    boolean success =
-        task.role() != ActionTasks.Role.JOIN
-            || TaskState.joinResult(task, workflow.tasksById(), RunWorkflowTask.outcomes(client));
+    int errors =
+        task.role() == ActionTasks.Role.JOIN
+            ? TaskState.joinErrors(task, workflow.tasksById(), RunWorkflowTask.outcomes(client))
+            : 0;
+    boolean success = errors == 0;
     Map<String, Object> outcome = new LinkedHashMap<>();
     outcome.put("exitCode", success ? 0 : 1);
     outcome.put("success", success);
     client.setXCom(outcome);
     Map<String, Object> state =
         TaskState.before(task, workflow.tasksById(), RunWorkflowTask.outcomes(client));
+    if (!success) {
+      // As Hop's Join: the next action gets the result with result false and the errors
+      state = state == null ? new LinkedHashMap<>() : new LinkedHashMap<>(state);
+      state.put(TaskState.JOIN_ERRORS, errors);
+    }
     Map<String, Object> withState = new LinkedHashMap<>(outcome);
     if (state != null) {
       withState.put(TaskState.KEY, state);

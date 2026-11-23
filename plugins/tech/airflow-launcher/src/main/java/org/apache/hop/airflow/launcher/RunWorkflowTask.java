@@ -71,8 +71,22 @@ public class RunWorkflowTask implements Task {
               + " anymore: it changed after Airflow read the DAG. Start a new run once Airflow"
               + " shows the new DAG.");
     }
+    Object startedFor =
+        context.dagRun.conf == null
+            ? null
+            : context.dagRun.conf.get(HopAirflowBundle.CONF_WORKFLOW_VERSION);
+    if (startedFor != null && !String.valueOf(startedFor).equals(workflow.version())) {
+      throw new IllegalStateException(
+          "This DAG run was started for version "
+              + startedFor
+              + " of workflow "
+              + workflow.relativePath()
+              + ", the bundle now holds version "
+              + workflow.version()
+              + ": it was published again during the run. Start a new run.");
+    }
     if (task != null) {
-      TaskState.checkTheTaskBeforeRan(task, outcomes(client));
+      TaskState.checkTheTaskBeforeRan(task, workflow.tasksById(), outcomes(client));
     }
     Path resultFile = Files.createTempFile("hop-airflow-result-", ".json");
     Path stateIn = null;
@@ -108,6 +122,9 @@ public class RunWorkflowTask implements Task {
       }
       if (stateOut != null && Files.isRegularFile(stateOut) && Files.size(stateOut) > 0) {
         if (Files.size(stateOut) > TaskState.MAX_BYTES) {
+          outcome.put("success", false);
+          outcome.put("error", "The state of the action is larger than " + TaskState.MAX_BYTES);
+          client.setXCom(TaskState.OUTCOME_KEY, outcome);
           throw new IllegalStateException(
               "Action ["
                   + task.actionName()
