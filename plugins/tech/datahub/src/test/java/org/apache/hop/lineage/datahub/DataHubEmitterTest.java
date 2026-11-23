@@ -403,6 +403,117 @@ class DataHubEmitterTest {
     assertEquals(1, described);
   }
 
+  /** Two events of the orders pipeline, delivered one batch at a time. */
+  private static void emitTwoBatches(DataHubEmitter emitter) {
+    HopEvents hop = new HopEvents("orders");
+    for (RunEvent event :
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    hop.pipeline(RunLifecyclePhase.STARTED),
+                    hop.pipeline(RunLifecyclePhase.FINISHED)))) {
+      assertEquals(Result.SENT, emitter.emit(event));
+    }
+  }
+
+  private static List<JsonNode> platformsSent() throws Exception {
+    return proposalsSent().stream()
+        .filter(p -> p.get("aspectName").asText().equals("dataPlatformInfo"))
+        .toList();
+  }
+
+  private static int platformReads() {
+    return gms.findAll(
+            postRequestedFor(urlEqualTo(GRAPHQL)).withRequestBody(containing("DataPlatform")))
+        .size();
+  }
+
+  /** DataHub's answer to the platform query: {@code properties} is null for an unknown one. */
+  private static void datahubPlatform(boolean known) {
+    ObjectNode data = MAPPER.createObjectNode();
+    ObjectNode platform =
+        data.putArray("entities").addObject().put("urn", DataHubUrns.HOP_PLATFORM_URN);
+    if (known) {
+      platform.putObject("properties").put("displayName", "Apache Hop");
+    } else {
+      platform.putNull("properties");
+    }
+    graphqlAnswers("DataPlatform", data);
+  }
+
+  // A DataHub that ships the hop platform keeps its own name and logo: Hop doesn't overwrite it,
+  // and asks only once.
+  @Test
+  void aPlatformDataHubHasIsNotWritten() throws Exception {
+    ingestAnswers(200);
+    datahubPlatform(true);
+
+    emitTwoBatches(emitter(SchemaPolicy.NEVER, false));
+
+    assertTrue(platformsSent().isEmpty());
+    assertEquals(1, platformReads());
+  }
+
+  // An older DataHub doesn't know the platform: Hop writes it once, and then stops asking.
+  @Test
+  void aPlatformDataHubLacksIsWrittenOnce() throws Exception {
+    ingestAnswers(200);
+    datahubPlatform(false);
+
+    emitTwoBatches(emitter(SchemaPolicy.NEVER, false));
+
+    List<JsonNode> platforms = platformsSent();
+    assertEquals(1, platforms.size());
+    assertEquals(1, platformReads());
+    JsonNode info = MAPPER.readTree(platforms.get(0).path("aspect").path("value").asText());
+    assertEquals("hop", info.path("name").asText());
+    assertEquals("Apache Hop", info.path("displayName").asText());
+    assertEquals("OTHERS", info.path("type").asText());
+    assertEquals("/", info.path("datasetNameDelimiter").asText());
+    assertEquals(DataHubTranslator.HOP_PLATFORM_LOGO, info.path("logoUrl").asText());
+  }
+
+  // A token that may not read gets the platform written, as before, without asking again.
+  @Test
+  void aPlatformDataHubWontSayIsWritten() throws Exception {
+    ingestAnswers(200);
+    gms.stubFor(
+        post(urlEqualTo(GRAPHQL))
+            .withRequestBody(containing("DataPlatform"))
+            .willReturn(aResponse().withStatus(403)));
+
+    emitTwoBatches(emitter(SchemaPolicy.NEVER, false));
+
+    assertEquals(1, platformsSent().size());
+    assertEquals(1, platformReads());
+  }
+
+  // DataHub out of reach: the platform goes with the next batch that gets through, and DataHub is
+  // asked again first.
+  @Test
+  void aPlatformIsAskedForAgainAfterAnOutage() throws Exception {
+    ingestAnswers(503);
+    gms.stubFor(post(urlEqualTo(GRAPHQL)).willReturn(aResponse().withStatus(503)));
+    DataHubEmitter emitter = emitter(SchemaPolicy.NEVER, false);
+    HopEvents hop = new HopEvents("orders");
+    List<RunEvent> events =
+        HopEvents.mapper()
+            .mapBatch(
+                List.of(
+                    hop.pipeline(RunLifecyclePhase.STARTED),
+                    hop.pipeline(RunLifecyclePhase.FINISHED)));
+    assertEquals(Result.RETRY, emitter.emit(events.get(0)));
+
+    gms.resetAll();
+    ingestAnswers(200);
+    datahubPlatform(true);
+    assertEquals(Result.SENT, emitter.emit(events.get(0)));
+    assertEquals(Result.SENT, emitter.emit(events.get(1)));
+
+    assertTrue(platformsSent().isEmpty(), "DataHub had it by then");
+    assertEquals(1, platformReads());
+  }
+
   // One batch can lift Hop's deprecation of a file (a copy writes it) and then set a new one (a
   // move takes it away): decided in order, the last one wins.
   @Test

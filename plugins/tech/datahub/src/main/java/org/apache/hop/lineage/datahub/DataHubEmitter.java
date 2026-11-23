@@ -123,6 +123,14 @@ class DataHubEmitter implements OpenLineageEmitter {
 
   private static final String JOB_IO = "dataJobInputOutput";
 
+  /**
+   * The {@code hop} data platform as DataHub holds it: {@code properties} is {@code null} when
+   * DataHub doesn't know it.
+   */
+  static final String PLATFORM_QUERY =
+      "query($urns: [String!]!) { entities(urns: $urns) { urn ... on DataPlatform {"
+          + " properties { displayName } } } }";
+
   private final DataHubTranslator translator;
   private final DataHubClient client;
   private final SchemaPolicy schemaPolicy;
@@ -147,6 +155,16 @@ class DataHubEmitter implements OpenLineageEmitter {
   private final Map<String, Long> describedAt = lru(MAX_WRITTEN);
 
   private boolean readFailureReported;
+
+  /**
+   * Whether the {@code hop} data platform is settled: DataHub has it, or this emitter wrote it.
+   * Until then each batch asks DataHub and writes it when DataHub doesn't have it or can't say, so
+   * a DataHub that ships the platform itself keeps its own name and logo.
+   */
+  private boolean platformSettled;
+
+  /** Whether DataHub refused to say whether it has the platform: it is then simply written. */
+  private boolean platformUnreadable;
 
   /** Whether Hop may write a dataset's schema, as last read from DataHub. */
   private record SchemaState(boolean writable, long readAtMs) {}
@@ -267,7 +285,10 @@ class DataHubEmitter implements OpenLineageEmitter {
 
     // Event by event, so a failed request only holds up the events from there on.
     List<Owned> proposals = new ArrayList<>();
-    proposals.add(new Owned(DataHubTranslator.hopPlatform(), -1, 0));
+    Mcp platform = platformToWrite();
+    if (platform != null) {
+      proposals.add(new Owned(platform, -1, 0));
+    }
     for (int i = 0; i < translations.length; i++) {
       Translation translation = translations[i];
       if (translation == null) {
@@ -315,6 +336,9 @@ class DataHubEmitter implements OpenLineageEmitter {
       Owned owned = toSend.get(k);
       if (outcomes[k] == Result.SENT) {
         written.put(key(owned.mcp()), now);
+        if (owned.mcp() == platform) {
+          platformSettled = true;
+        }
         if (CONST_SCHEMA_METADATA.equals(owned.mcp().aspectName())) {
           remember(owned.mcp().entityUrn(), true);
         }
@@ -347,6 +371,43 @@ class DataHubEmitter implements OpenLineageEmitter {
         describedAt.merge(aspectKey(owned.mcp()), owned.timeMs(), Math::max);
       }
     }
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // The hop data platform
+  // ---------------------------------------------------------------------------------------------
+
+  /**
+   * The {@code hop} data platform when this batch has to write it, {@code null} otherwise. A
+   * DataHub that has the platform, because it ships it or Hop wrote it before, keeps what it has.
+   * One without it, or one that can't be read, gets it from Hop, as before.
+   */
+  private Mcp platformToWrite() throws InterruptedException {
+    if (platformSettled) {
+      return null;
+    }
+    if (!platformUnreadable) {
+      try {
+        JsonNode data = read(PLATFORM_QUERY, List.of(DataHubUrns.HOP_PLATFORM_URN));
+        for (JsonNode entity : data.path(CONST_ENTITIES)) {
+          JsonNode properties = entity.path("properties");
+          if (!properties.isMissingNode() && !properties.isNull()) {
+            platformSettled = true;
+            return null;
+          }
+        }
+      } catch (ReadException e) {
+        // A refusal (a token that may not read, a query an old DataHub doesn't know) stays: not
+        // asked again. DataHub out of reach is asked again with the next batch.
+        platformUnreadable = !e.worthRetrying();
+        if (log.isDetailed()) {
+          log.logDetailed(
+              "Unable to read the hop data platform from DataHub, so it is written: "
+                  + e.getMessage());
+        }
+      }
+    }
+    return DataHubTranslator.hopPlatform();
   }
 
   // ---------------------------------------------------------------------------------------------
