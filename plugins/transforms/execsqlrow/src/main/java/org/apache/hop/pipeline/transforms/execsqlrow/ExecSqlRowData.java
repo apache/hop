@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,6 +37,15 @@ public class ExecSqlRowData extends BaseTransformData implements ITransformData 
    * every statement after a failed one until the transaction is rolled back (PostgreSQL).
    */
   public boolean useSavepoints;
+
+  /**
+   * The distinct SQL scripts, or script file names, that ran, for lineage: only kept when lineage
+   * is on, and capped.
+   */
+  public final Set<String> lineageScripts = new LinkedHashSet<>();
+
+  /** Whether more distinct scripts ran than lineage keeps. */
+  public boolean lineageTruncated;
 
   public ExecSqlRowData() {
     super();

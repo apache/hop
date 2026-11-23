@@ -151,4 +151,26 @@ class RelationalSqlParserTest {
                 e -> "total".equals(e.outputField()) && "amount".equals(e.inputs().get(0).field())),
         "total should derive from amount: " + tables.columnLineage());
   }
+
+  /** Database join prepares its query with JDBC parameters, which the parser takes no ? for. */
+  @Test
+  void findsTheTablesOfAStatementWithParameters() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse(
+                "SELECT region FROM public.regions r JOIN public.zones z ON z.id = r.zone_id"
+                    + " WHERE r.customer_id = ? AND z.code = ?",
+                "postgres");
+
+    assertEquals(2, tables.inputs().size(), tables.inputs().toString());
+    assertTrue(tables.outputs().isEmpty());
+  }
+
+  @Test
+  void onlyParametersAreReplacedNotQuestionMarksInTextOrComments() {
+    assertEquals(
+        "SELECT '?', \"a?\" FROM t -- why?\nWHERE x = NULL /* y? */ AND z IN (NULL,NULL)",
+        RelationalSqlParser.withoutParameters(
+            "SELECT '?', \"a?\" FROM t -- why?\nWHERE x = ? /* y? */ AND z IN (?,?)"));
+  }
 }

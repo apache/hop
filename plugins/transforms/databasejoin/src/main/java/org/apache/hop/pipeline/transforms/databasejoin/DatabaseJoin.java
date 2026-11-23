@@ -33,6 +33,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -141,6 +142,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
       }
+
+      // Lineage: the sink recovers the tables the query reads by parsing it, as for Table input
+      LineageRelationalIoEmitter.emitTransformRelationalRead(
+          this, data.db.getDatabaseMeta(), parameterSpec.getPreparedSql(), null, null, true, null);
     }
     try {
       // Construct the parameters row...

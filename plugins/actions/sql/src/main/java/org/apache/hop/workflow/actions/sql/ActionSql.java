@@ -41,6 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -182,6 +183,9 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
           } else {
             db.execStatements(executionSql);
           }
+          // Lineage: the sink finds the tables the SQL reads and writes, as for Execute SQL script
+          LineageRelationalIoEmitter.emitWorkflowActionRelationalExec(
+              getParentWorkflow(), this, databaseMeta, executionSql, true, null);
         }
       } catch (HopDatabaseException je) {
         result.setNrErrors(1);

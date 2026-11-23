@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -28,7 +29,10 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
+import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -38,6 +42,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
 
   private static final Class<?> PKG = ExecSqlRowMeta.class;
+
+  /** The most distinct scripts a run reports the tables of. */
+  static final int MAX_LINEAGE_SCRIPTS = 1000;
 
   public ExecSqlRow(
       TransformMeta transformMeta,
@@ -131,6 +138,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     try {
       data.result = data.useSavepoints ? data.db.runInSavepoint(() -> execute(sql)) : execute(sql);
       addResultToStats(data.result);
+      recordLineageScript(sql);
 
       RowMetaAndData add =
           getResultRow(
@@ -194,12 +202,83 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     return data.db.execStatements(sql);
   }
 
+  /**
+   * Keeps a script that ran, or the name of the script file, for the lineage reported on dispose.
+   * Does nothing unless lineage is on, and stops past {@link #MAX_LINEAGE_SCRIPTS} distinct ones: a
+   * script per row with values in it must not grow the set without bound. Past the cap, the tables
+   * of the other scripts are not reported; the scripts still run.
+   */
+  void recordLineageScript(String sql) {
+    if (Utils.isEmpty(sql) || !LineageSinkRoutes.isEnabled(this)) {
+      return;
+    }
+    if (data.lineageScripts.size() >= MAX_LINEAGE_SCRIPTS) {
+      if (!data.lineageTruncated && !data.lineageScripts.contains(sql)) {
+        data.lineageTruncated = true;
+        logBasic(
+            "More than "
+                + MAX_LINEAGE_SCRIPTS
+                + " distinct SQL scripts; lineage is reported for the first "
+                + MAX_LINEAGE_SCRIPTS
+                + " only");
+      }
+      return;
+    }
+    data.lineageScripts.add(sql);
+  }
+
+  /**
+   * One {@code RELATIONAL_IO} event with the distinct scripts that ran, as one script: the sink
+   * finds the tables they read and write from the SQL, as for Execute SQL script, and doesn't give
+   * every table the row counts of all of them.
+   */
+  private void emitRelationalLineage() {
+    if (data.db == null || data.lineageScripts.isEmpty()) {
+      return;
+    }
+    String sql = lineageSql();
+    if (!sql.isEmpty()) {
+      LineageRelationalIoEmitter.emitTransformRelationalExec(
+          this, data.db.getDatabaseMeta(), sql, null, null, getErrors() == 0, null);
+    }
+  }
+
+  /**
+   * The distinct scripts that ran, each ended by a semicolon, as one script. A script file is read
+   * again for it; one that can't be read is left out.
+   */
+  String lineageSql() {
+    StringBuilder all = new StringBuilder();
+    for (String script : data.lineageScripts) {
+      String sql = script;
+      if (meta.isSqlFromfile()) {
+        try {
+          sql = HopVfs.getTextFileContent(script, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+          // Lineage never fails the transform: this file's tables are not reported
+          logDetailed("No lineage for SQL file " + script + ": " + e.getMessage());
+          continue;
+        }
+      }
+      String statements = sql.strip();
+      while (statements.endsWith(";")) {
+        statements = statements.substring(0, statements.length() - 1).strip();
+      }
+      if (!statements.isEmpty()) {
+        all.append(statements).append(";\n");
+      }
+    }
+    return all.toString();
+  }
+
   @Override
   public void dispose() {
 
     if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ExecSqlRow.Log.FinishingReadingQuery"));
     }
+
+    emitRelationalLineage();
 
     if (data.db != null) {
       try {

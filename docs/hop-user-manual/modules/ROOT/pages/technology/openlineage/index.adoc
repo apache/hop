@@ -251,19 +251,27 @@ of the same table land on **one** node in the lineage graph.
 
 The following transforms emit relational lineage:
 
-* **Reads** — *Table Input* (its `SELECT` is parsed to recover the source tables and column lineage).
+* **Reads** — *Table Input* (its `SELECT` is parsed to recover the source tables and column lineage),
+  *Database Join* (its query is parsed the same way), and *Database Lookup* (its lookup table).
 * **Writes** — *Table Output*, *Insert / Update*, *Update*, *Dimension Lookup/Update*,
   *Combination Lookup/Update*, and the database bulk loaders (CrateDB, MonetDB, MySQL, Oracle,
   PostgreSQL, Vertica).
 * **Deletes** — *Delete* reports the affected table only. A delete produces no columns, so the event
   carries neither a column schema nor column lineage.
-* **Reads and writes** — *Execute SQL* (its statements are parsed for both input and output tables).
+* **Reads and writes** — *Execute SQL* (its statements are parsed for both input and output tables),
+  and *Execute row SQL script*, which reports the distinct scripts it ran, up to 1000, as one script
+  when it ends.
+* **Workflow actions** — the *SQL* action reports the tables of its SQL, or of its SQL file, on the
+  action's run.
 
 === SQL parsing
 
-For transforms that only provide a SQL statement (Table Input, Execute SQL), the sink recovers the
+For transforms and actions that only provide SQL (Table Input, Database Join, Execute SQL, Execute
+row SQL script, the SQL action), the sink recovers the
 tables — and, for an `INSERT … SELECT`, the column-level lineage — by parsing the statement with the
 OpenLineage SQL parser. Parsing is on by default and controlled by `HOP_LINEAGE_OPENLINEAGE_SQL_PARSE`.
+A statement with `?` parameters, such as the query Database Join prepares, is parsed with `NULL` in
+their place: the parser takes no `?` for a value.
 Tables named without a schema or catalog are qualified using the connection's default database and
 preferred schema, so a bare `SELECT … FROM orders` shares one identity with a schema-qualified write
 of the same table.

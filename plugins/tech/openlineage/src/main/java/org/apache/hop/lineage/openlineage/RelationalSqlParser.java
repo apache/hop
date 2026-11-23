@@ -85,6 +85,58 @@ final class RelationalSqlParser {
     if (!enabled || Utils.isEmpty(sql)) {
       return Tables.EMPTY;
     }
+    Tables tables = parseOnce(sql, dialect);
+    if (tables.isEmpty() && sql.indexOf('?') >= 0) {
+      // A statement prepared with JDBC parameters (Database join, a Table input that takes its
+      // parameters from a transform): the parser takes no ? for a value, but does take NULL.
+      String bound = withoutParameters(sql);
+      if (!bound.equals(sql)) {
+        tables = parseOnce(bound, dialect);
+      }
+    }
+    return tables;
+  }
+
+  /**
+   * {@code sql} with each {@code ?} parameter outside quotes and comments replaced by {@code NULL}.
+   */
+  static String withoutParameters(String sql) {
+    StringBuilder bound = new StringBuilder(sql.length() + 16);
+    char quote = 0;
+    boolean lineComment = false;
+    boolean blockComment = false;
+    for (int i = 0; i < sql.length(); i++) {
+      char c = sql.charAt(i);
+      char next = i + 1 < sql.length() ? sql.charAt(i + 1) : 0;
+      if (lineComment) {
+        lineComment = c != '\n';
+      } else if (blockComment) {
+        if (c == '*' && next == '/') {
+          blockComment = false;
+          bound.append(c).append(next);
+          i++;
+          continue;
+        }
+      } else if (quote != 0) {
+        if (c == quote) {
+          quote = 0;
+        }
+      } else if (c == '\'' || c == '"' || c == '`') {
+        quote = c;
+      } else if (c == '-' && next == '-') {
+        lineComment = true;
+      } else if (c == '/' && next == '*') {
+        blockComment = true;
+      } else if (c == '?') {
+        bound.append("NULL");
+        continue;
+      }
+      bound.append(c);
+    }
+    return bound.toString();
+  }
+
+  private Tables parseOnce(String sql, String dialect) {
     if (OpenLineageSql.loadError != null && OpenLineageSql.loadError.isPresent()) {
       logDebug(
           "OpenLineage SQL parser native library unavailable: " + OpenLineageSql.loadError.get());
