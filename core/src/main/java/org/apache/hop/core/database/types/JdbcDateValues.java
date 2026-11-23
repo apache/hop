@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
+import java.util.TimeZone;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,8 +36,29 @@ import org.apache.hop.core.row.IValueMeta;
  */
 public final class JdbcDateValues {
 
+  /** The calendar a thread last handed to a driver, with the time zone it was made for. */
+  private record ZoneCalendar(TimeZone timeZone, Calendar calendar) {}
+
+  private static final ThreadLocal<ZoneCalendar> CALENDARS = new ThreadLocal<>();
+
   private JdbcDateValues() {
     // Utility class.
+  }
+
+  /**
+   * The calendar to hand to the driver for a time zone. Creating a calendar per value costs more
+   * than the rest of binding a date, so each thread keeps the one it last used and makes a new one
+   * only when the time zone differs. The driver only borrows the calendar for the duration of the
+   * setDate or setTimestamp call, and a thread binds one value at a time.
+   */
+  static Calendar calendarFor(TimeZone timeZone) {
+    ZoneCalendar cached = CALENDARS.get();
+    if (cached != null && (cached.timeZone() == timeZone || cached.timeZone().equals(timeZone))) {
+      return cached.calendar();
+    }
+    Calendar calendar = Calendar.getInstance(timeZone);
+    CALENDARS.set(new ZoneCalendar(timeZone, calendar));
+    return calendar;
   }
 
   /**
@@ -64,7 +86,7 @@ public final class JdbcDateValues {
 
     Calendar calendar =
         calendarOverloadsSupported && valueMeta.getDateFormatTimeZone() != null
-            ? Calendar.getInstance(valueMeta.getDateFormatTimeZone())
+            ? calendarFor(valueMeta.getDateFormatTimeZone())
             : null;
 
     if (asDate) {
