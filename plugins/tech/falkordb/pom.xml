@@ -47,17 +47,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>${lettuce.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
         <dependency>
             <groupId>io.lettuce</groupId>

@@ -45,18 +45,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit.http.apache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
-        </dependency>
         <!-- Shared with other plugins at the same version: in lib/core, not in this plugin's lib/. -->
         <dependency>
             <groupId>com.googlecode.javaewah</groupId>

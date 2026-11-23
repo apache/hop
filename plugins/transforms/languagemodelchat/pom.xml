@@ -54,11 +54,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.squareup.moshi</groupId>
-            <artifactId>moshi</artifactId>
-            <version>1.15.2</version>
-        </dependency>
-        <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-anthropic</artifactId>
             <version>${langchain4j.version}</version>
