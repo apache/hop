@@ -18,17 +18,11 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import org.apache.hop.core.Result;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class ActionWorkflowRunner implements Runnable {
-  private static final Class<?> PKG = Workflow.class;
-
   private IWorkflowEngine<WorkflowMeta> workflow;
   private Result result;
   private ILogChannel log;
@@ -54,19 +48,10 @@ public class ActionWorkflowRunner implements Runnable {
       }
       result = workflow.startExecution();
     } finally {
-      // Remember the result
+      // Remember the result. The workflow engine fired WorkflowFinish itself, at the end of
+      // startExecution(), as for a workflow that runs on its own: firing it here too called every
+      // listener twice for a child workflow.
       workflow.setResult(result);
-      try {
-        ExtensionPointHandler.callExtensionPoint(
-            log, workflow, HopExtensionPoint.WorkflowFinish.id, workflow);
-
-        // catch more general exception to prevent thread hanging
-      } catch (Exception e) {
-        result.setNrErrors(1);
-        result.setResult(false);
-        log.logError(
-            BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
-      }
       workflow.setFinished(true);
     }
     finished = true;

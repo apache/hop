@@ -33,6 +33,8 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRuntimeException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -253,6 +255,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   @Override
   public Result startExecution() {
+    workflowFinishFired = false;
     try {
       executionStartDate = new Date();
 
@@ -284,16 +287,26 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       submitToRemoteServer();
       fireExecutionStartedListeners();
 
+      // As the local engine: plugins on the client see the run start and end. The Hop Server fires
+      // these for the workflow it runs, in its own JVM.
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.WorkflowStart.id, this);
+
       initialized = true;
 
       monitorRemoteWorkflowUntilFinished();
-      fireExecutionFinishedListeners();
-
       executionEndDate = new Date();
+
+      fireWorkflowFinish();
+      fireExecutionFinishedListeners();
     } catch (Exception e) {
       logChannel.logError("Error starting workflow", e);
       result.setNrErrors(result.getNrErrors() + 1);
+      if (executionEndDate == null || executionEndDate.before(executionStartDate)) {
+        executionEndDate = new Date();
+      }
       try {
+        fireWorkflowFinish();
         fireExecutionFinishedListeners();
       } catch (Exception ex) {
         logChannel.logError("Error executing workflow finished listeners", ex);
@@ -302,6 +315,21 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
 
     return result;
+  }
+
+  /** Whether this run fired WorkflowFinish: once per run, also when the run failed. */
+  private boolean workflowFinishFired;
+
+  /**
+   * Fire WorkflowFinish, before the execution finished listeners, as the local engine does. Once
+   * per run.
+   */
+  private void fireWorkflowFinish() throws HopException {
+    if (!workflowFinishFired) {
+      workflowFinishFired = true;
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.WorkflowFinish.id, this);
+    }
   }
 
   public void monitorRemoteWorkflowUntilFinished() {
