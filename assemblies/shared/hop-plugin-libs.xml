@@ -51,6 +51,21 @@
             </excludes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
+        <!-- Jackson modules a plugin needs at runtime. The private lib/ staging leaves them out
+             (plugins/pom.xml), because Jackson has to be one copy next to Hop's jackson-databind:
+             ship them to lib/core instead, at the version of jackson-databind (jackson-bom in
+             hop-libs). Without this a plugin that needs one only worked when another plugin
+             happened to ship it. -->
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <scope>runtime</scope>
+            <includes>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-avro</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <scope>test</scope>
