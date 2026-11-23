@@ -20,7 +20,7 @@ limitations under the License.
 <workflow>
   <name>main-0049-execute-sql-row-error-stops-pipeline</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Runs 0049-execute-sql-row-error-stops-pipeline, which must fail on one row and stop the local pipeline instead of hanging. The workflow expects the failure: the pipeline action returns a failed result, so the whole workflow must finish with a failure result and must not hang.</description>
+  <description>Runs 0049-execute-sql-row-error-stops-pipeline, which must fail on one row and stop the local pipeline instead of hanging. The expected pipeline failure leads to Success; an unexpected pipeline success aborts the workflow. The workflow must succeed without hanging.</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -93,7 +93,28 @@ limitations under the License.
       <yloc>64</yloc>
       <attributes_hac/>
     </action>
-    </actions>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <message>The pipeline succeeded but an SQL row error was expected.</message>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
   <hops>
     <hop>
       <from>Start</from>
@@ -107,6 +128,20 @@ limitations under the License.
       <to>0049-execute-sql-row-error-stops-pipeline</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0049-execute-sql-row-error-stops-pipeline</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0049-execute-sql-row-error-stops-pipeline</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
