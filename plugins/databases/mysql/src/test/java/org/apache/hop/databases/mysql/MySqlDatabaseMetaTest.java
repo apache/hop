@@ -37,6 +37,7 @@ import java.util.Map;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -79,6 +80,19 @@ class MySqlDatabaseMetaTest {
     nativeMeta = new MySqlDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
     nativeMeta.addDefaultOptions();
+  }
+
+  @Test
+  void driverDownloadPinsProtobufToTheVersionHopIsBuiltWith() {
+    DriverDownload download = nativeMeta.getDriverDownload();
+
+    assertNotNull(download);
+    assertTrue(download.getExcludes().isEmpty(), "protobuf-java is downloaded, not excluded");
+    assertEquals(1, download.getManagedVersions().size());
+    String managed = download.getManagedVersions().get(0);
+    assertTrue(
+        managed.matches("com\\.google\\.protobuf:protobuf-java:\\d+\\.\\d+\\.\\d+"),
+        "the build fills in the version: " + managed);
   }
 
   @Test

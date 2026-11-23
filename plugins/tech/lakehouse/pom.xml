@@ -126,6 +126,13 @@
             <artifactId>error_prone_annotations</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- hadoop-common's GlobPattern (FileSystem.globStatus) uses re2j. hop-core used to bring it
+             through gRPC; ship it in lib/core. -->
+        <dependency>
+            <groupId>com.google.re2j</groupId>
+            <artifactId>re2j</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>

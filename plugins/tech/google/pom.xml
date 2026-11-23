@@ -87,14 +87,6 @@
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java-util</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.conscrypt</groupId>
-                    <artifactId>conscrypt-openjdk-uber</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -123,14 +115,6 @@
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.conscrypt</groupId>
-                    <artifactId>conscrypt-openjdk-uber</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -147,14 +131,6 @@
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>protobuf-java-util</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.conscrypt</groupId>
-                    <artifactId>conscrypt-openjdk-uber</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -165,24 +141,12 @@
                     <groupId>com.google.protobuf</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.conscrypt</groupId>
-                    <artifactId>conscrypt-openjdk-uber</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
             <exclusions>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
                 <!-- Vulnerable component - need more recent version [PPP-3571] -->
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>

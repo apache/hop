@@ -72,6 +72,13 @@
             <artifactId>woodstox-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- hadoop-common's GlobPattern (FileSystem.globStatus) uses re2j. hop-core used to bring it
+             through gRPC; ship it in lib/core. -->
+        <dependency>
+            <groupId>com.google.re2j</groupId>
+            <artifactId>re2j</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Shipped in lib/core: use that copy instead of a second one in this plugin's lib. -->
         <dependency>
             <groupId>javax.annotation</groupId>

@@ -178,5 +178,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- protobuf-java, which avatica-core uses. hop-core used to bring it through gRPC; ship it in lib/core. (checker-qual, also gone from lib/core, is only used for annotations.) -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf-java.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -109,10 +109,6 @@
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>io.opencensus</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -172,10 +168,6 @@
                 </exclusion>
                 <exclusion>
                     <groupId>commons-codec</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
@@ -255,10 +247,6 @@
                 <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>io.opencensus</groupId>
@@ -417,9 +405,10 @@
                     <groupId>commons-io</groupId>
                     <artifactId>commons-io</artifactId>
                 </exclusion>
+                <!-- gcsio declares grpc-testing (and with it JUnit) as a compile dependency. -->
                 <exclusion>
                     <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
+                    <artifactId>grpc-testing</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>io.opencensus</groupId>
@@ -533,10 +522,6 @@
                 </exclusion>
                 <exclusion>
                     <groupId>commons-codec</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
@@ -960,10 +945,6 @@
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>io.netty</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -1102,10 +1083,6 @@
                 <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>io.opencensus</groupId>

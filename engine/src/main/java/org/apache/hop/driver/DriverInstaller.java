@@ -174,7 +174,8 @@ public class DriverInstaller {
                 download.toCoordinate(version),
                 repoUrl,
                 download.getExcludes(),
-                download.getRepositoryUrl()));
+                download.getRepositoryUrl(),
+                download.getManagedVersions()));
 
     // Artifacts the driver needs at runtime but does not declare as a dependency, so transitive
     // resolution never finds them.
@@ -182,7 +183,11 @@ public class DriverInstaller {
     for (String companion : download.toCompanionCoordinates(version)) {
       resolved.addAll(
           resolver.resolve(
-              companion, repoUrl, download.getExcludes(), download.getRepositoryUrl()));
+              companion,
+              repoUrl,
+              download.getExcludes(),
+              download.getRepositoryUrl(),
+              download.getManagedVersions()));
     }
 
     if (!targetFolder.exists() && !targetFolder.mkdirs()) {

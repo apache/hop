@@ -19,6 +19,7 @@ package org.apache.hop.driver;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -89,6 +90,24 @@ public class DriverResolver {
   public List<ResolvedArtifact> resolve(
       String coordinate, String remoteRepoUrl, List<String> excludes, String driverRepoUrl)
       throws HopException {
+    return resolve(coordinate, remoteRepoUrl, excludes, driverRepoUrl, List.of());
+  }
+
+  /**
+   * Resolve a coordinate like {@link #resolve(String, String, List, String)}, with the versions of
+   * some transitive dependencies set.
+   *
+   * @param managedVersions {@code groupId:artifactId:version} of transitive dependencies to resolve
+   *     at that version instead of the one the driver declares, e.g. the version Hop uses
+   *     elsewhere. An artifact that is not in the dependency tree is not added.
+   */
+  public List<ResolvedArtifact> resolve(
+      String coordinate,
+      String remoteRepoUrl,
+      List<String> excludes,
+      String driverRepoUrl,
+      List<String> managedVersions)
+      throws HopException {
     try {
       RepositorySystem system = newRepositorySystem();
       DefaultRepositorySystemSession session = newSession(system);
@@ -109,9 +128,13 @@ public class DriverResolver {
 
       Artifact artifact = new DefaultArtifact(coordinate);
       CollectRequest collectRequest = new CollectRequest();
-      collectRequest.setRoot(
-          new Dependency(artifact, JavaScopes.RUNTIME, false, toExclusions(excludes)));
+      // The driver is a dependency of the request, not its root, the way a Maven project sees
+      // it: dependency management only applies two levels below the root, and the driver's own
+      // dependencies, such as Connector/J's protobuf-java, have to be managed too.
+      collectRequest.setDependencies(
+          List.of(new Dependency(artifact, JavaScopes.RUNTIME, false, toExclusions(excludes))));
       collectRequest.setRepositories(repositories);
+      collectRequest.setManagedDependencies(toManagedDependencies(managedVersions));
 
       DependencyRequest dependencyRequest =
           new DependencyRequest(
@@ -179,6 +202,35 @@ public class DriverResolver {
       exclusions.add(new Exclusion(groupId, artifactId, "*", "*"));
     }
     return exclusions;
+  }
+
+  /**
+   * Build Aether managed dependencies from {@code groupId:artifactId:version} strings.
+   *
+   * <p>Package-private so the parsing can be unit tested without resolving anything over the
+   * network.
+   *
+   * @throws HopException when an entry is not {@code groupId:artifactId:version}
+   */
+  static List<Dependency> toManagedDependencies(List<String> managedVersions) throws HopException {
+    if (managedVersions == null || managedVersions.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Dependency> managed = new ArrayList<>();
+    for (String managedVersion : managedVersions) {
+      if (managedVersion == null || managedVersion.isBlank()) {
+        continue;
+      }
+      String[] parts = managedVersion.trim().split(":");
+      if (parts.length != 3 || Arrays.stream(parts).anyMatch(String::isBlank)) {
+        throw new HopException(
+            "Managed version '" + managedVersion + "' is not groupId:artifactId:version");
+      }
+      managed.add(
+          new Dependency(
+              new DefaultArtifact(parts[0], parts[1], "jar", parts[2]), JavaScopes.RUNTIME));
+    }
+    return managed;
   }
 
   /** A dependency selector that drops every optional dependency, at any depth. */
