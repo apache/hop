@@ -14,12 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.execution.lifecycle;
+package org.apache.hop.execution.context;
 
-/** The kind of runtime execution, independent of any monitoring implementation. */
-public enum ExecutionKind {
-  PIPELINE,
-  WORKFLOW,
-  ACTION,
-  TRANSFORM
+/**
+ * A scope with no checked exceptions on close. Activation scopes must close on their opening
+ * thread, in last-in-first-out order. Scopes returned by {@link ExecutionContexts} tolerate
+ * duplicate close.
+ */
+@FunctionalInterface
+public interface ExecutionScope extends AutoCloseable {
+  @Override
+  void close();
 }

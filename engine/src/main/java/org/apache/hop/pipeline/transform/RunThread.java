@@ -26,9 +26,8 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
-import org.apache.hop.execution.lifecycle.ExecutionState;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.debug.DebugController;
@@ -56,7 +55,7 @@ public class RunThread implements Runnable {
   @SuppressWarnings("java:S4507")
   @Override
   public void run() {
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(transform)) {
+    try (ExecutionScope executionScope = ExecutionContexts.activate(transform.getLogChannelId())) {
       runActivated();
     }
   }
@@ -141,9 +140,7 @@ public class RunThread implements Runnable {
       try {
         transform.dispose();
       } catch (Throwable t) {
-        if (failure == null) {
-          failure = t;
-        } else if (failure != t) {
+        if (failure != null && failure != t) {
           failure.addSuppressed(t);
         }
         transform.setErrors(transform.getErrors() + 1);
@@ -198,16 +195,7 @@ public class RunThread implements Runnable {
             log.logError("UnexpectedError: " + Const.getStackTracker(t));
           }
         } finally {
-          try {
-            ExecutionLifecycle.finish(
-                transform,
-                failure != null || transform.getErrors() > 0
-                    ? ExecutionState.FAILED
-                    : transform.isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-                failure);
-          } finally {
-            transform.markStop();
-          }
+          transform.markStop();
         }
       }
     }

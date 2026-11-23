@@ -47,7 +47,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionWait;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -464,7 +463,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow =
             WorkflowEngineFactory.createWorkflowEngine(
                 this, resolve(runConfiguration), getMetadataProvider(), workflowMeta, this);
-        ExecutionLifecycle.associate(workflow, this);
         workflow.setParentWorkflow(parentWorkflow);
         workflow.setLogLevel(workflowLogLevel);
         workflow.shareWith(this);

@@ -21,9 +21,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
-import org.apache.hop.execution.lifecycle.ExecutionState;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -80,11 +79,8 @@ public class SingleThreadedPipelineEngine extends Pipeline
 
   @Override
   public void startThreads() throws HopException {
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+    try (ExecutionScope executionScope = ExecutionContexts.activate(getLogChannelId())) {
       startSingleThreaded();
-    } catch (Throwable e) {
-      ExecutionLifecycle.finish(this, ExecutionState.FAILED, e);
-      throw e;
     }
   }
 

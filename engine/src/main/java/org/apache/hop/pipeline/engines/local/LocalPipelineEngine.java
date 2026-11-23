@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.engines.local;
 
-import static org.apache.hop.execution.lifecycle.ExecutionState.FAILED;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,9 +46,7 @@ import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.caching.CacheEntry;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.context.ExecutionContexts;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
@@ -207,17 +203,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
   @Override
   public void prepareExecution() throws HopException {
-    ExecutionLifecycle.begin(this, null, ExecutionKind.PIPELINE, getName(), -1);
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
-      prepareLocalExecution();
-    } catch (Throwable e) {
-      ExecutionLifecycle.finish(this, FAILED, e);
-      throw e;
-    }
-  }
-
-  private void prepareLocalExecution() throws HopException {
-
     if (!(pipelineRunConfiguration.getEngineRunConfiguration()
         instanceof LocalPipelineRunConfiguration config)) {
       throw new HopException(
@@ -349,7 +334,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     }
 
     // Preparation can still fail after transforms acquired their resources in init().
-    try {
+    try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
       // The log channel is available now that super.prepareExecution() completed.
       if (pipelineRunConfiguration.getEngineRunConfiguration()
           instanceof LocalPipelineRunConfiguration localConfig) {

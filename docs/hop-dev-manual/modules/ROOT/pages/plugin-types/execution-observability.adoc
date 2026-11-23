@@ -18,7 +18,7 @@ under the License.
 [[PluginTypes-ExecutionObservability]]
 = Execution and observability
 
-The shared mechanics — discovery, annotation attributes, classloading, how a plugin gets into the distribution — are on the xref:plugin-types/index.adoc[plugin types overview].
+The shared mechanics - discovery, annotation attributes, classloading, how a plugin gets into the distribution - are on the xref:plugin-types/index.adoc[plugin types overview].
 
 == Extension point
 
@@ -60,6 +60,7 @@ The failure only shows up on the engine you were not testing on.
 
 Extension points run inline, on the thread that fired them.
 Anything slow belongs on a queue, not in `callExtensionPoint`.
+See xref:sdk/plugins/extension-points.adoc[Extension points] for existing event payloads, timing and coordinator-versus-worker caveats.
 
 === Failures
 
@@ -67,7 +68,7 @@ NOTE: Experimental in 2.21: the shape of the failure object can still change.
 
 When a transform, action, pipeline or workflow fails, Hop announces it as an `ExecutionFailure` (`org.apache.hop.core.failure`): what failed, in which phase, why, and in which category.
 
-[cols="1,3"]
+[cols="1,3",options="header"]
 |===
 |Extension point |Fired when
 
@@ -115,10 +116,96 @@ Neo4j stores it as a JSON string in the `failure` property of the `Execution` no
 The message, the root cause message and the stack trace of a cause are redacted when the failure is built, before any extension point or listener sees it: `CredentialRedactor.redact(text, secrets)` masks credentials in URLs, `name=value` and JSON pairs, encrypted passwords, and the values of the variables whose name says they are a credential.
 `cause.redacted` is true when that happened.
 
+== Execution identity and parentage
+
+Hop already supplies runtime correlation through `ILogChannel` and its `logChannelId`.
+Logging parentage comes from `ILoggingObject.getParent()` and `LoggingRegistry`, not from a separate execution tree.
+Normal pipeline and workflow startup creates a forced-new log channel for the run.
+Context activation must use that established channel, not `GENERAL`, a constructor channel or the channel of a previous run.
+Transform copies normally have distinct channels through their copy discriminator and pipeline parent.
+For actions, the intended identity is a forced-new channel for each executable instance when its parent workflow is assigned, so equivalent executable clones under one workflow do not share a channel.
+An action definition in metadata is not that executable instance.
+
+`ActionPipeline`, `ActionWorkflow`, `PipelineExecutor` and `WorkflowExecutor` already wire the actual launching action or transform as the child's logging parent.
+Observers should use that hierarchy rather than infer parentage from the current thread or recreate launcher associations.
+
+Persisted execution information uses the same correlation IDs, but distinguishes containment from the immediate launcher:
+
+[cols="1,3",options="header"]
+|===
+|Field |Meaning
+
+|`Execution.id`
+|The execution's log channel ID.
+
+|`Execution.parentId`
+|The containing pipeline or workflow's ID when launched by an action or transform.
+For a transform execution, this is its pipeline's ID.
+
+|`Execution.launchedById`
+|The immediate launching action or transform's log channel ID.
+It is null when there is no such launcher, including when the logging parent is already a pipeline or workflow.
+|===
+
+For example, a pipeline launched by an action has the action as its logging parent, the containing workflow as persisted `parentId`, and the action as persisted `launchedById`.
+These fields are not interchangeable.
+`LoggingRegistry` can evict entries; it is not a permanent historical context store.
+A listener that needs a parent's backend context after that parent finishes must retain the required IDs and context itself, including for delayed child startup.
+
+[[execution-context-activation]]
+== Scoped execution context activation
+
+The activation-only API is in `org.apache.hop.execution.context`.
+It lets an integration make its own logging or tracing context current on the thread actually executing a component, using an existing log channel ID.
+It does not announce execution start or completion and does not supply execution outcomes.
+Continue to use existing extension points, `IActionListener` and execution/transform listeners for lifecycle and failure notifications.
+
+[cols="2,3",options="header"]
+|===
+|API |Contract
+
+|`ExecutionContexts.addListener(listener)`
+|Registers an `ExecutionContextListener` and returns an `ExecutionScope` whose `close()` unregisters that registration.
+This registration scope is not a thread-context restoration scope.
+
+|`ExecutionContexts.activate(String logChannelId)`
+|Called internally around actual execution boundaries to activate an existing identity on the current thread and return a restoration scope.
+It does not create an identity or discover its parent.
+
+|`ExecutionContextListener.activate(String logChannelId)`
+|Activates context owned by the listener and returns the `ExecutionScope` that restores the previous backend context.
+A null return means no restoration is needed.
+
+|`ExecutionScope`
+|An `AutoCloseable` interface with a `close()` signature that declares no checked exceptions.
+|===
+
+Hop owns listener registration and the pairing of activation with returned restoration scopes.
+The listener owns backend context creation, storage, propagation policy, historical parent retention and eventual release.
+There are no new lifecycle IDs, active-run registry, per-execution attachments, current-handle store or fallback parent inference in this API.
+Hop core has no OpenTelemetry dependency for this contract; a listener may integrate a backend of its own choice.
+
+Activation boundaries cover transform initialization, `RunThread` processing through disposal, single-threaded transform batches/bundles/disposal, workflow execution after channel initialization, actual executable action clones, and selected pipeline preparation, startup and finished-listener boundaries.
+Setup before channel creation and failure handlers outside these scopes can still run in the caller's context; not every cleanup or lifecycle callback is activated with the component's ID.
+The normal local engine does not dispatch activation for every row.
+One execution can have multiple activations, so an activation scope is not an execution lifetime.
+
+Restoration scopes close on the thread that opened them, in reverse order, including when execution throws.
+Nested activations must unwind in last-in, first-out order to restore the previous context before a thread is reused.
+The registration scope returned by `addListener` may be closed on another thread.
+Registration changes affect later activations; already opened scopes retain their restoration callbacks after listener removal.
+Callbacks run outside registration locks and may be concurrent or reentrant, so listeners must support those call patterns.
+Listener activation and restoration failures are isolated so they do not prevent execution, other listener callbacks or remaining restoration attempts.
+A listener remains responsible for restoring its own backend correctly; isolation does not guarantee restoration of a backend whose callback failed.
+With no listeners, activation is a cheap no-op.
+
+NOTE: Activation is not a guarantee of instrumentation on remote, Beam or Spark workers, nor a distributed context transport.
+Coordinator callbacks do not establish worker thread context, and lifecycle finish events do not promise that all enclosing cleanup has completed.
+
 == Logging
 
 A logging plugin participates in the lifecycle of the logging subsystem.
-It is initialised very early — `HopClientEnvironment.init()` loads logging plugins immediately after the registry is filled, before anything else — which is what makes it the right place to attach an external logging framework or a log store.
+It is initialised very early - `HopClientEnvironment.init()` loads logging plugins immediately after the registry is filled, before anything else - which is what makes it the right place to attach an external logging framework or a log store.
 
 Annotation:: `@LoggingPlugin`
 Implement:: `ILoggingPlugin`
@@ -140,14 +227,14 @@ Plugin type:: `ExecutionInfoLocationPluginType`, id `EXECUTION_INFO_LOCATIONS`
 Examples:: `engine/src/main/java/org/apache/hop/execution/local` (files), `.../remote` (another Hop Server), `.../caching`, `plugins/misc/execution-database` (a relational database)
 
 The interface has two halves.
-The writing half — `registerExecution`, `updateExecutionState`, `registerData` — is called by the engines while a pipeline or workflow runs.
-The reading half — `getExecution`, `getExecutionState`, `findExecutions`, `findChildIds`, `getExecutionData` — is called by the UI and the server.
+The writing half - `registerExecution`, `updateExecutionState`, `registerData` - is called by the engines while a pipeline or workflow runs.
+The reading half - `getExecution`, `getExecutionState`, `findExecutions`, `findChildIds`, `getExecutionData` - is called by the UI and the server.
 Implement both, including the parent/child lookups, or drill-down in the execution perspective will not work.
 
 The settings live in an `Execution Information Location` metadata object, so the plugin's fields carry `@HopMetadataProperty` and `@GuiWidgetElement` annotations, exactly like a variable resolver.
 
 Locations are written to on every state update of every component.
-Buffering is normal — `unBuffer(executionId)` and `clearCaches()` exist for that reason — and the caching implementations in the engine are the examples to follow.
+Buffering is normal - `unBuffer(executionId)` and `clearCaches()` exist for that reason - and the caching implementations in the engine are the examples to follow.
 
 == Execution data sampler
 
@@ -174,7 +261,7 @@ Samplers are selected in the pipeline run configuration, and their stores are wr
 
 == Lineage sink
 
-A lineage sink is where Hop's lineage events are delivered — a catalogue, a broker, a file.
+A lineage sink is where Hop's lineage events are delivered - a catalogue, a broker, a file.
 Hop ships an OpenLineage sink.
 
 Annotation:: `@LineageSinkPlugin`
@@ -189,7 +276,7 @@ The hub dispatches asynchronously, so a slow sink slows down lineage delivery, n
 == Hop Server servlet
 
 A server plugin is an HTTP endpoint on Hop Server.
-Everything the server exposes — status, execution, sniffing, the export of pipelines — is one of these.
+Everything the server exposes - status, execution, sniffing, the export of pipelines - is one of these.
 
 Annotation:: `@HopServerServlet`
 Implement:: `IHopServerPlugin`, in practice by extending `BaseHttpServlet` or `BaseHopServerPlugin`
@@ -207,6 +294,6 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 [WARNING]
 ====
 A servlet plugin is an addition to the attack surface of Hop Server.
-Authentication is handled by the server, not by the servlet, but everything else — what the endpoint exposes, what it accepts, and what it does with it — is on the plugin.
+Authentication is handled by the server, not by the servlet, but everything else - what the endpoint exposes, what it accepts, and what it does with it - is on the plugin.
 See link:https://github.com/apache/hop/blob/main/SECURITY.md[SECURITY.md] and the threat model it links before adding one.
 ====

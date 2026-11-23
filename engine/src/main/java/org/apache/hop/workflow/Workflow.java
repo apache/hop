@@ -31,7 +31,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -72,10 +71,8 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
+import org.apache.hop.execution.context.ExecutionContexts;
 import org.apache.hop.execution.failure.ExecutionFailures;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionState;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -331,32 +328,11 @@ public abstract class Workflow extends Variables
 
   @Override
   public Result startExecution() {
-    return executeWithLifecycle(this::startExecutionInternal);
-  }
-
-  /** Wraps the complete engine invocation, including engine-specific setup and cleanup. */
-  protected final Result executeWithLifecycle(final Supplier<Result> execution) {
-    final boolean owner = ExecutionLifecycle.get(this) == null;
-    ExecutionLifecycle.begin(this, null, ExecutionKind.WORKFLOW, getWorkflowName(), 0);
-    Throwable failure = null;
-    Result executionResult = null;
-    try (var scope = ExecutionLifecycle.activate(this)) {
-      try {
-        executionResult = execution.get();
-        return executionResult;
-      } catch (RuntimeException | Error e) {
-        failure = e;
-        throw e;
-      } finally {
-        if (owner) {
-          ExecutionLifecycle.finish(
-              this,
-              failure != null || (executionResult != null && executionResult.getNrErrors() > 0)
-                  ? ExecutionState.FAILED
-                  : isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-              failure);
-        }
-      }
+    // A workflow instance may be run repeatedly. Activate only its new run channel.
+    this.log = new LogChannel(this, parentLoggingObject, isGatheringMetrics(), true);
+    this.logLevel = log.getLogLevel();
+    try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
+      return startExecutionInternal();
     }
   }
 
@@ -366,12 +342,6 @@ public abstract class Workflow extends Variables
     runFailure = null;
 
     try {
-      // Create a new log channel at every start of an execution
-      // This is important if the same workflow is being executed in a loop.
-      //
-      this.log = new LogChannel(this, parentLoggingObject, isGatheringMetrics(), true);
-      this.logLevel = log.getLogLevel();
-
       // Update the tracker, not always fully initialized
       this.workflowTracker.setWorkflowName(workflowMeta.getName());
       this.workflowTracker.setWorkflowFilename(workflowMeta.getFilename());
@@ -768,27 +738,8 @@ public abstract class Workflow extends Variables
    * @throws HopWorkflowException
    */
   public Result executeFromStart(int nr, Result result) throws HopException {
-    final boolean owner = ExecutionLifecycle.get(this) == null;
-    ExecutionLifecycle.begin(this, null, ExecutionKind.WORKFLOW, getWorkflowName(), 0);
-    Throwable failure = null;
-    Result executionResult = null;
-    try (var scope = ExecutionLifecycle.activate(this)) {
-      try {
-        executionResult = executeFromStartInternal(nr, result);
-        return executionResult;
-      } catch (HopException | RuntimeException | Error e) {
-        failure = e;
-        throw e;
-      } finally {
-        if (owner) {
-          ExecutionLifecycle.finish(
-              this,
-              failure != null || (executionResult != null && executionResult.getNrErrors() > 0)
-                  ? ExecutionState.FAILED
-                  : isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-              failure);
-        }
-      }
+    try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
+      return executeFromStartInternal(nr, result);
     }
   }
 
@@ -1051,140 +1002,124 @@ public abstract class Workflow extends Variables
         cloneAction.setMetadataProvider(metadataProvider);
         cloneAction.setParentWorkflow(this);
         cloneAction.setParentWorkflowMeta(this.getWorkflowMeta());
-        ExecutionLifecycle.begin(cloneAction, this, ExecutionKind.ACTION, actionMeta.getName(), 0);
-        Throwable actionThrowable = null;
-        Result observedResult = null;
-        try (var scope = ExecutionLifecycle.activate(cloneAction)) {
+        try (final var scope =
+            ExecutionContexts.activate(cloneAction.getLogChannel().getLogChannelId())) {
+          final long start = System.currentTimeMillis();
+
+          cloneAction.getLogChannel().logDetailed("Starting action");
+          actionLogChannelHolder[0] = cloneAction.getLogChannel().getLogChannelId();
+          for (IActionListener actionListener : actionListeners) {
+            actionListener.beforeExecution(this, actionMeta, cloneAction);
+          }
+
+          activeActions.add(actionMeta.clone());
+
+          log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
+          // The failures in the result an action returns are those of its own children
+          prevResult.setFailures(new ArrayList<>());
+          // The failure that led here along a failure hop, if any. The start of a workflow
+          // inherits
+          // nothing: a parent action's failure is not the cause of what happens in this workflow.
+          final ExecutionFailure upstreamFailure =
+              previous == null ? null : prevResult.getActionFailure();
+          prevResult.setActionFailure(null);
+          final long errorsBefore = prevResult.getNrErrors();
           try {
-            final long start = System.currentTimeMillis();
-
-            cloneAction.getLogChannel().logDetailed("Starting action");
-            actionLogChannelHolder[0] = cloneAction.getLogChannel().getLogChannelId();
-            for (IActionListener actionListener : actionListeners) {
-              actionListener.beforeExecution(this, actionMeta, cloneAction);
-            }
-
-            activeActions.add(actionMeta.clone());
-
-            log.snap(Metrics.METRIC_ACTION_START, cloneAction.toString());
-            // The failures in the result an action returns are those of its own children
-            prevResult.setFailures(new ArrayList<>());
-            // The failure that led here along a failure hop, if any. The start of a workflow
-            // inherits
-            // nothing: a parent action's failure is not the cause of what happens in this workflow.
-            final ExecutionFailure upstreamFailure =
-                previous == null ? null : prevResult.getActionFailure();
-            prevResult.setActionFailure(null);
-            final long errorsBefore = prevResult.getNrErrors();
-            try {
-              newResult = cloneAction.execute(prevResult, nr);
-            } catch (Throwable e) {
-              reportActionFailure(actionMeta, cloneAction, null, e, upstreamFailure);
-              throw e;
-            } finally {
-              releaseJoin(actionMeta);
-            }
-            log.snap(Metrics.METRIC_ACTION_STOP, cloneAction.toString());
-
-            // Action execution duration
-            newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
-            newResult.setEntryNr(nr);
-
-            activeActions.remove(actionMeta);
-
-            // Claim the Joins this action leads to before its result is published below
-            joinClaims = claimJoinsToFollow(actionMeta, newResult);
-
-            for (IActionListener actionListener : actionListeners) {
-              actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
-            }
-
-            // Log action as finished as soon as its body has completed (action can no longer fail
-            // after
-            // this point)
-            if (log.isBasic()) {
-              log.logBasic(
-                  BaseMessages.getString(
-                      PKG,
-                      "Workflow.Log.FinishedAction",
-                      actionMeta.getName(),
-                      newResult.isResult() + ""));
-            }
-
-            addErrors((int) newResult.getNrErrors());
-            ExecutionFailure actionFailure = null;
-            if (actionFailed(errorsBefore, newResult, cloneAction)) {
-              actionFailure =
-                  reportActionFailure(actionMeta, cloneAction, newResult, null, upstreamFailure);
-            }
-            // Pass the failure on along the failure path, until an action recovers from it: ends
-            // with a
-            // true result and no errors. Write to log, for one, passes it on.
-            if (actionFailure == null && (!newResult.isResult() || newResult.getNrErrors() > 0)) {
-              actionFailure = upstreamFailure;
-            }
-            newResult.setActionFailure(actionFailure);
-
-            // Also capture the logging text after the execution...
-            //
-            LoggingBuffer loggingBuffer = HopLogStore.getAppender();
-            StringBuffer logTextBuffer =
-                loggingBuffer.getBuffer(cloneAction.getLogChannel().getLogChannelId(), false);
-            newResult.setLogText(logTextBuffer.toString() + newResult.getLogText());
-
-            // Save this result as well...
-            //
-            long actionBytesRead = 0;
-            long actionBytesWritten = 0;
-            if (Const.toBoolean(getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
-              actionBytesRead = newResult.getBytesReadThisAction();
-              actionBytesWritten = newResult.getBytesWrittenThisAction();
-              newResult.setBytesReadThisAction(0);
-              newResult.setBytesWrittenThisAction(0);
-            }
-            ActionResult jerAfter =
-                new ActionResult(
-                    newResult,
-                    cloneAction.getLogChannel().getLogChannelId(),
-                    BaseMessages.getString(PKG, CONST_ACTION_FINISHED),
-                    null,
-                    actionMeta.getName(),
-                    resolve(actionMeta.getAction().getFilename()),
-                    actionBytesRead,
-                    actionBytesWritten);
-            workflowTracker.addWorkflowTracker(new WorkflowTracker(workflowMeta, jerAfter));
-            synchronized (actionResults) {
-              actionResults.add(jerAfter);
-
-              // Only keep the last X action results in memory
-              //
-              if (maxActionsLogged > 0) {
-                while (actionResults.size() > maxActionsLogged) {
-                  // Remove the oldest.
-                  actionResults.removeFirst();
-                }
-              }
-            }
-            observedResult = newResult;
-            extension =
-                new WorkflowExecutionExtension(
-                    this, prevResult, actionMeta, extension.executeAction);
-            extension.actionExecutionResult = newResult;
-            extension.actionLogChannelId = actionLogChannelHolder[0];
-            ExtensionPointHandler.callExtensionPoint(
-                log, this, HopExtensionPoint.WorkflowAfterActionExecution.id, extension);
+            newResult = cloneAction.execute(prevResult, nr);
           } catch (Throwable e) {
-            actionThrowable = e;
+            reportActionFailure(actionMeta, cloneAction, null, e, upstreamFailure);
             throw e;
           } finally {
-            ExecutionLifecycle.finish(
-                cloneAction,
-                actionThrowable != null
-                        || (observedResult != null && observedResult.getNrErrors() > 0)
-                    ? ExecutionState.FAILED
-                    : isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-                actionThrowable);
+            releaseJoin(actionMeta);
           }
+          log.snap(Metrics.METRIC_ACTION_STOP, cloneAction.toString());
+
+          // Action execution duration
+          newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
+          newResult.setEntryNr(nr);
+
+          activeActions.remove(actionMeta);
+
+          // Claim the Joins this action leads to before its result is published below
+          joinClaims = claimJoinsToFollow(actionMeta, newResult);
+
+          for (IActionListener actionListener : actionListeners) {
+            actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
+          }
+
+          // Log action as finished as soon as its body has completed (action can no longer fail
+          // after
+          // this point)
+          if (log.isBasic()) {
+            log.logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "Workflow.Log.FinishedAction",
+                    actionMeta.getName(),
+                    newResult.isResult() + ""));
+          }
+
+          Thread.currentThread().setContextClassLoader(cl);
+          addErrors((int) newResult.getNrErrors());
+          ExecutionFailure actionFailure = null;
+          if (actionFailed(errorsBefore, newResult, cloneAction)) {
+            actionFailure =
+                reportActionFailure(actionMeta, cloneAction, newResult, null, upstreamFailure);
+          }
+          // Pass the failure on along the failure path, until an action recovers from it: ends
+          // with a
+          // true result and no errors. Write to log, for one, passes it on.
+          if (actionFailure == null && (!newResult.isResult() || newResult.getNrErrors() > 0)) {
+            actionFailure = upstreamFailure;
+          }
+          newResult.setActionFailure(actionFailure);
+
+          // Also capture the logging text after the execution...
+          //
+          LoggingBuffer loggingBuffer = HopLogStore.getAppender();
+          StringBuffer logTextBuffer =
+              loggingBuffer.getBuffer(cloneAction.getLogChannel().getLogChannelId(), false);
+          newResult.setLogText(logTextBuffer.toString() + newResult.getLogText());
+
+          // Save this result as well...
+          //
+          long actionBytesRead = 0;
+          long actionBytesWritten = 0;
+          if (Const.toBoolean(getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+            actionBytesRead = newResult.getBytesReadThisAction();
+            actionBytesWritten = newResult.getBytesWrittenThisAction();
+            newResult.setBytesReadThisAction(0);
+            newResult.setBytesWrittenThisAction(0);
+          }
+          ActionResult jerAfter =
+              new ActionResult(
+                  newResult,
+                  cloneAction.getLogChannel().getLogChannelId(),
+                  BaseMessages.getString(PKG, CONST_ACTION_FINISHED),
+                  null,
+                  actionMeta.getName(),
+                  resolve(actionMeta.getAction().getFilename()),
+                  actionBytesRead,
+                  actionBytesWritten);
+          workflowTracker.addWorkflowTracker(new WorkflowTracker(workflowMeta, jerAfter));
+          synchronized (actionResults) {
+            actionResults.add(jerAfter);
+
+            // Only keep the last X action results in memory
+            //
+            if (maxActionsLogged > 0) {
+              while (actionResults.size() > maxActionsLogged) {
+                // Remove the oldest.
+                actionResults.removeFirst();
+              }
+            }
+          }
+          extension =
+              new WorkflowExecutionExtension(this, prevResult, actionMeta, extension.executeAction);
+          extension.actionExecutionResult = newResult;
+          extension.actionLogChannelId = actionLogChannelHolder[0];
+          ExtensionPointHandler.callExtensionPoint(
+              log, this, HopExtensionPoint.WorkflowAfterActionExecution.id, extension);
         }
       } finally {
         Thread.currentThread().setContextClassLoader(cl);
@@ -1253,7 +1188,7 @@ public abstract class Workflow extends Variables
 
           Runnable runnable =
               () -> {
-                try (var scope = ExecutionLifecycle.activate(this)) {
+                try (var scope = ExecutionContexts.activate(getLogChannelId())) {
                   // Pass a previous result without rows to the parallel branch so that
                   // branch-local result rows start from a clean slate but still inherit
                   // metrics/files/etc.

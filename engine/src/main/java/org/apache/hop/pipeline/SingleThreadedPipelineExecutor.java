@@ -18,10 +18,7 @@
 package org.apache.hop.pipeline;
 
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.IRowSet;
@@ -29,11 +26,8 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
-import org.apache.hop.execution.lifecycle.ExecutionState;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
@@ -52,10 +46,6 @@ public class SingleThreadedPipelineExecutor {
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
-
-  @Getter(AccessLevel.NONE)
-  @Setter(AccessLevel.NONE)
-  private final Map<ITransform, Throwable> executionFailures = new IdentityHashMap<>();
 
   private static final String CONST_SEPARATOR =
       "-------------------------------------------------------";
@@ -300,9 +290,8 @@ public class SingleThreadedPipelineExecutor {
     // Initialize all the transforms...
     //
     for (TransformMetaDataCombi combi : transforms) {
-      ExecutionLifecycle.begin(
-          combi.transform, pipeline, ExecutionKind.TRANSFORM, combi.transformName, combi.copy);
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         try {
           boolean ok = combi.transform.init();
           if (!ok) {
@@ -311,7 +300,6 @@ public class SingleThreadedPipelineExecutor {
             return false;
           }
         } catch (Throwable t) {
-          executionFailures.put(combi.transform, t);
           pipeline.reportTransformFailure(combi.transform, FailurePhase.INIT, t);
           throw t;
         }
@@ -335,7 +323,8 @@ public class SingleThreadedPipelineExecutor {
 
           TransformMetaDataCombi combi = transforms.get(s);
           this.inProcessCombi = combi;
-          try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+          try (ExecutionScope executionScope =
+              ExecutionContexts.activate(combi.transform.getLogChannelId())) {
 
             // If this transform is waiting for data (text, db, and so on), we simply read all the
             // data
@@ -419,7 +408,6 @@ public class SingleThreadedPipelineExecutor {
         }
       }
     } catch (Exception e) {
-      executionFailures.put(inProcessCombi.transform, e);
       pipeline.reportTransformFailure(inProcessCombi.transform, FailurePhase.RUN, e);
       if (handleExceptionsExternally) {
         log.logDebug(
@@ -455,7 +443,8 @@ public class SingleThreadedPipelineExecutor {
 
   public void startBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         combi.transform.startBundle();
       }
     }
@@ -463,7 +452,8 @@ public class SingleThreadedPipelineExecutor {
 
   public void finishBundle() throws HopException {
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         combi.transform.finishBundle();
       }
     }
@@ -473,10 +463,10 @@ public class SingleThreadedPipelineExecutor {
     Throwable failure = null;
     // Signal every copy before disposing any of them, as downstream cleanup can depend on it.
     for (TransformMetaDataCombi combi : pipeline.getTransforms()) {
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         combi.transform.setOutputDone();
       } catch (Throwable t) {
-        executionFailures.put(combi.transform, t);
         combi.transform.setErrors(combi.transform.getErrors() + 1);
         pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
         if (failure == null) {
@@ -487,26 +477,16 @@ public class SingleThreadedPipelineExecutor {
       }
     }
     for (TransformMetaDataCombi combi : transforms) {
-      Throwable copyFailure = executionFailures.remove(combi.transform);
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         try {
           combi.transform.dispose();
         } catch (Throwable t) {
-          copyFailure = t;
           combi.transform.setErrors(combi.transform.getErrors() + 1);
           pipeline.reportTransformFailure(combi.transform, FailurePhase.FINISH, t);
           throw t;
         } finally {
-          try {
-            ExecutionLifecycle.finish(
-                combi.transform,
-                copyFailure != null || combi.transform.getErrors() > 0
-                    ? ExecutionState.FAILED
-                    : pipeline.isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-                copyFailure);
-          } finally {
-            combi.transform.markStop();
-          }
+          combi.transform.markStop();
         }
       } catch (Throwable t) {
         // One copy's cleanup or finished listener must not strand the remaining copies.

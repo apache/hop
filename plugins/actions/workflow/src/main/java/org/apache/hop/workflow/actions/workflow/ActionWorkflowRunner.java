@@ -55,8 +55,7 @@ public class ActionWorkflowRunner implements Runnable {
       result = workflow.startExecution();
     } finally {
       try {
-        // The engine lifecycle has ended on return from startExecution(). Keep this legacy
-        // duplicate finish callback, but do not create a second execution for the runner postlude.
+        // Preserve the legacy runner finish callback after startExecution() returns.
         workflow.setResult(result);
         try {
           ExtensionPointHandler.callExtensionPoint(

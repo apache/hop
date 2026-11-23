@@ -36,7 +36,6 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.execution.ExecutionWait;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -258,7 +257,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     getPipeline().addActiveSubWorkflow(getTransformName(), data.executorWorkflow);
 
     final var childWorkflow = data.executorWorkflow;
-    ExecutionLifecycle.associate(childWorkflow, this);
     AtomicReference<Result> resultRef = new AtomicReference<>();
     Thread runner =
         new Thread(

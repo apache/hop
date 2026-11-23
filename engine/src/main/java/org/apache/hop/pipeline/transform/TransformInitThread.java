@@ -23,9 +23,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.failure.FailurePhase;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
@@ -51,8 +50,6 @@ public class TransformInitThread implements Runnable {
     this.ok = false;
     this.finished = false;
     this.doIt = true;
-    ExecutionLifecycle.begin(
-        combi.transform, pipeline, ExecutionKind.TRANSFORM, combi.transformName, combi.copy);
   }
 
   public String toString() {
@@ -61,7 +58,8 @@ public class TransformInitThread implements Runnable {
 
   @Override
   public void run() {
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+    try (ExecutionScope executionScope =
+        ExecutionContexts.activate(combi.transform.getLogChannelId())) {
       runActivated();
     }
   }

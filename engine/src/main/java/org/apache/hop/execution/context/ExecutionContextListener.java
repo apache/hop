@@ -14,11 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.execution.lifecycle;
+package org.apache.hop.execution.context;
 
-/** The terminal outcome of an execution. */
-public enum ExecutionState {
-  SUCCEEDED,
-  FAILED,
-  CANCELLED
+/**
+ * Activates listener-owned context for an existing Hop log channel on the calling thread. This is
+ * not an execution start or completion notification. Callbacks may be concurrent and reentrant.
+ */
+@FunctionalInterface
+public interface ExecutionContextListener {
+  /**
+   * Returns restoration for this activation, or {@code null} if none is needed. The scope is closed
+   * on this thread, even if the listener is subsequently unregistered. Implementations must undo
+   * any partial activation themselves if this callback throws before returning a scope.
+   *
+   * @param logChannelId the existing, non-null log channel ID; no registry lookup is performed
+   */
+  ExecutionScope activate(String logChannelId);
 }

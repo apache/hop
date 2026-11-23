@@ -786,7 +786,8 @@ public abstract class ActionBase
     this.parentWorkflow = parentWorkflow;
     this.variables.setParentVariables(parentWorkflow);
     this.logLevel = parentWorkflow.getLogLevel();
-    this.log = new LogChannel(this, parentWorkflow);
+    // Each executable clone (including repeated visits to one action) needs its own identity.
+    this.log = new LogChannel(this, parentWorkflow, false, true);
     this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());
     this.containerObjectId = parentWorkflow.getContainerId();
   }

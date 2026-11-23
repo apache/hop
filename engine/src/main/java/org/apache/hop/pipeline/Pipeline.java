@@ -97,11 +97,9 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.vfs.HopVfsNamespace;
 import org.apache.hop.core.vfs.HopVfsNamespaces;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.execution.failure.ExecutionFailures;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
-import org.apache.hop.execution.lifecycle.ExecutionState;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.i18n.BaseMessages;
@@ -626,16 +624,6 @@ public abstract class Pipeline
 
   @Override
   public void prepareExecution() throws HopException {
-    ExecutionLifecycle.begin(this, null, ExecutionKind.PIPELINE, getName(), -1);
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
-      prepareExecutionWithNamespace();
-    } catch (Throwable e) {
-      ExecutionLifecycle.finish(this, ExecutionState.FAILED, e);
-      throw e;
-    }
-  }
-
-  private void prepareExecutionWithNamespace() throws HopException {
     // A pipeline carrying its own metadata - an export running on a Hop Server - resolves its
     // named VFS connections in its own namespace, not in the one the server was started with.
     HopVfsNamespace previous = null;
@@ -721,6 +709,12 @@ public abstract class Pipeline
     this.log = new LogChannel(this, parent, isGatheringMetrics(), true);
     this.log.setLogLevel(logLevel);
 
+    try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
+      prepareExecutionWithContext();
+    }
+  }
+
+  private void prepareExecutionWithContext() throws HopException {
     // We changed the log channel which changes a few internal variables:
     //
     setInternalLoggingVariables();
@@ -1384,25 +1378,15 @@ public abstract class Pipeline
       // Dispose will overwrite the status, but we set it back right after this.
       //
       ComponentExecutionStatus status = combi.data.getStatus();
-      Throwable disposalFailure = null;
-      try (ExecutionScope executionScope = ExecutionLifecycle.activate(combi.transform)) {
+      try (ExecutionScope executionScope =
+          ExecutionContexts.activate(combi.transform.getLogChannelId())) {
         combi.transform.dispose();
       } catch (Throwable e) {
-        disposalFailure = e;
         // A transform which fails to clean up shouldn't keep the others from doing so.
         //
         log.logError("Error disposing transform " + combi.transformName, e);
         combi.transform.setErrors(combi.transform.getErrors() + 1);
         reportTransformFailure(combi.transform, FailurePhase.FINISH, e);
-      } finally {
-        ExecutionLifecycle.finish(
-            combi.transform,
-            disposalFailure != null
-                    || combi.transform.getErrors() > 0
-                    || status == ComponentExecutionStatus.STATUS_STOPPED
-                ? ExecutionState.FAILED
-                : ExecutionState.CANCELLED,
-            disposalFailure);
       }
       combi.data.setStatus(
           status == ComponentExecutionStatus.STATUS_STOPPED
@@ -1428,7 +1412,7 @@ public abstract class Pipeline
       startingTransforms = true;
       completionPending = false;
     }
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+    try (ExecutionScope executionScope = ExecutionContexts.activate(getLogChannelId())) {
       startThreadsInternal(launched);
     } catch (Throwable e) {
       startupFailure = e;
@@ -1443,11 +1427,11 @@ public abstract class Pipeline
       }
       for (final var combi : transforms) {
         if (!launched.contains(combi)) {
-          try (ExecutionScope scope = ExecutionLifecycle.activate(combi.transform)) {
+          try (ExecutionScope scope =
+              ExecutionContexts.activate(combi.transform.getLogChannelId())) {
             try {
               combi.transform.dispose();
             } finally {
-              ExecutionLifecycle.finish(combi.transform, ExecutionState.CANCELLED, e);
               combi.transform.markStop();
             }
           } catch (Throwable disposalFailure) {
@@ -1763,8 +1747,7 @@ public abstract class Pipeline
         return;
       }
     }
-    Throwable completionFailure = null;
-    try (ExecutionScope executionScope = ExecutionLifecycle.activate(this)) {
+    try (ExecutionScope executionScope = ExecutionContexts.activate(getLogChannelId())) {
       HopException listenerException = null;
       synchronized (executionFinishedListeners) {
         if (!executionFinishedListeners.isEmpty()) {
@@ -1808,7 +1791,6 @@ public abstract class Pipeline
       // straight away, hop-run its exit code for one.
       //
       errors.incrementAndGet();
-      completionFailure = e;
       throw e;
     } finally {
       // Now the status and everything else is set correctly. We've completed the pipeline.
@@ -1817,19 +1799,10 @@ public abstract class Pipeline
       // be able to deadlock a caller. The failure itself still propagates.
       //
       try {
-        ExecutionLifecycle.finish(
-            this,
-            getErrors() > 0 || hasTransformFailures() || runFailure != null
-                ? ExecutionState.FAILED
-                : isStopped() ? ExecutionState.CANCELLED : ExecutionState.SUCCEEDED,
-            completionFailure);
+        pipelineCompleted();
       } finally {
-        try {
-          pipelineCompleted();
-        } finally {
-          // Everything above can still touch files of this namespace.
-          releaseVfsNamespace();
-        }
+        // Everything above can still touch files of this namespace.
+        releaseVfsNamespace();
       }
     }
   }

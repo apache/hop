@@ -44,6 +44,7 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionStateBuilder;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.context.ExecutionContexts;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -98,11 +99,6 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
   @Override
   public Result startExecution() {
-    return executeWithLifecycle(this::startLocalExecution);
-  }
-
-  private Result startLocalExecution() {
-
     if (!(workflowRunConfiguration.getEngineRunConfiguration()
         instanceof LocalWorkflowRunConfiguration)) {
       log.logError(
@@ -271,7 +267,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     } finally {
       // Finished listeners are not guaranteed to run to the end: an earlier listener that throws
       // skips stopExecutionInfoTimer(), and the cache timer then keeps writing. Close here too.
-      try {
+      try (final var scope = ExecutionContexts.activate(getLogChannelId())) {
         stopExecutionInfoTimer();
       } catch (Exception e) {
         log.logError("Error closing execution information location after workflow execution", e);

@@ -19,7 +19,6 @@ package org.apache.hop.pipeline;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,12 +44,9 @@ import org.apache.hop.core.plugins.IClassLoadingPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.execution.lifecycle.ExecutionHandle;
-import org.apache.hop.execution.lifecycle.ExecutionKind;
-import org.apache.hop.execution.lifecycle.ExecutionLifecycle;
-import org.apache.hop.execution.lifecycle.ExecutionObserver;
-import org.apache.hop.execution.lifecycle.ExecutionScope;
-import org.apache.hop.execution.lifecycle.ExecutionState;
+import org.apache.hop.execution.context.ExecutionContextListener;
+import org.apache.hop.execution.context.ExecutionContexts;
+import org.apache.hop.execution.context.ExecutionScope;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -64,7 +60,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 @Timeout(value = 30, unit = TimeUnit.SECONDS)
-class PipelineExecutionLifecycleTest {
+class PipelineExecutionContextTest {
   enum Mode {
     NORMAL,
     INIT_FAILURE,
@@ -79,12 +75,15 @@ class PipelineExecutionLifecycleTest {
     CountDownLatch entered;
     CountDownLatch release;
     CountDownLatch disposed;
+    final HopException runFailure = new HopException("run failure");
     final List<Visit> visits = new CopyOnWriteArrayList<>();
   }
 
   public static class ProbeData extends BaseTransformData {}
 
-  record Visit(String phase, Object subject, ExecutionHandle handle, Thread thread) {}
+  private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
+
+  record Visit(String phase, Probe subject, String logChannelId, Thread thread) {}
 
   public static class Probe extends BaseTransform<ProbeMeta, ProbeData> {
     private int rows;
@@ -100,7 +99,7 @@ class PipelineExecutionLifecycleTest {
     }
 
     private void visit(String phase) {
-      meta.visits.add(new Visit(phase, this, ExecutionLifecycle.current(), Thread.currentThread()));
+      meta.visits.add(new Visit(phase, this, CONTEXT.get(), Thread.currentThread()));
     }
 
     @Override
@@ -128,7 +127,7 @@ class PipelineExecutionLifecycleTest {
         return false;
       }
       if (meta.mode == Mode.RUN_AND_DISPOSE_FAILURE) {
-        throw new HopException("run failure");
+        throw meta.runFailure;
       }
       if (meta.rendezvous != null && rows == 0) {
         meta.rendezvous.countDown();
@@ -161,36 +160,52 @@ class PipelineExecutionLifecycleTest {
     }
   }
 
-  private static class Recorder implements ExecutionObserver {
-    final List<ExecutionHandle> starts = new CopyOnWriteArrayList<>();
-    final Map<ExecutionHandle, ExecutionState> ends = new ConcurrentHashMap<>();
-    final Map<ExecutionHandle, Throwable> failures = new ConcurrentHashMap<>();
-    final List<ExecutionHandle> duplicateEnds = new CopyOnWriteArrayList<>();
-    final List<Thread> leakedThreads = new CopyOnWriteArrayList<>();
+  private static class Recorder implements ExecutionContextListener {
+    private record Activation(String id, Thread thread) {}
+
+    private final Map<Activation, AtomicInteger> opened = new ConcurrentHashMap<>();
+    private final Map<Activation, AtomicInteger> closed = new ConcurrentHashMap<>();
+    private final Map<Activation, AtomicInteger> active = new ConcurrentHashMap<>();
+    private final List<String> violations = new CopyOnWriteArrayList<>();
 
     @Override
-    public void started(ExecutionHandle handle) {
-      starts.add(handle);
-    }
-
-    @Override
-    public ExecutionScope activate(ExecutionHandle handle) {
-      final var thread = Thread.currentThread();
+    public ExecutionScope activate(final String logChannelId) {
+      final var previous = CONTEXT.get();
+      final var activation = new Activation(logChannelId, Thread.currentThread());
+      opened.computeIfAbsent(activation, ignored -> new AtomicInteger()).incrementAndGet();
+      active.computeIfAbsent(activation, ignored -> new AtomicInteger()).incrementAndGet();
+      CONTEXT.set(logChannelId);
       return () -> {
-        if (thread != Thread.currentThread()) {
-          leakedThreads.add(thread);
+        if (activation.thread() != Thread.currentThread()) {
+          violations.add("Scope closed on another thread: " + logChannelId);
+        }
+        if (!logChannelId.equals(CONTEXT.get())) {
+          violations.add("Scope did not restore in nesting order: " + logChannelId);
+        }
+        closed.computeIfAbsent(activation, ignored -> new AtomicInteger()).incrementAndGet();
+        if (active.get(activation).decrementAndGet() < 0) {
+          violations.add("Scope closed more than once: " + logChannelId);
+        }
+        if (previous == null) {
+          CONTEXT.remove();
+        } else {
+          CONTEXT.set(previous);
         }
       };
     }
 
-    @Override
-    public void finished(ExecutionHandle handle, ExecutionState state, Throwable failure) {
-      if (failure != null) {
-        failures.put(handle, failure);
-      }
-      if (ends.put(handle, state) != null) {
-        duplicateEnds.add(handle);
-      }
+    private void verifyClosed() {
+      assertFalse(opened.isEmpty());
+      assertEquals(opened.keySet(), closed.keySet());
+      opened.forEach(
+          (key, count) -> assertEquals(count.get(), closed.get(key).get(), key.toString()));
+      active.forEach((key, count) -> assertEquals(0, count.get(), key.toString()));
+      assertTrue(violations.isEmpty(), violations.toString());
+      assertNull(CONTEXT.get());
+    }
+
+    private boolean observed(final String id, final Thread thread) {
+      return opened.containsKey(new Activation(id, thread));
     }
   }
 
@@ -216,24 +231,32 @@ class PipelineExecutionLifecycleTest {
     pipeline.waitUntilFinished();
   }
 
-  private void verifyVisits(ProbeMeta meta, Recorder recorder, Pipeline pipeline) {
+  private void verifyVisits(ProbeMeta meta, Recorder recorder, Pipeline pipeline)
+      throws InterruptedException {
+    joinWorkers(meta);
+    assertFalse(meta.visits.isEmpty());
     for (final var visit : meta.visits) {
-      assertNotNull(visit.handle(), visit.phase());
-      assertSame(visit.subject(), visit.handle().getSubject());
-      assertEquals(ExecutionKind.TRANSFORM, visit.handle().getKind());
-      assertSame(pipeline, visit.handle().getParent().getSubject());
-      assertTrue(recorder.starts.contains(visit.handle()));
-      for (final var other : meta.visits) {
-        if (visit.subject() == other.subject()) {
-          assertSame(visit.handle(), other.handle());
-        }
+      assertNotNull(visit.logChannelId(), visit.phase());
+      assertEquals(visit.subject().getLogChannelId(), visit.logChannelId(), visit.phase());
+      assertEquals(pipeline.getLogChannelId(), visit.subject().getParent().getLogChannelId());
+      assertTrue(recorder.observed(visit.logChannelId(), visit.thread()), visit.phase());
+    }
+    recorder.verifyClosed();
+  }
+
+  private void joinWorkers(final ProbeMeta meta) throws InterruptedException {
+    // waitUntilFinished publishes completion before the worker's outer activation scope closes.
+    for (final var thread :
+        meta.visits.stream()
+            .filter(v -> v.phase().equals("run"))
+            .map(Visit::thread)
+            .distinct()
+            .toList()) {
+      if (thread != Thread.currentThread()) {
+        thread.join(5000);
+        assertFalse(thread.isAlive(), "Transform worker must release its activation scope");
       }
     }
-    assertEquals(recorder.starts.size(), recorder.ends.size());
-    assertTrue(recorder.duplicateEnds.isEmpty());
-    assertTrue(recorder.leakedThreads.isEmpty());
-    assertNull(ExecutionLifecycle.current());
-    assertNull(ExecutionLifecycle.get(pipeline));
   }
 
   @Test
@@ -246,44 +269,71 @@ class PipelineExecutionLifecycleTest {
     second.rendezvous = rendezvous;
     final var a = pipeline(first, 2);
     final var b = pipeline(second, 2);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder);
+    try (final var registration = ExecutionContexts.addListener(recorder);
         final var workers = Executors.newFixedThreadPool(2)) {
       final var one =
           workers.submit(
               () -> {
                 run(a);
-                assertNull(ExecutionLifecycle.current());
+                assertNull(CONTEXT.get());
                 return null;
               });
       final var two =
           workers.submit(
               () -> {
                 run(b);
-                assertNull(ExecutionLifecycle.current());
+                assertNull(CONTEXT.get());
                 return null;
               });
       one.get(20, TimeUnit.SECONDS);
       two.get(20, TimeUnit.SECONDS);
+      joinWorkers(first);
+      joinWorkers(second);
       verifyVisits(first, recorder, a);
       verifyVisits(second, recorder, b);
-      final var roots =
-          recorder.starts.stream().filter(h -> h.getKind() == ExecutionKind.PIPELINE).toList();
-      assertEquals(2, roots.size());
-      assertNull(roots.get(0).getParent());
-      assertNull(roots.get(1).getParent());
-      assertNotSame(roots.get(0), roots.get(1));
-      assertEquals(6, recorder.starts.size());
+      assertFalse(a.getLogChannelId().equals(b.getLogChannelId()));
+      final var visits = new java.util.ArrayList<>(first.visits);
+      visits.addAll(second.visits);
+      assertEquals(4, visits.stream().map(Visit::logChannelId).distinct().count());
       assertEquals(
-          2,
-          recorder.starts.stream()
-              .filter(h -> h.getKind() == ExecutionKind.TRANSFORM && h.getCopy() == 0)
+          4,
+          visits.stream()
+              .filter(v -> v.phase().equals("run"))
+              .map(Visit::thread)
+              .distinct()
               .count());
-      assertEquals(
-          2,
-          recorder.starts.stream()
-              .filter(h -> h.getKind() == ExecutionKind.TRANSFORM && h.getCopy() == 1)
-              .count());
-      assertTrue(recorder.ends.values().stream().allMatch(s -> s == ExecutionState.SUCCEEDED));
+      for (final var probe : List.of(first, second)) {
+        for (int copy = 0; copy < 2; copy++) {
+          final int copyNumber = copy;
+          assertEquals(
+              1,
+              probe.visits.stream()
+                  .filter(v -> v.subject().getCopy() == copyNumber)
+                  .map(Visit::logChannelId)
+                  .distinct()
+                  .count());
+        }
+      }
+    }
+  }
+
+  @Test
+  void rerunningPipelineCreatesFreshRunAndCopyChannels() throws Exception {
+    final var recorder = new Recorder();
+    final var probe = new ProbeMeta();
+    final var pipeline = pipeline(probe, 2);
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
+      run(pipeline);
+      verifyVisits(probe, recorder, pipeline);
+      final var firstRunId = pipeline.getLogChannelId();
+      final var firstCopyIds = probe.visits.stream().map(Visit::logChannelId).distinct().toList();
+      probe.visits.clear();
+      run(pipeline);
+      verifyVisits(probe, recorder, pipeline);
+      assertFalse(firstRunId.equals(pipeline.getLogChannelId()));
+      assertEquals(2, probe.visits.stream().map(Visit::logChannelId).distinct().count());
+      assertTrue(
+          probe.visits.stream().noneMatch(visit -> firstCopyIds.contains(visit.logChannelId())));
     }
   }
 
@@ -293,11 +343,12 @@ class PipelineExecutionLifecycleTest {
     final var probe = new ProbeMeta();
     probe.mode = Mode.INIT_FAILURE;
     final var pipeline = pipeline(probe, 1);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       assertThrows(HopException.class, pipeline::prepareExecution);
       verifyVisits(probe, recorder, pipeline);
       assertEquals(List.of("init", "dispose"), probe.visits.stream().map(Visit::phase).toList());
-      assertTrue(recorder.ends.values().stream().allMatch(s -> s == ExecutionState.FAILED));
+      assertFalse(pipeline.getFailures().isEmpty());
+      assertNotNull(pipeline.getRunFailure());
     }
   }
 
@@ -307,11 +358,12 @@ class PipelineExecutionLifecycleTest {
     final var probe = new ProbeMeta();
     probe.mode = Mode.DISPOSE_FAILURE;
     final var pipeline = pipeline(probe, 2);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       run(pipeline);
       verifyVisits(probe, recorder, pipeline);
       assertTrue(pipeline.isFinished());
-      assertTrue(recorder.ends.values().stream().allMatch(s -> s == ExecutionState.FAILED));
+      assertFalse(pipeline.getFailures().isEmpty());
+      assertNotNull(pipeline.getRunFailure());
     }
   }
 
@@ -321,20 +373,15 @@ class PipelineExecutionLifecycleTest {
     final var probe = new ProbeMeta();
     probe.mode = Mode.RUN_AND_DISPOSE_FAILURE;
     final var pipeline = pipeline(probe, 1);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       run(pipeline);
       verifyVisits(probe, recorder, pipeline);
-      final var copy =
-          recorder.starts.stream()
-              .filter(handle -> handle.getKind() == ExecutionKind.TRANSFORM)
-              .findFirst()
-              .orElseThrow();
-      final var failure = recorder.failures.get(copy);
-      assertNotNull(failure);
-      assertEquals("run failure", failure.getMessage().strip());
-      assertEquals(1, failure.getSuppressed().length);
-      assertEquals("dispose failure", failure.getSuppressed()[0].getMessage());
-      assertEquals(ExecutionState.FAILED, recorder.ends.get(copy));
+      assertEquals(1, pipeline.getFailures().size());
+      assertEquals(
+          "run failure", pipeline.getFailures().getFirst().getCause().getMessage().strip());
+      assertEquals(1, probe.runFailure.getSuppressed().length);
+      assertEquals("dispose failure", probe.runFailure.getSuppressed()[0].getMessage());
+      assertNotNull(pipeline.getRunFailure());
     }
   }
 
@@ -343,12 +390,11 @@ class PipelineExecutionLifecycleTest {
     final var recorder = new Recorder();
     final var pipeline = pipeline(new ProbeMeta(), 1);
     pipeline.setPipelineRunConfiguration(null);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       assertThrows(NullPointerException.class, pipeline::prepareExecution);
-      assertEquals(1, recorder.starts.size());
-      assertEquals(ExecutionState.FAILED, recorder.ends.get(recorder.starts.getFirst()));
-      assertNull(ExecutionLifecycle.get(pipeline));
-      assertNull(ExecutionLifecycle.current());
+      assertNull(CONTEXT.get());
+      assertTrue(recorder.active.values().stream().allMatch(count -> count.get() == 0));
+      assertTrue(recorder.violations.isEmpty());
     }
   }
 
@@ -357,49 +403,36 @@ class PipelineExecutionLifecycleTest {
     final var recorder = new Recorder();
     final var probe = new ProbeMeta();
     final var pipeline = pipeline(probe, 1);
-    final var listenerContexts = new CopyOnWriteArrayList<ExecutionHandle>();
+    final var listenerContexts = new CopyOnWriteArrayList<String>();
     pipeline.addExecutionFinishedListener(
         engine -> {
-          listenerContexts.add(ExecutionLifecycle.current());
+          listenerContexts.add(CONTEXT.get());
           throw new HopException("listener failure");
         });
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       run(pipeline);
       verifyVisits(probe, recorder, pipeline);
       assertEquals(1, listenerContexts.size());
-      assertSame(pipeline, listenerContexts.getFirst().getSubject());
-      assertEquals(ExecutionState.FAILED, recorder.ends.get(listenerContexts.getFirst()));
+      assertEquals(pipeline.getLogChannelId(), listenerContexts.getFirst());
+      assertTrue(pipeline.isFinished());
     }
   }
 
   @Test
-  void fastWorkersCannotPublishSuccessBeforeStartCallbacksReturn() throws Exception {
+  void startupCallbackKeepsPipelineContextWhileFastWorkerDisposes() throws Exception {
     final var recorder = new Recorder();
     final var probe = new ProbeMeta();
+    probe.disposed = new CountDownLatch(1);
     final var run = pipeline(probe, 1);
-    final var stopped = new CountDownLatch(1);
     final var plugin =
         extension(
             HopExtensionPoint.PipelineStart,
             (log, variables, subject) -> {
-              await(stopped);
-              assertNotNull(ExecutionLifecycle.get(run), "Startup is still executing");
+              assertEquals(run.getLogChannelId(), CONTEXT.get());
+              await(probe.disposed);
+              assertEquals(run.getLogChannelId(), CONTEXT.get());
             });
-    try (final var registration = ExecutionLifecycle.addObserver(recorder);
-        final var signal =
-            ExecutionLifecycle.addObserver(
-                new ExecutionObserver() {
-                  @Override
-                  public void started(ExecutionHandle handle) {}
-
-                  @Override
-                  public void finished(
-                      ExecutionHandle handle, ExecutionState state, Throwable failure) {
-                    if (handle.getKind() == ExecutionKind.TRANSFORM) {
-                      stopped.countDown();
-                    }
-                  }
-                })) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       run(run);
       verifyVisits(probe, recorder, run);
     } finally {
@@ -433,16 +466,24 @@ class PipelineExecutionLifecycleTest {
                 throw new HopException("startup failure");
               }
             });
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       run.prepareExecution();
       assertThrows(HopException.class, run::startThreads);
-      final var root = recorder.starts.getFirst();
-      assertFalse(recorder.ends.containsKey(root), "A running copy still owns the lifetime");
-      assertSame(root, ExecutionLifecycle.get(run));
+      assertEquals(1, probe.visits.stream().filter(v -> v.phase().equals("run")).count());
+      assertEquals(
+          partial ? 1 : 0, probe.visits.stream().filter(v -> v.phase().equals("dispose")).count());
+      assertNull(
+          CONTEXT.get(), "The startup caller must be restored while the worker remains active");
+      assertTrue(
+          recorder.active.entrySet().stream()
+              .anyMatch(
+                  entry ->
+                      entry.getKey().thread() != Thread.currentThread()
+                          && entry.getValue().get() > 0));
       probe.release.countDown();
       run.waitUntilFinished();
       verifyVisits(probe, recorder, run);
-      assertEquals(ExecutionState.FAILED, recorder.ends.get(root));
+      assertNotNull(run.getRunFailure());
       assertEquals(
           partial ? 2 : 1, probe.visits.stream().filter(v -> v.phase().equals("dispose")).count());
     } finally {
@@ -470,7 +511,7 @@ class PipelineExecutionLifecycleTest {
     assertSame(primary, assertThrows(HopException.class, pipeline::startThreads));
     assertEquals(1, primary.getSuppressed().length);
     assertSame(secondary, primary.getSuppressed()[0]);
-    assertNull(ExecutionLifecycle.current());
+    assertNull(CONTEXT.get());
   }
 
   @Test
@@ -489,20 +530,25 @@ class PipelineExecutionLifecycleTest {
                   pipeline.stopAll();
                 }
               });
-      try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+      try (final var registration = ExecutionContexts.addListener(recorder)) {
         pipeline.prepareExecution();
         pipeline.startThreads();
         if (during) {
           await(probe.entered);
           pipeline.stopAll();
-          assertFalse(recorder.ends.containsKey(recorder.starts.getFirst()));
+          assertTrue(
+              recorder.active.entrySet().stream()
+                  .anyMatch(
+                      entry ->
+                          entry.getKey().thread() != Thread.currentThread()
+                              && entry.getValue().get() > 0));
         }
         probe.release.countDown();
         pipeline.waitUntilFinished();
-        assertEquals(recorder.starts.size(), recorder.ends.size());
-        assertEquals(ExecutionState.CANCELLED, recorder.ends.get(recorder.starts.getFirst()));
-        assertNull(ExecutionLifecycle.get(pipeline));
-        assertNull(ExecutionLifecycle.current());
+        verifyVisits(probe, recorder, pipeline);
+        assertTrue(pipeline.isStopped());
+        assertTrue(pipeline.isFinished());
+        assertEquals(1, probe.visits.stream().filter(v -> v.phase().equals("dispose")).count());
       } finally {
         probe.release.countDown();
         ExtensionPointMap.getInstance().removeExtensionPoint(plugin);
@@ -531,12 +577,36 @@ class PipelineExecutionLifecycleTest {
   }
 
   @Test
+  void singleThreadedDisposalFailureStillDisposesEveryCopyAndRestoresContext() throws Exception {
+    final var recorder = new Recorder();
+    final var probe = new ProbeMeta();
+    probe.mode = Mode.DISPOSE_FAILURE;
+    final var pipeline = pipeline(probe, 2);
+    pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
+      pipeline.prepareExecution();
+      pipeline.startThreads();
+      final var executor = new SingleThreadedPipelineExecutor(pipeline);
+      assertFalse(executor.oneIteration());
+      final var failure = assertThrows(IllegalStateException.class, executor::dispose);
+      assertEquals("dispose failure", failure.getMessage());
+      assertEquals(1, failure.getSuppressed().length);
+      pipeline.waitUntilFinished();
+      verifyVisits(probe, recorder, pipeline);
+      assertEquals(
+          2, probe.visits.stream().filter(visit -> "dispose".equals(visit.phase())).count());
+      assertEquals(2, pipeline.getFailures().size());
+      assertTrue(pipeline.isFinished());
+    }
+  }
+
+  @Test
   void singleThreadedVisitsReuseTheCopyIdentity() throws Exception {
     final var recorder = new Recorder();
     final var probe = new ProbeMeta();
     final var pipeline = pipeline(probe, 2);
     pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
-    try (final var registration = ExecutionLifecycle.addObserver(recorder)) {
+    try (final var registration = ExecutionContexts.addListener(recorder)) {
       pipeline.prepareExecution();
       pipeline.startThreads();
       final var executor = new SingleThreadedPipelineExecutor(pipeline);
@@ -547,7 +617,7 @@ class PipelineExecutionLifecycleTest {
       }
       pipeline.waitUntilFinished();
       verifyVisits(probe, recorder, pipeline);
-      assertEquals(3, recorder.starts.size());
+      assertEquals(2, probe.visits.stream().map(Visit::logChannelId).distinct().count());
       assertEquals(6, probe.visits.stream().filter(v -> v.phase().equals("run")).count());
       assertTrue(
           probe.visits.stream()
