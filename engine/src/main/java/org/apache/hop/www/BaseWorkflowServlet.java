@@ -30,6 +30,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -87,6 +88,9 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     workflow.getWorkflowMeta().setInternalHopVariables(workflow);
     workflow.setVariables(
         workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
+    // A client's run this run reports in lineage, when the client passed one
+    LineageRemoteRuns.adopt(
+        workflow, workflowExecutionConfiguration.getVariablesMap(), workflow.getLogChannel());
 
     copyWorkflowParameters(workflow, workflowExecutionConfiguration.getParametersMap());
 
@@ -147,6 +151,9 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     pipeline.setParent(servletLoggingObject);
     pipeline.setMetadataProvider(metadataProvider);
     pipeline.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
+    // A client's run this run reports in lineage, when the client passed one
+    LineageRemoteRuns.adopt(
+        pipeline, pipelineExecutionConfiguration.getVariablesMap(), pipeline.getLogChannel());
 
     // Also copy the parameters over...
     copyParameters(pipeline, pipelineExecutionConfiguration.getParametersMap());

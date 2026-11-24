@@ -61,6 +61,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
@@ -367,6 +368,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     executionConfiguration.getVariablesMap().putAll(vars);
 
+    // This run, for the lineage the server reports of it
+    LineageRemoteRuns.pass(this, executionConfiguration.getVariablesMap());
+
     // Add parameters to the executionConfiguration
     Map<String, String> params = new HashMap<>();
     for (String param : listParameters()) {
@@ -420,6 +424,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                     + message);
           }
           containerId = webResult.getId();
+          LineageRemoteRuns.answered(this, webResult.getLineageRunId());
         }
       } else {
 
@@ -448,6 +453,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   + message);
         }
         containerId = webResult.getId();
+        LineageRemoteRuns.answered(this, webResult.getLineageRunId());
       }
 
       // Prepare the pipeline

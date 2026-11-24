@@ -162,8 +162,8 @@ header shows one line more than it has rows. A pipeline's event carries the sum 
 transforms and copies of the counters that add up: `linesInput`, `linesOutput`, `linesUpdated` and
 `linesRejected`. That sum is not the pipeline result Hop logs, which takes the highest value of each
 counter, and a Metadata Injection transform counts the rows of the pipeline it runs too. Only the
-local pipeline engine sends counters; Beam, Spark and remote runs don't have final ones when their
-run ends.
+local pipeline engine sends counters, also when it runs a pipeline on a Hop Server; Beam and Spark
+runs don't have final ones when their run ends.
 
 A dataset gets the standard `inputStatistics` or `outputStatistics` facet with its `rowCount` when
 the count is known to be its own: the transforms that read (or wrote) it read (or wrote) nothing
@@ -329,6 +329,22 @@ The environment itself is a property of the *collector's deployment*: the same c
 dataset it receives with one environment, whichever engine sent it, which is what lets a Hop file
 dataset and a Spark file dataset join up. Two environments that must not merge therefore need two
 collector deployments, not two namespaces.
+
+== Runs on Hop Server
+
+A pipeline or workflow that runs on a Hop Server through a remote run configuration is one run, as
+a local run is. The client passes its run to the server with the variables it sends: the run id,
+the file, the run that started it and the lineage sinks of its run configuration. The server then
+reports the run under that id, with its transforms and the datasets they read and write, to those
+sinks and to its own. The client leaves the run to the server once the server confirms it reports
+it. A server that doesn't (an older Hop) runs the pipeline as before: the client reports the run
+without its transforms, and the server reports what it runs, if it has a sink, as a run of its own.
+
+The server finds the sinks by name in its metadata. A run sent as XML brings the client's metadata
+along. A run sent as an export (*Export linked resources to server*) brings none, so define the
+lineage sink, and what it refers to, on the server as well. A sink the server doesn't have is
+logged on the run and left out. Sinks set up with the `HOP_LINEAGE_*` variables keep getting their
+runs: on the server every run it runs, on the client the client's run, without its transforms.
 
 == Unit test results
 

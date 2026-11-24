@@ -18,6 +18,7 @@
 package org.apache.hop.www;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
@@ -41,6 +42,13 @@ public class WebResult {
   private String message;
   private String id;
 
+  /**
+   * The lineage run id a Hop Server reports a registered run under, when it reports the client's
+   * run ({@code LineageRemoteRuns}); null otherwise, and from a server that doesn't. A client that
+   * doesn't know it ignores it.
+   */
+  private String lineageRunId;
+
   public WebResult(String result) {
     this(result, null, null);
   }
@@ -63,6 +71,9 @@ public class WebResult {
     xml.append("  ").append(XmlHandler.addTagValue("result", result));
     xml.append("  ").append(XmlHandler.addTagValue("message", message));
     xml.append("  ").append(XmlHandler.addTagValue("id", id));
+    if (lineageRunId != null) {
+      xml.append("  ").append(XmlHandler.addTagValue("lineage_run_id", lineageRunId));
+    }
 
     xml.append("</" + XML_TAG + ">").append(Const.CR);
 
@@ -87,6 +98,7 @@ public class WebResult {
     result = XmlHandler.getTagValue(webResultNode, "result");
     message = XmlHandler.getTagValue(webResultNode, "message");
     id = XmlHandler.getTagValue(webResultNode, "id");
+    lineageRunId = XmlHandler.getTagValue(webResultNode, "lineage_run_id");
   }
 
   public String getResult() {
@@ -129,5 +141,22 @@ public class WebResult {
    */
   public void setId(String id) {
     this.id = id;
+  }
+
+  /**
+   * @return the lineage run id the server reports the run under, or null
+   */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getLineageRunId() {
+    return lineageRunId;
+  }
+
+  /**
+   * @param lineageRunId the lineage run id the server reports the run under
+   * @return this result
+   */
+  public WebResult withLineageRunId(String lineageRunId) {
+    this.lineageRunId = lineageRunId;
+    return this;
   }
 }

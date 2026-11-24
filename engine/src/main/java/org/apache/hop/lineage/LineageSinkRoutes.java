@@ -17,14 +17,17 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRemoteRuns.RemoteRun;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -155,13 +158,20 @@ public final class LineageSinkRoutes {
         () -> {
           Set<String> parents = parentSinks(pipeline, hub);
           PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
-          String own =
+          List<String> own =
+              remoteSinks(
+                  LineageRemoteRuns.adopted(pipeline),
+                  pipeline,
+                  pipeline.getMetadataProvider(),
+                  pipeline.getLogChannel(),
+                  hub);
+          own.add(
               useSink(
                   runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
                   pipeline,
                   pipeline.getMetadataProvider(),
                   pipeline.getLogChannel(),
-                  hub);
+                  hub));
           return withParents(parents, own, hub);
         });
   }
@@ -176,13 +186,20 @@ public final class LineageSinkRoutes {
         () -> {
           Set<String> parents = parentSinks(workflow, hub);
           WorkflowRunConfiguration runConfiguration = workflow.getWorkflowRunConfiguration();
-          String own =
+          List<String> own =
+              remoteSinks(
+                  LineageRemoteRuns.adopted(workflow),
+                  workflow,
+                  workflow.getMetadataProvider(),
+                  workflow.getLogChannel(),
+                  hub);
+          own.add(
               useSink(
                   runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
                   workflow,
                   workflow.getMetadataProvider(),
                   workflow.getLogChannel(),
-                  hub);
+                  hub));
           return withParents(parents, own, hub);
         });
   }
@@ -222,19 +239,128 @@ public final class LineageSinkRoutes {
    * {@link #release} lets go of each once. The parent's are safe to hold now: the parent holds them
    * until it ends, after this run.
    *
-   * @param own the run's own sink, which {@link LineageHub#useSink} already held, or null
+   * @param own the run's own sinks, each of which {@link LineageHub#useSink} already held, with
+   *     nulls for those it couldn't use
    */
-  private static Set<String> withParents(Set<String> parentSinks, String own, LineageHub hub) {
-    Set<String> inherited = new LinkedHashSet<>(parentSinks);
-    if (own != null) {
-      inherited.remove(own);
+  private static Set<String> withParents(
+      Set<String> parentSinks, List<String> own, LineageHub hub) {
+    Set<String> owned = new LinkedHashSet<>();
+    for (String key : own) {
+      if (key != null && !owned.add(key)) {
+        // Used twice, such as a client's sink that is also the run configuration's: held once
+        hub.release(Set.of(key));
+      }
     }
+    Set<String> inherited = new LinkedHashSet<>(parentSinks);
+    inherited.removeAll(owned);
     hub.hold(inherited);
     Set<String> sinks = new LinkedHashSet<>(parentSinks);
-    if (own != null) {
-      sinks.add(own);
-    }
+    sinks.addAll(owned);
     return sinks;
+  }
+
+  /**
+   * On a Hop Server, the sinks of the client's run this run reports ({@link LineageRemoteRuns}),
+   * found by name in the metadata the server has, the client's included when the run came with it.
+   * A sink the server doesn't have is logged on the run and left out.
+   *
+   * @return the keys of those sinks, each held once; a mutable list the run's own sink is added to
+   */
+  private static List<String> remoteSinks(
+      RemoteRun remoteRun,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
+    List<String> keys = new ArrayList<>();
+    if (remoteRun == null || remoteRun.sinks() == null || metadataProvider == null) {
+      return keys;
+    }
+    for (String name : remoteRun.sinks()) {
+      try {
+        if (Utils.isEmpty(name)
+            || !metadataProvider.getSerializer(LineageSink.class).exists(name)) {
+          if (log != null && !Utils.isEmpty(name)) {
+            log.logError(
+                "Lineage sink '"
+                    + name
+                    + "', which the client selected for this run, doesn't exist on this Hop Server:"
+                    + " this run doesn't report to it. A run sent as an export carries no metadata,"
+                    + " so define the sink on the server as well.");
+          }
+          continue;
+        }
+      } catch (Exception e) {
+        if (log != null) {
+          log.logError("Unable to look up lineage sink '" + name + "'", e);
+        }
+        continue;
+      }
+      keys.add(useSink(name, variables, metadataProvider, log, hub));
+    }
+    return keys;
+  }
+
+  /**
+   * The names of the sinks a pipeline run reports to, besides those configured with variables: what
+   * a client passes to the Hop Server that runs it ({@link LineageRemoteRuns}).
+   */
+  static List<String> namesOf(IPipelineEngine<PipelineMeta> pipeline) {
+    if (pipeline == null || isUnitTestRun(pipeline)) {
+      return List.of();
+    }
+    Set<String> names = new LinkedHashSet<>(parentNames(pipeline));
+    addRemoteNames(names, LineageRemoteRuns.adopted(pipeline));
+    PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
+    addName(
+        names, runConfiguration == null ? null : runConfiguration.getLineageSinkName(), pipeline);
+    return List.copyOf(names);
+  }
+
+  /** The names of the sinks a workflow run reports to; see {@link #namesOf(IPipelineEngine)}. */
+  static List<String> namesOf(IWorkflowEngine<WorkflowMeta> workflow) {
+    if (workflow == null) {
+      return List.of();
+    }
+    Set<String> names = new LinkedHashSet<>(parentNames(workflow));
+    addRemoteNames(names, LineageRemoteRuns.adopted(workflow));
+    WorkflowRunConfiguration runConfiguration = workflow.getWorkflowRunConfiguration();
+    addName(
+        names, runConfiguration == null ? null : runConfiguration.getLineageSinkName(), workflow);
+    return List.copyOf(names);
+  }
+
+  private static List<String> parentNames(IPipelineEngine<PipelineMeta> pipeline) {
+    if (pipeline.getParentPipeline() != null) {
+      return namesOf(pipeline.getParentPipeline());
+    }
+    if (pipeline.getParentWorkflow() != null) {
+      return namesOf(pipeline.getParentWorkflow());
+    }
+    return namesOf(actionWorkflow(pipeline.getParent()));
+  }
+
+  private static List<String> parentNames(IWorkflowEngine<WorkflowMeta> workflow) {
+    if (workflow.getParentPipeline() != null) {
+      return namesOf(workflow.getParentPipeline());
+    }
+    if (workflow.getParentWorkflow() != null) {
+      return namesOf(workflow.getParentWorkflow());
+    }
+    return namesOf(actionWorkflow(workflow.getParent()));
+  }
+
+  private static void addRemoteNames(Set<String> names, RemoteRun remoteRun) {
+    if (remoteRun != null && remoteRun.sinks() != null) {
+      remoteRun.sinks().stream().filter(name -> !Utils.isEmpty(name)).forEach(names::add);
+    }
+  }
+
+  private static void addName(Set<String> names, String sinkName, IVariables variables) {
+    String name = variables.resolve(sinkName);
+    if (!Utils.isEmpty(name)) {
+      names.add(name);
+    }
   }
 
   private static Set<String> parentSinks(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {

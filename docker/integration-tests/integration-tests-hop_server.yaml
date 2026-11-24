@@ -31,6 +31,12 @@ services:
       - hop_server
       - hop_server_no_cross_site_check
       - seaweedfs
+    # main-0022 runs an OpenLineage stand-in in this container: the Hop Server reports a run's
+    # lineage to it as lineage-stub (a hostname without the underscores of the service name).
+    networks:
+      default:
+        aliases:
+          - lineage-stub
 
   hop_server:
     image: apache/hop:Development
