@@ -407,9 +407,11 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
 
       try {
         if (!meta.isAutoCommit()) {
-          // A failed or stopped run must not commit what the procedures did before it stopped,
-          // the same rule as every other database transform.
-          if (getErrors() == 0 && !isStopped()) {
+          // A failed run must not commit what the procedures did before it failed. A run that is
+          // stopped without an error commits, as Table output, Update and Delete do: an Abort
+          // without an error ends the pipeline as a success. A transactional pipeline rolls back
+          // a stopped run as a whole, at its end.
+          if (getErrors() == 0) {
             data.db.commit();
           } else {
             data.db.rollback();

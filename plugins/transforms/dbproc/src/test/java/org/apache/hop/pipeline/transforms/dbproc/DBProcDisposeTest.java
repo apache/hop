@@ -78,9 +78,24 @@ class DBProcDisposeTest {
     verify(db).disconnect();
   }
 
+  /**
+   * A stop without an error, such as an Abort without "abort with error", ends the pipeline as a
+   * success: what ran is committed, as Table output, Update and Delete do.
+   */
   @Test
-  void aStoppedRunRollsBackInsteadOfCommitting() throws Exception {
+  void aStoppedRunWithoutErrorsCommits() throws Exception {
     transform.setStopped(true);
+
+    transform.dispose();
+
+    verify(db).commit();
+    verify(db, never()).rollback();
+  }
+
+  @Test
+  void aStoppedRunWithAnErrorRollsBack() throws Exception {
+    transform.setStopped(true);
+    transform.setErrors(1);
 
     transform.dispose();
 

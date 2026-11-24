@@ -49,8 +49,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Call DB procedure with auto-commit off, on H2: the procedure inserts a row through the caller's
- * connection and fails for id 4. A run that completes commits every call; a run that fails or is
- * stopped leaves none of its calls in the database.
+ * connection and fails for id 4. A run that completes, or is stopped without an error, commits the
+ * calls that ran; a run that fails leaves none of its calls in the database.
  */
 public class DBProcH2TransactionTest {
 
@@ -191,11 +191,13 @@ public class DBProcH2TransactionTest {
     assertEquals(List.of(), called());
   }
 
+  /** A stop without an error ends the pipeline as a success: the calls that ran are committed. */
   @Test
-  void aStoppedRunLeavesNoneOfItsCallsInTheDatabase() throws Exception {
-    run(false, 2, 1, 2, 3);
+  void aStoppedRunCommitsTheCallsThatRan() throws Exception {
+    DBProc transform = run(false, 2, 1, 2, 3);
 
-    assertEquals(List.of(), called());
+    assertEquals(0, transform.getErrors());
+    assertEquals(List.of(1, 2), called());
   }
 
   @Test
