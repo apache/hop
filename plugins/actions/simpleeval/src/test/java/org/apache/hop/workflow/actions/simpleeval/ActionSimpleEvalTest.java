@@ -210,6 +210,28 @@ class ActionSimpleEvalTest {
   }
 
   @Test
+  void testLogTextRegexNoMatchIsNotAnError() throws Exception {
+    ActionSimpleEval action = logTextAction(SuccessStringCondition.REGEX, "missing");
+    Result result = resultWithLog("anything");
+
+    Result actual = action.execute(result, 0);
+
+    assertFalse(actual.isResult());
+    assertEquals(0, actual.getNrErrors());
+  }
+
+  @Test
+  void testLogTextInvalidRegexIsAnError() throws Exception {
+    ActionSimpleEval action = logTextAction(SuccessStringCondition.REGEX, "([");
+    Result result = resultWithLog("anything");
+
+    Result actual = action.execute(result, 0);
+
+    assertFalse(actual.isResult());
+    assertEquals(1, actual.getNrErrors());
+  }
+
+  @Test
   void testLogTextIgnoresConfiguredFieldType() throws Exception {
     ActionSimpleEval action = logTextAction(SuccessStringCondition.CONTAINS, "ok");
     action.setFieldType(FieldType.NUMBER);

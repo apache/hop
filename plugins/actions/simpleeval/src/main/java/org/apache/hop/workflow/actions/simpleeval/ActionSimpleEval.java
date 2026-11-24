@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -558,7 +559,17 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
                       sourcevalue,
                       realCompareValue));
             }
-            success = (Pattern.compile(realCompareValue).matcher(sourcevalue).matches());
+            try {
+              success = (Pattern.compile(realCompareValue).matcher(sourcevalue).matches());
+            } catch (PatternSyntaxException e) {
+              logError(
+                  BaseMessages.getString(
+                      PKG,
+                      "ActionSimpleEval.Error.InvalidRegex",
+                      realCompareValue,
+                      e.getMessage()));
+              return result;
+            }
             break;
           case IN_LIST: // in list
             if (isDebug()) {
