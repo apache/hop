@@ -284,13 +284,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         result = previousResult;
       }
 
-      submitToRemoteServer();
-      fireExecutionStartedListeners();
-
       // As the local engine: plugins on the client see the run start and end. The Hop Server fires
-      // these for the workflow it runs, in its own JVM.
+      // these for the workflow it runs, in its own JVM. Before the run is submitted, so a plugin
+      // that refuses it (the active project check) stops it before it runs on the server.
       ExtensionPointHandler.callExtensionPoint(
           logChannel, this, HopExtensionPoint.WorkflowStart.id, this);
+
+      submitToRemoteServer();
+      fireExecutionStartedListeners();
 
       initialized = true;
 

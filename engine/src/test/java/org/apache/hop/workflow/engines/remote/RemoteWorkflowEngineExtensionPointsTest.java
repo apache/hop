@@ -43,6 +43,9 @@ class RemoteWorkflowEngineExtensionPointsTest {
 
   static final List<String> FIRED = new CopyOnWriteArrayList<>();
 
+  /** Makes the WorkflowStart listener refuse the run, as the active project check can. */
+  static volatile boolean refuseStart;
+
   @ExtensionPoint(
       id = "RemoteWorkflowTestStartXp",
       extensionPointId = "WorkflowStart",
@@ -50,9 +53,13 @@ class RemoteWorkflowEngineExtensionPointsTest {
   public static class StartXp implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
     @Override
     public void callExtensionPoint(
-        ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow) {
+        ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
+        throws HopException {
       if (workflow instanceof RemoteWorkflowEngine) {
         FIRED.add("WorkflowStart");
+        if (refuseStart) {
+          throw new HopException("The workflow is not in the active project");
+        }
       }
     }
   }
@@ -84,6 +91,7 @@ class RemoteWorkflowEngineExtensionPointsTest {
   @BeforeEach
   void clear() {
     FIRED.clear();
+    refuseStart = false;
   }
 
   @Test
@@ -93,7 +101,8 @@ class RemoteWorkflowEngineExtensionPointsTest {
 
     engine.startExecution();
 
-    assertEquals(List.of("WorkflowStart", "WorkflowFinish", "finished listener"), FIRED);
+    assertEquals(
+        List.of("WorkflowStart", "submitted", "WorkflowFinish", "finished listener"), FIRED);
   }
 
   @Test
@@ -103,7 +112,24 @@ class RemoteWorkflowEngineExtensionPointsTest {
 
     engine.startExecution();
 
-    assertEquals(List.of("WorkflowFinish", "finished listener"), FIRED);
+    assertEquals(
+        List.of("WorkflowStart", "submitted", "WorkflowFinish", "finished listener"), FIRED);
+    assertEquals(1, engine.getResult().getNrErrors());
+  }
+
+  /**
+   * A plugin that refuses the run on WorkflowStart stops it before it is submitted: otherwise it
+   * would run on the server while the client reports an error and stops following it.
+   */
+  @Test
+  void aRunRefusedOnStartIsNeverSubmitted() {
+    refuseStart = true;
+    RemoteWorkflowEngine engine = engine(false);
+    engine.addExecutionFinishedListener(workflow -> FIRED.add("finished listener"));
+
+    engine.startExecution();
+
+    assertEquals(List.of("WorkflowStart", "WorkflowFinish", "finished listener"), FIRED);
     assertEquals(1, engine.getResult().getNrErrors());
   }
 
@@ -113,6 +139,7 @@ class RemoteWorkflowEngineExtensionPointsTest {
         new RemoteWorkflowEngine() {
           @Override
           protected void submitToRemoteServer() throws HopException {
+            FIRED.add("submitted");
             if (submissionFails) {
               throw new HopException("The Hop Server is not there");
             }
