@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 
@@ -40,10 +41,20 @@ public class PluginUninstaller {
 
   private final ILogChannel log;
   private final Path hopHome;
+  private final PendingChanges pending;
+
+  /** See {@code PluginInstaller#filesLockedWhileInUse}. */
+  private final boolean filesLockedWhileInUse;
 
   public PluginUninstaller(ILogChannel log, Path hopHome) {
+    this(log, hopHome, Const.isWindows());
+  }
+
+  PluginUninstaller(ILogChannel log, Path hopHome, boolean filesLockedWhileInUse) {
     this.log = log;
     this.hopHome = hopHome;
+    this.pending = new PendingChanges(hopHome);
+    this.filesLockedWhileInUse = filesLockedWhileInUse;
   }
 
   public void uninstall(String artifactId) throws HopException {
@@ -58,7 +69,9 @@ public class PluginUninstaller {
     // Leave shared lib/core jars in place (sticky, may be used by others). Files of a previous
     // version that an update could not remove yet go too, unless another marketplace artifact has
     // installed the same file since. Those are the files that were in use, so a failed delete is
-    // logged and kept in the receipt instead of stopping the uninstall half way.
+    // logged and kept in the receipt instead of stopping the uninstall half way. On Windows, where
+    // a plugin's own files are in use as well while Hop runs, Hop removes them the next time it
+    // starts.
     Set<String> obsolete = new LinkedHashSet<>();
     if (!PluginInstaller.nullSafe(receipt.getObsoletePaths()).isEmpty()) {
       Set<String> otherReceiptPaths =
@@ -72,17 +85,22 @@ public class PluginUninstaller {
     }
     Set<Path> dirs = new HashSet<>();
     List<String> leftovers = new ArrayList<>();
+    List<String> removedAtNextStart = new ArrayList<>();
     for (String relative : obsolete) {
       try {
         removePath(relative, dirs);
       } catch (IOException e) {
-        log.logError(
-            "Could not remove "
-                + relative
-                + " of a previous version of "
-                + artifactId
-                + " (file in use?). Close Hop and uninstall the plugin again to remove it. "
-                + e.getMessage());
+        if (removeAtNextStart(relative)) {
+          removedAtNextStart.add(relative);
+        } else {
+          log.logError(
+              "Could not remove "
+                  + relative
+                  + " of a previous version of "
+                  + artifactId
+                  + " (file in use?). Close Hop and uninstall the plugin again to remove it. "
+                  + e.getMessage());
+        }
         leftovers.add(relative);
       }
     }
@@ -93,7 +111,11 @@ public class PluginUninstaller {
       try {
         removePath(relative, dirs);
       } catch (IOException e) {
-        throw new HopException("Failed to remove " + hopHome.resolve(relative), e);
+        if (!removeAtNextStart(relative)) {
+          throw new HopException("Failed to remove " + hopHome.resolve(relative), e);
+        }
+        removedAtNextStart.add(relative);
+        leftovers.add(relative);
       }
     }
 
@@ -129,11 +151,19 @@ public class PluginUninstaller {
       receipt.setPaths(remainingDirs);
       receipt.setObsoletePaths(leftovers);
       PluginInstaller.writeReceipt(hopHome, receipt);
-      log.logError(
-          "Uninstalled "
-              + artifactId
-              + " except for files of a previous version that could not be removed: "
-              + String.join(", ", leftovers));
+      if (removedAtNextStart.size() == leftovers.size()) {
+        log.logBasic(
+            "Uninstalled "
+                + artifactId
+                + ". Hop removes the files that are in use the next time it starts: "
+                + String.join(", ", leftovers));
+      } else {
+        log.logError(
+            "Uninstalled "
+                + artifactId
+                + " except for files that could not be removed: "
+                + String.join(", ", leftovers));
+      }
       return;
     }
 
@@ -159,15 +189,30 @@ public class PluginUninstaller {
       return;
     }
     Path path = hopHome.resolve(relative);
+    if (Files.isDirectory(path)) {
+      dirs.add(path);
+      return;
+    }
+    // Also when the file is gone already (removed by the Hop launcher, for example), or cannot
+    // be removed yet: the receipt then lists its folder, so the folder goes once it is empty.
+    Path parent = path.getParent();
+    if (parent != null) {
+      dirs.add(parent);
+    }
     if (Files.isRegularFile(path)) {
       Files.deleteIfExists(path);
-      Path parent = path.getParent();
-      if (parent != null) {
-        dirs.add(parent);
-      }
-    } else if (Files.isDirectory(path)) {
-      dirs.add(path);
+      // A change an install left for the next start would put the file back.
+      PluginInstaller.forgetPendingChange(pending, log, path);
     }
+  }
+
+  /**
+   * On Windows a file that cannot be removed is in use: Hop removes it the next time it starts.
+   * Shared lib/core paths never get here.
+   */
+  private boolean removeAtNextStart(String relative) {
+    return filesLockedWhileInUse
+        && PluginInstaller.queueDelete(pending, log, hopHome.resolve(relative));
   }
 
   /** Remove the given directories, deepest first, when they are empty and under plugins/. */

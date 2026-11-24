@@ -44,7 +44,7 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class ApplyPendingChangesScriptTest {
 
-  private static final Path SCRIPT =
+  static final Path SCRIPT =
       Path.of(System.getProperty("basedir", System.getProperty("user.dir")))
           .resolve("../../../assemblies/static/src/main/resources/lib/apply-pending-changes.sh")
           .normalize();
@@ -233,9 +233,9 @@ class ApplyPendingChangesScriptTest {
         before.lines().filter(l -> !l.startsWith("delete")).toList(), after.lines().toList());
   }
 
-  private record Result(int exitCode, String stdout, String stderr) {}
+  record Result(int exitCode, String stdout, String stderr) {}
 
-  private static Result run(Path workingFolder, String pluginBaseFolders) throws Exception {
+  static Result run(Path workingFolder, String pluginBaseFolders) throws Exception {
     List<String> command = new ArrayList<>(List.of("sh", SCRIPT.toString(), pluginBaseFolders));
     Process process = new ProcessBuilder(command).directory(workingFolder.toFile()).start();
     process.getOutputStream().close();

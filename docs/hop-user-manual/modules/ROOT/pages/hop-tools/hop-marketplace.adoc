@@ -97,8 +97,9 @@ After install, apply, or uninstall, *restart Hop* so the plugin registry reloads
 
 Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
 Shared jars in `lib/core` stay in place.
-A file of the previous version that is still in use (Windows locks loaded jars) stays listed in the receipt and is removed by the next install, apply, or uninstall.
-Uninstall removes the rest of the plugin in that case; run it again after closing Hop to remove that file.
+On Windows, a file that is in use is replaced or removed the next time Hop starts, see <<pending-changes>>.
+Until then the receipt keeps listing a file of the previous version, and the next install, apply, or uninstall drops it from the receipt once it is gone.
+A file that cannot be removed for another reason, such as file permissions, stays listed as well and is retried by the next install, apply, or uninstall.
 
 The marketplace keeps an install receipt for each plugin in `plugins/.marketplace/`, with a SHA-256 checksum of every file it installed.
 When a plugin replaces a jar in `lib/core` that has other content, the old jar is first backed up to a new folder under `plugins/.marketplace/backup/<plugin>/<version>/`, where `<version>` is the version being installed.
@@ -107,9 +108,11 @@ When a plugin replaces a jar in `lib/core` that has other content, the old jar i
 === Files in use
 
 Windows keeps the jars of a running Hop locked, so the marketplace cannot always replace or remove
-a file straight away. Such changes wait in `plugins/.marketplace/pending`, and the GUI and the CLI
-list them after the install. Every Hop launcher (`hop`, `hop-gui`, `hop-run`, ... and their `.bat`
-versions) and the Docker images make these changes before Java starts. A change that still fails,
+a file straight away: a shared jar in `lib/core`, a plugin jar that an update or a reinstall
+overwrites, or the files an update or an uninstall removes. Such changes wait in
+`plugins/.marketplace/pending`, and the GUI and the CLI list them after the install or uninstall.
+Every Hop launcher (`hop`, `hop-gui`, `hop-run`, ... and their `.bat` versions) and the Docker
+images make these changes before Java starts. A change that still fails,
 for example because another Hop is running from the same folder, stays in the list for the next
 start.
 

@@ -171,10 +171,14 @@ public final class PendingChanges {
 
   /**
    * Drop the pending changes for {@code target}, for example when a later install could write the
-   * file after all.
+   * file after all. Nothing happens for a file the list cannot hold.
    */
   public synchronized void forget(Path target) throws HopException {
-    String relativeTarget = relativeTarget(target);
+    Path absolute = target.toAbsolutePath().normalize();
+    if (!absolute.startsWith(hopHome) || !Files.isRegularFile(hopHome.resolve(PENDING_FILE))) {
+      return;
+    }
+    String relativeTarget = hopHome.relativize(absolute).toString().replace('\\', '/');
     List<Change> changes = read();
     List<Change> kept = changes.stream().filter(c -> !c.target().equals(relativeTarget)).toList();
     if (kept.size() != changes.size()) {

@@ -92,16 +92,20 @@ public class InstallReceipt {
 
   /** What activating an install did to a shared {@code lib/core} file. */
   public enum SharedFileAction {
-    /** The file did not exist; this install created it. */
+    /**
+     * The file did not exist; this install created it. When it could not be written because it was
+     * in use (Windows), Hop writes it the next time it starts (see {@link PendingChanges}).
+     */
     CREATED,
-    /** A file with other content existed; it was backed up and replaced. */
+    /**
+     * A file with other content existed; it was backed up and replaced. On Windows, where the
+     * running Hop keeps the jars on the system classpath locked, Hop replaces it the next time it
+     * starts (see {@link PendingChanges}).
+     */
     REPLACED,
     /** A file with the same content existed and was left alone. */
     UNCHANGED,
-    /**
-     * A file with other content existed and was left in place: Windows locks system classpath jars,
-     * or the copy or the backup failed.
-     */
+    /** A file with other content existed and was left in place: the copy or the backup failed. */
     KEPT,
     /**
      * An earlier version shipped this file and the marketplace created it, or replaced the client's

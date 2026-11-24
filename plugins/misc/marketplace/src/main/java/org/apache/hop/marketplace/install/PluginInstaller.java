@@ -81,6 +81,14 @@ public class PluginInstaller {
   private final Path hopHome;
   private final MarketplaceConfig config;
   private final MavenRepositoryClient client;
+  private final PendingChanges pending;
+
+  /**
+   * Whether a file that cannot be written or removed is in use and changes at the next Hop start
+   * instead (see {@link PendingChanges}). Windows keeps the jars of a running JVM locked; elsewhere
+   * a failure has another cause (permissions, for example) that a restart does not fix.
+   */
+  private boolean filesLockedWhileInUse = Const.isWindows();
 
   public PluginInstaller(ILogChannel log, Path hopHome, MarketplaceConfig config) {
     this(
@@ -96,6 +104,12 @@ public class PluginInstaller {
     this.hopHome = hopHome;
     this.config = config;
     this.client = client;
+    this.pending = new PendingChanges(hopHome);
+  }
+
+  /** For tests: behave as on Windows, where files in use are locked, or not. */
+  void setFilesLockedWhileInUse(boolean filesLockedWhileInUse) {
+    this.filesLockedWhileInUse = filesLockedWhileInUse;
   }
 
   /**
@@ -669,9 +683,10 @@ public class PluginInstaller {
 
   /**
    * Delete the receipt's obsolete files and the plugin folders that leaves empty. A file that
-   * cannot be deleted (in use, typically on Windows) stays in the receipt so a later install, apply
-   * or uninstall removes it. A file that another receipt lists by now, or that is one of the
-   * current version's files under a differently cased name, is no longer obsolete and is kept.
+   * cannot be deleted stays in the receipt so a later install, apply or uninstall removes it; on
+   * Windows, where that means the file is in use, Hop also removes it the next time it starts. A
+   * file that another receipt lists by now, or that is one of the current version's files under a
+   * differently cased name, is no longer obsolete and is kept.
    */
   private void removeObsoleteFiles(InstallReceipt receipt) throws HopException {
     if (nullSafe(receipt.getObsoletePaths()).isEmpty()) {
@@ -697,23 +712,37 @@ public class PluginInstaller {
       }
       if (Files.isDirectory(path)) {
         dirs.add(path);
-      } else if (Files.exists(path)) {
+      } else if (!Files.exists(path)) {
+        // Removed in the meantime, by the Hop launcher for example: its folder may be empty now.
+        if (path.getParent() != null) {
+          dirs.add(path.getParent());
+        }
+      } else {
         try {
           Files.delete(path);
+          forgetPendingChange(path);
           log.logBasic(
               "Removed " + relative + " of the previous version of " + receipt.getArtifactId());
           if (path.getParent() != null) {
             dirs.add(path.getParent());
           }
         } catch (IOException e) {
-          log.logError(
-              "Could not remove "
-                  + relative
-                  + " of the previous version of "
-                  + receipt.getArtifactId()
-                  + " (file in use?). Close Hop and run 'hop marketplace install' or"
-                  + " 'hop marketplace apply', or uninstall the plugin, to remove it. "
-                  + e.getMessage());
+          if (filesLockedWhileInUse && queueDelete(pending, log, path)) {
+            log.logBasic(
+                relative
+                    + " of the previous version of "
+                    + receipt.getArtifactId()
+                    + " is in use: Hop removes it the next time it starts.");
+          } else {
+            log.logError(
+                "Could not remove "
+                    + relative
+                    + " of the previous version of "
+                    + receipt.getArtifactId()
+                    + " (file in use?). Close Hop and run 'hop marketplace install' or"
+                    + " 'hop marketplace apply', or uninstall the plugin, to remove it. "
+                    + e.getMessage());
+          }
           remaining.add(relative);
         }
       }
@@ -763,7 +792,8 @@ public class PluginInstaller {
     for (InstallReceipt receipt : receipts) {
       if (receipt.isUninstallPending()) {
         try {
-          new PluginUninstaller(log, hopHome).uninstall(receipt.getArtifactId());
+          new PluginUninstaller(log, hopHome, filesLockedWhileInUse)
+              .uninstall(receipt.getArtifactId());
         } catch (HopException e) {
           log.logError("Could not finish uninstalling " + receipt.getArtifactId(), e);
         }
@@ -907,7 +937,7 @@ public class PluginInstaller {
               sharedFiles.put(relative, new SharedFile(action, backup, created, original));
             }
           } else {
-            Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+            activatePluginFile(relative, from, to);
           }
         }
       }
@@ -969,12 +999,35 @@ public class PluginInstaller {
   }
 
   /**
+   * Copy one plugin file into place. On Windows a file in use cannot be overwritten: unless it
+   * already has the new content, Hop replaces it the next time it starts.
+   */
+  private void activatePluginFile(String relative, Path from, Path to) throws IOException {
+    try {
+      Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      if (!filesLockedWhileInUse || !Files.isRegularFile(to)) {
+        throw e;
+      }
+      if (Files.mismatch(from, to) != -1L) {
+        if (!queueCopy(from, to)) {
+          throw e;
+        }
+        log.logBasic(relative + " is in use: Hop replaces it the next time it starts.");
+        return;
+      }
+    }
+    // A change queued by an earlier install would undo this one at the next start.
+    forgetPendingChange(to);
+  }
+
+  /**
    * Install shared classpath jars (Maven provided → {@code lib/core}). Missing jars are always
-   * copied. Existing jars that match the staged content are skipped. On Windows, existing jars are
-   * never overwritten (the running JVM locks {@code lib/core/*} on the system classpath). On other
-   * platforms, different content is replaced when possible; copy failures are logged and skipped so
-   * the rest of the plugin still activates. A jar that is replaced is first backed up to {@link
-   * #backupPath}; when that fails, the existing jar stays.
+   * copied. Existing jars that match the staged content are left alone. Different content is
+   * replaced; the existing jar is first backed up to {@link #backupPath}, and when that fails it
+   * stays. On Windows the running JVM locks the jars on the system classpath, so Hop replaces an
+   * existing jar the next time it starts (see {@link PendingChanges}). On other platforms a copy
+   * that fails is logged and skipped, so the rest of the plugin still activates.
    *
    * @return what was done, or null when a missing jar could not be written
    */
@@ -982,24 +1035,14 @@ public class PluginInstaller {
       String artifactId, String relative, Path from, Path to, String backupRelative)
       throws IOException {
     boolean targetExists = Files.isRegularFile(to);
-    Long mismatch = targetExists ? Files.mismatch(from, to) : null;
-    boolean differs = targetExists && mismatch != null && mismatch != -1L;
-
-    if (skipSharedCoreCopy(targetExists, mismatch, Const.isWindows())) {
-      if (differs) {
-        log.logBasic(
-            "Leaving existing shared lib/core jar in place (Windows locks system classpath jars): "
-                + relative
-                + " from "
-                + artifactId
-                + ". Content differs from the package; stop Hop and replace manually if needed.");
-        return SharedFileAction.KEPT;
-      }
+    if (targetExists && Files.mismatch(from, to) == -1L) {
+      // A change queued by an earlier install would undo this one at the next start.
+      forgetPendingChange(to);
       return SharedFileAction.UNCHANGED;
     }
 
     Path backup = null;
-    if (differs) {
+    if (targetExists) {
       log.logBasic(
           "Replacing shared lib/core jar with different content from "
               + artifactId
@@ -1032,21 +1075,90 @@ public class PluginInstaller {
         return SharedFileAction.KEPT;
       }
     }
-    try {
-      Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
-    } catch (IOException e) {
-      // File in use (Windows), antivirus, etc. — do not fail the whole plugin install.
-      log.logError(
-          "Could not write shared lib/core jar (file in use?): "
-              + relative
-              + " — leaving existing file. "
-              + e.getMessage());
-      if (backup != null) {
-        removeUnusedBackup(backup);
+    SharedFileAction done = targetExists ? SharedFileAction.REPLACED : SharedFileAction.CREATED;
+    // On Windows, overwriting a jar on the system classpath fails: do not even try.
+    if (!(targetExists && filesLockedWhileInUse)) {
+      try {
+        Files.copy(from, to, StandardCopyOption.REPLACE_EXISTING);
+        forgetPendingChange(to);
+        return done;
+      } catch (IOException e) {
+        if (!filesLockedWhileInUse) {
+          // Permissions, a full disk, antivirus... — do not fail the whole plugin install.
+          log.logError(
+              "Could not write shared lib/core jar: "
+                  + relative
+                  + " — leaving existing file. "
+                  + e.getMessage());
+          if (backup != null) {
+            removeUnusedBackup(backup);
+          }
+          return targetExists ? SharedFileAction.KEPT : null;
+        }
       }
-      return targetExists ? SharedFileAction.KEPT : null;
     }
-    return targetExists ? SharedFileAction.REPLACED : SharedFileAction.CREATED;
+    if (queueCopy(from, to)) {
+      log.logBasic(
+          "Shared lib/core jar "
+              + relative
+              + " from "
+              + artifactId
+              + " is in use: Hop "
+              + (targetExists ? "replaces" : "adds")
+              + " it the next time it starts.");
+      return done;
+    }
+    log.logError("Leaving shared lib/core jar " + relative + " as it is.");
+    if (backup != null) {
+      removeUnusedBackup(backup);
+    }
+    return targetExists ? SharedFileAction.KEPT : null;
+  }
+
+  /**
+   * Copy {@code from} over {@code to} the next time Hop starts. False when that is not possible.
+   */
+  private boolean queueCopy(Path from, Path to) {
+    try {
+      pending.queueCopy(from, to);
+      return true;
+    } catch (HopException e) {
+      log.logError("Could not leave the change to " + to + " for the next Hop start", e);
+      return false;
+    }
+  }
+
+  /** Delete {@code path} the next time Hop starts. False when that is not possible. */
+  static boolean queueDelete(PendingChanges pending, ILogChannel log, Path path) {
+    try {
+      pending.queueDelete(path);
+      return true;
+    } catch (HopException e) {
+      log.logError("Could not leave the removal of " + path + " for the next Hop start", e);
+      return false;
+    }
+  }
+
+  private void forgetPendingChange(Path target) {
+    forgetPendingChange(pending, log, target);
+  }
+
+  /**
+   * Drop a change an earlier install left for the next start: the file is as it should be now, and
+   * the change would undo that.
+   */
+  static void forgetPendingChange(PendingChanges pending, ILogChannel log, Path target) {
+    try {
+      pending.forget(target);
+    } catch (HopException e) {
+      log.logError(
+          "Could not drop the pending change to "
+              + target
+              + ". Check "
+              + PendingChanges.PENDING_FILE
+              + " before Hop starts again.",
+          e);
+    }
   }
 
   private Path backupRoot() {
@@ -1113,31 +1225,6 @@ public class PluginInstaller {
       return fromHome;
     }
     return null;
-  }
-
-  /**
-   * Whether activation should skip copying a staged lib/core file onto an existing target.
-   *
-   * <ul>
-   *   <li>Missing target → never skip (install new shared jars; see #7666).
-   *   <li>Identical content → always skip (avoids Windows lock failures when re-shipping the same
-   *       jar, e.g. avro).
-   *   <li>Different content on Windows → skip (cannot overwrite locked classpath jars).
-   *   <li>Different content elsewhere → do not skip (try replace).
-   * </ul>
-   *
-   * @param targetExists whether the destination file already exists
-   * @param mismatch result of {@link Files#mismatch} when the target exists; ignored when missing
-   * @param windows whether the host is Windows
-   */
-  static boolean skipSharedCoreCopy(boolean targetExists, Long mismatch, boolean windows) {
-    if (!targetExists) {
-      return false;
-    }
-    if (mismatch != null && mismatch == -1L) {
-      return true;
-    }
-    return windows;
   }
 
   /**
