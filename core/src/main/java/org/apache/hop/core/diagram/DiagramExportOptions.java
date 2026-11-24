@@ -32,6 +32,8 @@ public class DiagramExportOptions {
   private boolean includeNotes = true;
   private String theme;
   private String direction;
+  private DiagramLayoutPolicy layoutPolicy = DiagramLayoutPolicy.NONE;
+  private DiagramLayoutAlgorithm layoutAlgorithm = DiagramLayoutAlgorithm.LAYERED;
   private Map<String, String> extraOptions = new HashMap<>();
 
   public DiagramExportOptions() {}

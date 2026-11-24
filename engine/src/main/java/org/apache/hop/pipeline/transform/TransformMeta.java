@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transform;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.base.IBaseMeta;
@@ -117,6 +118,12 @@ public class TransformMeta
 
   @HopMetadataProperty(key = "GUI")
   private Point location;
+
+  /**
+   * Whether both coordinates were supplied, rather than defaulted during construction or loading.
+   */
+  @Setter(AccessLevel.NONE)
+  private boolean locationExplicit;
 
   @HopMetadataProperty private String description;
 
@@ -309,17 +316,20 @@ public class TransformMeta
 
         String xloc = XmlHandler.getTagValue(transformNode, "GUI", "xloc");
         String yloc = XmlHandler.getTagValue(transformNode, "GUI", "yloc");
+        locationExplicit = true;
         int x;
         try {
           x = Integer.parseInt(xloc);
         } catch (Exception e) {
           x = 0;
+          locationExplicit = false;
         }
         int y;
         try {
           y = Integer.parseInt(yloc);
         } catch (Exception e) {
           y = 0;
+          locationExplicit = false;
         }
         location = new Point(x, y);
 
@@ -465,8 +475,12 @@ public class TransformMeta
   @Override
   public Object clone() {
     // Use the copy factory for improved cloning with proper state preservation
-    return org.apache.hop.pipeline.transform.copy.DefaultTransformMetaCopyFactory.getInstance()
-        .copy(this);
+    final var copy =
+        org.apache.hop.pipeline.transform.copy.DefaultTransformMetaCopyFactory.getInstance()
+            .copy(this);
+    // The factory uses setLocation(), which treats the copied fallback as an explicit position.
+    copy.locationExplicit = locationExplicit;
+    return copy;
   }
 
   @SuppressWarnings("javabugs:S2259") // the copy factory only returns null for a null source
@@ -486,6 +500,7 @@ public class TransformMeta
     this.copiesString = copy.copiesString;
     this.copiesCache = null; // force re-calculation
     this.location = copy.location;
+    this.locationExplicit = transformMeta.locationExplicit;
     this.description = copy.description;
     this.terminator = copy.terminator;
     this.transformPartitioningMeta = copy.transformPartitioningMeta;
@@ -562,6 +577,7 @@ public class TransformMeta
       setWrapperChanged();
     }
     location = loc;
+    locationExplicit = true;
   }
 
   @Override
@@ -570,6 +586,7 @@ public class TransformMeta
       setWrapperChanged();
     }
     location = loc;
+    locationExplicit = loc != null;
   }
 
   public void check(

@@ -90,14 +90,7 @@ public class PipelineSvgPainter {
 
       SvgExportCanvas.Bounds bounds = new SvgExportCanvas.Bounds();
       for (TransformMeta transform : pipelineMeta.getTransforms()) {
-        SvgExportCanvas.includeNode(
-            bounds,
-            gc,
-            transform.getLocation(),
-            transform.getName(),
-            !Utils.isEmpty(transform.getDescription()),
-            SvgExportCanvas.ICON_SIZE);
-        includeTransformDecorations(bounds, gc, transform);
+        includeTransformBounds(bounds, gc, transform);
       }
       for (NotePadMeta note : pipelineMeta.getNotes()) {
         SvgExportCanvas.includeNote(
@@ -121,6 +114,19 @@ public class PipelineSvgPainter {
     } catch (Exception e) {
       throw new HopException("Unable to generate SVG for pipeline " + pipelineMeta.getName(), e);
     }
+  }
+
+  /** Includes the complete painted transform footprint, also used by export layout. */
+  public static void includeTransformBounds(
+      final SvgExportCanvas.Bounds bounds, final IGc gc, final TransformMeta transform) {
+    SvgExportCanvas.includeNode(
+        bounds,
+        gc,
+        transform.getLocation(),
+        transform.getName(),
+        !Utils.isEmpty(transform.getDescription()),
+        SvgExportCanvas.ICON_SIZE);
+    includeTransformDecorations(bounds, gc, transform);
   }
 
   /**

@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.diagram.DiagramExportFormat;
 import org.apache.hop.core.diagram.DiagramExportOptions;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.DiagramLayoutAlgorithm;
+import org.apache.hop.core.diagram.DiagramLayoutPolicy;
 import org.apache.hop.core.diagram.IDiagramExporter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -46,6 +48,8 @@ public class DiagramExportDialogModel {
   public static final String WIDGET_FILENAME = "diagram-export-filename";
   public static final String WIDGET_MAGNIFICATION = "diagram-export-magnification";
   public static final String WIDGET_INCLUDE_NOTES = "diagram-export-include-notes";
+  public static final String WIDGET_LAYOUT_POLICY = "diagram-export-layout-policy";
+  public static final String WIDGET_LAYOUT_ALGORITHM = "diagram-export-layout-algorithm";
 
   private final Object subject;
   private final List<IDiagramExporter<?>> supportedExporters;
@@ -99,6 +103,32 @@ public class DiagramExportDialogModel {
       group = "i18n::DiagramExportDialog.Group.ExportSettings")
   @HopMetadataProperty
   private boolean includeNotes = true;
+
+  @GuiWidgetElement(
+      id = WIDGET_LAYOUT_POLICY,
+      order = "0500",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::DiagramExportDialog.LayoutPolicy.Label",
+      toolTip = "i18n::DiagramExportDialog.LayoutPolicy.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::DiagramExportDialog.Group.ExportSettings")
+  @HopMetadataProperty
+  private DiagramLayoutPolicy layoutPolicy = DiagramLayoutPolicy.NONE;
+
+  @GuiWidgetElement(
+      id = WIDGET_LAYOUT_ALGORITHM,
+      order = "0600",
+      parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.COMBO,
+      variables = false,
+      label = "i18n::DiagramExportDialog.LayoutAlgorithm.Label",
+      toolTip = "i18n::DiagramExportDialog.LayoutAlgorithm.Tooltip",
+      groupType = GuiWidgetGroupType.BOXES,
+      group = "i18n::DiagramExportDialog.Group.ExportSettings")
+  @HopMetadataProperty
+  private DiagramLayoutAlgorithm layoutAlgorithm = DiagramLayoutAlgorithm.LAYERED;
 
   public DiagramExportDialogModel() {
     this(null, "");
@@ -184,6 +214,8 @@ public class DiagramExportDialogModel {
       options.setMagnification(1.0f);
     }
     options.setIncludeNotes(includeNotes);
+    options.setLayoutPolicy(layoutPolicy);
+    options.setLayoutAlgorithm(layoutAlgorithm);
     return options;
   }
 

@@ -22,6 +22,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.diagram.DiagramExportResult;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.DiagramLayoutPolicy;
 import org.apache.hop.core.diagram.ExportContext;
 import org.apache.hop.core.diagram.IDiagramExporter;
 import org.apache.hop.core.diagram.IExportContext;
@@ -123,6 +124,7 @@ public class DiagramExportDialog extends Dialog {
             model);
 
     listenForFormatChanges();
+    listenForLayoutPolicyChanges();
     replaceFilenameBrowseWithSaveDialog();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -133,6 +135,22 @@ public class DiagramExportDialog extends Dialog {
     Control control = widgets.getWidgetsMap().get(DiagramExportDialogModel.WIDGET_FORMAT);
     if (control instanceof Combo combo) {
       combo.addListener(SWT.Selection, e -> syncFilenameExtension());
+    }
+  }
+
+  private void listenForLayoutPolicyChanges() {
+    final var policy = widgets.getWidgetsMap().get(DiagramExportDialogModel.WIDGET_LAYOUT_POLICY);
+    final var algorithm =
+        widgets.getWidgetsMap().get(DiagramExportDialogModel.WIDGET_LAYOUT_ALGORITHM);
+    if (policy instanceof Combo combo && algorithm != null) {
+      algorithm.setEnabled(model.getLayoutPolicy() != DiagramLayoutPolicy.NONE);
+      combo.addListener(
+          SWT.Selection,
+          e -> {
+            widgets.getWidgetsContents(
+                model, DiagramExportDialogModel.GUI_PLUGIN_ELEMENT_PARENT_ID);
+            algorithm.setEnabled(model.getLayoutPolicy() != DiagramLayoutPolicy.NONE);
+          });
     }
   }
 

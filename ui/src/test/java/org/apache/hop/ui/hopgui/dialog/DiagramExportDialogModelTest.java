@@ -29,6 +29,8 @@ import org.apache.hop.core.diagram.DiagramExportFormat;
 import org.apache.hop.core.diagram.DiagramExportOptions;
 import org.apache.hop.core.diagram.DiagramExportResult;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.DiagramLayoutAlgorithm;
+import org.apache.hop.core.diagram.DiagramLayoutPolicy;
 import org.apache.hop.core.diagram.ExportContext;
 import org.apache.hop.core.diagram.IDiagramExporter;
 import org.apache.hop.core.diagram.IExportContext;
@@ -62,6 +64,25 @@ class DiagramExportDialogModelTest {
     HopClientEnvironment.init();
     DiagramExportService.getInstance().registerStaticExporter(new PipelineSvgDiagramExporter());
     DiagramExportService.getInstance().registerStaticExporter(new PipelineMermaidDiagramExporter());
+  }
+
+  @Test
+  void testLayoutDefaultsAndOptions() {
+    final var model = new DiagramExportDialogModel();
+    assertEquals(DiagramLayoutPolicy.NONE, model.getLayoutPolicy());
+    assertEquals(DiagramLayoutAlgorithm.LAYERED, model.getLayoutAlgorithm());
+    assertEquals(DiagramLayoutPolicy.NONE, model.toOptions().getLayoutPolicy());
+    assertEquals(DiagramLayoutAlgorithm.LAYERED, model.toOptions().getLayoutAlgorithm());
+
+    for (final var policy : DiagramLayoutPolicy.values()) {
+      for (final var algorithm : DiagramLayoutAlgorithm.values()) {
+        model.setLayoutPolicy(policy);
+        model.setLayoutAlgorithm(algorithm);
+        final var options = model.toOptions();
+        assertEquals(policy, options.getLayoutPolicy());
+        assertEquals(algorithm, options.getLayoutAlgorithm());
+      }
+    }
   }
 
   @Test

@@ -35,6 +35,8 @@ import org.apache.hop.core.diagram.DiagramExportFormat;
 import org.apache.hop.core.diagram.DiagramExportOptions;
 import org.apache.hop.core.diagram.DiagramExportResult;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.DiagramLayoutAlgorithm;
+import org.apache.hop.core.diagram.DiagramLayoutPolicy;
 import org.apache.hop.core.diagram.ExportContext;
 import org.apache.hop.core.diagram.IDiagramExporter;
 import org.apache.hop.core.diagram.IExportContext;
@@ -108,6 +110,16 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
       names = {"-in", "--include-notes"},
       description = "Include notes in diagram export (default: true)")
   private boolean includeNotes = true;
+
+  @Option(
+      names = {"--layout-policy"},
+      description = "Automatic layout policy: ${COMPLETION-CANDIDATES} (default: NONE)")
+  private DiagramLayoutPolicy layoutPolicy = DiagramLayoutPolicy.NONE;
+
+  @Option(
+      names = {"--layout-algorithm"},
+      description = "Automatic layout algorithm: ${COMPLETION-CANDIDATES} (default: LAYERED)")
+  private DiagramLayoutAlgorithm layoutAlgorithm = DiagramLayoutAlgorithm.LAYERED;
 
   @Option(
       names = {"--list-exporters"},
@@ -225,6 +237,8 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
     DiagramExportOptions options = new DiagramExportOptions(targetFile, targetFmt);
     options.setMagnification(magnification);
     options.setIncludeNotes(includeNotes);
+    options.setLayoutPolicy(layoutPolicy);
+    options.setLayoutAlgorithm(layoutAlgorithm);
 
     IExportContext context =
         new ExportContext(variables, metadataProvider, log, IExportContext.ExportEnvironment.CLI);
@@ -317,6 +331,8 @@ public class DiagramExportCommand implements Runnable, IHopCommand, IHasHopMetad
         DiagramExportOptions options = new DiagramExportOptions(targetPath, targetFmt);
         options.setMagnification(magnification);
         options.setIncludeNotes(includeNotes);
+        options.setLayoutPolicy(layoutPolicy);
+        options.setLayoutAlgorithm(layoutAlgorithm);
 
         DiagramExportResult result = exporter.export(subject, options, context);
         if (result.isSuccess()) {

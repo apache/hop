@@ -30,6 +30,8 @@ import org.apache.hop.core.diagram.DiagramExportFormat;
 import org.apache.hop.core.diagram.DiagramExportOptions;
 import org.apache.hop.core.diagram.DiagramExportResult;
 import org.apache.hop.core.diagram.DiagramExportService;
+import org.apache.hop.core.diagram.DiagramLayoutAlgorithm;
+import org.apache.hop.core.diagram.DiagramLayoutPolicy;
 import org.apache.hop.core.diagram.IExportContext;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -37,6 +39,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import picocli.CommandLine;
 
 class DiagramExportCommandTest {
 
@@ -56,7 +59,12 @@ class DiagramExportCommandTest {
     public DiagramExportResult export(
         PipelineMeta subject, DiagramExportOptions options, IExportContext context)
         throws HopException {
-      String content = "@startuml\n@enduml\n";
+      String content =
+          "@startuml\n' "
+              + options.getLayoutPolicy().getCode()
+              + " "
+              + options.getLayoutAlgorithm().getCode()
+              + "\n@enduml\n";
       writeToTarget(options.getTargetFilename(), content, context);
       return DiagramExportResult.success(options.getTargetFilename(), content, "text/plain");
     }
@@ -65,6 +73,66 @@ class DiagramExportCommandTest {
   @BeforeAll
   static void initHop() throws Exception {
     org.apache.hop.core.HopEnvironment.init();
+  }
+
+  @Test
+  void testLayoutOptionDefaultsAndParsing() {
+    final var command = new DiagramExportCommand();
+    final var cli = new CommandLine(command);
+    cli.parseArgs();
+    assertEquals(DiagramLayoutPolicy.NONE, command.getLayoutPolicy());
+    assertEquals(DiagramLayoutAlgorithm.LAYERED, command.getLayoutAlgorithm());
+    for (final var policy : DiagramLayoutPolicy.values()) {
+      for (final var algorithm : DiagramLayoutAlgorithm.values()) {
+        cli.parseArgs(
+            "--layout-policy", policy.getCode(), "--layout-algorithm", algorithm.getCode());
+        assertEquals(policy, command.getLayoutPolicy());
+        assertEquals(algorithm, command.getLayoutAlgorithm());
+      }
+    }
+    assertThrows(
+        CommandLine.ParameterException.class, () -> cli.parseArgs("--layout-policy", "INVALID"));
+    assertThrows(
+        CommandLine.ParameterException.class, () -> cli.parseArgs("--layout-algorithm", "INVALID"));
+  }
+
+  @Test
+  void testLayoutOptionsReachSingleAndBatchExporters() throws Exception {
+    final var exporter = new PipelinePlantUmlExporter();
+    final var service = DiagramExportService.getInstance();
+    service.registerStaticExporter(exporter);
+    try {
+      final var source = Files.createDirectory(tempDir.resolve("layout-source"));
+      final var target = Files.createDirectory(tempDir.resolve("layout-target"));
+      final var pipeline = writePipeline("layout-source/pipe.hpl");
+      final var singleOutput = tempDir.resolve("layout.puml");
+      final var single = new DiagramExportCommand();
+      new CommandLine(single)
+          .parseArgs(
+              "-f",
+              pipeline.toString(),
+              "-o",
+              singleOutput.toString(),
+              "--layout-policy",
+              "ALWAYS",
+              "--layout-algorithm",
+              "GRID");
+      single.run();
+      assertTrue(Files.readString(singleOutput).contains("' ALWAYS GRID"));
+
+      final var batch = new DiagramExportCommand();
+      new CommandLine(batch)
+          .parseArgs(
+              "-s", source.toString(),
+              "-t", target.toString(),
+              "--format", "plantuml",
+              "--layout-policy", "ON_MISSING",
+              "--layout-algorithm", "GRID");
+      batch.run();
+      assertTrue(Files.readString(target.resolve("pipe.puml")).contains("' ON_MISSING GRID"));
+    } finally {
+      service.unregisterStaticExporter(exporter);
+    }
   }
 
   @Test
@@ -133,20 +201,20 @@ class DiagramExportCommandTest {
     assertFalse(Files.exists(fooFile));
   }
 
-  /** -o x.png, without --format, was written as SVG into x.png. */
+  /** An unregistered extension must not silently be written as SVG. */
   @Test
   void testExportToAnExtensionWithoutExporterFails() throws Exception {
     Path pipelineFile = writePipeline("test-pipeline.hpl");
-    Path pngFile = tempDir.resolve("x.png");
+    Path outputFile = tempDir.resolve("x.png");
 
     DiagramExportCommand cmd = new DiagramExportCommand();
     cmd.setFilename(pipelineFile.toString());
-    cmd.setOutputFilename(pngFile.toString());
+    cmd.setOutputFilename(outputFile.toString());
     RuntimeException e = assertThrows(RuntimeException.class, cmd::run);
 
     assertTrue(e.getCause().getMessage().contains("'PNG'"), e.getCause().getMessage());
     assertTrue(e.getCause().getMessage().contains("SVG (.svg)"), e.getCause().getMessage());
-    assertFalse(Files.exists(pngFile));
+    assertFalse(Files.exists(outputFile));
   }
 
   @Test

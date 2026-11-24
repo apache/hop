@@ -51,7 +51,9 @@ public class WorkflowSvgDiagramExporter extends BaseDiagramExporter<WorkflowMeta
     float magnification = options != null ? options.getMagnification() : 1.0f;
     String svgXml =
         WorkflowSvgPainter.generateWorkflowSvg(
-            workflowMeta, magnification, context != null ? context.getVariables() : null);
+            DiagramExportPreparation.prepare(workflowMeta, options),
+            magnification,
+            context != null ? context.getVariables() : null);
 
     if (options != null && options.getTargetFilename() != null) {
       writeToTarget(options.getTargetFilename(), svgXml, context);
