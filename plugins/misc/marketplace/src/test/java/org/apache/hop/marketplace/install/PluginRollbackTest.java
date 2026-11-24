@@ -220,6 +220,9 @@ class PluginRollbackTest {
       assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(TEST_PLUGIN)));
       assertFalse(Files.exists(hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(".restore")));
       assertEquals("not a folder", Files.readString(plugin.resolve("conf")));
+      assertFalse(
+          Files.exists(PluginInstaller.rollbackDir(hopHome, TEST_PLUGIN, "2.0.0")),
+          "version 1 is installed again, so its backup for the failed install is gone");
     } finally {
       server.stop(0);
     }

@@ -342,6 +342,12 @@ public class PluginInstaller {
       }
       restoreBackup(coordinates.artifactId(), backup, attempted);
       deleteRecursive(hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId()));
+      // The restored version is installed again: its copy here is not needed any more.
+      try {
+        removeRollbackBackup(backup);
+      } catch (IOException e) {
+        log.logError("Could not remove the backup " + backup + " that is not needed any more", e);
+      }
       return new HopException(
           "Failed to install " + coordinates.gav() + ". Hop put " + restoredVersion + " back.",
           failure);
@@ -610,20 +616,24 @@ public class PluginInstaller {
     String keep = keepVersion == null ? null : pathSegment(keepVersion);
     try (var stream = Files.list(artifactDir)) {
       for (Path versionDir : stream.filter(Files::isDirectory).toList()) {
-        if (versionDir.getFileName().toString().equals(keep)) {
-          continue;
+        if (!versionDir.getFileName().toString().equals(keep)) {
+          removeRollbackBackup(versionDir);
         }
-        for (String name :
-            List.of(
-                ROLLBACK_RECEIPT, ROLLBACK_ZIP, ROLLBACK_RECEIPT + ".tmp", ROLLBACK_ZIP + ".tmp")) {
-          Files.deleteIfExists(versionDir.resolve(name));
-        }
-        deleteIfEmpty(versionDir);
       }
       deleteIfEmpty(artifactDir);
     } catch (IOException e) {
       log.logError("Could not remove the older backed-up versions of " + artifactId, e);
     }
+  }
+
+  /** Remove one backed-up version, and its folder when nothing else is in it. */
+  private static void removeRollbackBackup(Path versionDir) throws IOException {
+    // The receipt goes first: a zip without it is no backup.
+    for (String name :
+        List.of(ROLLBACK_RECEIPT, ROLLBACK_ZIP, ROLLBACK_RECEIPT + ".tmp", ROLLBACK_ZIP + ".tmp")) {
+      Files.deleteIfExists(versionDir.resolve(name));
+    }
+    deleteIfEmpty(versionDir);
   }
 
   private static void deleteIfEmpty(Path dir) throws IOException {
