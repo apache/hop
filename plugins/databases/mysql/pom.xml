@@ -27,14 +27,6 @@
     <artifactId>hop-databases-mysql</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Databases MySQL</name>
-    <dependencies>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.21.4</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <dependencies>
         <dependency>
@@ -46,6 +38,12 @@
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-h2</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.21.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
