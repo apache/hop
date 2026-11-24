@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
@@ -39,6 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.TestUtil;
 import org.apache.hop.core.xml.XmlHandler;
@@ -274,6 +276,98 @@ class ConditionTest {
         new Condition.CValue(
             new ValueMetaAndData(new ValueMetaBigNumber("constant"), new BigDecimal("123.45")));
     assertEquals(0, new BigDecimal("123.45").compareTo((BigDecimal) bigNumber.createValueData()));
+  }
+
+  /**
+   * Regression for #5598: a Number constant stored as {@code 0.0} must compare as a number even
+   * when the JVM decimal separator is not a dot. The conversion error names the temporary string
+   * value meta ({@code constant String}).
+   */
+  @Test
+  void dotDecimalNumberConstantComparesAgainstNumericField() throws Exception {
+    Condition condition = numberGreaterThan("0.0", null);
+
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaNumber("amount"));
+
+    assertEquals(0.0d, (Double) condition.getRightValue().createValueData(), 0.0d);
+    assertTrue(condition.evaluate(rowMeta, new Object[] {1.0d}));
+    assertFalse(condition.evaluate(rowMeta, new Object[] {0.0d}));
+    assertFalse(condition.evaluate(rowMeta, new Object[] {-1.0d}));
+    assertEquals(
+        10.5d, (Double) numberGreaterThan("10.5", "#.#").getRightValue().createValueData(), 0.0d);
+  }
+
+  @Test
+  void dotDecimalNumberConstantParsesWhenDecimalSymbolIsComma() throws Exception {
+    ValueMetaNumber commaMeta = new ValueMetaNumber("constant");
+    commaMeta.setDecimalSymbol(",");
+    commaMeta.setGroupingSymbol(null);
+    commaMeta.setConversionMask("#.#");
+
+    Condition.CValue value = numericConstant("0.0", null);
+    assertEquals(
+        0.0d,
+        (Double) value.convertNumericConstant(commaMeta, new ValueMetaString("constant")),
+        0.0d);
+
+    value.setText("10.5");
+    assertEquals(
+        10.5d,
+        (Double) value.convertNumericConstant(commaMeta, new ValueMetaString("constant")),
+        0.0d);
+
+    value.setText("10,5");
+    assertEquals(
+        10.5d,
+        (Double) value.convertNumericConstant(commaMeta, new ValueMetaString("constant")),
+        0.0d);
+
+    value.setText("0,0");
+    assertEquals(
+        0.0d,
+        (Double) value.convertNumericConstant(commaMeta, new ValueMetaString("constant")),
+        0.0d);
+  }
+
+  @Test
+  void localeDecimalNumberConstantStillParses() throws Exception {
+    String text = "10" + Const.DEFAULT_DECIMAL_SEPARATOR + "5";
+    assertEquals(
+        10.5d, (Double) numberGreaterThan(text, null).getRightValue().createValueData(), 0.0d);
+  }
+
+  @Test
+  void unparseableNumberConstantStillFails() {
+    Condition.CValue value = numericConstant("not-a-number", "#.#");
+    assertThrows(HopException.class, value::createValueData);
+
+    ValueMetaNumber commaMeta = new ValueMetaNumber("constant");
+    commaMeta.setDecimalSymbol(",");
+    commaMeta.setGroupingSymbol(null);
+    assertThrows(
+        HopValueException.class,
+        () -> value.convertNumericConstant(commaMeta, new ValueMetaString("constant")));
+  }
+
+  private static Condition numberGreaterThan(String text, String mask) {
+    Condition condition = new Condition();
+    condition.setLeftValueName("amount");
+    condition.setFunction(Function.LARGER);
+    condition.setRightValue(numericConstant(text, mask));
+    return condition;
+  }
+
+  private static Condition.CValue numericConstant(String text, String mask) {
+    Condition.CValue constant = new Condition.CValue();
+    constant.setName("constant");
+    constant.setType("Number");
+    constant.setText(text);
+    constant.setMask(mask);
+    constant.setNullValue(false);
+    constant.setLength(-1);
+    constant.setPrecision(-1);
+    return constant;
   }
 
   private static Condition dateLessThanConstant(String text, String mask) {
