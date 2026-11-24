@@ -169,6 +169,58 @@ class RecoverableBatchTest {
     return expected;
   }
 
+  /**
+   * The transaction can hold other work when a batch is flushed, such as the truncate of the table
+   * before the first batch. Recovering a failure must never undo it.
+   */
+  @ParameterizedTest(name = "{0} declared as {1}")
+  @MethodSource("behaviourAndContract")
+  void recoveringKeepsTheWorkTheTransactionHeldBefore(
+      Behaviour behaviour, BatchFailureContract contract) throws Exception {
+    assertRecoveryKeepsEarlierWork(new FakeBatchDatabase(behaviour), contract);
+  }
+
+  /** DuckDB has no savepoints: the earlier work is committed before the batch runs. */
+  @ParameterizedTest(name = "{0} declared as {1}")
+  @MethodSource("behaviourAndContract")
+  void recoveringKeepsTheWorkTheTransactionHeldBeforeWithoutSavepoints(
+      Behaviour behaviour, BatchFailureContract contract) throws Exception {
+    assertRecoveryKeepsEarlierWork(new FakeBatchDatabase(behaviour).withoutSavepoints(), contract);
+  }
+
+  private static void assertRecoveryKeepsEarlierWork(
+      FakeBatchDatabase db, BatchFailureContract contract) throws Exception {
+    db.writeUncommitted("truncate").seed(105);
+    RecoverableBatch batch =
+        new RecoverableBatch(db.connection(), prepare(db), BINDER, contract, true);
+    for (int i = 0; i < 10; i++) {
+      batch.add(new Object[] {100 + i}, new Object[] {100 + i});
+    }
+    Recorder recorder = new Recorder();
+    batch.flush(recorder);
+
+    assertEquals(List.of(105), recorder.rejected);
+    assertEquals(List.of(100, 101, 102, 103, 104, 106, 107, 108, 109), recorder.written);
+    assertTrue(db.committed().contains("truncate"), "earlier work undone: " + db.committed());
+  }
+
+  /** Without an error hop a failed load is undone as a whole, earlier work included. */
+  @Test
+  void failingWithoutRecoveryUndoesTheWorkTheTransactionHeldBefore() throws Exception {
+    FakeBatchDatabase db =
+        new FakeBatchDatabase(Behaviour.LOSES_WHOLE_BATCH).writeUncommitted("truncate").seed(105);
+    RecoverableBatch batch =
+        new RecoverableBatch(
+            db.connection(), prepare(db), BINDER, BatchFailureContract.LOSES_WHOLE_BATCH, true);
+    for (int i = 0; i < 10; i++) {
+      batch.add(new Object[] {100 + i}, new Object[] {100 + i});
+    }
+    assertThrows(HopDatabaseBatchException.class, () -> batch.flushOrFail(new Recorder()));
+    db.connection().commit();
+
+    assertEquals(Set.of(105), db.committed());
+  }
+
   @Test
   void aCleanBatchIsOneExecutionAndOneCommit() throws Exception {
     FakeBatchDatabase db = new FakeBatchDatabase(Behaviour.LOSES_WHOLE_BATCH);

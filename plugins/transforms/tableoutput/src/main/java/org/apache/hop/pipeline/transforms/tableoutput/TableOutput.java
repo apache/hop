@@ -725,7 +725,19 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       logRowlevel("Batched row: " + data.insertRowMeta.getString(insertRowData));
     }
     if (batch.size() >= data.commitSize) {
-      flushRecoveredBatch(tableName, batch);
+      // Rows are passed on in input order, so a row in the batch of a table that rarely gets one
+      // would hold back every row after it. Flushing every table's batch keeps the rows held to
+      // less than the commit size per table.
+      flushRecoveredBatches();
+    }
+  }
+
+  /** Runs and commits the batch of every table that has rows waiting, in the order they began. */
+  private void flushRecoveredBatches() throws HopException {
+    for (Map.Entry<String, IRowBatch> entry : data.batches.entrySet()) {
+      if (!entry.getValue().isEmpty()) {
+        flushRecoveredBatch(entry.getKey(), entry.getValue());
+      }
     }
   }
 
@@ -1631,11 +1643,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
           logError(dropped + " batched rows were not written: the transform failed or was stopped");
         }
       } else {
-        for (Map.Entry<String, IRowBatch> entry : data.batches.entrySet()) {
-          if (entry.getValue().size() > 0) {
-            flushRecoveredBatch(entry.getKey(), entry.getValue());
-          }
-        }
+        flushRecoveredBatches();
         data.db.commit();
       }
     } catch (Exception e) {

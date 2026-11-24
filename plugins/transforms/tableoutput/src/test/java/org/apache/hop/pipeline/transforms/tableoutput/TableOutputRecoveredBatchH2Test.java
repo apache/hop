@@ -247,6 +247,51 @@ class TableOutputRecoveredBatchH2Test {
   }
 
   /**
+   * One row for a table that gets no more must not hold back the rows of the other table until the
+   * end of the input: once a batch is full, every table's batch is written and its rows passed on.
+   */
+  @Test
+  void aTableWithFewRowsDoesNotHoldBackTheOthers() throws Exception {
+    DatabaseMeta db =
+        database(
+            null,
+            "CREATE TABLE ta (id BIGINT PRIMARY KEY, name VARCHAR(20))",
+            "CREATE TABLE tb (id BIGINT PRIMARY KEY, name VARCHAR(20))");
+    IRowMeta rowMeta = idNameRowMeta();
+    rowMeta.addValueMeta(new ValueMetaString("tbl"));
+    List<Object[]> rows = new ArrayList<>();
+    for (long id = 1; id <= 21; id++) {
+      rows.add(new Object[] {id, "r" + id, id == 1 ? "ta" : "tb"});
+    }
+
+    Result r =
+        TableOutputRun.on(db)
+            .recovery(null)
+            .batch(true)
+            .errorHop(true)
+            .commitSize(5)
+            .configure(
+                meta -> {
+                  meta.setTableNameInField(true);
+                  meta.setTableNameField("tbl");
+                  meta.setTableNameInTable(false);
+                })
+            .run(rowMeta, rows);
+
+    assertTrue(r.recoveredBatches);
+    // Read 7: the ta row and the first five tb rows have been written and passed on
+    assertEquals(6, r.outputSizeAtRead.get(6));
+    // Never more rows waiting than a commit's worth per table
+    for (int read = 0; read < rows.size(); read++) {
+      assertTrue(
+          read - r.outputSizeAtRead.get(read) < 2 * 5,
+          "rows held at read " + (read + 1) + ": " + (read - r.outputSizeAtRead.get(read)));
+    }
+    assertEquals(idsWithout(21), r.outputKeys());
+    assertCounters(r, 21, 21, 0, 0);
+  }
+
+  /**
    * Without an error hop a failed batch rolls back and stops the transform. Only the rows of the
    * batches committed before it were passed on, and only they are counted.
    */

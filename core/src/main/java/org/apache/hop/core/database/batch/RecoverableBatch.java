@@ -21,6 +21,7 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,10 +55,16 @@ import org.apache.hop.i18n.BaseMessages;
  *       bad rows that costs a handful of round trips instead of one per row.
  * </ul>
  *
- * <p>Rolling back is only safe because a flush always starts on a transaction that holds nothing
- * but this batch. Callers must commit every other write on the connection before they flush, and
- * must not use this class on a connection in a connection group (a transactional pipeline) or in
- * auto-commit mode; {@link Database#getUseBatchInsert(boolean)} already refuses to batch there.
+ * <p>The transaction may hold other work when a flush starts, such as the truncate of the table
+ * before the first batch. A failure that is recovered never undoes that work: the flush sets a
+ * savepoint first and rolls back to it, and once something is committed the transaction holds
+ * nothing but this batch. A database without savepoints (DuckDB) commits that work before the batch
+ * runs instead. A flush that is not recovered rolls back the whole transaction, other work
+ * included, as a failed load always did.
+ *
+ * <p>This class must not be used on a connection in a connection group (a transactional pipeline)
+ * or in auto-commit mode; {@link Database#getUseBatchInsert(boolean)} already refuses to batch
+ * there.
  *
  * <p>Rows are replayed through the {@link IBatchRowBinder}, so a retried row is bound from its own
  * bind row and never from the output row.
@@ -75,6 +82,15 @@ public class RecoverableBatch implements IRowBatch {
 
   private final List<Object[]> bindRows = new ArrayList<>();
   private final List<Object[]> outputRows = new ArrayList<>();
+
+  /** Whether the connection supports savepoints; asked on the first recovered flush. */
+  private Boolean savepoints;
+
+  /**
+   * Set before a recovered flush, until the first commit: a rollback goes back to it, so work the
+   * transaction held before the flush stays.
+   */
+  private Savepoint savepoint;
 
   private long executions;
   private long recoveredBatches;
@@ -203,6 +219,9 @@ public class RecoverableBatch implements IRowBatch {
       return;
     }
     try {
+      if (recover) {
+        protectEarlierWork();
+      }
       int[] counts;
       try {
         executions++;
@@ -225,9 +244,38 @@ public class RecoverableBatch implements IRowBatch {
         }
       }
     } finally {
+      releaseSavepointQuietly();
       bindRows.clear();
       outputRows.clear();
     }
+  }
+
+  /**
+   * Keeps what the transaction already holds out of reach of the rollbacks of a recovery: a
+   * savepoint to roll back to, or, without savepoints, a commit.
+   */
+  private void protectEarlierWork() throws HopDatabaseException {
+    savepoint = null;
+    if (!transactional) {
+      return;
+    }
+    try {
+      if (supportsSavepoints()) {
+        savepoint = connection.setSavepoint();
+      } else {
+        connection.commit();
+      }
+    } catch (SQLException e) {
+      throw new HopDatabaseException(
+          "Unable to prepare the transaction for a recoverable batch", e);
+    }
+  }
+
+  private boolean supportsSavepoints() throws SQLException {
+    if (savepoints == null) {
+      savepoints = connection.getMetaData().supportsSavepoints();
+    }
+    return savepoints;
   }
 
   /**
@@ -522,7 +570,8 @@ public class RecoverableBatch implements IRowBatch {
 
   /**
    * Finds the failing rows in {@code rows[from, to)}, a range known to contain at least one, by
-   * running each half as its own batch. The transaction must be empty when this is called.
+   * running each half as its own batch. The transaction must hold none of these rows when this is
+   * called.
    */
   private void bisect(int[] rows, int from, int to, Verdicts verdicts) throws HopException {
     if (to - from <= 1) {
@@ -572,8 +621,8 @@ public class RecoverableBatch implements IRowBatch {
 
   /**
    * Runs one row on its own and rolls it back whatever happens, to check a hint. The transaction
-   * must be empty when this is called, and is again afterwards. A failure says nothing for sure:
-   * the row may only need an earlier row of the batch.
+   * must hold none of the batch's rows when this is called, and again holds none afterwards. A
+   * failure says nothing for sure: the row may only need an earlier row of the batch.
    *
    * @return true when the row succeeds on its own
    */
@@ -724,6 +773,8 @@ public class RecoverableBatch implements IRowBatch {
   private void commitIfTransactional() throws SQLException {
     if (transactional) {
       connection.commit();
+      // The commit ended the transaction and its savepoints: from here on it holds only this batch
+      savepoint = null;
     }
   }
 
@@ -735,11 +786,32 @@ public class RecoverableBatch implements IRowBatch {
     }
   }
 
+  /**
+   * Undoes the rows of this batch that are not committed. Before the first commit of a flush that
+   * goes back to its savepoint, which stays set, so the work the transaction held before stays.
+   */
   private void rollback() throws HopDatabaseException {
     try {
-      connection.rollback();
+      if (savepoint != null) {
+        connection.rollback(savepoint);
+      } else {
+        connection.rollback();
+      }
     } catch (SQLException e) {
       throw new HopDatabaseException("Unable to roll back a failed batch", e);
+    }
+  }
+
+  private void releaseSavepointQuietly() {
+    if (savepoint == null) {
+      return;
+    }
+    try {
+      connection.releaseSavepoint(savepoint);
+    } catch (SQLException e) {
+      // The next commit or rollback ends it anyway.
+    } finally {
+      savepoint = null;
     }
   }
 

@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class FakeBatchDatabase {
   private final Map<Object, Object> parents = new HashMap<>();
   private boolean batchCountsWithoutInfo;
   private boolean aborted;
+  private boolean savepoints = true;
 
   private int executeBatchCalls;
   private int executeUpdateCalls;
@@ -97,6 +99,21 @@ public class FakeBatchDatabase {
   /** Puts keys in the table as already committed, so inserting them again fails. */
   public FakeBatchDatabase seed(Object... keys) {
     committed.addAll(Arrays.asList(keys));
+    return this;
+  }
+
+  /**
+   * Puts keys in the current transaction without committing them, as other work on the connection
+   * does before a batch: the truncate of the table, for one.
+   */
+  public FakeBatchDatabase writeUncommitted(Object... keys) {
+    pending.addAll(Arrays.asList(keys));
+    return this;
+  }
+
+  /** Refuses savepoints, as DuckDB does. */
+  public FakeBatchDatabase withoutSavepoints() {
+    savepoints = false;
     return this;
   }
 
@@ -315,6 +332,7 @@ public class FakeBatchDatabase {
 
   /** Undoes the rows written after the savepoint, and clears an aborted transaction. */
   private void rollbackTo(FakeSavepoint savepoint) {
+    rollbacks++;
     while (pending.size() > savepoint.pendingRows()) {
       pending.remove(pending.size() - 1);
     }
@@ -338,6 +356,9 @@ public class FakeBatchDatabase {
         }
         return null;
       case "setSavepoint":
+        if (!savepoints) {
+          throw new SQLFeatureNotSupportedException("setSavepoint");
+        }
         return new FakeSavepoint(pending.size());
       case "releaseSavepoint":
         return null;
@@ -356,6 +377,7 @@ public class FakeBatchDatabase {
   private Object metaData(Method method, Object[] args) {
     return switch (method.getName()) {
       case "supportsTransactions" -> transactional;
+      case "supportsSavepoints" -> savepoints;
       case "supportsBatchUpdates" -> true;
       case "getConnection" -> connection;
       default -> defaultValue(method);

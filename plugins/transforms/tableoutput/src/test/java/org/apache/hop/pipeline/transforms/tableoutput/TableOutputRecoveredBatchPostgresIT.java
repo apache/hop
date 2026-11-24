@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -216,6 +217,64 @@ class TableOutputRecoveredBatchPostgresIT {
         List.of("1:r1", "2:r2", "3:r3", "4:r4", "5:r5", "7:seed"),
         TableOutputRun.query(db, SELECT_TARGET));
     assertEquals(5, r.linesOutput);
+  }
+
+  /** Rows 1 to 10, row 5 with a name too long for the column. */
+  private static List<Object[]> rowsWithATooLongName() {
+    List<Object[]> rows = idNameRows(10);
+    rows.set(4, new Object[] {5L, "a name that is far too long"});
+    return rows;
+  }
+
+  /**
+   * PostgreSQL truncates inside the transaction. A failure in the first batch must undo that batch
+   * only: the rows that were in the table before stay away.
+   */
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void recoveringTheFirstBatchKeepsTheTruncate(boolean onlyWhenHaveRows) throws Exception {
+    DatabaseMeta db = target(false, 100, 101, 102);
+
+    Result r =
+        TableOutputRun.on(db)
+            .recovery(null)
+            .batch(true)
+            .errorHop(true)
+            .commitSize(100)
+            .configure(
+                meta -> {
+                  meta.setTruncateTable(true);
+                  meta.setOnlyWhenHaveRows(onlyWhenHaveRows);
+                })
+            .run(idNameRowMeta(), rowsWithATooLongName());
+
+    assertTrue(r.recoveredBatches);
+    assertEquals(idsWithout(10, 5), r.outputKeys());
+    assertEquals(ids(5), r.errorKeys());
+    assertEquals(
+        List.of("1:r1", "2:r2", "3:r3", "4:r4", "6:r6", "7:r7", "8:r8", "9:r9", "10:r10"),
+        TableOutputRun.query(db, SELECT_TARGET));
+  }
+
+  /** Without an error hop the failed load is undone as a whole, as it always was: truncate too. */
+  @Test
+  void withoutAnErrorHopAFailedFirstBatchUndoesTheTruncate() throws Exception {
+    DatabaseMeta db = target(false, 100, 101, 102);
+
+    Result r =
+        TableOutputRun.on(db)
+            .recovery(null)
+            .batch(true)
+            .errorHop(false)
+            .commitSize(100)
+            .configure(meta -> meta.setTruncateTable(true))
+            .run(idNameRowMeta(), rowsWithATooLongName());
+
+    assertTrue(r.recoveredBatches);
+    assertTrue(r.errorCount > 0);
+    assertTrue(r.outputKeys().isEmpty());
+    assertEquals(
+        List.of("100:seed", "101:seed", "102:seed"), TableOutputRun.query(db, SELECT_TARGET));
   }
 
   @Test
