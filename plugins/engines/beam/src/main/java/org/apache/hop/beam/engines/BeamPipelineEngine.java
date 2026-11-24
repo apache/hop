@@ -134,6 +134,9 @@ public abstract class BeamPipelineEngine extends Variables
    */
   protected volatile boolean completionPending;
 
+  /** Whether this run fired its end: the finished listeners, PipelineFinish, PipelineCompleted. */
+  private final AtomicBoolean finishFired = new AtomicBoolean(false);
+
   protected boolean hasHaltedComponents;
   protected boolean preview;
   protected int errors;
@@ -363,6 +366,7 @@ public abstract class BeamPipelineEngine extends Variables
       //
       Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
+      finishFired.set(false);
       completionPending = true;
       setRunning(true);
       setReadyToStart(false);
@@ -397,6 +401,10 @@ public abstract class BeamPipelineEngine extends Variables
           logChannel.logError("Error starting the Beam pipeline", e);
         }
         firePipelineExecutionStartedListeners();
+        if (hasStartupErrors.get()) {
+          // The run ended before it started: the listeners that saw it start see it end
+          fireExecutionFinishedListeners();
+        }
 
       } else {
         // The running pipeline will block
@@ -632,14 +640,25 @@ public abstract class BeamPipelineEngine extends Variables
           }
           setStopped(true);
           setRunning(false);
+          if (beamEngineRunConfiguration.isRunningAsynchronous()) {
+            // A blocking runner fires the end once its thread returns
+            fireExecutionFinishedListeners();
+          }
           setStatus(ComponentExecutionStatus.STATUS_STOPPED);
           break;
         case FAILED:
+          if (!finished) {
+            // First time we've hit this: stopAll() and the refresh timer both get here
+            setErrors(getErrors() + 1);
+            logChannel.logBasic("Beam pipeline execution failed.");
+          }
           setStopped(true);
           setFinished(true);
-          setErrors(getErrors() + 1);
+          setRunning(false);
           cancelRefreshTimer = true;
-          logChannel.logBasic("Beam pipeline execution failed.");
+          if (beamEngineRunConfiguration.isRunningAsynchronous()) {
+            fireExecutionFinishedListeners();
+          }
           break;
         case UNKNOWN:
           break;
@@ -1081,8 +1100,15 @@ public abstract class BeamPipelineEngine extends Variables
     fireExecutionFinishedListeners();
   }
 
+  /**
+   * The end of a run is fired once per run: a run that ends is seen by the refresh timer, by
+   * stopAll() and, on a blocking runner, by the thread that waits for it.
+   */
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
+    if (!finishFired.compareAndSet(false, true)) {
+      return;
+    }
     try {
       ExtensionPointHandler.callExtensionPoint(
           logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
@@ -1097,11 +1123,16 @@ public abstract class BeamPipelineEngine extends Variables
       // Make sure we capture this moment in time correctly.
       //
       setRunning(false);
-      status = ComponentExecutionStatus.STATUS_FINISHED;
-      if (getErrors() > 0) {
-        statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+      if (isStopped() && getErrors() == 0) {
+        status = ComponentExecutionStatus.STATUS_STOPPED;
+        statusDescription = Pipeline.STRING_STOPPED;
       } else {
-        statusDescription = Pipeline.STRING_FINISHED;
+        status = ComponentExecutionStatus.STATUS_FINISHED;
+        if (getErrors() > 0) {
+          statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+        } else {
+          statusDescription = Pipeline.STRING_FINISHED;
+        }
       }
       executionEndDate = new Date();
 
