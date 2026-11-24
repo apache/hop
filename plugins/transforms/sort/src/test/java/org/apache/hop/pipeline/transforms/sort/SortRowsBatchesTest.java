@@ -70,12 +70,31 @@ class SortRowsBatchesTest {
   @Test
   void everyBatchReachesTheTransformAfterSortRows() {
     List<Integer> rowsAfterEachBatch =
-        assertTimeoutPreemptively(Duration.ofSeconds(20), SortRowsBatchesTest::runBatches);
+        assertTimeoutPreemptively(Duration.ofSeconds(20), () -> runBatches(true));
 
     assertEquals(List.of(3, 6, 9, 12), rowsAfterEachBatch);
   }
 
-  private static List<Integer> runBatches() throws Exception {
+  /**
+   * A caller that feeds rows in small portions, such as a Beam bundle row by row, completes the
+   * batch itself: Sort rows then sorts all rows of the portions together, once.
+   */
+  @Test
+  void theCallerCompletesTheBatchWhenIterationsDoNot() {
+    List<Integer> rowsAfterEachBatch =
+        assertTimeoutPreemptively(Duration.ofSeconds(20), () -> runBatches(false));
+
+    // Nothing passed Sort rows during the iterations, every row after the one completed batch
+    assertEquals(List.of(0, 0, 0, 0, 12), rowsAfterEachBatch);
+  }
+
+  /**
+   * @param batchCompleteAfterIteration false: the iterations leave the batch open, and the test
+   *     completes it once after the last one
+   * @return the number of rows past Sort rows after every iteration (and after completing the
+   *     batch)
+   */
+  private static List<Integer> runBatches(boolean batchCompleteAfterIteration) throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName("sort-rows-batches");
 
@@ -111,6 +130,7 @@ class SortRowsBatchesTest {
     rowMeta.addValueMeta(new ValueMetaInteger("nr"));
 
     SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(pipeline);
+    executor.setBatchCompleteAfterIteration(batchCompleteAfterIteration);
     assertTrue(executor.init());
     List<Integer> rowsAfterEachBatch = new ArrayList<>();
     try {
@@ -120,6 +140,10 @@ class SortRowsBatchesTest {
           producer.putRow(rowMeta, new Object[] {nr++});
         }
         executor.oneIteration();
+        rowsAfterEachBatch.add(rows.size());
+      }
+      if (!batchCompleteAfterIteration) {
+        executor.batchComplete();
         rowsAfterEachBatch.add(rows.size());
       }
     } finally {

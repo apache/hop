@@ -3127,6 +3127,12 @@ This product bundles sshd-osgi 2.19.0, which is available under a
 This product bundles sshd-sftp 2.19.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
+This product bundles sso 2.56.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
+This product bundles ssooidc 2.56.0, which is available under a
+"Apache 2.0" license. For details, see LICENSE.
+
 This product bundles ST4 4.3.4, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 

@@ -121,6 +121,11 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         while (!(data.mappingPipeline.isFinishedOrStopped() || rowWasPut)) {
           rowWasPut = data.rowDataInputMapper.putRow(getInputRowMeta(), row);
         }
+        if (rowWasPut && data.executor != null && data.isBeamContext()) {
+          // On Beam the batch only completes at the end of a bundle: run the row through the
+          // mapping now, or every row of the bundle would wait in its input until then
+          data.executor.oneIteration();
+        }
       }
 
       if (!rowWasPut) {
@@ -358,6 +363,12 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
           //
           if (isSingleThreaded()) {
             data.executor = new SingleThreadedPipelineExecutor(data.mappingPipeline);
+            if (data.isBeamContext()) {
+              // Rows run through the mapping one by one (see processRow), and its batch completes
+              // with the batch of this transform, at the end of the Beam bundle: then transforms
+              // in the mapping group and write per bundle, as the transforms around it do
+              data.executor.setBatchCompleteAfterIteration(false);
+            }
           }
 
           // That's all for now...
@@ -424,6 +435,10 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       // This way input rows can end up in the mapping output transform.
       //
       data.executor.oneIteration();
+      if (data.isBeamContext()) {
+        // The rows already ran through the mapping one by one: complete its batch too
+        data.executor.batchComplete();
+      }
     }
   }
 

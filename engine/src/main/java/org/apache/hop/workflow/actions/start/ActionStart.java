@@ -110,10 +110,19 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     return parentWorkflow.getExtensionDataMap().get(STRING_START_REPEAT_LOOP) == null;
   }
 
+  /**
+   * @return true when {@link Const#HOP_IGNORE_START_REPEAT} is 'Y': a scheduler outside Hop starts
+   *     the workflow, so it runs once and the Start action does not wait.
+   */
+  public static boolean isRepeatIgnored(IVariables variables) {
+    return variables != null
+        && "Y".equalsIgnoreCase(variables.getVariable(Const.HOP_IGNORE_START_REPEAT));
+  }
+
   private long getNextExecutionTime(boolean firstExecution) {
     // If Repeat is off, we don't wait at all of-course, no matter what the scheduling type says.
     //
-    if (!isRepeat()) {
+    if (!isRepeat() || isRepeatIgnored(this)) {
       return 0;
     }
 

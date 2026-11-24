@@ -1,0 +1,16 @@
+{
+  "base_filename": "0018-whole-stream-transforms-last-row-golden.csv",
+  "name": "0018-whole-stream-transforms-last-row-golden",
+  "description": "",
+  "folder_name": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "#",
+      "field_name": "rows"
+    }
+  ]
+}

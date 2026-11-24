@@ -1,0 +1,17 @@
+{
+  "engineRunConfiguration": {
+    "Airflow": {
+      "connection": "airflow",
+      "bundle_folder": "${PROJECT_HOME}/../gui-bundle",
+      "worker_hop_home": "/opt/hop",
+      "worker_run_configuration": "local",
+      "environment_files": "",
+      "dag_id_prefix": "",
+      "unpause_dag": true,
+      "dag_wait_seconds": "180",
+      "poll_seconds": "2"
+    }
+  },
+  "name": "airflow",
+  "description": "Publishes the project to the gui-bundle folder that the Airflow container reads, and runs the workflow there"
+}

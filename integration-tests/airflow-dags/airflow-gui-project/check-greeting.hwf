@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>check-greeting</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Succeeds when parameter PRM_GREETING is 'hello, airflow'</description>
+  <parameters>
+    <parameter>
+      <name>PRM_GREETING</name>
+      <default_value/>
+      <description>The value the test passes from Hop to the DAG run</description>
+    </parameter>
+  </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <type>SPECIAL</type>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <xloc>64</xloc>
+      <yloc>64</yloc>
+    </action>
+    <action>
+      <name>Check the greeting</name>
+      <type>SIMPLE_EVAL</type>
+      <valuetype>variable</valuetype>
+      <variablename>${PRM_GREETING}</variablename>
+      <fieldtype>string</fieldtype>
+      <successcondition>equal</successcondition>
+      <successnumbercondition>equal</successnumbercondition>
+      <successbooleancondition>true</successbooleancondition>
+      <comparevalue>hello, airflow</comparevalue>
+      <successwhenvarset>N</successwhenvarset>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>64</yloc>
+    </action>
+    <action>
+      <name>Wrong greeting</name>
+      <type>ABORT</type>
+      <always_log_rows>N</always_log_rows>
+      <message>PRM_GREETING is '${PRM_GREETING}', not 'hello, airflow'</message>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>176</yloc>
+    </action>
+  </actions>
+  <hops>
+    <hop><from>Start</from><to>Check the greeting</to><enabled>Y</enabled><evaluation>Y</evaluation><unconditional>Y</unconditional></hop>
+    <hop><from>Check the greeting</from><to>Wrong greeting</to><enabled>Y</enabled><evaluation>N</evaluation><unconditional>N</unconditional></hop>
+  </hops>
+</workflow>

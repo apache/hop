@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Group By transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/groupby.svg[Group By transform Icon, role="image-doc-icon"] Group By
 
@@ -39,12 +39,13 @@ You can use the xref:pipeline/transforms/memgroupby.adoc[Memory Group By] transf
 
 [WARNING]
 ====
-Group By does not run on the distributed pipeline engines.
-Both the Beam engines and the native Spark engine refuse the transform and stop the pipeline with an error.
-
-The reason is the sorted input this transform relies on.
+Group By needs its input sorted on the group fields, and the distributed pipeline engines do not give it that.
 A distributed engine spreads the rows over many workers and re-shuffles them to maximize parallelism, so a sort upstream only ever orders the rows one worker happens to hold.
 The groups would be formed per worker and the aggregates would be silently wrong.
+
+* The native Spark engine refuses the transform and stops the pipeline with an error.
+* The Beam engines refuse a Group By with group fields.
+A Group By without group fields aggregates the whole stream: the Beam engines run it with all the rows at once, see xref:pipeline/beam/getting-started-with-beam.adoc#_whole_stream_transforms[Transforms that need the whole stream].
 
 Use xref:pipeline/transforms/memgroupby.adoc[Memory Group By] instead.
 It needs no sorted input, and both engines map it onto their own shuffle (`GroupByKey` on Beam) so the grouping covers the whole data set.

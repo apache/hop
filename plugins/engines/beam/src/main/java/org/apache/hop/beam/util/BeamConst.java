@@ -37,6 +37,7 @@ public class BeamConst {
   public static final String STRING_BEAM_PUBLISH_PLUGIN_ID = "BeamPublish";
   public static final String STRING_MEMORY_GROUP_BY_PLUGIN_ID = "MemoryGroupBy";
   public static final String STRING_MERGE_JOIN_PLUGIN_ID = "MergeJoin";
+  public static final String STRING_SORT_ROWS_PLUGIN_ID = "SortRows";
   public static final String STRING_BEAM_WINDOW_PLUGIN_ID = "BeamWindow";
   public static final String STRING_BEAM_TIMESTAMP_PLUGIN_ID = "BeamTimestamp";
   public static final String STRING_BEAM_BIGQUERY_INPUT_PLUGIN_ID = "BeamBQInput";

@@ -34,6 +34,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -63,10 +64,8 @@ import org.junit.jupiter.api.Test;
  * reports after it, when one {@link Database} runs several lookup statements with different result
  * layouts, through each of the overloads.
  *
- * <p>Two upstream behaviours that look like defects are pinned here as they are, and marked so:
- * only {@code getLookup(PreparedStatement)} derives the layout from the statement it executes; the
- * other overloads read with whatever layout the Database last derived, whichever statement that
- * came from.
+ * <p>Every overload reads with the layout of the statement it executes, with the lazy conversion it
+ * asks for, whichever statement the Database executed before (#9679).
  */
 class DatabaseLookupRowMetaTest {
 
@@ -374,13 +373,9 @@ class DatabaseLookupRowMetaTest {
     assertLookupB(second, second.getLookup(lookupB().statement, false, false));
   }
 
-  /**
-   * Pins an upstream defect: getLookup(ps, boolean) derives the layout only when the Database has
-   * none yet, so a second statement is read with the first statement's layout.
-   */
+  /** getLookup(ps, boolean) reads a second statement with its own layout (#9679). */
   @Test
-  void upstreamDefectGetLookupWithFailFlagReadsASecondStatementWithTheFirstLayout()
-      throws Exception {
+  void getLookupWithFailFlagReadsEachStatementWithItsOwnLayout() throws Exception {
     Database db = database(new PlainDialect());
     Lookup a = lookupA();
     Lookup c =
@@ -394,19 +389,18 @@ class DatabaseLookupRowMetaTest {
     assertLookupA(db, db.getLookup(a.statement, false));
 
     Object[] row = db.getLookup(c.statement, false);
-    assertArrayEquals(new Object[] {"see", 3L, null}, firstValues(row, 3));
-    assertLayout(db.getReturnRowMeta(), "name", "id");
+    assertArrayEquals(new Object[] {"see", 3L, "extra"}, firstValues(row, 3));
+    assertLayout(db.getReturnRowMeta(), "c1", "c2", "c3");
 
     assertLookupA(db, db.getLookup(a.statement, false, false));
   }
 
   /**
-   * Pins an upstream defect: a getLookup(ps) on one statement leaves its layout behind for the
-   * overloads that do not derive one, including the ones on the Database's own lookup statement.
+   * A getLookup(ps) on another statement leaves nothing behind for the overloads on the Database's
+   * own lookup statement (#9679).
    */
   @Test
-  void upstreamDefectTheOtherOverloadsReuseTheLayoutOfTheLastGetLookupOfAStatement()
-      throws Exception {
+  void theOverloadsOnTheOwnStatementReadItWithItsOwnLayoutAfterAnotherStatement() throws Exception {
     Database db = database(new PlainDialect());
     Lookup own =
         new Lookup(
@@ -430,18 +424,47 @@ class DatabaseLookupRowMetaTest {
     Lookup a = lookupA();
     assertLookupA(db, db.getLookup(a.statement));
 
-    // Back to the own statement through each overload: read with the other statement's layout.
+    // Back to the own statement through each overload: read with its own layout.
     Object[] viaNoArgs = db.getLookup();
-    assertArrayEquals(new Object[] {"ell", 3L}, firstValues(viaNoArgs, 2));
-    assertNull(viaNoArgs[2]);
-    assertLayout(db.getReturnRowMeta(), "name", "id");
+    assertArrayEquals(new Object[] {"ell", 3L, "more"}, firstValues(viaNoArgs, 3));
+    assertLayout(db.getReturnRowMeta(), "l1", "l2", "l3");
 
     Object[] viaFail = db.getLookup(false);
-    assertArrayEquals(new Object[] {"ell", 3L, null}, firstValues(viaFail, 3));
+    assertArrayEquals(new Object[] {"ell", 3L, "more"}, firstValues(viaFail, 3));
 
     Object[] viaFailLazy = db.getLookup(false, false);
-    assertArrayEquals(new Object[] {"ell", 3L, null}, firstValues(viaFailLazy, 3));
-    assertLayout(db.getReturnRowMeta(), "name", "id");
+    assertArrayEquals(new Object[] {"ell", 3L, "more"}, firstValues(viaFailLazy, 3));
+    assertLayout(db.getReturnRowMeta(), "l1", "l2", "l3");
+  }
+
+  /**
+   * A driver may hand out the same statement object again when setLookup prepares the next lookup.
+   * setLookup forgets the layout of the statement it replaces, even when the new result describes
+   * its columns with the same name, type, precision and scale: here the BIGINT became unsigned,
+   * which widens it to a BigNumber.
+   */
+  @Test
+  void setLookupForgetsTheLayoutOfTheStatementItReplaces() throws Exception {
+    Database db = database(new PlainDialect());
+    PreparedStatement ps = mock(PreparedStatement.class);
+    ResultSetMetaData signed = metaData(Column.of("id", Types.BIGINT));
+    ResultSetMetaData unsigned = metaData(Column.of("id", Types.BIGINT));
+    when(unsigned.isSigned(1)).thenReturn(false);
+    when(ps.executeQuery())
+        .thenAnswer(invocation -> resultSet(signed, new Object[] {1L}))
+        .thenAnswer(invocation -> resultSet(unsigned, new Object[] {new BigDecimal("2")}));
+    Connection connection = mock(Connection.class);
+    when(connection.getMetaData()).thenReturn(mock(DatabaseMetaData.class));
+    when(connection.prepareStatement(anyString())).thenReturn(ps);
+    db.setConnection(connection);
+
+    db.setLookup("t", new String[] {"k"}, new String[] {"="}, new String[] {"id"}, null, null);
+    assertEquals(1L, db.getLookup()[0]);
+    assertTrue(db.getReturnRowMeta().getValueMeta(0).isInteger());
+
+    db.setLookup("u", new String[] {"k"}, new String[] {"="}, new String[] {"id"}, null, null);
+    assertEquals(new BigDecimal("2"), db.getLookup()[0]);
+    assertTrue(db.getReturnRowMeta().getValueMeta(0).isBigNumber());
   }
 
   @Test
@@ -456,19 +479,19 @@ class DatabaseLookupRowMetaTest {
     assertTrue(db.getReturnRowMeta().getValueMeta(0).isStorageBinaryString());
   }
 
-  /**
-   * Pins an upstream defect: the layout derived by the first lookup is kept by the overloads that
-   * take a lazy conversion flag, so asking for no lazy conversion afterwards still gets bytes.
-   */
+  /** Asking for no lazy conversion after a lazy lookup gets strings again (#9679). */
   @Test
-  void upstreamDefectTheLazyConversionOfTheFirstLookupSticks() throws Exception {
+  void theLazyConversionOfAnEarlierLookupDoesNotStick() throws Exception {
     Database db = database(new PlainDialect());
     Lookup a = lookupA();
 
     db.getLookup(a.statement, false, true);
     Object[] notLazy = db.getLookup(a.statement, false, false);
 
-    assertInstanceOf(byte[].class, notLazy[0]);
+    assertEquals("alpha", notLazy[0]);
+    assertFalse(db.getReturnRowMeta().getValueMeta(0).isStorageBinaryString());
+
+    assertInstanceOf(byte[].class, db.getLookup(a.statement, false, true)[0]);
     assertTrue(db.getReturnRowMeta().getValueMeta(0).isStorageBinaryString());
   }
 

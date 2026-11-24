@@ -195,6 +195,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta rowMeta;
 
+  /** The layouts of the statements {@link #getLookup} executed, see {@link LookupRowMetaCache}. */
+  private final LookupRowMetaCache lookupRowMetas = new LookupRowMetaCache();
+
   /**
    * The result row metadata derived by {@link #openQuery(PreparedStatement, IRowMeta, Object[])},
    * cached together with the prepared statement it was derived from. A prepared statement always
@@ -676,6 +679,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     openQueryStatement = null;
     openQueryRowMeta = null;
     keptQuery = null;
+    lookupRowMetas.clear();
     if (connection == null) {
       dbmd = null;
       return; // Nothing to do...
@@ -789,6 +793,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @throws HopDatabaseException in case there is an error during connection close.
    */
   public synchronized void closeConnectionOnly() throws HopDatabaseException {
+    lookupRowMetas.clear();
     try {
       if (connection != null) {
         connection.close();
@@ -1051,10 +1056,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       openQueryStatement = null;
       openQueryRowMeta = null;
     }
+    lookupRowMetas.forget(ps);
   }
 
   public void closeInsert() throws HopDatabaseException {
     if (prepStatementInsert != null) {
+      lookupRowMetas.forget(prepStatementInsert);
       try {
         prepStatementInsert.close();
         prepStatementInsert = null;
@@ -1066,6 +1073,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public void closeUpdate() throws HopDatabaseException {
     if (prepStatementUpdate != null) {
+      lookupRowMetas.forget(prepStatementUpdate);
       try {
         prepStatementUpdate.close();
         prepStatementUpdate = null;
@@ -1410,6 +1418,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           isBatchUpdate = true;
           debug = "insertRow executeBatch commit";
           ps.executeBatch();
+          // The batch ran; a failure from here on is not a batch failure and has no counts.
+          isBatchUpdate = false;
           commit();
           ps.clearBatch();
         } else {
@@ -1511,6 +1521,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             // our responsibility.
             isBatchUpdate = true;
             ps.executeBatch();
+            // The batch ran; a failure from here on is not a batch failure and has no counts.
+            isBatchUpdate = false;
             commit();
             ps.clearBatch();
           } else {
@@ -1687,28 +1699,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * updated and deleted rows together and lands in the update counter.
    */
   private void countAffectedRows(Result result, String sql, int count) {
-    if (count <= 0) {
-      return;
-    }
-    String verb = SqlQueryClassifier.statementVerb(sql);
-    if (verb == null) {
-      return;
-    }
-    switch (verb) {
-      case "INSERT" -> result.setNrLinesOutput(count);
-      case "UPDATE", "MERGE", "UPSERT", "REPLACE" -> result.setNrLinesUpdated(count);
-      case "DELETE" -> result.setNrLinesDeleted(count);
-      default -> {
-        // Databases that update or delete through another statement, like ClickHouse with
-        // ALTER TABLE ... UPDATE / DELETE
-        String upperSql = sql.toUpperCase();
-        if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
-          result.setNrLinesUpdated(count);
-        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
-          result.setNrLinesDeleted(count);
-        }
-      }
-    }
+    SqlQueryClassifier.affectedRows(sql, databaseMeta).addTo(result, count);
   }
 
   /**
@@ -2135,12 +2126,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
       // Just try to read from the table.
       String sql = databaseMeta.getSqlTableExists(tableName);
-      try {
-        getOneRow(sql);
-        return true;
-      } catch (HopDatabaseException e) {
-        return false;
-      }
+      return existenceProbeSucceeds(sql);
     } catch (Exception e) {
       throw new HopDatabaseException(
           "Unable to check if table ["
@@ -2149,6 +2135,50 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
               + databaseMeta.getName()
               + "]",
           e);
+    }
+  }
+
+  /**
+   * Runs the dialect's table or column existence query and reports whether it could be executed and
+   * its first row read. Any failure doing so means the object is not there, as it did when this was
+   * a full {@link #getOneRow(String)}. Only the answer matters, so no row metadata is derived from
+   * the result, at most one row is fetched, and the statement is closed even when the query fails:
+   * Table exists and Column exists ask this once per row.
+   *
+   * <p>A failing query is still a failing query: on a database that aborts the transaction on an
+   * error (PostgreSQL without auto-commit) it does so, exactly as before.
+   */
+  private boolean existenceProbeSucceeds(String sql) {
+    Statement statement = null;
+    try {
+      statement = connection.createStatement();
+      if (databaseMeta.supportsSetMaxRows()) {
+        try {
+          statement.setMaxRows(1);
+        } catch (SQLException e) {
+          // Only an optimisation: read the first row of whatever comes back.
+        }
+      }
+      applyStatementQueryTimeout(statement);
+      try (ResultSet resultSet = statement.executeQuery(databaseMeta.stripCR(sql))) {
+        resultSet.next();
+      }
+      return true;
+    } catch (Exception e) {
+      // Any failure running the query means the object is not there, as with getOneRow, which
+      // wrapped every exception of the query in a HopDatabaseException.
+      if (log.isDebug()) {
+        log.logDebug("Existence check [" + sql + "] failed: " + e.getMessage());
+      }
+      return false;
+    } finally {
+      if (statement != null) {
+        try {
+          statement.close();
+        } catch (SQLException e) {
+          log.logError("Unable to close the existence check statement", e);
+        }
+      }
     }
   }
 
@@ -2211,13 +2241,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       // Just try to read from the table.
       String sql = databaseMeta.getSqlColumnExists(columnName, tableName);
-
-      try {
-        getOneRow(sql);
-        return true;
-      } catch (HopDatabaseException e) {
-        return false;
-      }
+      return existenceProbeSucceeds(sql);
     } catch (Exception e) {
       throw new HopDatabaseException(
           "Unable to check if column ["
@@ -3061,6 +3085,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (log.isDetailed()) {
           log.logDetailed("Setting preparedStatement to [" + sql + "]");
         }
+        // The statement this replaces may come back from the driver for this SQL: forget its
+        // layout.
+        lookupRowMetas.forget(prepStatementLookup);
         prepStatementLookup = connection.prepareStatement(databaseMeta.stripCR(sql));
         if (!checkForMultipleResults && databaseMeta.supportsSetMaxRows()) {
           prepStatementLookup.setMaxRows(1); // alywas get only 1 line back!
@@ -3305,9 +3332,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public Object[] getLookup(PreparedStatement ps) throws HopDatabaseException {
-    // we assume this is external PreparedStatement and we may need to re-create rowMeta
-    // so we just reset it to null and it will be re-created on processRow call
-    rowMeta = null;
     return getLookup(ps, false);
   }
 
@@ -3320,11 +3344,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       PreparedStatement ps, boolean failOnMultipleResults, boolean lazyConversion)
       throws HopDatabaseException {
     ResultSet res = null;
+    // The layout reported afterwards is that of this lookup, or none when it fails.
+    rowMeta = null;
     try {
       log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_START, databaseMeta.getName());
       res = ps.executeQuery();
 
-      Object[] ret = getRow(res, lazyConversion);
+      rowMeta = getLookupRowMeta(ps, res, lazyConversion);
+      Object[] ret = getRow(res, null, rowMeta);
 
       if (failOnMultipleResults && ret != null && res.next()) {
         // if the previous row was null, there's no reason to try res.next()
@@ -3348,6 +3375,28 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_STOP, databaseMeta.getName());
       }
     }
+  }
+
+  /**
+   * The layout of the rows a lookup statement returns: derived from the result set of this very
+   * statement, with this lazy conversion flag, and reused while the statement answers the same
+   * columns (#9679).
+   */
+  private IRowMeta getLookupRowMeta(PreparedStatement ps, ResultSet res, boolean lazyConversion)
+      throws HopDatabaseException, SQLException {
+    ResultSetMetaData rsmd;
+    try {
+      rsmd = res.getMetaData();
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Unable to retrieve metadata from resultset", e);
+    }
+    IRowMeta cached = lookupRowMetas.get(ps, lazyConversion, rsmd);
+    if (cached != null) {
+      return cached;
+    }
+    IRowMeta derived = getRowInfo(rsmd, false, lazyConversion);
+    lookupRowMetas.put(ps, lazyConversion, rsmd, derived);
+    return derived;
   }
 
   public DatabaseMetaData getDatabaseMetaData() throws HopDatabaseException {

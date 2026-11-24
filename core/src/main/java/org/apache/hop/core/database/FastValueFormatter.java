@@ -155,6 +155,20 @@ public abstract class FastValueFormatter {
   }
 
   /**
+   * @return the formatter of a Number in the default mask with ASCII symbols and half-even rounding
+   */
+  static FastValueFormatter defaultNumber() {
+    return NumberFormatter.INSTANCE;
+  }
+
+  /**
+   * @return the formatter of a BigNumber in the default mask with ASCII symbols
+   */
+  static FastValueFormatter defaultBigNumber() {
+    return BigNumberFormatter.INSTANCE;
+  }
+
+  /**
    * True when the format renders like a format built from the mask with ASCII digits, a period as
    * decimal separator and a plain minus sign.
    */

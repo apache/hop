@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Blocking transform blocks all output until the very last row is received from the previous transform.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/blockingtransform.svg[Blocking transform Icon, role="image-doc-icon"] Blocking transform
 

@@ -17,7 +17,8 @@
 # limitations under the License.
 #
 
-SEARCH_DIR="assemblies/client/target/hop"
+# Usage: tools/find_duplicate_jars.sh [hop-install-folder]
+SEARCH_DIR="${1:-assemblies/client/target/hop}"
 
 # Check if the search directory exists
 if [ ! -d "$SEARCH_DIR" ]; then

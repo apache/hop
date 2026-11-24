@@ -49,6 +49,8 @@ Two ids, and they are not the same thing:
 `id`:: the plugin's own id, unique among extension points.
 `extensionPointId`:: *which* hook to listen to. The names are the constants of the `HopExtensionPoint` enum in `org.apache.hop.core.extension`, which is also the list of what is available. Anything can fire an extension point, so a plugin may define and announce its own.
 
+When each of them fires, in which order and on which engine is on xref:architecture/extension-points.adoc[Extension points and when they fire].
+
 The generic parameter is the object Hop hands over, and it decides where your plugin will and will not work:
 
 [IMPORTANT]

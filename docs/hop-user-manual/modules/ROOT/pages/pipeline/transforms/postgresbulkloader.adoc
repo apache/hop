@@ -29,6 +29,12 @@ TIP: boolean stream fields are serialized as `t` or `f`, which PostgreSQL `COPY`
 
 TIP: binary stream fields (for example a 16-byte hash key) are serialized as PostgreSQL `bytea` hex, `\xdeadbeef`.
 
+TIP: the data is always sent in UTF-8 and the `COPY` command declares it with `ENCODING 'UTF8'`, so the connection's `client_encoding` does not matter. The server converts the text to the database encoding, and a character the database cannot store fails the load.
+
+TIP: the "Date" and "DateTime" date masks always write ISO dates with Gregorian years and ASCII digits, whatever the regional settings. "Pass through" writes the date in the stream field's own format.
+
+TIP: numbers read with lazy conversion are copied as they were read when PostgreSQL reads that text the same way: a plain format with a decimal point, no grouping symbol in the value, and an encoding that keeps ASCII digits as ASCII. Other values, for example with a decimal comma, are converted first.
+
 COPY error messages rarely name the stream field and value. Put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of this transform to catch over-long strings, encoding problems, numeric overflow and invalid UUID/JSON before COPY runs.
 
 IMPORTANT: The PostgreSQL bulk loader is linked to the database type. It will fetch the JDBC driver from the hop/lib/jdbc folder. +
@@ -48,8 +54,8 @@ This is important for data sources that allow for table names with dots '.' in i
 |Load action|Insert, Truncate.
 Insert inserts, truncate first truncates the table.
 |DB Name Override|(optional) database name to override the database name used in this transform's connection.
-|Enclosure|the enclosure character to use in the `QUOTE AS` part of the copy command
-|Delimiter|the delimiter character to use in the `DELIMITER AS` part of the copy command
+|Enclosure|the enclosure character to use in the `QUOTE` option of the copy command
+|Delimiter|the delimiter character to use in the `DELIMITER` option of the copy command
 |Stop on error|Stop the execution of this transform when an error occurs
 |Fields to load a|This table contains a list of fields to load data from, properties include:
 

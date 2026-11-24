@@ -42,7 +42,11 @@ class HopBomTest {
   private static final Map<String, String> EXCLUSIONS =
       Map.of(
           "hop-config-doc", "Build-time documentation generator",
+          "hop-maven-plugin", "Maven build plugin",
           "hop-web-integration-tests", "Browser integration tests");
+
+  // Packagings that produce a JAR; anything other than these and "pom" needs a review.
+  private static final Set<String> JAR_PACKAGINGS = Set.of("", "jar", "maven-plugin");
 
   @Test
   void generatedBomIsStandalone() throws Exception {
@@ -158,7 +162,7 @@ class HopBomTest {
     }
     final var model = parse(normalized);
     final var packaging = text(model, "/project/packaging");
-    if (packaging.isEmpty() || "jar".equals(packaging)) {
+    if (JAR_PACKAGINGS.contains(packaging)) {
       final var artifact = text(model, "/project/artifactId");
       if (EXCLUSIONS.containsKey(artifact)) {
         excluded.add(artifact);

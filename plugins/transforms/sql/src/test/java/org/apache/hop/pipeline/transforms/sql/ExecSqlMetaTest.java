@@ -59,6 +59,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
     List<String> attributes =
         Arrays.asList(
             "connection",
+            "commit_size",
             "sql",
             "execute_each_row",
             "update_field",
@@ -76,6 +77,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
         new HashMap<>() {
           {
             put("connection", "getConnection");
+            put("commit_size", "getCommitSize");
             put("sql", "getSql");
             put("execute_each_row", "isExecutedEachInputRow");
             put("update_field", "getUpdateField");
@@ -94,6 +96,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
         new HashMap<>() {
           {
             put("connection", "setConnection");
+            put("commit_size", "setCommitSize");
             put("sql", "setSql");
             put("execute_each_row", "setExecutedEachInputRow");
             put("update_field", "setUpdateField");

@@ -28,9 +28,28 @@
     <artifactId>hop-tech-airflow</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Technology Airflow</name>
-    <description>Apache Airflow connection and the Trigger Airflow DAG run action</description>
+    <description>Apache Airflow connection, the Trigger Airflow DAG run action and running workflows as Airflow DAGs</description>
+
+    <properties>
+        <!-- The launcher is unpacked in launcher/ by the assembly, never put on Hop's class path -->
+        <hop.libcore.exclude1>org.apache.hop:hop-tech-airflow-launcher</hop.libcore.exclude1>
+    </properties>
 
     <dependencies>
+        <!-- The plugin uses only the launcher's constants, which the compiler copies: Hop never
+             loads the launcher or the Airflow SDK. -->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-airflow-launcher</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- WireMock for the Airflow REST API client tests -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
@@ -40,4 +59,33 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- The launcher with its libraries, which the assembly unpacks in launcher/. Only when the
+             module zips are built, as the root pom's assembly profile: with -Dmodule.zips=false
+             the launcher builds no zip either. -->
+        <profile>
+            <id>launcher-zip</id>
+            <activation>
+                <property>
+                    <name>module.zips</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hop</groupId>
+                    <artifactId>hop-tech-airflow-launcher</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

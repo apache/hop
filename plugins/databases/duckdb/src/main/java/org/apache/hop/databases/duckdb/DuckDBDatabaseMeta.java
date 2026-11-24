@@ -26,6 +26,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
@@ -344,5 +345,18 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static String lower(String identifier) {
     return identifier.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Measured with the DuckDB JDBC driver 1.5.6: a failed batch keeps none of its rows (nor anything
+   * else written in the same transaction since the last commit), and the driver closes the
+   * statement.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != DuckDBDatabaseMeta.class) {
+      return null;
+    }
+    return BatchFailureContract.LOSES_WHOLE_BATCH;
   }
 }
