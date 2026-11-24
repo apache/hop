@@ -142,10 +142,6 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
         data.lookupRowMeta.addValueMeta(rowMeta.getValueMeta(data.keynrs[i]).clone());
       }
-
-      // Lineage: the sink recovers the tables the query reads by parsing it, as for Table input
-      LineageRelationalIoEmitter.emitTransformRelationalRead(
-          this, data.db.getDatabaseMeta(), parameterSpec.getPreparedSql(), null, null, true, null);
     }
     try {
       // Construct the parameters row...
@@ -380,10 +376,29 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     return false;
   }
 
+  /**
+   * Lineage: the sink recovers the tables the query reads by parsing it, as for Table input. Sent
+   * at the end of the run, also when no row came in, and only when the query was prepared.
+   */
+  void emitRelationalLineage() {
+    if (data.db == null || data.pstmt == null || data.parameterSpec == null) {
+      return;
+    }
+    LineageRelationalIoEmitter.emitTransformRelationalRead(
+        this,
+        data.db.getDatabaseMeta(),
+        data.parameterSpec.getPreparedSql(),
+        null,
+        null,
+        getErrors() == 0,
+        null);
+  }
+
   @Override
   public void dispose() {
     dbLock.lock();
     try {
+      emitRelationalLineage();
       if (data.pstmt != null) {
         data.db.closePreparedStatement(data.pstmt);
         data.pstmt = null;

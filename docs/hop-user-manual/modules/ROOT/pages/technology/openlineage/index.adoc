@@ -259,8 +259,8 @@ The following transforms emit relational lineage:
 * **Deletes** — *Delete* reports the affected table only. A delete produces no columns, so the event
   carries neither a column schema nor column lineage.
 * **Reads and writes** — *Execute SQL* (its statements are parsed for both input and output tables),
-  and *Execute row SQL script*, which reports the distinct scripts it ran, up to 1000, as one script
-  when it ends.
+  and *Execute row SQL script*, which reports the distinct scripts it ran as one script when it
+  ends: up to 1000 scripts and 1 MiB of SQL. A script file is read when it runs.
 * **Workflow actions** — the *SQL* action reports the tables of its SQL, or of its SQL file, on the
   action's run.
 
@@ -270,8 +270,11 @@ For transforms and actions that only provide SQL (Table Input, Database Join, Ex
 row SQL script, the SQL action), the sink recovers the
 tables — and, for an `INSERT … SELECT`, the column-level lineage — by parsing the statement with the
 OpenLineage SQL parser. Parsing is on by default and controlled by `HOP_LINEAGE_OPENLINEAGE_SQL_PARSE`.
-A statement with `?` parameters, such as the query Database Join prepares, is parsed with `NULL` in
-their place: the parser takes no `?` for a value.
+A script is parsed one statement at a time, so a statement the parser can't read only loses its own
+tables. A statement with `?` parameters, such as the query Database Join prepares, is parsed with
+`NULL` in their place: the parser takes no `?` for a value. What counts as a parameter is what Hop
+counts when it runs the statement, so a `?` in text or comments and PostgreSQL's `??`, `?|` and `?&`
+stay as they are.
 Tables named without a schema or catalog are qualified using the connection's default database and
 preferred schema, so a bare `SELECT … FROM orders` shares one identity with a schema-qualified write
 of the same table.

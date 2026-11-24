@@ -262,14 +262,24 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       if (replaceVariables) {
         query = variables.resolve(query);
       }
+      boolean brackets = supportsBracketQuotedIdentifiers(findDatabaseMeta(variables));
       return List.of(
           new IDeclaresLineage.DeclaredSql(
               RelationalIoOperation.READ,
               variables.resolve(connection),
-              parseSqlParameterSpec(query).getPreparedSql()));
+              parseSqlParameterSpec(query, brackets).getPreparedSql()));
     } catch (HopException e) {
       return List.of();
     }
+  }
+
+  /** The connection, when this transform is in a pipeline that has it. */
+  private DatabaseMeta findDatabaseMeta(IVariables variables) {
+    TransformMeta transformMeta = getParentTransformMeta();
+    if (transformMeta == null || transformMeta.getParentPipelineMeta() == null) {
+      return null;
+    }
+    return transformMeta.getParentPipelineMeta().findDatabase(connection, variables);
   }
 
   @Override

@@ -256,6 +256,19 @@ class DatabaseTest {
     assertNull(spec.getParameterReferences().get(0));
   }
 
+  /** The SQL as the database receives it: parameters replaced, ?? escapes unescaped. */
+  @Test
+  void replaceSqlParametersSkipsWhatParseSqlParameterSpecSkips() {
+    assertEquals(
+        "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ? NULL AND options ?| array['a'] "
+            + "AND flags ?& array['b'] AND note <> $$?$$ AND id = NULL -- ?",
+        Database.replaceSqlParameters(
+            "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ?? ? AND options ?| array['a'] "
+                + "AND flags ??& array['b'] AND note <> $$?$$ AND id = ?{id} -- ?",
+            true,
+            "NULL"));
+  }
+
   /**
    * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
    * every call. That may bring performance penalty depends on jdbc driver implementation. For some

@@ -23,9 +23,13 @@ import io.openlineage.sql.DbTableMeta;
 import io.openlineage.sql.OpenLineageSql;
 import io.openlineage.sql.SqlMeta;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.SqlScriptParser;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.lineage.model.RelationalTable;
@@ -80,16 +84,51 @@ final class RelationalSqlParser {
    * Parses {@code sql} for the given database {@code dialect} (e.g. {@code postgres}, {@code
    * mysql}; may be null for the parser's default). Returns the referenced tables, or {@link
    * Tables#EMPTY} on any failure.
+   *
+   * <p>A script of several statements is parsed one statement at a time and the tables merged: the
+   * parser gives nothing for a script with one statement it can't read, which would hide the tables
+   * of all the others.
    */
   Tables parse(String sql, String dialect) {
     if (!enabled || Utils.isEmpty(sql)) {
       return Tables.EMPTY;
     }
+    List<String> statements = statements(sql, dialect);
+    if (statements.size() <= 1) {
+      return parseStatement(sql, dialect);
+    }
+    Set<RelationalTable> inputs = new LinkedHashSet<>();
+    Set<RelationalTable> outputs = new LinkedHashSet<>();
+    List<ColumnEdge> columnLineage = new ArrayList<>();
+    for (String statement : statements) {
+      Tables tables = parseStatement(statement, dialect);
+      inputs.addAll(tables.inputs());
+      outputs.addAll(tables.outputs());
+      columnLineage.addAll(tables.columnLineage());
+    }
+    return new Tables(List.copyOf(inputs), List.copyOf(outputs), columnLineage);
+  }
+
+  /** The statements of a script, split as Hop splits a script it runs. */
+  private static List<String> statements(String sql, String dialect) {
+    if (sql.indexOf(';') < 0) {
+      return List.of(sql);
+    }
+    List<String> statements = new ArrayList<>();
+    for (String statement : new SqlScriptParser("mysql".equals(dialect)).split(sql)) {
+      if (!statement.isBlank()) {
+        statements.add(statement);
+      }
+    }
+    return statements;
+  }
+
+  private Tables parseStatement(String sql, String dialect) {
     Tables tables = parseOnce(sql, dialect);
     if (tables.isEmpty() && sql.indexOf('?') >= 0) {
       // A statement prepared with JDBC parameters (Database join, a Table input that takes its
       // parameters from a transform): the parser takes no ? for a value, but does take NULL.
-      String bound = withoutParameters(sql);
+      String bound = withoutParameters(sql, dialect);
       if (!bound.equals(sql)) {
         tables = parseOnce(bound, dialect);
       }
@@ -98,42 +137,13 @@ final class RelationalSqlParser {
   }
 
   /**
-   * {@code sql} with each {@code ?} parameter outside quotes and comments replaced by {@code NULL}.
+   * {@code sql} with each JDBC parameter replaced by {@code NULL}. What counts as a parameter is
+   * what Hop counts when it runs the statement ({@link Database#replaceSqlParameters}): not a
+   * {@code ?} in a literal, quoted identifier or comment, nor a PostgreSQL JSONB operator. SQL
+   * Server's {@code [identifiers]} are skipped too.
    */
-  static String withoutParameters(String sql) {
-    StringBuilder bound = new StringBuilder(sql.length() + 16);
-    char quote = 0;
-    boolean lineComment = false;
-    boolean blockComment = false;
-    for (int i = 0; i < sql.length(); i++) {
-      char c = sql.charAt(i);
-      char next = i + 1 < sql.length() ? sql.charAt(i + 1) : 0;
-      if (lineComment) {
-        lineComment = c != '\n';
-      } else if (blockComment) {
-        if (c == '*' && next == '/') {
-          blockComment = false;
-          bound.append(c).append(next);
-          i++;
-          continue;
-        }
-      } else if (quote != 0) {
-        if (c == quote) {
-          quote = 0;
-        }
-      } else if (c == '\'' || c == '"' || c == '`') {
-        quote = c;
-      } else if (c == '-' && next == '-') {
-        lineComment = true;
-      } else if (c == '/' && next == '*') {
-        blockComment = true;
-      } else if (c == '?') {
-        bound.append("NULL");
-        continue;
-      }
-      bound.append(c);
-    }
-    return bound.toString();
+  static String withoutParameters(String sql, String dialect) {
+    return Database.replaceSqlParameters(sql, "mssql".equals(dialect), "NULL");
   }
 
   private Tables parseOnce(String sql, String dialect) {

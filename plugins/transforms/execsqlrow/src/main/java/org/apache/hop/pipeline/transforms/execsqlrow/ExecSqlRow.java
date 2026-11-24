@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -45,6 +45,9 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
 
   /** The most distinct scripts a run reports the tables of. */
   static final int MAX_LINEAGE_SCRIPTS = 1000;
+
+  /** The most characters of SQL a run keeps to report the tables of. */
+  static final int MAX_LINEAGE_CHARS = 1024 * 1024;
 
   public ExecSqlRow(
       TransformMeta transformMeta,
@@ -203,34 +206,56 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
   }
 
   /**
-   * Keeps a script that ran, or the name of the script file, for the lineage reported on dispose.
-   * Does nothing unless lineage is on, and stops past {@link #MAX_LINEAGE_SCRIPTS} distinct ones: a
-   * script per row with values in it must not grow the set without bound. Past the cap, the tables
-   * of the other scripts are not reported; the scripts still run.
+   * Keeps a script that ran, for the lineage reported on dispose. For a script file the file is
+   * read now, once per file and as {@link
+   * org.apache.hop.core.database.Database#execStatementsFromFile} read it, so a temporary file
+   * deleted later still has its tables reported. Does nothing unless lineage is on. A script per
+   * row with values in it must not grow what is kept without bound, so past {@link
+   * #MAX_LINEAGE_SCRIPTS} distinct scripts or {@link #MAX_LINEAGE_CHARS} characters the tables of
+   * the other scripts are not reported; the scripts still run.
    */
-  void recordLineageScript(String sql) {
-    if (Utils.isEmpty(sql) || !LineageSinkRoutes.isEnabled(this)) {
+  void recordLineageScript(String sqlOrFile) {
+    if (Utils.isEmpty(sqlOrFile)
+        || data.lineageTruncated
+        || data.lineageScripts.contains(sqlOrFile)
+        || !LineageSinkRoutes.isEnabled(this)) {
       return;
     }
-    if (data.lineageScripts.size() >= MAX_LINEAGE_SCRIPTS) {
-      if (!data.lineageTruncated && !data.lineageScripts.contains(sql)) {
-        data.lineageTruncated = true;
-        logBasic(
-            "More than "
-                + MAX_LINEAGE_SCRIPTS
-                + " distinct SQL scripts; lineage is reported for the first "
-                + MAX_LINEAGE_SCRIPTS
-                + " only");
+    String sql = sqlOrFile;
+    if (meta.isSqlFromfile()) {
+      if (!data.lineageFiles.add(sqlOrFile)) {
+        return;
       }
+      try {
+        sql = HopVfs.getTextFileContent(sqlOrFile, Charset.defaultCharset());
+      } catch (Exception e) {
+        // Lineage never fails the transform: this file's tables are not reported
+        logDetailed("No lineage for SQL file " + sqlOrFile + ": " + e.getMessage());
+        return;
+      }
+      if (data.lineageScripts.contains(sql)) {
+        return;
+      }
+    }
+    if (data.lineageScripts.size() >= MAX_LINEAGE_SCRIPTS
+        || data.lineageChars + sql.length() > MAX_LINEAGE_CHARS) {
+      data.lineageTruncated = true;
+      logBasic(
+          "More than "
+              + MAX_LINEAGE_SCRIPTS
+              + " distinct SQL scripts or "
+              + MAX_LINEAGE_CHARS
+              + " characters of SQL; lineage is reported for the scripts before that only");
       return;
     }
     data.lineageScripts.add(sql);
+    data.lineageChars += sql.length();
   }
 
   /**
    * One {@code RELATIONAL_IO} event with the distinct scripts that ran, as one script: the sink
-   * finds the tables they read and write from the SQL, as for Execute SQL script, and doesn't give
-   * every table the row counts of all of them.
+   * finds the tables they read and write from the SQL, one statement at a time, as for Execute SQL
+   * script, and doesn't give every table the row counts of all of them.
    */
   private void emitRelationalLineage() {
     if (data.db == null || data.lineageScripts.isEmpty()) {
@@ -243,24 +268,11 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
     }
   }
 
-  /**
-   * The distinct scripts that ran, each ended by a semicolon, as one script. A script file is read
-   * again for it; one that can't be read is left out.
-   */
+  /** The distinct scripts that ran, each ended by a semicolon, as one script. */
   String lineageSql() {
-    StringBuilder all = new StringBuilder();
+    StringBuilder all = new StringBuilder(data.lineageChars + 2 * data.lineageScripts.size());
     for (String script : data.lineageScripts) {
-      String sql = script;
-      if (meta.isSqlFromfile()) {
-        try {
-          sql = HopVfs.getTextFileContent(script, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-          // Lineage never fails the transform: this file's tables are not reported
-          logDetailed("No lineage for SQL file " + script + ": " + e.getMessage());
-          continue;
-        }
-      }
-      String statements = sql.strip();
+      String statements = script.strip();
       while (statements.endsWith(";")) {
         statements = statements.substring(0, statements.length() - 1).strip();
       }

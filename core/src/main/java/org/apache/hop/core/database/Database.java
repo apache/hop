@@ -3892,6 +3892,31 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public static SqlParameterSpec parseSqlParameterSpec(
       String sourceSql, boolean consumeBracketIdentifiers) {
+    return scanSqlParameters(sourceSql, consumeBracketIdentifiers, "?", false);
+  }
+
+  /**
+   * {@code sourceSql} as the database receives it, with each JDBC parameter marker ({@code ?} or
+   * {@code ?{name}}) replaced by {@code replacement}: for example to parse a prepared statement
+   * with a parser that takes no {@code ?}. Literals, quoted identifiers, comments and PostgreSQL
+   * JSONB operators are skipped as in {@link #parseSqlParameterSpec(String, boolean)}, and the JDBC
+   * escape {@code ??} of those operators is written as the single {@code ?} the database gets.
+   *
+   * @param sourceSql the SQL text
+   * @param consumeBracketIdentifiers true to treat [identifier] sections as quoted identifiers
+   * @param replacement the text that takes the place of each parameter, for example {@code NULL}
+   */
+  public static String replaceSqlParameters(
+      String sourceSql, boolean consumeBracketIdentifiers, String replacement) {
+    return scanSqlParameters(sourceSql, consumeBracketIdentifiers, replacement, true)
+        .getPreparedSql();
+  }
+
+  private static SqlParameterSpec scanSqlParameters(
+      String sourceSql,
+      boolean consumeBracketIdentifiers,
+      String parameterText,
+      boolean unescapeOperators) {
     String sql = Const.NVL(sourceSql, "");
     StringBuilder preparedSql = new StringBuilder(sql.length());
     List<String> parameterReferences = new ArrayList<>();
@@ -3983,7 +4008,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             String fieldName = sql.substring(index + 2, end).trim();
             if (!fieldName.isEmpty()) {
               parameterReferences.add(fieldName);
-              preparedSql.append('?');
+              preparedSql.append(parameterText);
               index = end + 1;
               continue;
             }
@@ -3992,13 +4017,15 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         int jsonbOperatorLength = getPostgresJsonbOperatorLength(sql, index);
         if (jsonbOperatorLength > 0) {
-          preparedSql.append(sql, index, index + jsonbOperatorLength);
+          boolean escaped = sql.charAt(index + 1) == '?';
+          preparedSql.append(
+              sql, unescapeOperators && escaped ? index + 1 : index, index + jsonbOperatorLength);
           index += jsonbOperatorLength;
           continue;
         }
 
         parameterReferences.add(null);
-        preparedSql.append(c);
+        preparedSql.append(parameterText);
         index++;
         continue;
       }

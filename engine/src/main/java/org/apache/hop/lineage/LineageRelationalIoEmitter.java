@@ -303,10 +303,14 @@ public final class LineageRelationalIoEmitter {
       if (ctx == null) {
         return;
       }
+      // The action resolved the connection with its own variables, which may differ from the
+      // workflow's
+      IVariables variables =
+          action instanceof IVariables actionVariables ? actionVariables : workflow;
       RelationalIoLineagePayload payload =
           payload(
               databaseMeta,
-              workflow,
+              variables,
               RelationalIoOperation.EXEC,
               sql,
               null,

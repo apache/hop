@@ -111,6 +111,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
     if (databaseMeta != null) {
       FileObject sqlFile = null;
+      String executionSql = null;
       try (Database db = new Database(this, this, databaseMeta)) {
         StringBuilder theSql = new StringBuilder();
         db.connect();
@@ -171,7 +172,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         }
         if (!Utils.isEmpty(theSql)) {
           // let it run
-          String executionSql = theSql.toString();
+          executionSql = theSql.toString();
           if (useVariableSubstitution) {
             executionSql = resolve(executionSql);
           }
@@ -190,6 +191,9 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
       } catch (HopDatabaseException je) {
         result.setNrErrors(1);
         logError(BaseMessages.getString(PKG, "ActionSQL.ErrorRunAction", je.getMessage()));
+        // Statements before the failing one may have run, and written tables
+        LineageRelationalIoEmitter.emitWorkflowActionRelationalExec(
+            getParentWorkflow(), this, databaseMeta, executionSql, false, je.getMessage());
       } finally {
         if (sqlFile != null) {
           try {

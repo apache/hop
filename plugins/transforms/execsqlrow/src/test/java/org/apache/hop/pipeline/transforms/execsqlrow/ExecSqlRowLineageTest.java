@@ -24,12 +24,15 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -97,6 +100,41 @@ class ExecSqlRowLineageTest {
 
     assertEquals(ExecSqlRow.MAX_LINEAGE_SCRIPTS, data.lineageScripts.size());
     assertTrue(data.lineageTruncated);
+  }
+
+  /** Large scripts: what is kept stops at the character cap, not only at the script count. */
+  @Test
+  void theScriptsKeptStopAtTheCharacterCap() {
+    String filler = "x".repeat(200 * 1024);
+    try (MockedStatic<LineageHub> hub = lineageEnabled(true)) {
+      for (int i = 0; i < 10; i++) {
+        transform.recordLineageScript("INSERT INTO t VALUES ('" + i + filler + "')");
+      }
+    }
+
+    assertEquals(5, data.lineageScripts.size());
+    assertTrue(data.lineageChars <= ExecSqlRow.MAX_LINEAGE_CHARS);
+    assertTrue(data.lineageTruncated);
+  }
+
+  /**
+   * A script file is read when it ran, once, so a temporary file deleted afterwards still has its
+   * tables reported.
+   */
+  @Test
+  void aScriptFileIsReadWhenItRuns(@TempDir Path folder) throws Exception {
+    when(mockHelper.iTransformMeta.isSqlFromfile()).thenReturn(true);
+    Path script = folder.resolve("load.sql");
+    Files.writeString(script, "INSERT INTO sales.orders SELECT * FROM staging.orders;\n");
+
+    try (MockedStatic<LineageHub> hub = lineageEnabled(true)) {
+      transform.recordLineageScript(script.toString());
+      transform.recordLineageScript(script.toString());
+    }
+    Files.delete(script);
+
+    assertEquals(
+        "INSERT INTO sales.orders SELECT * FROM staging.orders;\n", transform.lineageSql());
   }
 
   /** One script for all of them, so no table gets the row counts of every statement. */

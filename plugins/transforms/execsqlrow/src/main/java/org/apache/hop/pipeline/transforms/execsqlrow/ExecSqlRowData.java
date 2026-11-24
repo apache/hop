@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.apache.hop.core.Result;
@@ -39,12 +40,18 @@ public class ExecSqlRowData extends BaseTransformData implements ITransformData 
   public boolean useSavepoints;
 
   /**
-   * The distinct SQL scripts, or script file names, that ran, for lineage: only kept when lineage
-   * is on, and capped.
+   * The distinct SQL scripts that ran, a script file's as read from the file, for lineage: only
+   * kept when lineage is on, and capped.
    */
   public final Set<String> lineageScripts = new LinkedHashSet<>();
 
-  /** Whether more distinct scripts ran than lineage keeps. */
+  /** The script files read for lineage, so each is read once. */
+  public final Set<String> lineageFiles = new HashSet<>();
+
+  /** The characters of SQL in {@link #lineageScripts}. */
+  public int lineageChars;
+
+  /** Whether more scripts ran than lineage keeps. */
   public boolean lineageTruncated;
 
   public ExecSqlRowData() {
