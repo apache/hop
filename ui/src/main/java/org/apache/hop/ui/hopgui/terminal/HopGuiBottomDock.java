@@ -82,8 +82,11 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
 
   private static final Class<?> PKG = HopGuiBottomDock.class;
 
+  /**
+   * Tools → Terminal, which opens a terminal tab. Excluding this id in disabledGuiElements.xml
+   * forces the embedded terminal off.
+   */
   public static final String ID_MAIN_MENU_TOOLS_TERMINAL = "40010-menu-tools-terminal";
-  public static final String ID_MAIN_MENU_TOOLS_NEW_TERMINAL = "40020-menu-tools-new-terminal";
 
   /** Selected-tool id for a terminal tab. Tool tabs use their own {@code DATA_TOOL_ID}. */
   public static final String TOOL_ID_TERMINAL = "terminal";
@@ -713,33 +716,12 @@ public class HopGuiBottomDock extends Composite implements TabClosable {
     return null;
   }
 
-  /**
-   * Show the terminal, or hide the panel when a terminal tab is already selected. Does nothing when
-   * the terminal capability is off.
-   */
+  /** Open a new terminal tab. Does nothing when the terminal capability is off. */
   @GuiMenuElement(
       root = HopGui.ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_TERMINAL,
       label = "i18n::HopGuiTerminalPanel.Menu.Terminal",
-      parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID)
-  @GuiKeyboardShortcut(control = true, key = 'j', global = true)
-  @GuiOsxKeyboardShortcut(command = true, key = 'j', global = true)
-  public void toggleTerminal() {
-    if (EnvironmentUtils.getInstance().isWeb() || !terminalsEnabled) {
-      return;
-    }
-    if (isDockVisible() && isToolSelected(TOOL_ID_TERMINAL)) {
-      hideDock();
-    } else {
-      focusTerminal();
-    }
-  }
-
-  /** Open a new terminal tab */
-  @GuiMenuElement(
-      root = HopGui.ID_MAIN_MENU,
-      id = ID_MAIN_MENU_TOOLS_NEW_TERMINAL,
-      label = "i18n::HopGuiTerminalPanel.Menu.NewTerminal",
+      image = "ui/images/terminal.svg",
       parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID)
   @GuiKeyboardShortcut(control = true, shift = true, key = 'j', global = true)
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'j', global = true)
