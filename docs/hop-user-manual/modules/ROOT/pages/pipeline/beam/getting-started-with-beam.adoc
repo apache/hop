@@ -184,21 +184,54 @@ The Beam class used to perform this is: `org.apache.beam.sdk.extensions.joinlibr
 * xref:pipeline/transforms/rowgenerator.adoc[Generate Rows]: This transform is used to generate (empty/static) rows of data.
 It can be either a fixed number, or it can generate rows indefinitely.
 When using the Beam engines it uses `org.apache.beam.sdk.io.synthetic.SyntheticBoundedSource` or `org.apache.beam.sdk.io.synthetic.SyntheticUnboundedSource`.
+* xref:pipeline/transforms/sort.adoc[Sort Rows]: the rows are passed on as they are, unsorted.
+A Beam pipeline does not keep the order of rows from one transform to the next, and Merge Join and Memory Group By don't need sorted rows on Beam.
+So a pipeline that sorts in front of them for the Hop engine runs unchanged on Beam.
+With *Only pass unique rows* Sort Rows is refused: use `Unique Rows (HashSet)` or the `Memory Group By` instead.
 
 [#_unsupported_transforms]
 === Unsupported transforms
 
-A few transforms are simply not supported because we haven't found a good way to do this on Beam yet.
-They all depend on seeing the rows in a particular order, or on holding state for the whole data set in one place, and a Beam pipeline re-shuffles rows across workers to maximize parallelism.
-Each of these transforms would therefore only ever see the slice of the data one worker happens to hold, and would quietly produce a wrong result, so the Beam engines refuse them with an error instead:
+Some transforms only give the right result on rows in a particular order: sorted on a key, or compared with the row before them.
+A Beam pipeline spreads the rows over its workers and does not keep their order from one transform to the next, so these transforms would quietly produce a wrong result.
+The Beam engines refuse them with an error instead:
 
-* xref:pipeline/transforms/uniquerows.adoc[Unique Rows] : Use the `Memory Group By` instead
-* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] : Use the `Memory Group By` instead
-* xref:pipeline/transforms/groupby.adoc[Group By] : Use the `Memory Group By` instead
-* xref:pipeline/transforms/sort.adoc[Sort Rows]
-* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)] : Add the same constant field to both inputs and use a `Merge Join` on that field instead
+* xref:pipeline/transforms/groupby.adoc[Group By] with group fields: use the `Memory Group By` instead.
+Without group fields it runs, see below.
+* xref:pipeline/transforms/uniquerows.adoc[Unique Rows]: use `Unique Rows (HashSet)` or the `Memory Group By` instead
+* xref:pipeline/transforms/sort.adoc[Sort Rows] with *Only pass unique rows*.
+Without that option it runs, see above.
+* xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)]: add the same constant field to both inputs and use a `Merge Join` on that field instead
+* xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
+* xref:pipeline/transforms/addfieldschangesequence.adoc[Add value fields changing sequence]
+* xref:pipeline/transforms/repeatfields.adoc[Repeat fields]
+* xref:pipeline/transforms/rowflattener.adoc[Row Flattener]
+* xref:pipeline/transforms/sortedmerge.adoc[Sorted Merge]
+* xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
+* xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 
 The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
+Group By and Sort Rows depend on their settings, so the palette shows them: the pipeline stops with the reason when Group By has group fields, or when Sort Rows only passes unique rows.
+
+[#_whole_stream_transforms]
+=== Transforms that need the whole stream
+
+Other transforms need all the rows of their input, but not in any order.
+They hold rows back until the input ends, or they count or sample the whole stream:
+
+* xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
+* xref:pipeline/transforms/detectemptystream.adoc[Detect empty stream]
+* xref:pipeline/transforms/identifylastrow.adoc[Identify last row in a stream]
+* xref:pipeline/transforms/reservoirsampling.adoc[Reservoir Sampling]
+* xref:pipeline/transforms/samplerows.adoc[Sample Rows]
+* xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)]
+* xref:pipeline/transforms/groupby.adoc[Group By] without group fields: it aggregates the whole stream
+
+The Beam engines give such a transform all the rows of its input at once, on one worker, so it sees the end of its input once, as on the Hop engine.
+Because the rows are in no particular order, the row Identify last row flags, or the rows Sample Rows picks, can differ from the Hop engine: their number does not.
+
+Keep in mind that the worker holds all these rows in memory.
+These transforms are not available in a streaming (unbounded) pipeline: it has no end of input.
 
 The xref:pipeline/transforms/rowdenormaliser.adoc[Denormaliser] transform works technically correct on Apache Beam in release 1.1.0 and later.
 Even so you need to consider that the aggregation of the key-value pairs in that transform (in the general case) only happens on a sub-set of the rows.
@@ -220,6 +253,9 @@ There are a few things to mention though.
 |Info transforms
 |Some transforms like `Stream Lookup` read data from other transforms.
 This is handled by https://beam.apache.org/documentation/patterns/side-inputs/[side-inputs] for the data in the Beam API and is as such fully supported.
+
+|Writing transforms
+|Transforms that write, such as `Table Output` or `Text File Output`, complete their batch at the end of every bundle of rows: they commit and flush there, not after every row.
 
 |Target transforms
 |Sometimes you want to target specific transforms like in `Switch Case` or `Filter Rows`.

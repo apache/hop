@@ -20,6 +20,7 @@ package org.apache.hop.beam.pipeline.handler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -58,9 +59,56 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.w3c.dom.Node;
 
 public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
+
+  /**
+   * Transforms that need all rows of their input to give the local engine's result: they hold rows
+   * back until the input ends (Blocking transform, Identify last row, Detect empty stream), or they
+   * count or sample the whole stream (Sample rows, Reservoir sampling, Unique rows (HashSet)). On a
+   * bounded input they get every row at once, on one worker, and see the end of their input once.
+   * Row by row, as other transforms run, each worker saw only its own rows and none saw the end.
+   *
+   * <p>Group by joins them when it has no group fields: it then aggregates the whole stream. With
+   * group fields it needs sorted rows, and Beam refuses it.
+   */
+  public static final Set<String> WHOLE_STREAM_PLUGIN_IDS =
+      Set.of(
+          "BlockingTransform",
+          "DetectEmptyStream",
+          "DetectLastRow",
+          "ReservoirSampling",
+          "SampleRows",
+          "UniqueRowsByHashSet");
+
+  /**
+   * Whether the transform runs on all rows of its input at once, see {@link
+   * #WHOLE_STREAM_PLUGIN_IDS}.
+   */
+  public static boolean needsWholeStream(TransformMeta transformMeta) throws HopException {
+    String pluginId = transformMeta.getTransformPluginId();
+    if (GROUP_BY_PLUGIN_ID.equals(pluginId)) {
+      return !hasGroupFields(transformMeta);
+    }
+    return WHOLE_STREAM_PLUGIN_IDS.contains(pluginId);
+  }
+
+  /** The plugin id of Group by. */
+  public static final String GROUP_BY_PLUGIN_ID = "GroupBy";
+
+  /**
+   * Whether a Group by groups on fields. Read from the transform XML: the meta class of an
+   * installed transform comes from its own plugin class loader, so the Beam plugin cannot cast it.
+   */
+  public static boolean hasGroupFields(TransformMeta transformMeta) throws HopException {
+    Node transformNode =
+        XmlHandler.getSubNode(
+            XmlHandler.loadXmlString(transformMeta.getXml()), TransformMeta.XML_TAG);
+    Node groupNode = XmlHandler.getSubNode(transformNode, "group");
+    return groupNode != null && XmlHandler.countNodes(groupNode, "field") > 0;
+  }
 
   @Override
   public boolean isInput() {
@@ -154,8 +202,17 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
 
     // Send all the information on their way to the right nodes
     //
+    boolean wholeStream = !inputTransform && needsWholeStream(transformMeta);
+    if (wholeStream && input.isBounded() != PCollection.IsBounded.BOUNDED) {
+      throw new HopException(
+          "Transform '"
+              + transformMeta.getName()
+              + "' needs all the rows of its input at once, which an unbounded (streaming) Beam"
+              + " pipeline does not have.");
+    }
+
     PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
-    if (needsBatching(variables, transformMeta)) {
+    if (!wholeStream && needsBatching(variables, transformMeta)) {
       transformTransform =
           new TransformBatchTransform(
               variableValues,
@@ -193,6 +250,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
               runConfigurationName,
               dataSamplersJson,
               parentLogChannelId);
+      ((TransformTransform) transformTransform).setWholeStream(wholeStream);
     }
 
     if (input == null) {
@@ -215,8 +273,9 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler
       //
       String tupleId = HopBeamUtil.createMainInputTupleId(transformMeta.getName());
       transformCollectionMap.put(tupleId, input);
-    } else if (checkTransformCopiesForReducedParallelism(transformMeta)
-        || needsSingleThreading(transformMeta)) {
+    } else if (!wholeStream
+        && (checkTransformCopiesForReducedParallelism(transformMeta)
+            || needsSingleThreading(transformMeta))) {
       PCollection.IsBounded isBounded = input.isBounded();
       if (isBounded == PCollection.IsBounded.BOUNDED) {
         // group across all fields to get down to a single thread...

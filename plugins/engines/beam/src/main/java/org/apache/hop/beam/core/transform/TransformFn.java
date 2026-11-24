@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
+import org.apache.beam.sdk.transforms.windowing.GlobalWindow;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
@@ -105,6 +107,12 @@ public class TransformFn extends TransformBaseFn {
 
   private transient Counter readCounter;
   private transient Counter writtenCounter;
+
+  /** The window of the last row of the bundle: rows written at its end go to the same window. */
+  private transient BoundedWindow lastWindow;
+
+  /** In {@link #processWholeStream}: run an iteration after this many rows, to bound the queue. */
+  static final int WHOLE_STREAM_ITERATION_SIZE = 1000;
 
   public TransformFn() {
     super(null, null, null);
@@ -187,8 +195,9 @@ public class TransformFn extends TransformBaseFn {
   public void processElement(ProcessContext context, BoundedWindow window) {
     try {
       if (initialize) {
-        initializeTransformPipeline(context);
+        initializeTransformPipeline(new ProcessInitContext(context));
       }
+      lastWindow = window;
 
       // Get one row from the context main input and make a copy, so we can change it.
       //
@@ -204,7 +213,52 @@ public class TransformFn extends TransformBaseFn {
     }
   }
 
-  private void initializeTransformPipeline(DoFn<HopRow, HopRow>.ProcessContext context)
+  /**
+   * All rows of the transform at once: the whole stream, for a transform that needs to see the end
+   * of its input once ({@code BeamGenericTransformHandler#WHOLE_STREAM_PLUGIN_IDS}). The rows go
+   * into the transform, the input is marked done, and the transform runs until it is finished.
+   *
+   * @param rows every row of the transform's input
+   * @param initContext the side inputs and pipeline options of the calling function
+   * @param output where the rows of the transform and its targets go
+   */
+  void processWholeStream(
+      Iterable<HopRow> rows, InitContext initContext, TupleOutputContext<HopRow> output)
+      throws HopException, ParseException, JsonProcessingException {
+    if (initialize) {
+      initializeTransformPipeline(initContext);
+    }
+    int pending = 0;
+    for (HopRow row : rows) {
+      rowProducer.putRow(inputRowMeta, HopBeamUtil.copyHopRow(row, inputRowMeta).getRow(), false);
+      readCounter.inc();
+      if (++pending == WHOLE_STREAM_ITERATION_SIZE) {
+        iterate(output);
+        pending = 0;
+      }
+    }
+    // No more rows: the transform sees the end of its input once, and writes what it held back
+    rowProducer.finished();
+    boolean more = true;
+    while (more) {
+      more = executor.oneIteration();
+      if (executor.getErrors() > 0) {
+        throw new HopException("Transform '" + transformName + "' failed");
+      }
+      outputResults(output);
+    }
+  }
+
+  /** Runs one iteration of the rows in the queue and passes on what the transform wrote. */
+  private void iterate(TupleOutputContext<HopRow> output) throws HopException {
+    executor.oneIteration();
+    if (executor.getErrors() > 0) {
+      throw new HopException("Transform '" + transformName + "' failed");
+    }
+    outputResults(output);
+  }
+
+  private void initializeTransformPipeline(InitContext context)
       throws HopException, ParseException, JsonProcessingException {
     initialize = false;
     // Initialize Hop and load extra plugins as well
@@ -451,6 +505,9 @@ public class TransformFn extends TransformBaseFn {
     }
 
     executor = new SingleThreadedPipelineExecutor(pipeline);
+    // Rows arrive one at a time: complete the batch at the end of the bundle, not after every
+    // row. Otherwise a transform that groups ends its group, and one that writes flushes, per row.
+    executor.setBatchCompleteAfterIteration(false);
 
     // Initialize the transforms...
     //
@@ -527,9 +584,14 @@ public class TransformFn extends TransformBaseFn {
     //
     executor.oneIteration();
 
-    // Evaluate the results...
-    //
+    outputResults(context);
+  }
 
+  /**
+   * Passes the rows the transform wrote, and the rows that reached its target transforms, to Beam,
+   * and empties the buffers.
+   */
+  private void outputResults(TupleOutputContext<HopRow> context) {
     // Pass all rows in the output to the process context
     //
     for (HopRow resultRow : resultRows) {
@@ -549,7 +611,9 @@ public class TransformFn extends TransformBaseFn {
       for (Object[] targetRow : targetRowsList) {
         context.output(tupleTag, new HopRow(targetRow));
       }
+      targetRowsList.clear();
     }
+    resultRows.clear();
   }
 
   private TransformMeta createInjectorTransform(
@@ -588,6 +652,36 @@ public class TransformFn extends TransformBaseFn {
         "Configuration error, transform '" + transformName + "' not found in transformation");
   }
 
+  String getTransformName() {
+    return transformName;
+  }
+
+  /** What setting up the transform needs from the calling Beam function. */
+  interface InitContext {
+    <T> T sideInput(PCollectionView<T> view);
+
+    PipelineOptions getPipelineOptions();
+  }
+
+  /** The {@link InitContext} of a {@link DoFn.ProcessContext}. */
+  static class ProcessInitContext implements InitContext {
+    private final DoFn<?, ?>.ProcessContext context;
+
+    ProcessInitContext(DoFn<?, ?>.ProcessContext context) {
+      this.context = context;
+    }
+
+    @Override
+    public <T> T sideInput(PCollectionView<T> view) {
+      return context.sideInput(view);
+    }
+
+    @Override
+    public PipelineOptions getPipelineOptions() {
+      return context.getPipelineOptions();
+    }
+  }
+
   private class TransformProcessContext implements TupleOutputContext<HopRow> {
 
     private final DoFn.ProcessContext context;
@@ -602,7 +696,7 @@ public class TransformFn extends TransformBaseFn {
     }
   }
 
-  private interface TupleOutputContext<T> {
+  interface TupleOutputContext<T> {
     void output(TupleTag<T> tupleTag, T output);
   }
 
@@ -626,9 +720,14 @@ public class TransformFn extends TransformBaseFn {
   @FinishBundle
   public void finishBundle(FinishBundleContext context) {
     try {
-      // Signal the end of the bundle on the transform
+      // Complete the batch of rows of this bundle: transforms write and flush what they hold.
+      // Then signal the end of the bundle on the transform
       //
       if (executor != null) {
+        executor.batchComplete();
+        outputResults(
+            new TransformFinishBundleContext(
+                context, lastWindow != null ? lastWindow : GlobalWindow.INSTANCE));
         executor.finishBundle();
       }
     } catch (Exception e) {

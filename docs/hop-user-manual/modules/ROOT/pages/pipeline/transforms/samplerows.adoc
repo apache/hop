@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Sample Rows transform retains a sample set of rows.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=maybe, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/samplerows.svg[Sample Rows transform Icon, role="image-doc-icon"] Sample Rows
 

@@ -43,6 +43,16 @@ public class SingleThreadedPipelineExecutor {
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
+
+  /**
+   * Whether every iteration ends with {@link
+   * org.apache.hop.pipeline.transform.ITransform#batchComplete()}. A caller that feeds rows in
+   * small portions, such as one Beam bundle row by row, turns it off and calls {@link
+   * #batchComplete()} once the portion is complete: otherwise a transform that writes or groups per
+   * batch would flush or end its group after every row.
+   */
+  @Getter @Setter private boolean batchCompleteAfterIteration = true;
+
   private static final String CONST_SEPARATOR =
       "-------------------------------------------------------";
 
@@ -328,6 +338,44 @@ public class SingleThreadedPipelineExecutor {
   }
 
   /**
+   * Completes the batch of rows, for a caller that turned off {@code
+   * setBatchCompleteAfterIteration(boolean)}: once the portion of rows is complete, such as at the
+   * end of a Beam bundle. Every transform that is not done gets {@link
+   * org.apache.hop.pipeline.transform.ITransform#batchComplete()}, in order. A transform after one
+   * that writes rows there (Sort rows) first reads those rows. A transform without rows waiting is
+   * not asked to process one: it would take the empty input for the end of its input.
+   *
+   * @throws HopException when a transform fails
+   */
+  public void batchComplete() throws HopException {
+    for (int s = 0; s < transforms.size() && !pipeline.isStopped(); s++) {
+      if (done[s]) {
+        continue;
+      }
+      TransformMetaDataCombi combi = transforms.get(s);
+      try {
+        int nrRows = getTotalRows(combi.transform.getInputRowSets());
+        for (int i = 0; i < nrRows && !done[s]; i++) {
+          if (!combi.transform.processRow()) {
+            done[s] = true;
+            nrDone++;
+          }
+          if (combi.transform.getErrors() > 0) {
+            throw new HopException(
+                "Transform '" + combi.transformName + "' failed while completing a batch");
+          }
+        }
+        if (!done[s]) {
+          combi.transform.batchComplete();
+        }
+      } catch (Exception e) {
+        combi.transform.setErrors(1);
+        throw e;
+      }
+    }
+  }
+
+  /**
    * Give all transforms in the pipeline the chance to process all rows on input...
    *
    * @return true if more iterations can be performed. False if this is not the case.
@@ -428,7 +476,7 @@ public class SingleThreadedPipelineExecutor {
           // all)
           //
           try {
-            if (!finishedAtEndOfInput) {
+            if (batchCompleteAfterIteration && !finishedAtEndOfInput) {
               combi.transform.batchComplete();
             }
           } catch (Exception e) {
