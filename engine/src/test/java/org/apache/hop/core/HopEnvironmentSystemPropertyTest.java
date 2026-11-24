@@ -20,9 +20,12 @@ package org.apache.hop.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,6 +98,45 @@ class HopEnvironmentSystemPropertyTest {
         CONFIG_FILE_VALUE,
         actualValue,
         "Config file property should be applied when not set via command-line");
+  }
+
+  /**
+   * A project or environment file sets the variable after startup. The JVM property has to follow,
+   * because empty-string handling reads the property when a value meta is created (#7677).
+   */
+  @Test
+  void settingEmptyStringVariableUpdatesSystemProperty() throws Exception {
+    assumeTrue(
+        System.getenv(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL) == null,
+        Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL + " is exported in this environment");
+
+    String name = Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL;
+    DescribedVariable existing = HopConfig.getInstance().findDescribedVariable(name);
+    String oldValue = existing == null ? null : existing.getValue();
+    String oldDescription = existing == null ? null : existing.getDescription();
+    System.clearProperty(name);
+    try {
+      HopConfig.getInstance().setDescribedVariable(new DescribedVariable(name, "N", "test"));
+      HopEnvironment.init();
+
+      assertEquals("N", System.getProperty(name));
+      assertTrue(new ValueMetaString("field").isNull(""));
+
+      new Variables().setVariable(name, "Y");
+
+      assertEquals("Y", System.getProperty(name));
+      assertFalse(new ValueMetaString("field").isNull(""));
+    } finally {
+      if (existing == null) {
+        HopConfig.getInstance()
+            .getDescribedVariables()
+            .removeIf(variable -> name.equals(variable.getName()));
+      } else {
+        existing.setValue(oldValue);
+        existing.setDescription(oldDescription);
+      }
+      System.clearProperty(name);
+    }
   }
 
   @Test

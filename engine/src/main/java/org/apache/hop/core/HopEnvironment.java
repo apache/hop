@@ -29,6 +29,7 @@ import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -197,9 +198,13 @@ public class HopEnvironment {
         for (DescribedVariable describedVariable : hopConfig.getDescribedVariables()) {
           if (StringUtils.isNotEmpty(describedVariable.getName())) {
             String propName = describedVariable.getName();
-            // Don't override command-line system properties (e.g., -Dname=value)
+            // Don't override an explicit -D. A property that is not set yet takes the environment
+            // variable when one is exported, otherwise the hop-config value (#7677).
             if (!System.getProperties().containsKey(propName)) {
-              System.setProperty(propName, Const.NVL(describedVariable.getValue(), ""));
+              String value =
+                  HopResolvedSettings.resolveLayered(
+                      describedVariable.getValue(), System.getenv(propName), null);
+              System.setProperty(propName, Const.NVL(value, ""));
             }
           }
         }

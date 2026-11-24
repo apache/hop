@@ -324,4 +324,40 @@ class VariablesTest {
     assertFalse(Variables.isEnvironmentImported("Y", "Y", "N"));
     assertTrue(Variables.isEnvironmentImported(null, null, "Y"));
   }
+
+  /**
+   * The variable space follows the same layers as the JVM property: an explicit {@code -D} is not
+   * replaced by the hop-config value (#7677).
+   */
+  @Test
+  void explicitSystemPropertyWinsOverHopConfigInTheVariableSpace() {
+    String name = Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL;
+    DescribedVariable existing = HopConfig.getInstance().findDescribedVariable(name);
+    String oldValue = existing == null ? null : existing.getValue();
+    String oldDescription = existing == null ? null : existing.getDescription();
+    String previousProperty = System.getProperty(name);
+    try {
+      HopConfig.getInstance().setDescribedVariable(new DescribedVariable(name, "N", "test"));
+      System.setProperty(name, "Y");
+
+      Variables space = new Variables();
+      space.initializeFrom(null);
+
+      assertEquals("Y", space.getVariable(name));
+    } finally {
+      if (existing == null) {
+        HopConfig.getInstance()
+            .getDescribedVariables()
+            .removeIf(variable -> name.equals(variable.getName()));
+      } else {
+        existing.setValue(oldValue);
+        existing.setDescription(oldDescription);
+      }
+      if (previousProperty == null) {
+        System.clearProperty(name);
+      } else {
+        System.setProperty(name, previousProperty);
+      }
+    }
+  }
 }

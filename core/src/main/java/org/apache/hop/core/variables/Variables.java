@@ -132,7 +132,19 @@ public class Variables implements IVariables {
 
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
     for (DescribedVariable describedVariable : describedVariables) {
-      getProperties().put(describedVariable.getName(), describedVariable.getValue());
+      String name = describedVariable.getName();
+      if (StringUtils.isEmpty(name)) {
+        continue;
+      }
+      // hop-config < environment < an explicit -D. The raw file value used to win, so a container
+      // could not override HOP_EMPTY_STRING_DIFFERS_FROM_NULL (#7677).
+      getProperties()
+          .put(
+              name,
+              Const.NVL(
+                  HopResolvedSettings.resolveLayered(
+                      describedVariable.getValue(), System.getenv(name), System.getProperty(name)),
+                  ""));
     }
 
     if (parent != null) {
@@ -156,16 +168,12 @@ public class Variables implements IVariables {
   }
 
   /**
-   * Decides whether the environment is imported, following the hop-config, environment, {@code -D}
-   * precedence of {@link HopResolvedSettings} so that the flag itself can be exported, which is
-   * what a container deployment has to hand.
+   * Decides whether the environment is imported, following {@link
+   * HopResolvedSettings#resolveLayered} so that an exported flag is enough for a container.
    *
-   * <p>{@link HopResolvedSettings#resolveString} cannot be used directly: once {@code
-   * HopEnvironment} has started it copies the hop-config value (the annotation default {@code N}
-   * unless configured) onto the system properties, so the JVM layer would always win and an
-   * exported flag would never be seen. A system property therefore only counts as a {@code -D}
-   * override when it differs from the hop-config value. An explicit {@code -D} that repeats the
-   * hop-config value cannot be told apart from that copy, so an exported value wins over it.
+   * <p>A system property counts as an explicit {@code -D} only when it differs from the hop-config
+   * value. {@code HopEnvironment} copies that file onto the JVM, and an explicit {@code -D} that
+   * repeats the file value cannot be told apart from the copy, so an exported value wins over it.
    *
    * @param configValue the value in hop-config.json, or null when it is not configured
    * @param environmentValue the exported environment variable, or null when it is not set
@@ -197,8 +205,18 @@ public class Variables implements IVariables {
     }
     if (variableValue != null) {
       properties.put(variableName, variableValue);
+      // ValueMeta and similar code read these from the JVM, not from this map. A project or
+      // environment file sets them after HopEnvironment has already copied hop-config (#7677).
+      mirrorRuntimeSetting(variableName, variableValue);
     } else {
       properties.remove(variableName);
+    }
+  }
+
+  private static void mirrorRuntimeSetting(String name, String value) {
+    VariableRegistry registry = VariableRegistry.getInstance();
+    if (registry != null && registry.isApplicationOrEngineVariable(name)) {
+      System.setProperty(name, value);
     }
   }
 

@@ -200,6 +200,31 @@ public class VariableRegistry {
    *
    * @return the described variable
    */
+  /**
+   * Whether {@code name} is an application or engine setting.
+   *
+   * <p>Those settings are copied onto JVM system properties at startup and are also read back from
+   * there. System-scoped names (folders, paths) are not included: a project may set them as
+   * variables without rewriting the JVM.
+   *
+   * @param name variable name
+   * @return true when the name is declared with application or engine scope
+   */
+  public boolean isApplicationOrEngineVariable(final String name) {
+    if (name == null) {
+      return false;
+    }
+    for (VariableScope scope :
+        new VariableScope[] {VariableScope.APPLICATION, VariableScope.ENGINE}) {
+      for (DescribedVariable variable : variableScopes.get(scope)) {
+        if (name.equals(variable.getName())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   public DescribedVariable findDescribedVariable(final String name) {
     for (VariableScope scope : VariableScope.values()) {
       for (DescribedVariable variable : variableScopes.get(scope)) {
