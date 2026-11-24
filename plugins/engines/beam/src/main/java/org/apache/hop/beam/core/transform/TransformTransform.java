@@ -74,6 +74,16 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   protected static final Logger LOG = LoggerFactory.getLogger(TransformTransform.class);
   protected static final Counter numErrors = Metrics.counter("main", "TransformErrors");
 
+  /**
+   * The error handling of the transform ({@code TransformErrorMeta} XML), null without an error
+   * hop. Its target is the last of the target transforms.
+   */
+  protected String errorHandlingXml;
+
+  public void setErrorHandlingXml(String errorHandlingXml) {
+    this.errorHandlingXml = errorHandlingXml;
+  }
+
   public TransformTransform() {
     variableValues = new ArrayList<>();
   }
@@ -173,6 +183,8 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // The actual transform functionality
       //
+      transformFn.setErrorHandlingXml(errorHandlingXml);
+
       ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of(transformFn);
 
       // Add optional side inputs...
