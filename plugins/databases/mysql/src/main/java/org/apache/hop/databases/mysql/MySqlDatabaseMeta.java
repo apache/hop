@@ -848,6 +848,12 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
+  /** By default MySQL reads 'O\'Brien' as one literal (unless NO_BACKSLASH_ESCAPES is set). */
+  @Override
+  public boolean isBackslashEscapingStrings() {
+    return true;
+  }
+
   /** Returns a false as Oracle does not allow for the releasing of savepoints. */
   @Override
   public boolean isReleaseSavepoint() {

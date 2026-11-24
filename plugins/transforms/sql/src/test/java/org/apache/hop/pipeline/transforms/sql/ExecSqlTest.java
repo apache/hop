@@ -713,20 +713,19 @@ class ExecSqlTest {
   }
 
   /**
-   * Text replacement treats every question mark as a marker, also one inside a string literal; with
-   * fewer arguments than question marks the transform fails on the first row. Pinned as it is.
+   * A question mark inside a string literal is not a marker (#9676): the single argument fills the
+   * id and the literal is stored as it is.
    */
   @Test
-  void eachRowTextReplacementCountsAQuestionMarkInAStringLiteralAsAMarker() {
-    assertThrows(
-        ArrayIndexOutOfBoundsException.class,
-        () ->
-            run(
-                eachRow("INSERT INTO t (id, name) VALUES (?, 'why?')", false, "id"),
-                idRowMeta(),
-                List.<Object[]>of(new Object[] {1L}),
-                true,
-                null));
+  void eachRowTextReplacementLeavesAQuestionMarkInAStringLiteralAlone() throws Exception {
+    Run run =
+        run(
+            eachRow("INSERT INTO t (id, name) VALUES (?, 'why?')", false, "id"),
+            idRowMeta(),
+            List.<Object[]>of(new Object[] {1L}));
+
+    assertEquals(1, run.output.size());
+    assertEquals("why?", query("SELECT name FROM t WHERE id = 1").get(0)[0]);
   }
 
   @Test
