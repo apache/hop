@@ -86,6 +86,7 @@ import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.server.IRemoteCapableRunConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.www.BaseHttpServlet;
 import org.apache.hop.www.HopServerAdmission;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
@@ -511,6 +512,16 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       return false;
     }
     if (variableName.equals("LOG_PATH")) {
+      return false;
+    }
+    // The server computes its own version. See issue #8263.
+    //
+    if (variableName.equals(Const.HOP_VERSION)) {
+      return false;
+    }
+    // Says how the client's own project was enabled. The server has its own.
+    //
+    if (variableName.equals(BaseHttpServlet.VARIABLE_HOP_PROJECT_IS_DEFAULT)) {
       return false;
     }
 

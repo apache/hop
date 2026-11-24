@@ -182,14 +182,15 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
                   servletLoggingObject);
 
           // store it all in the map...
+          // It came in an export archive, so it keeps the client's project variables.
           //
+          WorkflowConfiguration workflowConfiguration =
+              new WorkflowConfiguration(
+                  workflowMeta, workflowExecutionConfiguration, metadataProvider);
+          workflowConfiguration.setExported(true);
           getWorkflowMap()
               .addWorkflow(
-                  workflow.getWorkflowName(),
-                  serverObjectId,
-                  workflow,
-                  new WorkflowConfiguration(
-                      workflowMeta, workflowExecutionConfiguration, metadataProvider));
+                  workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration);
 
           // Apply the execution configuration...
           //
@@ -223,14 +224,17 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           pipeline.setParent(servletLoggingObject);
 
           // store it all in the map...
+          // It came in an export archive: preparing it keeps the client's project variables.
           //
+          PipelineConfiguration pipelineConfiguration =
+              new PipelineConfiguration(pipelineMeta, executionConfiguration, metadataProvider);
+          pipelineConfiguration.setExported(true);
           getPipelineMap()
               .addPipeline(
                   pipeline.getPipelineMeta().getName(),
                   serverObjectId,
                   pipeline,
-                  new PipelineConfiguration(
-                      pipelineMeta, executionConfiguration, metadataProvider));
+                  pipelineConfiguration);
         }
       } else {
         fileUrl = archiveUrl;

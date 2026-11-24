@@ -4,7 +4,7 @@
       "export_resources": false,
       "resources_target_folder": "",
       "resources_source_folder": "",
-      "run_config": "",
+      "run_config": "local",
       "server_poll_interval": "",
       "hop_server": "testserver",
       "server_poll_delay": ""

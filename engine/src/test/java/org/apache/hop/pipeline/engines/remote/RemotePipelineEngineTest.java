@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.engines.remote;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -47,6 +49,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.www.BaseHttpServlet;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.RemoteHopServer;
 import org.junit.jupiter.api.Test;
@@ -259,6 +262,24 @@ class RemotePipelineEngineTest {
     assertTrue(
         e.getMessage().contains(SERVER_NAME),
         "It should get as far as looking for the server: " + e);
+  }
+
+  /**
+   * The server computes HOP_VERSION itself. Sending the client's version along made a pipeline on a
+   * server report the version of the client that started it. See issue #8263.
+   */
+  @Test
+  void hopVersionIsNotPassedToTheServer() {
+    assertFalse(RemotePipelineEngine.isVariablePassedToRemoteServer(Const.HOP_VERSION));
+    assertTrue(RemotePipelineEngine.isVariablePassedToRemoteServer("MY_VARIABLE"));
+  }
+
+  /** How the client's project was enabled says nothing about the server's. See issue #8597. */
+  @Test
+  void projectIsDefaultMarkerIsNotPassedToTheServer() {
+    assertFalse(
+        RemotePipelineEngine.isVariablePassedToRemoteServer(
+            BaseHttpServlet.VARIABLE_HOP_PROJECT_IS_DEFAULT));
   }
 
   private static PipelineRunConfiguration remote(String name, String runConfigurationName) {
