@@ -82,6 +82,18 @@ public class Hop {
   }
 
   public static void main(String[] args) throws Exception {
+    System.exit(execute(args));
+  }
+
+  /**
+   * Runs a hop command, as {@link #main(String[])} does, but returns the exit code instead of
+   * ending the JVM. For launchers that run Hop inside another process, such as the Airflow
+   * launcher.
+   *
+   * @param args the arguments of the hop command line, for example {@code run -f x.hwf}
+   * @return the exit code of the command
+   */
+  public static int execute(String[] args) throws Exception {
     HopEnvironment.startLoggingBackend(args);
 
     Hop hop = new Hop();
@@ -149,7 +161,7 @@ public class Hop {
     CommandLine.ParseResult parseResult = hop.cmd.parseArgs(args);
 
     if (CommandLine.printHelpIfRequested(parseResult)) {
-      System.exit(1);
+      return 1;
     }
 
     // Process options on root command mixins before executing subcommands
@@ -170,8 +182,7 @@ public class Hop {
       applyMetadataProviderToParsedCommand(parseResult, currentMetadata);
     }
 
-    int exitCode = hop.cmd.execute(args);
-    System.exit(exitCode);
+    return hop.cmd.execute(args);
   }
 
   /**

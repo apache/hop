@@ -399,7 +399,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     String sourceSql = wSql == null || wSql.isDisposed() ? null : wSql.getText();
     return DatabaseJoinMeta.parseSqlParameterSpec(
         sourceSql,
-        DatabaseJoinMeta.supportsBracketQuotedIdentifiers(
+        DatabaseJoinMeta.sqlSyntax(
             pipelineMeta.findDatabase(
                 readWidgetText(DatabaseJoinMeta.WIDGET_CONNECTION), variables)));
   }

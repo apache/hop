@@ -17,20 +17,18 @@
 
 package org.apache.hop.databricks.deploy;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.util.HexFormat;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fatjar.FatJarCache;
+import org.apache.hop.core.fatjar.NativeSparkFatJar;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -210,9 +208,6 @@ public final class HopSparkDeployHelper {
     String runConfig = resolve(variables, runConfigName);
     String base = normalizeBase(resolve(variables, dbfsBaseDir));
 
-    if (StringUtils.isBlank(jar)) {
-      throw new HopException("Fat jar path is required for deploy");
-    }
     if (StringUtils.isBlank(pipeline)) {
       throw new HopException("Pipeline filename is required for deploy");
     }
@@ -220,7 +215,12 @@ public final class HopSparkDeployHelper {
       throw new HopException("Pipeline run configuration name is required for deploy");
     }
 
-    Path jarPath = resolveLocalFile(jar, "Fat jar");
+    // No fat jar given: use the cached native-provided fat jar of this installation, the same one
+    // the Spark engine ships to a cluster. Databricks provides Spark.
+    Path jarPath =
+        StringUtils.isBlank(jar)
+            ? NativeSparkFatJar.getOrBuild(log != null ? log : LogChannel.GENERAL, variables, true)
+            : resolveLocalFile(jar, "Fat jar");
 
     Path pipelineLocal = materializeToTemp(pipeline, "hop-dbx-pipeline-", ".hpl", CONST_PIPELINE);
 
@@ -229,7 +229,7 @@ public final class HopSparkDeployHelper {
     String stem = remoteArtifactStem(pipeline);
     // Content-addressed fat jar path: fixed hop-native.jar overwrites do not refresh libraries on
     // a running Dedicated cluster (job still loads old MainSpark classes). A new URI does.
-    String localJarSha = sha256Hex(jarPath);
+    String localJarSha = FatJarCache.sha256Of(jarPath);
     String jarDbfs = base + "/" + fatJarRemoteName(localJarSha);
     String pipelineDbfs = base + "/" + pipelineRemoteName(stem);
     String metadataDbfs = base + "/" + metadataRemoteName(stem);
@@ -548,7 +548,7 @@ public final class HopSparkDeployHelper {
     } catch (Exception e) {
       throw new HopException("Unable to read local fat jar size: " + localJar, e);
     }
-    String localSha = sha256Hex(localJar);
+    String localSha = FatJarCache.sha256Of(localJar);
     String sidecarPath = remoteJarPath + SHA256_SIDECAR_SUFFIX;
 
     if (remoteJarMatches(client, remoteJarPath, sidecarPath, localSize, localSha)) {
@@ -610,16 +610,7 @@ public final class HopSparkDeployHelper {
 
   /** SHA-256 hex of file contents (lowercase). */
   static String sha256Hex(Path file) throws HopException {
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      try (InputStream in = Files.newInputStream(file);
-          DigestInputStream din = new DigestInputStream(in, digest)) {
-        din.transferTo(OutputStream.nullOutputStream());
-      }
-      return HexFormat.of().formatHex(digest.digest());
-    } catch (Exception e) {
-      throw new HopException("Unable to compute SHA-256 of " + file, e);
-    }
+    return FatJarCache.sha256Hex(file);
   }
 
   /** Accept "hex", "hex filename", or whitespace-padded sidecars. */

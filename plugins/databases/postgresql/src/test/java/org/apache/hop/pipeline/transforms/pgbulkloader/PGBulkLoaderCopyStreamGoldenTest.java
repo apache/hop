@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
@@ -162,6 +165,7 @@ class PGBulkLoaderCopyStreamGoldenTest {
     final List<IRowMeta> forwardedMetas = new ArrayList<>();
     final List<Object[]> forwardedRows = new ArrayList<>();
     String command;
+    PGBulkLoaderData data;
     long errors;
     long linesOutput;
 
@@ -228,6 +232,7 @@ class PGBulkLoaderCopyStreamGoldenTest {
         .writeToCopy(any(byte[].class), anyInt(), anyInt());
 
     PGBulkLoaderData data = new PGBulkLoaderData();
+    copy.data = data;
     PGBulkLoader loader =
         spy(
             new PGBulkLoader(
@@ -359,8 +364,8 @@ class PGBulkLoaderCopyStreamGoldenTest {
             row("y", 2L));
 
     assertEquals(
-        "COPY \"public\".target ( col_b, \"Col A\", \"select\" )  FROM STDIN WITH CSV DELIMITER AS"
-            + " ';' QUOTE AS '\"';"
+        "COPY \"public\".target ( col_b, \"Col A\", \"select\" )  FROM STDIN WITH (FORMAT csv,"
+            + " DELIMITER ';', QUOTE '\"', ENCODING 'UTF8');"
             + Const.CR,
         copy.command);
     assertEquals(lines("1;\"x\";1", "2;\"y\";2"), copy.text(StandardCharsets.UTF_8));
@@ -382,7 +387,8 @@ class PGBulkLoaderCopyStreamGoldenTest {
             row("x|y", 2L));
 
     assertEquals(
-        "COPY \"public\".target ( \"a\", b )  FROM STDIN WITH CSV DELIMITER AS '|' QUOTE AS ''';"
+        "COPY \"public\".target ( \"a\", b )  FROM STDIN WITH (FORMAT csv, DELIMITER '|', QUOTE"
+            + " ''', ENCODING 'UTF8');"
             + Const.CR,
         copy.command);
     assertEquals(lines("'it''s'|1", "'x|y'|2"), copy.text(StandardCharsets.UTF_8));
@@ -401,8 +407,8 @@ class PGBulkLoaderCopyStreamGoldenTest {
             row("ab", "c\"d", 1L));
 
     assertEquals(
-        "COPY \"public\".target ( \"a\", b, \"c\" )  FROM STDIN WITH CSV DELIMITER AS 'null' QUOTE AS"
-            + " 'null';"
+        "COPY \"public\".target ( \"a\", b, \"c\" )  FROM STDIN WITH (FORMAT csv, DELIMITER 'null',"
+            + " QUOTE 'null', ENCODING 'UTF8');"
             + Const.CR,
         copy.command);
     assertEquals(lines("abc\"d1"), copy.text(StandardCharsets.UTF_8));
@@ -423,19 +429,15 @@ class PGBulkLoaderCopyStreamGoldenTest {
     assertEquals(lines("a\"b\t1\tx\ty", "\t\t"), copy.text(StandardCharsets.UTF_8));
   }
 
-  /**
-   * A non-ASCII delimiter is encoded in the JVM's default charset, not in the client encoding the
-   * values are written in.
-   */
+  /** A non-ASCII delimiter is encoded in UTF-8 like the values, whatever the client encoding. */
   @Test
-  void aNonAsciiDelimiterIsEncodedInTheDefaultCharset() throws Exception {
+  void aNonAsciiDelimiterIsEncodedInUtf8() throws Exception {
     meta.setDelimiter("¦");
 
     Copy copy =
         load("LATIN1", rowMeta(new ValueMetaString("a"), new ValueMetaString("b")), row("é", "ß"));
 
-    // "é" ¦ "ß" with é and ß in Latin-1 and ¦ in UTF-8
-    assertEquals(hexLines("22 e9 22 c2a6 22 df 22"), copy.hex());
+    assertEquals(hexLines("22 c3a9 22 c2a6 22 c39f 22"), copy.hex());
   }
 
   @Test
@@ -536,73 +538,12 @@ class PGBulkLoaderCopyStreamGoldenTest {
     return load(clientEncoding, rowMeta(new ValueMetaString("s")), ENCODING_ROWS);
   }
 
-  @Test
-  void stringsInLatin1() throws Exception {
-    Copy copy = loadEncodingRows("LATIN1");
-
-    // what Latin-1 cannot represent becomes '?' (3f)
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 e9 22",
-            "22 df 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 3f3f3f 22",
-            "22 3f 22",
-            "22 80 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
-    assertEquals(0, copy.errors);
-  }
-
-  @Test
-  void stringsInLatin9() throws Exception {
-    Copy copy = loadEncodingRows("LATIN9");
-
-    // ISO-8859-15 has the euro sign at a4
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 e9 22",
-            "22 df 22",
-            "22 a4 22",
-            "22 3f 22",
-            "22 3f3f3f 22",
-            "22 3f 22",
-            "22 80 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
-  }
-
   /**
-   * Java does not know PostgreSQL's name WIN1252: the loader logs that it cannot detect the client
-   * encoding and writes in the JVM's default charset (UTF-8 here) instead.
+   * The values are written in UTF-8 whatever the session's client encoding, and the COPY command
+   * declares it, so the server converts them and nothing silently becomes '?' (issue 9678).
    */
   @Test
-  void stringsInWin1252AreWrittenInTheDefaultCharset() throws Exception {
-    Copy copy = loadEncodingRows("WIN1252");
-
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 c3a9 22",
-            "22 c39f 22",
-            "22 e282ac 22",
-            "22 e4b8ad 22",
-            "22 e697a5e69cace8aa9e 22",
-            "22 f09f9880 22",
-            "22 c280 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
-    assertEquals(0, copy.errors);
-  }
-
-  @Test
-  void stringsWhenTheClientEncodingIsUnknownOrNotReported() throws Exception {
+  void stringsAreWrittenInUtf8WhateverTheClientEncoding() throws Exception {
     String expected =
         hexLines(
             "22 616263 22",
@@ -616,104 +557,33 @@ class PGBulkLoaderCopyStreamGoldenTest {
             "22 78 2222 79 22",
             "22 4162313b5c 22");
 
-    assertEquals(expected, loadEncodingRows("SQL_ASCII").hex());
-    assertEquals(expected, loadEncodingRows(null).hex());
-  }
-
-  @Test
-  void stringsInEucJp() throws Exception {
-    Copy copy = loadEncodingRows("EUC_JP");
-
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 8fabb1 22",
-            "22 8fa9ce 22",
-            "22 3f 22",
-            "22 c3e6 22",
-            "22 c6fccbdcb8ec 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
-  }
-
-  @Test
-  void stringsInShiftJis() throws Exception {
-    Copy copy = loadEncodingRows("SJIS");
-
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 9286 22",
-            "22 93fa967b8cea 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
-  }
-
-  @Test
-  void stringsInGbkAndBig5() throws Exception {
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 a8a6 22",
-            "22 3f 22",
-            "22 a2e3 22",
-            "22 d6d0 22",
-            "22 c8d5b1bed55a 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        loadEncodingRows("GBK").hex());
-
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 a4a4 22",
-            "22 a4e9a5bbbb79 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        loadEncodingRows("BIG5").hex());
-  }
-
-  @Test
-  void stringsInEucKr() throws Exception {
-    Copy copy = loadEncodingRows("EUC_KR");
-
-    assertEquals(
-        hexLines(
-            "22 616263 22",
-            "22 3f 22",
-            "22 a9ac 22",
-            "22 a2e6 22",
-            "22 f1e9 22",
-            "22 eceddce2e5de 22",
-            "22 3f 22",
-            "22 3f 22",
-            "22 78 2222 79 22",
-            "22 4162313b5c 22"),
-        copy.hex());
+    for (String clientEncoding :
+        new String[] {
+          "UTF8",
+          "LATIN1",
+          "LATIN9",
+          "WIN1252",
+          "SQL_ASCII",
+          "EUC_JP",
+          "SJIS",
+          "GBK",
+          "BIG5",
+          "EUC_KR",
+          "NO_SUCH_ENCODING",
+          null
+        }) {
+      Copy copy = loadEncodingRows(clientEncoding);
+      assertEquals(expected, copy.hex(), "client encoding " + clientEncoding);
+      assertEquals(0, copy.errors);
+    }
   }
 
   /**
-   * Lazy (binary) strings are decoded with their storage encoding and written in the client
-   * encoding; indexed strings are looked up; the trim type is applied.
+   * Lazy (binary) strings are decoded with their storage encoding and written in UTF-8, also in a
+   * LATIN1 session; indexed strings are looked up; the trim type is applied.
    */
   @Test
-  void lazyIndexedAndTrimmedStringsInLatin1() throws Exception {
+  void lazyIndexedAndTrimmedStrings() throws Exception {
     ValueMetaString indexed = new ValueMetaString("indexed");
     indexed.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
     indexed.setIndex(new Object[] {"zero", "één"});
@@ -730,7 +600,7 @@ class PGBulkLoaderCopyStreamGoldenTest {
 
     assertEquals(
         hexLines(
-            "22 68e96c6c6f 22 3b 22 e9e96e 22 3b 22 78 22",
+            "22 68c3a96c6c6f 22 3b 22 c3a9c3a96e 22 3b 22 78 22",
             "22 736179 20 22222222 22 3b 22 7a65726f 22 3b 22 22",
             "3b 3b"),
         copy.hex());
@@ -839,18 +709,22 @@ class PGBulkLoaderCopyStreamGoldenTest {
     assertEquals(0, copy.errors);
   }
 
+  /**
+   * Lazy numbers with a plain mask and a decimal point are copied as they were read, unless they
+   * hold the grouping symbol: then Hop reads them, and 1,5 is no number for the mask #.# (issue
+   * 9678; PostgreSQL used to reject it instead).
+   */
   @Test
-  void lazyNumbersAreCopiedAsTheyWereRead() throws Exception {
-    Copy copy =
-        load(
-            "UTF8",
-            rowMeta(
-                lazy(new ValueMetaNumber("n"), "#.#"), lazy(new ValueMetaBigNumber("b"), "#.#")),
-            row(utf8("1,5"), utf8("12,50")),
-            row(utf8("-0"), utf8("1e3")),
-            row(null, null));
+  void lazyNumbersAreCopiedAsTheyWereReadUnlessTheyHoldTheGroupingSymbol() throws Exception {
+    IRowMeta rowMeta =
+        rowMeta(lazy(new ValueMetaNumber("n"), "#.#"), lazy(new ValueMetaBigNumber("b"), "#.#"));
 
-    assertEquals(lines("1,5;12,50", "-0;1e3", ";"), copy.text(StandardCharsets.UTF_8));
+    Copy copy = load("UTF8", rowMeta, row(utf8("-0"), utf8("1e3")), row(null, null));
+    Copy grouped = load("UTF8", rowMeta, row(utf8("1,5"), utf8("12,50")));
+
+    assertEquals(lines("-0;1e3", ";"), copy.text(StandardCharsets.UTF_8));
+    assertEquals(0, copy.errors);
+    assertEquals(1, grouped.errors);
   }
 
   @Test
@@ -1310,8 +1184,8 @@ class PGBulkLoaderCopyStreamGoldenTest {
     Copy copy = load("UTF8", rowMeta, first, second);
 
     assertEquals(
-        "COPY \"public\".target ( col_d, col_a, col_b, col_b_again )  FROM STDIN WITH CSV DELIMITER"
-            + " AS ';' QUOTE AS '\"';"
+        "COPY \"public\".target ( col_d, col_a, col_b, col_b_again )  FROM STDIN WITH (FORMAT"
+            + " csv, DELIMITER ';', QUOTE '\"', ENCODING 'UTF8');"
             + Const.CR,
         copy.command);
     assertEquals(lines("\"d1\";\"a1\";1;1", "\"d2\";;;"), copy.text(StandardCharsets.UTF_8));
@@ -1351,6 +1225,10 @@ class PGBulkLoaderCopyStreamGoldenTest {
    * The DATE and DATETIME modes format with the JVM's format locale. With a Thai default locale
    * that is the Buddhist calendar (and here Thai digits); a date field's own locale can bring other
    * digits or calendars. Numbers do not follow the locale.
+   *
+   * <p>The DATE and DATETIME modes (c2, c3) use the Gregorian calendar and ASCII digits whatever
+   * the regional settings (issue 9678). PASS THROUGH (c1, c4 to c6) follows the field's own format
+   * by design.
    */
   @Test
   void datesWithOtherCalendarsAndDigits() throws Exception {
@@ -1380,14 +1258,16 @@ class PGBulkLoaderCopyStreamGoldenTest {
             row(date, date, date, date, 1.5),
             row(null, null, null, null, null));
 
-    // Thai digits and Buddhist years even in the DATE and DATETIME modes, Arabic-Indic digits, a
-    // Japanese era year without its era
+    // Thai digits and Buddhist years in PASS THROUGH but not in the DATE and DATETIME modes,
+    // Arabic-Indic digits, a Japanese era year without its era
     assertEquals(
         lines(
-            "๒๕๖๗/๐๓/๐๕ ๐๗:๐๘:๐๙.๐๑๐|๒๕๖๗-๐๓-๐๕|๒๕๖๗-๐๓-๐๕ ๐๗:๐๘:๐๙.๐๑๐"
+            "๒๕๖๗/๐๓/๐๕ ๐๗:๐๘:๐๙.๐๑๐|2024-03-05|2024-03-05 07:08:09.010"
                 + "|٢٠٢٤-٠٣-٠٥ ٠٧:٠٨|6-03-05|2024-03-05 07:08:09.010|1.5",
             "||||||"),
         copy.text(StandardCharsets.UTF_8));
+    assertNotNull(copy.data.dateFormatters[1]);
+    assertNotNull(copy.data.dateFormatters[2]);
   }
 
   @Test
@@ -1426,5 +1306,195 @@ class PGBulkLoaderCopyStreamGoldenTest {
     assertEquals(expected.toString(), copy.text(StandardCharsets.UTF_8));
     assertEquals(5_000, copy.linesOutput);
     assertEquals(0, copy.errors);
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // Regional settings and lazy conversion (issue 9678)
+  // -------------------------------------------------------------------------------------------
+
+  /** Maps d, ts, dIso and dNames in every date mode; the date fields are made under the locale. */
+  private Copy loadDatesUnder(Locale formatLocale) throws Exception {
+    Locale.setDefault(formatLocale);
+    meta.setDelimiter("|");
+    meta.setMappings(
+        List.of(
+            mapping("c1", "d", PGBulkLoaderMeta.DATE_MASK_DATE),
+            mapping("c2", "d", PGBulkLoaderMeta.DATE_MASK_DATETIME),
+            mapping("c3", "d", PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH),
+            mapping("c4", "ts", PGBulkLoaderMeta.DATE_MASK_DATE),
+            mapping("c5", "ts", PGBulkLoaderMeta.DATE_MASK_DATETIME),
+            mapping("c6", "ts", PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH),
+            mapping("c7", "dIso", PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH),
+            mapping("c8", "dNames", PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH)));
+    Date date = brussels("2024-03-05T07:08:09.010");
+    Timestamp timestamp = Timestamp.valueOf("2024-10-27 02:30:00.123456789");
+    return load(
+        "UTF8",
+        rowMeta(
+            new ValueMetaDate("d"),
+            new ValueMetaTimestamp("ts"),
+            date("dIso", "yyyy-MM-dd HH:mm:ss"),
+            date("dNames", "EEE d MMMM yyyy")),
+        row(date, timestamp, date, date),
+        row(null, null, null, null));
+  }
+
+  /** The DATE and DATETIME modes are formatted without SimpleDateFormat. */
+  private static void assertTheDateModesUseTheFastFormatter(Copy copy) {
+    assertNotNull(copy.data.dateFormatters[0], "DATE");
+    assertNotNull(copy.data.dateFormatters[1], "DATETIME");
+    assertNotNull(copy.data.dateFormatters[3], "DATE on a timestamp");
+    assertNotNull(copy.data.dateFormatters[4], "DATETIME on a timestamp");
+  }
+
+  @Test
+  void everyDateModeInAnAmericanFormatLocale() throws Exception {
+    Copy copy = loadDatesUnder(Locale.US);
+
+    assertEquals(
+        lines(
+            "2024-03-05|2024-03-05 07:08:09.010|2024/03/05 07:08:09.010"
+                + "|2024-10-27|2024-10-27 02:30:00.123|2024/10/27 02:30:00.123456789"
+                + "|2024-03-05 07:08:09|Tue 5 March 2024",
+            "|||||||"),
+        copy.text(StandardCharsets.UTF_8));
+    assertEquals(0, copy.errors);
+    assertTheDateModesUseTheFastFormatter(copy);
+  }
+
+  /**
+   * A German format locale changes nothing but the names a field's own mask asks for: PASS THROUGH
+   * keeps following the field's format.
+   */
+  @Test
+  void everyDateModeInAGermanFormatLocale() throws Exception {
+    Copy copy = loadDatesUnder(Locale.GERMANY);
+
+    assertEquals(
+        lines(
+            "2024-03-05|2024-03-05 07:08:09.010|2024/03/05 07:08:09.010"
+                + "|2024-10-27|2024-10-27 02:30:00.123|2024/10/27 02:30:00.123456789"
+                + "|2024-03-05 07:08:09|Di. 5 März 2024",
+            "|||||||"),
+        copy.text(StandardCharsets.UTF_8));
+    assertEquals(0, copy.errors);
+    assertTheDateModesUseTheFastFormatter(copy);
+  }
+
+  /**
+   * Only the FORMAT category of the default locale is Thai (the GUI language stays English).
+   *
+   * <p>The DATE and DATETIME modes write the Gregorian year with the fast formatter; they used to
+   * write the Buddhist year (2567 for 2024), which PostgreSQL stored without complaint (issue
+   * 9678). PASS THROUGH follows the field's own format by design.
+   */
+  @Test
+  void dateModesIgnoreAThaiFormatLocale() throws Exception {
+    Locale.setDefault(Locale.US);
+    Locale.setDefault(Locale.Category.FORMAT, Locale.forLanguageTag("th-TH"));
+    meta.setDelimiter("|");
+    meta.setMappings(
+        List.of(
+            mapping("c1", "d", PGBulkLoaderMeta.DATE_MASK_DATE),
+            mapping("c2", "d", PGBulkLoaderMeta.DATE_MASK_DATETIME),
+            mapping("c3", "d", PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH)));
+    Date date = brussels("2024-03-05T07:08:09.010");
+
+    Copy copy = load("UTF8", rowMeta(new ValueMetaDate("d")), row(date), row((Object) null));
+
+    assertEquals(
+        lines("2024-03-05|2024-03-05 07:08:09.010|2567/03/05 07:08:09.010", "||"),
+        copy.text(StandardCharsets.UTF_8));
+    assertNotNull(copy.data.dateFormatters[0]);
+    assertNotNull(copy.data.dateFormatters[1]);
+  }
+
+  /** Lazy numbers whose text PostgreSQL reads as Hop does: the bytes go out as they came in. */
+  @Test
+  void lazyPlainNumbersAreCopiedAsTheyWereRead() throws Exception {
+    ValueMetaNumber number = spy(lazy(new ValueMetaNumber("n"), "#.##"));
+    ValueMetaNumber noMask = lazy(new ValueMetaNumber("noMask"), null);
+    ValueMetaInteger integer = spy(lazy(new ValueMetaInteger("i"), null));
+    ValueMetaBigNumber big = lazy(new ValueMetaBigNumber("b"), "0.000");
+    ValueMetaInteger latin1 = lazy(new ValueMetaInteger("latin1"), "#");
+    ((ValueMetaString) latin1.getStorageMetadata()).setStringEncoding("ISO-8859-1");
+    ValueMetaNumber exponent = lazy(new ValueMetaNumber("e"), "0.###E0");
+
+    Copy copy =
+        load(
+            "UTF8",
+            rowMeta(number, noMask, integer, big, latin1, exponent),
+            row(
+                utf8("1.50"),
+                utf8("-0.10"),
+                utf8("007"),
+                utf8("123456789012345678901234567890.123456789"),
+                "42".getBytes(StandardCharsets.ISO_8859_1),
+                utf8("1.5E3")),
+            row(utf8("0"), utf8("2"), utf8("-9223372036854775808"), utf8("1"), null, null),
+            row(null, null, null, null, null, null));
+
+    assertEquals(
+        lines(
+            "1.50;-0.10;007;123456789012345678901234567890.123456789;42;1.5E3",
+            "0;2;-9223372036854775808;1;;",
+            ";;;;;"),
+        copy.text(StandardCharsets.UTF_8));
+    assertEquals(0, copy.errors);
+    // no conversion: the raw bytes are copied
+    verify(number, never()).getNumber(any());
+    verify(integer, never()).getInteger(any());
+  }
+
+  /** A lazy number read with a German decimal comma and grouping dot. */
+  private static <T extends IValueMeta> T german(T valueMeta, String mask) {
+    T lazy = lazy(valueMeta, mask);
+    IValueMeta storage = lazy.getStorageMetadata();
+    storage.setDecimalSymbol(",");
+    storage.setGroupingSymbol(".");
+    return lazy;
+  }
+
+  /**
+   * Lazy numbers read with a decimal comma are converted and written as numbers in normal storage
+   * are. They used to be copied as the input file had them: PostgreSQL rejected 1.234,50 and read
+   * 1.234 as one point two three four, where Hop reads one thousand two hundred thirty-four (issue
+   * 9678).
+   */
+  @Test
+  void lazyNumbersWithADecimalCommaAreConverted() throws Exception {
+    Copy copy =
+        load(
+            "UTF8",
+            rowMeta(
+                german(new ValueMetaNumber("n"), "#,##0.00"),
+                german(new ValueMetaBigNumber("b"), "#,##0.00"),
+                german(new ValueMetaInteger("i"), "#,##0")),
+            row(utf8("1.234,50"), utf8("1.234,50"), utf8("1.234")),
+            row(utf8("1.234"), utf8("-0,5"), utf8("7")),
+            row(null, null, null));
+
+    assertEquals(
+        lines("1234.5;1234.50;1234", "1234.0;-0.5;7", ";;"), copy.text(StandardCharsets.UTF_8));
+  }
+
+  /**
+   * Text holding the grouping symbol, or stored in an encoding that does not keep ASCII digits as
+   * ASCII, is converted. It used to be copied as it was read (issue 9678).
+   */
+  @Test
+  void lazyNumbersWithGroupingOrInUtf16AreConverted() throws Exception {
+    ValueMetaInteger grouped = lazy(new ValueMetaInteger("grouped"), "#,##0");
+    ValueMetaInteger utf16 = lazy(new ValueMetaInteger("utf16"), null);
+    ((ValueMetaString) utf16.getStorageMetadata()).setStringEncoding("UTF-16BE");
+
+    Copy copy =
+        load(
+            "UTF8",
+            rowMeta(grouped, utf16),
+            row(utf8("1,234,567"), "42".getBytes(StandardCharsets.UTF_16BE)),
+            row(utf8("1234"), "-7".getBytes(StandardCharsets.UTF_16BE)));
+
+    assertEquals(lines("1234567;42", "1234;-7"), copy.text(StandardCharsets.UTF_8));
   }
 }

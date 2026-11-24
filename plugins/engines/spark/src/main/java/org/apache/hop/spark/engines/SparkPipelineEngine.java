@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -274,6 +275,10 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       // Execution info location (optional): load + initialize for later register/update/close
       lookupExecutionInformationLocation();
 
+      // As the local engine: plugins (projects, execution logging, lineage ...) see the run
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelinePrepareExecution.id, this);
+
       converter =
           new HopPipelineMetaToSparkConverter(
               this,
@@ -308,6 +313,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   @Override
   public void startThreads() throws HopException {
+    finishExtensionPointsFired.set(false);
     HopVfsNamespace previousNamespace = null;
     boolean sparkThreadStarted = false;
     ClassLoader pluginCl = getClass().getClassLoader();
@@ -354,6 +360,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       }
 
       fireExecutionStartedListeners();
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineStartThreads.id, this);
       ExtensionPointHandler.callExtensionPoint(
           logChannel, this, HopExtensionPoint.PipelineStart.id, this);
 
@@ -1663,7 +1671,18 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         listener.finished(this);
       }
     }
+    // As the local engine: the end of the run, then its completion once everything is done.
+    // Once per run, also when the listeners are fired again from outside
+    if (finishExtensionPointsFired.compareAndSet(false, true)) {
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
+    }
   }
+
+  /** Whether this run fired PipelineFinish and PipelineCompleted. */
+  private final AtomicBoolean finishExtensionPointsFired = new AtomicBoolean(false);
 
   @Override
   public void addExecutionStoppedListener(

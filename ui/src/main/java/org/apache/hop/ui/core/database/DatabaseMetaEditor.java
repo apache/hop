@@ -38,6 +38,7 @@ import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -46,6 +47,7 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -60,6 +62,7 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -119,6 +122,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private Button wForceUppercase;
   private Button wPreserveCase;
   private TextVar wPreferredSchema;
+  private ComboVar wBatchFailureContract;
   private TextVar wSqlStatements;
 
   private TableView wOptions;
@@ -285,6 +289,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wForceUppercase.addListener(SWT.Selection, modifyListener);
     wPreserveCase.addListener(SWT.Selection, modifyListener);
     wPreferredSchema.addListener(SWT.Modify, modifyListener);
+    wBatchFailureContract.addListener(SWT.Modify, modifyListener);
     wSqlStatements.addListener(SWT.Modify, modifyListener);
     wOptions.addListener(SWT.Modify, modifyListener);
     wSshTunnelEnabled.addListener(SWT.Selection, modifyListener);
@@ -865,6 +870,45 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wPreferredSchema.setLayoutData(fdPreferredSchema);
     lastControl = wPreferredSchema;
 
+    // What the driver does with a failed batch, when the connection options change it
+    //
+    Label wlBatchFailureContract = new Label(wAdvancedComp, SWT.RIGHT);
+    PropsUi.setLook(wlBatchFailureContract);
+    wlBatchFailureContract.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.BatchFailureContract"));
+    wlBatchFailureContract.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.tooltip.BatchFailureContract"));
+    FormData fdlBatchFailureContract = new FormData();
+    fdlBatchFailureContract.top = new FormAttachment(lastControl, margin);
+    fdlBatchFailureContract.left = new FormAttachment(0, 0);
+    fdlBatchFailureContract.right = new FormAttachment(middle, 0);
+    wlBatchFailureContract.setLayoutData(fdlBatchFailureContract);
+    wBatchFailureContract =
+        new ComboVar(manager.getVariables(), wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wBatchFailureContract);
+    wBatchFailureContract.setToolTipText(
+        BaseMessages.getString(PKG, "DatabaseDialog.tooltip.BatchFailureContract"));
+    // The dialect's own setting first, then "as before" (UNKNOWN) and the contracts a connection
+    // option can call for. NO_BATCH_SUPPORT is the dialect's to say, not a connection's.
+    List<String> items = new ArrayList<>();
+    items.add(BaseMessages.getString(PKG, "DatabaseDialog.BatchFailureContract.Automatic"));
+    for (BatchFailureContract value :
+        new BatchFailureContract[] {
+          BatchFailureContract.UNKNOWN,
+          BatchFailureContract.MARKS_FAILED_ROWS,
+          BatchFailureContract.KEEPS_PREFIX,
+          BatchFailureContract.LOSES_WHOLE_BATCH
+        }) {
+      items.add(value.getDescription());
+    }
+    wBatchFailureContract.setItems(items.toArray(new String[0]));
+    FormData fdBatchFailureContract = new FormData();
+    fdBatchFailureContract.top = new FormAttachment(wlBatchFailureContract, 0, SWT.CENTER);
+    fdBatchFailureContract.left = new FormAttachment(middle, margin);
+    fdBatchFailureContract.right = new FormAttachment(100, 0);
+    wBatchFailureContract.setLayoutData(fdBatchFailureContract);
+    lastControl = wBatchFailureContract;
+
     // SQL Statements to run after connecting
     //
     Label wlSqlStatements = new Label(wAdvancedComp, SWT.LEFT);
@@ -1328,6 +1372,15 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wForceUppercase.setSelection(databaseMeta.isForcingIdentifiersToUpperCase());
     wPreserveCase.setSelection(databaseMeta.preserveReservedCase());
     wPreferredSchema.setText(Const.NVL(databaseMeta.getPreferredSchemaName(), ""));
+    String contractOverride = databaseMeta.getBatchFailureContractOverride();
+    BatchFailureContract contract = BatchFailureContract.lookupCode(contractOverride);
+    if (contract != null) {
+      wBatchFailureContract.setText(contract.getDescription());
+    } else if (!Utils.isEmpty(contractOverride)) {
+      wBatchFailureContract.setText(contractOverride);
+    } else {
+      wBatchFailureContract.select(0);
+    }
     wSqlStatements.setText(Const.NVL(databaseMeta.getConnectSql(), ""));
 
     wOptions.clearAll(false);
@@ -1396,6 +1449,22 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     meta.setForcingIdentifiersToUpperCase(wForceUppercase.getSelection());
     meta.setPreserveReservedCase(wPreserveCase.getSelection());
     meta.setPreferredSchemaName(wPreferredSchema.getText());
+    String contractText = wBatchFailureContract.getText();
+    BatchFailureContract contract =
+        IEnumHasCodeAndDescription.lookupDescription(
+            BatchFailureContract.class,
+            contractText,
+            BatchFailureContract.lookupCode(contractText));
+    if (contract != null) {
+      meta.setBatchFailureContractOverride(contract.getCode());
+    } else if (Utils.isEmpty(contractText)
+        || contractText.equals(
+            BaseMessages.getString(PKG, "DatabaseDialog.BatchFailureContract.Automatic"))) {
+      meta.setBatchFailureContractOverride(null);
+    } else {
+      // A variable expression, resolved when the connection is used.
+      meta.setBatchFailureContractOverride(contractText);
+    }
     meta.setConnectSql(wSqlStatements.getText());
 
     meta.getExtraOptions().clear();

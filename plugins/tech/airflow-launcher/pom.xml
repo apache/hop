@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-tech</artifactId>
+        <version>2.21.0-SNAPSHOT</version>
+    </parent>
+
+    <!-- The program the Airflow Java coordinator starts for a Hop DAG bundle. It runs outside Hop:
+         it loads Hop from the installation in its own class loader, and Hop never loads this jar.
+         The Airflow plugin (hop-tech-airflow) ships it in plugins/tech/airflow/launcher. -->
+    <artifactId>hop-tech-airflow-launcher</artifactId>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Technology Airflow Launcher</name>
+
+    <properties>
+        <airflow-sdk.jackson.version>2.22.2</airflow-sdk.jackson.version>
+        <!-- The versions airflow-sdk depends on: keep them equal when the SDK is upgraded. The SDK
+             is built with Gradle, which takes the highest version of a library; Maven takes the
+             nearest, which would be an older Kotlin. -->
+        <airflow-sdk.kotlin.version>2.4.20</airflow-sdk.kotlin.version>
+        <airflow-sdk.ktor.version>3.6.0</airflow-sdk.ktor.version>
+        <airflow-sdk.version>1.0.0</airflow-sdk.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.airflow</groupId>
+                <artifactId>airflow-sdk-bom</artifactId>
+                <version>${airflow-sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- The SDK needs these at runtime only; the launcher compiles against them too
+                 (CoordinatorServer takes ktor socket addresses, the Hop result file is JSON).
+                 Only the scope changes, so the dependency tree stays the SDK's. -->
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${airflow-sdk.kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.ktor</groupId>
+                <artifactId>ktor-network-jvm</artifactId>
+                <version>${airflow-sdk.ktor.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${airflow-sdk.jackson.version}</version>
+                <scope>compile</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Reads the result file of the Hop run; the SDK brings Jackson at runtime. -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${airflow-sdk.jackson.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- CoordinatorServer takes ktor socket addresses; the SDK needs ktor at runtime only. -->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-network-jvm</artifactId>
+            <version>${airflow-sdk.ktor.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.airflow</groupId>
+            <artifactId>airflow-sdk</artifactId>
+            <exclusions>
+                <!-- LGPL 2.1, which the ASF does not allow to ship. Only Server.create(args) uses it:
+                     HopBundleMain parses the coordinator's arguments itself. -->
+                <exclusion>
+                    <groupId>com.xenomachina</groupId>
+                    <artifactId>kotlin-argparser</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.xenomachina</groupId>
+                    <artifactId>xenocom</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Not a Hop plugin: no annotation index, so the plugin scan ignores this jar. -->
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- The stub jar in a DAG bundle points to this jar; this jar points to its libraries. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

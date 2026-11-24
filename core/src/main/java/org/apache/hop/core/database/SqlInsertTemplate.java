@@ -28,8 +28,10 @@ import org.apache.hop.core.variables.IVariables;
 /**
  * Renders literal {@code INSERT INTO schema.table(col, ...) VALUES (...)} statements for rows of
  * one row layout, as {@link Database#getSqlOutput(String, String, IRowMeta, Object[], String)}
- * does, but with the quoted table and column names and the date formatters worked out once instead
+ * does, but with the quoted table and column names and the value formatters worked out once instead
  * of for every row.
+ *
+ * <p>Numbers and dates are written the same in every locale, see {@link SqlLiteralFormatter}.
  *
  * <p>Not thread-safe: the date formatters are reused across rows. Use one instance per transform
  * copy.
@@ -49,11 +51,8 @@ public class SqlInsertTemplate {
   private SimpleDateFormat oracleDateFormatter;
   private SimpleDateFormat dateFormatter;
 
-  /**
-   * Per field: renders the value without DecimalFormat or SimpleDateFormat when that is provably
-   * the same text as {@link IValueMeta#getString(Object)}, or null.
-   */
-  private final FastValueFormatter[] fastFormatters;
+  /** Per field: the formatter of an Integer, Number, BigNumber or Date, or null. */
+  private final SqlLiteralFormatter[] literals;
 
   private FastValueFormatter oracleDateFastFormatter;
   private FastValueFormatter dateFastFormatter;
@@ -92,21 +91,12 @@ public class SqlInsertTemplate {
       sb.append(") VALUES (");
       this.prefix = sb.toString();
 
-      fastFormatters = new FastValueFormatter[fields.size()];
+      literals = new SqlLiteralFormatter[fields.size()];
       for (int i = 0; i < fields.size(); i++) {
         IValueMeta valueMeta = fields.getValueMeta(i);
-        switch (valueMeta.getType()) {
-          case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
-            fastFormatters[i] = FastValueFormatter.forValueMeta(valueMeta);
-            break;
-          case IValueMeta.TYPE_DATE:
-            // only used for the dialect default rendering without a date format
-            if (Utils.isEmpty(dateFormat)) {
-              fastFormatters[i] = FastValueFormatter.forValueMeta(valueMeta);
-            }
-            break;
-          default:
-            break;
+        // A date in its own format is only written without a date format.
+        if (valueMeta.getType() != IValueMeta.TYPE_DATE || Utils.isEmpty(dateFormat)) {
+          literals[i] = SqlLiteralFormatter.forValueMeta(valueMeta);
         }
       }
     } catch (Exception e) {
@@ -158,11 +148,11 @@ public class SqlInsertTemplate {
           case IValueMeta.TYPE_DATE:
             appendDate(ins, r, i);
             break;
+          case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+            literals[i].append(ins, valueData);
+            break;
           default:
-            FastValueFormatter fast = fastFormatters[i];
-            if (fast == null || !fast.append(ins, valueData)) {
-              ins.append(fields.getString(r, i));
-            }
+            ins.append(fields.getString(r, i));
             break;
         }
       }
@@ -173,16 +163,15 @@ public class SqlInsertTemplate {
   }
 
   private void appendDate(StringBuilder ins, Object[] r, int i) throws Exception {
-    Date date = fields.getDate(r, i);
-
     if (Utils.isEmpty(dateFormat)) {
       // Deprecated path. How a date literal is spelled in generated SQL is dialect syntax.
       if (oracleVariant == null) {
         oracleVariant = databaseMeta.getIDatabase().isOracleVariant();
       }
       if (oracleVariant) {
+        Date date = fields.getDate(r, i);
         if (oracleDateFormatter == null) {
-          oracleDateFormatter = new SimpleDateFormat(ORACLE_DATE_PATTERN);
+          oracleDateFormatter = SqlLiteralFormatter.newDateFormat(ORACLE_DATE_PATTERN);
           oracleDateFastFormatter = FastValueFormatter.forDateFormat(oracleDateFormatter);
         }
         ins.append("TO_DATE('");
@@ -192,16 +181,14 @@ public class SqlInsertTemplate {
         ins.append("', 'YYYY/MM/DD HH24:MI:SS')");
       } else {
         ins.append('\'');
-        FastValueFormatter fast = fastFormatters[i];
-        if (fast == null || !fast.append(ins, r[i])) {
-          ins.append(fields.getString(r, i));
-        }
+        literals[i].append(ins, r[i]);
         ins.append('\'');
       }
     } else {
+      Date date = fields.getDate(r, i);
       try {
         if (dateFormatter == null) {
-          dateFormatter = new SimpleDateFormat(dateFormat);
+          dateFormatter = SqlLiteralFormatter.newDateFormat(dateFormat);
           dateFastFormatter = FastValueFormatter.forDateFormat(dateFormatter);
         }
         ins.append('\'');

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import java.io.OutputStream;
+import java.util.Locale;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.FastValueFormatter;
 import org.apache.hop.core.row.IRowMeta;
@@ -71,18 +72,29 @@ public class PGBulkLoaderData extends BaseTransformData implements ITransformDat
   /** Per mapped field: formats its dates without SimpleDateFormat, or null. */
   FastValueFormatter[] dateFormatters;
 
+  /**
+   * Per mapped field: whether a lazy (binary string) value's bytes can be copied without converting
+   * them, and the grouping symbol they must not hold. See {@link
+   * PGBulkLoader#lazyBytesGrouping(IValueMeta)}.
+   */
+  int[] lazyBytesGrouping;
+
   /** Default constructor. */
   public PGBulkLoaderData() {
     super();
 
     db = null;
 
-    // Let's use ISO 8601 format. This in unambiguous with PostgreSQL
+    // Let's use ISO 8601 format. This in unambiguous with PostgreSQL.
+    // Locale.ROOT: the Gregorian calendar and ASCII digits whatever the regional settings, which
+    // could otherwise bring a Buddhist year or Thai or Arabic-Indic digits.
     dateMeta = new ValueMetaDate("date");
     dateMeta.setConversionMask("yyyy-MM-dd");
+    dateMeta.setDateFormatLocale(Locale.ROOT);
 
     dateTimeMeta = new ValueMetaDate("date");
     // Let's keep milliseconds. Didn't find a way to keep microseconds (max resolution with PG)
     dateTimeMeta.setConversionMask("yyyy-MM-dd HH:mm:ss.SSS");
+    dateTimeMeta.setDateFormatLocale(Locale.ROOT);
   }
 }

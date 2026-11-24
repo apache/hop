@@ -25,6 +25,7 @@ Each tool is a command of the xref:hop-tools/hop.adoc[hop] launcher, for example
 `hop arrow`, `hop doc`, `hop lint` and `hop python` come with optional plugins: they are only there once the plugin is installed from the xref:hop-tools/hop-marketplace.adoc[marketplace].
 
 * xref:hop-tools/hop.adoc[hop]: the launcher, its options and the list of commands
+* xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle]: make a project a DAG bundle for Apache Airflow
 * xref:hop-tools/hop-arrow-command.adoc[hop arrow]: start an Apache Arrow Flight or socket server
 * xref:hop-tools/hop-conf/hop-conf.adoc[hop conf]: manage projects, environments and other configuration
 * xref:hop-tools/hop-doc.adoc[hop doc]: write documentation for a project

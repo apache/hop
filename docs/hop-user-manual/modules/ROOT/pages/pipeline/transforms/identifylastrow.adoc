@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Identify Last Row In A Stream pipeline transform generates a Boolean field filled with true for the last row, and false otherwise.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=no, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 
 = image:transforms/icons/detectlastrow.svg[Identify last row in a stream transform Icon, role="image-doc-icon"] Identify last row in a stream
 

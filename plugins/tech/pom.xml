@@ -32,6 +32,7 @@
         <module>age</module>
         <module>ai</module>
         <module>airflow</module>
+        <module>airflow-launcher</module>
         <module>arrow</module>
         <module>avro</module>
         <module>aws</module>

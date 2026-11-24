@@ -176,6 +176,20 @@
             <artifactId>lz4-java</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Lake table transform metadata and the catalog metadata type. Only this jar is
+             packaged (under plugins/engines/spark/lib): dependencies.xml does not load the
+             lakehouse plugin's lib/ either, and its unshaded Iceberg modules would clash with
+             iceberg-spark-runtime. The copy in lib/ is what lets the engine resolve these
+             classes when the lakehouse plugin itself is not installed. -->
+        <!-- Iceberg tables on Google Cloud Storage: iceberg-spark-runtime's GCSFileIO needs the Google
+             Cloud Storage client. Shipped in lib/core (see the assembly); the version comes from hop-libs,
+             like the Google plugin's, so both plugins put the same jars in lib/core. -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
@@ -188,12 +202,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Lake table transform metadata and the catalog metadata type. Only this jar is
-             packaged (under plugins/engines/spark/lib): dependencies.xml does not load the
-             lakehouse plugin's lib/ either, and its unshaded Iceberg modules would clash with
-             iceberg-spark-runtime. The copy in lib/ is what lets the engine resolve these
-             classes when the lakehouse plugin itself is not installed. -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-lakehouse</artifactId>
@@ -534,6 +542,20 @@
                             <excludeTransitive>false</excludeTransitive>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <!-- The artifacts a Spark distribution of this version ships: the native-provided
+                         fat jar leaves them out (NativeSparkFatJar), the cluster loads its own. -->
+                    <execution>
+                        <id>spark-dependency-tree</id>
+                        <goals>
+                            <goal>tree</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputFile>${project.build.directory}/spark-dependencies/spark-dependencies.txt</outputFile>
+                            <outputType>text</outputType>
+                            <scope>runtime</scope>
                         </configuration>
                     </execution>
                 </executions>

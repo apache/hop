@@ -115,8 +115,31 @@ class ValidatePipelineUnitTestLineageTest {
 
     assertEquals(
         List.of(
-            new Reported("Write", "golden-write", Result.PASSED, "3 rows compared"),
-            new Reported("Load", "golden-load", Result.FAILED, "row 1 differs; row 2 differs")),
+            new Reported("Load", "golden-load", Result.FAILED, "row 1 differs; row 2 differs"),
+            new Reported("Write", "golden-write", Result.PASSED, "3 rows compared")),
+        reported);
+  }
+
+  // A sink that ends the run with its first result ends it with the worst: the results that didn't
+  // pass go first, each group in the order of the golden data sets.
+  @Test
+  void theResultsThatDidNotPassComeFirst() {
+    List<Reported> reported =
+        report(
+            pipeline("A", "B", "C", "D"),
+            unitTest("A", "golden-a", "B", "golden-b", "C", "golden-c", "D", "golden-d"),
+            List.of(
+                result("A", "golden-a", false, "ok"),
+                result("B", "golden-b", true, "row 1 differs"),
+                result("D", "golden-d", false, "ok")),
+            null);
+
+    assertEquals(
+        List.of(
+            new Reported("B", "golden-b", Result.FAILED, "row 1 differs"),
+            new Reported("C", "golden-c", Result.ERROR, "The rows were not compared"),
+            new Reported("A", "golden-a", Result.PASSED, "ok"),
+            new Reported("D", "golden-d", Result.PASSED, "ok")),
         reported);
   }
 

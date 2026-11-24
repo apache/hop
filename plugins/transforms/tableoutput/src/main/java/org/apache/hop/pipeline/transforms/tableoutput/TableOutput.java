@@ -30,6 +30,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.IBatchRowListener;
+import org.apache.hop.core.database.batch.IRowBatch;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -314,6 +318,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if (Utils.isEmpty(tableName)) {
       throw new HopTransformException("The tablename is not defined (empty)");
+    }
+
+    if (data.recoveredBatches) {
+      addToRecoveredBatch(rowMeta, r, tableName, insertRowData, outputRowData);
+      // The row leaves once its batch is flushed and its fate is known.
+      return null;
     }
 
     insertStatement = data.preparedStatements.get(tableName);
@@ -691,6 +701,194 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         PKG, "TableOutput.Error.RowNotAttempted", Const.NVL(errorMessage, ""));
   }
 
+  /**
+   * Adds a row to its table's recovered batch, and flushes that batch once it holds a commit's
+   * worth of rows. Only used when the connection's batch failure contract has been validated.
+   */
+  private void addToRecoveredBatch(
+      IRowMeta rowMeta, Object[] r, String tableName, Object[] insertRowData, Object[] outputRow)
+      throws HopException {
+    IRowBatch batch = getRecoveredBatch(tableName);
+    TableOutputData.PendingRow pending = new TableOutputData.PendingRow(outputRow, rowMeta);
+    data.pendingRows.add(pending);
+    data.pendingByRow.put(outputRow, pending);
+    try {
+      batch.add(insertRowData, outputRow);
+    } catch (HopDatabaseException dbe) {
+      // The row could not even be bound: it never reached the batch.
+      data.pendingByRow.remove(outputRow);
+      handleUnbatchedRowError(rowMeta, r, tableName, dbe, pending);
+      releaseSettledRows();
+      return;
+    }
+    if (isRowLevel()) {
+      logRowlevel("Batched row: " + data.insertRowMeta.getString(insertRowData));
+    }
+    if (batch.size() >= data.commitSize) {
+      // Rows are passed on in input order, so a row in the batch of a table that rarely gets one
+      // would hold back every row after it. Flushing every table's batch keeps the rows held to
+      // less than the commit size per table.
+      flushRecoveredBatches();
+    }
+  }
+
+  /** Runs and commits the batch of every table that has rows waiting, in the order they began. */
+  private void flushRecoveredBatches() throws HopException {
+    for (Map.Entry<String, IRowBatch> entry : data.batches.entrySet()) {
+      if (!entry.getValue().isEmpty()) {
+        flushRecoveredBatch(entry.getKey(), entry.getValue());
+      }
+    }
+  }
+
+  /** The recovered batch of a table, created on its first row together with its statement. */
+  private IRowBatch getRecoveredBatch(String tableName) throws HopException {
+    IRowBatch batch = data.batches.get(tableName);
+    if (batch != null) {
+      return batch;
+    }
+    String sql =
+        data.db.getInsertStatement(resolve(meta.getSchemaName()), tableName, data.insertRowMeta);
+    if (isDetailed()) {
+      logDetailed("Prepared statement : " + sql);
+    }
+    PreparedStatement statement = data.db.prepareSql(sql, false);
+    data.preparedStatements.put(tableName, statement);
+    batch =
+        RecoverableBatch.of(
+                data.db,
+                statement,
+                (st, row) -> data.db.setValues(data.insertRowMeta, row, st),
+                data.batchSupport)
+            .withStatementFactory(
+                () -> {
+                  // The driver closed the statement after a failed batch (DuckDB does).
+                  PreparedStatement again = data.db.prepareSql(sql, false);
+                  data.preparedStatements.put(tableName, again);
+                  return again;
+                });
+    data.batches.put(tableName, batch);
+    return batch;
+  }
+
+  /**
+   * Runs and commits a table's recovered batch. With an error hop every row goes to the output or
+   * the error stream once its fate is known; without one a failure rolls back and stops the
+   * transform.
+   */
+  private void flushRecoveredBatch(String tableName, IRowBatch batch) throws HopException {
+    if (getTransformMeta().isDoingErrorHandling()) {
+      batch.flush(recoveredBatchListener());
+      releaseSettledRows();
+      return;
+    }
+    try {
+      batch.flushOrFail(recoveredBatchListener());
+      releaseSettledRows();
+    } catch (HopDatabaseBatchException be) {
+      setErrors(1);
+      discardRecoveredBatches();
+      data.db.rollback();
+      StringBuilder msg =
+          new StringBuilder("Error batch inserting rows into table [" + tableName + "].");
+      msg.append(Const.CR);
+      msg.append("Errors encountered (first 10):").append(Const.CR);
+      List<Exception> exceptions = be.getExceptionsList();
+      for (int x = 0; exceptions != null && x < exceptions.size() && x < 10; x++) {
+        Exception exception = exceptions.get(x);
+        if (exception.getMessage() != null) {
+          msg.append(exception.getMessage()).append(Const.CR);
+        }
+      }
+      throw new HopException(msg.toString(), be);
+    }
+  }
+
+  /**
+   * Drops every row still waiting in a recovered batch, without running it.
+   *
+   * @return the number of rows dropped
+   */
+  private int discardRecoveredBatches() {
+    int dropped = 0;
+    if (data.batches != null) {
+      for (IRowBatch batch : data.batches.values()) {
+        dropped += batch.discard().size();
+      }
+    }
+    // Rows waiting for an earlier row are dropped too: nothing of a failed run is passed on.
+    data.pendingRows.clear();
+    data.pendingByRow.clear();
+    return dropped;
+  }
+
+  /**
+   * Passes on, in input order, every row at the front of the queue whose fate is known: written
+   * rows to the main output, refused rows to the error hop. A row waits for the rows before it,
+   * also when those are in the batch of another table.
+   */
+  private void releaseSettledRows() throws HopException {
+    while (!data.pendingRows.isEmpty() && data.pendingRows.peekFirst().settled) {
+      TableOutputData.PendingRow pending = data.pendingRows.pollFirst();
+      if (pending.written) {
+        putRow(data.outputRowMeta, pending.row);
+        incrementLinesOutput();
+      } else {
+        putError(pending.rowMeta, pending.row, 1L, pending.message, null, pending.errorCode);
+      }
+    }
+  }
+
+  /** Receives the verdict on every row of a flushed recovered batch. */
+  private IBatchRowListener recoveredBatchListener() {
+    return new IBatchRowListener() {
+      @Override
+      public void rowWritten(Object[] outputRow) {
+        TableOutputData.PendingRow pending = data.pendingByRow.remove(outputRow);
+        pending.settled = true;
+        pending.written = true;
+      }
+
+      @Override
+      public void rowRejected(Object[] outputRow, String message, boolean attempted) {
+        TableOutputData.PendingRow pending = data.pendingByRow.remove(outputRow);
+        pending.settled = true;
+        pending.message = message;
+        pending.errorCode = attempted ? "TOP0002" : "TOP0003";
+      }
+    };
+  }
+
+  /**
+   * A row that could not be bound, so it never reached a recovered batch: it goes to the error hop,
+   * in its turn, or stops the transform. "Ignore insert errors" is not available with batch
+   * inserts, as documented.
+   */
+  private void handleUnbatchedRowError(
+      IRowMeta rowMeta,
+      Object[] r,
+      String tableName,
+      HopException dbe,
+      TableOutputData.PendingRow pending)
+      throws HopException {
+    if (getTransformMeta().isDoingErrorHandling()) {
+      if (isRowLevel()) {
+        logRowlevel("Written row to error handling : " + getInputRowMeta().getString(r));
+      }
+      // Passed on in its turn, after the rows before it.
+      pending.settled = true;
+      pending.message = dbe.toString();
+      pending.errorCode = "TOP001";
+    } else {
+      setErrors(getErrors() + 1);
+      discardRecoveredBatches();
+      data.db.rollback();
+      throw new HopException(
+          "Error inserting row into table [" + tableName + "] with values: " + rowMeta.getString(r),
+          dbe);
+    }
+  }
+
   /** Binds and sends one row; the commit is handled by this transform, not by insertRow. */
   private void insertOneRow(PreparedStatement statement, Object[] insertRowData)
       throws HopDatabaseException {
@@ -714,38 +912,6 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
 
-        // Batch updates are not supported on PostgreSQL (and look-a-likes)
-        // together with error handling
-        // For these situations we can use savepoints to help out.
-        //
-        data.useSafePoints =
-            data.databaseMeta.getIDatabase().isUseSafePoints()
-                && getTransformMeta().isDoingErrorHandling();
-
-        // Disable batch mode in case
-        // - we use an unlimited commit size
-        // - if we need to pick up auto-generated keys
-        // - if you are running the pipeline as a single database transaction (unique connections)
-        // - if we are reverting to save-points
-        //
-        data.batchMode =
-            meta.isUseBatchUpdate()
-                && data.commitSize > 0
-                && !meta.isReturningGeneratedKeys()
-                && !data.useSafePoints;
-
-        // give a warning that batch mode operation in combination with transform error handling can
-        // lead to
-        // incorrectly processed rows.
-        //
-        if (getTransformMeta().isDoingErrorHandling()
-            && !dbInterface.IsSupportsErrorHandlingOnBatchUpdates()
-            && isBasic()) {
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));
-        }
-
         if (!dbInterface.supportsStandardTableOutput()) {
           throw new HopException(dbInterface.getUnsupportedTableOutputMessage());
         }
@@ -762,12 +928,67 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
                   + ")");
         }
 
+        boolean unlimitedCommit = data.commitSize <= 0;
+
         // Postpone commit as long as possible.
         //
         if (data.commitSize == 0) {
           data.commitSize = Integer.MAX_VALUE;
         }
         data.db.setCommit(data.commitSize);
+
+        // How a failed batch is handled on this connection. Only a contract validated against the
+        // database (or chosen on the connection) recovers batches with RecoverableBatch; every
+        // other connection keeps the batch handling below, exactly as it always was.
+        //
+        data.batchSupport = BatchSupport.of(dbInterface, this);
+        if (isDetailed()) {
+          logDetailed("Batch support: " + data.batchSupport.describe());
+        }
+        data.recoveredBatches =
+            data.batchSupport.isRecovered()
+                && meta.isUseBatchUpdate()
+                && !unlimitedCommit
+                && !meta.isReturningGeneratedKeys()
+                && !data.db.isAutoCommit()
+                && data.db.getUseBatchInsert(true);
+
+        if (data.recoveredBatches) {
+          data.useSafePoints = false;
+          data.batchMode = true;
+        } else {
+          // Batch updates are not supported on PostgreSQL (and look-a-likes)
+          // together with error handling
+          // For these situations we can use savepoints to help out.
+          //
+          data.useSafePoints =
+              data.databaseMeta.getIDatabase().isUseSafePoints()
+                  && getTransformMeta().isDoingErrorHandling();
+
+          // Disable batch mode in case
+          // - we use an unlimited commit size
+          // - if we need to pick up auto-generated keys
+          // - if you are running the pipeline as a single database transaction (unique connections)
+          // - if we are reverting to save-points
+          //
+          data.batchMode =
+              meta.isUseBatchUpdate()
+                  && !unlimitedCommit
+                  && !meta.isReturningGeneratedKeys()
+                  && !data.useSafePoints;
+
+          // give a warning that batch mode operation in combination with transform error handling
+          // can lead to incorrectly processed rows.
+          //
+          if (getTransformMeta().isDoingErrorHandling()
+              && !dbInterface.IsSupportsErrorHandlingOnBatchUpdates()
+              && isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "TableOutput.Warning.ErrorHandlingIsNotFullySupportedWithBatchProcessing"));
+          }
+        }
 
         if (!meta.isPartitioningEnabled() && !meta.isTableNameInField()) {
           data.tableName = resolve(meta.getTableName());
@@ -1401,12 +1622,49 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.preparedStatements = null;
         data.batchBuffer = null;
         data.batchBindBuffer = null;
+        data.batches = null;
         data.commitCounterMap = null;
         data.outputRowMeta = null;
       }
     }
 
     super.dispose();
+  }
+
+  /**
+   * At the end of the rows (or of a single-threaded iteration): runs what is still waiting in the
+   * recovered batches, or drops it when the transform failed or was stopped.
+   */
+  private void flushOrDiscardRecoveredBatches(boolean dispose) {
+    try {
+      if (getErrors() > 0 || isStopped()) {
+        int dropped = discardRecoveredBatches();
+        if (dropped > 0) {
+          logError(dropped + " batched rows were not written: the transform failed or was stopped");
+        }
+      } else {
+        flushRecoveredBatches();
+        data.db.commit();
+      }
+    } catch (Exception e) {
+      logError("Unexpected error writing the last batch of rows.", e);
+      setErrors(1);
+      discardRecoveredBatches();
+      stopAll();
+    } finally {
+      // Only at the end of the run: batchComplete() flushes after every iteration of a
+      // single-threaded run, and the transforms after this one still read what follows
+      if (dispose) {
+        setOutputDone();
+      }
+      if (getErrors() > 0) {
+        try {
+          data.db.rollback();
+        } catch (HopDatabaseException e) {
+          logError("Unexpected error rolling back the database connection.", e);
+        }
+      }
+    }
   }
 
   // Force the batched up rows to the database in a single-threaded scenario
@@ -1418,6 +1676,10 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
   }
 
   private void emptyAndCommitBatchBuffers(boolean dispose) {
+    if (data.recoveredBatches) {
+      flushOrDiscardRecoveredBatches(dispose);
+      return;
+    }
     // Which statement was being flushed when it threw, so a failure can be recovered against the
     // statement that actually produced it.
     PreparedStatement flushingStatement = null;

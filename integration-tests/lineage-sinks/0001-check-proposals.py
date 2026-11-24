@@ -16,7 +16,12 @@
 #
 """Checks the proposals the DataHub stand-in kept (see 0001-check-and-stop-datahub-stub.sh).
 
-Usage: python3 -I 0001-check-proposals.py <proposal log> <java.io.tmpdir of the Hop run>
+And the run events the OpenLineage stand-in kept: the unit test run by 0009 reports its result to
+the openlineage-stub sink of 0009's run configuration, which gets neither the start nor the end of
+the test run. The result has to end that run, once, or Marquez lists it as running for good. The
+test passes, so it ends the run as COMPLETE.
+
+Usage: python3 -I 0001-check-proposals.py <proposal log> <OpenLineage log> <java.io.tmpdir of the Hop run>
 """
 
 import json
@@ -77,23 +82,50 @@ def unit_test_assertions(kept, unit_test):
     }
 
 
-def everything_arrived(kept):
-    """Whether every run and publication the workflow made has reached the stand-in."""
+def everything_arrived(kept, events):
+    """Whether every run and publication the workflow made has reached the stand-ins."""
     expected = (REPORTED, PUBLISHED_FLOW) + INHERITED
-    return all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected) and all(
-        unit_test_assertions(kept, unit_test) for unit_test in ASSERTED_UNIT_TESTS
+    return (
+        all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected)
+        and all(unit_test_assertions(kept, unit_test) for unit_test in ASSERTED_UNIT_TESTS)
+        and any(e["unitTest"] for e in events)
     )
 
 
-def main(path, tmpdir):
+def unit_test_runs_that_end(events):
+    """Problems with the runs the OpenLineage sink got unit test results on: each ends once, as
+    COMPLETE when its test passed and as FAIL otherwise."""
+    problems = []
+    results = [e for e in events if e["unitTest"]]
+    if not results:
+        problems.append("no unit test result reached the openlineage-stub sink")
+    for result in results:
+        if result.get("passed") is not True:
+            problems.append(f"the unit test result of {result['job']} did not pass: {result}")
+    for run_id in sorted({e["runId"] for e in results}):
+        types = [e["eventType"] for e in events if e["runId"] == run_id]
+        ends = [t for t in types if t in ("COMPLETE", "FAIL", "ABORT")]
+        job = next(e["job"] for e in results if e["runId"] == run_id)
+        passed = all(e.get("passed") is True for e in results if e["runId"] == run_id)
+        if len(ends) != 1:
+            problems.append(f"run {run_id} of {job} has to end once, not {len(ends)} times: {types}")
+        elif ends[0] != ("COMPLETE" if passed else "FAIL"):
+            problems.append(f"run {run_id} of {job} ends as {ends[0]}, its test passed: {passed}")
+    return problems
+
+
+def main(path, openlineage_path, tmpdir):
     # Delivery is asynchronous: wait for the last of the reported runs, then a little longer for
     # anything that should not have come.
     deadline = time.time() + 60
-    while time.time() < deadline and not everything_arrived(proposals(path)):
+    while time.time() < deadline and not everything_arrived(
+        proposals(path), proposals(openlineage_path)
+    ):
         time.sleep(1)
     time.sleep(5)
     kept = proposals(path)
-    problems = []
+    events = proposals(openlineage_path)
+    problems = unit_test_runs_that_end(events)
     reported = [p for p in kept if REPORTED in (p["entityUrn"] or "")]
     if not reported:
         problems.append(f"nothing about {REPORTED} reached DataHub")
@@ -211,14 +243,14 @@ def main(path, tmpdir):
     if tokens != {TOKEN}:
         problems.append(f"DataHub was written to with {tokens}, not the data catalog's token")
 
-    print(f"{len(kept)} proposals, {len(reported)} about {REPORTED}")
+    print(f"{len(kept)} proposals, {len(reported)} about {REPORTED}, {len(events)} OpenLineage events")
     for problem in problems:
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit tests are assertions (from Run pipeline unit tests and Execute tests) without the runs they start, transforms show their expressions, and a table is named with the platform instance of its server")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit tests are assertions (from Run pipeline unit tests and Execute tests) without the runs they start, a unit test ends its run in OpenLineage, transforms show their expressions, and a table is named with the platform instance of its server")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "/tmp"))
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "/tmp"))

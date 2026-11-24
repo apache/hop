@@ -1,0 +1,73 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minId",
+          "data_set_field": "minId"
+        },
+        {
+          "transform_field": "maxId",
+          "data_set_field": "maxId"
+        }
+      ],
+      "field_order": [
+        "count"
+      ],
+      "transform_name": "Validate ok",
+      "data_set_name": "0016-error-hop-ok-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "errorCount",
+          "data_set_field": "errorCount"
+        },
+        {
+          "transform_field": "errorCodes",
+          "data_set_field": "errorCodes"
+        },
+        {
+          "transform_field": "errorFields",
+          "data_set_field": "errorFields"
+        },
+        {
+          "transform_field": "errorDescriptions",
+          "data_set_field": "errorDescriptions"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minId",
+          "data_set_field": "minId"
+        },
+        {
+          "transform_field": "maxId",
+          "data_set_field": "maxId"
+        }
+      ],
+      "field_order": [
+        "errorCodes"
+      ],
+      "transform_name": "Validate errors",
+      "data_set_name": "0016-error-hop-errors-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0016-error-hop-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0016-error-hop-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

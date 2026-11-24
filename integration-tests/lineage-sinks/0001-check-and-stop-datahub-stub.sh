@@ -29,8 +29,9 @@
 # Argument: the java.io.tmpdir of the Hop run, where the unit test's child workflow writes its file.
 
 LOG=/tmp/lineage-sinks-proposals.log
+OPENLINEAGE_LOG=/tmp/lineage-sinks-openlineage.log
 
-python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}" "${1:-/tmp}"
+python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}" "${OPENLINEAGE_LOG}" "${1:-/tmp}"
 RESULT=$?
 
 if [ -f /tmp/lineage-sinks-stub.pid ]; then

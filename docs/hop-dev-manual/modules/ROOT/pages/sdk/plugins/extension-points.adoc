@@ -65,6 +65,7 @@ Keep your logic fast and non-blocking. If your extension point needs to perform 
 
 === 3. Discovering Available Extension Points
 All core extension point IDs are defined as constants in the `org.apache.hop.core.extension.HopExtensionPoint` enum.
+xref:architecture/extension-points.adoc[Extension points and when they fire] lists them all, with the moment each one fires, the object it hands over and the engines that fire it.
 
 == Concrete Codebase Examples
 
@@ -75,3 +76,4 @@ All core extension point IDs are defined as constants in the `org.apache.hop.cor
 == See also
 
 * xref:plugin-types/execution-observability.adoc[Execution and observability]
+* xref:architecture/extension-points.adoc[Extension points and when they fire]
