@@ -313,7 +313,7 @@ collector deployments, not two namespaces.
 
 A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event with a `hopUnitTest` run facet: the test, the data set, whether it passed, `error` when the rows could not be compared at all, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them. The event belongs to the tested transform's run with `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y`, to the pipeline's run otherwise.
 
-A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy, nor the start and end of its run. That sink gets each result as a `COMPLETE` event instead of `OTHER`, so the run ends: Marquez would list it as running for good otherwise.
+A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy, nor the start and end of its run. For that sink, the first result of a run ends it, so Marquez doesn't list it as running for good: `COMPLETE` when the test passed, `FAIL` when it failed or could not compare its rows. The results that did not pass come first, so a run with several golden data sets ends as `FAIL` when any of them did not pass. Its other results are `OTHER` events.
 
 == Dataset identity
 

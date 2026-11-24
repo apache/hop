@@ -18,7 +18,8 @@
 
 And the run events the OpenLineage stand-in kept: the unit test run by 0009 reports its result to
 the openlineage-stub sink of 0009's run configuration, which gets neither the start nor the end of
-the test run. The result has to end that run, or Marquez lists it as running for good.
+the test run. The result has to end that run, once, or Marquez lists it as running for good. The
+test passes, so it ends the run as COMPLETE.
 
 Usage: python3 -I 0001-check-proposals.py <proposal log> <OpenLineage log>
 """
@@ -65,16 +66,24 @@ def everything_arrived(kept, events):
 
 
 def unit_test_runs_that_end(events):
-    """Problems with the runs the OpenLineage sink got unit test results on: each has to end."""
+    """Problems with the runs the OpenLineage sink got unit test results on: each ends once, as
+    COMPLETE when its test passed and as FAIL otherwise."""
     problems = []
     results = [e for e in events if e["unitTest"]]
     if not results:
         problems.append("no unit test result reached the openlineage-stub sink")
+    for result in results:
+        if result.get("passed") is not True:
+            problems.append(f"the unit test result of {result['job']} did not pass: {result}")
     for run_id in sorted({e["runId"] for e in results}):
         types = [e["eventType"] for e in events if e["runId"] == run_id]
-        if not any(t in ("COMPLETE", "FAIL", "ABORT") for t in types):
-            job = next(e["job"] for e in results if e["runId"] == run_id)
-            problems.append(f"run {run_id} of {job} has a unit test result but never ends: {types}")
+        ends = [t for t in types if t in ("COMPLETE", "FAIL", "ABORT")]
+        job = next(e["job"] for e in results if e["runId"] == run_id)
+        passed = all(e.get("passed") is True for e in results if e["runId"] == run_id)
+        if len(ends) != 1:
+            problems.append(f"run {run_id} of {job} has to end once, not {len(ends)} times: {types}")
+        elif ends[0] != ("COMPLETE" if passed else "FAIL"):
+            problems.append(f"run {run_id} of {job} ends as {ends[0]}, its test passed: {passed}")
     return problems
 
 

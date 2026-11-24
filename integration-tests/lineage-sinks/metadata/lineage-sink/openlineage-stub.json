@@ -1,7 +1,7 @@
 {
   "sink": {
     "openlineage": {
-      "url": "http://127.0.0.1:18080/api/v1/lineage",
+      "url": "http://127.0.0.1:${DATAHUB_STUB_PORT}/api/v1/lineage",
       "apiKey": "",
       "namespace": "it-lineage-sinks",
       "producer": "",

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openlineage.client.OpenLineage.RunEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.apache.hop.lineage.context.LineageContext;
@@ -47,26 +48,37 @@ class OpenLineageUnitTestTest {
   private static final String TRANSFORM_RUN = UUID.randomUUID().toString();
 
   private static LineageEvent unitTest(UnitTestLineagePayload payload) {
-    LineageContext ctx =
-        LineageContext.builder()
-            .subjectType(LineageSubjectType.TRANSFORM)
-            .pipelineName("orders")
-            .transformName("Write")
-            .logChannelId(TRANSFORM_RUN)
-            .putAttribute(OpenLineageEventMapper.ATTR_PIPELINE_LOG_CHANNEL_ID, PIPELINE_RUN)
-            .build();
-    return LineageEvent.of(LineageEventKind.UNIT_TEST, ctx, payload);
+    return unitTest("Write", TRANSFORM_RUN, payload);
+  }
+
+  private static LineageContext transform(String name, String run) {
+    return LineageContext.builder()
+        .subjectType(LineageSubjectType.TRANSFORM)
+        .pipelineName("orders")
+        .transformName(name)
+        .logChannelId(run)
+        .putAttribute(OpenLineageEventMapper.ATTR_PIPELINE_LOG_CHANNEL_ID, PIPELINE_RUN)
+        .build();
+  }
+
+  private static LineageEvent unitTest(
+      String transform, String run, UnitTestLineagePayload payload) {
+    return LineageEvent.of(LineageEventKind.UNIT_TEST, transform(transform, run), payload);
   }
 
   /**
    * The start of the tested pipeline's run, which a sink set by the HOP_LINEAGE_* variables gets.
    */
   private static LineageEvent pipelineStarted() {
+    return pipelineStarted(PIPELINE_RUN);
+  }
+
+  private static LineageEvent pipelineStarted(String run) {
     LineageContext ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)
             .pipelineName("orders")
-            .logChannelId(PIPELINE_RUN)
+            .logChannelId(run)
             .build();
     return LineageEvent.of(
         LineageEventKind.RUN_LIFECYCLE,
@@ -75,8 +87,88 @@ class OpenLineageUnitTestTest {
   }
 
   private static UnitTestLineagePayload passed() {
-    return new UnitTestLineagePayload(
-        "orders-test", "golden", UnitTestLineagePayload.Result.PASSED, null, List.of());
+    return result("golden", UnitTestLineagePayload.Result.PASSED);
+  }
+
+  private static UnitTestLineagePayload result(String dataSet, UnitTestLineagePayload.Result r) {
+    return new UnitTestLineagePayload("orders-test", dataSet, r, null, List.of());
+  }
+
+  private static List<RunEvent.EventType> types(OpenLineageEventMapper mapper, LineageEvent... in) {
+    List<RunEvent.EventType> types = new ArrayList<>();
+    for (LineageEvent event : in) {
+      mapper.toRunEvents(event).forEach(e -> types.add(e.getEventType()));
+    }
+    return types;
+  }
+
+  // One result per golden data set: the run ends once, with the first, and the others are OTHER.
+  @Test
+  void aRunWithSeveralResultsEndsOnce() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+
+    List<RunEvent.EventType> types =
+        types(
+            mapper,
+            unitTest("Write", TRANSFORM_RUN, result("g1", UnitTestLineagePayload.Result.FAILED)),
+            unitTest("Load", UUID.randomUUID().toString(), passed()),
+            unitTest("Write", TRANSFORM_RUN, result("g2", UnitTestLineagePayload.Result.PASSED)));
+
+    assertEquals(
+        List.of(RunEvent.EventType.FAIL, RunEvent.EventType.OTHER, RunEvent.EventType.OTHER),
+        types,
+        "without jobs for transforms all results are on the pipeline's run");
+  }
+
+  @Test
+  void withJobsForTransformsEachTransformsRunEndsOnce() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").transformJobs(true).build();
+
+    List<RunEvent.EventType> types =
+        types(
+            mapper,
+            unitTest("Write", TRANSFORM_RUN, result("g1", UnitTestLineagePayload.Result.ERROR)),
+            unitTest("Load", UUID.randomUUID().toString(), passed()),
+            unitTest("Write", TRANSFORM_RUN, result("g2", UnitTestLineagePayload.Result.PASSED)));
+
+    assertEquals(
+        List.of(RunEvent.EventType.FAIL, RunEvent.EventType.COMPLETE, RunEvent.EventType.OTHER),
+        types);
+  }
+
+  // A test that failed, or couldn't compare its rows, ends the run as failed.
+  @Test
+  void aResultThatDidNotPassEndsTheRunAsFailed() {
+    for (UnitTestLineagePayload.Result r :
+        List.of(UnitTestLineagePayload.Result.FAILED, UnitTestLineagePayload.Result.ERROR)) {
+      OpenLineageEventMapper mapper =
+          OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+
+      assertEquals(
+          List.of(RunEvent.EventType.FAIL), types(mapper, unitTest(result("g", r))), r.name());
+    }
+  }
+
+  // A busy server starts many runs while a test pipeline runs: the test run's own events keep it
+  // known, so its result still leaves the end to them.
+  @Test
+  void aRunStaysKnownWhileManyOtherRunsStart() {
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org").build();
+    mapper.toRunEvents(pipelineStarted());
+    for (int i = 0; i < OpenLineageEventMapper.MAX_PENDING_RUNS + 100; i++) {
+      mapper.toRunEvents(pipelineStarted(UUID.randomUUID().toString()));
+    }
+    // The tested transform ends, then its result comes
+    mapper.toRunEvents(
+        LineageEvent.of(
+            LineageEventKind.RUN_LIFECYCLE,
+            transform("Write", TRANSFORM_RUN),
+            new RunLifecycleLineagePayload(RunLifecyclePhase.FINISHED, null)));
+
+    assertEquals(List.of(RunEvent.EventType.OTHER), types(mapper, unitTest(passed())));
   }
 
   @Test

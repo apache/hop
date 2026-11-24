@@ -23,7 +23,8 @@ on the command line, with the value of assertion, document and task info aspects
 runs reported their lineage here.
 
 It is also an OpenLineage collector (POST /api/v1/lineage): it writes one JSON line per run event
-(event type, run id, job name, whether it carries a unit test result) to the OpenLineage log.
+(event type, run id, job name, whether it carries a unit test result and whether that passed) to
+the OpenLineage log.
 
 Usage: python3 -I datahub-ingest-stub.py <port> <proposal log> <OpenLineage log>
 """
@@ -71,11 +72,13 @@ class Handler(BaseHTTPRequestHandler):
             with LOCK, open(OPENLINEAGE_LOG, "a", encoding="utf-8") as log:
                 for event in events:
                     run = event.get("run") or {}
+                    unit_test = (run.get("facets") or {}).get("hopUnitTest")
                     line = {
                         "eventType": event.get("eventType"),
                         "runId": run.get("runId"),
                         "job": (event.get("job") or {}).get("name"),
-                        "unitTest": "hopUnitTest" in (run.get("facets") or {}),
+                        "unitTest": unit_test is not None,
+                        "passed": (unit_test or {}).get("passed"),
                     }
                     log.write(json.dumps(line) + "\n")
             self.reply(201, {})
