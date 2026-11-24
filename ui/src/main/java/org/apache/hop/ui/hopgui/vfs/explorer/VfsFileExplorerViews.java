@@ -49,7 +49,7 @@ public class VfsFileExplorerViews {
 
   public static final String DOCK_TOOL_ID = "vfs-file-explorer";
 
-  public static final String ID_MAIN_MENU_TOOLS_VFS_EXPLORER = "40028-menu-tools-vfs-explorer";
+  public static final String ID_MAIN_MENU_TOOLS_VFS_EXPLORER = "40030-menu-tools-vfs-explorer";
 
   public static final String CONTEXT_MENU_OPEN_LOCATION =
       "ExplorerPerspective-ContextMenu-10103-OpenInVfsExplorer";
