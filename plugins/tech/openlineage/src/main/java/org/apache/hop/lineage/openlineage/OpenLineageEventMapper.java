@@ -251,6 +251,25 @@ public final class OpenLineageEventMapper {
           Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
 
   /**
+   * The pipeline runs whose start or end reached this mapper, so a unit test result can tell
+   * whether its run gets an end here. A lineage sink selected in a run configuration gets the
+   * results of a unit test run, but not that run's own events. Every lifecycle event of a run, its
+   * transforms' included, makes it the newest entry again, so a run is only pushed out once it is
+   * over: its results come right after its last transform ends.
+   */
+  private final Set<String> pipelineRunsWithLifecycle =
+      Collections.synchronizedSet(
+          Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
+
+  /**
+   * The runs a unit test result ended, because their own end doesn't come to this mapper: the other
+   * results of such a run don't end it again.
+   */
+  private final Set<String> runsEndedByUnitTests =
+      Collections.synchronizedSet(
+          Collections.newSetFromMap(new BoundedMap<String, Boolean>(MAX_PENDING_RUNS, null)));
+
+  /**
    * With {@link Builder#abortOpenRuns}, the start of every run that has not reported its end yet,
    * so the runs still open when the sink shuts down can be ended; see {@link #flushObservations}.
    */
@@ -464,6 +483,10 @@ public final class OpenLineageEventMapper {
       return List.of();
     }
     LineageContext ctx = event.getContext();
+    String pipelineRun = pipelineRunOf(ctx);
+    if (!Utils.isEmpty(pipelineRun)) {
+      pipelineRunsWithLifecycle.add(pipelineRun);
+    }
     if (!isTerminal(eventType)) {
       if (abortOpenRuns && eventType == EventType.START) {
         openRuns.put(runKey(resolveJobName(ctx), resolveRunId(ctx, event.getEventId())), event);
@@ -757,7 +780,14 @@ public final class OpenLineageEventMapper {
     return observe(event, inputs, outputs, null);
   }
 
-  /** A unit test result as an {@code OTHER} event of the tested transform's run. */
+  /**
+   * A unit test result as an {@code OTHER} event of the tested transform's run. When the run's own
+   * start and end don't come to this mapper, the run's first result ends it instead: {@code
+   * COMPLETE} when the test passed, {@code FAIL} when it did not or could not compare its rows. An
+   * {@code OTHER} event alone would leave the run open for good, Marquez lists it as running. The
+   * run's other results are {@code OTHER} events, so the run ends once. The testing plugin reports
+   * the results that did not pass first, so that first result is the run's worst.
+   */
   private Optional<RunEvent> mapUnitTest(LineageEvent event) {
     if (!(event.getPayload() instanceof UnitTestLineagePayload test)) {
       return Optional.empty();
@@ -808,9 +838,16 @@ public final class OpenLineageEventMapper {
     String jobName = perTransform ? resolveJobName(ctx) : resolveFileIoJobName(ctx);
     JobIdentity identity = perTransform ? JobIdentity.of(ctx) : JobIdentity.ioOwner(ctx);
     ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    String pipelineRun = pipelineRunOf(ctx);
+    boolean runEndsElsewhere =
+        Utils.isEmpty(pipelineRun) || pipelineRunsWithLifecycle.contains(pipelineRun);
+    EventType eventType = EventType.OTHER;
+    if (!runEndsElsewhere && runsEndedByUnitTests.add(runKey(jobName, runId))) {
+      eventType = test.isPassed() ? EventType.COMPLETE : EventType.FAIL;
+    }
     return Optional.of(
         ol.newRunEventBuilder()
-            .eventType(EventType.OTHER)
+            .eventType(eventType)
             .eventTime(eventTime)
             .run(runNode(runId, eventTime, null, Map.of(UNIT_TEST_FACET, facet)))
             .job(job(jobName, identity, null))
@@ -2079,6 +2116,17 @@ public final class OpenLineageEventMapper {
       return null;
     }
     return ctx.getAttributes().get(ATTR_PIPELINE_LOG_CHANNEL_ID);
+  }
+
+  /**
+   * The pipeline run an event belongs to: the pipeline's own run for a pipeline, the run of the
+   * pipeline it is part of for a transform. Null when there is none, as for a workflow.
+   */
+  static String pipelineRunOf(LineageContext ctx) {
+    if (ctx != null && ctx.getSubjectType() == LineageSubjectType.PIPELINE) {
+      return ctx.getLogChannelId();
+    }
+    return pipelineLogChannelId(ctx);
   }
 
   /**

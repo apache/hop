@@ -1,0 +1,10 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "safe_mode": false
+    }
+  },
+  "name": "local-openlineage",
+  "description": "Runs workflows locally and reports their lineage, and that of the runs they start, to the openlineage-stub lineage sink",
+  "lineageSinkName": "openlineage-stub"
+}
