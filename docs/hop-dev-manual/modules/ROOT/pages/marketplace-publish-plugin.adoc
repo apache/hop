@@ -155,6 +155,33 @@ Minimal assembly sketch (standalone project; adjust paths and artifactId):
 
 Apache Hop in-tree plugins use a shared component (`assemblies/shared/hop-plugin-libs.xml`) and `${hop.plugin.libdir}`; third-party projects usually inline the layout as above.
 
+=== Plugin manifest
+
+Add the plugin manifest to the zip: a list of every file it installs, with its location, Maven coordinates, size and SHA-256, the plugin ids and the Hop plugins it needs.
+An installation needs it to tell which plugins a shared `lib/core` jar belongs to, see xref:architecture/dependencies-and-classloading.adoc#_the_plugin_manifest[The plugin manifest].
+The Hop Maven plugin writes it; bind its `manifest` goal in the same phase as the assembly, and declare it after `maven-assembly-plugin` (executions of one phase run in pom order):
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.apache.hop</groupId>
+  <artifactId>hop-maven-plugin</artifactId>
+  <version>${hop.version}</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <goals>
+        <goal>manifest</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+
+The goal describes `+{artifactId}-{version}.zip+` in `target/`, or else the one zip the build attached; set `<zip>` in its configuration to pick another.
+After the build the zip holds `plugins/<category>/<plugin>/plugin-manifest.json`, and `target/plugin-manifest.json` is a copy.
+The manifest takes its time from the files already in the zip, so a build with `project.build.outputTimestamp` stays reproducible.
+
 == Plugin version vs Hop version
 
 These are *different* numbers. Mixing them up is the most common packaging mistake.
@@ -455,6 +482,7 @@ export NEXUS_URL=https://nexus.sandbox.example/repository/hop-plugins/
 * [ ] Plugin `version` chosen for this release
 * [ ] Assembly zip expands under `plugins/…` with correct jar + `version.xml`
 * [ ] No hop-core / hop-engine / hop-ui jars inside the zip
+* [ ] `hop:manifest` bound after the assembly, so the zip carries `plugin-manifest.json`
 * [ ] Third-party libs reviewed (size, license, overlap with Hop)
 * [ ] Other plugins documented (`dependencies.xml` and/or hop-env list)
 * [ ] Nexus allows read for installs; deploy credentials only for CI

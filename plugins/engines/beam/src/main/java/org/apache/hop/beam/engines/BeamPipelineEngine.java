@@ -127,6 +127,16 @@ public abstract class BeamPipelineEngine extends Variables
   protected boolean finished;
   protected boolean stopped;
   protected boolean paused;
+
+  /**
+   * Set when the run starts and cleared once PipelineCompleted has fired, so waitUntilFinished()
+   * does not return while the finished listeners and extension points are still running.
+   */
+  protected volatile boolean completionPending;
+
+  /** Whether this run fired its end: the finished listeners, PipelineFinish, PipelineCompleted. */
+  private final AtomicBoolean finishFired = new AtomicBoolean(false);
+
   protected boolean hasHaltedComponents;
   protected boolean preview;
   protected int errors;
@@ -259,6 +269,11 @@ public abstract class BeamPipelineEngine extends Variables
       // keep state updated regularly.  At the end of the pipeline, clean up shop
       //
       lookupExecutionInformationLocation();
+
+      // As the local engine: plugins (projects, execution logging, lineage ...) see the run
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelinePrepareExecution.id, this);
+
       registerPipelineExecutionInformation();
       startExecutionInfoTimer();
 
@@ -351,11 +366,17 @@ public abstract class BeamPipelineEngine extends Variables
       //
       Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
 
+      finishFired.set(false);
+      completionPending = true;
       setRunning(true);
       setReadyToStart(false);
 
       status = ComponentExecutionStatus.STATUS_RUNNING;
       statusDescription = Pipeline.STRING_RUNNING;
+
+      // As the local engine: before the pipeline runs, so plugins can attach their listeners
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineStartThreads.id, this);
 
       if (beamEngineRunConfiguration.isRunningAsynchronous()) {
         // Certain runners like Direct and DataFlow allow async execution
@@ -380,6 +401,10 @@ public abstract class BeamPipelineEngine extends Variables
           logChannel.logError("Error starting the Beam pipeline", e);
         }
         firePipelineExecutionStartedListeners();
+        if (hasStartupErrors.get()) {
+          // The run ended before it started: the listeners that saw it start see it end
+          fireExecutionFinishedListeners();
+        }
 
       } else {
         // The running pipeline will block
@@ -615,14 +640,25 @@ public abstract class BeamPipelineEngine extends Variables
           }
           setStopped(true);
           setRunning(false);
+          if (beamEngineRunConfiguration.isRunningAsynchronous()) {
+            // A blocking runner fires the end once its thread returns
+            fireExecutionFinishedListeners();
+          }
           setStatus(ComponentExecutionStatus.STATUS_STOPPED);
           break;
         case FAILED:
+          if (!finished) {
+            // First time we've hit this: stopAll() and the refresh timer both get here
+            setErrors(getErrors() + 1);
+            logChannel.logBasic("Beam pipeline execution failed.");
+          }
           setStopped(true);
           setFinished(true);
-          setErrors(getErrors() + 1);
+          setRunning(false);
           cancelRefreshTimer = true;
-          logChannel.logBasic("Beam pipeline execution failed.");
+          if (beamEngineRunConfiguration.isRunningAsynchronous()) {
+            fireExecutionFinishedListeners();
+          }
           break;
         case UNKNOWN:
           break;
@@ -688,7 +724,7 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void waitUntilFinished() {
-    while ((running || paused || readyToStart) && !(stopped || finished)) {
+    while ((running || paused || readyToStart || completionPending) && !(stopped || finished)) {
       try {
         Thread.sleep(100);
       } catch (Exception e) {
@@ -1064,37 +1100,53 @@ public abstract class BeamPipelineEngine extends Variables
     fireExecutionFinishedListeners();
   }
 
+  /**
+   * The end of a run is fired once per run: a run that ends is seen by the refresh timer, by
+   * stopAll() and, on a blocking runner, by the thread that waits for it.
+   */
   @Override
   public void fireExecutionFinishedListeners() throws HopException {
-    ExtensionPointHandler.callExtensionPoint(
-        logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
+    if (!finishFired.compareAndSet(false, true)) {
+      return;
+    }
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineFinish.id, this);
 
-    synchronized (executionFinishedListeners) {
-      for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
-          executionFinishedListeners) {
-        listener.finished(this);
+      synchronized (executionFinishedListeners) {
+        for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+            executionFinishedListeners) {
+          listener.finished(this);
+        }
       }
+
+      // Make sure we capture this moment in time correctly.
+      //
+      setRunning(false);
+      if (isStopped() && getErrors() == 0) {
+        status = ComponentExecutionStatus.STATUS_STOPPED;
+        statusDescription = Pipeline.STRING_STOPPED;
+      } else {
+        status = ComponentExecutionStatus.STATUS_FINISHED;
+        if (getErrors() > 0) {
+          statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
+        } else {
+          statusDescription = Pipeline.STRING_FINISHED;
+        }
+      }
+      executionEndDate = new Date();
+
+      // Now the status and everything else is set correctly. We've completed the pipeline.
+      //
+      pipelineCompleted();
+
+      // Also call an extension point in case plugins want to play along
+      //
+      ExtensionPointHandler.callExtensionPoint(
+          logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
+    } finally {
+      completionPending = false;
     }
-
-    // Make sure we capture this moment in time correctly.
-    //
-    setRunning(false);
-    status = ComponentExecutionStatus.STATUS_FINISHED;
-    if (getErrors() > 0) {
-      statusDescription = Pipeline.STRING_FINISHED_WITH_ERRORS;
-    } else {
-      statusDescription = Pipeline.STRING_FINISHED;
-    }
-    executionEndDate = new Date();
-
-    // Now the status and everything else is set correctly. We've completed the pipeline.
-    //
-    pipelineCompleted();
-
-    // Also call an extension point in case plugins want to play along
-    //
-    ExtensionPointHandler.callExtensionPoint(
-        logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
   /**
@@ -1769,8 +1821,6 @@ public abstract class BeamPipelineEngine extends Variables
    *   <li>Plugin id on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_PLUGIN_IDS}
    *       list → UNSUPPORTED with the canonical user-facing reason. This path does not load the
    *       transform class.
-   *   <li>Meta class on the {@link HopPipelineMetaToBeamPipelineConverter#HARD_BANNED_META_TYPES}
-   *       list → UNSUPPORTED with the canonical user-facing reason.
    *   <li>Plugin id in {@link HopPipelineMetaToBeamPipelineConverter#EXPLICIT_HANDLER_PLUGIN_IDS} →
    *       SUPPORTED.
    *   <li>Meta class implements {@link IBeamPipelineTransformHandler} → SUPPORTED (the
@@ -1811,11 +1861,6 @@ public abstract class BeamPipelineEngine extends Variables
       }
     }
     if (mainType != null) {
-      String banReason =
-          HopPipelineMetaToBeamPipelineConverter.HARD_BANNED_META_TYPES.get(mainType);
-      if (banReason != null) {
-        return EngineCompatibility.unsupported(banReason);
-      }
       if (IBeamPipelineTransformHandler.class.isAssignableFrom(mainType)) {
         return EngineCompatibility.supported();
       }

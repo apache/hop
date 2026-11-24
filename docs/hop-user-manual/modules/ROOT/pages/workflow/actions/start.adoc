@@ -36,6 +36,9 @@ When you activate the repeat option the workflow will continue to run and restar
 
 While this does not replace a scheduler it can be used for basic scheduling. Please note that using this will keep the workflow in a running state meaning the Java process will continue to exist and use resources on the system.
 
+When Apache Airflow runs the workflow (see xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle]), the schedule of the Start action becomes the schedule of the DAG, and the workflow runs once each time Airflow starts it.
+The variable `HOP_IGNORE_START_REPEAT` does that: when it is `Y`, the Start action neither waits nor repeats.
+
 
 == Result
 

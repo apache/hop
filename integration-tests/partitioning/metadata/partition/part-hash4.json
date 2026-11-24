@@ -1,0 +1,11 @@
+{
+  "dynamicallyDefined": false,
+  "numberOfPartitions": "4",
+  "name": "part-hash4",
+  "partitionIDs": [
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ]
+}

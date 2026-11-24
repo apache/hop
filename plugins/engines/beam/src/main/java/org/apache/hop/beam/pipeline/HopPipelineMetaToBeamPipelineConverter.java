@@ -52,6 +52,7 @@ import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamParquetInputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamParquetOutputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
+import org.apache.hop.beam.pipeline.handler.BeamSortRowsTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -69,13 +70,7 @@ import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
-import org.apache.hop.pipeline.transforms.joinrows.JoinRowsMeta;
-import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
-import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
-import org.apache.hop.pipeline.transforms.uniquerowsbyhashset.UniqueRowsByHashSetMeta;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
@@ -95,44 +90,90 @@ public class HopPipelineMetaToBeamPipelineConverter {
           BeamConst.STRING_MERGE_JOIN_PLUGIN_ID,
           BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID,
           BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID,
+          BeamConst.STRING_SORT_ROWS_PLUGIN_ID,
           BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID,
           BeamConst.STRING_AVRO_FILE_INPUT_PLUGIN_ID,
           BeamConst.STRING_AVRO_OUTPUT_PLUGIN_ID,
           BeamConst.STRING_PARQUET_FILE_INPUT_PLUGIN_ID,
           BeamConst.STRING_PARQUET_FILE_OUTPUT_PLUGIN_ID);
 
-  /**
-   * Transform meta classes that Beam refuses to run at all, mapped to the user-facing reason. The
-   * runtime check in {@link #validateTransformBeamUsage} consults this map; {@code
-   * BeamPipelineEngine.supports} surfaces the same reason at design time.
-   *
-   * <p>Only classes that {@code dependencies.xml} already puts on the Beam plugin class loader
-   * belong here. A class literal is resolved when this class is initialized, so a transform that is
-   * not on that loader (Mask fields) is banned by plugin id in {@link #HARD_BANNED_PLUGIN_IDS}
-   * instead.
-   */
-  public static final Map<Class<?>, String> HARD_BANNED_META_TYPES =
-      Map.of(
-          GroupByMeta.class,
-          "Group By is not supported.  Use the Memory Group By transform instead.  It comes closest to Beam functionality.",
-          UniqueRowsMeta.class,
-          "The unique rows transform is not yet supported on Beam, for now use a Memory Group By to get distrinct rows",
-          SortRowsMeta.class,
-          "Sort Rows is not supported on Beam.  A Beam pipeline re-shuffles rows across workers to maximize parallelism, so this transform would only order the rows a single worker happens to hold, not the data set as a whole.",
-          UniqueRowsByHashSetMeta.class,
-          "Unique Rows By Hashset is not supported on Beam.  Every worker keeps its own hash set, so duplicates spread over different workers would survive.  Use a Memory Group By to get distinct rows.",
-          JoinRowsMeta.class,
-          "Join Rows is not supported on Beam.  A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing.  Add the same constant field to both inputs and use a Merge Join on that field instead.");
+  /** Advice for a transform that only gives the local engine's result on rows in their order. */
+  private static final String ORDERED_ROWS =
+      " A Beam pipeline spreads the rows over workers and does not keep their order between"
+          + " transforms, so the transform would see the rows in no particular order.";
+
+  /** Why Beam refuses a Group by with group fields. Without group fields it runs on all rows. */
+  public static final String GROUP_BY_WITH_GROUP_FIELDS =
+      "Group by with group fields is not supported on Beam. It needs its rows sorted on the group fields."
+          + ORDERED_ROWS
+          + " Use Memory group by instead: Beam runs it natively.";
 
   /**
-   * Plugin ids Beam refuses to run, mapped to the user-facing reason. Used for transforms that are
-   * not on the Beam plugin class loader. Keep in lockstep with {@code BeamPipelineEngine.supports}
-   * and {@link #validateTransformBeamUsage}.
+   * Why Beam refuses a Sort rows that only passes unique rows. Without that option it runs, and
+   * passes the rows on unsorted: see {@code BeamSortRowsTransformHandler}.
+   */
+  public static final String SORT_ROWS_UNIQUE_ROWS =
+      "Sort rows with 'Only pass unique rows' is not supported on Beam. It compares each sorted row with the one before it."
+          + ORDERED_ROWS
+          + " Use Unique rows (HashSet) or Memory group by instead.";
+
+  /**
+   * Plugin ids Beam refuses to run, mapped to the user-facing reason. The runtime check in {@link
+   * #validateTransformBeamUsage} consults this map; {@code BeamPipelineEngine.supports} surfaces
+   * the same reason at design time.
+   *
+   * <p>Transforms are banned by plugin id, never by meta class: in an installed Hop a transform's
+   * meta class comes from its own plugin class loader, so a class literal on the Beam plugin class
+   * loader is another class and never matches.
+   *
+   * <p>Most of these need their rows in order: sorted on a key, or compared with the row before
+   * them. Transforms that only need all their rows at once run on Beam, see {@code
+   * BeamGenericTransformHandler#WHOLE_STREAM_PLUGIN_IDS}.
    */
   public static final Map<String, String> HARD_BANNED_PLUGIN_IDS =
-      Map.of(
-          BeamConst.STRING_MASK_FIELDS_PLUGIN_ID,
-          "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token.");
+      Map.ofEntries(
+          Map.entry(
+              BeamConst.STRING_MASK_FIELDS_PLUGIN_ID,
+              "Mask fields is not supported on Beam. Each worker keeps its own mapping and sequence, so the same source value would not stay the same token."),
+          Map.entry(
+              "Unique",
+              "Unique rows is not supported on Beam. It compares each row with the one before it."
+                  + ORDERED_ROWS
+                  + " Use Unique rows (HashSet) or Memory group by instead."),
+          Map.entry(
+              "JoinRows",
+              "Join rows is not supported on Beam. A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use a Merge join on that field instead."),
+          Map.entry(
+              "AnalyticQuery",
+              "Analytic query is not supported on Beam. LEAD and LAG take the rows next to the current row."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "FieldsChangeSequence",
+              "Add value fields changing sequence is not supported on Beam. It compares each row with the one before it."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "RepeatFields",
+              "Repeat fields is not supported on Beam. It repeats values from the rows before the current one."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "Flattener",
+              "Row flattener is not supported on Beam. It combines rows that follow each other."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "Flatterner",
+              "Row flattener is not supported on Beam. It combines rows that follow each other."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "SortedMerge",
+              "Sorted merge is not supported on Beam. It needs every input sorted." + ORDERED_ROWS),
+          Map.entry(
+              "MergeRows",
+              "Merge rows (diff) is not supported on Beam. It needs both inputs sorted on the keys."
+                  + ORDERED_ROWS),
+          Map.entry(
+              "MultiwayMergeJoin",
+              "Multiway merge join is not supported on Beam. It needs every input sorted on the keys."
+                  + ORDERED_ROWS));
 
   protected final String runConfigName;
   protected final PipelineRunConfiguration runConfiguration;
@@ -274,6 +315,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
         BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID, new BeamRowGeneratorTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamMemoryGroupByTransformHandler());
+    transformHandlers.put(BeamConst.STRING_SORT_ROWS_PLUGIN_ID, new BeamSortRowsTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID, new BeamAddSequenceTransformHandler());
     transformHandlers.put(
@@ -517,7 +559,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
 
       // What fields are we getting from the previous transform(s)?
       //
-      IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, previousTransform);
+      // The layout of the hop into this transform: an error hop carries error rows
+      IRowMeta rowMeta =
+          pipelineMeta.getTransformFields(variables, previousTransform, transformMeta, null);
 
       transformHandler.handleTransform(
           log,
@@ -593,7 +637,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
           // No fuss with info fields sneaking in, all previous transforms need to emit the same
           // layout anyway
           //
-          rowMeta = pipelineMeta.getTransformFields(variables, firstPreviousTransform);
+          rowMeta =
+              pipelineMeta.getTransformFields(
+                  variables, firstPreviousTransform, transformMeta, null);
 
           // Check in the map to see if previousTransform isn't targeting this one
           //
@@ -658,6 +704,16 @@ public class HopPipelineMetaToBeamPipelineConverter {
           }
         }
 
+        if (transformHandler != null && transformMeta.isDoingErrorHandling()) {
+          // A native handler has no rows with errors to hand on: the error transform would read
+          // the transform's output instead
+          throw new HopException(
+              "Transform '"
+                  + transformMeta.getName()
+                  + "' runs natively on Beam, which has no error hop: remove the error hop or run"
+                  + " the pipeline on the Local engine. plugin id="
+                  + transformMeta.getTransformPluginId());
+        }
         if (transformHandler == null) {
           transformHandler = genericTransformHandler;
         }
@@ -691,14 +747,14 @@ public class HopPipelineMetaToBeamPipelineConverter {
       if (pluginBan != null) {
         throw new HopException(pluginBan);
       }
-    }
-    ITransformMeta meta = transformMeta.getTransform();
-    if (meta == null) {
-      return;
-    }
-    String banReason = HARD_BANNED_META_TYPES.get(meta.getClass());
-    if (banReason != null) {
-      throw new HopException(banReason);
+      if (BeamGenericTransformHandler.GROUP_BY_PLUGIN_ID.equals(pluginId)
+          && BeamGenericTransformHandler.hasGroupFields(transformMeta)) {
+        throw new HopException(GROUP_BY_WITH_GROUP_FIELDS);
+      }
+      if (BeamConst.STRING_SORT_ROWS_PLUGIN_ID.equals(pluginId)
+          && BeamSortRowsTransformHandler.isPassingUniqueRows(transformMeta)) {
+        throw new HopException(SORT_ROWS_UNIQUE_ROWS);
+      }
     }
   }
 

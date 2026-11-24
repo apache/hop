@@ -215,11 +215,59 @@ class SQLFileOutputTest {
         Files.readString(tempDir.resolve("out.sql"), StandardCharsets.UTF_8));
   }
 
+  /** The create and truncate options write their statements once, before the first insert. */
+  @Test
+  void writesCreateAndTruncateStatementsOnce(@TempDir Path tempDir) throws Exception {
+    RowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(new ValueMetaInteger("id"));
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    List<Object[]> rows = new ArrayList<>();
+    rows.add(new Object[] {1L, "a"});
+    rows.add(new Object[] {2L, "b"});
+    String cr = System.lineSeparator();
+    String inserts =
+        "INSERT INTO orders_out(id, name) VALUES (1,'a');"
+            + cr
+            + "INSERT INTO orders_out(id, name) VALUES (2,'b');"
+            + cr;
+    // the test dialect has empty column definitions
+    String create = "CREATE TABLE orders_out" + cr + "(" + cr + "  , )" + cr;
+    String truncate = "TRUNCATE TABLE orders_out;" + cr + cr;
+
+    assertEquals(inserts, run(tempDir, null, rowMeta, rows, false, false, false));
+    assertEquals(
+        create + ";" + cr + cr + inserts, run(tempDir, null, rowMeta, rows, true, false, false));
+    assertEquals(truncate + inserts, run(tempDir, null, rowMeta, rows, false, true, false));
+    assertEquals(
+        create + ";" + cr + cr + truncate + inserts,
+        run(tempDir, null, rowMeta, rows, true, true, false));
+    // without inserts only together with the create statement
+    assertEquals(
+        create + ";" + cr + cr + truncate, run(tempDir, null, rowMeta, rows, true, true, true));
+    assertEquals(truncate + inserts, run(tempDir, null, rowMeta, rows, false, true, true));
+  }
+
   /** Runs rows through the transform into a file and returns the file's text. */
   private String run(Path tempDir, String dateFormat, RowMeta rowMeta, List<Object[]> rows)
       throws Exception {
+    return run(tempDir, dateFormat, rowMeta, rows, false, false, false);
+  }
+
+  /** Runs rows through the transform into a file and returns the file's text. */
+  private String run(
+      Path tempDir,
+      String dateFormat,
+      RowMeta rowMeta,
+      List<Object[]> rows,
+      boolean createTable,
+      boolean truncateTable,
+      boolean noInserts)
+      throws Exception {
     SQLFileOutputMeta meta = new SQLFileOutputMeta();
     meta.setDefault();
+    meta.setCreateTable(createTable);
+    meta.setTruncateTable(truncateTable);
+    meta.setDoNotAddInsertStatements(noInserts);
     meta.setConnection("test");
     meta.setTableName("orders_out");
     meta.setDateFormat(dateFormat);
@@ -333,6 +381,61 @@ class SQLFileOutputTest {
       }
     } finally {
       Locale.setDefault(Locale.Category.DISPLAY, savedLocale);
+      TimeZone.setDefault(savedZone);
+    }
+  }
+
+  /**
+   * The regional format locale (#9677) does not reach the file either: under de_DE, sv_SE and th_TH
+   * numbers keep a period and an ASCII minus sign, dates Gregorian years.
+   */
+  @Test
+  void writesTheSameUnderEveryRegionalFormat(@TempDir Path tempDir) throws Exception {
+    Locale savedLocale = Locale.getDefault();
+    Locale savedFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    Locale savedDisplayLocale = Locale.getDefault(Locale.Category.DISPLAY);
+    TimeZone savedZone = TimeZone.getDefault();
+    try {
+      TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
+      List<Object[]> rows = new ArrayList<>();
+      rows.add(orderRow(1));
+      rows.add(orderRow(4_567));
+      rows.add(orderRow(1_000_003));
+      rows.add(new Object[8]);
+      Locale.setDefault(Locale.US);
+      String plain = run(tempDir, null, ordersRowMeta(), rows);
+      String formatted = run(tempDir, "dd/MM/yyyy HH:mm", ordersRowMeta(), rows);
+
+      for (Locale locale :
+          new Locale[] {
+            Locale.GERMANY, Locale.forLanguageTag("sv-SE"), Locale.forLanguageTag("th-TH")
+          }) {
+        Locale.setDefault(locale);
+        assertEquals(plain, run(tempDir, null, ordersRowMeta(), rows), "locale " + locale);
+        assertEquals(
+            formatted, run(tempDir, "dd/MM/yyyy HH:mm", ordersRowMeta(), rows), "locale " + locale);
+      }
+
+      Locale.setDefault(Locale.GERMANY);
+      RowMeta rowMeta = new RowMeta();
+      rowMeta.addValueMeta(new ValueMetaNumber("price"));
+      IValueMeta total = new ValueMetaNumber("total");
+      total.setConversionMask("#,##0.00");
+      rowMeta.addValueMeta(total);
+      IValueMeta shipped = new ValueMetaDate("shipped");
+      shipped.setConversionMask("dd MMM yyyy");
+      rowMeta.addValueMeta(shipped);
+      Date date = new GregorianCalendar(2024, 2, 15, 13, 45, 30).getTime();
+      List<Object[]> masked = new ArrayList<>();
+      masked.add(new Object[] {1.5, -1234567.5, date});
+      assertEquals(
+          "INSERT INTO orders_out(price, total, shipped) VALUES (1.5,-1234567.50,'15 Mar 2024');"
+              + System.lineSeparator(),
+          run(tempDir, null, rowMeta, masked));
+    } finally {
+      Locale.setDefault(savedLocale);
+      Locale.setDefault(Locale.Category.FORMAT, savedFormatLocale);
+      Locale.setDefault(Locale.Category.DISPLAY, savedDisplayLocale);
       TimeZone.setDefault(savedZone);
     }
   }

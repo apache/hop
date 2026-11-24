@@ -19,8 +19,12 @@ package org.apache.hop.beam.core.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.beam.sdk.coders.ListCoder;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
+import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
@@ -51,6 +55,12 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   protected List<String> infoRowMetaJsons;
   protected int flushIntervalMs;
 
+  /**
+   * Run the transform on all rows of its input at once, on one worker, so it sees the end of its
+   * input once: for transforms that need the whole stream. Only for a bounded input.
+   */
+  @Getter @Setter protected boolean wholeStream;
+
   // Execution information vectors
   protected String runConfigName;
   protected String dataSamplersJson;
@@ -63,6 +73,16 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
   // Log and count errors.
   protected static final Logger LOG = LoggerFactory.getLogger(TransformTransform.class);
   protected static final Counter numErrors = Metrics.counter("main", "TransformErrors");
+
+  /**
+   * The error handling of the transform ({@code TransformErrorMeta} XML), null without an error
+   * hop. Its target is the last of the target transforms.
+   */
+  protected String errorHandlingXml;
+
+  public void setErrorHandlingXml(String errorHandlingXml) {
+    this.errorHandlingXml = errorHandlingXml;
+  }
 
   public TransformTransform() {
     variableValues = new ArrayList<>();
@@ -147,8 +167,24 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
               parentLogChannelId,
               infoCollectionViews);
 
+      if (wholeStream) {
+        // Every row in one list, on one worker: the transform sees the end of its input once
+        //
+        ParDo.SingleOutput<List<HopRow>, HopRow> wholeStreamFn =
+            ParDo.of(new TransformWholeStreamFn(transformFn));
+        if (!infoCollectionViews.isEmpty()) {
+          wholeStreamFn = wholeStreamFn.withSideInputs(infoCollectionViews);
+        }
+        return input
+            .apply(transformName + " (all rows)", Combine.globally(new AllRowsFn()))
+            .setCoder(ListCoder.of(input.getCoder()))
+            .apply(wholeStreamFn.withOutputTags(mainOutputTupleTag, targetTupleTagList));
+      }
+
       // The actual transform functionality
       //
+      transformFn.setErrorHandlingXml(errorHandlingXml);
+
       ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of(transformFn);
 
       // Add optional side inputs...

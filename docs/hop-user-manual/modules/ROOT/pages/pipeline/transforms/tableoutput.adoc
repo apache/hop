@@ -105,3 +105,26 @@ A single copy on the local engine still does both when the first row arrives, an
 
 *Truncate on first row* still truncates when the first row arrives, as only then is it known that rows arrive.
 In a transactional pipeline the truncate and table changes also wait for the first row, so they stay inside the transaction.
+
+== Batches and error handling
+
+With *Use batch update for inserts* on, rows are sent to the database in batches of the commit size.
+When a row in a batch fails, what happened to the other rows of the batch depends on the database's JDBC driver: some run the other rows, some stop at the failing row, and some lose the whole batch.
+
+On a database whose driver's behaviour has been measured, the transform uses it to work out which rows of a failed batch are in the database, and with an error hop attached it sends each row to exactly one stream: the main output for rows that were written, the error hop for rows that were refused.
+A row only appears on the main output after the database has committed it, and the rows keep their input order.
+Batches without errors run as before.
+On such a database the transform also keeps batching when an error hop is attached, where it otherwise writes row by row.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, and when a connection option changes how the driver handles a failed batch, the transform handles a failed batch as it always did.
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+The same option can name what the driver does, for a connection whose options change it.
+
+When a failed batch is worked out this way, rows can be sent to the database more than once, so a failed batch can use up extra sequence values and fire non-transactional triggers again.
+

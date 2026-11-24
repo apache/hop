@@ -194,6 +194,34 @@ class LanguageModelFacadeChatTest {
     assertEquals(22, response.tokenUsage().outputTokenCount());
   }
 
+  /**
+   * issue 9701: models that reject temperature (for example claude-opus-4-7) must not receive the
+   * parameter when it is unset. A set value is still sent.
+   */
+  @Test
+  void anthropicOmitsTemperatureWhenUnset() throws Exception {
+    respondWith(
+        "/v1/messages",
+        """
+        {"id":"msg-1","type":"message","role":"assistant","model":"claude-test",
+         "content":[{"type":"text","text":"four"}],
+         "stop_reason":"end_turn","usage":{"input_tokens":11,"output_tokens":22}}
+        """);
+
+    LanguageModelChatMeta meta = new LanguageModelChatMeta();
+    meta.setModelType(ModelType.ANTHROPIC.code());
+    meta.setAnthropicBaseUrl(baseUrl + "/v1/");
+    meta.setAnthropicApiKey("test-key");
+    meta.setAnthropicModelName("claude-test");
+
+    chat(meta, "two plus two");
+    assertFalse(compactRequestBody().contains("temperature"), lastRequestBody.get());
+
+    meta.setAnthropicTemperature(0.3);
+    chat(meta, "two plus two");
+    assertTrue(compactRequestBody().contains("\"temperature\":0.3"), lastRequestBody.get());
+  }
+
   @Test
   void mistral() throws Exception {
     respondWith(

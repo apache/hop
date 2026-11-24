@@ -20,6 +20,7 @@ package org.apache.hop.core.database;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.hop.core.Result;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -111,6 +112,64 @@ public final class SqlQueryClassifier {
   private static final Set<String> STATEMENT_STARTERS = statementStarters();
 
   private SqlQueryClassifier() {}
+
+  /** Which counter of a {@link Result} the update count of a statement belongs to. */
+  public enum AffectedRows {
+    INSERTED,
+    UPDATED,
+    DELETED,
+    NONE;
+
+    /**
+     * Adds an update count to the matching counter. Counts of zero or less are ignored.
+     *
+     * @param result the result to count in
+     * @param count the update count of the statement
+     */
+    public void addTo(Result result, int count) {
+      if (count <= 0) {
+        return;
+      }
+      switch (this) {
+        case INSERTED -> result.setNrLinesOutput(count);
+        case UPDATED -> result.setNrLinesUpdated(count);
+        case DELETED -> result.setNrLinesDeleted(count);
+        default -> {
+          // Not a statement whose rows are counted.
+        }
+      }
+    }
+  }
+
+  /**
+   * Which counter a statement's update count goes to: MERGE, UPSERT and REPLACE count as updated
+   * rows. Databases that update or delete through another statement, like ClickHouse with ALTER
+   * TABLE ... UPDATE / DELETE, are recognised through their dialect.
+   *
+   * @param sql the statement, comments removed
+   * @param databaseMeta the connection the statement runs on
+   * @return where its update count belongs, never null
+   */
+  public static AffectedRows affectedRows(String sql, DatabaseMeta databaseMeta) {
+    String verb = statementVerb(sql);
+    if (verb == null) {
+      return AffectedRows.NONE;
+    }
+    return switch (verb) {
+      case "INSERT" -> AffectedRows.INSERTED;
+      case "UPDATE", "MERGE", "UPSERT", "REPLACE" -> AffectedRows.UPDATED;
+      case "DELETE" -> AffectedRows.DELETED;
+      default -> {
+        String upperSql = sql.toUpperCase();
+        if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
+          yield AffectedRows.UPDATED;
+        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
+          yield AffectedRows.DELETED;
+        }
+        yield AffectedRows.NONE;
+      }
+    };
+  }
 
   private static Set<String> statementStarters() {
     Set<String> starters = new HashSet<>(QUERY_STARTERS);

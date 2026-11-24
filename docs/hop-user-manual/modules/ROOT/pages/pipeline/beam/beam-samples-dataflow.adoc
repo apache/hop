@@ -67,7 +67,7 @@ Apache Hop comes with a number of Apache Beam pipelines in the samples project. 
 
 First of all, we'll need to create a fat jar. This fat jar is a self-contained library that contains everything Apache Beam and Google Dataflow will need to run our pipelines. This jar file will be several hundreds of MB and will be uploaded to the Google Cloud Storage bucket we created earlier.
 
-Click the Hop icon in Hop Gui's upper left corner and select "Generate a Hop fat jar". After you specified a directory and file name (we used /tmp/hop-fat.jar) to store the fat jar, Hop will need a couple of minutes to generate your fat jar.
+Click the Hop icon in Hop Gui's upper left corner and select "Generate a Hop fat jar", and choose *Apache Beam engines* if Hop asks for the engine. After you specified a directory and file name (we used /tmp/hop-fat.jar) to store the fat jar, Hop will need a couple of minutes to generate your fat jar.
 
 With the fat jar in place, open the samples project in Apache Hop Gui and switch to the metadata perspective. The samples project comes with a pre-configured DataFlow pipeline run configuration that we'll change to use our newly created Google Cloud project.
 

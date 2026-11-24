@@ -82,7 +82,6 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
     Class.forName(SimpleDateFormat.class.getName());
     Class.forName(XmlHandler.class.getName());
     Class.forName(LogChannel.class.getName());
-    DatabaseMeta.init();
     ExtensionPointMap.getInstance().reInitialize();
     HopVfs.reset(); // reinit
   }
@@ -91,6 +90,11 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
     resetHopEnvironment();
     HopClientEnvironment.reset();
     PluginRegistry.getInstance().reset();
+    // reset() drops every plugin listener, also the one that keeps the database types DatabaseMeta
+    // caches up to date: clear that cache and listen again, or a database plugin a later test
+    // registers is missing from it.
+    DatabaseMeta.clearDatabaseInterfacesMap();
+    DatabaseMeta.init();
     MetricsRegistry.getInstance().reset();
     ExtensionPointMap.getInstance().reset();
     if (HopLogStore.isInitialized()) {

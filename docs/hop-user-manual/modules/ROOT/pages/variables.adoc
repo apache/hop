@@ -373,6 +373,7 @@ Additionally, the following environment variables can help you to add even more 
 Only error lines are colored, in red.
 Set it as an environment variable or with `-D` in `HOP_OPTIONS`: a value set in the configuration perspective has no effect.
 |HOP_CONFIG_IN_MEMORY|N|Set this variable to 'Y' to keep the Hop configuration in memory without persisting to disk. The `+${HOP_CONFIG_IN_MEMORY}+` equivalent on the command line is `-ime` / `--in-memory`.
+|HOP_IGNORE_START_REPEAT|N|Set this variable to 'Y' to run a workflow once, even when its Start action repeats it on a schedule. The Start action then does not wait either. For schedulers outside Hop, such as Apache Airflow: xref:hop-tools/hop-airflow-bundle.adoc[hop airflow-bundle] sets it on the workers.
 |HOP_METADATA_FOLDER|-|The system environment variable pointing to the alternative location for the Hop metadata folder
 |HOP_REDIRECT_STDERR|N|Set this variable to Y to redirect stderr to Hop logging.
 |HOP_REDIRECT_STDOUT|N|Set this variable to Y to redirect stdout to Hop logging.
