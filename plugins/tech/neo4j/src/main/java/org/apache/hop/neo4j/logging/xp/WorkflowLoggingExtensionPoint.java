@@ -39,6 +39,7 @@ import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.remote.RemoteWorkflowEngine;
 
 @ExtensionPoint(
     id = "WorkflowLoggingExtensionPoint",
@@ -58,6 +59,11 @@ public class WorkflowLoggingExtensionPoint
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow)
       throws HopException {
+    if (workflow instanceof RemoteWorkflowEngine) {
+      // The Hop Server logs the workflow it runs: logging it on the client too logs it twice
+      return;
+    }
+
     // See if logging is enabled
     //
     if (!LoggingCore.isEnabled(workflow)) {
