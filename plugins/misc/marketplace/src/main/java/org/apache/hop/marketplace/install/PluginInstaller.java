@@ -44,8 +44,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -71,11 +73,22 @@ public class PluginInstaller {
   public static final String RECEIPTS_DIR = "plugins/.marketplace";
 
   /**
-   * Shared {@code lib/core} files an install replaced, under {@code
-   * <artifactId>/<version>/<installId>/<path>}. The plugin scanner skips folders named {@code lib},
-   * so the backed-up jars are not loaded.
+   * What an install of {@code <artifactId>:<version>} replaced, under {@code
+   * <artifactId>/<version>/}: the shared {@code lib/core} files in {@code <installId>/<path>}, and
+   * the version installed until then in {@link #ROLLBACK_ZIP}. The plugin scanner skips folders
+   * named {@code lib} and only loads {@code .jar} files, so none of it is loaded.
    */
   public static final String BACKUP_DIR = RECEIPTS_DIR + "/backup";
+
+  /**
+   * The files of the version an install replaced, as they were on disk, in {@code
+   * <BACKUP_DIR>/<artifactId>/<version installed>/}. A failed install puts them back, and so does a
+   * rollback. Only the backup of the version that the installed one replaced is kept.
+   */
+  static final String ROLLBACK_ZIP = "rollback.zip";
+
+  /** The receipt of the version in {@link #ROLLBACK_ZIP}, next to it. */
+  static final String ROLLBACK_RECEIPT = "rollback.json";
 
   private final ILogChannel log;
   private final Path hopHome;
@@ -216,50 +229,14 @@ public class PluginInstaller {
                 + String.join("\n  - ", errors));
       }
 
-      progress.phase(IInstallListener.Phase.UNZIP, coordinates.artifactId());
-      Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
-      deleteRecursive(stageRoot);
-      Files.createDirectories(stageRoot);
-      Map<String, String> checksums = new LinkedHashMap<>();
-      List<String> relativePaths = unzipAllowedEntries(zipFile, stageRoot, checksums);
-
-      // Read the receipt of the version installed now before the new receipt replaces it: the
-      // files only that version has must go, or both versions end up on the classpath.
-      InstallReceipt previous = readReceipt(hopHome, coordinates.artifactId());
-
-      InstallReceipt receipt = new InstallReceipt();
-      receipt.setGroupId(coordinates.groupId());
-      receipt.setArtifactId(coordinates.artifactId());
-      receipt.setVersion(coordinates.version());
-      receipt.setInstalledAt(Instant.now().toString());
-      receipt.setRepositoryId(used.getId());
-      receipt.setRepositoryUrl(used.normalizedUrl());
-      receipt.setPaths(relativePaths);
-      receipt.setChecksums(checksums);
-      receipt.setPreviousVersion(previousVersion(previous, coordinates.version()));
-      receipt.setSharedFiles(sharedFilesFromEarlierInstalls(relativePaths, previous, coordinates));
-      receipt.setObsoletePaths(
-          obsoletePaths(
-              previous,
-              relativePaths,
-              pathsOfOtherReceipts(hopHome, coordinates.artifactId(), log)));
-      receipt.setPendingActivation(!activateImmediately);
-      writeReceipt(receipt);
-
-      if (activateImmediately) {
-        progress.phase(IInstallListener.Phase.ACTIVATE, coordinates.artifactId());
-        receipt.setSharedFiles(
-            activateStaged(
-                coordinates.artifactId(),
-                coordinates.version(),
-                relativePaths,
-                receipt.getSharedFiles()));
-        receipt.setPendingActivation(false);
-        removeObsoleteFiles(receipt);
-        writeReceipt(receipt);
-        deleteRecursive(stageRoot);
-      }
-
+      InstallReceipt receipt =
+          installZip(
+              coordinates,
+              zipFile,
+              used.getId(),
+              used.normalizedUrl(),
+              activateImmediately,
+              progress);
       Files.deleteIfExists(zipFile);
       log.logBasic(
           "Installed "
@@ -271,6 +248,391 @@ public class PluginInstaller {
     } catch (IOException e) {
       throw new HopException("Failed to install plugin " + coordinates.gav(), e);
     }
+  }
+
+  /**
+   * Install a plugin zip that is on disk already: stage it, back up the version installed now when
+   * this is another version, then activate it and write the receipt. When activation fails, the
+   * backed-up version is put back.
+   */
+  private InstallReceipt installZip(
+      MavenCoordinates coordinates,
+      Path zipFile,
+      String repositoryId,
+      String repositoryUrl,
+      boolean activateImmediately,
+      IInstallListener progress)
+      throws HopException, IOException {
+    progress.phase(IInstallListener.Phase.UNZIP, coordinates.artifactId());
+    Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId());
+    deleteRecursive(stageRoot);
+    Files.createDirectories(stageRoot);
+    Map<String, String> checksums = new LinkedHashMap<>();
+    List<String> relativePaths = unzipAllowedEntries(zipFile, stageRoot, checksums);
+
+    // Read the receipt of the version installed now before the new receipt replaces it: the
+    // files only that version has must go, or both versions end up on the classpath.
+    InstallReceipt previous = readReceipt(hopHome, coordinates.artifactId());
+
+    Path backup;
+    try {
+      backup = backUpInstalledVersion(previous, coordinates.version());
+    } catch (HopException e) {
+      deleteRecursive(stageRoot);
+      throw e;
+    }
+
+    InstallReceipt receipt = new InstallReceipt();
+    receipt.setGroupId(coordinates.groupId());
+    receipt.setArtifactId(coordinates.artifactId());
+    receipt.setVersion(coordinates.version());
+    receipt.setInstalledAt(Instant.now().toString());
+    receipt.setRepositoryId(repositoryId);
+    receipt.setRepositoryUrl(repositoryUrl);
+    receipt.setPaths(relativePaths);
+    receipt.setChecksums(checksums);
+    receipt.setPreviousVersion(previousVersion(previous, coordinates.version()));
+    receipt.setSharedFiles(sharedFilesFromEarlierInstalls(relativePaths, previous, coordinates));
+    receipt.setObsoletePaths(
+        obsoletePaths(
+            previous, relativePaths, pathsOfOtherReceipts(hopHome, coordinates.artifactId(), log)));
+    receipt.setPendingActivation(!activateImmediately);
+
+    if (!activateImmediately) {
+      writeReceipt(receipt);
+      return receipt;
+    }
+    try {
+      writeReceipt(receipt);
+      progress.phase(IInstallListener.Phase.ACTIVATE, coordinates.artifactId());
+      receipt.setSharedFiles(
+          activateStaged(
+              coordinates.artifactId(),
+              coordinates.version(),
+              stageRoot,
+              relativePaths,
+              receipt.getSharedFiles()));
+      receipt.setPendingActivation(false);
+      removeObsoleteFiles(receipt);
+      writeReceipt(receipt);
+    } catch (HopException | RuntimeException e) {
+      if (backup == null) {
+        throw e;
+      }
+      throw restoreAfterFailedInstall(coordinates, receipt, backup, e);
+    }
+    deleteRecursive(stageRoot);
+    // Only the version this one replaced can be rolled back to.
+    pruneRollbackBackups(hopHome, coordinates.artifactId(), coordinates.version(), log);
+    return receipt;
+  }
+
+  /**
+   * Put the backed-up version back after a failed install of another version.
+   *
+   * @return the exception to throw, which says whether the earlier version is back
+   */
+  private HopException restoreAfterFailedInstall(
+      MavenCoordinates coordinates, InstallReceipt attempted, Path backup, Exception failure) {
+    String restoredVersion = "the version installed before";
+    try {
+      InstallReceipt saved = readRollbackReceipt(backup);
+      if (saved != null) {
+        restoredVersion = "version " + saved.getVersion();
+      }
+      restoreBackup(coordinates.artifactId(), backup, attempted);
+      deleteRecursive(hopHome.resolve(STAGING_DIR).resolve(coordinates.artifactId()));
+      return new HopException(
+          "Failed to install " + coordinates.gav() + ". Hop put " + restoredVersion + " back.",
+          failure);
+    } catch (Exception restoreFailure) {
+      HopException e =
+          new HopException(
+              "Failed to install "
+                  + coordinates.gav()
+                  + ", and putting "
+                  + restoredVersion
+                  + " back failed too. Its files are in "
+                  + backup.resolve(ROLLBACK_ZIP)
+                  + ".",
+              failure);
+      e.addSuppressed(restoreFailure);
+      return e;
+    }
+  }
+
+  /**
+   * Put back the version the installed one replaced, from the backup its install made. This is an
+   * install of that version: the version installed now is backed up in turn, so a second rollback
+   * returns to it.
+   *
+   * @param listener receives the install phases. Pass {@link IInstallListener#NONE} for headless
+   *     callers.
+   */
+  public InstallReceipt rollback(String artifactId, IInstallListener listener) throws HopException {
+    IInstallListener progress = listener == null ? IInstallListener.NONE : listener;
+    InstallReceipt current = readReceipt(hopHome, artifactId);
+    if (current == null
+        || current.isUninstallPending()
+        || StringUtils.isBlank(current.getVersion())) {
+      throw new HopException(
+          "No marketplace install of '"
+              + artifactId
+              + "'. Only plugins installed via the marketplace can be rolled back.");
+    }
+    if (current.isPendingActivation()) {
+      throw new HopException(
+          "Version "
+              + current.getVersion()
+              + " of "
+              + artifactId
+              + " is staged and not active yet. Restart Hop before rolling it back.");
+    }
+    Path backup = rollbackDir(hopHome, artifactId, current.getVersion());
+    InstallReceipt saved = readRollbackReceipt(backup);
+    if (saved == null
+        || StringUtils.isBlank(saved.getVersion())
+        || !Files.isRegularFile(backup.resolve(ROLLBACK_ZIP))) {
+      throw new HopException(
+          "There is no earlier version of "
+              + artifactId
+              + " to roll back to. The marketplace keeps one when it installs another version.");
+    }
+    String groupId =
+        StringUtils.defaultIfBlank(
+            StringUtils.firstNonBlank(
+                saved.getGroupId(),
+                current.getGroupId(),
+                config == null ? null : config.getGroupId()),
+            "org.apache.hop");
+    MavenCoordinates coordinates = new MavenCoordinates(groupId, artifactId, saved.getVersion());
+    try {
+      InstallReceipt receipt =
+          installZip(
+              coordinates,
+              backup.resolve(ROLLBACK_ZIP),
+              saved.getRepositoryId(),
+              saved.getRepositoryUrl(),
+              true,
+              progress);
+      log.logBasic(
+          "Rolled back "
+              + artifactId
+              + " from "
+              + current.getVersion()
+              + " to "
+              + saved.getVersion()
+              + ". Restart Hop to load it.");
+      return receipt;
+    } catch (IOException e) {
+      throw new HopException("Failed to roll back " + artifactId + " to " + saved.getVersion(), e);
+    }
+  }
+
+  /**
+   * The version a rollback of this install puts back, or null when there is none: the plugin was
+   * not installed over another version by the marketplace, or the backup is gone.
+   */
+  public static String rollbackVersion(Path hopHome, InstallReceipt receipt) {
+    if (receipt == null
+        || receipt.isPendingActivation()
+        || receipt.isUninstallPending()
+        || StringUtils.isAnyBlank(receipt.getArtifactId(), receipt.getVersion())) {
+      return null;
+    }
+    Path backup = rollbackDir(hopHome, receipt.getArtifactId(), receipt.getVersion());
+    if (!Files.isRegularFile(backup.resolve(ROLLBACK_ZIP))) {
+      return null;
+    }
+    try {
+      InstallReceipt saved = readRollbackReceipt(backup);
+      return saved == null || StringUtils.isBlank(saved.getVersion()) ? null : saved.getVersion();
+    } catch (HopException e) {
+      return null;
+    }
+  }
+
+  /** Where an install of {@code artifactId:version} keeps the version it replaced. */
+  static Path rollbackDir(Path hopHome, String artifactId, String version) {
+    return hopHome
+        .resolve(BACKUP_DIR)
+        .resolve(pathSegment(artifactId))
+        .resolve(pathSegment(version));
+  }
+
+  private static InstallReceipt readRollbackReceipt(Path backup) throws HopException {
+    Path file = backup.resolve(ROLLBACK_RECEIPT);
+    if (!Files.isRegularFile(file)) {
+      return null;
+    }
+    try {
+      return HopJson.newMapper().readValue(file.toFile(), InstallReceipt.class);
+    } catch (IOException e) {
+      throw new HopException("Unable to read the backed-up receipt " + file, e);
+    }
+  }
+
+  /**
+   * Before another version replaces the one installed now, zip that version's files as they are on
+   * disk, shared {@code lib/core} jars included, into {@link #ROLLBACK_ZIP}, with its receipt.
+   *
+   * @return the backup folder, or null when there is no other version to back up: a first install,
+   *     the same version again, or a version that was staged and never activated
+   */
+  private Path backUpInstalledVersion(InstallReceipt installed, String newVersion)
+      throws HopException {
+    if (installed == null
+        || installed.isPendingActivation()
+        || installed.isUninstallPending()
+        || StringUtils.isBlank(installed.getVersion())
+        || installed.getVersion().equals(newVersion)) {
+      return null;
+    }
+    String artifactId = installed.getArtifactId();
+    Path dir = rollbackDir(hopHome, artifactId, newVersion);
+    Path zip = dir.resolve(ROLLBACK_ZIP);
+    Path json = dir.resolve(ROLLBACK_RECEIPT);
+    Path zipTmp = dir.resolve(ROLLBACK_ZIP + ".tmp");
+    Path jsonTmp = dir.resolve(ROLLBACK_RECEIPT + ".tmp");
+    Path home = hopHome.toAbsolutePath().normalize();
+    List<String> missing = new ArrayList<>();
+    try {
+      Files.createDirectories(dir);
+      try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zipTmp))) {
+        // Jars are compressed already.
+        out.setLevel(Deflater.BEST_SPEED);
+        Set<String> written = new HashSet<>();
+        for (String path : nullSafe(installed.getPaths())) {
+          if (StringUtils.isBlank(path)) {
+            continue;
+          }
+          String relative = normalizeRelative(path);
+          if (!hopHome.resolve(relative).toAbsolutePath().normalize().startsWith(home)
+              || !written.add(relative)) {
+            continue;
+          }
+          Path source = activationTarget(relative);
+          if (Files.isDirectory(source)) {
+            out.putNextEntry(new ZipEntry(relative + "/"));
+            out.closeEntry();
+          } else if (Files.isRegularFile(source)) {
+            out.putNextEntry(new ZipEntry(relative));
+            Files.copy(source, out);
+            out.closeEntry();
+          } else {
+            missing.add(relative);
+          }
+        }
+      }
+      HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValue(jsonTmp.toFile(), installed);
+      // A zip without its receipt is not a backup, so a crash in between leaves none rather than a
+      // receipt of another version next to this zip.
+      Files.deleteIfExists(json);
+      Files.move(zipTmp, zip, StandardCopyOption.REPLACE_EXISTING);
+      Files.move(jsonTmp, json, StandardCopyOption.REPLACE_EXISTING);
+    } catch (IOException e) {
+      try {
+        Files.deleteIfExists(zipTmp);
+        Files.deleteIfExists(jsonTmp);
+      } catch (IOException cleanup) {
+        e.addSuppressed(cleanup);
+      }
+      throw new HopException(
+          "Could not back up version "
+              + installed.getVersion()
+              + " of "
+              + artifactId
+              + " before installing "
+              + newVersion
+              + ". Nothing was changed.",
+          e);
+    }
+    if (!missing.isEmpty()) {
+      log.logError(
+          "Version "
+              + installed.getVersion()
+              + " of "
+              + artifactId
+              + " is missing files, so a rollback cannot put them back: "
+              + String.join(", ", missing));
+    }
+    log.logBasic(
+        "Backed up version " + installed.getVersion() + " of " + artifactId + " to " + zip);
+    return dir;
+  }
+
+  /**
+   * Put a backed-up version back: its files and its receipt. The files only the attempted version
+   * has are removed.
+   */
+  private void restoreBackup(String artifactId, Path backup, InstallReceipt attempted)
+      throws HopException, IOException {
+    InstallReceipt saved = readRollbackReceipt(backup);
+    if (saved == null) {
+      throw new HopException("The backup in " + backup + " has no " + ROLLBACK_RECEIPT);
+    }
+    // A folder name starting with a dot is never activated as a staged plugin.
+    Path stage = hopHome.resolve(STAGING_DIR).resolve(".restore").resolve(artifactId);
+    deleteRecursive(stage);
+    Files.createDirectories(stage);
+    try {
+      List<String> paths =
+          unzipAllowedEntries(backup.resolve(ROLLBACK_ZIP), stage, new LinkedHashMap<>());
+      activateStaged(artifactId, saved.getVersion(), stage, paths, saved.getSharedFiles());
+      Set<String> obsolete = new LinkedHashSet<>(nullSafe(saved.getObsoletePaths()));
+      obsolete.addAll(
+          obsoletePaths(
+              attempted,
+              nullSafe(saved.getPaths()),
+              pathsOfOtherReceipts(hopHome, artifactId, log)));
+      saved.setObsoletePaths(new ArrayList<>(obsolete));
+      removeObsoleteFiles(saved);
+      writeReceipt(saved);
+    } finally {
+      deleteRecursive(stage);
+      deleteIfEmpty(stage.getParent());
+    }
+    log.logBasic("Put version " + saved.getVersion() + " of " + artifactId + " back in place.");
+  }
+
+  /**
+   * Remove the backed-up versions of {@code artifactId}, except the one that {@code keepVersion}
+   * replaced. The shared {@code lib/core} backups stay. Best effort.
+   *
+   * @param keepVersion the version installed now, or null to remove every backed-up version
+   */
+  static void pruneRollbackBackups(
+      Path hopHome, String artifactId, String keepVersion, ILogChannel log) {
+    Path artifactDir = hopHome.resolve(BACKUP_DIR).resolve(pathSegment(artifactId));
+    if (!Files.isDirectory(artifactDir)) {
+      return;
+    }
+    String keep = keepVersion == null ? null : pathSegment(keepVersion);
+    try (var stream = Files.list(artifactDir)) {
+      for (Path versionDir : stream.filter(Files::isDirectory).toList()) {
+        if (versionDir.getFileName().toString().equals(keep)) {
+          continue;
+        }
+        for (String name :
+            List.of(
+                ROLLBACK_RECEIPT, ROLLBACK_ZIP, ROLLBACK_RECEIPT + ".tmp", ROLLBACK_ZIP + ".tmp")) {
+          Files.deleteIfExists(versionDir.resolve(name));
+        }
+        deleteIfEmpty(versionDir);
+      }
+      deleteIfEmpty(artifactDir);
+    } catch (IOException e) {
+      log.logError("Could not remove the older backed-up versions of " + artifactId, e);
+    }
+  }
+
+  private static void deleteIfEmpty(Path dir) throws IOException {
+    try (var stream = Files.list(dir)) {
+      if (stream.findAny().isPresent()) {
+        return;
+      }
+    }
+    Files.delete(dir);
   }
 
   /**
@@ -384,6 +746,7 @@ public class PluginInstaller {
                   receipt == null || StringUtils.isBlank(receipt.getVersion())
                       ? "unknown"
                       : receipt.getVersion(),
+                  staged,
                   paths,
                   receipt == null ? Map.of() : receipt.getSharedFiles());
           if (unreadable) {
@@ -834,7 +1197,8 @@ public class PluginInstaller {
     return readAllReceipts(hopHome, log);
   }
 
-  private static List<InstallReceipt> readAllReceipts(Path hopHome, ILogChannel log)
+  /** Every readable marketplace install receipt. An unreadable one is logged and skipped. */
+  public static List<InstallReceipt> readAllReceipts(Path hopHome, ILogChannel log)
       throws HopException {
     Path dir = hopHome.resolve(RECEIPTS_DIR);
     List<InstallReceipt> receipts = new ArrayList<>();
@@ -883,6 +1247,7 @@ public class PluginInstaller {
   /**
    * Copy the staged files into place.
    *
+   * @param stageRoot the folder the files were staged in
    * @param earlierInstalls what earlier installs recorded about the shared files (see {@link
    *     #sharedFilesFromEarlierInstalls})
    * @return what activation did to each shared {@code lib/core} file
@@ -890,10 +1255,10 @@ public class PluginInstaller {
   private Map<String, SharedFile> activateStaged(
       String artifactId,
       String version,
+      Path stageRoot,
       List<String> relativePaths,
       Map<String, SharedFile> earlierInstalls)
       throws HopException {
-    Path stageRoot = hopHome.resolve(STAGING_DIR).resolve(artifactId);
     Map<String, SharedFile> sharedFiles = new LinkedHashMap<>();
     // Read at activation, not when staging: another plugin activated in between may have created
     // a shared file this one ships too.

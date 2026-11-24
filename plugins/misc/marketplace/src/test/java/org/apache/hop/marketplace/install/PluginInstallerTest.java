@@ -2023,31 +2023,31 @@ class PluginInstallerTest {
   }
 
   /** Runs the launcher step that applies the pending changes before Java starts. */
-  private static void startHop(Path hopHome) throws Exception {
+  static void startHop(Path hopHome) throws Exception {
     ApplyPendingChangesScriptTest.Result result = ApplyPendingChangesScriptTest.run(hopHome, "");
     assertEquals(0, result.exitCode(), result.stderr());
   }
 
-  private static void assumeLauncherScript() {
+  static void assumeLauncherScript() {
     assumeFalse(Const.isWindows(), "the shell launcher helper runs on Linux and macOS");
     assumeTrue(
         Files.isRegularFile(ApplyPendingChangesScriptTest.SCRIPT),
         "script not found at " + ApplyPendingChangesScriptTest.SCRIPT);
   }
 
-  private static void assumePosix(Path folder) throws IOException {
+  static void assumePosix(Path folder) throws IOException {
     assumeTrue(
         Files.getFileStore(folder).supportsFileAttributeView("posix"),
         "needs POSIX permissions to make a file operation fail");
   }
 
-  private static void lock(Path... folders) throws IOException {
+  static void lock(Path... folders) throws IOException {
     for (Path folder : folders) {
       Files.setPosixFilePermissions(folder, PosixFilePermissions.fromString("r-xr-xr-x"));
     }
   }
 
-  private static void unlock(Path... folders) throws IOException {
+  static void unlock(Path... folders) throws IOException {
     for (Path folder : folders) {
       if (Files.isDirectory(folder)) {
         Files.setPosixFilePermissions(folder, PosixFilePermissions.fromString("rwxr-xr-x"));
@@ -2055,11 +2055,11 @@ class PluginInstallerTest {
     }
   }
 
-  private static String localUrl(int port) {
+  static String localUrl(int port) {
     return "http://127.0.0.1:" + port + "/";
   }
 
-  private static MarketplaceConfig localRepoConfig(int port) {
+  static MarketplaceConfig localRepoConfig(int port) {
     MarketplaceConfig config = new MarketplaceConfig();
     config.getRepositories().clear();
     config.getRepositories().add(new MarketplaceRepository("local", localUrl(port), true));
@@ -2104,10 +2104,10 @@ class PluginInstallerTest {
     return bos.toByteArray();
   }
 
-  private static final String TEST_PLUGIN = "hop-test-plugin";
+  static final String TEST_PLUGIN = "hop-test-plugin";
 
   /** Serves one zip per version of {@code org.apache.hop:<artifactId>}. */
-  private static HttpServer versionServer(String artifactId, Map<String, byte[]> zipsByVersion)
+  static HttpServer versionServer(String artifactId, Map<String, byte[]> zipsByVersion)
       throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
     for (Map.Entry<String, byte[]> entry : zipsByVersion.entrySet()) {
@@ -2137,7 +2137,7 @@ class PluginInstallerTest {
     return PluginInstaller.readReceipt(hopHome, TEST_PLUGIN).getSharedFiles().get(path);
   }
 
-  private static byte[] version1Zip() throws IOException {
+  static byte[] version1Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/", null);
     entries.put("plugins/tech/test/plugin.jar", "plugin-1");
@@ -2148,7 +2148,7 @@ class PluginInstallerTest {
     return zip(entries);
   }
 
-  private static byte[] version2Zip() throws IOException {
+  static byte[] version2Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/", null);
     entries.put("plugins/tech/test/plugin.jar", "plugin-2");
@@ -2157,7 +2157,7 @@ class PluginInstallerTest {
     return zip(entries);
   }
 
-  private static byte[] version3Zip() throws IOException {
+  static byte[] version3Zip() throws IOException {
     Map<String, String> entries = new LinkedHashMap<>();
     entries.put("plugins/tech/test/plugin.jar", "plugin-3");
     entries.put("plugins/tech/test/lib/dep-3.0.jar", "dep-3.0");
@@ -2165,7 +2165,7 @@ class PluginInstallerTest {
   }
 
   /** Builds a zip; a null value makes a directory entry. */
-  private static byte[] zip(Map<String, String> entries) throws IOException {
+  static byte[] zip(Map<String, String> entries) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(bos)) {
       for (Map.Entry<String, String> entry : entries.entrySet()) {

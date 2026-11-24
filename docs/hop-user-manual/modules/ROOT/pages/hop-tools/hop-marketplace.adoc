@@ -76,6 +76,10 @@ From the Hop install directory:
 ./hop marketplace install hop-engines-spark:2.19.0 --repo asf
 ./hop marketplace install hop-tech-parquet hop-transform-tika datavault
 ./hop marketplace list
+./hop marketplace list --outdated
+./hop marketplace update hop-tech-parquet
+./hop marketplace update --all
+./hop marketplace rollback hop-tech-parquet
 ./hop marketplace query parquet
 ./hop marketplace query "spark engine"
 ./hop marketplace uninstall hop-tech-parquet
@@ -93,7 +97,7 @@ From the Hop install directory:
 ./hop marketplace validate -f hop-env.yaml --strict
 ----
 
-After install, apply, or uninstall, *restart Hop* so the plugin registry reloads.
+After install, update, rollback, apply, or uninstall, *restart Hop* so the plugin registry reloads.
 
 Installing another version of a plugin that the marketplace installed replaces it: files that only the previous version had are removed.
 Shared jars in `lib/core` stay in place.
@@ -103,6 +107,20 @@ A file that cannot be removed for another reason, such as file permissions, stay
 
 The marketplace keeps an install receipt for each plugin in `plugins/.marketplace/`, with a SHA-256 checksum of every file it installed.
 When a plugin replaces a jar in `lib/core` that has other content, the old jar is first backed up to a new folder under `plugins/.marketplace/backup/<plugin>/<version>/`, where `<version>` is the version being installed.
+
+[[update-rollback]]
+=== Update and roll back
+
+`list --outdated` lists the marketplace-installed plugins that have a newer version, and `update <artifactId>` or `update --all` installs it.
+The newest version is found the same way as for `query`.
+
+Before the marketplace installs another version of a plugin, with `install`, `update`, `apply`, or the GUI, it zips the version installed now into `plugins/.marketplace/backup/<plugin>/<version>/rollback.zip`, where `<version>` is the version being installed.
+When the new version cannot be installed, the marketplace puts the previous version back from there.
+Later, `rollback <artifactId>` puts it back without downloading it.
+A rollback installs the previous version, so it keeps the version it replaces in turn: a second rollback returns to the newer version.
+
+The marketplace keeps one previous version per plugin, and removes it when the plugin is uninstalled.
+Shared jars in `lib/core` that only the newer version has stay in place.
 
 [[pending-changes]]
 === Files in use
@@ -166,14 +184,16 @@ image::marketplace/marketplace-dialog-plugins.png[Marketplace dialog Plugins tab
 Use this tab to work with the local optional-plugin catalog:
 
 * *Search* — type three or more characters to filter by name, artifact id, category, description, or install path. Clear the filter with the clear button.
-* Table columns: *Name*, *Artifact*, *Category*, *Status*, *Description*.
+* Table columns: *Name*, *Artifact*, *Category*, *Status*, *Update available*, *Description*.
 * *Status* values:
 ** *Installed* — present on disk with a marketplace install receipt (version shown when known)
 ** *Present on disk* — plugin folder exists but no marketplace receipt
 ** *Not installed* — not found under `plugins/`
 * *Install* / *Uninstall* / *Refresh* — act on the selected plugins (uninstall requires a marketplace receipt)
+* *Update* — installs the version shown under *Update available* for the selected plugins
+* *Rollback* — puts back the version that the installed version of the selected plugins replaced, see <<update-rollback>>
 * Several plugins can be selected at once with ctrl-click, shift-click, or ctrl-A, and installed or uninstalled in one go. Installs run one after another behind a single progress dialog; a plugin that fails does not stop the others and every failure is reported together at the end.
-* On *Hop Web* with authentication enabled, *Install*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
+* On *Hop Web* with authentication enabled, *Install*, *Update*, *Rollback*, *Uninstall*, repository editing, and hop-env *Apply* require the administrator permission `plugin.manage` (built-in *Admin* role). Catalog browse, *Refresh*, and *Validate* remain available to other roles. See the Hop Web authorization section for details.
 
 Install uses the *primary* repository first, then other *enabled* repositories (see <<marketplace-gui-repositories>>).
 
@@ -332,6 +352,7 @@ Behaviour notes:
 * Plugin `version` defaults to `hopVersion` in the file, then the marketplace/hop version.
 * Plugins already on disk without a marketplace receipt (for example installed offline with `tools/install-wave1-plugins.sh`) count as satisfied and are not re-downloaded.
 * Dependencies are downloaded as jars into `target` (default `lib/jdbc`).
+* A plugin whose `version` differs from the installed one is updated: the installed version is kept for a rollback, see <<update-rollback>>.
 
 Always restart Hop after a successful apply when new plugins were installed.
 

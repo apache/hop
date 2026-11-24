@@ -120,6 +120,8 @@ public class PluginUninstaller {
     }
 
     removeEmptyPluginDirectories(hopHome, dirs, log);
+    // Without the plugin there is nothing to roll back.
+    PluginInstaller.pruneRollbackBackups(hopHome, artifactId, null, log);
 
     // A plugin that is still staged would otherwise be activated again at the next start.
     Path staged = hopHome.resolve(PluginInstaller.STAGING_DIR).resolve(artifactId);
