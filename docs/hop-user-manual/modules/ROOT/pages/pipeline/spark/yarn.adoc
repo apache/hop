@@ -87,7 +87,7 @@ From Hop GUI or `hop-run`, run the pipeline with this run configuration. The log
 ----
 Read <n> Hadoop configuration properties from file:///etc/hadoop/conf/core-site.xml, ...
 YARN containers get the engine's Spark runtime: <n> jars in spark.yarn.jars
-Created SparkSession version=4.1.3 master=yarn (owned)
+Created SparkSession version=4.1.4 master=yarn (owned)
 ...
 Spark pipeline finished, result row count=0
 ----

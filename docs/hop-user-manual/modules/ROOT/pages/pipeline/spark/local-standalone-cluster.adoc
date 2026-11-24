@@ -218,7 +218,7 @@ The log shows the session connecting to the cluster:
 
 [source]
 ----
-Created SparkSession version=4.1.3 master=spark://localhost:7077 (owned)
+Created SparkSession version=4.1.4 master=spark://localhost:7077 (owned)
 ...
 Spark pipeline finished, result row count=0
 ----
