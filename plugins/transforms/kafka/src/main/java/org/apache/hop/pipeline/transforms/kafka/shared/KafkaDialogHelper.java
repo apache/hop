@@ -24,11 +24,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerInputMeta;
@@ -45,6 +47,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 
 public class KafkaDialogHelper {
+  private static final Class<?> PKG = KafkaDialogHelper.class;
+
   private final IVariables variables;
   private final KafkaFactory kafkaFactory;
   private final ComboVar wTopic;
@@ -69,24 +73,48 @@ public class KafkaDialogHelper {
 
   public void clusterNameChanged(Event event) {
     String current = wTopic.getText();
-    if (StringUtils.isEmpty(wBootstrapServers.getText())) {
-      return;
-    }
     String directBootstrapServers = wBootstrapServers.getText();
     List<KafkaOption> options = getConfig(optionsTable);
+    if (!hasBootstrapServers(directBootstrapServers, options)) {
+      return;
+    }
     CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, options))
         .thenAccept(
-            topicMap ->
-                HopGui.getInstance()
-                    .getDisplay()
-                    .syncExec(() -> populateTopics(topicMap, current)));
+            topics ->
+                HopGui.getInstance().getDisplay().syncExec(() -> populateTopics(topics, current)));
   }
 
-  private void populateTopics(Map<String, List<PartitionInfo>> topicMap, String current) {
-    if (!wTopic.getCComboWidget().isDisposed()) {
-      wTopic.getCComboWidget().removeAll();
+  /**
+   * Whether there are servers to list the topics from: the Bootstrap servers field, or a {@code
+   * bootstrap.servers} option, which the transform uses when the field is empty.
+   */
+  static boolean hasBootstrapServers(String directBootstrapServers, List<KafkaOption> options) {
+    return StringUtils.isNotEmpty(directBootstrapServers)
+        || options.stream()
+            .anyMatch(
+                option ->
+                    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG.equals(option.getProperty())
+                        && StringUtils.isNotEmpty(option.getValue()));
+  }
+
+  /** The topics of the cluster, or why they could not be listed. */
+  private record Topics(Map<String, List<PartitionInfo>> byName, String error) {}
+
+  private void populateTopics(Topics topics, String current) {
+    if (wTopic.getCComboWidget().isDisposed()) {
+      return;
     }
-    topicMap.keySet().stream()
+    // Why the list is empty, rather than an empty list without a word. Without an error, the tip
+    // ComboVar shows: its text.
+    String text = wTopic.getText();
+    wTopic
+        .getCComboWidget()
+        .setToolTipText(
+            topics.error() != null
+                ? BaseMessages.getString(PKG, "KafkaDialogHelper.Error.ListTopics", topics.error())
+                : (StringUtils.isEmpty(text) ? null : variables.resolve(text)));
+    wTopic.getCComboWidget().removeAll();
+    topics.byName().keySet().stream()
         .filter(key -> !key.startsWith("_"))
         .sorted()
         .forEach(
@@ -100,8 +128,7 @@ public class KafkaDialogHelper {
     }
   }
 
-  private Map<String, List<PartitionInfo>> listTopics(
-      final String directBootstrapServers, List<KafkaOption> options) {
+  private Topics listTopics(final String directBootstrapServers, List<KafkaOption> options) {
     Consumer kafkaConsumer = null;
     try {
       KafkaConsumerInputMeta localMeta = new KafkaConsumerInputMeta();
@@ -109,10 +136,10 @@ public class KafkaDialogHelper {
       localMeta.setOptions(options);
       localMeta.setParentTransformMeta(parentMeta);
       kafkaConsumer = kafkaFactory.consumer(localMeta, variables::resolve);
-      return kafkaConsumer.listTopics();
+      return new Topics(kafkaConsumer.listTopics(), null);
     } catch (Exception e) {
       LogChannel.GENERAL.logError("Error getting list of topics", e);
-      return Collections.emptyMap();
+      return new Topics(Collections.emptyMap(), Const.NVL(e.getMessage(), e.toString()));
     } finally {
       if (kafkaConsumer != null) {
         kafkaConsumer.close();
