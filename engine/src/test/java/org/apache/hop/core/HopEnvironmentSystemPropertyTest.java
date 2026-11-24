@@ -139,6 +139,39 @@ class HopEnvironmentSystemPropertyTest {
     }
   }
 
+  /**
+   * Assigning an engine variable updates the JVM for readers such as {@code ValueMeta}, and must
+   * not become the {@code -D} of every variable space created afterwards. That leak turned a single
+   * test's {@code HOP_AGGREGATION_*} or {@code HOP_DATABASE_BATCH_RECOVERY} into the value used by
+   * later pipelines.
+   */
+  @Test
+  void assigningAnEngineVariableDoesNotOverrideLaterVariableSpaces() throws Exception {
+    String name = Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO;
+    assumeTrue(System.getenv(name) == null, name + " is exported in this environment");
+
+    String previousProperty = System.getProperty(name);
+    System.clearProperty(name);
+    try {
+      HopEnvironment.init();
+      String configured = Const.NVL(HopConfig.readStringVariable(name, null), "");
+      assumeTrue(!"Y".equalsIgnoreCase(configured), name + " is already Y in hop-config");
+
+      new Variables().setVariable(name, "Y");
+
+      assertEquals("Y", System.getProperty(name));
+      Variables fresh = new Variables();
+      fresh.initializeFrom(null);
+      assertEquals(configured, fresh.getVariable(name));
+    } finally {
+      if (previousProperty == null) {
+        System.clearProperty(name);
+      } else {
+        System.setProperty(name, previousProperty);
+      }
+    }
+  }
+
   @Test
   void testThirdPartyWireLoggingSilencedByDefault() throws Exception {
     org.apache.logging.log4j.core.LoggerContext context =

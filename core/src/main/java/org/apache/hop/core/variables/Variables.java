@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -44,6 +45,27 @@ import org.json.simple.parser.JSONParser;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
+  /**
+   * JVM value of an application or engine setting before {@link #setVariable} copied a later
+   * assignment onto the system properties, and the value of that copy.
+   *
+   * <p>{@code null} for {@link RuntimeMirror#valueBefore} means the property was not set. A fresh
+   * variable space must keep resolving hop-config, the environment and a real {@code -D}. The copy
+   * exists so code that reads the JVM (for example empty-string handling) sees the assignment. It
+   * is not itself a {@code -D}.
+   */
+  private static final Map<String, RuntimeMirror> runtimeMirrors = new ConcurrentHashMap<>();
+
+  private static final class RuntimeMirror {
+    private final String valueBefore;
+    private volatile String mirroredValue;
+
+    private RuntimeMirror(String valueBefore, String mirroredValue) {
+      this.valueBefore = valueBefore;
+      this.mirroredValue = mirroredValue;
+    }
+  }
+
   private final Map<String, String> properties;
 
   private IVariables parent;
@@ -127,7 +149,10 @@ public class Variables implements IVariables {
     //
     Set<String> systemPropertiesNames = System.getProperties().stringPropertyNames();
     for (String key : systemPropertiesNames) {
-      getProperties().put(key, System.getProperties().getProperty(key));
+      String value = systemPropertyForResolution(key);
+      if (value != null) {
+        getProperties().put(key, value);
+      }
     }
 
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
@@ -143,7 +168,9 @@ public class Variables implements IVariables {
               name,
               Const.NVL(
                   HopResolvedSettings.resolveLayered(
-                      describedVariable.getValue(), System.getenv(name), System.getProperty(name)),
+                      describedVariable.getValue(),
+                      System.getenv(name),
+                      systemPropertyForResolution(name)),
                   ""));
     }
 
@@ -164,7 +191,9 @@ public class Variables implements IVariables {
   private static boolean isEnvironmentImported() {
     String name = Const.HOP_IMPORT_ENVIRONMENT_VARIABLES;
     return isEnvironmentImported(
-        HopConfig.readStringVariable(name, null), System.getenv(name), System.getProperty(name));
+        HopConfig.readStringVariable(name, null),
+        System.getenv(name),
+        systemPropertyForResolution(name));
   }
 
   /**
@@ -215,9 +244,38 @@ public class Variables implements IVariables {
 
   private static void mirrorRuntimeSetting(String name, String value) {
     VariableRegistry registry = VariableRegistry.getInstance();
-    if (registry != null && registry.isApplicationOrEngineVariable(name)) {
-      System.setProperty(name, value);
+    if (registry == null || !registry.isApplicationOrEngineVariable(name)) {
+      return;
     }
+    runtimeMirrors.compute(
+        name,
+        (key, existing) -> {
+          RuntimeMirror mirror =
+              existing == null ? new RuntimeMirror(System.getProperty(key), value) : existing;
+          mirror.mirroredValue = value;
+          System.setProperty(key, value);
+          return mirror;
+        });
+  }
+
+  /**
+   * System property to feed into layered resolution.
+   *
+   * <p>A value still equal to the last {@link #setVariable} copy is that copy, not an explicit
+   * {@code -D}. Resolution then sees the property as it was before the copy (including absent).
+   * Once the live property changes, the copy is forgotten and the new value stands.
+   */
+  private static String systemPropertyForResolution(String name) {
+    String live = System.getProperty(name);
+    RuntimeMirror mirror = runtimeMirrors.get(name);
+    if (mirror == null) {
+      return live;
+    }
+    if (mirror.mirroredValue.equals(live)) {
+      return mirror.valueBefore;
+    }
+    runtimeMirrors.remove(name, mirror);
+    return live;
   }
 
   @Override

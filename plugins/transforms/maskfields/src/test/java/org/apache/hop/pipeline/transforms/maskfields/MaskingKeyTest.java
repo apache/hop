@@ -23,15 +23,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class MaskingKeyTest {
+
+  /** Decrypting a hash secret needs the password encoder. Nothing else in this class starts Hop. */
+  @BeforeAll
+  static void initPasswordEncoder() throws HopException {
+    Encr.init("Hop");
+  }
 
   @Test
   void aNumberKeyDoesNotDependOnTheConversionMask() throws Exception {
