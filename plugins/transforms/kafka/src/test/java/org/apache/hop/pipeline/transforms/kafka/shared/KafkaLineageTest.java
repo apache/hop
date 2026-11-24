@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.lineage.hub.LineageHub;
 import org.apache.hop.lineage.model.DatasetIoLineagePayload;
@@ -115,6 +117,63 @@ class KafkaLineageTest {
     }
 
     assertEquals(KafkaLineage.MAX_TOPICS, lineage.reported().size());
+  }
+
+  @Test
+  void theServersAreTheOnesTheProducerConnectsTo() {
+    UnaryOperator<String> resolve = v -> v == null ? null : v.replace("${BROKER}", "broker:9093");
+    assertEquals(
+        "kafka:9092", KafkaLineage.bootstrapServers("kafka:9092", List.of(), resolve), "no option");
+    assertEquals(
+        "broker:9093",
+        KafkaLineage.bootstrapServers(
+            "kafka:9092",
+            List.of(
+                new KafkaOption("acks", "all"), new KafkaOption("bootstrap.servers", "${BROKER}")),
+            resolve),
+        "the option replaces the transform's own value");
+    assertEquals(
+        "broker:9093",
+        KafkaLineage.bootstrapServers(
+            null, List.of(new KafkaOption("bootstrap.servers", "${BROKER}")), resolve),
+        "only the option");
+    assertEquals(
+        "kafka://broker:9093",
+        KafkaLineage.namespace(
+            KafkaLineage.bootstrapServers(
+                "", List.of(new KafkaOption("bootstrap.servers", "broker:9093")), resolve)));
+  }
+
+  /** With lineage off, the default, a row costs a field check: the run is asked once. */
+  @Test
+  void whetherLineageIsOnIsAskedOnce() {
+    LineageHub hub = hub(false);
+    KafkaLineage lineage;
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      lineage = new KafkaLineage(transform(), DatasetIoOperation.WRITE, "kafka:9092");
+      for (int i = 0; i < 100; i++) {
+        assertFalse(lineage.wants("orders"));
+        lineage.topic("orders");
+      }
+    }
+
+    verify(hub, times(1)).isEnabled();
+    verify(hub, never()).emit(Mockito.any());
+  }
+
+  @Test
+  void aTopicIsWantedUntilItIsReported() {
+    LineageHub hub = hub(true);
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      KafkaLineage lineage = new KafkaLineage(transform(), DatasetIoOperation.WRITE, "kafka:9092");
+      assertTrue(lineage.wants("orders"));
+      assertFalse(lineage.wants(""));
+      lineage.topic("orders");
+      assertFalse(lineage.wants("orders"));
+      assertTrue(lineage.wants("payments"));
+    }
   }
 
   @Test

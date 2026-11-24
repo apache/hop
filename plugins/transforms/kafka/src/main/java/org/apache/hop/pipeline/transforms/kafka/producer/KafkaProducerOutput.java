@@ -109,7 +109,10 @@ public class KafkaProducerOutput
       data.isOpen = true;
       data.lineage =
           new KafkaLineage(
-              this, DatasetIoOperation.WRITE, resolve(meta.getDirectBootstrapServers()));
+              this,
+              DatasetIoOperation.WRITE,
+              KafkaLineage.bootstrapServers(
+                  meta.getDirectBootstrapServers(), meta.getOptions(), this::resolve));
 
       first = false;
     }
@@ -118,10 +121,6 @@ public class KafkaProducerOutput
       return false;
     }
     String topic = resolveTopic(r);
-    // Lineage: a topic the first time a row goes to it
-    if (data.lineage != null) {
-      data.lineage.topic(topic);
-    }
     Iterable<Header> headers = resolveHeaders(r);
 
     ProducerRecord<Object, Object> producerRecord;
@@ -151,7 +150,19 @@ public class KafkaProducerOutput
               headers);
     }
 
-    data.kafkaProducer.send(producerRecord);
+    KafkaLineage lineage = data.lineage;
+    if (lineage != null && lineage.wants(topic)) {
+      // Lineage: a topic once Kafka took the first row for it
+      data.kafkaProducer.send(
+          producerRecord,
+          (metadata, exception) -> {
+            if (exception == null) {
+              lineage.topic(topic);
+            }
+          });
+    } else {
+      data.kafkaProducer.send(producerRecord);
+    }
     incrementLinesOutput();
 
     putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).

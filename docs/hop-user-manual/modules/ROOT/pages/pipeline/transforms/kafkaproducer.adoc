@@ -143,8 +143,10 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 == Lineage
 
 With a xref:metadata-types/lineage-sink.adoc[lineage sink], the transform reports each topic it
-writes the first time a row goes to it, up to 1000 per run, named after the first bootstrap server
-(`kafka://<host>:<port>`) and the topic: see
+writes once Kafka has accepted the first row for it, up to 1000 per run. A topic Kafka refuses, for
+example because it doesn't exist or the transform may not write to it, is not reported. The topic is
+named after the first bootstrap server (`kafka://<host>:<port>`), taken from a `bootstrap.servers`
+option when one is set, and the topic: see
 xref:technology/openlineage/index.adoc#_kafka_topics[Kafka topics].
 
 == Samples

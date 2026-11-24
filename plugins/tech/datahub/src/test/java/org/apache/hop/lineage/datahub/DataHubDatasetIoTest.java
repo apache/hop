@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.lineage.datahub.DataHubTranslator.Mcp;
 import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.lineage.model.RunLifecyclePhase;
+import org.apache.hop.lineage.openlineage.OpenLineageEventMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +43,9 @@ class DataHubDatasetIoTest {
   private static final String ENRICHED =
       "urn:li:dataset:(urn:li:dataPlatform:kafka,orders-enriched,PROD)";
   private static final String KAFKA = "kafka://kafka:9092";
+
+  /** The task that holds the pipeline's datasets when transforms are not tasks of their own. */
+  private static final String PIPELINE_TASK = "urn:li:dataJob:(" + FLOW + ",orders)";
 
   private final DataHubTranslator translator =
       new DataHubTranslator("PROD", "prod", null, "urn:li:corpuser:datahub", true);
@@ -120,5 +124,38 @@ class DataHubDatasetIoTest {
     List<Mcp> consumed = find(proposals, CONSUME, "dataJobInputOutput");
     JsonNode last = consumed.get(consumed.size() - 1).value();
     assertTrue(last.toString().contains(ORDERS), "the end keeps the topic: " + last);
+  }
+
+  /**
+   * Without a task per transform the topic goes on the pipeline's task. The event that brings it
+   * while the run goes on has no description, so it must leave the pipeline's info alone.
+   */
+  @Test
+  void aTopicWhileTheRunGoesOnLeavesThePipelineDescriptionAlone() {
+    HopEvents run = new HopEvents("orders");
+    OpenLineageEventMapper mapper =
+        OpenLineageEventMapper.builder("hop", "https://hop.apache.org/test")
+            .transformJobs(false)
+            .propagateInputs(false)
+            .build();
+    List<Mcp> started = all(mapper.mapBatch(List.of(run.pipeline(RunLifecyclePhase.STARTED))));
+    List<Mcp> running =
+        all(
+            mapper.mapBatch(
+                List.of(run.dataset("Consume", DatasetIoOperation.READ, KAFKA, "orders"))));
+
+    assertEquals(
+        "Pipeline orders",
+        find(started, FLOW, "dataFlowInfo").get(0).value().path("description").asText(),
+        "the start writes the pipeline's description");
+    assertTrue(
+        find(running, FLOW, "dataFlowInfo").isEmpty(),
+        "the topic rewrote the pipeline: " + running);
+    List<Mcp> edges = find(running, PIPELINE_TASK, "dataJobInputOutput");
+    assertFalse(edges.isEmpty(), "no edges for the pipeline's task in " + running);
+    assertTrue(edges.get(0).value().toString().contains(ORDERS), edges.get(0).value().toString());
+    for (Mcp info : find(running, PIPELINE_TASK, "dataJobInfo")) {
+      assertFalse(info.value().has("description"), "the pipeline's task has no description");
+    }
   }
 }

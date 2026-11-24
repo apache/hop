@@ -35,8 +35,17 @@ CONSUME = "0007-kafka-lineage-consume"
 
 
 def lines(path):
+    """The complete lines of the log. The stub may still be writing the last one: it is skipped."""
+    kept = []
     with open(path, encoding="utf-8") as log:
-        return [json.loads(line) for line in log if line.strip()]
+        for line in log:
+            if not line.endswith("\n") or not line.strip():
+                continue
+            try:
+                kept.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return kept
 
 
 def has_topic(event, side):

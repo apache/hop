@@ -116,6 +116,8 @@ public class KafkaConsumerInput
     Set<String> topics = meta.getTopics().stream().map(this::resolve).collect(Collectors.toSet());
     data.consumer.subscribe(topics);
     data.topics = topics;
+    // The consumer's own bootstrap servers replace a bootstrap.servers option (see
+    // buildKafkaConsumer), so they are the cluster it reads from.
     data.lineage =
         new KafkaLineage(this, DatasetIoOperation.READ, resolve(meta.getDirectBootstrapServers()));
 
