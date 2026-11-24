@@ -71,9 +71,23 @@ public class HashPartitioner extends BasePartitioner {
   @HopMetadataProperty(groupKey = TAG_FIELDS, key = TAG_FIELD)
   private List<HashPartitionField> fields = new ArrayList<>();
 
+  /**
+   * Where the partitioning fields are in a row, for the row layout they were looked up in.
+   *
+   * @param rowMeta the row layout the positions belong to
+   * @param indexes the position of each partitioning field in that layout
+   */
+  private record FieldPositions(IRowMeta rowMeta, int[] indexes) {}
+
+  /**
+   * The positions of the fields in the rows of the last layout seen. A run of the same pipeline
+   * object in Hop GUI reuses this partitioner, with new row layouts and maybe other fields, and the
+   * copies of the transform before it share it: so the positions are kept with their layout, and
+   * published as one object.
+   */
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
-  private transient int[] fieldIndexes;
+  private transient volatile FieldPositions fieldPositions;
 
   public HashPartitioner() {
     super();
@@ -102,6 +116,7 @@ public class HashPartitioner extends BasePartitioner {
   @Override
   public HashPartitioner clone() {
     HashPartitioner partitioner = (HashPartitioner) super.clone();
+    partitioner.fieldPositions = null;
     partitioner.fields = new ArrayList<>();
     for (HashPartitionField field : fields) {
       partitioner.fields.add(new HashPartitionField(field.getName()));
@@ -124,29 +139,41 @@ public class HashPartitioner extends BasePartitioner {
               + " using a hash partitioner");
     }
     init(variables, rowMeta);
-    if (fieldIndexes == null) {
-      List<String> names = getFieldNames();
-      if (names.isEmpty()) {
-        throw new HopTransformException("The hash partitioner has no fields to partition on");
-      }
-      int[] indexes = new int[names.size()];
-      for (int i = 0; i < indexes.length; i++) {
-        indexes[i] = rowMeta.indexOfValue(names.get(i));
-        if (indexes[i] < 0) {
-          throw new HopTransformException(
-              "Unable to find partitioning field name ["
-                  + names.get(i)
-                  + "] in the output row..."
-                  + rowMeta);
-        }
-      }
-      fieldIndexes = indexes;
+    FieldPositions positions = fieldPositions;
+    if (positions == null || positions.rowMeta() != rowMeta) {
+      positions = new FieldPositions(rowMeta, lookUpFields(rowMeta));
+      fieldPositions = positions;
     }
     int hash = 1;
-    for (int index : fieldIndexes) {
+    for (int index : positions.indexes()) {
       hash = 31 * hash + rowMeta.getValueMeta(index).hashCode(row[index]);
     }
     return Math.floorMod(hash, nrPartitions);
+  }
+
+  private int[] lookUpFields(IRowMeta rowMeta) throws HopTransformException {
+    List<String> names = getFieldNames();
+    if (names.isEmpty()) {
+      throw new HopTransformException("The hash partitioner has no fields to partition on");
+    }
+    int[] indexes = new int[names.size()];
+    for (int i = 0; i < indexes.length; i++) {
+      indexes[i] = rowMeta.indexOfValue(names.get(i));
+      if (indexes[i] < 0) {
+        throw new HopTransformException(
+            "Unable to find partitioning field name ["
+                + names.get(i)
+                + "] in the output row..."
+                + rowMeta);
+      }
+    }
+    return indexes;
+  }
+
+  /** Other fields: the positions are looked up again on the next row. */
+  public void setFields(List<HashPartitionField> fields) {
+    this.fields = fields;
+    this.fieldPositions = null;
   }
 
   @Override
@@ -171,7 +198,7 @@ public class HashPartitioner extends BasePartitioner {
   @Override
   public void loadXml(Node partitioningMethodNode) throws HopXmlException {
     fields = new ArrayList<>();
-    fieldIndexes = null;
+    fieldPositions = null;
     Node fieldsNode = XmlHandler.getSubNode(partitioningMethodNode, TAG_FIELDS);
     for (Node fieldNode : XmlHandler.getNodes(fieldsNode, TAG_FIELD)) {
       fields.add(new HashPartitionField(XmlHandler.getTagValue(fieldNode, TAG_NAME)));

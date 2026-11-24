@@ -23,9 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -100,6 +103,52 @@ class HashPartitionerTest {
     // 35 keys over 3 partitions: every partition gets some
     for (int rows : rowsPerPartition) {
       assertTrue(rows > 0);
+    }
+  }
+
+  /**
+   * Hop GUI runs the same pipeline object again, with the same partitioner: fields changed in the
+   * dialog in between must be used, not the positions of the fields of the run before.
+   */
+  @Test
+  void otherFieldsAreUsedOnceTheyAreSet() throws Exception {
+    TransformPartitioningMeta partitioning = partitioning(HashPartitioner.ID, static3());
+    HashPartitioner hash = (HashPartitioner) partitioning.getPartitioner();
+    hash.setMeta(partitioning);
+    hash.setFields(new ArrayList<>(List.of(new HashPartitionField("customer"))));
+    IRowMeta rowMeta = rowMeta();
+    hash.getPartition(new Variables(), rowMeta, new Object[] {"c1", 1L, "x"});
+
+    hash.setFields(new ArrayList<>(List.of(new HashPartitionField("other"))));
+
+    Set<Integer> partitions = new HashSet<>();
+    for (int i = 0; i < 100; i++) {
+      // The same customer, another value in "other" on every row
+      partitions.add(hash.getPartition(new Variables(), rowMeta, new Object[] {"c1", 1L, "x" + i}));
+    }
+    assertEquals(3, partitions.size(), "partitioned on the new field: " + partitions);
+  }
+
+  /**
+   * A run after a change in front of the partitioner (a field added before the key) has another row
+   * layout: the key is looked up in it again.
+   */
+  @Test
+  void anotherRowLayoutIsLookedUpAgain() throws Exception {
+    TransformPartitioningMeta partitioning = partitioning(HashPartitioner.ID, static3());
+    HashPartitioner hash = (HashPartitioner) partitioning.getPartitioner();
+    hash.setMeta(partitioning);
+    hash.setFields(new ArrayList<>(List.of(new HashPartitionField("customer"))));
+    int partition = hash.getPartition(new Variables(), rowMeta(), new Object[] {"c1", 1L, "x"});
+
+    IRowMeta withAFieldInFront = rowMeta();
+    withAFieldInFront.addValueMeta(0, new ValueMetaString("added"));
+    for (int i = 0; i < 100; i++) {
+      assertEquals(
+          partition,
+          hash.getPartition(
+              new Variables(), withAFieldInFront, new Object[] {"a" + i, "c1", 1L, "x"}),
+          "the same customer, the same partition");
     }
   }
 
