@@ -52,6 +52,7 @@ import org.apache.hop.beam.pipeline.handler.BeamMergeJoinTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamParquetInputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamParquetOutputTransformHandler;
 import org.apache.hop.beam.pipeline.handler.BeamRowGeneratorTransformHandler;
+import org.apache.hop.beam.pipeline.handler.BeamSortRowsTransformHandler;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -89,6 +90,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
           BeamConst.STRING_MERGE_JOIN_PLUGIN_ID,
           BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID,
           BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID,
+          BeamConst.STRING_SORT_ROWS_PLUGIN_ID,
           BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID,
           BeamConst.STRING_AVRO_FILE_INPUT_PLUGIN_ID,
           BeamConst.STRING_AVRO_OUTPUT_PLUGIN_ID,
@@ -105,6 +107,15 @@ public class HopPipelineMetaToBeamPipelineConverter {
       "Group by with group fields is not supported on Beam. It needs its rows sorted on the group fields."
           + ORDERED_ROWS
           + " Use Memory group by instead: Beam runs it natively.";
+
+  /**
+   * Why Beam refuses a Sort rows that only passes unique rows. Without that option it runs, and
+   * passes the rows on unsorted: see {@code BeamSortRowsTransformHandler}.
+   */
+  public static final String SORT_ROWS_UNIQUE_ROWS =
+      "Sort rows with 'Only pass unique rows' is not supported on Beam. It compares each sorted row with the one before it."
+          + ORDERED_ROWS
+          + " Use Unique rows (HashSet) or Memory group by instead.";
 
   /**
    * Plugin ids Beam refuses to run, mapped to the user-facing reason. The runtime check in {@link
@@ -129,11 +140,6 @@ public class HopPipelineMetaToBeamPipelineConverter {
               "Unique rows is not supported on Beam. It compares each row with the one before it."
                   + ORDERED_ROWS
                   + " Use Unique rows (HashSet) or Memory group by instead."),
-          Map.entry(
-              "SortRows",
-              "Sort rows is not supported on Beam."
-                  + ORDERED_ROWS
-                  + " The order of the sorted rows would be lost in the next transform."),
           Map.entry(
               "JoinRows",
               "Join rows is not supported on Beam. A cartesian product needs every row of every input in one place, but every worker would only combine the rows it happens to hold, so combinations would go missing. Add the same constant field to both inputs and use a Merge join on that field instead."),
@@ -309,6 +315,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
         BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID, new BeamRowGeneratorTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamMemoryGroupByTransformHandler());
+    transformHandlers.put(BeamConst.STRING_SORT_ROWS_PLUGIN_ID, new BeamSortRowsTransformHandler());
     transformHandlers.put(
         BeamConst.STRING_ADD_SEQUENCE_PLUGIN_ID, new BeamAddSequenceTransformHandler());
     transformHandlers.put(
@@ -729,6 +736,10 @@ public class HopPipelineMetaToBeamPipelineConverter {
       if (BeamGenericTransformHandler.GROUP_BY_PLUGIN_ID.equals(pluginId)
           && BeamGenericTransformHandler.hasGroupFields(transformMeta)) {
         throw new HopException(GROUP_BY_WITH_GROUP_FIELDS);
+      }
+      if (BeamConst.STRING_SORT_ROWS_PLUGIN_ID.equals(pluginId)
+          && BeamSortRowsTransformHandler.isPassingUniqueRows(transformMeta)) {
+        throw new HopException(SORT_ROWS_UNIQUE_ROWS);
       }
     }
   }

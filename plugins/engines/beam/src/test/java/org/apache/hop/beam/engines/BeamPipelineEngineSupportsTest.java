@@ -64,7 +64,6 @@ class BeamPipelineEngineSupportsTest {
   @ValueSource(
       strings = {
         "Unique",
-        "SortRows",
         "JoinRows",
         "AnalyticQuery",
         "FieldsChangeSequence",
@@ -126,6 +125,17 @@ class BeamPipelineEngineSupportsTest {
     // MergeJoin and RowGenerator are put into the converter's handler map by
     // addDefaultTransformHandlers — same set is exposed as EXPLICIT_HANDLER_PLUGIN_IDS.
     IPlugin plugin = pluginWithIdAndMainType(BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, Object.class);
+    assertTrue(engine.supports(plugin).isSupported());
+  }
+
+  /**
+   * Sort rows runs on Beam and passes its rows on unsorted: Beam does not keep the order of rows
+   * between transforms, and Merge join and Memory group by don't need sorted rows there. With "Only
+   * pass unique rows" the converter refuses it, which depends on its settings.
+   */
+  @Test
+  void sortRowsIsSupported() {
+    IPlugin plugin = pluginWithIdAndMainType(BeamConst.STRING_SORT_ROWS_PLUGIN_ID, Object.class);
     assertTrue(engine.supports(plugin).isSupported());
   }
 

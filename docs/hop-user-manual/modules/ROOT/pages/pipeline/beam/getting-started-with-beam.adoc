@@ -184,6 +184,10 @@ The Beam class used to perform this is: `org.apache.beam.sdk.extensions.joinlibr
 * xref:pipeline/transforms/rowgenerator.adoc[Generate Rows]: This transform is used to generate (empty/static) rows of data.
 It can be either a fixed number, or it can generate rows indefinitely.
 When using the Beam engines it uses `org.apache.beam.sdk.io.synthetic.SyntheticBoundedSource` or `org.apache.beam.sdk.io.synthetic.SyntheticUnboundedSource`.
+* xref:pipeline/transforms/sort.adoc[Sort Rows]: the rows are passed on as they are, unsorted.
+A Beam pipeline does not keep the order of rows from one transform to the next, and Merge Join and Memory Group By don't need sorted rows on Beam.
+So a pipeline that sorts in front of them for the Hop engine runs unchanged on Beam.
+With *Only pass unique rows* Sort Rows is refused: use `Unique Rows (HashSet)` or the `Memory Group By` instead.
 
 [#_unsupported_transforms]
 === Unsupported transforms
@@ -195,7 +199,8 @@ The Beam engines refuse them with an error instead:
 * xref:pipeline/transforms/groupby.adoc[Group By] with group fields: use the `Memory Group By` instead.
 Without group fields it runs, see below.
 * xref:pipeline/transforms/uniquerows.adoc[Unique Rows]: use `Unique Rows (HashSet)` or the `Memory Group By` instead
-* xref:pipeline/transforms/sort.adoc[Sort Rows]
+* xref:pipeline/transforms/sort.adoc[Sort Rows] with *Only pass unique rows*.
+Without that option it runs, see above.
 * xref:pipeline/transforms/joinrows.adoc[Join Rows (cartesian product)]: add the same constant field to both inputs and use a `Merge Join` on that field instead
 * xref:pipeline/transforms/analyticquery.adoc[Analytic Query]
 * xref:pipeline/transforms/addfieldschangesequence.adoc[Add value fields changing sequence]
@@ -206,7 +211,7 @@ Without group fields it runs, see below.
 * xref:pipeline/transforms/multimerge.adoc[Multiway Merge Join]
 
 The Hop GUI knows about this list: when you set the canvas palette filter to a Beam engine these transforms are hidden, and running a pipeline that still contains one is blocked with the reason shown above.
-Group By depends on its settings, so the palette shows it: the pipeline stops with the reason when it has group fields.
+Group By and Sort Rows depend on their settings, so the palette shows them: the pipeline stops with the reason when Group By has group fields, or when Sort Rows only passes unique rows.
 
 [#_whole_stream_transforms]
 === Transforms that need the whole stream

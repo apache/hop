@@ -41,6 +41,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.groupby.Aggregation;
 import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupingField;
+import org.apache.hop.pipeline.transforms.sort.SortRowsField;
+import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +69,8 @@ class WholeStreamPipelineTest extends SingleTransformPipelineTestBase {
         LastRowOnlyTransformMeta.class.getName(), TransformPluginType.class, Transform.class);
     registry.registerPluginClass(
         GroupByMeta.class.getName(), TransformPluginType.class, Transform.class);
+    registry.registerPluginClass(
+        SortRowsMeta.class.getName(), TransformPluginType.class, Transform.class);
     BatchCountingTransform.ROWS.set(0);
     BatchCountingTransform.BATCHES.set(0);
     LastRowOnlyTransform.ROWS_AT_END.clear();
@@ -150,6 +154,43 @@ class WholeStreamPipelineTest extends SingleTransformPipelineTestBase {
     assertTrue(
         causes(refused).contains(HopPipelineMetaToBeamPipelineConverter.GROUP_BY_WITH_GROUP_FIELDS),
         causes(refused));
+  }
+
+  /**
+   * A pipeline that sorts in front of a Merge join for the Hop engine runs on Beam too: Sort rows
+   * passes every row on, unsorted, because Beam does not keep the order of rows between transforms.
+   */
+  @Test
+  void sortRowsPassesEveryRowOn() throws Exception {
+    List<String> lines =
+        runAndGetOutputLines(
+            pipeline("sort-pass-through", INPUT_CUSTOMERS_FILE, sortOnState(), "SortRows"));
+
+    assertEquals(100, lines.size());
+  }
+
+  /** Only passing unique rows needs the sort, so Sort rows with that option is refused. */
+  @Test
+  void sortRowsThatOnlyPassesUniqueRowsIsRefused() throws Exception {
+    SortRowsMeta sortRows = sortOnState();
+    sortRows.setOnlyPassingUniqueRows(true);
+    PipelineMeta pipelineMeta = pipeline("sort-unique", INPUT_CUSTOMERS_FILE, sortRows, "SortRows");
+
+    Exception refused =
+        assertThrows(Exception.class, () -> createRunPipeline(variables, pipelineMeta));
+
+    assertTrue(
+        causes(refused).contains(HopPipelineMetaToBeamPipelineConverter.SORT_ROWS_UNIQUE_ROWS),
+        causes(refused));
+  }
+
+  private static SortRowsMeta sortOnState() {
+    SortRowsMeta sortRows = new SortRowsMeta();
+    sortRows.setDefault();
+    SortRowsField state = new SortRowsField();
+    state.setFieldName("state");
+    sortRows.setSortFields(new ArrayList<>(List.of(state)));
+    return sortRows;
   }
 
   private static GroupByMeta countAll() {
