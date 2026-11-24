@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.LongSupplier;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.lineage.datahub.DataHubClient.ReadException;
 import org.apache.hop.lineage.datahub.DataHubSinkConfig.SchemaPolicy;
@@ -99,6 +100,12 @@ class DataHubEmitter implements OpenLineageEmitter {
    */
   static final long WRITTEN_TTL_MS = 10 * 60_000L;
 
+  /**
+   * How long the {@code hop} data platform is not asked for again after DataHub could not be
+   * reached: while DataHub is down, a batch waits for its writes only, not for this read as well.
+   */
+  static final long PLATFORM_READ_BACKOFF_MS = 60_000L;
+
   private static final int MAX_SCHEMA_STATES = 4_096;
   private static final int MAX_WRITTEN = 16_384;
   private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -157,14 +164,21 @@ class DataHubEmitter implements OpenLineageEmitter {
   private boolean readFailureReported;
 
   /**
-   * Whether the {@code hop} data platform is settled: DataHub has it, or this emitter wrote it.
-   * Until then each batch asks DataHub and writes it when DataHub doesn't have it or can't say, so
-   * a DataHub that ships the platform itself keeps its own name and logo.
+   * Until when the {@code hop} data platform is settled: DataHub had it, or this emitter wrote it
+   * or had it refused. After {@link #WRITTEN_TTL_MS} the next batch asks DataHub again and writes
+   * it when DataHub doesn't have it (any more) or can't say, so a platform deleted in DataHub comes
+   * back, and a DataHub that ships the platform itself keeps its own name and logo.
    */
-  private boolean platformSettled;
+  private long platformSettledUntilMs;
+
+  /** Until when the platform is not asked for, after DataHub could not be reached. */
+  private long platformReadAfterMs;
 
   /** Whether DataHub refused to say whether it has the platform: it is then simply written. */
   private boolean platformUnreadable;
+
+  /** The time; tests move it forward. */
+  LongSupplier clock = System::currentTimeMillis;
 
   /** Whether Hop may write a dataset's schema, as last read from DataHub. */
   private record SchemaState(boolean writable, long readAtMs) {}
@@ -285,10 +299,6 @@ class DataHubEmitter implements OpenLineageEmitter {
 
     // Event by event, so a failed request only holds up the events from there on.
     List<Owned> proposals = new ArrayList<>();
-    Mcp platform = platformToWrite();
-    if (platform != null) {
-      proposals.add(new Owned(platform, -1, 0));
-    }
     for (int i = 0; i < translations.length; i++) {
       Translation translation = translations[i];
       if (translation == null) {
@@ -310,7 +320,12 @@ class DataHubEmitter implements OpenLineageEmitter {
       }
     }
 
-    long now = System.currentTimeMillis();
+    long now = clock.getAsLong();
+    // Only a batch that writes something needs the platform.
+    Mcp platform = proposals.isEmpty() ? null : platformToWrite(now);
+    if (platform != null) {
+      proposals.add(0, new Owned(platform, -1, 0));
+    }
     List<Owned> toSend = new ArrayList<>();
     for (Owned owned : proposals) {
       if (!writtenRecently(owned.mcp(), now)) {
@@ -334,11 +349,12 @@ class DataHubEmitter implements OpenLineageEmitter {
     int[] refused = new int[results.length];
     for (int k = 0; k < toSend.size(); k++) {
       Owned owned = toSend.get(k);
+      if (owned.mcp() == platform && outcomes[k] != Result.RETRY) {
+        // Refused (it fails validation, say) counts too: it would be refused again.
+        platformSettledUntilMs = now + WRITTEN_TTL_MS;
+      }
       if (outcomes[k] == Result.SENT) {
         written.put(key(owned.mcp()), now);
-        if (owned.mcp() == platform) {
-          platformSettled = true;
-        }
         if (CONST_SCHEMA_METADATA.equals(owned.mcp().aspectName())) {
           remember(owned.mcp().entityUrn(), true);
         }
@@ -380,26 +396,40 @@ class DataHubEmitter implements OpenLineageEmitter {
   /**
    * The {@code hop} data platform when this batch has to write it, {@code null} otherwise. A
    * DataHub that has the platform, because it ships it or Hop wrote it before, keeps what it has.
-   * One without it, or one that can't be read, gets it from Hop, as before.
+   * One without it, or one that can't be read, gets it from Hop, as before. Which platform DataHub
+   * has is not compared: one that is there, also one an older Hop wrote, stays as it is.
    */
-  private Mcp platformToWrite() throws InterruptedException {
-    if (platformSettled) {
+  private Mcp platformToWrite(long now) throws InterruptedException {
+    if (now < platformSettledUntilMs || now < platformReadAfterMs) {
       return null;
     }
     if (!platformUnreadable) {
       try {
-        JsonNode data = read(PLATFORM_QUERY, List.of(DataHubUrns.HOP_PLATFORM_URN));
+        // Not through read(): this probe succeeding says nothing about the reads that failed.
+        JsonNode data =
+            client.graphql(PLATFORM_QUERY, urnVariables(List.of(DataHubUrns.HOP_PLATFORM_URN)));
         for (JsonNode entity : data.path(CONST_ENTITIES)) {
           JsonNode properties = entity.path("properties");
           if (!properties.isMissingNode() && !properties.isNull()) {
-            platformSettled = true;
+            platformSettledUntilMs = now + WRITTEN_TTL_MS;
             return null;
           }
         }
       } catch (ReadException e) {
+        if (e.worthRetrying()) {
+          // DataHub out of reach: asked again in a while, and not written meanwhile, so a DataHub
+          // that has its own platform keeps it.
+          platformReadAfterMs = now + PLATFORM_READ_BACKOFF_MS;
+          if (log.isDetailed()) {
+            log.logDetailed(
+                "Unable to read the hop data platform from DataHub, asked again later: "
+                    + e.getMessage());
+          }
+          return null;
+        }
         // A refusal (a token that may not read, a query an old DataHub doesn't know) stays: not
-        // asked again. DataHub out of reach is asked again with the next batch.
-        platformUnreadable = !e.worthRetrying();
+        // asked again.
+        platformUnreadable = true;
         if (log.isDetailed()) {
           log.logDetailed(
               "Unable to read the hop data platform from DataHub, so it is written: "
@@ -836,11 +866,15 @@ class DataHubEmitter implements OpenLineageEmitter {
 
   private JsonNode read(String query, Collection<String> urns)
       throws ReadException, InterruptedException {
-    ObjectNode variables = MAPPER.createObjectNode();
-    urns.forEach(variables.putArray("urns")::add);
-    JsonNode data = client.graphql(query, variables);
+    JsonNode data = client.graphql(query, urnVariables(urns));
     readFailureReported = false;
     return data;
+  }
+
+  private static ObjectNode urnVariables(Collection<String> urns) {
+    ObjectNode variables = MAPPER.createObjectNode();
+    urns.forEach(variables.putArray("urns")::add);
+    return variables;
   }
 
   /** Reported once until a read succeeds again. */

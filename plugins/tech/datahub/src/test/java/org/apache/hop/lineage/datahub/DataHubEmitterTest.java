@@ -488,13 +488,29 @@ class DataHubEmitterTest {
     assertEquals(1, platformReads());
   }
 
-  // DataHub out of reach: the platform goes with the next batch that gets through, and DataHub is
-  // asked again first.
+  /** An emitter whose clock only moves when the test moves it. */
+  private DataHubEmitter emitterAt(long[] now) throws Exception {
+    DataHubEmitter emitter = emitter(SchemaPolicy.NEVER, false);
+    now[0] = System.currentTimeMillis();
+    emitter.clock = () -> now[0];
+    return emitter;
+  }
+
+  private static int platformWrites() {
+    return gms.findAll(
+            postRequestedFor(urlEqualTo(INGEST)).withRequestBody(containing("dataPlatformInfo")))
+        .size();
+  }
+
+  // DataHub out of reach: the platform is not asked for again for a while, so a batch only waits
+  // for its own writes, and it is not written blindly over one DataHub may have. Then DataHub is
+  // asked again.
   @Test
   void aPlatformIsAskedForAgainAfterAnOutage() throws Exception {
     ingestAnswers(503);
     gms.stubFor(post(urlEqualTo(GRAPHQL)).willReturn(aResponse().withStatus(503)));
-    DataHubEmitter emitter = emitter(SchemaPolicy.NEVER, false);
+    long[] now = new long[1];
+    DataHubEmitter emitter = emitterAt(now);
     HopEvents hop = new HopEvents("orders");
     List<RunEvent> events =
         HopEvents.mapper()
@@ -503,15 +519,72 @@ class DataHubEmitterTest {
                     hop.pipeline(RunLifecyclePhase.STARTED),
                     hop.pipeline(RunLifecyclePhase.FINISHED)));
     assertEquals(Result.RETRY, emitter.emit(events.get(0)));
+    int readsDuringOutage = platformReads();
+    assertEquals(Result.RETRY, emitter.emit(events.get(0)));
+    assertEquals(readsDuringOutage, platformReads(), "not asked again while DataHub is down");
+    assertEquals(0, platformWrites());
 
     gms.resetAll();
     ingestAnswers(200);
     datahubPlatform(true);
+    now[0] += DataHubEmitter.PLATFORM_READ_BACKOFF_MS;
     assertEquals(Result.SENT, emitter.emit(events.get(0)));
     assertEquals(Result.SENT, emitter.emit(events.get(1)));
 
     assertTrue(platformsSent().isEmpty(), "DataHub had it by then");
     assertEquals(1, platformReads());
+  }
+
+  // A platform deleted in DataHub, or missing from a DataHub restored from an older backup, comes
+  // back: after WRITTEN_TTL_MS DataHub is asked again.
+  @Test
+  void aDeletedPlatformIsWrittenAgain() throws Exception {
+    ingestAnswers(200);
+    datahubPlatform(false);
+    long[] now = new long[1];
+    DataHubEmitter emitter = emitterAt(now);
+    emitTwoBatches(emitter);
+    assertEquals(1, platformsSent().size());
+
+    now[0] += DataHubEmitter.WRITTEN_TTL_MS;
+    emitTwoBatches(emitter);
+
+    assertEquals(2, platformsSent().size());
+    assertEquals(2, platformReads());
+  }
+
+  // A platform DataHub refuses (it fails validation, say) would be refused again: it is not read
+  // and proposed with every batch.
+  @Test
+  void aRefusedPlatformIsNotProposedWithEveryBatch() throws Exception {
+    ingestAnswers(200);
+    gms.stubFor(
+        post(urlEqualTo(INGEST))
+            .withRequestBody(containing("dataPlatformInfo"))
+            .willReturn(aResponse().withStatus(400).withBody("{}")));
+    datahubPlatform(false);
+    long[] now = new long[1];
+    DataHubEmitter emitter = emitterAt(now);
+    emitTwoBatches(emitter);
+    int writes = platformWrites();
+    assertTrue(writes > 0);
+
+    emitTwoBatches(emitter);
+
+    assertEquals(writes, platformWrites());
+    assertEquals(1, platformReads());
+  }
+
+  // A batch that writes nothing doesn't need the platform.
+  @Test
+  void aBatchWithoutProposalsDoesNotAskForThePlatform() throws Exception {
+    ingestAnswers(200);
+    datahubPlatform(false);
+
+    emitter(SchemaPolicy.NEVER, false).emitAll(List.of());
+
+    assertEquals(0, platformReads());
+    assertEquals(0, platformWrites());
   }
 
   // One batch can lift Hop's deprecation of a file (a copy writes it) and then set a new one (a

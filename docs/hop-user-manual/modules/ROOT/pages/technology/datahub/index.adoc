@@ -57,7 +57,9 @@ name and description from its metadata. It is identified by its file: the path i
 same name are two pipelines in DataHub.
 
 The sink writes the *Apache Hop* platform itself, with its name and logo, when DataHub doesn't have
-it yet. A DataHub that has the platform keeps its own.
+it yet, and checks again every ten minutes. A DataHub that has the platform keeps its own, also one
+an older Hop version wrote. To get the current name and logo, delete the platform in DataHub
+(`datahub delete --urn urn:li:dataPlatform:hop --hard`).
 
 |Transform, action
 |A *task* (DataJob) of that pipeline, of type `Transform` or `Action`, with the datasets it read
