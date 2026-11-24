@@ -69,7 +69,7 @@ echo ">>> Generating native-provided fat jar (Spark provided by cluster)..."
   cd "${HOP_HOME}"
   ./hop-conf.sh \
     --generate-fat-jar="${DIST_DIR}/${FAT_JAR_NAME}" \
-    --spark-client-version=native-provided
+    --fat-jar-engine=spark
 )
 
 # Note: Hop has two different "project" flags:

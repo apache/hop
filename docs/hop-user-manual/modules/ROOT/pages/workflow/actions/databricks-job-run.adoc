@@ -110,7 +110,7 @@ Default variable names (configurable on the **Run** tab):
 |Option |Description
 
 |Fat jar / Pipeline / Run configuration
-|Deploy mode: local fat jar (prefer `hop-conf --generate-fat-jar … --spark-client-version=native-provided`), entry pipeline path, and Native Spark run configuration name present in the metadata export (or project package)
+|Deploy mode: local fat jar (leave it empty to upload the fat jar of this installation, which Hop builds once and caches; or a jar from `hop-conf --generate-fat-jar … --fat-jar-engine=spark`), entry pipeline path, and Native Spark run configuration name present in the metadata export (or project package)
 
 |DBFS / Volume base directory
 |Upload root for deploy artifacts. Fat jar: content-addressed `hop-native-<sha12>.jar` (+ `.sha256` sidecar) so Databricks job libraries refresh when jar bytes change (fixed-name overwrite is not enough on long-lived Dedicated clusters — see xref:pipeline/spark/databricks.adoc#lesson-fat-jar-library-uri[Databricks lessons]). Per entry pipeline stem: `+pipeline-{stem}.hpl+`, `+metadata-{stem}.json+`, `+hop-spark-package-{stem}.zip+`, `+env-config-{stem}.json+`. Prefer a Unity Catalog volume when public DBFS root is disabled, e.g. `/Volumes/catalog/schema/volume/hop`.
@@ -175,7 +175,7 @@ Default variable names (configurable on the **Run** tab):
 === Deploy tips
 
 * See the full guide: xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
-* Generate a fat jar with `hop-conf.sh --generate-fat-jar=… --spark-client-version=native-provided` when the cluster already provides Spark.
+* Leave the fat jar empty to upload the cached fat jar of this installation, or generate one with `hop-conf.sh --generate-fat-jar=… --fat-jar-engine=spark`.
 * The run configuration name must exist in the project metadata that is exported at deploy time.
 * **UC Volumes** (`/Volumes/…`): uploads use the Files API (`PUT /api/2.0/fs/files/…`, up to ~5 GiB).
 * **Classic DBFS** (`dbfs:/FileStore/…`): uploads use DBFS create / add-block / close. Public DBFS root is often disabled on newer workspaces — use a volume instead.
