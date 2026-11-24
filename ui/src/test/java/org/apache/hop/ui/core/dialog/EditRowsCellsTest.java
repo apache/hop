@@ -59,6 +59,14 @@ class EditRowsCellsTest {
   }
 
   @Test
+  void aPaddedStringIsKept() throws Exception {
+    IValueMeta name = new ValueMetaString("name");
+    IValueMeta parse = new ValueMetaString("name");
+
+    assertEquals("  ABC  ", EditRowsCells.convertCell(name, parse, "  ABC  ", false, 1));
+  }
+
+  @Test
   void aValueThatDoesNotMatchTheMaskNamesTheRowFieldValueAndMask() {
     // '#' does not include a grouping separator. Pin the regional settings so ',' is that
     // separator and the whole string has to match the mask.

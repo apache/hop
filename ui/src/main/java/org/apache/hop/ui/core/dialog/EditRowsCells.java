@@ -35,7 +35,8 @@ public final class EditRowsCells {
    *
    * <p>A cell is null only while it is still the blue {@code <null>} placeholder. Text typed over
    * that placeholder is parsed, even when the null color has not been cleared yet. Surrounding
-   * whitespace is trimmed so it does not fail a format mask that has to consume the whole string.
+   * whitespace is trimmed on fields that are not strings, so it does not fail a format mask that
+   * has to consume the whole string. A string keeps its padding.
    *
    * @param valueMeta the field the text is parsed into
    * @param parseMeta the string metadata that carries the field's mask and symbols
@@ -60,8 +61,9 @@ public final class EditRowsCells {
       cellText = null;
     }
     try {
-      return valueMeta.convertDataFromString(
-          cellText, parseMeta, null, null, IValueMeta.TRIM_TYPE_BOTH);
+      // Strings keep their padding. Golden data compares them without trimming.
+      int trimType = valueMeta.isString() ? IValueMeta.TRIM_TYPE_NONE : IValueMeta.TRIM_TYPE_BOTH;
+      return valueMeta.convertDataFromString(cellText, parseMeta, null, null, trimType);
     } catch (HopException e) {
       throw new HopException(failureMessage(rowNumber, valueMeta, cellText), e);
     }
