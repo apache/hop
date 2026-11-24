@@ -44,9 +44,11 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.hop.avro.transforms.avrodecode.AvroDecodeFieldFinder.FieldRow;
 import org.apache.hop.core.HopEnvironment;
@@ -138,6 +140,48 @@ class AvroDecodeBinaryTest {
     assertEquals(2, output.size());
     assertRow(output.get(0), 1L, "alice", true, new byte[] {1, 2, 3}, 7L);
     assertRow(output.get(1), 99L, null, false, new byte[] {9}, 1_000_000L);
+  }
+
+  @Test
+  void javaStringPropertyDecodesAsAString() throws Exception {
+    String schemaJson =
+        """
+        {
+          "type": "record",
+          "name": "event",
+          "namespace": "org.apache.hop.avro.test",
+          "fields": [
+            {"name": "id", "type": "long"},
+            {"name": "name", "type": {"type": "string", "avro.java.string": "String"}},
+            {"name": "active", "type": "boolean"},
+            {"name": "payload", "type": "bytes"},
+            {"name": "count", "type": "int"}
+          ]
+        }
+        """;
+    Path schemaFile = tempDir.resolve("java-string.avsc");
+    Files.writeString(schemaFile, schemaJson);
+    Schema schema = new Schema.Parser().parse(schemaJson);
+    GenericRecord record = new GenericData.Record(schema);
+    record.put("id", 1L);
+    record.put("name", "alice");
+    record.put("active", true);
+    record.put("payload", ByteBuffer.wrap(new byte[] {1, 2}));
+    record.put("count", 4);
+    byte[] encoded = encode(schema, record);
+
+    GenericRecord readBack =
+        new GenericDatumReader<GenericRecord>(schema)
+            .read(null, DecoderFactory.get().binaryDecoder(encoded, null));
+    assertInstanceOf(String.class, readBack.get("name"));
+
+    AvroDecode transform = transform(new AvroDecodeData(), schemaFile.toString(), binaryTargets());
+    List<Object[]> output = new ArrayList<>();
+    feed(transform, output, new Object[] {encoded});
+
+    assertTrue(transform.processRow());
+    assertFalse(transform.processRow());
+    assertRow(output.get(0), 1L, "alice", true, new byte[] {1, 2}, 4L);
   }
 
   @Test
@@ -430,9 +474,13 @@ class AvroDecodeBinaryTest {
   }
 
   private static byte[] encode(GenericRecord record) throws Exception {
+    return encode(EVENT, record);
+  }
+
+  private static byte[] encode(Schema schema, GenericRecord record) throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
-    new GenericDatumWriter<GenericRecord>(EVENT).write(record, encoder);
+    new GenericDatumWriter<GenericRecord>(schema).write(record, encoder);
     encoder.flush();
     return out.toByteArray();
   }

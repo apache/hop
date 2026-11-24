@@ -353,7 +353,7 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
     return switch (type) {
       case NULL -> null;
       case ENUM, RECORD, ARRAY, MAP, FIXED -> avroValue.toString();
-      case STRING -> ((Utf8) avroValue).toString();
+      case STRING -> avroValue.toString();
       case BYTES, LONG, DOUBLE -> avroValue;
       case INT -> (long) (int) avroValue;
       case FLOAT -> (double) (float) avroValue;
