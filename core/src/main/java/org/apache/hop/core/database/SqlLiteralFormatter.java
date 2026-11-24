@@ -38,7 +38,8 @@ import org.apache.hop.core.row.value.ValueMetaBase;
  *       minimum and maximum number of fraction digits it implies, and the rounding mode of the
  *       value. Without a mask that is the default mask, so in en_US the text is what {@link
  *       IValueMeta#getString(Object)} gives. A mask in scientific notation keeps its exponent. NaN
- *       and infinity, which no database reads as a number, are written as {@code null}.
+ *       and infinity, which no database reads as a number, are written as NaN and the infinity sign
+ *       (minus for negative infinity), as en_US always did: the statement fails where it is loaded.
  *   <li>Date: the pattern of the value's date format, or of the pattern given, on a Gregorian
  *       calendar with ASCII digits and English names. The time zone is the one of the value's date
  *       format, or the default time zone for a pattern.
@@ -141,6 +142,18 @@ public abstract class SqlLiteralFormatter {
    * @param source the format of the value metadata
    * @param minimumMaxFractionDigits a lower bound for the maximum number of fraction digits
    */
+  /**
+   * NaN or infinity, which have no SQL literal: written as Hop always wrote them in en_US, so the
+   * statement fails where it is loaded instead of storing a NULL. The same text in every locale,
+   * where Arabic or Finnish used to write their own word for NaN.
+   */
+  static String nonFinite(double value) {
+    if (Double.isNaN(value)) {
+      return "NaN";
+    }
+    return value > 0 ? "\u221E" : "-\u221E";
+  }
+
   static DecimalFormat plainFormat(DecimalFormat source, int minimumMaxFractionDigits) {
     if (isScientific(source)) {
       DecimalFormat format = (DecimalFormat) source.clone();
@@ -230,7 +243,7 @@ public abstract class SqlLiteralFormatter {
     public void append(StringBuilder sb, Object value) throws HopValueException {
       Double number = valueMeta.getNumber(value);
       if (number.isNaN() || number.isInfinite()) {
-        sb.append(NULL);
+        sb.append(nonFinite(number));
       } else if (fast == null || !fast.append(sb, number)) {
         sb.append(format.format(number));
       }

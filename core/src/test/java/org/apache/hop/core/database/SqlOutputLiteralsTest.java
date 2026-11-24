@@ -515,15 +515,36 @@ class SqlOutputLiteralsTest {
     assertEquals("42", literal(withMask(new ValueMetaInteger("i"), "$#,##0"), 42L));
   }
 
-  /** NaN and infinity used to be written as text no database reads. */
+  /**
+   * NaN and infinity have no SQL literal. They are written as en_US always wrote them, so loading
+   * the statement fails instead of storing a NULL nobody notices.
+   */
   @Test
-  void nonFiniteNumbersAreWrittenAsNull() throws Exception {
+  void nonFiniteNumbersAreWrittenAsBefore() throws Exception {
     IValueMeta number = new ValueMetaNumber("n");
-    assertEquals("null", literal(number, Double.NaN));
-    assertEquals("null", literal(number, Double.POSITIVE_INFINITY));
-    assertEquals("null", literal(number, Double.NEGATIVE_INFINITY));
-    assertEquals("null", literal(withMask(new ValueMetaNumber("n"), "0.00"), Double.NaN));
-    assertEquals("null", sqlValue(number, Double.NaN, null));
+    assertEquals("NaN", literal(number, Double.NaN));
+    assertEquals("\u221E", literal(number, Double.POSITIVE_INFINITY));
+    assertEquals("-\u221E", literal(number, Double.NEGATIVE_INFINITY));
+    assertEquals("NaN", literal(withMask(new ValueMetaNumber("n"), "0.00"), Double.NaN));
+    assertEquals("-\u221E", literal(withMask(new ValueMetaNumber("n"), "0.###E0"), -1 / 0.0));
+    assertEquals("NaN", sqlValue(number, Double.NaN, null));
+  }
+
+  /**
+   * Arabic and Finnish wrote their own word for NaN, Swedish a U+2212 minus before the infinity
+   * sign.
+   */
+  @Test
+  void nonFiniteNumbersAreTheSameInEveryLocale() throws Exception {
+    for (String tag : new String[] {"ar-SA", "fi-FI", "sv-SE"}) {
+      inLocale(
+          Locale.forLanguageTag(tag),
+          () -> {
+            IValueMeta number = new ValueMetaNumber("n");
+            assertEquals("NaN", literal(number, Double.NaN), tag);
+            assertEquals("-\u221E", literal(number, Double.NEGATIVE_INFINITY), tag);
+          });
+    }
   }
 
   /** sv_SE used to write U+2212 as the minus sign, with a decimal comma. */

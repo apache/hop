@@ -320,13 +320,13 @@ class SqlOutputGoldenTest {
 
   /** SHA-256 of {@link #renderNumbersAndDates()}, the same under each of {@link #LOCALES}. */
   private static final String NUMBERS_AND_DATES_SHA256 =
-      "29278ed18093b08a10c2aa391fa7a8287550e76d4b3c9efadda38116d4144560";
+      "c4e60b5f88c2407df79cb82b36fbf8c7a76c64aebe9726c1a54cab74625dfc00";
 
   /**
    * Pins numbers and dates in default and explicit masks under several default locales. The text is
    * the same in every locale (#9677): a period as decimal separator, no grouping, an ASCII minus
-   * sign, null for NaN and infinity, Gregorian years and English month names. The full text is
-   * pinned by a digest, a few lines literally.
+   * sign, NaN and infinity as en_US always wrote them, Gregorian years and English month names. The
+   * full text is pinned by a digest, a few lines literally.
    */
   @Test
   void numbersAndDatesInSeveralLocales() throws Exception {
@@ -351,7 +351,7 @@ class SqlOutputGoldenTest {
           lines[10]);
       // NaN and infinity
       assertEquals(
-          "VALUES (1234567,1234567,null,null,null,null,0.0,'1970/01/01 00:59:59.999',"
+          "VALUES (1234567,1234567,NaN,NaN,NaN,NaN,0.0,'1970/01/01 00:59:59.999',"
               + "'1970-01-01T00:59:59','01-Jan-1970')",
           lines[11]);
       assertEquals(
