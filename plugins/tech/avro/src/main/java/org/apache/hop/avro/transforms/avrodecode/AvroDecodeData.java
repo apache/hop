@@ -19,6 +19,10 @@ package org.apache.hop.avro.transforms.avrodecode;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.BinaryDecoder;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaAvroRecord;
@@ -29,7 +33,27 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class AvroDecodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public int inputIndex;
+  public String sourceFieldName;
   public ValueMetaAvroRecord avroValueMeta;
+
+  /** True when the source field is Binary and a schema file is set. */
+  public boolean decodingBinary;
+
+  public IValueMeta sourceValueMeta;
+
+  /**
+   * Parsed once per transform copy. Also the writer schema: no separate reader schema is applied.
+   */
+  public Schema schema;
+
+  /** Reused for every binary row of this copy. Not thread-safe, and each copy has its own. */
+  public GenericDatumReader<GenericRecord> reader;
+
+  /** Reused for every binary row of this copy via {@code DecoderFactory.binaryDecoder}. */
+  public BinaryDecoder decoder;
+
+  /** Reused as the target of {@code GenericDatumReader.read}. Cleared after a failed read. */
+  public GenericRecord reusedRecord;
 
   /** Per target field, built on the first row: the resolved Avro field name. */
   public String[] avroFieldNames;
