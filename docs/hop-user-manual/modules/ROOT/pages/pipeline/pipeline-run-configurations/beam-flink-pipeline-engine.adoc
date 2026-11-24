@@ -173,5 +173,12 @@ bin/flink run \
 
 == Flink embedded
 
-You can specify a master of `[local]` to run using an embedded Flink engine.
-It's primarily used for testing locally.
+A master of `[local]` runs your pipeline on an embedded Flink engine, a Flink mini cluster in the Hop JVM.
+It's the way to try a pipeline on Flink before you run it on a cluster: you need no Flink installation and no fat jar.
+
+Flink loads the classes of a job in a class loader of its own, which doesn't see the plugins of Hop.
+For a `[local]` master Hop adds the jar files of the Beam plugin to the job's class path (`pipeline.classpaths`), on top of any class path your Flink configuration sets, wherever the plugin is installed.
+It also makes Flink look up classes in the Hop class path first (`classloader.resolve-order: parent-first`), so a library that is in the lib folder of a plugin as well is loaded once.
+If the Flink configuration in `FLINK_CONF_DIR` sets `classloader.resolve-order` to `child-first`, Hop keeps it and logs a warning: a pipeline can then fail with a `ClassCastException` or a `LinkageError`.
+
+A master of `[collection]` runs the pipeline in the Hop JVM as well, but not as a Flink job: it's only a quick check of a pipeline, and doesn't show how it behaves on Flink.

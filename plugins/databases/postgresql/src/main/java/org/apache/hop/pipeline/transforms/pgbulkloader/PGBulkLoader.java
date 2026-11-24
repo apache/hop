@@ -29,12 +29,15 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormatSymbols;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -60,7 +63,25 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class;
 
-  private Charset clientEncoding = Charset.defaultCharset();
+  /**
+   * The encoding of every byte sent to the COPY. The COPY command declares it, so the session's
+   * client_encoding does not matter.
+   */
+  private static final Charset COPY_ENCODING = StandardCharsets.UTF_8;
+
+  /**
+   * A conversion mask that only places digits, a decimal point, grouping and an exponent. Text read
+   * with it means the same to PostgreSQL, as long as the decimal symbol is a point and the text has
+   * no grouping symbols.
+   */
+  private static final Pattern PLAIN_NUMBER_MASK = Pattern.compile("[#0,]*(\\.[#0]*)?(E0+)?");
+
+  /** A lazy value's bytes need converting. */
+  private static final int CONVERT_LAZY_BYTES = -2;
+
+  /** A lazy value's bytes can be copied when they are ASCII. */
+  private static final int NO_GROUPING_SYMBOL = -1;
+
   private PGCopyOutputStream pgCopyOut;
 
   public PGBulkLoader(
@@ -114,43 +135,17 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     // The "FROM" filename
     contents.append(" FROM STDIN"); // FIFO file
 
-    // The "FORMAT" clause
+    // The "FORMAT" clause. The rows are always sent in UTF-8 and the ENCODING option says so,
+    // whatever the session's client_encoding (PostgreSQL 9.1 and later).
     contents
-        .append(" WITH CSV DELIMITER AS '")
+        .append(" WITH (FORMAT csv, DELIMITER '")
         .append(resolve(meta.getDelimiter()))
-        .append("' QUOTE AS '")
+        .append("', QUOTE '")
         .append(resolve(meta.getEnclosure()))
-        .append("'");
+        .append("', ENCODING 'UTF8')");
     contents.append(";").append(Const.CR);
 
     return contents.toString();
-  }
-
-  void checkClientEncoding() throws Exception {
-    Connection connection = data.db.getConnection();
-
-    Statement statement = connection.createStatement();
-
-    try {
-      try (ResultSet rs = statement.executeQuery("show client_encoding")) {
-        if (!rs.next() || rs.getMetaData().getColumnCount() != 1) {
-          if (isBasic()) {
-            logBasic("Cannot detect client_encoding, using system default encoding");
-          }
-          return;
-        }
-
-        String clientEncodingStr = rs.getString(1);
-        if (isBasic()) {
-          logBasic("Detect client_encoding: " + clientEncodingStr);
-        }
-        clientEncoding = Charset.forName(clientEncodingStr);
-      }
-    } catch (SQLException | IllegalArgumentException ex) {
-      logError("Cannot detect PostgreSQL client_encoding, using system default encoding", ex);
-    } finally {
-      statement.close();
-    }
   }
 
   private void doCopy(PGBulkLoaderMeta meta, boolean wait) throws HopException {
@@ -158,8 +153,6 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     String copyCmd = getCopyCommand();
     try {
       connect();
-
-      checkClientEncoding();
 
       processTruncate();
 
@@ -348,12 +341,12 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
               buf.append(data.quote);
               break;
             case IValueMeta.TYPE_INTEGER:
-              if (valueMeta.isStorageBinaryString()) {
-                buf.append((byte[]) valueData);
-              } else {
-                long integer = valueMeta.getInteger(valueData);
-                text.setLength(0);
-                buf.append(text.append(integer));
+              if (!appendLazyBytes(buf, i, valueMeta, valueData)) {
+                Long integer = valueMeta.getInteger(valueData);
+                if (integer != null) {
+                  text.setLength(0);
+                  buf.append(text.append(integer.longValue()));
+                }
               }
               break;
             case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
@@ -361,25 +354,23 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
               break;
             case IValueMeta.TYPE_BOOLEAN:
               byte[] boolBytes =
-                  booleanFieldBytesForPgCopyText(valueMeta, valueData, clientEncoding);
+                  booleanFieldBytesForPgCopyText(valueMeta, valueData, COPY_ENCODING);
               if (boolBytes != null) {
                 buf.append(boolBytes);
               }
               break;
             case IValueMeta.TYPE_NUMBER:
-              if (valueMeta.isStorageBinaryString()) {
-                buf.append((byte[]) valueData);
-              } else {
-                double number = valueMeta.getNumber(valueData);
-                text.setLength(0);
-                // the same digits as Double.toString(number)
-                buf.append(text.append(number));
+              if (!appendLazyBytes(buf, i, valueMeta, valueData)) {
+                Double number = valueMeta.getNumber(valueData);
+                if (number != null) {
+                  text.setLength(0);
+                  // the same digits as Double.toString(number)
+                  buf.append(text.append(number.doubleValue()));
+                }
               }
               break;
             case IValueMeta.TYPE_BIGNUMBER:
-              if (valueMeta.isStorageBinaryString()) {
-                buf.append((byte[]) valueData);
-              } else {
+              if (!appendLazyBytes(buf, i, valueMeta, valueData)) {
                 BigDecimal big = valueMeta.getBigNumber(valueData);
                 if (big != null) {
                   buf.append(big.toString());
@@ -388,7 +379,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
               break;
             case IValueMeta.TYPE_BINARY:
               byte[] binaryBytes =
-                  binaryFieldBytesForPgCopyText(valueMeta, valueData, clientEncoding);
+                  binaryFieldBytesForPgCopyText(valueMeta, valueData, COPY_ENCODING);
               if (binaryBytes != null) {
                 buf.append(binaryBytes);
               }
@@ -397,9 +388,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
               // UUID supports
               if (valueMeta.getType() == ValueMetaFactory.getIdForValueMeta("UUID")) {
-                if (valueMeta.isStorageBinaryString()) {
-                  buf.append((byte[]) valueData);
-                } else {
+                if (!appendLazyBytes(buf, i, valueMeta, valueData)) {
                   String s = valueMeta.getString(valueData);
                   if (s != null) {
                     buf.append(s);
@@ -427,13 +416,15 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
    * can be formatted without SimpleDateFormat (with exactly the same text).
    */
   private void prepareRowEncoding(IRowMeta rowMeta) {
-    data.rowBuffer = new PGCopyRowBuffer(clientEncoding);
+    data.rowBuffer = new PGCopyRowBuffer(COPY_ENCODING);
     data.scratch = new StringBuilder(64);
     data.quoteString = new String(data.quote);
     data.doubledQuoteString = data.quoteString + data.quoteString;
     data.dateFormatters = new FastValueFormatter[data.keynrs.length];
+    data.lazyBytesGrouping = new int[data.keynrs.length];
     for (int i = 0; i < data.keynrs.length; i++) {
       IValueMeta valueMeta = rowMeta.getValueMeta(data.keynrs[i]);
+      data.lazyBytesGrouping[i] = lazyBytesGrouping(valueMeta);
       if (valueMeta.getType() != IValueMeta.TYPE_DATE
           && valueMeta.getType() != IValueMeta.TYPE_TIMESTAMP) {
         continue;
@@ -453,6 +444,83 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       }
     }
     data.encodedRowMeta = rowMeta;
+  }
+
+  /**
+   * Copies a lazy (binary string) value as the bytes it was read as, when PostgreSQL reads them as
+   * Hop does: ASCII text, without grouping symbols, of a field {@link #lazyBytesGrouping} allows.
+   *
+   * @return false when the value is not lazy or its bytes need converting
+   */
+  private boolean appendLazyBytes(
+      PGCopyRowBuffer buf, int i, IValueMeta valueMeta, Object valueData) {
+    int grouping = data.lazyBytesGrouping[i];
+    if (grouping == CONVERT_LAZY_BYTES || !valueMeta.isStorageBinaryString()) {
+      return false;
+    }
+    byte[] bytes = (byte[]) valueData;
+    for (byte b : bytes) {
+      if (b < 0 || b == grouping) {
+        return false;
+      }
+    }
+    buf.append(bytes);
+    return true;
+  }
+
+  /**
+   * Whether the bytes of a lazy number or UUID field can be copied as they were read. They can when
+   * the storage encoding keeps ASCII as ASCII and, for numbers, the conversion mask is plain and
+   * the decimal symbol is a point. Such text means the same to PostgreSQL as to Hop, unless it
+   * holds the grouping symbol, which is returned.
+   *
+   * @return the grouping symbol (or {@link #NO_GROUPING_SYMBOL}), or {@link #CONVERT_LAZY_BYTES}
+   */
+  static int lazyBytesGrouping(IValueMeta valueMeta) {
+    IValueMeta storage = valueMeta.getStorageMetadata();
+    if (!valueMeta.isStorageBinaryString() || storage == null) {
+      return CONVERT_LAZY_BYTES;
+    }
+    if (!isAsciiCompatible(storage.getStringEncoding())) {
+      return CONVERT_LAZY_BYTES;
+    }
+    switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+        break;
+      default:
+        // UUID: its text has no format of its own
+        return NO_GROUPING_SYMBOL;
+    }
+    // The storage metadata parses the text, with its conversion metadata's format if it has one.
+    IValueMeta format =
+        storage.getConversionMetadata() != null ? storage.getConversionMetadata() : storage;
+    String mask = format.getConversionMask();
+    if (!Utils.isEmpty(mask) && !PLAIN_NUMBER_MASK.matcher(mask).matches()) {
+      return CONVERT_LAZY_BYTES;
+    }
+    // An empty symbol leaves the regional settings' one in place (see getDecimalFormat()).
+    DecimalFormatSymbols regional =
+        DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT));
+    String decimal = format.getDecimalSymbol();
+    char decimalSymbol =
+        Utils.isEmpty(decimal) ? regional.getDecimalSeparator() : decimal.charAt(0);
+    if (decimalSymbol != '.') {
+      return CONVERT_LAZY_BYTES;
+    }
+    String grouping = format.getGroupingSymbol();
+    char groupingSymbol =
+        Utils.isEmpty(grouping) ? regional.getGroupingSeparator() : grouping.charAt(0);
+    // A grouping symbol outside ASCII is caught by the ASCII check.
+    return groupingSymbol < 0x80 ? groupingSymbol : NO_GROUPING_SYMBOL;
+  }
+
+  private static boolean isAsciiCompatible(String encoding) {
+    try {
+      return PGCopyRowBuffer.isAsciiCompatible(
+          Utils.isEmpty(encoding) ? Charset.defaultCharset() : Charset.forName(encoding));
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   private void appendDate(
@@ -581,16 +649,16 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       }
 
       if (enclosure != null) {
-        data.quote = enclosure.getBytes();
+        data.quote = enclosure.getBytes(COPY_ENCODING);
       } else {
         data.quote = new byte[] {};
       }
       if (separator != null) {
-        data.separator = separator.getBytes();
+        data.separator = separator.getBytes(COPY_ENCODING);
       } else {
         data.separator = new byte[] {};
       }
-      data.newline = Const.CR.getBytes();
+      data.newline = Const.CR.getBytes(COPY_ENCODING);
 
       data.dateFormatChoices = new int[meta.getMappings().size()];
       for (int i = 0; i < data.dateFormatChoices.length; i++) {

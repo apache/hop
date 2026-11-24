@@ -21,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -155,5 +156,28 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta {
     addExtraOption(getPluginId(), "encrypt", "false");
     setSupportsTimestampDataType(true);
     setSupportsBooleanDataType(true);
+  }
+
+  /**
+   * Measured with mssql-jdbc 13.4 against SQL Server 2022: the driver runs every row of a failed
+   * batch and marks the failed ones, for duplicate keys, values that are too long and NOT NULL
+   * violations alike. Not declared with {@code useBulkCopyForBatchInsert=true}, where the driver
+   * returns no counts and keeps an unknown part of the batch, nor when the connection's SQL sets
+   * {@code XACT_ABORT}, which makes a failure abort the whole transaction.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != MsSqlServerNativeDatabaseMeta.class) {
+      return null;
+    }
+    String bulkCopy = getConnectionOption("useBulkCopyForBatchInsert");
+    if (bulkCopy != null && !"false".equalsIgnoreCase(bulkCopy.trim())) {
+      return null;
+    }
+    String connectSql = getConnectSql();
+    if (connectSql != null && connectSql.toUpperCase().contains("XACT_ABORT")) {
+      return null;
+    }
+    return BatchFailureContract.MARKS_FAILED_ROWS;
   }
 }

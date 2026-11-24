@@ -1,0 +1,44 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "errorCodes",
+          "data_set_field": "errorCodes"
+        },
+        {
+          "transform_field": "errorFields",
+          "data_set_field": "errorFields"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "minId",
+          "data_set_field": "minId"
+        },
+        {
+          "transform_field": "maxId",
+          "data_set_field": "maxId"
+        }
+      ],
+      "field_order": [
+        "errorCodes"
+      ],
+      "transform_name": "Validate errors",
+      "data_set_name": "0017-error-hop-group-by-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0017-error-hop-group-by-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0017-error-hop-group-by-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

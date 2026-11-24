@@ -159,7 +159,6 @@ class PGBulkLoaderTest {
     doReturn(new Object[0]).when(spy).getRow();
     doReturn("").when(spy).getCopyCommand();
     doNothing().when(spy).connect();
-    doNothing().when(spy).checkClientEncoding();
     doNothing().when(spy).processTruncate();
     spy.init();
     spy.processRow();

@@ -23,6 +23,7 @@ under the License.
 
 * Architecture
 ** xref:architecture/execution-model.adoc[How a pipeline and a workflow run]
+** xref:architecture/extension-points.adoc[Extension points and when they fire]
 ** xref:architecture/variables-and-metadata.adoc[Variables, parameters and metadata]
 ** xref:architecture/dependencies-and-classloading.adoc[Dependencies and classloading]
 ** xref:architecture/logging-and-debugging.adoc[Logging and debugging]

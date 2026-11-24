@@ -157,6 +157,34 @@ limitations under the License.
       <attributes_hac />
     </action>
     <action>
+      <name>0009-lineage-sink-openlineage-unit-test</name>
+      <description>Its run configuration, local-openlineage, selects the openlineage-stub lineage sink: the unit test it runs reports its result there, on a run that ends</description>
+      <type>WORKFLOW</type>
+      <attributes />
+      <filename>${PROJECT_HOME}/0009-lineage-sink-openlineage-unit-test.hwf</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile />
+      <logext />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <create_parent_folder>N</create_parent_folder>
+      <pass_export>N</pass_export>
+      <run_configuration>local-openlineage</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <xloc>784</xloc>
+      <yloc>224</yloc>
+      <attributes_hac />
+    </action>
+    <action>
       <name>Publish to DataHub</name>
       <description>Publishes the pipeline in publish/, which never runs, to the datahub-stub lineage sink, with its documentation</description>
       <type>PUBLISH_TO_DATAHUB</type>
@@ -224,6 +252,13 @@ limitations under the License.
     </hop>
     <hop>
       <from>0003-lineage-sink-child-workflow</from>
+      <to>0009-lineage-sink-openlineage-unit-test</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-lineage-sink-openlineage-unit-test</from>
       <to>Publish to DataHub</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

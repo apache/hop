@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0017-error-hop-group-by</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>The rows of an error hop go into Memory group by, which groups on the error code: a field only the error hop has. On Beam the transform after an error hop gets the layout of that hop: the fields passed plus the error fields.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/23 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/23 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>input/customers-noheader-1k.txt</from>
+      <to>id at most 900</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>id at most 900</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>id at most 900</from>
+      <to>count per error code</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>count per error code</from>
+      <to>error-summary</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>input/customers-noheader-1k.txt</name>
+    <type>BeamInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name>Customers</file_description_name>
+    <input_location>${PROJECT_HOME}/input/customers-noheader-1k.txt</input_location>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>id at most 900</name>
+    <type>Validator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <concat_errors>N</concat_errors>
+    <validate_all>N</validate_all>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <conversion_mask>#</conversion_mask>
+      <data_type>Integer</data_type>
+      <data_type_verified>N</data_type_verified>
+      <decimal_symbol>.</decimal_symbol>
+      <error_code>ID_MAX</error_code>
+      <error_description>The id is above 900</error_description>
+      <grouping_symbol>,</grouping_symbol>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <max_value>900</max_value>
+      <min_length/>
+      <name>id</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>id: at most 900</validation_name>
+    </validator_field>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>ok</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0017/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>count per error code</name>
+    <type>MemoryGroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <give_back_row>N</give_back_row>
+    <group>
+      <field>
+        <name>errorCodes</name>
+      </field>
+      <field>
+        <name>errorFields</name>
+      </field>
+    </group>
+    <fields>
+      <field>
+        <aggregate>count</aggregate>
+        <subject>id</subject>
+        <type>COUNT_ALL</type>
+        <valuefield/>
+      </field>
+      <field>
+        <aggregate>minId</aggregate>
+        <subject>id</subject>
+        <type>MIN</type>
+        <valuefield/>
+      </field>
+      <field>
+        <aggregate>maxId</aggregate>
+        <subject>id</subject>
+        <type>MAX</type>
+        <valuefield/>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>error-summary</name>
+    <type>BeamOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <file_description_name/>
+    <file_prefix>error-summary</file_prefix>
+    <file_suffix>.csv</file_suffix>
+    <output_location>${java.io.tmpdir}/0017/</output_location>
+    <windowed>N</windowed>
+    <attributes/>
+    <GUI>
+      <xloc>544</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>id at most 900</source_transform>
+      <target_transform>count per error code</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>errorCount</nr_valuename>
+      <descriptions_valuename>errorDescriptions</descriptions_valuename>
+      <fields_valuename>errorFields</fields_valuename>
+      <codes_valuename>errorCodes</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

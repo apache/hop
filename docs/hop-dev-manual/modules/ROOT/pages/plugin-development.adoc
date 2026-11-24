@@ -117,7 +117,7 @@ Once you have identified the plugin type you need — see xref:plugin-types/inde
 
 Create the plugin as a new Maven sub-module with the category pom as its parent, and add it to that pom's `<modules>`.
 
-The category parent already gives you everything a plugin needs: `hop-core`, `hop-engine`, `hop-ui` and SWT as `provided` dependencies, the Jandex index, the shared archive resources, and the SWTBot UI test stack on the test classpath.
+The category parent already gives you everything a plugin needs: `hop-core`, `hop-engine`, `hop-ui` and SWT as `provided` dependencies, the Jandex index, the plugin manifest, the shared archive resources, and the SWTBot UI test stack on the test classpath.
 A plugin pom is usually no more than a parent, an artifactId, a name, and whatever extra dependencies the plugin itself needs.
 
 Duplicating a comparable existing plugin is the fastest way to start.

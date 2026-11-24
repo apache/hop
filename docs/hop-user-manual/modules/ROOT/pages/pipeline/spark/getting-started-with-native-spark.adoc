@@ -148,7 +148,6 @@ Do *not* mix this engine with Beam’s Spark 3.5 fat-jar packs or an accidental 
 == Prerequisites
 
 * Apache Hop *2.19+* with the `hop-engines-spark` plugin. It is not part of the default client download: install it with `./hop marketplace install hop-engines-spark` (see xref:hop-tools/hop-marketplace.adoc[Hop Marketplace]) and restart Hop.
-* For cluster runs, also the `hop-engines-beam` plugin: the fat jar builder ships with it.
 * *Java {java-version}*.
 * Familiarity with Hop pipelines, metadata, and run configurations.
 * For cluster submit:
@@ -233,13 +232,11 @@ Same run configuration, no GUI:
 
 On a real cluster you must *not* embed a second copy of Spark inside the application jar. The cluster already provides Spark 4.1. Embedding Spark leads to dual classpaths and failures on Java {java-version}.
 
-Use the special fat-jar token *`native-provided`*: Hop and plugins go into the jar; *Spark stays out*.
-
-The fat jar builder ships with the Apache Beam engine plugin. Without `hop-engines-beam` installed, `hop-conf.sh` reports `Unknown options: '--generate-fat-jar=...'`.
+Generate the fat jar for the *native Spark engine*: Hop and its plugins go into the jar; *everything a Spark distribution ships (Spark, Scala, the Hadoop client and their libraries), and the Beam engine stay out*. The engine plugin knows what a Spark distribution of its version ships from its own dependency tree, `plugins/engines/spark/spark-dependencies.txt`. The Beam engine is its plugin folder and every jar in `lib/core` that, according to the plugin manifests, only the Beam engine installs: a jar Beam shares with another installed plugin stays. It is the same jar Databricks *Deploy & run* builds and caches, so when the cached one is current, generating it only copies that file.
 
 ==== From Hop GUI
 
-. Start Hop GUI with the environment variable `HOP_SPARK_CLIENT_VERSION=native-provided`. *Tools* → *Generate a Hop fat jar* does not ask for the packaging; without that variable it builds a jar for the Beam Spark runner, not for the native engine.
+. *Tools* → *Generate a Hop fat jar*. When the Beam engines are installed too, Hop asks which engine the jar is for: pick *Native Spark engine*.
 . Save the jar *outside* the project (or gitignore it). Fat jars are large.
 
 ==== From the command line (recommended, explicit)
@@ -249,21 +246,10 @@ The fat jar builder ships with the Apache Beam engine plugin. Without `hop-engin
 # From your Hop installation directory
 ./hop-conf.sh \
   --generate-fat-jar=/tmp/hop-native-spark4-submit.jar \
-  --spark-client-version=native-provided
+  --fat-jar-engine=spark
 ----
 
-[options="header",cols="1,2,2"]
-|===
-|Token |When to use |Spark runtime
-
-|`native-provided`
-|`spark-submit` on a cluster
-|Cluster provides Spark 4.1.x (*do not* embed)
-
-|`native`
-|Rare: fat jar that *includes* Spark 4 from `plugins/engines/spark/lib` (not for normal cluster submit)
-|Embedded Spark 4
-|===
+Add `--include-spark-runtime` only for a JVM without Spark that starts the Spark session itself: it embeds Spark 4 and Scala. Never use it for `spark-submit` or a cluster.
 
 === Export project metadata
 
@@ -705,7 +691,7 @@ image::pipeline/spark/spark-native-0099-complex.png[0099 complex sample,width=95
 * [ ] Run configuration engine = *Native Spark* (not Beam Spark)
 * [ ] First success on `+local[*]+` with Spark file input → transform → Spark file output
 * [ ] Execution information location attached if you need history and samples
-* [ ] Cluster: fat jar with `--spark-client-version=native-provided`
+* [ ] Cluster: fat jar with `--fat-jar-engine=spark`
 * [ ] Cluster: `SPARK_HOME` pinned to Spark *4.1.x*
 * [ ] Cluster: metadata JSON exported; run configuration name matches submit args
 * [ ] No sorted Group By; no reliance on Copy/Distribute multi-hop behaviour

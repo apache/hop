@@ -68,6 +68,7 @@ Parallel branches change this: each branch gets its own thread and its own start
 
 The lifecycle is exposed through xref:plugin-types/execution-observability.adoc[extension points] — `PipelinePrepareExecution`, `PipelineStart`, `TransformBeforeStart`, `PipelineFinish`, `PipelineCompleted` and their workflow equivalents.
 These are how logging, execution information, lineage and live status all attach without the engine knowing about them.
+xref:architecture/extension-points.adoc[Extension points and when they fire] lists every one of them, in the order a run fires them, and which engines fire which.
 
 [IMPORTANT]
 ====

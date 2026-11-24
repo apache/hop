@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -1165,6 +1164,37 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * The value of a JDBC connection option as the user set it: an extra option of this connection,
+   * or a parameter in its manual URL. Dialects use it to tell whether an option changes what the
+   * driver does, for example with a failed batch.
+   *
+   * @param option the driver's option name, matched ignoring case
+   * @return the value, or null when the option is not set
+   */
+  protected String getConnectionOption(String option) {
+    for (Map.Entry<String, String> entry : getExtraOptions().entrySet()) {
+      String key = entry.getKey();
+      int dot = key.lastIndexOf('.');
+      String name = dot >= 0 ? key.substring(dot + 1) : key;
+      if (name.equalsIgnoreCase(option)) {
+        return entry.getValue();
+      }
+    }
+    String url = getManualUrl();
+    if (!Utils.isEmpty(url)) {
+      java.util.regex.Matcher matcher =
+          java.util.regex.Pattern.compile(
+                  "[?;&]\\s*" + java.util.regex.Pattern.quote(option) + "\\s*=([^;&]*)",
+                  java.util.regex.Pattern.CASE_INSENSITIVE)
+              .matcher(url);
+      if (matcher.find()) {
+        return matcher.group(1).trim();
+      }
+    }
+    return null;
+  }
+
+  /**
    * @return all the extra options that are set to be used for the database URL
    */
   @Override
@@ -2145,18 +2175,23 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
           ins.append(string);
           break;
         case IValueMeta.TYPE_DATE:
-          Date date = valueMeta.getDate(valueData);
-
+          SqlLiteralFormatter dates;
           if (Utils.isEmpty(dateFormat)) {
-            ins.append("'" + valueMeta.getString(valueData) + "'");
+            dates = SqlLiteralFormatter.forValueMeta(valueMeta);
           } else {
             try {
-              java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(dateFormat);
-              ins.append("'" + formatter.format(date) + "'");
+              dates = SqlLiteralFormatter.forDatePattern(valueMeta, dateFormat);
             } catch (Exception e) {
               throw new HopValueException("Error : ", e);
             }
           }
+          ins.append('\'');
+          dates.append(ins, valueData);
+          ins.append('\'');
+          break;
+        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
+          // The same in every locale: a period, no grouping, an ASCII minus sign.
+          SqlLiteralFormatter.forValueMeta(valueMeta).append(ins, valueData);
           break;
         default:
           ins.append(valueMeta.getString(valueData));

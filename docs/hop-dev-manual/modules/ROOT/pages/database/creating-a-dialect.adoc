@@ -99,6 +99,9 @@ They are ordinary methods with sensible defaults, and the ones that matter most 
 
 |`getLimitClausePrefix(int)`
 |The clause placed directly after `SELECT` instead, such as `" TOP 10"`. Databases use one form or the other, so override this or `getLimitClause`, not both.
+
+|`getBatchFailureContract()`
+|What the JDBC driver does with a batch when one of its rows fails, measured against a real server, or `null` when nobody has measured it. See <<Batch failure contract>>.
 |===
 
 Both include their own leading space, and both default to returning nothing.
@@ -106,6 +109,60 @@ A dialect that offers neither still works: the row count is capped while reading
 
 Prefer overriding a capability over overriding behaviour.
 A capability is a fact about the database that Hop can act on in several places; overridden behaviour only fixes the one place you overrode.
+
+== Batch failure contract
+
+When a row in a JDBC batch fails, drivers disagree about what happened to the other rows of the batch, and about what `BatchUpdateException.getUpdateCounts()` means.
+A dialect that knows what its driver does returns it from `getBatchFailureContract()`, and Table output then uses it to keep batching with an error hop attached and still send every row of a failed batch to exactly one stream, in input order:
+
+`MARKS_FAILED_ROWS`::
+The driver runs every row and marks the failed ones with `EXECUTE_FAILED`.
+The rows it applied are committed, and the failed ones are rejected.
+
+`KEEPS_PREFIX`::
+The driver stops at the first failing row; the counts array is as long as the rows before it, and the rows behind it were never sent.
+The prefix is committed, the failing row rejected, and the rest is sent again.
+
+`LOSES_WHOLE_BATCH`::
+No row of the batch survives.
+The batch is rolled back and run again in halves until the failing rows are isolated.
+The failed batch entry a driver names in its message (`getFailedBatchEntry`) can save most of those round trips.
+
+A dialect that returns `null`, the default, is treated as `UNKNOWN`: a failed batch is handled the way Hop always handled it.
+Users get that behaviour back on a dialect with a contract by choosing *As before* for *When a batch fails, the driver* on the *Advanced* tab of the connection, or with the variable `HOP_DATABASE_BATCH_RECOVERY=LEGACY` for every connection.
+
+=== Measure, don't guess
+
+Return a contract only after measuring the driver against a real server, with the driver version Hop ships and the connection options the dialect writes.
+`org.apache.hop.core.database.batch.BatchContractProbe` does the measurement on any open connection: it commits two rows into a scratch table, sends a batch of ten rows of which two repeat those keys, commits, and reports the update counts and the rows that survived.
+Put the failing rows at the start, in the middle and at the end of a batch, and also try a batch large enough for the driver to split it into several statements or packets.
+
+A contract often only holds for some connection options.
+Read them with `getConnectionOption(name)`, which looks at the extra options and a manual URL, and return `null` for any option value that was not measured.
+Return the contract for your own dialect class only (`getClass() == MyDatabaseMeta.class`), so a dialect that extends yours doesn't inherit a contract nobody measured for its driver.
+
+Every declared contract is checked against the real driver in a test that uses `org.apache.hop.junit.batch.DialectContractCheck` from the hop-core test jar: the probe must see exactly what the dialect declares, through the URL the dialect builds, and a batch recovered by that contract must report exactly the rows that end up in the table, also for a batch the driver splits.
+For a connection option that makes the dialect declare nothing, the check confirms the driver indeed behaves differently with it.
+The drivers that run in process are checked in unit tests, for example `H2BatchContractTest` and `DerbyNetworkBatchContractTest`.
+PostgreSQL, MySQL, SQL Server and Oracle are checked in `*BatchContractIT` classes in their plugins, in Testcontainers images; the drivers Hop downloads on demand are fetched at the dialect's `DriverDownload` version.
+The MySQL, SQL Server and Oracle ones run with `-Dhop.it.batchContracts=true`.
+
+=== What was measured
+
+[options="header",cols="2,2,3,3"]
+|===
+|Dialect |Driver |Contract |Not declared with
+|PostgreSQL |pgjdbc 42.7 |`LOSES_WHOLE_BATCH`, also with `reWriteBatchedInserts` and every `autosave` setting |
+|SQL Server (Microsoft driver) |mssql-jdbc 13.4 |`MARKS_FAILED_ROWS` |`useBulkCopyForBatchInsert=true`, `XACT_ABORT` in the connection SQL
+|Oracle |ojdbc11 23.26 |`KEEPS_PREFIX` |
+|MySQL |Connector/J 9.7 |`MARKS_FAILED_ROWS`; `KEEPS_PREFIX` with `continueBatchOnError=false` |`rewriteBatchedStatements=true`, another driver class
+|H2 |H2 2.5 (memory, file and TCP) |`MARKS_FAILED_ROWS` |
+|Derby |Derby 10.17 |`MARKS_FAILED_ROWS` with a hostname (network client), `KEEPS_PREFIX` without (embedded) |
+|DuckDB |DuckDB JDBC 1.5.6 |`LOSES_WHOLE_BATCH` |
+|===
+
+Not declared, after measuring: SQLite (it stops at the failed row but reports no counts), MariaDB with its own driver (a batch that spans several packets keeps the other packets while every row is reported as failed), and SQL Server through jTDS.
+The dialects that extend PostgreSQL and MySQL (Greenplum, Redshift, CockroachDB, CrateDB, MariaDB, Doris, Infobright) declare nothing either: their drivers or servers were not measured.
 
 == SQL differences
 
@@ -154,3 +211,4 @@ Declare the dependency as `provided` in the module's `pom.xml`, so the plugin bu
 * Column types are declared as rules, not as an overridden `getFieldDefinition`.
 * There is a golden test for the generated DDL, see xref:database/testing.adoc[Testing a database plugin].
 * There is a page in the user manual, and `documentationUrl` points at it.
+* `getBatchFailureContract()` returns a measured value, or `null` if nobody has measured the driver.

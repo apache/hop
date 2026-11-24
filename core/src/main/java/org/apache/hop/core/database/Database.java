@@ -195,6 +195,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private IRowMeta rowMeta;
 
+  /** The layouts of the statements {@link #getLookup} executed, see {@link LookupRowMetaCache}. */
+  private final LookupRowMetaCache lookupRowMetas = new LookupRowMetaCache();
+
   /**
    * The result row metadata derived by {@link #openQuery(PreparedStatement, IRowMeta, Object[])},
    * cached together with the prepared statement it was derived from. A prepared statement always
@@ -676,6 +679,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     openQueryStatement = null;
     openQueryRowMeta = null;
     keptQuery = null;
+    lookupRowMetas.clear();
     if (connection == null) {
       dbmd = null;
       return; // Nothing to do...
@@ -789,6 +793,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @throws HopDatabaseException in case there is an error during connection close.
    */
   public synchronized void closeConnectionOnly() throws HopDatabaseException {
+    lookupRowMetas.clear();
     try {
       if (connection != null) {
         connection.close();
@@ -1051,10 +1056,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       openQueryStatement = null;
       openQueryRowMeta = null;
     }
+    lookupRowMetas.forget(ps);
   }
 
   public void closeInsert() throws HopDatabaseException {
     if (prepStatementInsert != null) {
+      lookupRowMetas.forget(prepStatementInsert);
       try {
         prepStatementInsert.close();
         prepStatementInsert = null;
@@ -1066,6 +1073,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   public void closeUpdate() throws HopDatabaseException {
     if (prepStatementUpdate != null) {
+      lookupRowMetas.forget(prepStatementUpdate);
       try {
         prepStatementUpdate.close();
         prepStatementUpdate = null;
@@ -1410,6 +1418,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           isBatchUpdate = true;
           debug = "insertRow executeBatch commit";
           ps.executeBatch();
+          // The batch ran; a failure from here on is not a batch failure and has no counts.
+          isBatchUpdate = false;
           commit();
           ps.clearBatch();
         } else {
@@ -1511,6 +1521,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             // our responsibility.
             isBatchUpdate = true;
             ps.executeBatch();
+            // The batch ran; a failure from here on is not a batch failure and has no counts.
+            isBatchUpdate = false;
             commit();
             ps.clearBatch();
           } else {
@@ -1687,28 +1699,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * updated and deleted rows together and lands in the update counter.
    */
   private void countAffectedRows(Result result, String sql, int count) {
-    if (count <= 0) {
-      return;
-    }
-    String verb = SqlQueryClassifier.statementVerb(sql);
-    if (verb == null) {
-      return;
-    }
-    switch (verb) {
-      case "INSERT" -> result.setNrLinesOutput(count);
-      case "UPDATE", "MERGE", "UPSERT", "REPLACE" -> result.setNrLinesUpdated(count);
-      case "DELETE" -> result.setNrLinesDeleted(count);
-      default -> {
-        // Databases that update or delete through another statement, like ClickHouse with
-        // ALTER TABLE ... UPDATE / DELETE
-        String upperSql = sql.toUpperCase();
-        if (databaseMeta.isSupportsCustomUpdateStmt() && upperSql.contains("UPDATE")) {
-          result.setNrLinesUpdated(count);
-        } else if (databaseMeta.isSupportsCustomDeleteStmt() && upperSql.contains("DELETE")) {
-          result.setNrLinesDeleted(count);
-        }
-      }
-    }
+    SqlQueryClassifier.affectedRows(sql, databaseMeta).addTo(result, count);
   }
 
   /**
@@ -3094,6 +3085,9 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (log.isDetailed()) {
           log.logDetailed("Setting preparedStatement to [" + sql + "]");
         }
+        // The statement this replaces may come back from the driver for this SQL: forget its
+        // layout.
+        lookupRowMetas.forget(prepStatementLookup);
         prepStatementLookup = connection.prepareStatement(databaseMeta.stripCR(sql));
         if (!checkForMultipleResults && databaseMeta.supportsSetMaxRows()) {
           prepStatementLookup.setMaxRows(1); // alywas get only 1 line back!
@@ -3338,9 +3332,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   public Object[] getLookup(PreparedStatement ps) throws HopDatabaseException {
-    // we assume this is external PreparedStatement and we may need to re-create rowMeta
-    // so we just reset it to null and it will be re-created on processRow call
-    rowMeta = null;
     return getLookup(ps, false);
   }
 
@@ -3353,11 +3344,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       PreparedStatement ps, boolean failOnMultipleResults, boolean lazyConversion)
       throws HopDatabaseException {
     ResultSet res = null;
+    // The layout reported afterwards is that of this lookup, or none when it fails.
+    rowMeta = null;
     try {
       log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_START, databaseMeta.getName());
       res = ps.executeQuery();
 
-      Object[] ret = getRow(res, lazyConversion);
+      rowMeta = getLookupRowMeta(ps, res, lazyConversion);
+      Object[] ret = getRow(res, null, rowMeta);
 
       if (failOnMultipleResults && ret != null && res.next()) {
         // if the previous row was null, there's no reason to try res.next()
@@ -3381,6 +3375,28 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.snap(Metrics.METRIC_DATABASE_GET_LOOKUP_STOP, databaseMeta.getName());
       }
     }
+  }
+
+  /**
+   * The layout of the rows a lookup statement returns: derived from the result set of this very
+   * statement, with this lazy conversion flag, and reused while the statement answers the same
+   * columns (#9679).
+   */
+  private IRowMeta getLookupRowMeta(PreparedStatement ps, ResultSet res, boolean lazyConversion)
+      throws HopDatabaseException, SQLException {
+    ResultSetMetaData rsmd;
+    try {
+      rsmd = res.getMetaData();
+    } catch (SQLException e) {
+      throw new HopDatabaseException("Unable to retrieve metadata from resultset", e);
+    }
+    IRowMeta cached = lookupRowMetas.get(ps, lazyConversion, rsmd);
+    if (cached != null) {
+      return cached;
+    }
+    IRowMeta derived = getRowInfo(rsmd, false, lazyConversion);
+    lookupRowMetas.put(ps, lazyConversion, rsmd, derived);
+    return derived;
   }
 
   public DatabaseMetaData getDatabaseMetaData() throws HopDatabaseException {
@@ -3851,10 +3867,26 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   public static final class SqlParameterSpec {
     private final String preparedSql;
     private final List<String> parameterReferences;
+    private final List<Integer> markerPositions;
 
     public SqlParameterSpec(String preparedSql, List<String> parameterReferences) {
+      this(preparedSql, parameterReferences, List.of());
+    }
+
+    public SqlParameterSpec(
+        String preparedSql, List<String> parameterReferences, List<Integer> markerPositions) {
       this.preparedSql = preparedSql;
       this.parameterReferences = Collections.unmodifiableList(new ArrayList<>(parameterReferences));
+      this.markerPositions = List.copyOf(markerPositions);
+    }
+
+    /**
+     * Offsets in the source SQL (not the prepared SQL) of the positional '?' markers, in ascending
+     * order. Question marks in literals, quoted identifiers, comments and PostgreSQL JSONB
+     * operators are not markers, and neither are ?{name} references.
+     */
+    public List<Integer> getMarkerPositions() {
+      return markerPositions;
     }
 
     public String getPreparedSql() {
@@ -3878,7 +3910,36 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * operators (?|, ?&amp;, ??, ??|, ??&amp;) are not treated as parameters.
    */
   public static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
-    return parseSqlParameterSpec(sourceSql, false);
+    return parseSqlParameterSpec(sourceSql, SqlSyntax.DEFAULT);
+  }
+
+  /**
+   * The parts of a dialect's SQL that decide whether a '?' is a parameter marker.
+   *
+   * @param bracketIdentifiers [identifier] sections are quoted identifiers (SQL Server)
+   * @param backslashEscapes a backslash escapes the next character in a string literal (MySQL)
+   * @param questionMarkOperators ?|, ?&amp; and ?? are operators (PostgreSQL JSONB), not markers
+   */
+  public record SqlSyntax(
+      boolean bracketIdentifiers, boolean backslashEscapes, boolean questionMarkOperators) {
+
+    /** No dialect known: the rules Hop always used, PostgreSQL JSONB operators included. */
+    public static final SqlSyntax DEFAULT = new SqlSyntax(false, false, true);
+
+    /**
+     * @param databaseMeta the connection, or null when it is not known
+     * @return the rules of the connection's dialect, or {@link #DEFAULT} without one
+     */
+    public static SqlSyntax of(DatabaseMeta databaseMeta) {
+      if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
+        return DEFAULT;
+      }
+      IDatabase dialect = databaseMeta.getIDatabase();
+      return new SqlSyntax(
+          "[".equals(dialect.getStartQuote()) && "]".equals(dialect.getEndQuote()),
+          dialect.isBackslashEscapingStrings(),
+          dialect.isQuestionMarkOperators());
+    }
   }
 
   /**
@@ -3892,34 +3953,51 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public static SqlParameterSpec parseSqlParameterSpec(
       String sourceSql, boolean consumeBracketIdentifiers) {
-    return scanSqlParameters(sourceSql, consumeBracketIdentifiers, "?", false);
+    return parseSqlParameterSpec(
+        sourceSql,
+        new SqlSyntax(
+            consumeBracketIdentifiers,
+            SqlSyntax.DEFAULT.backslashEscapes(),
+            SqlSyntax.DEFAULT.questionMarkOperators()));
+  }
+
+  /**
+   * Parse SQL for JDBC parameter markers and ?{name} placeholders, with the rules of a dialect.
+   *
+   * <p>The parser skips SQL text within literals, quoted identifiers and comments, and, for a
+   * dialect with them, operators that start with '?'.
+   *
+   * @param sourceSql the SQL text to parse
+   * @param syntax the rules of the dialect, see {@link SqlSyntax#of(DatabaseMeta)}
+   */
+  public static SqlParameterSpec parseSqlParameterSpec(String sourceSql, SqlSyntax syntax) {
+    return scanSqlParameters(sourceSql, syntax, "?", false);
   }
 
   /**
    * {@code sourceSql} as the database receives it, with each JDBC parameter marker ({@code ?} or
    * {@code ?{name}}) replaced by {@code replacement}: for example to parse a prepared statement
-   * with a parser that takes no {@code ?}. Literals, quoted identifiers, comments and PostgreSQL
-   * JSONB operators are skipped as in {@link #parseSqlParameterSpec(String, boolean)}, and the JDBC
-   * escape {@code ??} of those operators is written as the single {@code ?} the database gets.
+   * with a parser that takes no {@code ?}. What is not a marker is skipped as in {@link
+   * #parseSqlParameterSpec(String, SqlSyntax)}, and the JDBC escape {@code ??} of an operator is
+   * written as the single {@code ?} the database gets.
    *
    * @param sourceSql the SQL text
-   * @param consumeBracketIdentifiers true to treat [identifier] sections as quoted identifiers
+   * @param syntax the rules of the dialect, see {@link SqlSyntax#of(DatabaseMeta)}
    * @param replacement the text that takes the place of each parameter, for example {@code NULL}
    */
   public static String replaceSqlParameters(
-      String sourceSql, boolean consumeBracketIdentifiers, String replacement) {
-    return scanSqlParameters(sourceSql, consumeBracketIdentifiers, replacement, true)
-        .getPreparedSql();
+      String sourceSql, SqlSyntax syntax, String replacement) {
+    return scanSqlParameters(sourceSql, syntax, replacement, true).getPreparedSql();
   }
 
   private static SqlParameterSpec scanSqlParameters(
-      String sourceSql,
-      boolean consumeBracketIdentifiers,
-      String parameterText,
-      boolean unescapeOperators) {
+      String sourceSql, SqlSyntax syntax, String parameterText, boolean unescapeOperators) {
+    boolean consumeBracketIdentifiers = syntax.bracketIdentifiers();
+    boolean backslashEscapes = syntax.backslashEscapes();
     String sql = Const.NVL(sourceSql, "");
     StringBuilder preparedSql = new StringBuilder(sql.length());
     List<String> parameterReferences = new ArrayList<>();
+    List<Integer> markerPositions = new ArrayList<>();
 
     int index = 0;
     while (index < sql.length()) {
@@ -3959,21 +4037,22 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
 
       if (c == '\'') {
-        int end = consumeQuotedSection(sql, index, '\'', true);
+        int end = consumeQuotedSection(sql, index, '\'', true, backslashEscapes);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
       }
 
       if (c == '"') {
-        int end = consumeQuotedSection(sql, index, '"', true);
+        // MySQL takes "..." for a string literal too, with the same escapes
+        int end = consumeQuotedSection(sql, index, '"', true, backslashEscapes);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
       }
 
       if (c == '`') {
-        int end = consumeQuotedSection(sql, index, '`', true);
+        int end = consumeQuotedSection(sql, index, '`', true, false);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
@@ -4015,7 +4094,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           }
         }
 
-        int jsonbOperatorLength = getPostgresJsonbOperatorLength(sql, index);
+        int jsonbOperatorLength =
+            syntax.questionMarkOperators() ? getPostgresJsonbOperatorLength(sql, index) : 0;
         if (jsonbOperatorLength > 0) {
           boolean escaped = sql.charAt(index + 1) == '?';
           preparedSql.append(
@@ -4025,6 +4105,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         }
 
         parameterReferences.add(null);
+        markerPositions.add(index);
         preparedSql.append(parameterText);
         index++;
         continue;
@@ -4034,13 +4115,22 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       index++;
     }
 
-    return new SqlParameterSpec(preparedSql.toString(), parameterReferences);
+    return new SqlParameterSpec(preparedSql.toString(), parameterReferences, markerPositions);
   }
 
   private static int consumeQuotedSection(
-      String sql, int startIndex, char quoteCharacter, boolean allowDoubledQuoteEscape) {
+      String sql,
+      int startIndex,
+      char quoteCharacter,
+      boolean allowDoubledQuoteEscape,
+      boolean allowBackslashEscape) {
     int index = startIndex + 1;
     while (index < sql.length()) {
+      if (allowBackslashEscape && sql.charAt(index) == '\\') {
+        // The next character is part of the literal, a quote too
+        index += 2;
+        continue;
+      }
       if (sql.charAt(index) == quoteCharacter) {
         if (allowDoubledQuoteEscape
             && index + 1 < sql.length()
@@ -4074,6 +4164,13 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (sql.charAt(startIndex) != '$') {
       return null;
     }
+    // A '$' inside an identifier (Oracle V$SESSION, SYS$A$B) does not start a dollar quote
+    if (startIndex > 0) {
+      char previous = sql.charAt(startIndex - 1);
+      if (Character.isLetterOrDigit(previous) || previous == '_' || previous == '$') {
+        return null;
+      }
+    }
     int cursor = startIndex + 1;
     while (cursor < sql.length()) {
       char current = sql.charAt(cursor);
@@ -4096,7 +4193,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (questionMarkIndex + 2 < length
         && sql.charAt(questionMarkIndex) == '?'
         && sql.charAt(questionMarkIndex + 1) == '?'
-        && (sql.charAt(questionMarkIndex + 2) == '|' || sql.charAt(questionMarkIndex + 2) == '&')) {
+        && (sql.charAt(questionMarkIndex + 2) == '|' || sql.charAt(questionMarkIndex + 2) == '&')
+        && !isDoubled(sql, questionMarkIndex + 2)) {
       return 3;
     }
 
@@ -4105,23 +4203,33 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (next == '?') {
         return 2;
       }
-      if (next == '|' || next == '&') {
+      // ?|| and ?&& are a marker before the || (concatenation) or && (array overlap) operator:
+      // PostgreSQL has no ?|| or ?&& operator
+      if ((next == '|' || next == '&') && !isDoubled(sql, questionMarkIndex + 1)) {
         return 2;
       }
     }
     return 0;
   }
 
-  public int countParameters(String sql) {
-    return parseSqlParameterSpec(sql, supportsBracketQuotedIdentifiers()).getParameterCount();
+  /** Whether the character at the index is followed by the same character: || or &amp;&amp;. */
+  private static boolean isDoubled(String sql, int index) {
+    return index + 1 < sql.length() && sql.charAt(index + 1) == sql.charAt(index);
   }
 
-  private boolean supportsBracketQuotedIdentifiers() {
-    if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
-      return false;
-    }
-    return "[".equals(databaseMeta.getIDatabase().getStartQuote())
-        && "]".equals(databaseMeta.getIDatabase().getEndQuote());
+  public int countParameters(String sql) {
+    return getSqlParameterSpec(sql).getParameterCount();
+  }
+
+  /**
+   * Parse SQL for parameter markers with the rules of this connection's dialect: its quoting
+   * ([identifier] sections, backslash escapes) and whether it has operators that start with '?'.
+   *
+   * @param sql the SQL text to parse
+   * @return the parsed parameter information
+   */
+  public SqlParameterSpec getSqlParameterSpec(String sql) {
+    return parseSqlParameterSpec(sql, SqlSyntax.of(databaseMeta));
   }
 
   // Get the fields back from an SQL query

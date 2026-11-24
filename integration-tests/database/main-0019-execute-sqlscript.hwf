@@ -257,6 +257,81 @@ INSERT INTO public.merge_source VALUES (2, 'new2'), (3, 'new3'), (4, 'new4'), (5
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>Prepare Test 5</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>
+DROP TABLE IF EXISTS public.it0019_commit_size;
+DROP TABLE IF EXISTS public.it0019_commit_size_passed;
+DROP TABLE IF EXISTS public.it0019_commit_size_errors;
+
+CREATE TABLE public.it0019_commit_size (id int PRIMARY KEY, value varchar NULL);
+CREATE TABLE public.it0019_commit_size_passed (id int NULL, value varchar NULL);
+CREATE TABLE public.it0019_commit_size_errors (id int NULL, value varchar NULL);
+</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>1616</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0019-execute-sqlscript-commit-size</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <filename>${PROJECT_HOME}/0019-execute-sqlscript-commit-size.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>1776</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check commit size</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>unit-test-db</connection>
+      <schemaname/>
+      <tablename/>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>1</limit>
+      <is_custom_sql>Y</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql>SELECT 1
+WHERE (SELECT string_agg(id::text, &apos;,&apos; ORDER BY id) FROM public.it0019_commit_size) = &apos;1,2,3,4,5&apos;
+  AND (SELECT string_agg(id::text, &apos;,&apos; ORDER BY id) FROM public.it0019_commit_size_passed) = &apos;1,2,3,4,5&apos;
+  AND (SELECT string_agg(id || &apos;:&apos; || value, &apos;,&apos;) FROM public.it0019_commit_size_errors) = &apos;2:two again&apos;</custom_sql>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1936</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -314,6 +389,27 @@ INSERT INTO public.merge_source VALUES (2, 'new2'), (3, 'new3'), (4, 'new4'), (5
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0019-execute-sqlscript-merge</from>
+      <to>Prepare Test 5</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare Test 5</from>
+      <to>0019-execute-sqlscript-commit-size</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0019-execute-sqlscript-commit-size</from>
+      <to>check commit size</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

@@ -318,73 +318,62 @@ class SqlOutputGoldenTest {
       "i_default, i_length, n_default, n_length, n_mask, n_dot, b_default, d_default, d_iso,"
           + " d_named";
 
-  /** SHA-256 of {@link #renderNumbersAndDates()} under each of {@link #LOCALES}. */
-  private static final String[] NUMBERS_AND_DATES_SHA256 = {
-    "27f0855576ef32b6b4a3d8210c247e716e822dca41ef0603a5dec9ce131d3a65",
-    "26027383c4683b6de76464ef48c7e26b3a53c5ea112f28528725333aec10c137",
-    "8eb90a2a421a5ff94bd7df56d2dc7470c00e7568a9a6816575dbe1141c9d64af",
-    "bca340865b50fe1c2ea5b6acb2a1de965f3641fbeedce58b22756049b9ee077d",
-    "5ecbfcda61d26f170b39ebdc5c443baabde7e7b1ed3126c28e3fa3df80d02c12",
-    "4678da4308e66d73a7f2df6ecffea0205243915ff94039871c9cbd1ed4773684"
-  };
+  /** SHA-256 of {@link #renderNumbersAndDates()}, the same under each of {@link #LOCALES}. */
+  private static final String NUMBERS_AND_DATES_SHA256 =
+      "c4e60b5f88c2407df79cb82b36fbf8c7a76c64aebe9726c1a54cab74625dfc00";
 
   /**
-   * Pins numbers and dates in default and explicit masks under several default locales: a blank
-   * decimal symbol follows the regional format locale, so a default mask writes a decimal comma
-   * where that locale has one. The full text is pinned by a digest, a few lines literally.
+   * Pins numbers and dates in default and explicit masks under several default locales. The text is
+   * the same in every locale (#9677): a period as decimal separator, no grouping, an ASCII minus
+   * sign, NaN and infinity as en_US always wrote them, Gregorian years and English month names. The
+   * full text is pinned by a digest, a few lines literally.
    */
   @Test
   void numbersAndDatesInSeveralLocales() throws Exception {
     Locale savedLocale = Locale.getDefault();
+    Locale savedFormatLocale = Locale.getDefault(Locale.Category.FORMAT);
+    Locale savedDisplayLocale = Locale.getDefault(Locale.Category.DISPLAY);
     TimeZone savedZone = TimeZone.getDefault();
     try {
       TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
-      for (int l = 0; l < LOCALES.length; l++) {
-        Locale.setDefault(LOCALES[l]);
-        String actual = renderNumbersAndDates();
-        String[] lines = actual.split("\n");
-        if (l == 0) {
-          assertEquals(
-              "VALUES (0,0,0.0,0.0,0.00,0.0,12345.678,'2024/07/15 13:45:30.000',"
-                  + "'2024-07-15T13:45:30','15-Jul-2024')",
-              lines[0]);
-          assertEquals(
-              "VALUES (-9223372036854775808,-9223372036854775808,123456.123456789,"
-                  + "123456.123456789,123,456.12,123456.123456789,1000.0,"
-                  + "'2024/03/31 03:30:00.000','2024-03-31T03:30:00','31-Mar-2024')",
-              lines[10]);
-          assertEquals(
-              "VALUES (42,42,12.99,12.99,12.99,12.99,1000.0,"
-                  + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'),"
-                  + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'),"
-                  + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'))",
-              lines[30]);
-        }
-        if (l == 1) {
-          assertEquals(
-              "VALUES (42,42,12,99,12,99,12.99,12.99,1000.0,'01.03.1500 12:00:00.000',"
-                  + "'01.03.1500 12:00:00.000','01.03.1500 12:00:00.000')",
-              lines[16]);
-        }
-        if (l == 2) {
-          // Swedish uses U+2212 as the minus sign
-          assertEquals(
-              "VALUES (\u22121,\u22121,\u22120,0,\u22120,0,\u22120.00,\u22120.0,0.0,"
-                  + "'31.12.2023 23:59:59.999','31.12.2023 23:59:59.999',"
-                  + "'31.12.2023 23:59:59.999')",
-              lines[15]);
-        }
-        if (l == 4) {
-          // Thai counts Buddhist years
-          assertEquals(
-              "VALUES (0,0,0.0,0.0,0.00,0.0,12345.678,'2567/07/15 13:45:30.000',"
-                  + "'2567-07-15T13:45:30','15-\u0e01.\u0e04.-2567')",
-              lines[0]);
-        }
-        assertEquals(NUMBERS_AND_DATES_SHA256[l], sha256(actual), "locale " + LOCALES[l]);
+      Locale.setDefault(Locale.US);
+      String expected = renderNumbersAndDates();
+      String[] lines = expected.split("\n");
+      assertEquals(
+          "VALUES (0,0,0.0,0.0,0.00,0.0,12345.678,'2024/07/15 13:45:30.000',"
+              + "'2024-07-15T13:45:30','15-Jul-2024')",
+          lines[0]);
+      // the grouping of the n_mask column is gone
+      assertEquals(
+          "VALUES (-9223372036854775808,-9223372036854775808,123456.123456789,"
+              + "123456.123456789,123456.12,123456.123456789,1000.0,"
+              + "'2024/03/31 03:30:00.000','2024-03-31T03:30:00','31-Mar-2024')",
+          lines[10]);
+      // NaN and infinity
+      assertEquals(
+          "VALUES (1234567,1234567,NaN,NaN,NaN,NaN,0.0,'1970/01/01 00:59:59.999',"
+              + "'1970-01-01T00:59:59','01-Jan-1970')",
+          lines[11]);
+      assertEquals(
+          "VALUES (-1,-1,-0.0,-0.0,-0.00,-0.0,0.0,"
+              + "'31.12.2023 23:59:59.999','31.12.2023 23:59:59.999',"
+              + "'31.12.2023 23:59:59.999')",
+          lines[15]);
+      assertEquals(
+          "VALUES (42,42,12.99,12.99,12.99,12.99,1000.0,"
+              + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'),"
+              + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'),"
+              + "TO_DATE('1500/03/01 12:00:00', 'YYYY/MM/DD HH24:MI:SS'))",
+          lines[30]);
+      assertEquals(NUMBERS_AND_DATES_SHA256, sha256(expected));
+      for (Locale locale : LOCALES) {
+        Locale.setDefault(locale);
+        assertEquals(expected, renderNumbersAndDates(), "locale " + locale);
       }
     } finally {
       Locale.setDefault(savedLocale);
+      Locale.setDefault(Locale.Category.FORMAT, savedFormatLocale);
+      Locale.setDefault(Locale.Category.DISPLAY, savedDisplayLocale);
       TimeZone.setDefault(savedZone);
     }
   }

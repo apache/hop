@@ -21,9 +21,10 @@
 
 PORT="${DATAHUB_STUB_PORT:-18080}"
 LOG=/tmp/lineage-sinks-proposals.log
-rm -f "${LOG}"
-touch "${LOG}"
-nohup python3 -I "$(dirname "$0")/datahub-ingest-stub.py" "${PORT}" "${LOG}" > /tmp/lineage-sinks-stub.out 2>&1 &
+OPENLINEAGE_LOG=/tmp/lineage-sinks-openlineage.log
+rm -f "${LOG}" "${OPENLINEAGE_LOG}"
+touch "${LOG}" "${OPENLINEAGE_LOG}"
+nohup python3 -I "$(dirname "$0")/datahub-ingest-stub.py" "${PORT}" "${LOG}" "${OPENLINEAGE_LOG}" > /tmp/lineage-sinks-stub.out 2>&1 &
 echo $! > /tmp/lineage-sinks-stub.pid
 
 for i in $(seq 1 30); do

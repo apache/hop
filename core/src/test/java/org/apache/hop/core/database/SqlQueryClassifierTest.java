@@ -20,7 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import org.apache.hop.core.Result;
 import org.junit.jupiter.api.Test;
 
 class SqlQueryClassifierTest {
@@ -271,5 +274,85 @@ class SqlQueryClassifierTest {
     assertFalse(SqlQueryClassifier.isRowChange("CREATE TABLE t (id INT)"));
     assertFalse(SqlQueryClassifier.isRowChange("SELECT 1"));
     assertFalse(SqlQueryClassifier.isRowChange(""));
+  }
+
+  private static DatabaseMeta dialect(boolean customUpdate, boolean customDelete) {
+    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+    when(databaseMeta.isSupportsCustomUpdateStmt()).thenReturn(customUpdate);
+    when(databaseMeta.isSupportsCustomDeleteStmt()).thenReturn(customDelete);
+    return databaseMeta;
+  }
+
+  @Test
+  void affectedRowsFollowTheStatementVerb() {
+    DatabaseMeta plain = dialect(false, false);
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.INSERTED,
+        SqlQueryClassifier.affectedRows("INSERT INTO t VALUES (1)", plain));
+    for (String sql :
+        new String[] {
+          "UPDATE t SET v = 1",
+          "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN UPDATE SET v = 1",
+          "UPSERT INTO t VALUES (1)",
+          "REPLACE INTO t VALUES (1)",
+          "WITH s AS (SELECT 1 AS id) UPDATE t SET v = 1"
+        }) {
+      assertEquals(
+          SqlQueryClassifier.AffectedRows.UPDATED,
+          SqlQueryClassifier.affectedRows(sql, plain),
+          sql);
+    }
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.DELETED,
+        SqlQueryClassifier.affectedRows("delete from t where id = 1", plain));
+    for (String sql :
+        new String[] {"SELECT * FROM t", "CREATE TABLE t (id INT)", "TRUNCATE TABLE t", "", "  "}) {
+      assertEquals(
+          SqlQueryClassifier.AffectedRows.NONE, SqlQueryClassifier.affectedRows(sql, plain), sql);
+    }
+  }
+
+  @Test
+  void affectedRowsOfCustomUpdateAndDeleteStatementsFollowTheDialect() {
+    String update = "ALTER TABLE t UPDATE v = 1 WHERE id = 1";
+    String delete = "ALTER TABLE t DELETE WHERE id = 1";
+
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.NONE,
+        SqlQueryClassifier.affectedRows(update, dialect(false, false)));
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.UPDATED,
+        SqlQueryClassifier.affectedRows(update, dialect(true, true)));
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.DELETED,
+        SqlQueryClassifier.affectedRows(delete, dialect(true, true)));
+    assertEquals(
+        SqlQueryClassifier.AffectedRows.NONE,
+        SqlQueryClassifier.affectedRows(delete, dialect(true, false)));
+  }
+
+  @Test
+  void affectedRowsAddACountToItsOwnCounterOnly() {
+    Result inserted = new Result();
+    SqlQueryClassifier.AffectedRows.INSERTED.addTo(inserted, 3);
+    assertEquals(3, inserted.getNrLinesOutput());
+    assertEquals(0, inserted.getNrLinesUpdated());
+    assertEquals(0, inserted.getNrLinesDeleted());
+
+    Result updated = new Result();
+    SqlQueryClassifier.AffectedRows.UPDATED.addTo(updated, 2);
+    assertEquals(2, updated.getNrLinesUpdated());
+
+    Result deleted = new Result();
+    SqlQueryClassifier.AffectedRows.DELETED.addTo(deleted, 4);
+    assertEquals(4, deleted.getNrLinesDeleted());
+
+    Result none = new Result();
+    SqlQueryClassifier.AffectedRows.NONE.addTo(none, 5);
+    SqlQueryClassifier.AffectedRows.INSERTED.addTo(none, 0);
+    SqlQueryClassifier.AffectedRows.UPDATED.addTo(none, -1);
+    assertEquals(0, none.getNrLinesOutput());
+    assertEquals(0, none.getNrLinesUpdated());
+    assertEquals(0, none.getNrLinesDeleted());
   }
 }

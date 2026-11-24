@@ -407,20 +407,21 @@ class DatabaseQueryCloseAndBatchTest {
 
   /**
    * The cleaning up after a batch that ran and was committed. Upstream still counts it as part of
-   * the batch: an SQLException from clearBatch comes out as a batch failure without counts.
+   * the batch: with batch recovery an SQLException from clearBatch is no longer a batch failure.
    */
   @Test
-  void aClearBatchFailureAfterACommittedBatchIsReportedAsABatchFailure() throws Exception {
+  void aClearBatchFailureAfterACommittedBatchIsNotABatchFailure() throws Exception {
+    // The batch ran and was committed: a clean up failure after that is not a failed batch, so
+    // batch recovery must not treat the committed rows as rows to retry.
     BatchSetup setup = new BatchSetup(new PlainDialect(), 2);
     SQLException failure = new SQLException("clear refused");
     doThrow(failure).when(setup.ps).clearBatch();
 
     setup.db.insertRow(setup.ps, true);
-    HopDatabaseBatchException e =
-        assertThrows(HopDatabaseBatchException.class, () -> setup.db.insertRow(setup.ps, true));
+    HopDatabaseException e =
+        assertThrows(HopDatabaseException.class, () -> setup.db.insertRow(setup.ps, true));
 
-    assertSame(failure, e.getCause());
-    assertNull(e.getUpdateCounts());
+    assertFalse(e instanceof HopDatabaseBatchException);
     verify(setup.connection).commit();
   }
 
@@ -515,33 +516,29 @@ class DatabaseQueryCloseAndBatchTest {
     verify(setup.connection, never()).commit();
   }
 
-  /**
-   * As for insertRow: upstream reports a clean up failure after the committed batch as a batch one.
-   */
+  /** As for insertRow: a clean up failure after the committed batch is not a batch failure. */
   @Test
-  void emptyAndCommitReportsAClearBatchFailureAfterTheCommitAsABatchFailure() throws Exception {
+  void emptyAndCommitReportsAClearBatchFailureAfterTheCommitAsAPlainFailure() throws Exception {
     BatchSetup setup = new BatchSetup(new PlainDialect(), 10);
     doThrow(new SQLException("clear refused")).when(setup.ps).clearBatch();
 
-    HopDatabaseBatchException e =
-        assertThrows(
-            HopDatabaseBatchException.class, () -> setup.db.emptyAndCommit(setup.ps, true, 3));
+    HopDatabaseException e =
+        assertThrows(HopDatabaseException.class, () -> setup.db.emptyAndCommit(setup.ps, true, 3));
 
-    assertNull(e.getUpdateCounts());
+    assertFalse(e instanceof HopDatabaseBatchException);
     verify(setup.connection).commit();
   }
 
   /** And a failure to close the statement after the committed batch as well. */
   @Test
-  void emptyAndCommitReportsACloseFailureAfterTheCommitAsABatchFailure() throws Exception {
+  void emptyAndCommitReportsACloseFailureAfterTheCommitAsAPlainFailure() throws Exception {
     BatchSetup setup = new BatchSetup(new PlainDialect(), 10);
     doThrow(new SQLException("close refused")).when(setup.ps).close();
 
-    HopDatabaseBatchException e =
-        assertThrows(
-            HopDatabaseBatchException.class, () -> setup.db.emptyAndCommit(setup.ps, true, 3));
+    HopDatabaseException e =
+        assertThrows(HopDatabaseException.class, () -> setup.db.emptyAndCommit(setup.ps, true, 3));
 
-    assertNull(e.getUpdateCounts());
+    assertFalse(e instanceof HopDatabaseBatchException);
     verify(setup.ps).clearBatch();
   }
 

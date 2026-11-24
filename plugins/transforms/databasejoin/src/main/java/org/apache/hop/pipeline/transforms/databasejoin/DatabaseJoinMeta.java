@@ -262,12 +262,13 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       if (replaceVariables) {
         query = variables.resolve(query);
       }
-      boolean brackets = supportsBracketQuotedIdentifiers(findDatabaseMeta(variables));
+      // The rules init() prepares the statement with
+      Database.SqlSyntax syntax = sqlSyntax(findDatabaseMeta(variables));
       return List.of(
           new IDeclaresLineage.DeclaredSql(
               RelationalIoOperation.READ,
               variables.resolve(connection),
-              parseSqlParameterSpec(query, brackets).getPreparedSql()));
+              parseSqlParameterSpec(query, syntax).getPreparedSql()));
     } catch (HopException e) {
       return List.of();
     }
@@ -369,13 +370,14 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
    * and a list of parameter references (null for positional parameters).
    */
   static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
-    return parseSqlParameterSpec(sourceSql, false);
+    return parseSqlParameterSpec(sourceSql, Database.SqlSyntax.DEFAULT);
   }
 
-  static SqlParameterSpec parseSqlParameterSpec(
-      String sourceSql, boolean consumeBracketIdentifiers) {
-    Database.SqlParameterSpec parsed =
-        Database.parseSqlParameterSpec(sourceSql, consumeBracketIdentifiers);
+  /**
+   * @param syntax the rules of the connection's dialect, see {@link #sqlSyntax(DatabaseMeta)}
+   */
+  static SqlParameterSpec parseSqlParameterSpec(String sourceSql, Database.SqlSyntax syntax) {
+    Database.SqlParameterSpec parsed = Database.parseSqlParameterSpec(sourceSql, syntax);
     int positionalParameterCount = 0;
     for (String parameterReference : parsed.getParameterReferences()) {
       if (parameterReference == null) {
@@ -386,12 +388,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         parsed.getPreparedSql(), parsed.getParameterReferences(), positionalParameterCount);
   }
 
-  static boolean supportsBracketQuotedIdentifiers(DatabaseMeta databaseMeta) {
-    if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
-      return false;
-    }
-    return "[".equals(databaseMeta.getIDatabase().getStartQuote())
-        && "]".equals(databaseMeta.getIDatabase().getEndQuote());
+  /**
+   * The rules of the connection's dialect that decide whether a '?' is a parameter marker: its
+   * quoting, and whether it has operators that start with '?'.
+   */
+  static Database.SqlSyntax sqlSyntax(DatabaseMeta databaseMeta) {
+    return Database.SqlSyntax.of(databaseMeta);
   }
 
   static java.util.Set<String> getMissingNamedParameters(
@@ -558,8 +560,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
         throw new HopTransformException(e.getMessage(), e);
       }
 
-      SqlParameterSpec parameterSpec =
-          parseSqlParameterSpec(sqlToUse, supportsBracketQuotedIdentifiers(databaseMeta));
+      SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse, sqlSyntax(databaseMeta));
 
       // Build metadata lookup parameters, preferring incoming field types when available.
       IRowMeta param = createMetadataLookupParameterRowMeta(parameterSpec, row);
@@ -665,8 +666,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
           remarks.add(cr);
         } else {
           db.connect();
-          SqlParameterSpec parameterSpec =
-              parseSqlParameterSpec(sqlToUse, supportsBracketQuotedIdentifiers(databaseMeta));
+          SqlParameterSpec parameterSpec = parseSqlParameterSpec(sqlToUse, sqlSyntax(databaseMeta));
 
           errorMessage = "";
 
@@ -821,9 +821,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
       SqlParameterSpec parameterSpec = null;
       try {
-        parameterSpec =
-            parseSqlParameterSpec(
-                resolveSql(variables), supportsBracketQuotedIdentifiers(databaseMeta));
+        parameterSpec = parseSqlParameterSpec(resolveSql(variables), sqlSyntax(databaseMeta));
         db.connect();
         IRowMeta param = createMetadataLookupParameterRowMeta(parameterSpec);
         try {

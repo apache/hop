@@ -139,11 +139,21 @@ final class RelationalSqlParser {
   /**
    * {@code sql} with each JDBC parameter replaced by {@code NULL}. What counts as a parameter is
    * what Hop counts when it runs the statement ({@link Database#replaceSqlParameters}): not a
-   * {@code ?} in a literal, quoted identifier or comment, nor a PostgreSQL JSONB operator. SQL
-   * Server's {@code [identifiers]} are skipped too.
+   * {@code ?} in a literal, quoted identifier or comment, with the rules of the dialect: SQL
+   * Server's {@code [identifiers]}, MySQL's backslash escapes, PostgreSQL's JSONB operators.
    */
   static String withoutParameters(String sql, String dialect) {
-    return Database.replaceSqlParameters(sql, "mssql".equals(dialect), "NULL");
+    return Database.replaceSqlParameters(sql, sqlSyntax(dialect), "NULL");
+  }
+
+  /** The rules {@link Database.SqlSyntax#of} gives the connection of each of these dialects. */
+  static Database.SqlSyntax sqlSyntax(String dialect) {
+    return switch (dialect == null ? "" : dialect) {
+      case "mssql" -> new Database.SqlSyntax(true, false, false);
+      case "mysql" -> new Database.SqlSyntax(false, true, false);
+      case "postgres" -> new Database.SqlSyntax(false, false, true);
+      default -> Database.SqlSyntax.DEFAULT;
+    };
   }
 
   private Tables parseOnce(String sql, String dialect) {

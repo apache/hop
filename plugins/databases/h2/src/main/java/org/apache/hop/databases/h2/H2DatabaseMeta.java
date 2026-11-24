@@ -26,6 +26,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
@@ -399,5 +400,17 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
     parts.add(part.toString().trim());
     return parts;
+  }
+
+  /**
+   * Measured with H2 2.5 in memory, file and TCP server mode: the driver runs every row of a failed
+   * batch and marks the failed ones.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != H2DatabaseMeta.class) {
+      return null;
+    }
+    return BatchFailureContract.MARKS_FAILED_ROWS;
   }
 }

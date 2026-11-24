@@ -189,6 +189,10 @@ public class ValidatePipelineUnitTestExtensionPoint
    * none of its rows is an error, failed with the comments of the errors otherwise. A golden data
    * set without results was not compared at all: an error.
    *
+   * <p>The results that did not pass go first. A sink that gets the results but not the run's own
+   * end, such as the one of a run configuration, ends the run with its first result: that is then
+   * the run's worst.
+   *
    * @param why why the validation stopped, such as a golden data set that could not be read: then
    *     every golden data set is an error, since a result may be from before its comparison
    *     finished. Null when the validation finished.
@@ -227,6 +231,7 @@ public class ValidatePipelineUnitTestExtensionPoint
                 instanceof PipelineMeta meta
             ? meta
             : pipeline.getPipelineMeta();
+    List<Runnable> passed = new ArrayList<>();
     for (Map.Entry<List<String>, List<UnitTestResult>> location : byLocation.entrySet()) {
       List<String> errors = new ArrayList<>();
       String comment = null;
@@ -247,14 +252,24 @@ public class ValidatePipelineUnitTestExtensionPoint
         outcome = UnitTestLineagePayload.Result.FAILED;
         comment = String.join("; ", errors);
       }
-      LineageUnitTestEmitter.emit(
-          pipeline,
-          original,
-          unitTest.getName(),
-          location.getKey().get(0),
-          location.getKey().get(1),
-          outcome,
-          comment);
+      UnitTestLineagePayload.Result reported = outcome;
+      String reportedComment = comment;
+      Runnable report =
+          () ->
+              LineageUnitTestEmitter.emit(
+                  pipeline,
+                  original,
+                  unitTest.getName(),
+                  location.getKey().get(0),
+                  location.getKey().get(1),
+                  reported,
+                  reportedComment);
+      if (outcome == UnitTestLineagePayload.Result.PASSED) {
+        passed.add(report);
+      } else {
+        report.run();
+      }
     }
+    passed.forEach(Runnable::run);
   }
 }

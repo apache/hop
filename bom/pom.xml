@@ -69,6 +69,11 @@
                             <groupId>org.apache.hop</groupId>
                             <artifactId>hop-config-doc</artifactId>
                         </dependencyExclusion>
+                        <!-- Maven build plugin, not a runtime library. -->
+                        <dependencyExclusion>
+                            <groupId>org.apache.hop</groupId>
+                            <artifactId>hop-maven-plugin</artifactId>
+                        </dependencyExclusion>
                         <!-- Browser integration tests, not a published library. -->
                         <dependencyExclusion>
                             <groupId>org.apache.hop</groupId>
