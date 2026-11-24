@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
@@ -45,6 +46,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -113,6 +115,9 @@ public class KafkaConsumerInput
     //
     Set<String> topics = meta.getTopics().stream().map(this::resolve).collect(Collectors.toSet());
     data.consumer.subscribe(topics);
+    data.topics = topics;
+    data.lineage =
+        new KafkaLineage(this, DatasetIoOperation.READ, resolve(meta.getDirectBootstrapServers()));
 
     // Load and start the single threader transformation
     //
@@ -301,6 +306,13 @@ public class KafkaConsumerInput
 
   @Override
   public boolean processRow() throws HopException {
+
+    // Lineage: the topics it reads, now that it consumes them, and once
+    if (data.lineage != null && data.topics != null) {
+      for (String topic : data.topics) {
+        data.lineage.topic(topic);
+      }
+    }
 
     // Poll records...
     // If we get any, process them...

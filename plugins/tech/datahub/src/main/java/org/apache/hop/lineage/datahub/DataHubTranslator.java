@@ -324,8 +324,9 @@ final class DataHubTranslator {
     proposals.addAll(datasetColumnLineage(fieldEdges));
     proposals.addAll(copyLineage(copies, time));
 
-    if (type == EventType.OTHER) {
-      // Datasets seen after their run reported its end: add them, do not replace what the job has.
+    if (type == EventType.OTHER || type == EventType.RUNNING) {
+      // Datasets seen after their run reported its end, or while it runs (a Kafka consumer runs
+      // until it is stopped): add them, do not replace what the job has, and do not end the run.
       if (ioJobUrn != null) {
         proposals.add(addDatasetEdges(ioJobUrn, jobInputs, jobOutputs));
       }

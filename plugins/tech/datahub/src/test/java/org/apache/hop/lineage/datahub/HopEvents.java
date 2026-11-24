@@ -26,6 +26,8 @@ import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.LineageRunLifecycleEmitter;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
+import org.apache.hop.lineage.model.DatasetIoLineagePayload;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
 import org.apache.hop.lineage.model.FileIoOperation;
@@ -199,6 +201,17 @@ final class HopEvents {
         LineageEventKind.FILE_IO,
         transformContext(transform),
         new FileIoLineagePayload(operation, source, target, 10L, true, null, schema));
+  }
+
+  /** A transform read or wrote a dataset that is neither a table nor a file, such as a topic. */
+  LineageEvent dataset(
+      String transform, DatasetIoOperation operation, String namespace, String name) {
+    return new LineageEvent(
+        UUID.randomUUID().toString(),
+        STARTED_AT + 1_000L + offsetMs,
+        LineageEventKind.DATASET_IO,
+        transformContext(transform),
+        new DatasetIoLineagePayload(operation, namespace, name, true, null));
   }
 
   private LineageEvent lifecycle(LineageContext ctx, RunLifecyclePhase phase) {

@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.kafka.producer;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.kafka.clients.producer.Producer;
 
 @SuppressWarnings("java:S1104")
@@ -33,6 +34,9 @@ public class KafkaProducerOutputData extends BaseTransformData implements ITrans
   public int headersFieldIndex;
   public String topic;
   public boolean isOpen;
+
+  /** The topics written to, reported to lineage the first time. */
+  public KafkaLineage lineage;
 
   public KafkaProducerOutputData() {
     super();

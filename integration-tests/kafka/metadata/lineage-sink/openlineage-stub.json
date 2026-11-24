@@ -1,0 +1,16 @@
+{
+  "sink": {
+    "openlineage": {
+      "url": "http://127.0.0.1:18081/api/v1/lineage",
+      "apiKey": "",
+      "namespace": "it-kafka",
+      "producer": "",
+      "transformJobs": false,
+      "parentRuns": true,
+      "fileSpecNaming": true,
+      "sqlParse": true
+    }
+  },
+  "name": "openlineage-stub",
+  "description": "An OpenLineage collector at the lineage stub started by 0007-kafka-lineage-start-stub.sh"
+}

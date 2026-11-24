@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.kafka.producer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -27,6 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerField;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 
@@ -105,6 +107,9 @@ public class KafkaProducerOutput
               KafkaConsumerField.Type.fromValueMeta(data.msgValueMeta));
 
       data.isOpen = true;
+      data.lineage =
+          new KafkaLineage(
+              this, DatasetIoOperation.WRITE, resolve(meta.getDirectBootstrapServers()));
 
       first = false;
     }
@@ -113,6 +118,10 @@ public class KafkaProducerOutput
       return false;
     }
     String topic = resolveTopic(r);
+    // Lineage: a topic the first time a row goes to it
+    if (data.lineage != null) {
+      data.lineage.topic(topic);
+    }
     Iterable<Header> headers = resolveHeaders(r);
 
     ProducerRecord<Object, Object> producerRecord;

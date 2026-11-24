@@ -18,11 +18,13 @@
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.kafka.clients.consumer.Consumer;
 
 @SuppressWarnings("java:S1104")
@@ -42,6 +44,11 @@ public class KafkaConsumerInputData extends BaseTransformData implements ITransf
   public volatile boolean maxConsumeDeadlineWakeup;
   public Thread maxConsumeDeadlineThread;
   public List<Object[]> incomingRowsBuffer;
+
+  /** The topics the consumer subscribed to, reported to lineage once it consumes. */
+  public KafkaLineage lineage;
+
+  public Set<String> topics;
 
   /** */
   public KafkaConsumerInputData() {
