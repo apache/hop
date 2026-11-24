@@ -766,9 +766,20 @@ public final class OpenLineageEventMapper {
    * away too: a Kafka consumer runs until it is stopped, so its run may not end for a long time.
    */
   private List<RunEvent> mapDatasetIo(LineageEvent event) {
-    if (!(event.getPayload() instanceof DatasetIoLineagePayload dataset)
-        || Utils.isEmpty(dataset.getNamespace())
-        || Utils.isEmpty(dataset.getName())) {
+    if (!(event.getPayload() instanceof DatasetIoLineagePayload dataset)) {
+      return List.of();
+    }
+    if (!dataset.isSuccess()) {
+      // A refused read or write: no dataset, and the transform's row counters, which also count
+      // the refused rows, are no longer put on the datasets it did report.
+      LineageContext ctx = event.getContext();
+      String pipelineOfTransform = transformOfPipeline(ctx);
+      if (pipelineOfTransform != null && !endedPipelineRuns.contains(pipelineOfTransform)) {
+        rowStatistics(pipelineOfTransform).uncounted(ctx.getTransformName());
+      }
+      return List.of();
+    }
+    if (Utils.isEmpty(dataset.getNamespace()) || Utils.isEmpty(dataset.getName())) {
       return List.of();
     }
     DatasetFacets facets = relationalDatasetFacets(dataset.getNamespace(), null, null, null);

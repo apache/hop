@@ -33,6 +33,8 @@ import java.util.UUID;
 import org.apache.hop.lineage.LineageRowCounts;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
+import org.apache.hop.lineage.model.DatasetIoLineagePayload;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
 import org.apache.hop.lineage.model.FileIoOperation;
 import org.apache.hop.lineage.model.LineageEvent;
@@ -329,6 +331,64 @@ class OpenLineageRowStatisticsTest {
   }
 
   @SuppressWarnings("unchecked")
+  /**
+   * A producer that wrote 10 rows to one topic and had 5 refused for another: the topic it reported
+   * doesn't get all 15 rows the transform counted.
+   */
+  @Test
+  void aRefusedWriteLeavesTheTransformUncounted() {
+    LineageContext.Builder produce = transform("Produce", "0");
+    List<LineageEvent> events = new ArrayList<>();
+    events.add(topic(produce, "orders", true));
+    events.add(topic(produce, "ordrs", false));
+    events.add(finished(produce, 0, 15, 0));
+    events.add(pipelineFinished());
+
+    RunEvent pipeline = end(mapper(false).mapBatch(events));
+
+    assertEquals(1, pipeline.getOutputs().size(), "the refused topic is no dataset");
+    assertNull(outputRows(pipeline, "orders"));
+  }
+
+  @Test
+  void aTopicAllRowsWentToGetsThem() {
+    LineageContext.Builder produce = transform("Produce", "0");
+    List<LineageEvent> events = new ArrayList<>();
+    events.add(topic(produce, "orders", true));
+    events.add(finished(produce, 0, 15, 0));
+    events.add(pipelineFinished());
+
+    RunEvent pipeline = end(mapper(false).mapBatch(events));
+
+    assertEquals(15L, outputRows(pipeline, "orders"));
+  }
+
+  /** The pipeline's end: a topic also goes out on a RUNNING event of its own right away. */
+  private static RunEvent end(List<RunEvent> events) {
+    List<RunEvent> ends = new ArrayList<>();
+    for (RunEvent event : eventsFor(events, PIPELINE)) {
+      if (event.getEventType() == RunEvent.EventType.COMPLETE) {
+        ends.add(event);
+      }
+    }
+    assertEquals(1, ends.size(), "ends of " + PIPELINE);
+    return ends.get(0);
+  }
+
+  private static LineageEvent topic(LineageContext.Builder ctx, String topic, boolean success) {
+    return new LineageEvent(
+        UUID.randomUUID().toString(),
+        System.currentTimeMillis(),
+        LineageEventKind.DATASET_IO,
+        ctx.build(),
+        new DatasetIoLineagePayload(
+            DatasetIoOperation.WRITE,
+            "kafka://broker:9092",
+            topic,
+            success,
+            success ? null : "UNKNOWN_TOPIC_OR_PARTITION"));
+  }
+
   private static List<Map<String, Object>> writes(RunEvent event) {
     return (List<Map<String, Object>>)
         event

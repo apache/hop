@@ -45,7 +45,7 @@ public class KafkaConsumerInputData extends BaseTransformData implements ITransf
   public Thread maxConsumeDeadlineThread;
   public List<Object[]> incomingRowsBuffer;
 
-  /** The topics the consumer subscribed to, reported to lineage once it consumes. */
+  /** The topics the consumer subscribed to, reported to lineage once partitions are assigned. */
   public KafkaLineage lineage;
 
   public Set<String> topics;

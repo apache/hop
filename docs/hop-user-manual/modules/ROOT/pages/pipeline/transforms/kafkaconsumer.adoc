@@ -230,8 +230,9 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 == Lineage
 
 With a xref:metadata-types/lineage-sink.adoc[lineage sink], the transform reports the topics it
-reads, named after the first bootstrap server (`kafka://<host>:<port>`) and the topic, as soon as it
-starts reading: see xref:technology/openlineage/index.adoc#_kafka_topics[Kafka topics].
+reads, named after the first bootstrap server (`kafka://<host>:<port>`) and the topic, once Kafka
+has assigned partitions of the topic to it. A topic that doesn't exist or that the transform may not
+read gets none and is not reported: see xref:technology/openlineage/index.adoc#_kafka_topics[Kafka topics].
 
 == See also
 

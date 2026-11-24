@@ -309,13 +309,6 @@ public class KafkaConsumerInput
   @Override
   public boolean processRow() throws HopException {
 
-    // Lineage: the topics it reads, now that it consumes them, and once
-    if (data.lineage != null && data.topics != null) {
-      for (String topic : data.topics) {
-        data.lineage.topic(topic);
-      }
-    }
-
     // Poll records...
     // If we get any, process them...
     // When stop-when-idle is enabled, use a short poll timeout so idle time can be measured.
@@ -339,6 +332,11 @@ public class KafkaConsumerInput
               now);
       Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
+
+      // Lineage: a topic once partitions of it are assigned to the consumer
+      if (data.lineage != null && data.lineage.wantsAny(data.topics)) {
+        data.lineage.assigned(data.consumer.assignment());
+      }
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {

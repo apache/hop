@@ -16,9 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.lineage.LineageDatasetIoEmitter;
@@ -26,6 +28,7 @@ import org.apache.hop.lineage.LineageSinkRoutes;
 import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.common.TopicPartition;
 
 /**
  * The topics a Kafka transform reads or writes, for lineage. A topic is named as the OpenLineage
@@ -34,7 +37,8 @@ import org.apache.kafka.clients.CommonClientConfigs;
  *
  * <p>Whether lineage is on for the run is decided once, when this is created: with lineage off, a
  * row costs one field check. A producer reports a topic from Kafka's send callback, so {@link
- * #topic} can be called from Kafka's I/O thread.
+ * #topic} and {@link #failed} can be called from Kafka's I/O thread. A consumer reports a topic
+ * once partitions of it are assigned to it.
  */
 public final class KafkaLineage {
 
@@ -46,6 +50,7 @@ public final class KafkaLineage {
   private final String namespace;
   private final boolean enabled;
   private final Set<String> reported = ConcurrentHashMap.newKeySet();
+  private final AtomicBoolean failureReported = new AtomicBoolean();
 
   public KafkaLineage(ITransform transform, DatasetIoOperation operation, String bootstrapServers) {
     this.transform = transform;
@@ -106,6 +111,11 @@ public final class KafkaLineage {
     return "kafka://" + server;
   }
 
+  /** Whether lineage is on for the run. */
+  public boolean isEnabled() {
+    return enabled;
+  }
+
   /**
    * Whether a topic is still to be reported: lineage is on for the run, the topic was not reported
    * yet and the cap is not reached.
@@ -122,6 +132,9 @@ public final class KafkaLineage {
    * run, and past {@link #MAX_TOPICS} distinct topics.
    */
   public void topic(String topic) {
+    if (!wants(topic)) {
+      return;
+    }
     synchronized (reported) {
       if (!wants(topic)) {
         return;
@@ -130,6 +143,52 @@ public final class KafkaLineage {
     }
     LineageDatasetIoEmitter.emitTransformDatasetIo(
         transform, operation, namespace, topic, true, null);
+  }
+
+  /**
+   * Reports the topics of partitions assigned to a consumer, the first time each is assigned: a
+   * topic that doesn't exist, can't be read or sits on a broker out of reach gets none.
+   */
+  public void assigned(Collection<TopicPartition> partitions) {
+    if (!enabled || partitions == null) {
+      return;
+    }
+    for (TopicPartition partition : partitions) {
+      topic(partition.topic());
+    }
+  }
+
+  /**
+   * Whether any of these topics is still to be reported, so a consumer only asks for its assignment
+   * until all of them are.
+   */
+  public boolean wantsAny(Collection<String> topics) {
+    if (!enabled || topics == null) {
+      return false;
+    }
+    for (String topic : topics) {
+      if (wants(topic)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Reports, once per run, that Kafka refused a write. The transform's row counters then also count
+   * rows no topic got, so the lineage sinks no longer put them on a topic.
+   */
+  public void failed(String topic, Exception exception) {
+    if (!enabled || !failureReported.compareAndSet(false, true)) {
+      return;
+    }
+    LineageDatasetIoEmitter.emitTransformDatasetIo(
+        transform,
+        operation,
+        namespace,
+        topic,
+        false,
+        exception == null ? null : exception.getMessage());
   }
 
   /** The topics reported so far. */

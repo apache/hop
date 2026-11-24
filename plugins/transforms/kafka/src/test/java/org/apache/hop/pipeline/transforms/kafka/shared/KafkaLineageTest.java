@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.lineage.hub.LineageHub;
@@ -38,6 +39,7 @@ import org.apache.hop.lineage.model.LineageEventKind;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -176,6 +178,50 @@ class KafkaLineageTest {
     }
   }
 
+  /** Only a refusal is reported as failed, once per run: it marks the row counters uncounted. */
+  @Test
+  void aRefusedWriteIsReportedOnce() {
+    LineageHub hub = hub(true);
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      KafkaLineage lineage = new KafkaLineage(transform(), DatasetIoOperation.WRITE, "kafka:9092");
+      lineage.failed("ordrs", new IllegalStateException("UNKNOWN_TOPIC_OR_PARTITION"));
+      lineage.failed("ordrs", new IllegalStateException("UNKNOWN_TOPIC_OR_PARTITION"));
+      lineage.failed("other", null);
+      assertTrue(lineage.wants("ordrs"), "a refused topic is not reported as written");
+    }
+
+    ArgumentCaptor<LineageEvent> events = ArgumentCaptor.forClass(LineageEvent.class);
+    verify(hub, times(1)).emit(events.capture());
+    DatasetIoLineagePayload failed = (DatasetIoLineagePayload) events.getValue().getPayload();
+    assertFalse(failed.isSuccess());
+    assertEquals("ordrs", failed.getName());
+    assertEquals("UNKNOWN_TOPIC_OR_PARTITION", failed.getMessage());
+  }
+
+  /** A consumer reports a topic once partitions of it are assigned, not on subscribing. */
+  @Test
+  void aConsumerReportsTheTopicsItWasAssigned() {
+    LineageHub hub = hub(true);
+    KafkaLineage lineage;
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      lineage = new KafkaLineage(transform(), DatasetIoOperation.READ, "kafka:9092");
+      List<String> subscribed = List.of("orders", "ordres");
+      assertTrue(lineage.wantsAny(subscribed));
+
+      lineage.assigned(Set.of());
+      lineage.assigned(Set.of(new TopicPartition("orders", 0), new TopicPartition("orders", 1)));
+      lineage.assigned(Set.of(new TopicPartition("orders", 0)));
+
+      assertTrue(lineage.wantsAny(subscribed), "ordres has no partitions: not read");
+      assertFalse(lineage.wantsAny(List.of("orders")));
+    }
+
+    verify(hub, times(1)).emit(Mockito.any());
+    assertEquals(Set.of("orders"), lineage.reported());
+  }
+
   @Test
   void withLineageOffNothingIsReportedOrKept() {
     LineageHub hub = hub(false);
@@ -184,6 +230,9 @@ class KafkaLineageTest {
       staticHub.when(LineageHub::getInstance).thenReturn(hub);
       lineage = new KafkaLineage(transform(), DatasetIoOperation.READ, "kafka:9092");
       lineage.topic("orders");
+      lineage.assigned(Set.of(new TopicPartition("orders", 0)));
+      lineage.failed("orders", null);
+      assertFalse(lineage.wantsAny(List.of("orders")));
     }
 
     verify(hub, never()).emit(Mockito.any());

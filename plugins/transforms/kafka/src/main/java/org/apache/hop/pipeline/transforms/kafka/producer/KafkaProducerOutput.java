@@ -151,13 +151,16 @@ public class KafkaProducerOutput
     }
 
     KafkaLineage lineage = data.lineage;
-    if (lineage != null && lineage.wants(topic)) {
-      // Lineage: a topic once Kafka took the first row for it
+    if (lineage != null && lineage.isEnabled()) {
+      // Lineage: a topic once Kafka took the first row for it. A refused row means the row
+      // counters no longer match what the topics got.
       data.kafkaProducer.send(
           producerRecord,
           (metadata, exception) -> {
             if (exception == null) {
               lineage.topic(topic);
+            } else {
+              lineage.failed(topic, exception);
             }
           });
     } else {
