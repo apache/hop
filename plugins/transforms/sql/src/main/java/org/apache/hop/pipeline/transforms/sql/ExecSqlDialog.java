@@ -383,6 +383,15 @@ public class ExecSqlDialog extends BaseTransformDialog {
     if (wlSetParams != null) {
       wlSetParams.setEnabled(eachRow);
     }
+    // The commit size only applies when the SQL is executed for each row.
+    Control wCommitSize = widgets.getWidgetsMap().get(ExecSqlMeta.WIDGET_COMMIT_SIZE);
+    Control wlCommitSize = widgets.getLabelsMap().get(ExecSqlMeta.WIDGET_COMMIT_SIZE);
+    if (wCommitSize != null) {
+      wCommitSize.setEnabled(eachRow);
+    }
+    if (wlCommitSize != null) {
+      wlCommitSize.setEnabled(eachRow);
+    }
     if (!eachRow) {
       if (wSetParams != null) {
         wSetParams.setSelection(false);
