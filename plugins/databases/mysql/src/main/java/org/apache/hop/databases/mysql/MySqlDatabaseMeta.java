@@ -40,6 +40,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
@@ -941,5 +942,34 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     names.add(CONST_MYSQL_8);
     names.add("Mysql");
     return names;
+  }
+
+  /**
+   * Measured with MySQL Connector/J 9.7 against MySQL 8.4. With the driver's defaults it runs every
+   * row of a failed batch and marks the failed ones; with {@code continueBatchOnError=false} it
+   * stops at the first failed row. With {@code rewriteBatchedStatements=true} the counts don't say
+   * which rows were kept, so no contract is declared then.
+   *
+   * <p>Only declared for this dialect itself with the Connector/J driver, not for the dialects that
+   * extend it (MariaDB's driver behaves differently).
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != MySqlDatabaseMeta.class
+        || !"com.mysql.cj.jdbc.Driver".equals(getDriverClass())) {
+      return null;
+    }
+    String rewrite = getConnectionOption("rewriteBatchedStatements");
+    if (rewrite != null && !"false".equalsIgnoreCase(rewrite.trim())) {
+      return null;
+    }
+    String continueOnError = getConnectionOption("continueBatchOnError");
+    if (continueOnError == null || "true".equalsIgnoreCase(continueOnError.trim())) {
+      return BatchFailureContract.MARKS_FAILED_ROWS;
+    }
+    if ("false".equalsIgnoreCase(continueOnError.trim())) {
+      return BatchFailureContract.KEEPS_PREFIX;
+    }
+    return null;
   }
 }

@@ -1165,6 +1165,37 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   /**
+   * The value of a JDBC connection option as the user set it: an extra option of this connection,
+   * or a parameter in its manual URL. Dialects use it to tell whether an option changes what the
+   * driver does, for example with a failed batch.
+   *
+   * @param option the driver's option name, matched ignoring case
+   * @return the value, or null when the option is not set
+   */
+  protected String getConnectionOption(String option) {
+    for (Map.Entry<String, String> entry : getExtraOptions().entrySet()) {
+      String key = entry.getKey();
+      int dot = key.lastIndexOf('.');
+      String name = dot >= 0 ? key.substring(dot + 1) : key;
+      if (name.equalsIgnoreCase(option)) {
+        return entry.getValue();
+      }
+    }
+    String url = getManualUrl();
+    if (!Utils.isEmpty(url)) {
+      java.util.regex.Matcher matcher =
+          java.util.regex.Pattern.compile(
+                  "[?;&]\\s*" + java.util.regex.Pattern.quote(option) + "\\s*=([^;&]*)",
+                  java.util.regex.Pattern.CASE_INSENSITIVE)
+              .matcher(url);
+      if (matcher.find()) {
+        return matcher.group(1).trim();
+      }
+    }
+    return null;
+  }
+
+  /**
    * @return all the extra options that are set to be used for the database URL
    */
   @Override

@@ -30,6 +30,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseColumn;
@@ -1419,5 +1420,67 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       name = name.substring(0, paren).trim();
     }
     return name;
+  }
+
+  /**
+   * Measured with pgjdbc 42.7 against PostgreSQL 17, with and without {@code reWriteBatchedInserts}
+   * and with every {@code autosave} setting: no row of a failed batch is kept. Without {@code
+   * autosave=always} the rest of the transaction since the last commit is lost too.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != PostgreSqlDatabaseMeta.class) {
+      return null;
+    }
+    return BatchFailureContract.LOSES_WHOLE_BATCH;
+  }
+
+  private static final java.util.regex.Pattern BATCH_ENTRY =
+      java.util.regex.Pattern.compile("^Batch entry (\\d+) ");
+
+  /**
+   * Where two rows meet in a rewritten statement. pgjdbc renders each value as {@code ('v'::type)}
+   * inside a row tuple, so a row ends in "))" and the next starts with "((": {@code VALUES
+   * (('0'::int4)),(('1'::int4))}. Values within one row are separated by "), (" and don't match.
+   */
+  private static final java.util.regex.Pattern ROW_BOUNDARY =
+      java.util.regex.Pattern.compile("\\)\\)\\s*,\\s*\\(\\(");
+
+  /**
+   * pgjdbc names the entry that aborted a batch: "Batch entry 517 INSERT INTO ... was aborted".
+   * Only the English wording is recognised; a translated message gives -1, and recovery then
+   * searches for the failing row instead.
+   *
+   * <p>With {@code reWriteBatchedInserts=true} the driver folds the rows into multi-row INSERT
+   * statements and the entry number counts those statements, not rows. That shows in the message as
+   * a VALUES list of several rows, and then no entry is given.
+   */
+  @Override
+  public int getFailedBatchEntry(java.sql.SQLException failure) {
+    String message = failure == null ? null : failure.getMessage();
+    if (message == null) {
+      return -1;
+    }
+    if ("true"
+        .equalsIgnoreCase(Const.NVL(getConnectionOption("reWriteBatchedInserts"), "").trim())) {
+      return -1;
+    }
+    java.util.regex.Matcher matcher = BATCH_ENTRY.matcher(message);
+    if (!matcher.find()) {
+      return -1;
+    }
+    String statement = message.substring(matcher.end());
+    int aborted = statement.indexOf(" was aborted");
+    if (aborted >= 0) {
+      statement = statement.substring(0, aborted);
+    }
+    // The option can also come from a variable or the driver's defaults, so the message is checked
+    // as well.
+    if (ROW_BOUNDARY.matcher(statement).find()) {
+      return -1;
+    }
+    return Integer.parseInt(matcher.group(1));
   }
 }

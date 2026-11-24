@@ -33,6 +33,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.SqlScriptParser;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.types.DatabaseTypes;
@@ -1299,5 +1300,17 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
     setSupportsTimestampDataType(true);
+  }
+
+  /**
+   * Measured with ojdbc11 23.26 against Oracle 23: the driver stops at the first failed row of a
+   * batch and keeps the rows before it.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != OracleDatabaseMeta.class) {
+      return null;
+    }
+    return BatchFailureContract.KEEPS_PREFIX;
   }
 }

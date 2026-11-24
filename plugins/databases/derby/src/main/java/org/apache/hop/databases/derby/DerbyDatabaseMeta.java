@@ -23,6 +23,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -484,5 +485,20 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public String getSqlInsertAutoIncUnknownDimensionRow(
       String schemaTable, String keyField, String versionField) {
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
+  }
+
+  /**
+   * Measured with Derby 10.17: the network client driver, used when a hostname is set, runs every
+   * row of a failed batch and marks the failed ones; the embedded driver stops at the first failed
+   * row and keeps the rows before it.
+   */
+  @Override
+  public BatchFailureContract getBatchFailureContract() {
+    if (getClass() != DerbyDatabaseMeta.class) {
+      return null;
+    }
+    return Utils.isEmpty(getHostname())
+        ? BatchFailureContract.KEEPS_PREFIX
+        : BatchFailureContract.MARKS_FAILED_ROWS;
   }
 }
