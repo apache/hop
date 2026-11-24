@@ -82,8 +82,8 @@ public final class PluginOwnedFiles {
    * @param pluginFolders plugin folders relative to the installation, such as {@value
    *     #BEAM_ENGINE_FOLDER}
    * @return the files that only these plugins install. A plugin that is installed without a
-   *     manifest, from a build before manifests existed, only has its folder left out: see {@link
-   *     #getFoldersWithoutManifest()}.
+   *     manifest, from a build before manifests existed, only has its folder left out: see {@code
+   *     getFoldersWithoutManifest()}.
    */
   public static PluginOwnedFiles onlyInstalledBy(File installation, String... pluginFolders) {
     Set<String> folders = new TreeSet<>(List.of(pluginFolders));
