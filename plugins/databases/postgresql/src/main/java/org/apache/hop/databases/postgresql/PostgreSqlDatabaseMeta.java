@@ -202,6 +202,12 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
+  /** The JSONB operators ?, ?| and ?&amp;, written ?? for '?' through JDBC. */
+  @Override
+  public boolean isQuestionMarkOperators() {
+    return true;
+  }
+
   /**
    * pgvector is an extension, not a version: the same server has the type in one database and not
    * in the next, so there is no release to compare against. The driver answers it directly, because

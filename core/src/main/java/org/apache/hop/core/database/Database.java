@@ -3861,7 +3861,36 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * operators (?|, ?&amp;, ??, ??|, ??&amp;) are not treated as parameters.
    */
   public static SqlParameterSpec parseSqlParameterSpec(String sourceSql) {
-    return parseSqlParameterSpec(sourceSql, false);
+    return parseSqlParameterSpec(sourceSql, SqlSyntax.DEFAULT);
+  }
+
+  /**
+   * The parts of a dialect's SQL that decide whether a '?' is a parameter marker.
+   *
+   * @param bracketIdentifiers [identifier] sections are quoted identifiers (SQL Server)
+   * @param backslashEscapes a backslash escapes the next character in a string literal (MySQL)
+   * @param questionMarkOperators ?|, ?&amp; and ?? are operators (PostgreSQL JSONB), not markers
+   */
+  public record SqlSyntax(
+      boolean bracketIdentifiers, boolean backslashEscapes, boolean questionMarkOperators) {
+
+    /** No dialect known: the rules Hop always used, PostgreSQL JSONB operators included. */
+    public static final SqlSyntax DEFAULT = new SqlSyntax(false, false, true);
+
+    /**
+     * @param databaseMeta the connection, or null when it is not known
+     * @return the rules of the connection's dialect, or {@link #DEFAULT} without one
+     */
+    public static SqlSyntax of(DatabaseMeta databaseMeta) {
+      if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
+        return DEFAULT;
+      }
+      IDatabase dialect = databaseMeta.getIDatabase();
+      return new SqlSyntax(
+          "[".equals(dialect.getStartQuote()) && "]".equals(dialect.getEndQuote()),
+          dialect.isBackslashEscapingStrings(),
+          dialect.isQuestionMarkOperators());
+    }
   }
 
   /**
@@ -3875,6 +3904,26 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public static SqlParameterSpec parseSqlParameterSpec(
       String sourceSql, boolean consumeBracketIdentifiers) {
+    return parseSqlParameterSpec(
+        sourceSql,
+        new SqlSyntax(
+            consumeBracketIdentifiers,
+            SqlSyntax.DEFAULT.backslashEscapes(),
+            SqlSyntax.DEFAULT.questionMarkOperators()));
+  }
+
+  /**
+   * Parse SQL for JDBC parameter markers and ?{name} placeholders, with the rules of a dialect.
+   *
+   * <p>The parser skips SQL text within literals, quoted identifiers and comments, and, for a
+   * dialect with them, operators that start with '?'.
+   *
+   * @param sourceSql the SQL text to parse
+   * @param syntax the rules of the dialect, see {@link SqlSyntax#of(DatabaseMeta)}
+   */
+  public static SqlParameterSpec parseSqlParameterSpec(String sourceSql, SqlSyntax syntax) {
+    boolean consumeBracketIdentifiers = syntax.bracketIdentifiers();
+    boolean backslashEscapes = syntax.backslashEscapes();
     String sql = Const.NVL(sourceSql, "");
     StringBuilder preparedSql = new StringBuilder(sql.length());
     List<String> parameterReferences = new ArrayList<>();
@@ -3918,21 +3967,22 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
 
       if (c == '\'') {
-        int end = consumeQuotedSection(sql, index, '\'', true);
+        int end = consumeQuotedSection(sql, index, '\'', true, backslashEscapes);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
       }
 
       if (c == '"') {
-        int end = consumeQuotedSection(sql, index, '"', true);
+        // MySQL takes "..." for a string literal too, with the same escapes
+        int end = consumeQuotedSection(sql, index, '"', true, backslashEscapes);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
       }
 
       if (c == '`') {
-        int end = consumeQuotedSection(sql, index, '`', true);
+        int end = consumeQuotedSection(sql, index, '`', true, false);
         preparedSql.append(sql, index, end);
         index = end;
         continue;
@@ -3974,7 +4024,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           }
         }
 
-        int jsonbOperatorLength = getPostgresJsonbOperatorLength(sql, index);
+        int jsonbOperatorLength =
+            syntax.questionMarkOperators() ? getPostgresJsonbOperatorLength(sql, index) : 0;
         if (jsonbOperatorLength > 0) {
           preparedSql.append(sql, index, index + jsonbOperatorLength);
           index += jsonbOperatorLength;
@@ -3996,9 +4047,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   private static int consumeQuotedSection(
-      String sql, int startIndex, char quoteCharacter, boolean allowDoubledQuoteEscape) {
+      String sql,
+      int startIndex,
+      char quoteCharacter,
+      boolean allowDoubledQuoteEscape,
+      boolean allowBackslashEscape) {
     int index = startIndex + 1;
     while (index < sql.length()) {
+      if (allowBackslashEscape && sql.charAt(index) == '\\') {
+        // The next character is part of the literal, a quote too
+        index += 2;
+        continue;
+      }
       if (sql.charAt(index) == quoteCharacter) {
         if (allowDoubledQuoteEscape
             && index + 1 < sql.length()
@@ -4061,7 +4121,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (questionMarkIndex + 2 < length
         && sql.charAt(questionMarkIndex) == '?'
         && sql.charAt(questionMarkIndex + 1) == '?'
-        && (sql.charAt(questionMarkIndex + 2) == '|' || sql.charAt(questionMarkIndex + 2) == '&')) {
+        && (sql.charAt(questionMarkIndex + 2) == '|' || sql.charAt(questionMarkIndex + 2) == '&')
+        && !isDoubled(sql, questionMarkIndex + 2)) {
       return 3;
     }
 
@@ -4070,11 +4131,18 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (next == '?') {
         return 2;
       }
-      if (next == '|' || next == '&') {
+      // ?|| and ?&& are a marker before the || (concatenation) or && (array overlap) operator:
+      // PostgreSQL has no ?|| or ?&& operator
+      if ((next == '|' || next == '&') && !isDoubled(sql, questionMarkIndex + 1)) {
         return 2;
       }
     }
     return 0;
+  }
+
+  /** Whether the character at the index is followed by the same character: || or &amp;&amp;. */
+  private static boolean isDoubled(String sql, int index) {
+    return index + 1 < sql.length() && sql.charAt(index + 1) == sql.charAt(index);
   }
 
   public int countParameters(String sql) {
@@ -4082,23 +4150,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
-   * Parse SQL for parameter markers with the quoting rules of this connection's dialect: like
-   * {@link #parseSqlParameterSpec(String)}, plus [identifier] sections for dialects that quote
-   * identifiers with brackets.
+   * Parse SQL for parameter markers with the rules of this connection's dialect: its quoting
+   * ([identifier] sections, backslash escapes) and whether it has operators that start with '?'.
    *
    * @param sql the SQL text to parse
    * @return the parsed parameter information
    */
   public SqlParameterSpec getSqlParameterSpec(String sql) {
-    return parseSqlParameterSpec(sql, supportsBracketQuotedIdentifiers());
-  }
-
-  private boolean supportsBracketQuotedIdentifiers() {
-    if (databaseMeta == null || databaseMeta.getIDatabase() == null) {
-      return false;
-    }
-    return "[".equals(databaseMeta.getIDatabase().getStartQuote())
-        && "]".equals(databaseMeta.getIDatabase().getEndQuote());
+    return parseSqlParameterSpec(sql, SqlSyntax.of(databaseMeta));
   }
 
   // Get the fields back from an SQL query

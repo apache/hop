@@ -1043,6 +1043,28 @@ public interface IDatabase extends Cloneable {
   }
 
   /**
+   * Whether a backslash in a string literal escapes the next character, so {@code 'O\'Brien'} is
+   * one literal. MySQL and MariaDB do this by default. Hop needs it to tell a '?' parameter marker
+   * from a '?' inside a literal.
+   *
+   * @return true when a backslash escapes the next character in a string literal
+   */
+  default boolean isBackslashEscapingStrings() {
+    return false;
+  }
+
+  /**
+   * Whether the dialect has operators that start with '?', such as the PostgreSQL JSONB operators
+   * {@code ?|} and {@code ?&}, with {@code ??} for a '?' operator in JDBC. Hop then does not take
+   * them for parameter markers. In other dialects {@code ?|} is a marker before a '|'.
+   *
+   * @return true when '?|', '?&amp;' and '??' are operators rather than parameter markers
+   */
+  default boolean isQuestionMarkOperators() {
+    return false;
+  }
+
+  /**
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so
    *     on.
    * @deprecated Dialects now describe their own column types through {@link #getTypeRules()}, which

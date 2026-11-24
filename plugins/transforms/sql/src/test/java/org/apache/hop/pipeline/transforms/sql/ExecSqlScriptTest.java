@@ -195,6 +195,17 @@ class ExecSqlScriptTest {
     assertEquals(2, output.size());
   }
 
+  /** A marker right before a || concatenation is a marker, as it always was. */
+  @Test
+  void textReplacementReplacesAMarkerBeforeAConcatenation() throws Exception {
+    ExecSqlMeta meta = meta("INSERT INTO t (id, name) VALUES (?, ?||'_x')", false, "id", "name");
+    meta.setQuoteString(true);
+
+    run(meta, new Object[] {1L, "a"});
+
+    assertEquals(List.of("1|a_x"), rows());
+  }
+
   @Test
   void textReplacementMapsMarkersToArgumentsInOrder() throws Exception {
     ExecSqlMeta meta = meta("INSERT INTO t (name, id) VALUES (?, ?)", false, "name", "id");

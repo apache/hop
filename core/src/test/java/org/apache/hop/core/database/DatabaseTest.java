@@ -312,6 +312,56 @@ class DatabaseTest {
     assertEquals(3, Database.parseSqlParameterSpec(sql).getMarkerPositions().size());
   }
 
+  private static final Database.SqlSyntax POSTGRES = new Database.SqlSyntax(false, false, true);
+  private static final Database.SqlSyntax PLAIN = new Database.SqlSyntax(false, false, false);
+  private static final Database.SqlSyntax MYSQL = new Database.SqlSyntax(false, true, false);
+
+  /** ?|| and ?&amp;&amp; are a marker before || or &amp;&amp;: PostgreSQL has no such operator. */
+  @Test
+  void aMarkerBeforeConcatenationOrOverlapIsAMarker() {
+    String sql = "INSERT INTO t VALUES (?, ?||'_x') -- and ?&&ARRAY[1]\n";
+    assertEquals(2, Database.parseSqlParameterSpec(sql, POSTGRES).getParameterCount());
+    assertEquals(2, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+
+    String overlap = "SELECT * FROM t WHERE ?&&tags AND doc ?| array['a'] AND f ?? 'k'";
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(overlap, POSTGRES);
+    assertEquals(List.of(overlap.indexOf('?')), spec.getMarkerPositions());
+
+    // The escaped ? operator before a concatenation stays the operator
+    assertEquals(0, Database.parseSqlParameterSpec("SELECT a ??||b", POSTGRES).getParameterCount());
+  }
+
+  /** In other dialects | and &amp; after a marker are bitwise operators, and ?? is two markers. */
+  @Test
+  void questionMarkOperatorsAreOnlyPostgres() {
+    String sql = "SELECT ?|flags, ?&1, ?? FROM t";
+
+    assertEquals(4, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+    assertEquals(0, Database.parseSqlParameterSpec(sql, POSTGRES).getParameterCount());
+  }
+
+  /** MySQL reads 'O\'Brien' as one literal: the marker after it is still a marker. */
+  @Test
+  void aBackslashEscapedQuoteDoesNotEndAMySqlLiteral() {
+    String sql = "INSERT INTO t VALUES (?, 'O\\'Brien', \"a\\\"?\", ?)";
+
+    assertEquals(
+        List.of(sql.indexOf('?'), sql.lastIndexOf('?')),
+        Database.parseSqlParameterSpec(sql, MYSQL).getMarkerPositions());
+    // Standard SQL has no backslash escapes: there the literal ends at \'
+    assertEquals(1, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+  }
+
+  @Test
+  void getSqlParameterSpecUsesTheRulesOfTheDialect() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.isBackslashEscapingStrings()).thenReturn(true);
+
+    Database db = new Database(log, variables, meta);
+
+    assertEquals(2, db.countParameters("INSERT INTO t VALUES (?, 'O\\'Brien', ?|1)"));
+  }
+
   /**
    * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
    * every call. That may bring performance penalty depends on jdbc driver implementation. For some
