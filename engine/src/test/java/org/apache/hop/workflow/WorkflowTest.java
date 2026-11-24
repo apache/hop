@@ -18,11 +18,17 @@
 package org.apache.hop.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.time.Duration;
+import java.util.Calendar;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -140,6 +146,29 @@ class WorkflowTest {
     }
   }
 
+  /** Counts the runs of {@link ActionCountingForStartRepeatTest}. */
+  private static final AtomicInteger countedRuns = new AtomicInteger();
+
+  @Action(id = "ActionCountingForStartRepeatTest", name = "Counting action for start repeat test")
+  public static class ActionCountingForStartRepeatTest extends ActionBase implements IAction {
+
+    public ActionCountingForStartRepeatTest() {
+      super("", "", "ActionCountingForStartRepeatTest");
+    }
+
+    @Override
+    public Result execute(Result prevResult, int nr) {
+      int runs = countedRuns.incrementAndGet();
+      if (runs >= 3) {
+        getParentWorkflow().stopExecution();
+      }
+      Result r = prevResult == null ? new Result() : prevResult.clone();
+      r.setResult(true);
+      r.setNrErrors(0);
+      return r;
+    }
+  }
+
   @BeforeAll
   static void beforeClass() throws HopException {
     PluginRegistry.getInstance()
@@ -147,6 +176,9 @@ class WorkflowTest {
             ActionBlockingForWorkflowStopTest.class.getName(),
             ActionPluginType.class,
             Action.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            ActionCountingForStartRepeatTest.class.getName(), ActionPluginType.class, Action.class);
   }
 
   @BeforeEach
@@ -238,5 +270,71 @@ class WorkflowTest {
       blockingEntered = null;
       blockingRelease = null;
     }
+  }
+
+  private static LocalWorkflowEngine repeatingWorkflow(int schedulerType) {
+    WorkflowMeta meta = new WorkflowMeta();
+    meta.setName("start-repeat-test");
+    ActionStart start = new ActionStart("START");
+    start.setRepeat(true);
+    start.setSchedulerType(schedulerType);
+    start.setIntervalSeconds("0");
+    start.setIntervalMinutes("0");
+    // Daily at a minute that has just passed: a repeating Start waits almost a day.
+    Calendar now = Calendar.getInstance();
+    now.add(Calendar.MINUTE, -1);
+    start.setHour(Integer.toString(now.get(Calendar.HOUR_OF_DAY)));
+    start.setMinutes(Integer.toString(now.get(Calendar.MINUTE)));
+    ActionMeta startMeta = new ActionMeta(start);
+    meta.addAction(startMeta);
+    ActionCountingForStartRepeatTest counting = new ActionCountingForStartRepeatTest();
+    counting.setName("counting");
+    ActionMeta countingMeta = new ActionMeta(counting);
+    meta.addAction(countingMeta);
+    meta.addWorkflowHop(new WorkflowHopMeta(startMeta, countingMeta));
+    LocalWorkflowEngine engine = new LocalWorkflowEngine(meta);
+    engine.setLogLevel(LogLevel.MINIMAL);
+    return engine;
+  }
+
+  /** An outside scheduler starts the workflow on the schedule: run once, do not wait. */
+  @Test
+  void runsOnceWithoutWaitingWhenTheStartRepeatIsIgnored() {
+    countedRuns.set(0);
+    LocalWorkflowEngine engine = repeatingWorkflow(ActionStart.DAILY);
+    engine.setVariable(Const.HOP_IGNORE_START_REPEAT, "Y");
+
+    assertTimeoutPreemptively(Duration.ofSeconds(30), engine::startExecution);
+
+    assertEquals(1, countedRuns.get());
+    assertTrue(engine.getResult().getResult());
+  }
+
+  /** As the Airflow launcher sets it: a system property, read once Hop has started. */
+  @Test
+  void runsOnceWhenTheStartRepeatIsIgnoredWithASystemProperty() throws Exception {
+    countedRuns.set(0);
+    HopEnvironment.init();
+    System.setProperty(Const.HOP_IGNORE_START_REPEAT, "Y");
+    try {
+      LocalWorkflowEngine engine = repeatingWorkflow(ActionStart.DAILY);
+      engine.initializeFrom(null);
+
+      assertTimeoutPreemptively(Duration.ofSeconds(30), engine::startExecution);
+
+      assertEquals(1, countedRuns.get());
+    } finally {
+      System.clearProperty(Const.HOP_IGNORE_START_REPEAT);
+    }
+  }
+
+  @Test
+  void stillRepeatsWithoutTheVariable() {
+    countedRuns.set(0);
+    LocalWorkflowEngine engine = repeatingWorkflow(ActionStart.INTERVAL);
+
+    assertTimeoutPreemptively(Duration.ofSeconds(30), engine::startExecution);
+
+    assertEquals(3, countedRuns.get());
   }
 }

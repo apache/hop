@@ -489,6 +489,11 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
         docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
         || COMPOSE_EXIT=$?
+    elif [ "${PROJECT_NAME}" = "airflow-dags" ]; then
+      echo "Rebuilding the Airflow image so it holds the Hop client of this build"
+      PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
+        docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --build --abort-on-container-exit \
+        || COMPOSE_EXIT=$?
     elif [ "${PROJECT_NAME}" = "http" ]; then
       echo "Rebuilding http images so CastleMock comes from the v1.68 source tag"
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} \
