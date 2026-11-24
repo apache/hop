@@ -16,10 +16,11 @@
 #
 """Checks the proposals the DataHub stand-in kept (see 0001-check-and-stop-datahub-stub.sh).
 
-Usage: python3 -I 0001-check-proposals.py <proposal log>
+Usage: python3 -I 0001-check-proposals.py <proposal log> <java.io.tmpdir of the Hop run>
 """
 
 import json
+import os
 import sys
 import time
 
@@ -36,9 +37,20 @@ UNIT_TESTED_FILE = "unit-tested.csv"
 UNIT_TESTED_PIPELINE = "0006-lineage-sink-unit-tested"
 # The same test run by the Execute tests transform of 0008: its result is an assertion as well
 EXECUTE_TESTS_UNIT_TEST = "lineage-sinks-unit-test-execute-tests"
+# The unit tests that are assertions on UNIT_TESTED_FILE, with what runs them
+ASSERTED_UNIT_TESTS = {
+    "lineage-sinks-unit-test": "Run pipeline unit tests",
+    EXECUTE_TESTS_UNIT_TEST: "the Execute tests transform",
+}
 # A workflow the Workflow executor of a tested pipeline starts belongs to the unit test run: neither
-# it nor the file it writes is reported
-UNIT_TEST_CHILD = ("0007-lineage-sink-unit-test-child-workflow", "unit-test-child-workflow.txt")
+# it, the tested pipeline nor the file the workflow writes is reported. The file is there, though:
+# the workflow ran.
+UNIT_TEST_CHILD = (
+    "0007-lineage-sink-unit-test-child-workflow",
+    "0007-lineage-sink-unit-tested-executor",
+    "unit-test-child-workflow.txt",
+)
+UNIT_TEST_CHILD_FILE = os.path.join("lineage-sinks-it", "unit-test-child-workflow.txt")
 # The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
 LOGIC = (
     (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
@@ -61,21 +73,19 @@ def unit_test_assertions(kept, unit_test):
         p["entityUrn"]
         for p in kept
         if p["aspectName"] == "assertionInfo"
-        and p["value"].get("customProperties", {}).get("hopUnitTest") == unit_test
+        and (p["value"].get("customProperties") or {}).get("hopUnitTest") == unit_test
     }
 
 
 def everything_arrived(kept):
     """Whether every run and publication the workflow made has reached the stand-in."""
     expected = (REPORTED, PUBLISHED_FLOW) + INHERITED
-    return (
-        all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected)
-        and any(p["aspectName"] == "assertionRunEvent" for p in kept)
-        and unit_test_assertions(kept, EXECUTE_TESTS_UNIT_TEST)
+    return all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected) and all(
+        unit_test_assertions(kept, unit_test) for unit_test in ASSERTED_UNIT_TESTS
     )
 
 
-def main(path):
+def main(path, tmpdir):
     # Delivery is asynchronous: wait for the last of the reported runs, then a little longer for
     # anything that should not have come.
     deadline = time.time() + 60
@@ -121,50 +131,50 @@ def main(path):
     published_documents = [
         p
         for p in documents
-        if any(PUBLISHED_FLOW in a.get("asset", "") for a in p["value"].get("relatedAssets", []))
+        if any(
+            PUBLISHED_FLOW in (a.get("asset") or "")
+            for a in (p["value"].get("relatedAssets") or [])
+        )
     ]
     if not published_documents:
         problems.append("no document related to the published pipeline")
     else:
         document = published_documents[-1]["value"]
-        text = document.get("contents", {}).get("text", "")
+        text = (document.get("contents") or {}).get("text") or ""
         if "Filename : 0005-lineage-sink-published.hpl" not in text or "Never run" not in text:
             problems.append(f"the published pipeline's document is not what hop doc writes: {text}")
-        parent = document.get("parentDocument", {}).get("document")
+        parent = (document.get("parentDocument") or {}).get("document")
         if not any(
-            p["entityUrn"] == parent and p["value"].get("title", "").startswith("Hop project ")
+            p["entityUrn"] == parent and (p["value"].get("title") or "").startswith("Hop project ")
             for p in documents
         ):
             problems.append(f"the published pipeline's document is not under its project: {parent}")
-    runs = [
-        p
-        for p in kept
-        if p["aspectName"] == "assertionRunEvent"
-        and UNIT_TESTED_FILE in p.get("value", {}).get("asserteeUrn", "")
-    ]
-    if not runs:
-        problems.append(f"no assertion run on {UNIT_TESTED_FILE} from the unit test")
-    elif runs[-1]["value"].get("result", {}).get("type") != "SUCCESS":
-        problems.append(f"the unit test assertion did not pass: {runs[-1]['value']}")
-    elif not any(
-        p["aspectName"] == "assertionInfo" and p["entityUrn"] == runs[-1]["entityUrn"] for p in kept
-    ):
-        problems.append("the unit test assertion run has no assertion")
+    # Each unit test by name, so a failing one is named: an assertion on the tested file, that passed
+    for unit_test, runner in ASSERTED_UNIT_TESTS.items():
+        assertions = unit_test_assertions(kept, unit_test)
+        runs = [
+            p for p in kept if p["aspectName"] == "assertionRunEvent" and p["entityUrn"] in assertions
+        ]
+        if not runs:
+            problems.append(f"no assertion run of unit test {unit_test}, run by {runner}")
+        elif UNIT_TESTED_FILE not in (runs[-1]["value"].get("asserteeUrn") or ""):
+            problems.append(f"unit test {unit_test} is not an assertion on {UNIT_TESTED_FILE}: {runs[-1]['value']}")
+        elif (runs[-1]["value"].get("result") or {}).get("type") != "SUCCESS":
+            problems.append(f"unit test {unit_test}, run by {runner}, did not pass: {runs[-1]['value']}")
     unit_test_runs = sorted({p["entityUrn"] for p in kept if UNIT_TESTED_PIPELINE in (p["entityUrn"] or "")})
     if unit_test_runs:
         problems.append(f"the unit test run reported its own lineage: {unit_test_runs}")
-    executed = unit_test_assertions(kept, EXECUTE_TESTS_UNIT_TEST)
-    executed_runs = [
-        p for p in kept if p["aspectName"] == "assertionRunEvent" and p["entityUrn"] in executed
-    ]
-    if not executed_runs:
-        problems.append(f"no assertion run of {EXECUTE_TESTS_UNIT_TEST}, run by the Execute tests transform")
-    elif executed_runs[-1]["value"].get("result", {}).get("type") != "SUCCESS":
-        problems.append(f"the Execute tests assertion did not pass: {executed_runs[-1]['value']}")
     for name in UNIT_TEST_CHILD:
         leaked = sorted({p["entityUrn"] for p in kept if name in (p["entityUrn"] or "")})
         if leaked:
             problems.append(f"{name} was reported, but a unit test run started it: {leaked}")
+    # Nothing leaked above only means something if the workflow ran: unit test
+    # lineage-sinks-unit-test-executor runs it, and the file it writes was deleted before the run
+    if not os.path.isfile(os.path.join(tmpdir, UNIT_TEST_CHILD_FILE)):
+        problems.append(
+            "unit test lineage-sinks-unit-test-executor did not run its child workflow: "
+            f"no {os.path.join(tmpdir, UNIT_TEST_CHILD_FILE)}"
+        )
     # What a transform calculates its fields with: a Formula that ran, a Calculator published
     for flow, task, field, expression in LOGIC:
         infos = [
@@ -174,7 +184,9 @@ def main(path):
             and flow in (p["entityUrn"] or "")
             and (p["entityUrn"] or "").endswith("," + task + ")")
         ]
-        found = infos[-1]["value"].get("customProperties", {}).get("logic." + field) if infos else None
+        found = (
+            (infos[-1]["value"].get("customProperties") or {}).get("logic." + field) if infos else None
+        )
         if found != expression:
             problems.append(f"task {task} of {flow} shows {found} as the logic of {field}, not {expression}")
     loads = [
@@ -182,7 +194,7 @@ def main(path):
         for p in published
         if p["aspectName"] == "dataJobInputOutput" and p["entityUrn"].endswith(",Load warehouse)")
     ]
-    outputs = loads[-1]["value"].get("outputDatasets", []) if loads else None
+    outputs = (loads[-1]["value"].get("outputDatasets") or []) if loads else None
     if outputs != [WAREHOUSE_TABLE]:
         problems.append(f"Load warehouse writes {outputs}, not {WAREHOUSE_TABLE}")
     instances = [
@@ -209,4 +221,4 @@ def main(path):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1]))
+    sys.exit(main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "/tmp"))

@@ -79,15 +79,12 @@ limitations under the License.
     </action>
     <action>
       <name>Run the unit test</name>
-      <description>Runs lineage-sinks-unit-test: its test pipeline inherits this workflow's lineage sink. And lineage-sinks-unit-test-executor, whose Workflow executor starts a workflow that must not report to that sink</description>
+      <description>Runs lineage-sinks-unit-test: its test pipeline inherits this workflow's lineage sink. Whether it passed is checked on its assertion, so 0008 runs either way</description>
       <type>RunPipelineTests</type>
       <attributes />
       <test_names>
         <test_name>
           <name>lineage-sinks-unit-test</name>
-        </test_name>
-        <test_name>
-          <name>lineage-sinks-unit-test-executor</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -123,6 +120,21 @@ limitations under the License.
       <yloc>96</yloc>
       <attributes_hac />
     </action>
+    <action>
+      <name>Run the executor unit test</name>
+      <description>Runs lineage-sinks-unit-test-executor, whose Workflow executor starts a workflow that must not report to this workflow's lineage sink. It has no golden data set, so no assertion: when it fails, this action is the one that fails</description>
+      <type>RunPipelineTests</type>
+      <attributes />
+      <test_names>
+        <test_name>
+          <name>lineage-sinks-unit-test-executor</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
+      <yloc>96</yloc>
+      <attributes_hac />
+    </action>
   </actions>
   <hops>
     <hop>
@@ -144,7 +156,14 @@ limitations under the License.
       <to>0008-lineage-sink-execute-tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0008-lineage-sink-execute-tests</from>
+      <to>Run the executor unit test</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>

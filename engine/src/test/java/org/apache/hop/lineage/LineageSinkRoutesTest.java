@@ -324,4 +324,18 @@ class LineageSinkRoutesTest {
 
     verify(spy, times(1)).release(any());
   }
+
+  // A transform that starts a workflow with only itself as the logging parent: the workflow
+  // inherits the sinks of the transform's pipeline, as with a parent pipeline
+  @Test
+  void aWorkflowATransformStartedTakesThatTransformsPipelineSinks() {
+    IPipelineEngine<PipelineMeta> pipeline = pipeline("datahub", null);
+    BaseTransform<?, ?> transform = mock(BaseTransform.class);
+    when(transform.getPipeline()).thenReturn(pipeline);
+    IWorkflowEngine<WorkflowMeta> workflow = workflow(null);
+    when(workflow.getParent()).thenReturn(transform);
+
+    assertEquals(
+        Set.of(key("datahub", "http://datahub:8080")), LineageSinkRoutes.of(workflow, hub));
+  }
 }

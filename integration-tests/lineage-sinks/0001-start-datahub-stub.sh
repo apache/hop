@@ -18,8 +18,11 @@
 #
 
 # Starts the DataHub stand-in (datahub-ingest-stub.py) in the background and waits until it answers.
+# Argument: the java.io.tmpdir of the Hop run. The file the unit test's child workflow writes there
+# is removed first, so the check knows that workflow ran.
 
 PORT="${DATAHUB_STUB_PORT:-18080}"
+rm -f "${1:-/tmp}/lineage-sinks-it/unit-test-child-workflow.txt"
 LOG=/tmp/lineage-sinks-proposals.log
 rm -f "${LOG}"
 touch "${LOG}"

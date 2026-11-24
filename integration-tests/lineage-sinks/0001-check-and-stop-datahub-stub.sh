@@ -26,10 +26,11 @@
 # - the unit test 0003 runs is a passed assertion on the file its pipeline writes;
 # - the pipeline run with the local run configuration, and the workflow, reported nothing:
 #   lineage is not enabled with variables in this project.
+# Argument: the java.io.tmpdir of the Hop run, where the unit test's child workflow writes its file.
 
 LOG=/tmp/lineage-sinks-proposals.log
 
-python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}"
+python3 -I "$(dirname "$0")/0001-check-proposals.py" "${LOG}" "${1:-/tmp}"
 RESULT=$?
 
 if [ -f /tmp/lineage-sinks-stub.pid ]; then

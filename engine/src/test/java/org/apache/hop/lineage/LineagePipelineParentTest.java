@@ -280,4 +280,36 @@ class LineagePipelineParentTest {
     assertNull(built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));
     assertNull(built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
   }
+
+  // A transform can start a workflow with only itself as the logging parent, without setting a
+  // parent pipeline: the workflow is still a child of that transform's run.
+  @Test
+  void workflowStartedByATransformWithoutParentPipelineNamesThatTransform() {
+    @SuppressWarnings("unchecked")
+    IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    @SuppressWarnings("unchecked")
+    IPipelineEngine<PipelineMeta> parentPipeline = mock(IPipelineEngine.class);
+    BaseTransform<?, ?> transform = mock(BaseTransform.class);
+    ILogChannel transformLog = mock(ILogChannel.class);
+    PipelineMeta parentMeta = new PipelineMeta();
+    parentMeta.setName("orders");
+    when(workflow.getParent()).thenReturn(transform);
+    when(transform.getPipeline()).thenReturn(parentPipeline);
+    when(transform.getTransformName()).thenReturn("Run workflow");
+    when(transform.getLogChannel()).thenReturn(transformLog);
+    when(transformLog.getLogChannelId()).thenReturn("run-workflow-run-id");
+    when(parentPipeline.getPipelineMeta()).thenReturn(parentMeta);
+
+    LineageContext.Builder ctx = context();
+    LineageRunLifecycleEmitter.fillWorkflowParentFields(ctx, workflow);
+    LineageContext built = ctx.build();
+
+    assertEquals(
+        "orders/Run workflow",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_JOB_NAME));
+    assertEquals(
+        "run-workflow-run-id",
+        built.getAttributes().get(LineageRunLifecycleEmitter.ATTR_PARENT_RUN_ID));
+    assertFalse(LineageRunLifecycleEmitter.isTopLevel(workflow));
+  }
 }

@@ -64,6 +64,10 @@ public final class LineageSinkRoutes {
    * runs a unit test. Such a run runs a copy of the pipeline, with data sets in place of transforms
    * and no file name: its lineage is not the pipeline's. Its sinks get only the test's results, see
    * {@link #ofUnitTest}.
+   *
+   * <p>This covers the sinks selected in run configurations only. Sinks set up with the {@code
+   * HOP_LINEAGE_*} variables get every event of the process, a unit test run's included: {@link
+   * #isEnabled(IPipelineEngine)} is true for it when lineage is enabled that way.
    */
   public static Set<String> of(IPipelineEngine<PipelineMeta> pipeline) {
     return ofRun(pipeline, LineageHub.getInstance());
@@ -82,8 +86,9 @@ public final class LineageSinkRoutes {
 
   /**
    * Whether the results of the unit test a pipeline run runs are observed: lineage is enabled with
-   * variables, or the run has sinks for its results ({@link #ofUnitTest}). {@link
-   * #isEnabled(IPipelineEngine)} is false for such a run, which reports no lineage of its own.
+   * variables, or the run has sinks for its results ({@link #ofUnitTest}). Unless lineage is
+   * enabled with variables, {@link #isEnabled(IPipelineEngine)} is false for such a run, which then
+   * reports no lineage of its own.
    */
   public static boolean isUnitTestReported(IPipelineEngine<PipelineMeta> pipeline) {
     return isUnitTestReported(pipeline, LineageHub.getInstance());
@@ -105,7 +110,9 @@ public final class LineageSinkRoutes {
   /**
    * The keys of the sinks a workflow run reports to; empty when there are none, or when a unit test
    * run started it: its lineage is not a run of the pipelines and files it touches, any more than
-   * the unit test run's own (see {@link #of(IPipelineEngine)}).
+   * the unit test run's own (see {@link #of(IPipelineEngine)}). As there, this covers the sinks
+   * selected in run configurations only, not the ones set up with the {@code HOP_LINEAGE_*}
+   * variables.
    */
   public static Set<String> of(IWorkflowEngine<WorkflowMeta> workflow) {
     return ofRun(workflow, LineageHub.getInstance());
@@ -243,8 +250,10 @@ public final class LineageSinkRoutes {
   }
 
   private static Set<String> parentSinks(IWorkflowEngine<WorkflowMeta> workflow, LineageHub hub) {
-    if (workflow.getParentPipeline() != null) {
-      return of(workflow.getParentPipeline(), hub);
+    IPipelineEngine<PipelineMeta> parentPipeline =
+        LineageRunLifecycleEmitter.parentPipelineOf(workflow);
+    if (parentPipeline != null) {
+      return of(parentPipeline, hub);
     }
     if (workflow.getParentWorkflow() != null) {
       return of(workflow.getParentWorkflow(), hub);
