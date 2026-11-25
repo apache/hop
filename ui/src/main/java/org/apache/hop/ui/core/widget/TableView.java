@@ -1040,6 +1040,7 @@ public class TableView extends Composite {
       String[] afterEdit = getItemText(row);
       checkChanged(new String[][] {fBeforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
       setCellValue(row, colNr, value);
+      clearNullColor(row, colNr, value);
     };
   }
 
@@ -1441,8 +1442,10 @@ public class TableView extends Composite {
       boolean usingComposite = usesCompositeEditor(colNr);
       if (usingComposite) {
         row.setText(colNr, comboVar.getText());
+        clearNullColor(row, colNr, comboVar.getText());
       } else {
         row.setText(colNr, combo.getText());
+        clearNullColor(row, colNr, combo.getText());
       }
 
       String[] afterEdit = getItemText(row);
@@ -1466,8 +1469,10 @@ public class TableView extends Composite {
             boolean usingComposite = usesCompositeEditor(colNr);
             if (usingComposite) {
               row.setText(colNr, comboVar.getText());
+              clearNullColor(row, colNr, comboVar.getText());
             } else {
               row.setText(colNr, combo.getText());
+              clearNullColor(row, colNr, combo.getText());
             }
           } catch (Exception exc) {
             // Eat widget disposed error
@@ -1527,6 +1532,9 @@ public class TableView extends Composite {
                   return;
                 }
                 row.setText(colNr, value);
+                // Same commit as the setText above: Windows has already entered this handler
+                // before OK reads the row, so the null color has to go here.
+                clearNullColor(row, colNr, value);
                 disposeInlineEditor(ftext, fholder);
 
                 String[] afterEdit = getItemText(row);
@@ -1537,9 +1545,11 @@ public class TableView extends Composite {
               }
             };
 
-        // force the immediate update
+        // force the immediate update. On Windows this runs to completion before the OK button's
+        // selection event, which is what reads the cell back.
         if (!row.isDisposed()) {
           row.setText(colNr, value);
+          clearNullColor(row, colNr, value);
         }
 
         if (columns[colNr - 1].getType() == ColumnInfo.COLUMN_TYPE_TEXT_BUTTON) {
@@ -2121,7 +2131,8 @@ public class TableView extends Composite {
 
       for (int j = 0; j < table.getColumnCount(); j++) {
         String data = item.getText(j);
-        if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(j))) {
+        if (NullPlaceholder.isPlaceholder(
+            data, GuiResource.getInstance().getColorBlue().equals(item.getForeground(j)))) {
           data = null;
         }
         IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta(j + 2);
@@ -2275,6 +2286,7 @@ public class TableView extends Composite {
     String textData = getTextWidgetValue(colNr);
 
     setCellValue(row, colNr, textData);
+    clearNullColor(row, colNr, textData);
     disposeInlineEditor();
     table.setFocus();
 
@@ -2323,6 +2335,7 @@ public class TableView extends Composite {
       textData = combo.getText();
     }
     row.setText(colNr, textData);
+    clearNullColor(row, colNr, textData);
     if (usingVariables) {
       safelyDisposeControl(comboVar);
     } else {
@@ -2523,6 +2536,7 @@ public class TableView extends Composite {
           if (!newValue.equals(getCellValue(row, colNr))) {
             setCellValue(row, colNr, newValue);
           }
+          clearNullColor(row, colNr, newValue);
           String[] afterEdit = getItemText(row);
           checkChanged(new String[][] {beforeEdit}, new String[][] {afterEdit}, new int[] {rowNr});
           fireContentChangedListener(rowNr, colNr, newValue);
@@ -2711,6 +2725,7 @@ public class TableView extends Composite {
   public void setCellValue(TableItem item, int colNr, String value) {
     if (!shortenDisplayedValues) {
       item.setText(colNr, value);
+      clearNullColor(item, colNr, value);
       return;
     }
     String[][] cells = (String[][]) item.getData(CELL_VALUES_KEY);
@@ -2726,6 +2741,7 @@ public class TableView extends Composite {
       cells[DISPLAYED][colNr] = display;
     }
     item.setText(colNr, display);
+    clearNullColor(item, colNr, value);
   }
 
   /**
@@ -3069,6 +3085,7 @@ public class TableView extends Composite {
       before[i] = getItemText(item);
 
       item.setText(colNr, str);
+      clearNullColor(item, colNr, str);
 
       after[i] = getItemText(item);
     }
@@ -3167,7 +3184,21 @@ public class TableView extends Composite {
 
   /** The cell shows the blue {@code <null>} placeholder a grid draws for a NULL value. */
   private boolean isNullPlaceholder(TableItem item, int colNr, String value) {
-    return "<null>".equals(value) && nullTextColor.equals(item.getForeground(colNr));
+    return NullPlaceholder.isPlaceholder(value, nullTextColor.equals(item.getForeground(colNr)));
+  }
+
+  /**
+   * Drop the blue null color when a commit wrote something other than the placeholder.
+   *
+   * <p>On Windows, clicking OK delivers focus-lost before the button selection, and that handler
+   * writes the text with {@link TableItem#setText(int, String)} rather than {@link #setCellValue}.
+   * The color has to change in the same commit or OK still reads the cell as null.
+   */
+  private void clearNullColor(TableItem item, int colNr, String value) {
+    if (item == null || item.isDisposed() || !NullPlaceholder.clearNullColor(value)) {
+      return;
+    }
+    item.setForeground(colNr, GuiResource.getInstance().getColorBlack());
   }
 
   private String getSelectedText() {
@@ -3646,7 +3677,9 @@ public class TableView extends Composite {
           (string, position) -> {
             StringBuilder buffer = new StringBuilder(table.getItem(rowNr).getText(colNr));
             buffer.insert(position, string);
-            table.getItem(rowNr).setText(colNr, buffer.toString());
+            TableItem edited = table.getItem(rowNr);
+            edited.setText(colNr, buffer.toString());
+            clearNullColor(edited, colNr, buffer.toString());
             int newPosition = position + string.length();
             edit(rowNr, colNr);
             ((TextVar) text).setSelection(newPosition);
@@ -3931,7 +3964,9 @@ public class TableView extends Composite {
           (string, position) -> {
             StringBuilder buffer = new StringBuilder(table.getItem(rowNr).getText(colNr));
             buffer.insert(position, string);
-            table.getItem(rowNr).setText(colNr, buffer.toString());
+            TableItem edited = table.getItem(rowNr);
+            edited.setText(colNr, buffer.toString());
+            clearNullColor(edited, colNr, buffer.toString());
             edit(rowNr, colNr);
             setModified();
           };
@@ -5353,7 +5388,7 @@ public class TableView extends Composite {
     if (value == null || value.isEmpty()) {
       return TableViewColumnViews.NULL_VALUE_LABEL;
     }
-    if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(dataColumn + 1))) {
+    if (isNullPlaceholder(item, dataColumn + 1, value)) {
       return TableViewColumnViews.NULL_VALUE_LABEL;
     }
     return value;
@@ -5361,15 +5396,18 @@ public class TableView extends Composite {
 
   /** The same reading as {@link #getFilterValue(TableItem, int)} for a row kept aside. */
   private String getHiddenFilterValue(HiddenRow row, int dataColumn) {
-    if (row.blueForeground != null
-        && dataColumn < row.blueForeground.length
-        && row.blueForeground[dataColumn]) {
-      return TableViewColumnViews.NULL_VALUE_LABEL;
-    }
     String displayed =
         row.displayed != null && dataColumn < row.displayed.length
             ? row.displayed[dataColumn]
             : null;
+    boolean nullColor =
+        row.blueForeground != null
+            && dataColumn < row.blueForeground.length
+            && row.blueForeground[dataColumn];
+    // Blue alone is not null: a value typed over <null> used to keep the color.
+    if (NullPlaceholder.isPlaceholder(displayed, nullColor)) {
+      return TableViewColumnViews.NULL_VALUE_LABEL;
+    }
     String value = displayed;
     int colNr = dataColumn + 1;
     if (row.cellValues != null
@@ -6234,6 +6272,7 @@ public class TableView extends Composite {
   public void setText(String text, int colNr, int rowNr) {
     TableItem item = table.getItem(rowNr);
     item.setText(colNr, text);
+    clearNullColor(item, colNr, text);
   }
 
   /**
@@ -6278,6 +6317,7 @@ public class TableView extends Composite {
       index[i] = rowNr;
       before[i] = getItemText(item);
       item.setText(colNr, Const.NVL(newValues[i], ""));
+      clearNullColor(item, colNr, newValues[i]);
       after[i] = getItemText(item);
     }
 
