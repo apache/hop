@@ -1201,8 +1201,14 @@ public abstract class BeamPipelineEngine extends Variables
 
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-        // Initialize the location.
-        iLocation.initialize(this, metadataProvider);
+        // Initialize the location with a copy of the variables, not with this engine. A location
+        // resolves with them while it holds its own lock, and resolve() on this engine locks the
+        // engine. evaluatePipelineStatus() holds the engine lock when an asynchronous run ends and
+        // saves the final state through the location from there: a timer tick in flight would
+        // deadlock against it (issue #9713).
+        IVariables locationVariables = new Variables();
+        locationVariables.copyFrom(this);
+        iLocation.initialize(locationVariables, metadataProvider);
         // Close shop when we're done
         addExecutionFinishedListener(l -> iLocation.close());
       } else {
