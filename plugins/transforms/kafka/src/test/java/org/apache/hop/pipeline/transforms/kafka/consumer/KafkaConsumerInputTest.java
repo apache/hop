@@ -21,9 +21,52 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import java.util.Properties;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.junit.jupiter.api.Test;
 
 class KafkaConsumerInputTest {
+
+  private static Properties configWith(String bootstrapServersField, String bootstrapOption) {
+    Variables variables = new Variables();
+    variables.setVariable("BROKERS", "option-broker:9092");
+    KafkaConsumerInputMeta meta = new KafkaConsumerInputMeta();
+    meta.setDirectBootstrapServers(bootstrapServersField);
+    if (bootstrapOption != null) {
+      meta.setOptions(
+          List.of(
+              new KafkaOption(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapOption),
+              new KafkaOption("security.protocol", "SASL_SSL")));
+    }
+    return KafkaConsumerInput.consumerConfig(variables, meta);
+  }
+
+  @Test
+  void aBootstrapServersOptionIsUsedWhenTheFieldIsEmpty() {
+    for (String empty : new String[] {null, ""}) {
+      Properties config = configWith(empty, "${BROKERS}");
+
+      assertEquals("option-broker:9092", config.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+      assertEquals("SASL_SSL", config.get("security.protocol"));
+    }
+  }
+
+  @Test
+  void theBootstrapServersFieldGoesOverTheOptionAsBefore() {
+    Properties config = configWith("field-broker:9092", "${BROKERS}");
+
+    assertEquals("field-broker:9092", config.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+  }
+
+  @Test
+  void theBootstrapServersFieldAloneIsUsed() {
+    Properties config = configWith("field-broker:9092", null);
+
+    assertEquals("field-broker:9092", config.get(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
+  }
 
   @Test
   void maxConsumeDurationReachedWhenElapsed() {

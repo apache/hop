@@ -251,6 +251,11 @@ public class KafkaConsumerInput
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
+    return new KafkaConsumer(consumerConfig(variables, meta));
+  }
+
+  /** The configuration of the consumer {@link #buildKafkaConsumer} creates. */
+  static Properties consumerConfig(IVariables variables, KafkaConsumerInputMeta meta) {
     Properties config = new Properties();
 
     // Set all the configuration options...
@@ -267,9 +272,12 @@ public class KafkaConsumerInput
     config.put(
         ConsumerConfig.GROUP_ID_CONFIG,
         variables.resolve(Const.NVL(meta.getConsumerGroup(), "Apache Hop")));
-    config.put(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        variables.resolve(meta.getDirectBootstrapServers()));
+    // The Bootstrap servers field, when it is filled in, goes over a bootstrap.servers option, as
+    // before. When it is empty, the option is used.
+    String bootstrapServers = variables.resolve(meta.getDirectBootstrapServers());
+    if (StringUtils.isNotEmpty(bootstrapServers)) {
+      config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    }
     config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
 
     // Timeout : max batch wait
@@ -294,9 +302,7 @@ public class KafkaConsumerInput
         meta.getMessageField().getOutputType().getKafkaDeserializerClass();
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueSerializerClass);
 
-    // Other options?
-
-    return new KafkaConsumer(config);
+    return config;
   }
 
   @Override

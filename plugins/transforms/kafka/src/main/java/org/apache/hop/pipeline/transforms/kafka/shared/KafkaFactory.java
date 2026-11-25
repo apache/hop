@@ -61,9 +61,20 @@ public class KafkaFactory {
 
     HashMap<String, Object> kafkaConfig = new HashMap<>();
     Function<String, String> variableNonNull = variablesFunction.andThen(KafkaFactory::nullToEmpty);
-    kafkaConfig.put(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        variableNonNull.apply(meta.getDirectBootstrapServers()));
+    // The options first, as the Kafka Consumer does when it runs, so the topic list reaches the
+    // same brokers with the same settings (security, for example). The settings below go over them.
+    if (meta.getOptions() != null) {
+      for (KafkaOption option : meta.getOptions()) {
+        String value = variableNonNull.apply(option.getValue());
+        if (!value.isEmpty()) {
+          kafkaConfig.put(option.getProperty(), value);
+        }
+      }
+    }
+    String bootstrapServers = variableNonNull.apply(meta.getDirectBootstrapServers());
+    if (!bootstrapServers.isEmpty()) {
+      kafkaConfig.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    }
     kafkaConfig.put(ConsumerConfig.GROUP_ID_CONFIG, variableNonNull.apply(meta.getConsumerGroup()));
     kafkaConfig.put(
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
@@ -72,11 +83,6 @@ public class KafkaFactory {
         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         keyDeserializerType.getKafkaDeserializerClass());
     kafkaConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
-    /*meta.getConfig()
-            .entrySet()
-            .forEach(
-                (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
-    */
     return consumerFunction.apply(kafkaConfig);
   }
 
