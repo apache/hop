@@ -17,12 +17,16 @@
 
 package org.apache.hop.databases.db2;
 
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.dml.DmlColumns;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
@@ -865,5 +869,41 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSupportsOptionsInURL() {
     return false;
+  }
+
+  /**
+   * DB2 for LUW has MERGE since version 9, with a {@code VALUES} source. DB2 can't type an untyped
+   * parameter in a {@code VALUES} list, so the parameters are cast. The casts keep the column's
+   * length and precision: DB2 types the parameter marker of {@code CAST(? AS VARCHAR(5))} as
+   * VARCHAR(5) and refuses a longer value (SQLCODE -302), as the plain INSERT or UPDATE does, so
+   * nothing is cut. A large object keeps its length too: {@code CAST(? AS CLOB)} would mean
+   * CLOB(1M). Checked against a DB2 Community server by {@code DB2MergeIT}, which also compares the
+   * MERGE with the plain statements.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != DB2DatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.builder()
+        .castParameters(true)
+        .upsert(DmlSyntax.Upsert.of(UpsertForm.MERGE).withMinimumMajorVersion(9))
+        .build();
+  }
+
+  /**
+   * Types an update of changed rows only can't compare with {@code <>}, besides the large objects:
+   * DB2 refuses it on {@code DBCLOB}, {@code XML} and the long string types. Checked by {@code
+   * DB2MergeIT}.
+   */
+  private static final Set<String> DML_NOT_COMPARABLE =
+      Set.of("dbclob", "xml", "long varchar", "long vargraphic");
+
+  @Override
+  public boolean isDmlComparable(String typeName, int dataType) {
+    return DmlColumns.comparable(typeName, dataType)
+        && !DmlColumns.isOneOf(typeName, DML_NOT_COMPARABLE);
   }
 }

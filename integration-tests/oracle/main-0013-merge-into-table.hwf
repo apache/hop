@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0013-merge-into-table</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Merge into table end to end: insert of new keys, update of seeded keys, a key repeated within a batch, insert only, update only changed rows (counted by an update trigger where the database has one), batch updates on and off, and an error hop that must get exactly the three refused rows while every other row is written once. Oracle: MERGE with a SELECT ... FROM dual source and the changed condition in UPDATE ... WHERE; failed batches are recovered (KEEPS_PREFIX).</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/11/25 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/11/25 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>48</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DROP TABLE IF EXISTS MIT_LOG;
+DROP TABLE IF EXISTS MIT_BATCH;
+DROP TABLE IF EXISTS MIT_ROWS;
+DROP TABLE IF EXISTS MIT_INS;
+DROP TABLE IF EXISTS MIT_CHG;
+CREATE TABLE MIT_LOG (TBL VARCHAR(20), ID NUMBER(19));
+CREATE TABLE MIT_BATCH (ID NUMBER(19) NOT NULL PRIMARY KEY, LABEL VARCHAR(10) NOT NULL, AMOUNT NUMBER(10,2), CONSTRAINT MIT_BATCH_AMOUNT CHECK (AMOUNT &gt;= 0));
+INSERT INTO MIT_BATCH (ID, LABEL, AMOUNT) VALUES (1, 'seed', 1.00);
+INSERT INTO MIT_BATCH (ID, LABEL, AMOUNT) VALUES (2, 'seed', 1.00);
+INSERT INTO MIT_BATCH (ID, LABEL, AMOUNT) VALUES (3, 'seed', 1.00);
+CREATE TABLE MIT_ROWS (ID NUMBER(19) NOT NULL PRIMARY KEY, LABEL VARCHAR(10) NOT NULL, AMOUNT NUMBER(10,2), CONSTRAINT MIT_ROWS_AMOUNT CHECK (AMOUNT &gt;= 0));
+INSERT INTO MIT_ROWS (ID, LABEL, AMOUNT) VALUES (1, 'seed', 1.00);
+INSERT INTO MIT_ROWS (ID, LABEL, AMOUNT) VALUES (2, 'seed', 1.00);
+INSERT INTO MIT_ROWS (ID, LABEL, AMOUNT) VALUES (3, 'seed', 1.00);
+CREATE TABLE MIT_INS (ID NUMBER(19) NOT NULL PRIMARY KEY, LABEL VARCHAR(10) NOT NULL, AMOUNT NUMBER(10,2), CONSTRAINT MIT_INS_AMOUNT CHECK (AMOUNT &gt;= 0));
+INSERT INTO MIT_INS (ID, LABEL, AMOUNT) VALUES (1, 'seed', 1.00);
+INSERT INTO MIT_INS (ID, LABEL, AMOUNT) VALUES (2, 'seed', 1.00);
+INSERT INTO MIT_INS (ID, LABEL, AMOUNT) VALUES (3, 'seed', 1.00);
+CREATE TABLE MIT_CHG (ID NUMBER(19) NOT NULL PRIMARY KEY, LABEL VARCHAR(10) NOT NULL, AMOUNT NUMBER(10,2), CONSTRAINT MIT_CHG_AMOUNT CHECK (AMOUNT &gt;= 0));
+INSERT INTO MIT_CHG (ID, LABEL, AMOUNT) VALUES (1, 'seed', 1.00);
+INSERT INTO MIT_CHG (ID, LABEL, AMOUNT) VALUES (2, 'seed', 1.00);
+INSERT INTO MIT_CHG (ID, LABEL, AMOUNT) VALUES (3, 'seed', 1.00);</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>192</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Log updates of MIT_BATCH</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>CREATE TRIGGER MIT_BATCH_UPD AFTER UPDATE ON MIT_BATCH FOR EACH ROW
+BEGIN
+  INSERT INTO MIT_LOG (TBL, ID) VALUES ('MIT_BATCH', :NEW.ID);
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Log updates of MIT_ROWS</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>CREATE TRIGGER MIT_ROWS_UPD AFTER UPDATE ON MIT_ROWS FOR EACH ROW
+BEGIN
+  INSERT INTO MIT_LOG (TBL, ID) VALUES ('MIT_ROWS', :NEW.ID);
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>480</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Log updates of MIT_INS</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>CREATE TRIGGER MIT_INS_UPD AFTER UPDATE ON MIT_INS FOR EACH ROW
+BEGIN
+  INSERT INTO MIT_LOG (TBL, ID) VALUES ('MIT_INS', :NEW.ID);
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Log updates of MIT_CHG</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>CREATE TRIGGER MIT_CHG_UPD AFTER UPDATE ON MIT_CHG FOR EACH ROW
+BEGIN
+  INSERT INTO MIT_LOG (TBL, ID) VALUES ('MIT_CHG', :NEW.ID);
+END;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>oracle-service-name</connection>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0013-merge-into-table-batch.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0013-merge-into-table-batch.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>704</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0013-merge-into-table-row-by-row.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0013-merge-into-table-row-by-row.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>880</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0013-merge-into-table-insert-only.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0013-merge-into-table-insert-only.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1056</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0013-merge-into-table-changed-only.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0013-merge-into-table-changed-only.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1232</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0013-merge-into-table-check.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0013-merge-into-table-check.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1408</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>Log updates of MIT_BATCH</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log updates of MIT_BATCH</from>
+      <to>Log updates of MIT_ROWS</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log updates of MIT_ROWS</from>
+      <to>Log updates of MIT_INS</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log updates of MIT_INS</from>
+      <to>Log updates of MIT_CHG</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log updates of MIT_CHG</from>
+      <to>0013-merge-into-table-batch.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0013-merge-into-table-batch.hpl</from>
+      <to>0013-merge-into-table-row-by-row.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0013-merge-into-table-row-by-row.hpl</from>
+      <to>0013-merge-into-table-insert-only.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0013-merge-into-table-insert-only.hpl</from>
+      <to>0013-merge-into-table-changed-only.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0013-merge-into-table-changed-only.hpl</from>
+      <to>0013-merge-into-table-check.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

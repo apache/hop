@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0053-merge-into-table-changed-only</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Twelve rows through Merge into table, Update only changed rows on, at commit size 4. The rows insert new keys, update seeded ones, repeat a key within a batch and leave a seeded row as it is; three new keys are refused, one in each batch, and must reach the error hop while every other row is passed on as written, once, in input order. SQL Server 2022: MERGE, its parameters cast to varchar(max) and decimal(38,s), so the overlong label must be refused as by a plain INSERT, not cut; failed batches are recovered (MARKS_FAILED_ROWS).</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/11/25 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/11/25 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Twelve rows</from>
+      <to>Merge into table</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge into table</from>
+      <to>Written</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Merge into table</from>
+      <to>Rejected</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Written</from>
+      <to>Written as expected?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Written as expected?</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Written as expected?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rejected</from>
+      <to>Rejected as expected?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rejected as expected?</from>
+      <to>Every rejected row has a message?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Rejected as expected?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Every rejected row has a message?</from>
+      <to>ok</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Every rejected row has a message?</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Twelve rows</name>
+    <type>DataGrid</type>
+    <description>Twelve rows, copied to every Merge into table transform (distribution off).</description>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line><item>1</item><item>one</item><item>10.5</item></line>
+      <line><item>5</item><item>five</item><item>50</item></line>
+      <line><item>6</item><item/><item>60</item></line>
+      <line><item>5</item><item>FIVE</item><item>55</item></line>
+      <line><item>2</item><item>seed</item><item>1.00</item></line>
+      <line><item>10</item><item>way too long label</item><item>100</item></line>
+      <line><item>7</item><item>seven</item><item>70</item></line>
+      <line><item>2</item><item>two</item><item>2.00</item></line>
+      <line><item>8</item><item>eight</item><item>80</item></line>
+      <line><item>1</item><item>one</item><item>10.5</item></line>
+      <line><item>9</item><item>nine</item><item>-9</item></line>
+      <line><item>8</item><item>eight</item><item>88</item></line>
+    </data>
+    <fields>
+      <field>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>ID</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>LABEL</name>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal>.</decimal>
+        <group/>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>AMOUNT</name>
+        <type>BigNumber</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Merge into table</name>
+    <type>MergeIntoTable</type>
+    <description>Merge into table, Update only changed rows on, commit size 4. SQL Server 2022: MERGE, its parameters cast to varchar(max) and decimal(38,s), so the overlong label must be refused as by a plain INSERT, not cut; failed batches are recovered (MARKS_FAILED_ROWS).</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>mssql-2022</connection>
+    <schema/>
+    <table>MIT_CHG</table>
+    <commit>4</commit>
+    <use_batch>Y</use_batch>
+    <upsert_form>AUTOMATIC</upsert_form>
+    <update_existing>Y</update_existing>
+    <update_only_changed>Y</update_only_changed>
+    <keys>
+      <key>
+        <stream_name>ID</stream_name>
+        <column_name>ID</column_name>
+      </key>
+    </keys>
+    <values>
+      <value>
+        <stream_name>LABEL</stream_name>
+        <column_name>LABEL</column_name>
+        <update>Y</update>
+      </value>
+      <value>
+        <stream_name>AMOUNT</stream_name>
+        <column_name>AMOUNT</column_name>
+        <update>Y</update>
+      </value>
+    </values>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Written</name>
+    <type>GroupBy</type>
+    <description>The ids of the rows passed on as written, in their order.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_linenr>N</add_linenr>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <aggregate>written_ids</aggregate>
+        <subject>ID</subject>
+        <type>CONCAT_COMMA</type>
+        <valuefield/>
+      </field>
+    </fields>
+    <give_back_row>Y</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <linenr_fieldname/>
+    <prefix>grp</prefix>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Written as expected?</name>
+    <type>FilterRows</type>
+    <description>Every row but the refused ones, once each, in input order: a key repeated within a batch included.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>ok</send_true_to>
+    <send_false_to>Abort</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>written_ids</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>1, 5, 5, 2, 7, 2, 8, 1, 8</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Rejected</name>
+    <type>GroupBy</type>
+    <description>The ids of the rows sent to the error hop, and how many came with a message.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_linenr>N</add_linenr>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <aggregate>rejected_ids</aggregate>
+        <subject>ID</subject>
+        <type>CONCAT_COMMA</type>
+        <valuefield/>
+      </field>
+      <field>
+        <aggregate>with_message</aggregate>
+        <subject>ERR_DESC</subject>
+        <type>COUNT_ALL</type>
+        <valuefield/>
+      </field>
+    </fields>
+    <give_back_row>Y</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <linenr_fieldname/>
+    <prefix>grp</prefix>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>288</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Rejected as expected?</name>
+    <type>FilterRows</type>
+    <description>Exactly the three refused rows, one in each batch.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>Every rejected row has a message?</send_true_to>
+    <send_false_to>Abort</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>rejected_ids</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>String</type>
+          <text>6, 10, 9</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>672</xloc>
+      <yloc>288</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Every rejected row has a message?</name>
+    <type>FilterRows</type>
+    <description>The database's own message for each refused row.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <send_true_to>ok</send_true_to>
+    <send_false_to>Abort</send_false_to>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <leftvalue>with_message</leftvalue>
+        <function>=</function>
+        <rightvalue/>
+        <value>
+          <name>constant</name>
+          <type>Integer</type>
+          <text>3</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+          <mask/>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>288</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description>A check failed: the row is logged.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <row_threshold>0</row_threshold>
+    <message>Merge into table routed a row wrongly</message>
+    <always_log_rows>Y</always_log_rows>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <attributes/>
+    <GUI>
+      <xloc>864</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ok</name>
+    <type>Dummy</type>
+    <description></description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1056</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>Merge into table</source_transform>
+      <target_transform>Rejected</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>ERR_COUNT</nr_valuename>
+      <descriptions_valuename>ERR_DESC</descriptions_valuename>
+      <fields_valuename>ERR_FIELDS</fields_valuename>
+      <codes_valuename>ERR_CODES</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

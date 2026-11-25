@@ -30,6 +30,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
@@ -372,5 +374,25 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     } catch (HopPluginException e) {
       throw new SQLException(e);
     }
+  }
+
+  /**
+   * SQLite has no MERGE. It has {@code INSERT ... ON CONFLICT ... DO UPDATE} since 3.24, which
+   * needs a primary key or unique index on exactly the key columns. The driver bundles its own
+   * SQLite, which is newer. Checked by {@code SqliteMergeTest}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != SqliteDatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.builder()
+        .upsert(
+            DmlSyntax.Upsert.of(UpsertForm.ON_CONFLICT)
+                .withMinimumMajorVersion(3)
+                .withMinimumMinorVersion(24))
+        .build();
   }
 }

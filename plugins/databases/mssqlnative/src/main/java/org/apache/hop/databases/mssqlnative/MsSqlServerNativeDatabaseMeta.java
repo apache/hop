@@ -22,6 +22,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -179,5 +180,20 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta {
       return null;
     }
     return BatchFailureContract.MARKS_FAILED_ROWS;
+  }
+
+  /**
+   * The MERGE of SQL Server, as {@link MsSqlServerDatabaseMeta#getDmlSyntax()} declares it. Checked
+   * against SQL Server 2022 with mssql-jdbc by {@code MsSqlServerMergeIT} and {@code
+   * MsSqlServerCastIT}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != MsSqlServerNativeDatabaseMeta.class) {
+      return null;
+    }
+    return SQL_SERVER_DML_SYNTAX;
   }
 }

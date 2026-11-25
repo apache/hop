@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -31,6 +32,9 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlColumns;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseColumn;
@@ -1488,5 +1492,72 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       return -1;
     }
     return Integer.parseInt(matcher.group(1));
+  }
+
+  /**
+   * PostgreSQL has MERGE since version 15 and {@code INSERT ... ON CONFLICT} since 9.5. MERGE is
+   * preferred, as it needs no unique key; ON CONFLICT takes over on an older server, when the key
+   * columns are the primary key or a unique index, or when it is asked for.
+   *
+   * <p>The parameters of the MERGE source are cast: pgjdbc sends a timestamp, and a string bound
+   * for a non-text column, as an untyped parameter, and PostgreSQL resolves an untyped value in a
+   * VALUES list to text, which then can't be written to the column ("column ts is of type timestamp
+   * without time zone but expression is of type text"). The {@code VALUES} list of ON CONFLICT
+   * needs no cast: its types come from the target columns. The casts name the type without its
+   * length or precision, see {@link #getDmlCastType}.
+   *
+   * <p>Checked against PostgreSQL 18 and 14 by {@code PostgreSqlMergeIT} and {@code
+   * PostgreSqlCastIT}. Only declared for this dialect itself: the dialects that extend it
+   * (Greenplum, CockroachDB, Redshift, ...) talk to other servers.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != PostgreSqlDatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.builder()
+        .castParameters(true)
+        .upsert(DmlSyntax.Upsert.of(UpsertForm.MERGE).withMinimumMajorVersion(15))
+        .upsert(
+            DmlSyntax.Upsert.of(UpsertForm.ON_CONFLICT)
+                .withMinimumMajorVersion(9)
+                .withMinimumMinorVersion(5))
+        .build();
+  }
+
+  /**
+   * The column's type without its length or precision: PostgreSQL cuts a string cast to {@code
+   * varchar(5)} or {@code bpchar(5)} to five characters without an error, and rounds a number cast
+   * to {@code numeric(5,2)} before a key compares it, where the column refuses the longer string
+   * and compares the exact number. Without them the column decides, as for a plain INSERT or
+   * UPDATE: {@code varchar}, {@code bpchar} and {@code numeric} hold any value, and the assignment
+   * to the column refuses or rounds it. {@code bit} alone means {@code bit(1)}, which refuses any
+   * other length, so a {@code bit(n)} column is cast to {@code varbit}. Checked by {@code
+   * PostgreSqlCastIT} against the plain statements.
+   */
+  @Override
+  public String getDmlCastType(String typeName, int dataType, int columnSize, int decimalDigits) {
+    // Types.OTHER: the name without a length or precision.
+    String type = DmlColumns.nativeType(typeName, Types.OTHER, 0, -1);
+    return "bit".equalsIgnoreCase(type) ? "varbit" : type;
+  }
+
+  /**
+   * Types an update of changed rows only can't compare with {@code <>}: {@code json} and {@code
+   * xml} have no such operator, the geometric types have none or compare areas, and {@code citext}
+   * compares ignoring case, so a change of case would not be written. Arrays of them too ({@code
+   * _json}). Checked by {@code PostgreSqlMergeIT}.
+   */
+  private static final Set<String> DML_NOT_COMPARABLE =
+      Set.of("json", "xml", "point", "line", "lseg", "box", "path", "polygon", "circle", "citext");
+
+  @Override
+  public boolean isDmlComparable(String typeName, int dataType) {
+    String element = typeName == null ? null : typeName.trim();
+    if (element != null && element.startsWith("_")) {
+      element = element.substring(1);
+    }
+    return DmlColumns.comparable(typeName, dataType)
+        && !DmlColumns.isOneOf(element, DML_NOT_COMPARABLE);
   }
 }

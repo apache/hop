@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
@@ -28,6 +29,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.database.dml.DmlColumns;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
@@ -1049,5 +1053,92 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public void addDefaultOptions() {
     setSupportsBooleanDataType(true);
+  }
+
+  /**
+   * SQL Server has MERGE since 2008 (major version 10), and a MERGE must end with a semicolon. The
+   * parameters of the MERGE source are cast to the column types, see {@link #getDmlCastType}.
+   * Checked against SQL Server 2022 with mssql-jdbc by {@code MsSqlServerMergeIT} and {@code
+   * MsSqlServerCastIT} in the mssqlnative plugin, through both SQL Server dialects; the jTDS driver
+   * of this plugin was not run.
+   *
+   * <p>Only declared for this dialect itself and for {@code MsSqlServerNativeDatabaseMeta}, which
+   * declares it again: other dialects that extend it talk to other servers.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != MsSqlServerDatabaseMeta.class) {
+      return null;
+    }
+    return SQL_SERVER_DML_SYNTAX;
+  }
+
+  /** The DML syntax of SQL Server 2008 and later, for both SQL Server dialects. */
+  public static final DmlSyntax SQL_SERVER_DML_SYNTAX =
+      DmlSyntax.builder()
+          .castParameters(true)
+          .upsert(
+              DmlSyntax.Upsert.of(UpsertForm.MERGE).withMinimumMajorVersion(10).withTerminator(";"))
+          .build();
+
+  /** The precision of the widest {@code decimal}. */
+  private static final int MAX_DECIMAL_PRECISION = 38;
+
+  /**
+   * The column's type, widened so that the cast changes no value: SQL Server cuts a value cast to
+   * {@code varchar(5)}, {@code nvarchar(5)}, {@code char(5)}, {@code varbinary(4)}, {@code sysname}
+   * and the like without an error, where a plain INSERT or UPDATE fails with "String or binary data
+   * would be truncated". Character and binary types are therefore cast to {@code varchar(max)},
+   * {@code nvarchar(max)} or {@code varbinary(max)}; a plain {@code varchar} would mean {@code
+   * varchar(30)}. The column then refuses a longer value as for the plain statement.
+   *
+   * <p>A {@code decimal(p,s)} keeps its type, but with the widest scale for its integer digits,
+   * {@code decimal(38, 38-(p-s))}: a cast to {@code decimal(p,s)} rounds a key before it is
+   * compared, so 1.234 would match the row that holds 1.23. Too many integer digits overflow the
+   * cast as they overflow the column, and the column rounds a stored value as it does for the plain
+   * statement. Checked by {@code MsSqlServerCastIT} against the plain statements, with both SQL
+   * Server dialects.
+   */
+  @Override
+  public String getDmlCastType(String typeName, int dataType, int columnSize, int decimalDigits) {
+    String type = DmlColumns.nativeType(typeName, dataType, columnSize, decimalDigits, true);
+    if (type == null) {
+      return null;
+    }
+    int parenthesis = type.indexOf('(');
+    String base =
+        (parenthesis < 0 ? type : type.substring(0, parenthesis)).trim().toLowerCase(Locale.ROOT);
+    return switch (base) {
+      case "varchar", "char" -> "varchar(max)";
+      case "nvarchar", "nchar", "sysname" -> "nvarchar(max)";
+      case "varbinary", "binary" -> "varbinary(max)";
+      case "decimal", "numeric" -> {
+        int integerDigits = columnSize - Math.max(decimalDigits, 0);
+        if (columnSize <= 0 || columnSize > MAX_DECIMAL_PRECISION || integerDigits < 0) {
+          yield type;
+        }
+        yield base
+            + "("
+            + MAX_DECIMAL_PRECISION
+            + ","
+            + (MAX_DECIMAL_PRECISION - integerDigits)
+            + ")";
+      }
+      default -> type;
+    };
+  }
+
+  /**
+   * Types an update of changed rows only can't compare with {@code <>}: SQL Server refuses it on
+   * {@code text}, {@code ntext}, {@code image}, {@code xml} and the spatial types. Checked by
+   * {@code MsSqlServerMergeIT}, for both SQL Server dialects.
+   */
+  private static final Set<String> DML_NOT_COMPARABLE =
+      Set.of("text", "ntext", "image", "xml", "geometry", "geography");
+
+  @Override
+  public boolean isDmlComparable(String typeName, int dataType) {
+    return DmlColumns.comparable(typeName, dataType)
+        && !DmlColumns.isOneOf(typeName, DML_NOT_COMPARABLE);
   }
 }

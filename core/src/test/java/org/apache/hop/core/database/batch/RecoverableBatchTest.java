@@ -204,6 +204,68 @@ class RecoverableBatchTest {
     assertTrue(db.committed().contains("truncate"), "earlier work undone: " + db.committed());
   }
 
+  /**
+   * SQL Server forgets a savepoint once it is rolled back to. A recovery that rolls back more than
+   * once, as a search for the failing rows does, still finds one to go back to, and keeps the
+   * earlier work.
+   */
+  @ParameterizedTest(name = "{0} declared as {1}")
+  @MethodSource("behaviourAndContract")
+  void recoveringRollsBackMoreThanOnceWithSingleUseSavepoints(
+      Behaviour behaviour, BatchFailureContract contract) throws Exception {
+    FakeBatchDatabase db =
+        new FakeBatchDatabase(behaviour).withSingleUseSavepoints().writeUncommitted("truncate");
+    db.failOn(100, 101, 103, 106, 109);
+    RecoverableBatch batch =
+        new RecoverableBatch(db.connection(), prepare(db), BINDER, contract, true);
+    for (int i = 0; i < 10; i++) {
+      batch.add(new Object[] {100 + i}, new Object[] {100 + i});
+    }
+    Recorder recorder = new Recorder();
+    batch.flush(recorder);
+
+    assertEquals(List.of(100, 101, 103, 106, 109), recorder.rejected);
+    assertEquals(List.of(102, 104, 105, 107, 108), recorder.written);
+    assertTrue(db.committed().contains("truncate"), "earlier work undone: " + db.committed());
+  }
+
+  /**
+   * PostgreSQL keeps a savepoint it rolled back to, so a savepoint set after every rollback nests
+   * one subtransaction deeper each time: past 64 the subtransaction cache overflows, which slows
+   * the whole cluster. A recovery that rolls back again and again holds one savepoint at a time, on
+   * PostgreSQL as on SQL Server, which forgets the savepoint and can't release one.
+   */
+  @ParameterizedTest(name = "{0} declared as {1}")
+  @MethodSource("behaviourAndContract")
+  void recoveringHoldsOneSavepointAtATime(Behaviour behaviour, BatchFailureContract contract)
+      throws Exception {
+    for (boolean sqlServer : new boolean[] {false, true}) {
+      FakeBatchDatabase db = new FakeBatchDatabase(behaviour).writeUncommitted("truncate");
+      if (sqlServer) {
+        db.withSingleUseSavepoints().withoutReleaseSavepoint();
+      }
+      List<Integer> rejected = new ArrayList<>();
+      for (int i = 0; i < 40; i++) {
+        if (i % 3 != 1) {
+          db.failOn(200 + i);
+          rejected.add(200 + i);
+        }
+      }
+      RecoverableBatch batch =
+          new RecoverableBatch(db.connection(), prepare(db), BINDER, contract, true);
+      for (int i = 0; i < 40; i++) {
+        batch.add(new Object[] {200 + i}, new Object[] {200 + i});
+      }
+      Recorder recorder = new Recorder();
+      batch.flush(recorder);
+
+      String server = sqlServer ? "SQL Server" : "PostgreSQL";
+      assertEquals(rejected, recorder.rejected, server);
+      assertEquals(1, db.maxLiveSavepoints(), server + ": savepoints nested");
+      assertTrue(db.committed().contains("truncate"), server + ": earlier work undone");
+    }
+  }
+
   /** Without an error hop a failed load is undone as a whole, earlier work included. */
   @Test
   void failingWithoutRecoveryUndoesTheWorkTheTransactionHeldBefore() throws Exception {
