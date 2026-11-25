@@ -156,7 +156,7 @@ limitations under the License.
     <fieldNameField>name</fieldNameField>
     <fieldPrecisionField>precision</fieldPrecisionField>
     <fieldTypeField>hopType</fieldTypeField>
-    <tableName>employees</tableName>
+    <tableName>ddl_employees</tableName>
     <attributes/>
     <GUI>
       <xloc>400</xloc>
