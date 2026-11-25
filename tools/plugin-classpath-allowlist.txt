@@ -28,13 +28,6 @@
 # properties and the comment above them in plugins/transforms/stanfordnlp/pom.xml.
 hop-transform-stanfordnlp edu.stanford.nlp
 
-# The DataHub sink extends the OpenLineage sink. It loads that plugin's classes and the OpenLineage
-# client from the openlineage plugin folder (see plugins/tech/datahub/src/main/resources/
-# dependencies.xml) instead of bundling them a second time, so it is installed with
-# hop-tech-openlineage.
-hop-tech-datahub org.apache.hop.lineage.openlineage
-hop-tech-datahub io.openlineage
-
 # The Vertica JDBC driver is proprietary and deliberately not shipped (hop.libcore.exclude1
 # in plugins/databases/vertica/pom.xml); users install it in lib/jdbc themselves. Only the
 # bulk loader references it directly. Seen by the isolated check, where no other plugin's

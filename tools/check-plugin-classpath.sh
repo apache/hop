@@ -35,6 +35,12 @@
 # For a marketplace plugin the baseline is the plain client. For a plugin that
 # ships inside a client, install its companions with --install first.
 #
+# A plugin that loads another plugin's classes names that plugin's folder in its
+# dependencies.xml (the Beam engine and the avro/parquet folders, for one). The folders
+# the baseline does not have are installed next to the plugin from the other zips in the
+# plugin list, as a user installing both would have them, so these references resolve
+# without an allowlist entry.
+#
 # jdeps is run over the plugin's own jars only, never over the third-party jars it
 # bundles: those are full of optional dependencies that are on no classpath by
 # design, and several are modular, which makes jdeps abort with a module resolution
@@ -119,7 +125,7 @@ while [[ $# -gt 0 ]]; do
   --isolated) ISOLATED=true ;;
   --runtime) RUNTIME=true ;;
   --self-test) SELF_TEST=true ;;
-  -h | --help) sed -n '17,76p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h | --help) sed -n '17,86p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
   *) die "unknown argument: $1" ;;
   esac
   shift
@@ -339,6 +345,8 @@ install_requirements() {
     done
     while IFS= read -r folder; do
       [[ -d "${dir}/${folder}" ]] && continue
+      # Outside isolated mode the baseline client may already carry the folder.
+      [[ "${ISOLATED}" == false && -d "${BASE}/${folder}" ]] && continue
       case " ${done_list} " in *" ${folder} "*) continue ;; esac
       line="$(awk -v f="${folder}" '$1 == f { print $2, $3; exit }' "${FOLDER_INDEX}")"
       zip="${line%% *}"
@@ -457,6 +465,13 @@ FOLDER_INDEX="${WORK}/folders.txt"
 # "<artifactId> <zip>" for every zip in the list, to install what a pom requires.
 ARTIFACT_INDEX="${WORK}/artifacts.txt"
 : >"${ARTIFACT_INDEX}"
+for zip in ${ALL_ZIPS[@]+"${ALL_ZIPS[@]}"}; do
+  [[ -f "${zip}" ]] || continue
+  unzip -Z1 "${zip}" 2>/dev/null | grep -E '^plugins/[^/]+/[^/]+/' | grep '\.jar$' | grep -v '/lib/' |
+    cut -d/ -f1-3 | sort -u | sed "s|\$| ${zip}|" >>"${FOLDER_INDEX}" || true
+done
+# Only isolated mode follows pom dependencies and lib/core plugins: outside it the
+# baseline's lib/core is complete, and dependencies.xml is what Hop itself follows.
 if [[ "${ISOLATED}" == true ]]; then
   i=0
   while [[ ${i} -lt ${#ALL_ZIPS[@]} ]]; do
@@ -464,11 +479,6 @@ if [[ "${ISOLATED}" == true ]]; then
     i=$((i + 1))
   done
 
-  for zip in ${ALL_ZIPS[@]+"${ALL_ZIPS[@]}"}; do
-    [[ -f "${zip}" ]] || continue
-    unzip -Z1 "${zip}" 2>/dev/null | grep -E '^plugins/[^/]+/[^/]+/' | grep '\.jar$' | grep -v '/lib/' |
-      cut -d/ -f1-3 | sort -u | sed "s|\$| ${zip}|" >>"${FOLDER_INDEX}" || true
-  done
   # A plugin that ships its jar in lib/core has no folder in an install, but a dependencies.xml
   # can still name the folder of its source module. Those resolve through the module the zip
   # was built in (plugins/<category>/<name>/target/<zip>), marked "lib/core".
@@ -600,8 +610,10 @@ while [[ ${i} -lt ${#IDS[@]} ]]; do
   [[ -n "${own}" ]] || own="$(native_jars "${dir}")"
   unmet=""
   libcore_reqs=""
+  reqs="$(install_requirements "${dir}" "${zip}")"
+  # Unmet folders and lib/core notes are judged in isolated mode only; here the plugins
+  # that dependencies.xml names are installed so their classes resolve, nothing more.
   if [[ "${ISOLATED}" == true ]]; then
-    reqs="$(install_requirements "${dir}" "${zip}")"
     unmet="$(printf '%s\n' "${reqs}" | sed -n 's/^missing //p')"
     libcore_reqs="$(printf '%s\n' "${reqs}" | sed -n 's/^libcore //p')"
   fi
