@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 @Transform(
     id = "AvroDecode",
     name = "Avro decode",
-    description = "Decodes Avro data types into Hop fields",
+    description = "Decodes Avro records and bare Avro binary into Hop fields",
     image = "avro_decode.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/avro-decode.html",
@@ -44,6 +44,10 @@ public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData
 
   @HopMetadataProperty(key = "source_field")
   private String sourceFieldName;
+
+  /** Avro schema file (.avsc) used to decode a Binary source field. Ignored for Avro Record. */
+  @HopMetadataProperty(key = "schema_file")
+  private String schemaFileName;
 
   @HopMetadataProperty(key = "remove_source_field")
   private boolean removingSourceField;
@@ -95,6 +99,27 @@ public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData
    */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
+  }
+
+  /**
+   * Gets schemaFileName
+   *
+   * @return value of schemaFileName
+   */
+  public String getSchemaFileName() {
+    return schemaFileName;
+  }
+
+  /**
+   * @param schemaFileName The schema file (.avsc) to set. Variables are resolved at runtime.
+   */
+  public void setSchemaFileName(String schemaFileName) {
+    this.schemaFileName = schemaFileName;
+  }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 
   public boolean isRemovingSourceField() {
