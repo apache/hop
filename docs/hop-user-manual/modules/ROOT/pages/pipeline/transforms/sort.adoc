@@ -17,7 +17,7 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Sort Rows transform sorts rows based on the fields you specify and on whether they should be sorted in ascending or descending order.
-:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=native, Beam Spark=no, Beam Flink=no, Beam Dataflow=no
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=native, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
 
 = image:transforms/icons/sortrows.svg[Sort Rows transform Icon, role="image-doc-icon"] Sort Rows
 
@@ -31,11 +31,12 @@ TIP: You use can use multiple copies of the Sort Rows transform to speed up larg
 
 [WARNING]
 ====
-Sort Rows is not supported on the Beam engines.
-A Beam pipeline spreads rows over many workers and re-shuffles them to maximize parallelism, so this transform can only order the rows a single worker happens to hold at that moment, never the data set as a whole.
+On the Beam engines Sort Rows passes its rows on as they are, unsorted.
+A Beam pipeline spreads rows over many workers and does not keep their order from one transform to the next, so a sort would be lost right after this transform.
+xref:pipeline/transforms/mergejoin.adoc[Merge Join] and xref:pipeline/transforms/memgroupby.adoc[Memory Group By] don't need sorted rows on Beam, so a pipeline that sorts in front of them for the Hop engine runs unchanged on Beam.
 
-If you need sorted input for a downstream transform, that transform will not work on Beam either.
-Use an alternative that does not depend on row order, such as xref:pipeline/transforms/memgroupby.adoc[Memory Group By] in place of xref:pipeline/transforms/groupby.adoc[Group By].
+With *Only pass unique rows* Sort Rows is refused on Beam: use xref:pipeline/transforms/uniquerowsbyhashset.adoc[Unique Rows (HashSet)] or Memory Group By instead.
+A transform that needs its rows in order, such as xref:pipeline/transforms/groupby.adoc[Group By] with group fields, does not work on Beam either.
 See xref:pipeline/beam/getting-started-with-beam.adoc#_unsupported_transforms[Getting started with Beam].
 
 The native Spark engine does support this transform: it is mapped onto a Spark sort across the full data set instead of being run per partition.

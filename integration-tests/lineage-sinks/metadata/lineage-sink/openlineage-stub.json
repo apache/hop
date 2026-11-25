@@ -1,0 +1,16 @@
+{
+  "sink": {
+    "openlineage": {
+      "url": "http://127.0.0.1:${DATAHUB_STUB_PORT}/api/v1/lineage",
+      "apiKey": "",
+      "namespace": "it-lineage-sinks",
+      "producer": "",
+      "transformJobs": false,
+      "parentRuns": true,
+      "fileSpecNaming": true,
+      "sqlParse": true
+    }
+  },
+  "name": "openlineage-stub",
+  "description": "An OpenLineage collector at the stand-in, which keeps the events it gets"
+}

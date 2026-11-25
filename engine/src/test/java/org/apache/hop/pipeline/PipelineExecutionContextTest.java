@@ -45,6 +45,7 @@ import org.apache.hop.core.plugins.IClassLoadingPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.execution.context.ExecutionContextListener;
 import org.apache.hop.execution.context.ExecutionContexts;
 import org.apache.hop.execution.context.ExecutionScope;
@@ -65,6 +66,7 @@ class PipelineExecutionContextTest {
   enum Mode {
     NORMAL,
     INIT_FAILURE,
+    BATCH_FAILURE,
     DISPOSE_FAILURE,
     RUN_AND_DISPOSE_FAILURE
   }
@@ -151,6 +153,9 @@ class PipelineExecutionContextTest {
     @Override
     public void batchComplete() throws HopException {
       visit("batch");
+      if (meta.mode == Mode.BATCH_FAILURE) {
+        throw meta.runFailure;
+      }
       super.batchComplete();
     }
 
@@ -632,6 +637,46 @@ class PipelineExecutionContextTest {
       assertEquals(3, probe.visits.stream().filter(v -> v.phase().equals("run")).count());
       assertEquals(0, probe.visits.stream().filter(v -> v.phase().equals("batch")).count());
       assertNull(CONTEXT.get());
+    }
+  }
+
+  @Test
+  void explicitSingleThreadedBatchCompletionActivatesCopiesAndRestoresCaller() throws Exception {
+    for (final boolean fail : new boolean[] {false, true}) {
+      final var recorder = new Recorder();
+      final var probe = new ProbeMeta();
+      probe.mode = fail ? Mode.BATCH_FAILURE : Mode.NORMAL;
+      final var pipeline = pipeline(probe, 1);
+      pipeline.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
+      try (final var registration = ExecutionContexts.addListener(recorder)) {
+        pipeline.prepareExecution();
+        pipeline.startThreads();
+        final var input = new BlockingRowSet(10);
+        pipeline.getTransforms().getFirst().transform.addRowSetToInputRowSets(input);
+        final var executor = new SingleThreadedPipelineExecutor(pipeline);
+        executor.setBatchCompleteAfterIteration(false);
+        try {
+          try (final var caller = ExecutionContexts.activate("caller")) {
+            assertTrue(executor.oneIteration());
+            assertEquals(0, probe.visits.stream().filter(v -> v.phase().equals("batch")).count());
+            assertTrue(input.putRow(new RowMeta(), new Object[0]));
+            if (fail) {
+              assertSame(
+                  probe.runFailure, assertThrows(HopException.class, executor::batchComplete));
+              assertEquals(1, pipeline.getTransforms().getFirst().transform.getErrors());
+            } else {
+              executor.batchComplete();
+            }
+            assertEquals("caller", CONTEXT.get());
+          }
+          assertEquals(1, probe.visits.stream().filter(v -> v.phase().equals("run")).count());
+          assertEquals(1, probe.visits.stream().filter(v -> v.phase().equals("batch")).count());
+        } finally {
+          executor.dispose();
+        }
+        pipeline.waitUntilFinished();
+        verifyVisits(probe, recorder, pipeline);
+      }
     }
   }
 

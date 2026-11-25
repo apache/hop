@@ -255,7 +255,7 @@ public class PipelineLoggingExtensionPoint
         });
   }
 
-  private void logEndOfPipeline(
+  void logEndOfPipeline(
       final ILogChannel log,
       final IGraphConnection connection,
       final String connectionName,
@@ -289,7 +289,8 @@ public class PipelineLoggingExtensionPoint
             pipelinePars.put("id", channel.getLogChannelId());
             pipelinePars.put(
                 "executionEnd", new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(endDate));
-            pipelinePars.put("durationMs", endDate.getTime() - startDate.getTime());
+            pipelinePars.put(
+                "durationMs", startDate == null ? null : endDate.getTime() - startDate.getTime());
             pipelinePars.put("errors", result.getNrErrors());
             pipelinePars.put("linesInput", result.getNrLinesInput());
             pipelinePars.put("linesOutput", result.getNrLinesOutput());
@@ -317,9 +318,13 @@ public class PipelineLoggingExtensionPoint
 
             transaction.execute(pipelineCypher, pipelinePars);
 
-            // Also log every transform copy
+            // Also log every transform copy. Only the local engine runs transform copies: a Beam or
+            // native Spark run logs the pipeline only.
             //
-            List<TransformMetaDataCombi> combis = ((Pipeline) pipeline).getTransforms();
+            List<TransformMetaDataCombi> combis =
+                pipeline instanceof Pipeline localPipeline
+                    ? localPipeline.getTransforms()
+                    : List.of();
             for (TransformMetaDataCombi combi : combis) {
               String transformLogChannelId = combi.transform.getLogChannel().getLogChannelId();
               String transformLoggingText =

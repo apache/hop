@@ -33,6 +33,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EditRowsCells;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -292,30 +293,21 @@ public class EditRowsDialog {
   }
 
   private Object[] getRowForData(TableItem item, int rowNr) throws HopException {
-    try {
-      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
-      for (int i = 0; i < rowMeta.size(); i++) {
-        IValueMeta valueMeta = rowMeta.getValueMeta(i);
-        IValueMeta stringValueMeta = stringRowMeta.getValueMeta(i);
+    Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      IValueMeta stringValueMeta = stringRowMeta.getValueMeta(i);
 
-        int colnr = i + 1;
-        if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(colnr))) {
-          row[i] = null; // <null> value
-        } else {
-          // The cell is drawn shortened; the value itself comes back out of the grid.
-          String string = TableView.getCellValue(item, colnr);
-          row[i] =
-              valueMeta.convertDataFromString(
-                  string, stringValueMeta, null, null, IValueMeta.TRIM_TYPE_NONE);
-        }
-      }
-      return row;
-    } catch (HopException e) {
-      throw new HopException(
-          BaseMessages.getString(
-              PKG, "EditRowsDialog.Error.ErrorGettingRowForData", Integer.toString(rowNr)),
-          e);
+      int colnr = i + 1;
+      // The cell is drawn shortened; the value itself comes back out of the grid.
+      // A blue <null> stays null. Text typed over that placeholder is parsed, even while the
+      // foreground is still blue.
+      String string = TableView.getCellValue(item, colnr);
+      boolean nullColor =
+          GuiResource.getInstance().getColorBlue().equals(item.getForeground(colnr));
+      row[i] = EditRowsCells.convertCell(valueMeta, stringValueMeta, string, nullColor, rowNr);
     }
+    return row;
   }
 
   private void ok() {
@@ -341,8 +333,7 @@ public class EditRowsDialog {
       dispose();
 
     } catch (Exception e) {
-      new ErrorDialog(
-          shell, "Error", BaseMessages.getString(PKG, "EditRowsDialog.ErrorConvertingData"), e);
+      new ErrorDialog(shell, "Error", EditRowsCells.errorDialogMessage(e), e);
     }
   }
 

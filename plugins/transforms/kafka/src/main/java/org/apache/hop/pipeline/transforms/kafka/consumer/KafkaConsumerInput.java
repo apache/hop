@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
@@ -45,6 +46,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -113,6 +115,11 @@ public class KafkaConsumerInput
     //
     Set<String> topics = meta.getTopics().stream().map(this::resolve).collect(Collectors.toSet());
     data.consumer.subscribe(topics);
+    data.topics = topics;
+    // The consumer's own bootstrap servers replace a bootstrap.servers option (see
+    // buildKafkaConsumer), so they are the cluster it reads from.
+    data.lineage =
+        new KafkaLineage(this, DatasetIoOperation.READ, resolve(meta.getDirectBootstrapServers()));
 
     // Load and start the single threader transformation
     //
@@ -244,6 +251,11 @@ public class KafkaConsumerInput
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
+    return new KafkaConsumer(consumerConfig(variables, meta));
+  }
+
+  /** The configuration of the consumer {@link #buildKafkaConsumer} creates. */
+  static Properties consumerConfig(IVariables variables, KafkaConsumerInputMeta meta) {
     Properties config = new Properties();
 
     // Set all the configuration options...
@@ -260,9 +272,12 @@ public class KafkaConsumerInput
     config.put(
         ConsumerConfig.GROUP_ID_CONFIG,
         variables.resolve(Const.NVL(meta.getConsumerGroup(), "Apache Hop")));
-    config.put(
-        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-        variables.resolve(meta.getDirectBootstrapServers()));
+    // The Bootstrap servers field, when it is filled in, goes over a bootstrap.servers option, as
+    // before. When it is empty, the option is used.
+    String bootstrapServers = variables.resolve(meta.getDirectBootstrapServers());
+    if (StringUtils.isNotEmpty(bootstrapServers)) {
+      config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+    }
     config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
 
     // Timeout : max batch wait
@@ -287,9 +302,7 @@ public class KafkaConsumerInput
         meta.getMessageField().getOutputType().getKafkaDeserializerClass();
     config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueSerializerClass);
 
-    // Other options?
-
-    return new KafkaConsumer(config);
+    return config;
   }
 
   @Override
@@ -325,6 +338,11 @@ public class KafkaConsumerInput
               now);
       Duration duration = Duration.ofMillis(pollMs);
       ConsumerRecords<Object, Object> records = data.consumer.poll(duration);
+
+      // Lineage: a topic once partitions of it are assigned to the consumer
+      if (data.lineage != null && data.lineage.wantsAny(data.topics)) {
+        data.lineage.assigned(data.consumer.assignment());
+      }
 
       if (!data.isKafkaConsumerClosing) {
         if (records.isEmpty()) {

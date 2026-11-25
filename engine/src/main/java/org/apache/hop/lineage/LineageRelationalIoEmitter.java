@@ -37,6 +37,9 @@ import org.apache.hop.lineage.model.RelationalLifecycle;
 import org.apache.hop.lineage.model.RelationalTable;
 import org.apache.hop.lineage.model.RelationalWriteColumn;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * Emits {@link LineageEventKind#RELATIONAL_IO} observations to {@link LineageHub} so sinks can
@@ -268,6 +271,65 @@ public final class LineageRelationalIoEmitter {
         message);
   }
 
+  /**
+   * Records SQL a workflow action ran (the SQL action and similar): the sink finds the tables it
+   * reads and writes from the SQL, as for {@link #emitTransformRelationalExec}.
+   *
+   * @param workflow the workflow running the action (must not be null)
+   * @param action the action that ran the SQL (must not be null)
+   * @param databaseMeta the connection the SQL ran on (must not be null)
+   * @param sql the SQL statement(s), with variables resolved as the action resolved them
+   * @param success whether the SQL ran without error
+   * @param message optional short detail (failure reason, etc.)
+   */
+  public static void emitWorkflowActionRelationalExec(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      IAction action,
+      DatabaseMeta databaseMeta,
+      String sql,
+      boolean success,
+      String message) {
+    if (workflow == null
+        || action == null
+        || databaseMeta == null
+        || Utils.isEmpty(sql)
+        || !LineageSinkRoutes.isEnabled(workflow)) {
+      return;
+    }
+    // Lineage never fails the action; see emit(ITransform, ...)
+    try {
+      LineageContext.Builder ctx =
+          LineageRunLifecycleEmitter.actionContextBuilder(workflow, action);
+      if (ctx == null) {
+        return;
+      }
+      // The action resolved the connection with its own variables, which may differ from the
+      // workflow's
+      IVariables variables =
+          action instanceof IVariables actionVariables ? actionVariables : workflow;
+      RelationalIoLineagePayload payload =
+          payload(
+              databaseMeta,
+              variables,
+              RelationalIoOperation.EXEC,
+              sql,
+              null,
+              null,
+              null,
+              null,
+              null,
+              success,
+              message);
+      LineageHub.getInstance()
+          .emit(LineageEvent.of(LineageEventKind.RELATIONAL_IO, ctx.build(), payload));
+    } catch (Exception e) {
+      ILogChannel log = workflow.getLogChannel();
+      if (log != null) {
+        log.logDebug("Lineage skipped for action " + action.getName() + ": " + e.getMessage());
+      }
+    }
+  }
+
   private static void emit(
       ITransform transform,
       DatabaseMeta databaseMeta,
@@ -403,6 +465,18 @@ public final class LineageRelationalIoEmitter {
       String catalog = transform.resolve(databaseMeta.getDatabaseName());
       String schema = transform.resolve(declared.schemaName());
       String table = transform.resolve(declared.tableName());
+      if (declared.operation() == RelationalIoOperation.READ) {
+        // A lookup reads the table; the stream fields are not its columns.
+        emitTransformRelationalRead(
+            transform,
+            databaseMeta,
+            null,
+            List.of(new RelationalTable(catalog, schema, table)),
+            null,
+            success,
+            null);
+        return;
+      }
       IRowMeta inputRowMeta = LineageTransformSchemaEmitter.resolveInputRowMetaRuntime(transform);
 
       if (declared.operation() == RelationalIoOperation.DELETE) {

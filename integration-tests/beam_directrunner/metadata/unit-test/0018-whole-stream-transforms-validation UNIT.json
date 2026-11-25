@@ -1,0 +1,97 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "transform_name": "Validate unique-states",
+      "data_set_name": "0018-whole-stream-transforms-unique-states-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "transform_name": "Validate last-row",
+      "data_set_name": "0018-whole-stream-transforms-last-row-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "isLast",
+          "data_set_field": "isLast"
+        },
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "isLast"
+      ],
+      "transform_name": "Validate detect-last",
+      "data_set_name": "0018-whole-stream-transforms-detect-last-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "transform_name": "Validate sample",
+      "data_set_name": "0018-whole-stream-transforms-sample-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "transform_name": "Validate reservoir",
+      "data_set_name": "0018-whole-stream-transforms-reservoir-golden"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rows",
+          "data_set_field": "rows"
+        }
+      ],
+      "field_order": [
+        "rows"
+      ],
+      "transform_name": "Validate empty-stream",
+      "data_set_name": "0018-whole-stream-transforms-empty-stream-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0018-whole-stream-transforms-validation UNIT",
+  "description": "",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0018-whole-stream-transforms-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

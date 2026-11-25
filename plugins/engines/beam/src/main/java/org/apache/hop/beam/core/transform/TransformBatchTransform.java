@@ -165,6 +165,8 @@ public class TransformBatchTransform extends TransformTransform {
 
       // The actual transform functionality
       //
+      transformBatchFn.setErrorHandlingXml(errorHandlingXml);
+
       ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of(transformBatchFn);
 
       // Add optional side inputs...
@@ -476,6 +478,7 @@ public class TransformBatchTransform extends TransformTransform {
           for (TransformMeta targetTransformMeta : targetTransformMetas) {
             pipelineMeta.addPipelineHop(new PipelineHopMeta(transformMeta, targetTransformMeta));
           }
+          applyErrorHandling(pipelineMeta, transformMeta);
 
           // And the info hops...
           //
@@ -527,7 +530,7 @@ public class TransformBatchTransform extends TransformTransform {
           transformCombis.add(transformCombi);
           outputRowMeta = pipelineMeta.getTransformFields(pipeline, transformName);
 
-          if (targetTransforms.isEmpty()) {
+          if (capturesMainOutput(targetTransforms)) {
             rowListener =
                 new RowAdapter() {
                   @Override

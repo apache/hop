@@ -1,0 +1,109 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <!-- The client without any plugin, with the GUI: bare.xml plus SWT.
+         tools/check-plugins-isolated.sh uses it to prove that a plugin's dialogs and other GUI
+         classes link with nothing but the plugin itself installed.
+
+         The dependency sets are copies of the ones in ../assembly/assembly.xml, minus the plugins
+         and the Beam engine. Keep the two in step. -->
+    <id>bare-gui</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>hop</baseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-static:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>.</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <!-- hop-core, hop-engine, hop-ui and hop-ui-rcp with their runtime dependencies.
+             The SWT natives go to lib/swt below, one per platform. -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-core:jar</include>
+                <include>org.apache.hop:hop-engine:jar</include>
+                <include>org.apache.hop:hop-ui:jar</include>
+                <include>org.apache.hop:hop-ui-rcp:jar</include>
+            </includes>
+            <excludes>
+                <exclude>org.eclipse.platform:org.eclipse.swt*</exclude>
+            </excludes>
+            <scope>runtime</scope>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>lib/core</outputDirectory>
+        </dependencySet>
+
+        <!-- swt -->
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.platform:*.gtk.linux.x86_64</include>
+            </includes>
+            <outputDirectory>lib/swt/linux/x86_64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.platform:*.gtk.linux.aarch64</include>
+            </includes>
+            <outputDirectory>lib/swt/linux/arm64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.platform:*.win32.x86_64</include>
+            </includes>
+            <outputDirectory>lib/swt/win64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.platform:*.macosx.x86_64</include>
+            </includes>
+            <outputDirectory>lib/swt/osx/x86_64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.eclipse.platform:*.macosx.aarch64</include>
+            </includes>
+            <outputDirectory>lib/swt/osx/arm64</outputDirectory>
+            <outputFileNameMapping>swt.jar</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>
+</assembly>

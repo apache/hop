@@ -137,7 +137,7 @@ Must be a valid Cloud Storage URL, beginning with gs://.
 |Streaming Hop transforms flush interval (ms)|The amount of time after which the internal buffer is sent completely over the network and emptied.
 |Hop streaming transforms buffer size|The internal buffer size to use.
 |Fat jar file location|Fat jar location.
-Generate a fat jar using `Tools -> Generate a Hop fat jar`.
+Generate a fat jar using `Tools -> Generate a Hop fat jar` (choose *Apache Beam engines* when Hop asks for the engine).
 The generated fat jar file name will be copied to the clipboard.
 |===
 

@@ -41,6 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRelationalIoEmitter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -110,6 +111,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
     if (databaseMeta != null) {
       FileObject sqlFile = null;
+      String executionSql = null;
       try (Database db = new Database(this, this, databaseMeta)) {
         StringBuilder theSql = new StringBuilder();
         db.connect();
@@ -170,7 +172,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         }
         if (!Utils.isEmpty(theSql)) {
           // let it run
-          String executionSql = theSql.toString();
+          executionSql = theSql.toString();
           if (useVariableSubstitution) {
             executionSql = resolve(executionSql);
           }
@@ -182,10 +184,16 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
           } else {
             db.execStatements(executionSql);
           }
+          // Lineage: the sink finds the tables the SQL reads and writes, as for Execute SQL script
+          LineageRelationalIoEmitter.emitWorkflowActionRelationalExec(
+              getParentWorkflow(), this, databaseMeta, executionSql, true, null);
         }
       } catch (HopDatabaseException je) {
         result.setNrErrors(1);
         logError(BaseMessages.getString(PKG, "ActionSQL.ErrorRunAction", je.getMessage()));
+        // Statements before the failing one may have run, and written tables
+        LineageRelationalIoEmitter.emitWorkflowActionRelationalExec(
+            getParentWorkflow(), this, databaseMeta, executionSql, false, je.getMessage());
       } finally {
         if (sqlFile != null) {
           try {

@@ -31,6 +31,19 @@
             <filtered>true</filtered>
         </file>
     </files>
+    <dependencySets>
+        <!-- The launcher and its libraries. launcher/ holds no Hop plugin, and the plugin scan
+             skips lib/ folders. -->
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <scope>provided</scope>
+            <includes>
+                <include>org.apache.hop:hop-tech-airflow-launcher:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>${hop.plugin.libdir}/launcher</outputDirectory>
+        </dependencySet>
+    </dependencySets>
 
 
     <componentDescriptors>

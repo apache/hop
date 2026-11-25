@@ -1,0 +1,17 @@
+{
+  "catalog": {
+    "datahub": {
+      "url": "http://127.0.0.1:18081",
+      "token": "it-token",
+      "environment": "prod",
+      "connectTimeoutMs": "5000",
+      "readTimeoutMs": "10000",
+      "trustStorePath": "",
+      "trustStorePassword": "",
+      "trustStoreType": "",
+      "databaseInstances": []
+    }
+  },
+  "name": "datahub-stub",
+  "description": "The DataHub stand-in started by 0007-kafka-lineage-start-stub.sh"
+}

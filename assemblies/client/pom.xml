@@ -29,6 +29,8 @@
     <name>Hop Client</name>
 
     <properties>
+        <!-- Set to false to also build the clients without plugins, see the bare execution. -->
+        <hop.bare.skip>true</hop.bare.skip>
         <!-- hop-client-<version>.zip is published to Maven Central next to the copy on
              dist.apache.org, so it can be resolved as a normal artifact. The other assemblies
              (web, plugins, static, debug) stay unpublished through the parent's
@@ -172,6 +174,62 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+            <!-- The client without plugins, as directories under target/ for
+                 tools/check-plugins-isolated.sh: hop-client-<version>-bare (hop-core,
+                 hop-engine, hop-ui and hop-ui-rcp without SWT, the headless install) and
+                 hop-client-<version>-bare-gui (plus SWT). Off by default and never attached:
+
+                   ./mvnw -pl assemblies/client package -Dhop.bare.skip=false -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bare</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <skipAssembly>${hop.bare.skip}</skipAssembly>
+                            <descriptors>
+                                <descriptor>${basedir}/src/assembly-bare/bare.xml</descriptor>
+                                <descriptor>${basedir}/src/assembly-bare/bare-gui.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Base manifest (lib/core/hop-client-manifest.json, see
+                 org.apache.hop.core.plugins.manifest.PluginManifestGenerator): the jars the client
+                 itself puts under lib/, as opposed to the plugins it bundles, which carry their
+                 own plugin-manifest.json. With both, every lib/core jar has known owners. -->
+            <plugin>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>base-manifest</id>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <!-- hop.manifest.skip is true for assemblies, which bundle plugins -->
+                            <skip>false</skip>
+                            <base>true</base>
+                            <zip>${project.build.directory}/${project.build.finalName}.zip</zip>
+                            <includeScope>runtime</includeScope>
+                            <excludeTypes>
+                                <excludeType>zip</excludeType>
+                                <excludeType>pom</excludeType>
+                            </excludeTypes>
+                            <outputFile>${project.build.directory}/hop-client-manifest.json</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

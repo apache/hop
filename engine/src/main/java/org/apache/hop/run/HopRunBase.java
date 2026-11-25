@@ -590,11 +590,29 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
       if (shutdownHook != null) {
         shutdownHook.track(workflow);
       }
+      beforeWorkflowStart(workflow);
       workflow.startExecution();
       setFinishedWithoutError(workflow.getResult().isResult());
+      afterWorkflowFinished(workflow);
     } catch (Exception e) {
       throw new ExecutionException(cmd, "Error running workflow locally", e);
     }
+  }
+
+  /**
+   * Called when the workflow engine is set up, with its parameters and variables, just before it
+   * starts. Does nothing; a command that extends this one can change the run here.
+   */
+  protected void beforeWorkflowStart(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {
+    // Nothing to do
+  }
+
+  /**
+   * Called when the workflow has finished, after {@code finishedWithoutError} is set from its
+   * result. Does nothing; see {@link #beforeWorkflowStart}.
+   */
+  protected void afterWorkflowFinished(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {
+    // Nothing to do
   }
 
   protected void parseOptions(

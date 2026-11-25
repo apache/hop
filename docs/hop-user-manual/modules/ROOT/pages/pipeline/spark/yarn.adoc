@@ -31,7 +31,7 @@ Set up a xref:pipeline/spark/local-standalone-cluster.adoc[local standalone clus
 
 == What you need
 
-* Hop 2.20 or later with the `hop-engines-spark` and `hop-engines-beam` plugins (see xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster], steps 1 and 3), and a `native-provided` fat jar.
+* Hop 2.20 or later with the `hop-engines-spark` plugin (see xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster], steps 1 and 3), and a `native-provided` fat jar.
 * The Hadoop client configuration of the cluster on the Hop machine: a folder with `core-site.xml`, `hdfs-site.xml` and `yarn-site.xml`. On a cluster edge node this is often `/etc/hadoop/conf`.
 * Network access from the Hop machine to the YARN ResourceManager and to HDFS (namenode and datanodes), and from the YARN nodes back to the Hop machine: the executors connect to the Spark driver, which is Hop.
 * Java {java-version} on the YARN nodes, for the Spark processes in the containers. If the nodes run an older Java by default, point the containers at a Java {java-version} installation (see below).
@@ -87,7 +87,7 @@ From Hop GUI or `hop-run`, run the pipeline with this run configuration. The log
 ----
 Read <n> Hadoop configuration properties from file:///etc/hadoop/conf/core-site.xml, ...
 YARN containers get the engine's Spark runtime: <n> jars in spark.yarn.jars
-Created SparkSession version=4.1.3 master=yarn (owned)
+Created SparkSession version=4.1.4 master=yarn (owned)
 ...
 Spark pipeline finished, result row count=0
 ----

@@ -41,7 +41,7 @@
         <scala.binary.version>2.13</scala.binary.version>
         <spark.parquet.version>1.16.0</spark.parquet.version>
         <!-- Also update spark-version in docs/hop-user-manual/antora.yml -->
-        <spark.version>4.1.3</spark.version>
+        <spark.version>4.1.4</spark.version>
         <spark.version.prefix>4.1</spark.version.prefix>
     </properties>
 
@@ -542,6 +542,20 @@
                             <excludeTransitive>false</excludeTransitive>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <!-- The artifacts a Spark distribution of this version ships: the native-provided
+                         fat jar leaves them out (NativeSparkFatJar), the cluster loads its own. -->
+                    <execution>
+                        <id>spark-dependency-tree</id>
+                        <goals>
+                            <goal>tree</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <outputFile>${project.build.directory}/spark-dependencies/spark-dependencies.txt</outputFile>
+                            <outputType>text</outputType>
+                            <scope>runtime</scope>
                         </configuration>
                     </execution>
                 </executions>

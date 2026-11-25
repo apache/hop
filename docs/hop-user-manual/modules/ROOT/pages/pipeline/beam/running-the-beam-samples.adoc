@@ -60,7 +60,7 @@ image:beam/beam-run-configurations.png[Apache Beam Run Configurations in Apache 
 
 Apache Beam requires a so-called `fat jar` that bundles all required Java classes and their dependencies into a single jar file.
 
-Build this jar for your Hop installation through `Tools -> Generate a Hop fat jar`.
+Build this jar for your Hop installation through `Tools -> Generate a Hop fat jar` (choose *Apache Beam engines* when Hop asks for the engine).
 
 Save this file in a convenient location and file name. Either store this outside of your project folder or add it to your `.gitignore`. You don't want to accidentally add hundreds of MB to your git repository.
 

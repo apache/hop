@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.apache.hop.lineage.LineageRelationalIdentity;
 import org.junit.jupiter.api.Test;
 
@@ -150,5 +151,94 @@ class RelationalSqlParserTest {
             .anyMatch(
                 e -> "total".equals(e.outputField()) && "amount".equals(e.inputs().get(0).field())),
         "total should derive from amount: " + tables.columnLineage());
+  }
+
+  /** Database join prepares its query with JDBC parameters, which the parser takes no ? for. */
+  @Test
+  void findsTheTablesOfAStatementWithParameters() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse(
+                "SELECT region FROM public.regions r JOIN public.zones z ON z.id = r.zone_id"
+                    + " WHERE r.customer_id = ? AND z.code = ?",
+                "postgres");
+
+    assertEquals(2, tables.inputs().size(), tables.inputs().toString());
+    assertTrue(tables.outputs().isEmpty());
+  }
+
+  @Test
+  void onlyParametersAreReplacedNotQuestionMarksInTextOrComments() {
+    assertEquals(
+        "SELECT '?', \"a?\" FROM t -- why?\nWHERE x = NULL /* y? */ AND z IN (NULL,NULL)",
+        RelationalSqlParser.withoutParameters(
+            "SELECT '?', \"a?\" FROM t -- why?\nWHERE x = ? /* y? */ AND z IN (?,?)", "postgres"));
+  }
+
+  /** The {@code *} that opens a block comment does not also close it. */
+  @Test
+  void aBlockCommentThatStartsWithASlashStaysAComment() {
+    assertEquals(
+        "SELECT a FROM t /*/ why? */ WHERE b = NULL",
+        RelationalSqlParser.withoutParameters(
+            "SELECT a FROM t /*/ why? */ WHERE b = ?", "postgres"));
+  }
+
+  /**
+   * PostgreSQL's JSONB operators are written {@code ??}, {@code ?|} and {@code ?&} in a JDBC
+   * statement, and dollar-quoted text is text: only the real parameter is replaced, and the parser
+   * gets the {@code ?} operator the database gets.
+   */
+  @Test
+  void postgresJsonbOperatorsAndDollarQuotesAreNotParameters() {
+    assertEquals(
+        "SELECT * FROM t WHERE data ? 'k' AND tags ?| array['a'] AND note <> $$why?$$ AND id = NULL",
+        RelationalSqlParser.withoutParameters(
+            "SELECT * FROM t WHERE data ?? 'k' AND tags ?| array['a'] AND note <> $$why?$$ AND id = ?",
+            "postgres"));
+  }
+
+  @Test
+  void sqlServerBracketIdentifiersAreNotParameters() {
+    assertEquals(
+        "SELECT [why?] FROM t WHERE id = NULL",
+        RelationalSqlParser.withoutParameters("SELECT [why?] FROM t WHERE id = ?", "mssql"));
+    assertEquals(
+        "SELECT [whyNULL] FROM t WHERE id = NULL",
+        RelationalSqlParser.withoutParameters("SELECT [why?] FROM t WHERE id = ?", "postgres"),
+        "only SQL Server quotes identifiers with brackets");
+  }
+
+  /** One statement the parser can't read does not hide the tables of the others. */
+  @Test
+  void eachStatementOfAScriptIsParsedOnItsOwn() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse(
+                "DELETE FROM sales.staging_orders;\n"
+                    + "THIS IS NOT SQL;\n"
+                    + "INSERT INTO sales.orders SELECT * FROM sales.staging_orders;\n",
+                "postgres");
+
+    assertEquals(
+        List.of("sales.orders", "sales.staging_orders"),
+        tables.outputs().stream().map(LineageRelationalIdentity::datasetName).sorted().toList(),
+        tables.toString());
+    assertEquals(
+        List.of("sales.staging_orders"),
+        tables.inputs().stream().map(LineageRelationalIdentity::datasetName).toList(),
+        "a table two statements read is reported once");
+  }
+
+  @Test
+  void aJsonbQueryWithAParameterStillGivesItsTable() {
+    RelationalSqlParser.Tables tables =
+        RelationalSqlParser.create(true, null)
+            .parse("SELECT * FROM public.t WHERE data ?? 'k' AND id = ?", "postgres");
+
+    assertEquals(
+        List.of("public.t"),
+        tables.inputs().stream().map(LineageRelationalIdentity::datasetName).toList(),
+        tables.toString());
   }
 }

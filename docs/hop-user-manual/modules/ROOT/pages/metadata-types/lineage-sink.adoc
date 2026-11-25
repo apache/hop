@@ -90,7 +90,7 @@ Options can use variables, for example `'${MARQUEZ_URL}'`; they are resolved wit
 |`HOP_LINEAGE_OPENLINEAGE_FILE_SPEC_NAMING`
 
 |Parse SQL
-|Parse the SQL of Table input and Execute SQL script to find the tables they read and write.
+|Parse the SQL of Table input, Database join, Execute SQL script, Execute row SQL script and the SQL action to find the tables they read and write.
 |`HOP_LINEAGE_OPENLINEAGE_SQL_PARSE`
 |===
 
@@ -123,7 +123,7 @@ The *Delivery* tab holds the spool folder and size, the queue size and what happ
 |`HOP_LINEAGE_DATAHUB_ACTOR`
 
 |Parse SQL
-|Parse the SQL of Table input and Execute SQL script.
+|Parse the SQL of Table input, Database join, Execute SQL script, Execute row SQL script and the SQL action.
 |`HOP_LINEAGE_DATAHUB_SQL_PARSE`
 |===
 

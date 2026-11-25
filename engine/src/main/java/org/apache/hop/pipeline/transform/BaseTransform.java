@@ -1396,7 +1396,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       partitionNr = nextTransformPartitioningMeta.getPartition(this, rowMeta, row);
     } catch (HopException e) {
       throw new HopTransformException(
-          "Unable to convert a value to integer while calculating the partition number", e);
+          "Unable to work out the partition of a row for the next transform: " + e.getMessage(), e);
     }
 
     IRowSet selectedRowSet;

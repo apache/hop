@@ -648,6 +648,10 @@ public class HopGuiPipelineTransformDelegate {
               (shell, settings) -> {
                 TransformPartitioningMeta partitioningMeta =
                     settings.getTransformMeta().getTransformPartitioningMeta();
+                if (StringUtil.isEmpty(partitioningMeta.getPartitioner().getDialogClassName())) {
+                  // A partitioner without settings, such as Rebalance: nothing to ask
+                  return settings.getTransformMeta().getName();
+                }
                 ITransformDialog dialog =
                     getPartitionerDialog(
                         shell,

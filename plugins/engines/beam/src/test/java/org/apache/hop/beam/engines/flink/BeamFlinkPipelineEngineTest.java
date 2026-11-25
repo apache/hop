@@ -23,14 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.beam.runners.flink.FlinkPipelineOptions;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.configuration.GlobalConfiguration;
 import org.apache.flink.configuration.PipelineOptionsInternal;
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
+import org.apache.hop.core.plugins.HopURLClassLoader;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -160,5 +163,45 @@ class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
     assertTrue(
         state.getDetails() == null
             || !state.getDetails().containsKey(BeamFlinkPipelineEngine.DETAIL_FLINK_JOB_ID));
+  }
+
+  /** Only embedded Flink runs in this JVM: a cluster cannot reach the plugin's jars. */
+  @Test
+  void onlyTheLocalMasterIsEmbedded() {
+    assertTrue(BeamFlinkPipelineEngine.runsEmbedded("[local]"));
+    assertTrue(BeamFlinkPipelineEngine.runsEmbedded(" [local] "));
+    assertFalse(BeamFlinkPipelineEngine.runsEmbedded("[collection]"));
+    assertFalse(BeamFlinkPipelineEngine.runsEmbedded("[auto]"));
+    assertFalse(BeamFlinkPipelineEngine.runsEmbedded("flink-jobmanager:8081"));
+    assertFalse(BeamFlinkPipelineEngine.runsEmbedded(null));
+  }
+
+  /**
+   * A plugin's URLs come decoded (a space stays a space) or encoded, depending on how the plugin
+   * was found. Flink gets encoded file URIs either way, with ';' encoded too, as it splits the
+   * class path on it.
+   */
+  @Test
+  void thePluginClasspathIsEncoded() throws Exception {
+    URL[] urls = {
+      new URL("file:/opt/hop/plugins/engines/beam/hop-engines-beam.jar"),
+      new URL("file:/opt/my hop/plugins/a;b/x.jar"),
+      new URL("file:/opt/my%20hop/plugins/beam/lib/y.jar")
+    };
+    try (HopURLClassLoader pluginClassLoader =
+        new HopURLClassLoader(urls, getClass().getClassLoader(), "beam")) {
+      assertEquals(
+          List.of(
+              "file:/opt/hop/plugins/engines/beam/hop-engines-beam.jar",
+              "file:/opt/my%20hop/plugins/a%3Bb/x.jar",
+              "file:/opt/my%20hop/plugins/beam/lib/y.jar"),
+          BeamFlinkPipelineEngine.embeddedClasspath(pluginClassLoader));
+    }
+  }
+
+  /** On a flat class path (a fat jar, tests) Flink sees the Beam classes already. */
+  @Test
+  void aFlatClasspathAddsNothing() {
+    assertEquals(List.of(), BeamFlinkPipelineEngine.embeddedClasspath(getClass().getClassLoader()));
   }
 }

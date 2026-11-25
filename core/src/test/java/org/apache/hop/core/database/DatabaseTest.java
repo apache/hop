@@ -53,6 +53,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.hop.core.DbCache;
@@ -256,13 +257,156 @@ class DatabaseTest {
     assertNull(spec.getParameterReferences().get(0));
   }
 
+  /** The SQL as the database receives it: parameters replaced, ?? escapes unescaped. */
+  @Test
+  void replaceSqlParametersSkipsWhatParseSqlParameterSpecSkips() {
+    assertEquals(
+        "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ? NULL AND options ?| array['a'] "
+            + "AND flags ?& array['b'] AND note <> $$?$$ AND id = NULL -- ?",
+        Database.replaceSqlParameters(
+            "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ?? ? AND options ?| array['a'] "
+                + "AND flags ??& array['b'] AND note <> $$?$$ AND id = ?{id} -- ?",
+            new Database.SqlSyntax(true, false, true),
+            "NULL"));
+  }
+
   /**
-   * When using getLookup calls there is no need to make attempt to retrieve row set metadata for
-   * every call. That may bring performance penalty depends on jdbc driver implementation. For some
-   * drivers that penalty can be huge (postgres).
+   * MySQL's backslash escapes keep a quote in a literal: the ? after it is still in the literal.
+   */
+  @Test
+  void replaceSqlParametersFollowsTheRulesOfTheDialect() {
+    assertEquals(
+        "SELECT 'O\\'Brien?' FROM t WHERE id = NULL",
+        Database.replaceSqlParameters(
+            "SELECT 'O\\'Brien?' FROM t WHERE id = ?",
+            new Database.SqlSyntax(false, true, false),
+            "NULL"));
+  }
+
+  @Test
+  void parseSqlParameterSpecReportsMarkerPositionsOutsideLiteralsAndComments() {
+    String sql =
+        "INSERT INTO \"q?\" VALUES (?, 'what?', `b?`, $$ ? $$, ?) -- why?\n"
+            + "/* or? */ AND x = ?{name} AND y ?| z AND w = ?";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(4, spec.getParameterCount());
+    List<Integer> positions = spec.getMarkerPositions();
+    assertEquals(3, positions.size());
+    for (int position : positions) {
+      assertEquals('?', sql.charAt(position));
+    }
+    assertEquals(sql.indexOf("(?") + 1, (int) positions.get(0));
+    assertEquals(sql.indexOf("?) --"), (int) positions.get(1));
+    assertEquals(sql.lastIndexOf('?'), (int) positions.get(2));
+  }
+
+  @Test
+  void parseSqlParameterSpecHasNoMarkerPositionsWithoutMarkers() {
+    assertTrue(
+        Database.parseSqlParameterSpec("SELECT 'a?' FROM t -- b?").getMarkerPositions().isEmpty());
+    assertTrue(Database.parseSqlParameterSpec(null).getMarkerPositions().isEmpty());
+    assertTrue(
+        new Database.SqlParameterSpec("?", Collections.singletonList(null))
+            .getMarkerPositions()
+            .isEmpty());
+  }
+
+  @Test
+  void parseSqlParameterSpecDoesNotStartADollarQuoteInsideAnIdentifier() {
+    // Oracle style identifiers: SYS$A$B must not open a $A$ dollar quote that hides the marker
+    String sql = "SELECT * FROM SYS$A$B WHERE V$X = ? AND w = $tag$ ? $tag$";
+
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(sql);
+
+    assertEquals(List.of(sql.indexOf('?')), spec.getMarkerPositions());
+  }
+
+  @Test
+  void getSqlParameterSpecUsesBracketIdentifierRulesForBracketQuotingDialects() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.getStartQuote()).thenReturn("[");
+    when(iDatabase.getEndQuote()).thenReturn("]");
+
+    Database db = new Database(log, variables, meta);
+    String sql = "UPDATE [a?b] SET c = ? WHERE d = ?";
+
+    assertEquals(
+        List.of(sql.indexOf("= ?") + 2, sql.lastIndexOf('?')),
+        db.getSqlParameterSpec(sql).getMarkerPositions());
+    assertEquals(3, Database.parseSqlParameterSpec(sql).getMarkerPositions().size());
+  }
+
+  private static final Database.SqlSyntax POSTGRES = new Database.SqlSyntax(false, false, true);
+  private static final Database.SqlSyntax PLAIN = new Database.SqlSyntax(false, false, false);
+  private static final Database.SqlSyntax MYSQL = new Database.SqlSyntax(false, true, false);
+
+  /** ?|| and ?&amp;&amp; are a marker before || or &amp;&amp;: PostgreSQL has no such operator. */
+  @Test
+  void aMarkerBeforeConcatenationOrOverlapIsAMarker() {
+    String sql = "INSERT INTO t VALUES (?, ?||'_x') -- and ?&&ARRAY[1]\n";
+    assertEquals(2, Database.parseSqlParameterSpec(sql, POSTGRES).getParameterCount());
+    assertEquals(2, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+
+    String overlap = "SELECT * FROM t WHERE ?&&tags AND doc ?| array['a'] AND f ?? 'k'";
+    Database.SqlParameterSpec spec = Database.parseSqlParameterSpec(overlap, POSTGRES);
+    assertEquals(List.of(overlap.indexOf('?')), spec.getMarkerPositions());
+
+    // The escaped ? operator before a concatenation stays the operator
+    assertEquals(0, Database.parseSqlParameterSpec("SELECT a ??||b", POSTGRES).getParameterCount());
+  }
+
+  /** In other dialects | and &amp; after a marker are bitwise operators, and ?? is two markers. */
+  @Test
+  void questionMarkOperatorsAreOnlyPostgres() {
+    String sql = "SELECT ?|flags, ?&1, ?? FROM t";
+
+    assertEquals(4, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+    assertEquals(0, Database.parseSqlParameterSpec(sql, POSTGRES).getParameterCount());
+  }
+
+  /** MySQL reads 'O\'Brien' as one literal: the marker after it is still a marker. */
+  @Test
+  void aBackslashEscapedQuoteDoesNotEndAMySqlLiteral() {
+    String sql = "INSERT INTO t VALUES (?, 'O\\'Brien', \"a\\\"?\", ?)";
+
+    assertEquals(
+        List.of(sql.indexOf('?'), sql.lastIndexOf('?')),
+        Database.parseSqlParameterSpec(sql, MYSQL).getMarkerPositions());
+    // Standard SQL has no backslash escapes: there the literal ends at \'
+    assertEquals(1, Database.parseSqlParameterSpec(sql, PLAIN).getParameterCount());
+  }
+
+  @Test
+  void getSqlParameterSpecUsesTheRulesOfTheDialect() {
+    when(meta.getIDatabase()).thenReturn(iDatabase);
+    when(iDatabase.isBackslashEscapingStrings()).thenReturn(true);
+
+    Database db = new Database(log, variables, meta);
+
+    assertEquals(2, db.countParameters("INSERT INTO t VALUES (?, 'O\\'Brien', ?|1)"));
+  }
+
+  /** One DECIMAL column, mapped through a dialect without type rules of its own. */
+  private void lookupReturnsOneDecimalColumn() throws SQLException {
+    when(ps.executeQuery()).thenReturn(rs);
+    when(rs.getMetaData()).thenReturn(rsMetaData);
+    when(rsMetaData.getColumnCount()).thenReturn(1);
+    when(rsMetaData.getColumnName(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
+    when(rsMetaData.getColumnType(1)).thenReturn(Types.DECIMAL);
+    when(meta.getIDatabase()).thenReturn(new NoneDatabaseMeta());
+  }
+
+  /**
+   * When using getLookup calls there is no need to derive the row layout from the result set
+   * metadata for every call. That may bring performance penalty depends on jdbc driver
+   * implementation. For some drivers that penalty can be huge (postgres).
    *
    * <p>During the execution calling getLookup() method we changing usually only lookup where clause
-   * which will not impact return row structure.
+   * which will not impact return row structure. The layout is derived once (the display size is
+   * only read to derive it), and only the plain column properties are compared afterwards.
    */
   @Test
   void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
@@ -270,10 +414,7 @@ class DatabaseTest {
             nullable(IVariables.class), nullable(String.class), nullable(String.class)))
         .thenReturn("a");
     when(meta.quoteField(any())).thenReturn("a");
-    when(ps.executeQuery()).thenReturn(rs);
-    when(rs.getMetaData()).thenReturn(rsMetaData);
-    when(rsMetaData.getColumnCount()).thenReturn(0);
-    when(ps.getMetaData()).thenReturn(rsMetaData);
+    lookupReturnsOneDecimalColumn();
     Database db = new Database(log, variables, meta);
     Connection conn = mock(Connection.class);
     when(conn.prepareStatement(any())).thenReturn(ps);
@@ -284,23 +425,27 @@ class DatabaseTest {
     for (int i = 0; i < 10; i++) {
       db.getLookup();
     }
-    verify(rsMetaData, times(1)).getColumnCount();
+    verify(rsMetaData, times(1)).getColumnDisplaySize(1);
+    assertEquals(columnName, db.getReturnRowMeta().getValueMeta(0).getName());
   }
 
   /**
-   * Test that for every PreparedStatement passed into lookup signature we do reset and re-create
-   * row meta.
+   * A PreparedStatement passed into lookup gets the layout derived from its own result set, once
+   * per statement.
    */
   @Test
   void testGetLookupCallPSpassed() throws SQLException, HopDatabaseException {
-    when(ps.executeQuery()).thenReturn(rs);
-    when(rs.getMetaData()).thenReturn(rsMetaData);
-    when(rsMetaData.getColumnCount()).thenReturn(0);
-    when(ps.getMetaData()).thenReturn(rsMetaData);
+    lookupReturnsOneDecimalColumn();
 
     Database db = new Database(log, variables, meta);
     db.getLookup(ps);
-    verify(rsMetaData, times(1)).getColumnCount();
+    db.getLookup(ps);
+    verify(rsMetaData, times(1)).getColumnDisplaySize(1);
+
+    PreparedStatement other = mock(PreparedStatement.class);
+    when(other.executeQuery()).thenReturn(rs);
+    db.getLookup(other);
+    verify(rsMetaData, times(2)).getColumnDisplaySize(1);
   }
 
   /**

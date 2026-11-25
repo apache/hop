@@ -54,5 +54,11 @@ public enum LineageEventKind {
    * a sink that keeps documents next to the pipelines it knows. Only sent when a project is
    * published, not by runs.
    */
-  DOCUMENTATION
+  DOCUMENTATION,
+  /**
+   * A read or write of a dataset that is neither a table nor a file, such as a Kafka topic
+   * (payload: {@link DatasetIoLineagePayload}). A transform that runs until it is stopped reports
+   * it while it runs.
+   */
+  DATASET_IO
 }

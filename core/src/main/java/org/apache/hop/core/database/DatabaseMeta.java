@@ -2042,6 +2042,39 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isSupportsCustomDeleteStmt();
   }
 
+  /**
+   * @return the batch failure contract this connection overrides its dialect with, as a contract
+   *     code or a variable expression; null or empty when the dialect's own contract is used
+   */
+  public String getBatchFailureContractOverride() {
+    Map<String, String> attributes = iDatabase.getAttributes();
+    return attributes == null
+        ? null
+        : attributes.get(
+            org.apache.hop.core.database.batch.BatchSupport.ATTRIBUTE_BATCH_FAILURE_CONTRACT);
+  }
+
+  /**
+   * Overrides what this connection's driver is assumed to do when a batch fails: {@code UNKNOWN}
+   * goes back to the way a failed batch was always handled, a contract code is for connection
+   * options that change the driver's behaviour, for example MySQL's {@code
+   * rewriteBatchedStatements}.
+   *
+   * @param override a contract code or a variable expression; null or empty to use the dialect's
+   */
+  public void setBatchFailureContractOverride(String override) {
+    Map<String, String> attributes = iDatabase.getAttributes();
+    if (attributes == null) {
+      return;
+    }
+    String key = org.apache.hop.core.database.batch.BatchSupport.ATTRIBUTE_BATCH_FAILURE_CONTRACT;
+    if (Utils.isEmpty(override)) {
+      attributes.remove(key);
+    } else {
+      attributes.put(key, override);
+    }
+  }
+
   /* Returns weather or not the database supports a custom SQL statement to perform update operations */
   public boolean isSupportsCustomUpdateStmt() {
     return iDatabase.isSupportsCustomUpdateStmt();

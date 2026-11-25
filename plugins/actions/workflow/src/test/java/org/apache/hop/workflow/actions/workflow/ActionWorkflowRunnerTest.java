@@ -32,6 +32,54 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.Test;
 
 class ActionWorkflowRunnerTest {
+
+  @Test
+  void publishesReturnedResultAndCompletion() {
+    final IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    final var result = new Result();
+    when(workflow.startExecution()).thenReturn(result);
+    final var runner = new ActionWorkflowRunner(workflow, new Result(), 0, mock(ILogChannel.class));
+
+    runner.run();
+
+    assertTrue(runner.isFinished());
+    assertSame(result, runner.getResult());
+    verify(workflow).setResult(result);
+    verify(workflow).setFinished(true);
+  }
+
+  @Test
+  void publishesCompletionWhenParentAlreadyStopped() {
+    final IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    final IWorkflowEngine<WorkflowMeta> parent = mock(IWorkflowEngine.class);
+    when(workflow.getParentWorkflow()).thenReturn(parent);
+    when(parent.isStopped()).thenReturn(true);
+    final var result = new Result();
+    final var runner = new ActionWorkflowRunner(workflow, result, 0, mock(ILogChannel.class));
+
+    runner.run();
+
+    assertTrue(runner.isFinished());
+    verify(workflow, never()).startExecution();
+    verify(workflow).setResult(result);
+    verify(workflow).setFinished(true);
+  }
+
+  @Test
+  void publishesCompletionWhenExecutionThrows() {
+    final IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);
+    final var failure = new IllegalStateException("execution failed");
+    when(workflow.startExecution()).thenThrow(failure);
+    final var result = new Result();
+    final var runner = new ActionWorkflowRunner(workflow, result, 0, mock(ILogChannel.class));
+
+    assertSame(failure, assertThrows(IllegalStateException.class, runner::run));
+
+    assertTrue(runner.isFinished());
+    verify(workflow).setResult(result);
+    verify(workflow).setFinished(true);
+  }
+
   @Test
   void publishesCompletionWhenAlreadyStopped() {
     final IWorkflowEngine<WorkflowMeta> workflow = mock(IWorkflowEngine.class);

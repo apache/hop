@@ -51,10 +51,12 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.NamingSchemeTypes;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -68,6 +70,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
   private final AvroDecodeMeta input;
 
   private Combo wSourceField;
+  private TextVar wSchemaFile;
   private TableView wFields;
   private RowProducer rowProducer;
 
@@ -110,6 +113,48 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     fdSourceField.right = new FormAttachment(100, 0);
     wSourceField.setLayoutData(fdSourceField);
     Control lastControl = wSourceField;
+
+    Label wlSchemaFile = new Label(shell, SWT.RIGHT);
+    wlSchemaFile.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.SchemaFile.Label"));
+    wlSchemaFile.setToolTipText(BaseMessages.getString(PKG, "AvroDecodeDialog.SchemaFile.Tooltip"));
+    PropsUi.setLook(wlSchemaFile);
+    FormData fdlSchemaFile = new FormData();
+    fdlSchemaFile.left = new FormAttachment(0, 0);
+    fdlSchemaFile.top = new FormAttachment(lastControl, margin);
+    fdlSchemaFile.right = new FormAttachment(middle, -margin);
+    wlSchemaFile.setLayoutData(fdlSchemaFile);
+
+    Button wbSchemaFile = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchemaFile);
+    wbSchemaFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchemaFile = new FormData();
+    fdbSchemaFile.right = new FormAttachment(100, 0);
+    fdbSchemaFile.top = new FormAttachment(wlSchemaFile, 0, SWT.CENTER);
+    wbSchemaFile.setLayoutData(fdbSchemaFile);
+
+    wSchemaFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchemaFile.setToolTipText(BaseMessages.getString(PKG, "AvroDecodeDialog.SchemaFile.Tooltip"));
+    PropsUi.setLook(wSchemaFile);
+    FormData fdSchemaFile = new FormData();
+    fdSchemaFile.left = new FormAttachment(middle, 0);
+    fdSchemaFile.top = new FormAttachment(wlSchemaFile, 0, SWT.CENTER);
+    fdSchemaFile.right = new FormAttachment(wbSchemaFile, -margin);
+    wSchemaFile.setLayoutData(fdSchemaFile);
+    wbSchemaFile.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                false,
+                shell,
+                wSchemaFile,
+                variables,
+                new String[] {"*.avsc", "*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "AvroDecodeDialog.SchemaFile.FileType"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
+    lastControl = wSchemaFile;
 
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Label"));
@@ -196,6 +241,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
       // Ignore exception
     }
     wSourceField.setText(Const.NVL(input.getSourceFieldName(), ""));
+    wSchemaFile.setText(Const.NVL(input.getSchemaFileName(), ""));
 
     int rowNr = 0;
     for (TargetField targetField : input.getTargetFields()) {
@@ -222,6 +268,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     }
 
     input.setSourceFieldName(wSourceField.getText());
+    input.setSchemaFileName(wSchemaFile.getText());
     input.getTargetFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
       int col = 1;
@@ -254,6 +301,9 @@ public class AvroDecodeDialog extends BaseTransformDialog {
   private void getFieldsFromFile() {
     try {
       Schema schema = schemaFromSelectedSourceField();
+      if (schema == null) {
+        schema = schemaFromSchemaFile();
+      }
       if (schema == null) {
         schema = readSchemaFromAvroFile();
       }
@@ -288,6 +338,17 @@ public class AvroDecodeDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "AvroDecodeDialog.GetFields.Error.Message"),
           e);
     }
+  }
+
+  /**
+   * Schema file set on the dialog. Used when the source field does not already carry a record
+   * schema, which is the Binary case.
+   */
+  private Schema schemaFromSchemaFile() throws HopException {
+    if (StringUtils.isBlank(wSchemaFile.getText())) {
+      return null;
+    }
+    return AvroDecode.readSchemaFile(variables, wSchemaFile.getText());
   }
 
   /**

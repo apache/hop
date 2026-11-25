@@ -1,0 +1,28 @@
+{
+  "sink": {
+    "datahub": {
+      "dataCatalog": "datahub-stub",
+      "platformInstance": "",
+      "datasetSchema": "MISSING",
+      "lifecycle": false,
+      "actor": "",
+      "sqlParse": true,
+      "spoolDirectory": "",
+      "spoolMaxBytes": "",
+      "bufferSize": "",
+      "overflowPolicy": "BLOCK",
+      "enqueueTimeoutMs": "",
+      "maxRetries": "",
+      "retryBackoffMs": "",
+      "connectTimeoutMs": "",
+      "readTimeoutMs": "",
+      "shutdownDrainMs": "",
+      "metricsIntervalMs": "",
+      "trustStorePath": "",
+      "trustStorePassword": "",
+      "keyStoreType": ""
+    }
+  },
+  "name": "datahub-stub",
+  "description": "DataHub at the lineage stub, as the data catalog datahub-stub describes it"
+}

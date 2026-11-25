@@ -38,7 +38,7 @@ The dialog is split into *General*, *SQL*, and *Parameters* tabs.
 
 == General
 
-The General tab holds the database connection and optional statistics output fields.
+The General tab holds the database connection, the commit size, and optional statistics output fields.
 
 image:transforms/execute-sql-script-dialog-general-tab.png[Execute SQL script General tab, width="90%"]
 
@@ -47,6 +47,12 @@ image:transforms/execute-sql-script-dialog-general-tab.png[Execute SQL script Ge
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|Select a database connection to use
+|Commit size|Only used with *Execute for each row*.
+Leave empty or set to `0` to run in auto-commit mode: every row is committed on its own and passed on right away.
+With a number N the rows run in a transaction that is committed every N rows and once more at the end, and rolled back when the transform fails or is stopped.
+Rows are passed on to the next transform only after the transaction they ran in is committed, so a row that is rolled back is never passed on.
+With an error hop, on a database where a failed statement aborts the transaction (for example PostgreSQL), each row runs behind a savepoint: only the failing row is undone and sent to the error hop, the other rows of its transaction are still committed.
+Variables like `+${COMMIT_SIZE}+` are allowed.
 |Field to contain insert stats|Optional: If you want to get an additional field in our stream with the number or records that where inserted, please define the field name here.
 |Field to contain update stats|Same as insert stats, but for updated rows.
 |Field to contain delete stats|Same as insert stats, but for deleted rows.

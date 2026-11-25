@@ -22,10 +22,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobID;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.GlobalConfiguration;
+import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.configuration.PipelineOptionsInternal;
 import org.apache.hop.core.exception.HopException;
 
@@ -35,31 +42,54 @@ import org.apache.hop.core.exception.HopException;
  * id can be fixed before submission.
  *
  * <p>Flink only reads that directory from the local filesystem.
+ *
+ * <p>For embedded Flink ({@code [local]}) the directory also hands Flink the class path of the Beam
+ * plugin. Flink runs the job in this JVM, in a class loader for user code whose parent is the class
+ * loader that loaded Flink: without the plugin's jars on its class path it cannot load the classes
+ * of the Beam plugin (HopRowCoder, TransformFn, ...). Classes in Hop's own class path are loaded
+ * from there first, so a library that is also in a plugin's lib/ is not loaded twice.
  */
 final class FlinkJobConfiguration {
 
   private static final String JOB_ID_KEY = PipelineOptionsInternal.PIPELINE_FIXED_JOB_ID.key();
+  private static final String CLASSPATHS_KEY = PipelineOptions.CLASSPATHS.key();
+  private static final String RESOLVE_ORDER_KEY = CoreOptions.CLASSLOADER_RESOLVE_ORDER.key();
+  static final String PARENT_FIRST = "parent-first";
 
   private FlinkJobConfiguration() {}
 
   static Path create(String configuredConfDir, String jobId) throws HopException {
+    return create(configuredConfDir, jobId, List.of());
+  }
+
+  /**
+   * @param classpath for embedded Flink: the class path of the Beam plugin, as file URIs. It is
+   *     added to the user's own {@code pipeline.classpaths}, and the resolve order becomes
+   *     parent-first unless the user chose one. Empty for any other Flink master.
+   */
+  static Path create(String configuredConfDir, String jobId, List<String> classpath)
+      throws HopException {
     String source = configuredConfDir;
     if (StringUtils.isEmpty(source)) {
       source = System.getenv("FLINK_CONF_DIR");
     }
     Path sourceDir = StringUtils.isEmpty(source) ? null : Path.of(source);
-    return createFromSource(sourceDir, jobId);
+    return createFromSource(sourceDir, jobId, classpath);
   }
 
   static Path createFromSource(Path sourceDir, String jobId) throws HopException {
+    return createFromSource(sourceDir, jobId, List.of());
+  }
+
+  static Path createFromSource(Path sourceDir, String jobId, List<String> classpath)
+      throws HopException {
     try {
       JobID.fromHexString(jobId);
       Path dir = Files.createTempDirectory("hop-flink-");
       if (sourceDir == null) {
-        Files.writeString(
-            dir.resolve(GlobalConfiguration.FLINK_CONF_FILENAME),
-            standardEntry(jobId),
-            StandardCharsets.UTF_8);
+        Path target = dir.resolve(GlobalConfiguration.FLINK_CONF_FILENAME);
+        Files.writeString(target, standardEntry(jobId), StandardCharsets.UTF_8);
+        addClasspath(target, false, new Configuration(), classpath);
       } else if (!Files.isDirectory(sourceDir)) {
         throw new HopException("Flink configuration directory does not exist: " + sourceDir);
       } else {
@@ -85,6 +115,13 @@ final class FlinkJobConfiguration {
         Path target = dir.resolve(sourceFile.getFileName());
         Files.copy(sourceFile, target);
         appendJobId(target, entry);
+        if (!classpath.isEmpty()) {
+          addClasspath(
+              target,
+              sourceFile.equals(legacy),
+              GlobalConfiguration.loadConfiguration(sourceDir.toString()),
+              classpath);
+        }
       }
       return dir;
     } catch (HopException e) {
@@ -104,6 +141,52 @@ final class FlinkJobConfiguration {
         Files.deleteIfExists(path);
       }
     }
+  }
+
+  /**
+   * Add the class path to the user's own pipeline.classpaths, and make the resolve order
+   * parent-first unless the user set one.
+   *
+   * @param user the user's configuration, read the way Flink reads it
+   */
+  private static void addClasspath(
+      Path file, boolean legacy, Configuration user, List<String> classpath) throws IOException {
+    if (classpath.isEmpty()) {
+      return;
+    }
+    Set<String> entries =
+        new LinkedHashSet<>(user.getOptional(PipelineOptions.CLASSPATHS).orElse(List.of()));
+    entries.addAll(classpath);
+    StringBuilder kept = new StringBuilder();
+    for (String line : Files.readString(file).split("\\R", -1)) {
+      if (!isKey(line, CLASSPATHS_KEY)) {
+        kept.append(line).append('\n');
+      }
+    }
+    String text = kept.toString().replaceAll("\n+$", "\n");
+    if (legacy) {
+      text += CLASSPATHS_KEY + ": " + String.join(";", entries) + "\n";
+    } else {
+      text +=
+          "\""
+              + CLASSPATHS_KEY
+              + "\": ["
+              + entries.stream().map(e -> "\"" + e + "\"").collect(Collectors.joining(", "))
+              + "]\n";
+    }
+    if (!user.contains(CoreOptions.CLASSLOADER_RESOLVE_ORDER)) {
+      text +=
+          legacy
+              ? RESOLVE_ORDER_KEY + ": " + PARENT_FIRST + "\n"
+              : "\"" + RESOLVE_ORDER_KEY + "\": \"" + PARENT_FIRST + "\"\n";
+    }
+    Files.writeString(file, text, StandardCharsets.UTF_8);
+  }
+
+  /** A flat entry of the key, in either format: {@code key: ...} or {@code "key": ...}. */
+  private static boolean isKey(String line, String key) {
+    String trimmed = line.trim();
+    return trimmed.startsWith(key + ":") || trimmed.startsWith("\"" + key + "\":");
   }
 
   private static void appendJobId(Path file, String entry) throws IOException {

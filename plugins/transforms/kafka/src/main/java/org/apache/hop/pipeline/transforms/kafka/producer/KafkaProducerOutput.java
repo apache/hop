@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.kafka.producer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -27,6 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerField;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaHeaders;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaLineage;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 
@@ -105,6 +107,12 @@ public class KafkaProducerOutput
               KafkaConsumerField.Type.fromValueMeta(data.msgValueMeta));
 
       data.isOpen = true;
+      data.lineage =
+          new KafkaLineage(
+              this,
+              DatasetIoOperation.WRITE,
+              KafkaLineage.bootstrapServers(
+                  meta.getDirectBootstrapServers(), meta.getOptions(), this::resolve));
 
       first = false;
     }
@@ -142,7 +150,22 @@ public class KafkaProducerOutput
               headers);
     }
 
-    data.kafkaProducer.send(producerRecord);
+    KafkaLineage lineage = data.lineage;
+    if (lineage != null && lineage.isEnabled()) {
+      // Lineage: a topic once Kafka took the first row for it. A refused row means the row
+      // counters no longer match what the topics got.
+      data.kafkaProducer.send(
+          producerRecord,
+          (metadata, exception) -> {
+            if (exception == null) {
+              lineage.topic(topic);
+            } else {
+              lineage.failed(topic, exception);
+            }
+          });
+    } else {
+      data.kafkaProducer.send(producerRecord);
+    }
     incrementLinesOutput();
 
     putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).

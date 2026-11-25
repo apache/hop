@@ -212,6 +212,17 @@ public class Const {
   public static final String HOP_DATABASE_SOCKET_TIMEOUT = "HOP_DATABASE_SOCKET_TIMEOUT";
 
   /**
+   * Set to LEGACY to handle a failed batch of database writes the way Hop always did, on every
+   * connection, also where the database's behaviour with failed batches has been validated. Empty
+   * (the default) follows each connection's setting.
+   */
+  @Variable(
+      value = "",
+      description =
+          "Set to LEGACY to handle a failed batch of database writes the way Hop always did, on every connection, also where the database's behaviour with failed batches has been validated. Empty (the default) follows each connection's setting.")
+  public static final String HOP_DATABASE_BATCH_RECOVERY = "HOP_DATABASE_BATCH_RECOVERY";
+
+  /**
    * Per-run override for the engine-compatibility gate in {@code Pipeline.prepareExecution} /
    * {@code Workflow.startExecution}. Set to 'Y' to run a pipeline or workflow that contains
    * transforms or actions the selected engine has marked UNSUPPORTED. CLI sets it from {@code
@@ -235,6 +246,19 @@ public class Const {
       description =
           "Set to 'Y' to start a pipeline that has main hops into transforms that do not consume input. Verify still reports an error. Default N fails init and stops on leftover input.")
   public static final String HOP_ALLOW_UNCONSUMED_MAIN_INPUT = "HOP_ALLOW_UNCONSUMED_MAIN_INPUT";
+
+  /**
+   * Run a workflow once, even when its Start action repeats it. A scheduler outside Hop (for
+   * example Apache Airflow) sets it as a system property: it starts the workflow on the Start
+   * action's schedule itself. System scope: Hop copies the default of an application variable over
+   * a system property, so an application variable could not be set this way.
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "N",
+      description =
+          "Set to 'Y' to run a workflow once, even when its Start action repeats it on a schedule. The Start action then does not wait either. For schedulers outside Hop, such as Apache Airflow.")
+  public static final String HOP_IGNORE_START_REPEAT = "HOP_IGNORE_START_REPEAT";
 
   /** The operating system the hop platform runs on */
   @Variable(

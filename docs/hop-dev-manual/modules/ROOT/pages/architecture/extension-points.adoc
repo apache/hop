@@ -1,0 +1,380 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: Every extension point Hop fires, in the order a pipeline or workflow run fires them, which engines fire which, and what each hands to a plugin.
+[[Architecture-ExtensionPoints]]
+= Extension points and when they fire
+
+An extension point is a named moment at which Hop calls every plugin listening for it.
+How to write such a plugin is on the xref:plugin-types/execution-observability.adoc#_extension_point[Execution and observability] page.
+This page is about the moments themselves: when each one fires, in which order, on which engine, and what it hands over.
+
+The names are the constants of two enums:
+
+* `HopExtensionPoint` in `org.apache.hop.core.extension` (core): runs, files, metadata, the command line tools and most of Hop GUI.
+* `HopGuiExtensionPoint` in `org.apache.hop.ui.hopgui` (ui): file dialogs, the explorer and a few Hop GUI updates.
+
+A listener names the moment in `extensionPointId`; the generic type of `IExtensionPoint<T>` is the object Hop hands over.
+Extension points run on the thread that fires them, one listener after the other, so a slow listener slows down the run.
+
+== A pipeline run on the local engine
+
+The local engine (`Pipeline`, `LocalPipelineEngine`) fires the full set, in this order:
+
+[cols="1,2,3",options="header"]
+|===
+|Extension point |Object |When
+
+|`PipelinePrepareExecution`
+|`IPipelineEngine`
+|`prepareExecution()` has checked the pipeline against the engine (engine compatibility), and is about to activate the parameters, create the row sets and the transform copies.
+
+|`TransformBeforeInitialize`
+|`TransformInitThread`
+|For every transform copy, right before its `init()` starts on an init thread of its own.
+
+|`TransformAfterInitialize`
+|`TransformInitThread`
+|For every transform copy, once its init thread is done. All copies initialize at the same time, so the order between copies is not fixed.
+
+|`TransformFailed`
+|`ExecutionFailure`
+|A transform copy failed to initialize. The pipeline does not start.
+
+|`PipelineStartThreads`
+|`IPipelineEngine`
+|`startThreads()` begins: before the execution started listeners and before any transform thread starts.
+
+|`TransformBeforeStart`
+|`TransformMetaDataCombi`
+|For every transform copy, right before its thread starts.
+
+|`PipelineStart`
+|`IPipelineEngine`
+|All transform threads were started. Rows may already be flowing.
+
+|`TransformFinished`
+|`TransformMetaDataCombi`
+|A transform copy finished. Fired from the copy's finished listener, ahead of the pipeline's own detection of the end of the run.
+
+|`TransformFailed`
+|`ExecutionFailure`
+|A transform copy failed while processing rows: it threw an exception, or it finished with errors.
+
+|`PipelineFinish`
+|`IPipelineEngine`
+|The last transform copy finished. This is the first execution finished listener: the others run after it.
+
+|`PipelineFailed`
+|`ExecutionFailure`
+|The run failed: after all execution finished listeners, before `PipelineCompleted`.
+
+|`PipelineCompleted`
+|`IPipelineEngine`
+|Everything is done: the result, the status and the failures are final. `waitUntilFinished()` returns after this, so a caller such as `hop-run` can leave the JVM straight after it: work that has to happen at the end of a run, such as flushing lineage, belongs here.
+|===
+
+`PipelineMetaLoaded` fires earlier, whenever a `PipelineMeta` is read from a file, also when nothing runs it.
+
+The single-threaded pipeline type runs the transforms one at a time in an executor, without threads of their own.
+It fires the same extension points; `TransformBeforeStart` comes for every copy before `PipelineStart`, and `TransformFinished` when the executor disposes the copies at the end of the run.
+
+== Which engine fires what
+
+[cols="2,1,1,1,1",options="header"]
+|===
+|Extension point |Local |Remote (Hop Server) |Beam |Native Spark
+
+|`PipelinePrepareExecution` |yes |no |yes |yes
+|`PipelineStartThreads` |yes |no |yes |yes
+|`PipelineStart` |yes |yes |yes |yes
+|`PipelineFinish` |yes |yes |yes |yes
+|`PipelineCompleted` |yes |yes |yes |yes
+|`PipelineFailed` |yes |no |no |no
+|`TransformBeforeInitialize`, `TransformAfterInitialize`, `TransformBeforeStart`, `TransformFinished`, `TransformFailed` |yes |no |no |no
+|===
+
+The *remote* engine sends the pipeline to a Hop Server.
+The server runs it on its own local engine, which fires the full set in the server's JVM; the client only sees the start and the end.
+
+The *Beam* and *native Spark* engines fire the pipeline-level points at the same moments as the local engine, once per run, but no transform-level points: a transform there is a step in a Beam or Spark job, not a copy with a thread.
+
+[IMPORTANT]
+====
+Beam and native Spark run a Hop transform without a native implementation inside a small local pipeline: on Beam one per transform and worker, on native Spark one per transform and partition.
+These are local engines of the single-threaded type, and they fire the local engine's extension points, pipeline and transform level, for every bundle or partition they run.
+A listener that only wants the run itself sees these too.
+They have no dedicated marker yet: their pipeline is named after the transform, their run configuration is named `beam-transform-local (...)` or `spark-transform-local (...)`, and their type is `SingleThreaded`.
+====
+
+== A workflow run on the local engine
+
+The local workflow engine (`Workflow`, `LocalWorkflowEngine`) fires:
+
+[cols="1,2,3",options="header"]
+|===
+|Extension point |Object |When
+
+|`WorkflowStart`
+|`IWorkflowEngine`
+|The workflow has checked its actions against the engine (engine compatibility), after the execution started listeners, before the first action.
+
+|`WorkflowBeginProcessing`
+|`WorkflowExecutionExtension`
+|Right after `WorkflowStart`: the start of processing.
+
+|`WorkflowBeforeActionExecution`
+|`WorkflowExecutionExtension`
+|Before every action. A listener can stop the action from running: set `executeAction` to false.
+
+|`ActionFailed`
+|`ExecutionFailure`
+|The action threw an exception, raised its error count, or ran a child pipeline or workflow that failed.
+
+|`WorkflowAfterActionExecution`
+|`WorkflowExecutionExtension`
+|After every action, with its result.
+
+|`WorkflowFailed`
+|`ExecutionFailure`
+|The workflow ended with a false result, unless someone stopped it and nothing went wrong.
+
+|`WorkflowFinish`
+|`IWorkflowEngine`
+|The workflow ended, successfully or not. The execution finished listeners run after it.
+|===
+
+`WorkflowMetaLoaded` fires whenever a `WorkflowMeta` is read from a file.
+
+The remote workflow engine fires none of these on the client: the Hop Server runs the workflow on its local engine, which fires them there.
+
+[NOTE]
+====
+A child workflow that a Workflow action runs fires `WorkflowFinish` once, at the end of its own run.
+`ActionWorkflowRunner` does not dispatch it again after the engine returns.
+====
+
+== Before and around a run
+
+[cols="1,3",options="header"]
+|===
+|Extension point |When
+
+|`HopRunCalculateFilename`
+|`hop-run` has worked out the file to run, before it uses it.
+
+|`HopRunStart`
+|`hop-run` starts, before it loads the metadata and runs the file.
+
+|`HopRunEnd`
+|`hop-run` is done.
+
+|`HopGuiPipelineMetaExecutionStart`
+|Hop GUI starts to run a pipeline (`PipelineMeta`).
+
+|`HopGuiPipelineExecutionConfiguration`
+|Right before Hop GUI shows the run configuration of a pipeline.
+
+|`HopGuiPipelineBeforeStart`
+|Right before Hop GUI starts the pipeline engine.
+
+|`HopGuiWorkflowMetaExecutionStart`, `HopGuiWorkflowExecutionConfiguration`, `HopGuiWorkflowBeforeStart`
+|The same for a workflow. `HopGuiWorkflowBeforeStart` also fires in `hop-run`.
+
+|`HopGuiRunConfiguration`
+|A dialog that picks a run configuration (run options, Pipeline and Workflow actions, Pipeline and Workflow executor, Metadata injection) fills its list: the extension point gets the list, so a plugin can add to it.
+
+|`HopGuiPipelineFinished` (`HopGuiExtensionPoint`)
+|A pipeline that Hop GUI ran has finished.
+|===
+
+== Checks, database connections and metadata
+
+[cols="1,3",options="header"]
+|===
+|Extension point |When
+
+|`BeforeCheckTransforms`, `AfterCheckTransforms`
+|Before and after the transforms of a pipeline are verified.
+
+|`BeforeCheckTransform`, `AfterCheckTransform`
+|Before and after each transform is verified.
+
+|`AfterCheckActions`
+|After the actions of a workflow were verified.
+
+|`GetFieldsExtension`
+|The output fields of a transform are worked out and its `getFields()` added or changed none: a plugin can supply them.
+
+|`DatabaseCreated`, `DatabaseConnected`, `DatabaseDisconnected`
+|A `Database` was created, connected, or disconnected.
+
+|`HopEnvironmentAfterInit`
+|`HopEnvironment.init()` is done: plugins can register extra plugins or metadata here.
+
+|`HopProjectEnvironmentAfterEnabled`
+|A project and its lifecycle environment were enabled.
+
+|`ProjectHome`
+|The home folder of a project is being worked out.
+|===
+
+== Hop Server
+
+[cols="1,3",options="header"]
+|===
+|Extension point |When
+
+|`HopServerCalculateFilename`
+|The server worked out its configuration file, before it uses it.
+
+|`HopServerInit`
+|Right before the server starts.
+
+|`HopServerStartup`
+|The server has started and is fully up.
+
+|`HopServerShutdown`
+|Right before the server shuts down.
+
+|`HopServerTerminate`
+|The server has shut down.
+|===
+
+== The import tool
+
+`HopImportStart` and `HopImportEnd` fire at the start and the end of `hop-import`.
+In between, `HopImportTargetMetadataReady` fires once the metadata of the target exists, `HopImportRewriteMetadata` once the imported files and connections are written, and `HopImportCreateProject` to register a project for the target folder.
+
+== Hop GUI
+
+These fire in Hop GUI (and Hop Web), not during a run.
+
+[cols="1,3",options="header"]
+|===
+|Extension point |When
+
+|`HopGuiInit`
+|Before the main window is created.
+
+|`HopGuiStart`
+|Hop GUI has started.
+
+|`HopGuiProjectAfterEnabled`
+|A project was enabled in Hop GUI.
+
+|`PipelineAfterOpen`, `WorkflowAfterOpen`
+|A pipeline or workflow file was opened.
+
+|`PipelineBeforeSave`, `PipelineAfterSave`, `PipelineAfterSaveAs`
+|A pipeline file is about to be saved, was saved, or was saved under a new name.
+
+|`WorkflowBeforeSave`, `WorkflowAfterSave`
+|A workflow file is about to be saved, or was saved.
+
+|`PipelineTransformRenamed`
+|A transform was renamed.
+
+|`PipelineBeforeDeleteTransforms`
+|Transforms are about to be deleted from a pipeline.
+
+|`PipelinePainterStart`, `PipelinePainterTransform`, `PipelinePainterArrow`, `PipelinePainterEnd`
+|The pipeline canvas is drawn: before everything, on each transform icon, on each hop, and on top of everything.
+
+|`WorkflowPainterStart`, `WorkflowPainterAction`, `WorkflowPainterArrow`, `WorkflowPainterEnd`
+|The same for the workflow canvas.
+
+|`PipelineGraphMouseDown`, `PipelineGraphMouseUp`, `PipelineGraphMouseMoved`, `PipelineGraphMouseDoubleClick`
+|Mouse events on the pipeline canvas.
+
+|`WorkflowGraphMouseDown`, `WorkflowGraphMouseUp`, `WorkflowGraphMouseDoubleClick`
+|Mouse events on the workflow canvas.
+
+|`HopGuiPipelineGraphAreaHover`, `HopGuiWorkflowGraphAreaHover`
+|The mouse hovers over a drawn area of a canvas: a plugin can add a tooltip.
+
+|`HopGuiNewPipelineTab`, `HopGuiNewWorkflowTab`
+|The explorer works out the tab name of a pipeline or workflow.
+
+|`HopGuiMetadataObjectCreateBeforeDialog`, `HopGuiMetadataObjectCreated`, `HopGuiMetadataObjectUpdated`, `HopGuiMetadataObjectDeleted`
+|A metadata object is about to be created (before its dialog), was created, updated or deleted.
+
+|`HopGuiGetSearchablesLocations`
+|Search collects the places it searches.
+
+|`HopGuiGetControlSpaceSortOrderPrefix`
+|The variable list (`CTRL-SPACE`) is sorted.
+
+|`HopGuiLifecycleEnvironmentDialogTabs`
+|The lifecycle environment dialog collects its tabs.
+
+|`HopGuiSearchMarketplace`
+|Open the marketplace searching for a plugin, from a dialog about a missing transform or action.
+
+|`HopGuiAiAdvisorOpenSession`
+|Open a session of the AI advisor.
+
+|`HopGuiFileBeforeCommit`
+|Files are about to be committed to git.
+
+|`ProblemsForceRefresh`
+|The problems tab refreshes, after the database cache was cleared.
+|===
+
+And the ones in `HopGuiExtensionPoint`:
+
+[cols="1,3",options="header"]
+|===
+|Extension point |When
+
+|`HopGuiFileOpenDialog`, `HopGuiFileOpenedDialog`
+|Before a file open dialog is shown, and after a file was picked in it.
+
+|`HopGuiFileDirectoryDialog`, `HopGuiDirectorySelected`
+|Before a folder dialog is shown, and after a folder was picked in it.
+
+|`HopGuiDetermineExplorerRoot`
+|The explorer works out its root folder.
+
+|`HopGuiWorkflowClipboardFilePaste`
+|A file name is pasted onto a workflow.
+
+|`HopGuiPipelineGraphUpdateGui`, `HopGuiWorkflowGraphUpdateGui`, `PipelineExecutionViewerUpdate`
+|A canvas or execution viewer updates: a plugin can enable or disable widgets.
+
+|`HopGuiSystemVariablesSaved`
+|The system variables were saved from the configuration perspective.
+|===
+
+== Declared but not fired
+
+These constants exist, and some have listeners, but nothing in Hop fires them at the moment.
+A plugin that listens to one of them is never called:
+
+`HopGuiEnd`, `OpenRecent`, `PipelineHeartbeat`, `PipelineBeforeClose`, `PipelineAfterClose`, `PipelineChanged`, `PipelineTransformRightClick`, `RunConfigurationSelection`, `RunConfigurationIsRemote`, `WorkflowBeforeOpen`, `WorkflowBeforeClose`, `WorkflowAfterClose`, `WorkflowChanged`, `WorkflowDialogShowRetrieveLogTableFields`, `HopGuiPipelineAfterClose`, `HopGuiWorkflowAfterClose`, and in `HopGuiExtensionPoint` `HopGuiFileSaveDialog` and `HopGuiNewPipelineTab`.
+
+== Firing your own
+
+Anything can fire an extension point, by name:
+
+[source,java]
+----
+ExtensionPointHandler.callExtensionPoint(
+    log, variables, HopExtensionPoint.PipelineStart.id, pipeline);
+----
+
+A plugin may define a name of its own and fire it; listeners find it by that name.
+When an engine fires the run's extension points, it should fire them at the moments in the tables above, each once per run, with the same object type: listeners rely on that order, and on `PipelineCompleted` being the last call before `waitUntilFinished()` returns.

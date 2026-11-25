@@ -468,9 +468,56 @@ class AiChatFactoryTest {
 
   @Test
   void parseHelpers() {
-    assertEquals(0.3, AiChatFactory.parseTemperature(null));
-    assertEquals(0.3, AiChatFactory.parseTemperature("nope"));
+    assertNull(AiChatFactory.parseTemperature(null));
+    assertNull(AiChatFactory.parseTemperature(""));
+    assertNull(AiChatFactory.parseTemperature("nope"));
     assertEquals(0.7, AiChatFactory.parseTemperature("0.7"));
     assertEquals(60, AiChatFactory.parseTimeout("60"));
+  }
+
+  /**
+   * issue 9701: some Anthropic models (for example claude-opus-4-7) reject a temperature parameter.
+   * An empty or unreadable Temperature must stay unset, even when toLanguageModelChatMeta applies
+   * provider defaults, so the value is not sent. setDefault() would otherwise leave OpenAI at 0.7.
+   * A resolved variable and a set value are still copied through.
+   */
+  @Test
+  void emptyTemperatureIsLeftUnset() throws Exception {
+    AiProvider anthropic = new AiProvider();
+    AnthropicProvider anthropicBackend = new AnthropicProvider();
+    anthropicBackend.setPluginId("anthropic");
+    anthropic.setProvider(anthropicBackend);
+    anthropic.setApiKey("claude-key");
+    anthropic.setTemperature("");
+
+    LanguageModelChatMeta anthropicMeta =
+        AiChatFactory.toLanguageModelChatMeta(anthropic, new Variables());
+    assertNull(anthropicMeta.getAnthropicTemperature());
+
+    anthropic.setTemperature("nope");
+    assertNull(
+        AiChatFactory.toLanguageModelChatMeta(anthropic, new Variables())
+            .getAnthropicTemperature());
+
+    Variables variables = new Variables();
+    variables.setVariable("AI_TEMP", "0.4");
+    anthropic.setTemperature("${AI_TEMP}");
+    assertEquals(
+        0.4, AiChatFactory.toLanguageModelChatMeta(anthropic, variables).getAnthropicTemperature());
+
+    anthropic.setTemperature("0.2");
+    assertEquals(
+        0.2,
+        AiChatFactory.toLanguageModelChatMeta(anthropic, new Variables())
+            .getAnthropicTemperature());
+
+    AiProvider openAi = new AiProvider();
+    OpenAiProvider openAiBackend = new OpenAiProvider();
+    openAiBackend.setPluginId("openai");
+    openAi.setProvider(openAiBackend);
+    openAi.setApiKey("sk-test");
+    openAi.setTemperature("");
+    assertNull(
+        AiChatFactory.toLanguageModelChatMeta(openAi, new Variables()).getOpenAiTemperature());
   }
 }

@@ -120,6 +120,36 @@ Plugins that must see each other's classes share a `classLoaderGroup`::
 A database dialect and its bulk loader, a VFS provider and its metadata type, an SFTP connection and the actions using it.
 Without it, an object created by one classloader will not cast to the class the other one knows — the failure looks like an impossible `ClassCastException` between two identically named classes.
 
+== The plugin manifest
+
+Every plugin zip carries a record of what it installs: `plugins/<category>/<plugin>/plugin-manifest.json`, next to `version.xml`.
+A module whose zip only fills `lib/core`, such as `hop-misc-naming` or `hop-misc-static-schema`, carries the same record as `lib/core/<artifactId>-manifest.json`.
+The client describes its own base the same way, in `lib/core/hop-client-manifest.json`: the jars `hop-core`, `hop-engine`, `hop-ui` and `hop-ui-rcp` bring along, and the SWT jars, but not the plugins it bundles (their own manifests describe those).
+
+The build generates it by inspecting the finished zip, so it can never disagree with what actually ships: the routing above stays the only place that decides placement, the manifest just writes the outcome down.
+For every file in the zip it records the location (`PLUGIN`, `PRIVATE`, `SHARED` for `lib/core`, `JDBC`, or `OTHER` for things like sample projects), the Maven coordinates and scope when the build could resolve them, the size and a SHA-256.
+Around that it lists:
+
+`pluginIds`::
+The ids the module registers, per annotation (`Transform`, `Action`, `DatabaseMetaPlugin`, `HopMetadata`, ...), read from the jar's Jandex index.
+
+`requiresArtifacts` / `requiresFolders`::
+The other Hop modules the plugin compiles against, and the plugin folders its `dependencies.xml` puts on its classpath.
+When the two disagree, one of them is probably wrong — a compile dependency the plugin never uses, or a runtime folder nobody declared.
+
+`notShipped`::
+Direct dependencies that are declared but deliberately not in the zip, such as a proprietary JDBC driver the user has to supply.
+
+The generator is `org.apache.hop.core.plugins.manifest.PluginManifestGenerator`.
+The build runs it with the goal `hop:manifest` of `org.apache.hop:hop-maven-plugin` (module `maven-plugin`) right after the assembly step (root pom, profile `assembly`); aggregate assemblies set `hop.manifest.skip=true`.
+A plugin built outside the Hop repository binds the same goal, see xref:marketplace-publish-plugin.adoc#_plugin_manifest[Plugin manifest].
+The manifest is added without rewriting the zip: the other entries keep their bytes and the manifest takes their time, so with `project.build.outputTimestamp` every build gives the same zip.
+It warns when a jar's scope and location disagree, for example a `provided` dependency that ended up in a private `lib/`.
+To see what a plugin shipped, read its manifest — `target/plugin-manifest.json` after a build, or the copy inside the zip.
+
+The manifest is what lets an installation reason about shared jars: a `lib/core` jar can only go when no remaining manifest, the client's base or a plugin's, still lists it.
+`org.apache.hop.core.plugins.manifest.PluginManifestScanner` reads every manifest of an installation and maps each file to the manifests that claim it.
+
 == Size
 
 `tools/check-assembly-size.sh` runs in CI and fails the build when the packages get too large; ASF Artifactory rejects uploads over roughly 850 MB.
@@ -133,5 +163,4 @@ This page is a scaffold. Still to write:
 * Mixed-scope dependency graphs: when `compile` beats `provided` and what that does to placement.
 * `isSeparateClassLoaderNeeded`: what it actually does and the very few cases that need it.
 * Adding a dependency: the ASF category A/B/X rules and what they mean in practice.
-* Reading a plugin zip to check what shipped, before you open the pull request.
 ====

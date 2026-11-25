@@ -37,6 +37,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.RelationalLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -56,6 +58,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DatabaseLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/databaselookup.html",
     actionTransformTypes = {ActionTransformType.LOOKUP, ActionTransformType.RDBMS})
+@RelationalLineage(operation = RelationalIoOperation.READ)
 public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData> {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class;

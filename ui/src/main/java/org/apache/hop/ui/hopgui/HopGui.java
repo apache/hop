@@ -267,6 +267,9 @@ public class HopGui
   public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
   public static final String ID_MAIN_MENU_VIEW_FULL_SCREEN = "25010-menu-view-full-screen";
 
+  /** View → Show or hide the bottom panel. */
+  public static final String ID_MAIN_MENU_VIEW_BOTTOM_PANEL = "25020-menu-view-bottom-panel";
+
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
   public static final String ID_MAIN_MENU_RUN_PAUSE = "30030-menu-run-pause";
@@ -400,7 +403,6 @@ public class HopGui
     }
     if (mainMenuWidgets != null) {
       mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_TERMINAL, enabled);
-      mainMenuWidgets.enableMenuItem(HopGuiBottomDock.ID_MAIN_MENU_TOOLS_NEW_TERMINAL, enabled);
     }
     refreshBottomToolbarItems();
   }
@@ -2002,12 +2004,28 @@ public class HopGui
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_VIEW_FULL_SCREEN,
       label = "i18n::HopGui.Menu.View.FullScreen",
+      image = "ui/images/fullscreen.svg",
       parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
   @GuiKeyboardShortcut(alt = true, key = SWT.F11)
   @GuiOsxKeyboardShortcut(command = true, control = true, key = 'F')
   public void menuViewFullScreen() {
     if (!shell.isDisposed()) {
       shell.setFullScreen(!shell.getFullScreen());
+    }
+  }
+
+  /** Show or hide the bottom panel, like the panel button of the sidebar. */
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_VIEW_BOTTOM_PANEL,
+      label = "i18n::HopGui.Menu.View.ShowOrHideBottomPanel",
+      image = "ui/images/dock-panel.svg",
+      parentId = HopGui.ID_MAIN_MENU_VIEW_PARENT_ID)
+  @GuiKeyboardShortcut(control = true, key = 'j', global = true)
+  @GuiOsxKeyboardShortcut(command = true, key = 'j', global = true)
+  public void menuViewShowOrHideBottomPanel() {
+    if (terminalPanel != null) {
+      terminalPanel.toggleDock();
     }
   }
 
@@ -2321,7 +2339,8 @@ public class HopGui
     sidebarToolbarDescriptors.add(
         SidebarToolbarItemDescriptor.builder()
             .id(SIDEBAR_TOOLBAR_ITEM_PANEL)
-            .imagePath("ui/images/dock-panel.svg")
+            .imagePath("ui/images/dock-panel-open.svg")
+            .activeImagePath("ui/images/dock-panel-close.svg")
             .imageSize(sidebarIconSize)
             .tooltip(BaseMessages.getString(PKG, "HopGui.Sidebar.BottomPanel.Tooltip"))
             .onSelect(

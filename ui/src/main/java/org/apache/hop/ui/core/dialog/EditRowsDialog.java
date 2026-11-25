@@ -36,6 +36,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.NullPlaceholder;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -293,38 +294,33 @@ public class EditRowsDialog {
 
   @VisibleForTesting
   Object[] getRowForData(TableItem item, int rowNr) throws HopException {
-    try {
-      Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
-      for (int i = 0; i < rowMeta.size(); i++) {
-        IValueMeta valueMeta = rowMeta.getValueMeta(i);
-        IValueMeta stringValueMeta = stringRowMeta.getValueMeta(i);
+    Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+    for (int i = 0; i < rowMeta.size(); i++) {
+      IValueMeta valueMeta = rowMeta.getValueMeta(i);
+      IValueMeta stringValueMeta = stringRowMeta.getValueMeta(i);
 
-        int colnr = i + 1;
-        if (isDisplayingNullValue(item, colnr)) {
-          row[i] = null; // <null> value
-        } else {
-          // The cell is drawn shortened; the value itself comes back out of the grid.
-          String string = TableView.getCellValue(item, colnr);
-          if (stringValueMeta.isNull(string)) {
-            string = null;
-          }
-          row[i] =
-              valueMeta.convertDataFromString(
-                  string, stringValueMeta, null, null, IValueMeta.TRIM_TYPE_NONE);
-        }
+      int colnr = i + 1;
+      if (isDisplayingNullValue(item, colnr)) {
+        row[i] = null; // <null> value
+      } else {
+        // The cell is drawn shortened; the value itself comes back out of the grid.
+        // foreground is false here: a remaining null placeholder already returned above.
+        String string = TableView.getCellValue(item, colnr);
+        row[i] = EditRowsCells.convertCell(valueMeta, stringValueMeta, string, false, rowNr);
       }
-      return row;
-    } catch (HopException e) {
-      throw new HopException(
-          BaseMessages.getString(
-              PKG, "EditRowsDialog.Error.ErrorGettingRowForData", Integer.toString(rowNr)),
-          e);
     }
+    return row;
   }
 
+  /**
+   * True when the cell is still the blue {@code <null>} placeholder. A value typed over that
+   * placeholder is not null: the text has changed even when the foreground is still blue.
+   */
   @VisibleForTesting
   boolean isDisplayingNullValue(TableItem item, int column) throws HopException {
-    return GuiResource.getInstance().getColorBlue().equals(item.getForeground(column));
+    String text = TableView.getCellValue(item, column);
+    boolean nullColor = GuiResource.getInstance().getColorBlue().equals(item.getForeground(column));
+    return NullPlaceholder.isPlaceholder(text, nullColor);
   }
 
   private void ok() {
@@ -350,8 +346,7 @@ public class EditRowsDialog {
       dispose();
 
     } catch (Exception e) {
-      new ErrorDialog(
-          shell, "Error", BaseMessages.getString(PKG, "EditRowsDialog.ErrorConvertingData"), e);
+      new ErrorDialog(shell, "Error", EditRowsCells.errorDialogMessage(e), e);
     }
   }
 

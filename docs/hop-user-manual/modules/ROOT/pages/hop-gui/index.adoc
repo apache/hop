@@ -44,7 +44,7 @@ For Docker volume mounts and upgrades, see xref:hop-web-docker.adoc[Hop Web in D
 
 == Bottom panel
 
-The button at the bottom left of the window shows or hides the bottom panel.
+The button at the bottom left of the window, or *View → Show or hide the bottom panel*, shows or hides the bottom panel.
 With the panel open and nothing in it, the tab bar shows only *+*.
 
 image::hop-gui/bottom-panel-empty.png[The bottom panel open and empty, with the + tab.,width="45%"]
@@ -57,8 +57,8 @@ image::hop-gui/bottom-panel-tabs.png[Database, VFS File Explorer, and Search ope
 
 The execution-results button stays above the panel button and is only there in the file explorer, on a pipeline or workflow.
 
-`CTRL-J` shows the terminal, and hides the panel when a terminal tab is already selected.
-`CTRL-SHIFT-J` opens another terminal.
+`CTRL-J` shows or hides the bottom panel.
+*Tools → Terminal* (`CTRL-SHIFT-J`) opens a terminal.
 `CTRL-F` still opens Search Everywhere.
 *Show all results* opens a search tab in the bottom panel, and *+* → Search does the same for an empty query.
 

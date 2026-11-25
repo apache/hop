@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
+:description: The Avro decode transform decodes an Avro Record or bare Avro binary into Hop fields.
 :page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=yes, Beam Flink=yes, Beam Dataflow=yes
 :page-marketplace: hop-tech-avro
 
@@ -24,12 +24,13 @@ under the License.
 
 == Description
 
-The Avro decode transform allows you to decode an Avro field and convert it to Hop fields.
+The Avro decode transform decodes Avro data into Hop fields.
+The source is an Avro Record field, or a Binary field that holds one bare Avro record when a schema file is set.
 
 [WARNING]
 ====
 Avro decode does not run on the native Spark engine.
-It decodes an Avro Record field, and the native Spark engine has no Spark data type to carry such a field from one transform to the next, so the pipeline is refused before it starts.
+An Avro Record field has no Spark data type to carry from one transform to the next, and the binary schema-file path is part of the same transform, so the pipeline is refused before it starts.
 ====
 
 == Options
@@ -44,7 +45,15 @@ It decodes an Avro Record field, and the native Spark engine has no Spark data t
 Note: This name has to be unique in a single pipeline.
 
 |Source field
-|Select the name of the field (of type: Avro) to convert
+|The field to decode.
+An Avro Record field is decoded with the schema on the record.
+A Binary field is decoded with the schema file.
+
+|Schema file
+|Optional Avro schema (`.avsc`) for a Binary source field.
+The path is any VFS location and can contain variables, for example `+${PROJECT_HOME}/schemas/event.avsc+`.
+The file is read once per transform copy.
+An Avro Record source field ignores this option.
 
 |Source fields
 |You can specify the names of the Avro fields to select from the Avro records.
@@ -54,9 +63,34 @@ Note: The "Avro type" column is informational only.
 It's not used at runtime.
 
 |Get fields from file
-|Retrieves fields from the schema on the selected Avro Record source field, when that field already has one (for example after Avro Encode). If there is no schema, pick an Avro file. The fields are taken from the first record. Rows are added to the table.
+|Retrieves fields from the schema on the selected Avro Record source field, when that field already has one (for example after Avro Encode).
+Otherwise, if a schema file is set, the fields are taken from that file.
+If there is still no schema, pick an Avro container file. The fields are taken from the first record.
+Rows are added to the table.
 
 |Get fields from JSON
 |Paste JSON instead of reading a file. Three forms are accepted: a Hop Avro value with `schema` and `data`, an Avro record schema, or one sample record (the JSON shown when previewing an Avro value, including from Kafka). A sample record's types are a best effort: JSON null becomes String, and only the top-level fields are added. Rows are added to the table.
 
 |===
+
+== Binary values
+
+Set *Schema file* to decode a Binary source field.
+Each value is one bare Avro record: no container header, no schema stored in the message, and no Confluent Schema Registry header (the five bytes a Schema Registry producer writes in front of the record).
+This is the shape written by a plain Avro `BinaryEncoder`, including the Logstash `avro` codec, and the shape a Kafka Consumer delivers when its message type is Binary.
+
+The schema is parsed once per transform copy.
+The datum reader and the binary decoder are reused for every row of that copy, so a large topic does not pay to rebuild them per message.
+
+A null binary value is written as null output fields, so the rest of the row (a Kafka key, for example) is kept.
+If bytes remain after the record, or the value ends before the record is complete, the transform reports a schema mismatch.
+With error handling enabled, that row is sent to the error hop and the transform continues with the next row.
+The same hop receives a row whose decoded values cannot be converted to the Hop types you chose.
+
+The schema file is the schema the bytes were written with.
+It is used as both the writer schema and the reader schema, so Avro schema resolution is not applied: aliases, type promotions, and defaults for fields that were not in the written record are not filled in.
+The file has to describe the data as it was written.
+Logical types (decimal, date, timestamp) are returned as their underlying Avro type (int, long, bytes, or string) and then converted to the Hop type you choose.
+
+An Avro Record source field ignores the schema file.
+Its schema is the one on the record, and that schema can differ from one row to the next.

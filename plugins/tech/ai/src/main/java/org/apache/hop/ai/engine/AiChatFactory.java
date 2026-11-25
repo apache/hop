@@ -116,8 +116,9 @@ public final class AiChatFactory {
 
   /**
    * Copy connection fields from the provider onto {@code meta}. When {@code useProviderDefaults} is
-   * true, empty provider fields fall back to the plugin defaults. When false, empty provider fields
-   * leave the existing values on {@code meta} in place.
+   * true, empty provider fields fall back to the plugin defaults, except temperature, which is left
+   * unset so the parameter is not sent. When false, empty provider fields leave the existing values
+   * on {@code meta} in place.
    */
   private static void applyConnection(
       LanguageModelChatMeta meta,
@@ -144,13 +145,12 @@ public final class AiChatFactory {
       modelName = backend.getDefaultModelName();
     }
     String apiKey = resolve(variables, provider.getApiKey());
-    boolean hasTemperature = !Utils.isEmpty(provider.getTemperature());
-    double temperature = parseTemperature(resolve(variables, provider.getTemperature()));
+    Double temperature = parseTemperature(resolve(variables, provider.getTemperature()));
     Integer timeout = parseTimeout(resolve(variables, provider.getTimeoutSeconds()));
     Integer contextSize = AiProviderSettings.contextSize(provider, variables);
     Integer maxOutputTokens = AiProviderSettings.maxOutputTokens(provider, variables);
     Boolean think = AiProviderSettings.think(provider, variables);
-    boolean applyTemperature = useProviderDefaults || hasTemperature;
+    boolean applyTemperature = useProviderDefaults || temperature != null;
 
     String hopType = backend.getHopModelType();
     if ("ANTHROPIC".equals(hopType)) {
@@ -442,14 +442,18 @@ public final class AiChatFactory {
     }
   }
 
-  static double parseTemperature(String temperature) {
+  /**
+   * The configured temperature, or null when the field is empty or not a number, so the parameter
+   * is left off the request. Some models reject temperature.
+   */
+  static Double parseTemperature(String temperature) {
     if (Utils.isEmpty(temperature)) {
-      return 0.3;
+      return null;
     }
     try {
-      return Double.parseDouble(temperature.trim());
+      return Double.valueOf(temperature.trim());
     } catch (NumberFormatException e) {
-      return 0.3;
+      return null;
     }
   }
 

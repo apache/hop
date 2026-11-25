@@ -686,7 +686,8 @@ public abstract class Workflow extends Variables
         }
 
         ActionStart jes = (ActionStart) startpoint.getAction();
-        while ((jes.isRepeat() || isFirst) && !isStopped()) {
+        boolean repeat = jes.isRepeat() && !ActionStart.isRepeatIgnored(this);
+        while ((repeat || isFirst) && !isStopped()) {
           isFirst = false;
           res =
               executeFromStart(
@@ -765,6 +766,7 @@ public abstract class Workflow extends Variables
     }
 
     ActionStart jes = (ActionStart) startpoint.getAction();
+    boolean repeat = jes.isRepeat() && !ActionStart.isRepeatIgnored(this);
     Result res;
     do {
       res =
@@ -775,7 +777,7 @@ public abstract class Workflow extends Variables
               null,
               BaseMessages.getString(PKG, "Workflow.Reason.StartOfAction"));
       setActive(false);
-    } while (jes.isRepeat() && !isStopped());
+    } while (repeat && !isStopped());
     return res;
   }
 

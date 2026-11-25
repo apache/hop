@@ -67,7 +67,7 @@ Click *Open* to open it in Hop Gui. When the dialog has unsaved changes, Hop fir
 [options="header"]
 |===
 |Option|Description
-|Bootstrap servers|Comma separated list of bootstrap servers in a Kafka cluster
+|Bootstrap servers|Comma separated list of bootstrap servers in a Kafka cluster. Leave it empty to use a `bootstrap.servers` option on the *Options* tab; when both are set, this field is used.
 |Topics|Enter the name of each Kafka topic from which you want to consume streaming data (messages).
 |Consumer group|Enter the name of the group of which you want this consumer to be a member.
 Each Kafka consumer transform will start a single thread for consuming. If left empty, it will be defaulted to _Apache Hop_.
@@ -226,6 +226,13 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 |ALL
 
 |===
+
+== Lineage
+
+With a xref:metadata-types/lineage-sink.adoc[lineage sink], the transform reports the topics it
+reads, named after the first bootstrap server (`kafka://<host>:<port>`) and the topic, once Kafka
+has assigned partitions of the topic to it. A topic that doesn't exist or that the transform may not
+read gets none and is not reported: see xref:technology/openlineage/index.adoc#_kafka_topics[Kafka topics].
 
 == See also
 

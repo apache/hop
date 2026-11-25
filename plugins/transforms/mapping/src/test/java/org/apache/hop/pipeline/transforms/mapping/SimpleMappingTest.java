@@ -358,6 +358,55 @@ class SimpleMappingTest {
     verify(transformMockHelper.pipeline, never()).waitUntilFinished();
   }
 
+  /**
+   * On Beam the batch only completes at the end of a bundle. Each row must run through the mapping
+   * right away, or every row of the bundle would wait in the mapping's input until then.
+   */
+  @Test
+  void onBeamEachRowRunsThroughTheMappingRightAway() throws HopException {
+    when(transformMockHelper.iTransformMeta.isNoInput()).thenReturn(false);
+    when(transformMockHelper.iTransformMeta.isNoOutput()).thenReturn(true);
+    simpleMpData.mappingOutput = null;
+    simpleMpData.setBeamContext(true);
+    SingleThreadedPipelineExecutor executor = mock(SingleThreadedPipelineExecutor.class);
+    simpleMpData.executor = executor;
+
+    smp = newSimpleMapping();
+    smp.addRowSetToInputRowSets(
+        transformMockHelper.getMockInputRowSet(new Object[] {}, new Object[] {}));
+
+    assertTrue(smp.processRow());
+    verify(executor, times(1)).oneIteration();
+    assertTrue(smp.processRow());
+    verify(executor, times(2)).oneIteration();
+    verify(executor, never()).batchComplete();
+  }
+
+  /** The end of a Beam bundle completes the batch of the mapping too. */
+  @Test
+  void onBeamTheBatchOfTheMappingCompletesWithTheBundle() throws HopException {
+    simpleMpData.setBeamContext(true);
+    SingleThreadedPipelineExecutor executor = mock(SingleThreadedPipelineExecutor.class);
+    simpleMpData.executor = executor;
+
+    newSimpleMapping().batchComplete();
+
+    verify(executor).oneIteration();
+    verify(executor).batchComplete();
+  }
+
+  /** A single-threaded pipeline completes a batch after every iteration, as it always did. */
+  @Test
+  void outsideBeamTheMappingRunsInTheBatchComplete() throws HopException {
+    SingleThreadedPipelineExecutor executor = mock(SingleThreadedPipelineExecutor.class);
+    simpleMpData.executor = executor;
+
+    newSimpleMapping().batchComplete();
+
+    verify(executor).oneIteration();
+    verify(executor, never()).batchComplete();
+  }
+
   @Test
   void initRefusesIncomingHopWhenNoInputThroughTheEngine() {
     SimpleMapping mapping = mappingWithIncomingHop();

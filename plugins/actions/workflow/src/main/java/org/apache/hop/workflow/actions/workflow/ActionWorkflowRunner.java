@@ -18,17 +18,11 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import org.apache.hop.core.Result;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class ActionWorkflowRunner implements Runnable {
-  private static final Class<?> PKG = Workflow.class;
-
   private IWorkflowEngine<WorkflowMeta> workflow;
   private Result result;
   private ILogChannel log;
@@ -55,26 +49,14 @@ public class ActionWorkflowRunner implements Runnable {
       result = workflow.startExecution();
     } finally {
       try {
-        // Preserve the legacy runner finish callback after startExecution() returns.
+        // The workflow engine fires WorkflowFinish at the end of startExecution(); do not
+        // dispatch it again here for child workflows.
         workflow.setResult(result);
-        try {
-          ExtensionPointHandler.callExtensionPoint(
-              log, workflow, HopExtensionPoint.WorkflowFinish.id, workflow);
-        } catch (Exception e) {
-          if (result == null) {
-            result = new Result();
-            workflow.setResult(result);
-          }
-          result.setNrErrors(1);
-          result.setResult(false);
-          log.logError(
-              BaseMessages.getString(PKG, "Workflow.Log.ErrorExecWorkflow", e.getMessage()), e);
-        }
       } finally {
         try {
           workflow.setFinished(true);
         } finally {
-          // Publish completion even after an early return or a failing callback/setter.
+          // Publish completion even after an early return or a failing setter.
           finished = true;
         }
       }

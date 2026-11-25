@@ -251,19 +251,30 @@ of the same table land on **one** node in the lineage graph.
 
 The following transforms emit relational lineage:
 
-* **Reads** — *Table Input* (its `SELECT` is parsed to recover the source tables and column lineage).
+* **Reads** — *Table Input* (its `SELECT` is parsed to recover the source tables and column lineage),
+  *Database Join* (its query is parsed the same way), and *Database Lookup* (its lookup table).
 * **Writes** — *Table Output*, *Insert / Update*, *Update*, *Dimension Lookup/Update*,
   *Combination Lookup/Update*, and the database bulk loaders (CrateDB, MonetDB, MySQL, Oracle,
   PostgreSQL, Vertica).
 * **Deletes** — *Delete* reports the affected table only. A delete produces no columns, so the event
   carries neither a column schema nor column lineage.
-* **Reads and writes** — *Execute SQL* (its statements are parsed for both input and output tables).
+* **Reads and writes** — *Execute SQL* (its statements are parsed for both input and output tables),
+  and *Execute row SQL script*, which reports the distinct scripts it ran as one script when it
+  ends: up to 1000 scripts and 1 MiB of SQL. A script file is read when it runs.
+* **Workflow actions** — the *SQL* action reports the tables of its SQL, or of its SQL file, on the
+  action's run.
 
 === SQL parsing
 
-For transforms that only provide a SQL statement (Table Input, Execute SQL), the sink recovers the
+For transforms and actions that only provide SQL (Table Input, Database Join, Execute SQL, Execute
+row SQL script, the SQL action), the sink recovers the
 tables — and, for an `INSERT … SELECT`, the column-level lineage — by parsing the statement with the
 OpenLineage SQL parser. Parsing is on by default and controlled by `HOP_LINEAGE_OPENLINEAGE_SQL_PARSE`.
+A script is parsed one statement at a time, so a statement the parser can't read only loses its own
+tables. A statement with `?` parameters, such as the query Database Join prepares, is parsed with
+`NULL` in their place: the parser takes no `?` for a value. What counts as a parameter is what Hop
+counts when it runs the statement, so a `?` in text or comments and PostgreSQL's `??`, `?|` and `?&`
+stay as they are.
 Tables named without a schema or catalog are qualified using the connection's default database and
 preferred schema, so a bare `SELECT … FROM orders` shares one identity with a schema-qualified write
 of the same table.
@@ -295,6 +306,16 @@ Column types in the schema facet use the lowercase OpenLineage names — `string
 type descriptions. A type with no honest OpenLineage equivalent (`Serializable`, or a type a plugin
 invented) is left out instead of guessed.
 
+== Kafka topics
+
+*Kafka Consumer* reports a topic it reads once Kafka has assigned partitions of it to the consumer,
+and *Kafka Producer* a topic it writes once Kafka has accepted the first row for it, up to 1000 per
+run. When Kafka refuses a row, the producer's row count is not put on the topics it reported, since
+it also counts the refused rows. A topic is named as the
+OpenLineage naming spec names it: the namespace `kafka://<host>:<port>` of the first bootstrap server,
+and the topic. A consumer runs until it is stopped, so the topic does not wait for the end of the
+run: it is sent on a `RUNNING` event of the run right away, and again with the run's end.
+
 == Job namespace and environments
 
 The job namespace identifies the *orchestrator instance* that produced the events, not the
@@ -313,7 +334,7 @@ collector deployments, not two namespaces.
 
 A pipeline unit test that runs with lineage reports each golden data set as an `OTHER` event with a `hopUnitTest` run facet: the test, the data set, whether it passed, `error` when the rows could not be compared at all, what the comparison found, and the datasets the transform declares it writes. Those datasets are not the event's outputs: the test run didn't write them. The event belongs to the tested transform's run with `HOP_LINEAGE_OPENLINEAGE_TRANSFORM_JOBS=Y`, to the pipeline's run otherwise.
 
-A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy.
+A unit test runs a changed copy of the pipeline. A lineage sink selected in a run configuration only gets the test's results, not the lineage of that copy, nor the start and end of its run. For that sink, the first result of a run ends it, so Marquez doesn't list it as running for good: `COMPLETE` when the test passed, `FAIL` when it failed or could not compare its rows. The results that did not pass come first, so a run with several golden data sets ends as `FAIL` when any of them did not pass. Its other results are `OTHER` events.
 
 == Dataset identity
 
