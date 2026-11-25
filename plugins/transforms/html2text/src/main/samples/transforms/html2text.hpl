@@ -200,7 +200,7 @@ HTML documents before text extraction.</note>
         <item>&lt;!DOCTYPE html>
 &lt;html>
 &lt;head>
-&lt;title> My Webpage &lt;title>
+&lt;title> My Webpage &lt;/title>
   &lt;meta charset="utf8">
   &lt;meta name="description" content=" This is a sample page ">
   &lt;link rel="stylesheet" href="styles.css"
@@ -265,7 +265,7 @@ HTML documents before text extraction.</note>
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>html2text_no-pre-cleaning</name>
+      <name>${PROJECT_HOME}/output/html2text_no-pre-cleaning</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>Y</do_not_open_new_file_init>
       <extention>csv</extention>
@@ -315,7 +315,7 @@ HTML documents before text extraction.</note>
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>html2text_pre-cleaning</name>
+      <name>${PROJECT_HOME}/output/html2text_pre-cleaning</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>Y</do_not_open_new_file_init>
       <extention>csv</extention>
