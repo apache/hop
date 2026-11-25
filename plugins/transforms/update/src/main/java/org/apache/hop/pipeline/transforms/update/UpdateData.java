@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -37,18 +39,67 @@ public class UpdateData extends BaseTransformData implements ITransformData {
   public boolean useSavepoints;
 
   /**
-   * Whether the statements go out in JDBC batches: asked for, no savepoint per row, a commit size
-   * and a database that runs batches on this connection.
+   * Whether the statements go out in JDBC batches the way Update always ran them: asked for, no
+   * savepoint per row, a commit size and a database that runs batches on this connection. False
+   * when {@link #recoveredBatches} is on.
    */
   public boolean batchMode;
 
+  /** How a failed batch is handled on this connection, see {@link BatchSupport}. */
+  public BatchSupport batchSupport;
+
   /**
-   * A row that waits for the current JDBC batch before it is passed on.
+   * True when the connection's batch failure contract has been validated: the statements go out in
+   * {@link #batch}, which works out the rows of a failed batch by that contract. False keeps the
+   * handling Update always had, with {@link #batchMode} and {@link #useSavepoints}.
+   */
+  public boolean recoveredBatches;
+
+  /**
+   * Row by row, with a commit size and auto-commit off: a row whose UPDATE ran waits in {@link
+   * #batchBuffer}, and the rows that came in after it in {@link #pendingRows}, until the commit
+   * that includes it; they are passed on after that commit, or dropped when the transaction is
+   * rolled back. False on a connection shared by a transactional pipeline and with
+   * HOP_DATABASE_BATCH_RECOVERY=LEGACY: every row is passed on right after its update.
+   */
+  public boolean holdUntilCommit;
+
+  /**
+   * With {@link #holdUntilCommit} and an error hop, on a database whose validated batch failure
+   * contract says a failure loses the work of the transaction ({@code LOSES_WHOLE_BATCH}) and that
+   * runs no savepoint per row (DuckDB): after a failed row the transaction is rolled back and the
+   * updates of the rows that wait for the commit run again, so that only the failed row is lost.
+   */
+  public boolean runAgainAfterFailure;
+
+  /**
+   * With {@link #holdUntilCommit}: the row whose UPDATE the current row just ran, to queue once its
+   * savepoint section (if any) is over; null when the row has no update.
+   */
+  public PendingRow updatedRow;
+
+  /** The batch of {@link #recoveredBatches}, created with the UPDATE statement on the first row. */
+  public RecoverableBatch batch;
+
+  /** The UPDATE statement, to prepare it again when the driver closed it after a failed batch. */
+  public String updateSql;
+
+  /** The lookup SELECT, to prepare it again when the driver closed it after a failed lookup. */
+  public String lookupSql;
+
+  /**
+   * How many rows of {@link #batchBuffer} the recovered batch has given a verdict while it runs.
+   */
+  public int settledRows;
+
+  /**
+   * A row that waits for the current JDBC batch, or row by row for the next commit, before it is
+   * passed on.
    *
-   * <p>A row with bind values is in the batch: it goes to the output or the error hop once the
-   * database has said which. The other rows (nothing to update, key not found, an error of their
-   * own) already know where they go, but wait as well, so that rows leave in the order they came
-   * in.
+   * <p>A row with bind values is in the batch, or its update ran in the open transaction: it goes
+   * to the output or the error hop once the database has said which. The other rows (nothing to
+   * update, key not found, an error of their own) already know where they go, but wait as well, so
+   * that rows leave in the order they came in.
    */
   @Getter
   public static final class PendingRow {
@@ -107,12 +158,15 @@ public class UpdateData extends BaseTransformData implements ITransformData {
     }
   }
 
-  /** The rows in the current JDBC batch, in the order they were added to it. */
+  /**
+   * The rows in the current JDBC batch, or row by row the rows whose update waits for the next
+   * commit, in the order they were added.
+   */
   public final List<PendingRow> batchBuffer = new ArrayList<>();
 
   /**
-   * Every row that waits for the current batch, in the order the rows came in: the rows of {@link
-   * #batchBuffer} and the rows that arrived between them. Empty when no batch is pending.
+   * Every row that waits for the current batch or commit, in the order the rows came in: the rows
+   * of {@link #batchBuffer} and the rows that arrived between them. Empty when nothing is pending.
    */
   public final List<PendingRow> pendingRows = new ArrayList<>();
 
@@ -128,8 +182,10 @@ public class UpdateData extends BaseTransformData implements ITransformData {
   public int[] keynrs2; // nr of keylookup2-value in row...
   public int[] valuenrs; // Stream valuename nrs to prevent searches.
 
+  /** The error message of the current row when its key is not found, naming that key. */
   public String stringErrorKeyNotFound;
 
+  /** The names of the lookup fields, for the error row of a key that is not found. */
   public String stringFieldnames;
 
   public IRowMeta outputRowMeta;
