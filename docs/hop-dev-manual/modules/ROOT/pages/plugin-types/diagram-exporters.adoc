@@ -165,9 +165,11 @@ Honour the options you understand:
 Put plugin-specific keys in `extraOptions` rather than subclassing the options bean unless you have to.
 The built-in SVG exporters support the layout options; Mermaid delegates layout to its renderer.
 Generated positions are deterministic for the same ordered input and options, not necessarily for a reordered graph.
-The exporters prepare detached drawing models without changing the original metadata.
+The exporters prepare detached drawing models when changes are needed, otherwise rendering the source directly without changing the original metadata.
 Layout uses measured node footprints including labels and decorations, with fixed export defaults independent of GUI layout preferences.
-Notes remain at their saved positions and can overlap generated nodes or hops; node layout does not route hops around obstacles.
+Included notes use measured painted sizes and borders: `GRID` packs them after executable nodes, while `LAYERED` repacks them in an annotation band above the execution graph.
+Missing note positions alone do not trigger `ON_MISSING`, and excluded notes do not affect layout.
+Node layout does not route hops around obstacles.
 Font availability can affect measured footprints, so identical output across machines or font installations is not guaranteed.
 Both layout enums implement `IEnumHasCodeAndDescription`: their codes are stable enum names and their GUI descriptions come from localized resource bundles.
 Keep these codes independent of translated labels.

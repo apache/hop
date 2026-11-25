@@ -35,11 +35,13 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,6 +51,65 @@ class DiagramExportPreparationTest {
   @BeforeAll
   static void init() throws Exception {
     HopClientEnvironment.init();
+  }
+
+  @Test
+  void unchangedModelsBypassCopyingForDefaultAndOnMissingPolicies() throws Exception {
+    final var pipeline = pipeline();
+    pipeline.getTransform(1).setLocation(100, 100);
+    final var workflow = new WorkflowMeta();
+    final var action = new ActionMeta(new ActionDummy());
+    action.setName("action");
+    action.setLocation(0, 0);
+    workflow.addAction(action);
+    workflow.addNote(new NotePadMeta("note", -1000, -2000, 80, 40));
+    final var options = new DiagramExportOptions();
+    for (final var policy :
+        new DiagramLayoutPolicy[] {
+          null, DiagramLayoutPolicy.NONE, DiagramLayoutPolicy.ON_MISSING
+        }) {
+      options.setLayoutPolicy(policy);
+      assertSame(pipeline, DiagramExportPreparation.prepare(pipeline, options));
+      assertSame(workflow, DiagramExportPreparation.prepare(workflow, options));
+    }
+    assertSame(pipeline, DiagramExportPreparation.prepare(pipeline, null));
+    assertSame(workflow, DiagramExportPreparation.prepare(workflow, null));
+  }
+
+  @Test
+  void defaultSvgMatchesDirectPaintingWithoutUpdatingSourceNoteCaches() throws Exception {
+    final var pipeline = pipeline();
+    final var workflow = new WorkflowMeta();
+    final var action = new ActionMeta(new ActionDummy());
+    action.setName("action");
+    action.setLocation(100, 100);
+    workflow.addAction(action);
+    workflow.addNote(pipeline.getNotes().getFirst().clone());
+    pipeline.clearChanged();
+    workflow.clearChanged();
+    final var pipelineXml = pipeline.getXml(new Variables());
+    final var workflowXml = workflow.getXml(new Variables());
+    final int minimumWidth = pipeline.getNotes().getFirst().getMinimumWidth();
+    final int minimumHeight = pipeline.getNotes().getFirst().getMinimumHeight();
+    assertEquals(
+        PipelineSvgPainter.generatePipelineSvg(pipeline, 1f, null),
+        new PipelineSvgDiagramExporter()
+            .export(pipeline, new DiagramExportOptions(), null)
+            .getContent());
+    assertEquals(
+        WorkflowSvgPainter.generateWorkflowSvg(workflow, 1f, null),
+        new WorkflowSvgDiagramExporter()
+            .export(workflow, new DiagramExportOptions(), null)
+            .getContent());
+    for (final var note :
+        new NotePadMeta[] {pipeline.getNotes().getFirst(), workflow.getNotes().getFirst()}) {
+      assertEquals(minimumWidth, note.getMinimumWidth());
+      assertEquals(minimumHeight, note.getMinimumHeight());
+    }
+    assertEquals(pipelineXml, pipeline.getXml(new Variables()));
+    assertEquals(workflowXml, workflow.getXml(new Variables()));
+    assertFalse(pipeline.hasChanged());
+    assertFalse(workflow.hasChanged());
   }
 
   @Test

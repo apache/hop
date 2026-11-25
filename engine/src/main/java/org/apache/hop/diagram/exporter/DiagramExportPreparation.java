@@ -17,12 +17,14 @@
 
 package org.apache.hop.diagram.exporter;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.diagram.DiagramExportOptions;
 import org.apache.hop.core.diagram.DiagramLayoutAlgorithm;
 import org.apache.hop.core.diagram.DiagramLayoutPolicy;
@@ -36,21 +38,36 @@ import org.apache.hop.core.layout.LayoutPosition;
 import org.apache.hop.core.layout.NodeBounds;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.apache.hop.workflow.action.ActionMeta;
 
-/** Detached drawing models shared by SVG and PNG export. Never changes the source diagram. */
+/** Prepares drawing models for SVG export without changing the source diagram. */
 public final class DiagramExportPreparation {
   private DiagramExportPreparation() {}
 
-  /** Copies drawing state, remaps hops, and optionally lays out the entire pipeline. */
+  /** Returns the source when no changes are needed, otherwise prepares a detached drawing model. */
   public static PipelineMeta prepare(final PipelineMeta source, final DiagramExportOptions options)
       throws HopException {
+    return prepare(source, options, null);
+  }
+
+  /** Prepares a pipeline using the same variables as the SVG painter for note measurement. */
+  public static PipelineMeta prepare(
+      final PipelineMeta source, final DiagramExportOptions options, final IVariables variables)
+      throws HopException {
+    final boolean arrange =
+        shouldLayout(source.getTransforms(), TransformMeta::isLocationExplicit, options);
+    if (!arrange && (options == null || options.isIncludeNotes())) {
+      return source;
+    }
     final var copy = new PipelineMeta();
     copy.setName(source.getName());
+    copy.setFilename(source.getFilename());
     final Map<TransformMeta, TransformMeta> nodes = new IdentityHashMap<>();
     for (final var original : source.getTransforms()) {
       final var node = (TransformMeta) original.clone();
@@ -74,12 +91,15 @@ public final class DiagramExportPreparation {
       hop.setToTransform(nodes.get(original.getToTransform()));
       copy.addPipelineHop(hop);
     }
+    for (final var node : copy.getTransforms()) {
+      node.getTransform().searchInfoAndTargetTransforms(copy.getTransforms());
+    }
     if (options == null || options.isIncludeNotes()) {
       for (final var note : source.getNotes()) {
         copy.getNotes().add(note.clone());
       }
     }
-    if (shouldLayout(copy.getTransforms(), TransformMeta::isLocationExplicit, options)) {
+    if (arrange) {
       final var graphics = HopSvgGraphics2D.newDocument();
       try {
         final var gc = new SvgGc(graphics, new Point(1, 1), SvgExportCanvas.ICON_SIZE, 0, 0);
@@ -94,6 +114,8 @@ public final class DiagramExportPreparation {
               return relativeBounds(bounds, node.getLocation());
             },
             (node, position) -> node.setLocation(position.getX(), position.getY()),
+            copy.getNotes(),
+            PipelineSvgPainter.getNoteDrawnSizes(copy, gc, variables),
             options);
       } finally {
         graphics.dispose();
@@ -102,11 +124,24 @@ public final class DiagramExportPreparation {
     return copy;
   }
 
-  /** Copies drawing state, remaps hops, and optionally lays out the entire workflow. */
+  /** Returns the source when no changes are needed, otherwise prepares a detached drawing model. */
   public static WorkflowMeta prepare(final WorkflowMeta source, final DiagramExportOptions options)
       throws HopException {
+    return prepare(source, options, null);
+  }
+
+  /** Prepares a workflow using the same variables as the SVG painter for note measurement. */
+  public static WorkflowMeta prepare(
+      final WorkflowMeta source, final DiagramExportOptions options, final IVariables variables)
+      throws HopException {
+    final boolean arrange =
+        shouldLayout(source.getActions(), ActionMeta::isLocationExplicit, options);
+    if (!arrange && (options == null || options.isIncludeNotes())) {
+      return source;
+    }
     final var copy = new WorkflowMeta();
     copy.setName(source.getName());
+    copy.setFilename(source.getFilename());
     final Map<ActionMeta, ActionMeta> nodes = new IdentityHashMap<>();
     for (final var original : source.getActions()) {
       final var node = (ActionMeta) original.cloneDeep();
@@ -127,7 +162,7 @@ public final class DiagramExportPreparation {
         copy.getNotes().add(note.clone());
       }
     }
-    if (shouldLayout(copy.getActions(), ActionMeta::isLocationExplicit, options)) {
+    if (arrange) {
       final var graphics = HopSvgGraphics2D.newDocument();
       try {
         final var gc = new SvgGc(graphics, new Point(1, 1), SvgExportCanvas.ICON_SIZE, 0, 0);
@@ -148,6 +183,8 @@ public final class DiagramExportPreparation {
               return relativeBounds(bounds, node.getLocation());
             },
             (node, position) -> node.setLocation(position.getX(), position.getY()),
+            copy.getNotes(),
+            WorkflowSvgPainter.getNoteDrawnSizes(copy, gc, variables),
             options);
       } finally {
         graphics.dispose();
@@ -183,7 +220,73 @@ public final class DiagramExportPreparation {
       final Function<E, N> target,
       final Function<N, NodeBounds> bounds,
       final BiConsumer<N, LayoutPosition> apply,
+      final List<NotePadMeta> notes,
+      final List<Point> noteSizes,
       final DiagramExportOptions options) {
+    // Notes are drawing items, not executable graph vertices. GRID packs all items together;
+    // LAYERED keeps the execution graph separate and packs annotations in a band above it.
+    final var algorithm =
+        options.getLayoutAlgorithm() == null
+            ? DiagramLayoutAlgorithm.LAYERED
+            : options.getLayoutAlgorithm();
+    final var footprints = new IdentityHashMap<Object, NodeBounds>();
+    final var items = new ArrayList<Object>(nodes);
+    nodes.forEach(node -> footprints.put(node, bounds.apply(node)));
+    for (int i = 0; i < notes.size(); i++) {
+      final var size = noteSizes.get(i);
+      footprints.put(
+          notes.get(i), new NodeBounds(-1, -1, Math.addExact(size.x, 2), Math.addExact(size.y, 2)));
+    }
+    if (algorithm == DiagramLayoutAlgorithm.GRID) {
+      items.addAll(notes);
+    }
+    final var positions = positions(items, edges, source, target, footprints::get, algorithm);
+    int graphOffsetY = 0;
+    if (algorithm == DiagramLayoutAlgorithm.LAYERED && !notes.isEmpty()) {
+      final var notePositions =
+          positions(
+              notes,
+              List.<NotePadMeta>of(),
+              note -> note,
+              note -> note,
+              footprints::get,
+              DiagramLayoutAlgorithm.GRID);
+      long bottom = DiagramGraphLayout.DEFAULT_MARGIN;
+      for (final var note : notes) {
+        final var position = notePositions.get(note);
+        final var footprint = footprints.get(note);
+        bottom =
+            Math.max(bottom, (long) position.getY() + footprint.getY() + footprint.getHeight());
+        note.setLocation(new Point(position.getX(), position.getY()));
+      }
+      if (!nodes.isEmpty()) {
+        long top = Long.MAX_VALUE;
+        for (final var node : nodes) {
+          top = Math.min(top, (long) positions.get(node).getY() + footprints.get(node).getY());
+        }
+        graphOffsetY = Math.toIntExact(bottom + DiagramGraphLayout.DEFAULT_GAP - top);
+      }
+    }
+    for (final var node : nodes) {
+      final var position = positions.get(node);
+      apply.accept(
+          node, new LayoutPosition(position.getX(), Math.addExact(position.getY(), graphOffsetY)));
+    }
+    if (algorithm == DiagramLayoutAlgorithm.GRID) {
+      for (final var note : notes) {
+        final var position = positions.get(note);
+        note.setLocation(new Point(position.getX(), position.getY()));
+      }
+    }
+  }
+
+  private static <N, E> Map<N, LayoutPosition> positions(
+      final List<N> nodes,
+      final List<E> edges,
+      final Function<E, ? extends N> source,
+      final Function<E, ? extends N> target,
+      final Function<N, NodeBounds> bounds,
+      final DiagramLayoutAlgorithm algorithm) {
     final LayoutGraph<N, E> graph =
         new LayoutGraph<>() {
           @Override
@@ -206,13 +309,6 @@ public final class DiagramExportPreparation {
             return target.apply(edge);
           }
         };
-    final var positions =
-        DiagramGraphLayout.layout(
-            graph,
-            bounds,
-            options.getLayoutAlgorithm() == null
-                ? DiagramLayoutAlgorithm.LAYERED
-                : options.getLayoutAlgorithm());
-    positions.forEach(apply);
+    return DiagramGraphLayout.layout(graph, bounds, algorithm);
   }
 }

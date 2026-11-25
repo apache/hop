@@ -19,6 +19,7 @@ package org.apache.hop.workflow;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.DPoint;
@@ -41,24 +42,7 @@ public class WorkflowSvgPainter {
       HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
       Point area = new Point(1, 1);
       SvgGc gc = new SvgGc(graphics2D, area, SvgExportCanvas.ICON_SIZE, 0, 0);
-      WorkflowPainter workflowPainter =
-          new WorkflowPainter(
-              gc,
-              variables,
-              workflowMeta,
-              area,
-              new DPoint(0, 0),
-              null,
-              null,
-              new ArrayList<>(),
-              SvgExportCanvas.ICON_SIZE,
-              1,
-              0,
-              "Arial",
-              10,
-              1.0d,
-              false,
-              null);
+      WorkflowPainter workflowPainter = createPainter(workflowMeta, gc, area, variables);
       workflowPainter.setMagnification(mag);
 
       SvgExportCanvas.Bounds bounds = new SvgExportCanvas.Bounds();
@@ -87,5 +71,42 @@ public class WorkflowSvgPainter {
     } catch (Exception e) {
       throw new HopException("Unable to generate SVG for workflow " + workflowMeta.getName(), e);
     }
+  }
+
+  /** Measures notes with the same fonts, wrapping, and image context used by SVG rendering. */
+  public static List<Point> getNoteDrawnSizes(
+      final WorkflowMeta workflowMeta, final SvgGc gc, final IVariables variables) {
+    final var painter = createPainter(workflowMeta, gc, new Point(1, 1), variables);
+    return workflowMeta.getNotes().stream().map(painter::getNoteDrawnSize).toList();
+  }
+
+  private static WorkflowPainter createPainter(
+      final WorkflowMeta workflowMeta,
+      final SvgGc gc,
+      final Point area,
+      final IVariables variables) {
+    return new WorkflowPainter(
+        gc,
+        variables,
+        workflowMeta,
+        area,
+        new DPoint(0, 0),
+        null,
+        null,
+        new ArrayList<>(),
+        SvgExportCanvas.ICON_SIZE,
+        1,
+        0,
+        "Arial",
+        10,
+        1.0d,
+        false,
+        null) {
+      @Override
+      protected void drawNote(final NotePadMeta note) {
+        // GUI painting caches resize measurements on notes; export must be read-only.
+        super.drawNote(note.clone());
+      }
+    };
   }
 }

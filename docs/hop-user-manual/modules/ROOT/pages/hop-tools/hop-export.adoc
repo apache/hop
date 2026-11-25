@@ -113,9 +113,12 @@ Use the uppercase enum codes shown below on the command line.
 `LAYERED`, the default algorithm, arranges nodes in layers following the graph connections.
 `GRID` arranges nodes in a grid.
 Both algorithms are deterministic for the same ordered input and options; changing the input order can change the generated positions.
-Export uses a detached drawing model and does not change the original pipeline or workflow.
-SVG layout accounts for measured node labels and decorations.
-Notes remain at their saved positions and may overlap generated nodes; hops are not routed around obstacles.
+Export uses a detached drawing model when changes are needed and does not change the original pipeline or workflow.
+SVG layout accounts for measured node labels, decorations, and note sizes including their text and borders.
+`GRID` packs included notes after the executable nodes in the same grid.
+`LAYERED` repacks included notes in a separate annotation band above the execution graph.
+Saved note positions do not affect generated layouts, and missing note positions alone do not trigger `ON_MISSING`.
+Hops are not routed around obstacles.
 Font availability can affect measured footprints, so output is not guaranteed to be identical across machines.
 The algorithm is ignored with policy `NONE`, and the GUI disables its selector until another policy is selected.
 Mermaid uses its own renderer for layout and does not use these options.
