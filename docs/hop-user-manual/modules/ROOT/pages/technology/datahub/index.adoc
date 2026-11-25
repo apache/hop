@@ -166,7 +166,7 @@ its URL, which stops lineage delivery for every sink.
 |`HOP_LINEAGE_DATAHUB_ACTOR` |`urn:li:corpuser:datahub` |The DataHub user named as the creator of runs and deprecations.
 |`HOP_LINEAGE_DATAHUB_SPOOL_DIR` |_(empty)_ |Folder that keeps events until DataHub accepted them; see <<Durability>>.
 |`HOP_LINEAGE_DATAHUB_SPOOL_MAX_BYTES` |`67108864` |Size limit of the spool (64 MiB).
-|`HOP_LINEAGE_DATAHUB_SQL_PARSE` |`Y` |Parse the SQL of Table Input and Execute SQL to find the tables and columns it reads and writes.
+|`HOP_LINEAGE_DATAHUB_SQL_PARSE` |`Y` |Parse the SQL of Table Input, Database Join, Execute SQL, Execute row SQL script and the SQL action to find the tables and columns it reads and writes.
 |`HOP_LINEAGE_DATAHUB_MAX_RETRIES`, `…_RETRY_BACKOFF_MS`, `…_CONNECT_TIMEOUT_MS`, `…_READ_TIMEOUT_MS`, `…_BUFFER_SIZE`, `…_OVERFLOW_POLICY`, `…_ENQUEUE_TIMEOUT_MS`, `…_SHUTDOWN_DRAIN_MS`, `…_METRICS_INTERVAL_MS` |as OpenLineage |Delivery settings, with the meaning and defaults of their xref:technology/openlineage/index.adoc[OpenLineage] counterparts.
 |`HOP_LINEAGE_DATAHUB_TRUSTSTORE_PATH`, `…_TRUSTSTORE_PASSWORD`, `…_KEYSTORE_TYPE` |_(empty)_, `PKCS12` |Trust store for a GMS with a certificate the JVM does not trust.
 |===

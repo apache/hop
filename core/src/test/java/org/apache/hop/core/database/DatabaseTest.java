@@ -257,6 +257,32 @@ class DatabaseTest {
     assertNull(spec.getParameterReferences().get(0));
   }
 
+  /** The SQL as the database receives it: parameters replaced, ?? escapes unescaped. */
+  @Test
+  void replaceSqlParametersSkipsWhatParseSqlParameterSpecSkips() {
+    assertEquals(
+        "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ? NULL AND options ?| array['a'] "
+            + "AND flags ?& array['b'] AND note <> $$?$$ AND id = NULL -- ?",
+        Database.replaceSqlParameters(
+            "SELECT '?', [a?] FROM t /*/ ? */ WHERE col ?? ? AND options ?| array['a'] "
+                + "AND flags ??& array['b'] AND note <> $$?$$ AND id = ?{id} -- ?",
+            new Database.SqlSyntax(true, false, true),
+            "NULL"));
+  }
+
+  /**
+   * MySQL's backslash escapes keep a quote in a literal: the ? after it is still in the literal.
+   */
+  @Test
+  void replaceSqlParametersFollowsTheRulesOfTheDialect() {
+    assertEquals(
+        "SELECT 'O\\'Brien?' FROM t WHERE id = NULL",
+        Database.replaceSqlParameters(
+            "SELECT 'O\\'Brien?' FROM t WHERE id = ?",
+            new Database.SqlSyntax(false, true, false),
+            "NULL"));
+  }
+
   @Test
   void parseSqlParameterSpecReportsMarkerPositionsOutsideLiteralsAndComments() {
     String sql =

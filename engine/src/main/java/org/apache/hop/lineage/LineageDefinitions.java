@@ -207,7 +207,8 @@ public final class LineageDefinitions {
       DatabaseMeta databaseMeta =
           meta.findDatabase(variables.resolve(table.connectionName()), variables);
       if (databaseMeta != null) {
-        if (inputRowMeta == null) {
+        // A table that is read doesn't take its columns from the fields that reach the transform
+        if (inputRowMeta == null && table.operation() != RelationalIoOperation.READ) {
           inputRowMeta = inputFields(meta, transformMeta, variables);
         }
         payloads.add(declaredTable(databaseMeta, variables, table, inputRowMeta));
@@ -319,6 +320,20 @@ public final class LineageDefinitions {
             variables.resolve(databaseMeta.getDatabaseName()),
             variables.resolve(declared.schemaName()),
             variables.resolve(declared.tableName()));
+    if (declared.operation() == RelationalIoOperation.READ) {
+      return LineageRelationalIoEmitter.payload(
+          databaseMeta,
+          variables,
+          RelationalIoOperation.READ,
+          null,
+          List.of(table),
+          List.of(),
+          null,
+          null,
+          null,
+          true,
+          null);
+    }
     if (declared.operation() == RelationalIoOperation.DELETE) {
       return LineageRelationalIoEmitter.payload(
           databaseMeta,

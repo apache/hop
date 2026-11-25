@@ -48,6 +48,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.api.IDeclaresLineage;
+import org.apache.hop.lineage.model.RelationalIoOperation;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -72,7 +74,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
       ActionTransformType.JOIN
     })
 @GuiPlugin
-public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
+public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData>
+    implements IDeclaresLineage {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class;
 
@@ -245,6 +248,39 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
   private String resolveSql(IVariables variables) throws HopException {
     return variables.resolve(Const.NVL(getEffectiveSql(variables), ""));
+  }
+
+  /** The query, as a run prepares it: the tables it reads are found from it. */
+  @Override
+  public List<IDeclaresLineage.Declaration> declaredLineage(
+      IVariables variables, IRowMeta inputRowMeta) {
+    try {
+      String query = getEffectiveSql(variables);
+      if (Utils.isEmpty(query)) {
+        return List.of();
+      }
+      if (replaceVariables) {
+        query = variables.resolve(query);
+      }
+      // The rules init() prepares the statement with
+      Database.SqlSyntax syntax = sqlSyntax(findDatabaseMeta(variables));
+      return List.of(
+          new IDeclaresLineage.DeclaredSql(
+              RelationalIoOperation.READ,
+              variables.resolve(connection),
+              parseSqlParameterSpec(query, syntax).getPreparedSql()));
+    } catch (HopException e) {
+      return List.of();
+    }
+  }
+
+  /** The connection, when this transform is in a pipeline that has it. */
+  private DatabaseMeta findDatabaseMeta(IVariables variables) {
+    TransformMeta transformMeta = getParentTransformMeta();
+    if (transformMeta == null || transformMeta.getParentPipelineMeta() == null) {
+      return null;
+    }
+    return transformMeta.getParentPipelineMeta().findDatabase(connection, variables);
   }
 
   @Override

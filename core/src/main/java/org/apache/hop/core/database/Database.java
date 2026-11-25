@@ -3971,6 +3971,27 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * @param syntax the rules of the dialect, see {@link SqlSyntax#of(DatabaseMeta)}
    */
   public static SqlParameterSpec parseSqlParameterSpec(String sourceSql, SqlSyntax syntax) {
+    return scanSqlParameters(sourceSql, syntax, "?", false);
+  }
+
+  /**
+   * {@code sourceSql} as the database receives it, with each JDBC parameter marker ({@code ?} or
+   * {@code ?{name}}) replaced by {@code replacement}: for example to parse a prepared statement
+   * with a parser that takes no {@code ?}. What is not a marker is skipped as in {@link
+   * #parseSqlParameterSpec(String, SqlSyntax)}, and the JDBC escape {@code ??} of an operator is
+   * written as the single {@code ?} the database gets.
+   *
+   * @param sourceSql the SQL text
+   * @param syntax the rules of the dialect, see {@link SqlSyntax#of(DatabaseMeta)}
+   * @param replacement the text that takes the place of each parameter, for example {@code NULL}
+   */
+  public static String replaceSqlParameters(
+      String sourceSql, SqlSyntax syntax, String replacement) {
+    return scanSqlParameters(sourceSql, syntax, replacement, true).getPreparedSql();
+  }
+
+  private static SqlParameterSpec scanSqlParameters(
+      String sourceSql, SqlSyntax syntax, String parameterText, boolean unescapeOperators) {
     boolean consumeBracketIdentifiers = syntax.bracketIdentifiers();
     boolean backslashEscapes = syntax.backslashEscapes();
     String sql = Const.NVL(sourceSql, "");
@@ -4066,7 +4087,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
             String fieldName = sql.substring(index + 2, end).trim();
             if (!fieldName.isEmpty()) {
               parameterReferences.add(fieldName);
-              preparedSql.append('?');
+              preparedSql.append(parameterText);
               index = end + 1;
               continue;
             }
@@ -4076,14 +4097,16 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         int jsonbOperatorLength =
             syntax.questionMarkOperators() ? getPostgresJsonbOperatorLength(sql, index) : 0;
         if (jsonbOperatorLength > 0) {
-          preparedSql.append(sql, index, index + jsonbOperatorLength);
+          boolean escaped = sql.charAt(index + 1) == '?';
+          preparedSql.append(
+              sql, unescapeOperators && escaped ? index + 1 : index, index + jsonbOperatorLength);
           index += jsonbOperatorLength;
           continue;
         }
 
         parameterReferences.add(null);
         markerPositions.add(index);
-        preparedSql.append(c);
+        preparedSql.append(parameterText);
         index++;
         continue;
       }
