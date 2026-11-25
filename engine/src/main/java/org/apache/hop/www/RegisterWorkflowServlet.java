@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -62,7 +63,8 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
               + workflow.getWorkflowName()
               + "' was added to the list with id "
               + workflow.getContainerId();
-      return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId());
+      return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId())
+          .withLineage(LineageRemoteRuns.answerOf(workflow));
     } catch (HopServerAtCapacityException e) {
       return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
     }

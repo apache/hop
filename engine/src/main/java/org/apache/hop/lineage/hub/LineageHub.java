@@ -151,6 +151,9 @@ public final class LineageHub {
   /** Creates the sink of a target: from the plugin registry, or a stand-in in tests. */
   private final SinkFactory sinkFactory;
 
+  /** Whether {@link #sinkFactory} loads sinks from the plugin registry, not a test's stand-in. */
+  private final boolean sinksFromPlugins;
+
   /** Creates the sink of a {@link LineageSinkTarget}, not yet initialized. */
   @FunctionalInterface
   public interface SinkFactory {
@@ -164,6 +167,7 @@ public final class LineageHub {
     this.fixedConfiguration = fixedConfiguration;
     this.explicitSinks = explicitSinks;
     this.sinkFactory = sinkFactory != null ? sinkFactory : LineageHub::loadSink;
+    this.sinksFromPlugins = sinkFactory == null;
   }
 
   public static LineageHub getInstance() {
@@ -415,7 +419,8 @@ public final class LineageHub {
   public void emit(LineageEvent event) {
     LineageConfiguration cfg = resolveConfig();
     boolean routed = !event.getContext().getSinks().isEmpty();
-    if (!routed && (!cfg.isEnabled() || sinkInitFailed.get())) {
+    if (!routed
+        && (!event.getContext().isForVariableSinks() || !cfg.isEnabled() || sinkInitFailed.get())) {
       return;
     }
     shutdownLock.readLock().lock();
@@ -651,24 +656,10 @@ public final class LineageHub {
 
   private void dispatchUntilStopped() {
     LineageConfiguration cfg = resolveConfig();
-    try {
-      initSinksIfNeeded();
-    } catch (Exception | LinkageError e) {
-      // A sink whose classes do not load (NoClassDefFoundError) ends up here too. It used to
-      // kill this thread silently, leaving the hub "running" but dispatching nothing.
-      sinkInitFailed.set(true);
-      // None of them: some may have been initialized, the one that failed may be half-way.
-      sinks = List.of();
-      sinkInitError = String.valueOf(e);
-      log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
-      // Not tried again when a routed event starts a new worker: it would fail the same way.
-      // shutdown() and environmentReady() start over.
-      sinksInitialized.set(true);
-      if (targets.isEmpty()) {
-        return;
-      }
-      // The sinks runs selected in their run configurations are started on their own.
+    if (!startVariableSinks() && targets.isEmpty()) {
+      return;
     }
+    // The sinks runs selected in their run configurations are started on their own.
 
     while (running.get() && !Thread.currentThread().isInterrupted()) {
       try {
@@ -769,8 +760,14 @@ public final class LineageHub {
       return;
     }
     List<ILineageSink> active = sinksInitialized.get() ? sinks : List.of();
-    for (ILineageSink sink : active) {
-      deliver(sink, batch);
+    if (!active.isEmpty()) {
+      List<LineageEvent> forVariableSinks =
+          batch.stream().filter(event -> event.getContext().isForVariableSinks()).toList();
+      if (!forVariableSinks.isEmpty()) {
+        for (ILineageSink sink : active) {
+          deliver(sink, forVariableSinks);
+        }
+      }
     }
     if (targets.isEmpty()) {
       return;
@@ -843,6 +840,19 @@ public final class LineageHub {
     return failure != null && System.currentTimeMillis() - failure.timeMillis() < retryFailedSinkMs;
   }
 
+  /**
+   * Whether the hub can start a sink of this type: its plugin is installed. A Hop Server checks
+   * this before it takes on the sinks of a client's run.
+   */
+  public boolean hasSinkType(String pluginId) {
+    if (pluginId == null) {
+      return false;
+    }
+    return !sinksFromPlugins
+        || PluginRegistry.getInstance().findPluginWithId(LineageSinkPluginType.class, pluginId)
+            != null;
+  }
+
   /** The sink plugin of a target, from the plugin registry. */
   private static ILineageSink loadSink(LineageSinkTarget target) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -854,6 +864,52 @@ public final class LineageHub {
               + "' is not available: is its plugin installed?");
     }
     return registry.loadClass(plugin, ILineageSink.class);
+  }
+
+  /**
+   * Starts the sinks configured with variables, once.
+   *
+   * @return false when they failed to start; lineage delivery to them is then disabled
+   */
+  private boolean startVariableSinks() {
+    synchronized (this) {
+      try {
+        initSinksIfNeeded();
+      } catch (Exception | LinkageError e) {
+        // A sink whose classes do not load (NoClassDefFoundError) ends up here too. It used to
+        // kill the dispatcher silently, leaving the hub "running" but dispatching nothing.
+        sinkInitFailed.set(true);
+        // None of them: some may have been initialized, the one that failed may be half-way.
+        sinks = List.of();
+        sinkInitError = String.valueOf(e);
+        log.logError("Unable to initialize lineage sinks; lineage delivery is disabled", e);
+        // Not tried again when a routed event starts a new worker: it would fail the same way.
+        // shutdown() and environmentReady() start over.
+        sinksInitialized.set(true);
+      }
+      return !sinkInitFailed.get();
+    }
+  }
+
+  /**
+   * The plugin ids of the sinks configured with variables that deliver events, sorted, starting
+   * them when they haven't started yet. Empty when lineage isn't enabled with variables, when none
+   * are installed, or when they failed to start. A Hop Server compares these with a client's before
+   * it reports a client's run to them.
+   */
+  public List<String> variableSinkIds() {
+    if (!resolveConfig().isEnabled() || !startVariableSinks()) {
+      return List.of();
+    }
+    List<String> ids = new ArrayList<>();
+    for (ILineageSink sink : sinks) {
+      String id = sinkIds.get(sink);
+      if (id != null) {
+        ids.add(id);
+      }
+    }
+    Collections.sort(ids);
+    return List.copyOf(ids);
   }
 
   private void initSinksIfNeeded() throws HopException {

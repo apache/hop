@@ -1,0 +1,16 @@
+{
+  "sink": {
+    "openlineage": {
+      "url": "http://lineage-stub:18092/api/v1/lineage",
+      "apiKey": "",
+      "namespace": "it-hop-server",
+      "producer": "",
+      "transformJobs": false,
+      "parentRuns": true,
+      "fileSpecNaming": true,
+      "sqlParse": true
+    }
+  },
+  "name": "openlineage-stub",
+  "description": "An OpenLineage collector at the stand-in main-0022 starts in the test container, which the client and the Hop Server both reach as lineage-stub"
+}

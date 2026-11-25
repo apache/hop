@@ -152,6 +152,51 @@ class LineageHubRoutingTest {
   }
 
   @Test
+  void anEventLeftToAHopServerSkipsTheSinksSetWithVariables() {
+    List<String> global = new CopyOnWriteArrayList<>();
+    ILineageSink variablesSink =
+        batch -> batch.forEach(e -> global.add(e.getContext().getPipelineName()));
+    LineageHub hub = hub(LINEAGE_ON, List.of(variablesSink));
+
+    String marquez = hub.useSink(target("marquez", "http://marquez:5000"));
+    hub.emit(notForVariableSinks("routed", marquez));
+    hub.emit(notForVariableSinks("nowhere"));
+    hub.emit(event("everywhere", marquez));
+    hub.flush();
+    hub.shutdown();
+
+    assertEquals(List.of("everywhere"), global);
+    assertEquals(List.of("routed", "everywhere"), pipelines(started.get("http://marquez:5000")));
+  }
+
+  private static LineageEvent notForVariableSinks(String pipeline, String... sinkKeys) {
+    return LineageEvent.of(
+        LineageEventKind.RUN_LIFECYCLE,
+        LineageContext.builder()
+            .subjectType(LineageSubjectType.PIPELINE)
+            .pipelineName(pipeline)
+            .sinks(Set.of(sinkKeys))
+            .forVariableSinks(false)
+            .build(),
+        null);
+  }
+
+  @Test
+  void hopServerChecksTheSinkTypesOfAClientsRun() {
+    assertTrue(hub(LINEAGE_OFF, List.of()).hasSinkType("anything"), "a test's factory starts any");
+    assertFalse(hub(LINEAGE_OFF, List.of()).hasSinkType(null));
+    LineageHub plugins = LineageHub.newIsolatedForTesting(LINEAGE_OFF, List.of());
+    assertFalse(plugins.hasSinkType("not-installed"));
+  }
+
+  @Test
+  void aKeyNamesItsSink() {
+    assertEquals("marquez", LineageSinkTarget.nameOf(target("marquez", "http://m:5000").key()));
+    assertEquals("a@b", LineageSinkTarget.nameOf(target("a@b", "http://m:5000").key()));
+    assertNull(LineageSinkTarget.nameOf(null));
+  }
+
+  @Test
   void eachSinkGetsOnlyTheEventsOfItsRuns() {
     LineageHub hub = hub(LINEAGE_OFF, List.of());
 

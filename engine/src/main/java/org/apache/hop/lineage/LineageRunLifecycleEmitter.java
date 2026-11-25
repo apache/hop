@@ -19,11 +19,15 @@ package org.apache.hop.lineage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRemoteRuns.RemoteRun;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineagePortableFilename;
 import org.apache.hop.lineage.context.LineageSubjectType;
@@ -88,6 +92,17 @@ public final class LineageRunLifecycleEmitter {
    */
   public static final String ATTR_PARENT_FILENAME = "parentFilename";
 
+  /** The attributes that name the run that started a run; a client passes them to a server. */
+  static final Set<String> PARENT_ATTRIBUTES =
+      Set.of(
+          ATTR_PARENT_RUN_ID,
+          ATTR_PARENT_JOB_NAME,
+          ATTR_PARENT_WORKFLOW_NAME,
+          ATTR_PARENT_ACTION_NAME,
+          ATTR_PARENT_PIPELINE_NAME,
+          ATTR_PARENT_TRANSFORM_NAME,
+          ATTR_PARENT_FILENAME);
+
   /** The description the subject's metadata gives it (pipeline, workflow, transform, action). */
   public static final String ATTR_DESCRIPTION = "description";
 
@@ -120,6 +135,9 @@ public final class LineageRunLifecycleEmitter {
    */
   static void fillPipelineParentFields(
       LineageContext.Builder ctx, IPipelineEngine<PipelineMeta> pipeline) {
+    if (fillRemoteParentFields(ctx, pipeline)) {
+      return;
+    }
     IPipelineEngine<PipelineMeta> parentPipeline = parentPipelineOf(pipeline);
     if (parentPipeline != null) {
       fillPipelineParentFields(ctx, parentPipeline, pipeline.getParent());
@@ -141,7 +159,7 @@ public final class LineageRunLifecycleEmitter {
     PipelineMeta parentMeta = parentPipeline.getPipelineMeta();
     String parentPipelineName = parentMeta != null ? parentMeta.getName() : null;
     if (Utils.isEmpty(parentPipelineName)) {
-      fillParentFields(ctx, null, parentPipeline.getLogChannelId());
+      fillParentFields(ctx, null, LineageRemoteRuns.runIdOf(parentPipeline));
       return;
     }
     ctx.putAttribute(ATTR_PARENT_PIPELINE_NAME, parentPipelineName);
@@ -150,6 +168,7 @@ public final class LineageRunLifecycleEmitter {
     fillParentFilename(
         ctx,
         Utils.isEmpty(parentFilename) ? parentMeta.getFilename() : parentFilename,
+        parentPipeline,
         parentPipeline);
     if (parent instanceof ITransform transform && !Utils.isEmpty(transform.getTransformName())) {
       ctx.putAttribute(ATTR_PARENT_TRANSFORM_NAME, transform.getTransformName());
@@ -161,7 +180,7 @@ public final class LineageRunLifecycleEmitter {
         return;
       }
     }
-    fillParentFields(ctx, parentPipelineName, parentPipeline.getLogChannelId());
+    fillParentFields(ctx, parentPipelineName, LineageRemoteRuns.runIdOf(parentPipeline));
   }
 
   /**
@@ -171,6 +190,9 @@ public final class LineageRunLifecycleEmitter {
    */
   static void fillWorkflowParentFields(
       LineageContext.Builder ctx, IWorkflowEngine<WorkflowMeta> workflow) {
+    if (fillRemoteParentFields(ctx, workflow)) {
+      return;
+    }
     IPipelineEngine<PipelineMeta> parentPipeline = parentPipelineOf(workflow);
     if (parentPipeline != null) {
       fillPipelineParentFields(ctx, parentPipeline, workflow.getParent());
@@ -183,7 +205,7 @@ public final class LineageRunLifecycleEmitter {
     }
     WorkflowMeta parentMeta = parentWorkflow != null ? parentWorkflow.getWorkflowMeta() : null;
     if (parentMeta != null) {
-      fillParentFields(ctx, parentMeta.getName(), parentWorkflow.getLogChannelId());
+      fillParentFields(ctx, parentMeta.getName(), LineageRemoteRuns.runIdOf(parentWorkflow));
     }
   }
 
@@ -256,17 +278,58 @@ public final class LineageRunLifecycleEmitter {
     if (parentJobName != null) {
       ctx.putAttribute(ATTR_PARENT_WORKFLOW_NAME, parentWorkflowName);
       ctx.putAttribute(ATTR_PARENT_ACTION_NAME, parentAction.getName());
-      fillParentFilename(ctx, parentMeta.getFilename(), parentWorkflow);
+      fillParentFilename(ctx, parentMeta.getFilename(), parentWorkflow, parentWorkflow);
     }
   }
 
+  /**
+   * The file of the run that started this one, as that run's own events name it: the client's, when
+   * that run reports a client's run on a Hop Server.
+   */
   private static void fillParentFilename(
-      LineageContext.Builder ctx, String filename, IVariables variables) {
+      LineageContext.Builder ctx, String filename, IVariables variables, IExtensionData parent) {
+    RemoteRun remoteRun = LineageRemoteRuns.adopted(parent);
+    if (remoteRun != null && !Utils.isEmpty(remoteRun.filename())) {
+      ctx.putAttribute(
+          ATTR_PARENT_FILENAME,
+          Utils.isEmpty(remoteRun.portableFilename())
+              ? remoteRun.filename()
+              : remoteRun.portableFilename());
+      return;
+    }
     if (Utils.isEmpty(filename)) {
       return;
     }
     String portable = LineagePortableFilename.portableKey(filename, variables);
     ctx.putAttribute(ATTR_PARENT_FILENAME, Utils.isEmpty(portable) ? filename : portable);
+  }
+
+  /**
+   * A run on a Hop Server that reports a client's run has the client run's parent.
+   *
+   * @return whether the run reports a client's run
+   */
+  private static boolean fillRemoteParentFields(LineageContext.Builder ctx, IExtensionData run) {
+    RemoteRun remoteRun = LineageRemoteRuns.adopted(run);
+    if (remoteRun == null) {
+      return false;
+    }
+    if (remoteRun.parent() != null) {
+      remoteRun.parent().forEach(ctx::putAttribute);
+    }
+    return true;
+  }
+
+  /** The file of a run, or of the client's run it reports on a Hop Server. */
+  private static void fillRunFilename(
+      LineageContext.Builder ctx, IExtensionData run, String filename, IVariables variables) {
+    RemoteRun remoteRun = LineageRemoteRuns.adopted(run);
+    if (remoteRun != null && !Utils.isEmpty(remoteRun.filename())) {
+      ctx.hopFilename(remoteRun.filename());
+      ctx.hopFilenamePortableKey(remoteRun.portableFilename());
+      return;
+    }
+    fillFilenameFields(ctx, filename, variables);
   }
 
   static void fillFilenameFields(
@@ -299,9 +362,9 @@ public final class LineageRunLifecycleEmitter {
             .copyNr(String.valueOf(transform.getCopy()))
             .pipelineName(pipelineName)
             .sinks(LineageSinkRoutes.of(pipeline));
-    fillFilenameFields(ctx, filename, filenameVars);
+    fillRunFilename(ctx, pipeline, filename, filenameVars);
     if (pipeline != null) {
-      ctx.putAttribute("pipelineLogChannelId", pipeline.getLogChannelId());
+      ctx.putAttribute("pipelineLogChannelId", LineageRemoteRuns.runIdOf(pipeline));
       String parentId = pipeline.getVariable(Const.INTERNAL_VARIABLE_PIPELINE_PARENT_ID, null);
       if (!Utils.isEmpty(parentId)) {
         ctx.putAttribute("parentPipelineLogChannelId", parentId);
@@ -338,14 +401,14 @@ public final class LineageRunLifecycleEmitter {
             .logChannelId(
                 !Utils.isEmpty(actionLogChannelId)
                     ? actionLogChannelId
-                    : workflow.getLogChannelId())
+                    : LineageRemoteRuns.runIdOf(workflow))
             .workflowName(workflowName)
             .actionName(action.getName())
             .sinks(LineageSinkRoutes.of(workflow));
-    if (!Utils.isEmpty(filename)) {
-      fillFilenameFields(ctx, filename, workflow);
+    if (!Utils.isEmpty(filename) || LineageRemoteRuns.adopted(workflow) != null) {
+      fillRunFilename(ctx, workflow, filename, workflow);
     }
-    ctx.putAttribute("workflowLogChannelId", workflow.getLogChannelId());
+    ctx.putAttribute("workflowLogChannelId", LineageRemoteRuns.runIdOf(workflow));
     if (!Utils.isEmpty(action.getPluginId())) {
       ctx.putAttribute("actionPluginId", action.getPluginId());
     }
@@ -368,10 +431,12 @@ public final class LineageRunLifecycleEmitter {
     return ctx;
   }
 
-  public static void emitPipeline(
-      IPipelineEngine<PipelineMeta> pipeline, RunLifecyclePhase phase, String detail) {
+  /**
+   * Who a pipeline run is: its run id, name, file and the run that started it. A run on a Hop
+   * Server that reports a client's run is that client's run ({@link LineageRemoteRuns}).
+   */
+  static LineageContext.Builder pipelineRunContext(IPipelineEngine<PipelineMeta> pipeline) {
     PipelineMeta meta = pipeline.getPipelineMeta();
-    String name = meta != null ? meta.getName() : null;
     String filename = pipeline.getFilename();
     if (Utils.isEmpty(filename) && meta != null) {
       filename = meta.getFilename();
@@ -379,18 +444,40 @@ public final class LineageRunLifecycleEmitter {
     LineageContext.Builder ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.PIPELINE)
-            .logChannelId(pipeline.getLogChannelId())
-            .pipelineName(name)
-            .sinks(LineageSinkRoutes.of(pipeline));
-    fillFilenameFields(ctx, filename, pipeline);
-    String pluginId = pipeline.getPluginId();
-    if (!Utils.isEmpty(pluginId)) {
-      ctx.putAttribute("pipelineEnginePluginId", pluginId);
-    }
+            .logChannelId(LineageRemoteRuns.runIdOf(pipeline))
+            .pipelineName(meta != null ? meta.getName() : null);
+    fillRunFilename(ctx, pipeline, filename, pipeline);
     // A pipeline run by a workflow action knows the action (its logging parent) and the workflow
     // that owns it; a sub-pipeline knows its parent pipeline and the transform that ran it. Either
     // way the parent is that action's or transform's run, named <owner>/<job> as the mapper does.
     fillPipelineParentFields(ctx, pipeline);
+    return ctx;
+  }
+
+  /**
+   * The sinks a run's own events go to. A client's run that a Hop Server reports leaves the sinks
+   * the server accepted to the server, and keeps reporting to the rest. The run's sinks are
+   * resolved (and held) all the same, so the run lets go of them when it ends.
+   */
+  private static Set<String> runSinks(IPipelineEngine<PipelineMeta> pipeline) {
+    return LineageRemoteRuns.clientSinks(pipeline, LineageSinkRoutes.of(pipeline));
+  }
+
+  private static Set<String> runSinks(IWorkflowEngine<WorkflowMeta> workflow) {
+    return LineageRemoteRuns.clientSinks(workflow, LineageSinkRoutes.of(workflow));
+  }
+
+  public static void emitPipeline(
+      IPipelineEngine<PipelineMeta> pipeline, RunLifecyclePhase phase, String detail) {
+    PipelineMeta meta = pipeline.getPipelineMeta();
+    LineageContext.Builder ctx =
+        pipelineRunContext(pipeline)
+            .sinks(runSinks(pipeline))
+            .forVariableSinks(LineageRemoteRuns.reportsToVariableSinks(pipeline));
+    String pluginId = pipeline.getPluginId();
+    if (!Utils.isEmpty(pluginId)) {
+      ctx.putAttribute("pipelineEnginePluginId", pluginId);
+    }
     if (meta != null) {
       fillDescription(ctx, meta.getDescription());
     }
@@ -451,19 +538,39 @@ public final class LineageRunLifecycleEmitter {
     return transitions;
   }
 
-  public static void emitWorkflow(
-      IWorkflowEngine<WorkflowMeta> workflow, RunLifecyclePhase phase, String detail) {
+  /** Who a workflow run is; see {@link #pipelineRunContext}. */
+  static LineageContext.Builder workflowRunContext(IWorkflowEngine<WorkflowMeta> workflow) {
     WorkflowMeta meta = workflow.getWorkflowMeta();
-    String name = meta != null ? meta.getName() : null;
-    String filename = meta != null ? meta.getFilename() : null;
     LineageContext.Builder ctx =
         LineageContext.builder()
             .subjectType(LineageSubjectType.WORKFLOW)
-            .logChannelId(workflow.getLogChannelId())
-            .workflowName(name)
-            .sinks(LineageSinkRoutes.of(workflow));
-    fillFilenameFields(ctx, filename, workflow);
+            .logChannelId(LineageRemoteRuns.runIdOf(workflow))
+            .workflowName(meta != null ? meta.getName() : null);
+    fillRunFilename(ctx, workflow, meta != null ? meta.getFilename() : null, workflow);
     fillWorkflowParentFields(ctx, workflow);
+    return ctx;
+  }
+
+  public static void emitWorkflow(
+      IWorkflowEngine<WorkflowMeta> workflow, RunLifecyclePhase phase, String detail) {
+    if (phase == RunLifecyclePhase.STARTED && LineageRemoteRuns.holdsStart(workflow)) {
+      // Sent to a Hop Server, which may report the run itself: the start waits for its answer
+      return;
+    }
+    emitWorkflow(workflow, phase, detail, System.currentTimeMillis());
+  }
+
+  /** Emits a workflow's lifecycle event, stamped with the time it happened. */
+  static void emitWorkflow(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      RunLifecyclePhase phase,
+      String detail,
+      long timestampMillis) {
+    WorkflowMeta meta = workflow.getWorkflowMeta();
+    LineageContext.Builder ctx =
+        workflowRunContext(workflow)
+            .sinks(runSinks(workflow))
+            .forVariableSinks(LineageRemoteRuns.reportsToVariableSinks(workflow));
     if (meta != null) {
       fillDescription(ctx, meta.getDescription());
     }
@@ -479,7 +586,9 @@ public final class LineageRunLifecycleEmitter {
     LineageContext context = ctx.build();
     LineageHub.getInstance()
         .emit(
-            LineageEvent.of(
+            new LineageEvent(
+                UUID.randomUUID().toString(),
+                timestampMillis,
                 LineageEventKind.RUN_LIFECYCLE,
                 context,
                 new RunLifecycleLineagePayload(phase, detail)));
@@ -489,7 +598,9 @@ public final class LineageRunLifecycleEmitter {
     if (phase == RunLifecyclePhase.STARTED && meta != null) {
       LineageHub.getInstance()
           .emit(
-              LineageEvent.of(
+              new LineageEvent(
+                  UUID.randomUUID().toString(),
+                  timestampMillis,
                   LineageEventKind.WORKFLOW_GRAPH,
                   context,
                   new PipelineGraphLineagePayload(workflowTransitions(meta))));
@@ -633,9 +744,9 @@ public final class LineageRunLifecycleEmitter {
             .workflowName(workflowName)
             .actionName(actionName)
             .sinks(LineageSinkRoutes.of(wf));
-    fillFilenameFields(ctx, filename, wf);
+    fillRunFilename(ctx, wf, filename, wf);
 
-    ctx.putAttribute("workflowLogChannelId", wf.getLogChannelId());
+    ctx.putAttribute("workflowLogChannelId", LineageRemoteRuns.runIdOf(wf));
 
     if (am != null && am.getAction() != null && am.getAction().getPluginId() != null) {
       ctx.putAttribute("actionPluginId", am.getAction().getPluginId());

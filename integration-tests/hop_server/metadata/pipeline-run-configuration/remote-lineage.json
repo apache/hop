@@ -1,0 +1,20 @@
+{
+  "engineRunConfiguration": {
+    "Remote": {
+      "export_resources": true,
+      "resources_target_folder": "",
+      "resources_source_folder": "",
+      "run_config": "local",
+      "server_poll_interval": "",
+      "hop_server": "testserver",
+      "server_poll_delay": ""
+    }
+  },
+  "defaultSelection": false,
+  "configurationVariables": [],
+  "name": "remote-lineage",
+  "description": "Runs pipelines on the Hop Server as remote does, and reports their lineage to the openlineage-stub lineage sink",
+  "dataProfile": "",
+  "executionInfoLocationName": "",
+  "lineageSinkName": "openlineage-stub"
+}

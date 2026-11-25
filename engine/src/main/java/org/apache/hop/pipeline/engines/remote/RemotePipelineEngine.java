@@ -61,6 +61,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
@@ -150,6 +151,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected int feedbackSize; // TODO factor out
 
   protected String containerId;
+
+  /**
+   * What the server answered about the run's lineage when it registered the run; it holds once the
+   * server started the run ({@link LineageRemoteRuns#answered}).
+   */
+  private LineageRemoteRuns.Answer lineageAnswer;
 
   /** A list of started listeners attached to the pipeline. */
   protected List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
@@ -367,6 +374,10 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
     executionConfiguration.getVariablesMap().putAll(vars);
 
+    // This run, for the lineage the server reports of it
+    LineageRemoteRuns.pass(this, executionConfiguration.getVariablesMap());
+    lineageAnswer = null;
+
     // Add parameters to the executionConfiguration
     Map<String, String> params = new HashMap<>();
     for (String param : listParameters()) {
@@ -420,6 +431,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                     + message);
           }
           containerId = webResult.getId();
+          lineageAnswer = webResult.getLineageAnswer();
         }
       } else {
 
@@ -448,6 +460,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   + message);
         }
         containerId = webResult.getId();
+        lineageAnswer = webResult.getLineageAnswer();
       }
 
       // Prepare the pipeline
@@ -536,6 +549,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                   + containerId);
       WebResult webResult = WebResult.fromXmlString(reply);
       if (WebResult.STRING_OK.equals(webResult.getResult())) {
+        // Only now the server runs it: it reports the run in lineage from here on
+        LineageRemoteRuns.answered(this, lineageAnswer);
+
         // Inform anyone that wants to know that the show has started
         //
         fireExecutionStartedListeners();

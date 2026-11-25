@@ -119,6 +119,13 @@ public final class LineageContext {
    */
   private final Set<String> sinks;
 
+  /**
+   * Whether the sinks configured with variables, which get every event, get this one. False for the
+   * events of a client's run whose Hop Server reports the run to the same sinks ({@code
+   * LineageRemoteRuns}). Like {@code sinks}, routing only: left out of {@link #equals}.
+   */
+  private final boolean forVariableSinks;
+
   private LineageContext(Builder b) {
     this.subjectType = Objects.requireNonNull(b.subjectType, "subjectType");
     this.logChannelId = b.logChannelId;
@@ -137,6 +144,7 @@ public final class LineageContext {
         b.sinks.isEmpty()
             ? Collections.emptySet()
             : Collections.unmodifiableSet(new LinkedHashSet<>(b.sinks));
+    this.forVariableSinks = b.forVariableSinks;
   }
 
   /** Creates a new builder with subject type defaulting to {@link LineageSubjectType#OTHER}. */
@@ -227,6 +235,7 @@ public final class LineageContext {
     private String hopFilenamePortableKey;
     private final Map<String, String> attributes = new LinkedHashMap<>();
     private final Set<String> sinks = new LinkedHashSet<>();
+    private boolean forVariableSinks = true;
 
     /**
      * Sets the subject type. Must be non-null; fails fast with {@link NullPointerException} rather
@@ -301,6 +310,12 @@ public final class LineageContext {
       if (sinkKeys != null) {
         sinks.addAll(sinkKeys);
       }
+      return this;
+    }
+
+    /** Whether the sinks configured with variables get this event; see {@code forVariableSinks}. */
+    public Builder forVariableSinks(boolean forVariableSinks) {
+      this.forVariableSinks = forVariableSinks;
       return this;
     }
 

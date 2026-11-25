@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -62,7 +63,8 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
               + pipeline.getPipelineMeta().getName()
               + "' was added to HopServer with id "
               + pipeline.getContainerId();
-      return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId());
+      return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId())
+          .withLineage(LineageRemoteRuns.answerOf(pipeline));
     } catch (HopServerAtCapacityException e) {
       return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
     }

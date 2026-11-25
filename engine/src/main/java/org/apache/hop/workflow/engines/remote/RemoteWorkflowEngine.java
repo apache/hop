@@ -52,6 +52,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
@@ -287,10 +288,19 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       // As the local engine: plugins on the client see the run start and end. The Hop Server fires
       // these for the workflow it runs, in its own JVM. Before the run is submitted, so a plugin
       // that refuses it (the active project check) stops it before it runs on the server.
-      ExtensionPointHandler.callExtensionPoint(
-          logChannel, this, HopExtensionPoint.WorkflowStart.id, this);
+      // The server may report the run in lineage itself: whether it does is known once it started
+      // the run, so the run's lineage start waits until then, keeping the time it started.
+      if (reportsLineageOnHopServer()) {
+        LineageRemoteRuns.submitting(this);
+      }
+      try {
+        ExtensionPointHandler.callExtensionPoint(
+            logChannel, this, HopExtensionPoint.WorkflowStart.id, this);
 
-      submitToRemoteServer();
+        submitToRemoteServer();
+      } finally {
+        LineageRemoteRuns.submitted(this);
+      }
       fireExecutionStartedListeners();
 
       initialized = true;
@@ -438,6 +448,15 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
+   * Whether this engine sends the run to a Hop Server, which may report the run's lineage itself
+   * ({@link LineageRemoteRuns}): the run's lineage start then waits for the server's answer. An
+   * engine that runs the workflow elsewhere returns false, so its start goes out right away.
+   */
+  protected boolean reportsLineageOnHopServer() {
+    return true;
+  }
+
+  /**
    * Resolve the target server, send the workflow and start it. Extracted so the load-balancing
    * engine can retry this part without monitoring.
    */
@@ -537,6 +556,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         }
       }
 
+      // This run, for the lineage the server reports of it
+      LineageRemoteRuns.pass(this, executionConfiguration.getVariablesMap());
+      LineageRemoteRuns.Answer lineage = null;
+
       // Add parameters to the execution configuration
       //
       Map<String, String> parametersMap = executionConfiguration.getParametersMap();
@@ -577,6 +600,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
                     + webResult.getMessage());
           }
           containerId = webResult.getId();
+          lineage = webResult.getLineageAnswer();
         }
       } else {
         String xml =
@@ -598,6 +622,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
                   + webResult.getMessage());
         }
         containerId = webResult.getId();
+        lineage = webResult.getLineageAnswer();
       }
 
       // Start the workflow
@@ -610,6 +635,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
                 + Const.CR
                 + webResult.getMessage().replace('\t', '\n'));
       }
+      // Only now the server runs it: it reports the run in lineage from here on
+      LineageRemoteRuns.answered(this, lineage);
     } catch (HopException ke) {
       throw ke;
     } catch (Exception e) {

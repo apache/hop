@@ -17,15 +17,19 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.lineage.LineageRemoteRuns.RemoteRun;
 import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.hub.LineageSinkTarget;
 import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -155,13 +159,20 @@ public final class LineageSinkRoutes {
         () -> {
           Set<String> parents = parentSinks(pipeline, hub);
           PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
-          String own =
+          List<String> own =
+              remoteSinks(
+                  LineageRemoteRuns.adopted(pipeline),
+                  pipeline,
+                  pipeline.getMetadataProvider(),
+                  pipeline.getLogChannel(),
+                  hub);
+          own.add(
               useSink(
                   runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
                   pipeline,
                   pipeline.getMetadataProvider(),
                   pipeline.getLogChannel(),
-                  hub);
+                  hub));
           return withParents(parents, own, hub);
         });
   }
@@ -176,13 +187,20 @@ public final class LineageSinkRoutes {
         () -> {
           Set<String> parents = parentSinks(workflow, hub);
           WorkflowRunConfiguration runConfiguration = workflow.getWorkflowRunConfiguration();
-          String own =
+          List<String> own =
+              remoteSinks(
+                  LineageRemoteRuns.adopted(workflow),
+                  workflow,
+                  workflow.getMetadataProvider(),
+                  workflow.getLogChannel(),
+                  hub);
+          own.add(
               useSink(
                   runConfiguration == null ? null : runConfiguration.getLineageSinkName(),
                   workflow,
                   workflow.getMetadataProvider(),
                   workflow.getLogChannel(),
-                  hub);
+                  hub));
           return withParents(parents, own, hub);
         });
   }
@@ -222,19 +240,116 @@ public final class LineageSinkRoutes {
    * {@link #release} lets go of each once. The parent's are safe to hold now: the parent holds them
    * until it ends, after this run.
    *
-   * @param own the run's own sink, which {@link LineageHub#useSink} already held, or null
+   * @param own the run's own sinks, each of which {@link LineageHub#useSink} already held, with
+   *     nulls for those it couldn't use
    */
-  private static Set<String> withParents(Set<String> parentSinks, String own, LineageHub hub) {
-    Set<String> inherited = new LinkedHashSet<>(parentSinks);
-    if (own != null) {
-      inherited.remove(own);
+  private static Set<String> withParents(
+      Set<String> parentSinks, List<String> own, LineageHub hub) {
+    Set<String> owned = new LinkedHashSet<>();
+    for (String key : own) {
+      if (key != null && !owned.add(key)) {
+        // Used twice, such as a client's sink that is also the run configuration's: held once
+        hub.release(Set.of(key));
+      }
     }
+    Set<String> inherited = new LinkedHashSet<>(parentSinks);
+    inherited.removeAll(owned);
     hub.hold(inherited);
     Set<String> sinks = new LinkedHashSet<>(parentSinks);
-    if (own != null) {
-      sinks.add(own);
-    }
+    sinks.addAll(owned);
     return sinks;
+  }
+
+  /**
+   * On a Hop Server, the sinks of the client's run this run reports ({@link LineageRemoteRuns}):
+   * the ones the server accepted when it registered the run, see {@link #acceptedSinks}.
+   *
+   * @return the keys of those sinks, each held once; a mutable list the run's own sink is added to
+   */
+  private static List<String> remoteSinks(
+      RemoteRun remoteRun,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
+    List<String> keys = new ArrayList<>();
+    if (remoteRun == null || remoteRun.sinkKeys() == null || metadataProvider == null) {
+      return keys;
+    }
+    for (String key : remoteRun.sinkKeys()) {
+      // The name as the client resolved it: not resolved again with the server's variables
+      keys.add(
+          useResolvedSink(LineageSinkTarget.nameOf(key), variables, metadataProvider, log, hub));
+    }
+    return keys;
+  }
+
+  /**
+   * On a Hop Server, the sinks of a client's run the server reports to: the server has a sink of
+   * the same name in the run's metadata (its own, with the client's metadata that came with the
+   * run), and resolved with the server run's variables it has the same key as the client's, that is
+   * the same type and settings, so it sends the run where the client's sink would. Its type's
+   * plugin has to be installed on the server. The server answers the client with these, and the
+   * client keeps reporting to the others itself. Whether the sink's URL can be reached from the
+   * server only shows when its events are delivered. Each sink left out is logged on the run.
+   *
+   * @param keys the keys of the client's sinks ({@link LineageSinkTarget#key()})
+   * @return the keys of the sinks the server reports the run to
+   */
+  static List<String> acceptedSinks(
+      List<String> keys,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
+    List<String> accepted = new ArrayList<>();
+    if (keys == null) {
+      return accepted;
+    }
+    for (String key : keys) {
+      if (Utils.isEmpty(key)) {
+        continue;
+      }
+      String refused = refusal(key, variables, metadataProvider, hub);
+      if (refused == null) {
+        accepted.add(key);
+      } else if (log != null) {
+        log.logError(
+            "Lineage sink '"
+                + LineageSinkTarget.nameOf(key)
+                + "', which the client selected for this run, isn't used on this Hop Server ("
+                + refused
+                + "). The client reports the run to it itself, without the run's transforms.");
+      }
+    }
+    return accepted;
+  }
+
+  /** Why a Hop Server doesn't report a run to a client's sink, or null when it does. */
+  private static String refusal(
+      String key, IVariables variables, IHopMetadataProvider metadataProvider, LineageHub hub) {
+    if (metadataProvider == null) {
+      return "the run has no metadata";
+    }
+    try {
+      LineageSink sink =
+          metadataProvider.getSerializer(LineageSink.class).load(LineageSinkTarget.nameOf(key));
+      if (sink == null) {
+        return "no lineage sink with this name in the server's metadata or in the metadata the run"
+            + " came with; check the name and the server's project";
+      }
+      LineageSinkTarget target = sink.toTarget(variables, metadataProvider);
+      if (!hub.hasSinkType(target.pluginId())) {
+        return "the sink type '" + target.pluginId() + "' isn't installed on the server";
+      }
+      if (!key.equals(target.key())) {
+        return "the server's sink of this name has another type or other settings than the"
+            + " client's, once resolved with the variables of the run on the server";
+      }
+      return null;
+    } catch (Exception e) {
+      return String.valueOf(e.getMessage());
+    }
   }
 
   private static Set<String> parentSinks(IPipelineEngine<PipelineMeta> pipeline, LineageHub hub) {
@@ -281,7 +396,16 @@ public final class LineageSinkRoutes {
       IHopMetadataProvider metadataProvider,
       ILogChannel log,
       LineageHub hub) {
-    String name = variables.resolve(sinkName);
+    return useResolvedSink(variables.resolve(sinkName), variables, metadataProvider, log, hub);
+  }
+
+  /** Uses and holds a sink by its resolved name; see {@link #useSink}. */
+  private static String useResolvedSink(
+      String name,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
     if (Utils.isEmpty(name) || metadataProvider == null) {
       return null;
     }
