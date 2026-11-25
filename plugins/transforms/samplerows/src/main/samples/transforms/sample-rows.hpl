@@ -134,7 +134,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <linesrange>1,3,5-7</linesrange>
+    <linesrange>1,3,5..7</linesrange>
     <linenumfield>rownum</linenumfield>
     <attributes/>
     <GUI>

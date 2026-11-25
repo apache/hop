@@ -56,3 +56,7 @@ You could parse out sections of a string as follows
 * replace with = $2
 
 This will replace any 11 digit numbers with the last 7 digits.
+
+== Samples
+
+The samples project has `transforms/replace-in-string.hpl`, which replaces `world` with `Hop` in 3 phrases from a Data grid, and writes the result to the field `replaced`.

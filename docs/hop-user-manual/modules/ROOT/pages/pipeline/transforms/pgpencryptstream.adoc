@@ -39,3 +39,8 @@ The PGP Encrypt Stream transform encrypts text using PGP.
 |Data fieldname|The field to encrypt.
 |Result fieldname|The encrypted result field.
 |===
+
+== Samples
+
+The samples project has `transforms/pgp-encrypt-stream.hpl`, which encrypts the text `secret message` from a Data grid with gpg for the key `sample-pgp-user`, and puts the result in the field `sealed`.
+Install gpg and import a public key for `sample-pgp-user` before you run it.

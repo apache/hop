@@ -61,3 +61,7 @@ Two setups read more than one cube file.
 * A previous transform that produces one filename per row, for example Get file names. Enable *Filename is defined in a field*, choose that field, and set the filename above to any one of the cube files so the layout can be read. More than one copy of this transform splits those filenames across the copies.
 
 Every file in one run has to have the same field names and types. A file that does not fails the transform. The error names that file and the first file that was read.
+
+== Samples
+
+The samples project has `transforms/deserialize-from-file.hpl`, which reads the 3 rows of the cube file `files/deserialize-from-file.cube`.

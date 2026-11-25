@@ -123,3 +123,7 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Uri field|The field used to contain the full source URL for the file. This could be an http:// or file:// URL depending on the file's source.
 |Root uri field|The field used to contain the root of the source URL for the file, including the protocol and top-level address.
 |===
+
+== Samples
+
+The samples project has `transforms/properties-file-input.hpl`, which reads the keys and values of `files/properties-file-input.txt`.

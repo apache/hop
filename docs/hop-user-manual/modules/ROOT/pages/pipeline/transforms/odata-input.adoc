@@ -110,6 +110,9 @@ To query the public Northwind OData V4 service:
 . Optionally, on *OData Query*, set `$select` to `ProductID,ProductName`, `$filter` to `ProductID le 3`, `$orderby` to `ProductID`, and `$top` to `3`.
 . Preview or run the pipeline. The first three products are Chai, Chang, and Aniseed Syrup.
 
-Sample pipeline (Samples project):
+The samples project has this example, see <<Samples>>.
 
-link:https://github.com/apache/hop/blob/main/plugins/transforms/odata/src/main/samples/transforms/odata-input-northwind.hpl[odata-input-northwind.hpl]
+== Samples
+
+The samples project has `transforms/odata-input-northwind.hpl`, which reads the `ProductID` and `ProductName` of the first three products, Chai, Chang and Aniseed Syrup, from the public Northwind OData V4 service.
+It needs network access.

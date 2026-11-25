@@ -27,3 +27,7 @@ under the License.
 The Null If transform sets the value of a certain field to null (empty) if the provided value equals a value specified in this transform.
 
 You can add all fields from the input stream(s) using Get Fields.
+
+== Samples
+
+The samples project has `transforms/null-if-basic.hpl`, which sets the field `desc` to null where it is `two` or `four`.

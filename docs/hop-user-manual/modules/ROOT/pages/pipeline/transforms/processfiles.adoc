@@ -42,3 +42,7 @@ Otherwise it will not be overwritten and silently ignored.
 |Target filename field|This defined the field that contains the complete path to the target file.
 This field must not be given in the Delete mode.
 |===
+
+== Samples
+
+The samples project has `transforms/process-files.hpl`, which copies `files/process-files.txt` to `output/process-files-copy.txt`.

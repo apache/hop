@@ -92,3 +92,7 @@ The result is:
 |976-67-7113|Elden|Welch|Lake Jamaal
 |824-21-0000|Rory|Ledner|Scottieview
 |===
+
+== Samples
+
+The samples project has `transforms/row-denormaliser.hpl`, which turns the rows with one color code and value each into one row per `id`, with a field for each of the 5 colors.

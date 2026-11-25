@@ -113,3 +113,10 @@ String predicates carried over from Kettle/PDI: `BEGINSWITH`, `CONTAINS`, `ENDSW
 Arrays and parsing: `ARRAYCONCATENATE`, `ARRAYCONTAINS`, `ARRAYLEFT`, `ARRAYMID`, `ARRAYRIGHT`, `CSVARRAY`, `CSVTEXT`, `NORMALIZEARRAY`, `NULL`, `PARSEDATE`, `SEQUENCEQUOTER`.
 
 Operators are `+`, `-`, `*`, `/`, `^`, `%`, `&`, and the comparisons `=`, `<>`, `<`, `<=`, `>`, `>=`.
+
+== Samples
+
+The samples project has:
+
+* `transforms/openformula-basic.hpl`, which computes `[one]+([ten]-[three])` and `[one]*[three]*[ten]` from the numbers in a Data grid.
+* `transforms/openformula-if.hpl`, which sets the field `label` to `yes` or `no` with `IF([flag];"yes";"no")`.

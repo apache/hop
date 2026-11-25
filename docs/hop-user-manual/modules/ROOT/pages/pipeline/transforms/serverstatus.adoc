@@ -48,3 +48,8 @@ Here is the list of possible output fields:
 * # Finished workflows
 * Available
 * Response (ns)
+
+== Samples
+
+The samples project has `transforms/get-server-status.hpl`, which gets the status of the Hop server `local-hop-server`, defined on `localhost:8080`.
+When no Hop server runs there, the status fields stay empty and `errorMessage` says that the query failed.

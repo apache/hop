@@ -38,3 +38,7 @@ The Set Field Value To A Constant transform replaces the value of a field with a
 See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Set empty string?|Specify Y to allow an empty string when the value is empty; otherwise, a null value is used.
 |===
+
+== Samples
+
+The samples project has `transforms/set-field-value-to-a-constant.hpl`, which sets the `lastname` of 3 rows from a Data grid to `Doe`.

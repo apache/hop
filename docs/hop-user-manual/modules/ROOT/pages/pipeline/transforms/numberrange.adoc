@@ -40,3 +40,7 @@ The Number Range transform creates groups numerical values into a number of pred
 |Upper Bound|Designate the upper value of a range.
 |Value|Designated a name for the value.
 |===
+
+== Samples
+
+The samples project has `transforms/number-range-basic.hpl`, which puts 25 ages from a Data grid in the ranges `Child`, `Adolescence`, `Adulthood` and `Senior Adulthood`, with `unknown` as the fallback.

@@ -118,3 +118,10 @@ Although discouraged for better clarity and simplicity of use, filling more than
 1. first the *Select & Alter* tab is processed: if populated, the fields will be filtered, renamed and reordered as specified
 2. then the *Remove* tab is processed, but you cannot remove fields that haven't been selected in the previous step: if you renamed them, you must use the new name in the `Fieldname` column
 3. finally the *Meta-data* tab is processed: you cannot change unselected (step 1) and removed (step 2) fields, and if you renamed them you must use the new name in the `Fieldname` column
+
+== Samples
+
+The samples project has:
+
+* `pipelines/read-transactions.hpl`, which keeps the file name and the `Account`, `Amount`, `Company` and `Report_Date` fields at the end.
+* `transforms/select-values-basic.hpl`, which renames and reorders fields, removes a field, and casts a String to a Date in three branches; the row with the date `2025-13-01` goes to the error stream of the cast.

@@ -33,3 +33,7 @@ The Multiway Merge Join transform joins input data from multiple streams.
 |Transform name|Name of the transform.
 |Join Type|Type of join (INNER or FULL OUTER).
 |===
+
+== Samples
+
+The samples project has `transforms/multiway-merge-join.hpl`, which joins a Data grid of countries with a Data grid of capitals on the country code, with an inner join.

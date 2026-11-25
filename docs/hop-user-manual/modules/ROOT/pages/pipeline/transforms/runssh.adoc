@@ -77,3 +77,12 @@ The private part of a private/public RSA key-pair (see: ssh-keygen)
 |Commands field name|Select the input field that will contain the commands to execute
 |Commands|Field allows you to specify the commands to execute.
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/ssh-password.hpl`, which runs a command that writes a test file to `/opt/soft/ssh` on an SSH server, and logs in with a password.
+* `transforms/ssh-pri-key.hpl`, which does the same and logs in with a private key.
+
+Set the server, the user and the password or the key file before you run them.

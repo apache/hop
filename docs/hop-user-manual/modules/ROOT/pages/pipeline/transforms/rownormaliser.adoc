@@ -172,3 +172,7 @@ set **Typefield** = "Month", **Value field** = "Sales", **Key fields** = "Region
 |===
 
 A column added to the input, `Apr` for example, is normalised as well without changing the transform.
+
+== Samples
+
+The samples project has `transforms/row-normaliser.hpl`, which turns each row with an amount for `Q1`, `Q2`, `Q3` and `Q4` into 4 rows with the quarter in `quarter` and the value in `amount`.
