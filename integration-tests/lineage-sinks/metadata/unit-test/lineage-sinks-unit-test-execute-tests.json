@@ -1,0 +1,28 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": false,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "customer",
+          "data_set_field": "customer"
+        }
+      ],
+      "field_order": [
+        "customer"
+      ],
+      "transform_name": "Write customers",
+      "data_set_name": "lineage-sinks-golden"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "lineage-sinks-unit-test-execute-tests",
+  "description": "Run by the Execute tests transform of 0008: the rows reaching Write customers are two rows of Ann",
+  "trans_test_tweaks": [],
+  "persist_filename": "",
+  "pipeline_filename": "./0006-lineage-sink-unit-tested.hpl",
+  "test_type": "UNIT_TEST"
+}

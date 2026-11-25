@@ -21,10 +21,11 @@ the openlineage-stub sink of 0009's run configuration, which gets neither the st
 the test run. The result has to end that run, once, or Marquez lists it as running for good. The
 test passes, so it ends the run as COMPLETE.
 
-Usage: python3 -I 0001-check-proposals.py <proposal log> <OpenLineage log>
+Usage: python3 -I 0001-check-proposals.py <proposal log> <OpenLineage log> <java.io.tmpdir of the Hop run>
 """
 
 import json
+import os
 import sys
 import time
 
@@ -39,6 +40,22 @@ PUBLISHED_FILES = ("publish/customers.csv", "/data/published/published-customers
 # and nothing else about the run, which runs a changed copy of the pipeline
 UNIT_TESTED_FILE = "unit-tested.csv"
 UNIT_TESTED_PIPELINE = "0006-lineage-sink-unit-tested"
+# The same test run by the Execute tests transform of 0008: its result is an assertion as well
+EXECUTE_TESTS_UNIT_TEST = "lineage-sinks-unit-test-execute-tests"
+# The unit tests that are assertions on UNIT_TESTED_FILE, with what runs them
+ASSERTED_UNIT_TESTS = {
+    "lineage-sinks-unit-test": "Run pipeline unit tests",
+    EXECUTE_TESTS_UNIT_TEST: "the Execute tests transform",
+}
+# A workflow the Workflow executor of a tested pipeline starts belongs to the unit test run: neither
+# it, the tested pipeline nor the file the workflow writes is reported. The file is there, though:
+# the workflow ran.
+UNIT_TEST_CHILD = (
+    "0007-lineage-sink-unit-test-child-workflow",
+    "0007-lineage-sink-unit-tested-executor",
+    "unit-test-child-workflow.txt",
+)
+UNIT_TEST_CHILD_FILE = os.path.join("lineage-sinks-it", "unit-test-child-workflow.txt")
 # The expressions of a Formula (run) and a Calculator (published): task properties logic.<field>
 LOGIC = (
     (REPORTED, "Measure marker", "marker_length", "LEN([marker])"),
@@ -55,12 +72,22 @@ def proposals(path):
         return [json.loads(line) for line in log if line.strip()]
 
 
+def unit_test_assertions(kept, unit_test):
+    """The assertions of a unit test, by its name in the assertion's properties."""
+    return {
+        p["entityUrn"]
+        for p in kept
+        if p["aspectName"] == "assertionInfo"
+        and (p["value"].get("customProperties") or {}).get("hopUnitTest") == unit_test
+    }
+
+
 def everything_arrived(kept, events):
-    """Whether every run and publication the workflow made has reached the stand-in."""
+    """Whether every run and publication the workflow made has reached the stand-ins."""
     expected = (REPORTED, PUBLISHED_FLOW) + INHERITED
     return (
         all(any(name in (p["entityUrn"] or "") for p in kept) for name in expected)
-        and any(p["aspectName"] == "assertionRunEvent" for p in kept)
+        and all(unit_test_assertions(kept, unit_test) for unit_test in ASSERTED_UNIT_TESTS)
         and any(e["unitTest"] for e in events)
     )
 
@@ -87,7 +114,7 @@ def unit_test_runs_that_end(events):
     return problems
 
 
-def main(path, openlineage_path):
+def main(path, openlineage_path, tmpdir):
     # Delivery is asynchronous: wait for the last of the reported runs, then a little longer for
     # anything that should not have come.
     deadline = time.time() + 60
@@ -136,38 +163,50 @@ def main(path, openlineage_path):
     published_documents = [
         p
         for p in documents
-        if any(PUBLISHED_FLOW in a.get("asset", "") for a in p["value"].get("relatedAssets", []))
+        if any(
+            PUBLISHED_FLOW in (a.get("asset") or "")
+            for a in (p["value"].get("relatedAssets") or [])
+        )
     ]
     if not published_documents:
         problems.append("no document related to the published pipeline")
     else:
         document = published_documents[-1]["value"]
-        text = document.get("contents", {}).get("text", "")
+        text = (document.get("contents") or {}).get("text") or ""
         if "Filename : 0005-lineage-sink-published.hpl" not in text or "Never run" not in text:
             problems.append(f"the published pipeline's document is not what hop doc writes: {text}")
-        parent = document.get("parentDocument", {}).get("document")
+        parent = (document.get("parentDocument") or {}).get("document")
         if not any(
-            p["entityUrn"] == parent and p["value"].get("title", "").startswith("Hop project ")
+            p["entityUrn"] == parent and (p["value"].get("title") or "").startswith("Hop project ")
             for p in documents
         ):
             problems.append(f"the published pipeline's document is not under its project: {parent}")
-    runs = [
-        p
-        for p in kept
-        if p["aspectName"] == "assertionRunEvent"
-        and UNIT_TESTED_FILE in p.get("value", {}).get("asserteeUrn", "")
-    ]
-    if not runs:
-        problems.append(f"no assertion run on {UNIT_TESTED_FILE} from the unit test")
-    elif runs[-1]["value"].get("result", {}).get("type") != "SUCCESS":
-        problems.append(f"the unit test assertion did not pass: {runs[-1]['value']}")
-    elif not any(
-        p["aspectName"] == "assertionInfo" and p["entityUrn"] == runs[-1]["entityUrn"] for p in kept
-    ):
-        problems.append("the unit test assertion run has no assertion")
+    # Each unit test by name, so a failing one is named: an assertion on the tested file, that passed
+    for unit_test, runner in ASSERTED_UNIT_TESTS.items():
+        assertions = unit_test_assertions(kept, unit_test)
+        runs = [
+            p for p in kept if p["aspectName"] == "assertionRunEvent" and p["entityUrn"] in assertions
+        ]
+        if not runs:
+            problems.append(f"no assertion run of unit test {unit_test}, run by {runner}")
+        elif UNIT_TESTED_FILE not in (runs[-1]["value"].get("asserteeUrn") or ""):
+            problems.append(f"unit test {unit_test} is not an assertion on {UNIT_TESTED_FILE}: {runs[-1]['value']}")
+        elif (runs[-1]["value"].get("result") or {}).get("type") != "SUCCESS":
+            problems.append(f"unit test {unit_test}, run by {runner}, did not pass: {runs[-1]['value']}")
     unit_test_runs = sorted({p["entityUrn"] for p in kept if UNIT_TESTED_PIPELINE in (p["entityUrn"] or "")})
     if unit_test_runs:
         problems.append(f"the unit test run reported its own lineage: {unit_test_runs}")
+    for name in UNIT_TEST_CHILD:
+        leaked = sorted({p["entityUrn"] for p in kept if name in (p["entityUrn"] or "")})
+        if leaked:
+            problems.append(f"{name} was reported, but a unit test run started it: {leaked}")
+    # Nothing leaked above only means something if the workflow ran: unit test
+    # lineage-sinks-unit-test-executor runs it, and the file it writes was deleted before the run
+    if not os.path.isfile(os.path.join(tmpdir, UNIT_TEST_CHILD_FILE)):
+        problems.append(
+            "unit test lineage-sinks-unit-test-executor did not run its child workflow: "
+            f"no {os.path.join(tmpdir, UNIT_TEST_CHILD_FILE)}"
+        )
     # What a transform calculates its fields with: a Formula that ran, a Calculator published
     for flow, task, field, expression in LOGIC:
         infos = [
@@ -177,7 +216,9 @@ def main(path, openlineage_path):
             and flow in (p["entityUrn"] or "")
             and (p["entityUrn"] or "").endswith("," + task + ")")
         ]
-        found = infos[-1]["value"].get("customProperties", {}).get("logic." + field) if infos else None
+        found = (
+            (infos[-1]["value"].get("customProperties") or {}).get("logic." + field) if infos else None
+        )
         if found != expression:
             problems.append(f"task {task} of {flow} shows {found} as the logic of {field}, not {expression}")
     loads = [
@@ -185,7 +226,7 @@ def main(path, openlineage_path):
         for p in published
         if p["aspectName"] == "dataJobInputOutput" and p["entityUrn"].endswith(",Load warehouse)")
     ]
-    outputs = loads[-1]["value"].get("outputDatasets", []) if loads else None
+    outputs = (loads[-1]["value"].get("outputDatasets") or []) if loads else None
     if outputs != [WAREHOUSE_TABLE]:
         problems.append(f"Load warehouse writes {outputs}, not {WAREHOUSE_TABLE}")
     instances = [
@@ -207,9 +248,9 @@ def main(path, openlineage_path):
         print("PROBLEM: " + problem)
     if problems:
         return 1
-    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit test is an assertion and ends its run in OpenLineage, transforms show their expressions, and a table is named with the platform instance of its server")
+    print("Only the runs with a lineage sink in their run configuration, or their parent's, reported their lineage, the published pipeline was published with its documentation, the unit tests are assertions (from Run pipeline unit tests and Execute tests) without the runs they start, a unit test ends its run in OpenLineage, transforms show their expressions, and a table is named with the platform instance of its server")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1], sys.argv[2]))
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "/tmp"))

@@ -79,7 +79,7 @@ limitations under the License.
     </action>
     <action>
       <name>Run the unit test</name>
-      <description>Runs lineage-sinks-unit-test: its test pipeline inherits this workflow's lineage sink</description>
+      <description>Runs lineage-sinks-unit-test: its test pipeline inherits this workflow's lineage sink. Whether it passed is checked on its assertion, so 0008 runs either way</description>
       <type>RunPipelineTests</type>
       <attributes />
       <test_names>
@@ -89,6 +89,49 @@ limitations under the License.
       </test_names>
       <parallel>N</parallel>
       <xloc>480</xloc>
+      <yloc>96</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>0008-lineage-sink-execute-tests</name>
+      <description>Its Execute tests transform runs a unit test: the result goes to the lineage sink this pipeline inherits from this workflow</description>
+      <type>PIPELINE</type>
+      <attributes />
+      <filename>${PROJECT_HOME}/0008-lineage-sink-execute-tests.hpl</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile />
+      <logext />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Basic</loglevel>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>672</xloc>
+      <yloc>96</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Run the executor unit test</name>
+      <description>Runs lineage-sinks-unit-test-executor, whose Workflow executor starts a workflow that must not report to this workflow's lineage sink. It has no golden data set, so no assertion: when it fails, this action is the one that fails</description>
+      <type>RunPipelineTests</type>
+      <attributes />
+      <test_names>
+        <test_name>
+          <name>lineage-sinks-unit-test-executor</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
       <yloc>96</yloc>
       <attributes_hac />
     </action>
@@ -107,6 +150,20 @@ limitations under the License.
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run the unit test</from>
+      <to>0008-lineage-sink-execute-tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0008-lineage-sink-execute-tests</from>
+      <to>Run the executor unit test</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
   </hops>
   <notepads>

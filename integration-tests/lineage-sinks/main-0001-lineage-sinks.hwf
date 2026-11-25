@@ -66,6 +66,12 @@ limitations under the License.
       <add_time>N</add_time>
       <insertScript>N</insertScript>
       <script />
+      <arguments>
+        <argument>
+          <value>${java.io.tmpdir}</value>
+          <hidden>N</hidden>
+        </argument>
+      </arguments>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
       <xloc>224</xloc>
@@ -214,6 +220,12 @@ limitations under the License.
       <add_time>N</add_time>
       <insertScript>N</insertScript>
       <script />
+      <arguments>
+        <argument>
+          <value>${java.io.tmpdir}</value>
+          <hidden>N</hidden>
+        </argument>
+      </arguments>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
       <xloc>784</xloc>
