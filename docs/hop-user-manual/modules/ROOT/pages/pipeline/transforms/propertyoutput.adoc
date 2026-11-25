@@ -64,3 +64,7 @@ Usually this is "properties".
 |Add File to result|Adds the generated filenames to the result of this pipeline.
 A unique list is kept in memory, which can be used in the next workflow action in a workflow, such as in another pipeline.
 |===
+
+== Samples
+
+The samples project has `transforms/properties-file-output.hpl`, which writes two keys and values from a Data grid to `output/properties-file-output.properties`.

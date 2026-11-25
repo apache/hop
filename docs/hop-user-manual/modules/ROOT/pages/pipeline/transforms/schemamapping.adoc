@@ -39,3 +39,7 @@ Schema mapping is a useful mapping transform to precede transforms like xref:pip
 
 * Use _Get fields_ button to fill in the available fields from the incoming stream.
 * Use the _Mapping_ button to show a Mapping Dialog that will support the mapping process between the stream's fields and the schema fields.
+
+== Samples
+
+The samples project has `transforms/schema-mapping.hpl`, which maps the fields that CSV file input reads from `files/file-1-transactions.csv` to the fields of the static schema definition `Test Schema`.

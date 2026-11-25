@@ -65,3 +65,7 @@ A new transform uses 6 - Standard, and so does a transform saved before this opt
 Set the number of copies on the transform and enable *Include transform nr in filename*. Each copy writes the rows it receives to its own file. De-serialize from file reads those files back with the same option and the same number of copies.
 
 A single copy writes one file. Several copies that share one filename overwrite that file.
+
+== Samples
+
+The samples project has `transforms/serialize-to-file.hpl`, which writes 3 rows from a Data grid to `output/serialize-to-file.cube`.

@@ -66,3 +66,10 @@ Otherwise no formatting is done.
 ====
 Variables set using the "Set Variables" transform are automatically propagated across nested/mixed execution hierarchies (e.g., Workflow -> Pipeline -> Workflow) by dynamically crawling the parent execution engines.
 ====
+
+== Samples
+
+The samples project has:
+
+* `transforms/set-variables-basic.hpl`, which sets the pipeline variable `MY_COLOR` to the value of the field `color`, `blue`.
+* `loops/child-check-set-counter-value.hpl`, which the *repeat pipeline* action of `loops/repeat-action.hwf` runs again and again: while `${COUNTER}` is 10 or less it sets `${COUNTER}` to the next value, and when it is higher it sets `${END_LOOP}`, which ends the repeat.

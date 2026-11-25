@@ -66,9 +66,7 @@ See also:
 * The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
 * xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how values move between parent and child.
 
-Samples (samples project):
-
-* loops/pipeline-executor.hpl
+The samples project has examples, see <<Samples>>.
 
 == Options
 
@@ -256,3 +254,11 @@ Here you can specify where to send the result files from the pipeline execution.
 |Result file name field  
 |Specify the name of the field for the result files.
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/pipeline-executor.hpl`, which runs `transforms/pipeline-executor-child.hpl` once for each of 3 rows from a Data grid, and gets the row that the child copies to the result back on the `child rows` stream, and the execution statistics on the `execution results` stream.
+* `loops/pipeline-executor.hpl`, which runs `loops/child-loops-log-counter.hpl` once for each of 10 generated rows, with the row number in the parameter `PRM_COUNTER`, and gets the execution results, the result rows and a copy of the input rows on separate streams.
+* `loops/child-generate-1000-rows.hpl`, which passes 1,000 generated rows to `loops/child-loops-get-rows-from-result.hpl` in groups of 100.

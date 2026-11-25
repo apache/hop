@@ -35,3 +35,7 @@ The Sample Rows transform retains a sample set of rows.
 This list can contain single line numbers or line number ranges, e.g `10,20,30,40,50..60` to sample rows 10, 20, 30, and 40, and all lines from 50 to 60.
 |Line nr fieldname|fieldname to store the line number
 |===
+
+== Samples
+
+The samples project has `transforms/sample-rows.hpl`, which keeps the rows 1, 3 and 5 to 7 of 10 rows from a Data grid, and adds the row number in the field `rownum`.

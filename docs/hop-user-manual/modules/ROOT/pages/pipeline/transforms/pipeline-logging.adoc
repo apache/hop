@@ -78,3 +78,6 @@ The transform requires very little configuration, but provides a lot of informat
 |transformDuration|Integer|total duration for the current transform
 |===
 
+== Samples
+
+The samples project has `reflection/pipeline-log-example.hpl`, which the pipeline log `pipeline-log-example` runs when `reflection/generate-fake-books.hpl` runs: it writes the pipeline and the transform statistics to `reflection/output/pipeline-log.csv` and `reflection/output/pipeline-log-transforms.csv`.

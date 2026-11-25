@@ -110,3 +110,6 @@ TIP: Add the last record from your target slowly changing dimension to modify ex
 IMPORTANT: As mentioned above, but worth repeating, make sure your data is sorted on the group key
 (the customer ID in this example) and **ALSO** on the timestamp to get a correct timeline result.
 
+== Samples
+
+The samples project has `transforms/repeat-fields.hpl`, which repeats the `lastname` of the row with source `A` over the following rows of the same `id`, in the field `repeated_lastname`.

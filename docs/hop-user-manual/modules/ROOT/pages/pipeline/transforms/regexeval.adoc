@@ -203,3 +203,7 @@ This expression creates the following four capturing groups, which become output
 In this example, a field definition must be present for each of these capturing groups.
 
 If the number of capture groups in the regular expression does not match the number of fields specified, the transform will fail and an error is written to the log.
+
+== Samples
+
+The samples project has `transforms/regex-evaluation.hpl`, which checks 3 phrases from a Data grid against `.*hop.*`, ignoring case, and sets the field `contains_hop` to `Y` or `N`.

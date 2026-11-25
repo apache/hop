@@ -42,3 +42,7 @@ Setting a value of 0 will cause all rows to be sampled; setting a negative value
 |Random seed|Choose a seed for the random number generator.
 Repeating a pipeline with a different value for the seed will result in a different random sample being chosen.
 |===
+
+== Samples
+
+The samples project has `transforms/reservoir-sampling.hpl`, which takes a random sample of 5 of the 20 rows from a Data grid, with a fixed seed.

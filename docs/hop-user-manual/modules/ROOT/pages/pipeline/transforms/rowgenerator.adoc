@@ -74,3 +74,15 @@ IMPORTANT: *Value* is a *single* constant, not a comma-separated list.
 *Group* is the thousands separator (`,` in `1,000.00`), not a row group.
 
 To emit several different rows of sample data, use xref:pipeline/transforms/datagrid.adoc[Data Grid] instead.
+
+== Samples
+
+The samples project has:
+
+* `transforms/generate-rows.hpl`, which generates 10 empty rows.
+* `loops/child-generate-1000-rows.hpl`, which generates 1,000 rows and passes them to `loops/child-loops-get-rows-from-result.hpl` in groups of 100.
+* `loops/child-loops-copy-rows-to-result.hpl`, which generates 10 rows with a counter and copies them to the result.
+* `loops/child-loops-log-counter.hpl`, which generates one row, writes the parameter `PRM_COUNTER` to the log and copies the row to the result.
+* `loops/pipeline-executor.hpl`, which generates the 10 rows that it runs `loops/child-loops-log-counter.hpl` for.
+* `loops/workflow-executor.hpl`, which generates the 10 rows that it runs `loops/child-workflow-executor.hwf` for.
+* `workflows/parallel/sample-pipeline.hpl`, which generates 100 rows with the number `4.5487` and adds a sequence; `workflows/parallel/parallel-workflow.hwf` runs it twice at the same time.

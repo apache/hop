@@ -35,3 +35,6 @@ The Set Field Value transform replaces the value of a field with the value of an
 |Replace by value from field|Select the field to copy from
 |===
 
+== Samples
+
+The samples project has `transforms/set-field-value.hpl`, which replaces the field `value` with the field `replacement` in 3 rows from a Data grid.

@@ -106,3 +106,7 @@ Property reflection descends one level into complex property groups, which cover
 Properties marked `isExcludedFromSerialization` are left out, since they never reach a `.hpl` or `.hwf` file.
 
 Plugins whose metadata class cannot be loaded are logged at detailed logging level and skipped rather than failing the pipeline, so a single broken plugin does not stop the catalog.
+
+== Samples
+
+The samples project has `transforms/plugin-catalog-basic.hpl`, which returns one row for each transform, action and metadata type plugin of the running Hop installation, with its ID, type, name, description, category and fields.

@@ -348,3 +348,7 @@ For example, to add support for the Ruby scripting language you need to add the 
 * `jruby-core-<version>.jar`
 
 After restarting the Apache Hop GUI you'll notice that there's a `ruby` entry in the `Scripting Engine` dropdown box.
+
+== Samples
+
+The samples project has `transforms/script.hpl`, which uses an ECMAScript script to add `upper_name`, the name in capitals, to 2 rows from a Data grid.
