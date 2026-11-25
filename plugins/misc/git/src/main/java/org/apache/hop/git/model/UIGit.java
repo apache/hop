@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.Getter;
@@ -62,6 +63,7 @@ import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.RemoteRemoveCommand;
+import org.eclipse.jgit.api.RemoteSetUrlCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.RevertCommand;
@@ -128,6 +130,22 @@ public class UIGit extends VCS {
       CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED =
           "Authentication is required but no CredentialsProvider has been registered";
   public static final String CONST_NOT_AUTHORIZED = "not authorized";
+
+  /**
+   * The end of what JGit reports for an HTTP 403. Some servers answer 403 rather than 401 to
+   * credentials they refuse, GitLab after a few failed attempts for example.
+   */
+  public static final String CONST_NOT_PERMITTED = " not permitted on ";
+
+  /** Key of the remote section in the repository configuration holding its Git connection. */
+  public static final String CONFIG_KEY_GIT_CONNECTION = "hopGitConnection";
+
+  /**
+   * What JGit reports for an HTTP 401 without an authentication challenge. Gitea answers that to
+   * the credentials it refuses: the challenge only comes with the first, anonymous, request.
+   */
+  public static final String CONST_AUTHENTICATION_NOT_SUPPORTED = "authentication not supported";
+
   public static final String CONST_DIALOG_ERROR = "Dialog.Error";
   public static final String CONST_MERGE_FAILED_HEADER = "UIGit.Dialog.MergeFailed.Header";
   public static final String CONST_MERGE_FAILED_LOCAL_CHANGES =
@@ -150,7 +168,9 @@ public class UIGit extends VCS {
   }
 
   @Getter private Git git;
-  private CredentialsProvider credentialsProvider;
+
+  /** The credentials sent to the remote. */
+  private GitCredentials credentials = new GitCredentials();
 
   public String getDirectory() {
     return directory;
@@ -299,7 +319,7 @@ public class UIGit extends VCS {
       cmd.setUri(uri);
       cmd.call();
     } catch (URISyntaxException e) {
-      if (value.equals("")) {
+      if (value.isEmpty()) {
         removeRemote();
       } else {
         showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -323,6 +343,87 @@ public class UIGit extends VCS {
     StoredConfig config = git.getRepository().getConfig();
     Set<String> remotes = config.getSubsections(ConfigConstants.CONFIG_REMOTE_SECTION);
     return remotes.contains(Constants.DEFAULT_REMOTE_NAME);
+  }
+
+  /**
+   * Sets the URL of the remote, origin. It is added when the repository has none yet, its fetch URL
+   * is changed otherwise.
+   *
+   * @param url the URL of the remote repository
+   * @throws HopException if the URL is not valid or the configuration can't be saved
+   */
+  public void setRemoteUrl(String url) throws HopException {
+    URIish uri;
+    try {
+      uri = new URIish(url == null ? "" : url.trim());
+    } catch (URISyntaxException e) {
+      throw new HopException("The URL of the remote is not valid: " + url, e);
+    }
+    if (StringUtils.isEmpty(uri.toString())) {
+      throw new HopException("The URL of the remote is empty");
+    }
+    try {
+      if (hasRemote()) {
+        git.remoteSetUrl()
+            .setRemoteName(Constants.DEFAULT_REMOTE_NAME)
+            .setRemoteUri(uri)
+            .setUriType(RemoteSetUrlCommand.UriType.FETCH)
+            .call();
+      } else {
+        git.remoteAdd().setName(Constants.DEFAULT_REMOTE_NAME).setUri(uri).call();
+      }
+    } catch (GitAPIException e) {
+      throw new HopException("Unable to set the URL of the remote", e);
+    }
+  }
+
+  /**
+   * The name of the Git connection associated with the remote, origin. Its credentials are the ones
+   * to use for the remote. The association is kept in the configuration of the repository, so it
+   * belongs to this repository only and is never committed.
+   *
+   * @return the name of the Git connection, null if there is none
+   */
+  public String getRemoteGitConnection() {
+    String name =
+        git.getRepository()
+            .getConfig()
+            .getString(
+                ConfigConstants.CONFIG_REMOTE_SECTION,
+                Constants.DEFAULT_REMOTE_NAME,
+                CONFIG_KEY_GIT_CONNECTION);
+    return StringUtils.trimToNull(name);
+  }
+
+  /**
+   * Associates a Git connection with the remote, origin.
+   *
+   * @param name the name of the Git connection, null or empty to remove the association
+   * @throws HopException if the configuration can't be saved
+   */
+  public void setRemoteGitConnection(String name) throws HopException {
+    if (!Objects.equals(StringUtils.trimToNull(name), getRemoteGitConnection())) {
+      // Another Git connection, or none: the credentials are looked for again
+      credentials.reset();
+    }
+    StoredConfig config = git.getRepository().getConfig();
+    if (StringUtils.isBlank(name)) {
+      config.unset(
+          ConfigConstants.CONFIG_REMOTE_SECTION,
+          Constants.DEFAULT_REMOTE_NAME,
+          CONFIG_KEY_GIT_CONNECTION);
+    } else {
+      config.setString(
+          ConfigConstants.CONFIG_REMOTE_SECTION,
+          Constants.DEFAULT_REMOTE_NAME,
+          CONFIG_KEY_GIT_CONNECTION,
+          name.trim());
+    }
+    try {
+      config.save();
+    } catch (IOException e) {
+      throw new HopException("Unable to save the Git connection of the remote", e);
+    }
   }
 
   /**
@@ -732,6 +833,8 @@ public class UIGit extends VCS {
   public void openRepo(String baseDirectory) throws Exception {
     git = Git.open(new File(baseDirectory));
     directory = baseDirectory;
+    // The credentials of the previous repository are not sent to this one
+    credentials.reset();
   }
 
   public void closeRepo() {
@@ -843,33 +946,23 @@ public class UIGit extends VCS {
     }
 
     try {
-      git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
-    } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
-        if (!promptForCredentials) {
-          throw new HopException("There was an error doing a git fetch", e);
-        }
-        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
-          new ErrorDialog(
-              HopGui.getInstance().getShell(),
-              "Git Error",
-              "Error Authenticating to Git service",
-              e);
-        }
-        if (promptUsernamePassword()) {
-          return fetch(true);
-        }
-      } else {
-        throw new HopException("There was an error doing a git fetch", e);
-      }
+      Boolean fetched =
+          callRemote(
+              Constants.DEFAULT_REMOTE_NAME,
+              promptForCredentials,
+              credentialsProvider -> {
+                git.fetch()
+                    .setCredentialsProvider(credentialsProvider)
+                    .setCheckFetchedObjects(true)
+                    .call();
+                return true;
+              });
+      return fetched != null;
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("There was an error doing a git fetch", e);
     }
-    return false;
   }
 
   public boolean pull() throws HopException {
@@ -896,35 +989,29 @@ public class UIGit extends VCS {
           throw new HopException(
               "There is no remote set up to pull from. Please set this up first.");
         }
-        git.fetch().setRemote(remote).setCredentialsProvider(credentialsProvider).call();
+        String fetchRemote = remote;
+        Boolean fetched =
+            callRemote(
+                remote,
+                true,
+                credentialsProvider -> {
+                  git.fetch()
+                      .setRemote(fetchRemote)
+                      .setCredentialsProvider(credentialsProvider)
+                      .call();
+                  return true;
+                });
+        if (fetched == null) {
+          return false;
+        }
       }
       return mergeBranch(
           getPullBranch(repository, branch, branchConfig, remote), MergeStrategy.RECURSIVE);
-    } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
-        if (e.getMessage().contains(CONST_NOT_AUTHORIZED)) {
-          new ErrorDialog(
-              HopGui.getInstance().getShell(),
-              "Git Error",
-              "Error Authenticating to Git service",
-              e);
-        }
-        if (promptUsernamePassword()) {
-          return pull();
-        }
-      } else {
-        throw new HopException("There was an error doing a git pull", e);
-      }
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
       throw new HopException("There was an error doing a git pull", e);
     }
-    return false;
   }
 
   private String getPullBranchName(Repository repository) throws HopException, IOException {
@@ -1164,36 +1251,25 @@ public class UIGit extends VCS {
       throw new HopException("There is no remote set up to push to. Please set this up.");
     }
     try {
-      PushCommand cmd = git.push();
-      cmd.setRemote(remote);
-
-      String url = git.getRepository().getConfig().getString("remote", remote, "url");
-      if (!StringUtils.isEmpty(url) && (url.startsWith("https://") || url.startsWith("http://"))) {
-        cmd.setCredentialsProvider(credentialsProvider);
-      }
-
-      if (refSpecs != null) {
-        cmd.setRefSpecs(refSpecs);
-      }
-
-      Iterable<PushResult> resultIterable = cmd.call();
-      return processPushResult(resultIterable, reportSuccess);
-    } catch (TransportException e) {
-      if (e.getMessage()
-              .contains(
-                  CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-          || e.getMessage()
-              .contains(CONST_NOT_AUTHORIZED)) { // when the cached credential does not work
-        if (promptUsernamePassword()) {
-          return push(remote, refSpecs, reportSuccess);
-        }
-      } else {
-        throw new HopException("There was an error doing a git push", e);
-      }
+      Boolean pushed =
+          callRemote(
+              remote,
+              true,
+              credentialsProvider -> {
+                PushCommand cmd = git.push();
+                cmd.setRemote(remote);
+                cmd.setCredentialsProvider(credentialsProvider);
+                if (refSpecs != null) {
+                  cmd.setRefSpecs(refSpecs);
+                }
+                return processPushResult(cmd.call(), reportSuccess);
+              });
+      return pushed != null && pushed;
+    } catch (HopException e) {
+      throw e;
     } catch (Exception e) {
       throw new HopException("There was an error doing a git push", e);
     }
-    return false;
   }
 
   /**
@@ -1348,36 +1424,32 @@ public class UIGit extends VCS {
    *
    * @param directory Local directory to clone into
    * @param uri Repository URI (e.g. https://github.com/user/repo.git)
-   * @param credentialsProvider Optional credentials for authentication (e.g. token). If null and
-   *     auth fails, user will be prompted.
+   * @param tokenProvider Optional credentials for authentication (e.g. token). If null and auth
+   *     fails, user will be prompted.
    * @param depth Shallow clone depth (0 = full clone, 1+ = shallow with that many commits)
    * @return true if clone succeeded
    */
   public boolean cloneRepo(
-      String directory, String uri, CredentialsProvider credentialsProvider, int depth) {
-    CredentialsProvider provider =
-        credentialsProvider != null ? credentialsProvider : this.credentialsProvider;
-    CloneCommand cmd = Git.cloneRepository();
-    cmd.setDirectory(new File(directory));
-    cmd.setURI(uri);
-    cmd.setCredentialsProvider(provider);
-    if (depth > 0) {
-      cmd.setDepth(depth);
-    }
+      String directory, String uri, CredentialsProvider tokenProvider, int depth) {
+    RemoteCall<Boolean> call =
+        credentialsProvider -> {
+          CloneCommand cmd = Git.cloneRepository();
+          cmd.setDirectory(new File(directory));
+          cmd.setURI(uri);
+          cmd.setCredentialsProvider(credentialsProvider);
+          if (depth > 0) {
+            cmd.setDepth(depth);
+          }
+          cmd.call().close();
+          return true;
+        };
     try {
-      Git gitClone = cmd.call();
-      gitClone.close();
-      return true;
+      // A token given by the caller is not replaced by other credentials. Without one there is
+      // no repository yet, so no Git connection: the user is asked.
+      Boolean cloned =
+          tokenProvider != null ? call.call(tokenProvider) : callRemote(uri, null, true, call);
+      return cloned != null;
     } catch (Exception e) {
-      if ((e instanceof TransportException)
-          && (e.getMessage()
-                  .contains(
-                      CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
-              || e.getMessage().contains(CONST_NOT_AUTHORIZED))) {
-        if (provider == null && promptUsernamePassword()) {
-          return cloneRepo(directory, uri, null, depth);
-        }
-      }
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
     return false;
@@ -1954,7 +2026,129 @@ public class UIGit extends VCS {
 
   @Override
   public void setCredential(String username, String password) {
-    credentialsProvider = new UsernamePasswordCredentialsProvider(username, password);
+    credentials.setUserCredentials(username, password);
+  }
+
+  @VisibleForTesting
+  boolean hasCredentials() {
+    return credentials.hasUserCredentials();
+  }
+
+  @VisibleForTesting
+  void setCredentials(GitCredentials credentials) {
+    this.credentials = credentials;
+  }
+
+  /**
+   * Whether a transport failure is the remote asking for credentials or refusing the ones it got.
+   *
+   * <p>A 401 without a challenge only counts when credentials were sent. Without credentials it is
+   * a server JGit can't authenticate to, and asking for a username and password would not help.
+   *
+   * @param sent the credentials sent with the failed operation, null if there were none
+   */
+  boolean isAuthenticationFailure(TransportException e, CredentialsProvider sent) {
+    String message = e.getMessage();
+    return message != null
+        && (message.contains(
+                CONST_AUTHENTICATION_IS_REQUIRED_BUT_NO_CREDENTIALS_PROVIDER_HAS_BEEN_REGISTERED)
+            || message.contains(CONST_NOT_AUTHORIZED)
+            || message.contains(CONST_NOT_PERMITTED)
+            || (sent != null && message.contains(CONST_AUTHENTICATION_NOT_SUPPORTED)));
+  }
+
+  /** An operation on a remote, given the credentials to send. */
+  @FunctionalInterface
+  private interface RemoteCall<T> {
+    T call(CredentialsProvider credentials) throws Exception;
+  }
+
+  /**
+   * Calls a remote of the repository.
+   *
+   * @param remote the name of the remote. Only origin can have a Git connection.
+   * @see #callRemote(String, String, boolean, RemoteCall)
+   */
+  private <T> T callRemote(String remote, boolean interactive, RemoteCall<T> call)
+      throws Exception {
+    String url =
+        git.getRepository()
+            .getConfig()
+            .getString(
+                ConfigConstants.CONFIG_REMOTE_SECTION, remote, ConfigConstants.CONFIG_KEY_URL);
+    String gitConnection =
+        Constants.DEFAULT_REMOTE_NAME.equals(remote) ? getRemoteGitConnection() : null;
+    return callRemote(url, gitConnection, interactive, call);
+  }
+
+  /**
+   * Calls a remote with the credentials of {@link GitCredentials}, and handles a refusal as it
+   * says: with other credentials, by asking the user, or as an error.
+   *
+   * @param url the URL of the remote
+   * @param gitConnection the name of the Git connection associated with the remote, null if none
+   * @param interactive whether the user may be asked for credentials. False from the automatic
+   *     fetch: a refusal is then an error, and the credentials are left alone since the user may be
+   *     entering new ones right now.
+   * @return the result of the call, null if the user cancelled when asked for credentials
+   * @throws HopException when the refusal is an error
+   * @throws Exception any other failure of the call
+   */
+  private <T> T callRemote(
+      String url, String gitConnection, boolean interactive, RemoteCall<T> call) throws Exception {
+    int asked = 0;
+    while (true) {
+      CredentialsProvider sent = credentials.get(url, gitConnection);
+      try {
+        return call.call(sent);
+      } catch (TransportException e) {
+        if (!interactive || !GitCredentials.isHttp(url) || !isAuthenticationFailure(e, sent)) {
+          throw e;
+        }
+        boolean forbidden = e.getMessage().contains(CONST_NOT_PERMITTED);
+        GitCredentials.Next next = credentials.refused(sent, forbidden);
+        if (next == GitCredentials.Next.FAIL) {
+          throw new HopException(getRefusalMessage(sent, gitConnection, forbidden), e);
+        }
+        if (next == GitCredentials.Next.ASK_USER) {
+          if (asked == GitCredentials.MAX_USER_ATTEMPTS) {
+            throw new HopException(
+                "The remote refused the credentials "
+                    + GitCredentials.MAX_USER_ATTEMPTS
+                    + " times.",
+                e);
+          }
+          // Credentials the user entered were refused: tell before asking again
+          if (sent != null) {
+            showAuthenticationError(e);
+          }
+          asked++;
+          if (!promptUsernamePassword()) {
+            return null;
+          }
+        }
+      }
+    }
+  }
+
+  private static String getRefusalMessage(
+      CredentialsProvider sent, String gitConnection, boolean forbidden) {
+    if (GitCredentials.isGitConnection(sent)) {
+      return "The remote refused the credentials of the Git connection '"
+          + gitConnection
+          + "'. Check the credentials of the connection, and the rights of its account on this"
+          + " repository.";
+    }
+    return forbidden
+        ? "The remote refused the credentials, or the account doesn't have the rights for this"
+            + " operation on this repository."
+        : "The remote refused the credentials.";
+  }
+
+  @VisibleForTesting
+  void showAuthenticationError(TransportException e) {
+    new ErrorDialog(
+        HopGui.getInstance().getShell(), "Git Error", "Error Authenticating to Git service", e);
   }
 
   // Safe: the stack trace goes to the local stderr only, never to a remote client
