@@ -306,6 +306,16 @@ Column types in the schema facet use the lowercase OpenLineage names — `string
 type descriptions. A type with no honest OpenLineage equivalent (`Serializable`, or a type a plugin
 invented) is left out instead of guessed.
 
+== Kafka topics
+
+*Kafka Consumer* reports a topic it reads once Kafka has assigned partitions of it to the consumer,
+and *Kafka Producer* a topic it writes once Kafka has accepted the first row for it, up to 1000 per
+run. When Kafka refuses a row, the producer's row count is not put on the topics it reported, since
+it also counts the refused rows. A topic is named as the
+OpenLineage naming spec names it: the namespace `kafka://<host>:<port>` of the first bootstrap server,
+and the topic. A consumer runs until it is stopped, so the topic does not wait for the end of the
+run: it is sent on a `RUNNING` event of the run right away, and again with the run's end.
+
 == Job namespace and environments
 
 The job namespace identifies the *orchestrator instance* that produced the events, not the

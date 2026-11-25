@@ -1,0 +1,10 @@
+{
+  "engineRunConfiguration": {
+    "Local": {
+      "safe_mode": false
+    }
+  },
+  "name": "kafka-datahub",
+  "description": "Runs workflows locally and reports their lineage, and that of the runs they start, to the datahub-stub lineage sink",
+  "lineageSinkName": "datahub-stub"
+}

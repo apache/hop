@@ -140,6 +140,16 @@ Here are some options you need to set to make this work on a Confluent Cloud Kaf
 
 |===
 
+== Lineage
+
+With a xref:metadata-types/lineage-sink.adoc[lineage sink], the transform reports each topic it
+writes once Kafka has accepted the first row for it, up to 1000 per run. A topic Kafka refuses, for
+example because it doesn't exist or the transform may not write to it, is not reported, and the
+transform's row count is then not put on the topics it did report. The topic is
+named after the first bootstrap server (`kafka://<host>:<port>`), taken from a `bootstrap.servers`
+option when one is set, and the topic: see
+xref:technology/openlineage/index.adoc#_kafka_topics[Kafka topics].
+
 == Samples
 
 The samples project has `transforms/kafka-producer-create-pokemon-data.hpl`, which builds a JSON message with a user ID, a Pokémon name and location, and the detection date every second, and sends it to the topic `${KAFKA_TOPIC}` with `id` as the key, until you stop it.

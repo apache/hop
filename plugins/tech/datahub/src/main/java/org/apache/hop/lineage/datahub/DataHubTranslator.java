@@ -305,10 +305,17 @@ final class DataHubTranslator {
     jobOutputs.removeAll(copies.keySet());
     // A pipeline that carried datasets itself (an engine without the hop graph) needs a job to hold
     // them: DataHub lineage runs through jobs, not through flows.
+    // Datasets seen after their run reported its end, or while it runs (a Kafka consumer runs until
+    // it is stopped): they are added, nothing else of the pipeline or its tasks is written.
+    boolean addsDatasets = type == EventType.OTHER || type == EventType.RUNNING;
     String ioJobUrn = jobUrn;
     if (ioJobUrn == null && (!jobInputs.isEmpty() || !jobOutputs.isEmpty())) {
       ioJobUrn = DataHubUrns.dataJob(flowUrn, subject.flowName());
-      proposals.addAll(flowAspects(flowUrn, subject, description(event)));
+      if (!addsDatasets) {
+        // These events carry no description: the pipeline's start wrote its info.
+        proposals.addAll(flowAspects(flowUrn, subject, description(event)));
+      }
+      // The same task info every event writes, so the task has its name while the run goes on.
       proposals.addAll(jobAspects(ioJobUrn, flowUrn, subject, null, Map.of()));
     }
     for (String dataset : distinct(inputs, outputs)) {
@@ -324,8 +331,8 @@ final class DataHubTranslator {
     proposals.addAll(datasetColumnLineage(fieldEdges));
     proposals.addAll(copyLineage(copies, time));
 
-    if (type == EventType.OTHER) {
-      // Datasets seen after their run reported its end: add them, do not replace what the job has.
+    if (addsDatasets) {
+      // Add them, do not replace what the job has, and do not end the run.
       if (ioJobUrn != null) {
         proposals.add(addDatasetEdges(ioJobUrn, jobInputs, jobOutputs));
       }

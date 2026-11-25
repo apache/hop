@@ -57,6 +57,8 @@ import org.apache.hop.lineage.LineageTransformLogic;
 import org.apache.hop.lineage.api.IDeclaresTransformLogic.FieldLogic;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.context.LineageSubjectType;
+import org.apache.hop.lineage.model.DatasetIoLineagePayload;
+import org.apache.hop.lineage.model.DatasetIoOperation;
 import org.apache.hop.lineage.model.DocumentationLineagePayload;
 import org.apache.hop.lineage.model.FileIoContentSchema;
 import org.apache.hop.lineage.model.FileIoLineagePayload;
@@ -424,6 +426,7 @@ public final class OpenLineageEventMapper {
       case RELATIONAL_IO -> mapRelationalIo(event).map(List::of).orElse(List.of());
       case UNIT_TEST -> mapUnitTest(event).map(List::of).orElse(List.of());
       case DOCUMENTATION -> mapDocumentation(event).map(List::of).orElse(List.of());
+      case DATASET_IO -> mapDatasetIo(event);
       case TRANSFORM_SCHEMA, HTTP_IO -> List.of();
     };
   }
@@ -778,6 +781,71 @@ public final class OpenLineageEventMapper {
     List<OutputDataset> outputs = new ArrayList<>();
     addFileIoDatasets(fileIo, inputs, outputs);
     return observe(event, inputs, outputs, null);
+  }
+
+  /**
+   * A dataset that is neither a table nor a file, such as a Kafka topic, named as the transform
+   * named it. It goes on the run's end, as other I/O does, and on a {@code RUNNING} event right
+   * away too: a Kafka consumer runs until it is stopped, so its run may not end for a long time.
+   */
+  private List<RunEvent> mapDatasetIo(LineageEvent event) {
+    if (!(event.getPayload() instanceof DatasetIoLineagePayload dataset)) {
+      return List.of();
+    }
+    if (!dataset.isSuccess()) {
+      // A refused read or write: no dataset, and the transform's row counters, which also count
+      // the refused rows, are no longer put on the datasets it did report.
+      LineageContext ctx = event.getContext();
+      String pipelineOfTransform = transformOfPipeline(ctx);
+      if (pipelineOfTransform != null && !endedPipelineRuns.contains(pipelineOfTransform)) {
+        rowStatistics(pipelineOfTransform).uncounted(ctx.getTransformName());
+      }
+      return List.of();
+    }
+    if (Utils.isEmpty(dataset.getNamespace()) || Utils.isEmpty(dataset.getName())) {
+      return List.of();
+    }
+    DatasetFacets facets = relationalDatasetFacets(dataset.getNamespace(), null, null, null);
+    List<InputDataset> inputs = new ArrayList<>();
+    List<OutputDataset> outputs = new ArrayList<>();
+    if (dataset.getOperation() == DatasetIoOperation.READ) {
+      inputs.add(
+          ol.newInputDatasetBuilder()
+              .namespace(dataset.getNamespace())
+              .name(dataset.getName())
+              .facets(facets)
+              .build());
+    } else {
+      outputs.add(
+          ol.newOutputDatasetBuilder()
+              .namespace(dataset.getNamespace())
+              .name(dataset.getName())
+              .facets(facets)
+              .build());
+    }
+    Optional<RunEvent> late = observe(event, inputs, outputs, null);
+    if (late.isPresent()) {
+      // The run already ended: the event observe made is all there is to send
+      return List.of(late.get());
+    }
+    LineageContext ctx = event.getContext();
+    boolean perTransform = isTransformOfAPipelineRun(ctx);
+    String jobName = perTransform ? resolveJobName(ctx) : resolveFileIoJobName(ctx);
+    String runId =
+        perTransform
+            ? resolveRunId(ctx, event.getEventId())
+            : resolveFileIoRunId(ctx, event.getEventId());
+    JobIdentity identity = perTransform ? JobIdentity.of(ctx) : JobIdentity.ioOwner(ctx);
+    ZonedDateTime eventTime = toUtc(event.getTimestampMillis());
+    return List.of(
+        ol.newRunEventBuilder()
+            .eventType(EventType.RUNNING)
+            .eventTime(eventTime)
+            .run(runNode(runId, eventTime, null))
+            .job(job(jobName, identity, null))
+            .inputs(inputs.isEmpty() ? null : inputs)
+            .outputs(outputs.isEmpty() ? null : outputs)
+            .build());
   }
 
   /**

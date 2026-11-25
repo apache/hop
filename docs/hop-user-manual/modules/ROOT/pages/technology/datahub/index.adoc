@@ -90,6 +90,11 @@ transform.
 a local file as its path on `file`. A table on a database server with a platform instance is named
 with it, see <<Database platform instances>>.
 
+|Kafka topic (Kafka Consumer, Kafka Producer)
+|A *dataset* on the `kafka` platform named after the topic, as DataHub's Kafka source names it. A
+consumer runs until it is stopped: its task lists the topic as soon as it starts reading, before
+the run ends.
+
 |Column mappings (SQL `INSERT … SELECT`, Table Input → Table Output)
 |Column-level lineage, on the task and on the dataset.
 
