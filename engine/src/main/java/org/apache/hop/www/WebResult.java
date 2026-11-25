@@ -55,7 +55,7 @@ public class WebResult {
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private String lineageRunId;
 
-  /** The names of the client's lineage sinks the server reports the registered run to. */
+  /** The keys of the client's lineage sinks the server reports the registered run to. */
   @Getter
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   private List<String> lineageSinks = List.of();
@@ -188,7 +188,7 @@ public class WebResult {
   public WebResult withLineage(LineageRemoteRuns.Answer answer) {
     if (answer != null) {
       lineageRunId = answer.runId();
-      lineageSinks = answer.sinks() == null ? List.of() : List.copyOf(answer.sinks());
+      lineageSinks = answer.sinkKeys() == null ? List.of() : List.copyOf(answer.sinkKeys());
       lineageVariableSinks = answer.variableSinks();
     }
     return this;

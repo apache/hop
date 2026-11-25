@@ -46,13 +46,13 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * The lineage of a pipeline or workflow a client runs on a Hop Server. The client passes its run
- * with the variables it sends: its run id, its file, the run that started it, the names of its
+ * with the variables it sends: its run id, its file, the run that started it, the keys of its
  * lineage sinks and where its sinks configured with variables report to. The server reports the run
- * it starts under that identity, to the client's sinks it can use besides its own, so its
- * transforms and their datasets land on the client's run. The server names those sinks in its
- * answer; once the run started on the server, the client leaves the run's own events for those
- * sinks to the server and keeps reporting to the rest. A server that doesn't know this ignores the
- * variable, and both report as before.
+ * it starts under that identity, to those of the client's sinks it has itself, with the same type
+ * and settings, besides its own; so the run's transforms and their datasets land on the client's
+ * run. The server names those sinks in its answer; once the run started on the server, the client
+ * leaves the run's own events for those sinks to the server and keeps reporting to the rest. A
+ * server that doesn't know this ignores the variable, and both report as before.
  */
 public final class LineageRemoteRuns {
 
@@ -89,7 +89,8 @@ public final class LineageRemoteRuns {
    * @param portableFilename that file as the client's lineage names it ({@code
    *     ${PROJECT_HOME}/...})
    * @param parent the attributes that name the run that started the client's run
-   * @param sinks the names of the lineage sinks the client's run reports to
+   * @param sinkKeys the keys of the lineage sinks the client's run reports to ({@link
+   *     LineageSinkTarget#key()}): the name, with a digest of the sink's type and resolved settings
    * @param variableSinks where the client's sinks configured with variables report to, as a digest
    *     ({@link #variableSinksDigest}); null when it has none
    */
@@ -99,21 +100,21 @@ public final class LineageRemoteRuns {
       String filename,
       String portableFilename,
       Map<String, String> parent,
-      List<String> sinks,
+      List<String> sinkKeys,
       String variableSinks) {}
 
   /**
    * What a Hop Server answers when it reports a client's run.
    *
    * @param runId the client's run id the server reports under
-   * @param sinks the names of the client's sinks the server reports the run to
+   * @param sinkKeys the keys of the client's sinks the server reports the run to
    * @param variableSinks whether the server's sinks configured with variables report to the same
    *     place as the client's, so the server reports the run there too
    */
-  public record Answer(String runId, List<String> sinks, boolean variableSinks) {}
+  public record Answer(String runId, List<String> sinkKeys, boolean variableSinks) {}
 
   /** What a server reports of a client's run, kept with the client's run. */
-  private record HandedOver(Set<String> sinks, boolean variableSinks) {}
+  private record HandedOver(Set<String> sinkKeys, boolean variableSinks) {}
 
   // -----------------------------------------------------------------------------------------------
   // Client
@@ -128,7 +129,7 @@ public final class LineageRemoteRuns {
     forget(pipeline);
     try {
       LineageContext context = LineageRunLifecycleEmitter.pipelineRunContext(pipeline).build();
-      pass(pipeline, context, LineageSinkRoutes.namesOf(pipeline), variables);
+      pass(pipeline, context, List.copyOf(LineageSinkRoutes.of(pipeline)), variables);
     } catch (Exception e) {
       logDetailed(pipeline.getLogChannel(), e);
     }
@@ -140,7 +141,7 @@ public final class LineageRemoteRuns {
     forget(workflow);
     try {
       LineageContext context = LineageRunLifecycleEmitter.workflowRunContext(workflow).build();
-      pass(workflow, context, LineageSinkRoutes.namesOf(workflow), variables);
+      pass(workflow, context, List.copyOf(LineageSinkRoutes.of(workflow)), variables);
     } catch (Exception e) {
       logDetailed(workflow.getLogChannel(), e);
     }
@@ -200,11 +201,11 @@ public final class LineageRemoteRuns {
       data(run).remove(HANDED_OVER_KEY);
       return;
     }
-    Set<String> sinks = new LinkedHashSet<>();
-    if (answer.sinks() != null) {
-      answer.sinks().stream().filter(name -> !Utils.isEmpty(name)).forEach(sinks::add);
+    Set<String> sinkKeys = new LinkedHashSet<>();
+    if (answer.sinkKeys() != null) {
+      answer.sinkKeys().stream().filter(key -> !Utils.isEmpty(key)).forEach(sinkKeys::add);
     }
-    data(run).put(HANDED_OVER_KEY, new HandedOver(Set.copyOf(sinks), answer.variableSinks()));
+    data(run).put(HANDED_OVER_KEY, new HandedOver(Set.copyOf(sinkKeys), answer.variableSinks()));
   }
 
   /** Whether the server reports this client run, to some or all of its sinks. */
@@ -220,12 +221,12 @@ public final class LineageRemoteRuns {
    */
   static Set<String> clientSinks(IExtensionData run, Set<String> sinks) {
     if (!(data(run).get(HANDED_OVER_KEY) instanceof HandedOver handedOver)
-        || handedOver.sinks().isEmpty()) {
+        || handedOver.sinkKeys().isEmpty()) {
       return sinks;
     }
     Set<String> left = new LinkedHashSet<>();
     for (String key : sinks) {
-      if (!handedOver.sinks().contains(LineageSinkTarget.nameOf(key))) {
+      if (!handedOver.sinkKeys().contains(key)) {
         left.add(key);
       }
     }
@@ -340,7 +341,8 @@ public final class LineageRemoteRuns {
       return null;
     }
     List<String> sinks =
-        LineageSinkRoutes.acceptedSinks(passed.sinks(), runVariables, metadataProvider, log, hub);
+        LineageSinkRoutes.acceptedSinks(
+            passed.sinkKeys(), runVariables, metadataProvider, log, hub);
     String ownVariableSinks = variableSinksDigest(hub, engineVariables);
     boolean sameVariableSinks =
         ownVariableSinks != null && ownVariableSinks.equals(passed.variableSinks());
@@ -370,7 +372,7 @@ public final class LineageRemoteRuns {
     }
     return new Answer(
         remoteRun.runId(),
-        remoteRun.sinks() == null ? List.of() : remoteRun.sinks(),
+        remoteRun.sinkKeys() == null ? List.of() : remoteRun.sinkKeys(),
         Boolean.TRUE.equals(data(run).get(ADOPTED_VARIABLE_SINKS_KEY)));
   }
 
@@ -396,21 +398,37 @@ public final class LineageRemoteRuns {
   // Both
   // -----------------------------------------------------------------------------------------------
 
+  /** Hub settings that don't change where the sinks configured with variables send events. */
+  private static final Set<String> NOT_A_DESTINATION =
+      Set.of(
+          LineageVariables.HOP_LINEAGE_ENABLED,
+          LineageVariables.HOP_LINEAGE_QUEUE_CAPACITY,
+          LineageVariables.HOP_LINEAGE_BATCH_MAX,
+          LineageVariables.HOP_LINEAGE_BATCH_LINGER_MS,
+          VAR_REMOTE_RUN);
+
   /**
-   * Where the sinks configured with variables report to, as a digest of the sink ids and the {@code
-   * HOP_LINEAGE_*_URL} variables. A client and a server with the same digest report to the same
-   * place, so only the server reports a run it took over there. Hashed, as a URL may hold a secret.
+   * Where the sinks configured with variables report to, as a digest: the plugin ids of the ones
+   * that started, and every other {@code HOP_LINEAGE_*} setting (URLs, namespace, environment,
+   * platform instance, credentials, ...). A client and a server with the same digest report to the
+   * same place, so only the server reports a run it took over there. Any difference keeps both
+   * reporting: a run may then be reported twice, but never lost. Hashed, as the settings may hold a
+   * secret.
    *
-   * @return the digest, or null when no sinks are configured with variables
+   * @return the digest, or null when no sinks configured with variables deliver events: none are
+   *     set up, or they failed to start
    */
   static String variableSinksDigest(LineageHub hub, IVariables engineVariables) {
-    if (hub == null || !hub.isEnabled() || engineVariables == null) {
+    if (hub == null || engineVariables == null) {
+      return null;
+    }
+    List<String> started = hub.variableSinkIds();
+    if (started.isEmpty()) {
       return null;
     }
     Map<String, String> destination = new TreeMap<>();
     for (String name : engineVariables.getVariableNames()) {
-      if (LineageVariables.HOP_LINEAGE_SINK_IDS.equals(name)
-          || (name.startsWith("HOP_LINEAGE_") && name.endsWith("_URL"))) {
+      if (name.startsWith("HOP_LINEAGE_") && !NOT_A_DESTINATION.contains(name)) {
         String value = engineVariables.getVariable(name);
         if (!Utils.isEmpty(value)) {
           destination.put(name, value.trim());
@@ -419,6 +437,10 @@ public final class LineageRemoteRuns {
     }
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      for (String id : started) {
+        digest.update(id.getBytes(StandardCharsets.UTF_8));
+        digest.update((byte) 2);
+      }
       for (Map.Entry<String, String> entry : destination.entrySet()) {
         digest.update(entry.getKey().getBytes(StandardCharsets.UTF_8));
         digest.update((byte) 0);
