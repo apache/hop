@@ -27,6 +27,7 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlSyntax;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseTypes;
 import org.apache.hop.core.database.types.IDatabaseTypeRule;
@@ -412,5 +413,19 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       return null;
     }
     return BatchFailureContract.MARKS_FAILED_ROWS;
+  }
+
+  /**
+   * H2 2.x runs the standard MERGE with a {@code VALUES} source and infers the parameter types from
+   * the target columns. It has no {@code ON CONFLICT}. Checked by {@code H2MergeTest}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != H2DatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.STANDARD_MERGE;
   }
 }

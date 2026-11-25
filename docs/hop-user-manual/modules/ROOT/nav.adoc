@@ -250,6 +250,7 @@ under the License.
 *** xref:pipeline/transforms/mapping-output.adoc[Mapping output]
 *** xref:pipeline/transforms/maskfields.adoc[Mask fields]
 *** xref:pipeline/transforms/memgroupby.adoc[Memory Group By]
+*** xref:pipeline/transforms/mergeintotable.adoc[Merge into table]
 *** xref:pipeline/transforms/mergejoin.adoc[Merge Join]
 *** xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 *** xref:pipeline/transforms/metainject.adoc[Metadata Injection]

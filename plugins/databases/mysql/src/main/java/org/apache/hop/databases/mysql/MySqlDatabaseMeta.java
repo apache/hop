@@ -41,6 +41,8 @@ import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.ColumnTypeRules;
 import org.apache.hop.core.database.types.DatabaseTypes;
@@ -977,5 +979,32 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       return BatchFailureContract.KEEPS_PREFIX;
     }
     return null;
+  }
+
+  /**
+   * MySQL upserts with {@code INSERT ... ON DUPLICATE KEY UPDATE}, which reacts to every unique
+   * index of the table: it is only used when the key columns are the primary key or a unique index
+   * and the table has no other. From 8.1 on (8.0.19 has it too, but the patch level is not checked)
+   * the inserted row is named with a row alias, {@code AS new ... c = new.c}; older servers get the
+   * {@code VALUES(c)} function, deprecated since 8.0.20. MySQL leaves a row whose values don't
+   * change alone on its own, which is what "update only changed" asks for. Checked against MySQL
+   * 8.4 and 5.7 with the Connector/J Hop downloads by {@code MySqlMergeIT}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it: MariaDB has no row
+   * alias, and the others have not been run.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != MySqlDatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.builder()
+        .upsert(
+            DmlSyntax.Upsert.of(UpsertForm.ON_DUPLICATE_KEY)
+                .withRowAlias(true)
+                .withMinimumMajorVersion(8)
+                .withMinimumMinorVersion(1))
+        .upsert(DmlSyntax.Upsert.of(UpsertForm.ON_DUPLICATE_KEY))
+        .build();
   }
 }

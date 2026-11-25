@@ -76,6 +76,18 @@ public class FakeBatchDatabase {
   private boolean batchCountsWithoutInfo;
   private boolean aborted;
   private boolean savepoints = true;
+  private boolean singleUseSavepoints;
+  private boolean releaseSavepoints = true;
+  private final Set<Object> consumedSavepoints = new HashSet<>();
+
+  /**
+   * The savepoints the transaction holds, outermost first, as PostgreSQL keeps them: one set on top
+   * of another nests a subtransaction deeper, a rollback to one keeps it, a release drops it and
+   * those set after it.
+   */
+  private final List<FakeSavepoint> liveSavepoints = new ArrayList<>();
+
+  private int maxLiveSavepoints;
 
   private int executeBatchCalls;
   private int executeUpdateCalls;
@@ -109,6 +121,29 @@ public class FakeBatchDatabase {
   public FakeBatchDatabase writeUncommitted(Object... keys) {
     pending.addAll(Arrays.asList(keys));
     return this;
+  }
+
+  /**
+   * Forgets a savepoint once it is rolled back to, as SQL Server does through mssql-jdbc: rolling
+   * back to it again fails.
+   */
+  public FakeBatchDatabase withSingleUseSavepoints() {
+    singleUseSavepoints = true;
+    return this;
+  }
+
+  /** Refuses to release a savepoint, as mssql-jdbc and the Oracle driver do. */
+  public FakeBatchDatabase withoutReleaseSavepoint() {
+    releaseSavepoints = false;
+    return this;
+  }
+
+  /**
+   * @return the most savepoints the transaction held at once: how deep PostgreSQL nested its
+   *     subtransactions
+   */
+  public int maxLiveSavepoints() {
+    return maxLiveSavepoints;
   }
 
   /** Refuses savepoints, as DuckDB does. */
@@ -309,24 +344,28 @@ public class FakeBatchDatabase {
     // Committing an aborted transaction rolls it back, as PostgreSQL does.
     pending.clear();
     aborted = false;
+    liveSavepoints.clear();
   }
 
   private void rollback() {
     rollbacks++;
     pending.clear();
     aborted = false;
+    liveSavepoints.clear();
   }
 
+  private int savepointIds;
+
   /** Remembers how many rows were pending when it was set. */
-  private record FakeSavepoint(int pendingRows) implements Savepoint {
+  private record FakeSavepoint(int id, int pendingRows) implements Savepoint {
     @Override
     public int getSavepointId() {
-      return pendingRows;
+      return id;
     }
 
     @Override
     public String getSavepointName() {
-      return "sp" + pendingRows;
+      return "sp" + id;
     }
   }
 
@@ -351,7 +390,18 @@ public class FakeBatchDatabase {
           rollback();
         } else {
           if (args[0] instanceof FakeSavepoint savepoint) {
+            if (!consumedSavepoints.add(savepoint) && singleUseSavepoints) {
+              throw new SQLException(
+                  "Cannot roll back " + savepoint.getSavepointName() + ". No savepoint");
+            }
             rollbackTo(savepoint);
+            // The ones set after it end; it stays, unless the driver forgets it.
+            int index = liveSavepoints.indexOf(savepoint);
+            if (index >= 0) {
+              liveSavepoints
+                  .subList(singleUseSavepoints ? index : index + 1, liveSavepoints.size())
+                  .clear();
+            }
           }
         }
         return null;
@@ -359,8 +409,18 @@ public class FakeBatchDatabase {
         if (!savepoints) {
           throw new SQLFeatureNotSupportedException("setSavepoint");
         }
-        return new FakeSavepoint(pending.size());
+        FakeSavepoint savepoint = new FakeSavepoint(++savepointIds, pending.size());
+        liveSavepoints.add(savepoint);
+        maxLiveSavepoints = Math.max(maxLiveSavepoints, liveSavepoints.size());
+        return savepoint;
       case "releaseSavepoint":
+        if (!releaseSavepoints) {
+          throw new SQLFeatureNotSupportedException("releaseSavepoint");
+        }
+        int index = liveSavepoints.indexOf(args[0]);
+        if (index >= 0) {
+          liveSavepoints.subList(index, liveSavepoints.size()).clear();
+        }
         return null;
       case "getMetaData":
         return metaData;

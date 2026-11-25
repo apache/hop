@@ -106,6 +106,7 @@
         <module>mapping</module>
         <module>maskfields</module>
         <module>memgroupby</module>
+        <module>mergeintotable</module>
         <module>mergejoin</module>
         <module>mergerows</module>
         <module>metadata</module>

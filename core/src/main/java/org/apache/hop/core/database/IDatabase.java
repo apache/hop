@@ -955,6 +955,66 @@ public interface IDatabase extends Cloneable {
   }
 
   /**
+   * How this database writes the DML statements Hop generates beyond a plain INSERT, UPDATE or
+   * DELETE: its upsert forms (MERGE, ON CONFLICT, ON DUPLICATE KEY), see {@link
+   * org.apache.hop.core.database.dml.DmlSyntax}.
+   *
+   * <p>Return null when the database has none of these, or when nobody has verified that they work:
+   * a transform that needs an upsert then refuses the connection with a clear message instead of
+   * failing on the first row. Declare only the forms a test ran against the database, and only for
+   * the dialect itself ({@code getClass() == MyDatabaseMeta.class}): a dialect that extends it
+   * talks to another server and has to declare its own.
+   *
+   * @return the DML syntax, or null when the database has no upsert in Hop
+   */
+  default org.apache.hop.core.database.dml.DmlSyntax getDmlSyntax() {
+    return null;
+  }
+
+  /**
+   * The type a parameter is cast to when {@link #getDmlSyntax()} casts its parameters ({@link
+   * org.apache.hop.core.database.dml.DmlSyntax#castParameters()}), from what {@link
+   * java.sql.DatabaseMetaData#getColumns} reports for the target column.
+   *
+   * <p>The cast gives an untyped parameter its column's type; the column itself then decides, as it
+   * does for a plain INSERT or UPDATE, whether the value fits. A cast must therefore not change the
+   * value: on a database where a cast to {@code varchar(5)} cuts a longer string without an error,
+   * or a cast to {@code numeric(5,2)} rounds a key before it is compared, cast to the type without
+   * its length or precision, or to the widest one. The default keeps the column's length and
+   * precision, see {@link org.apache.hop.core.database.dml.DmlColumns#nativeType(String, int, int,
+   * int)}: right for a database that refuses a value too long for a parameter cast to it, as DB2
+   * does.
+   *
+   * @param typeName TYPE_NAME
+   * @param dataType DATA_TYPE, a {@link java.sql.Types} constant
+   * @param columnSize COLUMN_SIZE
+   * @param decimalDigits DECIMAL_DIGITS, or -1 when the driver reports none
+   * @return the type to cast to, or null when it is unknown
+   */
+  default String getDmlCastType(String typeName, int dataType, int columnSize, int decimalDigits) {
+    return org.apache.hop.core.database.dml.DmlColumns.nativeType(
+        typeName, dataType, columnSize, decimalDigits);
+  }
+
+  /**
+   * Whether this database can compare two values of a column with {@code <>}, from what {@link
+   * java.sql.DatabaseMetaData#getColumns} reports for it. An upsert that updates only changed rows
+   * compares every updated column; when one can't be compared it updates every matched row instead,
+   * since it can't tell whether that column changed.
+   *
+   * <p>The default refuses the large object, XML and structured types of JDBC, see {@link
+   * org.apache.hop.core.database.dml.DmlColumns#comparable(String, int)}. Add the types of the
+   * database that have no {@code <>}, or one that doesn't compare the whole value.
+   *
+   * @param typeName TYPE_NAME
+   * @param dataType DATA_TYPE, a {@link java.sql.Types} constant
+   * @return false when {@code a <> b} is an error, or not a comparison of the values, for this type
+   */
+  default boolean isDmlComparable(String typeName, int dataType) {
+    return org.apache.hop.core.database.dml.DmlColumns.comparable(typeName, dataType);
+  }
+
+  /**
    * Get the SQL to insert a new empty unknown record in a dimension.
    *
    * @param schemaTable the schema-table name to insert into

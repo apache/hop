@@ -788,12 +788,21 @@ public class RecoverableBatch implements IRowBatch {
 
   /**
    * Undoes the rows of this batch that are not committed. Before the first commit of a flush that
-   * goes back to its savepoint, which stays set, so the work the transaction held before stays.
+   * goes back to its savepoint, and puts a new one in its place, so the work the transaction held
+   * before stays through every later rollback too.
    */
   private void rollback() throws HopDatabaseException {
     try {
       if (savepoint != null) {
         connection.rollback(savepoint);
+        // SQL Server (mssql-jdbc) forgets a savepoint once it is rolled back to: "Cannot roll back
+        // S10001. No transaction or savepoint of that name was found" on the next rollback of the
+        // same recovery. Set a new one, so every rollback of this flush has one to go back to.
+        // PostgreSQL keeps the old one, and would nest every new savepoint one subtransaction
+        // deeper: release it first, so the new one takes its place. A driver that can't release
+        // one (SQL Server, Oracle) has nothing to release.
+        releaseSavepointQuietly();
+        savepoint = connection.setSavepoint();
       } else {
         connection.rollback();
       }
@@ -808,7 +817,7 @@ public class RecoverableBatch implements IRowBatch {
     }
     try {
       connection.releaseSavepoint(savepoint);
-    } catch (SQLException e) {
+    } catch (SQLException | RuntimeException e) {
       // The next commit or rollback ends it anyway.
     } finally {
       savepoint = null;

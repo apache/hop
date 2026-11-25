@@ -1,0 +1,123 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Merge into table transform inserts or updates every row with one upsert statement (MERGE, ON CONFLICT or ON DUPLICATE KEY), without a lookup query.
+:page-engines: Hop Engine=yes, Single Threaded=yes, Native Spark=yes, Beam Spark=maybe, Beam Flink=maybe, Beam Dataflow=maybe
+
+= image:transforms/icons/mergeintotable.svg[Merge into table transform Icon, role="image-doc-icon"] Merge into table
+
+== Description
+
+The Merge into table transform writes every input row to a table with one upsert statement: the row is inserted when its key is not in the table yet, and the existing row is updated when it is.
+The statement is a standard SQL `MERGE`, an `INSERT ... ON CONFLICT ... DO UPDATE` or an `INSERT ... ON DUPLICATE KEY UPDATE`, whichever the database type declares (see *Upsert statement* below).
+
+Unlike xref:pipeline/transforms/insertupdate.adoc[Insert / Update], it doesn't look the row up first.
+The database decides between insert and update itself, in the same statement, so each row costs one statement instead of a query plus an insert or an update.
+
+The transform only works on databases whose upsert statement has been run against a real server:
+
+[options="header"]
+|===
+|Database type|Upsert statement
+|H2|`MERGE`
+|DuckDB|`MERGE` (DuckDB 1.4 and later), `INSERT ... ON CONFLICT`
+|PostgreSQL|`MERGE` (PostgreSQL 15 and later), `INSERT ... ON CONFLICT` (9.5 and later)
+|Microsoft SQL Server, Microsoft SQL Server (Native)|`MERGE` (SQL Server 2008 and later)
+|Oracle|`MERGE`
+|DB2|`MERGE` (DB2 9 and later)
+|MySQL|`INSERT ... ON DUPLICATE KEY UPDATE`
+|SQLite|`INSERT ... ON CONFLICT` (SQLite 3.24 and later)
+|===
+
+Database types built on one of these (Greenplum, CockroachDB, Redshift and others on PostgreSQL, MariaDB on MySQL, ...) are not included: their servers have not been verified.
+A MariaDB server reached through a MySQL connection gets `INSERT ... ON DUPLICATE KEY UPDATE` with the `VALUES()` function, never the row alias of MySQL 8, which MariaDB doesn't have.
+On any other database, use xref:pipeline/transforms/insertupdate.adoc[Insert / Update].
+
+* The dialog shows, in red under the connection, why the selected connection can't run the selected upsert statement.
+* Verify (check pipeline) reports the same reason as an error.
+* The transform refuses to start on such a connection, with the same message, before any row is read. A server version that is too old for every form the database type declares (SQL Server 2005, for example) is refused when the transform connects. When no form qualifies, the message gives the reason for each one, what can be fixed on the table first.
+
+To find which values the database would reject before writing, put xref:pipeline/transforms/databasevaluevalidation.adoc[Database value validation] in front of this transform.
+
+== Options
+
+=== General tab
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; this name has to be unique in a single pipeline.
+|Connection|The database connection to write to. Its database type must support an upsert statement (see above).
+|Upsert statement|`Automatic` (the default) uses the first form the database type declares that the connection and the table qualify for. `MERGE`, `INSERT ... ON CONFLICT` or `INSERT ... ON DUPLICATE KEY UPDATE` forces one. `ON CONFLICT` needs a primary key or unique index on exactly the key columns; a partial unique index (one with a `WHERE` clause) doesn't count. `ON DUPLICATE KEY` also needs it to be the table's only unique index, because it reacts to any of them. Neither can update a column that is not inserted. A form the table doesn't qualify for stops the transform on its first row, with the reason.
+|Target schema|The schema of the target table. Leave empty for the default schema of the connection. The column types and unique keys are then read from the table in the connection's current schema (or database, on MySQL), not from a table of the same name elsewhere. When that schema has no such table and several other schemas do, the transform refuses to start: fill in the schema.
+|Target table|The table every row is merged into. *Browse...* opens the database explorer to pick the schema and the table.
+|Commit size|The number of rows written before a commit, and the size of a batch. The default is 1000. With 0 or empty every row is committed on its own (auto-commit), without batches.
+|Use batch updates|Send the statements in batches of the commit size instead of one at a time. On for a new transform. See <<batches,Batches and error handling>>.
+|Update existing rows|Update a row whose key is already in the table. Switch it off to only insert rows with a new key and leave existing rows alone.
+|Update only changed rows|Update an existing row only when at least one of its updated columns differs from the incoming value. NULLs compare as equal. Ignored when existing rows are not updated. When an updated column has a type the database can't compare with `<>` (a CLOB or BLOB, XML, PostgreSQL `json`, `citext` or a geometric type, SQL Server `text`, `ntext` or `image`, Oracle `LONG`, ...), whether a row changed can't be told: every existing row is updated, and the log says so.
+|===
+
+=== Keys tab
+
+The columns that identify a row. A row matches when every key column equals its stream field (`=`, no other comparison).
+At least one key is needed. Key columns are inserted, never updated.
+
+[options="header"]
+|===
+|Column|Description
+|Stream field|The incoming field with the key value.
+|Table column|The key column of the table.
+|===
+
+=== Fields tab
+
+The columns the upsert writes. *Get fields* adds every incoming field that isn't listed yet, to the column with the same name, updated.
+
+[options="header"]
+|===
+|Column|Description
+|Stream field|The incoming field with the value.
+|Table column|The column to write it to.
+|Update|`Y`: the column is written on insert and on update. `N` (or empty): it is only written when the row is inserted.
+|===
+
+== Metrics
+
+JDBC returns one count per statement, and it is the same for an insert and for an update, so the transform can't tell them apart.
+Every merged row is counted as *written* (output), whether it was inserted, updated, or matched and left as it was (insert only, or update only changed rows).
+Rows sent to the error hop are counted as rejected.
+
+[[batches]]
+== Batches and error handling
+
+Every row is one upsert statement. With batch updates on, a commit size above 0, and a connection whose batch failure contract is validated (see the Advanced options of the connection), the statements are sent to the database in batches of the commit size: one round trip per batch instead of one per row.
+
+* A row only appears on the main output, or on the error hop, after the database has committed or refused it.
+* A key that appears twice in the same batch is inserted by the first statement and updated by the second, as without batches.
+* When a row in a batch fails and an error hop is attached, the transform works out which rows of that batch are in the database, by the contract of the connection, and sends each row to exactly one stream: the main output for rows that were written, the error hop for rows that were refused (error code `MIT002`, or `MIT003` for a row the database never ran). Without an error hop the transform stops; the rows of the failed batch are rolled back and are not passed on.
+* On a connection whose batch failure contract is not validated, every row runs as a statement of its own, also with batch updates on; the log says so. Batches are not used either when the connection is shared by a transactional pipeline, when the database doesn't support batch updates, or with a commit size of 0.
+
+Without batches, a refused row goes to the error hop with error code `MIT001`.
+With an error hop, on databases where a failed statement aborts the whole transaction (PostgreSQL and similar), every row runs inside its own savepoint, so a refused row only takes back itself.
+On a connection without savepoints (DuckDB), with an error hop every row is committed on its own instead, so a refused row is rolled back without the rows before it.
+
+The parameters of a `MERGE` are cast to the column types on databases that need it (PostgreSQL, SQL Server, DB2). The cast never cuts or rounds a value: a value too long or too precise for its column is refused, or rounded by the column, exactly as by a plain `INSERT` or `UPDATE`. A large object keeps the length of its column (DB2 would otherwise read `CLOB` as `CLOB(1M)`).
+
+== Metadata injection
+
+Every option can be injected: `CONNECTION_NAME`, `SCHEMA_NAME`, `TABLE_NAME`, `COMMIT_SIZE`, `USE_BATCH`, `UPSERT_FORM` (`AUTOMATIC`, `MERGE`, `ON_CONFLICT` or `ON_DUPLICATE_KEY`), `UPDATE_EXISTING`, `UPDATE_ONLY_CHANGED`, the `KEYS` group (`KEY_STREAM_FIELD`, `KEY_TABLE_COLUMN`) and the `VALUES` group (`VALUE_STREAM_FIELD`, `VALUE_TABLE_COLUMN`, `VALUE_UPDATE`).

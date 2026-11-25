@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 import java.sql.ResultSet;
+import java.sql.Types;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -541,5 +542,21 @@ class OracleDatabaseMetaTest {
         "ALTER TABLE FOO ADD ( FOO TIMESTAMP ) ",
         nativeMeta.getAddColumnStatement(
             "FOO", new ValueMetaTimestamp("FOO"), "", false, "", false));
+  }
+
+  /** Oracle has no {@code <>} on large objects, LONG, BFILE and XMLTYPE (ORA-00932). */
+  @Test
+  void dmlTypesWithoutComparison() {
+    OracleDatabaseMeta oracle = new OracleDatabaseMeta();
+    assertFalse(oracle.isDmlComparable("CLOB", Types.CLOB));
+    assertFalse(oracle.isDmlComparable("NCLOB", Types.NCLOB));
+    assertFalse(oracle.isDmlComparable("BLOB", Types.BLOB));
+    assertFalse(oracle.isDmlComparable("LONG", Types.LONGVARCHAR));
+    assertFalse(oracle.isDmlComparable("LONG RAW", Types.LONGVARBINARY));
+    assertFalse(oracle.isDmlComparable("BFILE", -13));
+    assertFalse(oracle.isDmlComparable("SYS.XMLTYPE", Types.OTHER));
+    assertTrue(oracle.isDmlComparable("VARCHAR2", Types.VARCHAR));
+    assertTrue(oracle.isDmlComparable("NUMBER", Types.NUMERIC));
+    assertTrue(oracle.isDmlComparable("RAW", Types.VARBINARY));
   }
 }

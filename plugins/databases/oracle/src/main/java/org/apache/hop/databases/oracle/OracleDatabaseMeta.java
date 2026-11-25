@@ -22,6 +22,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,9 @@ import org.apache.hop.core.database.DriverDownload;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.SqlScriptParser;
 import org.apache.hop.core.database.batch.BatchFailureContract;
+import org.apache.hop.core.database.dml.DmlColumns;
+import org.apache.hop.core.database.dml.DmlSyntax;
+import org.apache.hop.core.database.dml.UpsertForm;
 import org.apache.hop.core.database.types.ColumnContext;
 import org.apache.hop.core.database.types.DatabaseColumn;
 import org.apache.hop.core.database.types.DatabaseTypes;
@@ -1312,5 +1316,43 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       return null;
     }
     return BatchFailureContract.KEEPS_PREFIX;
+  }
+
+  /**
+   * Oracle has MERGE since 9i and a MERGE without WHEN MATCHED (insert only) since 10g. The source
+   * row is a SELECT from dual; Oracle takes the parameter types from the binds. Oracle refuses to
+   * update a column of the ON clause, which the builder never does, and has no {@code WHEN MATCHED
+   * AND}: the condition of an update of changed rows only goes in {@code UPDATE ... WHERE}
+   * ("ORA-02000: missing THEN keyword" otherwise). Checked against Oracle Database 23 Free by
+   * {@code OracleMergeIT}.
+   *
+   * <p>Only declared for this dialect itself, not for the ones that extend it.
+   */
+  @Override
+  public DmlSyntax getDmlSyntax() {
+    if (getClass() != OracleDatabaseMeta.class) {
+      return null;
+    }
+    return DmlSyntax.builder()
+        .rowSource(DmlSyntax.RowSource.SELECT_FROM_DUAL)
+        .upsert(
+            DmlSyntax.Upsert.of(UpsertForm.MERGE)
+                .withMinimumMajorVersion(10)
+                .withChangedCondition(DmlSyntax.ChangedCondition.UPDATE_WHERE))
+        .build();
+  }
+
+  /**
+   * Types an update of changed rows only can't compare with {@code <>}, besides the large objects:
+   * Oracle refuses it on {@code LONG}, {@code LONG RAW}, {@code BFILE}, {@code XMLTYPE} and the
+   * object types ("ORA-00932: inconsistent datatypes"). Checked by {@code OracleMergeIT}.
+   */
+  private static final Set<String> DML_NOT_COMPARABLE =
+      Set.of("long", "long raw", "bfile", "xmltype", "anydata", "sdo_geometry");
+
+  @Override
+  public boolean isDmlComparable(String typeName, int dataType) {
+    return DmlColumns.comparable(typeName, dataType)
+        && !DmlColumns.isOneOf(typeName, DML_NOT_COMPARABLE);
   }
 }
