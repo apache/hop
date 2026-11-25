@@ -19,6 +19,7 @@ package org.apache.hop.lineage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,6 +45,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.lineage.LineageRemoteRuns.Answer;
 import org.apache.hop.lineage.LineageRemoteRuns.RemoteRun;
 import org.apache.hop.lineage.context.LineageContext;
 import org.apache.hop.lineage.hub.LineageConfiguration;
@@ -160,7 +162,7 @@ class LineageRemoteRunsTest {
   private IPipelineEngine<PipelineMeta> serverRun(Map<String, String> sent, ILogChannel log) {
     IPipelineEngine<PipelineMeta> server =
         pipeline("server-run", "/tmp/export/orders.hpl", "datahub", log);
-    LineageRemoteRuns.adopt(server, sent, log);
+    LineageRemoteRuns.adopt(server, server, metadata, sent, log);
     return server;
   }
 
@@ -196,27 +198,46 @@ class LineageRemoteRunsTest {
   }
 
   @Test
-  void theServerAnswersWithTheRunItReports() throws Exception {
+  void theServerAnswersWithTheRunAndTheSinksItReports() throws Exception {
     WebResult answer =
         WebResult.fromXmlString(
             new WebResult(WebResult.STRING_OK, "added", "id-1")
-                .withLineageRunId("client-run")
+                .withLineage(new Answer("client-run", List.of("marquez", "datahub"), true))
                 .getXml());
     assertEquals("client-run", answer.getLineageRunId());
+    assertEquals(List.of("marquez", "datahub"), answer.getLineageSinks());
+    assertTrue(answer.isLineageVariableSinks());
     assertEquals("id-1", answer.getId());
-    assertNull(
-        WebResult.fromXmlString(new WebResult(WebResult.STRING_OK, "added", "id-1").getXml())
-            .getLineageRunId(),
-        "a server that doesn't report the run says nothing");
+    assertEquals(
+        new Answer("client-run", List.of("marquez", "datahub"), true), answer.getLineageAnswer());
+    WebResult none =
+        WebResult.fromXmlString(new WebResult(WebResult.STRING_OK, "added", "id-1").getXml());
+    assertNull(none.getLineageAnswer(), "a server that doesn't report the run says nothing");
+    assertFalse(
+        new WebResult(WebResult.STRING_OK, "added", "id-1").getJson().contains("lineage"),
+        "nor in JSON");
 
     IPipelineEngine<PipelineMeta> client = clientRun();
     sentBy(client);
     LineageRemoteRuns.answered(client, null);
     assertFalse(LineageRemoteRuns.isHandedOver(client));
-    LineageRemoteRuns.answered(client, "another-run");
+    LineageRemoteRuns.answered(client, new Answer("another-run", List.of("marquez"), false));
     assertFalse(LineageRemoteRuns.isHandedOver(client));
-    LineageRemoteRuns.answered(client, answer.getLineageRunId());
+    LineageRemoteRuns.answered(client, answer.getLineageAnswer());
     assertTrue(LineageRemoteRuns.isHandedOver(client));
+  }
+
+  @Test
+  void sendingTheRunAgainForgetsTheEarlierServersAnswer() {
+    IPipelineEngine<PipelineMeta> client = clientRun();
+    sentBy(client);
+    LineageRemoteRuns.answered(client, new Answer("client-run", List.of("marquez"), true));
+    assertTrue(LineageRemoteRuns.isHandedOver(client));
+
+    sentBy(client);
+
+    assertFalse(LineageRemoteRuns.isHandedOver(client), "until the next server answered");
+    assertTrue(LineageRemoteRuns.reportsToVariableSinks(client));
   }
 
   private static List<LineageEvent> emitted(LineageHub hub) {
@@ -288,7 +309,7 @@ class LineageRemoteRunsTest {
   }
 
   @Test
-  void theServerRunReportsToTheClientsSinksAndItsOwn() throws Exception {
+  void theServerRunReportsToTheClientsSinksItCanUseAndItsOwn() throws Exception {
     LineageHub hub =
         LineageHub.newIsolatedForTesting(
             LineageConfiguration.forTesting(false, 100, 10, 50L, Set.of()), List.of());
@@ -296,27 +317,81 @@ class LineageRemoteRunsTest {
     Map<String, String> sent = sentBy(clientRun());
     IPipelineEngine<PipelineMeta> server =
         pipeline("server-run", "/tmp/export/orders.hpl", "datahub", log);
-    // The client's sink, one the server doesn't have, and the server run's own sink once more
+    // The client's sink, one the server doesn't have, one of a type the server doesn't have, one
+    // named like a variable, and the server run's own sink once more
+    LineageSink notInstalled = FakeLineageSink.named("elsewhere", "http://elsewhere:5000");
+    ((FakeLineageSink.Configuration) notInstalled.getSink()).setPluginId("not-installed");
+    metadata.getSerializer(LineageSink.class).save(notInstalled);
+    metadata
+        .getSerializer(LineageSink.class)
+        .save(FakeLineageSink.named("sink-${ENV}", "http://literal:5000"));
     ObjectNode run = (ObjectNode) MAPPER.readTree(sent.get(LineageRemoteRuns.VAR_REMOTE_RUN));
-    run.putArray("sinks").add("marquez").add("missing").add("datahub");
-    LineageRemoteRuns.adopt(
-        server, Map.of(LineageRemoteRuns.VAR_REMOTE_RUN, MAPPER.writeValueAsString(run)), log);
+    run.putArray("sinks")
+        .add("marquez")
+        .add("missing")
+        .add("elsewhere")
+        .add("sink-${ENV}")
+        .add("datahub");
+    variables.setVariable("ENV", "prod");
 
+    Answer answer =
+        LineageRemoteRuns.adopt(
+            server,
+            server,
+            metadata,
+            Map.of(LineageRemoteRuns.VAR_REMOTE_RUN, MAPPER.writeValueAsString(run)),
+            log,
+            hub,
+            new Variables());
     Set<String> sinks = LineageSinkRoutes.of(server, hub);
 
+    assertEquals(List.of("marquez", "sink-${ENV}", "datahub"), answer.sinks());
+    assertEquals(answer, LineageRemoteRuns.answerOf(server));
     assertEquals(
-        Set.of(key("marquez", "http://marquez:5000"), key("datahub", "http://datahub:8080")),
-        sinks);
+        Set.of(
+            key("marquez", "http://marquez:5000"),
+            key("sink-${ENV}", "http://literal:5000"),
+            key("datahub", "http://datahub:8080")),
+        sinks,
+        "a name as the client resolved it, not resolved once more on the server");
     verify(log).logError(contains("'missing'"));
+    verify(log).logError(contains("'not-installed' isn't installed"));
+    verify(log, never()).logError(contains("does not exist"));
   }
 
   @Test
-  void aClientRunTheServerReportsLeavesItsSinksToTheServer() {
+  void theServerTakesOnlyTheParentOfTheClientsRun() throws Exception {
+    ObjectNode run = MAPPER.createObjectNode();
+    run.put("runId", "client-run");
+    run.putObject("parent").put("parentRunId", "action-run").put("lineageDefinition", "true");
+    IPipelineEngine<PipelineMeta> server =
+        serverRun(Map.of(LineageRemoteRuns.VAR_REMOTE_RUN, MAPPER.writeValueAsString(run)), null);
+
+    assertEquals(Map.of("parentRunId", "action-run"), LineageRemoteRuns.adopted(server).parent());
+  }
+
+  @Test
+  void aClientRunTheServerCantReadIsLoggedOnTheServer() {
+    ILogChannel log = mock(ILogChannel.class);
+    IPipelineEngine<PipelineMeta> server =
+        serverRun(Map.of(LineageRemoteRuns.VAR_REMOTE_RUN, "{not json"), log);
+
+    assertNull(LineageRemoteRuns.adopted(server));
+    verify(log).logError(contains("Unable to read the client's run"));
+  }
+
+  @Test
+  void aClientRunTheServerReportsLeavesThoseSinksToTheServer() {
     LineageHub hub = mock(LineageHub.class);
-    when(hub.useSink(any())).thenReturn("marquez-key");
+    when(hub.useSink(any())).thenAnswer(i -> ((LineageSinkTarget) i.getArgument(0)).key());
+    String marquez = key("marquez", "http://marquez:5000");
     IPipelineEngine<PipelineMeta> handedOver = clientRun();
     sentBy(handedOver);
-    LineageRemoteRuns.answered(handedOver, "client-run");
+    LineageRemoteRuns.answered(handedOver, new Answer("client-run", List.of("marquez"), false));
+    IPipelineEngine<PipelineMeta> refused = clientRun();
+    sentBy(refused);
+    // The server reports the run, but couldn't use the client's sink
+    LineageRemoteRuns.answered(refused, new Answer("client-run", List.of(), false));
     IPipelineEngine<PipelineMeta> notHandedOver = clientRun();
     sentBy(notHandedOver);
     LineageRemoteRuns.answered(notHandedOver, null);
@@ -324,32 +399,129 @@ class LineageRemoteRunsTest {
     try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
       staticHub.when(LineageHub::getInstance).thenReturn(hub);
       LineageRunLifecycleEmitter.emitPipeline(handedOver, RunLifecyclePhase.FINISHED, null);
+      LineageRunLifecycleEmitter.emitPipeline(refused, RunLifecyclePhase.FINISHED, null);
       LineageRunLifecycleEmitter.emitPipeline(notHandedOver, RunLifecyclePhase.FINISHED, null);
+      // The run let go of the sink it held, also when the server reported to it
+      LineageSinkRoutes.release(handedOver);
     }
 
     List<LineageEvent> events = emitted(hub);
     assertEquals(Set.of(), events.get(0).getContext().getSinks(), "variables' sinks only");
-    assertEquals(Set.of("marquez-key"), events.get(1).getContext().getSinks());
+    assertTrue(events.get(0).getContext().isForVariableSinks());
+    assertEquals(Set.of(marquez), events.get(1).getContext().getSinks());
+    assertEquals(Set.of(marquez), events.get(2).getContext().getSinks());
+    verify(hub).release(Set.of(marquez));
   }
 
   @Test
-  void aRemoteWorkflowsStartWaitsForTheServersAnswer() {
+  void aClientRunLeavesTheSameVariableSinksToTheServer() throws Exception {
+    LineageHub on =
+        LineageHub.newIsolatedForTesting(
+            LineageConfiguration.forTesting(true, 100, 10, 50L, Set.of()), List.of());
+    LineageHub off =
+        LineageHub.newIsolatedForTesting(
+            LineageConfiguration.forTesting(false, 100, 10, 50L, Set.of()), List.of());
+    Variables marquez = new Variables();
+    marquez.setVariable("HOP_LINEAGE_OPENLINEAGE_URL", "http://marquez:5000");
+    marquez.setVariable("HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR", "/client/spool");
+    Variables sameUrl = new Variables();
+    sameUrl.setVariable("HOP_LINEAGE_OPENLINEAGE_URL", " http://marquez:5000 ");
+    sameUrl.setVariable("HOP_LINEAGE_OPENLINEAGE_SPOOL_DIR", "/server/spool");
+    Variables otherUrl = new Variables();
+    otherUrl.setVariable("HOP_LINEAGE_OPENLINEAGE_URL", "http://other:5000");
+
+    String client = LineageRemoteRuns.variableSinksDigest(on, marquez);
+    assertNotNull(client);
+    assertEquals(client, LineageRemoteRuns.variableSinksDigest(on, sameUrl), "same place");
+    assertNotEquals(client, LineageRemoteRuns.variableSinksDigest(on, otherUrl));
+    assertNull(LineageRemoteRuns.variableSinksDigest(off, marquez), "no variable sinks");
+    assertFalse(client.contains("marquez"), "a URL may hold a secret");
+
+    ObjectNode run = MAPPER.createObjectNode().put("runId", "client-run");
+    run.put("variableSinks", client);
+    Map<String, String> sent =
+        Map.of(LineageRemoteRuns.VAR_REMOTE_RUN, MAPPER.writeValueAsString(run));
+    IPipelineEngine<PipelineMeta> server = pipeline("server-run", "/tmp/orders.hpl", null, null);
+    assertTrue(
+        LineageRemoteRuns.adopt(server, server, metadata, sent, null, on, sameUrl).variableSinks());
+    assertFalse(
+        LineageRemoteRuns.adopt(server, server, metadata, sent, null, on, otherUrl)
+            .variableSinks());
+    assertFalse(
+        LineageRemoteRuns.adopt(server, server, metadata, sent, null, off, marquez)
+            .variableSinks());
+
+    LineageHub hub = mock(LineageHub.class);
+    IPipelineEngine<PipelineMeta> handedOver = clientRun();
+    sentBy(handedOver);
+    LineageRemoteRuns.answered(handedOver, new Answer("client-run", List.of("marquez"), true));
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      LineageRunLifecycleEmitter.emitPipeline(handedOver, RunLifecyclePhase.FINISHED, null);
+    }
+    LineageContext event = lifecycle(emitted(hub));
+    assertFalse(event.isForVariableSinks(), "the server reports it there");
+    assertEquals(Set.of(), event.getSinks());
+  }
+
+  @Test
+  void aWorkflowAUnitTestStartedPassesNoSinks() {
+    IWorkflowEngine<WorkflowMeta> workflow = workflow("client-run", "main", "/project/main.hwf");
+    WorkflowRunConfiguration runConfiguration = new WorkflowRunConfiguration();
+    runConfiguration.setLineageSinkName("marquez");
+    when(workflow.getWorkflowRunConfiguration()).thenReturn(runConfiguration);
+    assertEquals(List.of("marquez"), LineageSinkRoutes.namesOf(workflow));
+
+    when(workflow.getVariable(LineageSinkRoutes.VAR_RUN_UNIT_TEST)).thenReturn("Y");
+
+    assertEquals(List.of(), LineageSinkRoutes.namesOf(workflow), "as it reports to none");
+  }
+
+  @Test
+  void aRemoteWorkflowsStartWaitsForTheServersAnswerAndKeepsItsTime() throws Exception {
     LineageHub hub = mock(LineageHub.class);
     IWorkflowEngine<WorkflowMeta> workflow = workflow("client-run", "main", "/project/main.hwf");
+    long sentAt;
+
+    try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
+      staticHub.when(LineageHub::getInstance).thenReturn(hub);
+      LineageRemoteRuns.submitting(workflow);
+      long startedAt = System.currentTimeMillis();
+      LineageRunLifecycleEmitter.emitWorkflow(workflow, RunLifecyclePhase.STARTED, null);
+      verify(hub, never()).emit(any());
+
+      LineageRemoteRuns.pass(workflow, new HashMap<>());
+      Thread.sleep(50);
+      sentAt = System.currentTimeMillis();
+      LineageRemoteRuns.answered(workflow, new Answer("client-run", List.of(), false));
+      LineageRemoteRuns.submitted(workflow);
+
+      LineageEvent start =
+          emitted(hub).stream()
+              .filter(e -> e.getKind() == LineageEventKind.RUN_LIFECYCLE)
+              .findFirst()
+              .orElseThrow();
+      assertEquals("client-run", start.getContext().getLogChannelId());
+      assertTrue(start.getTimestampMillis() >= startedAt);
+      assertTrue(start.getTimestampMillis() < sentAt, "stamped when it started, not when sent");
+    }
+  }
+
+  @Test
+  void aStartThatCantBeEmittedDoesntFailTheRun() {
+    LineageHub hub = mock(LineageHub.class);
+    Mockito.doThrow(new IllegalStateException("simulated")).when(hub).emit(any());
+    IWorkflowEngine<WorkflowMeta> workflow = workflow("client-run", "main", "/project/main.hwf");
+    ILogChannel log = mock(ILogChannel.class);
+    when(workflow.getLogChannel()).thenReturn(log);
 
     try (MockedStatic<LineageHub> staticHub = Mockito.mockStatic(LineageHub.class)) {
       staticHub.when(LineageHub::getInstance).thenReturn(hub);
       LineageRemoteRuns.submitting(workflow);
       LineageRunLifecycleEmitter.emitWorkflow(workflow, RunLifecyclePhase.STARTED, null);
-      verify(hub, never()).emit(any());
-
-      LineageRemoteRuns.pass(workflow, new HashMap<>());
-      LineageRemoteRuns.answered(workflow, "client-run");
       LineageRemoteRuns.submitted(workflow);
     }
 
-    LineageContext start = lifecycle(emitted(hub));
-    assertEquals("client-run", start.getLogChannelId());
-    assertEquals(Set.of(), start.getSinks(), "the server reports it to the run's sinks");
+    verify(log).logError(contains("start of this run"), any(IllegalStateException.class));
   }
 }

@@ -64,7 +64,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
               + "' was added to HopServer with id "
               + pipeline.getContainerId();
       return new WebResult(WebResult.STRING_OK, message, pipeline.getContainerId())
-          .withLineageRunId(LineageRemoteRuns.adoptedRunId(pipeline));
+          .withLineage(LineageRemoteRuns.answerOf(pipeline));
     } catch (HopServerAtCapacityException e) {
       return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
     }

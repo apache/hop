@@ -64,6 +64,15 @@ public record LineageSinkTarget(String name, String pluginId, Map<String, String
   }
 
   /** Without the settings: they may hold a token. */
+  /** The name of the lineage sink a {@link #key()} is for. */
+  public static String nameOf(String key) {
+    if (key == null) {
+      return null;
+    }
+    int at = key.lastIndexOf('@');
+    return at < 0 ? key : key.substring(0, at);
+  }
+
   @Override
   public String toString() {
     return "LineageSinkTarget{name=" + name + ", pluginId=" + pluginId + '}';

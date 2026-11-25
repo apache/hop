@@ -89,7 +89,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       String fileUrl = MessageFormat.format(ZIP_CONT, archiveUrl, load);
       boolean isWorkflow = TYPE_WORKFLOW.equalsIgnoreCase(request.getParameter(PARAMETER_TYPE));
       String resultId;
-      String lineageRunId;
+      LineageRemoteRuns.Answer lineage;
 
       String metaStoreJson = getMetaStoreJsonFromZIP(archiveUrl);
       SerializableMetadataProvider metadataProvider =
@@ -115,7 +115,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
           IWorkflowEngine<WorkflowMeta> workflow =
               createWorkflow(workflowConfiguration, maxConcurrent);
           resultId = workflow.getContainerId();
-          lineageRunId = LineageRemoteRuns.adoptedRunId(workflow);
+          lineage = LineageRemoteRuns.answerOf(workflow);
         } else {
           Node node =
               getConfigNodeFromZIP(
@@ -135,10 +135,10 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
           IPipelineEngine<PipelineMeta> pipeline =
               createPipeline(pipelineConfiguration, maxConcurrent);
           resultId = pipeline.getContainerId();
-          lineageRunId = LineageRemoteRuns.adoptedRunId(pipeline);
+          lineage = LineageRemoteRuns.answerOf(pipeline);
         }
 
-        return new WebResult(WebResult.STRING_OK, fileUrl, resultId).withLineageRunId(lineageRunId);
+        return new WebResult(WebResult.STRING_OK, fileUrl, resultId).withLineage(lineage);
       } catch (HopServerAtCapacityException e) {
         return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
       }

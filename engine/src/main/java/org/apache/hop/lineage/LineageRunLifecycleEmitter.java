@@ -20,6 +20,7 @@ package org.apache.hop.lineage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
@@ -454,21 +455,25 @@ public final class LineageRunLifecycleEmitter {
   }
 
   /**
-   * The sinks a run's own events go to. A client's run that a Hop Server reports leaves them to the
-   * server: only the sinks configured with variables, which get every event, still get its events.
+   * The sinks a run's own events go to. A client's run that a Hop Server reports leaves the sinks
+   * the server accepted to the server, and keeps reporting to the rest. The run's sinks are
+   * resolved (and held) all the same, so the run lets go of them when it ends.
    */
   private static Set<String> runSinks(IPipelineEngine<PipelineMeta> pipeline) {
-    return LineageRemoteRuns.isHandedOver(pipeline) ? Set.of() : LineageSinkRoutes.of(pipeline);
+    return LineageRemoteRuns.clientSinks(pipeline, LineageSinkRoutes.of(pipeline));
   }
 
   private static Set<String> runSinks(IWorkflowEngine<WorkflowMeta> workflow) {
-    return LineageRemoteRuns.isHandedOver(workflow) ? Set.of() : LineageSinkRoutes.of(workflow);
+    return LineageRemoteRuns.clientSinks(workflow, LineageSinkRoutes.of(workflow));
   }
 
   public static void emitPipeline(
       IPipelineEngine<PipelineMeta> pipeline, RunLifecyclePhase phase, String detail) {
     PipelineMeta meta = pipeline.getPipelineMeta();
-    LineageContext.Builder ctx = pipelineRunContext(pipeline).sinks(runSinks(pipeline));
+    LineageContext.Builder ctx =
+        pipelineRunContext(pipeline)
+            .sinks(runSinks(pipeline))
+            .forVariableSinks(LineageRemoteRuns.reportsToVariableSinks(pipeline));
     String pluginId = pipeline.getPluginId();
     if (!Utils.isEmpty(pluginId)) {
       ctx.putAttribute("pipelineEnginePluginId", pluginId);
@@ -552,8 +557,20 @@ public final class LineageRunLifecycleEmitter {
       // Sent to a Hop Server, which may report the run itself: the start waits for its answer
       return;
     }
+    emitWorkflow(workflow, phase, detail, System.currentTimeMillis());
+  }
+
+  /** Emits a workflow's lifecycle event, stamped with the time it happened. */
+  static void emitWorkflow(
+      IWorkflowEngine<WorkflowMeta> workflow,
+      RunLifecyclePhase phase,
+      String detail,
+      long timestampMillis) {
     WorkflowMeta meta = workflow.getWorkflowMeta();
-    LineageContext.Builder ctx = workflowRunContext(workflow).sinks(runSinks(workflow));
+    LineageContext.Builder ctx =
+        workflowRunContext(workflow)
+            .sinks(runSinks(workflow))
+            .forVariableSinks(LineageRemoteRuns.reportsToVariableSinks(workflow));
     if (meta != null) {
       fillDescription(ctx, meta.getDescription());
     }
@@ -569,7 +586,9 @@ public final class LineageRunLifecycleEmitter {
     LineageContext context = ctx.build();
     LineageHub.getInstance()
         .emit(
-            LineageEvent.of(
+            new LineageEvent(
+                UUID.randomUUID().toString(),
+                timestampMillis,
                 LineageEventKind.RUN_LIFECYCLE,
                 context,
                 new RunLifecycleLineagePayload(phase, detail)));
@@ -579,7 +598,9 @@ public final class LineageRunLifecycleEmitter {
     if (phase == RunLifecyclePhase.STARTED && meta != null) {
       LineageHub.getInstance()
           .emit(
-              LineageEvent.of(
+              new LineageEvent(
+                  UUID.randomUUID().toString(),
+                  timestampMillis,
                   LineageEventKind.WORKFLOW_GRAPH,
                   context,
                   new PipelineGraphLineagePayload(workflowTransitions(meta))));

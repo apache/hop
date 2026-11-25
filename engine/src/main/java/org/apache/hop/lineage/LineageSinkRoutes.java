@@ -29,6 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.lineage.LineageRemoteRuns.RemoteRun;
 import org.apache.hop.lineage.hub.LineageHub;
+import org.apache.hop.lineage.hub.LineageSinkTarget;
 import org.apache.hop.lineage.metadata.LineageSink;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -260,9 +261,8 @@ public final class LineageSinkRoutes {
   }
 
   /**
-   * On a Hop Server, the sinks of the client's run this run reports ({@link LineageRemoteRuns}),
-   * found by name in the metadata the server has, the client's included when the run came with it.
-   * A sink the server doesn't have is logged on the run and left out.
+   * On a Hop Server, the sinks of the client's run this run reports ({@link LineageRemoteRuns}):
+   * the ones the server accepted when it registered the run, see {@link #acceptedSinks}.
    *
    * @return the keys of those sinks, each held once; a mutable list the run's own sink is added to
    */
@@ -277,28 +277,71 @@ public final class LineageSinkRoutes {
       return keys;
     }
     for (String name : remoteRun.sinks()) {
-      try {
-        if (Utils.isEmpty(name)
-            || !metadataProvider.getSerializer(LineageSink.class).exists(name)) {
-          if (log != null && !Utils.isEmpty(name)) {
-            log.logError(
-                "Lineage sink '"
-                    + name
-                    + "', which the client selected for this run, doesn't exist on this Hop Server:"
-                    + " this run doesn't report to it. A run sent as an export carries no metadata,"
-                    + " so define the sink on the server as well.");
-          }
-          continue;
-        }
-      } catch (Exception e) {
-        if (log != null) {
-          log.logError("Unable to look up lineage sink '" + name + "'", e);
-        }
-        continue;
-      }
-      keys.add(useSink(name, variables, metadataProvider, log, hub));
+      // The client resolved the name: used as it is, not resolved again with the server's variables
+      keys.add(useResolvedSink(name, variables, metadataProvider, log, hub));
     }
     return keys;
+  }
+
+  /**
+   * On a Hop Server, the sinks of a client's run the server can report to: each exists in the run's
+   * metadata (the server's, with the client's metadata when the run came as an export), has a sink
+   * type and that type's plugin is installed. The server answers the client with these, and the
+   * client keeps reporting to the others itself. Whether a sink's URL can be reached from the
+   * server only shows when its events are delivered. Each sink left out is logged on the run.
+   *
+   * @param names the names of the client's sinks, as the client resolved them
+   * @return the names of the sinks the server reports the run to
+   */
+  static List<String> acceptedSinks(
+      List<String> names,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
+    List<String> accepted = new ArrayList<>();
+    if (names == null) {
+      return accepted;
+    }
+    for (String name : names) {
+      if (Utils.isEmpty(name)) {
+        continue;
+      }
+      String refused = refusal(name, variables, metadataProvider, hub);
+      if (refused == null) {
+        accepted.add(name);
+      } else if (log != null) {
+        log.logError(
+            "Lineage sink '"
+                + name
+                + "', which the client selected for this run, can't be used on this Hop Server ("
+                + refused
+                + "). The client reports the run to it itself, without the run's transforms.");
+      }
+    }
+    return accepted;
+  }
+
+  /** Why a Hop Server can't report a run to a sink, or null when it can. */
+  private static String refusal(
+      String name, IVariables variables, IHopMetadataProvider metadataProvider, LineageHub hub) {
+    if (metadataProvider == null) {
+      return "the run has no metadata";
+    }
+    try {
+      LineageSink sink = metadataProvider.getSerializer(LineageSink.class).load(name);
+      if (sink == null) {
+        return "no lineage sink with this name in the server's metadata or in the metadata the run"
+            + " came with; check the name and the server's project";
+      }
+      LineageSinkTarget target = sink.toTarget(variables, metadataProvider);
+      if (!hub.hasSinkType(target.pluginId())) {
+        return "the sink type '" + target.pluginId() + "' isn't installed on the server";
+      }
+      return null;
+    } catch (Exception e) {
+      return String.valueOf(e.getMessage());
+    }
   }
 
   /**
@@ -319,7 +362,7 @@ public final class LineageSinkRoutes {
 
   /** The names of the sinks a workflow run reports to; see {@link #namesOf(IPipelineEngine)}. */
   static List<String> namesOf(IWorkflowEngine<WorkflowMeta> workflow) {
-    if (workflow == null) {
+    if (workflow == null || isUnitTestRun(workflow)) {
       return List.of();
     }
     Set<String> names = new LinkedHashSet<>(parentNames(workflow));
@@ -331,8 +374,10 @@ public final class LineageSinkRoutes {
   }
 
   private static List<String> parentNames(IPipelineEngine<PipelineMeta> pipeline) {
-    if (pipeline.getParentPipeline() != null) {
-      return namesOf(pipeline.getParentPipeline());
+    IPipelineEngine<PipelineMeta> parentPipeline =
+        LineageRunLifecycleEmitter.parentPipelineOf(pipeline);
+    if (parentPipeline != null) {
+      return namesOf(parentPipeline);
     }
     if (pipeline.getParentWorkflow() != null) {
       return namesOf(pipeline.getParentWorkflow());
@@ -341,8 +386,10 @@ public final class LineageSinkRoutes {
   }
 
   private static List<String> parentNames(IWorkflowEngine<WorkflowMeta> workflow) {
-    if (workflow.getParentPipeline() != null) {
-      return namesOf(workflow.getParentPipeline());
+    IPipelineEngine<PipelineMeta> parentPipeline =
+        LineageRunLifecycleEmitter.parentPipelineOf(workflow);
+    if (parentPipeline != null) {
+      return namesOf(parentPipeline);
     }
     if (workflow.getParentWorkflow() != null) {
       return namesOf(workflow.getParentWorkflow());
@@ -407,7 +454,16 @@ public final class LineageSinkRoutes {
       IHopMetadataProvider metadataProvider,
       ILogChannel log,
       LineageHub hub) {
-    String name = variables.resolve(sinkName);
+    return useResolvedSink(variables.resolve(sinkName), variables, metadataProvider, log, hub);
+  }
+
+  /** Uses and holds a sink by its resolved name; see {@link #useSink}. */
+  private static String useResolvedSink(
+      String name,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      ILogChannel log,
+      LineageHub hub) {
     if (Utils.isEmpty(name) || metadataProvider == null) {
       return null;
     }

@@ -151,6 +151,9 @@ public final class LineageHub {
   /** Creates the sink of a target: from the plugin registry, or a stand-in in tests. */
   private final SinkFactory sinkFactory;
 
+  /** Whether {@link #sinkFactory} loads sinks from the plugin registry, not a test's stand-in. */
+  private final boolean sinksFromPlugins;
+
   /** Creates the sink of a {@link LineageSinkTarget}, not yet initialized. */
   @FunctionalInterface
   public interface SinkFactory {
@@ -164,6 +167,7 @@ public final class LineageHub {
     this.fixedConfiguration = fixedConfiguration;
     this.explicitSinks = explicitSinks;
     this.sinkFactory = sinkFactory != null ? sinkFactory : LineageHub::loadSink;
+    this.sinksFromPlugins = sinkFactory == null;
   }
 
   public static LineageHub getInstance() {
@@ -415,7 +419,8 @@ public final class LineageHub {
   public void emit(LineageEvent event) {
     LineageConfiguration cfg = resolveConfig();
     boolean routed = !event.getContext().getSinks().isEmpty();
-    if (!routed && (!cfg.isEnabled() || sinkInitFailed.get())) {
+    if (!routed
+        && (!event.getContext().isForVariableSinks() || !cfg.isEnabled() || sinkInitFailed.get())) {
       return;
     }
     shutdownLock.readLock().lock();
@@ -769,8 +774,14 @@ public final class LineageHub {
       return;
     }
     List<ILineageSink> active = sinksInitialized.get() ? sinks : List.of();
-    for (ILineageSink sink : active) {
-      deliver(sink, batch);
+    if (!active.isEmpty()) {
+      List<LineageEvent> forVariableSinks =
+          batch.stream().filter(event -> event.getContext().isForVariableSinks()).toList();
+      if (!forVariableSinks.isEmpty()) {
+        for (ILineageSink sink : active) {
+          deliver(sink, forVariableSinks);
+        }
+      }
     }
     if (targets.isEmpty()) {
       return;
@@ -841,6 +852,19 @@ public final class LineageHub {
   private boolean waitsForRetry(String key) {
     Failure failure = failedTargets.get(key);
     return failure != null && System.currentTimeMillis() - failure.timeMillis() < retryFailedSinkMs;
+  }
+
+  /**
+   * Whether the hub can start a sink of this type: its plugin is installed. A Hop Server checks
+   * this before it takes on the sinks of a client's run.
+   */
+  public boolean hasSinkType(String pluginId) {
+    if (pluginId == null) {
+      return false;
+    }
+    return !sinksFromPlugins
+        || PluginRegistry.getInstance().findPluginWithId(LineageSinkPluginType.class, pluginId)
+            != null;
   }
 
   /** The sink plugin of a target, from the plugin registry. */

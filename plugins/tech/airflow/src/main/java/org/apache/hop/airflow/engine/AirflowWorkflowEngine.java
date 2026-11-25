@@ -105,6 +105,12 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
     return new AirflowWorkflowRunConfiguration();
   }
 
+  /** Airflow runs the workflow, not a Hop Server: the run's lineage start goes out right away. */
+  @Override
+  protected boolean reportsLineageOnHopServer() {
+    return false;
+  }
+
   /** Publishes the bundle and starts the DAG run. The DAG run id becomes the container id. */
   @Override
   protected void submitToRemoteServer() throws HopException {

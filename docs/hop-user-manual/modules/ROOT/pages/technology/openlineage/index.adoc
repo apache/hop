@@ -336,15 +336,25 @@ A pipeline or workflow that runs on a Hop Server through a remote run configurat
 a local run is. The client passes its run to the server with the variables it sends: the run id,
 the file, the run that started it and the lineage sinks of its run configuration. The server then
 reports the run under that id, with its transforms and the datasets they read and write, to those
-sinks and to its own. The client leaves the run to the server once the server confirms it reports
-it. A server that doesn't (an older Hop) runs the pipeline as before: the client reports the run
-without its transforms, and the server reports what it runs, if it has a sink, as a run of its own.
+sinks and to its own. Once the server started the run, the client leaves the run's events for those
+sinks to the server. When the server doesn't start the run, the client reports it, as it fails. A
+server that doesn't report the client's run (an older Hop) runs it as before: the client reports
+the run without its transforms, and the server reports what it runs, if it has a sink, as a run of
+its own.
 
-The server finds the sinks by name in its metadata. A run sent as XML brings the client's metadata
-along. A run sent as an export (*Export linked resources to server*) brings none, so define the
-lineage sink, and what it refers to, on the server as well. A sink the server doesn't have is
-logged on the run and left out. Sinks set up with the `HOP_LINEAGE_*` variables keep getting their
-runs: on the server every run it runs, on the client the client's run, without its transforms.
+The server looks the sinks up by name in the run's metadata: its own, and the client's metadata
+that comes with the run, sent as XML or as an export. It leaves out a sink with a name it doesn't
+find, for example one the server's project defines under another name, and a sink whose type's
+plugin isn't installed on the server, such as a DataHub sink on a server without the DataHub
+plugin. Each is logged on the server's run, and the client keeps reporting the run to those sinks
+itself, without its transforms. A sink's URL has to be reachable from the server: `localhost` on
+the server is the server itself.
+
+Sinks set up with the `HOP_LINEAGE_*` variables report what runs where they are set: on the server
+every run it runs, under the client's run id when it reports the client's run, and on the client
+the client's run, without its transforms. When the client and the server send to the same place
+(the same `HOP_LINEAGE_SINK_IDS` and `HOP_LINEAGE_*_URL` values), only the server reports the run
+there, so it ends once.
 
 == Unit test results
 

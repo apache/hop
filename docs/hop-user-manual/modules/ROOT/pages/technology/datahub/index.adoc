@@ -340,7 +340,7 @@ run, as a local run does: the server reports it as the client's run, with its tr
 datasets they read and write, the client's file and the task that started it. It reports to the
 sinks of the client's run configuration and to its own. See
 xref:technology/openlineage/index.adoc#_runs_on_hop_server[Runs on Hop Server] on the OpenLineage
-page for how that works and what a run sent as an export needs.
+page for how that works and which sinks the server can use.
 
 == Limitations
 
@@ -354,8 +354,8 @@ page for how that works and what a run sent as an export needs.
 * A pipeline or workflow file that is moved, renamed or deleted stays in DataHub under its old path;
   the file in its new place is a new pipeline. Renaming the pipeline itself only changes its name.
 
-* A pipeline or workflow run on a Hop Server sent as an export brings no metadata: its DataHub
-  sink, and the data catalog the sink uses, have to exist on the server as well; see
-  <<Runs on Hop Server>>.
+* A pipeline or workflow run on a Hop Server gets its transforms in DataHub only when the server
+  has the DataHub plugin; without it the client reports the run without its transforms. The
+  server also has to reach the sink's DataHub URL; see <<Runs on Hop Server>>.
 * A pipeline run on Apache Beam or Spark reports its run, not its transforms or their datasets:
   those run inside the Beam runner, where no lineage is observed yet.

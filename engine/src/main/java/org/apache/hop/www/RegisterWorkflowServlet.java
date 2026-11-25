@@ -64,7 +64,7 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
               + "' was added to the list with id "
               + workflow.getContainerId();
       return new WebResult(WebResult.STRING_OK, message, workflow.getContainerId())
-          .withLineageRunId(LineageRemoteRuns.adoptedRunId(workflow));
+          .withLineage(LineageRemoteRuns.answerOf(workflow));
     } catch (HopServerAtCapacityException e) {
       return new WebResult(HopServerAdmission.RESULT_AT_CAPACITY, e.getMessage());
     }

@@ -20,11 +20,15 @@ package org.apache.hop.www;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.lineage.LineageRemoteRuns;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -44,10 +48,22 @@ public class WebResult {
 
   /**
    * The lineage run id a Hop Server reports a registered run under, when it reports the client's
-   * run ({@code LineageRemoteRuns}); null otherwise, and from a server that doesn't. A client that
+   * run ({@link LineageRemoteRuns}); null otherwise, and from a server that doesn't. A client that
    * doesn't know it ignores it.
    */
+  @Getter
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private String lineageRunId;
+
+  /** The names of the client's lineage sinks the server reports the registered run to. */
+  @Getter
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private List<String> lineageSinks = List.of();
+
+  /** Whether the server reports the run to sinks configured with variables like the client's. */
+  @Getter
+  @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+  private boolean lineageVariableSinks;
 
   public WebResult(String result) {
     this(result, null, null);
@@ -73,6 +89,13 @@ public class WebResult {
     xml.append("  ").append(XmlHandler.addTagValue("id", id));
     if (lineageRunId != null) {
       xml.append("  ").append(XmlHandler.addTagValue("lineage_run_id", lineageRunId));
+      xml.append("  ").append(XmlHandler.openTag("lineage_sinks")).append(Const.CR);
+      for (String sink : lineageSinks) {
+        xml.append("    ").append(XmlHandler.addTagValue("lineage_sink", sink));
+      }
+      xml.append("  ").append(XmlHandler.closeTag("lineage_sinks")).append(Const.CR);
+      xml.append("  ")
+          .append(XmlHandler.addTagValue("lineage_variable_sinks", lineageVariableSinks));
     }
 
     xml.append("</" + XML_TAG + ">").append(Const.CR);
@@ -99,6 +122,19 @@ public class WebResult {
     message = XmlHandler.getTagValue(webResultNode, "message");
     id = XmlHandler.getTagValue(webResultNode, "id");
     lineageRunId = XmlHandler.getTagValue(webResultNode, "lineage_run_id");
+    Node sinksNode = XmlHandler.getSubNode(webResultNode, "lineage_sinks");
+    if (sinksNode != null) {
+      List<String> sinks = new ArrayList<>();
+      for (Node sinkNode : XmlHandler.getNodes(sinksNode, "lineage_sink")) {
+        String sink = XmlHandler.getNodeValue(sinkNode);
+        if (sink != null) {
+          sinks.add(sink);
+        }
+      }
+      lineageSinks = List.copyOf(sinks);
+    }
+    lineageVariableSinks =
+        "Y".equalsIgnoreCase(XmlHandler.getTagValue(webResultNode, "lineage_variable_sinks"));
   }
 
   public String getResult() {
@@ -144,19 +180,27 @@ public class WebResult {
   }
 
   /**
-   * @return the lineage run id the server reports the run under, or null
+   * Adds what the server reports of a client's run it registered, if it reports one.
+   *
+   * @param answer what the server reports, or null
+   * @return this result
    */
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  public String getLineageRunId() {
-    return lineageRunId;
+  public WebResult withLineage(LineageRemoteRuns.Answer answer) {
+    if (answer != null) {
+      lineageRunId = answer.runId();
+      lineageSinks = answer.sinks() == null ? List.of() : List.copyOf(answer.sinks());
+      lineageVariableSinks = answer.variableSinks();
+    }
+    return this;
   }
 
   /**
-   * @param lineageRunId the lineage run id the server reports the run under
-   * @return this result
+   * @return what the server reports of the client's run it registered, or null when it doesn't
    */
-  public WebResult withLineageRunId(String lineageRunId) {
-    this.lineageRunId = lineageRunId;
-    return this;
+  @JsonIgnore
+  public LineageRemoteRuns.Answer getLineageAnswer() {
+    return lineageRunId == null
+        ? null
+        : new LineageRemoteRuns.Answer(lineageRunId, lineageSinks, lineageVariableSinks);
   }
 }

@@ -90,7 +90,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
         workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap());
     // A client's run this run reports in lineage, when the client passed one
     LineageRemoteRuns.adopt(
-        workflow, workflowExecutionConfiguration.getVariablesMap(), workflow.getLogChannel());
+        workflow,
+        workflow,
+        metadataProvider,
+        workflowExecutionConfiguration.getVariablesMap(),
+        workflow.getLogChannel());
 
     copyWorkflowParameters(workflow, workflowExecutionConfiguration.getParametersMap());
 
@@ -153,7 +157,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     pipeline.setLogLevel(pipelineExecutionConfiguration.getLogLevel());
     // A client's run this run reports in lineage, when the client passed one
     LineageRemoteRuns.adopt(
-        pipeline, pipelineExecutionConfiguration.getVariablesMap(), pipeline.getLogChannel());
+        pipeline,
+        pipeline,
+        metadataProvider,
+        pipelineExecutionConfiguration.getVariablesMap(),
+        pipeline.getLogChannel());
 
     // Also copy the parameters over...
     copyParameters(pipeline, pipelineExecutionConfiguration.getParametersMap());
