@@ -172,3 +172,17 @@ Output:
   </order>
 </orders>
 ----
+
+== Samples
+
+The samples project has these examples, which write to `${java.io.tmpdir}`:
+
+* `transforms/xml-output-advanced-basic.hpl`, which writes 4 customers from a Data grid as `customer` elements with an `id` attribute to `xml-output-advanced-basic.xml`, and an `.xsd` file that describes it.
+* `transforms/xml-output-advanced-compact.hpl`, which writes 3 products without whitespace; the `currency` attribute is always created with its default value, and a null `discontinued` attribute or `note` element gets its default value.
+* `transforms/xml-output-advanced-document-fragment.hpl`, which inserts the XML fragment of the field `extras` into each `product` element as XML nodes, not as escaped text.
+* `transforms/xml-output-advanced-grouped.hpl`, which sorts order lines on `orderId` and writes one `order` element per order with its lines nested inside, with a default namespace, a DOCTYPE declaration, an `xml-stylesheet` processing instruction and an `.xsd` file.
+* `transforms/xml-output-advanced-multi-group-by.hpl`, which groups order lines first by region and then by order.
+* `transforms/xml-output-advanced-person-addresses.hpl`, which builds the `addresses` element of each person in a field with a first XML output (Advanced), and inserts it into the `person` elements with a second one, which writes `xml-output-advanced-person-addresses.xml`.
+* `transforms/xml-output-advanced-chained.hpl`, the same two transforms, which write `xml-output-advanced-chained.xml`.
+* `transforms/xml-output-advanced-split.hpl`, which writes 12 events in files of 5 rows: `xml-output-advanced-split_0_00001.xml` to `xml-output-advanced-split_0_00003.xml`.
+* `transforms/xml-output-advanced-zipped.hpl`, which writes transactions to a zip file whose name has the date and time in the format `yyyy-MM-dd_HH-mm-ss`, with the `.xsd` file next to it.

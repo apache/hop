@@ -203,3 +203,7 @@ See xref:pipeline/formatting-values.adoc[Formatting numbers and dates].
 |Trim type|Only for String fields: `none`, `left`, `right` or `both`, to remove whitespace at the start, the end, or both.
 |Get fields|Replaces the list with the fields found in the first file. See <<Paths>>.
 |===
+
+== Samples
+
+The samples project has `transforms/yaml-input.hpl`, which reads the keys `engine` and `version` from `files/yaml-input.txt`.

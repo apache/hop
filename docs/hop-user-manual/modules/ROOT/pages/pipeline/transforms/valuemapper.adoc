@@ -87,3 +87,7 @@ This applies both to normal source-to-target rows and to the special row used to
 If there is an empty source value defined, NULLs and empty strings are mapped to the corresponding target value. Only one empty mapping is allowed.
 
 If the input stream contains NULL values, and no mapping for NULLs is defined, NULL is returned (and not the default target).
+
+== Samples
+
+The samples project has `transforms/value-mapper-basic.hpl`, which maps 11 currency codes from a Data grid to their names in the field `currency_description`, and sets `unknown currency` for the code `SOD`, which is not in the list.

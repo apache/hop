@@ -49,3 +49,7 @@ IMPORTANT: Each input stream must already be sorted on the configured sort keys 
 * When the same field name appears on more than one stream with different data types, the merged field type is coerced to `String` (same behavior as Stream schema merge).
 * Rows with equal sort keys keep a stable order based on the input stream index.
 * Safe mode row layout checks are not applied across streams with different schemas (`excludeFromRowLayoutVerification`).
+
+== Samples
+
+The samples project has `transforms/sorted-schema-merge.hpl`, which merges a Data grid with the fields `id` and `name` and a Data grid with the fields `id` and `city` into one stream sorted on `id`, with all three fields; a field that a row does not have is null.

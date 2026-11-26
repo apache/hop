@@ -48,3 +48,7 @@ The Zip File transform creates a standard ZIP archive using the options you spec
 A lower level zips faster and gives a somewhat larger archive.
 A new transform uses 6 - Standard. A transform saved before this option existed keeps 9 - Smallest files, the level it always used.
 |===
+
+== Samples
+
+The samples project has `transforms/zip-file-basic.hpl`, which zips `transforms/files/transactions.csv` into `transactions.zip` in the same folder.

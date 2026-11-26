@@ -278,9 +278,9 @@ DELETED rows carry the previous file's metadata because the file no longer exist
 Filter out DELETED before sending filenames to a reader.
 For local filenames containing a literal percent sign, `filename` is a file URI so existing VFS readers can resolve the escape safely.
 
-== Example
+== Samples
 
-The bundled `watch-files/watch-files.hpl` sample monitors `+${PROJECT_HOME}/watch-files/input+` and writes filename, event type, size and modification time to the log.
+The samples project has `watch-files/watch-files.hpl`, which watches `+${PROJECT_HOME}/watch-files/input+` for CSV files and writes the file name, the event type, the size and the modification time of each change to the log.
 Create or modify a CSV in that directory, wait for stability, then stop the pipeline.
 Restart it after adding a CSV while stopped to observe recovery.
 Its sibling `state` directory persists checkpoints.

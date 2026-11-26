@@ -126,8 +126,7 @@ Prepared statements:
 
 You can also combine named or positional parameters with variable substitution.
 
-Sample pipeline:
-link:https://github.com/apache/hop/blob/main/plugins/transforms/tableinput/src/main/samples/transforms/tableinput-named-parameters.hpl[tableinput-named-parameters.hpl]
+The samples project has this example, `transforms/tableinput-named-parameters.hpl`, see <<Samples>>.
 
 === Examples
 
@@ -145,8 +144,7 @@ WHERE id > ?;
 - Replace variables in script: *unchecked*
 - Insert data from transform: *optional; select the previous transform to mark the hop as informational, or leave empty if a hop is already connected*
 
-Sample pipeline:
-link:https://github.com/apache/hop/blob/main/plugins/transforms/tableinput/src/main/samples/transforms/tableinput-accept-input.hpl[tableinput-accept-input.hpl]
+The samples project has this example, `transforms/tableinput-accept-input.hpl`, see <<Samples>>.
 
 .Using a date range from a system transform:
 
@@ -187,8 +185,7 @@ NOTE: Variable substitution happens before execution and does not protect agains
 - Replace variables in script: *checked*
 - Insert data from transform: *leave empty*
 
-Sample pipeline:
-link:https://github.com/apache/hop/blob/main/plugins/transforms/tableinput/src/main/samples/transforms/tableinput-variables.hpl[tableinput-variables.hpl]
+The samples project has this example, `transforms/tableinput-variables.hpl`, see <<Samples>>.
 
 == Using Both Variables and Prepared Statements
 
@@ -468,3 +465,11 @@ Server-side limiting is usually preferable when you need a reliable cap, better 
 
 NOTE: You can combine both: keep a SQL `LIMIT` for server-side control, and optionally set *Limit size* as an additional client-side safety net where the driver supports it.
 
+== Samples
+
+The samples project has:
+
+* `transforms/tableinput-basic.hpl`, which reads the 5 rows of the table `public.tableinput` of the `hop-samples` connection.
+* `transforms/tableinput-accept-input.hpl`, which reads the rows with an `id` greater than 2, the value that a Data grid passes to the `?` of the query.
+* `transforms/tableinput-named-parameters.hpl`, which does the same with the named parameter `{id}`.
+* `transforms/tableinput-variables.hpl`, which reads the rows with an `id` greater than the pipeline parameter `${PRM_ID}`, 2 by default, with variable replacement in the query.

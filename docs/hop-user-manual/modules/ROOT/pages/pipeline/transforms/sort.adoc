@@ -62,3 +62,10 @@ A new transform uses 1 - Fastest. A transform saved before this option existed k
 You can specify whether to perform a case sensitive sort (optional)
 |Get Fields|Click to retrieve a list of all fields coming in on the stream(s).
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/sort-rows-basic.hpl`, which sorts 100 rows of fake book data on the author, the title, the genre and the publisher.
+* `transforms/sort-rows-sorted-merge.hpl`, which sorts 1 million rows of fake book data on the same fields with 4 copies of Sort rows, and merges the 4 sorted streams into one with Sorted merge.

@@ -91,3 +91,7 @@ Without join by key, that is the first node the statement finds, the one the ele
 The tree lists the first 200 elements under a node; the line says when the node the statement finds is not among them.
 
 When you switch Join by key on or off, a statement written by a click is written again for the new setting. A statement you typed stays as it is.
+
+== Samples
+
+The samples project has `transforms/xml-join.hpl`, which adds the `OrderComments` element of `files/xml-join-comments.txt` to the `Orders` element of `files/xml-join-orders.txt`, and puts the joined document in the field `result_xml`.

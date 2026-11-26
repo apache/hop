@@ -58,3 +58,10 @@ You can then delete the fields you don't want to retrieve
 
 For guidance on preventing deadlocks when using the Stream Lookup transform, refer to this how-to guide: 
 **xref:how-to-guides/avoiding-deadlocks.adoc[Avoiding deadlocks]**
+
+== Samples
+
+The samples project has:
+
+* `pipelines/read-transactions.hpl`, which looks up the header labels of each Excel file by its file name and adds them to its data rows.
+* `transforms/stream-lookup-basic.hpl`, which looks up the `desc` of 5 ids in a second Data grid.

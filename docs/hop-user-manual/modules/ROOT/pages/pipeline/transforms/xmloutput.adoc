@@ -88,3 +88,7 @@ This is *not* a row group.
 |Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal; for example instead of save 0000001, "1" is written, and so on.
 String fields are not padded to their specified length.
 |===
+
+== Samples
+
+The samples project has `transforms/xml-output.hpl`, which writes 2 books from a Data grid to `output/xml-output.xml`, as `Book` elements with the `id`, `title` and `author` in a `Books` element.

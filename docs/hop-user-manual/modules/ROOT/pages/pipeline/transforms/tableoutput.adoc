@@ -128,3 +128,6 @@ The same option can name what the driver does, for a connection whose options ch
 
 When a failed batch is worked out this way, rows can be sent to the database more than once, so a failed batch can use up extra sequence values and fire non-transactional triggers again.
 
+== Samples
+
+The samples project has `transforms/tableoutput-basic.hpl`, which empties the table `tableoutput_basic` of the `hop-samples` connection and writes 5 rows from a Data grid to it.

@@ -41,3 +41,7 @@ Requires you to set error handling for this transform.
 Only available when Redirect duplicate row is checked.
 |Fields to compare table|Specify the field names on which you want to force uniqueness or click Get to insert all fields from the input stream(s) You can choose to ignore case by setting the Ignore case flag to Y.
 |===
+
+== Samples
+
+The samples project has `transforms/unique-rows-basic.hpl`, which sorts 15 rows from a Data grid on `value`, keeps one row for each value, and counts the rows of each value in `Distinct_Count`.

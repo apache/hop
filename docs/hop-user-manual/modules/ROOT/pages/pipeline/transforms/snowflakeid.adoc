@@ -46,3 +46,7 @@ This name must be unique within a single pipeline.
 |Data Center No|Identifier for the data center or logical group. Valid range: 0–31 (default: 1).
 |Machine No|Identifier for the machine generating the ID. Valid range: 0–31 (default: 1).
 |===
+
+== Samples
+
+The samples project has `transforms/generate-snowflake-id.hpl`, which adds a unique Snowflake ID in the field `snowflakeId` to 3 rows from a Data grid, with data center ID 2 and machine ID 31.

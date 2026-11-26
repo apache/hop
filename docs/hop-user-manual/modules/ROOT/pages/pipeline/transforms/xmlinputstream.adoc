@@ -125,3 +125,6 @@ When you use the XML element ID with the XML parent element ID, a complete XML e
 / Fieldname|Adds the processed data value of elements, attributes and optional namespace URIs to the specified field name.
 |===
 
+== Samples
+
+The samples project has `transforms/xml-input-stream.hpl`, which reads `files/xml-input-stream.txt`, a library of 2 books, as 22 rows: one for the start and the end of the document and of each element, one for each attribute and one for each text value.

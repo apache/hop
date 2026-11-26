@@ -46,9 +46,7 @@ See also:
 * The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
 * xref:fields-parameters-variables.adoc[Fields, parameters, and variables] for how values move between parent and child.
 
-Samples (samples project)
-
-* loops/workflow-executor.hpl
+The samples project has examples, see <<Samples>>.
 
 == Options
 
@@ -232,3 +230,10 @@ Here you can specify where to send the result files from the workflow execution.
 |Result file name field  
 |Specify the name of the field for the result files.
 |===
+
+== Samples
+
+The samples project has:
+
+* `loops/workflow-executor.hpl`, which runs `loops/child-workflow-executor.hwf` once for each of 10 generated rows, with the row number in the parameter `PRM_COUNTER`, and gets the execution results, the result rows and the result file names on separate streams.
+* `transforms/workflow-executor-basic.hpl`, which runs `transforms/workflow-executor-child.hwf` once for each of 3 rows from a Data grid, with the value in the parameter `PARAM`, and gets the execution results on the `Results` stream and the result file names on the `Result files` stream: the child adds every file of the project to the result.

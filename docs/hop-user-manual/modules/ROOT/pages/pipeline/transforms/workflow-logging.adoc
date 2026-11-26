@@ -77,3 +77,6 @@ The transform requires very little configuration, but provides a lot of informat
 |actionReason|String|an optional reason provided by the current action
 |===
 
+== Samples
+
+The samples project has `reflection/workflow-log-example.hpl`, which the workflow log `workflow-log-example` runs at the start and at the end of `reflection/generate-fake-books.hwf`: it writes the workflow and the action log data to `reflection/output/workflow-log.csv` and `reflection/output/workflow-log-action.csv`.

@@ -65,3 +65,7 @@ The text above is considered as input string in all the following examples:
 |50|100|(null)|When the first index is greater than the input length, `null` is returned
 |10|-10|`The quick brown fox jumps over the lazy dog`|When the two indexes have different signs, the entire input is returned
 |===
+
+== Samples
+
+The samples project has `transforms/strings-cut.hpl`, which keeps the first 5 characters of 3 phrases from a Data grid in the field `cut`: `Apach`, `regul` and `docum`.

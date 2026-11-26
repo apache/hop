@@ -39,3 +39,10 @@ The Column Exists transforms allows you to verify the existence of a specific co
 |Columnname field|The name of the column field in the input stream
 |Result fieldname|The name of the resulting boolean flag field
 |===
+
+== Samples
+
+The samples project has:
+
+* `transforms/columnexists-basic.hpl`, which checks 6 column names from a Data grid in the table `DBLOOKUP` of the schema `PUBLIC` of the `hop-samples` connection: `id` and `description` are found in lower and upper case, `desc` is not.
+* `transforms/columnexists-table-field.hpl`, which takes the table name from a field too: of 6 table and column names from a Data grid, only `ID` and `description` in `DBLOOKUP` are found.

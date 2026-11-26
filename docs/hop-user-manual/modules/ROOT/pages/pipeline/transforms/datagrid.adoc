@@ -73,3 +73,6 @@ It is not yet possible to insert columns in between 2 existing one or in general
 
 If you plan to do this, make sure to copy the data section first to a spreadsheet (Select all rows and copy/paste the whole grid), change the data and copy it back into the data section.
 
+== Samples
+
+The samples project has `transforms/datagrid-basic.hpl`, which generates 3 rows with String, Integer, Number, Date and Boolean fields.

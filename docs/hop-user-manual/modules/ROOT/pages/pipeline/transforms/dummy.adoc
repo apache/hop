@@ -34,3 +34,10 @@ It functions as a placeholder for testing purposes or a way to combine multiple 
 |Option|Description
 |Transform name|Name of the transform.
 |===
+
+== Samples
+
+The samples project has:
+
+* `pipelines/read-transactions.hpl`, where the Dummy transforms `Headers` and `Data` receive the header row and the data rows of the Excel files.
+* `loops/pipeline-executor.hpl` and `loops/workflow-executor.hpl`, which end each output stream of the executor in a Dummy transform.

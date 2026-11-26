@@ -158,3 +158,10 @@ String fields will no longer be padded to their specified length.
 |===
 
 include::../../snippets/rounding-types.adoc[]
+
+== Samples
+
+The samples project has:
+
+* `transforms/textfileoutput-tiny-file.hpl`, which writes 100 rows of fake book data to `files/books-tiny-file.csv`.
+* `workflows/write-read-huge-file.hwf`, which writes 25 million rows of fake book data to `files/books-huge-file.csv` with `workflows/textfileoutput-huge-file.hpl`, and reads the file back with `workflows/csvinput-huge-file.hpl`.
