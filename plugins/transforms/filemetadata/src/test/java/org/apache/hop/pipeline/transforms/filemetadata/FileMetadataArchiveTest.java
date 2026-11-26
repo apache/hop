@@ -98,7 +98,7 @@ class FileMetadataArchiveTest {
     Object[] first = output.getRowWait(1, TimeUnit.SECONDS);
     assertNotNull(first, "expected metadata rows for the CSV inside the archive");
     assertEquals("US-ASCII", first[0].toString());
-    assertEquals(';', first[1]);
+    assertEquals(";", first[1]);
     assertEquals("colA", first[7]);
 
     assertEquals("colB", output.getRowWait(1, TimeUnit.SECONDS)[7]);

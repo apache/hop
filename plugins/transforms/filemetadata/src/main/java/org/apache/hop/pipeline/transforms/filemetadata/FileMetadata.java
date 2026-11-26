@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Objects;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -238,7 +239,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     // guess the charset
     Charset detectedCharset = detectCharset(fileName);
-    outputRow[idx++] = detectedCharset;
+    outputRow[idx++] = detectedCharset.name();
 
     // guess the delimiters
     DelimiterDetector.DetectionResult delimiters =
@@ -250,7 +251,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     }
 
     // delimiter
-    outputRow[idx++] = delimiters.getDelimiter();
+    outputRow[idx++] = Objects.toString(delimiters.getDelimiter(), null);
     // enclosure
     outputRow[idx++] =
         delimiters.getEnclosure() == null ? "" : delimiters.getEnclosure().toString();

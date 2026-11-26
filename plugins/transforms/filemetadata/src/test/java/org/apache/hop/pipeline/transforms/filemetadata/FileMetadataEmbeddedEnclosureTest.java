@@ -19,9 +19,11 @@ package org.apache.hop.pipeline.transforms.filemetadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -45,6 +48,8 @@ class FileMetadataEmbeddedEnclosureTest {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
+  private static final int CHARSET = 0;
+  private static final int DELIMITER = 1;
   private static final int ENCLOSURE = 2;
   private static final int FIELD_COUNT = 3;
   private static final int SKIP_FOOTER_LINES = 5;
@@ -95,6 +100,21 @@ class FileMetadataEmbeddedEnclosureTest {
     assertEquals("Number", amount[TYPE]);
     assertEquals(2L, amount[PRECISION]);
     assertEquals("#.00", amount[MASK]);
+  }
+
+  /**
+   * #9745: charset and delimiter are declared as String fields, so they must hold Strings. A
+   * Charset or Character there fails as soon as the row is serialized.
+   */
+  @Test
+  void charsetAndDelimiterAreWrittenAsStrings() throws Exception {
+    List<Object[]> rows = detect("");
+
+    for (Object[] row : rows) {
+      String charset = assertInstanceOf(String.class, row[CHARSET]);
+      assertEquals(Charset.forName(charset).name(), charset);
+      assertEquals(",", assertInstanceOf(String.class, row[DELIMITER]));
+    }
   }
 
   private List<Object[]> detect(String limitRows) throws Exception {
