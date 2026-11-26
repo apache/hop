@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0053-update-batch-error-accounting</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description>Update with an error hop on PostgreSQL, twelve updates at commit size 5, three of them refused by a check constraint: one in the middle of the first commit window, one at the first position of the second and one at the end of the final partial window. Once with batch updates on: PostgreSQL's validated batch failure contract (the whole batch is lost) keeps batching on with the error hop, without a savepoint per row, and the good rows of a failed batch are run again. Once with batch updates off: every row runs behind a savepoint and is passed on right after it, as before. Asserts for both that exactly the three bad rows reach the error stream, with the error code of their path, that the nine good updates are committed and reported once, and that no row is reported on the main output unless its update is in the table.</description>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2026/11/25 12:00:00.000</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2026/11/25 12:00:00.000</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Init tables</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DROP TABLE IF EXISTS hop_upd_err_target;
+DROP TABLE IF EXISTS hop_upd_err_written;
+DROP TABLE IF EXISTS hop_upd_err_rejects;
+DROP TABLE IF EXISTS hop_upd_rbr_target;
+DROP TABLE IF EXISTS hop_upd_rbr_written;
+DROP TABLE IF EXISTS hop_upd_rbr_rejects;
+CREATE TABLE hop_upd_err_target (id BIGINT NOT NULL PRIMARY KEY, label VARCHAR(20), CONSTRAINT hop_upd_err_target_ck CHECK (label &lt;&gt; 'bad'));
+CREATE TABLE hop_upd_err_written (id BIGINT, label VARCHAR(20));
+CREATE TABLE hop_upd_err_rejects (id BIGINT, label VARCHAR(20), err_desc TEXT, err_code VARCHAR(20));
+INSERT INTO hop_upd_err_target (id, label) VALUES (0, 'old'), (1, 'old'), (2, 'old'), (3, 'old'), (4, 'old'), (5, 'old'), (6, 'old'), (7, 'old'), (8, 'old'), (9, 'old'), (10, 'old'), (11, 'old');
+CREATE TABLE hop_upd_rbr_target (id BIGINT NOT NULL PRIMARY KEY, label VARCHAR(20), CONSTRAINT hop_upd_rbr_target_ck CHECK (label &lt;&gt; 'bad'));
+CREATE TABLE hop_upd_rbr_written (id BIGINT, label VARCHAR(20));
+CREATE TABLE hop_upd_rbr_rejects (id BIGINT, label VARCHAR(20), err_desc TEXT, err_code VARCHAR(20));
+INSERT INTO hop_upd_rbr_target (id, label) VALUES (0, 'old'), (1, 'old'), (2, 'old'), (3, 'old'), (4, 'old'), (5, 'old'), (6, 'old'), (7, 'old'), (8, 'old'), (9, 'old'), (10, 'old'), (11, 'old');</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>F</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0053-update-batch-error-accounting.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0053-update-batch-error-accounting.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>432</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>every row on exactly one stream</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <sql>DO $$
+DECLARE
+  n BIGINT;
+BEGIN
+
+  -- batch updates on: twelve rows went in; twelve rows have to come out on exactly one of the two streams.
+  SELECT COUNT(*) INTO n FROM (SELECT id FROM hop_upd_err_written UNION ALL SELECT id FROM hop_upd_err_rejects) s;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'batch updates on: rows on the main output plus rows on the error stream: got %, expected 12', n;
+  END IF;
+
+  -- batch updates on: only the three rows the database refused are rejects; the good rows of their commit window are not taken down with them.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_rejects;
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates on: rows on the error stream: got %, expected 3', n;
+  END IF;
+
+  -- batch updates on: the rejects are exactly the bad rows: middle of window 1, first of window 2, last of the final partial window.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_rejects WHERE id IN (2, 5, 11);
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates on: rejected rows that are the bad rows: got %, expected 3', n;
+  END IF;
+
+  -- batch updates on: every reject carries the database's message and the code UPD002 of a row of a batch, so batching stayed on with the error hop.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_rejects WHERE err_desc IS NOT NULL AND err_code = 'UPD002';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates on: rejects with a message and code UPD002: got %, expected 3', n;
+  END IF;
+
+  -- batch updates on: all nine good rows are reported on the main output, each once.
+  SELECT COUNT(DISTINCT id) INTO n FROM hop_upd_err_written WHERE id IN (0, 1, 3, 4, 6, 7, 8, 9, 10);
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'batch updates on: good rows on the main output: got %, expected 9', n;
+  END IF;
+
+  -- batch updates on: no row is reported more than once.
+  SELECT COUNT(*) INTO n FROM (SELECT id FROM hop_upd_err_written GROUP BY id HAVING COUNT(*) &gt; 1) d;
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'batch updates on: rows on the main output more than once: got %, expected 0', n;
+  END IF;
+
+  -- batch updates on: the update neither adds nor removes rows.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_target;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'batch updates on: rows in the target table: got %, expected 12', n;
+  END IF;
+
+  -- batch updates on: the nine good updates are committed.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_target WHERE id IN (0, 1, 3, 4, 6, 7, 8, 9, 10) AND label = 'new';
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'batch updates on: good rows updated in the table: got %, expected 9', n;
+  END IF;
+
+  -- batch updates on: the three refused updates left their rows alone.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_target WHERE id IN (2, 5, 11) AND label = 'old';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates on: refused rows still holding their old value: got %, expected 3', n;
+  END IF;
+
+  -- batch updates on: no row is reported as updated unless its update is in the table.
+  SELECT COUNT(*) INTO n FROM hop_upd_err_written w WHERE NOT EXISTS (SELECT 1 FROM hop_upd_err_target x WHERE x.id = w.id AND x.label = 'new');
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'batch updates on: rows reported as updated that were not updated: got %, expected 0', n;
+  END IF;
+
+  -- batch updates off: twelve rows went in; twelve rows have to come out on exactly one of the two streams.
+  SELECT COUNT(*) INTO n FROM (SELECT id FROM hop_upd_rbr_written UNION ALL SELECT id FROM hop_upd_rbr_rejects) s;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'batch updates off: rows on the main output plus rows on the error stream: got %, expected 12', n;
+  END IF;
+
+  -- batch updates off: only the three rows the database refused are rejects; the good rows of their commit window are not taken down with them.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_rejects;
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates off: rows on the error stream: got %, expected 3', n;
+  END IF;
+
+  -- batch updates off: the rejects are exactly the bad rows: middle of window 1, first of window 2, last of the final partial window.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_rejects WHERE id IN (2, 5, 11);
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates off: rejected rows that are the bad rows: got %, expected 3', n;
+  END IF;
+
+  -- batch updates off: every reject carries the database's message and the code UPD001 of a row updated on its own.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_rejects WHERE err_desc IS NOT NULL AND err_code = 'UPD001';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates off: rejects with a message and code UPD001: got %, expected 3', n;
+  END IF;
+
+  -- batch updates off: all nine good rows are reported on the main output, each once.
+  SELECT COUNT(DISTINCT id) INTO n FROM hop_upd_rbr_written WHERE id IN (0, 1, 3, 4, 6, 7, 8, 9, 10);
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'batch updates off: good rows on the main output: got %, expected 9', n;
+  END IF;
+
+  -- batch updates off: no row is reported more than once.
+  SELECT COUNT(*) INTO n FROM (SELECT id FROM hop_upd_rbr_written GROUP BY id HAVING COUNT(*) &gt; 1) d;
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'batch updates off: rows on the main output more than once: got %, expected 0', n;
+  END IF;
+
+  -- batch updates off: the update neither adds nor removes rows.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_target;
+  IF n &lt;&gt; 12 THEN
+    RAISE EXCEPTION 'batch updates off: rows in the target table: got %, expected 12', n;
+  END IF;
+
+  -- batch updates off: the nine good updates are committed.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_target WHERE id IN (0, 1, 3, 4, 6, 7, 8, 9, 10) AND label = 'new';
+  IF n &lt;&gt; 9 THEN
+    RAISE EXCEPTION 'batch updates off: good rows updated in the table: got %, expected 9', n;
+  END IF;
+
+  -- batch updates off: the three refused updates left their rows alone.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_target WHERE id IN (2, 5, 11) AND label = 'old';
+  IF n &lt;&gt; 3 THEN
+    RAISE EXCEPTION 'batch updates off: refused rows still holding their old value: got %, expected 3', n;
+  END IF;
+
+  -- batch updates off: no row is reported as updated unless its update is in the table.
+  SELECT COUNT(*) INTO n FROM hop_upd_rbr_written w WHERE NOT EXISTS (SELECT 1 FROM hop_upd_rbr_target x WHERE x.id = w.id AND x.label = 'new');
+  IF n &lt;&gt; 0 THEN
+    RAISE EXCEPTION 'batch updates off: rows reported as updated that were not updated: got %, expected 0', n;
+  END IF;
+END
+$$;</sql>
+      <useVariableSubstitution>F</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <sendOneStatement>T</sendOneStatement>
+      <connection>unit-test-db</connection>
+      <parallel>N</parallel>
+      <xloc>688</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Init tables</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Init tables</from>
+      <to>0053-update-batch-error-accounting.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0053-update-batch-error-accounting.hpl</from>
+      <to>every row on exactly one stream</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

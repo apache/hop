@@ -49,3 +49,29 @@ This is important for data sources that allow for table names with periods in th
 |Target table|Name of the table in which you want to do the update.
 |Update Fields|Allows you to specify all fields in the table you want to update.
 |===
+
+== Batches and error handling
+
+With *Use batch updates?* on, the updates are sent to the database in batches of the commit size.
+When the update of a row in a batch fails, what happened to the other rows of the batch depends on the database's JDBC driver: some run the other rows, some stop at the failing row, and some lose the whole batch.
+
+On a database whose driver's behaviour has been measured, the transform uses it to work out which rows of a failed batch are in the database, and with an error hop attached it sends each row to exactly one stream: the main output for rows that were updated, the error hop for rows that were refused.
+A row only appears on the main output after the database has committed its update, and the rows keep their input order, also the rows that needed no update and the rows whose key was not found.
+On such a database the transform also keeps batching when an error hop is attached.
+That includes PostgreSQL, where an error hop otherwise switches batching off and every row runs on its own behind a savepoint.
+Without an error hop a failed batch is rolled back and the transform stops, as before.
+When the transform is stopped or fails, the rows that still wait in its batch are not updated.
+
+The databases measured so far, with their default connection options, are listed in the development manual under "Creating a dialect".
+On every other database, and when a connection option changes how the driver handles a failed batch, the transform handles a failed batch as it always did.
+
+To go back to that behaviour on a measured database:
+
+* set *When a batch fails, the driver* on the *Advanced* tab of the connection to *As before*, or
+* set the variable `HOP_DATABASE_BATCH_RECOVERY` to `LEGACY`, for every connection.
+
+The same option can name what the driver does, for a connection whose options change it.
+
+When a failed batch is worked out this way, the update of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
+
+With *Use batch updates?* off, or a commit size of 0, the rows are updated one by one, as before.

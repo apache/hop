@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -37,10 +39,35 @@ public class UpdateData extends BaseTransformData implements ITransformData {
   public boolean useSavepoints;
 
   /**
-   * Whether the statements go out in JDBC batches: asked for, no savepoint per row, a commit size
-   * and a database that runs batches on this connection.
+   * Whether the statements go out in JDBC batches the way Update always ran them: asked for, no
+   * savepoint per row, a commit size and a database that runs batches on this connection. False
+   * when {@link #recoveredBatches} is on.
    */
   public boolean batchMode;
+
+  /** How a failed batch is handled on this connection, see {@link BatchSupport}. */
+  public BatchSupport batchSupport;
+
+  /**
+   * True when the connection's batch failure contract has been validated: the statements go out in
+   * {@link #batch}, which works out the rows of a failed batch by that contract. False keeps the
+   * handling Update always had, with {@link #batchMode} and {@link #useSavepoints}.
+   */
+  public boolean recoveredBatches;
+
+  /** The batch of {@link #recoveredBatches}, created with the UPDATE statement on the first row. */
+  public RecoverableBatch batch;
+
+  /** The UPDATE statement, to prepare it again when the driver closed it after a failed batch. */
+  public String updateSql;
+
+  /** The lookup SELECT, to prepare it again when the driver closed it after a failed lookup. */
+  public String lookupSql;
+
+  /**
+   * How many rows of {@link #batchBuffer} the recovered batch has given a verdict while it runs.
+   */
+  public int settledRows;
 
   /**
    * A row that waits for the current JDBC batch before it is passed on.
@@ -107,12 +134,15 @@ public class UpdateData extends BaseTransformData implements ITransformData {
     }
   }
 
-  /** The rows in the current JDBC batch, in the order they were added to it. */
+  /**
+   * The rows in the current JDBC batch, or row by row the rows whose update waits for the next
+   * commit, in the order they were added.
+   */
   public final List<PendingRow> batchBuffer = new ArrayList<>();
 
   /**
-   * Every row that waits for the current batch, in the order the rows came in: the rows of {@link
-   * #batchBuffer} and the rows that arrived between them. Empty when no batch is pending.
+   * Every row that waits for the current batch or commit, in the order the rows came in: the rows
+   * of {@link #batchBuffer} and the rows that arrived between them. Empty when nothing is pending.
    */
   public final List<PendingRow> pendingRows = new ArrayList<>();
 
@@ -128,8 +158,10 @@ public class UpdateData extends BaseTransformData implements ITransformData {
   public int[] keynrs2; // nr of keylookup2-value in row...
   public int[] valuenrs; // Stream valuename nrs to prevent searches.
 
+  /** The error message of the current row when its key is not found, naming that key. */
   public String stringErrorKeyNotFound;
 
+  /** The names of the lookup fields, for the error row of a key that is not found. */
   public String stringFieldnames;
 
   public IRowMeta outputRowMeta;

@@ -27,6 +27,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.batch.BatchSupport;
+import org.apache.hop.core.database.batch.IBatchRowListener;
+import org.apache.hop.core.database.batch.RecoverableBatch;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -44,7 +47,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** Update data in a database table, does NOT ever perform an insert. */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
+  private static final String CONST_UPD001 = "UPD001";
   private static final String CONST_UPD002 = "UPD002";
+
+  /** A row of a recovered batch that was never sent to the database, which could not be asked. */
+  private static final String CONST_UPD003 = "UPD003";
+
   public static final String CONST_IS_NULL = "IS NULL";
   public static final String CONST_UPDATE_EXCEPTION_FIELD_REQUIRED =
       "Update.Exception.FieldRequired";
@@ -120,10 +128,11 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (!meta.isErrorIgnored()) {
         if (getTransformMeta().isDoingErrorHandling()) {
           outputRow = null;
-          if (data.stringErrorKeyNotFound == null) {
-            data.stringErrorKeyNotFound =
-                BaseMessages.getString(PKG, "Update.Exception.KeyCouldNotFound")
-                    + data.lookupParameterRowMeta.getString(lookupRow);
+          // The message names this row's key; only the field names are the same for every row.
+          data.stringErrorKeyNotFound =
+              BaseMessages.getString(PKG, "Update.Exception.KeyCouldNotFound")
+                  + data.lookupParameterRowMeta.getString(lookupRow);
+          if (data.stringFieldnames == null) {
             data.stringFieldnames = "";
             for (int i = 0; i < data.lookupParameterRowMeta.size(); i++) {
               if (i > 0) {
@@ -196,18 +205,26 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
               BaseMessages.getString(PKG, "Update.Log.UpdateRow")
                   + data.lookupParameterRowMeta.getString(lookupRow));
         }
-        data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
-        if (data.batchMode) {
-          // Only added to the batch: flushBatch() runs it, then passes the row on to the output or
-          // to the error hop, depending on what the database says about this row.
-          data.db.insertRow(data.prepStatementUpdate, true, false);
-          UpdateData.PendingRow pending = UpdateData.PendingRow.batched(row, outputRow, updateRow);
-          data.batchBuffer.add(pending);
-          data.pendingRows.add(pending);
+        if (data.recoveredBatches) {
+          // Bound and run by the recovered batch: flushRecoveredBatch() passes the row on once the
+          // database has committed or refused its update.
+          addToRecoveredBatch(row, outputRow, updateRow);
           batched = true;
         } else {
-          data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
-          incrementLinesUpdated();
+          data.db.setValues(data.updateParameterRowMeta, updateRow, data.prepStatementUpdate);
+          if (data.batchMode) {
+            // Only added to the batch: flushBatch() runs it, then passes the row on to the output
+            // or to the error hop, depending on what the database says about this row.
+            data.db.insertRow(data.prepStatementUpdate, true, false);
+            UpdateData.PendingRow pending =
+                UpdateData.PendingRow.batched(row, outputRow, updateRow);
+            data.batchBuffer.add(pending);
+            data.pendingRows.add(pending);
+            batched = true;
+          } else {
+            data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
+            incrementLinesUpdated();
+          }
         }
       } else {
         incrementLinesSkipped();
@@ -232,6 +249,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     if (r == null) { // no more input to be expected...
       if (data.batchMode) {
         flushBatchOrStop();
+      }
+      if (data.recoveredBatches) {
+        flushRecoveredBatchOrStop();
       }
       setOutputDone();
       return false;
@@ -349,6 +369,9 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         setLookup(getInputRowMeta());
       }
       prepareUpdate(getInputRowMeta());
+      if (data.recoveredBatches) {
+        createRecoveredBatch();
+      }
     }
 
     try {
@@ -362,7 +385,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
         commitEveryCommitSize();
       }
       if (data.keyNotFound) {
-        putErrorInOrder(r, data.stringErrorKeyNotFound, data.stringFieldnames, "UPD001");
+        putErrorInOrder(r, data.stringErrorKeyNotFound, data.stringFieldnames, CONST_UPD001);
       }
       if (outputRow != null) {
         putRowInOrder(outputRow); // copy non-ignored rows to output rowset(s)
@@ -374,6 +397,13 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (getTransformMeta().isDoingErrorHandling()) {
         sendToErrorRow = true;
         errorMessage = e.toString();
+        if (data.recoveredBatches) {
+          // Between two batches the transaction holds no updates, only lookups, so rolling it back
+          // loses nothing. Where a failed statement aborts the transaction (PostgreSQL, DuckDB)
+          // the lookups of the next rows can run again.
+          data.db.rollback();
+          prepareLookupAgainIfClosed();
+        }
       } else {
         logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
         setErrors(1);
@@ -384,7 +414,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
       if (sendToErrorRow) {
         // Simply add this row to the error row
-        putErrorInOrder(r, errorMessage, null, "UPD001");
+        putErrorInOrder(r, errorMessage, null, CONST_UPD001);
       }
     }
 
@@ -392,6 +422,12 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     // The rows waiting behind the batch count as well, so that memory stays at one commit size
     // when few rows need an update: the batch then runs before it is full.
     if (data.batchMode && data.pendingRows.size() >= data.commitSize && !flushBatchOrStop()) {
+      setOutputDone();
+      return false;
+    }
+    if (data.recoveredBatches
+        && data.pendingRows.size() >= data.commitSize
+        && !flushRecoveredBatchOrStop()) {
       setOutputDone();
       return false;
     }
@@ -621,6 +657,157 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   }
 
   /**
+   * Creates the recovered batch on the UPDATE statement. Some drivers (DuckDB) close the statement
+   * when a batch fails; the batch then prepares it again.
+   */
+  private void createRecoveredBatch() throws HopDatabaseException {
+    String sql = data.updateSql;
+    data.batch =
+        RecoverableBatch.of(
+                data.db,
+                data.prepStatementUpdate,
+                (statement, bindRow) ->
+                    data.db.setValues(data.updateParameterRowMeta, bindRow, statement),
+                data.batchSupport)
+            .withStatementFactory(
+                () -> {
+                  PreparedStatement again = data.db.getConnection().prepareStatement(sql);
+                  data.prepStatementUpdate = again;
+                  return again;
+                });
+  }
+
+  /**
+   * Adds the update of a row to the recovered batch. The row waits in {@link
+   * UpdateData#batchBuffer} until the batch has run.
+   */
+  private void addToRecoveredBatch(Object[] row, Object[] outputRow, Object[] updateRow)
+      throws HopDatabaseException {
+    data.batch.add(updateRow, outputRow);
+    UpdateData.PendingRow pending = UpdateData.PendingRow.batched(row, outputRow, updateRow);
+    data.batchBuffer.add(pending);
+    data.pendingRows.add(pending);
+  }
+
+  /**
+   * Runs the recovered batch, stopping the transform when that fails.
+   *
+   * @return false when the transform was stopped
+   */
+  private boolean flushRecoveredBatchOrStop() {
+    try {
+      flushRecoveredBatch();
+      return true;
+    } catch (HopException e) {
+      logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
+      setErrors(1);
+      stopAll();
+      return false;
+    }
+  }
+
+  /**
+   * Runs and commits the recovered batch, then passes every pending row on in the order the rows
+   * came in. With an error hop the connection's batch failure contract tells which rows of a failed
+   * batch the database refused: they go to the error hop, the others are committed and go to the
+   * output, each exactly once. Without an error hop a failed batch is rolled back, none of the
+   * pending rows is passed on, and the failure is thrown, as with any batch.
+   */
+  private void flushRecoveredBatch() throws HopException {
+    if (data.batch == null || data.batch.isEmpty()) {
+      return;
+    }
+    data.settledRows = 0;
+    try {
+      if (getTransformMeta().isDoingErrorHandling()) {
+        data.batch.flush(recoveredBatchListener());
+      } else {
+        data.batch.flushOrFail(recoveredBatchListener());
+      }
+    } catch (HopDatabaseBatchException e) {
+      clearPendingRows();
+      throw new HopDatabaseBatchException(
+          BaseMessages.getString(PKG, "Update.Exception.BatchFailed", data.schemaTable), e);
+    } catch (HopException e) {
+      clearPendingRows();
+      throw e;
+    } finally {
+      data.prepStatementUpdate = data.batch.getStatement();
+    }
+    releasePendingRows();
+  }
+
+  /**
+   * Settles the rows of {@link UpdateData#batchBuffer}: the batch gives every row its verdict once,
+   * in the order the rows were added. {@link #releasePendingRows()} passes them on afterwards.
+   */
+  private IBatchRowListener recoveredBatchListener() {
+    return new IBatchRowListener() {
+      @Override
+      public void rowWritten(Object[] outputRow) {
+        data.settledRows++;
+      }
+
+      @Override
+      public void rowRejected(Object[] outputRow, String message, boolean attempted) {
+        data.batchBuffer
+            .get(data.settledRows++)
+            .fail(message, null, attempted ? CONST_UPD002 : CONST_UPD003);
+      }
+    };
+  }
+
+  /**
+   * At the end of a single-threaded iteration, and when the transform is disposed: runs what waits
+   * in the recovered batch, or drops it when the transform failed or was stopped, so that no row is
+   * committed that is not passed on.
+   */
+  private void flushOrDiscardRecoveredBatch() throws HopException {
+    if (data.batch == null) {
+      return;
+    }
+    if (getErrors() > 0 || isStopped()) {
+      int dropped = data.batch.discard().size();
+      clearPendingRows();
+      if (dropped > 0) {
+        logError(BaseMessages.getString(PKG, "Update.Log.BatchDiscarded", String.valueOf(dropped)));
+      }
+      return;
+    }
+    flushRecoveredBatch();
+  }
+
+  /**
+   * Some drivers (DuckDB) close a prepared statement when it fails. After a row failed, the lookup
+   * statement is prepared again if the driver closed it, so that the next rows can still be looked
+   * up instead of all failing on the closed statement. A driver that keeps the statement open keeps
+   * it as it is.
+   */
+  private void prepareLookupAgainIfClosed() throws HopDatabaseException {
+    if (data.prepStatementLookup == null || !isClosed(data.prepStatementLookup)) {
+      return;
+    }
+    try {
+      data.prepStatementLookup = data.db.getConnection().prepareStatement(data.lookupSql);
+    } catch (SQLException e) {
+      throw new HopDatabaseException(
+          "Unable to prepare statement for SQL statement [" + data.lookupSql + "]", e);
+    }
+  }
+
+  /**
+   * @return true if the driver says it closed the statement; a driver that can't say is taken to
+   *     keep it open, as before
+   */
+  private static boolean isClosed(Statement statement) {
+    try {
+      return statement.isClosed();
+    } catch (SQLException e) {
+      return false;
+    }
+  }
+
+  /**
    * The lookup keys drive the WHERE clause of both the lookup SELECT and the UPDATE. Without a
    * single key we would generate a statement ending in a dangling WHERE, so fail with a
    * configuration error instead of letting the database report invalid SQL.
@@ -703,8 +890,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (isDetailed()) {
         logDetailed("Setting preparedStatement to [" + sql + "]");
       }
-      data.prepStatementLookup =
-          data.db.getConnection().prepareStatement(databaseMeta.stripCR(sql));
+      data.lookupSql = databaseMeta.stripCR(sql);
+      data.prepStatementLookup = data.db.getConnection().prepareStatement(data.lookupSql);
     } catch (SQLException ex) {
       throw new HopDatabaseException(
           "Unable to prepare statement for SQL statement [" + sql + "]", ex);
@@ -783,8 +970,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       if (isDetailed()) {
         logDetailed("Setting update preparedStatement to [" + sql + "]");
       }
-      data.prepStatementUpdate =
-          data.db.getConnection().prepareStatement(databaseMeta.stripCR(sql));
+      data.updateSql = databaseMeta.stripCR(sql);
+      data.prepStatementUpdate = data.db.getConnection().prepareStatement(data.updateSql);
     } catch (SQLException ex) {
       throw new HopDatabaseException(
           "Unable to prepare statement for SQL statement [" + sql + "]", ex);
@@ -825,16 +1012,39 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
         data.commitSize = meta.getCommitSize(this);
         data.db.setCommit(data.commitSize);
-        data.useSavepoints =
-            data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
-        // A failed row in a batch can't be undone on its own: with savepoints, no batch.
-        data.batchMode =
-            meta.isUseBatchUpdate()
-                && !data.useSavepoints
+
+        // How a failed batch is handled on this connection. Only a contract validated against the
+        // database (or chosen on the connection) recovers batches with RecoverableBatch; every
+        // other connection keeps the handling below, exactly as it always was.
+        data.batchSupport = BatchSupport.of(databaseMeta.getIDatabase(), this);
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "Update.Log.BatchSupport", data.batchSupport.describe()));
+        }
+        data.recoveredBatches =
+            data.batchSupport.isRecovered()
+                && meta.isUseBatchUpdate()
                 && data.commitSize > 0
+                && !data.db.isAutoCommit()
                 && data.db.getUseBatchInsert(true);
-        if (meta.isUseBatchUpdate() && data.useSavepoints) {
-          logBasic(BaseMessages.getString(PKG, "Update.Log.BatchOffForErrorHandling"));
+
+        if (data.recoveredBatches) {
+          // Batching stays on with an error hop, without a savepoint per row: the contract tells
+          // which rows of a failed batch were refused.
+          data.useSavepoints = false;
+          data.batchMode = false;
+        } else {
+          data.useSavepoints =
+              data.db.isUsingRowSavepoints(getTransformMeta().isDoingErrorHandling());
+          // A failed row in a batch can't be undone on its own: with savepoints, no batch.
+          data.batchMode =
+              meta.isUseBatchUpdate()
+                  && !data.useSavepoints
+                  && data.commitSize > 0
+                  && data.db.getUseBatchInsert(true);
+          if (meta.isUseBatchUpdate() && data.useSavepoints) {
+            logBasic(BaseMessages.getString(PKG, "Update.Log.BatchOffForErrorHandling"));
+          }
         }
 
         return true;
@@ -853,11 +1063,22 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     if (data.batchMode) {
       flushBatch();
     }
+    if (data.recoveredBatches) {
+      flushOrDiscardRecoveredBatch();
+    }
     commitBatch(false);
   }
 
   @Override
   public void dispose() {
+    if (data.recoveredBatches && data.db != null) {
+      try {
+        flushOrDiscardRecoveredBatch();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
+        setErrors(1);
+      }
+    }
     // This is needed to properly handle transactions when we are using SingleThreadedExecutor
     commitBatch(true);
     super.dispose();
