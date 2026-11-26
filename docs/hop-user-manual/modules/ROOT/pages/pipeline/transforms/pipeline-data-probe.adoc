@@ -47,3 +47,7 @@ This transform receives data from the xref:metadata-types/pipeline-probe.adoc[Pi
 |fieldPrecision|the field precision of the field in the source pipeline passing data to this pipeline data probe transform.
 |value|the value of the transform in the source pipeline passing data to this pipeline data probe transform.
 |===
+
+== Samples
+
+The samples project has `reflection/pipeline-probe-example.hpl`, which the pipeline probe `pipeline-probe-example` runs each time `reflection/generate-fake-books.hpl` runs: it gets the 10,000 rows of fake book data that pass the transform `dummy`, counts the books of each genre, and writes the counts to `reflection/output/books-per-genre.csv`.

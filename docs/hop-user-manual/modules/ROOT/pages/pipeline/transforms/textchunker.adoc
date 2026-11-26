@@ -100,3 +100,8 @@ Chunk size must be a whole number greater than 0. Chunk overlap must be a whole 
 When the input already has a field with the same name as an output field (names are matched without regard to case), the transform writes its values into that field instead of adding a new one. The field keeps its name and position but takes the transform's type, storage and format. If the types differ, for example a String `chunk_index` in the input, the pipeline checks report a warning. Rename the output field to keep the input field as it is.
 
 Keep *Include metadata* enabled when the chunks are going into a vector store: the document ID and chunk index are what let a later search merge neighbouring chunks back into a passage, and re-index a single document without touching the rest.
+
+== Samples
+
+The samples project has `transforms/ai-text-chunker-basic.hpl`, which splits a text of 445 characters into 6 chunks of at most 100 characters with the Character strategy and an overlap of 20: each chunk starts at the beginning of a word and repeats the end of the chunk before it.
+Each chunk gets its index, its start position, a document ID and the number of chunks.
