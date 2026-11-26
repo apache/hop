@@ -186,6 +186,20 @@ public class MarketplaceRepository {
    */
   @JsonIgnore private boolean globalEnvironmentCredentials = true;
 
+  /**
+   * The repository ids whose {@code HOP_MARKETPLACE_<ID>_*} variables may supply this repository's
+   * credentials, most specific first. {@code null} means this repository's own {@link #id}; an
+   * empty list means none.
+   *
+   * <p>Set for a repository an install spec introduced: the spec chooses the id, so a spec that
+   * reuses a configured id on another host must not get that id's secrets. Not persisted, for the
+   * same reason as {@link #globalEnvironmentCredentials}.
+   */
+  @JsonIgnore private List<String> environmentCredentialIds;
+
+  private static final List<String> SCOPED_SUFFIXES =
+      List.of("USERNAME", "USER", "PASSWORD", "TOKEN");
+
   public MarketplaceRepository() {
     // Jackson
   }
@@ -296,10 +310,15 @@ public class MarketplaceRepository {
    * LOCAL_NEXUS} for {@code local-nexus}.
    */
   public String environmentIdPrefix() {
-    if (StringUtils.isBlank(id)) {
+    return environmentIdPrefix(id);
+  }
+
+  /** See {@link #environmentIdPrefix()}; empty for a blank id. */
+  public static String environmentIdPrefix(String repositoryId) {
+    if (StringUtils.isBlank(repositoryId)) {
       return "";
     }
-    return id.trim().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
+    return repositoryId.trim().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]", "_");
   }
 
   /** The global {@code HOP_MARKETPLACE_*} pair, unless this repository opted out of it. */
@@ -308,8 +327,32 @@ public class MarketplaceRepository {
   }
 
   private String scopedEnv(String suffix) {
-    String prefix = environmentIdPrefix();
-    return StringUtils.isBlank(prefix) ? null : env("HOP_MARKETPLACE_" + prefix + "_" + suffix);
+    String prefix = scopedEnvironmentPrefix();
+    return prefix == null ? null : env("HOP_MARKETPLACE_" + prefix + "_" + suffix);
+  }
+
+  /**
+   * The id prefix whose {@code HOP_MARKETPLACE_<ID>_*} variables apply: the first of {@link
+   * #environmentCredentialIds} with any of them set, so a username and a password never come from
+   * two different ids. {@code null} when none applies.
+   */
+  private String scopedEnvironmentPrefix() {
+    List<String> ids =
+        environmentCredentialIds == null
+            ? List.of(StringUtils.defaultString(id))
+            : environmentCredentialIds;
+    for (String candidate : ids) {
+      String prefix = environmentIdPrefix(candidate);
+      if (StringUtils.isBlank(prefix)) {
+        continue;
+      }
+      for (String suffix : SCOPED_SUFFIXES) {
+        if (env("HOP_MARKETPLACE_" + prefix + "_" + suffix) != null) {
+          return prefix;
+        }
+      }
+    }
+    return null;
   }
 
   /**

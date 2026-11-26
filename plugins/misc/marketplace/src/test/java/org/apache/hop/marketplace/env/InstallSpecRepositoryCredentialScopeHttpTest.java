@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.marketplace.config.MarketplaceConfig;
@@ -81,6 +82,7 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
   void stopServers() {
     configured.stop(0);
     foreign.stop(0);
+    MarketplaceRepository.setEnvironmentForTesting(null);
   }
 
   private static HttpServer start(List<String> authorizations) throws IOException {
@@ -123,10 +125,33 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
     return spec;
   }
 
+  /**
+   * hop-config with one private repository on the {@link #configured} server whose secrets are only
+   * in its repository-scoped variables, the setup the docs recommend for several repositories.
+   */
+  private MarketplaceConfig operatorConfigWithScopedVariables() {
+    MarketplaceRepository.setEnvironmentForTesting(
+        Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "operator",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "operator-secret")
+            ::get);
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository repo =
+        new MarketplaceRepository("nexus", url(configured, "/repository/hop/"));
+    repo.setPrimary(true);
+    config.getRepositories().add(repo);
+    return config;
+  }
+
   private void downloadUsing(HopInstallSpec spec) throws Exception {
+    downloadUsing(spec, operatorConfig());
+  }
+
+  private void downloadUsing(HopInstallSpec spec, MarketplaceConfig operatorConfig)
+      throws Exception {
     MarketplaceConfig applied =
-        new EnvironmentApplier(new LogChannel("test"), tempDir, operatorConfig())
-            .configFromEnv(spec);
+        new EnvironmentApplier(new LogChannel("test"), tempDir, operatorConfig).configFromEnv(spec);
     Path target = Files.createTempDirectory(tempDir, "dl").resolve("plugin.zip");
     new MavenRepositoryClient(new LogChannel("test"))
         .downloadZip(applied.primaryRepository(), COORDS, target);
@@ -168,5 +193,34 @@ class InstallSpecRepositoryCredentialScopeHttpTest {
             + Base64.getEncoder()
                 .encodeToString("project-user:project-secret".getBytes(StandardCharsets.UTF_8)),
         foreignAuth.get(0));
+  }
+
+  @Test
+  void aSpecReusingAConfiguredIdOnAnotherHostGetsNoAuthorizationHeader() throws Exception {
+    HopInstallSpec spec = specPointingAt(url(foreign, "/repository/hop/"));
+    spec.getRepositories().get(0).setId("nexus");
+
+    downloadUsing(spec, operatorConfigWithScopedVariables());
+
+    assertEquals(1, foreignAuth.size(), "the foreign server must have served the download");
+    assertNull(
+        foreignAuth.get(0),
+        "HOP_MARKETPLACE_NEXUS_* must not reach a host other than the configured nexus");
+    assertTrue(configuredAuth.isEmpty());
+  }
+
+  @Test
+  void scopedVariablesStillAuthenticateOnTheConfiguredHost() throws Exception {
+    downloadUsing(
+        specPointingAt(url(configured, "/repository/hop-extra/")),
+        operatorConfigWithScopedVariables());
+
+    assertEquals(1, configuredAuth.size());
+    assertEquals(
+        "Basic "
+            + Base64.getEncoder()
+                .encodeToString("operator:operator-secret".getBytes(StandardCharsets.UTF_8)),
+        configuredAuth.get(0),
+        "a second path on the operator's host keeps the credentials kept in the environment");
   }
 }

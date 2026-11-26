@@ -29,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.json.HopJson;
@@ -38,11 +39,17 @@ import org.apache.hop.marketplace.config.MarketplaceConfig;
 import org.apache.hop.marketplace.config.MarketplaceRepository;
 import org.apache.hop.marketplace.install.InstallReceipt;
 import org.apache.hop.marketplace.install.PluginInstaller;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class EnvironmentApplierTest {
+
+  @AfterEach
+  void restoreEnvironment() {
+    MarketplaceRepository.setEnvironmentForTesting(null);
+  }
 
   @TempDir Path tempDir;
 
@@ -224,6 +231,129 @@ class EnvironmentApplierTest {
             .primaryRepository();
     assertEquals("acme-user", applied.getUsername());
     assertEquals("acme-secret", applied.getPassword());
+  }
+
+  /** hop-config with one private repository whose secrets are only in the environment. */
+  private static MarketplaceConfig configuredWithEnvironmentCredentials(Map<String, String> env) {
+    MarketplaceRepository.setEnvironmentForTesting(env::get);
+    MarketplaceConfig config = new MarketplaceConfig();
+    config.getRepositories().clear();
+    MarketplaceRepository repo =
+        new MarketplaceRepository("nexus", "https://nexus.example.org/repository/hop/");
+    repo.setPrimary(true);
+    config.getRepositories().add(repo);
+    return config;
+  }
+
+  @Test
+  void aConfiguredIdOnAnotherHostDoesNotGetItsScopedVariables() {
+    MarketplaceConfig base =
+        configuredWithEnvironmentCredentials(
+            Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-secret"));
+
+    for (String id : new String[] {"nexus", "Nexus", "NEXUS"}) {
+      MarketplaceRepository applied =
+          new EnvironmentApplier(new LogChannel("test"), tempDir, base)
+              .configFromEnv(specWithRepository(id, "https://evil.example.com/repository/hop/"))
+              .primaryRepository();
+      assertNull(applied.effectiveUsername(), id);
+      assertNull(applied.effectivePassword(), id);
+      assertFalse(applied.hasCredentials(), id);
+    }
+  }
+
+  @Test
+  void aNewSpecIdCanStillBeGivenScopedVariables() {
+    MarketplaceConfig base =
+        configuredWithEnvironmentCredentials(
+            Map.of(
+                "HOP_MARKETPLACE_PROJECT_USERNAME", "project-user",
+                "HOP_MARKETPLACE_PROJECT_PASSWORD", "project-secret",
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-secret"));
+
+    MarketplaceRepository applied =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, base)
+            .configFromEnv(
+                specWithRepository("project", "https://other.example.com/repository/hop/"))
+            .primaryRepository();
+    assertEquals("project-user", applied.effectiveUsername());
+    assertEquals("project-secret", applied.effectivePassword());
+  }
+
+  @Test
+  void theConfiguredIdOnItsOwnHostKeepsItsScopedVariables() {
+    MarketplaceConfig base =
+        configuredWithEnvironmentCredentials(
+            Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-secret"));
+
+    MarketplaceRepository applied =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, base)
+            .configFromEnv(
+                specWithRepository("nexus", "https://nexus.example.org/repository/hop-extra/"))
+            .primaryRepository();
+    assertEquals("nexus-user", applied.effectiveUsername());
+    assertEquals("nexus-secret", applied.effectivePassword());
+  }
+
+  @Test
+  void sameHostWithCredentialsOnlyInTheEnvironmentStillGetsThem() {
+    // Global pair: the spec repository counts as the operator's own, so the pair still applies.
+    MarketplaceRepository global =
+        new EnvironmentApplier(
+                new LogChannel("test"),
+                tempDir,
+                configuredWithEnvironmentCredentials(
+                    Map.of(
+                        "HOP_MARKETPLACE_USERNAME", "global-user",
+                        "HOP_MARKETPLACE_PASSWORD", "global-secret")))
+            .configFromEnv(
+                specWithRepository("project", "https://nexus.example.org/repository/hop-extra/"))
+            .primaryRepository();
+    assertTrue(global.isGlobalEnvironmentCredentials());
+    assertEquals("global-user", global.effectiveUsername());
+    assertEquals("global-secret", global.effectivePassword());
+
+    // Scoped to the configured repository: a new id on its host inherits them.
+    MarketplaceRepository scoped =
+        new EnvironmentApplier(
+                new LogChannel("test"),
+                tempDir,
+                configuredWithEnvironmentCredentials(
+                    Map.of(
+                        "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                        "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-secret")))
+            .configFromEnv(
+                specWithRepository("project", "https://nexus.example.org/repository/hop-extra/"))
+            .primaryRepository();
+    assertEquals("nexus-user", scoped.effectiveUsername());
+    assertEquals("nexus-secret", scoped.effectivePassword());
+  }
+
+  @Test
+  void anotherConfiguredRepositoryOnTheSpecHostDecidesInstead() {
+    // The spec reuses the id "nexus" on the host of the configured "corp" repository: corp's
+    // variables apply there, nexus's do not.
+    MarketplaceConfig base =
+        configuredWithEnvironmentCredentials(
+            Map.of(
+                "HOP_MARKETPLACE_NEXUS_USERNAME", "nexus-user",
+                "HOP_MARKETPLACE_NEXUS_PASSWORD", "nexus-secret",
+                "HOP_MARKETPLACE_CORP_USERNAME", "corp-user",
+                "HOP_MARKETPLACE_CORP_PASSWORD", "corp-secret"));
+    base.getRepositories()
+        .add(new MarketplaceRepository("corp", "https://corp.example.com/maven/"));
+
+    MarketplaceRepository applied =
+        new EnvironmentApplier(new LogChannel("test"), tempDir, base)
+            .configFromEnv(specWithRepository("nexus", "https://corp.example.com/maven/hop/"))
+            .primaryRepository();
+    assertEquals("corp-user", applied.effectiveUsername());
+    assertEquals("corp-secret", applied.effectivePassword());
   }
 
   @Test
