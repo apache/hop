@@ -83,6 +83,18 @@ public class MarketplaceDialog extends Dialog {
   /** Message key prefix of the install results; rollbacks use their own. */
   private static final String PREFIX_INSTALL = "MarketplaceDialog.Install";
 
+  /** Row data: true when Install would install a version that is not the installed one. */
+  private static final String DATA_INSTALLABLE = "installable";
+
+  /** Row data: true when the row's plugin was installed via the marketplace. */
+  private static final String DATA_UNINSTALLABLE = "uninstallable";
+
+  /** Row data: the newer version Update would install, or null. */
+  private static final String DATA_UPDATE_VERSION = "updateVersion";
+
+  /** Row data: the earlier version Rollback would put back, or null. */
+  private static final String DATA_ROLLBACK_VERSION = "rollbackVersion";
+
   private static final String CONST_MARKETPLACE_DIALOG_ERROR_HEADER =
       "MarketplaceDialog.Error.Header";
   private static final String CONST_MARKETPLACE_DIALOG_STATUS_RESTART_HINT =
@@ -365,6 +377,12 @@ public class MarketplaceDialog extends Dialog {
             props,
             false);
     PropsUi.setLook(wTable);
+    wTable.table.addListener(SWT.Selection, e -> updateActionButtons());
+    if (wTable.getToolbar() != null) {
+      wTable
+          .getToolbar()
+          .addListener(SWT.MouseUp, e -> wTable.getDisplay().asyncExec(this::updateActionButtons));
+    }
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
@@ -571,8 +589,15 @@ public class MarketplaceDialog extends Dialog {
       } catch (Exception e) {
         log.logError("Unable to read receipt for " + info.getArtifactId(), e);
       }
+      // A marketplace install is one plugin, whichever row (catalog entry, repository version)
+      // shows
+      // it. Only a catalog entry knows its folder, so only there can a missing folder overrule it.
+      boolean installed =
+          receipt != null
+              && !receipt.isUninstallPending()
+              && (onDisk || info.getInstallPath() == null);
       String status;
-      if (onDisk && receipt != null && !receipt.isUninstallPending()) {
+      if (installed) {
         status =
             BaseMessages.getString(PKG, "MarketplaceDialog.Status.Installed")
                 + " ("
@@ -588,8 +613,49 @@ public class MarketplaceDialog extends Dialog {
       item.setText(7, newer == null ? "" : newer.getVersion());
       item.setText(8, Const.NVL(info.getDescription(), ""));
       item.setData(info);
+      // What the buttons can do for this row.
+      item.setData(
+          DATA_INSTALLABLE,
+          !installed
+              || StringUtils.isBlank(info.getVersion())
+              || !info.getVersion().equals(receipt.getVersion()));
+      item.setData(DATA_UNINSTALLABLE, installed);
+      item.setData(DATA_UPDATE_VERSION, newer == null ? null : newer.getVersion());
+      item.setData(DATA_ROLLBACK_VERSION, PluginInstaller.rollbackVersion(hopHome, receipt));
     }
     wTable.optimizeTableView();
+    updateActionButtons();
+  }
+
+  /**
+   * Each button is enabled when a selected row offers what it does (a version that is not the
+   * installed one, a marketplace install to remove, a newer or an earlier version) and the user may
+   * manage plugins.
+   */
+  private void updateActionButtons() {
+    boolean canManage = MarketplaceSecurity.canManagePlugins();
+    boolean canInstall = false;
+    boolean canUninstall = false;
+    boolean canUpdate = false;
+    boolean canRollback = false;
+    if (wTable != null && !wTable.isDisposed()) {
+      for (TableItem item : wTable.table.getSelection()) {
+        canInstall |= Boolean.TRUE.equals(item.getData(DATA_INSTALLABLE));
+        canUninstall |= Boolean.TRUE.equals(item.getData(DATA_UNINSTALLABLE));
+        canUpdate |= item.getData(DATA_UPDATE_VERSION) != null;
+        canRollback |= item.getData(DATA_ROLLBACK_VERSION) != null;
+      }
+    }
+    setEnabled(wInstall, canManage && canInstall);
+    setEnabled(wUninstall, canManage && canUninstall);
+    setEnabled(wUpdate, canManage && canUpdate);
+    setEnabled(wRollback, canManage && canRollback);
+  }
+
+  private static void setEnabled(Button button, boolean enabled) {
+    if (button != null && !button.isDisposed()) {
+      button.setEnabled(enabled);
+    }
   }
 
   /**
@@ -757,11 +823,13 @@ public class MarketplaceDialog extends Dialog {
         false);
   }
 
-  /** Enable Install/Update/Rollback/Uninstall only when plugin manage permission is allowed. */
+  /**
+   * Install/Update/Rollback/Uninstall tooltips for the plugin manage permission. {@link
+   * #updateActionButtons()} enables the buttons.
+   */
   private void applyPluginManagePermissions() {
     boolean canManage = MarketplaceSecurity.canManagePlugins();
     if (wInstall != null && !wInstall.isDisposed()) {
-      wInstall.setEnabled(canManage);
       wInstall.setToolTipText(
           canManage
               ? ""
@@ -769,7 +837,6 @@ public class MarketplaceDialog extends Dialog {
     }
     for (Button button : new Button[] {wUpdate, wRollback}) {
       if (button != null && !button.isDisposed()) {
-        button.setEnabled(canManage);
         button.setToolTipText(
             BaseMessages.getString(
                 PKG,
@@ -781,12 +848,12 @@ public class MarketplaceDialog extends Dialog {
       }
     }
     if (wUninstall != null && !wUninstall.isDisposed()) {
-      wUninstall.setEnabled(canManage);
       wUninstall.setToolTipText(
           canManage
               ? ""
               : BaseMessages.getString(PKG, "MarketplaceDialog.Button.Uninstall.RequiresAdmin"));
     }
+    updateActionButtons();
   }
 
   private void installSelected() {
