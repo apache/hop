@@ -70,3 +70,7 @@ This option can be used as an extra check if you wish to check updates/deletes p
 
 * xref:pipeline/transforms/mergerows.adoc[Merge rows (diff)]
 * xref:how-to-guides/cdc-snapshot-comparison.adoc[CDC: comparing snapshots]
+
+== Samples
+
+The samples project has `transforms/synchronize-after-merge.hpl`, which applies 3 rows from a Data grid flagged `new`, `changed` and `deleted` in `flagfield` to the table `employees` of the `hop-samples` connection: it inserts `dave`, changes the name of `id` 2 to `bob` and deletes `carol`.

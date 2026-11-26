@@ -37,3 +37,6 @@ If you want to make sure fields keep their original data type, make sure to conv
 |Transform|The list of transforms to merge. Fields with identical field names in two or more of the input streams will be combined into a unified field (data type is kept if identical, converted to `String` if different). All fields from all of the input streams will be added to the output stream.
 |===
 
+== Samples
+
+The samples project has `transforms/merge-empty-stream.hpl`, which sends 3 rows from a Data grid to the streams `A`, `B` and `Default` with Switch / case, adds `new_field_A` on stream `A` and `new_field_B` on stream `B`, and merges the three streams: the result has the fields of all of them, also `new_field_B`, although stream `B` gets no rows.

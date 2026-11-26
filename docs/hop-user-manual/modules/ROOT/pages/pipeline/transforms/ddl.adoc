@@ -74,3 +74,6 @@ CREATE TABLE ddlTest
 
 If you want to re-use field level metadata you can consider using the xref:pipeline/transforms/metadata-input.adoc[Metadata input] transform.  For example, you can get access to the JSON of xref:metadata-types/beam-file-definition.adoc[Beam File Definition] or xref:metadata-types/static-schema-definition.adoc[Static Schema Definition] elements.  You can then use the xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform to parse the metadata and extract the 4 fields you need.
 
+== Samples
+
+The samples project has `transforms/ddl.hpl`, which builds the `CREATE TABLE ddl_employees` statement for the 4 columns described in a Data grid, for the `hop-samples` connection, and puts it in the field `ddl` without running it.

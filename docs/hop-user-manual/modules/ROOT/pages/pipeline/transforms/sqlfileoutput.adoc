@@ -77,3 +77,7 @@ A unique list is being kept in memory that can be used in the next workflow acti
 
 Use the "Get fields" button to fill the grid with the fields of the previous transform.
 |===
+
+== Samples
+
+The samples project has `transforms/sql-file-output.hpl`, which writes a `CREATE TABLE employees` statement and an `INSERT` statement for each of 2 rows from a Data grid to `output/filename.sql`, in the SQL of the `hop-samples` connection.

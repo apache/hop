@@ -77,3 +77,13 @@ In the example below, this value has been set to false, so only the actual value
 2020/05/14 12:30:52 - Write to log.0 -
 2020/05/14 12:30:52 - Write to log.0 - ====================
 ----
+
+== Samples
+
+The samples project has:
+
+* `loops/child-check-set-counter-value.hpl`, which the *repeat pipeline* action of `loops/repeat-action.hwf` runs again and again: while `${COUNTER}` is 10 or less it writes the next value to the log and sets `${COUNTER}` to it, and when it is higher it sets `${END_LOOP}`, which ends the repeat.
+* `loops/child-loops-get-rows-from-result.hpl`, which writes the number of distinct `random_string` values it gets from `loops/child-generate-1000-rows.hpl` to the log.
+* `loops/child-loops-log-counter.hpl`, which writes the parameter `PRM_COUNTER` to the log; `loops/pipeline-executor.hpl` runs it 10 times.
+* `pipelines/pipeline-with-parameter.hpl`, which writes the parameter `PRM_EXAMPLE` and the variable `ENV_VARIABLE` to the log.
+* `transforms/write-to-log-basic.hpl`, which writes the first and last names of 2 rows from a Data grid to the log after the message `Writing sample rows to the log:`.

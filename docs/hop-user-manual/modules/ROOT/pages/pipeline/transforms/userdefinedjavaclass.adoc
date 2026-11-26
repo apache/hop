@@ -509,3 +509,10 @@ Add an `exclusion` element for each piece of text to block:
 
 The check is a substring search of the class source, not a Java parser.
 `System.` also matches that text inside a comment or a string.
+
+== Samples
+
+The samples project has:
+
+* `transforms/user-defined-java-class-calculate-date-of-easter.hpl`, which adds the date of Easter for the field `year`, set with the parameter `YEAR`, to 1 million generated rows.
+* `transforms/user-defined-java-class-variables.hpl`, which adds the value of the pipeline parameter `SAMPLE_PARAMETER`, `abcd` by default, as the field `sampleParameter` to 10 million generated rows.

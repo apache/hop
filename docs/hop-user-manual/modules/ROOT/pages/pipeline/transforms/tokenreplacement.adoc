@@ -96,3 +96,7 @@ Everything between the token start string and the token end string is the token 
 * Stream name - The name of the field on the stream containing the value to replace the token with.
 * Token name - The name of the token to replace.
 * Get Fields button - Gets the list of input fields, and tries to map them to an Avro field by an exact name match.
+
+== Samples
+
+The samples project has `transforms/token-replacement.hpl`, which replaces the tokens `${VARIABLE1}` and `${VARIABLE2}` in the field `input` of 2 rows from a Data grid with the field `tokenValue`, and writes the result to the field `output`: `hello ${VARIABLE2}` becomes `hello awesome`.

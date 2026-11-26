@@ -95,3 +95,7 @@ Values for Metadata Injection
 4 = tab +
 5 = espace
 |===
+
+== Samples
+
+The samples project has `transforms/string-operations-basic.hpl`, which trims a value, puts one in capitals, pads one on the left with `#` to 25 characters and capitalizes the words of one, for 4 rows from a Data grid, each in a new field.

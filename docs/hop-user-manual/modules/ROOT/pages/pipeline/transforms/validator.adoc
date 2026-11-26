@@ -131,3 +131,7 @@ Use the Add and Remove buttons on the right to edit this list.
 |The name of the field to read the allowed values for this field from.
 
 |===
+
+== Samples
+
+The samples project has `transforms/data-validator.hpl`, which checks that `id` is an Integer of at least 1, and not null, in 3 rows from a Data grid; all 3 rows pass.

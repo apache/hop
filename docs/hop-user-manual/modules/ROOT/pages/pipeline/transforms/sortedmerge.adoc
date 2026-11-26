@@ -35,3 +35,7 @@ Every input must be sorted on the key fields in the direction set for each field
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
 |Fields table|Specify the field name and sort direction (ascending/descending); click Get Fields to retrieve a list of fields from the input stream(s).
 |===
+
+== Samples
+
+The samples project has `transforms/sorted-merge.hpl`, which merges two Data grids sorted on `value`, 10, 20, 50, 80 and 30, 40, 60, 90, into one stream of 8 rows that is still sorted on `value`.

@@ -58,3 +58,7 @@ This option is ignored when *Delimiter is a Regular Expression* is enabled.
 |Delimiter is a Regular Expression|The regular expression to match the delimiter.
 |New field name|The name of the new field.   
 |===
+
+== Samples
+
+The samples project has `transforms/split-field-to-rows.hpl`, which splits 2 lists of movies from a Data grid on the regular expression `,\s*` into one row per movie, with the movie in `movie` and its number in the list in `movieNr`.

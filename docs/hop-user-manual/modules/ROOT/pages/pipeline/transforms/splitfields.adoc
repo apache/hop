@@ -83,3 +83,6 @@ Use these settings to split the field into four new fields:
 * length: 7, 7, 7, 7
 * precision: 2, 2, 2, 2
 
+== Samples
+
+The samples project has `transforms/split-fields-basic.hpl`, which splits the comma-separated field `record` of 4 rows from a Data grid into the fields `Name`, `Class`, `Dorm`, `Room` and `GPA`.

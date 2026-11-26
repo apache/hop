@@ -75,3 +75,7 @@ The same option can name what the driver does, for a connection whose options ch
 When a failed batch is worked out this way, the update of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
 
 With *Use batch updates?* off, or a commit size of 0, the rows are updated one by one, as before.
+
+== Samples
+
+The samples project has `transforms/update.hpl`, which updates the table `public.employees` of the `hop-samples` connection with 2 rows from a Data grid: the `name` of `id` 2 changes from `robert` to `bob`.

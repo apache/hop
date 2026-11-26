@@ -212,3 +212,7 @@ Example:
         <exclusion>HopVfs.</exclusion>
     </exclusions>
 ----
+
+== Samples
+
+The samples project has `transforms/user-defined-java-expression.hpl`, which adds the field `name_length` with the Java expression `name.length()` to 2 rows from a Data grid.

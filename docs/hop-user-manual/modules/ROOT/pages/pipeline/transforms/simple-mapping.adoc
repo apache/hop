@@ -61,6 +61,8 @@ Remove any incoming hop before enabling the option.
 Enable *There is no output for this mapping.* when the mapping sub-pipeline acts as a data target and does not require a Mapping Output transform.
 Remove any outgoing hop before enabling the option.
 
+For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
+
 == Metadata Injection
 
 Input and output mappings reuse the same nested fields, so injection keys are prefixed to keep them unique.
@@ -70,10 +72,6 @@ Input and output mappings reuse the same nested fields, so injection keys are pr
 * Group `OUTPUT_FIELDS`: `OUTPUT_SOURCE_FIELD`, `OUTPUT_TARGET_FIELD`
 * Group `PARAMETERS_MAPPINGS`: `PARAMETERS_VARIABLE`, `PARAMETERS_VALUE`
 
-== Sample
+== Samples
 
-In the samples project you can find two examples of the Simple Mapping transform, the transforms/files/simple-mapping-child.hpl and simple-mapping-parent.hpl pipelines.
-
-In the sample files discussed above, the parent pipeline sends first and last name fields to the child, a calculation is performed and then a field is populated with the calculation and sent back.
-
-For the exact rules that decide which value a parameter ends up with, see xref:variables/parameter-passing.adoc[Passing parameters to a child pipeline or workflow].
+The samples project has `transforms/simple-mapping-parent.hpl`, which sends the first and last names of 4 rows from a Data grid to `transforms/simple-mapping-child.hpl` through Simple Mapping, and gets the full name back as `resultName`.

@@ -46,3 +46,7 @@ To specify a null value, simply leave the value column blank while entering a ta
 Please note that it is possible to specify the same target transform more than once.
 |Default target transform|All the rows that don't match any of the case values above are sent to this target transform.
 |===
+
+== Samples
+
+The samples project has `transforms/switch-case-basic.hpl`, which sends the rows with `id` 1 to 4 from a Data grid to `Output 1` to `Output 4`, and the row with `id` 5 to `Output default`.

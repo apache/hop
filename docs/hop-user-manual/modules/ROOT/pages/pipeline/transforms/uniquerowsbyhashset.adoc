@@ -60,3 +60,7 @@ Specify the field names for which you want to find unique values.
 
 Select Get to insert all the fields from the input stream.
 |===
+
+== Samples
+
+The samples project has `transforms/unique-rows-hashset.hpl`, which keeps the first row of each `name` and `city` of 6 rows from a Data grid: 4 rows are left.

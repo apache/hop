@@ -51,3 +51,7 @@ TIP: If the original phone number already has an international area code, this t
 TIP: Output, number type, and is-valid field names may contain variables (for example `+${OUTPUT_FIELD}+`).
 
 TIP: If a number cannot be parsed, the original value is written to the output field, the number type is `ERROR`, and is-valid is `false`. Numbers that parse but are not valid (for example a too-short national number) are still formatted; use the is-valid field to filter them.
+
+== Samples
+
+The samples project has `transforms/standardizephonenumber.hpl`, which formats 12 phone numbers from a Data grid in the RFC3966, international, E164 and national formats, with `BE`, `FR` or `US` as the default country for the numbers without a country, and adds the type of each number and whether it is valid.
