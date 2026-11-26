@@ -178,12 +178,6 @@ final class UpdateRun {
     boolean recoveredBatches;
     boolean useSavepoints;
 
-    /** Row by row, whether a row waits for the commit that includes its update. */
-    boolean holdUntilCommit;
-
-    /** Row by row, whether a failed row makes the updates of the rows that wait run again. */
-    boolean runAgainAfterFailure;
-
     final List<Object[]> output = new ArrayList<>();
     IRowMeta outputRowMeta;
     final List<Object[]> errors = new ArrayList<>();
@@ -386,8 +380,6 @@ final class UpdateRun {
     result.batchMode = data.batchMode || data.recoveredBatches;
     result.recoveredBatches = data.recoveredBatches;
     result.useSavepoints = data.useSavepoints;
-    result.holdUntilCommit = data.holdUntilCommit;
-    result.runAgainAfterFailure = data.runAgainAfterFailure;
     if (result.initialized && shape != null) {
       data.db.setConnection(SimulatedBatchDriver.wrap(data.db.getConnection(), shape));
     }

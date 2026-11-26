@@ -50,26 +50,6 @@ This is important for data sources that allow for table names with periods in th
 |Update Fields|Allows you to specify all fields in the table you want to update.
 |===
 
-== Commits and when rows are passed on
-
-When the rows are updated one by one (*Use batch updates?* off, or batching switched off, see below), a row leaves the transform only after the commit that includes its update.
-The rows that came in after it wait as well, also the rows that needed no update, whose key was not found or that failed, so the rows keep their input order on the main output and the error hop.
-The transform commits when a commit size of rows waits; the rows that needed no update count towards it, so at most a commit size of rows waits in memory.
-When the transform fails or is stopped, the updates of the rows that still wait are rolled back and those rows are not passed on; the log says how many.
-So a row that appears on the main output is in the table.
-
-On some databases a failed statement loses the work of the whole open transaction, and there is no savepoint to undo only the failed row: DuckDB is one.
-On such a database, when its driver's behaviour has been measured (see below), a failed row with an error hop rolls the transaction back, the updates of the rows that wait for the commit are run again, and only the failed row goes to the error hop.
-A row whose update fails when it runs again goes to the error hop as well.
-Because those updates are sent to the database a second time, a failed row can fire non-transactional triggers again.
-With *As before* on the connection or `HOP_DATABASE_BATCH_RECOVERY` set to `LEGACY`, nothing is run again: on DuckDB a failed row then loses the updates of the rows in front of it since the last commit, although those rows are passed on, and every row after it fails as well.
-
-A row is passed on right after its update, as before, when:
-
-* the commit size is 0: every update is committed at once,
-* the pipeline is transactional: the connection is shared and only committed at the end of the pipeline, so holding the rows back would hold up the transforms after this one until then,
-* the variable `HOP_DATABASE_BATCH_RECOVERY` is set to `LEGACY`.
-
 == Batches and error handling
 
 With *Use batch updates?* on, the updates are sent to the database in batches of the commit size.
@@ -93,3 +73,5 @@ To go back to that behaviour on a measured database:
 The same option can name what the driver does, for a connection whose options change it.
 
 When a failed batch is worked out this way, the update of a row can be sent to the database more than once, so a failed batch can fire non-transactional triggers again.
+
+With *Use batch updates?* off, or a commit size of 0, the rows are updated one by one, as before.

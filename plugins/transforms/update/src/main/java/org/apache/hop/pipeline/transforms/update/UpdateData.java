@@ -55,29 +55,6 @@ public class UpdateData extends BaseTransformData implements ITransformData {
    */
   public boolean recoveredBatches;
 
-  /**
-   * Row by row, with a commit size and auto-commit off: a row whose UPDATE ran waits in {@link
-   * #batchBuffer}, and the rows that came in after it in {@link #pendingRows}, until the commit
-   * that includes it; they are passed on after that commit, or dropped when the transaction is
-   * rolled back. False on a connection shared by a transactional pipeline and with
-   * HOP_DATABASE_BATCH_RECOVERY=LEGACY: every row is passed on right after its update.
-   */
-  public boolean holdUntilCommit;
-
-  /**
-   * With {@link #holdUntilCommit} and an error hop, on a database whose validated batch failure
-   * contract says a failure loses the work of the transaction ({@code LOSES_WHOLE_BATCH}) and that
-   * runs no savepoint per row (DuckDB): after a failed row the transaction is rolled back and the
-   * updates of the rows that wait for the commit run again, so that only the failed row is lost.
-   */
-  public boolean runAgainAfterFailure;
-
-  /**
-   * With {@link #holdUntilCommit}: the row whose UPDATE the current row just ran, to queue once its
-   * savepoint section (if any) is over; null when the row has no update.
-   */
-  public PendingRow updatedRow;
-
   /** The batch of {@link #recoveredBatches}, created with the UPDATE statement on the first row. */
   public RecoverableBatch batch;
 
@@ -93,13 +70,12 @@ public class UpdateData extends BaseTransformData implements ITransformData {
   public int settledRows;
 
   /**
-   * A row that waits for the current JDBC batch, or row by row for the next commit, before it is
-   * passed on.
+   * A row that waits for the current JDBC batch before it is passed on.
    *
-   * <p>A row with bind values is in the batch, or its update ran in the open transaction: it goes
-   * to the output or the error hop once the database has said which. The other rows (nothing to
-   * update, key not found, an error of their own) already know where they go, but wait as well, so
-   * that rows leave in the order they came in.
+   * <p>A row with bind values is in the batch: it goes to the output or the error hop once the
+   * database has said which. The other rows (nothing to update, key not found, an error of their
+   * own) already know where they go, but wait as well, so that rows leave in the order they came
+   * in.
    */
   @Getter
   public static final class PendingRow {

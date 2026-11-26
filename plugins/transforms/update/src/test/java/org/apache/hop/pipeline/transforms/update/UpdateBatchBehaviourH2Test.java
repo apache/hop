@@ -135,35 +135,42 @@ class UpdateBatchBehaviourH2Test {
 
   // ----------------------------------------------------------------------------------------------
   // Batch updates off
+  //
+  // #9722 changes only how a failed batch is recovered. Every test here runs on the default path
+  // and with HOP_DATABASE_BATCH_RECOVERY=LEGACY, and both must give what main gives: row by row,
+  // a row is passed on right after its update, before the commit that includes it.
   // ----------------------------------------------------------------------------------------------
 
+  /** The default path, and HOP_DATABASE_BATCH_RECOVERY=LEGACY. */
+  static Stream<String> recoveries() {
+    return Stream.of(null, "LEGACY");
+  }
+
   static Stream<Arguments> rowByRowCommits() {
-    return Stream.of(
-        // Commit size 1 commits every row, which then leaves at once
-        Arguments.of(
-            1, List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8), List.of(0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2)),
-        // A commit every three rows that wait: after rows 3 and 6, then row 7 fails with nothing
-        // in front of it and leaves at once, then a commit after row 10
-        Arguments.of(
-            3, List.of(0, 0, 0, 2, 2, 2, 5, 5, 5, 5, 8), List.of(0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2)),
-        // One commit at the end
-        Arguments.of(100, Collections.nCopies(11, 0), Collections.nCopies(11, 0)));
+    List<Arguments> arguments = new ArrayList<>();
+    for (String recovery : new String[] {null, "LEGACY"}) {
+      arguments.add(Arguments.of(recovery, 1, ids()));
+      // Every third row written commits the rows before it: 4, 8 and the rows before them
+      arguments.add(Arguments.of(recovery, 3, ids(1, 2, 5, 6, 9, 10)));
+      // One commit at the end
+      arguments.add(Arguments.of(recovery, 100, idsWithout(10, 3, 7)));
+    }
+    return arguments.stream();
   }
 
   /**
-   * Without batching every row is updated on its own, and goes to the output only after the commit
-   * that includes its update. The rows behind it wait as well, also a row that failed, so every
-   * stream keeps the order of the input. The rows that wait count towards the commit size.
+   * Buggy: without batching a row is passed on as soon as it is updated, before the commit that the
+   * commit size asks for.
    */
-  @ParameterizedTest(name = "commit size {0}")
+  @ParameterizedTest(name = "recovery {0}, commit size {1}")
   @MethodSource("rowByRowCommits")
-  void batchOff_errorHop_rowsLeaveAfterTheirCommit(
-      int commitSize, List<Integer> outputSizeAtRead, List<Integer> errorSizeAtRead)
-      throws Exception {
+  void batchOff_errorHop_Buggy_rowsLeaveBeforeTheirCommit(
+      String recovery, int commitSize, List<Object> passedOnBeforeTheirCommit) throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
         UpdateRun.on(db)
+            .recovery(recovery)
             .batch(false)
             .errorHop(true)
             .commitSize(commitSize)
@@ -171,9 +178,8 @@ class UpdateBatchBehaviourH2Test {
             .run(rows(10, 3, 7));
 
     assertFalse(r.batchMode);
+    assertFalse(r.recoveredBatches);
     assertFalse(r.useSavepoints);
-    assertTrue(r.holdUntilCommit);
-    assertFalse(r.runAgainAfterFailure);
     assertEquals(idsWithout(10, 3, 7), r.outputKeys());
     assertEquals(ids(3, 7), r.errorKeys());
     assertEquals(repeat("UPD001", 2), r.errorCodes());
@@ -182,84 +188,25 @@ class UpdateBatchBehaviourH2Test {
     assertEquals(tableUpdatedExcept(10, 3, 7), UpdateRun.table(db));
     assertEquals(counters(10, 8, 0, 8, 2), r.counters());
     assertEquals(0, r.errorCount);
-    assertEquals(outputSizeAtRead, r.outputSizeAtRead);
-    assertEquals(errorSizeAtRead, r.errorSizeAtRead);
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
-  }
-
-  static Stream<Arguments> legacyRowByRowCommits() {
-    return Stream.of(
-        Arguments.of(1, ids()),
-        // Every third row written commits the rows before it: 4, 8 and the rows before them
-        Arguments.of(3, ids(1, 2, 5, 6, 9, 10)),
-        // One commit at the end
-        Arguments.of(100, idsWithout(10, 3, 7)));
-  }
-
-  /**
-   * Buggy, as it still is with HOP_DATABASE_BATCH_RECOVERY=LEGACY: without batching a row is passed
-   * on as soon as it is updated, before the commit that the commit size asks for.
-   */
-  @ParameterizedTest(name = "commit size {0}")
-  @MethodSource("legacyRowByRowCommits")
-  void batchOff_errorHop_legacy_Buggy_rowsLeaveBeforeTheirCommit(
-      int commitSize, List<Object> passedOnBeforeTheirCommit) throws Exception {
-    DatabaseMeta db = target(10);
-
-    Result r =
-        UpdateRun.on(db)
-            .recovery("LEGACY")
-            .batch(false)
-            .errorHop(true)
-            .commitSize(commitSize)
-            .watchCommits()
-            .run(rows(10, 3, 7));
-
-    assertFalse(r.holdUntilCommit);
-    assertEquals(idsWithout(10, 3, 7), r.outputKeys());
-    assertEquals(ids(3, 7), r.errorKeys());
-    assertEquals(tableUpdatedExcept(10, 3, 7), UpdateRun.table(db));
-    assertEquals(counters(10, 8, 0, 8, 2), r.counters());
     assertEquals(List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8), r.outputSizeAtRead);
     assertEquals(List.of(0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2), r.errorSizeAtRead);
     assertEquals(passedOnBeforeTheirCommit, r.passedOnBeforeTheirCommit());
   }
 
   /**
-   * Without an error hop a failed row stops the transform and the transaction is rolled back. Rows
-   * 1-4 were committed by the commit size of 4 and passed on; rows 5 and 6 waited for the next
-   * commit, so they are rolled back without being passed on, and the log says so.
+   * Buggy: without an error hop a failed row stops the transform and the transaction is rolled
+   * back. Rows 1-4 were committed by the commit size of 4; rows 5 and 6, already passed on, are
+   * rolled back with the transaction and not in the table.
    */
-  @Test
-  void batchOff_noErrorHop_onlyCommittedRowsArePassedOn() throws Exception {
-    DatabaseMeta db = target(10);
-
-    Result r =
-        UpdateRun.on(db).batch(false).errorHop(false).commitSize(4).watchCommits().run(rows(10, 7));
-
-    assertEquals(ids(1, 2, 3, 4), r.outputKeys());
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
-    assertEquals(tableWith(10, id -> id <= 4), UpdateRun.table(db));
-    assertEquals(1, r.errorCount);
-    assertTrue(r.stopped);
-    assertEquals(counters(7, 4, 0, 4, 0), r.counters());
-    assertTrue(
-        r.errorLog.stream().anyMatch(line -> line.startsWith("2 rows that waited for the commit")),
-        r.errorLog.toString());
-  }
-
-  /**
-   * Buggy, as it still is with HOP_DATABASE_BATCH_RECOVERY=LEGACY: rows 5 and 6, already passed on,
-   * are rolled back with the transaction and not in the table.
-   */
-  @Test
-  void batchOff_noErrorHop_legacy_Buggy_rowsPassedOnSinceTheLastCommitAreRolledBack()
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("recoveries")
+  void batchOff_noErrorHop_Buggy_rowsPassedOnSinceTheLastCommitAreRolledBack(String recovery)
       throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
         UpdateRun.on(db)
-            .recovery("LEGACY")
+            .recovery(recovery)
             .batch(false)
             .errorHop(false)
             .commitSize(4)
@@ -273,16 +220,21 @@ class UpdateBatchBehaviourH2Test {
   }
 
   /**
-   * Rows that need no update or whose key is not found wait behind the rows whose update is not
-   * committed yet, and count towards the commit size; with nothing in front of them they leave at
-   * once.
+   * Rows that need no update or whose key is not found are passed on at once, like the updated
+   * rows.
    */
-  @Test
-  void batchOff_errorHop_rowsThatAreNotUpdatedKeepTheirPlace() throws Exception {
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("recoveries")
+  void batchOff_errorHop_rowsThatAreNotUpdatedLeaveAtOnce(String recovery) throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
-        UpdateRun.on(db).batch(false).errorHop(true).commitSize(3).watchCommits().run(mixedRows());
+        UpdateRun.on(db)
+            .recovery(recovery)
+            .batch(false)
+            .errorHop(true)
+            .commitSize(3)
+            .run(mixedRows());
 
     assertEquals(ids(1, 2, 3, 4, 6), r.outputKeys());
     assertEquals(ids(11, 12, 5), r.errorKeys());
@@ -290,23 +242,23 @@ class UpdateBatchBehaviourH2Test {
     assertEquals(List.of(NOT_FOUND, NOT_FOUND, ROW), r.errorKinds());
     assertEquals(tableWith(10, id -> id == 1 || id == 3 || id == 4), UpdateRun.table(db));
     assertEquals(counters(8, 3, 2, 5, 3), r.counters());
-    // 1, 11 and 2 wait for the commit after row 2; 3, 12 and 4 for the one after row 4; 5 fails
-    // and 6 needs no update, with nothing in front of them.
-    assertEquals(List.of(0, 0, 0, 2, 2, 2, 4, 4, 5), r.outputSizeAtRead);
-    assertEquals(List.of(0, 0, 0, 1, 1, 1, 2, 3, 3), r.errorSizeAtRead);
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
+    assertEquals(List.of(0, 1, 1, 2, 3, 3, 4, 4, 5), r.outputSizeAtRead);
+    assertEquals(List.of(0, 0, 1, 1, 1, 2, 2, 3, 3), r.errorSizeAtRead);
   }
 
   /**
-   * A transform that is stopped rolls back the updates of the rows that wait for the commit and
-   * drops those rows, so the table holds exactly the rows that were passed on.
+   * A transform that is stopped commits the updates it ran when it is disposed: with commit size 5,
+   * stopped after row 7, rows 1-7 are passed on and all seven are in the table. The review of #9723
+   * caught a change that dropped rows 6 and 7 here; this pins it.
    */
-  @Test
-  void batchOff_stopped_theRowsThatWaitAreRolledBackAndDropped() throws Exception {
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("recoveries")
+  void batchOff_stopped_everyRowPassedOnIsCommitted(String recovery) throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
         UpdateRun.on(db)
+            .recovery(recovery)
             .batch(false)
             .errorHop(true)
             .commitSize(5)
@@ -320,21 +272,25 @@ class UpdateBatchBehaviourH2Test {
 
     assertTrue(r.stopped);
     assertEquals(0, r.errorCount);
-    assertEquals(idsWithout(5), r.outputKeys());
-    assertEquals(tableWith(10, id -> id <= 5), UpdateRun.table(db));
-    assertEquals(counters(7, 5, 0, 5, 0), r.counters());
-    assertTrue(
-        r.errorLog.stream().anyMatch(line -> line.startsWith("2 rows that waited for the commit")),
-        r.errorLog.toString());
+    assertEquals(ids(1, 2, 3, 4, 5, 6, 7), r.outputKeys());
+    assertEquals(tableWith(10, id -> id <= 7), UpdateRun.table(db));
+    assertEquals(counters(7, 7, 0, 7, 0), r.counters());
   }
 
-  /** The same for a transform that failed. */
-  @Test
-  void batchOff_failed_theRowsThatWaitAreRolledBackAndDropped() throws Exception {
+  /**
+   * Buggy: a transform that failed rolls back what was not committed yet, although those rows were
+   * passed on. With commit size 5, failed after row 7: rows 1-7 are passed on, rows 1-5 are in the
+   * table.
+   */
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("recoveries")
+  void batchOff_failed_Buggy_rowsPassedOnSinceTheLastCommitAreRolledBack(String recovery)
+      throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
         UpdateRun.on(db)
+            .recovery(recovery)
             .batch(false)
             .errorHop(true)
             .commitSize(5)
@@ -347,26 +303,27 @@ class UpdateBatchBehaviourH2Test {
                 })
             .run(rows(10));
 
-    assertEquals(idsWithout(5), r.outputKeys());
+    assertEquals(ids(1, 2, 3, 4, 5, 6, 7), r.outputKeys());
     assertEquals(tableWith(10, id -> id <= 5), UpdateRun.table(db));
-    assertEquals(counters(7, 5, 0, 5, 0), r.counters());
+    assertEquals(counters(7, 7, 0, 7, 0), r.counters());
   }
 
   /**
-   * At the end of a single-threaded iteration the rows that wait are committed and passed on,
-   * although the commit size is not reached.
+   * At the end of a single-threaded iteration the open transaction is committed; the rows were
+   * passed on right after their update already.
    */
-  @Test
-  void batchOff_batchComplete_commitsAndPassesOnTheRowsThatWait() throws Exception {
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("recoveries")
+  void batchOff_batchComplete_commitsTheOpenTransaction(String recovery) throws Exception {
     DatabaseMeta db = target(5);
     List<List<String>> tableAtBatchComplete = new ArrayList<>();
 
     Result r =
         UpdateRun.on(db)
+            .recovery(recovery)
             .batch(false)
             .errorHop(true)
             .commitSize(100)
-            .watchCommits()
             .afterRow(
                 (processed, transform) -> {
                   if (processed == 3) {
@@ -377,18 +334,17 @@ class UpdateBatchBehaviourH2Test {
             .run(rows(5, 2));
 
     assertEquals(List.of(tableWith(5, id -> id == 1 || id == 3)), tableAtBatchComplete);
-    assertEquals(List.of(0, 0, 0, 2, 2, 2), r.outputSizeAtRead);
-    assertEquals(List.of(0, 0, 0, 1, 1, 1), r.errorSizeAtRead);
+    assertEquals(List.of(0, 1, 1, 2, 3, 4), r.outputSizeAtRead);
+    assertEquals(List.of(0, 0, 1, 1, 1, 1), r.errorSizeAtRead);
     assertEquals(ids(1, 3, 4, 5), r.outputKeys());
     assertEquals(ids(2), r.errorKeys());
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
+    assertEquals(tableUpdatedExcept(5, 2), UpdateRun.table(db));
     assertEquals(counters(5, 4, 0, 4, 1), r.counters());
   }
 
   /**
    * On a connection shared by a transactional pipeline the commit only comes at the end of the
-   * pipeline, so the rows are passed on right after their update, as before: holding them would
-   * hold up the transforms after this one until the end.
+   * pipeline; the rows are passed on right after their update.
    */
   @Test
   void batchOff_transactionalPipeline_rowsLeaveAtOnce() throws Exception {
@@ -402,7 +358,6 @@ class UpdateBatchBehaviourH2Test {
             .connectionGroup("update-" + UUID.randomUUID())
             .run(rows(10, 3, 7));
 
-    assertFalse(r.holdUntilCommit);
     assertEquals(idsWithout(10, 3, 7), r.outputKeys());
     assertEquals(ids(3, 7), r.errorKeys());
     assertEquals(List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8), r.outputSizeAtRead);
@@ -513,7 +468,6 @@ class UpdateBatchBehaviourH2Test {
 
     assertFalse(r.batchMode);
     assertFalse(r.useSavepoints);
-    assertFalse(r.holdUntilCommit);
     assertEquals(idsWithout(10, 3), r.outputKeys());
     assertEquals(ids(3), r.errorKeys());
     assertEquals(List.of("UPD001"), r.errorCodes());
@@ -928,12 +882,12 @@ class UpdateBatchBehaviourH2Test {
 
   /**
    * With an error hop, "use batch update" is switched off and logged: every row runs behind a
-   * savepoint, so only the failed rows go to the error hop. As without batching, a row leaves only
-   * after the commit that includes its update.
+   * savepoint, so only the failed rows go to the error hop. Buggy, as without batching: every row
+   * leaves right after its savepoint section, before the commit that includes its update.
    */
   @ParameterizedTest(name = "commit size {0}")
   @ValueSource(ints = {1, 3, 100})
-  void savepointDialect_errorHop_batchingIsSwitchedOffForASavepointPerRow(int commitSize)
+  void savepointDialect_errorHop_Buggy_batchingIsSwitchedOffForASavepointPerRow(int commitSize)
       throws Exception {
     DatabaseMeta db = target("H2_UPDATE_SAVEPOINTS", 10);
 
@@ -952,16 +906,17 @@ class UpdateBatchBehaviourH2Test {
     assertEquals(ids(3, 7), r.errorKeys());
     assertEquals(repeat("UPD001", 2), r.errorCodes());
     assertEquals(repeatKind(ROW, 2), r.errorKinds());
-    List<Integer> outputSizeAtRead =
-        switch (commitSize) {
-          case 1 -> List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8);
-          case 3 -> List.of(0, 0, 0, 2, 2, 2, 5, 5, 5, 5, 8);
-          default -> Collections.nCopies(11, 0);
-        };
-    assertEquals(outputSizeAtRead, r.outputSizeAtRead);
+    assertEquals(List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8), r.outputSizeAtRead);
     assertEquals(tableUpdatedExcept(10, 3, 7), UpdateRun.table(db));
     assertEquals(counters(10, 8, 0, 8, 2), r.counters());
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
+    List<Object> passedOnBeforeTheirCommit =
+        switch (commitSize) {
+          case 1 -> ids();
+            // The transform commits every third row that is updated, after it passed the rows on
+          case 3 -> ids(1, 2, 5, 6, 9, 10);
+          default -> idsWithout(10, 3, 7);
+        };
+    assertEquals(passedOnBeforeTheirCommit, r.passedOnBeforeTheirCommit());
   }
 
   /**

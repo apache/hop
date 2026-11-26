@@ -80,7 +80,9 @@ public record BatchSupport(BatchFailureContract contract, Source source) {
       return new BatchSupport(BatchFailureContract.NO_BATCH_SUPPORT, Source.DIALECT);
     }
 
-    if (isLegacyRecovery(variables)) {
+    String recovery =
+        variables == null ? null : variables.getVariable(Const.HOP_DATABASE_BATCH_RECOVERY);
+    if (RECOVERY_LEGACY.equalsIgnoreCase(Const.NVL(recovery, "").trim())) {
       return new BatchSupport(BatchFailureContract.UNKNOWN, Source.VARIABLE);
     }
 
@@ -101,20 +103,6 @@ public record BatchSupport(BatchFailureContract contract, Source source) {
       return new BatchSupport(declared, Source.DIALECT);
     }
     return new BatchSupport(BatchFailureContract.UNKNOWN, Source.NOT_DECLARED);
-  }
-
-  /**
-   * Whether {@link Const#HOP_DATABASE_BATCH_RECOVERY} asks for the handling as it always was, on
-   * every connection. A transform that changes more than how a failed batch is recovered, such as
-   * when it passes rows on, keeps that as before too.
-   *
-   * @param variables used to resolve the variable, may be null
-   * @return true if the variable is set to {@link #RECOVERY_LEGACY}
-   */
-  public static boolean isLegacyRecovery(IVariables variables) {
-    String recovery =
-        variables == null ? null : variables.getVariable(Const.HOP_DATABASE_BATCH_RECOVERY);
-    return RECOVERY_LEGACY.equalsIgnoreCase(Const.NVL(recovery, "").trim());
   }
 
   /**

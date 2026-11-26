@@ -291,7 +291,7 @@ limitations under the License.
   <transform>
     <name>Row by row update</name>
     <type>Update</type>
-    <description>Use batch updates off, an error hop, commit size 5. Every row is updated on its own and passed on after the commit that includes it; a refused row goes to the error hop with code UPD001.</description>
+    <description>Use batch updates off, an error hop, commit size 5. Every row is updated on its own and passed on right after its update, as before; a refused row goes to the error hop with code UPD001.</description>
     <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>

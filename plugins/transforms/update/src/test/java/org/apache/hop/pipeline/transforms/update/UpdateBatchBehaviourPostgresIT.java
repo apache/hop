@@ -43,6 +43,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -158,16 +159,19 @@ class UpdateBatchBehaviourPostgresIT {
   }
 
   /**
-   * Batch updates off: the same savepoint per row, without the log line. A row leaves only after
-   * the commit that includes its update: a commit every three rows that wait, after rows 3 and 6,
-   * then row 7 fails with nothing in front of it, then a commit after row 10.
+   * Batch updates off: the same savepoint per row, without the log line, on the default path and
+   * with HOP_DATABASE_BATCH_RECOVERY=LEGACY alike. Buggy: every row leaves right after its
+   * savepoint section, and the transform commits every third row that is updated, after it passed
+   * the rows on.
    */
-  @Test
-  void batchOff_errorHop_aSavepointPerRow() throws Exception {
+  @ParameterizedTest(name = "recovery {0}")
+  @MethodSource("org.apache.hop.pipeline.transforms.update.UpdateBatchBehaviourH2Test#recoveries")
+  void batchOff_errorHop_Buggy_aSavepointPerRow(String recovery) throws Exception {
     DatabaseMeta db = target(10);
 
     Result r =
         UpdateRun.on(db)
+            .recovery(recovery)
             .batch(false)
             .errorHop(true)
             .commitSize(3)
@@ -176,15 +180,14 @@ class UpdateBatchBehaviourPostgresIT {
 
     assertFalse(r.batchMode);
     assertTrue(r.useSavepoints);
+    assertFalse(r.recoveredBatches);
     assertFalse(r.logged("batch updates are switched off"));
-    // The savepoint undoes the failed row alone: nothing has to run again
-    assertFalse(r.runAgainAfterFailure);
     assertEquals(idsWithout(10, 3, 7), r.outputKeys());
     assertEquals(ids(3, 7), r.errorKeys());
     assertEquals(tableUpdatedExcept(10, 3, 7), UpdateRun.table(db));
     assertEquals(counters(10, 8, 0, 8, 2), r.counters());
-    assertEquals(List.of(0, 0, 0, 2, 2, 2, 5, 5, 5, 5, 8), r.outputSizeAtRead);
-    assertEquals(ids(), r.passedOnBeforeTheirCommit());
+    assertEquals(List.of(0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8), r.outputSizeAtRead);
+    assertEquals(passedOnBeforeTheirCommit(3), r.passedOnBeforeTheirCommit());
   }
 
   /**

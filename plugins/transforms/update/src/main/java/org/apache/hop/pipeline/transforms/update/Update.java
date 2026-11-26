@@ -27,7 +27,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.batch.BatchFailureContract;
 import org.apache.hop.core.database.batch.BatchSupport;
 import org.apache.hop.core.database.batch.IBatchRowListener;
 import org.apache.hop.core.database.batch.RecoverableBatch;
@@ -222,12 +221,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
             data.batchBuffer.add(pending);
             data.pendingRows.add(pending);
             batched = true;
-          } else if (data.holdUntilCommit) {
-            // Run now, committed by the transform: processRow() keeps the row until the commit
-            // that includes its update, after the savepoint section of this row.
-            data.db.insertRow(data.prepStatementUpdate, false, false);
-            data.updatedRow = UpdateData.PendingRow.batched(row, outputRow, updateRow);
-            batched = true;
           } else {
             data.db.insertRow(data.prepStatementUpdate, false, !data.useSavepoints);
             incrementLinesUpdated();
@@ -259,9 +252,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       }
       if (data.recoveredBatches) {
         flushRecoveredBatchOrStop();
-      }
-      if (data.holdUntilCommit) {
-        commitHeldRowsOrStop();
       }
       setOutputDone();
       return false;
@@ -386,18 +376,12 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
 
     try {
       data.keyNotFound = false;
-      data.updatedRow = null;
       IRowMeta inputRowMeta = getInputRowMeta();
       Object[] outputRow =
           data.useSavepoints
               ? data.db.runInSavepoint(() -> lookupValues(inputRowMeta, r))
               : lookupValues(inputRowMeta, r); // add new values to the row in rowset[0].
-      if (data.updatedRow != null) {
-        // The update ran: the row waits for the commit that includes it.
-        data.batchBuffer.add(data.updatedRow);
-        data.pendingRows.add(data.updatedRow);
-      }
-      if (data.useSavepoints && !data.holdUntilCommit) {
+      if (data.useSavepoints) {
         commitEveryCommitSize();
       }
       if (data.keyNotFound) {
@@ -418,11 +402,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           // loses nothing. Where a failed statement aborts the transaction (PostgreSQL, DuckDB)
           // the lookups of the next rows can run again.
           data.db.rollback();
-        } else if (data.runAgainAfterFailure) {
-          // The failure lost the updates of the rows that wait for the commit: run them again.
-          runWaitingUpdatesAgain();
+          prepareLookupAgainIfClosed();
         }
-        prepareLookupAgainIfClosed();
       } else {
         logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
         setErrors(1);
@@ -450,19 +431,12 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       setOutputDone();
       return false;
     }
-    if (data.holdUntilCommit
-        && data.pendingRows.size() >= data.commitSize
-        && !commitHeldRowsOrStop()) {
-      setOutputDone();
-      return false;
-    }
 
     return true;
   }
 
   /**
-   * Passes a row on to the output, after the rows that came in before it and wait for a batch or,
-   * row by row, for a commit.
+   * Passes a row on to the output, after the rows of a pending batch that came in before it.
    *
    * @param outputRow the row for the output
    */
@@ -475,8 +449,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   }
 
   /**
-   * Passes a row on to the error hop, after the rows that came in before it and wait for a batch
-   * or, row by row, for a commit.
+   * Passes a row on to the error hop, after the rows of a pending batch that came in before it.
    *
    * @param inputRow the row as it came in
    */
@@ -823,53 +796,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
   }
 
   /**
-   * Row by row, with an error hop, on a database where a failed statement loses the work of the
-   * open transaction and that has no savepoints to undo only that statement (DuckDB, see {@link
-   * UpdateData#runAgainAfterFailure}): rolls the transaction back and runs the updates of the rows
-   * that wait for the commit again, in their order. They succeeded before; one that fails now goes
-   * to the error hop as well, and the others run once more. Their lookups are not run again: once
-   * their updates are back, the table is as it was when the rows after them were looked up.
-   */
-  private void runWaitingUpdatesAgain() throws HopException {
-    boolean failed = true;
-    while (failed) {
-      failed = false;
-      data.db.rollback();
-      prepareUpdateAgainIfClosed();
-      for (UpdateData.PendingRow row : data.batchBuffer) {
-        if (row.isFailed()) {
-          continue;
-        }
-        try {
-          data.db.setValues(
-              data.updateParameterRowMeta, row.getBindValues(), data.prepStatementUpdate);
-          data.db.insertRow(data.prepStatementUpdate, false, false);
-        } catch (HopDatabaseException e) {
-          row.fail(e.toString(), null, CONST_UPD001);
-          failed = true;
-          break;
-        }
-      }
-    }
-  }
-
-  /**
-   * Row by row, prepares the UPDATE statement again when the driver closed it after it failed
-   * (DuckDB does).
-   */
-  private void prepareUpdateAgainIfClosed() throws HopDatabaseException {
-    if (data.prepStatementUpdate == null || !isClosed(data.prepStatementUpdate)) {
-      return;
-    }
-    try {
-      data.prepStatementUpdate = data.db.getConnection().prepareStatement(data.updateSql);
-    } catch (SQLException e) {
-      throw new HopDatabaseException(
-          "Unable to prepare statement for SQL statement [" + data.updateSql + "]", e);
-    }
-  }
-
-  /**
    * @return true if the driver says it closed the statement; a driver that can't say is taken to
    *     keep it open, as before
    */
@@ -879,58 +805,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     } catch (SQLException e) {
       return false;
     }
-  }
-
-  /**
-   * Row by row (see {@link UpdateData#holdUntilCommit}): commits the open transaction, then passes
-   * on the rows that waited for it, in the order they came in. A row whose update the commit
-   * includes goes to the output and is counted as updated; the rows between them go where they were
-   * already headed.
-   */
-  private void commitHeldRows() throws HopException {
-    if (data.pendingRows.isEmpty()) {
-      return;
-    }
-    data.db.commit();
-    releasePendingRows();
-  }
-
-  /**
-   * Commits the rows that wait, stopping the transform when that fails. The rows are then dropped
-   * when the transform is disposed, as the transaction is rolled back.
-   *
-   * @return false when the transform was stopped
-   */
-  private boolean commitHeldRowsOrStop() {
-    try {
-      commitHeldRows();
-      return true;
-    } catch (HopException e) {
-      logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
-      setErrors(1);
-      stopAll();
-      return false;
-    }
-  }
-
-  /**
-   * At the end of a single-threaded iteration, and when the transform is disposed: commits the rows
-   * that wait and passes them on, or, when the transform failed or was stopped, rolls their updates
-   * back and drops them, so that no row is committed that is not passed on.
-   */
-  private void commitOrDiscardHeldRows() throws HopException {
-    if (data.pendingRows.isEmpty()) {
-      return;
-    }
-    if (getErrors() > 0 || isStopped()) {
-      int dropped = data.pendingRows.size();
-      clearPendingRows();
-      data.db.rollback();
-      logError(
-          BaseMessages.getString(PKG, "Update.Log.HeldRowsDiscarded", String.valueOf(dropped)));
-      return;
-    }
-    commitHeldRows();
   }
 
   /**
@@ -1173,31 +1047,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
           }
         }
 
-        // Row by row, a row is passed on only after the commit that includes its update, so that a
-        // rollback never takes back the update of a row that was passed on. Not in auto-commit
-        // (commit size 0), where every update is committed at once; not on a connection shared by
-        // a transactional pipeline, which commits only at its end, so holding the rows would hold
-        // up the transforms after this one; and not with HOP_DATABASE_BATCH_RECOVERY=LEGACY, which
-        // passes every row on right after its update, as before.
-        data.holdUntilCommit =
-            !data.batchMode
-                && !data.recoveredBatches
-                && !data.db.isAutoCommit()
-                && Utils.isEmpty(data.db.getConnectionGroup())
-                && !BatchSupport.isLegacyRecovery(this);
-
-        // Where the validated contract says a failure loses the work of the transaction, and no
-        // savepoint undoes only the failed row (DuckDB; PostgreSQL runs every row behind one with
-        // an error hop), a failed row would take the updates of the rows that wait for the commit
-        // with it. Those are run again instead.
-        data.runAgainAfterFailure =
-            data.holdUntilCommit
-                && getTransformMeta().isDoingErrorHandling()
-                && data.batchSupport.isRecovered()
-                && data.batchSupport.contract() == BatchFailureContract.LOSES_WHOLE_BATCH
-                && !data.useSavepoints
-                && supportsTransactions();
-
         return true;
       } catch (HopException ke) {
         logError(BaseMessages.getString(PKG, "Update.Log.ErrorOccurred") + ke.getMessage());
@@ -1206,18 +1055,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       }
     }
     return false;
-  }
-
-  /**
-   * @return true if the database can roll back a transaction; without transactions a failure loses
-   *     nothing
-   */
-  private boolean supportsTransactions() throws HopDatabaseException {
-    try {
-      return data.db.getDatabaseMetaData().supportsTransactions();
-    } catch (SQLException e) {
-      throw new HopDatabaseException("Unable to find out if the database supports transactions", e);
-    }
   }
 
   @Override
@@ -1229,9 +1066,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     if (data.recoveredBatches) {
       flushOrDiscardRecoveredBatch();
     }
-    if (data.holdUntilCommit) {
-      commitOrDiscardHeldRows();
-    }
     commitBatch(false);
   }
 
@@ -1240,14 +1074,6 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     if (data.recoveredBatches && data.db != null) {
       try {
         flushOrDiscardRecoveredBatch();
-      } catch (HopException e) {
-        logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
-        setErrors(1);
-      }
-    }
-    if (data.holdUntilCommit && data.db != null) {
-      try {
-        commitOrDiscardHeldRows();
       } catch (HopException e) {
         logError(BaseMessages.getString(PKG, "Update.Log.ErrorInTransform"), e);
         setErrors(1);
