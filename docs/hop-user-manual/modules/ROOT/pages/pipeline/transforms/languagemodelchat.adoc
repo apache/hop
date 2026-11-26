@@ -278,3 +278,14 @@ Example:
 - *Self-Consistency:* The model generates multiple diverse reasoning paths for the same prompt by introducing variability through techniques like adjusting the temperature or applying nucleus sampling (top-p). The final answer is determined by selecting the response that occurs most frequently among these outputs (Wang et al., 2023). This method is particularly effective for improving accuracy in reasoning tasks by leveraging diversity in outputs. For example, in a classification task, the model could generate three chain-of-thought outputs for a sentiment analysis problem (e.g., positive, negative, neutral) and determine the final label through a majority vote among the outputs.
 
 - *Prompt-Chaining (Sequential Chaining):* A method where multiple related prompts are provided in sequence, with each prompt building on the output of the previous one. This step-by-step approach helps guide the model’s reasoning process, enabling it to tackle complex tasks incrementally. This technique requires the JSON chat feature to be enabled, as it relies on this functionality to chain the conversation.
+
+== Samples
+
+The samples project has:
+
+* `transforms/languagemodelchat/zero-shot/ollama.hpl`, which sends 3 questions about age and racial bias in job descriptions from a Data grid to the model `phi3` of a local Ollama server, and writes the answers, the token counts and the inference time to a CSV file.
+* `transforms/languagemodelchat/zero-shot/anthropic.hpl`, which turns a system message and the question "What is the He and Glorot initialisation?" from a Data grid into JSON and sends it to `claude-sonnet-5`, with the API key in `${ANTHROPIC_API_KEY}`.
+* `transforms/languagemodelchat/zero-shot/mistral.hpl`, which sends the same system message and question to `mistral-large-latest` as chat JSON, with the API key in `${MISTRAL_API_KEY}`.
+* `transforms/languagemodelchat/zero-shot/huggingface.hpl`, which asks `meta-llama/Llama-3.3-70B-Instruct` on Hugging Face, as a deadpan assistant, for the wonders of the planet in no more than 20 words, with the access token in `${HF_ACCESS_TOKEN}`.
+* `transforms/languagemodelchat/zero-shot/openai.hpl`, which asks `gpt-5.6-luna`, as a Spanish teacher, what it sees in an image from Wikimedia Commons, with the API key in `${OPENAI_API_KEY}`.
+* `transforms/languagemodelchat/fact-checking/bespoke-minicheck.hpl`, which has `gpt-5.6-luna` and `meta-llama/Llama-3.3-70B-Instruct` answer "How many people live in Toronto?", checks each answer against a short grounding document with the model `bespoke-minicheck` of a local Ollama server, and writes each answer with its response to a CSV file for `Yes`, one for `No` and one for any other response.

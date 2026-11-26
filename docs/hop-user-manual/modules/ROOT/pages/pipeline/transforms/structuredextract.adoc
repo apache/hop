@@ -77,3 +77,8 @@ A row whose input text is empty is passed on with the new fields left empty, and
 One request is made per row, so this transform is as slow and as expensive as the provider is. Filter the stream before it rather than after.
 
 Extraction quality is mostly in the Description column, not in the Extra instructions. Describing each field well is worth more than any general instruction, and a field with no description at all is reported when you check the pipeline.
+
+== Samples
+
+The samples project has `transforms/structured-extract-basic.hpl`, which reads a severity (`low`, `medium` or `high`), a product area, whether customers are affected and the estimated loss in euros from 3 support tickets in a Data grid.
+Create an AI provider named `ollama-local` before you run it.

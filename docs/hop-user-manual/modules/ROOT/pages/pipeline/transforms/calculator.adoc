@@ -238,3 +238,4 @@ The samples project has:
 
 * `transforms/calculator-basic.hpl`, which subtracts, adds, multiplies and divides two numbers from a Data grid.
 * `transforms/calculator-jde-julian.hpl`, which converts dates to JD Edwards Julian dates (CYYDDD) and back.
+* `loops/child-check-set-counter-value.hpl`, which adds 1 to the counter, with a constant 1 and an A + B calculation, each time the *repeat pipeline* action of `loops/repeat-action.hwf` runs it.

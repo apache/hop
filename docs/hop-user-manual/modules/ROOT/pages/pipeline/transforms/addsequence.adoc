@@ -76,3 +76,6 @@ The samples project has:
 
 * `transforms/add-sequence-unique-id.hpl`, which numbers 100 generated rows from 1 to 100 and writes the numbers to the log.
 * `transforms/add-sequence-cyclic-id.hpl`, which counts from 1 to 10 and then starts at 1 again, because the maximum value is 10.
+* `loops/child-loops-copy-rows-to-result.hpl`, which numbers 10 generated rows from 1 to 10 in the field `counter` and copies them to the result.
+* `loops/pipeline-executor.hpl` and `loops/workflow-executor.hpl`, which number 10 generated rows from 1 to 10 and run a child pipeline or workflow once for each row, with the number in the parameter `PRM_COUNTER`.
+* `workflows/parallel/sample-pipeline.hpl`, which numbers 100 generated rows in the field `seq`; `workflows/parallel/parallel-workflow.hwf` runs it twice at the same time.

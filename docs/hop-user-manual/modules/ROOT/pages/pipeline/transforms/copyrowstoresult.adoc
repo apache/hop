@@ -41,4 +41,8 @@ NOTE: this transform is mainly available for historical reasons. There are newer
 
 == Samples
 
-The samples project has `transforms/copy-rows-to-result.hpl`, which copies the two rows of a Data grid to the result of the pipeline, for a parent workflow or pipeline to pick up.
+The samples project has:
+
+* `transforms/copy-rows-to-result.hpl`, which copies the two rows of a Data grid to the result of the pipeline, for a parent workflow or pipeline to pick up.
+* `loops/child-loops-copy-rows-to-result.hpl`, which copies 10 numbered rows to the result; `loops/loops-process-rows-from-memory.hwf` then runs `loops/child-loops-log-counter.hpl` once for each of them.
+* `loops/child-loops-log-counter.hpl`, which writes the parameter `PRM_COUNTER` to the log and copies its one row to the result; `loops/pipeline-executor.hpl` gets these rows on its result rows stream.

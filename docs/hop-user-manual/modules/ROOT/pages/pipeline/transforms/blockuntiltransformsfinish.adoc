@@ -48,5 +48,8 @@ For the default number of copies (1), the CopyNr is always 0.
 
 == Samples
 
-The samples project has `transforms/block-until-transforms-finish-basic.hpl`: the row from *1 row* waits until *Found GOD!* has finished before it goes on to a JavaScript transform.
+The samples project has:
+
+* `transforms/block-until-transforms-finish-basic.hpl`: the row from *1 row* waits until *Found GOD!* has finished before it goes on to a JavaScript transform.
 *Found GOD!* gets 1,000 rows, each delayed by one second, so the pipeline takes about 17 minutes.
+* `pipelines/read-transactions.hpl`, where the data rows of the Excel files wait in *Block Headers* until *Headers* has received all the header rows, before Stream lookup adds the header labels to them.
