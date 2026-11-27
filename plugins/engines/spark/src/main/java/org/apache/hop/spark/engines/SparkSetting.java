@@ -101,10 +101,6 @@ public class SparkSetting {
     return lines.toString();
   }
 
-  public SparkSetting copy() {
-    return new SparkSetting(key, value);
-  }
-
   /**
    * Settings Hop sets itself whose value is a list. A row of the Spark settings adds to Hop's
    * entries instead of replacing them: the executors still need the Hop fat jar next to a JDBC

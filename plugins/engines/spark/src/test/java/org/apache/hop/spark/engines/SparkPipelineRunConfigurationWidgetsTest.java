@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.testing.SwtBotTestBase;
 import org.eclipse.swt.SWT;
@@ -47,6 +48,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -116,6 +118,42 @@ class SparkPipelineRunConfigurationWidgetsTest extends SwtBotTestBase {
     assertEquals("staging://hop-staging", config.getStagingFolder());
     assertEquals("http://seaweedfs:8888/buckets/hop-staging", config.getStagingClusterUrl());
     assertEquals("http://spark:6066", config.getSubmitUrl());
+  }
+
+  /**
+   * The Spark settings table shows the stored lines as rows, and an edit in the table is stored as
+   * lines again: older Hop versions read the same text.
+   */
+  @Test
+  void theSparkSettingsTableEditsTheStoredLines() {
+    SparkPipelineRunConfiguration config = new SparkPipelineRunConfiguration();
+    config.setClusterType(SparkClusterType.YARN);
+    config.setSparkConfigs("# tuned\nspark.yarn.queue=etl");
+    AtomicReference<GuiCompositeWidgets> widgets = new AtomicReference<>();
+    AtomicReference<String> shown = new AtomicReference<>();
+
+    withScene(
+        shell -> {
+          shell.setLayout(new FormLayout());
+          GuiCompositeWidgets composite = new GuiCompositeWidgets(new Variables());
+          composite.createCompositeWidgets(config, null, shell, PARENT, null);
+          composite.setWidgetsContents(config, shell, PARENT);
+          widgets.set(composite);
+          shell.setSize(900, 700);
+        },
+        bot ->
+            display.syncExec(
+                () -> {
+                  TableView table = (TableView) widgets.get().getWidgetsMap().get("sparkSettings");
+                  assertNotNull(table, "no Spark settings table");
+                  TableItem row = table.getTable().getItem(0);
+                  shown.set(row.getText(1) + "=" + row.getText(2));
+                  row.setText(2, "adhoc");
+                  widgets.get().getWidgetsContents(config, PARENT);
+                }));
+
+    assertEquals("spark.yarn.queue=etl", shown.get());
+    assertEquals("spark.yarn.queue=adhoc", config.getStoredSparkConfigs());
   }
 
   /** target/screenshots/SparkPipelineRunConfigurationWidgets.png, to look at the form. */

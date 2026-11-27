@@ -217,6 +217,18 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   /** The submitted driver of a cluster-mode run, or null in client mode. */
   private SparkClusterRun clusterRun;
 
+  /**
+   * Kills the driver of a cluster-mode run after Stop. Off the thread that stops, which in Hop GUI
+   * is the display thread: an unreachable cluster would hold it for the time-out of the call.
+   */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private Thread clusterStopThread;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final Object clusterStopLock = new Object();
+
   /** Stable log channel IDs per transform name + copy for execution info / GUI. */
   private final Map<String, String> componentLogChannelIds = new ConcurrentHashMap<>();
 
@@ -608,6 +620,8 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                 } catch (HopException ex) {
                   logChannel.logError("Error firing finished listeners", ex);
                 }
+                // The kill of a Stop uses the clients that close() lets go of
+                awaitClusterStop();
                 clusterRun.close();
                 releaseVfsNamespace();
               }
@@ -1601,15 +1615,25 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         Thread.currentThread().interrupt();
       }
     }
+    // hop-run exits once the run is over: not before the driver it stopped is killed
+    awaitClusterStop();
   }
 
   @Override
   public void stopAll() {
-    setStopped(true);
-    setRunning(false);
+    SparkClusterRun run = clusterRun;
+    synchronized (clusterStopLock) {
+      setStopped(true);
+      setRunning(false);
+      if (run != null && clusterStopThread == null) {
+        clusterStopThread = new Thread(run::kill, "hop-spark-cluster-stop");
+        clusterStopThread.setDaemon(true);
+        clusterStopThread.setContextClassLoader(SparkPipelineEngine.class.getClassLoader());
+        clusterStopThread.start();
+      }
+    }
     ExecutorUtil.cleanup(metricsRefreshTimer);
-    if (clusterRun != null) {
-      clusterRun.kill();
+    if (run != null) {
       try {
         fireExecutionStoppedListeners();
       } catch (HopException e) {
@@ -1646,6 +1670,22 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       if (logChannel != null) {
         logChannel.logError("Error firing stopped listeners", e);
       }
+    }
+  }
+
+  /** Wait for the kill of a Stop, when there is one. */
+  private void awaitClusterStop() {
+    Thread thread;
+    synchronized (clusterStopLock) {
+      thread = clusterStopThread;
+    }
+    if (thread == null) {
+      return;
+    }
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
   }
 

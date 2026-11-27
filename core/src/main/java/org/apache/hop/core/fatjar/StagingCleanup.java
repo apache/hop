@@ -50,7 +50,7 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
  *
  * <p>Only the files Hop stages are considered (fat jars, project packages, Spark runtime archives),
  * because a staging folder is often a shared bucket. A marker in a format this version does not
- * know, written by a newer Hop, keeps its file.
+ * know, written by a newer Hop, keeps its file, and so does a file without a marker.
  */
 public final class StagingCleanup {
 
@@ -78,6 +78,13 @@ public final class StagingCleanup {
   static final Pattern STAGED_NAME =
       Pattern.compile("(hop-native|hop-spark-package|spark-runtime)-[0-9a-f]{12}\\.(jar|zip)");
 
+  /**
+   * Infix of a file that is being uploaded, {@code <file>.uploading-<uuid>}: it gets the name of
+   * the staged file once complete. One left behind by an upload that was killed goes with the
+   * staged file.
+   */
+  public static final String UPLOAD_INFIX = ".uploading-";
+
   /** Sidecars that go with a staged file. */
   static final List<String> SIDECAR_SUFFIXES =
       List.of(MARKER_SUFFIX, KEEP_SUFFIX, FatJarCache.SHA256_SIDECAR_SUFFIX);
@@ -98,7 +105,12 @@ public final class StagingCleanup {
     /** Kept for good by a {@link #KEEP_SUFFIX} sidecar: never removed here. */
     KEPT,
     /** The store does not say when the file was last used: never removed here. */
-    UNKNOWN_TIME;
+    UNKNOWN_TIME,
+    /**
+     * No run of Hop marked the file as used, such as the fat jar of a Databricks job deployed by a
+     * Hop version that wrote no markers: never removed here.
+     */
+    NOT_MARKED;
 
     @Override
     public String getCode() {
@@ -174,8 +186,8 @@ public final class StagingCleanup {
         // The marker itself says when it was written
         marker = markerTime(store, name + MARKER_SUFFIX);
       }
-      // The marker says when a run used the file; without one (staged before markers, or the
-      // marker was lost), the upload time of the file, else the newest sidecar
+      // The marker says when a run used the file; without one, the upload time of the file, else
+      // the newest sidecar, which only shows when it got there
       long lastUsed = hasMarker ? marker : staged >= 0 ? staged : newest;
       Instant used = lastUsed >= 0 ? Instant.ofEpochMilli(lastUsed) : null;
       State state;
@@ -184,6 +196,11 @@ public final class StagingCleanup {
       } else if (used == null) {
         // Never removed on a time nobody knows: it could be in use right now
         state = State.UNKNOWN_TIME;
+      } else if (!hasMarker) {
+        // Every run of this version marks a file before it uses it. A file without a marker was
+        // staged by a version that wrote none, and something may use it every day, such as the
+        // fat jar of a Databricks job deployed back then.
+        state = State.NOT_MARKED;
       } else {
         state = used.isBefore(cutoff) ? State.EXPIRED : State.IN_USE;
       }
@@ -312,6 +329,12 @@ public final class StagingCleanup {
    */
   static String stagedName(String fileName) {
     String name = fileName;
+    int upload = name.indexOf(UPLOAD_INFIX);
+    if (upload > 0) {
+      return STAGED_NAME.matcher(name.substring(0, upload)).matches()
+          ? name.substring(0, upload)
+          : null;
+    }
     for (String suffix : SIDECAR_SUFFIXES) {
       if (name.endsWith(suffix)) {
         name = name.substring(0, name.length() - suffix.length());

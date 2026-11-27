@@ -19,6 +19,7 @@ package org.apache.hop.core.fatjar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,6 +30,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Stream;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -114,13 +116,21 @@ class StagingCleanupTest {
     assertTrue(Files.exists(folder.resolve(RUNTIME)));
   }
 
+  /**
+   * A file without a marker was staged by a Hop version that wrote none, such as the fat jar of a
+   * Databricks job deployed back then: the job may use it every day, so it is never removed.
+   */
   @Test
-  void aFileStagedWithoutAMarkerAgesFromItsUpload() throws Exception {
-    write(JAR, 20);
-    write(PACKAGE, 3);
+  void aFileStagedWithoutAMarkerIsKept() throws Exception {
+    write(JAR, 400);
+    write(JAR + FatJarCache.SHA256_SIDECAR_SUFFIX, 400);
+    List<StagingCleanup.Entry> entries = StagingCleanup.inspect(store, RETENTION, Instant.now());
+    assertEquals(StagingCleanup.State.NOT_MARKED, entries.get(0).state());
+    assertNotNull(entries.get(0).lastUsed(), "the upload time still shows");
+
     StagingCleanup.cleanUp(LogChannel.GENERAL, store, RETENTION, Instant.now());
-    assertFalse(Files.exists(folder.resolve(JAR)));
-    assertTrue(Files.exists(folder.resolve(PACKAGE)));
+    assertTrue(Files.exists(folder.resolve(JAR)));
+    assertTrue(Files.exists(folder.resolve(JAR + FatJarCache.SHA256_SIDECAR_SUFFIX)));
   }
 
   @Test
@@ -203,6 +213,47 @@ class StagingCleanupTest {
     assertFalse(Files.exists(folder.resolve(name)));
   }
 
+  /** An upload goes to a name of its own first: no run finds half a file under the final name. */
+  @Test
+  void anUploadLeavesOnlyTheCompleteFile() throws Exception {
+    Path jar = tempDir.resolve("fat.jar");
+    Files.write(jar, new byte[] {1, 2, 3});
+    store.upload(jar, JAR);
+    assertEquals(3, store.size(JAR));
+    try (Stream<Path> files = Files.list(folder)) {
+      assertEquals(List.of(JAR), files.map(f -> f.getFileName().toString()).toList());
+    }
+  }
+
+  /** A run that staged the same content meanwhile keeps its file: its driver may be reading it. */
+  @Test
+  void anUploadKeepsTheSameContentStagedMeanwhile() throws Exception {
+    Path jar = tempDir.resolve("fat.jar");
+    Files.write(jar, new byte[] {1, 2, 3});
+    Files.write(folder.resolve(JAR), new byte[] {1, 2, 3});
+    age(folder.resolve(JAR), 2);
+    Instant before = lastModified(folder.resolve(JAR));
+
+    store.upload(jar, JAR);
+    assertEquals(before, lastModified(folder.resolve(JAR)));
+    try (Stream<Path> files = Files.list(folder)) {
+      assertEquals(1, files.count(), "no partial upload left");
+    }
+  }
+
+  /** A partial upload of a run that was killed goes with its staged file. */
+  @Test
+  void aPartialUploadGoesWithItsFile() throws Exception {
+    stage(JAR, 40, 40);
+    write(JAR + StagingCleanup.UPLOAD_INFIX + "0f1e", 40);
+    List<StagingCleanup.Entry> entries = StagingCleanup.inspect(store, RETENTION, Instant.now());
+    assertEquals(1, entries.size());
+    assertEquals(3, entries.get(0).files().size());
+
+    StagingCleanup.cleanUp(LogChannel.GENERAL, store, RETENTION, Instant.now());
+    assertFalse(Files.exists(folder.resolve(JAR + StagingCleanup.UPLOAD_INFIX + "0f1e")));
+  }
+
   @Test
   void leftOverSidecarsAreRemovedToo() throws Exception {
     // The package itself is gone: only its marker is left
@@ -244,6 +295,8 @@ class StagingCleanupTest {
     assertEquals(JAR, StagingCleanup.stagedName(JAR + ".sha256"));
     assertEquals(PACKAGE, StagingCleanup.stagedName(PACKAGE + ".lastused"));
     assertEquals(RUNTIME, StagingCleanup.stagedName(RUNTIME));
+    assertEquals(JAR, StagingCleanup.stagedName(JAR + StagingCleanup.UPLOAD_INFIX + "0f1e"));
+    assertNull(StagingCleanup.stagedName("data.csv" + StagingCleanup.UPLOAD_INFIX + "0f1e"));
     assertNull(StagingCleanup.stagedName("hop-native.jar"));
     assertNull(StagingCleanup.stagedName("other-0123456789ab.jar"));
   }

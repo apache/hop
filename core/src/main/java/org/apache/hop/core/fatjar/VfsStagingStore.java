@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -73,19 +74,58 @@ public final class VfsStagingStore implements IStagingStore {
     }
   }
 
+  /**
+   * Upload under a name of its own and give the file its final name once it is complete: a run that
+   * stages the same content at the same time, or a driver that reads the file, never finds half a
+   * file under the final name.
+   */
   @Override
   public void upload(Path localFile, String name) throws HopException {
+    FileObject partial = null;
     try {
       FileObject target = file(name);
       createFolder(target.getParent());
-      try (InputStream in = Files.newInputStream(localFile);
-          OutputStream out = HopVfs.getOutputStream(target, false)) {
-        in.transferTo(out);
+      FileObject upload = file(name + StagingCleanup.UPLOAD_INFIX + UUID.randomUUID());
+      if (!upload.canRenameTo(target)) {
+        // A store without renames (Google Cloud Storage) would copy the file through this client
+        // to move it. Such object stores only show an object once it is complete.
+        write(localFile, target);
+        return;
       }
+      partial = upload;
+      write(localFile, partial);
+      target.refresh();
+      if (target.exists() && target.getContent().getSize() == Files.size(localFile)) {
+        // Another run staged the same content meanwhile, and its driver may be reading it
+        return;
+      }
+      partial.moveTo(target);
+      partial = null;
     } catch (HopException e) {
       throw e;
     } catch (Exception e) {
       throw new HopException("Unable to stage " + localFile + " to " + location(name), e);
+    } finally {
+      deleteQuietly(partial);
+    }
+  }
+
+  private static void write(Path localFile, FileObject target) throws Exception {
+    try (InputStream in = Files.newInputStream(localFile);
+        OutputStream out = HopVfs.getOutputStream(target, false)) {
+      in.transferTo(out);
+    }
+  }
+
+  /** A partial upload left behind goes with its staged file in a later cleanup. */
+  private static void deleteQuietly(FileObject file) {
+    if (file == null) {
+      return;
+    }
+    try {
+      file.delete();
+    } catch (Exception e) {
+      // Removed by a cleanup together with its staged file
     }
   }
 

@@ -75,8 +75,4 @@ public class PathSchemeMapping {
     }
     return SparkSetting.toLines(lines);
   }
-
-  public PathSchemeMapping copy() {
-    return new PathSchemeMapping(from, to);
-  }
 }

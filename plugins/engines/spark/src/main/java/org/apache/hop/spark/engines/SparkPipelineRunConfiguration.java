@@ -220,13 +220,16 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   private String hadoopConfDir;
 
   /**
-   * The Spark settings of a run configuration saved before the table: {@code key=value} lines. They
-   * move into {@link #sparkSettings} the first time the configuration is read.
+   * The Spark settings as {@code key=value} lines: how they are stored, so that Hop versions from
+   * before the table keep reading them. The table is a view of these lines.
    */
   @HopMetadataProperty(key = "sparkConfigs")
-  private String legacySparkConfigs;
+  private String storedSparkConfigs;
 
-  /** Spark settings: {@code spark.*} keys and their values, as spark-submit --conf takes them. */
+  /**
+   * Spark settings: {@code spark.*} keys and their values, as spark-submit --conf takes them. Not
+   * stored itself: read from {@link #storedSparkConfigs} when first asked for, null until then.
+   */
   @GuiWidgetElement(
       id = "sparkSettings",
       order = "35100",
@@ -238,8 +241,7 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
       group = "i18n::SparkEngine.Group.SparkSettings",
       groupOrder = "35",
       tableRows = 10)
-  @HopMetadataProperty(key = "spark_settings")
-  private List<SparkSetting> sparkSettings = new ArrayList<>();
+  private List<SparkSetting> sparkSettings;
 
   @GuiWidgetElement(
       order = "30100",
@@ -278,13 +280,16 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   private String executorCores;
 
   /**
-   * The path scheme map of a run configuration saved before the table: {@code from=to} lines. They
-   * move into {@link #pathSchemes} the first time the configuration is read.
+   * The path scheme map as {@code from=to} lines: how it is stored, so that Hop versions from
+   * before the table keep reading it. The table is a view of these lines.
    */
   @HopMetadataProperty(key = "pathSchemeMap")
-  private String legacyPathSchemeMap;
+  private String storedPathSchemeMap;
 
-  /** URI schemes the Spark File and Lake Table transforms rewrite before Spark gets the path. */
+  /**
+   * URI schemes the Spark File and Lake Table transforms rewrite before Spark gets the path. Not
+   * stored itself: read from {@link #storedPathSchemeMap} when first asked for, null until then.
+   */
   @GuiWidgetElement(
       id = "pathSchemes",
       order = "35200",
@@ -296,8 +301,7 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
       group = "i18n::SparkEngine.Group.SparkSettings",
       groupOrder = "35",
       tableRows = 3)
-  @HopMetadataProperty(key = "path_schemes")
-  private List<PathSchemeMapping> pathSchemes = new ArrayList<>();
+  private List<PathSchemeMapping> pathSchemes;
 
   /**
    * Default for generic mapPartitions transforms ({@link SparkRunMode#DISTRIBUTED} or {@link
@@ -457,8 +461,11 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     return SparkRunConfigurationWidgetsListener.class.getName();
   }
 
+  /** The rows of the Spark settings table; the table edits this list in place. */
   public List<SparkSetting> getSparkSettings() {
-    moveLegacySettings();
+    if (sparkSettings == null) {
+      sparkSettings = SparkSetting.parse(storedSparkConfigs);
+    }
     return sparkSettings;
   }
 
@@ -466,10 +473,23 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sparkSettings = sparkSettings == null ? new ArrayList<>() : sparkSettings;
   }
 
-  /** What is stored under the old key: nothing once it moved into the table. */
-  public String getLegacySparkConfigs() {
-    moveLegacySettings();
-    return legacySparkConfigs;
+  /**
+   * The Spark settings as they are saved: the lines as they were loaded while the rows say the same
+   * (so comment lines stay), else the lines of the rows.
+   */
+  public String getStoredSparkConfigs() {
+    if (sparkSettings == null) {
+      return storedSparkConfigs;
+    }
+    String rows = SparkSetting.toLines(sparkSettings);
+    return rows.equals(SparkSetting.toLines(SparkSetting.parse(storedSparkConfigs)))
+        ? storedSparkConfigs
+        : rows;
+  }
+
+  public void setStoredSparkConfigs(String lines) {
+    storedSparkConfigs = lines;
+    sparkSettings = null;
   }
 
   /** The Spark settings as {@code key=value} lines, as the engine and spark-submit read them. */
@@ -480,19 +500,14 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
 
   /** Replaces the Spark settings with those of {@code key=value} lines. */
   public void setSparkConfigs(String lines) {
-    legacySparkConfigs = null;
-    sparkSettings = SparkSetting.parse(lines);
+    setStoredSparkConfigs(lines);
   }
 
-  private void moveLegacySettings() {
-    if (legacySparkConfigs != null && !legacySparkConfigs.isBlank()) {
-      sparkSettings.addAll(SparkSetting.parse(legacySparkConfigs));
-    }
-    legacySparkConfigs = null;
-  }
-
+  /** The rows of the path scheme table; the table edits this list in place. */
   public List<PathSchemeMapping> getPathSchemes() {
-    moveLegacyPathSchemes();
+    if (pathSchemes == null) {
+      pathSchemes = PathSchemeMapping.parse(storedPathSchemeMap);
+    }
     return pathSchemes;
   }
 
@@ -500,10 +515,23 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.pathSchemes = pathSchemes == null ? new ArrayList<>() : pathSchemes;
   }
 
-  /** What is stored under the old key: nothing once it moved into the table. */
-  public String getLegacyPathSchemeMap() {
-    moveLegacyPathSchemes();
-    return legacyPathSchemeMap;
+  /**
+   * The path scheme map as it is saved: the lines as they were loaded while the rows say the same,
+   * else the lines of the rows.
+   */
+  public String getStoredPathSchemeMap() {
+    if (pathSchemes == null) {
+      return storedPathSchemeMap;
+    }
+    String rows = PathSchemeMapping.toLines(pathSchemes);
+    return rows.equals(PathSchemeMapping.toLines(PathSchemeMapping.parse(storedPathSchemeMap)))
+        ? storedPathSchemeMap
+        : rows;
+  }
+
+  public void setStoredPathSchemeMap(String lines) {
+    storedPathSchemeMap = lines;
+    pathSchemes = null;
   }
 
   /**
@@ -516,15 +544,7 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
 
   /** Replaces the path scheme map with that of {@code from=to} lines. */
   public void setPathSchemeMap(String lines) {
-    legacyPathSchemeMap = null;
-    pathSchemes = PathSchemeMapping.parse(lines);
-  }
-
-  private void moveLegacyPathSchemes() {
-    if (legacyPathSchemeMap != null && !legacyPathSchemeMap.isBlank()) {
-      pathSchemes.addAll(PathSchemeMapping.parse(legacyPathSchemeMap));
-    }
-    legacyPathSchemeMap = null;
+    setStoredPathSchemeMap(lines);
   }
 
   /**
@@ -541,19 +561,12 @@ public class SparkPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.sparkAppName = config.sparkAppName;
     this.fatJar = config.fatJar;
     this.hadoopConfDir = config.hadoopConfDir;
-    this.legacySparkConfigs = config.legacySparkConfigs;
-    this.sparkSettings = new ArrayList<>();
-    for (SparkSetting setting : config.sparkSettings) {
-      this.sparkSettings.add(setting.copy());
-    }
+    // The copy reads its rows from the lines when asked: no rows shared with the original
+    this.storedSparkConfigs = config.getStoredSparkConfigs();
     this.driverMemory = config.driverMemory;
     this.executorMemory = config.executorMemory;
     this.executorCores = config.executorCores;
-    this.legacyPathSchemeMap = config.legacyPathSchemeMap;
-    this.pathSchemes = new ArrayList<>();
-    for (PathSchemeMapping mapping : config.pathSchemes) {
-      this.pathSchemes.add(mapping.copy());
-    }
+    this.storedPathSchemeMap = config.getStoredPathSchemeMap();
     this.genericTransformRunMode = config.genericTransformRunMode;
     this.deployMode = config.deployMode;
     this.clusterType = config.clusterType;

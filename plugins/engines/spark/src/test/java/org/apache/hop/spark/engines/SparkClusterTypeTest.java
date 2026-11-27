@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.spark.engines.template.SparkRunConfigTemplate;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -162,17 +163,17 @@ class SparkClusterTypeTest {
         "yarn", ((SparkPipelineRunConfiguration) old.getEngineRunConfiguration()).getSparkMaster());
   }
 
+  private static final String TEXT_SETTINGS =
+      "# tuned\nspark.yarn.queue=etl\nspark.sql.shuffle.partitions = 64";
+
   /**
-   * The Spark settings and the path scheme map of a configuration saved as text lines load as rows
-   * of their tables, and are saved as rows; the engine reads the same lines as before.
+   * The Spark settings and the path scheme map show as rows of their tables, but are stored as the
+   * text lines older Hop versions read: a configuration saved unchanged keeps its text as it was,
+   * comment line included.
    */
   @Test
-  void textSettingsOfAnOlderConfigurationBecomeRows() throws Exception {
-    PipelineRunConfiguration old =
-        load(
-            "{\"engineRunConfiguration\":{\"SparkPipelineEngine\":{\"sparkMaster\":\"yarn\","
-                + "\"sparkConfigs\":\"# tuned\\nspark.yarn.queue=etl\\nspark.sql.shuffle.partitions = 64\","
-                + "\"pathSchemeMap\":\"minio=s3a\"}},\"name\":\"old\"}");
+  void settingsShowAsRowsAndAreStoredAsText() throws Exception {
+    PipelineRunConfiguration old = load(withTextSettings("old"));
     SparkPipelineRunConfiguration spark =
         (SparkPipelineRunConfiguration) old.getEngineRunConfiguration();
     assertEquals(2, spark.getSparkSettings().size(), "the comment line is not a setting");
@@ -181,18 +182,60 @@ class SparkClusterTypeTest {
     assertEquals("spark.yarn.queue=etl\nspark.sql.shuffle.partitions=64", spark.getSparkConfigs());
     assertEquals("minio=s3a", spark.getPathSchemeMap());
 
-    String saved = parser().getJsonObject(old).toJSONString();
-    assertTrue(saved.contains("\"spark_settings\""), saved);
-    assertTrue(saved.contains("\"path_schemes\""), saved);
-    assertTrue(!saved.contains("spark.yarn.queue=etl"), "the old text is gone: " + saved);
+    JSONObject saved = engineJson(old);
+    assertEquals(TEXT_SETTINGS, saved.get("sparkConfigs"), "saved unchanged: " + saved);
+    assertEquals("minio=s3a", saved.get("pathSchemeMap"));
+    assertFalse(saved.containsKey("spark_settings"), saved.toJSONString());
+    assertFalse(saved.containsKey("path_schemes"), saved.toJSONString());
+
+    assertEquals(2, spark.clone().getSparkSettings().size());
+    assertEquals(TEXT_SETTINGS, spark.clone().getStoredSparkConfigs());
+  }
+
+  /** A row changed in the table is stored as the text lines of the rows. */
+  @Test
+  void anEditedTableIsStoredAsTextLines() throws Exception {
+    PipelineRunConfiguration old = load(withTextSettings("edited"));
+    SparkPipelineRunConfiguration spark =
+        (SparkPipelineRunConfiguration) old.getEngineRunConfiguration();
+    // As the table does it: the rows of the list it was given, edited in place
+    spark.getSparkSettings().get(0).setValue("adhoc");
+    spark.getSparkSettings().add(new SparkSetting("spark.executor.instances", "4"));
+    spark.getPathSchemes().clear();
+    spark.getPathSchemes().add(new PathSchemeMapping("s3", "s3a"));
+
+    JSONObject saved = engineJson(old);
+    assertEquals(
+        "spark.yarn.queue=adhoc\nspark.sql.shuffle.partitions=64\nspark.executor.instances=4",
+        saved.get("sparkConfigs"));
+    assertEquals("s3=s3a", saved.get("pathSchemeMap"));
 
     SparkPipelineRunConfiguration again =
         (SparkPipelineRunConfiguration)
-            load(saved.replace("\"name\":\"old\"", "\"name\":\"again\""))
-                .getEngineRunConfiguration();
-    assertEquals(spark.getSparkConfigs(), again.getSparkConfigs(), "no rows twice");
-    assertEquals("minio=s3a", again.getPathSchemeMap());
-    assertEquals(2, again.clone().getSparkSettings().size());
+            load(withSettingsText(saved.toJSONString(), "again")).getEngineRunConfiguration();
+    assertEquals(spark.getSparkConfigs(), again.getSparkConfigs());
+    assertEquals("s3=s3a", again.getPathSchemeMap());
+  }
+
+  private static String withTextSettings(String name) {
+    JSONObject engine = new JSONObject();
+    engine.put("sparkMaster", "yarn");
+    engine.put("sparkConfigs", TEXT_SETTINGS);
+    engine.put("pathSchemeMap", "minio=s3a");
+    return withSettingsText(engine.toJSONString(), name);
+  }
+
+  private static String withSettingsText(String engineJson, String name) {
+    return "{\"engineRunConfiguration\":{\"SparkPipelineEngine\":"
+        + engineJson
+        + "},\"name\":\""
+        + name
+        + "\"}";
+  }
+
+  private static JSONObject engineJson(PipelineRunConfiguration config) throws Exception {
+    JSONObject engine = (JSONObject) parser().getJsonObject(config).get("engineRunConfiguration");
+    return (JSONObject) engine.get("SparkPipelineEngine");
   }
 
   @Test
