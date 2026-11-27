@@ -432,6 +432,43 @@ class DatabaseRunInSavepointTest {
         () -> "no error logged for the failed rollback: " + errors);
   }
 
+  /**
+   * A server that rejects SAVEPOINT, or a shared connection switched to auto-commit after the
+   * check, must not make an existing table look missing: the check runs without a savepoint.
+   */
+  @Test
+  void anExistingTableIsStillThereWhenTheProbeSavepointCannotBeSet() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(mock(ResultSet.class));
+    when(connection.getAutoCommit()).thenReturn(false);
+    when(connection.setSavepoint())
+        .thenThrow(new SQLException("Cannot establish a savepoint in auto-commit mode."));
+
+    List<String> errors = errorsLoggedDuring(() -> assertTrue(db.checkTableExists(null, "orders")));
+
+    verify(statement).executeQuery("SELECT 1 FROM orders");
+    verify(connection, never()).rollback(any(Savepoint.class));
+    verify(connection, never()).releaseSavepoint(any());
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("Unable to set a savepoint")),
+        () -> "no error logged for the failed savepoint: " + errors);
+  }
+
+  @Test
+  void aMissingTableIsStillMissingWhenTheProbeSavepointCannotBeSet() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+    when(connection.setSavepoint()).thenThrow(new SQLException("SAVEPOINT is not supported"));
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    verify(statement).executeQuery("SELECT 1 FROM missing");
+    verify(statement).close();
+    verify(connection, never()).rollback(any(Savepoint.class));
+  }
+
   @ParameterizedTest(name = "savepoints={0}, auto-commit={1}")
   @CsvSource({"true, true", "false, false", "false, true"})
   void theExistenceProbeOnlyUsesASavepointInATransactionThatAFailureWouldAbort(

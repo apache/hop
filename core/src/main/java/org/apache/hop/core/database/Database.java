@@ -2155,13 +2155,23 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    * <p>The answer only depends on the query. When the query ran but its savepoint could not be
    * released, the object is still there. When the savepoint could not be rolled back, the
    * transaction stays aborted; that is logged as an error, because the statement after the check
-   * will fail on it.
+   * will fail on it. When the savepoint could not be set, the query runs without one, as it did
+   * before savepoints were used here: a failure is then no answer about the object.
    */
   private boolean existenceProbeSucceeds(String sql) {
     try {
       if (isExistenceProbeBehindSavepoint()) {
         return existenceProbeBehindSavepointSucceeds(sql);
       }
+      return existenceProbeWithoutSavepointSucceeds(sql);
+    } catch (Exception e) {
+      logExistenceProbeFailure(sql, e);
+      return false;
+    }
+  }
+
+  private boolean existenceProbeWithoutSavepointSucceeds(String sql) {
+    try {
       runExistenceProbe(sql);
       return true;
     } catch (Exception e) {
@@ -2171,16 +2181,28 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   private boolean existenceProbeBehindSavepointSucceeds(String sql) {
+    // runInSavepoint only starts the work once the savepoint is set.
+    AtomicBoolean savepointSet = new AtomicBoolean(false);
     AtomicBoolean queryRan = new AtomicBoolean(false);
     try {
       runInSavepoint(
           () -> {
+            savepointSet.set(true);
             runExistenceProbe(sql);
             queryRan.set(true);
             return null;
           });
       return true;
     } catch (Exception e) {
+      if (!savepointSet.get()) {
+        // No savepoint means no answer yet: run the check without one.
+        log.logError(
+            "Unable to set a savepoint for the existence check ["
+                + sql
+                + "], running it without one: if it fails, the transaction is aborted",
+            e);
+        return existenceProbeWithoutSavepointSucceeds(sql);
+      }
       if (queryRan.get()) {
         log.logError(
             "The existence check [" + sql + "] ran, but its savepoint could not be released", e);
