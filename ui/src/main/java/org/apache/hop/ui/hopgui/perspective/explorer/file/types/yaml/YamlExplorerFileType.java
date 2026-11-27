@@ -33,7 +33,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     id = "YamlExplorerFileType",
     name = "YAML File Type",
     description = "YAML file handling in the explorer perspective",
-    image = "ui/images/file.svg")
+    image = "ui/images/yaml.svg")
 public class YamlExplorerFileType extends BaseTextExplorerFileType<YamlExplorerFileTypeHandler> {
 
   public YamlExplorerFileType() {
