@@ -306,6 +306,15 @@ public class MarketplaceRepository {
   }
 
   /**
+   * An environment variable through the same lookup as the credentials, so callers that decide
+   * which credentials apply can be tested with {@link #setEnvironmentForTesting}. {@code null} when
+   * unset or blank.
+   */
+  public static String environmentVariable(String name) {
+    return env(name);
+  }
+
+  /**
    * This repository's environment variable prefix, e.g. {@code ACME} for id {@code acme} or {@code
    * LOCAL_NEXUS} for {@code local-nexus}.
    */
@@ -333,26 +342,70 @@ public class MarketplaceRepository {
 
   /**
    * The id prefix whose {@code HOP_MARKETPLACE_<ID>_*} variables apply: the first of {@link
-   * #environmentCredentialIds} with any of them set, so a username and a password never come from
-   * two different ids. {@code null} when none applies.
+   * #environmentCredentialIds} with any of them set, so the scoped variables of two different ids
+   * are never combined. A half that this id does not set still falls back to the global pair, as
+   * for every repository (see {@link #effectiveUsername()}). {@code null} when none applies.
    */
   private String scopedEnvironmentPrefix() {
-    List<String> ids =
-        environmentCredentialIds == null
-            ? List.of(StringUtils.defaultString(id))
-            : environmentCredentialIds;
-    for (String candidate : ids) {
-      String prefix = environmentIdPrefix(candidate);
-      if (StringUtils.isBlank(prefix)) {
-        continue;
-      }
-      for (String suffix : SCOPED_SUFFIXES) {
-        if (env("HOP_MARKETPLACE_" + prefix + "_" + suffix) != null) {
-          return prefix;
-        }
+    for (String candidate : environmentCredentialIdsOrOwn()) {
+      if (hasScopedEnvironmentVariables(candidate)) {
+        return environmentIdPrefix(candidate);
       }
     }
     return null;
+  }
+
+  private List<String> environmentCredentialIdsOrOwn() {
+    return environmentCredentialIds == null
+        ? List.of(StringUtils.defaultString(id))
+        : environmentCredentialIds;
+  }
+
+  /** True when any {@code HOP_MARKETPLACE_<ID>_*} credential variable is set for {@code id}. */
+  public static boolean hasScopedEnvironmentVariables(String repositoryId) {
+    String prefix = environmentIdPrefix(repositoryId);
+    if (StringUtils.isBlank(prefix)) {
+      return false;
+    }
+    for (String suffix : SCOPED_SUFFIXES) {
+      if (env("HOP_MARKETPLACE_" + prefix + "_" + suffix) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * The id prefix an error message should tell the user to set {@code HOP_MARKETPLACE_<ID>_*} for:
+   * the most specific id this repository reads them for, which is not always its own. {@code null}
+   * when it reads none, because its id belongs to a configured repository on another host.
+   */
+  public String credentialVariablePrefix() {
+    for (String candidate : environmentCredentialIdsOrOwn()) {
+      String prefix = environmentIdPrefix(candidate);
+      if (StringUtils.isNotBlank(prefix)) {
+        return prefix;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * True when credentials are set anywhere for this repository: on the entry, in the scoped
+   * variables it reads, or in the global pair when it takes that. Nothing is resolved, so unlike
+   * {@link #hasCredentials()} this never calls a variable resolver or secret manager, and a value
+   * that resolves to nothing still counts.
+   */
+  public boolean hasCredentialsConfigured() {
+    if (AUTH_NONE.equalsIgnoreCase(StringUtils.trimToEmpty(authType))) {
+      return false;
+    }
+    return StringUtils.isNotBlank(username)
+        || StringUtils.isNotBlank(password)
+        || scopedEnvironmentPrefix() != null
+        || globalEnv("HOP_MARKETPLACE_USERNAME") != null
+        || globalEnv("HOP_MARKETPLACE_USER") != null
+        || globalEnv("HOP_MARKETPLACE_PASSWORD") != null;
   }
 
   /**
@@ -363,6 +416,10 @@ public class MarketplaceRepository {
    * <p>Scoped variables exist so several private repositories can each have their own token; the
    * global pair applies to every repository, which is why {@link #credentialsFromEnvironmentOnly()}
    * exists to let a rejected global credential fall back to anonymous.
+   *
+   * <p>Username and password are resolved separately, so the two halves can come from different
+   * levels: a scoped username with the global password, for example. The scoped variables of two
+   * different ids are never mixed (see {@link #scopedEnvironmentPrefix()}).
    *
    * <p>Credentials configured on the entry may be variables or variable resolver expressions; they
    * are resolved here, at use, so the config file only ever holds the reference.

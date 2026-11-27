@@ -17,6 +17,7 @@
 
 package org.apache.hop.marketplace.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,13 @@ public class MarketplaceConfig {
   private String defaultVersion;
   private List<MarketplaceRepository> repositories = new ArrayList<>();
 
+  /**
+   * True when {@link #load()} could not read the marketplace section and returned the defaults
+   * instead. The repositories the operator configured are then unknown, so code that must not send
+   * their credentials elsewhere cannot tell which ids are theirs. Not persisted.
+   */
+  @JsonIgnore private boolean defaultsAfterLoadError;
+
   public MarketplaceConfig() {
     repositories.addAll(defaultRepositories());
   }
@@ -91,7 +99,9 @@ public class MarketplaceConfig {
       return config;
     } catch (Exception e) {
       log.logError("Unable to load marketplace config, using defaults", e);
-      return new MarketplaceConfig();
+      MarketplaceConfig defaults = new MarketplaceConfig();
+      defaults.setDefaultsAfterLoadError(true);
+      return defaults;
     }
   }
 

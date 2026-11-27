@@ -216,17 +216,16 @@ public final class MarketplaceHttp {
     boolean token = MarketplaceRepository.AUTH_TOKEN.equals(repository.effectiveAuthType());
     if (repository.credentialsFromEnvironmentOnly()) {
       if (token) {
-        return ". An environment token was rejected, and an anonymous retry also failed. Set"
-            + " HOP_MARKETPLACE_"
-            + repository.environmentIdPrefix()
-            + "_TOKEN to a token with read access to this repository.";
+        return ". An environment token was rejected, and an anonymous retry also failed. Set "
+            + scopedVariables(repository, "_TOKEN")
+            + " to a token with read access to this repository.";
       }
       return ". Environment credentials for user '"
           + repository.effectiveUsername()
           + "' were rejected, and an anonymous retry also failed. Set repository-specific"
-          + " credentials with HOP_MARKETPLACE_"
-          + repository.environmentIdPrefix()
-          + "_USERNAME / _PASSWORD if this repository needs different ones.";
+          + " credentials with "
+          + scopedVariables(repository, "_USERNAME / _PASSWORD")
+          + " if this repository needs different ones.";
     }
     // Token auth ignores the username, so an unresolved one there is somebody else's problem.
     if (token
@@ -234,10 +233,8 @@ public final class MarketplaceHttp {
         : unresolved(repository.effectiveUsername())
             || unresolved(repository.effectivePassword())) {
       return ". The credentials configured for this repository use a variable that is not set, so"
-          + " the expression itself was sent as the credential. Define the variable, or set"
-          + " HOP_MARKETPLACE_"
-          + repository.environmentIdPrefix()
-          + (token ? "_TOKEN" : "_USERNAME / _PASSWORD")
+          + " the expression itself was sent as the credential. Define the variable, or set "
+          + scopedVariables(repository, token ? "_TOKEN" : "_USERNAME / _PASSWORD")
           + " instead.";
     }
     if (token) {
@@ -255,7 +252,6 @@ public final class MarketplaceHttp {
    * the second looks identical from the outside and is otherwise diagnosed by guesswork.
    */
   private static String nothingSentHint(MarketplaceRepository repository) {
-    String prefix = repository.environmentIdPrefix();
     switch (repository.effectiveAuthType()) {
       case MarketplaceRepository.AUTH_NONE:
         if (MarketplaceRepository.AUTH_NONE.equalsIgnoreCase(
@@ -263,24 +259,42 @@ public final class MarketplaceHttp {
           return ". No credentials were sent because authType is 'none' for this repository. Remove"
               + " it, or set it to basic or token, to authenticate.";
         }
-        return ". No credentials were sent. Enable anonymous read on the repository, or set"
-            + " HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD if it is private.";
+        return ". No credentials were sent. Enable anonymous read on the repository, or set "
+            + (repository.isGlobalEnvironmentCredentials()
+                ? "HOP_MARKETPLACE_USERNAME / HOP_MARKETPLACE_PASSWORD"
+                : scopedVariables(repository, "_USERNAME / _PASSWORD"))
+            + " if it is private.";
       case MarketplaceRepository.AUTH_BASIC:
         return ". No credentials were sent: authType is 'basic' but no "
             + (StringUtils.isBlank(repository.effectiveUsername()) ? "username" : "password")
-            + " resolves for this repository. Set HOP_MARKETPLACE_"
-            + prefix
-            + "_USERNAME / _PASSWORD, or configure them on the repository.";
+            + " resolves for this repository. Set "
+            + scopedVariables(repository, "_USERNAME / _PASSWORD")
+            + ", or configure them on the repository.";
       case MarketplaceRepository.AUTH_TOKEN:
         return ". No credentials were sent: authType is 'token' but no token resolves for this"
-            + " repository. Set HOP_MARKETPLACE_"
-            + prefix
-            + "_TOKEN, or put the token in the repository password field.";
+            + " repository. Set "
+            + scopedVariables(repository, "_TOKEN")
+            + ", or put the token in the repository password field.";
       default:
         return ". No credentials were sent: authType '"
             + repository.getAuthType()
             + "' is not recognised. Use auto, none, basic or token.";
     }
+  }
+
+  /**
+   * The {@code HOP_MARKETPLACE_<ID>_...} variables this repository actually reads, for a hint that
+   * says to set them. A repository from an install spec whose id is reserved for another host reads
+   * none, so the hint says to put them on its entry instead.
+   */
+  private static String scopedVariables(MarketplaceRepository repository, String suffixes) {
+    String prefix = repository.credentialVariablePrefix();
+    if (prefix == null) {
+      return "the credentials on the repository entry in the install spec (HOP_MARKETPLACE_"
+          + repository.environmentIdPrefix()
+          + "_* is not read for this host, and the log says why)";
+    }
+    return "HOP_MARKETPLACE_" + prefix + suffixes;
   }
 
   /** A credential that still carries variable syntax never made it through resolution. */

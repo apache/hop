@@ -79,6 +79,12 @@ import picocli.CommandLine.Parameters;
 public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadataProvider {
   private static final String CONST_ERROR = "ERROR: ";
 
+  /**
+   * Id of the {@code --repo-url} repository unless {@code --repo-id} or {@code HOP_PLUGINS_REPO_ID}
+   * names another. The Docker image uses it for {@code HOP_PLUGINS_MAVEN_REPO}.
+   */
+  public static final String DEFAULT_AD_HOC_REPOSITORY_ID = "corporate-repo";
+
   private ILogChannel log;
   private CommandLine cmd;
   private IVariables variables;
@@ -383,7 +389,7 @@ public class MarketplaceCommand implements Runnable, IHopCommand, IHasHopMetadat
       if (StringUtils.isNotBlank(fromEnv)) {
         return fromEnv.trim();
       }
-      return "corporate-repo";
+      return DEFAULT_AD_HOC_REPOSITORY_ID;
     }
 
     static void applyRepoType(MarketplaceRepository repo, String repoType) {
