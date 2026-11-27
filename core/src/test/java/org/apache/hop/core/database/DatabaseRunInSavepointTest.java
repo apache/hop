@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -35,8 +36,10 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -48,8 +51,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.variables.Variables;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +71,7 @@ class DatabaseRunInSavepointTest {
   private Connection connection;
   private Savepoint savepoint;
   private IDatabase dialect;
+  private DatabaseMeta meta;
   private Database db;
   private ExecutorService other;
 
@@ -77,7 +84,7 @@ class DatabaseRunInSavepointTest {
     dialect = mock(IDatabase.class);
     when(dialect.isUseSafePoints()).thenReturn(true);
     when(dialect.isReleaseSavepoint()).thenReturn(true);
-    DatabaseMeta meta = mock(DatabaseMeta.class);
+    meta = mock(DatabaseMeta.class);
     when(meta.getIDatabase()).thenReturn(dialect);
     db = new Database(log, new Variables(), meta);
     db.setConnection(connection);
@@ -351,6 +358,167 @@ class DatabaseRunInSavepointTest {
     when(dialect.isUseSafePoints()).thenReturn(useSafePoints);
     db.setCommit(commitSize);
     assertEquals(expected, db.isUsingRowSavepoints(errorHandling));
+  }
+
+  /**
+   * On PostgreSQL a failed query aborts the transaction. Checking for a table that is not there, as
+   * the DDL transform and Table output do before CREATE TABLE, must not take the transaction of a
+   * transactional pipeline or workflow down with it (#9748).
+   */
+  @Test
+  void aMissingTableInATransactionIsCheckedBehindASavepoint() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    InOrder order = inOrder(connection, statement);
+    order.verify(connection).setSavepoint();
+    order.verify(statement).executeQuery("SELECT 1 FROM missing");
+    order.verify(statement).close();
+    order.verify(connection).rollback(savepoint);
+    order.verify(connection).releaseSavepoint(savepoint);
+    verify(connection, never()).rollback();
+  }
+
+  @Test
+  void anExistingTableInATransactionReleasesTheProbeSavepoint() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    ResultSet resultSet = mock(ResultSet.class);
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(resultSet);
+    when(connection.getAutoCommit()).thenReturn(false);
+
+    assertTrue(db.checkTableExists(null, "orders"));
+
+    InOrder order = inOrder(connection, statement);
+    order.verify(connection).setSavepoint();
+    order.verify(statement).executeQuery("SELECT 1 FROM orders");
+    order.verify(connection).releaseSavepoint(savepoint);
+    verify(connection, never()).rollback(any(Savepoint.class));
+  }
+
+  /** The query answered: a savepoint that cannot be released does not make the table vanish. */
+  @Test
+  void anExistingTableIsStillThereWhenTheProbeSavepointCannotBeReleased() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(mock(ResultSet.class));
+    when(connection.getAutoCommit()).thenReturn(false);
+    doThrow(new SQLException("release failed")).when(connection).releaseSavepoint(savepoint);
+
+    List<String> errors = errorsLoggedDuring(() -> assertTrue(db.checkTableExists(null, "orders")));
+
+    verify(connection, never()).rollback(any(Savepoint.class));
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("could not be released")),
+        () -> "no error logged for the failed release: " + errors);
+  }
+
+  /** A rollback that fails leaves the transaction aborted: the log has to say why. */
+  @Test
+  void aFailedRollbackToTheProbeSavepointIsLoggedAsAnError() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+    doThrow(new SQLException("rollback failed")).when(connection).rollback(savepoint);
+
+    List<String> errors =
+        errorsLoggedDuring(() -> assertFalse(db.checkTableExists(null, "missing")));
+
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("the transaction stays aborted")),
+        () -> "no error logged for the failed rollback: " + errors);
+  }
+
+  /**
+   * A server that rejects SAVEPOINT, or a shared connection switched to auto-commit after the
+   * check, must not make an existing table look missing: the check runs without a savepoint.
+   */
+  @Test
+  void anExistingTableIsStillThereWhenTheProbeSavepointCannotBeSet() throws Exception {
+    Statement statement = tableExistsProbe("orders");
+    when(statement.executeQuery("SELECT 1 FROM orders")).thenReturn(mock(ResultSet.class));
+    when(connection.getAutoCommit()).thenReturn(false);
+    when(connection.setSavepoint())
+        .thenThrow(new SQLException("Cannot establish a savepoint in auto-commit mode."));
+
+    List<String> errors = errorsLoggedDuring(() -> assertTrue(db.checkTableExists(null, "orders")));
+
+    verify(statement).executeQuery("SELECT 1 FROM orders");
+    verify(connection, never()).rollback(any(Savepoint.class));
+    verify(connection, never()).releaseSavepoint(any());
+    assertTrue(
+        errors.stream().anyMatch(message -> message.contains("Unable to set a savepoint")),
+        () -> "no error logged for the failed savepoint: " + errors);
+  }
+
+  @Test
+  void aMissingTableIsStillMissingWhenTheProbeSavepointCannotBeSet() throws Exception {
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery("SELECT 1 FROM missing"))
+        .thenThrow(new SQLException("relation \"missing\" does not exist", "42P01"));
+    when(connection.getAutoCommit()).thenReturn(false);
+    when(connection.setSavepoint()).thenThrow(new SQLException("SAVEPOINT is not supported"));
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    verify(statement).executeQuery("SELECT 1 FROM missing");
+    verify(statement).close();
+    verify(connection, never()).rollback(any(Savepoint.class));
+  }
+
+  @ParameterizedTest(name = "savepoints={0}, auto-commit={1}")
+  @CsvSource({"true, true", "false, false", "false, true"})
+  void theExistenceProbeOnlyUsesASavepointInATransactionThatAFailureWouldAbort(
+      boolean useSafePoints, boolean autoCommit) throws Exception {
+    when(dialect.isUseSafePoints()).thenReturn(useSafePoints);
+    Statement statement = tableExistsProbe("missing");
+    when(statement.executeQuery(anyString())).thenThrow(new SQLException("no such table"));
+    when(connection.getAutoCommit()).thenReturn(autoCommit);
+
+    assertFalse(db.checkTableExists(null, "missing"));
+
+    verify(connection, never()).setSavepoint();
+    verify(connection, never()).rollback(any(Savepoint.class));
+    verify(statement).close();
+  }
+
+  private Statement tableExistsProbe(String table) throws Exception {
+    String sql = "SELECT 1 FROM " + table;
+    when(meta.getQuotedSchemaTableCombination(any(), any(), eq(table))).thenReturn(table);
+    when(meta.getSqlTableExists(table)).thenReturn(sql);
+    when(meta.stripCR(sql)).thenReturn(sql);
+    Statement statement = mock(Statement.class);
+    when(connection.createStatement()).thenReturn(statement);
+    return statement;
+  }
+
+  private interface CheckedRunnable {
+    void run() throws Exception;
+  }
+
+  private List<String> errorsLoggedDuring(CheckedRunnable check) throws Exception {
+    HopLogStore.init();
+    db.setLogLevel(LogLevel.ERROR);
+    List<String> errors = new CopyOnWriteArrayList<>();
+    IHopLoggingEventListener listener =
+        event -> {
+          if (event.getLevel() == LogLevel.ERROR) {
+            errors.add(
+                event.getMessage() instanceof LogMessage logMessage
+                    ? logMessage.getMessage()
+                    : String.valueOf(event.getMessage()));
+          }
+        };
+    HopLogStore.getAppender().addLoggingEventListener(listener);
+    try {
+      check.run();
+    } finally {
+      HopLogStore.getAppender().removeLoggingEventListener(listener);
+    }
+    return errors;
   }
 
   private SharedConnectionLock share() {
