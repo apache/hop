@@ -107,7 +107,7 @@ class YamlExplorerFileTypeTest {
 
   @Test
   void testGetFileTypeImage() {
-    assertEquals("ui/images/file.svg", fileType.getFileTypeImage());
+    assertEquals("ui/images/yaml.svg", fileType.getFileTypeImage());
   }
 
   @Test
