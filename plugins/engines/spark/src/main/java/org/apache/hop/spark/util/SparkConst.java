@@ -21,6 +21,13 @@ import org.apache.hop.lakehouse.LakehouseConst;
 
 public final class SparkConst {
 
+  /**
+   * System property that {@code MainSpark} sets while it runs a pipeline: the engine then runs the
+   * pipeline on the Spark session of the submitted driver, and never submits it again, whatever the
+   * cluster type of the run configuration.
+   */
+  public static final String MAIN_SPARK_DRIVER_PROPERTY = "hop.spark.mainSparkDriver";
+
   public static final String PLUGIN_ID = LakehouseConst.SPARK_ENGINE_ID;
   public static final String PLUGIN_NAME = "Native Spark pipeline engine";
 

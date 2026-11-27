@@ -1,0 +1,12 @@
+{
+  "name": "staging",
+  "description": "S3 API of the SeaweedFS container: Hop uploads the fat jar and the project package here, the Spark cluster downloads them from the filer over HTTP",
+  "endPointHostname": "seaweedfs",
+  "endPointPort": "8333",
+  "endPointSecure": false,
+  "accessKey": "ApacheHopAccessKey",
+  "secretKey": "ApacheHopSecretKey",
+  "region": "us-east-1",
+  "partSize": "",
+  "cacheTtlSeconds": ""
+}

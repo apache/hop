@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -28,6 +29,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
@@ -37,13 +39,13 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
-import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.server.loadbalance.ILoadBalancingRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -93,6 +95,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Composite wPluginSpecificComp;
   private ScrolledComposite wsPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
+  private IPipelineEngineRunConfiguration engineListenerConfiguration;
+  private IGuiPluginCompositeWidgetsListener engineListener;
   private LoadBalancingRunConfigurationWidgets loadBalancingWidgets;
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
@@ -470,9 +474,10 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             @Override
             public void widgetModified(
                 GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
-              if (LocalPipelineRunConfiguration.WIDGET_ID_LOCK_FREE_ROWSETS.equals(widgetId)) {
-                enableLocalEngineWidgets();
-              }
+              engineWidgetsListener()
+                  .ifPresent(
+                      listener ->
+                          listener.widgetModified(compositeWidgets, changedWidget, widgetId));
               setChanged();
             }
           });
@@ -507,7 +512,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                     engine,
                     wPluginSpecificComp,
                     PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
-                enableLocalEngineWidgets();
+                adjustEngineWidgets();
                 wPluginSpecificComp.layout(true, true);
                 updatePluginSpecificMinSize();
               }
@@ -518,30 +523,49 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     updatePluginSpecificMinSize();
   }
 
-  /** The local engine does not use the wait time for buffer checks with lock-free row sets. */
-  private void enableLocalEngineWidgets() {
-    if (guiCompositeWidgets == null
-        || !(workingConfiguration.getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration)) {
-      return;
+  /**
+   * Lets the engine adjust its own widgets to the values just shown (hide or disable the options
+   * that do not apply), through {@link
+   * IPipelineEngineRunConfiguration#getGuiWidgetsListenerClassName()}.
+   */
+  private void adjustEngineWidgets() {
+    if (guiCompositeWidgets != null) {
+      engineWidgetsListener().ifPresent(listener -> listener.widgetsPopulated(guiCompositeWidgets));
     }
-    Control lockFree =
-        guiCompositeWidgets
-            .getWidgetsMap()
-            .get(LocalPipelineRunConfiguration.WIDGET_ID_LOCK_FREE_ROWSETS);
-    if (!(lockFree instanceof Button button) || button.isDisposed()) {
-      return;
+  }
+
+  /**
+   * The composite has a single listener slot, which this editor needs for its own change tracking:
+   * the engine's listener is forwarded to from there. It belongs to one engine run configuration, a
+   * new one is made when the engine type is changed.
+   */
+  private Optional<IGuiPluginCompositeWidgetsListener> engineWidgetsListener() {
+    IPipelineEngineRunConfiguration engine = workingConfiguration.getEngineRunConfiguration();
+    if (engine == null) {
+      return Optional.empty();
     }
-    boolean enabled = !button.getSelection();
-    Control waitTime =
-        guiCompositeWidgets.getWidgetsMap().get(LocalPipelineRunConfiguration.WIDGET_ID_WAIT_TIME);
-    if (waitTime != null && !waitTime.isDisposed()) {
-      waitTime.setEnabled(enabled);
+    if (engine != engineListenerConfiguration) {
+      engineListenerConfiguration = engine;
+      engineListener = createEngineWidgetsListener(engine);
     }
-    Control waitTimeLabel =
-        guiCompositeWidgets.getLabelsMap().get(LocalPipelineRunConfiguration.WIDGET_ID_WAIT_TIME);
-    if (waitTimeLabel != null && !waitTimeLabel.isDisposed()) {
-      waitTimeLabel.setEnabled(enabled);
+    return Optional.ofNullable(engineListener);
+  }
+
+  private IGuiPluginCompositeWidgetsListener createEngineWidgetsListener(
+      IPipelineEngineRunConfiguration engine) {
+    String className = engine.getGuiWidgetsListenerClassName();
+    if (Utils.isEmpty(className)) {
+      return null;
+    }
+    try {
+      Class<?> listenerClass = engine.getClass().getClassLoader().loadClass(className);
+      return (IGuiPluginCompositeWidgetsListener)
+          listenerClass.getConstructor(IPipelineEngineRunConfiguration.class).newInstance(engine);
+    } catch (Exception e) {
+      HopGui.getInstance()
+          .getLog()
+          .logError("Error creating the widgets listener " + className + " for the engine", e);
+      return null;
     }
   }
 
@@ -640,7 +664,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
             workingConfiguration.getEngineRunConfiguration(),
             wPluginSpecificComp,
             PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID);
-        enableLocalEngineWidgets();
+        adjustEngineWidgets();
         updatePluginSpecificMinSize();
       }
       if (loadBalancingWidgets != null

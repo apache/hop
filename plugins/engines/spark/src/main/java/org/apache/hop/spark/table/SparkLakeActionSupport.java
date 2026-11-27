@@ -42,6 +42,15 @@ public final class SparkLakeActionSupport {
     return spark.createDataFrame(new ArrayList<>(), emptySchema);
   }
 
+  /**
+   * Whether a Dataset is the empty leaf of a transform that already wrote: counting it would only
+   * start a Spark job that finds no rows.
+   */
+  public static boolean isEmptyLeaf(Dataset<Row> dataset) {
+    String[] columns = dataset.columns();
+    return columns.length == 1 && EMPTY_LEAF_COLUMN.equals(columns[0]);
+  }
+
   public static void putEmptyLeaf(
       Map<String, Dataset<Row>> transformDatasetMap, String transformName, SparkSession spark) {
     transformDatasetMap.put(transformName, emptyLeaf(spark));

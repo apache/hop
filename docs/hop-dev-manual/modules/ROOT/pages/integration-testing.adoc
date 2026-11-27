@@ -112,6 +112,14 @@ cd integration-tests/scripts
 +
 With `HOP_IT_ENGINE=spark-native`, `run-tests.sh` copies the project to a temporary folder and replaces its `local` pipeline run configuration, which the test workflows run their pipelines with, by `integration-tests/scripts/run-configurations/spark-native-local.json`. The project's own `local` becomes `hop-local`, which the suite driver keeps using. The tests and their checks stay the project's own, so a failure is a difference between the engines. Projects that choose their own engines (`spark*`, `beam*`) or have no plain `local` run configuration are skipped.
 +
+Projects with a `disabled.txt` are skipped unless the run opts in with `INCLUDE_DISABLED=true`, or with a list of project names (`INCLUDE_DISABLED=oracle,vertica`). The native Spark cluster projects are opt-in this way, because they start a cluster: `spark-native-standalone` starts a Spark standalone master, two workers and SeaweedFS as the staging store, `spark-native-kubernetes` starts k3s in a privileged container and builds the Spark image for the pods. In both, Hop builds and stages the fat jar and the project package itself and submits the pipelines in cluster mode:
++
+[source,bash]
+----
+./run-tests-docker.sh PROJECT_NAME=spark-native-standalone INCLUDE_DISABLED=true
+./run-tests-docker.sh PROJECT_NAME=spark-native-kubernetes INCLUDE_DISABLED=true
+----
++
 . Surefire Reports
 +
 We generate xml reports that can be used by Jenkins to generate reports. these result reports can be found in the `integration-tests/surefire-reports` folder.

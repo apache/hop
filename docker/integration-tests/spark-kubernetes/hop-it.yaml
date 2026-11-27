@@ -1,0 +1,80 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Applied by k3s at startup (server/manifests): the service account the Spark driver creates its
+# executor pods with, and SeaweedFS as the staging store Hop uploads to and the pods download from.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-edit
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: spark
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: edit
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seaweedfs
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: seaweedfs }
+  template:
+    metadata:
+      labels: { app: seaweedfs }
+    spec:
+      containers:
+        - name: seaweedfs
+          image: chrislusf/seaweedfs:4.48
+          imagePullPolicy: IfNotPresent
+          env:
+            - { name: AWS_ACCESS_KEY_ID, value: ApacheHopAccessKey }
+            - { name: AWS_SECRET_ACCESS_KEY, value: ApacheHopSecretKey }
+          command: [ "sh", "-c" ]
+          args:
+            - >-
+              mkdir -p /tmp/weed && weed server -s3 -dir=/tmp/weed -volume.max=0 -master.volumeSizeLimitMB=64 &
+              until echo 's3.bucket.create -name hop-staging' | weed shell -master=localhost:9333 2>&1 | grep -qE 'created bucket|already exists'; do sleep 2; done;
+              touch /tmp/bucket-ready; wait
+          readinessProbe:
+            exec: { command: [ "test", "-f", "/tmp/bucket-ready" ] }
+            periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seaweedfs
+  namespace: default
+spec:
+  type: NodePort
+  selector: { app: seaweedfs }
+  ports:
+    - { name: s3, port: 8333, nodePort: 30333 }
+    - { name: filer, port: 8888, nodePort: 30888 }

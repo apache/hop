@@ -43,19 +43,97 @@ image::pipeline/spark/native-spark-pipeline-engine-run-configurtion-editor.png[N
 
 === Options
 
+The options are on five tabs: *General*, *Cluster*, *Resources*, *Spark settings* and *Hop on Spark*.
+The dialog shows only the options that do something for the cluster type and deploy mode: a local run, for example, has no fat jar, staging or executor settings.
+
 ==== Load configuration template
 
 Use **Load configuration template** to fill the fields below from a common deployment style:
 
 * *Local execution* — `+local[*]+`, Spark UI off (embedded Spark in Hop)
 * *Local (capped cores)* — `local[4]`
-* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory. Also set *Fat jar file location* to a `native-provided` fat jar; the template leaves it empty. See xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
-* *spark-submit (cluster)* — master **empty** so `spark-submit --master` wins; use a `native-provided` fat jar. Outside `spark-submit` (Hop GUI, `hop-run`, Hop Server) an empty master runs on `+local[*]+` in that process, and the log warns about it.
-* *Databricks* — submit-oriented placeholders (master empty); set workspace-specific values yourself
-* *YARN client* — master `yarn`, client deploy mode. Also set *Hadoop configuration folder* (or `HADOOP_CONF_DIR`) and a `native-provided` fat jar. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+* *Spark standalone server* — `spark://host:7077` (replace host), sample driver/executor memory. Leave *Fat jar file location* empty: Hop builds the fat jar for the executors. See xref:pipeline/spark/local-standalone-cluster.adoc[Local standalone cluster].
+* *spark-submit (cluster)* — cluster type *spark-submit*: the master stays empty so `spark-submit --master` wins; use a `native-provided` fat jar. Hop GUI, `hop-run` and Hop Server refuse to run a pipeline with it, see <<submitted>>.
+* *Databricks* — cluster type *Databricks*: Hop runs the pipeline as a job on a Databricks cluster. Then choose the Databricks connection, the compute and a volume folder on the *Cluster* tab. See xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
+* *YARN client* — master `yarn`, and `spark.submit.deployMode=client` in the Spark settings. Also set *Hadoop configuration folder* (or `HADOOP_CONF_DIR`). See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 * *Lakehouse local* — same as local; Delta/Iceberg connectors live on the plugin classpath
 
-Templates replace the current engine options after confirmation when the form already has custom values. The form fields update immediately after you apply a template. Edit values afterward as needed.
+A template sets the cluster type, the Spark master, the application name, the fat jar, the Spark settings and the memory and cores; the other options stay as they are. It asks for confirmation when the form already has custom values. The form fields update immediately after you apply a template. Edit values afterward as needed.
+
+==== Test configuration
+
+*Test configuration* checks the run configuration from the Hop machine and lists what it found, with a fix for every check that does not pass.
+Nothing is submitted to the cluster.
+*Test with a test job* runs the same checks, and then a small pipeline on the cluster: it uses the cluster for a moment, and finds what the checks can't see, such as the Java version of the executors or a class conflict in the fat jar.
+The checks follow the cluster type and deploy mode; a check whose prerequisite failed is skipped.
+
+[options="header",cols="1,3"]
+|===
+|Check |What it looks at
+
+|Settings
+|Memory sizes (`512m`, `2g`), executor cores as a whole number, and the rows of the Spark settings and the path scheme map. A Spark setting without a key is an error, a key set twice a warning (the last row wins), and a key that does not start with `spark.` is ignored by Spark: Hadoop settings go in as `spark.hadoop.<key>`.
+
+|Cluster type
+|The cluster type and the Spark master agree, and where the pipeline runs.
+
+|Spark and Java versions
+|The Spark and Java versions of Hop. On a cluster: the Spark version the cluster needs, and Java 21 for the Hop classes.
+
+|Fat jar
+|On a cluster: the fat jar that is set exists and holds no Spark of its own, which would clash with the Spark of the cluster. Empty: Hop builds one.
+
+|Staging folder
+|Cluster mode: a staging folder is set and can be written.
+
+|Staging folder for the cluster
+|Cluster mode: the cluster can read the staging folder. A Hop connection (`minio://...`) needs the staging folder URL for the cluster; a local path only works when every cluster node mounts it.
+
+|Standalone master
+|Spark standalone: the master answers on its host and port. With several masters (`spark://a:7077,b:7077`) one that is down is a warning.
+
+|Master status and workers
+|Spark standalone: the master's status page (port 8080) says ALIVE, and a live worker has the executor memory and cores free.
+
+|REST submission server
+|Spark standalone, cluster mode: the REST submission server (port 6066, `spark.master.rest.enabled=true`) answers, with the Spark version of Hop.
+
+|Hadoop configuration
+|YARN: the Hadoop configuration folder (or `HADOOP_CONF_DIR`, `YARN_CONF_DIR`) holds `core-site.xml` and `yarn-site.xml` and names a ResourceManager. `spark.hadoop.<key>` rows in the Spark settings add to it.
+
+|Kerberos
+|YARN on a cluster that uses Kerberos: the keytab of `spark.kerberos.principal` exists. Without a principal and keytab Spark uses the Kerberos ticket of the user that runs Hop, which the test can't check: run `kinit` first.
+
+|YARN ResourceManager
+|YARN: the ResourceManager answers, and NodeManagers are running.
+
+|YARN queue
+|YARN: the queue (`spark.yarn.queue`, or `default`) exists and this user may submit to it.
+
+|YARN container size
+|YARN: an executor container (its memory plus 10% overhead, at least 384 MiB) fits in the largest container YARN hands out, and in cluster mode the driver's container too. The fix says the largest executor memory that fits.
+
+|Kubernetes API server
+|Kubernetes: the API server of the Spark master answers with the credentials Spark uses: the kubeconfig (`KUBECONFIG` or `~/.kube/config`), or the service account of the pod Hop runs in.
+
+|Kubernetes namespace and permissions
+|Kubernetes: the namespace (`spark.kubernetes.namespace`, or `default`) exists, and these credentials may create, follow and delete pods and create services and configmaps in it, as `kubectl auth can-i` would say.
+
+|Driver service account
+|Kubernetes, cluster mode: the service account of the driver pod (`spark.kubernetes.authenticate.driver.serviceAccountName`, or `default`) exists and may create the executor pods. When these credentials may not check that, the test says which `kubectl auth can-i` command an administrator can run.
+
+|Container image
+|Kubernetes: `spark.kubernetes.container.image` (or the driver and executor images) is set. Whether the nodes can pull it shows when the first pod starts.
+
+|Connection back to the driver
+|Kubernetes, client mode: the executor pods connect back to the driver in Hop at `spark.driver.host`, which should be an address the pods reach.
+
+|Databricks
+|Databricks: the connection, the compute and the staging folder are set, the compute is not serverless and the staging folder is a volume path. The Databricks plugin then reaches the workspace with the connection and reads the volume folder. Nothing runs on the cluster: *Test with a test job* skips its job for Databricks, run a small pipeline instead.
+
+|Test job
+|*Test with a test job* only: a small pipeline runs on the cluster with this configuration, 1000 rows through a Hop transform on the executors, which load the fat jar. It passes when the run finishes without errors and the row counts come back to Hop. In cluster mode the job is submitted like a pipeline, with a package of the open project that also holds the tested run configuration; it passes when the driver ends well, as the row counts of a cluster-mode run don't come back to Hop yet. It is skipped for *Databricks* and *spark-submit*, and when a check above failed. The first run on a cluster also builds the fat jar, which takes a while.
+|===
 
 For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode, see xref:metadata-types/spark-catalog.adoc[Lakehouse catalog] (**Load catalog template**).
 
@@ -63,24 +141,56 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |===
 |Option |Description |Default
 
+|Cluster type
+|Where the pipeline runs: *Local*, *Spark standalone cluster*, *Hadoop YARN*, *Kubernetes*, *Databricks* (the pipeline runs on a Databricks cluster, see <<databricks>>), or *spark-submit* (you start the pipeline with `spark-submit`, not Hop: Hop refuses to run it, see <<submitted>>). It decides which options the dialog shows. Choosing another type fills in a Spark master of that type when the current one is of another type; the Spark master stays what the engine connects to. A run configuration saved before this option takes its type from the Spark master.
+|from the Spark master
+
 |Spark master
-|Spark master URL: `+local[*]+`, `local[4]`, `spark://host:7077` or `yarn`. Leave empty under `spark-submit` so the CLI master is used; outside `spark-submit` an empty master runs on `+local[*]+`.
+|Spark master URL: `+local[*]+`, `local[4]`, `spark://host:7077` or `yarn`. Not shown for *Databricks* and *spark-submit*: Databricks or `spark-submit` sets the master. A run configuration saved before the cluster type existed with an empty master runs on `+local[*]+` outside `spark-submit`, and the log warns about it.
 |`+local[*]+`
 
 |Application name
 |Spark application name.
 |`Apache Hop`
 
+|Deploy mode
+|*Spark standalone*, *Hadoop YARN* and *Kubernetes*. *Client*: Hop GUI, `hop-run` or Hop Server is the Spark driver. *Cluster*: Hop stages the fat jar and the project, submits the driver to the cluster and waits for it. See <<cluster-mode>>. A *Databricks* run always runs its driver on the Databricks cluster.
+|Client
+
+|Staging folder
+|Hop VFS folder that Hop uploads the fat jar to, and in cluster mode the project package: a VFS connection of the project (MinIO, S3, Azure, Google, ...), HDFS, or a folder every Spark worker reads at the same path. Files are named after their content, so an unchanged fat jar is uploaded once. In client mode it is optional: without it, every executor of every run downloads the fat jar from Hop. For *Databricks* it is a Unity Catalog volume folder, such as `/Volumes/main/default/hop/staging`, and the staging folder URL for the cluster is not used.
+|
+
+|Staging folder URL for the cluster
+|The staging folder as the Spark cluster reads it, when that differs from the Hop location. For example `http://seaweedfs:8888/buckets/hop-staging` or `s3a://hop-staging` for the Hop location `minio://hop-staging`. When every Spark worker mounts the staging folder, give its path on the workers with `local:` in front, for example `local:/data/staging`: Spark then uses the fat jar where it is. Leave empty when the cluster reads the same URL.
+|
+
+|Submit URL (standalone cluster mode)
+|Spark standalone in cluster mode: the REST submission endpoint of the Spark master. Leave empty to use port 6066 of the host in the Spark master URL.
+|
+
+|Databricks connection
+|*Databricks*: the xref:metadata-types/databricks-connection.adoc[Databricks connection] (workspace URL and access token) that Hop submits the run with and uploads the files through. Needs the Databricks plugin.
+|
+
+|Databricks compute
+|*Databricks*: the id of an all-purpose cluster in *Dedicated* access mode, or `new_cluster` for a job cluster that Databricks creates for the run. Standard (shared) access mode and serverless compute run Spark Connect, which the native Spark engine does not support.
+|
+
+|Job cluster runtime, node type, workers
+|*Databricks*, `new_cluster` only: the Databricks Runtime (for example `18.x-scala2.13`: Spark 4.1, Java 21), the node type (for example `Standard_D4ds_v5` on Azure, `i3.xlarge` on AWS) and the number of workers of the job cluster.
+|`18.x-scala2.13`, `i3.xlarge`, 1
+
 |Fat jar file location
-|Optional Hop fat jar staged for executors when Hop starts the Spark session. Leave empty for pure `spark-submit` with a native-provided fat jar.
+|Hop fat jar for the executors. Leave empty to let Hop build it: for any master except `local` and `local[n]`, Hop ships a `native-provided` fat jar of this installation. It is built once, which takes a minute or two, and cached in `HOP_FAT_JAR_CACHE_FOLDER` (default: `.hop/fat-jars` in your home folder). Installing, removing or upgrading a plugin builds a new one. Under `spark-submit` the application jar is used. A URL such as `hdfs://`, `s3a://` or `local:/` is a jar the cluster reads where it is: Hop does not stage it.
 |
 
 |Hadoop configuration folder
-|Folder with the Hadoop client configuration (`core-site.xml`, `hdfs-site.xml`, `yarn-site.xml`) for sessions Hop starts itself. Its properties are passed to Spark as `spark.hadoop.*`; `spark.hadoop.*` lines in *Spark config* win. When empty and the master is `yarn`, Hop reads the folder in `HADOOP_CONF_DIR` or `YARN_CONF_DIR`. Not used under `spark-submit`. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
+|Folder with the Hadoop client configuration (`core-site.xml`, `hdfs-site.xml`, `yarn-site.xml`) for sessions Hop starts itself. Its properties are passed to Spark as `spark.hadoop.*`; `spark.hadoop.*` lines in *Spark settings* win. When empty and the master is `yarn`, Hop reads the folder in `HADOOP_CONF_DIR` or `YARN_CONF_DIR`. Not used under `spark-submit`. See xref:pipeline/spark/yarn.adoc[Run native Spark pipelines on YARN].
 |
 
-|Spark config (key=value lines)
-|Additional SparkConf entries, one `key=value` per line.
+|Spark settings
+|On the *Spark settings* tab: Spark settings for the session and the job, a key and a value per row, as `spark-submit --conf` takes them. The key list suggests common settings for the cluster type (`spark.yarn.queue`, `spark.kubernetes.container.image`, `spark.sql.shuffle.partitions` ...); any other key can be typed. A run configuration saved with the older `key=value` text loads its lines as rows. A row replaces what Hop sets for the same key, except `spark.jars` and `spark.executor.extraClassPath`: a jar there, such as a JDBC driver, is added next to the Hop fat jar.
 |
 
 |Driver memory
@@ -95,16 +205,8 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |`spark.executor.cores`.
 |
 
-|Temp location
-|Directory for temporary files.
-|JVM temp dir
-
-|Plugins to stage
-|Optional comma-separated plugin folders to stage on the cluster.
-|
-
-|Path scheme map (`from=to` lines)
-|Optional URI scheme rewrite for *Spark File* / *Lake PATH* only (e.g. `s3=s3a`, `minio=s3a`). Does not apply to classic Hop VFS transforms. Configure target FS (e.g. `spark.hadoop.fs.s3a.*`) separately. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
+|Path scheme map
+|On the *Spark settings* tab: URI schemes the *Spark File* and *Lake Table* transforms (Delta, Iceberg) rewrite before Spark reads or writes the path, a *From scheme* and a *To scheme* per row (e.g. `s3` to `s3a`, `minio` to `s3a`). Does not apply to classic Hop VFS transforms. Configure target FS (e.g. `spark.hadoop.fs.s3a.*`) separately. See xref:pipeline/spark/paths-and-filesystems.adoc[Paths and file systems].
 |
 
 |Generic transform run mode
@@ -113,6 +215,106 @@ For named Iceberg/Delta catalogs used by Lake Table transforms in **TABLE** mode
 |===
 
 Also configure *Execution information location* and *Execution data profile* on the run configuration main tab when you want GUI metrics history and row samples.
+
+==== Names in the Spark UI
+
+The Spark jobs, stages and SQL queries of a run carry the name of the pipeline and of the transform that starts them, in the Spark UI and on Databricks: every job of a run is in the job group `hop-<run id>`, its description is `Hop pipeline '<pipeline>', transform '<transform>' (<plugin id>)` and its stages are named `Hop <pipeline> → <transform>`. Spark runs the transforms between two shuffles in one stage, which carries the name of the transform whose output started it, usually an output transform.
+
+[[fat-jar-on-executors]]
+==== The fat jar on the executors
+
+The executors need Hop's classes: the fat jar of the Hop installation, about 600 MB, which Hop builds once and keeps until the installation changes. How it reaches them:
+
+* *No staging folder, client mode*: every executor downloads the fat jar from Hop at the start of every run, and on a standalone cluster each executor keeps its copy in the worker's work folder. Spark keeps those folders until `spark.worker.cleanup.enabled` is set on the workers, so a busy cluster fills its disks.
+* *Staging folder*: Hop uploads the fat jar once (the file is named after its content) and the executors download it from there.
+* *Staging folder that every worker mounts, with a `local:` URL for the cluster*: Spark uses the fat jar where it is, without a download or a copy. This is the fastest way to start a run.
+
+[[cluster-mode]]
+==== Cluster mode
+
+In client mode, the Hop process is the Spark driver: it has to stay running and reachable by the executors for the whole run. In cluster mode Hop hands the run to the cluster:
+
+. Hop builds the fat jar (or reuses its cached one) and exports the project: the definitions, the metadata and the variables of the run.
+. It uploads both to the *Staging folder*, unless a file with the same name and size is already there.
+. It submits `MainSpark` to the REST submission server of the Spark master. The driver starts on a worker, loads the project package and runs the pipeline with the same run configuration.
+. Hop follows the driver until it ends. The pipeline fails when the driver fails; *Stop* kills the driver.
+
+Requirements:
+
+* A cluster Hop can submit to:
+** a Spark standalone master (`spark://host:port`) with the REST submission server enabled: `spark.master.rest.enabled=true`, for example `SPARK_MASTER_OPTS=-Dspark.master.rest.enabled=true` in `spark-env.sh`; or
+** YARN (master `yarn`), with the *Hadoop configuration folder* (or `HADOOP_CONF_DIR`) set. Hop submits with Spark's own YARN client inside the Hop process, so no Spark installation is needed, and follows and kills the application through the ResourceManager. See xref:pipeline/spark/yarn.adoc#cluster-mode[YARN cluster mode].
+** Kubernetes (master `k8s://https://<api server>`), see <<kubernetes>>; or
+** Databricks (cluster type *Databricks*), see <<databricks>>.
+* A project: the driver on the cluster finds the pipeline in the project package. A driver on a host that has the project folder at the same path, a shared file system for example, uses that folder instead, but only when it holds the same project files as the package.
+* Data on storage the workers read: a path under `${PROJECT_HOME}` points into the package copy on the cluster. Use a variable such as `HOP_DATA` for data paths.
+
+[IMPORTANT]
+====
+Treat the staging folder like the project itself. The project package holds the project's metadata, with the connection passwords encoded the way Hop stores them, and the variables of the run, encoded the same way. That is every variable of the run, as for a run on a Hop Server: the project, environment and parameter values, and the system properties of the Hop process (`-D` options and `hop-config.json` variables), without those of Java itself. A package stays in the staging folder until the cleanup removes it (<<staging-cleanup>>). Hop's default encoding can be reversed by anyone who can read the files, so only the people and the Spark cluster that run your pipelines should be able to read the staging folder. With a stronger password encoder (`HOP_PASSWORD_ENCODER_PLUGIN`), the cluster driver needs the same encoder and key.
+====
+
+The driver log is on the worker that ran it: the Spark master UI lists it under *Completed Drivers*. Per-transform metrics of a cluster-mode run are not shown in Hop yet.
+
+[[staging-cleanup]]
+===== Cleaning up the staging folder
+
+Every staged file is named after its content. A new Hop version, an installed or removed plugin, or a changed project stages new files next to the old ones, and a fat jar is several hundred MB. Clients with different Hop versions or plugins can share one staging folder: they never overwrite each other's files.
+
+Whether a file is still needed can only be told from its use. Each run writes a small marker next to every file it uses, `<file>.lastused`, also when the file was already staged, and refreshes it every hour while the driver runs. A file whose marker is older than the retention is removed together with its sidecars (`.sha256`, `.lastused`):
+
+* Automatically: after a cluster-mode submission, at most once a day per Hop installation and staging folder. The retention is `HOP_STAGING_RETENTION_DAYS` (variable, system property or environment variable), 14 days by default; `0` turns the automatic cleanup off.
+* On request: *Tools* > *Clean up a cluster staging folder...* in Hop GUI lists the staged files with their size, last use and state, and removes the unused ones. From the command line: `hop-conf --staging-list=<folder>` and `hop-conf --staging-cleanup=<folder>`, see xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf].
+
+Only the files Hop stages are considered (`hop-native-<hash>.jar`, `hop-spark-package-<hash>.zip`, `spark-runtime-<hash>.zip`); anything else in the folder stays. A file marked by a newer Hop version in a format this version does not know is kept, and so is a file whose last use the folder can't tell (a store that reports no modification time and no readable marker). A file without a `.lastused` marker is kept too: an older Hop version staged it without one, for example the fat jar of a Databricks job it deployed, and that job may still use it. Remove such a file by hand once nothing uses it. Each file is checked again just before it is removed, so a run that starts using it meanwhile keeps it.
+
+A file with a `<file>.keep` sidecar is never removed. The xref:workflow/actions/databricks-job-run.adoc[Databricks job run] action writes one next to the fat jar of every job it deploys: the job uses the jar on its own schedule, without a Hop run to mark it. Delete the `.keep` file once no job uses the jar any more.
+
+Keep the retention longer than any run lasts without Hop following it, and do not let a bucket lifecycle rule expire the staging folder: such a rule goes by upload time and would remove a fat jar that is used every day.
+
+[[databricks]]
+==== Running on Databricks
+
+With the cluster type *Databricks*, a pipeline that Hop GUI, `hop-run` or Hop Server runs goes to a Databricks cluster:
+
+. Hop builds the fat jar (or reuses its cached one) and exports the project, as in cluster mode.
+. It uploads both to the *Staging folder*, a Unity Catalog volume folder such as `/Volumes/main/default/hop/staging`, through the Databricks Files API.
+. It submits a one-time job run of `MainSpark` (`runs/submit`) on the *Databricks compute*, with the fat jar as its library. The run loads the project package and runs the pipeline with the same run configuration.
+. Hop follows the run until it ends and logs the link to its page in Databricks. The pipeline fails when the run fails; *Stop* cancels the run.
+
+The run configuration needs no Spark master, deploy mode or executor sizes: Databricks sets them from the cluster. The same run configuration works for the jobs that the xref:workflow/actions/databricks-job-run.adoc[Databricks job run] action deploys: when Databricks starts `MainSpark`, the pipeline runs on the job's cluster, it is not submitted again. The staged files are marked and cleaned up as in cluster mode (<<staging-cleanup>>). How to set up the workspace, the token and the volume: xref:pipeline/spark/databricks.adoc[Native Spark on Databricks].
+
+[[submitted]]
+==== spark-submit
+
+The cluster type *spark-submit* is for pipelines that you start yourself with `spark-submit` and `MainSpark`, for example on YARN, a standalone cluster, Amazon EMR or Google Dataproc: `spark-submit` sets the master. When Hop GUI, `hop-run` or Hop Server runs a pipeline with this cluster type, Hop refuses with an error: without a cluster the pipeline would run in the Hop process, where the paths of the cluster don't exist. For Databricks, use the cluster type *Databricks*, also for the jobs that the xref:workflow/actions/databricks-job-run.adoc[Databricks job run] action deploys.
+
+[[kubernetes]]
+==== Cluster mode on Kubernetes
+
+Hop submits with Spark's own Kubernetes client inside the Hop process and names the driver pod `hop-<id>`. It follows the pod until it ends: `Succeeded` is a successful run, `Failed` or a pod that disappeared is a failure. *Stop* deletes the driver pod, and Kubernetes then removes the executor pods. Hop reaches the API server with the kubeconfig, the service account of its own pod, or the `KUBERNETES_*` environment, the same way `kubectl` does.
+
+What the run configuration needs:
+
+* *Spark master* `k8s://https://<api server>:<port>` and *Deploy mode* Cluster.
+* A container image with Spark {spark-version} and Java {java-version}: Spark's own images run Java 17, which cannot load the Hop classes. `docker/integration-tests/spark/Dockerfile.kubernetes` in the Hop source builds one.
+* A *Staging folder* the pods download from over a URL they can reach, for example a bucket of an object store in or next to the cluster: *Staging folder* `minio-staging://hop-staging` (a VFS connection) and *Staging folder URL for the cluster* `http://seaweedfs.default.svc.cluster.local:8888/buckets/hop-staging`.
+* Rows on the *Spark settings* tab (a key and a value per row) for the image, the service account the driver creates executor pods with, and the volumes the pipelines read and write, for example:
++
+[source]
+----
+spark.kubernetes.container.image=hop-spark-kubernetes:{spark-version}
+spark.kubernetes.authenticate.driver.serviceAccountName=spark
+spark.executor.instances=2
+spark.kubernetes.driver.volumes.persistentVolumeClaim.data.mount.path=/data
+spark.kubernetes.driver.volumes.persistentVolumeClaim.data.options.claimName=hop-data
+spark.kubernetes.executor.volumes.persistentVolumeClaim.data.mount.path=/data
+spark.kubernetes.executor.volumes.persistentVolumeClaim.data.options.claimName=hop-data
+----
++
+The service account needs to create, watch and delete pods, services and config maps in its namespace, for example through a role binding to the `edit` cluster role. Data in object storage needs no volume.
+
+The id of a run is `<namespace>:<driver pod>`. The driver log is the log of that pod: `kubectl logs <driver pod>`.
 
 ==== Generic transform run mode and per-transform override
 

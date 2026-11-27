@@ -142,7 +142,7 @@ public class ActionDatabricksJobRun extends ActionBase implements Cloneable, IAc
   @HopMetadataProperty(key = "cluster_id")
   private String existingClusterId;
 
-  /** DBR spark_version for classic job clusters, e.g. {@code 18.2.x-scala2.13}. */
+  /** DBR spark_version for classic job clusters, e.g. {@code 18.x-scala2.13}. */
   @HopMetadataProperty(key = "new_cluster_spark_version")
   private String newClusterSparkVersion = DatabricksJobSpecFactory.DEFAULT_SPARK_VERSION;
 

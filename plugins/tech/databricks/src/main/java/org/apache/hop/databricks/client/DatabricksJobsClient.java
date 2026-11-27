@@ -17,6 +17,7 @@
 
 package org.apache.hop.databricks.client;
 
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 
@@ -49,6 +50,23 @@ public interface DatabricksJobsClient extends AutoCloseable {
   void cancelRun(long runId) throws HopException;
 
   /**
+   * The jar libraries installed on an all-purpose cluster ({@code libraries/cluster-status}), as
+   * they were installed, for example {@code /Volumes/main/default/hop/hop-native-627c3a023abb.jar}.
+   */
+  default List<String> getClusterJarLibraries(String clusterId) throws HopException {
+    return List.of();
+  }
+
+  /**
+   * Asks Databricks to uninstall jar libraries from an all-purpose cluster ({@code
+   * libraries/uninstall}). Databricks removes them when the cluster restarts.
+   */
+  default void uninstallClusterJarLibraries(String clusterId, List<String> jars)
+      throws HopException {
+    // nothing installed, nothing to uninstall
+  }
+
+  /**
    * Upload a local file to a workspace path and overwrite if present.
    *
    * <p>Paths under {@code /Volumes/…} (Unity Catalog volumes) or {@code /Workspace/…} use the Files
@@ -71,6 +89,24 @@ public interface DatabricksJobsClient extends AutoCloseable {
 
   /** Upload UTF-8 text to a workspace path (overwrites). Convenience for tiny sidecar files. */
   void uploadText(String workspacePath, String text) throws HopException;
+
+  /**
+   * @return true when {@link #listDirectory} and {@link #deleteFile} work for this path: Unity
+   *     Catalog volumes and workspace files, not classic DBFS
+   */
+  default boolean canListAndDelete(String workspacePath) {
+    return false;
+  }
+
+  /** The files and folders directly under a folder (Files API paths only). */
+  default List<DirectoryEntry> listDirectory(String workspacePath) throws HopException {
+    throw new HopException("Listing " + workspacePath + " is not supported");
+  }
+
+  /** Delete one file (Files API paths only). */
+  default void deleteFile(String workspacePath) throws HopException {
+    throw new HopException("Deleting " + workspacePath + " is not supported");
+  }
 
   @Override
   void close();

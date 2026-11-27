@@ -1,0 +1,21 @@
+{
+  "engineRunConfiguration": {
+    "SparkPipelineEngine": {
+      "sparkMaster": "spark://spark:7077",
+      "sparkAppName": "hop-it-spark-native-standalone",
+      "deploy_mode": "CLUSTER",
+      "staging_folder": "staging://hop-staging",
+      "staging_cluster_url": "http://seaweedfs:8888/buckets/hop-staging",
+      "submit_url": "",
+      "sparkConfigs": "spark.sql.shuffle.partitions=4",
+      "fatJar": "",
+      "driverMemory": "1g",
+      "executorMemory": "768m",
+      "executorCores": "",
+      "pluginsToStage": ""
+    }
+  },
+  "configurationVariables": [],
+  "name": "spark-standalone",
+  "description": "Native Spark in cluster mode on the standalone cluster of the compose file: Hop builds the fat jar, stages it and the project package through the 'staging' connection, submits MainSpark over the REST submission server and waits for the driver."
+}

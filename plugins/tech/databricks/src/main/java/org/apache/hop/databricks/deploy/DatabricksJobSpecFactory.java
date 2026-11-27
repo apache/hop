@@ -47,7 +47,8 @@ public final class DatabricksJobSpecFactory {
    */
   public static final String SERVERLESS_TOKEN = "serverless";
 
-  public static final String DEFAULT_SPARK_VERSION = "18.2.x-scala2.13";
+  /** Databricks Runtime 18 LTS: Spark 4.1, Scala 2.13, Java 21. */
+  public static final String DEFAULT_SPARK_VERSION = "18.x-scala2.13";
 
   /** AWS default: local NVMe (i3) avoids required EBS on m5.* job clusters. */
   public static final String DEFAULT_NODE_TYPE_ID = "i3.xlarge";

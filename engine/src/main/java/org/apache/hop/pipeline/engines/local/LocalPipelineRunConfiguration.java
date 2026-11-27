@@ -257,6 +257,12 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.lockFreeRowSets = config.lockFreeRowSets;
   }
 
+  /** The wait time does nothing with lock-free row sets: the editor disables it then. */
+  @Override
+  public String getGuiWidgetsListenerClassName() {
+    return "org.apache.hop.ui.pipeline.config.LocalPipelineRunConfigurationWidgetsListener";
+  }
+
   @Override
   public LocalPipelineRunConfiguration clone() {
     return new LocalPipelineRunConfiguration(this);

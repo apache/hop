@@ -19,9 +19,11 @@
 # Hadoop runs on the image's own Java; YARN containers (Spark AM and executors) run on the
 # Java 21 runtime in /opt/java21, which the Hop classes in the fat jar need.
 
-FROM eclipse-temurin:21-jre AS java21
+# apache/hadoop only publishes linux/amd64. Pin the Java stage to the same platform, or on an arm64
+# host (Apple Silicon) it pulls an arm64 Java that the emulated amd64 container cannot run.
+FROM --platform=linux/amd64 eclipse-temurin:21-jre AS java21
 
-FROM apache/hadoop:3.4.2
+FROM --platform=linux/amd64 apache/hadoop:3.4.2
 COPY --from=java21 /opt/java/openjdk /opt/java21
 COPY --chmod=755 start.sh /opt/start-hadoop-yarn.sh
 ENV HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop

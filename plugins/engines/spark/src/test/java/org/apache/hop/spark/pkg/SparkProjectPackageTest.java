@@ -162,6 +162,113 @@ class SparkProjectPackageTest {
   }
 
   @Test
+  void clusterVariablesTravelInThePackage() throws Exception {
+    File projectHome = new File(tempDir, "vars-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "x.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "vars.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables(),
+        null,
+        java.util.Map.of("HOP_DATA", "/data", "INPUT_DATE", "2026-11-13"));
+    SparkProjectPackage.Materialized m = SparkProjectPackage.materialize(zip.getAbsolutePath());
+    assertEquals(
+        java.util.Map.of("HOP_DATA", "/data", "INPUT_DATE", "2026-11-13"),
+        SparkProjectPackage.readPackagedVariables(m));
+
+    // Stored encoded, like the passwords in metadata.json
+    String stored =
+        Files.readString(
+            new File(m.extractRoot(), SparkProjectPackage.VARIABLES_ENTRY).toPath(),
+            StandardCharsets.UTF_8);
+    assertTrue(stored.contains("HOP_DATA"));
+    assertFalse(stored.contains("2026-11-13"), stored);
+  }
+
+  @Test
+  void aClientModePackageHasNoVariables() throws Exception {
+    File projectHome = new File(tempDir, "novars-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "x.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "novars.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+    assertTrue(
+        SparkProjectPackage.readPackagedVariables(
+                SparkProjectPackage.materialize(zip.getAbsolutePath()))
+            .isEmpty());
+  }
+
+  @Test
+  void aFallbackPackageKeepsAVisibleProjectHome() throws Exception {
+    File projectHome = new File(tempDir, "fallback-proj");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "fallback.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+
+    // Same machine or shared disk: the executor sees the client's project folder
+    Variables visible = new Variables();
+    visible.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, zip.getAbsolutePath());
+    visible.setVariable(SparkProjectPackage.VAR_PACKAGE_FALLBACK, "Y");
+    visible.setVariable("PROJECT_HOME", projectHome.getAbsolutePath());
+    SparkProjectPackage.ensureMaterializedOnWorker(visible);
+    assertEquals(projectHome.getAbsolutePath(), visible.getVariable("PROJECT_HOME"));
+
+    // Another machine: the client's folder does not exist here, so the package is used
+    Variables remote = new Variables();
+    remote.setVariable(SparkProjectPackage.VAR_PACKAGE_URI, zip.getAbsolutePath());
+    remote.setVariable(SparkProjectPackage.VAR_PACKAGE_FALLBACK, "Y");
+    remote.setVariable("PROJECT_HOME", new File(tempDir, "not-here").getAbsolutePath());
+    SparkProjectPackage.ensureMaterializedOnWorker(remote);
+    assertTrue(new File(remote.getVariable("PROJECT_HOME"), "a.hpl").isFile());
+  }
+
+  @Test
+  void theSameProjectGivesTheSamePackageBytes() throws Exception {
+    File projectHome = new File(tempDir, "stable-proj");
+    assertTrue(new File(projectHome, "sub").mkdirs());
+    Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    Files.writeString(new File(projectHome, "sub/b.hpl").toPath(), "<q/>", StandardCharsets.UTF_8);
+    File first = new File(tempDir, "first.zip");
+    File second = new File(tempDir, "second.zip");
+    java.util.Map<String, String> variables = java.util.Map.of("HOP_DATA", "/data", "A", "1");
+
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        first.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables(),
+        null,
+        variables);
+    // Zip entries carry a modification time with a 2 second resolution
+    Thread.sleep(2100L);
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        second.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables(),
+        null,
+        variables);
+
+    org.junit.jupiter.api.Assertions.assertArrayEquals(
+        Files.readAllBytes(first.toPath()), Files.readAllBytes(second.toPath()));
+    // The marker still reads as properties
+    SparkProjectPackage.Materialized m = SparkProjectPackage.materialize(first.getAbsolutePath());
+    assertTrue(new File(m.projectHome(), "sub/b.hpl").isFile());
+  }
+
+  @Test
   void metadataRoundTripInPackage() throws Exception {
     File projectHome = new File(tempDir, "meta-proj");
     assertTrue(projectHome.mkdirs());
@@ -374,6 +481,130 @@ class SparkProjectPackageTest {
       assertTrue(new File(vars.getVariable("PROJECT_HOME"), "p.hpl").isFile());
     } finally {
       spark.stop();
+    }
+  }
+
+  /**
+   * Each OS user exports into a folder of their own: on a shared host such as an edge node, the
+   * first user's folder used to block everyone else.
+   */
+  @Test
+  void packagesGoToAFolderPerUser() {
+    assertEquals(
+        java.nio.file.Paths.get("/tmp", "hop-spark-packages-alice"),
+        SparkProjectPackage.packageFolder("/tmp", "alice"));
+    assertEquals(
+        java.nio.file.Paths.get("/tmp", "hop-spark-packages-CORP_bob"),
+        SparkProjectPackage.packageFolder("/tmp", "CORP\\bob"));
+    assertNotEquals(
+        SparkProjectPackage.packageFolder("/tmp", "alice"),
+        SparkProjectPackage.packageFolder("/tmp", "bob"));
+  }
+
+  /** Packages no run exported for a week go, and so do exports a run left half done. */
+  @Test
+  void oldPackagesArePruned() throws Exception {
+    java.nio.file.Path folder = Files.createDirectories(tempDir.toPath().resolve("packages"));
+    java.nio.file.Path current = folder.resolve("hop-spark-package-000000000001.zip");
+    java.nio.file.Path recent = folder.resolve("hop-spark-package-000000000002.zip");
+    java.nio.file.Path old = folder.resolve("hop-spark-package-000000000003.zip");
+    java.nio.file.Path leftOver = folder.resolve("export-123.zip");
+    java.nio.file.Path other = folder.resolve("notes.txt");
+    java.time.Instant now = java.time.Instant.now();
+    for (java.nio.file.Path file : java.util.List.of(current, recent, old, leftOver, other)) {
+      Files.writeString(file, "x", StandardCharsets.UTF_8);
+      Files.setLastModifiedTime(
+          file, java.nio.file.attribute.FileTime.from(now.minus(java.time.Duration.ofDays(30))));
+    }
+    Files.setLastModifiedTime(
+        recent, java.nio.file.attribute.FileTime.from(now.minus(java.time.Duration.ofDays(1))));
+
+    SparkProjectPackage.prunePackages(folder, current, now);
+    assertTrue(Files.exists(current), "the package of this run");
+    assertTrue(Files.exists(recent));
+    assertFalse(Files.exists(old));
+    assertFalse(Files.exists(leftOver));
+    assertTrue(Files.exists(other), "not a package");
+  }
+
+  /**
+   * A pipeline without a file, such as the test job of the configuration test, travels in the
+   * package next to the project.
+   */
+  @Test
+  void anUnsavedPipelineTravelsInThePackage() throws Exception {
+    File projectHome = new File(tempDir, "p3");
+    assertTrue(projectHome.mkdirs());
+    Files.writeString(new File(projectHome, "a.hpl").toPath(), "<p/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "p3.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables(),
+        null,
+        null,
+        java.util.Map.of(".hop-spark-unsaved/0123456789ab.hpl", "<pipeline/>".getBytes()));
+
+    SparkProjectPackage.Materialized m = SparkProjectPackage.materialize(zip.getAbsolutePath());
+    File unsaved = new File(m.projectHome(), ".hop-spark-unsaved/0123456789ab.hpl");
+    assertEquals("<pipeline/>", Files.readString(unsaved.toPath()));
+    assertTrue(new File(m.projectHome(), "a.hpl").isFile());
+  }
+
+  /**
+   * A driver uses the client's project folder only when it holds the packaged project. A folder at
+   * that path on another host can be an old copy: then the driver keeps the package.
+   */
+  @Test
+  void onlyTheSameProjectReplacesThePackage() throws Exception {
+    File projectHome = new File(tempDir, "p4");
+    assertTrue(new File(projectHome, "pipelines").mkdirs());
+    Files.writeString(
+        new File(projectHome, "pipelines/main.hpl").toPath(), "<main/>", StandardCharsets.UTF_8);
+    Files.writeString(
+        new File(projectHome, "pipelines/child.hpl").toPath(), "<child/>", StandardCharsets.UTF_8);
+    File zip = new File(tempDir, "p4.zip");
+    SparkProjectPackage.exportProject(
+        projectHome.getAbsolutePath(),
+        zip.getAbsolutePath(),
+        new MemoryMetadataProvider(),
+        new Variables());
+    SparkProjectPackage.Materialized m = SparkProjectPackage.materialize(zip.getAbsolutePath());
+
+    assertTrue(SparkProjectPackage.holdsTheProjectOf(m, projectHome.getAbsolutePath()));
+    // A file the package left out doesn't count
+    Files.writeString(new File(projectHome, "notes.txt").toPath(), "x", StandardCharsets.UTF_8);
+    assertTrue(SparkProjectPackage.holdsTheProjectOf(m, projectHome.getAbsolutePath()));
+
+    // An older copy: the child pipeline differs
+    Files.writeString(
+        new File(projectHome, "pipelines/child.hpl").toPath(), "<chold/>", StandardCharsets.UTF_8);
+    assertFalse(SparkProjectPackage.holdsTheProjectOf(m, projectHome.getAbsolutePath()));
+    Files.delete(new File(projectHome, "pipelines/child.hpl").toPath());
+    assertFalse(SparkProjectPackage.holdsTheProjectOf(m, projectHome.getAbsolutePath()));
+  }
+
+  /**
+   * A driver submitted in cluster mode reads its package with the spark.hadoop.* settings of the
+   * run, such as the s3a endpoint and keys. spark-submit gives them to the driver as system
+   * properties.
+   */
+  @Test
+  void thePackageIsReadWithTheSparkHadoopSettings() {
+    String key = "spark.hadoop.fs.s3a.endpoint";
+    String previous = System.getProperty(key);
+    System.setProperty(key, "http://minio:9000");
+    try {
+      assertEquals(
+          "http://minio:9000",
+          SparkProjectPackage.sparkHadoopConfiguration().get("fs.s3a.endpoint"));
+    } finally {
+      if (previous == null) {
+        System.clearProperty(key);
+      } else {
+        System.setProperty(key, previous);
+      }
     }
   }
 }

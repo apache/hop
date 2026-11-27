@@ -59,6 +59,7 @@ import org.apache.hop.spark.pipeline.handler.SparkSortRowsHandler;
 import org.apache.hop.spark.pipeline.handler.SparkSqlHandler;
 import org.apache.hop.spark.pipeline.handler.SparkUniqueRowsHandler;
 import org.apache.hop.spark.util.SparkConst;
+import org.apache.hop.spark.util.SparkJobNames;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -372,6 +373,9 @@ public class HopPipelineMetaToSparkConverter {
           }
         }
 
+        // Writers and info streams start Spark jobs while the graph is built: name them
+        SparkJobNames.forTransform(
+            spark, pipelineMeta.getName(), transformMeta.getName(), pluginId);
         handler.handleTransform(
             log,
             variables,

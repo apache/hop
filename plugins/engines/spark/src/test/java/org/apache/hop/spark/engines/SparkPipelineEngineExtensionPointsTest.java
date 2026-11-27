@@ -188,6 +188,52 @@ class SparkPipelineEngineExtensionPointsTest {
         FIRED);
   }
 
+  /**
+   * A run in cluster deploy mode fires the same extension points: plugins that follow a run, such
+   * as execution logging, see it start. This one fails before it submits (no project), as any
+   * cluster run that can't be submitted.
+   */
+  @Test
+  void aClusterModeRunFiresTheExtensionPointsToo(@TempDir Path tempDir) throws Exception {
+    MemoryMetadataProvider metadata = new MemoryMetadataProvider();
+    SparkPipelineRunConfiguration spark = new SparkPipelineRunConfiguration();
+    spark.setClusterType(SparkClusterType.STANDALONE);
+    spark.setSparkMaster("spark://127.0.0.1:1");
+    spark.setDeployMode(SparkDeployMode.CLUSTER);
+    PipelineRunConfiguration runConfiguration = new PipelineRunConfiguration();
+    runConfiguration.setName("spark-cluster");
+    runConfiguration.setEngineRunConfiguration(spark);
+    metadata.getSerializer(PipelineRunConfiguration.class).save(runConfiguration);
+
+    PipelineMeta pipelineMeta =
+        new PipelineMeta(
+            new ByteArrayInputStream(
+                PIPELINE_XML
+                    .formatted(tempDir.resolve("input.csv").toUri().toString())
+                    .getBytes(StandardCharsets.UTF_8)),
+            metadata,
+            new Variables());
+    SparkPipelineEngine engine =
+        new SparkPipelineEngine(pipelineMeta, new LoggingObject("test"), new Variables());
+    engine.setMetadataProvider(metadata);
+    engine.setPipelineRunConfiguration(runConfiguration);
+    FIRED.clear();
+
+    engine.prepareExecution();
+    engine.startThreads();
+    engine.waitUntilFinished();
+
+    assertEquals(1, engine.getErrors(), "no project to package");
+    assertEquals(
+        List.of(
+            "PipelinePrepareExecution",
+            "PipelineStartThreads",
+            "PipelineStart",
+            "PipelineFinish",
+            "PipelineCompleted"),
+        FIRED);
+  }
+
   /** Text File Input reads a local file into Dummy. */
   private static final String PIPELINE_XML =
       """

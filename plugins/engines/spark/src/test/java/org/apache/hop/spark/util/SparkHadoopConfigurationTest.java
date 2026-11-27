@@ -114,4 +114,56 @@ class SparkHadoopConfigurationTest {
     // them
     assertNull(SparkHadoopConfiguration.defaultYarnJars(SparkHadoopConfigurationTest.class));
   }
+
+  @Test
+  void theYarnClassPathTakesSharedLibrariesButNotHopBeamSparkOrHadoop() {
+    org.junit.jupiter.api.Assertions.assertTrue(
+        SparkHadoopConfiguration.isSharedRuntimeJar(
+            new java.io.File("netty-transport-4.2.19.Final.jar")));
+    org.junit.jupiter.api.Assertions.assertTrue(
+        SparkHadoopConfiguration.isSharedRuntimeJar(
+            new java.io.File("commons-collections4-4.5.0.jar")));
+    org.junit.jupiter.api.Assertions.assertTrue(
+        SparkHadoopConfiguration.isSharedRuntimeJar(new java.io.File("log4j-core-2.25.2.jar")));
+    for (String name :
+        new String[] {
+          "hop-core-2.21.0.jar",
+          "spark-network-common_2.12-3.5.8.jar",
+          "scala-library-2.12.21.jar",
+          "spark-core_2.13-4.1.3.jar",
+          "hadoop-common-3.4.2.jar",
+          "hadoop-client-api-3.4.2.jar"
+        }) {
+      org.junit.jupiter.api.Assertions.assertFalse(
+          SparkHadoopConfiguration.isSharedRuntimeJar(new java.io.File(name)), name);
+    }
+    // Beam's jars by the plugin manifests: what only the Beam engine installs
+    java.io.File beamSdk = new java.io.File("beam-sdks-java-core-2.74.0.jar");
+    org.junit.jupiter.api.Assertions.assertFalse(
+        SparkHadoopConfiguration.isSharedRuntimeJar(beamSdk, beamSdk::equals));
+    org.junit.jupiter.api.Assertions.assertTrue(
+        SparkHadoopConfiguration.isSharedRuntimeJar(beamSdk, file -> false));
+  }
+
+  @Test
+  void theYarnRuntimeArchiveHoldsTheJarsAtItsRoot(
+      @org.junit.jupiter.api.io.TempDir java.nio.file.Path archiveDir) throws Exception {
+    java.nio.file.Path a = archiveDir.resolve("spark-core_2.13-4.1.3.jar");
+    java.nio.file.Path b = archiveDir.resolve("scala-library-2.13.17.jar");
+    java.nio.file.Files.write(a, new byte[] {1, 2, 3});
+    java.nio.file.Files.write(b, new byte[] {4, 5});
+    java.nio.file.Path archive = archiveDir.resolve("runtime.zip");
+
+    SparkHadoopConfiguration.writeArchive(archive, java.util.List.of(a.toString(), b.toString()));
+
+    try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(archive.toFile())) {
+      org.junit.jupiter.api.Assertions.assertEquals(2, zip.size());
+      org.junit.jupiter.api.Assertions.assertArrayEquals(
+          new byte[] {1, 2, 3},
+          zip.getInputStream(zip.getEntry("spark-core_2.13-4.1.3.jar")).readAllBytes());
+      org.junit.jupiter.api.Assertions.assertArrayEquals(
+          new byte[] {4, 5},
+          zip.getInputStream(zip.getEntry("scala-library-2.13.17.jar")).readAllBytes());
+    }
+  }
 }

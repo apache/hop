@@ -479,6 +479,11 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
     # hop_server and load-balance must rebuild: their hop-server service image
     # (apache/hop:Development from docker/Dockerfile) otherwise stays cached and can
     # miss client-side assembly plugins (remote-export ITs, LoadBalancing engine).
+    # k3s cannot pull an image that only exists in the local Docker daemon: save the Spark on
+    # Kubernetes image (and SeaweedFS) where k3s imports images from at startup.
+    if [ "${PROJECT_NAME}" = "spark-native-kubernetes" ]; then
+      "${DOCKER_FILES_DIR}/spark-kubernetes/prepare-images.sh" || COMPOSE_EXIT=$?
+    fi
     if [ "${PROJECT_NAME}" = "spark" ]; then
       echo "Spark IT cluster version: ${SPARK_VERSION} (hadoop ${HADOOP_VERSION})"
       PROJECT_NAME=${PROJECT_NAME} TEST_FILTER=${TEST_FILTER} SKIP_GOOGLE_SHEETS=${SKIP_GOOGLE_SHEETS} SPARK_VERSION=${SPARK_VERSION} HADOOP_VERSION=${HADOOP_VERSION} SPARK_BASE_URL=${SPARK_BASE_URL} \

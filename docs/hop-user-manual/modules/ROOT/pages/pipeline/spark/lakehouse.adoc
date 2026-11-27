@@ -25,7 +25,7 @@ under the License.
 
 This guide covers **Delta Lake** and **Apache Iceberg** support on Hop’s xref:pipeline/spark/getting-started-with-native-spark.adoc[native Spark pipeline engine] (Spark *4.1.x*, no Beam).
 
-It assumes you already have a working *Native Spark* pipeline run configuration (`+local[*]+` or cluster `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark file input* / *Spark file output*. Lakehouse work uses dedicated **Lake Table** transforms.
+It assumes you already have a working *Native Spark* pipeline run configuration (`+local[*]+`, a cluster that Hop submits to, or `spark-submit`). Classic file formats (CSV, Parquet, JSON, ORC, text) stay on *Spark file input* / *Spark file output*. Lakehouse work uses dedicated **Lake Table** transforms.
 
 == What you get
 
@@ -126,16 +126,18 @@ export SPARK_HOME=/path/to/spark-4.1.x-bin-hadoop3
 ./hop-conf.sh --generate-fat-jar=/tmp/hop-native-provided.jar \
   --fat-jar-engine=spark
 
-# Export project metadata (run config + any lakehouse catalog entries) to JSON, then:
+# Export a project package (run configurations, lakehouse catalog entries, nested pipelines), then:
+./hop-conf.sh -j your-project --export-spark-project=/tmp/hop-project.zip
+
 "${SPARK_HOME}/bin/spark-submit" \
   --master spark://your-master:7077 \
   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension,org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
   --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
   --class org.apache.hop.spark.run.MainSpark \
   /tmp/hop-native-provided.jar \
-  /path/to/pipeline.hpl \
-  /path/to/metadata.json \
-  YourNativeSparkRunConfig
+  --HopProjectPackage=/tmp/hop-project.zip \
+  --HopPipelinePath=pipelines/your-pipeline.hpl \
+  --HopRunConfigurationName=YourNativeSparkRunConfig
 ----
 
 Optional: if you strip connectors from the fat jar or use site-managed `$SPARK_HOME/jars`, you can still add:
@@ -250,8 +252,8 @@ Injection keys are documented on each transform page. Shared identity keys: `FOR
 
 === Quick PATH round-trip (Delta)
 
-. Install Delta jars (see above) and restart Hop.
-. Create a *Native Spark* run configuration (`+local[*]+`).
+. Delta and Iceberg ship with the native Spark engine plugin: nothing to install.
+. Create a *Native Spark* run configuration with the cluster type *Local* (or use the *Lakehouse local* template).
 . Pipeline: *Row Generator* (or *Spark file input*) → *Lake table output*
  ** Format: `delta`
  ** Identifier mode: `PATH`

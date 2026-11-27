@@ -27,8 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +40,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.TempFileUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.databricks.metadata.DatabricksConnection;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -212,6 +215,46 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
   }
 
   @Override
+  public List<String> getClusterJarLibraries(String clusterId) throws HopException {
+    String body =
+        get(
+            "/api/2.0/libraries/cluster-status?cluster_id="
+                + URLEncoder.encode(clusterId, StandardCharsets.UTF_8));
+    List<String> jars = new ArrayList<>();
+    try {
+      JSONObject root = (JSONObject) new JSONParser().parse(body);
+      Object statuses = root.get("library_statuses");
+      if (statuses instanceof JSONArray array) {
+        for (Object item : array) {
+          if (item instanceof JSONObject status
+              && status.get("library") instanceof JSONObject library
+              && library.get("jar") instanceof String jar) {
+            jars.add(jar);
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new HopException("Unable to read the libraries of cluster " + clusterId, e);
+    }
+    return jars;
+  }
+
+  @Override
+  public void uninstallClusterJarLibraries(String clusterId, List<String> jars)
+      throws HopException {
+    JSONObject body = new JSONObject();
+    body.put("cluster_id", clusterId);
+    JSONArray libraries = new JSONArray();
+    for (String jar : jars) {
+      JSONObject library = new JSONObject();
+      library.put("jar", jar);
+      libraries.add(library);
+    }
+    body.put("libraries", libraries);
+    postJson("/api/2.0/libraries/uninstall", body.toJSONString());
+  }
+
+  @Override
   public void uploadToDbfs(Path localFile, String dbfsPath) throws HopException {
     if (localFile == null || !Files.isRegularFile(localFile)) {
       throw new HopException("Local file for workspace upload does not exist: " + localFile);
@@ -265,6 +308,25 @@ public final class RestDatabricksJobsClient implements DatabricksJobsClient {
     } catch (Exception e) {
       throw new HopException("Failed to upload text to " + workspacePath, e);
     }
+  }
+
+  @Override
+  public boolean canListAndDelete(String workspacePath) {
+    try {
+      return isFilesApiPath(normalizeDbfsPath(workspacePath));
+    } catch (HopException e) {
+      return false;
+    }
+  }
+
+  @Override
+  public List<DirectoryEntry> listDirectory(String workspacePath) throws HopException {
+    return filesClient.listDirectory(normalizeDbfsPath(workspacePath));
+  }
+
+  @Override
+  public void deleteFile(String workspacePath) throws HopException {
+    filesClient.deleteFile(normalizeDbfsPath(workspacePath));
   }
 
   /**

@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.spark.core.SparkNativeMetrics;
 import org.apache.hop.spark.engines.ISparkPipelineEngineRunConfiguration;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
+import org.apache.hop.spark.table.SparkLakeActionSupport;
 import org.apache.hop.spark.transforms.io.SparkFileInputMeta;
 import org.apache.hop.spark.transforms.io.SparkFileOutputMeta;
 import org.apache.hop.spark.util.SparkPathDialect;
@@ -39,8 +40,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.StructType;
 
 /**
  * Native Spark file write for {@link SparkFileOutputMeta}. Executes the write as an action and
@@ -149,11 +148,8 @@ public class SparkFileOutputHandler extends SparkBaseTransformHandler {
     SparkFileIoSupport.writeDataset(
         toWrite, format, path, saveMode, options, partitionColumns, coalesce);
 
-    // Leaf marker: write already ran; avoid re-triggering via a later count()
-    StructType emptySchema =
-        new StructType().add("_spark_hop_written", DataTypes.BooleanType, false);
-    Dataset<Row> leaf = spark.createDataFrame(new ArrayList<>(), emptySchema);
-    transformDatasetMap.put(transformMeta.getName(), leaf);
+    // Leaf marker: the write already ran, the engine does not count it again
+    SparkLakeActionSupport.putEmptyLeaf(transformDatasetMap, transformMeta.getName(), spark);
 
     log.logBasic(
         "Handled Spark File Output : "

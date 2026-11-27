@@ -26,12 +26,14 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.fatjar.NativeSparkFatJar;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 
@@ -87,6 +89,21 @@ public final class SparkHadoopConfiguration {
   }
 
   /**
+   * A Hadoop configuration with the {@code spark.hadoop.<key>} entries of Spark settings as {@code
+   * <key>}, as Spark builds one for its own file systems.
+   */
+  public static Configuration hadoopConfiguration(Map<String, String> sparkSettings) {
+    Configuration configuration = new Configuration();
+    sparkSettings.forEach(
+        (key, value) -> {
+          if (key.startsWith(SPARK_HADOOP_PREFIX) && value != null) {
+            configuration.set(key.substring(SPARK_HADOOP_PREFIX.length()), value);
+          }
+        });
+    return configuration;
+  }
+
+  /**
    * Reads the site files found in the folders and returns their properties as {@code
    * spark.hadoop.<key>} entries, with Hadoop variable expansion applied.
    */
@@ -139,17 +156,97 @@ public final class SparkHadoopConfiguration {
    * Classes Spark needs at runtime that the engine plugin's {@code lib} folder leaves to Hop's
    * {@code lib/core} (see the plugin assembly): SLF4J and Jackson.
    */
-  private static final List<String> RUNTIME_CLASSES_FROM_HOP =
-      List.of(
-          "org.slf4j.LoggerFactory",
-          "com.fasterxml.jackson.core.JsonFactory",
-          "com.fasterxml.jackson.databind.ObjectMapper",
-          "com.fasterxml.jackson.annotation.JsonProperty");
+  /**
+   * Classes Hop loads from its shared library folder ({@code lib/core}). Spark's dependencies that
+   * Hop also uses (SLF4J, log4j, Jackson, Netty, commons-*, ...) live there and not in the engine
+   * plugin's {@code lib}: the YARN containers need that folder as well.
+   */
+  private static final List<String> SHARED_FOLDER_MARKER_CLASSES =
+      List.of("org.slf4j.LoggerFactory", "io.netty.channel.EventLoopGroup");
+
+  /**
+   * A jar of Hop's shared folder that belongs on the YARN class path: not Hop itself (the fat jar),
+   * not Spark, Scala or the Hadoop client (Spark 4 comes from the engine plugin's lib), and not
+   * Hadoop (the cluster has it).
+   */
+  static boolean isSharedRuntimeJar(File jar) {
+    return isSharedRuntimeJar(jar, file -> false);
+  }
+
+  /**
+   * @param beamOnly the jars only the Beam engine installs (Beam, Spark 3 / Scala 2.12): Beam keeps
+   *     those in the same shared folder, and they stay off the YARN class path as they stay out of
+   *     the native Spark fat jar
+   * @see #isSharedRuntimeJar(File)
+   */
+  static boolean isSharedRuntimeJar(File jar, Predicate<File> beamOnly) {
+    String name = jar.getName();
+    return !name.startsWith("hop-")
+        && !name.startsWith("hadoop-")
+        && !beamOnly.test(jar)
+        && !NativeSparkFatJar.isExcludedForNativeProvidedSparkFatJar(jar);
+  }
+
+  /**
+   * The jars of Hop's shared folder ({@code <installation>/lib/core}) that, by the plugin
+   * manifests, only the Beam engine installs. Nothing for a folder outside an installation.
+   */
+  static Predicate<File> beamOnlyJars(File sharedFolder) {
+    File lib = sharedFolder.getParentFile();
+    File installation = lib == null ? null : lib.getParentFile();
+    if (installation == null || !"lib".equals(lib.getName())) {
+      return file -> false;
+    }
+    return NativeSparkFatJar.beamEngineFiles(installation).asExclusion();
+  }
+
+  /**
+   * The Spark runtime for YARN containers ({@link #defaultYarnJars}) as one archive for {@code
+   * spark.yarn.archive}, built once per installation in the fat jar cache. YARN localizes one
+   * archive much faster than hundreds of loose jars, and a cluster-mode run stages it only once.
+   */
+  public static java.nio.file.Path yarnRuntimeArchive(
+      ILogChannel log, org.apache.hop.core.variables.IVariables variables, Class<?> engineClass)
+      throws HopException {
+    String jars = defaultYarnJars(engineClass);
+    if (StringUtils.isEmpty(jars)) {
+      throw new HopException(
+          "Unable to find the Spark runtime of the native Spark engine (plugins/engines/spark/lib)"
+              + " for YARN. Set spark.yarn.jars or spark.yarn.archive in the Spark config of the"
+              + " run configuration.");
+    }
+    List<String> jarFiles = List.of(jars.split(","));
+    return org.apache.hop.core.fatjar.FatJarCache.getOrCreate(
+        log,
+        variables,
+        "hop-spark-yarn-runtime",
+        ".zip",
+        "Spark runtime archive",
+        jarFiles,
+        target -> writeArchive(target, jarFiles));
+  }
+
+  /** The jars at the root of a zip, uncompressed: jars are compressed already. */
+  static void writeArchive(java.nio.file.Path target, List<String> jarFiles) throws HopException {
+    try (java.util.zip.ZipOutputStream zip =
+        new java.util.zip.ZipOutputStream(
+            new java.io.BufferedOutputStream(java.nio.file.Files.newOutputStream(target)))) {
+      zip.setLevel(java.util.zip.Deflater.NO_COMPRESSION);
+      for (String jarFile : jarFiles) {
+        java.nio.file.Path jar = java.nio.file.Paths.get(jarFile);
+        zip.putNextEntry(new java.util.zip.ZipEntry(jar.getFileName().toString()));
+        java.nio.file.Files.copy(jar, zip);
+        zip.closeEntry();
+      }
+    } catch (java.io.IOException e) {
+      throw new HopException("Unable to write the Spark runtime archive " + target, e);
+    }
+  }
 
   /**
    * The {@code spark.yarn.jars} value that makes YARN containers run the Spark version Hop runs:
-   * the jars in the engine plugin's {@code lib} folder, plus the SLF4J and Jackson jars Hop itself
-   * uses.
+   * the jars in the engine plugin's {@code lib} folder plus Hop's shared library folder, the class
+   * path Spark runs on inside Hop.
    *
    * @param engineClass a class loaded from the engine plugin jar
    * @return a comma-separated list of jar paths, or null when the plugin's {@code lib} folder
@@ -184,15 +281,34 @@ public final class SparkHadoopConfiguration {
       }
     }
     ClassLoader classLoader = engineClass.getClassLoader();
-    for (String className : RUNTIME_CLASSES_FROM_HOP) {
+    // Spark runs in the Hop JVM on lib/core plus this plugin's lib: give the containers the same
+    // class path. Hop's own jars stay out, they arrive in the fat jar on the user class path.
+    java.util.Set<String> names = new java.util.HashSet<>();
+    for (String jar : jars) {
+      names.add(new File(jar).getName());
+    }
+    java.util.Set<File> folders = new java.util.LinkedHashSet<>();
+    for (String className : SHARED_FOLDER_MARKER_CLASSES) {
       try {
-        File jar = jarOf(Class.forName(className, false, classLoader));
-        String path = jar.toPath().toAbsolutePath().normalize().toString();
-        if (jar.isFile() && path.endsWith(".jar") && !jars.contains(path)) {
-          jars.add(path);
+        File folder = jarOf(Class.forName(className, false, classLoader)).getParentFile();
+        if (folder != null && folder.isDirectory() && !folder.equals(lib)) {
+          folders.add(folder);
         }
       } catch (Exception e) {
         // Not on the classpath: Spark on YARN reports what is missing
+      }
+    }
+    for (File folder : folders) {
+      File[] shared = folder.listFiles((dir, name) -> name.endsWith(".jar"));
+      if (shared == null) {
+        continue;
+      }
+      Arrays.sort(shared);
+      Predicate<File> beamOnly = beamOnlyJars(folder);
+      for (File jar : shared) {
+        if (isSharedRuntimeJar(jar, beamOnly) && names.add(jar.getName())) {
+          jars.add(jar.toPath().toAbsolutePath().normalize().toString());
+        }
       }
     }
     return String.join(",", jars);

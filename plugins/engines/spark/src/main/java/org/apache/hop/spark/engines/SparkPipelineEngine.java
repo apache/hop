@@ -38,9 +38,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.cluster.SparkDriverStatus;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.fatjar.ContentStaging;
+import org.apache.hop.core.fatjar.NativeSparkFatJar;
+import org.apache.hop.core.fatjar.VfsStagingStore;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -99,9 +103,12 @@ import org.apache.hop.spark.fs.HopWindowsLocalFileSystem;
 import org.apache.hop.spark.pipeline.HopPipelineMetaToSparkConverter;
 import org.apache.hop.spark.pipeline.SparkVerifiedTransforms;
 import org.apache.hop.spark.pkg.SparkProjectPackage;
+import org.apache.hop.spark.submit.SparkClusterRun;
 import org.apache.hop.spark.table.LakeSessionPlan;
+import org.apache.hop.spark.table.SparkLakeActionSupport;
 import org.apache.hop.spark.util.SparkConst;
 import org.apache.hop.spark.util.SparkHadoopConfiguration;
+import org.apache.hop.spark.util.SparkJobNames;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.spark.SparkConf;
@@ -206,6 +213,21 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
 
   /** The metadata the namespace was taken for, to let go of it by the same key. */
   private IHopMetadataProvider vfsNamespaceProvider;
+
+  /** The submitted driver of a cluster-mode run, or null in client mode. */
+  private SparkClusterRun clusterRun;
+
+  /**
+   * Kills the driver of a cluster-mode run after Stop. Off the thread that stops, which in Hop GUI
+   * is the display thread: an unreachable cluster would hold it for the time-out of the call.
+   */
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private Thread clusterStopThread;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final Object clusterStopLock = new Object();
 
   /** Stable log channel IDs per transform name + copy for execution info / GUI. */
   private final Map<String, String> componentLogChannelIds = new ConcurrentHashMap<>();
@@ -323,6 +345,21 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       Thread.currentThread().setContextClassLoader(pluginCl);
       previousNamespace = HopVfsNamespaces.bindThread(vfsNamespace);
 
+      // Cluster mode: submit the driver. The driver on the cluster loads this same run
+      // configuration and, running under a submit, executes the pipeline below instead. A
+      // Databricks run is always submitted: the driver runs on the Databricks cluster.
+      boolean underSubmit = isRunningUnderSparkSubmit();
+      if (submitsTheDriver() && !underSubmit) {
+        startOnCluster(pluginCl);
+        return;
+      }
+      // Chosen, not derived from an empty master: older run configurations keep running locally
+      if (sparkEngineRunConfiguration instanceof SparkPipelineRunConfiguration chosen
+          && chosen.getClusterType() == SparkClusterType.SUBMITTED
+          && !underSubmit) {
+        throw new HopException(notStartedByThePlatform());
+      }
+
       setRunning(true);
       setReadyToStart(false);
       status = ComponentExecutionStatus.STATUS_RUNNING;
@@ -374,6 +411,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                 try {
                   Thread.currentThread().setContextClassLoader(pluginCl);
                   prepareTransformsOnce();
+                  // Name the jobs of this run in the Spark UI after the pipeline and transforms
+                  SparkJobNames.forPipeline(
+                      sparkSession,
+                      SparkJobNames.groupId(getLogChannelId()),
+                      pipelineMeta.getName());
                   resultDataset = converter.createDataset(sparkSession);
                   // Generic transforms (outputs included) are lazy: run an action on every leaf,
                   // or only the branch of the last one runs. Spark file and lake table outputs
@@ -381,6 +423,17 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   long rows = 0;
                   for (Map.Entry<String, Dataset<Row>> leaf :
                       converter.getLeafDatasets().entrySet()) {
+                    if (SparkLakeActionSupport.isEmptyLeaf(leaf.getValue())) {
+                      // An output that already wrote: counting it would start a job for no rows
+                      logChannel.logDetailed("Transform '" + leaf.getKey() + "' finished");
+                      continue;
+                    }
+                    TransformMeta leafTransform = pipelineMeta.findTransform(leaf.getKey());
+                    SparkJobNames.forTransform(
+                        sparkSession,
+                        pipelineMeta.getName(),
+                        leaf.getKey(),
+                        leafTransform == null ? null : leafTransform.getTransformPluginId());
                     long leafRows = leaf.getValue().count();
                     logChannel.logDetailed(
                         "Transform '" + leaf.getKey() + "' finished, row count=" + leafRows);
@@ -393,6 +446,7 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                   setErrors(getErrors() + 1);
                   setStopped(true);
                 } finally {
+                  SparkJobNames.clear(sparkSession);
                   Thread.currentThread().setContextClassLoader(prev);
                   converter.unpersistAll();
                   setRunning(false);
@@ -469,6 +523,112 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       Thread.currentThread().setContextClassLoader(previousCl);
       HopVfsNamespaces.restoreThread(previousNamespace);
     }
+  }
+
+  /**
+   * Build and stage the fat jar and the project package, submit the driver and follow it on a
+   * thread, so {@link #waitUntilFinished()} and Stop work as in client mode. Per-transform metrics
+   * of a cluster-mode run are not collected yet.
+   */
+  private void startOnCluster(ClassLoader pluginCl) throws HopException {
+    setRunning(true);
+    setReadyToStart(false);
+    status = ComponentExecutionStatus.STATUS_RUNNING;
+    statusDescription = Pipeline.STRING_RUNNING;
+    clusterRun =
+        new SparkClusterRun(
+            logChannel,
+            this,
+            metadataProvider,
+            pipelineMeta,
+            pipelineRunConfiguration.getName(),
+            sparkEngineRunConfiguration);
+
+    // As in client mode: the execution information location and the plugins that follow a run
+    // (execution logging, lineage, ...) see it start. The transforms run on the driver, so their
+    // metrics don't come back yet.
+    try {
+      registerPipelineExecutionInformation();
+      startExecutionInfoTimer();
+    } catch (HopException e) {
+      logChannel.logError("Error starting execution information tracking (non-fatal)", e);
+    }
+    fireExecutionStartedListeners();
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineStartThreads.id, this);
+    ExtensionPointHandler.callExtensionPoint(
+        logChannel, this, HopExtensionPoint.PipelineStart.id, this);
+
+    sparkThread =
+        new Thread(
+            () -> {
+              HopVfsNamespaces.bindThread(vfsNamespace);
+              try {
+                if (!clusterRun.submit()) {
+                  logChannel.logBasic("Stopped before the driver was submitted");
+                  return;
+                }
+                SparkDriverStatus driver = clusterRun.waitForDriver(this::isStopped);
+                if (isStopped()) {
+                  logChannel.logBasic("Stopped following driver " + clusterRun.getSubmissionId());
+                } else if (driver != null && driver.isSuccess()) {
+                  logChannel.logBasic(
+                      "Driver " + clusterRun.getSubmissionId() + " finished successfully");
+                  setErrors(0);
+                } else {
+                  logChannel.logError(
+                      "Driver "
+                          + clusterRun.getSubmissionId()
+                          + " ended "
+                          + (driver != null ? driver.state() : "in an unknown state")
+                          + (driver != null && StringUtils.isNotEmpty(driver.message())
+                              ? ": " + driver.message()
+                              : "")
+                          + (driver != null && StringUtils.isNotEmpty(driver.location())
+                              ? ". See the driver log at " + driver.location() + "."
+                              : ". See the driver log in the Spark master UI (Completed Drivers)"
+                                  + " or the YARN application."));
+                  setErrors(getErrors() + 1);
+                }
+              } catch (Throwable e) {
+                if (clusterRun.isCancelled()) {
+                  // Stop cancelled the submission: no error of the pipeline
+                  logChannel.logBasic("Stopped while submitting the driver: " + e.getMessage());
+                } else {
+                  logChannel.logError("Error running the pipeline on the Spark cluster", e);
+                  setErrors(getErrors() + 1);
+                }
+                setStopped(true);
+              } finally {
+                setRunning(false);
+                setFinished(true);
+                executionEndDate = new Date();
+                if (getErrors() == 0 && !isStopped()) {
+                  status = ComponentExecutionStatus.STATUS_FINISHED;
+                  statusDescription = Pipeline.STRING_FINISHED;
+                } else {
+                  status = ComponentExecutionStatus.STATUS_STOPPED;
+                  statusDescription = Pipeline.STRING_STOPPED;
+                }
+                try {
+                  stopExecutionInfoTimer();
+                } catch (Exception eiEx) {
+                  logChannel.logError("Error finalizing execution information (non-fatal)", eiEx);
+                }
+                try {
+                  fireExecutionFinishedListeners();
+                } catch (HopException ex) {
+                  logChannel.logError("Error firing finished listeners", ex);
+                }
+                // The kill of a Stop uses the clients that close() lets go of
+                awaitClusterStop();
+                clusterRun.close();
+                releaseVfsNamespace();
+              }
+            },
+            "hop-spark-cluster-run");
+    sparkThread.setContextClassLoader(pluginCl);
+    sparkThread.start();
   }
 
   /**
@@ -1029,7 +1189,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
   private void distributeProjectPackageIfConfigured(SparkSession session) throws HopException {
     String packageUri = getVariable(SparkProjectPackage.VAR_PACKAGE_URI);
     if (StringUtils.isEmpty(packageUri)) {
-      return;
+      packageUri = exportProjectPackageForCluster(session);
+      if (StringUtils.isEmpty(packageUri)) {
+        return;
+      }
+      setVariable(SparkProjectPackage.VAR_PACKAGE_URI, packageUri);
+      // Only for executors that do not see the project folder: the rest keep PROJECT_HOME
+      setVariable(SparkProjectPackage.VAR_PACKAGE_FALLBACK, "Y");
     }
     SparkProjectPackage.distributeToCluster(session, this);
     SparkProjectPackage.ensureMaterializedOnWorker(this);
@@ -1053,6 +1219,25 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
                 + " — workers must open this path directly");
       }
     }
+  }
+
+  /**
+   * Executors on a cluster do not see the project folder of this client. When this engine created a
+   * session on a cluster master for a project run, export the project (definitions and metadata) so
+   * {@link SparkProjectPackage#distributeToCluster} can ship it to every executor.
+   *
+   * @return the exported package, or null when the executors run in this JVM, there is no project,
+   *     or the session belongs to spark-submit or a parent pipeline (which ship their own package)
+   */
+  private String exportProjectPackageForCluster(SparkSession session) throws HopException {
+    if (!sessionOwnedByThisEngine || !needsFatJar(session.sparkContext().master())) {
+      return null;
+    }
+    String projectHome = getVariable("PROJECT_HOME");
+    if (StringUtils.isEmpty(projectHome)) {
+      return null;
+    }
+    return SparkProjectPackage.exportForCluster(projectHome, metadataProvider, this, logChannel);
   }
 
   private SparkSession buildSparkSession() throws HopException {
@@ -1161,13 +1346,31 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     applySparkConfig(
         builder, "spark.executor.cores", sparkEngineRunConfiguration.getExecutorCores());
 
+    // What Hop puts in a list setting: a row of the Spark settings adds to it, see below
+    Map<String, String> hopListSettings = new HashMap<>();
     // Do not set spark.jars under spark-submit — the application jar is already the fat jar.
     // Setting it again can confuse class loading.
     if (!underSubmit) {
       String fatJar = resolve(sparkEngineRunConfiguration.getFatJar());
-      if (StringUtils.isNotEmpty(fatJar)) {
-        builder.config("spark.jars", fatJar);
+      if (StringUtils.isEmpty(fatJar) && needsFatJar(master)) {
+        // Executors on a cluster need the Hop classes: ship the cached native-provided fat jar of
+        // this installation. The cluster provides Spark (on YARN: spark.yarn.archive below).
+        fatJar = NativeSparkFatJar.getOrBuild(logChannel, this, true).toString();
       }
+      if (StringUtils.isNotEmpty(fatJar) && needsFatJar(master)) {
+        fatJar = stagedFatJar(fatJar);
+        if (fatJar.startsWith(LOCAL_URL_PREFIX)) {
+          // In spark.jars Spark would still copy a local: jar into every executor's work folder;
+          // on the class path the executors read it where it is
+          hopListSettings.put(
+              "spark.executor.extraClassPath", fatJar.substring(LOCAL_URL_PREFIX.length()));
+          fatJar = null;
+        }
+      }
+      if (StringUtils.isNotEmpty(fatJar)) {
+        hopListSettings.put("spark.jars", fatJar);
+      }
+      hopListSettings.forEach(builder::config);
     }
 
     // Hadoop client configuration and YARN defaults. Applied before the run configuration's Spark
@@ -1193,7 +1396,11 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         int eq = trimmed.indexOf('=');
         if (eq > 0) {
           String key = resolve(trimmed.substring(0, eq).trim());
-          builder.config(key, resolve(trimmed.substring(eq + 1).trim()));
+          // A row replaces what Hop set, except a list such as spark.jars: that gets both
+          builder.config(
+              key,
+              SparkSetting.merge(
+                  key, hopListSettings.get(key), resolve(trimmed.substring(eq + 1).trim())));
           configuredKeys.add(key);
         }
       }
@@ -1227,11 +1434,89 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
     return session;
   }
 
+  /** A path every Spark worker has, in Spark's notation. */
+  private static final String LOCAL_URL_PREFIX = "local:";
+
+  /**
+   * With a staging folder, client mode stages the fat jar there too: named after its content, so it
+   * is uploaded once, and the executors read it from the staging folder instead of downloading it
+   * from this driver in every run. With a {@code local:} cluster URL (a folder every worker mounts)
+   * Spark uses the jar where it is: no download and no copy per executor.
+   */
+  private String stagedFatJar(String fatJar) throws HopException {
+    String stagingFolder = resolve(sparkEngineRunConfiguration.getStagingFolder());
+    if (StringUtils.isEmpty(stagingFolder)) {
+      return fatJar;
+    }
+    java.nio.file.Path jar = SparkClusterRun.localFile(fatJar);
+    if (jar == null || !java.nio.file.Files.isRegularFile(jar)) {
+      // Already a URL the cluster reads
+      return fatJar;
+    }
+    ContentStaging staging =
+        new ContentStaging(
+            logChannel,
+            new VfsStagingStore(
+                this,
+                sparkEngineRunConfiguration.getStagingFolder(),
+                sparkEngineRunConfiguration.getStagingClusterUrl(),
+                "No staging folder"));
+    String url = staging.stageFatJar(jar);
+    logChannel.logBasic("Executors read the fat jar from " + url);
+    return url;
+  }
+
+  /**
+   * Executors of {@code local} and {@code local[n]} run in this JVM and see the Hop classes. Every
+   * other master, {@code local-cluster[...]} included, starts executor JVMs that need a fat jar.
+   */
+  static boolean needsFatJar(String master) {
+    return StringUtils.isNotBlank(master) && !master.trim().matches("local(\\[[^\\]]*\\])?");
+  }
+
   /**
    * Heuristic: spark-submit sets deploy mode / app id properties and loads SPARK_ENV / conf before
    * main().
    */
-  private static boolean isRunningUnderSparkSubmit() {
+  /**
+   * The cluster type says spark-submit starts the pipeline, but Hop started it: it would run on
+   * local[*] in this process, where the paths of the platform don't exist.
+   */
+  String notStartedByThePlatform() {
+    return "Run configuration '"
+        + pipelineRunConfiguration.getName()
+        + "' has the cluster type '"
+        + SparkClusterType.SUBMITTED.getDescription()
+        + "': it is for pipelines that you start with spark-submit, not Hop. To run this pipeline"
+        + " on Databricks, choose the cluster type '"
+        + SparkClusterType.DATABRICKS.getDescription()
+        + "'; on another cluster, choose its type. To run it in this process, choose '"
+        + SparkClusterType.LOCAL.getDescription()
+        + "'.";
+  }
+
+  private boolean submitsTheDriver() {
+    return submitsTheDriver(sparkEngineRunConfiguration, this);
+  }
+
+  /**
+   * Whether a run with this configuration submits its driver to the cluster: cluster deploy mode on
+   * a cluster type that has one, or Databricks. A master given as a variable says its type once it
+   * is resolved.
+   */
+  static boolean submitsTheDriver(
+      ISparkPipelineEngineRunConfiguration configuration, IVariables variables) {
+    SparkClusterType type = configuration.getEffectiveClusterType();
+    if (type == null) {
+      type = SparkClusterType.fromMaster(variables.resolve(configuration.getSparkMaster()));
+    }
+    return SparkClusterType.submitsTheDriver(type, configuration.getDeployMode());
+  }
+
+  static boolean isRunningUnderSparkSubmit() {
+    if (System.getProperty(SparkConst.MAIN_SPARK_DRIVER_PROPERTY) != null) {
+      return true;
+    }
     if (System.getenv("SPARK_ENV_LOADED") != null) {
       return true;
     }
@@ -1289,13 +1574,13 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
               + " (ResourceManager at 0.0.0.0:8032).");
     }
     if (yarn) {
-      String yarnJars = SparkHadoopConfiguration.defaultYarnJars(SparkPipelineEngine.class);
-      if (yarnJars != null) {
-        builder.config("spark.yarn.jars", yarnJars);
-        logChannel.logBasic(
-            "YARN containers get the engine's Spark runtime: "
-                + yarnJars.split(",").length
-                + " jars in spark.yarn.jars");
+      String configs = StringUtils.defaultString(sparkEngineRunConfiguration.getSparkConfigs());
+      if (!configs.contains("spark.yarn.jars") && !configs.contains("spark.yarn.archive")) {
+        java.nio.file.Path archive =
+            SparkHadoopConfiguration.yarnRuntimeArchive(
+                logChannel, this, SparkPipelineEngine.class);
+        builder.config("spark.yarn.archive", archive.toString());
+        logChannel.logBasic("YARN containers get the engine's Spark runtime from " + archive);
       }
     }
   }
@@ -1330,13 +1615,32 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
         Thread.currentThread().interrupt();
       }
     }
+    // hop-run exits once the run is over: not before the driver it stopped is killed
+    awaitClusterStop();
   }
 
   @Override
   public void stopAll() {
-    setStopped(true);
-    setRunning(false);
+    SparkClusterRun run = clusterRun;
+    synchronized (clusterStopLock) {
+      setStopped(true);
+      setRunning(false);
+      if (run != null && clusterStopThread == null) {
+        clusterStopThread = new Thread(run::kill, "hop-spark-cluster-stop");
+        clusterStopThread.setDaemon(true);
+        clusterStopThread.setContextClassLoader(SparkPipelineEngine.class.getClassLoader());
+        clusterStopThread.start();
+      }
+    }
     ExecutorUtil.cleanup(metricsRefreshTimer);
+    if (run != null) {
+      try {
+        fireExecutionStoppedListeners();
+      } catch (HopException e) {
+        logChannel.logError("Error firing stopped listeners", e);
+      }
+      return;
+    }
     // Nested / reused sessions share the parent's SparkContext — never cancelAllJobs there.
     if (sparkSession != null && sessionOwnedByThisEngine) {
       try {
@@ -1366,6 +1670,22 @@ public class SparkPipelineEngine extends Variables implements IPipelineEngine<Pi
       if (logChannel != null) {
         logChannel.logError("Error firing stopped listeners", e);
       }
+    }
+  }
+
+  /** Wait for the kill of a Stop, when there is one. */
+  private void awaitClusterStop() {
+    Thread thread;
+    synchronized (clusterStopLock) {
+      thread = clusterStopThread;
+    }
+    if (thread == null) {
+      return;
+    }
+    try {
+      thread.join();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
   }
 
