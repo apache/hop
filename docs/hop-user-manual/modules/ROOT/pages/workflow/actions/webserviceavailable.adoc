@@ -54,3 +54,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/requires-setup/webservice-available.hwf`, which checks that `https://hop.apache.org` answers within a connect timeout of 5 seconds and a read timeout of 10 seconds.
+It needs internet access.

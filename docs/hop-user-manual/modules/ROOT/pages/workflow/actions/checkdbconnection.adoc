@@ -51,3 +51,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/check-db-connections.hwf`, which checks the `hop-samples` connection and then waits 100 milliseconds.

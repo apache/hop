@@ -78,3 +78,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: With *Custom SQL*, the action counts the rows the query returns, not a value in them. `SELECT count(*) FROM my_table` returns 1 row, so the number of rows is 1 whatever the table holds. Write a query that returns one row per item to count, such as `SELECT * FROM my_table WHERE ...`.
+
+== Samples
+
+The samples project has `actions/evaluate-table-content.hwf`, which fills the table `SAMPLE_EVALUATE_TABLE` of the `hop-samples` connection with 3 rows, checks that the table has more than 0 rows, and checks with a custom query that it has exactly one row named `Apache Hop`.

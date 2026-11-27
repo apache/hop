@@ -87,3 +87,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Lines written|The number of files converted.
 |Lines rejected|The number of files that could not be converted.
 |===
+
+== Samples
+
+The samples project has `actions/dos-to-unix.hwf`, which writes a text file with Unix line endings to `${java.io.tmpdir}/hop-samples/dos-to-unix`, converts it to Windows line endings and then back to Unix line endings.

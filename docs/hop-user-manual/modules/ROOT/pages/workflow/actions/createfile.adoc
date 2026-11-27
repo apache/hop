@@ -48,3 +48,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|With *Add filename to result*, the file is added, also when it already existed, even when the action is false because of *Fail if file exists*.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/create-file.hwf`, which creates the empty file `create-file.txt` in the project folder.
+It fails when the file already exists: `actions/delete-file.hwf` and `actions/delete-files.hwf` delete it again.

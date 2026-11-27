@@ -53,3 +53,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result rows|Passed on unchanged.
 |Lines written|The number of columns that exist in the table. When the connection is empty or unknown, *Table name* is empty or the list of columns is empty, the action stops before it checks anything and the value of the previous action is passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/columns-exist-in-a-table.hwf`, which checks that the columns `name`, `street` and `city` exist in the table `dim_sample` of the `hop-samples` connection, and then the same columns and `country`.
+The second check fails, because `dim_sample` has no column `country`, so the workflow ends with an error.

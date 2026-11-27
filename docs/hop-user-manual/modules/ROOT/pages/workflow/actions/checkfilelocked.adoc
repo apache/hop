@@ -55,3 +55,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: On Linux and macOS a file is reported as locked when its folder is read-only, because it cannot be renamed.
+
+== Samples
+
+The samples project has `actions/check-files-locked.hwf`, which writes `data.txt` to `${java.io.tmpdir}/hop-samples/check-files-locked` and checks that no `.txt` file in that folder is locked before it writes `No file is locked, processing can start.` to the log.

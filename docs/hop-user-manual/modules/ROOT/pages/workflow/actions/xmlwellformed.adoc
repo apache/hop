@@ -75,3 +75,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: With *Copy previous results to args*, a result row with only one field uses an empty wildcard (the whole file or folder is checked). The wildcard is matched against the file name (basename), not the full path: `+orders\.xml+` and `+.*\.xml+` both match `orders.xml`.
+
+== Samples
+
+The samples project has `actions/xml-well-formed.hwf`, which checks that the `.xml` files in `files/xml-actions` are well-formed XML.

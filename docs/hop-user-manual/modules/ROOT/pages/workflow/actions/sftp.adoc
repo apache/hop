@@ -120,4 +120,7 @@ The better and more secure option is to upgrade your keys to more secure types. 
 
 `-Djsch.client_pubkey=ssh-rsa,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256 -Djsch.server_host_key=ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa`
 
+== Samples
 
+The samples project has `actions/requires-setup/sftp-put-get.hwf`, which uploads a file to the folder `/upload` of an SFTP server with Put a file with SFTP, and downloads it again to `${java.io.tmpdir}/hop-samples/sftp/download`.
+Set the variables `SFTP_SERVER`, `SFTP_PORT`, `SFTP_USER` and `SFTP_PASSWORD` before you run it.

@@ -47,3 +47,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |Result files|Passed on unchanged.
 |Result rows|Passed on unchanged.
 |===
+
+== Samples
+
+The samples project has `actions/delete-file.hwf`, which deletes the file `create-file.txt` that `actions/create-file.hwf` creates in the project folder.
+It does not fail when the file does not exist.

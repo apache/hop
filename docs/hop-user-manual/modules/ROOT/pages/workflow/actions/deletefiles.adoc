@@ -52,3 +52,8 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: An invalid regular expression in *Wildcard* deletes nothing, and the action is false.
+
+== Samples
+
+The samples project has `actions/delete-files.hwf`, which deletes the file `create-file.txt` that `actions/create-file.hwf` creates in the project folder.
+It does not fail when the file does not exist.

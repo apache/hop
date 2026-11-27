@@ -100,3 +100,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 |===
 
 NOTE: With *Filenames result*, an invalid regular expression in *Wildcard* makes the action false with 1 error.
+
+== Samples
+
+The samples project has `actions/evaluate-files-metrics.hwf`, which writes three CSV files to `${java.io.tmpdir}/hop-samples/evaluate-files-metrics`, and checks that the folder has exactly 3 CSV files and that their total size is greater than 0 bytes.

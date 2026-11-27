@@ -90,3 +90,7 @@ What this action passes on to the next action. See xref:workflow/action-results.
 // |Name|Displays the active directory, which is the one that is listed in the Open from Folder field.
 // |Filter|Applies a filter to the results displayed in the active directory contents.
 // |===
+
+== Samples
+
+The samples project has `actions/copy-files.hwf`, which copies the files of the project folder and its subfolders to the folder `tmp-copy` in the project folder, and creates that folder.
