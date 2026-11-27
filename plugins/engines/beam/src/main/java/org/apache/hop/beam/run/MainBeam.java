@@ -50,7 +50,7 @@ public class MainBeam {
   public static void main(String[] args) {
     try {
       System.out.println(">>>>>> Initializing Hop");
-      HopEnvironment.init();
+      HopEnvironment.initForWorker();
 
       // Read the pipeline XML and metadata JSON (optionally from Hadoop FS)
       //

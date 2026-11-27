@@ -206,6 +206,18 @@ public class JarCache {
 
   private record ScanClassLoaderKey(String jarFile, Class<?> builder, ClassLoader parent) {}
 
+  /**
+   * @return true when no annotation index and no jar listing is cached: after {@link #clear()}, or
+   *     before the first plugin scan
+   */
+  public boolean isEmpty() {
+    return nativeFiles.isEmpty()
+        && pluginFiles.isEmpty()
+        && indexCache.isEmpty()
+        && jarFiles.isEmpty()
+        && scanClassLoaders.isEmpty();
+  }
+
   public void clear() {
     nativeFiles.clear();
     pluginFiles.clear();

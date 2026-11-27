@@ -38,6 +38,7 @@ import org.apache.hop.core.notifications.NotificationProviderPluginType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformEngineSupportPluginType;
@@ -93,6 +94,22 @@ public class HopEnvironment {
    *
    * @throws HopException Any errors that occur during initialization will throw a HopException.
    */
+  /**
+   * Initializes Hop in a JVM that runs pipeline work for an engine: a Beam worker, a Spark
+   * executor, or a driver started on a cluster. Like {@link #init()}, then it drops the plugin scan
+   * caches.
+   *
+   * <p>Such a JVM finds its plugins in the annotation index of one fat jar, and {@link JarCache}
+   * would keep that index (every class of the jar) in memory for the life of the JVM. Hop GUI,
+   * hop-run and Hop Server clear the cache after their start-up for the same reason.
+   *
+   * @throws HopException Any errors that occur during initialization will throw a HopException.
+   */
+  public static void initForWorker() throws HopException {
+    init();
+    JarCache.getInstance().clear();
+  }
+
   public static void init() throws HopException {
     if (initialized.get() == null) {
       // Building the plugin types below already reads the Hop configuration, and with it the

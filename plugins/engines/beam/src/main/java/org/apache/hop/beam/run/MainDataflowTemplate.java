@@ -62,7 +62,7 @@ public class MainDataflowTemplate {
     System.out.println(options.toString());
 
     try {
-      HopEnvironment.init();
+      HopEnvironment.initForWorker();
 
       // Read metadata from external source
       String pipelineMetaXml =
