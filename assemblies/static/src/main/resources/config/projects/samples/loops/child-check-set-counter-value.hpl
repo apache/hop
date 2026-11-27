@@ -237,6 +237,7 @@ new counter value set to:
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
     </calculation>
     <failIfNoFile>Y</failIfNoFile>
     <attributes/>

@@ -40,22 +40,22 @@ limitations under the License.
   <order>
     <hop>
       <from>files/customers-100.txt</from>
-      <to>FL and housenr>100</to>
+      <to>CA and housenr>100</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>FL and housenr>100</from>
+      <from>CA and housenr>100</from>
       <to>True</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>FL and housenr>100</from>
+      <from>CA and housenr>100</from>
       <to>False</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>FL and housenr>100</name>
+    <name>CA and housenr>100</name>
     <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -78,7 +78,7 @@ limitations under the License.
           <length>-1</length>
           <name>constant</name>
           <precision>-1</precision>
-          <text>FL</text>
+          <text>CA</text>
           <type>String</type>
         </value>
       </condition>

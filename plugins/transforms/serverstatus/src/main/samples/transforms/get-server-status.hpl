@@ -37,7 +37,7 @@ limitations under the License.
   </info>
   <notepads>
     <notepad>
-      <note>Query the status of the Hop servers named in the serverName field. The local-hop-server metadata points at localhost:8080 (cluster/cluster). Without a running Hop server, available is N and errorMessage says why.</note>
+      <note>Query the status of the Hop servers named in the serverName field. The local-hop-server metadata points at localhost:8080 (cluster/cluster). Without a running Hop server, available is empty and errorMessage says why.</note>
       <xloc>128</xloc>
       <yloc>16</yloc>
       <width>560</width>

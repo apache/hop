@@ -32,11 +32,12 @@ In addition to the workflow and pipeline executor transforms, the Repeat and xre
 
 TIP: If you use a variable name for the file to repeat, ensure a default parameter is set with a file extension so Hop knows if it is a pipeline or a workflow file.
 
-TIP: A variable set with a scope of 'valid in the JVM' in a pipeline will not be accessible upstream of a repeating pipeline.
-
 == Example
-The samples project example: `/loops/repeat-action.hwf` and `child-check-set-counter-value.hpl` runs a pipeline that increments a `+${COUNTER}+` variable with each run. If the variable values exceeds 10, a variable `+${END_LOOP}+` is set.
-This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of `COUNTER` in the workflow is set to “Valid in the current workflow”, when you set `COUNTER` in the child the new value goes upstream.
+The samples project has `loops/repeat-action.hwf`, which sets `+${COUNTER}+` to 1 and then runs two Repeat actions:
+
+* *repeat pipeline* runs `loops/child-check-set-counter-value.hpl` again and again. While `+${COUNTER}+` is 10 or less, the pipeline adds 1 to it. When it is higher, the pipeline sets `+${END_LOOP}+`, which stops the repeat. The pipeline sets both variables with the scope *Valid in the Java Virtual Machine*, which also sets them in the workflow, so each run of the pipeline gets the new counter.
+* *reset +${COUNTER}+ to 1* sets `+${COUNTER}+` back to 1 and empties `+${END_LOOP}+`: a Repeat action does not run at all when its variable is already set.
+* *repeat workflow* runs `loops/end-repeat-pipeline.hwf` again and again. That workflow writes the counter to the log and runs the same pipeline while `+${COUNTER}+` is 5 or less, and runs an End repeat action when it is higher. *Keep variable values after executions* is on, so each run of the workflow starts with the counter of the run before it.
 
 
 == Options
