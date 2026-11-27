@@ -18,6 +18,7 @@
 package org.apache.hop.airflow.launcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -118,6 +119,36 @@ class BundleManifestTest {
     // A stub without the list: Hop's own
     Path older = writeStub(folder, HopAirflowBundle.ATTRIBUTE_PROJECT_NAME, "p");
     assertEquals(ActionTasks.NOT_EVALUATING, BundleManifest.read(older).notEvaluatingActions());
+  }
+
+  @Test
+  void readsTheTasksOfTheDags() throws Exception {
+    Path perAction = writeStub(folder, HopAirflowBundle.ATTRIBUTE_PROJECT_NAME, "p");
+    assertEquals(HopAirflowBundle.TASKS_PER_ACTION, BundleManifest.read(perAction).tasks());
+    assertFalse(BundleManifest.read(perAction).wholeWorkflowTasks());
+
+    Path whole =
+        writeStub(
+            folder,
+            HopAirflowBundle.ATTRIBUTE_PROJECT_NAME,
+            "p",
+            HopAirflowBundle.ATTRIBUTE_TASKS,
+            HopAirflowBundle.TASKS_WHOLE_WORKFLOW);
+    assertTrue(BundleManifest.read(whole).wholeWorkflowTasks());
+  }
+
+  /** A value from a newer Hop: the DAGs show an import error instead of running another way. */
+  @Test
+  void refusesTasksItDoesNotKnow() throws Exception {
+    Path stub =
+        writeStub(
+            folder,
+            HopAirflowBundle.ATTRIBUTE_PROJECT_NAME,
+            "p",
+            HopAirflowBundle.ATTRIBUTE_TASKS,
+            "PER_GROUP");
+    IOException e = assertThrows(IOException.class, () -> BundleManifest.read(stub));
+    assertTrue(e.getMessage().contains("'PER_GROUP'"), e.getMessage());
   }
 
   /** A jar on the class path that can't be opened is not the stub, and must not hide it. */

@@ -237,6 +237,7 @@ public class AirflowWorkflowEngine extends RemoteWorkflowEngine {
                   .toList()));
     }
     writer.setDagIdPrefix(resolve(airflowRunConfiguration.getDagIdPrefix()));
+    writer.setTasks(airflowRunConfiguration.getTasks());
     writer.setHopVersion(HopEnvironment.class.getPackage().getImplementationVersion());
     AirflowBundleWriter.Result written = writer.write();
     logChannel.logBasic(

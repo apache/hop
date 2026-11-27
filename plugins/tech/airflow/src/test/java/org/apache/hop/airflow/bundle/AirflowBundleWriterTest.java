@@ -19,6 +19,7 @@ package org.apache.hop.airflow.bundle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +32,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import org.apache.hop.airflow.engine.AirflowDagTasks;
 import org.apache.hop.airflow.launcher.BundleManifest;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.exception.HopException;
@@ -278,6 +280,34 @@ class AirflowBundleWriterTest {
         Set.of("SPECIAL", "DUMMY", "ExternalPing"),
         BundleManifest.read(project.resolve(HopAirflowBundle.STUB_FILE_NAME))
             .notEvaluatingActions());
+  }
+
+  /** The launcher reads the codes of AirflowDagTasks: they must be the values it knows. */
+  @Test
+  void writesTheTasksTheLauncherReads() throws Exception {
+    Path stub = project.resolve(HopAirflowBundle.STUB_FILE_NAME);
+    AirflowBundleWriter writer = writer();
+
+    writer.write();
+    assertEquals(HopAirflowBundle.TASKS_PER_ACTION, BundleManifest.read(stub).tasks());
+
+    writer.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
+    writer.write();
+    assertTrue(BundleManifest.read(stub).wholeWorkflowTasks());
+
+    writer.setTasks(AirflowDagTasks.PER_ACTION);
+    writer.write();
+    assertFalse(BundleManifest.read(stub).wholeWorkflowTasks());
+  }
+
+  @Test
+  void looksUpTheTasksByCodeOrDescription() {
+    assertEquals(AirflowDagTasks.WHOLE_WORKFLOW, AirflowDagTasks.lookup("whole_workflow"));
+    assertEquals(
+        AirflowDagTasks.PER_ACTION,
+        AirflowDagTasks.lookup(AirflowDagTasks.PER_ACTION.getDescription()));
+    assertNull(AirflowDagTasks.lookup(" "));
+    assertThrows(IllegalArgumentException.class, () -> AirflowDagTasks.lookup("per-task"));
   }
 
   @Test

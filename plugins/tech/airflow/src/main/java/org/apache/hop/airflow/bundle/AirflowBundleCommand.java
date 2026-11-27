@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.airflow.engine.AirflowDagTasks;
 import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
@@ -94,6 +95,13 @@ public class AirflowBundleCommand
       description = "The start of every DAG id. Default: the project name and two underscores")
   private String dagIdPrefix;
 
+  @CommandLine.Option(
+      names = {"--tasks"},
+      description =
+          "The tasks of the DAGs: PER_ACTION, one task per action (default), or WHOLE_WORKFLOW,"
+              + " one task that runs the whole workflow")
+  private String tasks;
+
   private CommandLine cmd;
   private IVariables variables;
   private MultiMetadataProvider metadataProvider;
@@ -126,6 +134,14 @@ public class AirflowBundleCommand
         return 1;
       }
 
+      AirflowDagTasks dagTasks;
+      try {
+        dagTasks = AirflowDagTasks.lookup(tasks);
+      } catch (IllegalArgumentException e) {
+        log.logError(e.getMessage());
+        return 1;
+      }
+
       AirflowBundleWriter writer = new AirflowBundleWriter();
       writer.setProjectName(projectName);
       writer.setProjectHome(projectHome);
@@ -136,6 +152,7 @@ public class AirflowBundleCommand
       writer.setWorkflowPatterns(workflowPatterns);
       writer.setEnvironmentFiles(environmentFiles);
       writer.setDagIdPrefix(dagIdPrefix);
+      writer.setTasks(dagTasks);
       writer.setHopVersion(HopEnvironment.class.getPackage().getImplementationVersion());
       AirflowBundleWriter.Result result = writer.write();
 

@@ -30,7 +30,7 @@ Airflow reads a changed file again every 30 seconds by default (`min_file_proces
 . Stopping the workflow in Hop GUI fails the DAG run, which makes Airflow stop the running tasks.
 
 The result of the workflow is the outcome of the run in Airflow, with the counters of the task that ended last: as in Hop, each action passes them on to the next.
-Each action of the workflow is a task in Airflow: see xref:hop-tools/hop-airflow-bundle.adoc#_tasks[Tasks].
+Each action of the workflow is a task in Airflow (see xref:hop-tools/hop-airflow-bundle.adoc#_tasks[Tasks]), unless *Tasks* asks for one task for the whole workflow.
 
 Airflow must already read the bundle folder as a DAG bundle, and its workers must have Hop and a Java coordinator: see xref:hop-tools/hop-airflow-bundle.adoc#_set_up_airflow[Set up Airflow].
 The run configuration publishes the files of the project as they are saved, so save the workflow before you run it.
@@ -65,6 +65,11 @@ Default: `local`.
 |DAG id prefix
 |The start of every DAG id.
 Default: the project name followed by two underscores.
+
+|Tasks
+|One task per action, or one task for the whole workflow: see xref:hop-tools/hop-airflow-bundle.adoc#_one_task_for_the_whole_workflow[One task for the whole workflow].
+The setting applies to every workflow in the bundle: a publish with another setting changes the DAGs of all of them.
+Default: one task per action.
 
 |Unpause a paused DAG?
 |Airflow can pause new DAGs, and a run of a paused DAG stays queued.

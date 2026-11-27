@@ -77,6 +77,7 @@ def main():
     parser.add_argument("--xcom", action="append", default=[], help="KEY=VALUE in the outcome of the task")
     parser.add_argument("--xcom-task", help="the task whose outcome --xcom checks; default: run_workflow, or the last task to end")
     parser.add_argument("--task-state", action="append", default=[], help="TASK=STATE of one task of the run")
+    parser.add_argument("--task-ids", help="the run has exactly these tasks, separated by commas")
     parser.add_argument("--schedule", help="the expected cron schedule of the DAG, or None")
     parser.add_argument("--stop-after", type=int, help="mark the run failed this many seconds after the task starts")
     parser.add_argument("--timeout", type=int, default=300)
@@ -143,6 +144,11 @@ def main():
         fail("state %s, expected %s" % (state, args.expect))
 
     states = {t["task_id"]: t.get("state") for t in instances}
+    if args.task_ids is not None:
+        expected_ids = sorted(args.task_ids.split(","))
+        if sorted(states) != expected_ids:
+            fail("tasks %s, expected %s" % (sorted(states), expected_ids))
+        print("Tasks are %s" % ", ".join(expected_ids), flush=True)
     for check in args.task_state:
         task, expected = check.split("=", 1)
         if task not in states:

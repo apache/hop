@@ -72,6 +72,17 @@ public final class HopAirflowBundle {
    */
   public static final String ATTRIBUTE_NOT_EVALUATING_ACTIONS = "Hop-Not-Evaluating-Actions";
 
+  /**
+   * The tasks of the DAGs: {@value #TASKS_PER_ACTION} (default) or {@value #TASKS_WHOLE_WORKFLOW}.
+   */
+  public static final String ATTRIBUTE_TASKS = "Hop-Tasks";
+
+  /** One task per action, where the hops of the workflow fit Airflow. */
+  public static final String TASKS_PER_ACTION = "PER_ACTION";
+
+  /** One task, {@code run_workflow}, that runs the whole workflow. */
+  public static final String TASKS_WHOLE_WORKFLOW = "WHOLE_WORKFLOW";
+
   public static final String DEFAULT_RUN_CONFIGURATION = "local";
   public static final String DEFAULT_LOG_LEVEL = "Basic";
 

@@ -45,6 +45,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.hop.airflow.bundle.AirflowBundleWriter;
+import org.apache.hop.airflow.launcher.BundleManifest;
+import org.apache.hop.airflow.launcher.HopAirflowBundle;
 import org.apache.hop.airflow.metadata.AirflowAuthenticationType;
 import org.apache.hop.airflow.metadata.AirflowConnection;
 import org.apache.hop.core.Result;
@@ -269,6 +271,35 @@ class AirflowWorkflowEngineTest {
     assertEquals(Map.of("Start", true, "Greet", true), actions);
     assertTrue(engine.isFinished());
     assertFalse(engine.isActive());
+    assertEquals(
+        HopAirflowBundle.TASKS_PER_ACTION,
+        BundleManifest.read(bundle.resolve("hop-airflow.jar")).tasks());
+  }
+
+  /** The stub asks for one task per workflow; the canvas still shows the actions. */
+  @Test
+  void publishesTheTasksOfTheRunConfiguration() throws Exception {
+    config.setTasks(AirflowDagTasks.WHOLE_WORKFLOW);
+    stubNewPausedDag();
+    stubTrigger();
+    stubRunStates("running", "success");
+    stubTask(
+        "success",
+        "Starting action [Start]",
+        "Finished action [Start] (result=[true])",
+        "Starting action [Greet]",
+        "Finished action [Greet] (result=[false])");
+    stubOutcome("{\"success\":true,\"counters\":{\"errors\":0}}");
+
+    AirflowWorkflowEngine engine = engine();
+    Result result = engine.startExecution();
+
+    assertTrue(result.isResult());
+    assertTrue(BundleManifest.read(bundle.resolve("hop-airflow.jar")).wholeWorkflowTasks());
+    Map<String, Boolean> actions =
+        engine.getActionResults().stream()
+            .collect(Collectors.toMap(ActionResult::getActionName, r -> r.getResult().isResult()));
+    assertEquals(Map.of("Start", true, "Greet", false), actions);
   }
 
   private void stubTaskLog(String taskId, String... lines) {
